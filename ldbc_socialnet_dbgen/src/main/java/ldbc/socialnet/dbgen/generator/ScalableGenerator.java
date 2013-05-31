@@ -209,12 +209,12 @@ public class ScalableGenerator implements Runnable{
 	int					maxUserRandomIdx = 100;  //SHOULE BE IMPORTANT PARAM
 	
 	DateGenerator 		dateTimeGenerator;
-	int					startYear; 
-	int					startMonth; 
-	int					startDate;
-	int					endYear; 
-	int					endMonth;
-	int					endDate;
+	int					startYear;
+	int                 endYear; 
+	private static final int startMonth = 1; 
+	private static final int startDate  = 1;
+	private static final int endMonth   = 1;
+	private static final int endDate    = 1;
 
 	// Dictionaries
 	private static final String   countryDicFile         = "dicLocation.txt";
@@ -327,9 +327,10 @@ public class ScalableGenerator implements Runnable{
 
 
 	// For serialize to RDF format
+	private String rdfOutputFileName = "ldbc_socialnet_dbg";
+	
 	Serializer 		serializer;
 	String 			serializerType = "ttl";
-	String 			rdfOutputFileName = "sibdataset";
 	String 			outUserProfileName = "userProf.ser";
 	String 			outUserProfile;
 	int 			numRdfOutputFile = 1;
@@ -457,7 +458,6 @@ public class ScalableGenerator implements Runnable{
 		numFiles = _numMaps;
 		
 		rdfOutputFileName = "mr" + mapreduceFileIdx + "_" + rdfOutputFileName;
-		rdfOutputFileName = rdfOutputFileName + numtotalUser;
 		
 		init(mapIdx, true);
 		
@@ -478,7 +478,6 @@ public class ScalableGenerator implements Runnable{
 		numFiles = _numMaps;
 		
 		rdfOutputFileName = "mr" + mapreduceFileIdx + "_" + rdfOutputFileName;
-		rdfOutputFileName = rdfOutputFileName + numtotalUser;
 		
 		init(0, true);
 		
@@ -576,8 +575,6 @@ public class ScalableGenerator implements Runnable{
 		
 		loadParamsFromFile();
 		loadParamsFromShell(args);
-
-		rdfOutputFileName = rdfOutputFileName + numtotalUser;
 		
 		init(0, true);
 
@@ -643,28 +640,7 @@ public class ScalableGenerator implements Runnable{
 			String line;
 			while ((line = paramFile.readLine()) != null) {
 				String infos[] = line.split(": ");
-				if (infos[0].startsWith("numtotalUser")) {
-					numtotalUser = Integer.parseInt(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("startYear")) {
-					startYear = Integer.parseInt(infos[1].trim());
-					continue;	
-				} else if (infos[0].startsWith("startMonth")) {
-					startMonth = Integer.parseInt(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("startDate")) {
-					startDate = Integer.parseInt(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("endYear")) {
-					endYear = Integer.parseInt(infos[1].trim());
-					continue;	
-				} else if (infos[0].startsWith("endMonth")) {
-					endMonth = Integer.parseInt(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("endDate")) {
-					endDate = Integer.parseInt(infos[1].trim());
-					continue;					
-				} else if (infos[0].startsWith("cellSize")) {
+				if (infos[0].startsWith("cellSize")) {
 					cellSize = Short.parseShort(infos[1].trim());
 					continue;
 				} else if (infos[0].startsWith("numberOfCellPerWindow")) {
@@ -778,9 +754,6 @@ public class ScalableGenerator implements Runnable{
 				} else if (infos[0].startsWith("serializerType")) {
 					serializerType = infos[1].trim();
 					continue;
-				} else if (infos[0].startsWith("rdfOutputFileName")) {
-					rdfOutputFileName = infos[1].trim();
-					continue;
 				} else if (infos[0].startsWith("numRdfOutputFile")) {
 					numRdfOutputFile = Integer.parseInt(infos[1].trim());
 					continue;
@@ -845,15 +818,17 @@ public class ScalableGenerator implements Runnable{
 		    BufferedReader paramFile;
 			paramFile = new BufferedReader(new InputStreamReader(new FileInputStream(sibHomeDir + paramFileName), "UTF-8"));
 			String line;
+			numtotalUser = -1;
 			int numYears = -1;
-			int userDefinedStarYear = -1;
+			startYear = -1;
+			serializerType = "";
 			while ((line = paramFile.readLine()) != null) {
                 String infos[] = line.split(": ");
                 if (infos[0].startsWith("numtotalUser")) {
                     numtotalUser = Integer.parseInt(infos[1].trim());
                     continue;
                 } else if (infos[0].startsWith("startYear")) {
-                    userDefinedStarYear = Integer.parseInt(infos[1].trim());
+                    startYear = Integer.parseInt(infos[1].trim());
                     continue;   
                 } else if (infos[0].startsWith("numYears")) {
                     numYears = Integer.parseInt(infos[1].trim());
@@ -861,20 +836,27 @@ public class ScalableGenerator implements Runnable{
                 } else if (infos[0].startsWith("serializerType")) {
                     serializerType = infos[1].trim();
                     continue;
-                } else if (infos[0].startsWith("rdfOutputFileName")) {
-                    rdfOutputFileName = infos[1].trim();
-                    continue;
                 } else {
                     System.out.println("This param " + line + " does not match any option");
                 }
 			}
-			if (numYears != -1 && userDefinedStarYear != -1) {
-			    startYear = userDefinedStarYear;
-			    endYear = startYear + numYears;
-			} else {
-			    System.out.println("Using default time period");
+			if (numtotalUser == -1) {
+			    throw new Exception("No numtotalUser parameter provided");
 			}
-		} catch (IOException e) {
+			if (startYear == -1) {
+			    throw new Exception("No startYears parameter provided");
+			}
+			if (numYears == -1) {
+			    throw new Exception("No numYears parameter provided");
+			}
+			if (!serializerType.equals("ttl") && !serializerType.equals("nt") && 
+			        serializerType.equals("csv")) {
+                throw new Exception("serializerType must be ttl, nt or csv");
+            }
+			
+			endYear = startYear + numYears;
+			        
+		} catch (Exception e) {
 		    System.out.println("Using default configuration");
 			// If the user params file wasn't found use the default configuration.
 		}

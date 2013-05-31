@@ -5,10 +5,18 @@
 *.war
 *.ear
 *~
+*.sh
 
+# IDE related
+.project
+.classpath
+.settings/
+
+# Test related
 mrInputFile.txt
 target/
 output/
+outputDir/
 input/
 td_data/
 
