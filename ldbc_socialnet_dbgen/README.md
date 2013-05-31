@@ -12,6 +12,7 @@ You can download hadoop 1.0.3 from http://archive.apache.org/dist/hadoop/core/ha
 The compilation uses Apache Maven to automatically detect and download the necessary dependencies. See maven.apache.org.
 
 To generate the jar containing all the dependencies the following maven instruction is used:
+
 mvn assembly:assembly
 
 This can lead to the generation of two jars the default one called ldbc_socialnet_dbgen-<Version-Number>.jar or the one containing all the dependencies inside the jar called ldbc_socialnet_dbgen.jar.
