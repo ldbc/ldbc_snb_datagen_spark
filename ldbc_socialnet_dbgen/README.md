@@ -1,6 +1,5 @@
 Introduction
 ldbc_socialnet_dbgen is part of the LDBC project (http://www.ldbc.eu/).
-
 ldbc_socialnet_dbgen is GPLv3 licensed, to see detailed information about this license read the LICENSE.txt.
 
 This software was build using Apache hadoop version 1.0.3 and we not guarantee compatibility with newer releases.
@@ -13,7 +12,7 @@ The compilation uses Apache Maven to automatically detect and download the neces
 To generate the jar containing all the dependencies the following maven instruction is used:
 mvn assembly:assembly
 
-This can lead to the generation of two jars the default one called ldbc_socialnet_dbgen-<Version-Number>.jar or the one containinf all the dependencies inside the jar called ldbc_socialnet_dbgen.jar.
+This can lead to the generation of two jars the default one called ldbc_socialnet_dbgen-<Version-Number>.jar or the one containing all the dependencies inside the jar called ldbc_socialnet_dbgen.jar.
 
 
 Configuration:
