@@ -1,0 +1,244 @@
+Aruba  Papiamento 66.3  Spanish 12.6  English 7.7  Dutch * 5.8
+Antigua and Barbuda  English * 0
+United_Arab_Emirates  Arabic * 0  Persian 0  English 0  Hindi 0  Urdu 0
+Afghanistan  Dari * 50  Pashto * 35  Uzbek 5.5  Turkmen 5.5  Balochi 2  Pashai 2
+Algeria  Arabic * 0  French 0  Kabylie 0  Chaouia 0  Mzab 0  Tuareg 0
+Azerbaijan  Azerbaijani * 90.3  Lezgi 2.2  Russian 1.8  Armenian 1.5
+Albania  Albanian * 0  Greek 0  Vlach 0  Romani 0  Slavic 0
+Armenia  Armenian * 97.7  Yezidi 1  Russian 0.9
+Andorra  Catalan * 0  French 0  Spanish 0  Portuguese 0
+Angola  Portuguese * 0  Bantu 0
+American Samoa  Samoan 90.6  English 2.9  Tongan 2.4
+Argentina  Spanish * 0  Italian 0  English 0  German 0  French 0  Mapudungun 0  Quechua 0
+Australia  English 78.5  Chinese 2.5  Italian 1.6  Greek 1.3  Arabic 1.2  Vietnamese 1
+Austria  German * 88.6  Turkish 2.3  Serbian 2.2  Croatian 1.6  Slovene 2.65  Hungarian 3.65
+Anguilla  English *
+Bahrain  Arabic * 0  English 0  Farsi 0  Urdu 0
+Barbados  English 0
+Botswana  Setswana 78.2  Kalanga 7.9  Sekgalagadi 2.8  English * 2.1
+Bermuda  English * 0  Portuguese 0
+Belgium  Dutch * 60  French * 40  German * 1
+The_Bahamas  English * 0  Creole 0
+Bangladesh  Bangla * 0  English 0
+Belize  Spanish 46  Creole 32.9  Mayan dialects 8.9  English * 3.9  Garifuna 3.4  German 3.3
+Bosnia_and_Herzegovina  Bosnian *   Croatian *   Serbian
+Bolivia  Spanish * 60.7  Quechua * 21.2  Aymara * 14.6
+Burma  Burmese * 0
+Benin  French * 0  Fon 0  Yoruba 0
+Belarus  Belarusian * 23.4  Russian * 70.2  Polish 3.2  Ukrainian 3.2
+Solomon_Islands  Melanesian pidgin 0  English * 2
+Brazil  Portuguese * 0
+Bhutan  Sharchhopka 28  Dzongkha * 24  Lhotshamkha 22
+Bulgaria  Bulgarian * 76.8  Turkish 8.2  Roma 3.8
+Brunei  Malay * 0  English 0  Chinese 0
+Burundi  Kirundi * 0  French * 0  Swahili 0
+Canada  English * 58.8  French * 21.6
+Cambodia  Khmer * 95  French 0  English 0
+Curacao  Papiamentu 81.2  Dutch * 8  Spanish 4  English 2.9
+Chad  French * 0  Arabic * 0  Sara 0
+Sri_Lanka  Sinhala * 74  Tamil * 18
+Republic_of_the_Congo  French * 0  Lingala 0  Monokutuba 0  Kikongo 0
+Democratic_Republic_of_the_Congo  French * 0  Lingala 0  Kingwana 0  Kikongo 0  Tshiluba 0
+China  Chinese 0  Yue 0  Wu 0  Minbei 0  Minnan 0  Xiang 0  Gan 0  Hakka 0
+Chile  Spanish * 0  Mapudungun 0  German 0  English 0
+Cayman_Islands  English * 95  Spanish 3.2 0
+Cocos_Islands  Malay 0  English 0
+Cameroon  English * 0  French * 0
+Comoros  Arabic * 0  French * 0  Shikomoro 0
+Colombia  Spanish * 0
+Northern_Mariana_Islands  Philippine languages 24.4  Chinese 23.4  Chamorro * 22.4  English * 10.8
+Costa_Rica  Spanish * 0  English 0
+Central_African_Republic  French * 0  Sangho 0
+Cuba  Spanish * 0
+Cape_Verde  Portuguese * 0  Crioulo 0
+Cook_Islands  English * 0  Maori 0
+Cyprus  Greek * 0  Turkish * 0  English 0
+Denmark  Danish 0  Faroese 0  Greenlandic 0  German 0
+Djibouti  French * 0  Arabic * 0  Somali 0  Afar 0
+Dominica  English * 0  Patois 0
+Dominican_Republic  Spanish * 0
+Ecuador  Spanish * 0  Quechua 0 Shuar 0
+Egypt  Arabic * 0  English 0  French 0
+Ireland  English * 0  Irish * 0
+Equatorial Guinea  Spanish * 67.6  French 10.8  Fang 10.8  Bubi 10.8
+Estonia  Estonian * 67.3  Russian 29.7
+Eritrea  Tigrinya * 0  Arabic * 0  English * 0  Tigre 0  Kunama 0  Afar 0
+El_Salvador  Spanish * 0  Nahua 0
+Ethiopia  Oromigna 33.8  Amarigna * 29.3  Somaligna 6.2  Tigrigna 5.9  Sidamigna 4  Wolayitigna 2.2  Guaragigna 2  Affarigna 1.7  Hadiyigna 1.7  Gamogna 1.5  English * 0  Arabic * 0
+Czech_Republic  Czech 95.4  Slovak 1.6
+Finland  Finnish * 91.2  Swedish * 5.5  Sami 1.65  Russian 1.65
+Fiji  English * 0  Fijian * 0  Hindustani 0
+Falkland Islands (Islas Malvinas)  English 0
+Micronesia, Federated States of  English * 0  Chuukese 0  Kosrean 0  Pohnpeian 0  Yapese 0  Ulithian 0  Woleaian 0  Nukuoro 0  Kapingamarangi 0
+Faroe Islands  Faroese 0  Danish 0
+French Polynesia  French * 61.1  Polynesian * 31.4
+France  French * 100  Provencal 0  Breton 0  Alsatian 0  Corsican 0  Catalan 0  Basque 0  Flemish 0
+Gambia, The  English * 0  Mandinka 0  Wolof 0  Fula 0
+Gabon  French * 0  Fang 0  Myene 0  Nzebi 0  Bapounou 0  Bandjabi 0
+Georgia  Georgian * 71  Russian 9  Armenian 7  Azeri 6
+Ghana  Asante 14.8  Ewe 12.7  Fante 9.9  Boron 4.6  Dagomba 4.3  Dangme 4.3  Dagarte 3.7  Akyem 3.4  Ga 3.4  Akuapem 2.9  English * 36.1
+Gibraltar  English * 0  Spanish 0  Italian 0  Portuguese 0
+Grenada  English * 0  Patois 0
+Guernsey  English 0  French 0
+Greenland  Greenlandic * 0  Danish * 0  English 0
+Germany  German 0
+Guam  English 38.3  Chamorro 22.2  Philippine 22.2
+Greece  Greek * 99  English 0.5  French 0.5
+Guatemala  Spanish * 60  Amerindian 40
+Guinea  French * 0
+Guyana  English 0  Amerindian 0  Creole 0  Hindustani 0  Urdu 0
+Gaza_Strip  Arabic 0  Hebrew 0  English 0
+Haiti  French * 0  Creole * 0
+Hong_Kong  Cantonese * 89.5  English * 3.5  Chinese 1.4
+Honduras  Spanish * 0  Amerindian 0
+Croatia  Croatian * 96.1  Serbian 1  Italian 0.58  Hungarian 0.58  Czech 0.58  Slovak 0.58  German 0.58
+Hungary  Hungarian 93.6
+Iceland  Icelandic 0  English 0
+Indonesia  Bahasa * 0  English 0  Dutch 0  Javanese 0
+Isle_of_Man  English 0  Manx 0
+India  Hindi 41  Bengali 8.1  Telugu 7.2  Marathi 7  Tamil 5.9  Urdu 5  Gujarati 4.5  Kannada 3.7  Malayalam 3.2  Oriya 3.2  Punjabi 2.8  Assamese 1.3   Maithili 1.2
+Iran  Persian * 53  Turkish 18  Kurdish 10  Gilaki 7  Mazandarani 7  Luri 6  Balochi 2  Arabic 2
+Israel  Hebrew * 0  Arabic 0  English 0
+Italy  Italian * 0  German 0  French 0  Slovene 0
+Cote_d'Ivoire  French * 0  Dioula 0
+Iraq  Arabic * 0  Kurdish * 0  Turkmen 0  Assyrian 0  Armenian 0
+Japan  Japanese 0
+Jersey  English * 94.5  Portuguese 4.6
+Jamaica  English 0 Patois 0
+Jordan  Arabic * 0  English 0
+Kenya  English * 0  Kiswahili * 0
+Kyrgyzstan  Kyrgyz * 64.7  Uzbek 13.6  Russian * 12.5  Dungun 1
+North_Korea  Korean 0
+Kiribati  I-Kiribati 0  English * 0
+South_Korea  Korean 0  English 0
+Christmas_Island  English * 0  Chinese 0  Malay 0
+Kuwait  Arabic * 0  English 0
+Kosovo  Albanian * 0  Serbian * 0  Bosnian 0  Turkish 0  Roma 0
+Kazakhstan  Kazakh * 64.4  Russian * 95
+Laos  Lao * 0  French 0  English 0
+Lebanon  Arabic * 0  French 0  English 0  Armenian 0
+Latvia  Latvian * 58.2  Russian 37.5  Lithuanian 4.3
+Lithuania  Lithuanian * 82  Russian 8  Polish 5.6
+Liberia  English * 20
+Slovakia  Slovak * 83.9  Hungarian 10.7  Roma 1.8  Ukrainian 1
+Liechtenstein  German * 0  Alemannic
+Lesotho  Sesotho * 0  English * 0  Zulu 0  Xhosa 0
+Luxembourg  Luxembourgish * 0  German * 0  French * 0
+Libya  Arabic * 0  Italian 0  English 0  Kabylie 0  Chaouia 0  Mzab 0  Tuareg 0
+Madagascar  French * 0  Malagasy * 0  English 0
+Macau  Cantonese 83.3  Chinese 5  Hokkien 3.7  English 2.3  Tagalog 1.7  Portuguese 0.7
+Moldova  Moldovan * 0  Russian 0  Gagauz 0
+Mayotte  Mahorian 0  French * 35
+Mongolia  Khalkha Mongol * 90  Turkic 0  Russian 0
+Montserrat  English 0
+Malawi  Chichewa * 57.2  Chinyanja 12.8  Chiyao 10.1  Chitumbuka 9.5  Chisena 2.7  Chilomwe 2.4  Chitonga 1.7
+Montenegro  Serbian 63.6  Montenegrin * 22  Bosnian 5.5  Albanian 5.3  Croatian 3.7
+Macedonia  Macedonian * 66.5  Albanian * 25.1  Turkish 3.5  Roma 1.9  Serbian 1.2
+Mali  French * 0  Bambara 46.3  Peul 9.4  Dogon 7.2  Maraka 6.4  Malinke 5.6  Sonrhai 5.6  Minianka 4.3  Tamacheq 3.5  Senoufo 2.6
+Monaco  French * 0  English 0  Italian 0  Monegasque 0
+Morocco  Arabic * 0  Tamazight * 0  Tachelhit 0  Tarifit 0  French 0
+Mauritius  Creole 80.5  Bhojpuri 12.1  French 3.4  English * 1
+Mauritania  Arabic * 0  Pulaar 0  Soninke 0  Wolof 0  French 0  Hassaniya 0
+Malta  Maltese * 90.2  English * 6
+Oman  Arabic * 0  English 0  Baluchi 0  Urdu 0  Indian 0
+Maldives  Dhivehi * 0  English 0
+Mexico  Spanish 92.7
+Malaysia  Bahasa * 0  English 0  Chinese 0  Tamil 0  Telugu 0  Malayalam 0  Panjabi 0  Thai 0
+Mozambique  Emakhuwa 25.3  Portuguese * 10.7  Xichangana 10.3  Cisena 7.5  Elomwe 7  Echuwabo 5.1  Mozambican 30.1
+New_Caledonia  French * 0
+New_Zealand  English 0  Maori 0
+Niue  English * 0  Niuean 0
+Norfolk_Island  English * 0  Norfolk 0
+Niger  French * 0  Hausa 0  Djerma 0
+Vanuatu  pidgin * 23.1  English * 1.9  French * 1.4
+Nigeria  English * 0  Hausa 0  Yoruba 0  Igbo 0  Fulani 0
+Netherlands  Dutch * 0  Frisian * 0
+Norway  Bokmal * 0  Nynorsk Norwegian * 0  Sami 0  Finnish 0
+Nepal  Nepali * 47.8  Maithali 12.1  Bhojpuri 7.4  Tharu 5.8  Tamang 5.1  Newar 3.6  Magar 3.3  Awadhi 2.4
+Nauru  Nauruan * 0  English 0
+Suriname  Dutch * 0  English 0  Sranang Tongo 0  Hindustani 0  Javanese 0
+Nicaragua  Spanish * 97.5  Miskito 1.7
+New Zealand  English * 91.2  Maori * 3.9  Samoan 2.1  French 1.3  Hindi 1.1  Yue 1.1  Northern Chinese 1
+South Sudan  English *  Arabic *  Dinka 0  Nuer 0  Bari 0  Zande 0  Shilluk 0
+Paraguay  Spanish * 0  Guarani * 0
+Pitcairn Islands  English * 0  Pitkern 0
+Peru  Spanish * 84.1  Quechua * 13  Aymara * 1.7  Ashaninka 0.3
+Pakistan  Punjabi 48  Sindhi 12  Saraiki 10  Pashtu 8  Urdu * 8  Balochi 3  Hindko 2  Brahui 1  English * 4  Burushaski 4
+Poland  Polish * 97.8
+Panama  Spanish * 0  English 14
+Portugal  Portuguese * 0  Mirandese 0
+Papua_New_Guinea  Tok Pisin * 0  English * 0  Hiri Motu * 0
+Palau  Palauan * 64.7  Filipino 13.5  English * 9.4  Chinese 5.7  Carolinian 1.5  Japanese 1.5
+Guinea-Bissau  Portuguese *  Crioulo 0
+Qatar  Arabic * 0  English 0
+Serbia  Serbian * 88.3  Hungarian 3.8  Bosniak 1.8  Romany 1.1
+Marshall_Islands  Marshallese * 98.2
+Saint_Martin  French * 0  English 0  Dutch 0  Patois 0  Spanish 0  Papiamento
+Romania  Romanian * 91  Hungarian 6.7  Romany 1.1
+Philippines  Filipino * 0  English * 0  Tagalog 0  Cebuano 0  Ilocano 0  Hiligaynon  Bicol 0  Waray 0  Pampango 0  Pangasinan 0
+Puerto_Rico  Spanish 0  English 0
+Republic_of_Macedonia  Macedonian 0
+Russia  Russian * 0
+Rwanda  Kinyarwanda * 0  French * 0  English * 0  Kiswahili 0
+Saudi_Arabia  Arabic * 0
+Saint_Pierre_and_Miquelon  French * 0
+Saint_Kitts_and_Nevis  English * 0
+Seychelles  Creole 91.8  English * 4.9
+South_Africa  IsiZulu * 23.82  IsiXhosa * 17.64  Afrikaans * 13.35  Sepedi * 9.39  English * 8.2  Setswana * 8.2  Sesotho * 7.93  Xitsonga * 4.44  siSwati * 2.66  Tshivenda * 2.28  isiNdebele * 1.59
+Senegal  French * 0  Wolof 0  Pulaar 0  Jola 0  Mandinka 0
+Saint_Helena, Ascension,_and_Tristan_da_Cunha  English 0
+Slovenia  Slovenian * 91.1  Serbo-Croatian 4.5  Italian 0  Hungarian 0
+Sierra_Leone  English * 0  Mende 0  Temne 0  Krio 0
+San_Marino  Italian 0
+Singapore  Chinese * 35  English * 23  Malay * 14.1  Hokkien 11.4  Cantonese 5.7  Teochew 4.9  Tamil * 3.2
+Somalia  Somali * 0  Arabic * 0  Italian 0  English 0
+Spain  Spanish * 74  Catalan 17  Galician 7  Basque 2
+Saint_Lucia  English * 0  Patois 0
+Sudan  Arabic * 0  English * 0  Nubian 0  Ta_Bedawie 0  Fur 0
+Svalbard  Norwegian 0  Russian 0
+Sweden  Swedish * 0  Sami 0  Finnish 0
+Syria  Arabic * 0  Kurdish 0  Armenian 0  Aramaic 0  Circassian 0  French 0  English 0
+Switzerland  German * 63.7  French * 20.4  Italian * 6.5  Serbo-Croatian 1.5  Albanian 1.3  Portuguese 1.2  Spanish 1.1  English 1  Romansch * 0.5
+Saint_Barthelemy  French 0  English 0
+Trinidad_and_Tobago  English * 0  Hindustani 0  French 0  Spanish 0  Chinese 0
+Thailand  Thai 0  English 0
+Tajikistan  Tajik * 0  Russian 0
+Turks_and_Caicos_Islands  English * 0
+Tokelau  Tokelauan 0  English 0
+Tonga  Tongan * 0  English * 0
+Togo  French * 0  Ewe 0  Mina 0  Kabye 0  Dagomba 0
+Sao_Tome_and_Principe  Portuguese * 0
+Tunisia  Arabic * 0  French 0  Tamazight 0
+Timor-Leste  Tetum * 0  Portuguese * 0  Indonesian 0  English 0
+Turkey  Turkish * 0  Kurdish 0
+Tuvalu  Tuvaluan * 0  English * 0  Samoan 0  Kiribati 0
+Taiwan  Chinese * 0  Taiwanese 0  Hakka 0
+Turkmenistan  Turkmen * 72  Russian 12  Uzbek 9
+Tanzania  Kiswahili * 0  Kiunguja 0  English * 0  Arabic 0
+Uganda  English * 0  Ganda 0  Kiswahili 0  Arabic 0
+United_Kingdom  English 0
+England  English 0
+Scotland  English 0
+Wales  English 0  Welsh 0
+Northern_Ireland  English 0
+Republic_of_Ireland  English 0  Irish 0
+Ukraine  Ukrainian * 67  Russian 24  Romanian 3  Polish 3  Hungarian 3
+United_States  English 82.1  Spanish 10.7
+Burkina_Faso  French * 0  Sudanic_languages 90
+Uruguay  Spanish * 0  Portunol 0  Brazilero 0
+Uzbekistan  Uzbek * 74.3  Russian 14.2  Tajik 4.4
+Saint_Vincent_and_the_Grenadines  English 0  Patois 0
+Venezuela  Spanish * 0
+British_Virgin_Islands  English * 0
+Vietnam  Vietnamese * 0  English 0  French 0  Chinese 0  Khmer 0
+Virgin_Islands  English 74.7  Spanish 16.8  French 6.6
+Vatican_City  Italian 0  Latin 0  French 0
+Namibia  English * 7  Afrikaans 60  German 32  Oshivambo 0.3  Herero 0.3  Nama 0.3
+West_Bank  Arabic 0  Hebrew 0  English 0
+Wallis_and_Futuna  Wallisian 58.9  Futunian 30.1  French * 10.8
+Western_Sahara  Hassaniya 0  Moroccan 0
+Samoa  Samoan * 0  English 0
+Swaziland  English * 0  siSwati * 0
+Yemen  Arabic * 0
+Zambia  Bemba * 30.1  Nyanja * 10.7  Tonga * 10.6  Lozi * 5.7  Chewa 4.9  Nsenga 3.4  Tumbuka 2.5  Lunda * 2.2  Kaonde * 2  Lala 2  Luvale * 1.7  English * 1.7
+Zimbabwe  English * 0  Shona 0  Sindebele 0

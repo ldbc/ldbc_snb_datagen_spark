@@ -1,0 +1,14 @@
+*.class
+
+# Package Files #
+*.jar
+*.war
+*.ear
+*~
+
+mrInputFile.txt
+target/
+output/
+input/
+td_data/
+
