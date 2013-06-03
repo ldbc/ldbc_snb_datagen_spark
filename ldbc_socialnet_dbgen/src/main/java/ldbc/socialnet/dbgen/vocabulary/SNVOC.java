@@ -40,7 +40,7 @@ import java.util.HashMap;
 
 public class SNVOC{
 	//The namespace of this vocabulary as String
-	public static final String NS = "http://www.ldbc.eu/ldbc_socialnet/1.0/data/";
+	public static final String NS = "http://www.ldbc.eu/ldbc_socialnet/1.0/vocabulary/";
 	
 	//Get the URI of this vocabulary
 	public static String getURI() { return NS; }
@@ -96,7 +96,7 @@ public class SNVOC{
 	public static final String LastName  =  PREFIX+"lastName";
 	public static final String Gender    =  PREFIX+"gender";
 	public static final String Birthday  =  PREFIX+"birthday";
-	public static final String Has_mail  =  PREFIX+"has_mail";
+	public static final String Has_mail  =  PREFIX+"has_email";
 	public static final String Interest  =  PREFIX+"interest";
 	public static final String Knows     =  PREFIX+"knows";
 	
@@ -118,6 +118,8 @@ public class SNVOC{
 	
 	//Post and Comment related
 	public static final String Post          =  PREFIX+"Post";
+	public static final String Text          =  PREFIX+"Text";
+	public static final String Photo         =  PREFIX+"Photo";
 	public static final String Comment       =  PREFIX+"Comment";
 	public static final String Type          =  PREFIX+"type";
 	public static final String Content       =  PREFIX+"content";

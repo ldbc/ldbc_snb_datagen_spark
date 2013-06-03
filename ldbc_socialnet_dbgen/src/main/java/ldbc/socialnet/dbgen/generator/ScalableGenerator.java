@@ -49,7 +49,6 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.RandomAccessFile;
 import java.io.Serializable;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -2156,8 +2155,7 @@ public class ScalableGenerator implements Runnable{
 		// System.out.println("Group post number for group " +
 		// group.getGroupId() + " : " + numberGroupPost);
 		for (int i = 0; i < numberGroupPost; i++) {
-			Post groupPost = textGenerator.getRandomGroupPost(group,
-					maxNumLikes);
+			Post groupPost = textGenerator.getRandomGroupPost(group, maxNumLikes);
 			groupPost.setUserAgent("");
 			groupPost.setBrowserIdx((byte) -1);
 			// groupPost.setIpAddress(new
@@ -2183,7 +2181,6 @@ public class ScalableGenerator implements Runnable{
 					
 					serializer.gatherData(comment);
 
-					
 					lastCommentCreateDate = comment.getCreateDate();
 					lastCommentId = comment.getCommentId();
 				}

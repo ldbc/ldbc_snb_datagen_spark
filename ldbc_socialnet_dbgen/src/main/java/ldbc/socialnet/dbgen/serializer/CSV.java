@@ -418,8 +418,6 @@ public class CSV implements Serializer {
 		        
 		        arguments.add(Integer.toString(profile.getAccountId()));
 		        arguments.add(Integer.toString(languages.get(i)));
-		        boolean nativeLang = (languages.get(i) == extraInfo.getNativeLanguage());
-                arguments.add(Boolean.toString(nativeLang));
                 ToCSV(arguments, Files.PERSON_SPEAKS_LANGUAGE.ordinal());
 		    }
 		    

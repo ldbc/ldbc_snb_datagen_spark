@@ -410,18 +410,8 @@ public class Turtle implements Serializer {
         if (extraInfo != null) {
             Vector<Integer> languages = extraInfo.getLanguages();
             for (int i = 0; i < languages.size(); i++) {
-                String langPrefix = SN.getLanguageURI(languages.get(i));
-                if (!printedLanguages.containsKey(languages.get(i))) {
-                    AddTriple(result, true, false, langPrefix, RDF.type, SNVOC.Language);
-                    AddTriple(result, false, true, langPrefix, SNVOC.Name, 
-                            createLiteral(languageDic.getLanguagesName(languages.get(i))));
-                    printedLanguages.put(languages.get(i), languages.get(i));
-                }
-                String speaksPrefix = SN.getSpeaksURI(speakId);
-                createTripleSPO(result, prefix, SNVOC.Speaks, speaksPrefix);
-                AddTriple(result, true, false, speaksPrefix, RDF.object, langPrefix);
-                boolean nativeLang = (languages.get(i) == extraInfo.getNativeLanguage());
-                AddTriple(result, false, true, speaksPrefix, SNVOC.Native, createLiteral(Boolean.toString(nativeLang)));
+                createTripleSPO(result, prefix, SNVOC.Speaks, 
+                        createLiteral(languageDic.getLanguagesName(languages.get(i))));
                 speakId++;
             }
         }       
@@ -542,7 +532,7 @@ public class Turtle implements Serializer {
 	        
 	        String prefix = SN.getPostURI(post.getPostId());
 	        AddTriple(result, true, false, prefix, RDF.type, SNVOC.Post);
-	        AddTriple(result, false, false, prefix, SNVOC.Type, createLiteral("TEXT"));
+	        AddTriple(result, false, false, prefix, RDF.type, SNVOC.Text);
 
 	        if (post.getTitle() != null) {
 	            AddTriple(result, false, false, prefix, SNVOC.Title, createLiteral(post.getTitle()));
@@ -555,7 +545,7 @@ public class Turtle implements Serializer {
                     createLiteral(post.getContent()));
 	        
 	        createTripleSPO(result, prefix, SNVOC.Annotated,
-                    languageDic.getLanguagesName(post.getLanguage()));
+                    createLiteral(languageDic.getLanguagesName(post.getLanguage())));
 
 	        //sioc:ip_address
 	        if (post.getIpAddress() != null) {
@@ -666,7 +656,7 @@ public class Turtle implements Serializer {
 		if (body)  {
 		    String prefix = SN.getPostURI(photo.getPhotoId());
 	        AddTriple(result, true, false, prefix, RDF.type, SNVOC.Post);
-	        AddTriple(result, false, false, prefix, SNVOC.Type, createLiteral("PHOTO"));
+	        AddTriple(result, false, false, prefix, RDF.type, SNVOC.Photo);
 	        date.setTimeInMillis(photo.getTakenTime());
             String dateString = DateGenerator.formatDateDetail(date);
             AddTriple(result, false, false, prefix, SNVOC.Created, 

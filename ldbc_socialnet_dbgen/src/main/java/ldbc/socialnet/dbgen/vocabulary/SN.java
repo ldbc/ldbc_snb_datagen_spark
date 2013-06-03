@@ -40,7 +40,7 @@ import java.util.HashMap;
 
 public class SN{
 	//The namespace of this vocabulary as String
-	public static final String NS = "http://www.ldbc.eu/ldbc_socialnet/1.0/vocabulary/";
+	public static final String NS = "http://www.ldbc.eu/ldbc_socialnet/1.0/data/";
 	
 	//Get the URI of this vocabulary
 	public static String getURI() { return NS; }
