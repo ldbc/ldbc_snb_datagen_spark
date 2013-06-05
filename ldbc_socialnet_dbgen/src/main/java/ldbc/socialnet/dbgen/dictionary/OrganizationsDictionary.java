@@ -52,6 +52,7 @@ public class OrganizationsDictionary {
 	String dicFileName;
 
 	HashMap<String, Integer> locationNames;
+	HashMap<String, Integer> organizationToLocation;
 	
 	Vector<Vector<String>> organizationsByLocations;
 	Random 		rand;
@@ -70,6 +71,7 @@ public class OrganizationsDictionary {
 									long _seedTopUni, double _probTopUni,
 									LocationDictionary _locationDic){
 		this.locationNames = _locationNames; 
+		this.organizationToLocation = new HashMap<String, Integer>();
 		this.dicFileName = _dicFileName;
 		this.rand = new Random(seedRandom);
 		this.randUnRelatedLocation = new Random(seedRandom);
@@ -100,6 +102,10 @@ public class OrganizationsDictionary {
 		}
 	}
 	
+	public HashMap<String, Integer> GetOrganizationLocationMap() {
+	    return organizationToLocation;
+	}
+	
 	public void extractOrganizationNames(){
 		//System.out.println("Extract organizations by location ...");
 		String line; 
@@ -121,12 +127,14 @@ public class OrganizationsDictionary {
 						curLocationId = locationNames.get(locationName); 
 						organizationName = infos[1].trim();
 						organizationsByLocations.get(curLocationId).add(organizationName);
+						organizationToLocation.put(organizationName, curLocationId);
 						totalNumOrganizations++;
 					}
 				}
 				else{
 					organizationName = infos[1].trim();
 					organizationsByLocations.get(curLocationId).add(organizationName);
+					organizationToLocation.put(organizationName, curLocationId);
 					totalNumOrganizations++;
 				}
 
@@ -140,21 +148,8 @@ public class OrganizationsDictionary {
 		}
 	}
 	
-	// Check whether there is any location having no institute
-	public void checkCompleteness(){
-		for (int i = 0; i  < locationNames.size(); i++){
-			if (organizationsByLocations.get(i).size() == 0){
-				System.out.println("Location " + i + " has no institute!");
-			}
-		}
-		
-		System.exit(-1);
-	}
-	
 	// 90% of people go to top-10 universities
 	// 10% go to remaining universities
-
-	
 	public int getRandomOrganization(int _locationId){
 		int bitmask = 0x00FF; 
 		int locationOrganization; 

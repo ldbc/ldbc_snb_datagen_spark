@@ -42,18 +42,13 @@ import java.util.Iterator;
 
 public class UserProfile extends SocialObject implements Serializable {
 	int 				accountId;
-	//String 				firstName; 
-	//String 				lastName; 
-	//String 				location;
 	int 				locationIdx; 
 	int 				locationZId;
 	int                 cityIdx; 
 	
 
 	int 				randomIdx; 
-	//String 				organization; 
 	int 				locationOrganizationId;
-	//String 				institution;	
 	int 				forumWallId; 
 	int 				forumStatusId;
 	long	 			createdDate; 
@@ -61,9 +56,6 @@ public class UserProfile extends SocialObject implements Serializable {
 	public short 		numInterests;
 	public short 		numTags;
 
-	//public short 		numLocationFriends;
-	//public short 		numInterestFriends;
-	//public short		numRandomFriends;  
 	public short 		numPassFriends[];		// Max number of friends can be 
 												// generated after kth passes
 	
@@ -86,7 +78,6 @@ public class UserProfile extends SocialObject implements Serializable {
 	byte				browserIdx;				// Index of web browser, e.g., 0 for Internet Explorer
 	
 	//For IP address
-	boolean 			isFrequentChange;		// About 1% of users frequently change their location
 	IP					ipAddress;				// IP address
 	
 	//For popular places
@@ -140,12 +131,6 @@ public class UserProfile extends SocialObject implements Serializable {
 	}
 	public void setIpAddress(IP ipAddress) {
 		this.ipAddress = ipAddress;
-	}
-	public boolean isFrequentChange() {
-		return isFrequentChange;
-	}
-	public void setFrequentChange(boolean isFrequentChange) {
-		this.isFrequentChange = isFrequentChange;
 	}
 
 	public short getNumFriendsAdded() {

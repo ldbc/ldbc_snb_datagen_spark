@@ -88,6 +88,7 @@ public class Turtle implements Serializer {
 	
 	HashMap<Integer, String> interestIdsNames;
 	HashMap<String, Integer> companyToCountry;
+	HashMap<String, Integer> universityToCountry;
 	HashMap<String, Integer> printedIpaddresses;
 	HashMap<String, Integer> printedOrganizations;
 	HashMap<Integer, Integer> printedLanguages;
@@ -139,13 +140,15 @@ public class Turtle implements Serializer {
 
 	public Turtle(String file, boolean forwardChaining, int nrOfOutputFiles, boolean isTurtle,
 	        HashMap<Integer, String> _interestIdsNames, Vector<String> _vBrowsers, 
-	        HashMap<String, Integer> companyToCountry, IPAddressDictionary ipDic, 
-	        LocationDictionary locationDic, LanguageDictionary languageDic) {
+	        HashMap<String, Integer> companyToCountry, HashMap<String, Integer> univesityToCountry,
+	        IPAddressDictionary ipDic,  LocationDictionary locationDic, 
+	        LanguageDictionary languageDic) {
 	    this(file, forwardChaining, nrOfOutputFiles, isTurtle);
 	    this.interestIdsNames = _interestIdsNames;  
 	    this.vBrowserNames = _vBrowsers;
 	    this.locationDic = locationDic;
 	    this.companyToCountry = companyToCountry;
+	    this.universityToCountry = univesityToCountry;
 	    this.ipDic = ipDic;
 	    this.languageDic = languageDic;
 	    printedLocations = new Vector<Integer>();
@@ -155,48 +158,47 @@ public class Turtle implements Serializer {
 	public Long triplesGenerated() {
 		return nrTriples;
 	}
-	
+
 	@Override
 	public void gatherData(SocialObject socialObject){
-		if(haveToGeneratePrefixes) {
-			generatePrefixes();
-			haveToGeneratePrefixes = false;
-		}
+	    if(haveToGeneratePrefixes) {
+	        generatePrefixes();
+	        haveToGeneratePrefixes = false;
+	    }
 
-		try {
-				if(socialObject instanceof UserProfile){
-				    UserContainer container = new UserContainer((UserProfile)socialObject);
-				    dataFileWriter[currentWriter].append(convertUserProfile(container, null));
-				}
-				else if(socialObject instanceof FriendShip){
-					dataFileWriter[currentWriter].append(convertFriendShip((FriendShip)socialObject));
-				}
-				else if(socialObject instanceof Post){
-					dataFileWriter[currentWriter].append(convertPost((Post)socialObject, true, true));
-				}
-				else if(socialObject instanceof Comment){
-					dataFileWriter[currentWriter].append(convertComment((Comment)socialObject));
-				}
-				else if (socialObject instanceof PhotoAlbum){
-					dataFileWriter[currentWriter].append(convertPhotoAlbum((PhotoAlbum)socialObject));
-				}
-				else if (socialObject instanceof Photo){
-					dataFileWriter[currentWriter].append(convertPhoto((Photo)socialObject, true, true));
-				}
-				else if (socialObject instanceof Group){
-					dataFileWriter[currentWriter].append(convertGroup((Group)socialObject));
-				}
-				else if (socialObject instanceof GPS){
-					dataFileWriter[currentWriter].append(convertGPS((GPS)socialObject));
-				}				
-				currentWriter = (currentWriter + 1) % dataFileWriter.length;
-		}
-		catch(IOException e){
-			System.out.println("Cannot write to output file ");
-			e.printStackTrace();
-			System.exit(-1);
-		}
-		
+	    try {
+	        if(socialObject instanceof UserProfile){
+	            UserContainer container = new UserContainer((UserProfile)socialObject);
+	            dataFileWriter[currentWriter].append(convertUserProfile(container, null));
+	        }
+	        else if(socialObject instanceof FriendShip){
+	            dataFileWriter[currentWriter].append(convertFriendShip((FriendShip)socialObject));
+	        }
+	        else if(socialObject instanceof Post){
+	            dataFileWriter[currentWriter].append(convertPost((Post)socialObject, true, true));
+	        }
+	        else if(socialObject instanceof Comment){
+	            dataFileWriter[currentWriter].append(convertComment((Comment)socialObject));
+	        }
+	        else if (socialObject instanceof PhotoAlbum){
+	            dataFileWriter[currentWriter].append(convertPhotoAlbum((PhotoAlbum)socialObject));
+	        }
+	        else if (socialObject instanceof Photo){
+	            dataFileWriter[currentWriter].append(convertPhoto((Photo)socialObject, true, true));
+	        }
+	        else if (socialObject instanceof Group){
+	            dataFileWriter[currentWriter].append(convertGroup((Group)socialObject));
+	        }
+	        else if (socialObject instanceof GPS){
+	            dataFileWriter[currentWriter].append(convertGPS((GPS)socialObject));
+	        }				
+	        currentWriter = (currentWriter + 1) % dataFileWriter.length;
+	    }
+	    catch(IOException e){
+	        System.out.println("Cannot write to output file ");
+	        e.printStackTrace();
+	        System.exit(-1);
+	    }
 	} 
 	
 	@Override
@@ -342,6 +344,7 @@ public class Turtle implements Serializer {
                 int parentId = companyToCountry.get(company);
                 printLocationHierarchy(result, parentId);
             }
+            printLocationHierarchy(result, universityToCountry.get(extraInfo.getOrganization()));
 		}
 		printLocationHierarchy(result, ipDic.getLocation(profile.getIpAddress()));
 		
@@ -388,8 +391,11 @@ public class Turtle implements Serializer {
 		            
 		            String organizationPrefix = SN.getOrganizationURI(organizationId);
 		            AddTriple(result, true, false, organizationPrefix, RDF.type, SNVOC.Organization);
-		            AddTriple(result, false, true, organizationPrefix, SNVOC.Name, 
+		            AddTriple(result, false, false, organizationPrefix, SNVOC.Name, 
 		                    createLiteral(extraInfo.getOrganization()));
+		            int locationId = universityToCountry.get(extraInfo.getOrganization());
+                    AddTriple(result, false, true, organizationPrefix, SNVOC.Based_near, 
+                            SN.getLocationURI(locationId));
 		            
 		        }
 		        int organizationId = printedOrganizations.get(extraInfo.getOrganization());
@@ -642,11 +648,6 @@ public class Turtle implements Serializer {
 	}
 	
 	public String convertPhotoAlbum(PhotoAlbum album){
-		StringBuffer result = new StringBuffer();
-		return result.toString(); 
-	}
-	
-	public String convertPhoto(Photo photo){
 		StringBuffer result = new StringBuffer();
 		return result.toString(); 
 	}	

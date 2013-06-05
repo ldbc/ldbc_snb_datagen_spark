@@ -516,7 +516,6 @@ public class ReducedUserProfile extends SocialObject implements Serializable, Wr
 		this.setHaveSmartPhone(user.isHaveSmartPhone);
 		this.setAgentIdx(user.getAgentIdx());
 		this.setBrowserIdx(user.getBrowserIdx());
-		this.setFrequentChange(user.isFrequentChange);
 		this.setIpAddress(user.getIpAddress());
 		
 		this.setNumPassFriends(user.getNumPassFriends());

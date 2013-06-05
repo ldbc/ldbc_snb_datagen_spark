@@ -170,8 +170,6 @@ public class ScalableGenerator implements Runnable{
 	double 				alpha = 0.4;							// Alpha value for power-law distribution
 	double	 			baseProbLocationCorrelated = 0.8; 	// Higher probability, faster
 														// sliding along this pass
-	double 				baseProbInterestCorrelated = 1.0; 	
-	double 				baseProbNotCorrelation = 0.2;
 
 	double 				baseProbCorrelated = 0.9;  	  // Probability that two user having the same 
 													// atrributes value become friends
@@ -675,14 +673,6 @@ public class ScalableGenerator implements Runnable{
 				} else if (infos[0].startsWith("maxNumComments")) {
 					maxNumComments = Integer.parseInt(infos[1].trim());
 					continue;
-				} else if (infos[0].startsWith("baseProbInterestCorrelated")) {
-					baseProbInterestCorrelated = Double.parseDouble(infos[1]
-							.trim());
-					continue;
-				} else if (infos[0].startsWith("baseProbNotCorrelation")) {
-					baseProbNotCorrelation = Double
-							.parseDouble(infos[1].trim());
-					continue;
 				} else if (infos[0].startsWith("baseExponentialRate")) {
                     baseExponentialRate = Double.parseDouble(infos[1]
                             .trim());
@@ -747,16 +737,10 @@ public class ScalableGenerator implements Runnable{
 				} else if (infos[0].startsWith("maxNumGroupPostPerMonth")) {
 					maxNumGroupPostPerMonth = Integer.parseInt(infos[1].trim());
 					continue;
-				} else if (infos[0].startsWith("numFiles")) {
-					numFiles = Integer.parseInt(infos[1].trim());
-					continue;
 				} else if (infos[0].startsWith("serializerType")) {
 					serializerType = infos[1].trim();
 					continue;
-				} else if (infos[0].startsWith("numRdfOutputFile")) {
-					numRdfOutputFile = Integer.parseInt(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("missingRatio")) {
+				}else if (infos[0].startsWith("missingRatio")) {
 					missingRatio = Double.parseDouble(infos[1].trim());
 					continue;
 				} else if (infos[0].startsWith("missingStatusRatio")) {
@@ -2268,7 +2252,6 @@ public class ScalableGenerator implements Runnable{
 
 		// Prevent the case that the number of friends added exceeds the total number of friends
 		
-		//userProf.setNumPassFriends((short) (userProf.getNumFriends() - totalFriendSet), numCorrDimensions-1);
 		userProf.setNumPassFriends(userProf.getNumFriends(),numCorrDimensions-1);
 
 
@@ -2318,11 +2301,6 @@ public class ScalableGenerator implements Runnable{
 		} else {
 			userProf.setHaveSmartPhone(false);
 		}
-
-		if (randIsFrequent.nextDouble() > probUnFrequent) {
-			userProf.setFrequentChange(false);
-		} else
-			userProf.setFrequentChange(true);
 
 		// User's browser
 		userProf.setBrowserIdx(browserDic.getRandomBrowserId());
@@ -2560,11 +2538,13 @@ public class ScalableGenerator implements Runnable{
             return new Turtle(sibOutputDir + outputFileName, forwardChaining,
                     numRdfOutputFile, true, mainTagDic.getTagsNamesMapping(),
                     browserDic.getvBrowser(), companiesDictionary.getCompanyCountryMap(), 
+                    organizationsDictionary.GetOrganizationLocationMap(),
                     ipAddDictionary, locationDic, languageDic);
 		} else if (t.equals("nt")) {
             return new Turtle(sibOutputDir + outputFileName, forwardChaining,
                     numRdfOutputFile, false, mainTagDic.getTagsNamesMapping(),
                     browserDic.getvBrowser(), companiesDictionary.getCompanyCountryMap(), 
+                    organizationsDictionary.GetOrganizationLocationMap(),
                     ipAddDictionary, locationDic, languageDic);
 		} else if (t.equals("csv")) {
 			return new CSV(sibOutputDir /*+ outputFileName*/, forwardChaining,
