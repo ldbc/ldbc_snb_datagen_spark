@@ -79,7 +79,6 @@ import ldbc.socialnet.dbgen.objects.UserExtraInfo;
 import ldbc.socialnet.dbgen.objects.UserProfile;
 import ldbc.socialnet.dbgen.serializer.CSV;
 import ldbc.socialnet.dbgen.serializer.Serializer;
-import ldbc.socialnet.dbgen.serializer.Test;
 import ldbc.socialnet.dbgen.serializer.Turtle;
 import ldbc.socialnet.dbgen.storage.MFStoreManager;
 import ldbc.socialnet.dbgen.storage.StorageManager;
