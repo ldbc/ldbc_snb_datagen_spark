@@ -88,8 +88,6 @@ import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.mapreduce.Reducer;
 
 public class ScalableGenerator{
-//public class ScalableGenerator{
-
     
     public static long postId = -1;
     
