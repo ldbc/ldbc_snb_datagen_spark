@@ -357,10 +357,9 @@ public class MRGenerateUsers{
 		job.setOutputValueClass(ReducedUserProfile.class);
 		
 		
-		job.setJarByClass(MapReduceGenerator.class);
+		job.setJarByClass(GenerateUsersMapper.class);
 		
 		job.setMapperClass(GenerateUsersMapper.class);
-		//job.setCombinerClass(SIBReducer.class);
 		job.setReducerClass(UniversityReducer.class);
 		job.setNumReduceTasks(numMachines);
 		
@@ -368,7 +367,6 @@ public class MRGenerateUsers{
 		conf.setInt("mapred.line.input.format.linespermap", 1);	
 		
 		job.setOutputFormatClass(SequenceFileOutputFormat.class);
-		//job.setPartitionerClass(UniversityPartitioner.class);
 		
 	    FileInputFormat.setInputPaths(job, new Path(args[0]));
 	    FileOutputFormat.setOutputPath(job, new Path(args[1]));
@@ -384,10 +382,9 @@ public class MRGenerateUsers{
 		job2.setOutputValueClass(ReducedUserProfile.class);
 		
 		
-		job2.setJarByClass(MapReduceGenerator.class);
+		job2.setJarByClass(InterestMapper.class);
 		
 		job2.setMapperClass(InterestMapper.class);
-		//job.setCombinerClass(SIBReducer.class);
 
 		job2.setReducerClass(InterestReducer.class);
 		job2.setNumReduceTasks(numMachines);
@@ -395,7 +392,6 @@ public class MRGenerateUsers{
 		job2.setInputFormatClass(SequenceFileInputFormat.class);
 		job2.setOutputFormatClass(SequenceFileOutputFormat.class);
 		
-		//job2.setPartitionerClass(InterestPartitioner.class);
 		
 	    FileInputFormat.setInputPaths(job2, new Path(args[1]));
 	    FileOutputFormat.setOutputPath(job2, new Path(args[1] + "2") );
@@ -411,10 +407,9 @@ public class MRGenerateUsers{
 		job3.setOutputValueClass(ReducedUserProfile.class);
 		
 		
-		job3.setJarByClass(MapReduceGenerator.class);
+		job3.setJarByClass(RandomMapper.class);
 		
 		job3.setMapperClass(RandomMapper.class);
-		//job.setCombinerClass(SIBReducer.class);
 
 		job3.setReducerClass(RandomReducer.class);
 		job3.setNumReduceTasks(numMachines);

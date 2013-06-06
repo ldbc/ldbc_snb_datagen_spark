@@ -38,8 +38,6 @@ package ldbc.socialnet.dbgen.generator;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -48,8 +46,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
@@ -83,17 +79,16 @@ import ldbc.socialnet.dbgen.objects.UserExtraInfo;
 import ldbc.socialnet.dbgen.objects.UserProfile;
 import ldbc.socialnet.dbgen.serializer.CSV;
 import ldbc.socialnet.dbgen.serializer.Serializer;
+import ldbc.socialnet.dbgen.serializer.Test;
 import ldbc.socialnet.dbgen.serializer.Turtle;
 import ldbc.socialnet.dbgen.storage.MFStoreManager;
 import ldbc.socialnet.dbgen.storage.StorageManager;
-import ldbc.socialnet.dbgen.util.ExternalSort;
 
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.mapreduce.Reducer;
 
-
-public class ScalableGenerator implements Runnable{
+public class ScalableGenerator{
 //public class ScalableGenerator{
 
     
@@ -112,13 +107,7 @@ public class ScalableGenerator implements Runnable{
 	int 					lastMapCellPos;
 	int 					lastMapCell;
 	int 					startMapUserIdx;
-	int						machineId; 
-
-	
-	//UserProfile 			userProfiles[];			// Store window of user profiles 
-	//UserProfile 			userProfilesCell[]; 	// Store new cell of user profiles
-	//UserProfile 			removedUserProfiles[]; 	// This is for group generation
-											// to keep the information of user's friends
+	int						machineId;
 	
 	ReducedUserProfile  	reducedUserProfiles[];
 	ReducedUserProfile 		reducedUserProfilesCell[]; 	// Store new cell of user profiles
@@ -140,12 +129,6 @@ public class ScalableGenerator implements Runnable{
 	Random 					randomFileSelect;
 	Random 					randomIdxInWindow;
 	HashSet<Integer> 		selectedFileIdx;
-
-	//FileOutputStream 		multiFilesFOUserProfiles[]; // Set of file output streams
-	//ObjectOutputStream 		multiFilesOOUserProfiles[];
-
-	//FileInputStream 		multiFilesFIUserProfiles[]; // Set of file input streams
-	//ObjectInputStream 		multiFilesOIUserProfiles[];
 	
 	// For friendship generation
 	int 				friendshipNo = 0;
@@ -172,10 +155,8 @@ public class ScalableGenerator implements Runnable{
 														// sliding along this pass
 
 	double 				baseProbCorrelated = 0.9;  	  // Probability that two user having the same 
-													// atrributes value become friends
-
-	double 				baseExponentialRate = 0.9;
-	double	 			limitProCorrelated = 0.05; 
+												      // atrributes value become friends;
+	double	 			limitProCorrelated = 0.2; 
 	
 	// For each user
 	int 				maxNoInterestsPerUser = 10;
@@ -217,7 +198,6 @@ public class ScalableGenerator implements Runnable{
 	private static final String   countryDicFile         = "dicLocation.txt";
 	private static final String   languageDicFile        = "languagesByCountry.txt";
 	private static final String   cityDicFile            = "institutesCityByCountry.txt";
-	private static final String   topInstitutesFileName  = "topuniversities.txt";
 	private static final String   interestDicFile        = "locationInterestDist.txt";
 	private static final String   tagNamesFile           = "dicTopic.txt";
 	private static final String   mainTagDicFile         = "dicCelebritiesByCountry.txt";
@@ -232,7 +212,6 @@ public class ScalableGenerator implements Runnable{
 	private static final String   regionalArticleFile    = "articlesLocation.txt";
 	private static final String   interestArticleFile    = "articlesInterest.txt";
 	private static final String   stopWordFileName       = "googleStopwords.txt";
-	private static final String   groupArticleFile       = "articlesLocation.txt";
 	private static final String   agentFile              = "smartPhonesProviders.txt";
 	private static final String   emailDicFile           = "email.txt";
 	private static final String   browserDicFile         = "browsersDic.txt";
@@ -394,43 +373,6 @@ public class ScalableGenerator implements Runnable{
 	// For doing experiment
 	boolean 			isExperimenting = false;
 	ArrayList<Integer> 	arrayUserFriends[];
-	
-	public static void main(String args[]) {
-		
-		if (args.length < 3){
-			System.out.println("At least 3 parameters need to be provided");
-			System.exit(-1);
-		}
-		
-		numMaps = Integer.parseInt(args[0]);
-		String sibOutputDir = args[1].toString();
-		String sibHomeDir = args[2].toString();
-		shellArgs = args; 
-		for (int i = 0; i < numMaps; i++){
-			(new Thread(new ScalableGenerator(i, sibOutputDir, sibHomeDir))).start();
-		}
-	}
-	
-    public void run() {
-    	
-    	System.out.println("Heap size at tihe beginning ");
-    	//printHeapSize();
-    	
-    	long startRunTime = System.currentTimeMillis();
-    	
-    	//String[] args = new String[0];
-		String[] mrfilenames = prepareMRInput(shellArgs, numMaps, "mr"+mapreduceFileIdx+"_"+"mrInputFile.txt");
-		int numofcell = 0; 
-		if (mapreduceFileIdx == (numMaps -1) )
-			numofcell = numCellInLastFile;
-		else
-			numofcell = numCellPerfile;
-		
-		mapreduceTask(mrfilenames[mapreduceFileIdx], numofcell);
-		
-		long endRunTime = System.currentTimeMillis();
-		System.out.println("Total time for a run is " + getDuration(startRunTime, endRunTime));
-    }
 
 	public ScalableGenerator(int _mapreduceFileIdx, String _sibOutputDir, String _sibHomeDir){
 		mapreduceFileIdx = _mapreduceFileIdx;
@@ -450,7 +392,6 @@ public class ScalableGenerator implements Runnable{
 		this.machineId = mapIdx;
 		
 		loadParamsFromFile();
-		loadParamsFromShell(args);
 
 		numFiles = _numMaps;
 		
@@ -466,73 +407,9 @@ public class ScalableGenerator implements Runnable{
 		mrWriter = new MRWriter(cellSize, windowSize, sibOutputDir); 
 
 	}
-	public String[] prepareMRInput(String args[], int _numMaps, String _mrInputFile){
-		
-		long startTime = System.currentTimeMillis();
-		loadParamsFromFile();
-		loadParamsFromShell(args);
-
-		numFiles = _numMaps;
-		
-		rdfOutputFileName = "mr" + mapreduceFileIdx + "_" + rdfOutputFileName;
-		
-		init(0, true);
-		
-		System.out.println("Number of files " + numFiles);
-		System.out.println("Number of cells per file " + numCellPerfile);
-		System.out.println("Number of cells in last file " + numCellInLastFile);
-
-		long endInitTime = System.currentTimeMillis();
-
-		System.out.println("Dictionary building  takes " + getDuration(startTime, endInitTime));
-				
-		System.out.println("");
-
-		initStorageManager();
-
-		for (int i = 0; i < numCorrDimensions; i++){
-			if (i>0){
-				long startSortingTime = System.currentTimeMillis();
-				System.out.println("Heap size before sorting " + i);
-				//printHeapSize();
-				sortByDimensions(i-1, i);
-				System.out.println("Heap size after sorting " + i);
-				//printHeapSize();
-				
-				Runtime.getRuntime().gc();
-				System.out.println("Heap size after gabage collection at sorting " + i);
-				//printHeapSize();
-				
-				long endSortingTime = System.currentTimeMillis();
-				System.out.println("Sort in pass "+i+" takes " + getDuration(startSortingTime, endSortingTime));
-			}
-			
-			long startGenerateFriendship = System.currentTimeMillis();
-
-			System.out.println("Heap size before generating friendships at pass " + i);
-			//printHeapSize();
-			generateFriendShip(i);
-			System.out.println("Heap size after generating friendships at pass " + i);
-			//printHeapSize();
-
-			long endGenerateFriendship = System.currentTimeMillis();
-			System.out.println("Friendship generation in pass "+i+" takes " + getDuration(startGenerateFriendship, endGenerateFriendship));
-		}
-		
-		
-		//System.exit(-1);
-		
-		//printHeapSize();
-		
-		return generateInputForMapReduce(numMaps, _mrInputFile);
-		
-		//String[] a = new String[0];
-		//return a; 
-	}
 	
 	public void mapreduceTask(String inputFile, int numberCell){
-		startWritingUserData(); // for writing data needed by
-		// testdriver
+		startWritingUserData();
 
 		long startPostGeneration = System.currentTimeMillis();
 		
@@ -542,7 +419,6 @@ public class ScalableGenerator implements Runnable{
 			printExperimentResults();
 		} 
 		else {
-			//generatePostandPhoto(inputFile, numberCell);
 		
 			long endPostGeneration = System.currentTimeMillis();
 			System.out.println("Post generation takes " + getDuration(startPostGeneration, endPostGeneration));
@@ -564,69 +440,6 @@ public class ScalableGenerator implements Runnable{
 		System.out.println("Writing the data for test driver ");
 		System.out.println("Number of popular users "
 		+ numPopularUser);
-	}
-	
-	public void runFullGenerator(String args[]){
-		long startTime = System.currentTimeMillis();
-
-		
-		loadParamsFromFile();
-		loadParamsFromShell(args);
-		
-		init(0, true);
-
-		long endInitTime = System.currentTimeMillis();
-
-		System.out.println("( Dictionary building  taes "
-				+ (endInitTime - startTime) / 60000 + " minutes and "
-				+ ((endInitTime - startTime) % 60000) / 1000 + " seconds )");
-		System.out.println("");
-
-		initStorageManager();
-		
-		for (int i = 0; i < numCorrDimensions; i++){
-			if (i>0)
-				sortByDimensions(i-1, i);
-			
-			generateFriendShip(i);
-		}
-		
-		//System.exit(-1);
-		//generateInputForMapReduce(5, "mrInputFile.txt");
-		
-		
-		// Fourth pass: Generate posts & comments
-		
-		startWritingUserData(); // for writing data needed by
-												// testdriver
-		
-		generatePostandPhoto(storeManager[numCorrDimensions-1].getPassOutUserProf(), lastCell + 1);
-		finishWritingUserData();
-
-
-		if (isExperimenting) {
-			printExperimentResults();
-		} else {
-			generateGroupAll(storeManager[numCorrDimensions-1].getPassOutUserProf(), lastCell + 1);			
-		}
-
-		serializer.serialize();
-		
-		//System.exit(-1);
-
-		long endTime = System.currentTimeMillis();
-
-		System.out.println("Number of triples generated: "
-				+ serializer.triplesGenerated());
-		System.out.println("Generation done in " + (endTime - startTime)
-				/ 60000 + " minutes and " + ((endTime - startTime) % 60000)
-				/ 1000 + " seconds");
-
-		// Write data for testdrivers
-		System.out.println("Writing the data for test driver ");
-		System.out.println("Number of popular users " + numPopularUser);
-		long endTimeTestDriver = System.currentTimeMillis();
-		System.out.println("Done in " + (endTimeTestDriver - endTime) + " miliseconds");
 	}
 	
 	public void loadParamsFromFile() {
@@ -673,11 +486,7 @@ public class ScalableGenerator implements Runnable{
 				} else if (infos[0].startsWith("maxNumComments")) {
 					maxNumComments = Integer.parseInt(infos[1].trim());
 					continue;
-				} else if (infos[0].startsWith("baseExponentialRate")) {
-                    baseExponentialRate = Double.parseDouble(infos[1]
-                            .trim());
-                    continue;
-                } else if (infos[0].startsWith("limitProCorrelated")) {
+				} else if (infos[0].startsWith("limitProCorrelated")) {
                     limitProCorrelated = Double.parseDouble(infos[1]
                             .trim());
                     continue;
@@ -823,6 +632,7 @@ public class ScalableGenerator implements Runnable{
                     System.out.println("This param " + line + " does not match any option");
                 }
 			}
+			paramFile.close();
 			if (numtotalUser == -1) {
 			    throw new Exception("No numtotalUser parameter provided");
 			}
@@ -838,48 +648,12 @@ public class ScalableGenerator implements Runnable{
             }
 			
 			endYear = startYear + numYears;
-			        
 		} catch (Exception e) {
 		    System.out.println("Using default configuration");
 			// If the user params file wasn't found use the default configuration.
 		}
 	}
 
-	public void loadParamsFromShell(String[] args){
-		int i = 0;
-		while (i < args.length) {
-			try {
-				if (args[i].equals("-size")) {
-					numtotalUser = Integer.parseInt(args[i++ + 1]);
-					//Set the number of files according to the number of users
-					if (numtotalUser % 1000 !=0 ){	
-						System.out.println("The number of total users shoulde be a factor of 1000");
-						System.exit(-1);
-					}
-					//else{
-					//	numFiles = numtotalUser/1000; 
-					//}
-				} else if (args[i].equals("-isExp")) {
-					isExperimenting = true;
-				} else if (args[i].equals("-o")) {
-					rdfOutputFileName = args[i++ + 1];
-				} else if (args[i].equals("-nof")) {
-					numFiles = Integer.parseInt(args[i++ + 1]);
-				} else if (args[i].equals("-maxFr")) {
-					maxNoFriends = Integer.parseInt(args[i++ + 1]);
-				} else if (args[i].equals("-alpha")) {
-					alpha = Double.parseDouble(args[i++ + 1]);
-				}
-				
-				i++;
-
-			} catch (Exception e) {
-				System.err.println("Invalid arguments:\n");
-				e.printStackTrace();
-				System.exit(-1);
-			}
-		}
-	}
 	// Init the data for the first window of cells
 	public void init(int mapId, boolean isFullLoad) {
 		seedGenerate(mapId);
@@ -952,12 +726,6 @@ public class ScalableGenerator implements Runnable{
 			System.exit(-1);
 		}
 
-		/*
-		 * System.out.println("numCellPerfile =" + numCellPerfile );
-		 * System.out.println("numCellInLastFile =" + numCellInLastFile );
-		 * System.exit(-1);
-		 */
-
 		if (isFullLoad){		// Init all dictionaries
 			System.out
 				.println("Building interests dictionary & locations/interests distribution ");
@@ -990,8 +758,6 @@ public class ScalableGenerator implements Runnable{
 					mainTagDic.getNumCelebrity() , seeds[5]);
 			
 			topicTagDic.initMatrix();
-
-			//System.exit(-1);
 	
 			ipAddDictionary = new IPAddressDictionary(sibDicDataDir + countryAbbrMappingFile,
 					ipZoneDir, locationDic.getVecLocations(), seeds[33],
@@ -1015,35 +781,23 @@ public class ScalableGenerator implements Runnable{
 					sibDicDataDir + givennamesDicFile,
 					locationDic.getLocationNameMapping(), seeds[23], geometricProb);
 			namesDictionary.init();
-	
-			//System.exit(-1);
 			
 			emailDic = new EmailDictionary(sibDicDataDir + emailDicFile, seeds[32]);
 			emailDic.init();
 	
 			browserDic = new BrowserDictionary(sibDicDataDir + browserDicFile, seeds[44],
 					probAnotherBrowser);
-			browserDic.init();
-
-			//UniversityBuilder universityBuilder = new UniversityBuilder(locationDic.getVecLocations(),
-			//		sibHomeDir + sibDicDataDir + organizationsDicFile, locationDic.getLocationNameMapping(), 
-			//		 sibHomeDir + sibDicDataDir + topInstitutesFileName, sibHomeDir + sibDicDataDir + organizationsDicFile + ".refined"); 
-			//universityBuilder.init();
-			
+			browserDic.init();			
 			
 			organizationsDictionary = new OrganizationsDictionary(
 					sibDicDataDir + organizationsDicFile + ".refined", locationDic.getLocationNameMapping(),
 					seeds[24], probUnCorrelatedOrganization, seeds[45], probTopUniv, locationDic);
 			organizationsDictionary.init();
-			// organizationsDictionary.checkCompleteness();
-			//System.exit(-1);
 	
 			companiesDictionary = new CompanyDictionary(sibDicDataDir + companiesDicFile,
 					locationDic.getLocationNameMapping(), seeds[40],
 					probUnCorrelatedCompany);
 			companiesDictionary.init();
-	
-			// companiesDictionary.checkCompleteness();
 	
 			popularDictionary = new PopularPlacesDictionary(sibDicDataDir + popularPlacesDicFile, 
 					locationDic.getLocationNameMapping(), seeds[46]);
@@ -1052,12 +806,7 @@ public class ScalableGenerator implements Runnable{
 			photoGenerator = new PhotoGenerator(dateTimeGenerator,
 					locationDic.getVecLocations(), seeds[17], maxNumUserTags, 
 					popularDictionary, probPopularPlaces);
-			/*
-			 * System.out.println("Building dictionary for group's posts");
-			 * groupPostGenerator = new GroupPostGenerator(groupArticleFile,
-			 * seeds[25], seeds[26], userCreatedDateGen);
-			 * groupPostGenerator.groupArticlesInit();
-			 */
+
 			System.out.println("Building user agents dictionary");
 			userAgentDic = new UserAgentDictionary(sibDicDataDir + agentFile, seeds[28], seeds[30],
 					probSentFromAgent);
@@ -1071,41 +820,14 @@ public class ScalableGenerator implements Runnable{
 	
 			serializer = getSerializer(serializerType, rdfOutputFileName);
 		}
-		// For Experiment
 		if (isExperimenting) {
 			arrayUserFriends = new ArrayList[numtotalUser];
 		}
 
-	}	
-
-	public void initStorageManager(){
-		// init store manger for friendship generation
-		storeManager = new StorageManager[numCorrDimensions];
-		for (int i = 0; i < numCorrDimensions; i++){
-			storeManager[i] = new StorageManager(cellSize, windowSize, i, outUserProfile, sibOutputDir);
-			System.out.println("New storage manager: " + storeManager[i].getPassOutUserProf());
-		}
-		
-		// For map-reduce
-		mfStore = new MFStoreManager(cellSize, windowSize, numCorrDimensions-1, 
-				lastCell, numMaps, outUserProfile, sibOutputDir);
-		
-	}
-	
-	
-	public String[] generateInputForMapReduce(int numberOfMapReduceInputFiles, String mrInputfile){
-		//printHeapSize();
-		
-		System.out.println("Number of serialized objects: " + mfStore.getNumberSerializedObject());
-		
-		writeToOutputFile(mfStore.getMulpassOutUserProf(),mrInputfile);
-
-		return mfStore.getMulpassOutUserProf();
 	}
 	
 	public void generateGroupAll(String inputFile, int numberOfCell){
 		// Fifth pass: Group & group posts generator
-		//System.out.println("Generate group data from " + storeManager[numCorrDimensions-1].getPassOutUserProf());
 		groupStoreManager = new StorageManager(cellSize, windowSize, outUserProfile, sibOutputDir);
 		
 		groupStoreManager.initDeserialization(inputFile);
@@ -1114,66 +836,14 @@ public class ScalableGenerator implements Runnable{
 		int curCellPost = 0;
 		while (curCellPost < (numberOfCell - numberOfCellPerWindow)){
 			curCellPost++;
-			//System.out.println("Sliding for generating groups curCellPost = " + curCellPost);
 			generateGroups(4, curCellPost, numberOfCell);
 		}
 
 		System.out.println("Done generating user groups and groups' posts");
-
 		
 		groupStoreManager.endDeserialization();
 		System.out.println("Number of deserialized objects for group is " + groupStoreManager.getNumberDeSerializedObject());
-		
-		//scaleGenerator.endDeserialization(3);
-	}
-	public void sortByDimensions(int original, int dimensionId){
-		// Sort
-		ExternalSort externalSort = new ExternalSort();
-		
-		String filenames[]= { sibOutputDir + storeManager[original].getPassOutUserProf(),
-				sibOutputDir + storeManager[dimensionId].getPassOutUserProfSorted()};
-		
-		try {
-			externalSort.SortByDimensions(filenames, dimensionId);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	public void generateFriendShip(int pass){
-		storeManager[pass].initSerialization(pass);
-		if (pass > 0){
-			storeManager[pass].initDeserialization(pass);
-		}
-		initFriendShipWindow(pass);
-		
-		int curCellPos = 0;
-		
-		while (curCellPos < lastCellPos){
-			curCellPos++;
-			slideFriendShipWindow(pass,curCellPos);
-		}
-		
-		int numLeftCell = numberOfCellPerWindow - 1;
-		while (numLeftCell > 0){
-			curCellPos++;
-			slideLastCellsFriendShip(pass, curCellPos,	numLeftCell);
-			numLeftCell--;
-		}
-		
-		System.out.println("Pass "+ pass +" Total " + friendshipNo + " friendships generated");
-		
-		storeManager[pass].endSerialization();
-		
-		if (pass > 0){
-			storeManager[pass].endDeserialization();
-		}
-		if (pass == (numCorrDimensions - 1)){
-			mfStore.endSerialization();
-		}
-	}
-	
+	}	
 	
 	public int		numUserProfilesRead = 0;
 	public int		numUserForNewCell = 0;
@@ -1181,25 +851,6 @@ public class ScalableGenerator implements Runnable{
 	public ReducedUserProfile[] cellReducedUserProfiles;
 	public int		exactOutput = 0; 
 	
-	public static  ReducedUserProfile cloneThroughSerialize(ReducedUserProfile t) throws Exception {
-		   ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		   serializeToOutputStream(t, bos);
-		   byte[] bytes = bos.toByteArray();
-		   ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bytes));
-		   return (ReducedUserProfile)ois.readObject();
-	}
-	
-	private static void serializeToOutputStream(Serializable ser, OutputStream os) 
-            throws IOException {
-			ObjectOutputStream oos = null;
-			try {
-				oos = new ObjectOutputStream(os);
-				oos.writeObject(ser);
-				oos.flush();
-			} finally {
-				oos.close();
-			}
-	}
 	
 	public void pushUserProfile(ReducedUserProfile reduceUser, int pass, 
 			Reducer<IntWritable, ReducedUserProfile,IntWritable, ReducedUserProfile>.Context context, 
@@ -1208,10 +859,6 @@ public class ScalableGenerator implements Runnable{
 		numUserProfilesRead++;
 		ReducedUserProfile userObject = new ReducedUserProfile();
 		userObject.copyFields(reduceUser);
-		//ReducedUserProfile userObject;
-		//try {
-			//userObject = cloneThroughSerialize(reduceUser);
-
 		
 		if (numUserProfilesRead < windowSize){
 			if (reducedUserProfiles[numUserProfilesRead-1] != null){
@@ -1232,31 +879,22 @@ public class ScalableGenerator implements Runnable{
 			numUserForNewCell++;
 			
 			if (cellReducedUserProfiles[numUserForNewCell-1] != null){
-//				cellReducedUserProfiles[numUserForNewCell-1].clear();
 				cellReducedUserProfiles[numUserForNewCell-1] = null;
 			}
 			
 			cellReducedUserProfiles[numUserForNewCell-1] = userObject;
 			if (numUserForNewCell == cellSize){
 				mrCurCellPost++;
-				// Call the split function
 				mr2SlideFriendShipWindow(pass,mrCurCellPost, context, cellReducedUserProfiles,
 						 isContext,  oos);
 				
-				//ResetnumUserForNewCell
 				numUserForNewCell = 0;
 			}
 		}
 		
-		
 		if (reduceUser != null){
 			reduceUser = null;
 		}
-		
-		//} catch (Exception e) {
-			// TODO Auto-generated catch block
-		//	e.printStackTrace();
-		//}
 	}
 	public void pushAllRemainingUser(int pass, 
 			Reducer<IntWritable, ReducedUserProfile,IntWritable, ReducedUserProfile>.Context context, 
@@ -1270,6 +908,7 @@ public class ScalableGenerator implements Runnable{
 			numLeftCell--;
 		}
 	}
+	
 	public void mrGenerateUserInfo(int pass, Context context, int mapIdx){
 		
 		int numToGenerateUser;
@@ -1302,10 +941,10 @@ public class ScalableGenerator implements Runnable{
 		System.out.println("Number of Zero popular places: " + numZeroPopularPlace);
 		
 	}
+	
 	public void initBasicParams(String args[], int _numMaps, String _mrInputFile, int mapIdx){
 		
 		loadParamsFromFile();
-		loadParamsFromShell(args);
 
 		numFiles = _numMaps;
 		
@@ -1322,79 +961,6 @@ public class ScalableGenerator implements Runnable{
 
 	}
 
-	
-	public void initFriendShipWindow(int pass) {		//Generate the friendship in the first window
-
-		if (pass == 0){
-			for (int i = 0; i < windowSize; i++) {
-				//userProfiles[i] = generateGeneralInformation(i);
-				UserProfile user = generateGeneralInformation(i); 
-				reducedUserProfiles[i] = new ReducedUserProfile(user, numCorrDimensions);
-				user = null; 
-			}
-		}
-		else{	//Deserialize from the appropriate file
-			storeManager[pass].deserializeWindowlUserProfile(reducedUserProfiles);
-		}
-		
-		if (pass == (numCorrDimensions - 1)){
-			mfStore.initSerialization(numCorrDimensions-1);
-		}
-
-		double randProb;
-
-		for (int i = 0; i < cellSize; i++) {
-			// From this user, check all the user in the window to create friendship
-			for (int j = i + 1; j < windowSize - 1; j++) {
-				if (reducedUserProfiles[i].getNumFriendsAdded() 
-						== reducedUserProfiles[i].getNumFriends(pass))
-					break;
-				if (reducedUserProfiles[j].getNumFriendsAdded() 
-						== reducedUserProfiles[j].getNumFriends(pass))
-					continue;
-
-                if (reducedUserProfiles[i].isExistFriend(
-                		reducedUserProfiles[j].getAccountId()))
-                    continue;
-
-				// Generate a random value
-				randProb = randUniform.nextDouble();
-				
-				double prob = getFriendCreatePro(i, j, pass); 
-										
-				if ((randProb < prob) || (randProb < limitProCorrelated)) {
-					// add a friendship
-					createFriendShip(reducedUserProfiles[i], reducedUserProfiles[j],
-							(byte) pass);
-				}
-
-			}
-		}
-
-		updateLastPassFriendAdded(0, cellSize, pass);
-		if (pass == 0){
-			storeManager[pass].serializeReducedUserProfiles(0, cellSize, pass, reducedUserProfiles);
-			
-		}
-		else{
-			storeManager[pass].serializeReducedUserProfiles(0, cellSize, pass, reducedUserProfiles);
-		}
-		
-		if (pass == (numCorrDimensions - 1)){
-			mfStore.serialize(0, cellSize, pass, reducedUserProfiles);
-		}
-	}
-
-	public void generateStartWindowOfUsers(int mapIdx){
-		for (int i = 0; i < windowSize; i++) {
-			//userProfiles[i] = generateGeneralInformation(i);
-			UserProfile user = generateGeneralInformation(i + startMapUserIdx); 
-			reducedUserProfiles[i] = new ReducedUserProfile(user, numCorrDimensions);
-			user = null; 
-		}
-	}
-
-	
 	public void generateCellOfUsers2(int newStartIndex, ReducedUserProfile[] _cellReduceUserProfiles){
 		int curIdxInWindow;
 		for (int i = 0; i < cellSize; i++) {
@@ -1446,90 +1012,6 @@ public class ScalableGenerator implements Runnable{
 		mrWriter.writeReducedUserProfiles(0, cellSize, pass, reducedUserProfiles, context, isContext, oos);
 		
 		exactOutput = exactOutput + cellSize; 
-	}
-
-	public void slideFriendShipWindow(int pass, int cellPos) {
-
-		// In window, position of new cell = the position of last removed cell =
-		// cellPos - 1
-		int newCellPosInWindow = (cellPos - 1) % numberOfCellPerWindow;
-
-		int newStartIndex = newCellPosInWindow * cellSize;
-		
-		// Real userIndex in the social graph
-		int newUserIndex = (cellPos + numberOfCellPerWindow - 1) * cellSize;
-
-		int curIdxInWindow;
-
-		// Init the number of friends for each user in the new cell
-		if (pass == 0){
-			for (int i = 0; i < cellSize; i++) {
-				curIdxInWindow = newStartIndex + i;
-				UserProfile user = generateGeneralInformation(newUserIndex + i);
-				reducedUserProfiles[curIdxInWindow] = new ReducedUserProfile(user, numCorrDimensions);
-				user = null; 
-			}
-		}
-		else { //Desrialize a cell of user profile
-			storeManager[pass].deserializeOneCellUserProfile(newStartIndex, cellSize, reducedUserProfiles);
-		}
-
-		// Create the friendships
-		// Start from each user in the first cell of the window --> at the
-		// cellPos, not from the new cell
-		newStartIndex = (cellPos % numberOfCellPerWindow) * cellSize;
-		for (int i = 0; i < cellSize; i++) {
-			curIdxInWindow = newStartIndex + i;
-			// Generate set of friends list
-
-			// Here assume that all the users in the window including the new
-			// cell have the number of friends
-			// and also the number of friends to add
-
-			double randProb;
-
-			if (reducedUserProfiles[curIdxInWindow].getNumFriendsAdded() 
-					== reducedUserProfiles[curIdxInWindow].getNumFriends(pass))
-				continue;
-
-			// From this user, check all the user in the window to create
-			// friendship
-			for (int j = i + 1; (j < windowSize - 1)
-					&& reducedUserProfiles[curIdxInWindow].getNumFriendsAdded() 
-					< reducedUserProfiles[curIdxInWindow].getNumFriends(pass); j++) {
-
-				int checkFriendIdx = (curIdxInWindow + j) % windowSize;
-
-				if (reducedUserProfiles[checkFriendIdx].getNumFriendsAdded() 
-						== reducedUserProfiles[checkFriendIdx].getNumFriends(pass))
-					continue;
-
-                if (reducedUserProfiles[curIdxInWindow].isExistFriend(
-                		reducedUserProfiles[checkFriendIdx].getAccountId()))
-                    continue;
-                
-                
-                // Generate a random value
-				randProb = randUniform.nextDouble();
-				
-				double prob = getFriendCreatePro(curIdxInWindow, checkFriendIdx, pass); 
-						
-				if ((randProb < prob) || (randProb < limitProCorrelated)) {
-					// add a friendship
-					createFriendShip(reducedUserProfiles[curIdxInWindow], reducedUserProfiles[checkFriendIdx],
-							(byte) pass);
-				}
-			}
-
-		}
-
-		updateLastPassFriendAdded(newStartIndex, newStartIndex + cellSize, pass);
-		storeManager[pass].serializeReducedUserProfiles(newStartIndex, newStartIndex + cellSize, pass, reducedUserProfiles);
-		if (pass == (numCorrDimensions - 1)){
-			mfStore.serialize(newStartIndex, newStartIndex + cellSize, pass, reducedUserProfiles);
-		}
-
-
 	}
 
 	public void mr2SlideFriendShipWindow(int pass, int cellPos, Reducer.Context context, ReducedUserProfile[] _cellReduceUserProfiles, 
@@ -1600,67 +1082,6 @@ public class ScalableGenerator implements Runnable{
 				isContext, oos);
 		
 		exactOutput = exactOutput + cellSize; 
-
-	}
-	
-	public void slideLastCellsFriendShip(int pass, int cellPos,	int numleftCell) {
-
-		int newStartIndex;
-
-		int curIdxInWindow;
-
-		newStartIndex = (cellPos % numberOfCellPerWindow) * cellSize;
-		
-		for (int i = 0; i < cellSize; i++) {
-			curIdxInWindow = newStartIndex + i;
-			// Generate set of friends list
-
-			// Here assume that all the users in the window including the new
-			// cell have the number of friends
-			// and also the number of friends to add
-
-			double randProb;
-
-			if (reducedUserProfiles[curIdxInWindow].getNumFriendsAdded() 
-					== reducedUserProfiles[curIdxInWindow].getNumFriends(pass))
-				continue;
-
-			// From this user, check all the user in the window to create
-			// friendship
-			for (int j = i + 1; (j < numleftCell * cellSize - 1)
-					&& reducedUserProfiles[curIdxInWindow].getNumFriendsAdded() 
-					   < reducedUserProfiles[curIdxInWindow].getNumFriends(pass); j++) {
-
-				int checkFriendIdx = (curIdxInWindow + j) % windowSize;
-
-				if (reducedUserProfiles[checkFriendIdx].getNumFriendsAdded() 
-						== reducedUserProfiles[checkFriendIdx].getNumFriends(pass))
-					continue;
-
-                if (reducedUserProfiles[curIdxInWindow].isExistFriend(
-                		reducedUserProfiles[checkFriendIdx].getAccountId()))
-                    continue;
-                
-                
-				// Generate a random value
-				randProb = randUniform.nextDouble();
-
-				double prob = getFriendCreatePro(curIdxInWindow, checkFriendIdx, pass);
-						
-				if ((randProb < prob) || (randProb < limitProCorrelated)) {
-					// add a friendship
-					createFriendShip(reducedUserProfiles[curIdxInWindow], reducedUserProfiles[checkFriendIdx],
-							(byte) pass);
-				}				
-			}
-
-		}
-
-		updateLastPassFriendAdded(newStartIndex, newStartIndex + cellSize, pass);
-		storeManager[pass].serializeReducedUserProfiles(newStartIndex, newStartIndex + cellSize, pass, reducedUserProfiles);
-		if (pass == (numCorrDimensions - 1)){
-			mfStore.serialize(newStartIndex, newStartIndex + cellSize, pass, reducedUserProfiles);
-		}
 
 	}
 	
@@ -1853,13 +1274,8 @@ public class ScalableGenerator implements Runnable{
 				Comment comment = textGenerator.getRandomInterestComment(post,
 										user,lastCommentCreateDate,
 										startCommentId, lastCommentId);
-				if (comment.getAuthorId() != -1) { 	// In case the
-													// comment is
-													// not created
-													// because of
-													// the
-													// friendship's
-													// createddate
+				// In case the comment is not created because of the friendship's createddate
+				if (comment.getAuthorId() != -1) {
 					serializer.gatherData(comment);
 					
 					lastCommentCreateDate = comment.getCreateDate();
@@ -2451,7 +1867,6 @@ public class ScalableGenerator implements Runnable{
                 }
             }
         }
-        
         Vector<Integer> userLanguages = languageDic.getLanguages(user.getLocationIdx());
         int nativeLanguage = randomExtraInfo.nextInt(userLanguages.size());
         userExtraInfo.setNativeLanguage(userLanguages.get(nativeLanguage));
@@ -2480,10 +1895,10 @@ public class ScalableGenerator implements Runnable{
 		//prob = baseProbCorrelated * Math.pow(baseExponentialRate, 
 		//Math.abs(reducedUserProfiles[i].getDicElementId(pass)- reducedUserProfiles[j].getDicElementId(pass)));
 		if (j > i){
-			prob = baseProbCorrelated * Math.pow(baseExponentialRate, (j- i));
+			prob = Math.pow(baseProbCorrelated, (j- i));
 		}
 		else{
-			prob = baseProbCorrelated * Math.pow(baseExponentialRate, (j + windowSize - i));
+			prob =  Math.pow(baseProbCorrelated, (j + windowSize - i));
 		}
 		
 		return prob; 
