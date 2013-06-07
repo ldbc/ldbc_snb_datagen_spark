@@ -78,6 +78,7 @@ import ldbc.socialnet.dbgen.objects.RelationshipStatus;
 import ldbc.socialnet.dbgen.objects.UserExtraInfo;
 import ldbc.socialnet.dbgen.objects.UserProfile;
 import ldbc.socialnet.dbgen.serializer.CSV;
+import ldbc.socialnet.dbgen.serializer.Plot;
 import ldbc.socialnet.dbgen.serializer.Serializer;
 import ldbc.socialnet.dbgen.serializer.Turtle;
 import ldbc.socialnet.dbgen.storage.MFStoreManager;
@@ -88,6 +89,7 @@ import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.mapreduce.Reducer;
 
 public class ScalableGenerator{
+
     
     public static long postId = -1;
     
@@ -344,18 +346,7 @@ public class ScalableGenerator{
 
 	// For loading parameters;
 	String 			paramFileName = "params.ini";
-	static String	shellArgs[]; 
-	// //////////////////////////
-
-	// For debugging
-	int 		shouldbeAdd = 0;
-	int 		friendLocationNumInit = 0;
-	int 		deserializedfriendLocationNum = 0;
-	int 		numberSerializedObject = 0;
-	int 		numberDESerializedObject = 0;
-	int 		numGenerateTimesRun = 0;
-	int 		numDerializedFromFile = 0;
-	int 		numSerializedToFile = 0;
+	static String	shellArgs[];
 
 	// For MapReduce 
 	public static int			numMaps = -1;
@@ -366,10 +357,6 @@ public class ScalableGenerator{
 	OutputDataWriter 	outputDataWriter;
 	int 				thresholdPopularUser = 40;
 	int 				numPopularUser = 0;
-
-	// For doing experiment
-	boolean 			isExperimenting = false;
-	ArrayList<Integer> 	arrayUserFriends[];
 
 	public ScalableGenerator(int _mapreduceFileIdx, String _sibOutputDir, String _sibHomeDir){
 		mapreduceFileIdx = _mapreduceFileIdx;
@@ -412,22 +399,16 @@ public class ScalableGenerator{
 		
 		generatePostandPhoto(inputFile, numberCell);
 
-		if (isExperimenting) {
-			printExperimentResults();
-		} 
-		else {
-		
-			long endPostGeneration = System.currentTimeMillis();
-			System.out.println("Post generation takes " + getDuration(startPostGeneration, endPostGeneration));
-	
-			finishWritingUserData();
+		long endPostGeneration = System.currentTimeMillis();
+		System.out.println("Post generation takes " + getDuration(startPostGeneration, endPostGeneration));
 
-			long startGroupGeneration = System.currentTimeMillis();
-			generateGroupAll(inputFile, numberCell);
-			long endGroupGeneration = System.currentTimeMillis();
-			System.out.println("Group generation takes " + getDuration(startGroupGeneration, endGroupGeneration));
-		}
-		
+		finishWritingUserData();
+
+		long startGroupGeneration = System.currentTimeMillis();
+		generateGroupAll(inputFile, numberCell);
+		long endGroupGeneration = System.currentTimeMillis();
+		System.out.println("Group generation takes " + getDuration(startGroupGeneration, endGroupGeneration));
+
 		if (mapreduceFileIdx != -1)
 			serializer.serialize();
 
@@ -817,9 +798,6 @@ public class ScalableGenerator{
 	
 			serializer = getSerializer(serializerType, rdfOutputFileName);
 		}
-		if (isExperimenting) {
-			arrayUserFriends = new ArrayList[numtotalUser];
-		}
 
 	}
 	
@@ -1171,30 +1149,11 @@ public class ScalableGenerator{
 				// serializer.gatherData(userProfilesCell[k]);
 				serializer.gatherData(reducedUserProfilesCell[k], extraInfo);
 
-				if (isExperimenting) {
-					int userId = reducedUserProfilesCell[k].getAccountId();
-					int numFriends = reducedUserProfilesCell[k].getNumFriendsAdded();
-					if (numFriends == 0) {
-						System.out.println("Dangling user " + userId
-								+ " | "
-								+ reducedUserProfilesCell[k].getNumFriends(numCorrDimensions-1));
-					}
-					Friend[] lstFriend = reducedUserProfilesCell[k].getFriendList();
-					arrayUserFriends[userId] = new ArrayList<Integer>(
-							numFriends);
-					for (int m = 0; m < numFriends; m++) {
-						arrayUserFriends[userId].add(lstFriend[m].getFriendAcc());
-					}
-				}
-				else{
+				generateLocationPost(reducedUserProfilesCell[k], extraInfo);
 
-					generateLocationPost(reducedUserProfilesCell[k], extraInfo);
-					
-					generateInterestPost(reducedUserProfilesCell[k], extraInfo);
+				generateInterestPost(reducedUserProfilesCell[k], extraInfo);
 
-					generatePhoto(reducedUserProfilesCell[k], extraInfo);
-					
-				}
+				generatePhoto(reducedUserProfilesCell[k], extraInfo);
 			}
 		}
 		
@@ -1218,24 +1177,19 @@ public class ScalableGenerator{
 			// set browser idx
 			post.setBrowserIdx(browserDic.getPostBrowserId(user.getBrowserIdx()));
 
-			
 			serializer.gatherData(post);
 			
-			
 			// Generate comments
-			int numComment = randNumberComments
-					.nextInt(maxNumComments);
+			int numComment = randNumberComments.nextInt(maxNumComments);
 			long lastCommentCreateDate = post.getCreatedDate();
 			long lastCommentId = -1;
 			long startCommentId = RandomTextGenerator.commentId;
 			for (int l = 0; l < numComment; l++) {
-				Comment comment = textGenerator
-						.getRandomRegionalComment(post,	user,
+				Comment comment = textGenerator.getRandomRegionalComment(post,	user,
 													lastCommentCreateDate,
 													startCommentId, lastCommentId);
 				if (comment.getAuthorId() != -1) {
 					serializer.gatherData(comment);
-					
 					
 					lastCommentCreateDate = comment.getCreateDate();
 					lastCommentId = comment.getCommentId();
@@ -1696,8 +1650,9 @@ public class ScalableGenerator{
 		if (randGender.nextDouble() > 0.5){
 			userProf.setGender((byte)1);
 		}
-		else
+		else {
 			userProf.setGender((byte)0);
+		}
 		
 		userProf.setForumWallId(accountId * 2); // Each user has an wall
 		userProf.setForumStatusId(accountId * 2 + 1);
@@ -1744,8 +1699,6 @@ public class ScalableGenerator{
 		
 		// Get random Idx
 		userProf.setRandomIdx(randUserRandomIdx.nextInt(maxUserRandomIdx));
-		
-		numGenerateTimesRun++;
 
 		return userProf;
 	}
@@ -1976,68 +1929,6 @@ public class ScalableGenerator{
 		outputDataWriter.finishWritingUserData();
 	}
 
-	private void printExperimentResults() {
-		int[] socialDegrees = new int[maxNoFriends + 1];
-		double[] coefficient = new double[maxNoFriends + 1];
-		//double avgCoefficent = 0.0;
-		double totalCoefficent = 0.0;
-		for (int i = 0; i < numtotalUser; i++) {
-			if (arrayUserFriends[i] == null)
-				System.out.println("Null at array " + i);
-			if (socialDegrees[arrayUserFriends[i].size()] == -1)
-				System.out.println("Null at social degree " + arrayUserFriends[i].size()  );
-			socialDegrees[arrayUserFriends[i].size()]++;
-		}
-
-		/*
-		 * for (int i = 0; i <= maxNoFriends; i++){ System.out.println("Degree "
-		 * + i + " :  " + socialDegrees[i]); }
-		 */
-		outputDataWriter.writeSocialDegree(socialDegrees, numtotalUser);
-
-		for (int i = 0; i < numtotalUser; i++) {
-			coefficient[arrayUserFriends[i].size()] += getClusteringCoefficient(i);
-			totalCoefficent += getClusteringCoefficient(i);
-		}
-
-		outputDataWriter.writeClusteringCoefficient(coefficient, socialDegrees, numtotalUser);
-		/*
-		 * for (int i = 0; i <= maxNoFriends; i++){
-		 * System.out.println("Avg coefficient for degree " + i + " :  " +
-		 * coefficient[i]/socialDegrees[i]); }
-		 */
-
-		System.out.println("Average coefficient of the social graph: "
-				+ totalCoefficent / numtotalUser);
-	}
-
-	private double getClusteringCoefficient(int uid) {
-		ArrayList<Integer> friends = arrayUserFriends[uid];
-		friends.add(uid); // Include the current user
-		// get the total number of connectivities
-		int numConnectivity = 0;
-		for (int i = 0; i < friends.size(); i++) {
-			for (int j = i + 1; j < friends.size(); j++) {
-				if (isFriend(friends.get(i), friends.get(j))) {
-					numConnectivity++;
-				}
-			}
-		}
-
-		return (double) 2 * numConnectivity
-				/ (friends.size() * (friends.size() - 1));
-
-	}
-
-	private boolean isFriend(int uid1, int uid2) {
-		ArrayList<Integer> friends = arrayUserFriends[uid1];
-		for (int i = 0; i < friends.size(); i++) {
-			if (friends.get(i) == uid2) {
-				return true;
-			}
-		}
-		return false;
-	}
 	public void writeToOutputFile(String filenames[], String outputfile){
 		 	Writer output = null;
 		 	File file = new File(outputfile);

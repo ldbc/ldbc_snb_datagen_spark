@@ -403,8 +403,6 @@ public class CSV implements Serializer {
 		arguments.add(dateString);
 		ToCSV(arguments, Files.PERSON.ordinal());
 		
-		
-		
 		if (extraInfo != null)
         {
 		    Vector<Integer> languages = extraInfo.getLanguages();

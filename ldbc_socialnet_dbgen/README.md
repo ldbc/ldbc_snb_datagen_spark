@@ -42,4 +42,4 @@ Terminology:
 
 The execution instruction is:
 
-$HADOOP_HOME/bin/hadoop jar $LDBC_SOCIALNET_DBGEN_HOME/ldbc_socialnet_dbgen.jar <hadoop_input_folder> <hadoop_output_folder> <Num_machines_ldbc_will_use>  $LDBC_SOCIALNET_DBGEN_HOME/ <Final_output_folder>
+$HADOOP_HOME/bin/hadoop jar $LDBC_SOCIALNET_DBGEN_HOME/ldbc_socialnet_dbgen.jar hadoop_input_folder hadoop_output_folder Num_machines_ldbc_will_use  $LDBC_SOCIALNET_DBGEN_HOME/ Final_output_folder

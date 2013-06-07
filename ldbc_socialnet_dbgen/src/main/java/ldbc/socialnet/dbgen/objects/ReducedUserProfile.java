@@ -471,20 +471,6 @@ public class ReducedUserProfile extends SocialObject implements Serializable, Wr
 		this.setNumFriends(user.getNumFriends());
 		this.setNumFriendsAdded((short)0);
 		this.numCorDimensions = (byte)numCorrDimensions;
-		/*
-		switch (pass) {
-			case 0: 
-				this.setDicElementId(user.getLocationIdx());
-				break;
-			case 1: 
-				break;
-			case 2:
-				break;
-			default: 
-				this.setDicElementId(-1);
-				break;
-		}
-		*/
 		
 		this.setLocationOrganizationIdx(user.getLocationOrganizationId());
 		
@@ -505,7 +491,6 @@ public class ReducedUserProfile extends SocialObject implements Serializable, Wr
 		
 		this.setDicElementId(organizationDimension,0);
 		
-		//this.setDicElementId(intZValue,1);	//This is for interest
 		this.setDicElementId(user.getMainTagId(), 1);
 		
 		this.setDicElementId(user.getRandomIdx(),2);
