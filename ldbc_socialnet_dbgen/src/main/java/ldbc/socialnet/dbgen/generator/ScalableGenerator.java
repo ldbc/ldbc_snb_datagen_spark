@@ -620,7 +620,7 @@ public class ScalableGenerator{
 			    throw new Exception("No numYears parameter provided");
 			}
 			if (!serializerType.equals("ttl") && !serializerType.equals("nt") && 
-			        serializerType.equals("csv")) {
+			        !serializerType.equals("csv")) {
                 throw new Exception("serializerType must be ttl, nt or csv");
             }
 			
