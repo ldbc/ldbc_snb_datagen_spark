@@ -78,7 +78,6 @@ import ldbc.socialnet.dbgen.objects.RelationshipStatus;
 import ldbc.socialnet.dbgen.objects.UserExtraInfo;
 import ldbc.socialnet.dbgen.objects.UserProfile;
 import ldbc.socialnet.dbgen.serializer.CSV;
-import ldbc.socialnet.dbgen.serializer.Plot;
 import ldbc.socialnet.dbgen.serializer.Serializer;
 import ldbc.socialnet.dbgen.serializer.Turtle;
 import ldbc.socialnet.dbgen.storage.MFStoreManager;
@@ -205,7 +204,7 @@ public class ScalableGenerator{
 	private static final String   musicGenreFile         = "singerGenres.txt";
 	private static final String   givennamesDicFile      = "givennameByCountryBirthPlace.txt.freq.full";
 	private static final String   surnamesDicFile        = "surnameByCountryBirthPlace.txt.freq.sort";
-	private static final String   organizationsDicFile   = "institutesByCountry.txt";
+	private static final String   organizationsDicFile   = "institutesCityByCountry.txt";
 	private static final String   companiesDicFile       = "companiesByCountry.txt";
 	private static final String   popularPlacesDicFile   = "popularPlacesByCountry.txt";
 	private static final String   regionalArticleFile    = "articlesLocation.txt";
@@ -768,7 +767,7 @@ public class ScalableGenerator{
 			browserDic.init();			
 			
 			organizationsDictionary = new OrganizationsDictionary(
-					sibDicDataDir + organizationsDicFile + ".refined", locationDic.getLocationNameMapping(),
+					sibDicDataDir + organizationsDicFile, locationDic.getLocationNameMapping(),
 					seeds[24], probUnCorrelatedOrganization, seeds[45], probTopUniv, locationDic);
 			organizationsDictionary.init();
 	
@@ -1166,8 +1165,7 @@ public class ScalableGenerator{
 		// Generate location-related posts
 		int numRegionalPost = getNumOfRegionalPost(user);
 		for (int m = 0; m < numRegionalPost; m++) {
-			Post post = textGenerator.getRandomRegionalPost(
-					user, maxNumLikes);
+			Post post = textGenerator.getRandomRegionalPost(user, maxNumLikes);
 			Integer languageIndex = randUniform.nextInt(extraInfo.getLanguages().size());
 			post.setLanguage(extraInfo.getLanguages().get(languageIndex));
 			// Set user agent
