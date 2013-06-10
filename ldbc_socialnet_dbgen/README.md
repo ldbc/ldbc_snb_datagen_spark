@@ -27,8 +27,8 @@ This can lead to the generation of two jars in the target folder the default one
 	- numtotalUser: The number of users the social network will have. It shoud be bigger than 1000.
 	- startYear: The first year.
 	- numYears: The period of years.
-	- serializerType: The serializer type has to be one of this three values: ttl (Turtle format), nt (N-Triples format), csv (coma separated value).
-	- rdfOutputFileName: The base name for the files generated in rdf format (Turtle and N-Triples)
+	- serializerType: The serializer type has to be one of this three values: ttl (Turtle format), n3 (N3 format), csv (coma separated value).
+	- rdfOutputFileName: The base name for the files generated in rdf format (Turtle and N3)
 	
 This configuration will generate for the startYear-01-01 to the (startYear+numYears)-01-01 period activity in the simulated social network for the amount of users configurated.
 

@@ -110,7 +110,7 @@ public class Turtle implements Serializer {
 		int nrOfDigits = ((int)Math.log10(nrOfOutputFiles)) + 1;
 		String formatString = "%0" + nrOfDigits + "d";
 		try{
-		    String extension = (isTurtle) ? ".ttl": ".nt";
+		    String extension = (isTurtle) ? ".ttl": ".n3";
 			dataFileWriter = new FileWriter[nrOfOutputFiles];
 			if(nrOfOutputFiles==1)
 				this.dataFileWriter[0] = new FileWriter(file + extension);
@@ -660,7 +660,7 @@ public class Turtle implements Serializer {
 	        AddTriple(result, false, false, prefix, RDF.type, SNVOC.Photo);
 	        date.setTimeInMillis(photo.getTakenTime());
             String dateString = DateGenerator.formatDateDetail(date);
-            AddTriple(result, false, false, prefix, SNVOC.Created, 
+            AddTriple(result, false, true, prefix, SNVOC.Created, 
                     createDataTypeLiteral(dateString, XSD.prefixed("dateTime")));
             
             if (photo.getIpAddress() != null) {

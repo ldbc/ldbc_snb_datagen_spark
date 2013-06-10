@@ -619,7 +619,7 @@ public class ScalableGenerator{
 			if (numYears == -1) {
 			    throw new Exception("No numYears parameter provided");
 			}
-			if (!serializerType.equals("ttl") && !serializerType.equals("nt") && 
+			if (!serializerType.equals("ttl") && !serializerType.equals("n3") && 
 			        !serializerType.equals("csv")) {
                 throw new Exception("serializerType must be ttl, nt or csv");
             }
@@ -1903,7 +1903,7 @@ public class ScalableGenerator{
                     browserDic.getvBrowser(), companiesDictionary.getCompanyCountryMap(), 
                     organizationsDictionary.GetOrganizationLocationMap(),
                     ipAddDictionary, locationDic, languageDic);
-		} else if (t.equals("nt")) {
+		} else if (t.equals("n3")) {
             return new Turtle(sibOutputDir + outputFileName, forwardChaining,
                     numRdfOutputFile, false, mainTagDic.getTagsNamesMapping(),
                     browserDic.getvBrowser(), companiesDictionary.getCompanyCountryMap(), 
