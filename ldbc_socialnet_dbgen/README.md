@@ -9,13 +9,14 @@ You can download hadoop 1.0.3 from http://archive.apache.org/dist/hadoop/core/ha
 
 ## Compilation
 
-The compilation uses Apache Maven to automatically detect and download the necessary dependencies. See maven.apache.org.
+The compilation uses Apache Maven to automatically detect and download the necessary dependencies. See: maven.apache.org.
 
+Make sure you are in your ldbc_socialnet_bm/ldbc_socialnet_dbgen/ project folder.
 To generate the jar containing all the dependencies the following maven instruction is used:
 
 mvn assembly:assembly
 
-This can lead to the generation of two jars the default one called ldbc_socialnet_dbgen-<Version-Number>.jar or the one containing all the dependencies inside the jar called ldbc_socialnet_dbgen.jar.
+This can lead to the generation of two jars in the target folder the default one called ldbc_socialnet_dbgen-<Version-Number>.jar or the one containing all the dependencies inside the jar called ldbc_socialnet_dbgen.jar.
 
 
 ## Configuration
@@ -33,7 +34,7 @@ This configuration will generate for the startYear-01-01 to the (startYear+numYe
 
 
 ##Execution
-To execute ldbc_socialnet_dbgen hadoop is required.
+To execute ldbc_socialnet_dbgen hadoop is required. And the assumption that the ldbc_socialnet_dbgen.jar is at your ldbc_socialnet_bm/ldbc_socialnet_dbgen/
 
 Terminology:
 
@@ -43,3 +44,5 @@ Terminology:
 The execution instruction is:
 
 $HADOOP_HOME/bin/hadoop jar $LDBC_SOCIALNET_DBGEN_HOME/ldbc_socialnet_dbgen.jar hadoop_input_folder hadoop_output_folder Num_machines_ldbc_will_use  $LDBC_SOCIALNET_DBGEN_HOME/ Final_output_folder
+
+You can refer to the run.sh script to see a clearer example of how to run it.
