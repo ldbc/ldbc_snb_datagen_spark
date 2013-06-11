@@ -651,10 +651,10 @@ public class Turtle implements Serializer {
 		
 		String prefix = SN.getForumURI(album.getAlbumId());
         AddTriple(result, true, false, prefix, RDF.type, SNVOC.Forum);
-        AddTriple(result, false, false, prefix, SNVOC.Title, album.getTitle());
+        AddTriple(result, false, false, prefix, SNVOC.Title, createLiteral(album.getTitle()));
         date.setTimeInMillis(album.getCreatedDate());
         String dateString = DateGenerator.formatDateDetail(date);     
-        AddTriple(result, false, true, prefix, SNVOC.Created, dateString);
+        AddTriple(result, false, true, prefix, SNVOC.Created, createDataTypeLiteral(dateString, XSD.DateTime));
 
         createTripleSPO(result, SN.getPersonURI(album.getCreatorId()), SNVOC.Moderator_of, prefix);
 		
