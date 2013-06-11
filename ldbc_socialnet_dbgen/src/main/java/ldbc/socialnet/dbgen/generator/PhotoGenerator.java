@@ -90,7 +90,7 @@ public class PhotoGenerator {
 		
 		album.setLocationIdx(rand.nextInt(vLocations.size()));
 		
-		album.setTitle("Album " + vLocations.get(album.getLocationIdx()).getName());
+		album.setTitle("Photo album " + album.getAlbumId());
 			
 		return album;
 	}
@@ -143,6 +143,7 @@ public class PhotoGenerator {
 		}
 		
 		photo.setPhotoId(ScalableGenerator.postId);
+		photo.setImage("photo" + photo.getPhotoId() + ".jpg");
 		
 		//Assume that the photo are created one by one after 1 second from
 		// the creation of the album

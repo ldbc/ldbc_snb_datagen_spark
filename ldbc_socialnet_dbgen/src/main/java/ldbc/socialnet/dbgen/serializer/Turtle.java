@@ -372,14 +372,14 @@ public class Turtle implements Serializer {
 		    date.setTimeInMillis(profile.getBirthDay());
 		    String dateString = DateGenerator.formatDate(date);
 		    AddTriple(result, false, false, prefix, SNVOC.Birthday,
-		            createDataTypeLiteral(dateString, XSD.prefixed("date")));
+		            createDataTypeLiteral(dateString, XSD.Date));
 		}
 		
 		//dc:created
         date.setTimeInMillis(profile.getCreatedDate());
         String dateString = DateGenerator.formatDateDetail(date);
         AddTriple(result, false, true, prefix, SNVOC.Created,
-                createDataTypeLiteral(dateString, XSD.prefixed("dateTime")));
+                createDataTypeLiteral(dateString, XSD.DateTime));
 		
 		if (extraInfo != null) {
 		    createTripleSPO(result, prefix, SNVOC.Based_near, SN.getLocationURI(extraInfo.getLocationId()));
@@ -405,8 +405,8 @@ public class Turtle implements Serializer {
 		        if (extraInfo.getClassYear() != -1 ){
 		            date.setTimeInMillis(extraInfo.getClassYear());
 		            String yearString = DateGenerator.formatYear(date);
-		            createTripleSPO(result, SN.getStudyAtURI(studyAt), SNVOC.ClassYear, 
-		                    createDataTypeLiteral(yearString, XSD.prefixed("date")));
+		            createTripleSPO(result, SN.getStudyAtURI(studyAt), SNVOC.ClassYear,
+		                    createDataTypeLiteral(yearString, XSD.Year));
 		        }
 
 		        studyAt++;
@@ -461,8 +461,8 @@ public class Turtle implements Serializer {
                         SN.getOrganizationURI(organizationId));
                 date.setTimeInMillis(extraInfo.getWorkFrom(company));
                 String yearString = DateGenerator.formatYear(date);
-                createTripleSPO(result, SN.getWorkAtURI(workatId), SNVOC.WorkFrom, 
-                        createDataTypeLiteral(yearString, XSD.prefixed("date")));
+                createTripleSPO(result, SN.getWorkAtURI(workatId), SNVOC.WorkFrom,
+                        createDataTypeLiteral(yearString, XSD.Year));
 
                 workatId++;
             }
@@ -479,7 +479,7 @@ public class Turtle implements Serializer {
         }
         AddTriple(result, false, false, forumPrefix, SNVOC.Title, createLiteral(title));
         AddTriple(result, false, true, forumPrefix, SNVOC.Created, 
-                createDataTypeLiteral(dateString, XSD.prefixed("dateTime")));
+                createDataTypeLiteral(dateString, XSD.DateTime));
         
         createTripleSPO(result, prefix,  SNVOC.Moderator_of, forumPrefix);
 		
@@ -538,7 +538,6 @@ public class Turtle implements Serializer {
 	        
 	        String prefix = SN.getPostURI(post.getPostId());
 	        AddTriple(result, true, false, prefix, RDF.type, SNVOC.Post);
-	        AddTriple(result, false, false, prefix, RDF.type, SNVOC.Text);
 
 	        if (post.getTitle() != null) {
 	            AddTriple(result, false, false, prefix, SNVOC.Title, createLiteral(post.getTitle()));
@@ -546,7 +545,7 @@ public class Turtle implements Serializer {
 	        date.setTimeInMillis(post.getCreatedDate());
 	        String dateString = DateGenerator.formatDateDetail(date);
 	        AddTriple(result, false, false, prefix, SNVOC.Created, 
-	                createDataTypeLiteral(dateString, XSD.prefixed("dateTime")));
+	                createDataTypeLiteral(dateString, XSD.DateTime));
 	        AddTriple(result, false, true, prefix, SNVOC.Content,
                     createLiteral(post.getContent()));
 	        
@@ -599,7 +598,7 @@ public class Turtle implements Serializer {
 	            date.setTimeInMillis(likeTimestamps[i]);
 	            String dateString = DateGenerator.formatDateDetail(date);
 	            AddTriple(result, false, true, likePrefix, SNVOC.Created,
-	                    createDataTypeLiteral(dateString, XSD.prefixed("dateTime")));
+	                    createDataTypeLiteral(dateString, XSD.DateTime));
 	            likeId++;
 	        }
 	    }
@@ -613,7 +612,7 @@ public class Turtle implements Serializer {
         AddTriple(result, true, false, prefix, RDF.type, SNVOC.Comment);
         date.setTimeInMillis(comment.getCreateDate());
         String dateString = DateGenerator.formatDateDetail(date); 
-        AddTriple(result, false, false, prefix, SNVOC.Created, createDataTypeLiteral(dateString, XSD.prefixed("dateTime")));
+        AddTriple(result, false, false, prefix, SNVOC.Created, createDataTypeLiteral(dateString, XSD.DateTime));
         AddTriple(result, false, true, prefix, SNVOC.Comment, createLiteral(comment.getContent()));
         
         String replied = (comment.getReply_of() == -1) ? SN.getPostURI(comment.getPostId()) : 
@@ -649,6 +648,16 @@ public class Turtle implements Serializer {
 	
 	public String convertPhotoAlbum(PhotoAlbum album){
 		StringBuffer result = new StringBuffer();
+		
+		String prefix = SN.getForumURI(album.getAlbumId());
+        AddTriple(result, true, false, prefix, RDF.type, SNVOC.Forum);
+        AddTriple(result, false, false, prefix, SNVOC.Title, album.getTitle());
+        date.setTimeInMillis(album.getCreatedDate());
+        String dateString = DateGenerator.formatDateDetail(date);     
+        AddTriple(result, false, true, prefix, SNVOC.Created, dateString);
+
+        createTripleSPO(result, SN.getPersonURI(album.getCreatorId()), SNVOC.Moderator_of, prefix);
+		
 		return result.toString(); 
 	}	
 
@@ -657,11 +666,13 @@ public class Turtle implements Serializer {
 		if (body)  {
 		    String prefix = SN.getPostURI(photo.getPhotoId());
 	        AddTriple(result, true, false, prefix, RDF.type, SNVOC.Post);
-	        AddTriple(result, false, false, prefix, RDF.type, SNVOC.Photo);
+	        AddTriple(result, false, false, prefix, SNVOC.Image, createLiteral(photo.getImage()));
 	        date.setTimeInMillis(photo.getTakenTime());
             String dateString = DateGenerator.formatDateDetail(date);
             AddTriple(result, false, true, prefix, SNVOC.Created, 
-                    createDataTypeLiteral(dateString, XSD.prefixed("dateTime")));
+                    createDataTypeLiteral(dateString, XSD.DateTime));
+            
+            
             
             if (photo.getIpAddress() != null) {
                 if (!printedIpaddresses.containsKey(photo.getIpAddress().toString())) {
@@ -680,8 +691,8 @@ public class Turtle implements Serializer {
                 createTripleSPO(result, prefix, SNVOC.Browser, createLiteral(vBrowserNames.get(photo.getBrowserIdx())));
             }
             
-            createTripleSPO(result, SN.getPersonURI(photo.getCreatorId()),
-                    SNVOC.Creator_of, prefix);
+            createTripleSPO(result, SN.getPersonURI(photo.getCreatorId()), SNVOC.Creator_of, prefix);
+            createTripleSPO(result, SN.getForumURI(photo.getAlbumId()), SNVOC.Container_of, prefix);
             
             Iterator<Integer> it = photo.getTags().iterator();
             while (it.hasNext()) {
@@ -703,7 +714,7 @@ public class Turtle implements Serializer {
                 date.setTimeInMillis(likeTimestamps[i]);
                 String dateString = DateGenerator.formatDateDetail(date);
                 AddTriple(result, false, true, likePrefix, SNVOC.Created,
-                        createDataTypeLiteral(dateString, XSD.prefixed("dateTime")));
+                        createDataTypeLiteral(dateString, XSD.DateTime));
                 likeId++;
             }
 		}
@@ -726,7 +737,7 @@ public class Turtle implements Serializer {
 	    date.setTimeInMillis(group.getCreatedDate());
 	    String dateString = DateGenerator.formatDateDetail(date);  
 	    AddTriple(result, false, true, prefix, SNVOC.Created, 
-	            createDataTypeLiteral(dateString, XSD.prefixed("dateTime")));
+	            createDataTypeLiteral(dateString, XSD.DateTime));
 	    
 	    Integer groupTags[] = group.getTags();
         for (int i = 0; i < groupTags.length; i ++){
@@ -749,7 +760,7 @@ public class Turtle implements Serializer {
 	        date.setTimeInMillis(memberShips[i].getJoinDate());
 	        dateString = DateGenerator.formatDateDetail(date);
 	        AddTriple(result, false, true, memberhipPrefix, SNVOC.Joined,
-	                createDataTypeLiteral(dateString, XSD.prefixed("dateTime")));
+	                createDataTypeLiteral(dateString, XSD.DateTime));
 
 	        membershipId++;
 	    }
@@ -759,7 +770,7 @@ public class Turtle implements Serializer {
         AddTriple(result, true, false, forumPrefix, RDF.type, SNVOC.Forum);
         AddTriple(result, false, false, forumPrefix, SNVOC.Title, createLiteral(group.getGroupName()));
         AddTriple(result, false, true, forumPrefix, SNVOC.Created, 
-                createDataTypeLiteral(dateString, XSD.prefixed("dateTime")));
+                createDataTypeLiteral(dateString, XSD.DateTime));
         
         createTripleSPO(result, SN.getPersonURI(group.getModeratorId()),
                 SNVOC.Moderator_of, forumPrefix);

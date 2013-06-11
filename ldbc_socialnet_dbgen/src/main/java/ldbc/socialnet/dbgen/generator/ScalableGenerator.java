@@ -47,7 +47,6 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Random;
@@ -381,7 +380,7 @@ public class ScalableGenerator{
 		rdfOutputFileName = "mr" + mapreduceFileIdx + "_" + rdfOutputFileName;
 		
 		init(mapIdx, true);
-		
+		PhotoGenerator.photoAlbumId = numtotalUser * 2 + 10;
 		
 		System.out.println("Number of files " + numFiles);
 		System.out.println("Number of cells per file " + numCellPerfile);
@@ -926,6 +925,7 @@ public class ScalableGenerator{
 		rdfOutputFileName = rdfOutputFileName + numtotalUser;
 		
 		init(mapIdx, false);
+		PhotoGenerator.photoAlbumId = numtotalUser * 2 + 10;
 		
 		System.out.println("Number of files " + numFiles);
 		System.out.println("Number of cells per file " + numCellPerfile);
@@ -974,8 +974,7 @@ public class ScalableGenerator{
 				
 				if ((randProb < prob) || (randProb < limitProCorrelated)) {
 					// add a friendship
-					createFriendShip(reducedUserProfiles[i], reducedUserProfiles[j],
-							(byte) pass);
+					createFriendShip(reducedUserProfiles[i], reducedUserProfiles[j], (byte) pass);
 				}
 
 			}
@@ -1239,13 +1238,11 @@ public class ScalableGenerator{
 		int numOfmonths = (int) dateTimeGenerator.numberOfMonths(user);
 		int numPhotoAlbums;
 		
-		if (numOfmonths == 0){
-			numPhotoAlbums = randNumberPhotoAlbum
-				.nextInt(maxNumPhotoAlbums);
+		if (numOfmonths == 0) {
+			numPhotoAlbums = randNumberPhotoAlbum.nextInt(maxNumPhotoAlbums);
+		}else {
+			numPhotoAlbums = numOfmonths * randNumberPhotoAlbum.nextInt(maxNumPhotoAlbums);
 		}
-		else
-			numPhotoAlbums = numOfmonths * randNumberPhotoAlbum
-			.nextInt(maxNumPhotoAlbums);
 		
 		for (int m = 0; m < numPhotoAlbums; m++) {
 			PhotoAlbum album = photoGenerator.generateAlbum(user);
@@ -1614,20 +1611,14 @@ public class ScalableGenerator{
 			userProf.setNumPassFriends(totalFriendSet,i);
 			
 		}
-
 		// Prevent the case that the number of friends added exceeds the total number of friends
-		
 		userProf.setNumPassFriends(userProf.getNumFriends(),numCorrDimensions-1);
-
 
 		userProf.setNumFriendsAdded((short) 0);
 		userProf.setLocationIdx(locationDic.getLocation(accountId));
 		userProf.setCityIdx(locationDic.getRandomCity(userProf.getLocationIdx()));
 		userProf.setLocationZId(locationDic.getZorderID(userProf.getLocationIdx()));
 		
-		//Set Main Tag
-		//System.out.println("Main tag for this user. Location " + userProf.getLocationIdx() + 
-		//		"   === Tag: " +  mainTagDic.getaTagByCountry(userProf.getLocationIdx()) );
 		
 		int userMainTag = mainTagDic.getaTagByCountry(userProf.getLocationIdx());
 		
@@ -1636,36 +1627,23 @@ public class ScalableGenerator{
 		userProf.setNumTags((short) (randNumTags.nextInt(maxNoTagsPerUser) + 1));
 		
 		userProf.setSetOfTags(topicTagDic.getSetofTags(userMainTag, userProf.getNumTags()));
-		
-		// University 
+
 		userProf.setLocationOrganizationId(organizationsDictionary.getRandomOrganization(userProf.getLocationIdx()));
-		
-		
-		// date of birth
+
 		userProf.setBirthDay(dateTimeGenerator.getBirthDay(userProf.getCreatedDate()));
 
-		// Gender
-		if (randGender.nextDouble() > 0.5){
-			userProf.setGender((byte)1);
-		}
-		else {
-			userProf.setGender((byte)0);
-		}
+		byte gender = (randGender.nextDouble() > 0.5) ? (byte)1 : (byte)0;
+		userProf.setGender(gender);
 		
 		userProf.setForumWallId(accountId * 2); // Each user has an wall
 		userProf.setForumStatusId(accountId * 2 + 1);
 
-		userProf.setNumInterests((short) (randNumInterest
-				.nextInt(maxNoInterestsPerUser) + 1));
-		// +1 in order to remove the case that the user does not have any
-		// interest
+		userProf.setNumInterests((short) (randNumInterest.nextInt(maxNoInterestsPerUser) + 1));
 
 		// User's Agent
-		if (randUserAgent.nextDouble() > probHavingSmartPhone) {
-			userProf.setHaveSmartPhone(true);
+		userProf.setHaveSmartPhone(randUserAgent.nextDouble() > probHavingSmartPhone);
+		if (userProf.isHaveSmartPhone()) {
 			userProf.setAgentIdx(userAgentDic.getRandomUserAgentIdx());
-		} else {
-			userProf.setHaveSmartPhone(false);
 		}
 
 		// User's browser
@@ -1682,7 +1660,6 @@ public class ScalableGenerator{
 		for (int i = 0; i < numPopularPlaces; i++){
 			popularPlaces[i] = popularDictionary.getPopularPlace(userProf.getLocationIdx());
 			if (popularPlaces[i] == -1){ 	// no popular place here
-				//System.out.println("[DEBUG] There is a location "+ userProf.getLocationIdx() +" without any popular place");
 				userProf.setNumPopularPlace((byte)0);
 				break;
 			}
@@ -1705,7 +1682,6 @@ public class ScalableGenerator{
 	public void setInfoFromUserProfile(ReducedUserProfile user,
 			UserExtraInfo userExtraInfo) {
 
-		
 		// The country will be always present, but the city can be missing if that data is 
 		// not available on the dictionary
 		int locationId = (user.getCityIdx() != -1) ? user.getCityIdx() : user.getLocationIdx();

@@ -42,6 +42,7 @@ import java.util.HashSet;
 public class PhotoStream implements Serializable{
 	boolean isPhoto = true; 
 	long photoId;
+	String image;
 	
 	long albumId; 
 	int locationIdx; 
@@ -64,7 +65,8 @@ public class PhotoStream implements Serializable{
 	public PhotoStream(){}
 	public PhotoStream(Photo photo){
 		isPhoto = true; 
-		this.photoId = photo.getPhotoId(); 
+		this.photoId = photo.getPhotoId();
+		this.image = photo.getImage(); 
 		this.albumId = photo.getAlbumId(); 
 		this.locationIdx = photo.getLocationIdx();
 		this.creatorId = photo.getCreatorId();		// Id of user's account
@@ -88,7 +90,8 @@ public class PhotoStream implements Serializable{
 	}
 	public Photo getPhoto(){
 		Photo photo = new Photo();
-		photo.setPhotoId(photoId); 
+		photo.setPhotoId(photoId);
+		photo.setImage(image);
 		photo.setAlbumId(albumId); 
 		photo.setLocationIdx(locationIdx);
 		photo.setCreatorId(creatorId);		// Id of user's account
@@ -127,6 +130,12 @@ public class PhotoStream implements Serializable{
 	public void setPhotoId(long photoId) {
 		this.photoId = photoId;
 	}
+	public void setImage(String image) {
+        this.image = image;
+    }
+    public String getImage() {
+        return image;
+    }
 	public long getAlbumId() {
 		return albumId;
 	}

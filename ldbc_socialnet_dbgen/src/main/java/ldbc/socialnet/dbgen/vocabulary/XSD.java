@@ -64,21 +64,23 @@ public class XSD {
 	}
 	
 	//Resources
-	public static final String Integer = NS + "integer";
+	public static final String Integer = PREFIX + "integer";
 	
-	public static final String Int = NS + "int";
+	public static final String Int = PREFIX + "int";
 	
-	public static final String Float = NS + "float";
+	public static final String Float = PREFIX + "float";
 	
-	public static final String Double = NS + "double";
+	public static final String Double = PREFIX + "double";
 
-	public static final String Long = NS + "long";
+	public static final String Long = PREFIX + "long";
 
-	public static final String String = NS + "string";
+	public static final String String = PREFIX + "string";
 
-	public static final String Decimal = NS + "decimal";
+	public static final String Decimal = PREFIX + "decimal";
 
-	public static final String Date = NS + "date";
+	public static final String Year = PREFIX + "gYear";
 	
-	public static final String DateTime = NS + "dateTime";
+	public static final String Date = PREFIX + "date";
+	
+	public static final String DateTime = PREFIX + "dateTime";
 }

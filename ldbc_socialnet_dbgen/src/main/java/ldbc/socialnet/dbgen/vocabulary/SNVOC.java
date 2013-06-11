@@ -122,6 +122,7 @@ public class SNVOC{
 	public static final String Photo         =  PREFIX+"Photo";
 	public static final String Comment       =  PREFIX+"Comment";
 	public static final String Type          =  PREFIX+"type";
+	public static final String Image         =  PREFIX+"image";
 	public static final String Content       =  PREFIX+"content";
 	public static final String Annotated     =  PREFIX+"annotated";
 	public static final String Container_of  =  PREFIX+"container_of";

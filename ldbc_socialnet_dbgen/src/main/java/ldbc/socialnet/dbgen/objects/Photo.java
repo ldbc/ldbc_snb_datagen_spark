@@ -36,15 +36,15 @@
  */
 package ldbc.socialnet.dbgen.objects;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 
 public class Photo extends SocialObject {
 	long photoId; 
+	String image;
 	long albumId; 
 	int locationIdx; 
 	int creatorId;		// Id of user's account
-	String locationName; 
+	String locationName;
 	double latt; 
 	double longt; 
 	long takenTime; 
@@ -87,6 +87,15 @@ public class Photo extends SocialObject {
 	public void setPhotoId(long photoId) {
 		this.photoId = photoId;
 	}
+	
+	public void setImage(String image) {
+        this.image = image;
+    }
+	
+	public String getImage() {
+        return image;
+    }
+	
 	public long getAlbumId() {
 		return albumId;
 	}

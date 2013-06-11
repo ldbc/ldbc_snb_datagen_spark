@@ -62,6 +62,7 @@ import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
 import ldbc.socialnet.dbgen.objects.SocialObject;
 import ldbc.socialnet.dbgen.objects.UserExtraInfo;
 import ldbc.socialnet.dbgen.objects.UserProfile;
+import ldbc.socialnet.dbgen.vocabulary.RDF;
 import ldbc.socialnet.dbgen.vocabulary.SN;
 import ldbc.socialnet.dbgen.vocabulary.SNVOC;
 
@@ -576,7 +577,6 @@ public class CSV implements Serializer {
 		Vector<String> arguments = new Vector<String>();
 		if (body) {
 		    arguments.add(Long.toString(post.getPostId()));
-		    arguments.add("TEXT");
             if (post.getTitle() != null) {
                 arguments.add(post.getTitle());
             } else {
@@ -715,6 +715,18 @@ public class CSV implements Serializer {
 
 	public void convertPhotoAlbum(PhotoAlbum album){
 		Vector<String> arguments = new Vector<String>();
+		
+		
+		date.setTimeInMillis(album.getCreatedDate());
+        String dateString = DateGenerator.formatDateDetail(date);
+		arguments.add(Long.toString(album.getAlbumId()));
+		arguments.add(album.getTitle());
+		arguments.add(dateString);
+		ToCSV(arguments, Files.FORUM.ordinal());
+		
+		arguments.add(Integer.toString(album.getCreatorId()));
+		arguments.add(Long.toString(album.getAlbumId()));
+		ToCSV(arguments, Files.PERSON_MODERATOR_OF_FORUM.ordinal());
 	}
 
 	public void convertPhoto(Photo photo, boolean body, boolean isLiked){
@@ -722,7 +734,7 @@ public class CSV implements Serializer {
         if (body) {
             String empty = "";
             arguments.add(Long.toString(photo.getPhotoId()));
-            arguments.add("PHOTO");
+            arguments.add(photo.getImage());
             arguments.add(empty);
             date.setTimeInMillis(photo.getTakenTime());
             String dateString = DateGenerator.formatDateDetail(date);
@@ -757,6 +769,10 @@ public class CSV implements Serializer {
             arguments.add(Integer.toString(photo.getCreatorId()));
             arguments.add(Long.toString(photo.getPhotoId()));
             ToCSV(arguments, Files.PERSON_CREATOR_OF_POST.ordinal());
+            
+            arguments.add(Long.toString(photo.getAlbumId()));
+            arguments.add(Long.toString(photo.getPhotoId()));
+            ToCSV(arguments, Files.FORUM_CONTAINER_OF_POST.ordinal());
 
             Iterator<Integer> it = photo.getTags().iterator();
             while (it.hasNext()) {
