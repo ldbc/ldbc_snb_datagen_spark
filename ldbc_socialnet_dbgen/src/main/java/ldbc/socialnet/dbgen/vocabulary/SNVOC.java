@@ -106,8 +106,9 @@ public class SNVOC{
 	public static final String Connection  =  PREFIX+"connection";
 	public static final String Browser     =  PREFIX+"browser";
 	public static final String IPAddress   =  PREFIX+"IPAddress"; //Type
-	public static final String Ip_address  =  PREFIX+"ip_address"; //attribute
+	public static final String Ip_address  =  PREFIX+"ipaddress"; //attribute
 	public static final String Located_in  =  PREFIX+"located_in";
+	public static final String Located     =  PREFIX+"located";
 	
 	//Forum related
 	public static final String Forum        =  PREFIX+"Forum";

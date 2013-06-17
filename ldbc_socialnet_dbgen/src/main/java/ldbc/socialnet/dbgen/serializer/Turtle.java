@@ -412,6 +412,14 @@ public class Turtle implements Serializer {
 		            createDataTypeLiteral(dateString, XSD.Date));
 		}
 		
+		if (profile.getIpAddress() != null) {
+            AddTriple(result, false, false, prefix, SNVOC.Ip_address, 
+                    createLiteral(profile.getIpAddress().toString()));
+            if (profile.getBrowserIdx() >= 0) {
+                AddTriple(result, false, false, prefix, SNVOC.Browser,
+                        createLiteral(vBrowserNames.get(profile.getBrowserIdx())));
+            }
+        }
 		//dc:created
         date.setTimeInMillis(profile.getCreatedDate());
         String dateString = DateGenerator.formatDateDetail(date);
@@ -454,20 +462,9 @@ public class Turtle implements Serializer {
             }
         }       
 		
-        if (!printedIpaddresses.containsKey(profile.getIpAddress().toString())) {
-            int connectionId = printedIpaddresses.size();
-            printedIpaddresses.put(profile.getIpAddress().toString(), connectionId);
-            String connPrefix = SN.getipURI(connectionId);
-            AddTriple(result, true, false, connPrefix, RDF.type, SNVOC.IPAddress);
-            AddTriple(result, false, false, connPrefix, SNVOC.Ip_address,
-                    createLiteral(profile.getIpAddress().toString()));
-            AddTriple(result, false, true, connPrefix, SNVOC.Located_in,
-                    DBP.fullPrefixed(locationDic.getLocationName((ipDic.getLocation(profile.getIpAddress())))));
-        }
-        
-        String connPrefix = SN.getipURI(printedIpaddresses.get(profile.getIpAddress().toString()));		
-		createTripleSPO(result, prefix, SNVOC.Connection, connPrefix);
-		createTripleSPO(result, prefix, SNVOC.Browser, createLiteral(vBrowserNames.get(profile.getBrowserIdx())));
+        //TODO: What about this based_near???
+//            AddTriple(result, false, true, connPrefix, SNVOC.Located_in,
+//                    DBP.fullPrefixed(locationDic.getLocationName((ipDic.getLocation(profile.getIpAddress())))));
 		
 		
 		if (extraInfo != null) {
@@ -580,30 +577,21 @@ public class Turtle implements Serializer {
 	        String dateString = DateGenerator.formatDateDetail(date);
 	        AddTriple(result, false, false, prefix, SNVOC.Created, 
 	                createDataTypeLiteral(dateString, XSD.DateTime));
+	        if (post.getIpAddress() != null) {
+	            AddTriple(result, false, false, prefix, SNVOC.Ip_address, 
+	                    createLiteral(post.getIpAddress().toString()));
+	            if (post.getBrowserIdx() >= 0) {
+	                AddTriple(result, false, false, prefix, SNVOC.Browser,
+	                        createLiteral(vBrowserNames.get(post.getBrowserIdx())));
+	            }
+	        }
 	        AddTriple(result, false, true, prefix, SNVOC.Content,
                     createLiteral(post.getContent()));
 	        
 	        createTripleSPO(result, prefix, SNVOC.Annotated,
                     createLiteral(languageDic.getLanguagesName(post.getLanguage())));
-
-	        //sioc:ip_address
-	        if (post.getIpAddress() != null) {
-	            
-	            if (!printedIpaddresses.containsKey(post.getIpAddress().toString())) {
-	                int connectionId = printedIpaddresses.size();
-	                printedIpaddresses.put(post.getIpAddress().toString(), connectionId);
-	                String connPrefix = SN.getipURI(connectionId);
-	                AddTriple(result, true, false, connPrefix, RDF.type, SNVOC.IPAddress);
-	                AddTriple(result, false, false, connPrefix, SNVOC.Ip_address,
-	                        createLiteral(post.getIpAddress().toString()));
-	                AddTriple(result, false, true, connPrefix, SNVOC.Located_in,
-	                        DBP.fullPrefixed(locationDic.getLocationName((ipDic.getLocation(post.getIpAddress())))));
-	            }
-	            
-	            String connPrefix = SN.getipURI(printedIpaddresses.get(post.getIpAddress().toString()));     
-	            createTripleSPO(result, prefix, SNVOC.Connection, connPrefix);
-	            createTripleSPO(result, prefix, SNVOC.Browser, createLiteral(vBrowserNames.get(post.getBrowserIdx())));
-	        }
+	        createTripleSPO(result, prefix, SNVOC.Located,
+	                DBP.fullPrefixed(locationDic.getLocationName((ipDic.getLocation(post.getIpAddress())))));
 
 	        createTripleSPO(result, SN.getForumURI(post.getForumId()),
 	                SNVOC.Container_of, prefix);
@@ -652,32 +640,22 @@ public class Turtle implements Serializer {
         date.setTimeInMillis(comment.getCreateDate());
         String dateString = DateGenerator.formatDateDetail(date); 
         AddTriple(result, false, false, prefix, SNVOC.Created, createDataTypeLiteral(dateString, XSD.DateTime));
+        if (comment.getIpAddress() != null) {
+            AddTriple(result, false, false, prefix, SNVOC.Ip_address, 
+                    createLiteral(comment.getIpAddress().toString()));
+            if (comment.getBrowserIdx() >= 0) {
+                AddTriple(result, false, false, prefix, SNVOC.Browser,
+                        createLiteral(vBrowserNames.get(comment.getBrowserIdx())));
+            }
+        }
         AddTriple(result, false, true, prefix, SNVOC.Content, createLiteral(comment.getContent()));
         
         String replied = (comment.getReply_of() == -1) ? SN.getPostURI(comment.getPostId()) : 
             SN.getCommentURI(comment.getReply_of());
         createTripleSPO(result, prefix, SNVOC.Reply_of, replied);
+        createTripleSPO(result, prefix, SNVOC.Located,
+                DBP.fullPrefixed(locationDic.getLocationName((ipDic.getLocation(comment.getIpAddress())))));
         
-        //sioc:ip_address
-        if (comment.getIpAddress() != null) {
-            if (!printedIpaddresses.containsKey(comment.getIpAddress().toString())) {
-                int connectionId = printedIpaddresses.size();
-                printedIpaddresses.put(comment.getIpAddress().toString(), connectionId);
-                String connPrefix = SN.getipURI(connectionId);
-                AddTriple(result, true, false, connPrefix, RDF.type, SNVOC.IPAddress);
-                AddTriple(result, false, false, connPrefix, SNVOC.Ip_address,
-                        createLiteral(comment.getIpAddress().toString()));
-                AddTriple(result, false, true, connPrefix, SNVOC.Located_in,
-                        DBP.fullPrefixed(locationDic.getLocationName((ipDic.getLocation(comment.getIpAddress())))));
-            }
-            
-            String connPrefix = SN.getipURI(printedIpaddresses.get(comment.getIpAddress().toString()));     
-            createTripleSPO(result, prefix, SNVOC.Connection, connPrefix);
-            if (comment.getBrowserIdx() != -1) {
-                createTripleSPO(result, prefix, SNVOC.Browser, 
-                        createLiteral(vBrowserNames.get(comment.getBrowserIdx())));
-            }
-        }
         //user sioc:creator_of
         createTripleSPO(result, prefix, SNVOC.Creator,
                 SN.getPersonURI(comment.getAuthorId()));
@@ -708,30 +686,21 @@ public class Turtle implements Serializer {
 	        AddTriple(result, false, false, prefix, SNVOC.Image, createLiteral(photo.getImage()));
 	        date.setTimeInMillis(photo.getTakenTime());
             String dateString = DateGenerator.formatDateDetail(date);
+            if (photo.getIpAddress() != null) {
+                AddTriple(result, false, false, prefix, SNVOC.Ip_address, 
+                        createLiteral(photo.getIpAddress().toString()));
+                if (photo.getBrowserIdx() >= 0) {
+                    AddTriple(result, false, false, prefix, SNVOC.Browser,
+                            createLiteral(vBrowserNames.get(photo.getBrowserIdx())));
+                }
+            }
             AddTriple(result, false, true, prefix, SNVOC.Created, 
                     createDataTypeLiteral(dateString, XSD.DateTime));
             
-            
-            
-            if (photo.getIpAddress() != null) {
-                if (!printedIpaddresses.containsKey(photo.getIpAddress().toString())) {
-                    int connectionId = printedIpaddresses.size();
-                    printedIpaddresses.put(photo.getIpAddress().toString(), connectionId);
-                    String connPrefix = SN.getipURI(connectionId);
-                    AddTriple(result, true, false, connPrefix, RDF.type, SNVOC.IPAddress);
-                    AddTriple(result, false, false, connPrefix, SNVOC.Ip_address,
-                            createLiteral(photo.getIpAddress().toString()));
-                    AddTriple(result, false, true, connPrefix, SNVOC.Located_in,
-                            DBP.fullPrefixed(locationDic.getLocationName((ipDic.getLocation(photo.getIpAddress())))));
-                }
-                
-                String connPrefix = SN.getipURI(printedIpaddresses.get(photo.getIpAddress().toString()));     
-                createTripleSPO(result, prefix, SNVOC.Connection, connPrefix);
-                createTripleSPO(result, prefix, SNVOC.Browser, createLiteral(vBrowserNames.get(photo.getBrowserIdx())));
-            }
-            
             createTripleSPO(result, prefix, SNVOC.Creator, SN.getPersonURI(photo.getCreatorId()));
             createTripleSPO(result, SN.getForumURI(photo.getAlbumId()), SNVOC.Container_of, prefix);
+            createTripleSPO(result, prefix, SNVOC.Located,
+                    DBP.fullPrefixed(locationDic.getLocationName((ipDic.getLocation(photo.getIpAddress())))));
             
             Iterator<Integer> it = photo.getTags().iterator();
             while (it.hasNext()) {

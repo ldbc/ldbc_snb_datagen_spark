@@ -92,15 +92,14 @@ public class CSV implements Serializer {
     		                "comment",
     		                "location",
     		                "emailaddress",
-                            "ipaddress",
     		                "organization",
     		                "language",
     		                "person_like_post",
     		                "person_interest_tag",
     		                "person_knows_person",
     		                "person_speaks_language",
-    		                "post_connection_ipaddress",
-    		                "comment_connection_ipaddress",
+    		                "post_located_location",
+    		                "comment_located_location",
     		                "group_has_tag_tag",
     		                "post_has_tag_tag",
     		                "post_annotated_language",
@@ -111,9 +110,7 @@ public class CSV implements Serializer {
     		                "comment_reply_of_comment",
     		                "person_based_near_location",
     		                "organization_based_near_location",
-    		                "ipaddress_located_in_location",
     		                "person_has_email_emailaddress",
-    		                "person_connection_ipaddress",
     		                "person_membership_group",
     		                "person_creator_of_group",
     		                "person_creator_of_post",
@@ -132,15 +129,14 @@ public class CSV implements Serializer {
     	COMMENT,
     	LOCATION,
     	EMAIL,
-    	IPADDRESS,
     	ORGANIZATION,
     	LANGUAGE,
     	PERSON_LIKE_POST,
     	PERSON_INTEREST_TAG,
     	PERSON_KNOWS_PERSON,
     	PERSON_SPEAKS_LANGUAGE,
-    	POST_CONNECTION_IPADDRESS,
-    	COMMENT_CONNECTION_IPADDRESS,
+    	POST_LOCATED_LOCATION,
+    	COMMENT_LOCATED_LOCATION,
     	GROUP_HAS_TAG_TAG,
     	POST_HAS_TAG_TAG,
     	POST_ANNOTATED_LANGUAGE,
@@ -151,9 +147,7 @@ public class CSV implements Serializer {
     	COMMENT_REPLY_OF_COMMENT,
     	PERSON_BASED_NEAR_LOCATION,
     	ORGANIZATION_BASED_NEAR_LOCATION,
-    	IPADDRESS_LOCATED_IN_LOCATION,
     	PERSON_HAS_EMAIL_EMAIL,
-    	PERSON_CONNECTION_IPADDRESS,
     	PERSON_MEMBERSHIP_GROUP,
     	PERSON_CREATOR_OF_GROUP,
     	PERSON_CREATOR_OF_POST,
@@ -404,6 +398,19 @@ public class CSV implements Serializer {
 		date.setTimeInMillis(profile.getCreatedDate());
 		String dateString = DateGenerator.formatDateDetail(date);
 		arguments.add(dateString);
+		int ipId = ipList.indexOf(profile.getIpAddress().toString());
+        if (profile.getIpAddress() != null) {
+            arguments.add(profile.getIpAddress().toString());
+        } else {
+            String empty = "";
+            arguments.add(empty);
+        }
+        if (profile.getBrowserIdx() >= 0) {
+            arguments.add(vBrowserNames.get(profile.getBrowserIdx()));
+        } else {
+            String empty = "";
+            arguments.add(empty);
+        }
 		ToCSV(arguments, Files.PERSON.ordinal());
 		
 		if (extraInfo != null)
@@ -433,24 +440,9 @@ public class CSV implements Serializer {
 	            ToCSV(arguments, Files.PERSON_HAS_EMAIL_EMAIL.ordinal());
 	            emailId++;
 		    }
-		    
-		    int ipId = ipList.indexOf(profile.getIpAddress().toString());
-		    if (ipId == -1) {
-		        ipId = ipList.size();
-		        ipList.add(profile.getIpAddress().toString());
-		        arguments.add(Integer.toString(ipId));
-		        arguments.add(profile.getIpAddress().toString());
-		        ToCSV(arguments, Files.IPADDRESS.ordinal());
-		    }
-		    
-            arguments.add(Integer.toString(profile.getAccountId()));
-            arguments.add(Integer.toString(ipId));
-            arguments.add(vBrowserNames.get(profile.getBrowserIdx()));
-            ToCSV(arguments, Files.PERSON_CONNECTION_IPADDRESS.ordinal());
             
-            arguments.add(Integer.toString(ipId));
-            arguments.add(Integer.toString(ipDic.getLocation(profile.getIpAddress())));
-            ToCSV(arguments, Files.IPADDRESS_LOCATED_IN_LOCATION.ordinal());
+          //TODO: What about this based_near???
+//            arguments.add(Integer.toString(ipDic.getLocation(profile.getIpAddress())));
 
 			//based_near relationship
 			arguments.add(Integer.toString(profile.getAccountId()));
@@ -591,6 +583,19 @@ public class CSV implements Serializer {
             date.setTimeInMillis(post.getCreatedDate());
             String dateString = DateGenerator.formatDateDetail(date);
             arguments.add(dateString);
+            if (post.getIpAddress() != null) {
+                arguments.add(post.getIpAddress().toString());
+            }
+            else {
+                String empty = "";
+                arguments.add(empty);
+            }
+            if (post.getBrowserIdx() != -1){
+                arguments.add(vBrowserNames.get(post.getBrowserIdx()));
+            } else {
+                String empty = "";
+                arguments.add(empty);
+            }
             arguments.add(post.getContent());
             ToCSV(arguments, Files.POST.ordinal());
             
@@ -607,27 +612,9 @@ public class CSV implements Serializer {
             
             //sioc:ip_address
             if (post.getIpAddress() != null) {
-                int ipId = ipList.indexOf(post.getIpAddress().toString());
-                if (ipId == -1) {
-                    ipId = ipList.size();
-                    ipList.add(post.getIpAddress().toString());
-                    arguments.add(Integer.toString(ipId));
-                    arguments.add(post.getIpAddress().toString());
-                    ToCSV(arguments, Files.IPADDRESS.ordinal());
-                    
-                    arguments.add(Integer.toString(ipId));
-                    arguments.add(Integer.toString(ipDic.getLocation(post.getIpAddress())));
-                    ToCSV(arguments, Files.IPADDRESS_LOCATED_IN_LOCATION.ordinal());
-                }
                 arguments.add(Long.toString(post.getPostId()));
-                arguments.add(Integer.toString(ipId));
-                if (post.getBrowserIdx() != -1){
-                    arguments.add(vBrowserNames.get(post.getBrowserIdx()));
-                } else {
-                    String empty = "";
-                    arguments.add(empty);
-                }
-                ToCSV(arguments, Files.POST_CONNECTION_IPADDRESS.ordinal());
+                arguments.add(Integer.toString(ipDic.getLocation(post.getIpAddress())));
+                ToCSV(arguments, Files.POST_LOCATED_LOCATION.ordinal());
             }
 
             arguments.add(Integer.toString(post.getForumId()));
@@ -679,6 +666,19 @@ public class CSV implements Serializer {
         String dateString = DateGenerator.formatDateDetail(date); 
 	    arguments.add(Long.toString(comment.getCommentId()));
 	    arguments.add(dateString);
+	    if (comment.getIpAddress() != null) {
+            arguments.add(comment.getIpAddress().toString());
+        }
+        else {
+            String empty = "";
+            arguments.add(empty);
+        }
+        if (comment.getBrowserIdx() != -1){
+            arguments.add(vBrowserNames.get(comment.getBrowserIdx()));
+        } else {
+            String empty = "";
+            arguments.add(empty);
+        }
 	    arguments.add(comment.getContent());
 	    ToCSV(arguments, Files.COMMENT.ordinal());
 	    
@@ -692,27 +692,11 @@ public class CSV implements Serializer {
             arguments.add(Long.toString(comment.getReply_of()));
             ToCSV(arguments, Files.COMMENT_REPLY_OF_COMMENT.ordinal());
         }
-	    
 	    if (comment.getIpAddress() != null) {
-	        int ipId = ipList.indexOf(comment.getIpAddress().toString());
-            if (ipId == -1) {
-                ipId = ipList.size();
-                ipList.add(comment.getIpAddress().toString());
-                arguments.add(Integer.toString(ipId));
-                arguments.add(comment.getIpAddress().toString());
-                ToCSV(arguments, Files.IPADDRESS.ordinal());
-            }
-            
-            arguments.add(Long.toString(comment.getCommentId()));
-            arguments.add(Integer.toString(ipId));
-            if (comment.getBrowserIdx() != -1){
-                arguments.add(vBrowserNames.get(comment.getBrowserIdx()));
-            } else {
-                String empty = "";
-                arguments.add(empty);
-            }
-            ToCSV(arguments, Files.COMMENT_CONNECTION_IPADDRESS.ordinal());
-	    }
+            arguments.add(Long.toString(comment.getPostId()));
+            arguments.add(Integer.toString(ipDic.getLocation(comment.getIpAddress())));
+            ToCSV(arguments, Files.COMMENT_LOCATED_LOCATION.ordinal());
+        }
 	    
 	    arguments.add(Integer.toString(comment.getAuthorId()));
 	    arguments.add(Long.toString(comment.getCommentId()));
@@ -745,31 +729,24 @@ public class CSV implements Serializer {
             date.setTimeInMillis(photo.getTakenTime());
             String dateString = DateGenerator.formatDateDetail(date);
             arguments.add(dateString);
+            if (photo.getIpAddress() != null) {
+                arguments.add(photo.getIpAddress().toString());
+            }
+            else {
+                arguments.add(empty);
+            }
+            if (photo.getBrowserIdx() != -1){
+                arguments.add(vBrowserNames.get(photo.getBrowserIdx()));
+            } else {
+                arguments.add(empty);
+            }
             arguments.add(empty);
             ToCSV(arguments, Files.POST.ordinal());
             
-            //sioc:ip_address
             if (photo.getIpAddress() != null) {
-                int ipId = ipList.indexOf(photo.getIpAddress().toString());
-                if (ipId == -1) {
-                    ipId = ipList.size();
-                    ipList.add(photo.getIpAddress().toString());
-                    arguments.add(Integer.toString(ipId));
-                    arguments.add(photo.getIpAddress().toString());
-                    ToCSV(arguments, Files.IPADDRESS.ordinal());
-                    
-                    arguments.add(Integer.toString(ipId));
-                    arguments.add(Integer.toString(ipDic.getLocation(photo.getIpAddress())));
-                    ToCSV(arguments, Files.IPADDRESS_LOCATED_IN_LOCATION.ordinal());
-                }
                 arguments.add(Long.toString(photo.getPhotoId()));
-                arguments.add(Integer.toString(ipId));
-                if (photo.getBrowserIdx() != -1){
-                    arguments.add(vBrowserNames.get(photo.getBrowserIdx()));
-                } else {
-                    arguments.add(empty);
-                }
-                ToCSV(arguments, Files.POST_CONNECTION_IPADDRESS.ordinal());
+                arguments.add(Integer.toString(ipDic.getLocation(photo.getIpAddress())));
+                ToCSV(arguments, Files.POST_LOCATED_LOCATION.ordinal());
             }
             
             arguments.add(Integer.toString(photo.getCreatorId()));
