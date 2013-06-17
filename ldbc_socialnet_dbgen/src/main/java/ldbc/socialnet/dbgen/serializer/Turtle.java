@@ -62,6 +62,10 @@ import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
 import ldbc.socialnet.dbgen.objects.SocialObject;
 import ldbc.socialnet.dbgen.objects.UserExtraInfo;
 import ldbc.socialnet.dbgen.objects.UserProfile;
+import ldbc.socialnet.dbgen.vocabulary.DBP;
+import ldbc.socialnet.dbgen.vocabulary.DBPOWL;
+import ldbc.socialnet.dbgen.vocabulary.DBPPROP;
+import ldbc.socialnet.dbgen.vocabulary.FOAF;
 import ldbc.socialnet.dbgen.vocabulary.RDF;
 import ldbc.socialnet.dbgen.vocabulary.RDFS;
 import ldbc.socialnet.dbgen.vocabulary.SN;
@@ -71,9 +75,12 @@ import ldbc.socialnet.dbgen.vocabulary.XSD;
 
 public class Turtle implements Serializer {
 	
+    private static final String STATIC_DBP_DATA_FILE = "static_dbp";
+    
     private boolean isTurtle;
 	private long nrTriples;
 	private FileWriter[] dataFileWriter;
+	private FileWriter[] staticdbpFileWriter;
 	private boolean forwardChaining;
 	private boolean haveToGeneratePrefixes = true;
 	int currentWriter = 0;
@@ -92,6 +99,7 @@ public class Turtle implements Serializer {
 	HashMap<String, Integer> printedIpaddresses;
 	HashMap<String, Integer> printedOrganizations;
 	HashMap<Integer, Integer> printedLanguages;
+	HashMap<Integer, Integer> printedTags;
 	Vector<String>	vBrowserNames;
 	Vector<Integer> printedLocations;
 	
@@ -107,16 +115,22 @@ public class Turtle implements Serializer {
 		printedIpaddresses = new HashMap<String, Integer>();
 		printedOrganizations = new HashMap<String, Integer>();
 		printedLanguages = new HashMap<Integer, Integer>();
+		printedTags = new HashMap<Integer, Integer>();
 		int nrOfDigits = ((int)Math.log10(nrOfOutputFiles)) + 1;
 		String formatString = "%0" + nrOfDigits + "d";
 		try{
 		    String extension = (isTurtle) ? ".ttl": ".n3";
 			dataFileWriter = new FileWriter[nrOfOutputFiles];
-			if(nrOfOutputFiles==1)
+			staticdbpFileWriter = new FileWriter[nrOfOutputFiles];
+			if(nrOfOutputFiles==1) {
 				this.dataFileWriter[0] = new FileWriter(file + extension);
-			else
-				for(int i=1;i<=nrOfOutputFiles;i++)
+				this.staticdbpFileWriter[0] = new FileWriter(file+STATIC_DBP_DATA_FILE + extension);
+			} else {
+				for(int i=1;i<=nrOfOutputFiles;i++) {
 					dataFileWriter[i-1] = new FileWriter(file + String.format(formatString, i) + extension);
+					this.staticdbpFileWriter[i-1] = new FileWriter(file+STATIC_DBP_DATA_FILE + String.format(formatString, i) + extension);
+				}
+			}
 				
 		} catch(IOException e){
 			System.err.println("Could not open File for writing.");
@@ -125,8 +139,12 @@ public class Turtle implements Serializer {
 		}
 		
 		try {
-			for(int i=0;i<nrOfOutputFiles;i++)
+			for(int i=0;i<nrOfOutputFiles;i++) {
 				dataFileWriter[i].append(getNamespaces());
+			}
+			for(int i=0;i<nrOfOutputFiles;i++) {
+                staticdbpFileWriter[i].append(getStaticNamespaces());
+            }
 		} catch(IOException e) {
 			System.err.println(e.getMessage());
 		}
@@ -236,10 +254,22 @@ public class Turtle implements Serializer {
 		createPrefixLine(result, RDF.PREFIX, RDF.NS);
 		createPrefixLine(result, RDFS.PREFIX, RDFS.NS);
 		createPrefixLine(result, XSD.PREFIX, XSD.NS);
+		createPrefixLine(result, DBP.PREFIX, DBP.NS);
 		createPrefixLine(result, SNVOC.PREFIX, SNVOC.NS);
 		createPrefixLine(result, SN.PREFIX, SN.NS);
 		return result.toString();
 	}
+	
+	private String getStaticNamespaces() {
+        StringBuffer result = new StringBuffer();
+        createPrefixLine(result, RDF.PREFIX, RDF.NS);
+        createPrefixLine(result, FOAF.PREFIX, FOAF.NS);
+        createPrefixLine(result, DBP.PREFIX, DBP.NS);
+        createPrefixLine(result, DBPOWL.PREFIX, DBPOWL.NS);
+        createPrefixLine(result, DBPPROP.PREFIX, DBPPROP.NS);
+        createPrefixLine(result, SNVOC.PREFIX, SNVOC.NS);
+        return result.toString();
+    }
 	
 	private void createPrefixLine(StringBuffer result, String prefix, String namespace) {
 		result.append("@prefix ");
@@ -261,6 +291,17 @@ public class Turtle implements Serializer {
 	
 	private void generatePrefixes() {
 	    
+	}
+	
+	private void writeDBPData(String left, String middle, String right) {
+	    try {
+	        StringBuffer result = new StringBuffer();
+	        createTripleSPO(result, left, middle, right);
+	        staticdbpFileWriter[currentWriter].append(result);
+	    } catch (IOException e) {
+            System.out.println("Cannot write to output file ");
+            e.printStackTrace();
+        }
 	}
 	
 	private void AddTriple(StringBuffer result, boolean beginning, 
@@ -298,7 +339,7 @@ public class Turtle implements Serializer {
 	    AddTriple(result, beginning, end, left, middle, right, "", false);
 	}
 	
-	public void printLocationHierarchy(StringBuffer result, int baseId) {
+	public void printLocationHierarchy(int baseId) {
 	    ArrayList<Integer> areas = new ArrayList<Integer>();
         do {
             areas.add(baseId);
@@ -308,20 +349,16 @@ public class Turtle implements Serializer {
         for (int i = areas.size() - 1; i >= 0; i--) {
             if (printedLocations.indexOf(areas.get(i)) == -1) {
                 printedLocations.add(areas.get(i));
-                //print location if needed
-                String locPrefix = SN.getLocationURI(areas.get(i)); 
-                String type = SNVOC.City;
-                if (locationDic.getType(areas.get(i)) == Location.COUNTRY) {
-                    type = SNVOC.Country;
-                } else if (locationDic.getType(areas.get(i)) == Location.CONTINENT) {
-                    type = SNVOC.Region;
-                }
-                AddTriple(result, true, false, locPrefix, RDF.type, SNVOC.Location, type);
-                boolean partof = (locationDic.getType(areas.get(i)) == Location.CITY || 
-                        locationDic.getType(areas.get(i)) == Location.COUNTRY);
-                AddTriple(result, false, !partof, locPrefix, SNVOC.Name, createLiteral(locationDic.getLocationName(areas.get(i))));
-                if (partof) {
-                    AddTriple(result, false, true, locPrefix, SNVOC.Part_of, SN.getLocationURI(areas.get(i+1)));
+                
+                if (locationDic.getType(areas.get(i)) != Location.CONTINENT) {
+                    String type = (locationDic.getType(areas.get(i)) == Location.COUNTRY) ? DBPOWL.Country : DBPOWL.City;
+                    String name = locationDic.getLocationName(areas.get(i));
+                    writeDBPData(DBP.fullPrefixed(name), RDF.type, type);
+                    writeDBPData(DBP.fullPrefixed(name), FOAF.Name, createLiteral(name));
+                    if (locationDic.getType(areas.get(i)) == Location.CITY) {
+                        String countryName = locationDic.getLocationName(areas.get(i+1));
+                        writeDBPData(DBP.fullPrefixed(name), DBPOWL.Country, DBP.fullPrefixed(countryName));
+                    }
                 }
             }
         }
@@ -335,18 +372,18 @@ public class Turtle implements Serializer {
 		    
 		    if (printedLocations.indexOf(extraInfo.getLocationId()) == -1) {
 		        int parentId = extraInfo.getLocationId();
-		        printLocationHierarchy(result, parentId);
+		        printLocationHierarchy(parentId);
 		    }
 		    
 		    Iterator<String> it = extraInfo.getCompanies().iterator();
             while (it.hasNext()) {
                 String company = it.next();
                 int parentId = companyToCountry.get(company);
-                printLocationHierarchy(result, parentId);
+                printLocationHierarchy(parentId);
             }
-            printLocationHierarchy(result, universityToCountry.get(extraInfo.getOrganization()));
+            printLocationHierarchy(universityToCountry.get(extraInfo.getOrganization()));
 		}
-		printLocationHierarchy(result, ipDic.getLocation(profile.getIpAddress()));
+		printLocationHierarchy(ipDic.getLocation(profile.getIpAddress()));
 		
 		
 		//result.append(UserProfile.getPrefixed(profile.getAccountId()));
@@ -382,26 +419,21 @@ public class Turtle implements Serializer {
                 createDataTypeLiteral(dateString, XSD.DateTime));
 		
 		if (extraInfo != null) {
-		    createTripleSPO(result, prefix, SNVOC.Based_near, SN.getLocationURI(extraInfo.getLocationId()));
+		    createTripleSPO(result, prefix, SNVOC.Based_near, DBP.fullPrefixed(locationDic.getLocationName(extraInfo.getLocationId())));
 		    
 		    if (!extraInfo.getOrganization().equals("")) {
 		        if (!printedOrganizations.containsKey(extraInfo.getOrganization())) {
 		            int organizationId = printedOrganizations.size();
-		            printedOrganizations.put(extraInfo.getOrganization(), organizationId);
-		            
-		            String organizationPrefix = SN.getOrganizationURI(organizationId);
-		            AddTriple(result, true, false, organizationPrefix, RDF.type, SNVOC.Organization);
-		            AddTriple(result, false, false, organizationPrefix, SNVOC.Name, 
-		                    createLiteral(extraInfo.getOrganization()));
+                    printedOrganizations.put(extraInfo.getOrganization(), organizationId);
+		            writeDBPData(DBP.fullPrefixed(extraInfo.getOrganization()), RDF.type, DBPOWL.Organisation);
+		            writeDBPData(DBP.fullPrefixed(extraInfo.getOrganization()), FOAF.Name, createLiteral(extraInfo.getOrganization()));
 		            int locationId = universityToCountry.get(extraInfo.getOrganization());
-                    AddTriple(result, false, true, organizationPrefix, SNVOC.Based_near, 
-                            SN.getLocationURI(locationId));
-		            
+		            writeDBPData(DBP.fullPrefixed(extraInfo.getOrganization()), DBPOWL.City, 
+		                    DBP.fullPrefixed(locationDic.getLocationName(locationId)));
 		        }
-		        int organizationId = printedOrganizations.get(extraInfo.getOrganization());
 		        createTripleSPO(result, prefix, SNVOC.Study_at, SN.getStudyAtURI(studyAt));
-		        createTripleSPO(result, SN.getStudyAtURI(studyAt), RDF.object, 
-		                SN.getOrganizationURI(organizationId));
+		        createTripleSPO(result, SN.getStudyAtURI(studyAt), SNVOC.LinkOrganization, 
+		                DBP.fullPrefixed(extraInfo.getOrganization()));
 		        if (extraInfo.getClassYear() != -1 ){
 		            date.setTimeInMillis(extraInfo.getClassYear());
 		            String yearString = DateGenerator.formatYear(date);
@@ -430,7 +462,7 @@ public class Turtle implements Serializer {
             AddTriple(result, false, false, connPrefix, SNVOC.Ip_address,
                     createLiteral(profile.getIpAddress().toString()));
             AddTriple(result, false, true, connPrefix, SNVOC.Located_in,
-                    SN.getLocationURI(ipDic.getLocation(profile.getIpAddress())));
+                    DBP.fullPrefixed(locationDic.getLocationName((ipDic.getLocation(profile.getIpAddress())))));
         }
         
         String connPrefix = SN.getipURI(printedIpaddresses.get(profile.getIpAddress().toString()));		
@@ -446,19 +478,16 @@ public class Turtle implements Serializer {
                 if (!printedOrganizations.containsKey(company)) {
                     int organizationId = printedOrganizations.size();
                     printedOrganizations.put(company, organizationId);
-
-                    String organizationPrefix = SN.getOrganizationURI(organizationId);
-                    AddTriple(result, true, false, organizationPrefix, RDF.type, SNVOC.Organization);
-                    AddTriple(result, false, false, organizationPrefix, SNVOC.Name, createLiteral(company));
+                    writeDBPData(DBP.fullPrefixed(company), RDF.type, DBPOWL.Organisation);
+                    writeDBPData(DBP.fullPrefixed(company), FOAF.Name, createLiteral(company));
                     int locationId = companyToCountry.get(company);
-                    AddTriple(result, false, true, organizationPrefix, SNVOC.Based_near, 
-                            SN.getLocationURI(locationId));
+                    writeDBPData(DBP.fullPrefixed(company), DBPOWL.Country, 
+                            DBP.fullPrefixed(locationDic.getLocationName(locationId)));
                 }
                 
-                int organizationId = printedOrganizations.get(extraInfo.getOrganization());
                 createTripleSPO(result, prefix, SNVOC.Work_at, SN.getWorkAtURI(workatId));
-                createTripleSPO(result, SN.getWorkAtURI(workatId), RDF.object, 
-                        SN.getOrganizationURI(organizationId));
+                createTripleSPO(result, SN.getWorkAtURI(workatId), SNVOC.LinkOrganization, 
+                        DBP.fullPrefixed(company));
                 date.setTimeInMillis(extraInfo.getWorkFrom(company));
                 String yearString = DateGenerator.formatYear(date);
                 createTripleSPO(result, SN.getWorkAtURI(workatId), SNVOC.WorkFrom,
@@ -481,7 +510,7 @@ public class Turtle implements Serializer {
         AddTriple(result, false, true, forumPrefix, SNVOC.Created, 
                 createDataTypeLiteral(dateString, XSD.DateTime));
         
-        createTripleSPO(result, prefix,  SNVOC.Moderator_of, forumPrefix);
+        createTripleSPO(result, forumPrefix,  SNVOC.Moderator, prefix);
 		
 		// has_mail
 		if (extraInfo != null) {
@@ -497,7 +526,12 @@ public class Turtle implements Serializer {
 		while (it.hasNext()) {
 			Integer interestIdx = it.next();
 			String interest = interestIdsNames.get(interestIdx);
-			createTripleSPO(result, prefix, SNVOC.Interest, createLiteral(interest));      	
+			createTripleSPO(result, prefix, SNVOC.Interest, DBP.fullPrefixed(interest));  
+			if (!printedTags.containsKey(interestIdx)) {
+			    printedTags.put(interestIdx, interestIdx);
+			    writeDBPData(DBP.fullPrefixed(interest), RDF.type, SNVOC.Tag);
+			    writeDBPData(DBP.fullPrefixed(interest), FOAF.Name, createLiteral(interest));
+			}
 		}
 
 		//For the friendships
@@ -533,7 +567,7 @@ public class Turtle implements Serializer {
 	    if (body) {
 	        
 	        if (post.getIpAddress() != null) {
-	            printLocationHierarchy(result, ipDic.getLocation(post.getIpAddress()));
+	            printLocationHierarchy(ipDic.getLocation(post.getIpAddress()));
 	        }
 	        
 	        String prefix = SN.getPostURI(post.getPostId());
@@ -563,7 +597,7 @@ public class Turtle implements Serializer {
 	                AddTriple(result, false, false, connPrefix, SNVOC.Ip_address,
 	                        createLiteral(post.getIpAddress().toString()));
 	                AddTriple(result, false, true, connPrefix, SNVOC.Located_in,
-	                        SN.getLocationURI(ipDic.getLocation(post.getIpAddress())));
+	                        DBP.fullPrefixed(locationDic.getLocationName((ipDic.getLocation(post.getIpAddress())))));
 	            }
 	            
 	            String connPrefix = SN.getipURI(printedIpaddresses.get(post.getIpAddress().toString()));     
@@ -574,14 +608,19 @@ public class Turtle implements Serializer {
 	        createTripleSPO(result, SN.getForumURI(post.getForumId()),
 	                SNVOC.Container_of, prefix);
 
-	        createTripleSPO(result, SN.getPersonURI(post.getAuthorId()),
-	                SNVOC.Creator_of, prefix);
+	        createTripleSPO(result, prefix,
+                    SNVOC.Creator, SN.getPersonURI(post.getAuthorId()));
 
 	        Iterator<Integer> it = post.getTags().iterator();
 	        while (it.hasNext()) {
 	            Integer tagId = it.next();
                 String tag = interestIdsNames.get(tagId);
-	            createTripleSPO(result, prefix, SNVOC.Has_tag, createLiteral(tag));
+	            createTripleSPO(result, prefix, SNVOC.Has_tag, DBP.fullPrefixed(tag));
+	            if (!printedTags.containsKey(tagId)) {
+	                printedTags.put(tagId, tagId);
+	                writeDBPData(DBP.fullPrefixed(tag), RDF.type, SNVOC.Tag);
+	                writeDBPData(DBP.fullPrefixed(tag), FOAF.Name, createLiteral(tag));
+	            }
 	        }
 	    }
 
@@ -594,7 +633,7 @@ public class Turtle implements Serializer {
 	            createTripleSPO(result, SN.getPersonURI(userLikes[i]), 
 	                    SNVOC.Like, likePrefix);
 	            
-	            AddTriple(result, true, false, likePrefix, RDF.object, prefix);
+	            AddTriple(result, true, false, likePrefix, SNVOC.LinkPost, prefix);
 	            date.setTimeInMillis(likeTimestamps[i]);
 	            String dateString = DateGenerator.formatDateDetail(date);
 	            AddTriple(result, false, true, likePrefix, SNVOC.Created,
@@ -613,7 +652,7 @@ public class Turtle implements Serializer {
         date.setTimeInMillis(comment.getCreateDate());
         String dateString = DateGenerator.formatDateDetail(date); 
         AddTriple(result, false, false, prefix, SNVOC.Created, createDataTypeLiteral(dateString, XSD.DateTime));
-        AddTriple(result, false, true, prefix, SNVOC.Comment, createLiteral(comment.getContent()));
+        AddTriple(result, false, true, prefix, SNVOC.Content, createLiteral(comment.getContent()));
         
         String replied = (comment.getReply_of() == -1) ? SN.getPostURI(comment.getPostId()) : 
             SN.getCommentURI(comment.getReply_of());
@@ -629,7 +668,7 @@ public class Turtle implements Serializer {
                 AddTriple(result, false, false, connPrefix, SNVOC.Ip_address,
                         createLiteral(comment.getIpAddress().toString()));
                 AddTriple(result, false, true, connPrefix, SNVOC.Located_in,
-                        SN.getLocationURI(ipDic.getLocation(comment.getIpAddress())));
+                        DBP.fullPrefixed(locationDic.getLocationName((ipDic.getLocation(comment.getIpAddress())))));
             }
             
             String connPrefix = SN.getipURI(printedIpaddresses.get(comment.getIpAddress().toString()));     
@@ -640,8 +679,8 @@ public class Turtle implements Serializer {
             }
         }
         //user sioc:creator_of
-        createTripleSPO(result, SN.getPersonURI(comment.getAuthorId()),
-                SNVOC.Creator_of, prefix);
+        createTripleSPO(result, prefix, SNVOC.Creator,
+                SN.getPersonURI(comment.getAuthorId()));
 
 		return result.toString();
 	}
@@ -656,7 +695,7 @@ public class Turtle implements Serializer {
         String dateString = DateGenerator.formatDateDetail(date);     
         AddTriple(result, false, true, prefix, SNVOC.Created, createDataTypeLiteral(dateString, XSD.DateTime));
 
-        createTripleSPO(result, SN.getPersonURI(album.getCreatorId()), SNVOC.Moderator_of, prefix);
+        createTripleSPO(result, prefix, SNVOC.Moderator, SN.getPersonURI(album.getCreatorId()));
 		
 		return result.toString(); 
 	}	
@@ -683,7 +722,7 @@ public class Turtle implements Serializer {
                     AddTriple(result, false, false, connPrefix, SNVOC.Ip_address,
                             createLiteral(photo.getIpAddress().toString()));
                     AddTriple(result, false, true, connPrefix, SNVOC.Located_in,
-                            SN.getLocationURI(ipDic.getLocation(photo.getIpAddress())));
+                            DBP.fullPrefixed(locationDic.getLocationName((ipDic.getLocation(photo.getIpAddress())))));
                 }
                 
                 String connPrefix = SN.getipURI(printedIpaddresses.get(photo.getIpAddress().toString()));     
@@ -691,14 +730,19 @@ public class Turtle implements Serializer {
                 createTripleSPO(result, prefix, SNVOC.Browser, createLiteral(vBrowserNames.get(photo.getBrowserIdx())));
             }
             
-            createTripleSPO(result, SN.getPersonURI(photo.getCreatorId()), SNVOC.Creator_of, prefix);
+            createTripleSPO(result, prefix, SNVOC.Creator, SN.getPersonURI(photo.getCreatorId()));
             createTripleSPO(result, SN.getForumURI(photo.getAlbumId()), SNVOC.Container_of, prefix);
             
             Iterator<Integer> it = photo.getTags().iterator();
             while (it.hasNext()) {
                 Integer tagId = it.next();
                 String tag = interestIdsNames.get(tagId);
-                createTripleSPO(result, prefix, SNVOC.Has_tag, createLiteral(tag));
+                createTripleSPO(result, prefix, SNVOC.Has_tag, DBP.fullPrefixed(tag));
+                if (!printedTags.containsKey(tagId)) {
+                    printedTags.put(tagId, tagId);
+                    writeDBPData(DBP.fullPrefixed(tag), RDF.type, SNVOC.Tag);
+                    writeDBPData(DBP.fullPrefixed(tag), FOAF.Name, createLiteral(tag));
+                }
             }
 		}
 		if (isLiked) {
@@ -710,7 +754,7 @@ public class Turtle implements Serializer {
                 createTripleSPO(result, SN.getPersonURI(userLikes[i]), 
                         SNVOC.Like, likePrefix);
                 
-                AddTriple(result, true, false, likePrefix, RDF.object, prefix);
+                AddTriple(result, true, false, likePrefix, SNVOC.LinkPost, prefix);
                 date.setTimeInMillis(likeTimestamps[i]);
                 String dateString = DateGenerator.formatDateDetail(date);
                 AddTriple(result, false, true, likePrefix, SNVOC.Created,
@@ -742,21 +786,24 @@ public class Turtle implements Serializer {
 	    Integer groupTags[] = group.getTags();
         for (int i = 0; i < groupTags.length; i ++){
             String tag = interestIdsNames.get(groupTags[i]);
-            createTripleSPO(result, prefix, SNVOC.Has_tag, createLiteral(tag));
+            createTripleSPO(result, prefix, SNVOC.Has_tag, DBP.fullPrefixed(tag));
+            if (!printedTags.containsKey(groupTags[i])) {
+                printedTags.put(groupTags[i], groupTags[i]);
+                writeDBPData(DBP.fullPrefixed(tag), RDF.type, SNVOC.Tag);
+                writeDBPData(DBP.fullPrefixed(tag), FOAF.Name, createLiteral(tag));
+            }
         }
 
-	    createTripleSPO(result, SN.getPersonURI(group.getModeratorId()),
-	            SNVOC.Creator_of, prefix);
+	    createTripleSPO(result, prefix, SNVOC.Creator, SN.getPersonURI(group.getModeratorId()));
 
 	    GroupMemberShip memberShips[] = group.getMemberShips();
 	    int numMemberAdded = group.getNumMemberAdded();
 	    for (int i = 0; i < numMemberAdded; i ++){
 
 	        String memberhipPrefix = SN.getMembershipURI(membershipId);
-	        createTripleSPO(result, SN.getPersonURI(memberShips[i].getUserId()),
-	                SNVOC.Membership, prefix);
+	        createTripleSPO(result, prefix, SNVOC.Member, memberhipPrefix);
 	        
-	        AddTriple(result, true, false, memberhipPrefix, RDF.object, prefix);
+	        AddTriple(result, true, false, memberhipPrefix, SNVOC.LinkPerson, SN.getPersonURI(group.getModeratorId()));
 	        date.setTimeInMillis(memberShips[i].getJoinDate());
 	        dateString = DateGenerator.formatDateDetail(date);
 	        AddTriple(result, false, true, memberhipPrefix, SNVOC.Joined,
@@ -771,9 +818,9 @@ public class Turtle implements Serializer {
         AddTriple(result, false, false, forumPrefix, SNVOC.Title, createLiteral(group.getGroupName()));
         AddTriple(result, false, true, forumPrefix, SNVOC.Created, 
                 createDataTypeLiteral(dateString, XSD.DateTime));
-        
-        createTripleSPO(result, SN.getPersonURI(group.getModeratorId()),
-                SNVOC.Moderator_of, forumPrefix);
+
+        createTripleSPO(result, forumPrefix,
+                SNVOC.Moderator, SN.getPersonURI(group.getModeratorId()));
         
 	    return result.toString();
 	}
@@ -888,6 +935,8 @@ public class Turtle implements Serializer {
 			for(int i=0;i<dataFileWriter.length;i++) {
 				dataFileWriter[i].flush();
 				dataFileWriter[i].close();
+				staticdbpFileWriter[i].flush();
+                staticdbpFileWriter[i].close();
 			}
 		} catch(IOException e) {
 			System.err.println(e.getMessage());
@@ -909,6 +958,8 @@ public class Turtle implements Serializer {
 				try {
 					serializer.dataFileWriter[i].flush();
 					serializer.dataFileWriter[i].close();
+					staticdbpFileWriter[i].flush();
+					staticdbpFileWriter[i].close();
 				} catch(IOException e) {
 					// Do nothing
 				}

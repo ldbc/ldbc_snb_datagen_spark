@@ -76,11 +76,13 @@ public class SNVOC{
 	}
 	
 	//General usage
-	public static final String Created    = PREFIX+"created";
-	public static final String Based_near = PREFIX+"based_near";
+	public static final String Created    =  PREFIX+"created";
+	public static final String Based_near =  PREFIX+"based_near";
 	public static final String Title      =  PREFIX+"title";
 	public static final String Creator_of =  PREFIX+"creator_of";
+	public static final String Creator    =  PREFIX+"creator";
 	public static final String Has_tag    =  PREFIX+"has_tag";
+	public static final String Tag        =  PREFIX+"tag";
 	
 	//Location related
 	public static final String Location =  PREFIX+"Location";
@@ -110,10 +112,12 @@ public class SNVOC{
 	//Forum related
 	public static final String Forum        =  PREFIX+"Forum";
 	public static final String Moderator_of =  PREFIX+"moderator_of";
+	public static final String Moderator    =  PREFIX+"moderator";
 	
 	//Group related
 	public static final String Group        =  PREFIX+"Group";
 	public static final String Membership   =  PREFIX+"membership";
+	public static final String Member       =  PREFIX+"member";
 	public static final String Joined       =  PREFIX+"joined";
 	
 	//Post and Comment related
@@ -135,9 +139,15 @@ public class SNVOC{
 	public static final String Native        =  PREFIX+"native";
 	
 	//Organization related
-    public static final String Organization  =  PREFIX+"Organization";
-    public static final String Study_at      =  PREFIX+"study_at";
-    public static final String ClassYear     =  PREFIX+"classYear";
-    public static final String Work_at       =  PREFIX+"work_at";
-    public static final String WorkFrom      =  PREFIX+"workFrom";
+    public static final String Organization      =  PREFIX+"Organization";
+    public static final String LinkOrganization  =  PREFIX+"organization";
+    public static final String Study_at          =  PREFIX+"study_at";
+    public static final String ClassYear         =  PREFIX+"classYear";
+    public static final String Work_at           =  PREFIX+"work_at";
+    public static final String WorkFrom          =  PREFIX+"workFrom";
+    
+    //Link related
+    public static final String LinkPost      = PREFIX+"post";
+    public static final String LinkGroup     = PREFIX+"group";
+    public static final String LinkPerson    = PREFIX+"person";
 }

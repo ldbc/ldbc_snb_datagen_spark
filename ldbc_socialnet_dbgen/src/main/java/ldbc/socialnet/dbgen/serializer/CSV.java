@@ -62,6 +62,7 @@ import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
 import ldbc.socialnet.dbgen.objects.SocialObject;
 import ldbc.socialnet.dbgen.objects.UserExtraInfo;
 import ldbc.socialnet.dbgen.objects.UserProfile;
+import ldbc.socialnet.dbgen.vocabulary.DBP;
 import ldbc.socialnet.dbgen.vocabulary.RDF;
 import ldbc.socialnet.dbgen.vocabulary.SN;
 import ldbc.socialnet.dbgen.vocabulary.SNVOC;
@@ -348,6 +349,7 @@ public class CSV implements Serializer {
                 //print location
                 arguments.add(Integer.toString(areas.get(i)));
                 arguments.add(locationDic.getLocationName(areas.get(i)));
+                arguments.add(DBP.fullPrefixed(locationDic.getLocationName(areas.get(i))));
                 arguments.add(locationDic.getType(areas.get(i)));
                 ToCSV(arguments, Files.LOCATION.ordinal());
                 if (locationDic.getType(areas.get(i)) == Location.CITY ||
@@ -466,6 +468,7 @@ public class CSV implements Serializer {
 					
 					arguments.add(Integer.toString(organizationId));
 					arguments.add(extraInfo.getOrganization());
+					arguments.add(DBP.fullPrefixed(extraInfo.getOrganization()));
 					ToCSV(arguments, Files.ORGANIZATION.ordinal());
 				}
 			}
@@ -493,6 +496,7 @@ public class CSV implements Serializer {
 					
 					arguments.add(Integer.toString(organizationId));
 					arguments.add(company);
+					arguments.add(DBP.fullPrefixed(company));
 					ToCSV(arguments, Files.ORGANIZATION.ordinal());
 				}
 				date.setTimeInMillis(extraInfo.getWorkFrom(company));
@@ -537,6 +541,7 @@ public class CSV implements Serializer {
 				
 				arguments.add(Integer.toString(interestIdx));
 				arguments.add(interest);
+				arguments.add(DBP.fullPrefixed(interest));
 				ToCSV(arguments, Files.TAG.ordinal());
 			}
 			
@@ -643,6 +648,7 @@ public class CSV implements Serializer {
                     
                     arguments.add(Integer.toString(tagId));
                     arguments.add(tag);
+                    arguments.add(DBP.fullPrefixed(tag));
                     ToCSV(arguments, Files.TAG.ordinal());
                 }
                 
@@ -784,6 +790,7 @@ public class CSV implements Serializer {
                     
                     arguments.add(Integer.toString(tagId));
                     arguments.add(tag);
+                    arguments.add(DBP.fullPrefixed(tag));
                     ToCSV(arguments, Files.TAG.ordinal());
                 }
                 
@@ -836,6 +843,7 @@ public class CSV implements Serializer {
                 
                 arguments.add(Integer.toString(groupTags[i]));
                 arguments.add(interest);
+                arguments.add(DBP.fullPrefixed(interest));
                 ToCSV(arguments, Files.TAG.ordinal());
             }
             

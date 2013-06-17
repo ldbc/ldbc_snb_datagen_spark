@@ -626,7 +626,7 @@ public class ScalableGenerator{
 			endYear = startYear + numYears;
 		} catch (Exception e) {
 		    System.out.println("Using default configuration");
-			// If the user params file wasn't found use the default configuration.
+		    System.exit(-1);
 		}
 	}
 
