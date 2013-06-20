@@ -586,8 +586,10 @@ public class Turtle implements Serializer {
 	        
 	        createTripleSPO(result, prefix, SNVOC.Annotated,
                     createLiteral(languageDic.getLanguagesName(post.getLanguage())));
-	        createTripleSPO(result, prefix, SNVOC.Located,
-	                DBP.fullPrefixed(locationDic.getLocationName((ipDic.getLocation(post.getIpAddress())))));
+	        if (post.getIpAddress() != null) {
+	            createTripleSPO(result, prefix, SNVOC.Located,
+	                    DBP.fullPrefixed(locationDic.getLocationName((ipDic.getLocation(post.getIpAddress())))));
+	        }
 
 	        createTripleSPO(result, SN.getForumURI(post.getForumId()),
 	                SNVOC.Container_of, prefix);

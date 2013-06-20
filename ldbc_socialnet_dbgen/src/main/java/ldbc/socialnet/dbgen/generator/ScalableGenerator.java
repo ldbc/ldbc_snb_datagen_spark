@@ -1505,8 +1505,6 @@ public class ScalableGenerator{
 			Post groupPost = textGenerator.getRandomGroupPost(group, maxNumLikes);
 			groupPost.setUserAgent("");
 			groupPost.setBrowserIdx((byte) -1);
-			// groupPost.setIpAddress(new
-			// IP((short)-1,(short)-1,(short)-1,(short)-1));
 
 			serializer.gatherData(groupPost);
 
