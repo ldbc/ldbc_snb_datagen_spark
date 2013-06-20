@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -460,12 +461,7 @@ public class Turtle implements Serializer {
                         createLiteral(languageDic.getLanguagesName(languages.get(i))));
                 speakId++;
             }
-        }       
-		
-        //TODO: What about this based_near???
-//            AddTriple(result, false, true, connPrefix, SNVOC.Located_in,
-//                    DBP.fullPrefixed(locationDic.getLocationName((ipDic.getLocation(profile.getIpAddress())))));
-		
+        }
 		
 		if (extraInfo != null) {
 		    //sib:workAt
@@ -497,11 +493,11 @@ public class Turtle implements Serializer {
 		//The forums of the user
         String forumPrefix = SN.getForumURI(profile.getForumWallId());
         AddTriple(result, true, false, forumPrefix, RDF.type, SNVOC.Forum);
-        String title;
+        String title = "Wall of ";
         if (extraInfo != null) {
-            title = extraInfo.getFirstName() + " " + extraInfo.getLastName();
+            title += extraInfo.getFirstName() + " " + extraInfo.getLastName();
         } else {
-            title = "" + profile.getAccountId();
+            title += "" + profile.getAccountId();
         }
         AddTriple(result, false, false, forumPrefix, SNVOC.Title, createLiteral(title));
         AddTriple(result, false, true, forumPrefix, SNVOC.Created, 

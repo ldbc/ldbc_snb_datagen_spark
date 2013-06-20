@@ -44,6 +44,8 @@ public class SN{
 	
 	//Get the URI of this vocabulary
 	public static String getURI() { return NS; }
+	
+	public static int machineId;
 		
 	public static final String PREFIX = "sn:";
 	public static final String FACTPREFIX = "sn_";
@@ -51,9 +53,11 @@ public class SN{
 	
 	private static HashMap<String, String> uriMap = new HashMap<String, String>();
 	
-	/*
-	 * For prefixed versions
-	 */
+	public static void setMachineNumber(int machineId)
+	{
+	    SN.machineId = machineId;
+	}
+	
 	public static String prefixed(String string) {
 		if(uriMap.containsKey(string)) {
 			return uriMap.get(string);
@@ -80,55 +84,43 @@ public class SN{
         return PREFIX+"pers"+id;
     }
 	
-	public static String getLocationURI(long id) {
-        return PREFIX+"loc"+id;
-    }
-	
-	public static String getipURI(long id) {
-	    return PREFIX+"ip"+id;
-	}
-	
 	public static String getForumURI(long id) {
-        return PREFIX+"forum"+id;
+        return PREFIX+"forum"+id + "" + machineId;
     }
 	
 	public static String getGroupURI(long id) {
-        return PREFIX+"group"+id;
+        return PREFIX+"group"+id + "" + machineId;
     }
 	
 	public static String getPostURI(long id) {
-        return PREFIX+"post"+id;
+        return PREFIX+"post"+id + "" + machineId;
     }
 	
 	public static String getCommentURI(long id) {
-        return PREFIX+"comm"+id;
-    }
-	
-	public static String getLanguageURI(long id) {
-        return PREFIX+"lang"+id;
-    }
-	
-	public static String getOrganizationURI(long id) {
-        return PREFIX+"org"+id;
+        return PREFIX+"comm"+id + "" + machineId;
     }
 	
 	public static String getMembershipURI(long id) {
-        return BLANK_NODE+"mbs"+id;
+        return BLANK_NODE+"mbs"+id + "" + machineId;
     }
 	
 	public static String getLikeURI(long id) {
-        return BLANK_NODE+"like"+id;
+        return BLANK_NODE+"like"+id + "" + machineId;
     }
 	
 	public static String getSpeaksURI(long id) {
-        return BLANK_NODE+"speak"+id;
+        return BLANK_NODE+"speak"+id + "" + machineId;
     }
 	
 	public static String getStudyAtURI(long id) {
-        return BLANK_NODE+"study"+id;
+        return BLANK_NODE+"study"+id + "" + machineId;
     }
 	
 	public static String getWorkAtURI(long id) {
-        return BLANK_NODE+"work"+id;
+        return BLANK_NODE+"work"+id + "" + machineId;
     }
+	
+	public static String formId(long id) {
+	    return id + "" + machineId;
+	}
 }

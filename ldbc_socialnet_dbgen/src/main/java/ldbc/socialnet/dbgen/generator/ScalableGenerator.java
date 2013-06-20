@@ -81,6 +81,7 @@ import ldbc.socialnet.dbgen.serializer.Serializer;
 import ldbc.socialnet.dbgen.serializer.Turtle;
 import ldbc.socialnet.dbgen.storage.MFStoreManager;
 import ldbc.socialnet.dbgen.storage.StorageManager;
+import ldbc.socialnet.dbgen.vocabulary.SN;
 
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.Mapper.Context;
@@ -1872,6 +1873,7 @@ public class ScalableGenerator{
 
 	// private static Serializer getSerializer(String type) {
 	private Serializer getSerializer(String type, String outputFileName) {
+	    SN.setMachineNumber(machineId);
 		String t = type.toLowerCase();
 		if (t.equals("ttl")) {
             return new Turtle(sibOutputDir + outputFileName, forwardChaining,

@@ -151,4 +151,7 @@ public class SNVOC{
     public static final String LinkPost      = PREFIX+"post";
     public static final String LinkGroup     = PREFIX+"group";
     public static final String LinkPerson    = PREFIX+"person";
+    
+    //Tweet related
+    public static final String Follows      = PREFIX+"follows";
 }
