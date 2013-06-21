@@ -609,10 +609,12 @@ public class CSV implements Serializer {
                 ToCSV(arguments, Files.LANGUAGE.ordinal());
             }
             
-            arguments.add(SN.formId(idList[Files.POST_ANNOTATED_LANGUAGE.ordinal()]));
-            arguments.add(SN.formId(post.getPostId()));
-            arguments.add(Integer.toString(post.getLanguage()));
-            ToCSV(arguments, Files.POST_ANNOTATED_LANGUAGE.ordinal());
+            if (post.getIpAddress() != null) {
+                arguments.add(SN.formId(idList[Files.POST_ANNOTATED_LANGUAGE.ordinal()]));
+                arguments.add(SN.formId(post.getPostId()));
+                arguments.add(Integer.toString(post.getLanguage()));
+                ToCSV(arguments, Files.POST_ANNOTATED_LANGUAGE.ordinal());
+            }
             
             //sioc:ip_address
             if (post.getIpAddress() != null) {

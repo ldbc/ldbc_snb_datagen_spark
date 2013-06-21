@@ -584,9 +584,9 @@ public class Turtle implements Serializer {
 	        AddTriple(result, false, true, prefix, SNVOC.Content,
                     createLiteral(post.getContent()));
 	        
-	        createTripleSPO(result, prefix, SNVOC.Annotated,
-                    createLiteral(languageDic.getLanguagesName(post.getLanguage())));
 	        if (post.getIpAddress() != null) {
+	            createTripleSPO(result, prefix, SNVOC.Annotated,
+	                    createLiteral(languageDic.getLanguagesName(post.getLanguage())));
 	            createTripleSPO(result, prefix, SNVOC.Located,
 	                    DBP.fullPrefixed(locationDic.getLocationName((ipDic.getLocation(post.getIpAddress())))));
 	        }
@@ -651,8 +651,10 @@ public class Turtle implements Serializer {
         String replied = (comment.getReply_of() == -1) ? SN.getPostURI(comment.getPostId()) : 
             SN.getCommentURI(comment.getReply_of());
         createTripleSPO(result, prefix, SNVOC.Reply_of, replied);
-        createTripleSPO(result, prefix, SNVOC.Located,
-                DBP.fullPrefixed(locationDic.getLocationName((ipDic.getLocation(comment.getIpAddress())))));
+        if (comment.getIpAddress() != null) {
+            createTripleSPO(result, prefix, SNVOC.Located,
+                    DBP.fullPrefixed(locationDic.getLocationName((ipDic.getLocation(comment.getIpAddress())))));
+        }
         
         //user sioc:creator_of
         createTripleSPO(result, prefix, SNVOC.Creator,
