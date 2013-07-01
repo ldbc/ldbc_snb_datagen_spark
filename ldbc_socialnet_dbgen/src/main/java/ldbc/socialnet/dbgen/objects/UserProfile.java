@@ -53,7 +53,6 @@ public class UserProfile extends SocialObject implements Serializable {
 	int 				forumStatusId;
 	long	 			createdDate; 
 	public short 		numFriends;
-	public short 		numInterests;
 	public short 		numTags;
 
 	public short 		numPassFriends[];		// Max number of friends can be 
@@ -66,8 +65,6 @@ public class UserProfile extends SocialObject implements Serializable {
 	public short 		numFriendsAdded;
 	Friend 				friendList[];
 	HashSet<Integer>	friendIds; 		// Use a hashset for checking the existence
-	
-	HashSet<Integer> 	setOfInterests;
 	
 	HashSet<Integer> 	setOfTags;
 	int					mainTagId; 
@@ -147,7 +144,6 @@ public class UserProfile extends SocialObject implements Serializable {
 		numFriendsAdded = 0;
 		isHaveSmartPhone = false; 
 		
-		setOfInterests = new HashSet<Integer>();  
 		setOfTags = new HashSet<Integer>();
 		 
 	}
@@ -174,7 +170,6 @@ public class UserProfile extends SocialObject implements Serializable {
 		System.out.println("Friends added: " + numFriendsAdded + " / " + numFriends);
 		System.out.println("Number of location friends " + numPassFriends[0]);
 		System.out.println("Number of interest friends " + numPassFriends[1]);
-		System.out.println("Number of interest " + numInterests);
 	}
 	public void printDetail(){
 		System.out.println("Account Id: " + accountId);
@@ -185,8 +180,8 @@ public class UserProfile extends SocialObject implements Serializable {
 			System.out.print(" " + friendList[i].getFriendAcc());
 		}
 		System.out.println();
-		System.out.print(numInterests + "User Interests: ");
-		Iterator it = setOfInterests.iterator(); 
+		System.out.print("User tags: ");
+		Iterator<Integer> it = setOfTags.iterator(); 
 		while (it.hasNext()){
 			System.out.print(" " + it.next()); 
 		}
@@ -201,42 +196,21 @@ public class UserProfile extends SocialObject implements Serializable {
 		}
 		System.out.println();
 	}
-	public short getNumInterests() {
-		return numInterests;
-	}
-	public void setNumInterests(short numInterests) {
-		this.numInterests = numInterests;
-	}
 	public short getNumPassFriends(int pass) {
 		return numPassFriends[pass];
 	}
 	public void setNumPassFriends(short numPassFriends, int pass) {
 		this.numPassFriends[pass] = numPassFriends;
 	}
-	public HashSet<Integer> getSetOfInterests() {
-		return setOfInterests;
-	}
 	public HashSet<Integer> getSetOfTags() {
 		return setOfTags;
 	}
-	public int getFirstInterestIdx(){
-		// Randomly select one interest
-		Iterator iter = setOfInterests.iterator();
-
-		int interestIdx = ((Integer)iter.next()).intValue();
-		
-		return interestIdx;
-	}	
 	public int getFirstTagIdx(){
-		// Randomly select one interest
-		Iterator iter = setOfTags.iterator();
+		Iterator<Integer> iter = setOfTags.iterator();
 
 		int tagIdx = ((Integer)iter.next()).intValue();
 		
 		return tagIdx;
-	}	
-	public void setSetOfInterests(HashSet<Integer> setOfInterests) {
-		this.setOfInterests = setOfInterests;
 	}
 	public void setSetOfTags(HashSet<Integer> setOfTags) {
 		this.setOfTags = setOfTags;

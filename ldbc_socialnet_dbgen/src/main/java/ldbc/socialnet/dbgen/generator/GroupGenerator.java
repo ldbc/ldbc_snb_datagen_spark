@@ -77,20 +77,10 @@ public class GroupGenerator {
 		
 		//Use the user location for group locationIdx
 		group.setLocationIdx(user.getLocationIdx());
-		
-		//Select one user's interest for the group's interest WARNING Needed for post generation
-		HashSet<Integer> interestSet = user.getSetOfInterests();
-		// Randomly select one interest
-		Iterator<Integer> iter = interestSet.iterator();
-		int idx = randGroupInterest.nextInt(interestSet.size());
-		for (int i = 0; i < idx; i++){
-			iter.next();
-		}
-		group.setInterestIdx(iter.next().intValue());
-		
+				
 		HashSet<Integer> tagSet = user.getSetOfTags();
-		iter = tagSet.iterator();
-        idx = randGroupInterest.nextInt(interestSet.size());
+		Iterator<Integer> iter = tagSet.iterator();
+        int idx = randGroupInterest.nextInt(tagSet.size());
         for (int i = 0; i < idx; i++){
             iter.next();
         }
@@ -99,11 +89,10 @@ public class GroupGenerator {
 		
 		//Set tags of this group
 		Integer tags[] = new Integer[1];
-		//tags[0] = locationDic.getLocationName(group.getLocationIdx());
 		tags[0] = interestIdx;
 		
 		//Set name of group
-		group.setGroupName("Group for " + tagDic.getTagsNamesMapping().get(interestIdx)/*interestDic.getInterestdsNamesMapping().get(interestIdx)*/ + " in " + locationDic.getLocationName(group.getLocationIdx()));
+		group.setGroupName("Group for " + tagDic.getTagsNamesMapping().get(interestIdx) + " in " + locationDic.getLocationName(group.getLocationIdx()));
 		
 		group.setTags(tags);
 		

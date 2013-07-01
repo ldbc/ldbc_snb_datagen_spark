@@ -82,7 +82,6 @@ public class ReducedUserProfile extends SocialObject implements Serializable, Wr
 	int                 cityIdx;
 	int 				forumWallId; 
 	int 				forumStatusId;
-	HashSet<Integer> 	setOfInterests;
 	HashSet<Integer> 	setOfTags;
 	
 	short				popularPlaceIds[]; 
@@ -104,9 +103,7 @@ public class ReducedUserProfile extends SocialObject implements Serializable, Wr
 		numPassFriends = null; 
 		numPassFriendsAdded = null; 
 		dicElementIds = null; 
-		setOfInterests.clear();
 		setOfTags.clear();
-		setOfInterests = null;
 		setOfTags = null;
 		popularPlaceIds = null; 
 	}
@@ -159,12 +156,6 @@ public class ReducedUserProfile extends SocialObject implements Serializable, Wr
 			cityIdx = stream.readInt();
 			forumWallId = stream.readInt();
 			forumStatusId = stream.readInt();
-			
-			byte numInterest = stream.readByte(); 
-			setOfInterests = new HashSet<Integer>(numInterest);
-			for (byte i = 0; i < numInterest;i++){
-				setOfInterests.add(stream.readInt());
-			}
 			
 			byte numOfTags = stream.readByte();
 			setOfTags = new HashSet<Integer>(numOfTags);
@@ -229,13 +220,6 @@ public class ReducedUserProfile extends SocialObject implements Serializable, Wr
 			stream.writeInt(cityIdx);
 			stream.writeInt(forumWallId);
 			stream.writeInt(forumStatusId);
-			
-			stream.writeByte((byte)setOfInterests.size());
-			
-			Iterator<Integer> iter = setOfInterests.iterator();
-			while (iter.hasNext()){
-				stream.writeInt(iter.next());
-			}
 			
 			stream.writeByte((byte)setOfTags.size());
 			Iterator<Integer> iter2 = setOfTags.iterator();
@@ -305,12 +289,6 @@ public class ReducedUserProfile extends SocialObject implements Serializable, Wr
 		forumWallId = arg0.readInt();
 		forumStatusId = arg0.readInt();
 		
-		byte numInterest = arg0.readByte(); 
-		setOfInterests = new HashSet<Integer>(numInterest);
-		for (byte i = 0; i < numInterest;i++){
-			setOfInterests.add(arg0.readInt());
-		}
-		
 		byte numTags = arg0.readByte(); 
 		setOfTags = new HashSet<Integer>(numTags);
 		for (byte i = 0; i < numTags;i++){
@@ -368,7 +346,6 @@ public class ReducedUserProfile extends SocialObject implements Serializable, Wr
 		forumWallId = user.getForumWallId();
 		forumStatusId = user.getForumStatusId();
 		
-		setOfInterests = user.getSetOfInterests();
 		setOfTags = user.getSetOfTags();
 
 		numPopularPlace = user.getNumPopularPlace();
@@ -424,13 +401,6 @@ public class ReducedUserProfile extends SocialObject implements Serializable, Wr
 		arg0.writeInt(cityIdx);
 		arg0.writeInt(forumWallId);
 		arg0.writeInt(forumStatusId);
-		
-		arg0.writeByte((byte)setOfInterests.size()); 
-		
-		Iterator<Integer> iter = setOfInterests.iterator();
-		while (iter.hasNext()){
-			arg0.writeInt(iter.next());
-		}
 		
 		arg0.writeByte((byte)setOfTags.size()); 
 		
@@ -510,7 +480,6 @@ public class ReducedUserProfile extends SocialObject implements Serializable, Wr
 		this.setCityIdx(user.getCityIdx());
 		this.setForumStatusId(user.getForumStatusId());
 		this.setForumWallId(user.getForumWallId());
-		this.setSetOfInterests(user.getSetOfInterests());
 		this.setSetOfTags(user.getSetOfTags());
 		this.setPopularPlaceIds(user.getPopularPlaceIds());
 		this.setNumPopularPlace(user.getNumPopularPlace());
@@ -708,12 +677,6 @@ public class ReducedUserProfile extends SocialObject implements Serializable, Wr
 	}
 	public void setForumStatusId(int forumStatusId) {
 		this.forumStatusId = forumStatusId;
-	}
-	public HashSet<Integer> getSetOfInterests() {
-		return setOfInterests;
-	}
-	public void setSetOfInterests(HashSet<Integer> setOfInterests) {
-		this.setOfInterests = setOfInterests;
 	}
 	public HashSet<Integer> getSetOfTags() {
 		return setOfTags;

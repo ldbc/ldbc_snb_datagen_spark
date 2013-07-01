@@ -56,7 +56,6 @@ import ldbc.socialnet.dbgen.dictionary.BrowserDictionary;
 import ldbc.socialnet.dbgen.dictionary.CompanyDictionary;
 import ldbc.socialnet.dbgen.dictionary.EmailDictionary;
 import ldbc.socialnet.dbgen.dictionary.IPAddressDictionary;
-import ldbc.socialnet.dbgen.dictionary.InterestDictionary;
 import ldbc.socialnet.dbgen.dictionary.LanguageDictionary;
 import ldbc.socialnet.dbgen.dictionary.LocationDictionary;
 import ldbc.socialnet.dbgen.dictionary.NamesDictionary;
@@ -64,6 +63,7 @@ import ldbc.socialnet.dbgen.dictionary.OrganizationsDictionary;
 import ldbc.socialnet.dbgen.dictionary.PopularPlacesDictionary;
 import ldbc.socialnet.dbgen.dictionary.TagDictionary;
 import ldbc.socialnet.dbgen.dictionary.TagMatrix;
+import ldbc.socialnet.dbgen.dictionary.TagTextDictionary;
 import ldbc.socialnet.dbgen.dictionary.UserAgentDictionary;
 import ldbc.socialnet.dbgen.objects.Comment;
 import ldbc.socialnet.dbgen.objects.Friend;
@@ -157,10 +157,8 @@ public class ScalableGenerator{
 	double	 			limitProCorrelated = 0.2; 
 	
 	// For each user
-	int 				maxNoInterestsPerUser = 10;
 	int					maxNoTagsPerUser = 10; 
-	int 				maxNumLocationPostPerMonth = 30;
-	int 				maxNumInterestPostPerMonth = 50;
+	int 				maxNumPostPerMonth = 80;
 	int 				maxNumComments = 20;
 	
 
@@ -196,35 +194,29 @@ public class ScalableGenerator{
 	private static final String   countryDicFile         = "dicLocation.txt";
 	private static final String   languageDicFile        = "languagesByCountry.txt";
 	private static final String   cityDicFile            = "institutesCityByCountry.txt";
-	private static final String   interestDicFile        = "locationInterestDist.txt";
 	private static final String   tagNamesFile           = "dicTopic.txt";
 	private static final String   mainTagDicFile         = "dicCelebritiesByCountry.txt";
 	private static final String   topicTagDicFile        = "topicMatrixId.txt";
-	private static final String   interestNamesFile      = "singerNames.txt";
-	private static final String   musicGenreFile         = "singerGenres.txt";
 	private static final String   givennamesDicFile      = "givennameByCountryBirthPlace.txt.freq.full";
 	private static final String   surnamesDicFile        = "surnameByCountryBirthPlace.txt.freq.sort";
 	private static final String   organizationsDicFile   = "institutesCityByCountry.txt";
 	private static final String   companiesDicFile       = "companiesByCountry.txt";
 	private static final String   popularPlacesDicFile   = "popularPlacesByCountry.txt";
-	private static final String   regionalArticleFile    = "articlesLocation.txt";
-	private static final String   interestArticleFile    = "articlesInterest.txt";
-	private static final String   stopWordFileName       = "googleStopwords.txt";
 	private static final String   agentFile              = "smartPhonesProviders.txt";
 	private static final String   emailDicFile           = "email.txt";
 	private static final String   browserDicFile         = "browsersDic.txt";
 	private static final String   countryAbbrMappingFile = "countryAbbrMapping.txt";
+	private static final String   tagTextFile            = "tagText.txt";
 	
 	LocationDictionary 		locationDic;
 	
 	LanguageDictionary      languageDic;
 	
 	TagDictionary 			mainTagDic;
+	TagTextDictionary       tagTextDic;
 	double 					tagCountryCorrProb; 
 
 	TagMatrix	 			topicTagDic;
-	
-	InterestDictionary 		interestDic;
 
 	NamesDictionary 		namesDictionary;
 	double					geometricProb = 0.2;
@@ -252,7 +244,6 @@ public class ScalableGenerator{
 	int locationIdx = 0; 	//Which is current index of the location in dictionary
 
 	// For generating texts of posts and comments
-	RandomTextGenerator 	textGenerator;
 	int 					maxNumLikes = 10;
 
 	GroupPostGenerator 		groupPostGenerator;
@@ -446,18 +437,11 @@ public class ScalableGenerator{
 				} else if (infos[0].startsWith("friendReApproveRatio")) {
 					friendReApproveRatio = Double.parseDouble(infos[1].trim());
 					continue;
-				} else if (infos[0].startsWith("maxNoInterestsPerUser")) {
-					maxNoInterestsPerUser = Integer.parseInt(infos[1].trim());
-					continue;
 				} else if (infos[0].startsWith("maxNoTagsPerUser")) {
 					maxNoTagsPerUser= Integer.parseInt(infos[1].trim());
 					continue;
-				} else if (infos[0].startsWith("maxNumLocationPostPerMonth")) {
-					maxNumLocationPostPerMonth = Integer.parseInt(infos[1]
-							.trim());
-					continue;
-				} else if (infos[0].startsWith("maxNumInterestPostPerMonth")) {
-					maxNumInterestPostPerMonth = Integer.parseInt(infos[1]
+				} else if (infos[0].startsWith("maxNumPostPerMonth")) {
+				    maxNumPostPerMonth = Integer.parseInt(infos[1]
 							.trim());
 					continue;
 				} else if (infos[0].startsWith("maxNumComments")) {
@@ -707,10 +691,6 @@ public class ScalableGenerator{
 			System.out
 				.println("Building interests dictionary & locations/interests distribution ");
 
-			interestDic = new InterestDictionary(sibDicDataDir + interestDicFile,
-					sibDicDataDir + interestNamesFile, seeds[5],
-					sibDicDataDir + musicGenreFile);
-			interestDic.init();
 	
 			System.out.println("Building locations dictionary ");
 	
@@ -728,6 +708,10 @@ public class ScalableGenerator{
 			        sibDicDataDir + mainTagDicFile, 
 					locationDic.getLocationNameMapping().size(), seeds[5], tagCountryCorrProb);
 			mainTagDic.extractTags();
+			
+			tagTextDic = new TagTextDictionary(sibDicDataDir + tagTextFile, dateTimeGenerator, minTextSize,
+                    maxTextSize, minCommentSize, maxCommentSize, ratioReduceText, seeds[15], seeds[16]);
+			tagTextDic.initialize();
 
 			System.out.println("Building Tag Matrix dictionary ");
 			
@@ -743,13 +727,6 @@ public class ScalableGenerator{
 			ipAddDictionary.init();
 			
 			System.out.println("Building dictionary of articles ");
-			textGenerator = new RandomTextGenerator(sibDicDataDir + regionalArticleFile,
-					sibDicDataDir + interestArticleFile, sibDicDataDir + stopWordFileName, 
-					seeds[15], seeds[16],
-					numArticles, locationDic.getLocationNameMapping(),
-					interestDic.getInterestNames(), dateTimeGenerator, minTextSize,
-					maxTextSize, minCommentSize, maxCommentSize, ratioReduceText,
-					seeds[31]);
 	
 			groupGenerator = new GroupGenerator(dateTimeGenerator, locationDic,
 					mainTagDic, numtotalUser, seeds[35]);
@@ -788,9 +765,6 @@ public class ScalableGenerator{
 			userAgentDic = new UserAgentDictionary(sibDicDataDir + agentFile, seeds[28], seeds[30],
 					probSentFromAgent);
 			userAgentDic.init();
-	
-			textGenerator.setSupportDictionaries(userAgentDic, ipAddDictionary,
-					browserDic);
 
 
 			outputDataWriter = new OutputDataWriter();
@@ -1148,9 +1122,7 @@ public class ScalableGenerator{
 				// serializer.gatherData(userProfilesCell[k]);
 				serializer.gatherData(reducedUserProfilesCell[k], extraInfo);
 
-				generateLocationPost(reducedUserProfilesCell[k], extraInfo);
-
-				generateInterestPost(reducedUserProfilesCell[k], extraInfo);
+				generatePosts(reducedUserProfilesCell[k], extraInfo);
 
 				generatePhoto(reducedUserProfilesCell[k], extraInfo);
 			}
@@ -1161,11 +1133,11 @@ public class ScalableGenerator{
 		System.out.println("Number of deserialized objects is " + storeManager.getNumberDeSerializedObject());
 	}
 	
-	public void generateLocationPost(ReducedUserProfile user, UserExtraInfo extraInfo){
+	public void generatePosts(ReducedUserProfile user, UserExtraInfo extraInfo){
 		// Generate location-related posts
-		int numRegionalPost = getNumOfRegionalPost(user);
-		for (int m = 0; m < numRegionalPost; m++) {
-			Post post = textGenerator.getRandomRegionalPost(user, maxNumLikes);
+		int numPosts = getNumOfPost(user);
+		for (int m = 0; m < numPosts; m++) {
+			Post post = tagTextDic.createPost(user, maxNumLikes);
 			Integer languageIndex = randUniform.nextInt(extraInfo.getLanguages().size());
 			post.setLanguage(extraInfo.getLanguages().get(languageIndex));
 			// Set user agent
@@ -1179,55 +1151,16 @@ public class ScalableGenerator{
 			
 			// Generate comments
 			int numComment = randNumberComments.nextInt(maxNumComments);
-			long lastCommentCreateDate = post.getCreatedDate();
+			long lastCommentCreatedDate = post.getCreatedDate();
 			long lastCommentId = -1;
-			long startCommentId = RandomTextGenerator.commentId;
+			long startCommentId = TagTextDictionary.commentId;
 			for (int l = 0; l < numComment; l++) {
-				Comment comment = textGenerator.getRandomRegionalComment(post,	user,
-													lastCommentCreateDate,
-													startCommentId, lastCommentId);
+				Comment comment = tagTextDic.createComment(post, user, lastCommentCreatedDate, startCommentId, lastCommentId, 
+				        userAgentDic, ipAddDictionary, browserDic);
 				if (comment.getAuthorId() != -1) {
 					serializer.gatherData(comment);
 					
-					lastCommentCreateDate = comment.getCreateDate();
-					lastCommentId = comment.getCommentId();
-				}
-			}
-		}
-	}
-
-	public void generateInterestPost(ReducedUserProfile user, UserExtraInfo extraInfo){
-		// Generate interest-related posts
-		int numInterstPost = getNumOfInterestPost(user);
-		for (int m = 0; m < numInterstPost; m++) {
-			Post post = textGenerator.getRandomInterestPost(
-					user, maxNumLikes);
-			Integer languageIndex = randUniform.nextInt(extraInfo.getLanguages().size());
-            post.setLanguage(extraInfo.getLanguages().get(languageIndex));
-			userAgentDic.setPostUserAgent(user, post);
-			ipAddDictionary.setPostIPAdress(user.isFrequentChange(),
-											user.getIpAddress(), post);
-
-			// set browser idx
-			post.setBrowserIdx(browserDic.getPostBrowserId(user.getBrowserIdx()));
-
-			serializer.gatherData(post);
-			
-			// Generate comment for interest-related post
-			int numComment = randNumberComments
-					.nextInt(maxNumComments);
-			long lastCommentCreateDate = post.getCreatedDate();
-			long lastCommentId = -1;
-			long startCommentId = RandomTextGenerator.commentId;
-			for (int l = 0; l < numComment; l++) {
-				Comment comment = textGenerator.getRandomInterestComment(post,
-										user,lastCommentCreateDate,
-										startCommentId, lastCommentId);
-				// In case the comment is not created because of the friendship's createddate
-				if (comment.getAuthorId() != -1) {
-					serializer.gatherData(comment);
-					
-					lastCommentCreateDate = comment.getCreateDate();
+					lastCommentCreatedDate = comment.getCreateDate();
 					lastCommentId = comment.getCommentId();
 				}
 			}
@@ -1296,8 +1229,9 @@ public class ScalableGenerator{
 
 		for (int i = 0; i < cellSize; i++) {
 			moderatorProb = randGroupModerator.nextDouble();
-			if (moderatorProb > groupModeratorProb)
+			if (moderatorProb > groupModeratorProb) {
 				continue;
+			}
 
 			Friend firstLevelFriends[];
 			Vector<Friend> secondLevelFriends = new Vector<Friend>();
@@ -1310,14 +1244,14 @@ public class ScalableGenerator{
 				int friendIdxInWindow = getIdxInWindow(0, 0, friendId);
 
 				if (friendIdxInWindow != -1) {
-					Friend friendOfFriends[] = reducedUserProfiles[friendIdxInWindow]
-							.getFriendList();
+					Friend friendOfFriends[] = reducedUserProfiles[friendIdxInWindow].getFriendList();
 
 					for (int k = 0; k < friendOfFriends.length; k++) {
-						if (friendOfFriends[k] != null)
+						if (friendOfFriends[k] != null) {
 							secondLevelFriends.add(friendOfFriends[k]);
-						else
+						} else {
 							break;
+						}
 					}
 				}
 			}
@@ -1325,8 +1259,7 @@ public class ScalableGenerator{
 			// Create a group whose the moderator is the current user
 			int numGroup = randNumberGroup.nextInt(maxNumGroupCreatedPerUser);
 			for (int j = 0; j < numGroup; j++) {
-				createGroupForUser(reducedUserProfiles[i], firstLevelFriends,
-						secondLevelFriends);
+				createGroupForUser(reducedUserProfiles[i], firstLevelFriends, secondLevelFriends);
 			}
 
 		}
@@ -1375,23 +1308,19 @@ public class ScalableGenerator{
 	}
 
 	public int getIdxInWindow(int startIndex, int startUserId, int userAccId) {
-		// (cellPos % numberOfCellPerWindow) * cellSize;
-		if (((startUserId + windowSize) <= userAccId)
-				|| (startUserId > userAccId)) {
+		if (((startUserId + windowSize) <= userAccId) || (startUserId > userAccId)) {
 			return -1;
-		} else
-			return (startIndex + (userAccId - startUserId)) % windowSize;
+		}
+		
+		return (startIndex + (userAccId - startUserId)) % windowSize;
 	}
 
-	public int getIdxInRemovedWindow(int startIndex, int startUserId,
-			int userAccId) {
-
-		if (userAccId >= startUserId
-				|| ((userAccId + windowSize) < startUserId)) {
+	public int getIdxInRemovedWindow(int startIndex, int startUserId, int userAccId) {
+		if (userAccId >= startUserId|| ((userAccId + windowSize) < startUserId)) {
 			return -1;
-		} else
-			return (startIndex + (userAccId + windowSize - startUserId))
-					% windowSize;
+		}
+		
+		return (startIndex + (userAccId + windowSize - startUserId)) % windowSize;
 	}
 
 	public void createGroupForUser(ReducedUserProfile user,
@@ -1405,10 +1334,8 @@ public class ScalableGenerator{
 
 		int numGroupMember = randNumberUserPerGroup.nextInt(maxNumMemberGroup);
 		group.initAllMemberships(numGroupMember);
-		//System.out.println("numGroupMember = " + numGroupMember);
 		
-		int numLoop = 0;  
-		//int maxLoop = windowSize * 2; 
+		int numLoop = 0;
 		while ((group.getNumMemberAdded() < numGroupMember) && (numLoop < windowSize)) {
 
 			numLoop++;
@@ -1417,8 +1344,7 @@ public class ScalableGenerator{
 			// Select the appropriate friend level
 			if (randLevelProb < levelProbs[0]) { // ==> level 1
 				// Find a friendIdx
-				int friendIdx = randMemberIdxSelector.nextInt(user
-						.getNumFriendsAdded());
+				int friendIdx = randMemberIdxSelector.nextInt(user.getNumFriendsAdded());
 				// Note: Use user.getNumFriendsAdded(), do not use
 				// firstLevelFriends.length
 				// because we allocate a array for friendLists, but do not
@@ -1435,25 +1361,18 @@ public class ScalableGenerator{
 						memberIds.add(potentialMemberAcc);
 						// Assume the earliest membership date is the friendship
 						// created date
-						GroupMemberShip memberShip = groupGenerator
-								.createGroupMember(potentialMemberAcc, group
-										.getCreatedDate(),
-										firstLevelFriends[friendIdx]
-												.getCreatedTime());
+						GroupMemberShip memberShip = groupGenerator.createGroupMember(
+						        potentialMemberAcc, group.getCreatedDate(),
+						        firstLevelFriends[friendIdx].getCreatedTime());
 						group.addMember(memberShip);
 					}
 				}
-			}
-
-			else if (randLevelProb < levelProbs[1]) { // ==> level 2
-				//
+			} else if (randLevelProb < levelProbs[1]) { // ==> level 2
 				if (secondLevelFriends.size() == 0)
 					continue;
 
-				int friendIdx = randMemberIdxSelector
-						.nextInt(secondLevelFriends.size());
-				int potentialMemberAcc = secondLevelFriends.get(friendIdx)
-						.getFriendAcc();
+				int friendIdx = randMemberIdxSelector.nextInt(secondLevelFriends.size());
+				int potentialMemberAcc = secondLevelFriends.get(friendIdx).getFriendAcc();
 				randMemberProb = randMembership.nextDouble();
 				if (randMemberProb < joinProbs[1]) {
 					// Check whether this user has been added and then add to
@@ -1462,16 +1381,13 @@ public class ScalableGenerator{
 						memberIds.add(potentialMemberAcc);
 						// Assume the earliest membership date is the friendship
 						// created date
-						GroupMemberShip memberShip = groupGenerator
-								.createGroupMember(potentialMemberAcc, group
-										.getCreatedDate(), secondLevelFriends
-										.get(friendIdx).getCreatedTime());
+						GroupMemberShip memberShip = groupGenerator.createGroupMember(
+						        potentialMemberAcc, group.getCreatedDate(), 
+						        secondLevelFriends.get(friendIdx).getCreatedTime());
 						group.addMember(memberShip);
 					}
 				}
-			}
-
-			else { // ==> random users
+			} else { // ==> random users
 				// Select a user from window
 				int friendIdx = randMemberIdxSelector.nextInt(windowSize);
 				int potentialMemberAcc = reducedUserProfiles[friendIdx].getAccountId();
@@ -1481,11 +1397,9 @@ public class ScalableGenerator{
 					// the group
 					if (!memberIds.contains(potentialMemberAcc)) {
 						memberIds.add(potentialMemberAcc);
-						GroupMemberShip memberShip = groupGenerator
-								.createGroupMember(potentialMemberAcc, group
-										.getCreatedDate(),
-										reducedUserProfiles[friendIdx]
-												.getCreatedDate());
+						GroupMemberShip memberShip = groupGenerator.createGroupMember(
+						        potentialMemberAcc, group.getCreatedDate(),
+						        reducedUserProfiles[friendIdx].getCreatedDate());
 						group.addMember(memberShip);
 					}
 				}
@@ -1493,16 +1407,13 @@ public class ScalableGenerator{
 		}
 
 		serializer.gatherData(group);
-		// Generate posts and comments for this groups
 		generatePostForGroup(group);
 	}
 
 	public void generatePostForGroup(Group group) {
 		int numberGroupPost = getNumOfGroupPost(group);
-		// System.out.println("Group post number for group " +
-		// group.getGroupId() + " : " + numberGroupPost);
 		for (int i = 0; i < numberGroupPost; i++) {
-			Post groupPost = textGenerator.getRandomGroupPost(group, maxNumLikes);
+			Post groupPost = tagTextDic.createPost(group, maxNumLikes);
 			groupPost.setUserAgent("");
 			groupPost.setBrowserIdx((byte) -1);
 
@@ -1510,54 +1421,34 @@ public class ScalableGenerator{
 
 
 			int numComment = randNumberComments.nextInt(maxNumComments);
-			long lastCommentCreateDate = groupPost.getCreatedDate();
+			long lastCommentCreatedDate = groupPost.getCreatedDate();
 			long lastCommentId = -1;
-			long startCommentId = RandomTextGenerator.commentId;
+			long startCommentId = TagTextDictionary.commentId;
 
 			for (int j = 0; j < numComment; j++) {
-				Comment comment = textGenerator.getRandomGroupComment(
-						groupPost, group, lastCommentCreateDate,
-						startCommentId, lastCommentId);
-				if (comment.getAuthorId() != -1) { // In case the comment is not
-													// created because of
-					// the friendship's createddate
-					comment.setUserAgent("");
-					comment.setBrowserIdx((byte) -1);
+				Comment comment = tagTextDic.createComment(groupPost, group, lastCommentCreatedDate, startCommentId, lastCommentId, 
+                        userAgentDic, ipAddDictionary, browserDic);
+				if (comment.getAuthorId() != -1) { // In case the comment is not reated because of the friendship's createddate
 					
 					serializer.gatherData(comment);
 
-					lastCommentCreateDate = comment.getCreateDate();
+					lastCommentCreatedDate = comment.getCreateDate();
 					lastCommentId = comment.getCommentId();
 				}
 			}
 		}
-
 	}
 
 	// User has more friends will have more posts
 	// Thus, the number of post is calculated according
 	// to the number of friends and createdDate of a user
-	public int getNumOfRegionalPost(ReducedUserProfile user) {
+	public int getNumOfPost(ReducedUserProfile user) {
 		int numOfmonths = (int) dateTimeGenerator.numberOfMonths(user);
 		int numberPost;
 		if (numOfmonths == 0) {
-			numberPost = randNumberPost.nextInt(maxNumLocationPostPerMonth);
+			numberPost = randNumberPost.nextInt(maxNumPostPerMonth);
 		} else
-			numberPost = randNumberPost.nextInt(maxNumLocationPostPerMonth
-					* numOfmonths);
-
-		numberPost = (numberPost * user.getNumFriendsAdded()) / maxNoFriends;
-
-		return numberPost;
-	}
-
-	public int getNumOfInterestPost(ReducedUserProfile user) {
-		int numOfmonths = (int) dateTimeGenerator.numberOfMonths(user);
-		int numberPost;
-		if (numOfmonths == 0) {
-			numberPost = randNumberPost.nextInt(maxNumInterestPostPerMonth);
-		} else
-			numberPost = randNumberPost.nextInt(maxNumInterestPostPerMonth
+			numberPost = randNumberPost.nextInt(maxNumPostPerMonth
 					* numOfmonths);
 
 		numberPost = (numberPost * user.getNumFriendsAdded()) / maxNoFriends;
@@ -1637,8 +1528,6 @@ public class ScalableGenerator{
 		userProf.setForumWallId(accountId * 2); // Each user has an wall
 		userProf.setForumStatusId(accountId * 2 + 1);
 
-		userProf.setNumInterests((short) (randNumInterest.nextInt(maxNoInterestsPerUser) + 1));
-
 		// User's Agent
 		userProf.setHaveSmartPhone(randUserAgent.nextDouble() > probHavingSmartPhone);
 		if (userProf.isHaveSmartPhone()) {
@@ -1664,12 +1553,6 @@ public class ScalableGenerator{
 			}
 		}
 		userProf.setPopularPlaceIds(popularPlaces);
-		
-		// Get set of interests
-		userProf.setSetOfInterests(interestDic.getInterests(userProf.getLocationIdx(),
-															userProf.getNumInterests()));
-		
-		userProf.setIntZValue(interestDic.getZValue(userProf.getSetOfInterests()));
 		
 		// Get random Idx
 		userProf.setRandomIdx(randUserRandomIdx.nextInt(maxUserRandomIdx));

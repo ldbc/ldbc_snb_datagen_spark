@@ -2907,7 +2907,7 @@
 2906 Allen_Ginsberg
 2907 Tony_Bennett
 2908 Jack_Kirby
-2909 Weird_Al_Yankovic
+2909 "Weird_Al"_Yankovic
 2910 Oscar_Hammerstein_II
 2911 Merle_Haggard
 2912 LL_Cool_J
@@ -4868,7 +4868,7 @@
 4867 Dawn_French
 4868 Ian_Rush
 4869 Matthew_Stevens
-4870 Robert_John_Mutt_Lange
+4870 Robert_John_"Mutt"_Lange
 4871 Paperback_Writer
 4872 Last_Christmas
 4873 Who_Are_You
@@ -4890,7 +4890,7 @@
 4889 Orange_Ave.
 4890 World_in_Union
 4891 Hot_in_the_City
-4892 List_of_Weird_Al_Yankovic_polka_medleys
+4892 List_of_"Weird_Al"_Yankovic_polka_medleys
 4893 Lost_in_the_Sound_of_Separation
 4894 I_Luv_Your_Girl
 4895 Ready_for_the_Floor
@@ -5218,7 +5218,7 @@
 5217 Universal_Mind_Control
 5218 Destination_Calabria
 5219 The_Sickness
-5220 First_Two_7s_on_a_12
+5220 First_Two_7"s_on_a_12"
 5221 Given_to_Fly
 5222 Novocaine_for_the_Soul
 5223 Funky_Cold_Medina
@@ -6201,7 +6201,7 @@
 6200 Low-Life
 6201 Here_for_the_Party
 6202 And_Then...
-6203 Weird_Al_Yankovic_in_3-D
+6203 "Weird_Al"_Yankovic_in_3-D
 6204 Hope_Is_Important
 6205 Melody_A.M.
 6206 Moon_Safari
@@ -6755,7 +6755,7 @@
 6754 Virtual_XI
 6755 Young_Forever
 6756 ...Baby_One_More_Time
-6757 A_Little_Less_Sixteen_Candles,_a_Little_More_Touch_Me
+6757 A_Little_Less_Sixteen_Candles,_a_Little_More_"Touch_Me"
 6758 Awesome_as_Fuck
 6759 Menlove_Ave.
 6760 Metal_Health
@@ -6802,7 +6802,7 @@
 6801 Stadium_Arcadium
 6802 Tha_Carter_IV
 6803 When_Love_Takes_Over
-6804 The_Bootleg_Series_Vol._4:_Bob_Dylan_Live_1966,_The_Royal_Albert_Hall_Concert
+6804 The_Bootleg_Series_Vol._4:_Bob_Dylan_Live_1966,_The_"Royal_Albert_Hall"_Concert
 6805 Penny_Lane
 6806 Tattoo_You
 6807 Tomorrow_Never_Knows
@@ -9964,7 +9964,7 @@
 9963 I_Can_Love_You_Like_That
 9964 Like_We_Never_Loved_at_All
 9965 Love_on_the_Inside
-9966 V_Is_for_Vagina
+9966 "V"_Is_for_Vagina
 9967 Shake_Ya_Ass
 9968 Shoot_the_Dog
 9969 When_You_Look_Me_in_the_Eyes
@@ -10171,7 +10171,7 @@
 10170 Live_at_Reading
 10171 Sorry_for_Party_Rocking
 10172 The_Black_and_White_Album
-10173 The_Take_Over,_the_Breaks_Over
+10173 "The_Take_Over,_the_Breaks_Over"
 10174 Love._Angel._Music._Baby.
 10175 The_High_End_of_Low
 10176 Anybody_Seen_My_Baby?
@@ -10499,7 +10499,7 @@
 10498 Reba:_Duets
 10499 Amar_es_Combatir
 10500 Tribute_to_the_Gods
-10501 A_Roller_Skating_Jam_Named_Saturdays
+10501 A_Roller_Skating_Jam_Named_"Saturdays"
 10502 Sugar_Baby_Love
 10503 El_Sello_De_Los_Tiempos
 10504 Beautiful_World/Kiss_&_Cry
@@ -12809,7 +12809,7 @@
 12808 Under_My_Wheels
 12809 Waiting_in_Vain
 12810 Vesyolye_Ulybki
-12811 V_Is_for_Viagra._The_Remixes
+12811 "V"_Is_for_Viagra._The_Remixes
 12812 No_One_Else_on_Earth
 12813 Song_Sung_Blue
 12814 Disney_Channel_Holiday
@@ -12920,7 +12920,7 @@
 12919 Street_Hassle
 12920 My_Apocalypse
 12921 The_Soft_Parade
-12922 Music_from_The_Elder
+12922 Music_from_"The_Elder"
 12923 The_Cosmos_Rocks
 12924 Locomotive_Breath
 12925 Blue_for_You
@@ -13021,7 +13021,7 @@
 13020 Wake_of_the_Flood
 13021 Natty_Dread
 13022 Rastaman_Vibration
-13023 Carl_and_the_Passions_–_So_Tough
+13023 Carl_and_the_Passions_–_"So_Tough"
 13024 In_a_Silent_Way
 13025 Briefcase_Full_of_Blues
 13026 Imaginations_from_the_Other_Side
@@ -15309,7 +15309,7 @@
 15308 Wishing_You_Were_Here
 15309 Work_Song
 15310 Along_Comes_Mary
-15311 Ella_Fitzgerald_Sings_Songs_from_Let_No_Man_Write_My_Epitaph
+15311 Ella_Fitzgerald_Sings_Songs_from_"Let_No_Man_Write_My_Epitaph"
 15312 Gett_Off
 15313 Ella_Fitzgerald_Sings_the_Jerome_Kern_Songbook
 15314 Blue_Light,_Red_Light
@@ -15348,7 +15348,7 @@
 15347 The_Hit_Factory:_The_Best_of_Stock_Aitken_Waterman
 15348 The_Paul_McCartney_Collection
 15349 Van_Morrison:_The_Concert
-15350 Theme_from_S.W.A.T.
+15350 Theme_from_"S.W.A.T."
 15351 T.E.V.I.N.
 15352 I_Am_a_Photograph
 15353 Bleu_Noir
@@ -15912,7 +15912,7 @@
 15911 Under_the_Western_Freeway
 15912 WOW_Hits_2004
 15913 WOW_Hits_2007
-15914 7_of_the_Month_Club
+15914 7"_of_the_Month_Club
 15915 God_He_Reigns
 15916 WOW_Number_1s
 15917 Yesyears
@@ -16006,7 +16006,7 @@
 16005 Violently_Happy
 16006 Limmu-Ennarea
 16007 Saint-Germain-des-Prés_Café
-16008 Featuring_Birds
+16008 Featuring_"Birds"
 16009 This_War_Is_Ours
 16010 Señales
 16011 Erreway_presenta_su_caja_recopilatoria

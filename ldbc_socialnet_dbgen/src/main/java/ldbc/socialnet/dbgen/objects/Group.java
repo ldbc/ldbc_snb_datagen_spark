@@ -36,11 +36,6 @@
  */
 package ldbc.socialnet.dbgen.objects;
 
-import java.util.Iterator;
-import java.util.Vector;
-
-
-
 public class Group extends SocialObject{
 	int groupId; 
 	int moderatorId; 		//creator Id
@@ -54,7 +49,6 @@ public class Group extends SocialObject{
 	Integer[] tags;
 	
 	int locationIdx; 			// Each group is for one location which is the creator's location
-	int interestIdx; 			// Each group is for only one interest of the creator
 	
 	GroupMemberShip memberShips[]; 
 	int numMemberAdded = 0; 
@@ -126,12 +120,4 @@ public class Group extends SocialObject{
 	public void setLocationIdx(int locationIdx) {
 		this.locationIdx = locationIdx;
 	}
-	
-	public int getInterestIdx() {
-		return interestIdx;
-	}
-	public void setInterestIdx(int interestIdx) {
-		this.interestIdx = interestIdx;
-	}
-
 }
