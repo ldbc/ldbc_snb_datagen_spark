@@ -37,16 +37,11 @@
 package ldbc.socialnet.dbgen.dictionary;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
-import java.util.Vector;
 
 import ldbc.socialnet.dbgen.generator.DateGenerator;
 import ldbc.socialnet.dbgen.generator.ScalableGenerator;
@@ -56,7 +51,6 @@ import ldbc.socialnet.dbgen.objects.Group;
 import ldbc.socialnet.dbgen.objects.GroupMemberShip;
 import ldbc.socialnet.dbgen.objects.Post;
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
-import ldbc.socialnet.dbgen.objects.Tag;
 
 
 public class TagTextDictionary {
@@ -68,6 +62,7 @@ public class TagTextDictionary {
 	String dicFileName;
 	
 	DateGenerator dateGen;
+	HashMap<Integer,String> tagIdToName;
 	Random rand;
 	Random randReduceText;
 	Random randTextSize;
@@ -80,11 +75,13 @@ public class TagTextDictionary {
     int reduceTextSize;
     double reduceTextRatio;
 	
-	public TagTextDictionary(String dicFileName, DateGenerator dateGen, int minSizeOfText, int maxSizeOfText,
-            int minSizeOfComment, int maxSizeOfComment, double reduceTextRatio, long seed, long seedTextSize){
+	public TagTextDictionary(String dicFileName, DateGenerator dateGen, HashMap<Integer,String> tagIdToName, 
+	        int minSizeOfText, int maxSizeOfText, int minSizeOfComment, int maxSizeOfComment, 
+	        double reduceTextRatio, long seed, long seedTextSize){
 		this.dicFileName = dicFileName;
 		this.tagText = new HashMap<Integer, String>();
 		this.dateGen = dateGen;
+		this.tagIdToName = tagIdToName;
 		rand = new Random(seed);
 		randReduceText = new Random(seed);
 		randReplyTo = new Random(seed);
@@ -116,13 +113,11 @@ public class TagTextDictionary {
 	    return tagText.get(id);
 	}
 	
-	public String getRandomText(int id) {
+	public String getRandomText(HashSet<Integer> tags) {
 
         int textSize;
         int startingPos;
-        String finalString = "";
-
-        String content = getTagText(id);
+        String returnString = "";
         
         // Generate random fragment from the content 
         if (randReduceText.nextDouble() > reduceTextRatio){
@@ -132,22 +127,37 @@ public class TagTextDictionary {
             textSize = randTextSize.nextInt(reduceTextSize - minSizeOfText) + minSizeOfText;
         }
 
-        if (textSize >= content.length()) {
-            return content;
-        } else {
-            // Get the starting position for the fragment of text
-            startingPos = randTextSize.nextInt(content.length() - textSize);
-            finalString = content.substring(startingPos, startingPos + textSize - 1);
-            
-            int posSpace = finalString.indexOf(" ");
-            String returnString = (posSpace != -1) ? finalString.substring(posSpace).trim() : finalString;
-            posSpace = returnString.lastIndexOf(" ");
-            if (posSpace != -1){
-                returnString = returnString.substring(0, posSpace);
+        textSize /= tags.size();
+        
+        Iterator<Integer> it = tags.iterator();
+        while (it.hasNext()) {
+            Integer tag = it.next();
+            String content = getTagText(tag);
+            if (textSize >= content.length()) {
+                returnString += content;
+            } else {
+                startingPos = randTextSize.nextInt(content.length() - textSize);
+                String finalString = content.substring(startingPos, startingPos + textSize - 1);
+                
+                String tagName = tagIdToName.get(tag).replace("_", " ");
+                tagName = tagName.replace("\"", "\\\"");
+                String prefix = "About " +tagName+ ", ";
+
+                int posSpace = finalString.indexOf(" ");
+                returnString += (posSpace != -1) ? prefix + finalString.substring(posSpace).trim() : prefix + finalString;
+                posSpace = returnString.lastIndexOf(" ");
+                if (posSpace != -1){
+                    returnString = returnString.substring(0, posSpace);
+                }
             }
-            
-            return returnString;
+            if (!returnString.endsWith(".")) {
+                returnString =  returnString + ".";
+            }
+            if (it.hasNext()) {
+                returnString += " ";
+            }
         }
+        return returnString;
     }
 	
 	public int[] getLikeFriends(ReducedUserProfile user, int numberOfLikes) {
@@ -206,14 +216,14 @@ public class TagTextDictionary {
             Integer value = it.next();
             if (tags.isEmpty()) {
                 tags.add(value);
-                post.setContent(getRandomText(value));
             } else {
                 if (rand.nextDouble() < 0.2) {
                     tags.add(value);
                 }
             }
         }
-        post.setTags(tags);        
+        post.setTags(tags);    
+        post.setContent(getRandomText(tags));
         
         int numberOfLikes = rand.nextInt(maxNumberOfLikes);
         int[] likes = getLikeFriends(user, numberOfLikes);
@@ -245,7 +255,7 @@ public Post createPost(Group group, int maxNumberOfLikes) {
             tags.add(group.getTags()[i]);
         }
         post.setTags(tags); 
-        post.setContent(getRandomText(group.getTags()[0]));
+        post.setContent(getRandomText(tags));
         
         int numberOfLikes = rand.nextInt(maxNumberOfLikes);
         
@@ -299,8 +309,7 @@ public Post createPost(Group group, int maxNumberOfLikes) {
 	    ipAddDic.setCommentIPAdress(friend.isFrequentChange(), friend.getSourceIp(), comment);
 	    comment.setBrowserIdx(browserDic.getPostBrowserId(friend.getBrowserIdx()));
 
-	    Iterator<Integer> it = post.getTags().iterator();
-	    comment.setContent(getRandomText(it.next()));
+	    comment.setContent(getRandomText(post.getTags()));
 
 	    comment.setCreateDate(dateGen.powerlawCommDateDay(lastCommentCreatedDate));
 
@@ -338,8 +347,7 @@ public Post createPost(Group group, int maxNumberOfLikes) {
         comment.setIpAddress(null);
         comment.setBrowserIdx((byte) -1);
 
-        Iterator<Integer> it = post.getTags().iterator();
-        comment.setContent(getRandomText(it.next()));
+        comment.setContent(getRandomText(post.getTags()));
 
         comment.setCreateDate(dateGen.powerlawCommDateDay(lastCommentCreatedDate));
 

@@ -709,8 +709,8 @@ public class ScalableGenerator{
 					locationDic.getLocationNameMapping().size(), seeds[5], tagCountryCorrProb);
 			mainTagDic.extractTags();
 			
-			tagTextDic = new TagTextDictionary(sibDicDataDir + tagTextFile, dateTimeGenerator, minTextSize,
-                    maxTextSize, minCommentSize, maxCommentSize, ratioReduceText, seeds[15], seeds[16]);
+			tagTextDic = new TagTextDictionary(sibDicDataDir + tagTextFile, dateTimeGenerator, mainTagDic.getTagsNamesMapping(),
+			        minTextSize, maxTextSize, minCommentSize, maxCommentSize, ratioReduceText, seeds[15], seeds[16]);
 			tagTextDic.initialize();
 
 			System.out.println("Building Tag Matrix dictionary ");
