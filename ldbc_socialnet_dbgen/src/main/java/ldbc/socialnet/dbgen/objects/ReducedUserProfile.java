@@ -316,15 +316,6 @@ public class ReducedUserProfile extends SocialObject implements Serializable, Wr
 		numFriends = user.getNumFriends();
 		numFriendsAdded = user.getNumFriendsAdded();
 		numCorDimensions = user.getNumCorDimensions();
-		
-//		numPassFriends = new short[numCorDimensions];
-//		for (int i = 0; i < numCorDimensions; i ++){
-//			numPassFriends[i] = user.getNumPassFriends()[i];
-//		}
-//		numPassFriendsAdded = new short[numCorDimensions];
-//		for (int i = 0; i < numCorDimensions; i ++){
-//			numPassFriendsAdded[i] = user.getNumPassFriendsAdded()[i]
-//		}
 
 		numPassFriends = user.getNumPassFriends();
 		numPassFriendsAdded = user.getNumPassFriendsAdded();
@@ -421,15 +412,6 @@ public class ReducedUserProfile extends SocialObject implements Serializable, Wr
 		
 		arg0.writeInt(intZValue);
 	}
-	/*
-	private void writeObject(ObjectOutputStream s) 
-				throws IOException {
-		s.defaultWriteObject(); 
-	}
-	private void readObject(ObjectInputStream s)
-		throws IOException, ClassNotFoundException {
-	}
-	*/
 
 	public ReducedUserProfile(){
 		
@@ -446,7 +428,6 @@ public class ReducedUserProfile extends SocialObject implements Serializable, Wr
 		
 		dicElementIds = new int[numCorrDimensions];
 		
-		//this.setDicElementId(user.getLocationIdx(),0);
 		this.setGender(user.getGender());
 		this.setBirthDay(user.getBirthDay());
 		
@@ -485,9 +466,6 @@ public class ReducedUserProfile extends SocialObject implements Serializable, Wr
 		this.setNumPopularPlace(user.getNumPopularPlace());
 		
 		this.numPassFriendsAdded = new short[numCorrDimensions];
-		
-		
-
 	}
 	
 	public int getDicElementId(int index) {
@@ -528,22 +506,11 @@ public class ReducedUserProfile extends SocialObject implements Serializable, Wr
 	}
 	
 	public void addNewFriend(Friend friend) {
-		try {
-			friendList[numFriendsAdded] = friend;
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			System.out.println("Total number of friends " + numFriends);
-			System.out.println("Number of friends added " + numFriendsAdded);
-			System.out.println("Number of pass friends " + numPassFriends[0]);
-			System.out.println("Number of pass friends " + numPassFriends[1]);
-			System.out.println("Number of pass friends " + numPassFriends[2]);
-			
-			e.printStackTrace();
-			System.exit(-1);
-			
-		}
-		friendIds.add(friend.getFriendAcc());
-		numFriendsAdded++;
+	    if (friend != null && !friendIds.contains(friend.getFriendAcc())) {
+	        friendList[numFriendsAdded] = friend;
+	        friendIds.add(friend.getFriendAcc());
+	        numFriendsAdded++;
+	    }
 	}
 	
 	public boolean isExistFriend(int friendId){
@@ -554,21 +521,6 @@ public class ReducedUserProfile extends SocialObject implements Serializable, Wr
 		this.numFriendsAdded = numFriendsAdded;
 	}
 	
-
-	/*
-	public void print(){
-		System.out.println("Account Id: " + accountId);
-		System.out.println("Friends added: " + numFriendsAdded + " / " + numFriends);
-	}
-	public void printDetail(){
-		System.out.println("Account Id: " + accountId);
-		System.out.print("Total number of friends: " + numFriends);
-		System.out.print(numFriendsAdded + " user friends added: ");
-		for (int i = 0; i < numFriendsAdded; i ++){
-			System.out.print(" " + friendList[i].getFriendAcc());
-		}
-	}
-	*/
 	
 	public void allocateFriendListMemory(){
 		friendList = new Friend[numFriends];
@@ -582,12 +534,7 @@ public class ReducedUserProfile extends SocialObject implements Serializable, Wr
 	public void setFriendList(Friend[] friendList) {
 		this.friendList = friendList;
 	}
-
-	/*
-	public short getNumFriends() {
-		return numFriends;
-	}
-	*/
+	
 	public short getNumFriends(int pass) {
 		return numPassFriends[pass];
 	}

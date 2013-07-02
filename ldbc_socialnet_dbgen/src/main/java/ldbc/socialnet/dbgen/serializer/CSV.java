@@ -531,7 +531,7 @@ public class CSV implements Serializer {
 				interests.add(interest);
 				
 				arguments.add(Integer.toString(interestIdx));
-				arguments.add(interest);
+				arguments.add(interest.replace("\"", "\\\""));
 				arguments.add(DBP.fullPrefixed(interest));
 				ToCSV(arguments, Files.TAG.ordinal());
 			}
@@ -642,7 +642,7 @@ public class CSV implements Serializer {
                     interests.add(tag);
                     
                     arguments.add(Integer.toString(tagId));
-                    arguments.add(tag);
+                    arguments.add(tag.replace("\"", "\\\""));
                     arguments.add(DBP.fullPrefixed(tag));
                     ToCSV(arguments, Files.TAG.ordinal());
                 }
@@ -783,7 +783,7 @@ public class CSV implements Serializer {
                 {
                     interests.add(tag);
                     arguments.add(Integer.toString(tagId));
-                    arguments.add(tag);
+                    arguments.add(tag.replace("\"", "\\\""));
                     arguments.add(DBP.fullPrefixed(tag));
                     ToCSV(arguments, Files.TAG.ordinal());
                 }
@@ -839,7 +839,7 @@ public class CSV implements Serializer {
                 interests.add(interest);
                 
                 arguments.add(Integer.toString(groupTags[i]));
-                arguments.add(interest);
+                arguments.add(interest.replace("\"", "\\\""));
                 arguments.add(DBP.fullPrefixed(interest));
                 ToCSV(arguments, Files.TAG.ordinal());
             }

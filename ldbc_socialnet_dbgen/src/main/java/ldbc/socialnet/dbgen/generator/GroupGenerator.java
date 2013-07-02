@@ -43,6 +43,7 @@ import java.util.Random;
 import ldbc.socialnet.dbgen.dictionary.InterestDictionary;
 import ldbc.socialnet.dbgen.dictionary.LocationDictionary;
 import ldbc.socialnet.dbgen.dictionary.TagDictionary;
+import ldbc.socialnet.dbgen.objects.Friend;
 import ldbc.socialnet.dbgen.objects.Group;
 import ldbc.socialnet.dbgen.objects.GroupMemberShip;
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
@@ -99,12 +100,30 @@ public class GroupGenerator {
 		return group; 
 	}
 	
-	public GroupMemberShip createGroupMember(int userId, long groupCreatedDate, long earliestJoinDate){
+	public GroupMemberShip createGroupMember(int userId, long groupCreatedDate, Friend friend){
 		GroupMemberShip memberShip = new GroupMemberShip();
 		memberShip.setUserId(userId);
-		memberShip.setJoinDate(dateGenerator.randomGroupMemberJoinDate(groupCreatedDate, earliestJoinDate));
+		memberShip.setJoinDate(dateGenerator.randomGroupMemberJoinDate(groupCreatedDate, friend.getCreatedTime()));
+		memberShip.setIP(friend.getSourceIp());
+		memberShip.setBrowserIdx(friend.getBrowserIdx());
+		memberShip.setAgentIdx(friend.getAgentIdx());
+		memberShip.setFrequentChange(friend.isFrequentChange());
+		memberShip.setHaveSmartPhone(friend.isHaveSmartPhone());
 		
 		return memberShip;
 	}
+	
+	public GroupMemberShip createGroupMember(int userId, long groupCreatedDate, ReducedUserProfile user){
+        GroupMemberShip memberShip = new GroupMemberShip();
+        memberShip.setUserId(userId);
+        memberShip.setJoinDate(dateGenerator.randomGroupMemberJoinDate(groupCreatedDate, user.getCreatedDate()));
+        memberShip.setIP(user.getIpAddress());
+        memberShip.setBrowserIdx(user.getBrowserIdx());
+        memberShip.setAgentIdx(user.getAgentIdx());
+        memberShip.setFrequentChange(user.isFrequentChange());
+        memberShip.setHaveSmartPhone(user.isHaveSmartPhone());
+        
+        return memberShip;
+    }
 	
 }

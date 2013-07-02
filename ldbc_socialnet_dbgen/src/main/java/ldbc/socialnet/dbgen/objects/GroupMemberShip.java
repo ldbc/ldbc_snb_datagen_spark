@@ -39,6 +39,11 @@ package ldbc.socialnet.dbgen.objects;
 public class GroupMemberShip {
 	int		userId;
 	long 	joinDate;
+	IP      ip;
+	byte    browserIdx;
+	byte    agentIdx;
+	boolean isFrequentChange;
+	boolean isHaveSmartPhone;
 	
 	public int getUserId() {
 		return userId;
@@ -46,6 +51,47 @@ public class GroupMemberShip {
 	public void setUserId(int userId) {
 		this.userId = userId;
 	}
+	
+	public byte getAgentIdx() {
+        return agentIdx;
+    }
+
+    public void setAgentIdx(byte agentIdx) {
+        this.agentIdx = agentIdx;
+    }
+	
+	public byte getBrowserIdx() {
+        return browserIdx;
+    }
+
+    public void setBrowserIdx(byte browserIdx) {
+        this.browserIdx = browserIdx;
+    }
+	
+	public IP getIP() {
+	    return ip;
+	}
+	
+	public void setIP(IP ip) {
+	    this.ip = ip;
+	}
+	
+	public boolean isFrequentChange() {
+        return isFrequentChange;
+    }
+
+    public void setFrequentChange(boolean isFrequentChange) {
+        this.isFrequentChange = isFrequentChange;
+    }
+    
+    public boolean isHaveSmartPhone() {
+        return isHaveSmartPhone;
+    }
+
+    public void setHaveSmartPhone(boolean isHaveSmartPhone) {
+        this.isHaveSmartPhone = isHaveSmartPhone;
+    }
+	
 	public long getJoinDate() {
 		return joinDate;
 	}

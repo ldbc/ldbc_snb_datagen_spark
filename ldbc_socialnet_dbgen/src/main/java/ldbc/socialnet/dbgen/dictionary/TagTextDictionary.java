@@ -162,7 +162,7 @@ public class TagTextDictionary {
 	
 	public int[] getLikeFriends(ReducedUserProfile user, int numberOfLikes) {
 	    Friend[] friendList = user.getFriendList();
-	    int numFriends = friendList.length;
+	    int numFriends = user.getNumFriendsAdded();
 	    int[] friends;
         if (numberOfLikes >= numFriends){
             friends = new int[numFriends];
@@ -172,7 +172,7 @@ public class TagTextDictionary {
         } else {
             friends = new int[numberOfLikes];
             int startIdx = rand.nextInt(numFriends - numberOfLikes);
-            for (int i = 0; i < numberOfLikes; i++) {
+            for (int i = 0; i < numberOfLikes ; i++) {
                 friends[i] = friendList[i+startIdx].getFriendAcc();
             }
         }
@@ -305,7 +305,7 @@ public Post createPost(Group group, int maxNumberOfLikes) {
 	    comment.setReply_of(getReplyToId(startCommentId, lastCommentId));
 	    comment.setForumId(post.getForumId());
 
-	    userAgentDic.setCommentUserAgent(friend, comment);
+	    userAgentDic.setCommentUserAgent(friend.isHaveSmartPhone(), friend.getAgentIdx(), comment);
 	    ipAddDic.setCommentIPAdress(friend.isFrequentChange(), friend.getSourceIp(), comment);
 	    comment.setBrowserIdx(browserDic.getPostBrowserId(friend.getBrowserIdx()));
 
@@ -339,13 +339,9 @@ public Post createPost(Group group, int maxNumberOfLikes) {
         comment.setReply_of(getReplyToId(startCommentId, lastCommentId));
         comment.setForumId(post.getForumId());
 
-//        Unknow right now
-//        userAgentDic.setCommentUserAgent(friend, comment);
-//        ipAddDic.setCommentIPAdress(friend.isFrequentChange(), friend.getSourceIp(), comment);
-//        comment.setBrowserIdx(browserDic.getPostBrowserId(friend.getBrowserIdx()));
-        comment.setUserAgent("");
-        comment.setIpAddress(null);
-        comment.setBrowserIdx((byte) -1);
+        userAgentDic.setCommentUserAgent(memberShip.isHaveSmartPhone(), memberShip.getAgentIdx(), comment);
+        ipAddDic.setCommentIPAdress(memberShip.isFrequentChange(), memberShip.getIP(), comment);
+        comment.setBrowserIdx(browserDic.getPostBrowserId(memberShip.getBrowserIdx()));
 
         comment.setContent(getRandomText(post.getTags()));
 

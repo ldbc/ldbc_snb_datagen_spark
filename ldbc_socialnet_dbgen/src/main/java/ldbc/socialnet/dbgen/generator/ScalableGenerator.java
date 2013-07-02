@@ -1189,7 +1189,7 @@ public class ScalableGenerator{
 				Photo photo = photoGenerator.generatePhoto(user, album, l, maxNumLikes);
 
 				// Set user agent
-				userAgentDic.setPhotoUserAgent(user, photo);
+				userAgentDic.setPhotoUserAgent(user.isHaveSmartPhone(), user.getAgentIdx(), photo);
 
 				// set browser idx
 				photo.setBrowserIdx(browserDic.getPostBrowserId(user.getBrowserIdx()));
@@ -1363,7 +1363,7 @@ public class ScalableGenerator{
 						// created date
 						GroupMemberShip memberShip = groupGenerator.createGroupMember(
 						        potentialMemberAcc, group.getCreatedDate(),
-						        firstLevelFriends[friendIdx].getCreatedTime());
+						        firstLevelFriends[friendIdx]);
 						group.addMember(memberShip);
 					}
 				}
@@ -1383,7 +1383,7 @@ public class ScalableGenerator{
 						// created date
 						GroupMemberShip memberShip = groupGenerator.createGroupMember(
 						        potentialMemberAcc, group.getCreatedDate(), 
-						        secondLevelFriends.get(friendIdx).getCreatedTime());
+						        secondLevelFriends.get(friendIdx));
 						group.addMember(memberShip);
 					}
 				}
@@ -1399,7 +1399,7 @@ public class ScalableGenerator{
 						memberIds.add(potentialMemberAcc);
 						GroupMemberShip memberShip = groupGenerator.createGroupMember(
 						        potentialMemberAcc, group.getCreatedDate(),
-						        reducedUserProfiles[friendIdx].getCreatedDate());
+						        reducedUserProfiles[friendIdx]);
 						group.addMember(memberShip);
 					}
 				}

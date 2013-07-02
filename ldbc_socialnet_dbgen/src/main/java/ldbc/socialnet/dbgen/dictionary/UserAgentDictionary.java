@@ -46,6 +46,7 @@ import java.util.Vector;
 
 import ldbc.socialnet.dbgen.objects.Comment;
 import ldbc.socialnet.dbgen.objects.Friend;
+import ldbc.socialnet.dbgen.objects.GroupMemberShip;
 import ldbc.socialnet.dbgen.objects.Photo;
 import ldbc.socialnet.dbgen.objects.Post;
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
@@ -106,24 +107,26 @@ public class UserAgentDictionary {
 		else
 			post.setUserAgent("");
 	}
-
-	public void setCommentUserAgent(Friend friend, Comment comment){
-		// Sent from user's agent
-		if (friend.isHaveSmartPhone() && (randSentFrom.nextDouble() > probSentFromAgent)){
-			comment.setUserAgent(getUserAgent(friend.getAgentIdx()));
-		}
-		else
-			comment.setUserAgent("");
-	}
 	
-	public void setPhotoUserAgent(ReducedUserProfile user, Photo photo){
-		// Sent from user's agent
-		if (user.isHaveSmartPhone() && (randSentFrom.nextDouble() > probSentFromAgent)){
-			photo.setUserAgent(getUserAgent(user.getAgentIdx()));
-		}
-		else
-			photo.setUserAgent("");
-	}
+	public void setPhotoUserAgent(boolean hasSmathPhone, byte agentId, Photo photo){
+        // Sent from user's agent
+        if (hasSmathPhone && (randSentFrom.nextDouble() > probSentFromAgent)){
+            photo.setUserAgent(getUserAgent(agentId));
+        }
+        else {
+            photo.setUserAgent("");
+        }
+    }
+	
+	public void setCommentUserAgent(boolean hasSmathPhone, byte agentId, Comment comment){
+        // Sent from user's agent
+        if (hasSmathPhone && (randSentFrom.nextDouble() > probSentFromAgent)){
+            comment.setUserAgent(getUserAgent(agentId));
+        }
+        else {
+            comment.setUserAgent("");
+        }
+    }
 	
 	public String getUniformRandomAgent(){
 		int randIdx = randGen.nextInt(vUserAgents.size());

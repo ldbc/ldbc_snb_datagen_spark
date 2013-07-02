@@ -105,24 +105,6 @@ public class Friend extends SocialObject implements Serializable{
 		arg0.writeShort(sourceIp.getIp4());
 		
 	}
-	/*
-	public Friend(UserProfile user, long _requestedTime, long _declinedTime, long _createdTime, 
-					byte passidx, byte initiator){
-		this.friendAcc = user.getAccountId();
-		this.requestTime = _requestedTime;
-		this.declinedTime = _declinedTime;
-		this.createdTime = _createdTime; 
-		this.passIdx = passidx; 
-		this.initiator = initiator;
-		
-		this.isHaveSmartPhone = user.isHaveSmartPhone;
-		this.agentIdx = user.getAgentIdx();
-		this.browserIdx = user.getBrowserIdx();
-		this.isFrequentChange = user.isFrequentChange; 
-		this.setSourceIp(user.getIpAddress());
-				
-	}
-	*/
 
 	public Friend(ReducedUserProfile user, long _requestedTime, long _declinedTime, long _createdTime, 
 			byte passidx, byte initiator){
