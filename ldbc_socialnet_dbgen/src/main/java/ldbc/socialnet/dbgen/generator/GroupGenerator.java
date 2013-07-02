@@ -93,7 +93,7 @@ public class GroupGenerator {
 		tags[0] = interestIdx;
 		
 		//Set name of group
-		group.setGroupName("Group for " + tagDic.getTagsNamesMapping().get(interestIdx) + " in " + locationDic.getLocationName(group.getLocationIdx()));
+		group.setGroupName("Group for " + tagDic.getTagsNamesMapping().get(interestIdx).replace("\"","\\\"") + " in " + locationDic.getLocationName(group.getLocationIdx()));
 		
 		group.setTags(tags);
 		
