@@ -457,6 +457,11 @@ public class CSV implements Serializer {
 					arguments.add(extraInfo.getOrganization());
 					arguments.add(DBP.fullPrefixed(extraInfo.getOrganization()));
 					ToCSV(arguments, Files.ORGANISATION.ordinal());
+					
+	                arguments.add(SN.formId(idList[Files.ORGANISATION_BASED_NEAR_LOCATION.ordinal()]));
+	                arguments.add(SN.formId(organisationId));
+	                arguments.add(Integer.toString(companyToCountry.get(extraInfo.getOrganization())));
+	                ToCSV(arguments, Files.ORGANISATION_BASED_NEAR_LOCATION.ordinal());
 				}
 			}
 
@@ -486,14 +491,14 @@ public class CSV implements Serializer {
 					arguments.add(company);
 					arguments.add(DBP.fullPrefixed(company));
 					ToCSV(arguments, Files.ORGANISATION.ordinal());
+					
+					arguments.add(SN.formId(idList[Files.ORGANISATION_BASED_NEAR_LOCATION.ordinal()]));
+	                arguments.add(SN.formId(organisationId));
+	                arguments.add(Integer.toString(companyToCountry.get(company)));
+	                ToCSV(arguments, Files.ORGANISATION_BASED_NEAR_LOCATION.ordinal());
 				}
 				date.setTimeInMillis(extraInfo.getWorkFrom(company));
 				dateString = DateGenerator.formatYear(date);
-				
-				arguments.add(SN.formId(idList[Files.ORGANISATION_BASED_NEAR_LOCATION.ordinal()]));
-                arguments.add(SN.formId(organisationId));
-                arguments.add(Integer.toString(companyToCountry.get(company)));
-                ToCSV(arguments, Files.ORGANISATION_BASED_NEAR_LOCATION.ordinal());
 				
                 arguments.add(SN.formId(idList[Files.PERSON_WORK_AT_ORGANISATION.ordinal()]));
 				arguments.add(Integer.toString(profile.getAccountId()));
@@ -602,7 +607,7 @@ public class CSV implements Serializer {
             arguments.add(post.getContent());
             ToCSV(arguments, Files.POST.ordinal());
             
-            if (serializedLanguages.indexOf(post.getLanguage()) == -1) {
+            if (serializedLanguages.indexOf(post.getLanguage()) == -1 && post.getLanguage() != -1) {
                 serializedLanguages.add(post.getLanguage());
                 arguments.add(Integer.toString(post.getLanguage()));
                 arguments.add(languageDic.getLanguagesName(post.getLanguage()));

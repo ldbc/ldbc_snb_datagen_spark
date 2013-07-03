@@ -157,7 +157,7 @@ public class TagTextDictionary {
                 returnString += " ";
             }
         }
-        return returnString;
+        return returnString.replace("|", " ");
     }
 	
 	public int[] getLikeFriends(ReducedUserProfile user, int numberOfLikes) {

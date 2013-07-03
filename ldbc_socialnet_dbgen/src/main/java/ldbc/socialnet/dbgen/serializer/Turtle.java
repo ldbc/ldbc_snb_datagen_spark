@@ -358,7 +358,7 @@ public class Turtle implements Serializer {
                     writeDBPData(DBP.fullPrefixed(name), FOAF.Name, createLiteral(name));
                     if (locationDic.getType(areas.get(i)) == Location.CITY) {
                         String countryName = locationDic.getLocationName(areas.get(i+1));
-                        writeDBPData(DBP.fullPrefixed(name), DBPOWL.Country, DBP.fullPrefixed(countryName));
+                        writeDBPData(DBP.fullPrefixed(name), DBPOWL.AttrCountry, DBP.fullPrefixed(countryName));
                     }
                 }
             }
@@ -437,7 +437,7 @@ public class Turtle implements Serializer {
 		            writeDBPData(DBP.fullPrefixed(extraInfo.getOrganization()), RDF.type, DBPOWL.Organisation);
 		            writeDBPData(DBP.fullPrefixed(extraInfo.getOrganization()), FOAF.Name, createLiteral(extraInfo.getOrganization()));
 		            int locationId = universityToCountry.get(extraInfo.getOrganization());
-		            writeDBPData(DBP.fullPrefixed(extraInfo.getOrganization()), DBPOWL.City, 
+		            writeDBPData(DBP.fullPrefixed(extraInfo.getOrganization()), DBPOWL.AttrCountry, 
 		                    DBP.fullPrefixed(locationDic.getLocationName(locationId)));
 		        }
 		        createTripleSPO(result, prefix, SNVOC.Study_at, SN.getStudyAtURI(studyAt));
@@ -474,7 +474,7 @@ public class Turtle implements Serializer {
                     writeDBPData(DBP.fullPrefixed(company), RDF.type, DBPOWL.Organisation);
                     writeDBPData(DBP.fullPrefixed(company), FOAF.Name, createLiteral(company));
                     int locationId = companyToCountry.get(company);
-                    writeDBPData(DBP.fullPrefixed(company), DBPOWL.Country, 
+                    writeDBPData(DBP.fullPrefixed(company), DBPOWL.AttrCountry, 
                             DBP.fullPrefixed(locationDic.getLocationName(locationId)));
                 }
                 
@@ -522,8 +522,7 @@ public class Turtle implements Serializer {
 			createTripleSPO(result, prefix, SNVOC.Interest, DBP.fullPrefixed(interest));  
 			if (!printedTags.containsKey(interestIdx)) {
 			    printedTags.put(interestIdx, interestIdx);
-			    writeDBPData(DBP.fullPrefixed(interest), RDF.type, SNVOC.Tag);
-			    writeDBPData(DBP.fullPrefixed(interest), FOAF.Name, createLiteral(interest));
+			    writeDBPData(DBP.fullPrefixed(interest), FOAF.Name, createLiteral(interest.replace("\"", "\\\"")));
 			}
 		}
 
@@ -604,8 +603,7 @@ public class Turtle implements Serializer {
 	            createTripleSPO(result, prefix, SNVOC.Has_tag, DBP.fullPrefixed(tag));
 	            if (!printedTags.containsKey(tagId)) {
 	                printedTags.put(tagId, tagId);
-	                writeDBPData(DBP.fullPrefixed(tag), RDF.type, SNVOC.Tag);
-	                writeDBPData(DBP.fullPrefixed(tag), FOAF.Name, createLiteral(tag));
+	                writeDBPData(DBP.fullPrefixed(tag), FOAF.Name, createLiteral(tag.replace("\"", "\\\"")));
 	            }
 	        }
 	    }
@@ -709,8 +707,7 @@ public class Turtle implements Serializer {
                 createTripleSPO(result, prefix, SNVOC.Has_tag, DBP.fullPrefixed(tag));
                 if (!printedTags.containsKey(tagId)) {
                     printedTags.put(tagId, tagId);
-                    writeDBPData(DBP.fullPrefixed(tag), RDF.type, SNVOC.Tag);
-                    writeDBPData(DBP.fullPrefixed(tag), FOAF.Name, createLiteral(tag));
+                    writeDBPData(DBP.fullPrefixed(tag), FOAF.Name, createLiteral(tag.replace("\"", "\\\"")));
                 }
             }
 		}
@@ -758,8 +755,7 @@ public class Turtle implements Serializer {
             createTripleSPO(result, prefix, SNVOC.Has_tag, DBP.fullPrefixed(tag));
             if (!printedTags.containsKey(groupTags[i])) {
                 printedTags.put(groupTags[i], groupTags[i]);
-                writeDBPData(DBP.fullPrefixed(tag), RDF.type, SNVOC.Tag);
-                writeDBPData(DBP.fullPrefixed(tag), FOAF.Name, createLiteral(tag));
+                writeDBPData(DBP.fullPrefixed(tag), FOAF.Name, createLiteral(tag.replace("\"", "\\\"")));
             }
         }
 

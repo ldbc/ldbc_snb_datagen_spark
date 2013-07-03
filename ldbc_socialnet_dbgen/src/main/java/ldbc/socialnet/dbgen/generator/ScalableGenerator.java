@@ -245,8 +245,6 @@ public class ScalableGenerator{
 
 	// For generating texts of posts and comments
 	int 					maxNumLikes = 10;
-
-	GroupPostGenerator 		groupPostGenerator;
 	
 	int                     maxEmails = 5;
 	int                     maxCompanies = 3;
@@ -372,7 +370,7 @@ public class ScalableGenerator{
 		rdfOutputFileName = "mr" + mapreduceFileIdx + "_" + rdfOutputFileName;
 		
 		init(mapIdx, true);
-		PhotoGenerator.photoAlbumId = numtotalUser * 2 + 10;
+		PhotoGenerator.photoAlbumId = (numtotalUser + 10) * 2;
 		
 		System.out.println("Number of files " + numFiles);
 		System.out.println("Number of cells per file " + numCellPerfile);
@@ -393,6 +391,7 @@ public class ScalableGenerator{
 		System.out.println("Post generation takes " + getDuration(startPostGeneration, endPostGeneration));
 
 		finishWritingUserData();
+		groupGenerator.setForumId((int)PhotoGenerator.photoAlbumId);
 
 		long startGroupGeneration = System.currentTimeMillis();
 		generateGroupAll(inputFile, numberCell);
@@ -620,8 +619,7 @@ public class ScalableGenerator{
 		seedGenerate(mapId);
 
 		windowSize = (int) cellSize * numberOfCellPerWindow;
-		randPowerlaw = new PowerDistGenerator(minNoFriends, maxNoFriends,
-				alpha, seeds[2]);
+		randPowerlaw = new PowerDistGenerator(minNoFriends, maxNoFriends, alpha, seeds[2]);
 		randUniform = new Random(seeds[3]);
 		randGender = new Random(seeds[3]);
 		randNumInterest = new Random(seeds[4]);
@@ -900,7 +898,7 @@ public class ScalableGenerator{
 		rdfOutputFileName = rdfOutputFileName + numtotalUser;
 		
 		init(mapIdx, false);
-		PhotoGenerator.photoAlbumId = numtotalUser * 2 + 10;
+		PhotoGenerator.photoAlbumId = (numtotalUser + 10) * 2;
 		
 		System.out.println("Number of files " + numFiles);
 		System.out.println("Number of cells per file " + numCellPerfile);
@@ -1416,6 +1414,7 @@ public class ScalableGenerator{
 			Post groupPost = tagTextDic.createPost(group, maxNumLikes);
 			groupPost.setUserAgent("");
 			groupPost.setBrowserIdx((byte) -1);
+			groupPost.setLanguage(-1);
 
 			serializer.gatherData(groupPost);
 

@@ -75,7 +75,8 @@ public class DBPOWL {
 	//Get the URI of this vocabulary
 	public static String getURI() { return NS; }
 	
-	public static final String City         = PREFIX+"City";
-	public static final String Country      = PREFIX+"Country";
-	public static final String Organisation = PREFIX+"Organisation";
+	public static final String City            = PREFIX+"City";
+	public static final String Country         = PREFIX+"Country";
+	public static final String Organisation    = PREFIX+"Organisation";
+	public static final String AttrCountry     = PREFIX+"country";
 }

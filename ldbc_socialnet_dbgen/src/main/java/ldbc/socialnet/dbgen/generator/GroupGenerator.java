@@ -65,6 +65,11 @@ public class GroupGenerator {
 		this.forumId = numUsers * 2 + 1;
 		randGroupInterest = new Random(seed);
 	}
+	
+	public void setForumId(int forumId) {
+	    this.forumId = forumId;
+	}
+	
 	public Group createGroup(ReducedUserProfile user){
 		Group group = new Group(); 
 		forumId = forumId + 2;
