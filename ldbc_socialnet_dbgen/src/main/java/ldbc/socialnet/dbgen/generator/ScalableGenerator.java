@@ -1727,6 +1727,7 @@ public class ScalableGenerator{
 			return new CSV(sibOutputDir /*+ outputFileName*/, forwardChaining,
 					numRdfOutputFile, mainTagDic.getTagsNamesMapping(),
 					browserDic.getvBrowser(), companiesDictionary.getCompanyCityMap(), 
+                    organizationsDictionary.GetOrganizationLocationMap(),
 					ipAddDictionary,locationDic, languageDic);
 		} else {
 			return null;
