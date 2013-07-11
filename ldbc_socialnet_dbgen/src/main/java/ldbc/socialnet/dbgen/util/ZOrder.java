@@ -36,7 +36,6 @@
  */
 package ldbc.socialnet.dbgen.util;
 
-import ldbc.socialnet.dbgen.dictionary.MusicGenres;
 
 /**
  * 
@@ -90,32 +89,6 @@ public class ZOrder {
 		//System.out.println("The z-value is: " + Integer.parseInt(sZ, 2));
 		
 		return Integer.parseInt(sZ, 2);
-		
-	}
-	
-	public int getZValue(MusicGenres musicgenre, int numOfGenres){
-		int NO_BIT_PER_GENRE = 4; 
-		String sGenres[] = new String[numOfGenres];
-		byte genres[] = musicgenre.getGenres();
-		
-		for (int i = 0; i < numOfGenres; i ++){
-			String value = Integer.toBinaryString(genres[i]);
-			int numberToAdd = NO_BIT_PER_GENRE - value.length();
-			for (int j = 0; j < numberToAdd; j++){
-				value = "0" + value;
-			}
-			sGenres[i] = value; 
-		}
-		
-		String sZ = ""; 
-		for (int i = 0; i < NO_BIT_PER_GENRE; i++){
-			for (int j = 0; j < numOfGenres; j++){
-				sZ = sZ + sGenres[j].substring(i, i+1);
-			}
-		}
-		
-		return Integer.parseInt(sZ,2);
-		//return Integer.parseInt(sZ);
 		
 	}
 }

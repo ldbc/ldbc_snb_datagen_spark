@@ -95,6 +95,7 @@ public class LocationDictionary {
 	public HashMap<String, Integer> getLocationNameMapping() {
 		return countryNameMapping;
 	}
+	
 	public void setLocationNameMapping(HashMap<String, Integer> locationNameMapping) {
 		this.countryNameMapping = locationNameMapping;
 	}
@@ -193,6 +194,16 @@ public class LocationDictionary {
         
         return vecCities.get(cityId - vecCountry.size()).getName();
 	}
+	
+	public int getCityId(String cityName) {
+        if (!citiesNameMapping.containsKey(cityName))
+        {
+            System.out.println("Invalid cityId");
+            return -1;
+        }
+        
+        return citiesNameMapping.get(cityName) + vecCountry.size();
+    }
 	
 	public int belongsTo(int locationId) {
 	    if (locationId < 0 || locationId >= (vecCountry.size() + vecCities.size())) {

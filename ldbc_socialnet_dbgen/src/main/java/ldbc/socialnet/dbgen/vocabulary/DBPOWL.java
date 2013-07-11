@@ -77,6 +77,7 @@ public class DBPOWL {
 	
 	public static final String City            = PREFIX+"City";
 	public static final String Country         = PREFIX+"Country";
+	public static final String Continent       = PREFIX+"Continent";
 	public static final String Organisation    = PREFIX+"Organisation";
-	public static final String AttrCountry     = PREFIX+"country";
+	public static final String partOf          = PREFIX+"isPartOf";
 }

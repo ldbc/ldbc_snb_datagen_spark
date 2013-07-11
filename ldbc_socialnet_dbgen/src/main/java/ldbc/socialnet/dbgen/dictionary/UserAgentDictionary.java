@@ -99,34 +99,13 @@ public class UserAgentDictionary {
 		}
 	}
 	
-	public void setPostUserAgent(ReducedUserProfile user, Post post){
+	public String getUserAgentName(boolean hasSmathPhone, byte agentId){
 		// Sent from user's agent
-		if (user.isHaveSmartPhone() && (randSentFrom.nextDouble() > probSentFromAgent)){
-			post.setUserAgent(getUserAgent(user.getAgentIdx()));
+		if (hasSmathPhone && (randSentFrom.nextDouble() > probSentFromAgent)){
+			return getUserAgent(agentId);
 		}
-		else
-			post.setUserAgent("");
+		return "";
 	}
-	
-	public void setPhotoUserAgent(boolean hasSmathPhone, byte agentId, Photo photo){
-        // Sent from user's agent
-        if (hasSmathPhone && (randSentFrom.nextDouble() > probSentFromAgent)){
-            photo.setUserAgent(getUserAgent(agentId));
-        }
-        else {
-            photo.setUserAgent("");
-        }
-    }
-	
-	public void setCommentUserAgent(boolean hasSmathPhone, byte agentId, Comment comment){
-        // Sent from user's agent
-        if (hasSmathPhone && (randSentFrom.nextDouble() > probSentFromAgent)){
-            comment.setUserAgent(getUserAgent(agentId));
-        }
-        else {
-            comment.setUserAgent("");
-        }
-    }
 	
 	public String getUniformRandomAgent(){
 		int randIdx = randGen.nextInt(vUserAgents.size());

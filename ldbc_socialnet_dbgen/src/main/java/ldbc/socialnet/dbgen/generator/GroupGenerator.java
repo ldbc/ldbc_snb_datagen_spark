@@ -40,13 +40,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
 
-import ldbc.socialnet.dbgen.dictionary.InterestDictionary;
 import ldbc.socialnet.dbgen.dictionary.LocationDictionary;
 import ldbc.socialnet.dbgen.dictionary.TagDictionary;
 import ldbc.socialnet.dbgen.objects.Friend;
 import ldbc.socialnet.dbgen.objects.Group;
 import ldbc.socialnet.dbgen.objects.GroupMemberShip;
+import ldbc.socialnet.dbgen.objects.IP;
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
+import ldbc.socialnet.dbgen.objects.UserExtraInfo;
 
 
 public class GroupGenerator {
@@ -55,7 +56,7 @@ public class GroupGenerator {
 	LocationDictionary locationDic;
 	TagDictionary tagDic;
 	static int forumId; 
-	Random 	randGroupInterest; 
+	Random 	randGroupInterest;
 	
 	public GroupGenerator(DateGenerator _dateGenerator, LocationDictionary _locationDic, 
 			TagDictionary tagDic, int numUsers, long seed){
@@ -103,6 +104,24 @@ public class GroupGenerator {
 		group.setTags(tags);
 		
 		return group; 
+	}
+	
+	public Group createAlbum(ReducedUserProfile user, UserExtraInfo extraInfo, int numAlbum, Random rand, double memberProb) {
+	    Group group = createGroup(user);
+	    group.setCreatedDate(dateGenerator.randomPhotoAlbumCreatedDate(user));
+	    group.setLocationIdx(rand.nextInt(locationDic.getVecLocations().size()));
+	    group.setGroupName("Album " + numAlbum + " of " + extraInfo.getFirstName() + " " + extraInfo.getLastName());
+	    Friend[] friends = user.getFriendList();
+	    group.initAllMemberships(user.getNumFriendsAdded());
+	    for (int i = 0; i < user.getNumFriendsAdded(); i++) {
+	        double randMemberProb = rand.nextDouble();
+	        if (randMemberProb < memberProb) {
+	            GroupMemberShip memberShip = createGroupMember(friends[i].getFriendAcc(), 
+	                    group.getCreatedDate(), friends[i]);
+	            group.addMember(memberShip);
+	        }
+	    }
+	    return group;
 	}
 	
 	public GroupMemberShip createGroupMember(int userId, long groupCreatedDate, Friend friend){

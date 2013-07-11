@@ -52,25 +52,28 @@ public class CompanyDictionary {
 	HashMap<String, Integer> locationNames;
 	
 	Vector<Vector<String>> companiesByLocations;
-	HashMap<String, Integer> companyCountry; //company->locationId(country)
+	HashMap<String, Integer> companyCity;
 	Random 		rand; 
 	Random		randUnRelatedCompany;
 	double		probUnCorrelatedCompany;
 	Random		randUnRelatedLocation;
+	LocationDictionary locationDic;
 	
-	public CompanyDictionary(String _dicFileName, HashMap<String, Integer> _locationNames, 
+	public CompanyDictionary(String _dicFileName, LocationDictionary _locationDic, 
 							long seedRandom, double _probUnCorrelatedCompany){
-		this.locationNames = _locationNames; 
+		this.locationNames = _locationDic.getLocationNameMapping(); 
 		this.dicFileName = _dicFileName;
 		this.rand = new Random(seedRandom);
 		this.randUnRelatedCompany = new Random(seedRandom);
 		this.randUnRelatedLocation = new Random(seedRandom);
+		this.locationDic = _locationDic;
 		
 		this.probUnCorrelatedCompany = _probUnCorrelatedCompany;
 	}
+	
 	public void init(){
 		try {
-		    companyCountry = new HashMap<String, Integer>();
+		    companyCity = new HashMap<String, Integer>();
 			dictionary = new BufferedReader(new InputStreamReader(getClass( ).getResourceAsStream(dicFileName), "UTF-8"));
 			
 			System.out.println("Building dictionary of companies (by locations)");
@@ -85,13 +88,11 @@ public class CompanyDictionary {
 			dictionary.close();
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
 	public void extractCompanyNames(){
-		//System.out.println("Extract companies by location ...");
 		String line; 
 		String locationName; 
 		String companyName; 
@@ -108,14 +109,15 @@ public class CompanyDictionary {
 						curLocationId = locationNames.get(locationName); 
 						companyName = infos[1].trim();
 						companiesByLocations.get(curLocationId).add(companyName);
-						companyCountry.put(companyName, curLocationId);
+						Integer cityId = locationDic.getRandomCity(curLocationId);
+						companyCity.put(companyName, cityId);
 						totalNumCompanies++;
 					}
-				}
-				else{
+				} else{
 					companyName = infos[1].trim();
 					companiesByLocations.get(curLocationId).add(companyName);
-					companyCountry.put(companyName, curLocationId);
+					Integer cityId = locationDic.getRandomCity(curLocationId);
+					companyCity.put(companyName, cityId);
 					totalNumCompanies++;
 				}
 
@@ -124,24 +126,12 @@ public class CompanyDictionary {
 			System.out.println("Done ... " + totalNumCompanies + " companies were extracted");
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
-	// Check whether there is any location having no company
-	public void checkCompleteness(){
-		for (int i = 0; i  < locationNames.size(); i++){
-			if (companiesByLocations.get(i).size() == 0){
-				System.out.println("Location " + i + " has no company!");
-			}
-		}
-		
-		System.exit(-1);
-	}
-	
-	public HashMap<String, Integer> getCompanyCountryMap() {
-	    return companyCountry;
+	public HashMap<String, Integer> getCompanyCityMap() {
+	    return companyCity;
 	}
 	
 	// Get a random company from that location

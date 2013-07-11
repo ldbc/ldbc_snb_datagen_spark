@@ -75,83 +75,55 @@ public class SNVOC{
 		}
 	}
 	
-	//General usage
-	public static final String Created    =  PREFIX+"created";
-	public static final String Based_near =  PREFIX+"based_near";
-	public static final String Title      =  PREFIX+"title";
-	public static final String Creator_of =  PREFIX+"creator_of";
-	public static final String Creator    =  PREFIX+"creator";
-	public static final String Has_tag    =  PREFIX+"has_tag";
-	public static final String Tag        =  PREFIX+"tag";
+	//person
+	public static final String Person          =  PREFIX+"Person";
+	public static final String creationDate    =  PREFIX+"creationDate";
+	public static final String firstName       =  PREFIX+"firstName";
+	public static final String lastName        =  PREFIX+"lastName";
+	public static final String gender          =  PREFIX+"gender";
+	public static final String birthday        =  PREFIX+"birthday";
+	public static final String email           =  PREFIX+"email";
+	public static final String speaks          =  PREFIX+"speaks";
+	public static final String browser         =  PREFIX+"browserUsed";
+	public static final String ipaddress       =  PREFIX+"locationIP";
+	public static final String locatedIn       =  PREFIX+"isLocatedIn";
+	public static final String studyAt         =  PREFIX+"studyAt";
+	public static final String workAt          =  PREFIX+"workAt";
+	public static final String hasInterest     =  PREFIX+"hasInterest";
+	public static final String like            =  PREFIX+"like";
+	public static final String knows           =  PREFIX+"knows";
+	public static final String follows         =  PREFIX+"follows";
+	public static final String classYear       =  PREFIX+"classYear";
+	public static final String workFrom        =  PREFIX+"workFrom";
+	public static final String hasOrganisation =  PREFIX+"hasOrganisation";
+	public static final String hasPost         =  PREFIX+"hasPost";
 	
-	//Location related
-	public static final String Location =  PREFIX+"Location";
-	public static final String City     =  PREFIX+"City";
-	public static final String Country  =  PREFIX+"Country";
-	public static final String Region   =  PREFIX+"Region";
-	public static final String Name     =  PREFIX+"name";
-	public static final String Part_of  =  PREFIX+"part_of";
-	
-	//Person related
-	public static final String Person    =  PREFIX+"Person";
-	public static final String FirstName =  PREFIX+"firstName";
-	public static final String LastName  =  PREFIX+"lastName";
-	public static final String Gender    =  PREFIX+"gender";
-	public static final String Birthday  =  PREFIX+"birthday";
-	public static final String Has_mail  =  PREFIX+"has_email";
-	public static final String Interest  =  PREFIX+"interest";
-	public static final String Knows     =  PREFIX+"knows";
-	
-	//Connection related
-	public static final String Connection  =  PREFIX+"connection";
-	public static final String Browser     =  PREFIX+"browser";
-	public static final String IPAddress   =  PREFIX+"IPAddress"; //Type
-	public static final String Ip_address  =  PREFIX+"ipaddress"; //attribute
-	public static final String Located_in  =  PREFIX+"located_in";
-	public static final String Located     =  PREFIX+"located";
-	
-	//Forum related
+	//Forum
 	public static final String Forum        =  PREFIX+"Forum";
-	public static final String Moderator_of =  PREFIX+"moderator_of";
-	public static final String Moderator    =  PREFIX+"moderator";
+	public static final String title        =  PREFIX+"title";
+	public static final String hasModerator =  PREFIX+"hasModerator";
+	public static final String hasTag       =  PREFIX+"hasTag";
+	public static final String hasMember    =  PREFIX+"hasMember";
+	public static final String containerOf  =  PREFIX+"containerOf";
+	public static final String hasPerson    =  PREFIX+"hasPerson";
+	public static final String joinDate     =  PREFIX+"joinDate";
 	
-	//Group related
-	public static final String Group        =  PREFIX+"Group";
-	public static final String Membership   =  PREFIX+"membership";
-	public static final String Member       =  PREFIX+"member";
-	public static final String Joined       =  PREFIX+"joined";
-	
-	//Post and Comment related
-	public static final String Post          =  PREFIX+"Post";
-	public static final String Text          =  PREFIX+"Text";
-	public static final String Photo         =  PREFIX+"Photo";
-	public static final String Comment       =  PREFIX+"Comment";
-	public static final String Type          =  PREFIX+"type";
-	public static final String Image         =  PREFIX+"image";
-	public static final String Content       =  PREFIX+"content";
-	public static final String Annotated     =  PREFIX+"annotated";
-	public static final String Container_of  =  PREFIX+"container_of";
-	public static final String Like          =  PREFIX+"like";
-	public static final String Reply_of      =  PREFIX+"reply_of";
-	
-	//Language related
-	public static final String Language      =  PREFIX+"Language";
-	public static final String Speaks        =  PREFIX+"speaks";
-	public static final String Native        =  PREFIX+"native";
-	
-	//Organization related
-    public static final String Organization      =  PREFIX+"Organization";
-    public static final String LinkOrganization  =  PREFIX+"organization";
-    public static final String Study_at          =  PREFIX+"study_at";
-    public static final String ClassYear         =  PREFIX+"classYear";
-    public static final String Work_at           =  PREFIX+"work_at";
-    public static final String WorkFrom          =  PREFIX+"workFrom";
+	//Post & Comment
+    public static final String Post        =  PREFIX+"Post";
+    public static final String Comment     =  PREFIX+"Comment";
+    public static final String hasCreator  =  PREFIX+"hasCreator";
+    public static final String content     =  PREFIX+"content";
+    public static final String language    =  PREFIX+"language";
+    public static final String hasImage    =  PREFIX+"hasImage";
+    public static final String retweet     =  PREFIX+"retweet";
+    public static final String replyOf     =  PREFIX+"replyOf";
     
-    //Link related
-    public static final String LinkPost      = PREFIX+"post";
-    public static final String LinkGroup     = PREFIX+"group";
-    public static final String LinkPerson    = PREFIX+"person";
-    
-    //Tweet related
-    public static final String Follows      = PREFIX+"follows";
+    //Others
+    public static final String City         =  PREFIX+"City";
+    public static final String Country      =  PREFIX+"Country";
+    public static final String Region       =  PREFIX+"Region";
+    public static final String Location     =  PREFIX+"Location";
+    public static final String Organisation =  PREFIX+"Organisation";
+    public static final String Tag          =  PREFIX+"Tag";
+    public static final String TagClass     =  PREFIX+"TagClass";
 }

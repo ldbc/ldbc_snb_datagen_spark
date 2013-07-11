@@ -56,7 +56,6 @@ import ldbc.socialnet.dbgen.objects.Group;
 import ldbc.socialnet.dbgen.objects.GroupMemberShip;
 import ldbc.socialnet.dbgen.objects.Location;
 import ldbc.socialnet.dbgen.objects.Photo;
-import ldbc.socialnet.dbgen.objects.PhotoAlbum;
 import ldbc.socialnet.dbgen.objects.Post;
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
 import ldbc.socialnet.dbgen.objects.SocialObject;
@@ -256,26 +255,17 @@ public class CSV implements Serializer {
 		if(socialObject instanceof UserProfile){
 			UserContainer container = new UserContainer((UserProfile)socialObject);
 			convertUserProfile(container, null);
-		}
-		else if(socialObject instanceof FriendShip){
+		} else if(socialObject instanceof FriendShip){
 			convertFriendShip((FriendShip)socialObject);
-		}
-		else if(socialObject instanceof Post){
+		} else if(socialObject instanceof Post){
 			convertPost((Post)socialObject, true, true);
-		}
-		else if(socialObject instanceof Comment){
+		} else if(socialObject instanceof Comment){
 			convertComment((Comment)socialObject);
-		}
-		else if (socialObject instanceof PhotoAlbum){
-			convertPhotoAlbum((PhotoAlbum)socialObject);
-		}
-		else if (socialObject instanceof Photo){
+		} else if (socialObject instanceof Photo){
 			convertPhoto((Photo)socialObject, true, true);
-		}
-		else if (socialObject instanceof Group){
+		} else if (socialObject instanceof Group){
 			convertGroup((Group)socialObject);
-		}
-		else if (socialObject instanceof GPS){
+		} else if (socialObject instanceof GPS){
 			convertGPS((GPS)socialObject);
 		}
 	} 
@@ -720,23 +710,6 @@ public class CSV implements Serializer {
 	    arguments.add(Integer.toString(comment.getAuthorId()));
 	    arguments.add(SN.formId(comment.getCommentId()));
 	    ToCSV(arguments, Files.PERSON_CREATOR_OF_COMMENT.ordinal());
-	}
-
-	public void convertPhotoAlbum(PhotoAlbum album){
-		Vector<String> arguments = new Vector<String>();
-		
-		
-		date.setTimeInMillis(album.getCreatedDate());
-        String dateString = DateGenerator.formatDateDetail(date);
-		arguments.add(SN.formId(album.getAlbumId()));
-		arguments.add(album.getTitle());
-		arguments.add(dateString);
-		ToCSV(arguments, Files.FORUM.ordinal());
-		
-		arguments.add(SN.formId(idList[Files.PERSON_MODERATOR_OF_FORUM.ordinal()]));
-		arguments.add(Integer.toString(album.getCreatorId()));
-		arguments.add(SN.formId(album.getAlbumId()));
-		ToCSV(arguments, Files.PERSON_MODERATOR_OF_FORUM.ordinal());
 	}
 
 	public void convertPhoto(Photo photo, boolean body, boolean isLiked){

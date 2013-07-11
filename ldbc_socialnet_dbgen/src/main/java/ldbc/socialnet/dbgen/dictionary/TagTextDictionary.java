@@ -38,6 +38,7 @@ package ldbc.socialnet.dbgen.dictionary;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -200,7 +201,9 @@ public class TagTextDictionary {
         return friends; 
     }
 	
-	public Post createPost(ReducedUserProfile user, int maxNumberOfLikes) {
+	public Post createPost(ReducedUserProfile user, int maxNumberOfLikes,
+	        UserAgentDictionary userAgentDic, IPAddressDictionary ipAddDic,
+            BrowserDictionary browserDic) {
         
         ScalableGenerator.postId++;
         Post post = new Post();
@@ -209,6 +212,9 @@ public class TagTextDictionary {
         post.setAuthorId(user.getAccountId());
         post.setCreatedDate(dateGen.randomPostCreatedDate(user));
         post.setForumId(user.getAccountId() * 2);
+        post.setUserAgent(userAgentDic.getUserAgentName(user.isHaveSmartPhone(), user.getAgentIdx()));
+        ipAddDic.setPostIPAdress(user.isFrequentChange(), user.getIpAddress(), post);
+        post.setBrowserIdx(browserDic.getPostBrowserId(user.getBrowserIdx()));
         
         HashSet<Integer> tags = new HashSet<Integer>();
         Iterator<Integer> it = user.getSetOfTags().iterator();
@@ -236,9 +242,11 @@ public class TagTextDictionary {
         
         return post;
     }
-	
-public Post createPost(Group group, int maxNumberOfLikes) {
-        
+
+	public Post createPost(Group group, int maxNumberOfLikes,
+	        UserAgentDictionary userAgentDic, IPAddressDictionary ipAddDic,
+	        BrowserDictionary browserDic) {
+
         ScalableGenerator.postId++;
         Post post = new Post();
         post.setPostId(ScalableGenerator.postId);
@@ -249,6 +257,9 @@ public Post createPost(Group group, int maxNumberOfLikes) {
         post.setAuthorId(memberShip.getUserId());
         post.setCreatedDate(dateGen.randomGroupPostCreatedDate(memberShip.getJoinDate()));
         post.setForumId(group.getForumWallId());
+        post.setUserAgent(userAgentDic.getUserAgentName(memberShip.isHaveSmartPhone(), memberShip.getAgentIdx()));
+        ipAddDic.setPostIPAdress(memberShip.isFrequentChange(), memberShip.getIP(), post);
+        post.setBrowserIdx(browserDic.getPostBrowserId(memberShip.getBrowserIdx()));
         
         HashSet<Integer> tags = new HashSet<Integer>();
         for (int i = 0; i < group.getTags().length; i++) {
@@ -289,14 +300,31 @@ public Post createPost(Group group, int maxNumberOfLikes) {
 	    Comment comment = new Comment();
 
 	    // For userId, randomly select from one of the friends
-	    int friendIdx = rand.nextInt(user.getNumFriends());
 	    
+	    
+	    ArrayList<Integer> validIds = new ArrayList<Integer>();
+	    Friend[] friends = user.getFriendList();
+	    for (int i = 0; i <user.getNumFriendsAdded(); i++) {
+	        if ((friends[i].getCreatedTime() > post.getCreatedDate()) || (friends[i].getCreatedTime() == -1)){
+	            validIds.add(i);
+	        }
+	    }
+	    
+	    if (validIds.size() == 0) {
+	        comment.setAuthorId(-1);
+            return comment;
+	    }
+	    
+	    // For userId, randomly select from one of the friends
+//	    int friendIdx = rand.nextInt(user.getNumFriendsAdded());
+	    int friendIdx = rand.nextInt(validIds.size());
+
 	    // Only friend whose the friendship created before the createdDate of the post gives the comment
 	    Friend friend = user.getFriendList()[friendIdx];
-	    if (friend == null || (friend.getCreatedTime() > post.getCreatedDate()) || (friend.getCreatedTime() == -1)){
-	        comment.setAuthorId(-1);
-	        return comment;
-	    }
+//	    if (friend == null || (friend.getCreatedTime() > post.getCreatedDate()) || (friend.getCreatedTime() == -1)){
+//	        comment.setAuthorId(-1);
+//	        return comment;
+//	    }
 
 	    commentId++;
 	    comment.setAuthorId(friend.getFriendAcc());
@@ -305,7 +333,7 @@ public Post createPost(Group group, int maxNumberOfLikes) {
 	    comment.setReply_of(getReplyToId(startCommentId, lastCommentId));
 	    comment.setForumId(post.getForumId());
 
-	    userAgentDic.setCommentUserAgent(friend.isHaveSmartPhone(), friend.getAgentIdx(), comment);
+	    comment.setUserAgent(userAgentDic.getUserAgentName(friend.isHaveSmartPhone(), friend.getAgentIdx()));
 	    ipAddDic.setCommentIPAdress(friend.isFrequentChange(), friend.getSourceIp(), comment);
 	    comment.setBrowserIdx(browserDic.getPostBrowserId(friend.getBrowserIdx()));
 
@@ -323,14 +351,28 @@ public Post createPost(Group group, int maxNumberOfLikes) {
 
         Comment comment = new Comment();
 
-        // For userId, randomly select from one of the friends
-        int memberIdx = rand.nextInt(group.getNumMemberAdded());
-        GroupMemberShip memberShip = group.getMemberShips()[memberIdx];
+        ArrayList<Integer> validIds = new ArrayList<Integer>();
+        GroupMemberShip[] memberShips = group.getMemberShips();
+        for (int i = 0; i <group.getNumMemberAdded(); i++) {
+            if (memberShips[i].getJoinDate() > post.getCreatedDate()){
+                validIds.add(i);
+            }
+        }
         
-        if (memberShip.getJoinDate() > post.getCreatedDate()){
+        if (validIds.size() == 0) {
             comment.setAuthorId(-1);
             return comment;
         }
+        int memberIdx = rand.nextInt(validIds.size());
+        
+        // For userId, randomly select from one of the friends
+//        int memberIdx = rand.nextInt(group.getNumMemberAdded());
+        GroupMemberShip memberShip = group.getMemberShips()[memberIdx];
+//        
+//        if (memberShip.getJoinDate() > post.getCreatedDate()){
+//            comment.setAuthorId(-1);
+//            return comment;
+//        }
 
         commentId++;
         comment.setAuthorId(memberShip.getUserId());
@@ -339,7 +381,7 @@ public Post createPost(Group group, int maxNumberOfLikes) {
         comment.setReply_of(getReplyToId(startCommentId, lastCommentId));
         comment.setForumId(post.getForumId());
 
-        userAgentDic.setCommentUserAgent(memberShip.isHaveSmartPhone(), memberShip.getAgentIdx(), comment);
+        comment.setUserAgent(userAgentDic.getUserAgentName(memberShip.isHaveSmartPhone(), memberShip.getAgentIdx()));
         ipAddDic.setCommentIPAdress(memberShip.isFrequentChange(), memberShip.getIP(), comment);
         comment.setBrowserIdx(browserDic.getPostBrowserId(memberShip.getBrowserIdx()));
 

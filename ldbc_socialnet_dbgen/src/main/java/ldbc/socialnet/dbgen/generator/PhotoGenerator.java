@@ -42,20 +42,17 @@ import java.util.Random;
 import java.util.Vector;
 
 import ldbc.socialnet.dbgen.dictionary.PopularPlacesDictionary;
-import ldbc.socialnet.dbgen.objects.Friend;
+import ldbc.socialnet.dbgen.objects.Group;
+import ldbc.socialnet.dbgen.objects.GroupMemberShip;
 import ldbc.socialnet.dbgen.objects.Location;
 import ldbc.socialnet.dbgen.objects.Photo;
-import ldbc.socialnet.dbgen.objects.PhotoAlbum;
 import ldbc.socialnet.dbgen.objects.PopularPlace;
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
-import ldbc.socialnet.dbgen.objects.UserProfile;
 
 
 public class PhotoGenerator {
 	
 	DateGenerator		dateGenerator;
-	static long			photoAlbumId = 0;
-//	static long			photoId = 0;
 	Vector<Location>	vLocations;
 	PopularPlacesDictionary dicPopularPlaces; 
 	Random 				rand;
@@ -64,8 +61,7 @@ public class PhotoGenerator {
 
 	Random				randPopularPlaces;
 	Random				randPopularPlacesId; 
-	double				probPopularPlaces;
-	//int					selectedlocationIdx;			
+	double				probPopularPlaces;			
 	
 	public PhotoGenerator(DateGenerator _dateGen, Vector<Location> _vLocations, 
 						long _seed, int _maxNumUserTags, PopularPlacesDictionary _dicPopularPlaces,
@@ -81,26 +77,13 @@ public class PhotoGenerator {
 		this.probPopularPlaces = _probPopularPlaces;
 	}
 	
-	public PhotoAlbum generateAlbum(ReducedUserProfile user){
-		photoAlbumId++;
-		PhotoAlbum album = new PhotoAlbum(); 
-		album.setCreatorId(user.getAccountId());
-		album.setAlbumId(photoAlbumId);
-		album.setCreatedDate(dateGenerator.randomPhotoAlbumCreatedDate(user));
-		
-		album.setLocationIdx(rand.nextInt(vLocations.size()));
-		
-		album.setTitle("Photo album " + album.getAlbumId());
-			
-		return album;
-	}
-	public Photo generatePhoto(ReducedUserProfile user, PhotoAlbum album, 
+	public Photo generatePhoto(ReducedUserProfile user, Group album, 
 								int idxInAlbum, int maxNumLikes){
 		ScalableGenerator.postId++;
 		Photo photo = new Photo();
 		
-		photo.setAlbumId(album.getAlbumId());
-		photo.setCreatorId(album.getCreatorId());
+		photo.setAlbumId(album.getForumWallId());
+		photo.setCreatorId(album.getModeratorId());
 		int locationIdx = album.getLocationIdx();
 		byte numPopularPlace = user.getNumPopularPlace();
 		
@@ -145,9 +128,7 @@ public class PhotoGenerator {
 		photo.setPhotoId(ScalableGenerator.postId);
 		photo.setImage("photo" + photo.getPhotoId() + ".jpg");
 		
-		//Assume that the photo are created one by one after 1 second from
-		// the creation of the album
-		
+		//Assume that the photo are created one by one after 1 second from the creation of the album
 		photo.setTakenTime(album.getCreatedDate() + 1000*(idxInAlbum+1));	
 		
 		HashSet<Integer> tags = new HashSet<Integer>();
@@ -166,7 +147,7 @@ public class PhotoGenerator {
 		
 		int numberOfLikes = randLikes.nextInt(maxNumLikes);
 		
-		int[] likes = getFriendsLiked(user, numberOfLikes);
+		int[] likes = getFriendsLiked(album, numberOfLikes);
 		photo.setInterestedUserAccs(likes);
         long[] likeTimestamp = new long[likes.length];
         for (int i = 0; i < likes.length; i++) {
@@ -177,43 +158,20 @@ public class PhotoGenerator {
 		return photo; 
 	}
 	
-	public int[] getListFriendTags(ReducedUserProfile user, int _numTags){
-		int	friendTags[];
-		Friend fullFriendList[] = user.getFriendList();
-		// Number of location-related and interest-related friends
-		int numLocationInterestFriends = user.getLastInterestFriendIdx() + 1;
-		if (_numTags >= numLocationInterestFriends){
-			friendTags = new int[numLocationInterestFriends];
-			for (int i = 0; i < numLocationInterestFriends; i++){
-				friendTags[i] = fullFriendList[i].getFriendAcc();
-			}
-		}
-		else{
-			friendTags = new int[_numTags];
-			int startIdx = rand.nextInt(numLocationInterestFriends - _numTags);
-			for (int i = 0; i < _numTags; i++){
-				friendTags[i] = fullFriendList[i+startIdx].getFriendAcc();
-			}				
-		}
-		
-		return friendTags; 
-	}
-	
-	public int[] getFriendsLiked(ReducedUserProfile user, int numOfLikes){
-		Friend fullFriendList[] = user.getFriendList();
+	public int[] getFriendsLiked(Group album, int numOfLikes){
+		GroupMemberShip fullMembers[] = album.getMemberShips();
 		
 		int friends[];
-		if (numOfLikes >= user.getNumFriendsAdded()){
-			friends = new int[user.getNumFriendsAdded()];
-			for (int j = 0; j < user.getNumFriendsAdded(); j++){
-				friends[j] = fullFriendList[j].getFriendAcc();
+		if (numOfLikes >= album.getNumMemberAdded()){
+			friends = new int[album.getNumMemberAdded()];
+			for (int j = 0; j < album.getNumMemberAdded(); j++){
+				friends[j] = fullMembers[j].getUserId();
 			}
-		}
-		else{
+		} else{
 			friends = new int[numOfLikes];
-			int startIdx = randLikes.nextInt(user.getNumFriendsAdded() - numOfLikes);
+			int startIdx = randLikes.nextInt(album.getNumMemberAdded() - numOfLikes);
 			for (int j = 0; j < numOfLikes; j++){
-				friends[j] = fullFriendList[j+startIdx].getFriendAcc();
+				friends[j] = fullMembers[j+startIdx].getUserId();
 			}			
 		}
 		

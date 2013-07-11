@@ -66,11 +66,10 @@ public class OrganizationsDictionary {
 	double 		probTopUniv; 
 	LocationDictionary locationDic; 
 	
-	public OrganizationsDictionary(String _dicFileName, HashMap<String, Integer> _locationNames, 
+	public OrganizationsDictionary(String _dicFileName, LocationDictionary _locationDic, 
 									long seedRandom, double _probUnCorrelatedOrganization, 
-									long _seedTopUni, double _probTopUni,
-									LocationDictionary _locationDic){
-		this.locationNames = _locationNames; 
+									long _seedTopUni, double _probTopUni){
+		this.locationNames = _locationDic.getLocationNameMapping(); 
 		this.organizationToLocation = new HashMap<String, Integer>();
 		this.dicFileName = _dicFileName;
 		this.rand = new Random(seedRandom);
@@ -97,7 +96,6 @@ public class OrganizationsDictionary {
 			dicAllInstitutes.close();
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -116,25 +114,24 @@ public class OrganizationsDictionary {
 		int totalNumOrganizations = 0;
 		try {
 			while ((line = dicAllInstitutes.readLine()) != null){
-				//System.out.println("Line --> " + line);
-				//System.out.println("[0]: " + line.split(" ")[0]);
 				String infos[] = line.split("  ");
 				locationName = infos[0];
-				//System.out.println("Line in names = " + line); 
-				if (locationName.compareTo(lastLocationName) != 0){ 	// New location
-					if (locationNames.containsKey(locationName)){		// Check whether it exists
+				if (locationName.compareTo(lastLocationName) != 0){
+					if (locationNames.containsKey(locationName)){
 						lastLocationName = locationName;
 						curLocationId = locationNames.get(locationName); 
 						organizationName = infos[1].trim();
 						organizationsByLocations.get(curLocationId).add(organizationName);
-						organizationToLocation.put(organizationName, curLocationId);
+						Integer cityId = locationDic.getCityId(infos[2]);
+						organizationToLocation.put(organizationName, cityId);
 						totalNumOrganizations++;
 					}
 				}
 				else{
 					organizationName = infos[1].trim();
 					organizationsByLocations.get(curLocationId).add(organizationName);
-					organizationToLocation.put(organizationName, curLocationId);
+					Integer cityId = locationDic.getCityId(infos[2]);
+                    organizationToLocation.put(organizationName, cityId);
 					totalNumOrganizations++;
 				}
 

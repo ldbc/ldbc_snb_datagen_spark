@@ -242,7 +242,6 @@ public class ReducedUserProfile extends SocialObject implements Serializable, Wr
 	 
 	@Override
 	public void readFields(DataInput arg0) throws IOException {
-		// TODO Auto-generated method stub
 		accountId = arg0.readInt();
 		createdDate = arg0.readLong(); 
 		numFriends = arg0.readShort(); 

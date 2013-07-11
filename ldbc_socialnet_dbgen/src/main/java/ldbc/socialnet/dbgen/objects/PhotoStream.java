@@ -80,14 +80,6 @@ public class PhotoStream implements Serializable{
 		this.userAgent = photo.getUserAgent();	
 		this.browserIdx = photo.getBrowserIdx(); 
 	}
-	public PhotoStream(PhotoAlbum album){
-		isPhoto = false; 
-		this.albumId = album.getAlbumId(); 
-		this.creatorId = album.getCreatorId();
-		this.title = album.getTitle(); 
-		this.createdDate = album.getCreatedDate();
-		this.locationIdx = album.getLocationIdx();
-	}
 	public Photo getPhoto(){
 		Photo photo = new Photo();
 		photo.setPhotoId(photoId);
@@ -107,17 +99,7 @@ public class PhotoStream implements Serializable{
 		
 		return photo; 
 	}
-	
-	public PhotoAlbum getPhotoAlbum(){
-		PhotoAlbum album = new PhotoAlbum(); 
-		album.setAlbumId(albumId); 
-		album.setCreatorId(creatorId);
-		album.setTitle(title); 
-		album.setCreatedDate(createdDate);
-		album.setLocationIdx(locationIdx);
-		return album; 
-	}
-	
+
 	public long getCreatedDate() {
 		return createdDate;
 	}
