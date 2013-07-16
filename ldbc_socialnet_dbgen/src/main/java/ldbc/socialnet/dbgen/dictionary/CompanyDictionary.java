@@ -52,7 +52,7 @@ public class CompanyDictionary {
 	HashMap<String, Integer> locationNames;
 	
 	Vector<Vector<String>> companiesByLocations;
-	HashMap<String, Integer> companyCity;
+	HashMap<String, Integer> companyLocation;
 	Random 		rand; 
 	Random		randUnRelatedCompany;
 	double		probUnCorrelatedCompany;
@@ -73,7 +73,7 @@ public class CompanyDictionary {
 	
 	public void init(){
 		try {
-		    companyCity = new HashMap<String, Integer>();
+		    companyLocation = new HashMap<String, Integer>();
 			dictionary = new BufferedReader(new InputStreamReader(getClass( ).getResourceAsStream(dicFileName), "UTF-8"));
 			
 			System.out.println("Building dictionary of companies (by locations)");
@@ -109,15 +109,13 @@ public class CompanyDictionary {
 						curLocationId = locationNames.get(locationName); 
 						companyName = infos[1].trim();
 						companiesByLocations.get(curLocationId).add(companyName);
-						Integer cityId = locationDic.getRandomCity(curLocationId);
-						companyCity.put(companyName, cityId);
+						companyLocation.put(companyName, curLocationId);
 						totalNumCompanies++;
 					}
 				} else{
 					companyName = infos[1].trim();
 					companiesByLocations.get(curLocationId).add(companyName);
-					Integer cityId = locationDic.getRandomCity(curLocationId);
-					companyCity.put(companyName, cityId);
+					companyLocation.put(companyName, curLocationId);
 					totalNumCompanies++;
 				}
 
@@ -130,8 +128,8 @@ public class CompanyDictionary {
 		}
 	}
 	
-	public HashMap<String, Integer> getCompanyCityMap() {
-	    return companyCity;
+	public HashMap<String, Integer> getCompanyLocationMap() {
+	    return companyLocation;
 	}
 	
 	// Get a random company from that location

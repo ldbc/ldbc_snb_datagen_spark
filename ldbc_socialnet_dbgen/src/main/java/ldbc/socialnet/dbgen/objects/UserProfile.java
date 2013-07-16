@@ -87,16 +87,17 @@ public class UserProfile extends SocialObject implements Serializable {
 	byte 				gender; 
 	long				birthDay;
 	
-	// For dimension of interest
-	int					intZValue;
 	
-
-	public int getIntZValue() {
-		return intZValue;
+	public UserProfile(int accountId) {
+	    this.accountId = accountId;
+        locationIdx = -1; 
+        locationOrganizationId = -1; 
+        forumWallId = -1; 
+        forumStatusId = -1;
+        
+        setOfTags = new HashSet<Integer>();
 	}
-	public void setIntZValue(int intZValue) {
-		this.intZValue = intZValue;
-	}
+	
 	public byte getGender() {
 		return gender;
 	}
@@ -134,21 +135,6 @@ public class UserProfile extends SocialObject implements Serializable {
 	public short getNumFriendsAdded() {
 		return numFriendsAdded;
 	}
-	
-	public void resetUser(){
-		accountId = -1;
-		locationIdx = -1; 
-		locationOrganizationId = -1; 
-		forumWallId = -1; 
-		forumStatusId = -1;
-		numFriends = 0; 
-		numFriendsAdded = 0;
-		isHaveSmartPhone = false; 
-		
-		setOfTags = new HashSet<Integer>();
-		 
-	}
-
 	
 	public void addNewFriend(Friend friend) {
 		friendList[numFriendsAdded] = friend;
@@ -246,20 +232,9 @@ public class UserProfile extends SocialObject implements Serializable {
 	public void setCreatedDate(long createdDate) {
 		this.createdDate = createdDate;
 	}
-
-	public static String getPrefixed(long userIdx)
-	{
-		StringBuffer s = new StringBuffer();
-		s.append("person");
-		s.append(userIdx);
-		return s.toString();
-	}
 	
 	public int getAccountId() {
 		return accountId;
-	}
-	public void setAccountId(int accountId) {
-		this.accountId = accountId;
 	}
 
 	public int getForumWallId() {

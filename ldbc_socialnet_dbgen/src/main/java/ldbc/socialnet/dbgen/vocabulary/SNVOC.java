@@ -90,7 +90,7 @@ public class SNVOC{
 	public static final String studyAt         =  PREFIX+"studyAt";
 	public static final String workAt          =  PREFIX+"workAt";
 	public static final String hasInterest     =  PREFIX+"hasInterest";
-	public static final String like            =  PREFIX+"like";
+	public static final String like            =  PREFIX+"likes";
 	public static final String knows           =  PREFIX+"knows";
 	public static final String follows         =  PREFIX+"follows";
 	public static final String classYear       =  PREFIX+"classYear";
@@ -114,7 +114,7 @@ public class SNVOC{
     public static final String hasCreator  =  PREFIX+"hasCreator";
     public static final String content     =  PREFIX+"content";
     public static final String language    =  PREFIX+"language";
-    public static final String hasImage    =  PREFIX+"hasImage";
+    public static final String hasImage    =  PREFIX+"imageFile";
     public static final String retweet     =  PREFIX+"retweet";
     public static final String replyOf     =  PREFIX+"replyOf";
     

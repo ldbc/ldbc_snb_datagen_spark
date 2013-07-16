@@ -48,6 +48,7 @@ import java.util.Vector;
 import ldbc.socialnet.dbgen.dictionary.IPAddressDictionary;
 import ldbc.socialnet.dbgen.dictionary.LanguageDictionary;
 import ldbc.socialnet.dbgen.dictionary.LocationDictionary;
+import ldbc.socialnet.dbgen.dictionary.TagDictionary;
 import ldbc.socialnet.dbgen.generator.DateGenerator;
 import ldbc.socialnet.dbgen.objects.Comment;
 import ldbc.socialnet.dbgen.objects.Friend;
@@ -92,19 +93,20 @@ public class Turtle implements Serializer {
 	static long locationPartOfId = 0;
 	static long speakId = 0;
 	
-	HashMap<Integer, String> interestIdsNames;
 	HashMap<String, Integer> companyToCountry;
 	HashMap<String, Integer> universityToCountry;
 	HashMap<String, Integer> printedIpaddresses;
 	HashMap<String, Integer> printedOrganizations;
 	HashMap<Integer, Integer> printedLanguages;
 	HashMap<Integer, Integer> printedTags;
+	HashMap<Integer, Integer> printedTagClasses;
 	HashMap<Integer, Integer> printedLocations;
 	Vector<String>	vBrowserNames;
 	
 	GregorianCalendar date;
 	LocationDictionary locationDic;
 	LanguageDictionary languageDic;
+	TagDictionary tagDic;
 	IPAddressDictionary ipDic;
 	
 	public Turtle(String file, boolean forwardChaining, int nrOfOutputFiles, boolean isTurtle)
@@ -115,6 +117,7 @@ public class Turtle implements Serializer {
 		printedOrganizations = new HashMap<String, Integer>();
 		printedLanguages = new HashMap<Integer, Integer>();
 		printedTags = new HashMap<Integer, Integer>();
+		printedTagClasses = new HashMap<Integer, Integer>();
 		printedLocations = new HashMap<Integer, Integer>();
 		int nrOfDigits = ((int)Math.log10(nrOfOutputFiles)) + 1;
 		String formatString = "%0" + nrOfDigits + "d";
@@ -157,12 +160,12 @@ public class Turtle implements Serializer {
 	}
 
 	public Turtle(String file, boolean forwardChaining, int nrOfOutputFiles, boolean isTurtle,
-	        HashMap<Integer, String> _interestIdsNames, Vector<String> _vBrowsers, 
+	        TagDictionary tagDic, Vector<String> _vBrowsers, 
 	        HashMap<String, Integer> companyToCountry, HashMap<String, Integer> univesityToCountry,
 	        IPAddressDictionary ipDic,  LocationDictionary locationDic, 
 	        LanguageDictionary languageDic) {
 	    this(file, forwardChaining, nrOfOutputFiles, isTurtle);
-	    this.interestIdsNames = _interestIdsNames;  
+	    this.tagDic = tagDic;  
 	    this.vBrowserNames = _vBrowsers;
 	    this.locationDic = locationDic;
 	    this.companyToCountry = companyToCountry;
@@ -282,6 +285,22 @@ public class Turtle implements Serializer {
             System.out.println("Cannot write to output file ");
             e.printStackTrace();
         }
+	}
+	
+	private void writeTagData(Integer tagId, String tag) {
+	    String description = tagDic.getDescription(tagId);
+	    writeDBPData(DBP.fullPrefixed(tag), FOAF.Name, createLiteral(description.replace("\"", "\\\"")));
+	    Integer tagClass = tagDic.getTagClass(tagId);
+	    writeDBPData(DBP.fullPrefixed(tag), RDF.type, DBPOWL.prefixed(tagDic.getClassName(tagClass)));
+	    while (tagClass != -1 && !printedTagClasses.containsKey(tagClass)) {
+	        printedTagClasses.put(tagClass, tagClass);
+	        writeDBPData(DBPOWL.prefixed(tagDic.getClassName(tagClass)), RDFS.label, createLiteral(tagDic.getClassLabel(tagClass)));
+	        Integer parent = tagDic.getClassParent(tagClass);
+	        if (parent != -1) {
+	            writeDBPData(DBPOWL.prefixed(tagDic.getClassName(tagClass)), RDFS.subClassOf, DBPOWL.prefixed(tagDic.getClassName(parent)));
+	        }
+	        tagClass = parent;
+	    }
 	}
 	
 	private void AddTriple(StringBuffer result, boolean beginning, 
@@ -447,7 +466,7 @@ public class Turtle implements Serializer {
                 writeDBPData(DBP.fullPrefixed(company), RDF.type, DBPOWL.Organisation);
                 writeDBPData(DBP.fullPrefixed(company), FOAF.Name, createLiteral(company));
                 int locationId = companyToCountry.get(company);
-                writeDBPData(DBP.fullPrefixed(company), DBPOWL.City, 
+                writeDBPData(DBP.fullPrefixed(company), DBPOWL.Country, 
                         DBP.fullPrefixed(locationDic.getLocationName(locationId)));
             }
 
@@ -471,12 +490,12 @@ public class Turtle implements Serializer {
         Iterator<Integer> itInteger = profile.getSetOfInterests().iterator();
 		while (itInteger.hasNext()) {
 			Integer interestIdx = itInteger.next();
-			String interest = interestIdsNames.get(interestIdx);
+			String interest = tagDic.getName(interestIdx);
 			createTripleSPO(result, prefix, SNVOC.hasInterest, DBP.fullPrefixed(interest));  
 			if (!printedTags.containsKey(interestIdx)) {
 			    printedTags.put(interestIdx, interestIdx);
 			    createTripleSPO(result, DBP.fullPrefixed(interest), RDF.type, SNVOC.Tag);
-			    writeDBPData(DBP.fullPrefixed(interest), FOAF.Name, createLiteral(interest.replace("\"", "\\\"")));
+			    writeTagData(interestIdx, interest);
 			}
 		}
 		
@@ -502,7 +521,7 @@ public class Turtle implements Serializer {
         itInteger = profile.getSetOfInterests().iterator();
         while (itInteger.hasNext()) {
             Integer interestIdx = itInteger.next();
-            String interest = interestIdsNames.get(interestIdx);
+            String interest = tagDic.getName(interestIdx);
             createTripleSPO(result, forumPrefix, SNVOC.hasTag, DBP.fullPrefixed(interest));
         }
         
@@ -571,12 +590,12 @@ public class Turtle implements Serializer {
 	        Iterator<Integer> it = post.getTags().iterator();
 	        while (it.hasNext()) {
 	            Integer tagId = it.next();
-                String tag = interestIdsNames.get(tagId);
+                String tag = tagDic.getName(tagId);
 	            createTripleSPO(result, prefix, SNVOC.hasTag, DBP.fullPrefixed(tag));
 	            if (!printedTags.containsKey(tagId)) {
 	                printedTags.put(tagId, tagId);
 	                createTripleSPO(result, DBP.fullPrefixed(tag), RDF.type, SNVOC.Tag);
-	                writeDBPData(DBP.fullPrefixed(tag), FOAF.Name, createLiteral(tag.replace("\"", "\\\"")));
+	                writeTagData(tagId, tag);
 	            }
 	        }
 	    }
@@ -664,12 +683,12 @@ public class Turtle implements Serializer {
             Iterator<Integer> it = photo.getTags().iterator();
             while (it.hasNext()) {
                 Integer tagId = it.next();
-                String tag = interestIdsNames.get(tagId);
+                String tag = tagDic.getName(tagId);
                 createTripleSPO(result, prefix, SNVOC.hasTag, DBP.fullPrefixed(tag));
                 if (!printedTags.containsKey(tagId)) {
                     printedTags.put(tagId, tagId);
                     createTripleSPO(result, DBP.fullPrefixed(tag), RDF.type, SNVOC.Tag);
-                    writeDBPData(DBP.fullPrefixed(tag), FOAF.Name, createLiteral(tag.replace("\"", "\\\"")));
+                    writeTagData(tagId, tag);
                 }
             }
 		}
@@ -716,12 +735,12 @@ public class Turtle implements Serializer {
 
 	    Integer groupTags[] = group.getTags();
 	    for (int i = 0; i < groupTags.length; i ++){
-	        String tag = interestIdsNames.get(groupTags[i]);
+	        String tag = tagDic.getName(groupTags[i]);
 	        createTripleSPO(result, forumPrefix, SNVOC.hasTag, DBP.fullPrefixed(tag));
 	        if (!printedTags.containsKey(groupTags[i])) {
 	            printedTags.put(groupTags[i], groupTags[i]);
 	            createTripleSPO(result, DBP.fullPrefixed(tag), RDF.type, SNVOC.Tag);
-	            writeDBPData(DBP.fullPrefixed(tag), FOAF.Name, createLiteral(tag.replace("\"", "\\\"")));
+	            writeTagData(groupTags[i], tag);
 	        }
 	    }
 

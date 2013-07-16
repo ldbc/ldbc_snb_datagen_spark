@@ -132,17 +132,17 @@ public class PhotoGenerator {
 		photo.setTakenTime(album.getCreatedDate() + 1000*(idxInAlbum+1));	
 		
 		HashSet<Integer> tags = new HashSet<Integer>();
-        Iterator<Integer> it = user.getSetOfTags().iterator();
-        while (it.hasNext()) {
-            Integer value = it.next();
-            if (tags.isEmpty()) {
-                tags.add(value);
-            } else {
-                if (rand.nextDouble() < 0.2) {
-                    tags.add(value);
-                }
-            }
-        }
+//        Iterator<Integer> it = user.getSetOfTags().iterator();
+//        while (it.hasNext()) {
+//            Integer value = it.next();
+//            if (tags.isEmpty()) {
+//                tags.add(value);
+//            } else {
+//                if (rand.nextDouble() < 0.2) {
+//                    tags.add(value);
+//                }
+//            }
+//        }
         photo.setTags(tags);
 		
 		int numberOfLikes = randLikes.nextInt(maxNumLikes);

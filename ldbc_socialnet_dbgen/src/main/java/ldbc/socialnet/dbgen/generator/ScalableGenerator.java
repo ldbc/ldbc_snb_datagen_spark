@@ -196,6 +196,8 @@ public class ScalableGenerator{
 	private static final String   languageDicFile        = "languagesByCountry.txt";
 	private static final String   cityDicFile            = "institutesCityByCountry.txt";
 	private static final String   tagNamesFile           = "dicTopic.txt";
+	private static final String   tagClassFile           = "tagClasses.txt";
+	private static final String   tagHierarchyFile       = "tagHierarchy.txt";
 	private static final String   mainTagDicFile         = "dicCelebritiesByCountry.txt";
 	private static final String   topicTagDicFile        = "topicMatrixId.txt";
 	private static final String   givennamesDicFile      = "givennameByCountryBirthPlace.txt.freq.full";
@@ -694,7 +696,7 @@ public class ScalableGenerator{
 			System.out.println("Building Tags dictionary ");
 			
 			mainTagDic = new TagDictionary(sibDicDataDir + tagNamesFile,
-			        sibDicDataDir + mainTagDicFile, 
+			        sibDicDataDir + mainTagDicFile, sibDicDataDir + tagClassFile, sibDicDataDir + tagHierarchyFile,
 					locationDic.getLocationNameMapping().size(), seeds[5], tagCountryCorrProb);
 			mainTagDic.extractTags();
 			
@@ -979,8 +981,7 @@ public class ScalableGenerator{
 				continue;
 			}
 
-			// From this user, check all the user in the window to create
-			// friendship
+			// From this user, check all the user in the window to create friendship
 			for (int j = i + 1; (j < windowSize - 1)
 					&& reducedUserProfiles[curIdxInWindow].getNumFriendsAdded() 
 					< reducedUserProfiles[curIdxInWindow].getNumFriends(pass); j++) {
@@ -1441,10 +1442,8 @@ public class ScalableGenerator{
 	}
 
 	public UserProfile generateGeneralInformation(int accountId) {
-		UserProfile userProf = new UserProfile();
-		userProf.resetUser();
-		userProf.setAccountId(accountId);
-		// Create date
+		UserProfile userProf = new UserProfile(accountId);
+
 		userProf.setCreatedDate(dateTimeGenerator.randomDateInMillis());
 		
 		userProf.setNumFriends((short) randPowerlaw.getValue());
@@ -1454,7 +1453,6 @@ public class ScalableGenerator{
 		for (int i = 0; i < numCorrDimensions-1; i++){
 			short numPassFriend = (short) Math.floor(friendsRatioPerPass[0] * userProf.getNumFriends());
 			totalFriendSet = (short) (totalFriendSet + numPassFriend);
-			//userProf.setNumPassFriends(numPassFriend,i);
 			userProf.setNumPassFriends(totalFriendSet,i);
 			
 		}
@@ -1471,7 +1469,6 @@ public class ScalableGenerator{
 		
 		userProf.setMainTagId(userMainTag);
 		
-//		userProf.setNumTags((short) (randNumTags.nextInt(maxNoTagsPerUser) + 1));
 		userProf.setNumTags((short) randTagPowerlaw.getValue());
 		
 		userProf.setSetOfTags(topicTagDic.getSetofTags(userMainTag, userProf.getNumTags()));
@@ -1554,6 +1551,7 @@ public class ScalableGenerator{
 		        // Select a special friend
 		        Friend friends[] = user.getFriendList();
 
+		        int relationid = -1;
 		        if (user.getNumFriendsAdded() > 0) {
 		            int specialFriendId = 0;
 		            int numFriendCheck = 0;
@@ -1565,16 +1563,11 @@ public class ScalableGenerator{
 		            } while (friends[specialFriendId].getCreatedTime() == -1
 		                    && numFriendCheck < friends.length);
 
-		            if (friends[specialFriendId].getCreatedTime() == -1) {// In case do not find any friendId
-		                userExtraInfo.setSpecialFriendIdx(-1);
-		            } else {
-		                userExtraInfo
-		                .setSpecialFriendIdx(friends[specialFriendId]
-		                        .getFriendAcc());
+		            if (friends[specialFriendId].getCreatedTime() != -1) {
+		                relationid = friends[specialFriendId].getFriendAcc();
 		            }
-		        } else {
-		            userExtraInfo.setSpecialFriendIdx(-1);
 		        }
+		        userExtraInfo.setSpecialFriendIdx(relationid);
 		    }
 		} else {
 		    userExtraInfo.setStatus(RelationshipStatus.NOSTATUS);
@@ -1594,8 +1587,7 @@ public class ScalableGenerator{
 				user.getLocationIdx(),isMale, 
 				dateTimeGenerator.getBirthYear(user.getBirthDay())));
 		
-		userExtraInfo.setLastName(namesDictionary.getRandomSurName(user
-				.getLocationIdx()));
+		userExtraInfo.setLastName(namesDictionary.getRandomSurName(user.getLocationIdx()));
 
 		// email is created by using the user's first name + userId
 		int numEmails = randomExtraInfo.nextInt(maxEmails) + 1;
@@ -1654,33 +1646,26 @@ public class ScalableGenerator{
 	}
 
 	public double getFriendCreatePro(int i, int j, int pass){
-		
 		double prob;
 		if (j > i){
 			prob = Math.pow(baseProbCorrelated, (j- i));
-		}
-		else{
+		} else{
 			prob =  Math.pow(baseProbCorrelated, (j + windowSize - i));
 		}
-		
 		return prob; 
 
 	}
 	public void createFriendShip(ReducedUserProfile user1, ReducedUserProfile user2, byte pass) {
-		long requestedTime = dateTimeGenerator.randomFriendRequestedDate(user1,
-				user2);
+		long requestedTime = dateTimeGenerator.randomFriendRequestedDate(user1, user2);
 		byte initiator = (byte) randInitiator.nextInt(2);
 		long createdTime = -1;
 		long declinedTime = -1;
 		if (randFriendReject.nextDouble() > friendRejectRatio) {
-			createdTime = dateTimeGenerator
-					.randomFriendApprovedDate(requestedTime);
+			createdTime = dateTimeGenerator.randomFriendApprovedDate(requestedTime);
 		} else {
-			declinedTime = dateTimeGenerator
-					.randomFriendDeclinedDate(requestedTime);
+			declinedTime = dateTimeGenerator.randomFriendDeclinedDate(requestedTime);
 			if (randFriendReapprov.nextDouble() < friendReApproveRatio) {
-				createdTime = dateTimeGenerator
-						.randomFriendReapprovedDate(declinedTime);
+				createdTime = dateTimeGenerator.randomFriendReapprovedDate(declinedTime);
 			}
 		}
 
@@ -1713,20 +1698,20 @@ public class ScalableGenerator{
 		String t = type.toLowerCase();
 		if (t.equals("ttl")) {
             return new Turtle(sibOutputDir + outputFileName, forwardChaining,
-                    numRdfOutputFile, true, mainTagDic.getTagsNamesMapping(),
-                    browserDic.getvBrowser(), companiesDictionary.getCompanyCityMap(), 
+                    numRdfOutputFile, true, mainTagDic,
+                    browserDic.getvBrowser(), companiesDictionary.getCompanyLocationMap(), 
                     organizationsDictionary.GetOrganizationLocationMap(),
                     ipAddDictionary, locationDic, languageDic);
 		} else if (t.equals("n3")) {
             return new Turtle(sibOutputDir + outputFileName, forwardChaining,
-                    numRdfOutputFile, false, mainTagDic.getTagsNamesMapping(),
-                    browserDic.getvBrowser(), companiesDictionary.getCompanyCityMap(), 
+                    numRdfOutputFile, false, mainTagDic,
+                    browserDic.getvBrowser(), companiesDictionary.getCompanyLocationMap(), 
                     organizationsDictionary.GetOrganizationLocationMap(),
                     ipAddDictionary, locationDic, languageDic);
 		} else if (t.equals("csv")) {
 			return new CSV(sibOutputDir /*+ outputFileName*/, forwardChaining,
-					numRdfOutputFile, mainTagDic.getTagsNamesMapping(),
-					browserDic.getvBrowser(), companiesDictionary.getCompanyCityMap(), 
+					numRdfOutputFile, mainTagDic,
+					browserDic.getvBrowser(), companiesDictionary.getCompanyLocationMap(), 
                     organizationsDictionary.GetOrganizationLocationMap(),
 					ipAddDictionary,locationDic, languageDic);
 		} else {
@@ -1743,20 +1728,20 @@ public class ScalableGenerator{
 	}
 
 	public void writeToOutputFile(String filenames[], String outputfile){
-		 	Writer output = null;
-		 	File file = new File(outputfile);
-		 	try {
-				output = new BufferedWriter(new FileWriter(file));
-				for (int i = 0; i < (filenames.length - 1); i++)
-					output.write(filenames[i] + " " + numCellPerfile + "\n");
-				
-				output.write(filenames[filenames.length - 1] + " " + numCellInLastFile + "\n");
-				
-				output.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+	    Writer output = null;
+	    File file = new File(outputfile);
+	    try {
+	        output = new BufferedWriter(new FileWriter(file));
+	        for (int i = 0; i < (filenames.length - 1); i++) {
+	            output.write(filenames[i] + " " + numCellPerfile + "\n");
+	        }
+
+	        output.write(filenames[filenames.length - 1] + " " + numCellInLastFile + "\n");
+
+	        output.close();
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
 	}
 	public String getDuration(long startTime, long endTime){
 		String duration = (endTime - startTime)
@@ -1767,9 +1752,7 @@ public class ScalableGenerator{
 	}
 	public void printHeapSize(){
 		long heapSize = Runtime.getRuntime().totalMemory();
-		
-		long heapMaxSize = Runtime.getRuntime().maxMemory(); 
-		
+		long heapMaxSize = Runtime.getRuntime().maxMemory();
 		long heapFreeSize = Runtime.getRuntime().freeMemory(); 
 		
 		System.out.println(" ---------------------- ");

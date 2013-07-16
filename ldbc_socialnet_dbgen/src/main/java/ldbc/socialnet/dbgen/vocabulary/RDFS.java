@@ -64,12 +64,12 @@ public class RDFS {
 	}
 	
 	//Resources
-    public static final String Datatype =  NS+"Datatype";
-    public static final String Literal =  NS+"Literal";
-    public static final String Resource =  NS+"Resource";
+    public static final String Datatype    =  PREFIX+"Datatype";
+    public static final String Literal     =  PREFIX+"Literal";
+    public static final String Resource    =  PREFIX+"Resource";
 
     //Properties
-    public static final String comment =  NS+"comment";
-    public static final String label =  NS+"label";
-    public static final String subClassOf  = NS+"subClassOf";
+    public static final String comment     =  PREFIX+"comment";
+    public static final String label       =  PREFIX+"label";
+    public static final String subClassOf  =  PREFIX+"subClassOf";
 }

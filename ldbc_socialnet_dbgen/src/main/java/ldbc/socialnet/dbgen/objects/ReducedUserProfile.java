@@ -91,9 +91,6 @@ public class ReducedUserProfile extends SocialObject implements Serializable, Wr
 	int 				locationOrganizationIdx;	// Contain zOderLocation  ... OrganizationId
 	byte				gender; 
 	long				birthDay;
-	
-	// For dimension of interest
-	int					intZValue; 
 
 	public void clear(){
 		Arrays.fill(friendList,null);
@@ -172,9 +169,6 @@ public class ReducedUserProfile extends SocialObject implements Serializable, Wr
 			locationOrganizationIdx = stream.readInt(); 
 			gender = stream.readByte();
 			birthDay = stream.readLong();
-			
-			intZValue = stream.readInt();		 
-		 
 	 }
 	
 	private void writeObject(java.io.ObjectOutputStream stream)
@@ -236,8 +230,6 @@ public class ReducedUserProfile extends SocialObject implements Serializable, Wr
 			stream.writeInt(locationOrganizationIdx);
 			stream.writeByte(gender);
 			stream.writeLong(birthDay);
-			
-			stream.writeInt(intZValue);		 
 	 }
 	 
 	@Override
@@ -304,8 +296,6 @@ public class ReducedUserProfile extends SocialObject implements Serializable, Wr
 		locationOrganizationIdx = arg0.readInt(); 
 		gender = arg0.readByte();
 		birthDay = arg0.readLong();
-		
-		intZValue = arg0.readInt(); 
 	}
 	
 	public void copyFields(ReducedUserProfile user){
@@ -344,8 +334,6 @@ public class ReducedUserProfile extends SocialObject implements Serializable, Wr
 		locationOrganizationIdx = user.getLocationOrganizationIdx(); 
 		gender = user.getGender();
 		birthDay = user.getBirthDay();
-
-		intZValue = user.getIntZValue(); 
 	}
 	
 	@Override
@@ -408,8 +396,6 @@ public class ReducedUserProfile extends SocialObject implements Serializable, Wr
 		arg0.writeInt(locationOrganizationIdx);
 		arg0.writeByte(gender);
 		arg0.writeLong(birthDay);
-		
-		arg0.writeInt(intZValue);
 	}
 
 	public ReducedUserProfile(){
@@ -434,10 +420,7 @@ public class ReducedUserProfile extends SocialObject implements Serializable, Wr
 		date.setTimeInMillis(birthDay);
 		int birthYear = date.get(GregorianCalendar.YEAR);
 		
-		int organizationDimension = locationOrganizationIdx | (birthYear << 1) | gender;
-		
-		this.setIntZValue(user.getIntZValue());
-		
+		int organizationDimension = locationOrganizationIdx | (birthYear << 1) | gender;		
 		
 		this.setDicElementId(organizationDimension,0);
 		
@@ -690,13 +673,4 @@ public class ReducedUserProfile extends SocialObject implements Serializable, Wr
 	public void setBirthDay(long birthDay) {
 		this.birthDay = birthDay;
 	}
-
-	public int getIntZValue() {
-		return intZValue;
-	}
-
-	public void setIntZValue(int intZValue) {
-		this.intZValue = intZValue;
-	}
-
 }

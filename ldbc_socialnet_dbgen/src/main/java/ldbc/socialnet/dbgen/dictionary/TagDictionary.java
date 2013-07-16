@@ -52,17 +52,25 @@ import ldbc.socialnet.dbgen.objects.Tag;
 
 public class TagDictionary {
 	
+    private final String SEPARATOR = "\t";
+    
     BufferedReader dictionary; 
 	String dicFileName;
 	String dicTopic;
+	String tagClassFile;
+	String tagHierarchyFile;
 	Vector<Vector<Tag>> vecTagByCountry;
 	Vector<Vector<Double>> vecTagCumDist; 
 	Vector<Vector<Integer>> vecTagId;
 	
 	int 	numCelebrity = 0 ; 
 	
-	HashMap<String, Integer> locationNames;
+	HashMap<Integer, String> className;
+	HashMap<Integer, String> classLabel;
+	HashMap<Integer, Integer> classHierarchy;
+	HashMap<Integer, Integer> tagClass;
 	HashMap<Integer, String> tagNames;
+	HashMap<Integer, String> tagDescription;  // a.k.a foaf:Names
 	Random 	rnd; 
 	Random 	rnd2;
 
@@ -73,12 +81,20 @@ public class TagDictionary {
 	
 	
 
-	public TagDictionary(String dicTopic, String _dicFileName, int _numLocations, long seed, double _tagCountryCorrProb){
+	public TagDictionary(String dicTopic, String _dicFileName, String tagClassFile, String tagHierarchyFile, 
+	        int _numLocations, long seed, double _tagCountryCorrProb){
 		this.dicFileName = _dicFileName;
 		this.dicTopic = dicTopic;
+		this.tagClassFile = tagClassFile;
+		this.tagHierarchyFile = tagHierarchyFile;
 		vecTagCumDist = new Vector<Vector<Double>>(_numLocations);
 		vecTagId = new Vector<Vector<Integer>>(_numLocations);
 		tagNames = new HashMap<Integer, String>();
+		tagClass = new HashMap<Integer, Integer>();
+		tagDescription = new HashMap<Integer, String>();
+		className = new HashMap<Integer, String>();
+	    classLabel = new HashMap<Integer, String>();
+	    classHierarchy = new HashMap<Integer, Integer>();
 		
 		for (int i =  0; i < _numLocations; i++){
 			vecTagCumDist.add(new Vector<Double>());
@@ -89,23 +105,38 @@ public class TagDictionary {
 		
 		rnd = new Random(seed); 
 		rnd2 = new Random(seed);
-		
-	}
-	
-	public TagDictionary(String _dicFileName, HashMap<String, Integer> _locationNames){
-		this.dicFileName = _dicFileName; 
-		this.locationNames = _locationNames;
-				
-		//init tagByCountry. Each country has several celebrities
-		vecTagByCountry = new Vector<Vector<Tag>>(locationNames.size());
-		for (int i =  0; i < locationNames.size(); i++){
-			vecTagByCountry.add(new Vector<Tag>());
-		}
 	}
 	
 	public HashMap<Integer, String> getTagsNamesMapping() {
 	    return tagNames;
 	}
+	
+	public String getName(int id) {
+	    return tagNames.get(id);
+	}
+	
+	public String getDescription(int id) {
+        return tagDescription.get(id);
+    }
+	
+	public Integer getTagClass(int id) {
+        return tagClass.get(id);
+    }
+	
+	public String getClassName(int id) {
+        return className.get(id);
+    }
+	
+	public String getClassLabel(int id) {
+        return classLabel.get(id);
+    }
+	
+	public Integer getClassParent(int id) {
+	    if (!classHierarchy.containsKey(id)) {
+	        return -1;
+	    }
+        return classHierarchy.get(id);
+    }
 
 
 	public void extractTags(){
@@ -114,11 +145,31 @@ public class TagDictionary {
 		double cumm; 
 		int tagId = 0; 
 		try {
+		    
+		    dictionary = new BufferedReader(new InputStreamReader(getClass( ).getResourceAsStream(tagClassFile), "UTF-8"));
+            while ((line = dictionary.readLine()) != null){
+                String infos[] = line.split(SEPARATOR);
+                Integer classId = Integer.valueOf(infos[0]);
+                className.put(classId, infos[1]);
+                classLabel.put(classId, infos[2]);
+            }
+		    
+		    dictionary = new BufferedReader(new InputStreamReader(getClass( ).getResourceAsStream(tagHierarchyFile), "UTF-8"));
+            while ((line = dictionary.readLine()) != null){
+                String infos[] = line.split(SEPARATOR);
+                Integer classId = Integer.valueOf(infos[0]);
+                Integer parentId = Integer.valueOf(infos[1]);
+                classHierarchy.put(classId, parentId);
+            }
+		    
 		    dictionary = new BufferedReader(new InputStreamReader(getClass( ).getResourceAsStream(dicTopic), "UTF-8"));
 		    while ((line = dictionary.readLine()) != null){
-		        String infos[] = line.split(" ");
-		        tagId = Integer.parseInt(infos[0]);
-		        tagNames.put(tagId, infos[1]);
+		        String infos[] = line.split(SEPARATOR);
+		        tagId = Integer.valueOf(infos[0]);
+		        Integer classId = Integer.valueOf(infos[1]);
+		        tagClass.put(tagId, classId);
+		        tagNames.put(tagId, infos[2]);
+		        tagDescription.put(tagId, infos[3]);
 		    }
 		    dictionary.close();
 			dictionary = new BufferedReader(new InputStreamReader(getClass( ).getResourceAsStream(dicFileName), "UTF-8"));
@@ -138,7 +189,6 @@ public class TagDictionary {
 			dictionary.close();
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -154,8 +204,6 @@ public class TagDictionary {
 				countryId = rnd.nextInt(vecTagId.size());
 			} while (vecTagId.get(countryId).size() == 0);
 		}
-		
-		//System.out.println("Select country is " + countryId + " Total tags number: " + vecTagId.get(countryId).size()); 
 		
 		// Doing binary search for finding the tag
 		double randomDis = rnd2.nextDouble(); 
@@ -183,86 +231,5 @@ public class TagDictionary {
 
 	public void setNumCelebrity(int numCelebrity) {
 		this.numCelebrity = numCelebrity;
-	}
-
-
-
-	//This function is run only one time.
-	public void initCummulativeTagCountry(String celebrityFileName, String clbByCountryFileName){
-		
-		String line;
-		String tagText;
-		String city; 
-		String country;
-		int countryId; 
-		int refNo; 
-		int tagId = 0; 
-		try {
-		    dictionary = new BufferedReader(new InputStreamReader(new FileInputStream(dicFileName), "UTF-8"));
-			
-			while ((line = dictionary.readLine()) != null){
-				String infos[] = line.split(" ");
-				tagText = infos[2];
-				city = infos[1];
-				country=infos[0];
-				if (!locationNames.containsKey(country)){
-					System.out.println("The country " + country +" is not in the list"); 
-				}
-				else{
-					countryId = locationNames.get(country); 
-					refNo = Integer.parseInt(infos[3]); 
-					Tag tag = new Tag(tagId, countryId, tagText, refNo);
-					vecTagByCountry.get(countryId).add(tag);
-					tagId++;
-				}
-				//add(Math.round(cumdistribution*(float)numberOfUsers));
-			}
-			
-			dictionary.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
-		try {
-			FileOutputStream 	outputCelebrityDic;
-			outputCelebrityDic = new FileOutputStream(celebrityFileName);
-			FileOutputStream 	outputCelebrityByCountryDic;
-			outputCelebrityByCountryDic = new FileOutputStream(clbByCountryFileName);
-			OutputStreamWriter writerCel; 
-			writerCel = new OutputStreamWriter(outputCelebrityDic);
-			OutputStreamWriter writerCelByCountry; 
-			writerCelByCountry = new OutputStreamWriter(outputCelebrityByCountryDic);
-			
-			//Compute the cummulative distribution
-			for (int i = 0; i < locationNames.size(); i++){
-				int sumRef = 0; 	//total number of reference per country
-				double cummulativeDist;
-				int curRef = 0; 
-				//Get total number of references
-				for (int j = 0; j < vecTagByCountry.get(i).size(); j++){
-					sumRef +=  vecTagByCountry.get(i).get(j).getNoRef();
-				}
-				 
-				if (sumRef != 0){
-					// Get the cummulative distribution value for each tag
-					for (int j = 0; j < vecTagByCountry.get(i).size(); j++){
-						curRef+=  vecTagByCountry.get(i).get(j).getNoRef();
-						cummulativeDist =  (double) curRef/sumRef;
-						Tag tag = vecTagByCountry.get(i).get(j); 
-						writerCel.write(tag.getText() + " "+ tag.getId() + "\n");
-						writerCelByCountry.write(tag.getLocationId() + " " + tag.getId() + " " + cummulativeDist +"\n");
-					}
-				}
-			}
-			
-			writerCel.close();
-			writerCelByCountry.close();
-
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 }

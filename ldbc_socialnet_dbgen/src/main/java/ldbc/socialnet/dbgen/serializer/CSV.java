@@ -47,6 +47,7 @@ import java.util.Vector;
 import ldbc.socialnet.dbgen.dictionary.IPAddressDictionary;
 import ldbc.socialnet.dbgen.dictionary.LanguageDictionary;
 import ldbc.socialnet.dbgen.dictionary.LocationDictionary;
+import ldbc.socialnet.dbgen.dictionary.TagDictionary;
 import ldbc.socialnet.dbgen.generator.DateGenerator;
 import ldbc.socialnet.dbgen.objects.Comment;
 import ldbc.socialnet.dbgen.objects.Friend;
@@ -62,7 +63,9 @@ import ldbc.socialnet.dbgen.objects.SocialObject;
 import ldbc.socialnet.dbgen.objects.UserExtraInfo;
 import ldbc.socialnet.dbgen.objects.UserProfile;
 import ldbc.socialnet.dbgen.vocabulary.DBP;
+import ldbc.socialnet.dbgen.vocabulary.DBPOWL;
 import ldbc.socialnet.dbgen.vocabulary.RDF;
+import ldbc.socialnet.dbgen.vocabulary.RDFS;
 import ldbc.socialnet.dbgen.vocabulary.SN;
 import ldbc.socialnet.dbgen.vocabulary.SNVOC;
 import ldbc.socialnet.dbgen.vocabulary.XSD;
@@ -75,6 +78,7 @@ public class CSV implements Serializer {
     
     final String[] fileNames = {
     		                "tag",
+    		                "tagClass",
     		                "post",
     		                "forum",
     		                "person",
@@ -83,6 +87,8 @@ public class CSV implements Serializer {
     		                "emailaddress",
     		                "organisation",
     		                "language",
+    		                "tag_has_type_tagclass",
+    		                "tagclass_is_subclass_of_tagclass",
     		                "person_like_post",
     		                "person_interest_tag",
     		                "person_knows_person",
@@ -110,6 +116,7 @@ public class CSV implements Serializer {
     enum Files
     {
     	TAG,
+    	TAGCLASS,
     	POST,
     	FORUM,
     	PERSON,
@@ -118,6 +125,8 @@ public class CSV implements Serializer {
     	EMAIL,
     	ORGANISATION,
     	LANGUAGE,
+    	TAG_HAS_TYPE_TAGCLASS,
+    	TAGCLASS_IS_SUBCLASS_OF_TAGCLASS,
     	PERSON_LIKE_POST,
     	PERSON_INTEREST_TAG,
     	PERSON_KNOWS_PERSON,
@@ -155,7 +164,8 @@ public class CSV implements Serializer {
 	static long emailId = 0;
 	static long ipId = 0;
 	
-	HashMap<Integer, String> interestIdsNames;
+	HashMap<Integer, Integer> printedTagClasses;
+	
 	HashMap<String, Integer> companyToCountry;
     HashMap<String, Integer> universityToCountry;
 	Vector<String>	vBrowserNames;
@@ -169,6 +179,7 @@ public class CSV implements Serializer {
 	GregorianCalendar date;
 	LocationDictionary locationDic;
 	LanguageDictionary languageDic;
+	TagDictionary tagDic;
 	IPAddressDictionary ipDic;
 	
 	public CSV(String file, boolean forwardChaining)
@@ -185,6 +196,7 @@ public class CSV implements Serializer {
 		tagList = new Vector<String>();
 		ipList = new Vector<String>();
 		serializedLanguages = new Vector<Integer>();
+		printedTagClasses = new HashMap<Integer, Integer>();
 		
 		idList = new long[Files.NUM_FILES.ordinal()];
 		currentWriter = new int[Files.NUM_FILES.ordinal()];
@@ -226,12 +238,12 @@ public class CSV implements Serializer {
 	}
 	
 	public CSV(String file, boolean forwardChaining, int nrOfOutputFiles, 
-            HashMap<Integer, String> _interestIdsNames, Vector<String> _vBrowsers, 
+            TagDictionary tagDic, Vector<String> _vBrowsers, 
             HashMap<String, Integer> companyToCountry, HashMap<String, Integer> univesityToCountry,
             IPAddressDictionary ipDic, LocationDictionary locationDic, LanguageDictionary languageDic)
     {
 	    this(file, forwardChaining, nrOfOutputFiles);
-        this.interestIdsNames = _interestIdsNames;  
+        this.tagDic = tagDic;  
         this.vBrowserNames = _vBrowsers;
         this.locationDic = locationDic;
         this.languageDic = languageDic;
@@ -279,6 +291,31 @@ public class CSV implements Serializer {
 	public void gatherData(Photo photo, boolean isLikeStream){
 		convertPhoto(photo, !isLikeStream, isLikeStream);
 	}	
+	
+	public void printTagHierarchy(Integer tagId) {
+	    Vector<String> arguments = new Vector<String>();
+	    Integer tagClass = tagDic.getTagClass(tagId);
+	    
+	    arguments.add(tagId.toString());
+        arguments.add(tagClass.toString());
+        ToCSV(arguments, Files.TAG_HAS_TYPE_TAGCLASS.ordinal());
+	    
+        while (tagClass != -1 && !printedTagClasses.containsKey(tagClass)) {
+            printedTagClasses.put(tagClass, tagClass);
+            arguments.add(tagClass.toString());
+            arguments.add(tagDic.getClassName(tagClass));
+            arguments.add(DBPOWL.fullprefixed(tagDic.getClassName(tagClass)));
+            ToCSV(arguments, Files.TAGCLASS.ordinal());
+            
+            Integer parent = tagDic.getClassParent(tagClass);
+            if (parent != -1) {
+                arguments.add(tagClass.toString());
+                arguments.add(parent.toString());   
+                ToCSV(arguments, Files.TAGCLASS_IS_SUBCLASS_OF_TAGCLASS.ordinal());
+            }
+            tagClass = parent;
+        }
+	}
 	
 	public void ToCSV(Vector<String> arguments, int index)
 	{
@@ -482,7 +519,7 @@ public class CSV implements Serializer {
         Iterator<Integer> itInteger = profile.getSetOfInterests().iterator();
         while (itInteger.hasNext()){
             Integer interestIdx = itInteger.next();
-            String interest = interestIdsNames.get(interestIdx);
+            String interest = tagDic.getName(interestIdx);
             
             if (interests.indexOf(interest) == -1)
             {
@@ -492,6 +529,8 @@ public class CSV implements Serializer {
                 arguments.add(interest.replace("\"", "\\\""));
                 arguments.add(DBP.fullPrefixed(interest));
                 ToCSV(arguments, Files.TAG.ordinal());
+                
+                printTagHierarchy(interestIdx);
             }
             
             arguments.add(SN.formId(idList[Files.PERSON_INTEREST_TAG.ordinal()]));
@@ -608,7 +647,7 @@ public class CSV implements Serializer {
             Iterator<Integer> it = post.getTags().iterator();
             while (it.hasNext()) {
                 Integer tagId = it.next();
-                String tag = interestIdsNames.get(tagId);
+                String tag = tagDic.getName(tagId);
                 if (interests.indexOf(tag) == -1)
                 {
                     interests.add(tag);
@@ -617,6 +656,8 @@ public class CSV implements Serializer {
                     arguments.add(tag.replace("\"", "\\\""));
                     arguments.add(DBP.fullPrefixed(tag));
                     ToCSV(arguments, Files.TAG.ordinal());
+                    
+                    printTagHierarchy(tagId);
                 }
                 
                 arguments.add(SN.formId(idList[Files.POST_HAS_TAG_TAG.ordinal()]));
@@ -733,7 +774,7 @@ public class CSV implements Serializer {
             Iterator<Integer> it = photo.getTags().iterator();
             while (it.hasNext()) {
                 Integer tagId = it.next();
-                String tag = interestIdsNames.get(tagId);
+                String tag = tagDic.getName(tagId);
                 if (interests.indexOf(tag) == -1)
                 {
                     interests.add(tag);
@@ -741,6 +782,8 @@ public class CSV implements Serializer {
                     arguments.add(tag.replace("\"", "\\\""));
                     arguments.add(DBP.fullPrefixed(tag));
                     ToCSV(arguments, Files.TAG.ordinal());
+                    
+                    printTagHierarchy(tagId);
                 }
                 
                 arguments.add(SN.formId(idList[Files.POST_HAS_TAG_TAG.ordinal()]));
@@ -787,7 +830,7 @@ public class CSV implements Serializer {
 	    
 	    Integer groupTags[] = group.getTags();
         for (int i = 0; i < groupTags.length; i ++){
-            String interest = interestIdsNames.get(groupTags[i]);
+            String interest = tagDic.getName(groupTags[i]);
             
             if (interests.indexOf(interest) == -1)
             {
@@ -797,6 +840,8 @@ public class CSV implements Serializer {
                 arguments.add(interest.replace("\"", "\\\""));
                 arguments.add(DBP.fullPrefixed(interest));
                 ToCSV(arguments, Files.TAG.ordinal());
+                
+                printTagHierarchy(groupTags[i]);
             }
             
             arguments.add(SN.formId(idList[Files.FORUM_HASTAG_TAG.ordinal()]));
