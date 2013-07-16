@@ -1,0 +1,25 @@
+define sql:signal-void-variables 1
+prefix rdfh: <http://lod2.eu/schemas/rdfh#>
+
+select
+  ?part+>rdfh:brand,
+  ?part+>rdfh:type,
+  ?part+>rdfh:size,
+  (count(distinct ?supp)) as ?supplier_cnt
+where
+  {
+    ?ps a rdfh:partsupp ; rdfh:has_part ?part ; rdfh:has_supplier ?supp .
+    filter (
+      (?part+>rdfh:brand != "%BRAND%") &&
+      !(?part+>rdfh:type like "%TYPE%%") &&
+      (?part+>rdfh:size in (%SIZE1%, %SIZE2%, %SIZE3%, %SIZE4%, %SIZE5%, %SIZE6%, %SIZE7%, %SIZE8%)) &&
+      !bif:exists ((select (1) where {
+        ?supp a rdfh:supplier; rdfh:comment ?badcomment .
+        filter (?badcomment like "%Customer%Complaints%") } ) ) )
+  }
+order by
+  desc ((count(distinct ?supp)))
+  ?part+>rdfh:brand
+  ?part+>rdfh:type
+  ?part+>rdfh:size
+

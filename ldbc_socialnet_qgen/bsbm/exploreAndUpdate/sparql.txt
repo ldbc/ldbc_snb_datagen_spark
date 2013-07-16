@@ -1,0 +1,2 @@
+querymix=bsbm/update
+querymix=bsbm/explore

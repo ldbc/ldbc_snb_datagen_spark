@@ -1,0 +1,15 @@
+select  ?first, ?last,  
+   (((select  count (*) where {  ?post sv:creator ?fof . ?post sv:has_tag ?tag . %Person% sv:interest ?tag }))
+  - ((select  count (*) where {  ?post sv:creator ?fof . ?post sv:has_tag ?tag . filter (!exists {%Person% sv:interest ?tag}) })) as ?score),
+  ?fof,  ?gender, ?based
+from <sib> where {
+  {select distinct ?fof where {
+  %Person% sv:knows ?fr .
+  ?fr sv:knows ?fof .
+  minus { %Person% sv:knows ?fof } .}} .
+     ?fof sv:firstName ?first .
+  ?fof sv:lastName ?last .
+  ?fof sv:gender ?gender .
+  ?fof sv:birthday ?bday .
+  ?fof sv:based_near ?based .
+} order by desc 3 limit 10

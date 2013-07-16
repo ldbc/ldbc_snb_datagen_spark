@@ -1,0 +1,29 @@
+{QueryType:Select,
+ params:[
+  {name:SEGMENT,
+   class:OneOf,
+   range:[AUTOMOBILE, BUILDING, FURNITURE, MACHINERY, HOUSEHOLD],
+   default: BUILDING
+  },
+  {name:DATE,
+   class:Date,
+   range:[1995-03-01, 1995-03-31],
+   default: 1995-03-15
+  }
+ ],
+ results:[
+  {column:L_ORDERKEY,
+   type: int,
+  }, 
+  {column:REVENUE,
+   type: real, check: $100,
+  }, 
+  {column:O_ORDERDATE,
+   type: date,
+  }, 
+  {column:O_SHIPPRIORITY,
+   type: int
+  }
+ ],
+ resultKeys:[1,3]
+}

@@ -1,0 +1,150 @@
+{
+  update_header: [ # these lines will be inserted at the beginning of INSERT DATA query
+      "define sql:big-data-const 0",
+      "prefix xsd:<http://www.w3.org/2001/XMLSchema#>",
+      "prefix rdfh: <http://lod2.eu/schemas/rdfh#>",
+      "prefix rdfh-inst: <http://lod2.eu/schemas/rdfh-inst#>"
+          ],
+  header: [ # these lines will be inserted at the beginning of each .ttl file
+      "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .",
+      "@prefix rdfh: <http://lod2.eu/schemas/rdfh#> .",
+      "@prefix rdfh-inst: <http://lod2.eu/schemas/rdfh-inst#> ."
+          ],
+  default_tag: rdfh, # tag for properties; a field 'name' will be referenced as 'rdfh:name'
+
+  tables:[  
+    { name: customer, # both name of .tbl file and object of 'a' property
+      tag: rdfh-inst, # tag for object and subject
+	  fields:[  # describe fields of the csv file
+			    # first field in .tbl file become rdfh:c_custkey etc.
+		{ name: c_custkey, type: int},
+		{ name: c_name, type: str },
+		{ name: c_address, type: str },
+		{ name: c_has_nation, refto: nation},
+        { name: c_phone, type: str },
+		{ name: c_acctbal, type: decimal },
+		{ name: c_mktsegment, type: str },
+	    { name: c_comment, type: str},
+       ],
+	   keys:[ # which fields are keys and so participate in creating subject name
+		c_custkey
+	   ]
+    },
+    { name: lineitem,
+      tag: rdfh-inst,
+	  fields:[
+		{ name: l_has_order,
+		  refto: orders # refto means that int value N will become order_N 
+        },
+		{ name: l_has_part, refto: part },
+		{ name: l_has_supplier,  refto: supplier },
+		{ name: l_linenumber, type: int },
+		{ name: l_linequantity, type: decimal },
+		{ name: l_lineextendedprice,  type: decimal },
+		{ name: l_linediscount, type: decimal },
+		{ name: l_linetax, type: decimal },
+		{ name: l_returnflag, type: str },
+		{ name: l_linestatus, type: str },
+		{ name: l_shipdate, type: date },
+		{ name: l_commitdate, type: date },
+		{ name: l_receiptdate, type: date },
+		{ name: l_shipinstruct, type: str },
+		{ name: l_shipmode, type: str },
+	    { name: l_comment, type: str},
+       ],
+	   keys:[
+		l_has_order,
+		l_linenumber
+	   ]
+    },
+    { name: nation,
+      tag: rdfh-inst,
+	  fields:[
+		{ name: n_nation,
+          type: int, # int means actually long int
+          prop: false # this field will not be reflected as property in the .ttl file
+        },
+		{ name: n_name, type: str },
+		{ name: n_has_region,  refto: region },
+	    { name: n_comment, type: str},
+       ],
+	   keys:[
+		n_nation
+	   ]
+    },
+    { name: orders,
+      tag: rdfh-inst,
+	  fields:[
+		{ name: o_orderkey, type: int },
+		{ name: o_has_customer, refto: customer },
+		{ name: o_orderstatus, type: str },
+		{ name: o_ordertotalprice, type: decimal },
+		{ name: o_orderdate,  type: date },
+		{ name: o_orderpriority, type: str },
+		{ name: o_clerk, type: str },
+		{ name: o_shippriority, type: int },
+	    { name: o_comment, type: str},
+       ],
+		keys:[
+		  o_orderkey
+		]
+    },
+    { name: part,
+      tag: rdfh-inst,
+	  fields:[
+		{name: p_partkey, type: int },
+		{ name: p_name, type: str },
+		{ name: p_mfgr, type: str },
+		{ name: p_brand, type: str },
+		{ name: p_type, type: str },
+		{ name: p_size, type: int },
+		{ name: p_container, type: str },
+		{ name: p_retailprice, type: decimal },
+	    { name: p_comment, type: str},
+       ],
+	   keys:[
+		p_partkey,
+	   ]
+    },
+    { name: partsupp,
+      tag: rdfh-inst,
+	  fields:[
+		{ name: ps_has_part,  refto: part }, # part, has_ps_partkey
+        { name: ps_has_supplier, refto: supplier},
+		{ name: ps_availqty,  type: int },
+		{ name: ps_supplycost, type: decimal },
+	    { name: ps_comment, type: str},
+       ],
+	   keys:[
+		ps_has_part,
+        ps_has_supplier,
+	   ]
+    },
+    { name: region,
+      tag: rdfh-inst,
+	  fields:[
+		{ name: r_regionkey, type: int, prop: false},
+		{ name: r_name, type: str },
+	    { name: r_comment, type: str},
+       ],
+	   keys:[
+		r_regionkey,
+	   ]
+    },
+    { name: supplier,
+      tag: rdfh-inst,
+	  fields:[
+		{ name: s_suppkey, type: int },
+		{ name: s_name, type: str },
+		{ name: s_address, type: str },
+		{ name: s_has_nation, refto: nation},
+        { name: s_phone, type: str },
+		{ name: s_acctbal, type: decimal },
+	    { name: s_comment, type: str},
+       ],
+	   keys:[
+		s_suppkey,
+	   ],
+    },
+   ],
+}

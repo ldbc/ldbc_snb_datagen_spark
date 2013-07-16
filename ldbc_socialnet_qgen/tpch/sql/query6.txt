@@ -1,0 +1,13 @@
+-- using default substitutions
+
+
+select
+	sum(l_extendedprice * l_discount) as revenue
+from
+	lineitem
+where
+	l_shipdate >= stringdate ('@YEAR@-01-01')
+	and l_shipdate < dateadd ('year', 1, cast ('@YEAR@-01-01' as date))
+	and l_discount between @DISCOUNT@ - 0.01 and @DISCOUNT@ + 0.01
+	and l_quantity < @QUANTITY@
+

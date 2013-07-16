@@ -1,0 +1,22 @@
+{QueryType:Select,
+ params:[
+  {name:YEAR,
+   class:Random,
+   range:[1993, 1997],
+   default: 1994
+  },
+  {name:DISCOUNT,
+   class:Random,
+   range:[0.02, 0.09],
+   default:0.06
+  },
+  {name:QUANTITY,
+   class:Random,
+   range:[24, 25],
+   default: 24
+  }
+ ],
+ results:[
+  {column:sum, type: real, check: $100}
+ ]
+}

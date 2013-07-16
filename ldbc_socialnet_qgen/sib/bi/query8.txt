@@ -1,0 +1,19 @@
+select ?year  ?country1 ?country2 count (*)
+where {
+
+?post1 sv:creator ?author1 .
+?post2 sv:creator ?author2 .
+?post2 sv:reply_of ?post1 .
+?author1 sv:ipcountry ?country1 .
+?author2 sv:ipcountry ?country2 .
+filter (?country1 != ?country2) .
+filter (?country1 = %Country1% || ?country1 = %Country2%) .
+filter (?country2 = %Country1% || ?country2 = %Country2%) .
+?post2 sv:created  ?dt .
+filter (?dt > "%Date0%"^^xsd:date) .
+?post1 sv:has_tag ?tag .
+?tag dbpedia-owl:wikiPageWikiLink %Person% .
+} group by ?country1 ?country2 (bif:year (?dt) as ?year)
+order by 3 1 2
+
+ 

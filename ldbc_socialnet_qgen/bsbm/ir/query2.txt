@@ -1,0 +1,11 @@
+prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+
+Select ?s
+{
+ ?s <p> <o> .
+ ?s ?p ?o .
+  FILTER (regex(?o, "%WORD1%") || regex(?o, "%WORD2%") || regex(?o, "%WORD3%")) .
+}
+group by ?s
+order by ?s
+limit 10

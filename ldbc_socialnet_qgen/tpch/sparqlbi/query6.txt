@@ -1,0 +1,12 @@
+define sql:signal-void-variables 1
+prefix rdfh: <http://lod2.eu/schemas/rdfh#>
+
+select
+  sum(?li+>rdfh:l_lineextendedprice * ?li+>rdfh:l_linediscount) as ?revenue
+where {
+    ?li a rdfh:lineitem .
+    filter ( (?li+>rdfh:l_shipdate >= "%YEAR%-01-01"^^xsd:date) &&
+      (?li+>rdfh:l_shipdate < bif:dateadd ("year", 1, "%YEAR%-01-01"^^xsd:date)) &&
+      (?li+>rdfh:l_linediscount >= %DISCOUNT% - 0.01) &&
+      (?li+>rdfh:l_linediscount <= %DISCOUNT% + 0.01) &&
+      (?li+>rdfh:l_linequantity < %QUANTITY%) ) }

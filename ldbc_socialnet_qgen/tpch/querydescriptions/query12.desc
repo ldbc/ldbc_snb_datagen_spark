@@ -1,0 +1,31 @@
+{QueryType:Select,
+ params:[
+  {name:SHIPMODE1,
+   class:Shipmode,
+   default:'MAIL'
+  },
+  {name:SHIPMODE2,
+   class:Shipmode2,
+   default:'SHIP'
+  },
+  {name:YEAR,
+   class:Random,
+   range:[1993, 1997],
+   default: 1994
+  }
+ ],
+ results:[
+  {column:l_shipmode,
+   type: str
+  },
+  {column:high_line_count,
+   type: real,
+   check: $100
+  },
+  {column:low_line_count,
+   type: real,
+   check: $100
+  }
+ ],
+ resultKeys:[1]
+}

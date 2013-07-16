@@ -1,0 +1,7 @@
+select ?tag count (*) from <sib>
+where { 
+ ?post sv:has_tag ?tag .
+  ?post sv:ipcountry %Country% .
+?post sv:created ?date . filter (?date >= "%Date0%"^^xsd:date && ?date < bif:dateadd ("day", %Duration%, "%Date0%"^^xsd:date) ) .
+filter (!exists { %Person% sv:knows ?fr . ?frpost sv:creater ?fr . ?frpost sv:has_tag ?tag} )
+} group by ?tag order by desc 2 limit 10

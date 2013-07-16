@@ -1,0 +1,14 @@
+prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# Like 1 but non-selective pattern.
+select
+    ?subject,
+    ?predicate,
+    ?object
+{
+  ?subject ?predicate ?object .
+  ?object bif:contains "%WORD%" option (score ?sc)
+
+}
+order by desc (?sc)
+limit 10

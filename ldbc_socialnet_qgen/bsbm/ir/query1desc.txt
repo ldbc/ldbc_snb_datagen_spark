@@ -1,0 +1,4 @@
+QueryType=Select
+
+WORD1=Selectivity_GRAM2_HIGH
+WORD2=Selectivity_GRAM1_MEDIUM

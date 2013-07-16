@@ -1,0 +1,28 @@
+{QueryType:Select,
+ Sequence:[Try, Update, Select, Update],
+ params:[
+  {name:MONTH,
+   class:Month,
+   range:[1993-01, 1997-10],
+   default:1996-01
+  }
+ ],
+ results:[
+  {column:s_suppkey,
+   type: int
+  },
+  {column:s_name,
+   type: str
+  },
+  {column:s_address,
+   type: str
+  },
+  {column:s_phone,
+   type: str
+  },
+  {column:total_revenue,
+   type: real,
+   check: $100
+  }
+ ]
+}

@@ -1,0 +1,21 @@
+define sql:signal-void-variables 1
+prefix rdfh: <http://lod2.eu/schemas/rdfh#>
+
+select
+  ?c_count,
+  count(1) as ?custdist
+where {
+    { select
+        ?cust+>rdfh:c_custkey,
+        count (?ord) as ?c_count
+      where
+        {
+          ?cust a rdfh:customer .
+          optional { ?ord rdfh:o_has_customer ?cust .
+              filter (!(?ord+>rdfh:o_comment like "%%WORD1%%%WORD2%%")) }
+        }
+    }
+  }
+order by
+  desc (count(1))
+  desc (?c_count)

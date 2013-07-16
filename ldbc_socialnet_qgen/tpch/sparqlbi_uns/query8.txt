@@ -1,0 +1,27 @@
+define sql:signal-void-variables 1
+prefix rdfh: <http://lod2.eu/schemas/rdfh#>
+
+select
+  ?o_year,
+  (?sum1 / ?sum2) as ?mkt_share
+where {
+    { select
+        ?o_year
+        sum (?volume * bif:equ (?nation, "%NATION%")) as ?sum1
+        sum (?volume) as ?sum2
+      where {
+          { select
+              (bif:year (?order+>rdfh:orderdate)) as ?o_year,
+              (?li+>rdfh:lineextendedprice * (1 - ?li+>rdfh:linediscount)) as ?volume,
+              ?n2+>rdfh:name as ?nation
+            where {
+                ?li a rdfh:lineitem ; rdfh:has_order ?order ; rdfh:has_part ?part .
+                ?li+>rdfh:has_supplier rdfh:has_nation ?n2 .
+                ?order+>rdfh:has_customer+>rdfh:has_nation+>rdfh:has_region rdfh:name "%REGION%" .
+                ?part rdfh:type "%TYPE%" .
+                filter ((?order+>rdfh:orderdate >= "1995-01-01"^^xsd:date) &&
+                  (?order+>rdfh:orderdate <= "1996-12-31"^^xsd:date) ) } } } } }
+order by
+  ?o_year
+
+

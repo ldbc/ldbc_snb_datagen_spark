@@ -1,0 +1,164 @@
+
+
+SNA Business Intelligence Query Commentary 
+
+B1 
+
+
+CP1.5, CP6.3 , CP4.1a, CP4.1d, CP4.2a 
+
+
+
+ Test expression evaluation  and optional properties 
+ Do not use a O to S index for the unselectibve date condition.
+ The cardinalities of the patterns are the same, so the right plan selects on the date first, the rest of the order does not matter.
+ Must recognize that the scalar subquery is independent of the rest of the query.
+ One may recognize that this is in principle subsumed in the group by count (*).  This is not so however if the properties are not all single valued, which one does not a priori know.
+ 
+This is analogous to TPCH Q1.
+
+
+
+B2 - Count volum in forumns on a subject in a country 
+CP1.4 CP1.5 CP2.2 CP2.7 
+
+This is a snowflake  pattern that accesses many columns of posts filtered on relatively unselective  foreign key joins.
+We expect a hash to be built from the tags and the forums.  The scan will then go over the columns in order.
+
+If the criteria are specially selective, an index based plan starting with the forum or the tag is possible.
+
+
+B3 The Locally Going Thing 
+Given a date and a country, get tags of posts such that the post is before the date and a reply of the post is after the date.
+
+CP2.7 CP3.*
+
+
+This is like TPC H Q3 with the twisted join of orders and lineitem.
+If there is correlation between date and  placement of posts, then zone maps can be used for avoiding even looking at actual dates for many posts.
+
+
+
+***
+
+TPCH 2
+- For a small fraction of parts, get the lowest cost supplier from Europe.  Returm columns of the supplier and part.
+
+- For 1/100 of topics, get the forums where this is the most discussed.  The forum is moderated by a user from Europe
+
+Make a hash with  part, lowest supplycost. Lowest supplycost from Europe is functionally dependent on the part, 2 keys in the hash table. 
+ Probe with ps_partkey, ps_supplycost.  This selects 1/5 (suppliers from Europe) * 1/80 (80 partsupps per part, only one is lowest cost).  Some parts do not have a supplier from Europe, are not in the hash therefore.  A hash build does not add rows with nulls in key places.
+After this do the top k order by and then get the columns of supplier and part that were not needed in the order by.
+
+Note that for supplier, s_suppkey is not in the result set.  So it must be added into the order by  dependent part in order to later get the dependent columns of supplier. 
+
+
+Q3
+
+Get the revenue from orders recd before a date and shipped after the date, qualify with mkt segment of customer.
+
+Get the thread started before date and continuing after date.  
+
+B4  Thread  Length Distribution 
+
+Take all posts that are not replies.  Take all their replies transitively.  Group by the post and count the thread.
+Group by the count, getting counts of threads for each distinct length.
+
+CP7.2 CP1.1
+
+There are many transitive paths of moderate length all processable at
+the same time.  Batching them with vectored execution of the
+transitive operator improves join locality.  Recognizing that each
+post serves only once as a starting point means that orderdd
+aggregation is possible.  The transitive operation does not
+necessarily produce results in order but once a batch of posts has
+been processed to completion the state of the aggregation can be
+dropped, the same grouping keys will not come back.
+
+
+B5 Best publicist 
+
+Find top authors in terms of likes of their posts where the post is tagged with a tag in a category, e.g. products of a brand.  Scope this to authors from a given country posting in places moderated by  a person of the same or other country.
+
+CP2.3 CP3.3  CP3.5
+
+This is essentially a snowflake around post.
+The count of likes depends on the post alone but should be evaluated only after all the restricting joins, e.g. country of author and country of moderator where the post occurs.
+
+In cases where the countries of poster and moderator differ there can
+be a strong anticorrelation and this may be reflected in join
+order. If the tag is unselective and the countries are small the join
+order will likewise be affected.  Zome maps will not be effective unless the data is reorganized around these joins.
+One could imagine a two level dimensional clustering with date and country of author affecting the placement in storage.  Zone maps could then be effective.  Also some possibilities could be ruled out by the id of the post, e.g. the id being in a certain range guarantees the author is not from India.  
+
+B6 Branding Hour 
+
+Choose timing of online advertizing to match the online times of a target audience.
+For top forumns touching the brand, find the busiest window per country.
+
+
+
+B7 Market Share 
+
+For forums with over x posts about the general subject matter, what is the market share of a particular tag?  E.g. Bob Dylan's share of myusical artists in forums with many mentions of musical artists?
+ 
+
+
+B8 Cross-Border Conversation 
+
+Count conversation acrosss two countries in a time range over a subject matter.
+Like TPCH Q7.
+
+CP2.7 CP2.2 CP3.3  CP4.2c
+
+
+Note that here the condition on the tag is for the first post and the condition on the time is on the reply.  
+Note that the tag is specified as Dbpedia resources that reference the tag of interest, i.e. many of these will not  occur as tags.
+
+The OR on the countries must be evaluated on the build side of the hash join between post or reply or country.  There  is a choice of building the hash on the countries or on the authors in the countries.
+A purely index based plan will usually not be best, except if one of the countries is very small or the tag very selective.
+
+
+
+
+
+
+
+***
+
+
+
+- Countries where our brands are weak and the competitor's are strong. 
+- what hour  to advertize to Madonna fans?
+
+- Adverttizing target - A forum where over 5% of distinct users have at least once liked something about our  brands.  Each forum has distinct likers and distinct posters. There must be a lot of traffic and many distinct users to justify advertizing. Like Q16 in TPC H, count distinct inside group by.
+- Target audience and its top hangouts - Divide the public in 5 age brackets  / 2 education brackets / 2 genders / urbun vs rural / country buckets.  A few thousand buckets all in all.  For each bucket count the mentions of our or the competitor's brands. Every like of a mention counts for 0.5 mentions, credited to the bucket of the post of the liked post's author.
+   How many buckets does it take to cover half the mentions?  
+  What is the spread of forums that will cover at least 50%of the audience involved in the previous top buckets for the minimum cost?  We assume each forum has an advertizing rate that is roughly propertional to the member count plus some random fluctuation.
+
+ We note that this cannot be expressed in a single query, even with SQL analytical functions. Analtytical functions as in TPC DS do help, e.g. percentiles, ranks.
+ 
+
+
+
+
+Limittations of Schema 
+
+
+The schema without the Twitter extensions is not suitable for information propagation queries.
+
+TPCH Q2 is not readily translateable.  There the idea is a join
+involving a correlated subquery to the other key of the join.  There
+are no quantities in the schema.  For example, there is no equivalent
+of ps_supplycost.  This could be made if say tagg-forum were materialized with per forum counts of a given tag.
+
+Materializing this as a part of the workload might be considered.
+This would allow easy expression of queries such as forum with the
+most posts on x.
+
+
+
+
+
+
+

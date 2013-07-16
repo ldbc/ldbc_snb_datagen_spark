@@ -1,0 +1,10 @@
+prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+
+Select ?predicate
+{
+  ?subject ?predicate ?object .
+  FILTER (regex(?object, "%WORD1%") || regex(?object, "%WORD2%")) .
+}
+group by ?predicate
+order by ?predicate
+limit 10

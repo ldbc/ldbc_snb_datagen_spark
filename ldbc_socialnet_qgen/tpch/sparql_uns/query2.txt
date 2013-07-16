@@ -1,0 +1,51 @@
+define sql:signal-void-variables 1
+prefix rdfh: <http://lod2.eu/schemas/rdfh#>
+
+select
+  ?s_acctbal,
+  ?s_name,
+  ?nation_name,
+  ?p_partkey,
+  ?p_mfgr,
+  ?s_address,
+  ?s_phone,
+  ?s_comment
+where {
+  ?ps a rdfh:partsupp;
+      rdfh:has_supplier ?supp;
+      rdfh:has_part ?part ;
+      rdfh:supplycost ?minsc .
+  ?supp a rdfh:supplier ;
+     rdfh:acctbal ?s_acctbal ;
+	 rdfh:name ?s_name ;
+     rdfh:has_nation ?s_has_nation ;
+     rdfh:address ?s_address ;
+     rdfh:phone ?s_phone ;
+     rdfh:comment ?s_comment .
+  ?s_has_nation rdfh:name ?nation_name ;
+     rdfh:has_region ?s_has_region .
+  ?s_has_region rdfh:name "%REGION%" .
+  ?part a rdfh:part ;
+      rdfh:partkey ?p_partkey ;
+      rdfh:mfgr ?p_mfgr ;
+      rdfh:size %SIZE% ;
+      rdfh:type ?p_type .
+  { select ?part min(?s_cost) as ?minsc
+    where {
+        ?ps a rdfh:partsupp;
+            rdfh:has_part ?part;
+            rdfh:has_supplier ?ms;
+            rdfh:supplycost ?s_cost .
+        ?ms rdfh:has_nation ?m_has_nation .
+        ?m_has_nation rdfh:has_region ?m_has_region .
+        ?m_has_region rdfh:name "%REGION%" .
+      } 
+    }
+    filter (?p_type like "%%TYPE%") 
+  }
+order by
+  desc (?s_acctbal)
+  ?nation_name
+  ?s_name
+  ?p_partkey
+limit 100

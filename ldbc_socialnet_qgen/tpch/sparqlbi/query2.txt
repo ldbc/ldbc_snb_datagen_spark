@@ -1,0 +1,29 @@
+define sql:signal-void-variables 1
+prefix rdfh: <http://lod2.eu/schemas/rdfh#>
+
+select
+  ?supp+>rdfh:s_acctbal,
+  ?supp+>rdfh:s_name,
+  ?supp+>rdfh:s_has_nation+>rdfh:n_name as ?nation_name,
+  ?part+>rdfh:p_partkey,
+  ?part+>rdfh:p_mfgr,
+  ?supp+>rdfh:s_address,
+  ?supp+>rdfh:s_phone,
+  ?supp+>rdfh:s_comment
+where {
+  ?ps a rdfh:partsupp; rdfh:ps_has_supplier ?supp; rdfh:ps_has_part ?part .
+  ?supp+>rdfh:s_has_nation+>rdfh:n_has_region rdfh:r_name '%REGION%' .
+  ?part rdfh:p_size %SIZE% .
+  ?ps rdfh:ps_supplycost ?minsc .
+  { select ?part min(?ps+>rdfh:ps_supplycost) as ?minsc
+    where {
+        ?ps a rdfh:partsupp; rdfh:ps_has_part ?part; rdfh:ps_has_supplier ?ms .
+        ?ms+>rdfh:s_has_nation+>rdfh:n_has_region rdfh:r_name '%REGION%' .
+      } }
+    filter (?part+>rdfh:p_type like '%BRASS') }
+order by
+  desc (?supp+>rdfh:s_acctbal)
+  ?supp+>rdfh:s_has_nation+>rdfh:n_name
+  ?supp+>rdfh:s_name
+  ?part+>rdfh:p_partkey
+limit 100

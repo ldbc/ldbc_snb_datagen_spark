@@ -1,0 +1,28 @@
+{QueryType:Select,
+ params:[
+  {name:NATION1,
+   class:Nation,
+   default:'FRANCE'
+  },
+  {name:NATION2,
+   class:Nation2,
+   default:'GERMANY'
+  }
+ ],
+ results:[
+  {column:supp_nation,
+   type: str,
+  }, 
+  {column:cust_nation,
+   type: str,
+  }, 
+  {column:l_year,
+   type: int,
+  }, 
+  {column:volume,
+   type: real,
+   check: 1%
+  }
+ ],
+ resultKeys:[1,2,3]
+}

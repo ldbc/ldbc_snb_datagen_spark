@@ -1,0 +1,33 @@
+define sql:signal-void-variables 1
+prefix rdfh: <http://lod2.eu/schemas/rdfh#>
+
+select
+  ?cust+>foaf:c_name
+  ?cust+>rdfh:c_custkey
+  ?ord+>rdfh:o_orderkey
+  ?ord+>rdfh:o_orderdate
+  ?ord+>rdfh:o_ordertotalprice
+  sum(?li+>rdfh:l_linequantity)
+where
+  {
+    ?cust a rdfh:customer ;
+          rdfh:c_name ?c_name .
+    ?ord a rdfh:orders ;
+         rdfh:o_has_customer ?cust .
+    ?li a rdfh:lineitem ;
+        rdfh:l_has_order ?ord .
+      {
+        select
+           ?sum_order 
+           sum(?li2+>rdfh:l_linequantity) as ?sum_q
+        where
+          {
+            ?li2 rdfh:l_has_order ?sum_order .
+          }
+      } .
+    filter (?sum_order = ?ord and ?sum_q > %QUANTITY%)
+  }
+order by 
+  desc (?ord+>rdfh:o_ordertotalprice)
+  ?ord+>rdfh:o_orderdate
+limit 100

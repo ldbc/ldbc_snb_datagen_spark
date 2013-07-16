@@ -1,0 +1,14 @@
+define sql:signal-void-variables 1
+prefix rdfh: <http://lod2.eu/schemas/rdfh#>
+
+select
+  (100 * sum (
+      bif:equ(bif:LEFT(?part+>rdfh:type, 5), "PROMO") *
+      ?li+>rdfh:lineextendedprice * (1 - ?li+>rdfh:linediscount) ) /
+    sum (?li+>rdfh:lineextendedprice * (1 - ?li+>rdfh:linediscount)) ) as ?promo_revenue
+where
+  {
+    ?li a rdfh:lineitem ; rdfh:has_part ?part .
+    filter ((?li+>rdfh:shipdate >= "%MONTH%-01"^^xsd:date) &&
+      (?li+>rdfh:shipdate < bif:dateadd("month", 1, "%MONTH%-01"^^xsd:date)) )
+  }

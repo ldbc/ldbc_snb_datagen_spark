@@ -1,0 +1,18 @@
+{QueryType:Select,
+ params:[
+  {name:COLOR, class:Color
+  , default:forest},
+  {name:YEAR, class:Random, range:[1993, 1997]
+  , default:1994},
+  {name:NATION, class:Nation
+  , default:'CANADA'}
+ ],
+ results:[
+  {column:s_name,
+   type: str
+  },
+  {column:s_address,
+   type: str
+  }
+ ]
+}

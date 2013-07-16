@@ -1,0 +1,39 @@
+define sql:signal-void-variables 1
+prefix rdfh: <http://lod2.eu/schemas/rdfh#>
+
+select ?supp_nation ?cust_nation ?li_year
+  sum (?value) as ?revenue
+where {
+  {
+    select
+      ?supp_nation,
+      ?cust_nation,
+      (bif:year (?l_shipdate)) as ?li_year,
+      (?l_lineextendedprice * (1 - ?l_linediscount)) as ?value
+    where {
+      ?li a rdfh:lineitem ;
+        rdfh:has_order ?ord ;
+        rdfh:has_supplier ?supp ;
+        rdfh:shipdate ?l_shipdate ;
+        rdfh:lineextendedprice ?l_lineextendedprice ;
+        rdfh:linediscount ?l_linediscount .
+      ?ord rdfh:has_customer ?cust .
+      ?cust rdfh:has_nation ?custn .
+      ?custn rdfh:name ?cust_nation .
+      ?supp rdfh:has_nation ?suppn .
+      ?suppn rdfh:name ?supp_nation .
+      filter ((
+        (?cust_nation = "%NATION1%" and ?supp_nation = "%NATION2%") ||
+        (?cust_nation = "%NATION2%" and ?supp_nation = "%NATION1%") ) &&
+        (?l_shipdate >= "1995-01-01"^^xsd:date) &&
+        (?l_shipdate <= "1996-12-31"^^xsd:date) ) 
+      } 
+   } 
+}
+group by
+  ?supp_nation
+  ?cust_nation
+  ?li_year
+order by
+  ?supp_nation
+  ?li_year

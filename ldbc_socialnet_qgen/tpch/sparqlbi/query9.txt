@@ -1,0 +1,28 @@
+define sql:signal-void-variables 1
+prefix rdfh: <http://lod2.eu/schemas/rdfh#>
+
+select
+  ?nation,
+  ?o_year,
+  sum(?amount) as ?sum_profit
+where {
+    { select
+        ?supp+>rdfh:s_has_nation+>rdfh:n_name as ?nation,
+        (bif:year (?ord+>rdfh:o_orderdate)) as ?o_year,
+        (?li+>rdfh:l_lineextendedprice * (1 - ?li+>rdfh:l_linediscount)
+         - ?ps+>rdfh:ps_supplycost * ?li+>rdfh:l_linequantity) as ?amount
+      where {
+        ?li a rdfh:lineitem ;
+          rdfh:l_has_order ?ord ;
+          rdfh:l_has_supplier ?supp ;
+          rdfh:l_has_part ?part .
+        ?ps a rdfh:partsupp ;
+          rdfh:ps_has_part ?part ;
+          rdfh:ps_has_supplier ?supp .
+        filter (?part+>rdfh:p_name like "%%COLOR%%") 
+    } 
+  } 
+}
+order by
+  ?nation
+  desc (?o_year)

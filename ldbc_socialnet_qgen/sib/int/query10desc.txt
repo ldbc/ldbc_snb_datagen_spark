@@ -1,0 +1,5 @@
+QueryType=Select
+
+Person=PersonURI
+HS0=HoroscopeSign_0
+HS1=HoroscopeSign_1

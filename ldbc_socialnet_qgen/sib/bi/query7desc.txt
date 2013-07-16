@@ -1,0 +1,4 @@
+QueryType=Select
+
+TagType=TagAndName_tag
+Name=TagAndName_name

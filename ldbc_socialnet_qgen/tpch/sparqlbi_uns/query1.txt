@@ -1,0 +1,23 @@
+define sql:signal-void-variables 1
+prefix rdfh: <http://lod2.eu/schemas/rdfh#>
+prefix oplsioc: <http://lod2.eu/schemas/oplsioc#>
+prefix sioc: <http://rdfs.org/sioc/ns#>
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+
+select
+  ?l+>rdfh:returnflag,
+  ?l+>rdfh:linestatus,
+  sum(?l+>rdfh:linequantity) as ?sum_qty,
+  sum(?l+>rdfh:lineextendedprice) as ?sum_base_price,
+  sum(?l+>rdfh:lineextendedprice*(1 - ?l+>rdfh:linediscount)) as ?sum_disc_price,
+  sum(?l+>rdfh:lineextendedprice*(1 - ?l+>rdfh:linediscount)*(1+?l+>rdfh:linetax)) as ?sum_charge,
+  avg(?l+>rdfh:linequantity) as ?avg_qty,
+  avg(?l+>rdfh:lineextendedprice) as ?avg_price,
+  avg(?l+>rdfh:linediscount) as ?avg_disc,
+  count(1) as ?count_order
+where {
+    ?l a rdfh:lineitem .
+    filter (?l+>rdfh:shipdate <= bif:dateadd ("day", -%DELTA%, '1998-12-01'^^xsd:date)) 
+}
+order by ?l+>rdfh:returnflag ?l+>rdfh:linestatus
+

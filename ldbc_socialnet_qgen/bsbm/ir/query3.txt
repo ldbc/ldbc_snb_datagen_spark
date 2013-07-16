@@ -1,0 +1,13 @@
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+prefix rev: <http://purl.org/stuff/rev#>
+prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+
+Select ?s
+{
+ ?s <p> <o> .
+ ?s ?p ?o .
+ FILTER (regex(?o, "%WORD%")) .
+}
+group by ?s
+order by ?s
+limit 10

@@ -1,0 +1,4 @@
+QueryType=Select
+
+ProductType=ProductTypeRangeURI_0_1_lvleq
+WORD=Selectivity_GRAM1_HIGH

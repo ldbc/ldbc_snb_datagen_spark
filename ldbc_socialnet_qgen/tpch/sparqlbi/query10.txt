@@ -1,0 +1,21 @@
+define sql:signal-void-variables 1
+prefix rdfh: <http://lod2.eu/schemas/rdfh#>
+
+select
+  ?cust+>rdfh:c_custkey,
+  ?cust+>rdfh:c_companyName,
+  (sum(?li+>rdfh:l_lineextendedprice * (1 - ?li+>rdfh:l_linediscount))) as ?revenue,
+  ?cust+>rdfh:c_acctbal,
+  ?cust+>rdfh:c_has_nation+>rdfh:n_name as ?nation,
+  ?cust+>rdfh:c_address,
+  ?cust+>rdfh:c_phone,
+  ?cust+>rdfh:c_comment
+where
+  {
+    ?li rdfh:l_returnflag "R" ; rdfh:l_has_order ?ord .
+    ?ord rdfh:o_has_customer ?cust .
+    filter ((?ord+>rdfh:o_orderdate >= "%MONTH%-01"^^xsd:date) &&
+      (?ord+>rdfh:o_orderdate < bif:dateadd ("month", 3, "%MONTH%-01"^^xsd:date)) ) }
+order by
+  desc (sum(?li+>rdfh:l_lineextendedprice * (1 - ?li+>rdfh:l_linediscount)))
+limit 20

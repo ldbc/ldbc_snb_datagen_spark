@@ -1,0 +1,22 @@
+{QueryType:Select,
+ params:[
+  {name:REGION,
+   class:Region,
+   default:'ASIA'
+  },
+  {name:YEAR,
+   class:Random,
+   range:[1993, 1997],
+   default:1994
+  }
+ ],
+ results:[
+  {column:n_name,
+   type: str,
+  }, 
+  {column:revenue,
+   type: real, check: $100
+  }
+ ],
+ resultKeys:[1]
+}

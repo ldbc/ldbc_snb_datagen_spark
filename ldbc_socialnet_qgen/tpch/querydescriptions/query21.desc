@@ -1,0 +1,14 @@
+{QueryType:Select,
+ params:[
+  {name:NATION, class:Nation,
+   default:'SAUDI ARABIA'}
+ ],
+ results:[
+  {column:s_name,
+   type: str
+  },
+  {column:numwait,
+   type: int
+  }
+ ]
+}

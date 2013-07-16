@@ -1,0 +1,23 @@
+{QueryType:Select,
+ params:[
+  {name:WORD1,
+   class:OneOf,
+   range:[special,pending,unusual,express],
+   default:special
+  },
+  {name:WORD2,
+   class:OneOf,
+   range:[packages, requests, accounts, deposits],
+   default:requests
+  }
+ ],
+ results:[
+  {column:c_count,
+   type: int
+  },
+  {column:custdist,
+   type: int
+  }
+ ],
+ resultKeys:[1]
+}

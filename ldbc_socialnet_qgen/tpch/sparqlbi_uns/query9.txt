@@ -1,0 +1,23 @@
+define sql:signal-void-variables 1
+prefix tpcd: <http://www.openlinksw.com/schemas/tpcd#>
+
+select
+  ?nation,
+  ?o_year,
+  sum(?amount) as ?sum_profit
+from <http://example.com/tpcd>
+where {
+    { select
+        ?supp+>tpcd:has_nation+>tpcd:name as ?nation,
+        (bif:year (?ord+>tpcd:orderdate)) as ?o_year,
+        (?li+>tpcd:lineextendedprice * (1 - ?li+>tpcd:linediscount)
+         - ?ps+>tpcd:supplycost * ?li+>tpcd:linequantity) as ?amount
+      where {
+          ?li a tpcd:lineitem ; tpcd:has_order ?ord ; tpcd:has_supplier ?supp ; tpcd:has_part ?part .
+          ?ps a tpcd:partsupp ; tpcd:has_part ?part ; tpcd:has_supplier ?supp .
+          filter (?part+>tpcd:name like "%%COLOR%%") } } }
+order by
+  ?nation
+  desc (?o_year)
+
+

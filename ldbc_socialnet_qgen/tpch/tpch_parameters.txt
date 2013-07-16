@@ -1,0 +1,65 @@
+class Brand
+returns BRAND#MN, where M and N randomly choosed in [1..6]
+quoted
+
+class: Container
+returns: randomly choosed 2-syllable string
+quoted
+
+class: Color
+returns: randomly choosed color
+
+class: CountryCodeSet range:[counter]
+counter: integer<25
+returns 'counter' random country codes, without repetition
+
+class: Date range:[date1, date2]
+returns: randomly choosed date between date1 and date2, inclusive
+
+class:Fraction
+returns 0.0001d/scalefactor
+scalefactor is set by tesdriver option -rdf <scale>
+
+class: Month range:[date1, date2]
+returns: date of 1th of  randomly choosed month between date1 and date2, inclusive
+
+Class: Nation
+returns randomly choosed nation
+quoted
+
+Class: Nation2
+returns randomly choosed nation, but other than Nation in the same query
+quoted
+
+class: OneOf range:[variant1, ..., variantN]
+returns: randomly choosed variant1
+
+class:Random range:[lo, hi]
+lo, hi: decimals with equal number of digits after point
+return random value between lo and hi, inclusive
+
+class:Region
+returns: randomly choosed region
+quoted
+
+class: RegionForNation
+returns region of previousely choosed nation
+quoted
+
+class: Segment
+returns one of {"AUTOMOBILE", "BUILDING", "FURNITURE", "MACHINERY", "HOUSEHOLD"};
+
+class:Shipmode
+returns: randomly choosed ship mode (one of "REG AIR", "AIR", "RAIL", "SHIP", "TRUCK", "MAIL", "FOB")
+
+class:Shipmode2
+returns: randomly choosed ship mode, but other than Shipmode in the same query
+
+class:Types range:[N,M,K]
+N,M,K: ints in range 1-3
+Not all N.M, K must be present
+M: choose one of {"STANDARD", "SMALL", "MEDIUM", "LARGE", "ECONOMY", "PROMO"},
+N: choose one of {"ANODIZED", "BURNISHED", "PLATED", "POLISHED", "BRUSHED"},
+K: choose one of {"TIN", "NICKEL", "BRASS", "STEEL", "COPPER"}
+returns: randomly choosed strings concatenated with ' '
+quoted

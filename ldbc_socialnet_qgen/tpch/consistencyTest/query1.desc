@@ -1,0 +1,11 @@
+{QueryType:Select,
+ params:[],
+ results:[
+  {column:s,
+   type: str,
+  }, 
+  {column:o,
+   type: str,
+  }, 
+ ],
+}

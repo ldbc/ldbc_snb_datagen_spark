@@ -1,0 +1,25 @@
+define sql:signal-void-variables 1
+prefix rdfh: <http://lod2.eu/schemas/rdfh#>
+
+select
+  (bif:LEFT (?cust+>rdfh:c_phone, 2)) as ?cntrycode,
+  (count (1)) as ?numcust,
+  sum (?cust+>rdfh:c_acctbal) as ?totacctbal
+where {
+    ?cust a rdfh:customer .
+    filter (
+      bif:LEFT (?cust+>rdfh:c_phone, 2) in (%COUNTRY_CODE_SET%) &&
+      (?cust+>rdfh:c_acctbal >
+        ( select (avg (?cust2+>rdfh:c_acctbal)) as ?acctbal_threshold
+          where
+            {
+              ?cust2 a rdfh:customer .
+              filter ((?cust2+>rdfh:c_acctbal > 0.00) &&
+                bif:LEFT (?cust2+>rdfh:c_phone, 2) in (%COUNTRY_CODE_SET%) )
+            } ) ) &&
+      !bif:exists (
+        ( select (1)
+          where { ?ord rdfh:o_has_customer ?cust } ) ) )
+  }
+group by (bif:LEFT (?cust+>rdfh:c_phone, 2))
+order by (bif:LEFT (?cust+>rdfh:c_phone, 2))

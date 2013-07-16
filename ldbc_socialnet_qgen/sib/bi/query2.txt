@@ -1,0 +1,12 @@
+select ?title ?year ?f count (*) sum (?len) sum (if (bound (?repl), 1, 0))
+{
+?f sv:container_of ?post .
+?f sv:moderator ?mod .
+?mod sv:ipcountry %Country% .
+?f sv:title ?title . 
+?post sv:has_tag ?tag . 
+?tag a <%TagType%> .
+?post sv:created ?dt .
+  ?post sv:contentLength ?len 
+  optional {?post sv:reply_of ?repl} .
+} group by ?title ?f (bif:year (?dt) as ?year) order by desc 4 limit 20

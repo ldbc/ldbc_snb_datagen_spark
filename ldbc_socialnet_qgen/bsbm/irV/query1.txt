@@ -1,0 +1,17 @@
+prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# selective pattern, order by desc hit score, top 10,, return iri of hit,
+# property of hit, value of the text where the hit is.
+#  Write the query so that the text and iri strings are retrieved
+# only after the top order by.Select ?predicate
+select
+    ?subject,
+    ?predicate,
+    ?object
+{
+  ?subject ?predicate ?object .
+  ?object bif:contains "%WORD%" option (score ?sc)
+
+}
+order by desc (?sc)
+limit 10
