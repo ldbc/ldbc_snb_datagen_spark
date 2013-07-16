@@ -192,24 +192,24 @@ public class ScalableGenerator{
 	private static final int endDate    = 1;
 
 	// Dictionaries
-	private static final String   countryDicFile         = "dicLocation.txt";
-	private static final String   languageDicFile        = "languagesByCountry.txt";
-	private static final String   cityDicFile            = "institutesCityByCountry.txt";
-	private static final String   tagNamesFile           = "dicTopic.txt";
-	private static final String   tagClassFile           = "tagClasses.txt";
-	private static final String   tagHierarchyFile       = "tagHierarchy.txt";
-	private static final String   mainTagDicFile         = "dicCelebritiesByCountry.txt";
-	private static final String   topicTagDicFile        = "topicMatrixId.txt";
-	private static final String   givennamesDicFile      = "givennameByCountryBirthPlace.txt.freq.full";
-	private static final String   surnamesDicFile        = "surnameByCountryBirthPlace.txt.freq.sort";
-	private static final String   organizationsDicFile   = "institutesCityByCountry.txt";
+	private static final String   browserDicFile         = "browsersDic.txt";
 	private static final String   companiesDicFile       = "companiesByCountry.txt";
+	private static final String   countryAbbrMappingFile = "countryAbbrMapping.txt";
+	private static final String   mainTagDicFile         = "dicCelebritiesByCountry.txt";
+	private static final String   countryDicFile         = "dicLocation.txt";
+	private static final String   tagNamesFile           = "dicTopic.txt";
+	private static final String   emailDicFile           = "email.txt";
+	private static final String   givennamesDicFile      = "givennameByCountryBirthPlace.txt.freq.full";
+	private static final String   organizationsDicFile   = "institutesCityByCountry.txt";
+	private static final String   cityDicFile            = "institutesCityByCountry.txt";
+	private static final String   languageDicFile        = "languagesByCountry.txt";
 	private static final String   popularPlacesDicFile   = "popularPlacesByCountry.txt";
 	private static final String   agentFile              = "smartPhonesProviders.txt";
-	private static final String   emailDicFile           = "email.txt";
-	private static final String   browserDicFile         = "browsersDic.txt";
-	private static final String   countryAbbrMappingFile = "countryAbbrMapping.txt";
+	private static final String   surnamesDicFile        = "surnameByCountryBirthPlace.txt.freq.sort";
+	private static final String   tagClassFile           = "tagClasses.txt";
+	private static final String   tagHierarchyFile       = "tagHierarchy.txt";
 	private static final String   tagTextFile            = "tagText.txt";
+	private static final String   topicTagDicFile        = "topicMatrixId.txt";
 	
 	LocationDictionary 		locationDic;
 	
