@@ -94,7 +94,7 @@ public class MRGenerateUsers{
 			
 			generator.numMaps = numMappers;
 			String[] inputParams = new String[0]; 
-			generator.initAllParams(inputParams, numMappers, fileIdx);
+			generator.initParams(inputParams, numMappers, fileIdx);
 			
 			//Generate all the users 
 			int pass = 0; 
@@ -131,7 +131,7 @@ public class MRGenerateUsers{
 			
 			friendGenerator.numMaps = numReducer; 
 			String[] inputParams = new String[0]; 
-			friendGenerator.initBasicParams(inputParams, numReducer, "", 0);
+			friendGenerator.initParams(inputParams, numReducer, 0);
 			
 			System.out.println("Cell size = " + friendGenerator.getCellSize());
 		}
@@ -209,7 +209,7 @@ public class MRGenerateUsers{
 			
 			friendGenerator.numMaps = numReducer; 
 			String[] inputParams = new String[0]; 
-			friendGenerator.initBasicParams(inputParams, numReducer, "", 0);
+			friendGenerator.initParams(inputParams, numReducer, 0);
 			
 			System.out.println("Cell size = " + friendGenerator.getCellSize());
 		}
@@ -285,7 +285,7 @@ public class MRGenerateUsers{
 			friendGenerator = new ScalableGenerator(attempTaskId, outputDir, homeDir);
 			friendGenerator.numMaps = numReducer; 
 			String[] inputParams = new String[0]; 
-			friendGenerator.initAllParams(inputParams, numReducer, attempTaskId);
+			friendGenerator.initParams(inputParams, numReducer, attempTaskId);
 			
 			numObject = 0; 
 		}

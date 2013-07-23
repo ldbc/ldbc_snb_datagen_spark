@@ -250,6 +250,7 @@ public class Turtle implements Serializer {
 	private String getStaticNamespaces() {
         StringBuffer result = new StringBuffer();
         createPrefixLine(result, RDF.PREFIX, RDF.NS);
+        createPrefixLine(result, RDFS.PREFIX, RDFS.NS);
         createPrefixLine(result, FOAF.PREFIX, FOAF.NS);
         createPrefixLine(result, DBP.PREFIX, DBP.NS);
         createPrefixLine(result, DBPOWL.PREFIX, DBPOWL.NS);

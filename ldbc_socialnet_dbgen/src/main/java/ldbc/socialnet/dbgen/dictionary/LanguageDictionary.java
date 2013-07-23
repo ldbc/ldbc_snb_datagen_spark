@@ -162,7 +162,7 @@ public class LanguageDictionary {
 	    Integer languageId = -1;
 	    double prob = rand.nextDouble();
         if (prob < probEnglish) {
-            languageId = languages.indexOf("English");
+            languageId = languages.indexOf("en");
         }
         return languageId;
 	}
