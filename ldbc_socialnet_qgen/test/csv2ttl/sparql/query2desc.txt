@@ -1,0 +1,5 @@
+QueryType=Select
+
+SIZE=Random_1_50
+TYPE=Type_1
+REGION=Region

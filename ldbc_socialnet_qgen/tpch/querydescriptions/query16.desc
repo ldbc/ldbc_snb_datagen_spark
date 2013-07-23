@@ -1,0 +1,43 @@
+{QueryType:Select,
+ params:[
+  {name:BRAND,
+   class:Brand,
+   default:'Brand#45'
+  },
+  {name:TYPE,
+   class:Type,
+   range:[1, 2],
+   default:'MEDIUM POLISHED'
+  },
+  {name:SIZE1, class:Random, range:[1, 50],
+   default:49},
+  {name:SIZE2, class:Random, range:[1, 50],
+   default:14},
+  {name:SIZE3, class:Random, range:[1, 50],
+   default:23},
+  {name:SIZE4, class:Random, range:[1, 50],
+   default:45},
+  {name:SIZE5, class:Random, range:[1, 50],
+   default:19},
+  {name:SIZE6, class:Random, range:[1, 50],
+   default:3},
+  {name:SIZE7, class:Random, range:[1, 50],
+   default:36},
+  {name:SIZE8, class:Random, range:[1, 50],
+   default:9}
+ ],
+ results:[
+  {column:p_brand,
+   type: str,
+  },
+  {column:p_type,
+   type: str,
+  },
+  {column:p_size,
+   type: int,
+  },
+  {column:supplier_cnt,
+   type: int,
+  }
+ ]
+}

@@ -1,0 +1,4 @@
+QueryType=Select
+
+Person=PersonURI
+Date0=CreationPostDate_0_95

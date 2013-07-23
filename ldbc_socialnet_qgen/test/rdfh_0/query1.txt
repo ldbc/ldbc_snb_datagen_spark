@@ -1,0 +1,13 @@
+define sql:signal-void-variables 1
+prefix tpcd: <http://www.openlinksw.com/schemas/tpcd#>
+select
+  ?nation_name,
+  ?comment
+from <http://example.com/tpcd>
+where {
+  ?region a tpcd:region .
+  ?region tpcd:name "EUROPE" .
+  ?nation tpcd:has_region ?region .
+  ?nation tpcd:name ?nation_name .
+  ?nation tpcd:comment ?comment .
+}

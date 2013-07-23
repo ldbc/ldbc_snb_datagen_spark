@@ -1,0 +1,21 @@
+define sql:signal-void-variables 1
+prefix rdfh: <http://lod2.eu/schemas/rdfh#>
+
+select
+  ?l+>rdfh:l_returnflag,
+  ?l+>rdfh:l_linestatus,
+  sum(?l+>rdfh:l_linequantity) as ?sum_qty,
+  sum(?l+>rdfh:l_lineextendedprice) as ?sum_base_price,
+  sum(?l+>rdfh:l_lineextendedprice*(1 - ?l+>rdfh:l_linediscount)) as ?sum_disc_price,
+  sum(?l+>rdfh:l_lineextendedprice*(1 - ?l+>rdfh:l_linediscount)*(1+?l+>rdfh:l_linetax)) as ?sum_charge,
+  avg(?l+>rdfh:l_linequantity) as ?avg_qty,
+  avg(?l+>rdfh:l_lineextendedprice) as ?avg_price,
+  avg(?l+>rdfh:l_linediscount) as ?avg_disc,
+  count(1) as ?count_order
+where {
+    ?l a rdfh:lineitem .
+    filter (?l+>rdfh:l_shipdate <= bif:dateadd ("day", -%DELTA%, "1998-12-01"^^xsd:date))
+}
+order
+  by ?l+>rdfh:l_returnflag
+  ?l+>rdfh:l_linestatus

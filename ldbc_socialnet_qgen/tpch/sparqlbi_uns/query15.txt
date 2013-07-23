@@ -1,0 +1,51 @@
+define sql:signal-void-variables 1
+prefix rdfh: <http://lod2.eu/schemas/rdfh#>
+
+select
+  ?supplier+>rdfh:suppkey
+  ?supplier+>rdfh:name
+  ?supplier+>rdfh:address
+  ?supplier+>rdfh:phone
+  ?total_revenue
+where
+  {
+    ?supplier a rdfh:supplier .
+      {
+        select
+          ?supplier
+          (sum(?l_extendedprice * (1 - ?l_discount))) as ?total_revenue
+        where
+          {
+            [ a rdfh:lineitem ; rdfh:shipdate ?l_shipdate ;
+              rdfh:lineextendedprice ?l_extendedprice ; rdfh:linediscount ?l_discount ;
+              rdfh:has_supplier ?supplier ] .
+            filter (
+                ?l_shipdate >= "1996-01-01"^^xsd:date and
+                ?l_shipdate < bif:dateadd ("month", 3, "1996-01-01"^^xsd:date) )
+          }
+      }
+      {
+        select max (?l2_total_revenue) as ?maxtotal
+        where
+          {
+              {
+                select
+                  ?supplier2
+                  (sum(?l2_extendedprice * (1 - ?l2_discount))) as ?l2_total_revenue
+                where
+                  {
+                    [ a rdfh:lineitem ; rdfh:shipdate ?l2_shipdate ;
+                      rdfh:lineextendedprice ?l2_extendedprice ; rdfh:linediscount ?l2_discount ;
+                      rdfh:has_supplier ?supplier2 ] .
+                    filter (
+                        ?l2_shipdate >= "%MONTH%-01"^^xsd:date and
+                        ?l2_shipdate < bif:dateadd ("month", 3, "%MONTH%-01"^^xsd:date) )
+                  }
+              }
+          }
+      }
+    filter (?total_revenue = ?maxtotal)
+  }
+order by
+  ?supplier
+

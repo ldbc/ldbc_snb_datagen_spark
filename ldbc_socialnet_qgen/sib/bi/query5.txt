@@ -1,0 +1,15 @@
+select ?author count (*) 
+  ( sum ((select count (*) where {?xx sv:like ?lk . ?lk sv:post  ?post}))  as ?likes)
+where {
+  ?post sv:creator ?author .
+ ?post sv:has_tag ?tag.
+ ?tag a <%TagType%> .
+ ?author sv:ipcountry %Country% .
+  ?f sv:container_of ?post .
+?f sv:moderator ?mod .
+?mod sv:ipcountry %Country% .
+}  group by ?author order by desc 3 limit 30
+
+
+
+

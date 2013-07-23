@@ -1,0 +1,1 @@
+BIBM is a set of test tools to benchmark and validate both relational database management systems and SPARQL stores. It can run BSBM and TPC-H test suites.

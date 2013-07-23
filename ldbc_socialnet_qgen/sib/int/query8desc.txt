@@ -1,0 +1,4 @@
+QueryType=Select
+
+Name0=Dictionary1
+Name1=Dictionary1

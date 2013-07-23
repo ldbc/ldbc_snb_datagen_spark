@@ -1,0 +1,27 @@
+{QueryType:Select,
+ params:[
+  {name:NATION,
+   class:Nation,
+   default:'BRAZIL'
+  },
+  {name:REGION,
+   class:RegionForNation,
+   default:'AMERICA'
+  },
+  {name:TYPE,
+   class:Type,
+   range:[1,2,3],
+   default:'ECONOMY ANODIZED STEEL'
+  }
+ ],
+ results:[
+  {column:o_year,
+   type: int,
+  }, 
+  {column:mkt_share,
+   type: real,
+   check: 1%
+  }
+ ],
+ resultKeys:[1]
+}

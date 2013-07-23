@@ -1,0 +1,122 @@
+{tables:[  
+    { name: customer, # name of .tbl file 
+	  fields:[  # describe fields of the csv file
+	  { name: c_custkey, type: int },
+		{ name: c_name, type: str },
+		{ name: c_address, type: str },
+		{ name: c_nationkey, type: int },
+		{ name: c_phone, type: str },
+		{ name: c_acctbal, type: decimal },
+		{ name: c_mktsegment, type: str },
+        { name: c_comment, type: str },
+       ],
+	   keys:[
+		c_custkey
+	   ]
+    },
+    { name: lineitem,
+	  fields:[
+		{ name: l_orderkey, type: int },
+		{ name: l_partkey, type: int },
+		{ name: l_suppkey,  type: int },
+		{ name: l_linenumber, type: int },
+		{ name: l_quantity, type: decimal },
+		{ name: l_extendedprice,  type: decimal },
+		{ name: l_discount, type: decimal },
+		{ name: l_tax, type: decimal },
+		{ name: l_returnflag, type: str },
+		{ name: l_linestatus, type: str },
+		{ name: l_shipdate, type: date },
+		{ name: l_commitdate, type: date },
+		{ name: l_receiptdate, type: date },
+		{ name: l_shipinstruct, type: str },
+		{ name: l_shipmode, type: str },
+        { name: l_comment, type: str },
+       ],
+	   keys:[
+		l_orderkey,
+		l_linenumber
+	   ]
+    },
+    { name: nation,
+	  fields:[
+		{ name: n_nationkey, type: int},
+        { name: n_name, type: str },
+		{ name: n_regionkey,  type: int},
+        { name: n_comment, type: str },
+       ],
+	   keys:[
+		n_nationkey
+	   ]
+    },
+    { name: orders,
+	  fields:[
+		{ name: o_orderkey, type: int},
+		{ name: o_custkey, type: int},
+		{ name: o_orderstatus, type: str },
+		{ name: o_totalprice, type: decimal},
+		{ name: o_orderdate,  type: date  },
+		{ name: o_orderpriority, type: str },
+		{ name: o_clerk, type: str },
+		{ name: o_shippriority,type: int},
+        { name: o_comment, type: str },
+       ],
+		keys:[
+		  o_orderkey
+		]
+    },
+    { name: part,
+	  fields:[
+		{name: p_partkey, type: int },
+        {name: p_name, type: str },
+		{name: p_mfgr, type: str },
+		{name: p_brand, type: str },
+		{name: p_type, type: str },
+		{name: p_size, type: int},
+		{name: p_container, type: str },
+		{name: p_retailprice,  type: decimal},
+        {name: p_comment, type: str },
+       ],
+	   keys:[
+		p_partkey,
+	   ]
+    },
+    { name: partsupp,
+	  fields:[
+		{ name: ps_partkey, type: int },
+        { name: ps_suppkey, type: int },
+		{ name: ps_availqty, type: int },
+		{ name: ps_supplycost,  type: decimal},
+        { name: ps_comment, type: str },
+       ],
+	   keys:[
+		ps_partkey,
+        ps_suppkey,
+	   ]
+    },
+    { name: region,
+	  fields:[
+		{name:r_regionkey, type: int},
+        {name:r_name, type: str },
+        {name:r_comment, type: str },
+       ],
+	   keys:[
+		r_regionkey,
+	   ]
+    },
+    { name: supplier,
+	  fields:[
+		{name: s_suppkey, type: int},
+        {name: s_name, type: str },
+		{name: s_address, type: str },
+        {name: s_nationkey, type: int},
+		{name: s_phone, type: str },
+		{name: s_acctbal, type: decimal },
+        {name: s_comment, type: str },
+       ],
+	   keys:[
+		s_suppkey,
+	   ]
+    },
+   ],
+}

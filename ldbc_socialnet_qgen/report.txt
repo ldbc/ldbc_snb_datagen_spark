@@ -1,0 +1,38 @@
+
+Version:                Openlink BIBM Test Driver 0.7.7
+Start date:             Mon Jan 07 14:31:57 CET 2013
+Scale factor:           1.0
+Explore Endpoint:       jdbc:virtuoso://localhost:1962/UID=dba/PWD=dba
+Update Endpoint:        jdbc:virtuoso://localhost:1962/UID=dba/PWD=dba
+Use case:               /1d1/v7/binsrc/tests/suite/../bibm/tpch/sql
+Query Streams of Throughput Test:1
+Seed:                   808080
+TPC-H Power:            10439.9 qph*scale (geom)
+TPC-H Throughput:       0.0 qph*scale
+TPC-H Composite:        0.8
+Measurment Interval:    1357565539.4 seconds
+
+Duration of stream execution:
+                Query Start         Query End       Duration     RF1 Start           RF2 End           RF2 Start          RF2 End  
+Stream 1:	07/01/2013 02:31:57	07/01/2013 02:32:19	00:00:21	
+
+TPC Timing intervals (in seconds):
+
+Query		Q1	Q2	Q3	Q4	Q5	Q6	Q7	Q8	
+Stream 1:	3.7	0.4	1.1	0.1	0.8	0.1	0.2	0.2	
+Minimum: 	3.7	0.4	1.1	0.1	0.8	0.1	0.2	0.2	
+Maximum: 	3.7	0.4	1.1	0.1	0.8	0.1	0.2	0.2	
+Average: 	3.7	0.4	1.1	0.1	0.8	0.1	0.2	0.2	
+
+Query		Q9	Q10	Q11	Q12	Q13	Q14	Q15	Q16	
+Stream 1:	0.3	0.2	0.4	0.2	0.6	0.3	0.3	1.2	
+Minimum: 	0.3	0.2	0.4	0.2	0.6	0.3	0.3	1.2	
+Maximum: 	0.3	0.2	0.4	0.2	0.6	0.3	0.3	1.2	
+Average: 	0.3	0.2	0.4	0.2	0.6	0.3	0.3	1.2	
+
+Query		Q17	Q18	Q19	Q20	Q21	Q22	RF1	RF2	
+Stream 1:	0.1	1.3	0.2	9.9	0.1	0.2	    	    	
+Minimum: 	0.1	1.3	0.2	9.9	0.1	0.2	    	    	
+Maximum: 	0.1	1.3	0.2	9.9	0.1	0.2	    	    	
+Average: 	0.1	1.3	0.2	9.9	0.1	0.2	    	    	
+

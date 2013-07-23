@@ -1,0 +1,39 @@
+
+
+define sql:signal-void-variables 1
+prefix rdfh: <http://lod2.eu/schemas/rdfh#>
+
+select
+  ?s_name,
+  ?s_address
+where
+  {
+    ?supp rdfh:s_name ?s_name ;
+                  rdfh:s_address ?s_address .
+{ select distinct ?supp where {
+  ?supp rdfh:s_has_nation ?s_nation .
+		              ?s_nation rdfh:n_name "%NATION%" .
+            ?big_ps a rdfh:partsupp ;
+                    rdfh:ps_has_part ?part ;
+                    rdfh:ps_availqty ?big_ps_availqty ;
+                    rdfh:ps_has_supplier ?supp .
+?part rdfh:p_name ?p_name . filter (?p_name like "%COLOR%%") .
+#		    		  filter (bif:exists ((select (1) where { ?part rdfh:p_name ?p_name . filter (?p_name like "%forest%") }))) .
+            filter (
+              ?big_ps_availqty > (
+                  select (0.5 * sum(?l_linequantity)) as ?qty_threshold
+                  where
+                    {
+                      ?li a rdfh:lineitem ;
+                          rdfh:l_shipdate ?l_shipdate ;
+                          rdfh:l_has_part ?part ;
+                          rdfh:l_linequantity ?l_linequantity ;
+                          rdfh:l_has_supplier ?supp .
+                      filter ((?l_shipdate >= "1994-01-01"^^xsd:date) &&
+                        (?l_shipdate < bif:dateadd ("year", 1, "1994-01-01"^^xsd:date)) 
+                      )
+                    } 
+              ))
+  } }}
+order by ?s_name
+

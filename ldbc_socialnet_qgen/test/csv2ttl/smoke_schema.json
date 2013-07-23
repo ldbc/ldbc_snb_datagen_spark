@@ -1,0 +1,129 @@
+# schema for the smoke test
+
+{ header: [
+     # these lines will be inserted at the beginning of each .ttl file, unquoted
+    "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .",
+    "@prefix tpcd: <http://www.openlinksw.com/schemas/tpcd#> ."
+   ],
+  default_tag: tpcd,  # field 'name' will be referenced as tpcd:name
+
+  tables:[
+    { name: nation,  # 'name' means both name of .tbl file and object of 'a' property
+	  tag: nation-inst,
+	  fields:[ # describe fields of the csv file
+			    
+		{ name: nation, # will become a property name
+          type: int, # int means actually long int
+          prop: false # this field will not be reflected as property in the .ttl file
+        },
+        name, # see the field description in common_fields
+		{ name: has_region,  type: int , refto: region},
+        comment
+       ],
+		keys:[
+		nation
+		]
+    },
+    { name: region,
+	  fields:[
+		{name:regionkey, type: int},
+        name,
+        comment
+       ],
+	  keys:[
+		regionkey,
+		]
+    },
+],
+  common_fields:[
+	{ name: acctbal,
+      type: real
+    },
+	{ name: address,
+	  type: str
+    },
+	{ name: availqty,
+      type: int
+    },
+	{ name: brand,
+	  type: str
+    },
+	{ name: clerk,
+      type: str
+    },
+	{ name: commitdate,
+      type: str
+    },
+	{ name: comment,
+      type: str
+    },
+	{ name: container,
+      type: str
+    },
+ 	{ name: custkey,
+	  type: int
+    },
+    { name: has_nation, type: int},
+	{ name: linenumber,
+      type: int
+    },
+	{ name: mfgr,
+      type: str
+    },
+	{ name: mktsegment,
+      type: str
+    },
+	{ name: name,
+      type: str
+    },
+	{ name: nationkey,
+      type: int
+     },
+	 { name: orderkey,
+       type: int
+     },
+	 { name: orderstatus,
+       type: str
+     },
+	 { name: phone,
+       type: str
+     },
+	 { name: quantity,
+       type: real
+     },
+	 { name: receiptdate,
+       type:str
+     },
+	 { name: regionkey,
+       type: int
+     },
+	 { name: retailprice,
+       type: real # real means actually double floating point
+     },
+	 { name: shipdate,
+       type: str
+     },
+	 { name: shippriority,
+       type: int
+     },
+	 { name: shipingstruct,
+       type: str
+     },
+	 { name: shipmode,
+       type: str
+     },
+	 { name: suppkey,
+       type: int
+     },
+	 { name: supplycost,
+       type: real
+     },
+	 { name: size,
+       type: int
+     },
+	 { name: type,
+       type: str
+     },
+     ]
+
+}

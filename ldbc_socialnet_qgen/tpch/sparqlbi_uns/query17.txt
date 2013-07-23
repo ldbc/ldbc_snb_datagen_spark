@@ -1,0 +1,14 @@
+define sql:signal-void-variables 1
+prefix rdfh: <http://lod2.eu/schemas/rdfh#>
+
+select
+  (sum(?li+>rdfh:lineextendedprice) / 7.0) as ?avg_yearly
+where
+  {
+    ?li a rdfh:lineitem ; rdfh:has_part ?part .
+    ?part rdfh:brand "%BRAND%" ; rdfh:container "%CONTAINER%" .
+    filter (?li+>rdfh:linequantity < (
+        select (0.2 * avg(?li2+>rdfh:linequantity)) as ?threshold
+      where { ?li2  a rdfh:lineitem ; rdfh:has_part ?part } ) ) }
+
+

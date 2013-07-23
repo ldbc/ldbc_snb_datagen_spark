@@ -1,0 +1,25 @@
+define sql:signal-void-variables 1
+prefix rdfh: <http://lod2.eu/schemas/rdfh#>
+
+select
+  (?o_orderpriority),
+  count(1) as ?order_count
+where  {
+    ?ord a rdfh:orders ;
+        rdfh:o_orderpriority ?o_orderpriority ;
+        rdfh:o_orderdate ?o_orderdate .
+    filter exists {
+          ?li rdfh:l_has_order ?ord ;
+              rdfh:l_commitdate ?l_commitdate ;
+              rdfh:l_receiptdate ?l_receiptdate .
+          filter ( ?l_commitdate < ?l_receiptdate ) 
+    }
+    filter (
+      (?o_orderdate >= "%MONTH%-01"^^xsd:date) &&
+      (?o_orderdate < bif:dateadd ("month", 3, "%MONTH%-01"^^xsd:date))
+    )
+  }
+group by
+  ?o_orderpriority
+order by
+  ?o_orderpriority

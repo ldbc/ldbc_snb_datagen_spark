@@ -1,0 +1,14 @@
+#!/bin/bash
+if [ $# == 0 ]
+then
+  echo "For test driver options type ./testdriver -help"
+  exit 1;
+fi
+
+basedir=${0%/*}
+. ${basedir}/classpath.sh
+
+cmd="java -Xmx256M com.openlinksw.bibm.tpchAcid.TestDriver -qrd $basedir $@"
+echo $cmd
+eval $cmd
+

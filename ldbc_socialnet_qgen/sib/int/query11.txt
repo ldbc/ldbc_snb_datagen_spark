@@ -1,0 +1,9 @@
+select  ?first ?last ?startdate ?org ?fr 
+where {?w sv:organization ?org . ?org dbpedia-owl:country %Country% .
+ ?fr sv:work_at ?w . ?w sv:workFrom ?startdate . filter (?startdate < "%Date0%"^^xsd:date) .
+  {{ %Person% sv:knows ?fr} union { <> sv:knows ?fr2 . ?fr2 sv:knows ?fr}} .
+  ?fr sv:firstName ?first .
+  ?fr sv:lastName ?last .
+} order by ?startdate limit 10
+
+

@@ -1,0 +1,151 @@
+# Note: decimal fields described as real, for performance reason
+{ 
+  update_header: [ # these lines will be inserted at the beginning of INSERT DATA query
+      "define sql:big-data-const 0",
+      "prefix xsd:<http://www.w3.org/2001/XMLSchema#>",
+      "prefix rdfh: <http://lod2.eu/schemas/rdfh#>",
+      "prefix rdfh-inst: <http://lod2.eu/schemas/rdfh-inst#>"
+          ],
+  header: [ # these lines will be inserted at the beginning of each .ttl file
+      "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .",
+      "@prefix rdfh: <http://lod2.eu/schemas/rdfh#> .",
+      "@prefix rdfh-inst: <http://lod2.eu/schemas/rdfh-inst#> ."
+          ],
+  default_tag: rdfh, # tag for properties; a field 'name' will be referenced as 'rdfh:name'
+
+  tables:[  
+    { name: customer, # both name of .tbl file and object of 'a' property
+      tag: rdfh-inst, # tag for object and subject
+	  fields:[  # describe fields of the csv file
+			    # first field in .tbl file become rdfh:custkey etc.
+		{ name: custkey, type: int},
+		{ name: name, type: str },
+		{ name: address, type: str },
+		{ name: has_nation, refto: nation},
+        { name: phone, type: str },
+		{ name: acctbal, type: double },
+		{ name: mktsegment, type: str },
+	    { name: comment, type: str},
+       ],
+	   keys:[ # which fields are keys and so participate in creating subject name
+		custkey
+	   ]
+    },
+    { name: lineitem,
+      tag: rdfh-inst,
+	  fields:[
+		{ name: has_order,
+		  refto: orders # refto means that int value N will become orders_N 
+        },
+		{ name: has_part, refto: part },
+		{ name: has_supplier,  refto: supplier },
+		{ name: linenumber, type: int },
+		{ name: linequantity, type: double },
+		{ name: lineextendedprice,  type: double },
+		{ name: linediscount, type: double },
+		{ name: linetax, type: double },
+		{ name: returnflag, type: str },
+		{ name: linestatus, type: str },
+		{ name: shipdate, type: date },
+		{ name: commitdate, type: date },
+		{ name: receiptdate, type: date },
+		{ name: shipinstruct, type: str },
+		{ name: shipmode, type: str },
+	    { name: comment, type: str},
+       ],
+	   keys:[
+		has_order,
+		linenumber
+	   ]
+    },
+    { name: nation,
+      tag: rdfh-inst,
+	  fields:[
+		{ name: nation,
+          type: int, # int means actually long int
+          prop: false # this field will not be reflected as property in the .ttl file
+        },
+		{ name: name, type: str },
+		{ name: has_region,  refto: region },
+	    { name: comment, type: str},
+       ],
+	   keys:[
+		nation
+	   ]
+    },
+    { name: orders,
+      tag: rdfh-inst,
+	  fields:[
+		{ name: orderkey, type: int },
+		{ name: has_customer, refto: customer },
+		{ name: orderstatus, type: str },
+		{ name: ordertotalprice, type: double },
+		{ name: orderdate,  type: date },
+		{ name: orderpriority, type: str },
+		{ name: clerk, type: str },
+		{ name: shippriority, type: int },
+	    { name: comment, type: str},
+       ],
+		keys:[
+		  orderkey
+		]
+    },
+    { name: part,
+      tag: rdfh-inst,
+	  fields:[
+		{name: partkey, type: int },
+		{ name: name, type: str },
+		{ name: mfgr, type: str },
+		{ name: brand, type: str },
+		{ name: type, type: str },
+		{ name: size, type: int },
+		{ name: container, type: str },
+		{ name: retailprice, type: double },
+	    { name: comment, type: str},
+       ],
+	   keys:[
+		partkey,
+	   ]
+    },
+    { name: partsupp,
+      tag: rdfh-inst,
+	  fields:[
+		{ name: has_part,  refto: part },
+        { name: has_supplier, refto: supplier},
+		{ name: availqty,  type: int },
+		{ name: supplycost, type: double },
+	    { name: comment, type: str},
+       ],
+	   keys:[
+		has_part,
+        has_supplier,
+	   ]
+    },
+    { name: region,
+      tag: rdfh-inst,
+	  fields:[
+		{ name: regionkey, type: int, prop: false},
+		{ name: name, type: str },
+	    { name: comment, type: str},
+       ],
+	   keys:[
+		regionkey,
+	   ]
+    },
+    { name: supplier,
+      tag: rdfh-inst,
+	  fields:[
+		{ name: suppkey, type: int },
+		{ name: name, type: str },
+		{ name: address, type: str },
+		{ name: has_nation, refto: nation},
+        { name: phone, type: str },
+		{ name: acctbal, type: double },
+	    { name: comment, type: str},
+       ],
+	   keys:[
+		suppkey,
+	   ],
+    },
+   ],
+}

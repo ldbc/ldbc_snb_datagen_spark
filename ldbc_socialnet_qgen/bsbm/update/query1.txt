@@ -1,0 +1,4 @@
+define sql:big-data-const 0
+INSERT DATA {
+    %updateData%
+}

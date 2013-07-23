@@ -1,0 +1,7 @@
+select ?per count (*) from <sib>
+where {
+  {{ select ?lng count (*) where { ?per sv:speaks ?lng . ?per sv:ipcountry %Country% . } group by ?lng order by desc 2 limit 1} .
+  ?post sv:creator ?per . 
+
+
+

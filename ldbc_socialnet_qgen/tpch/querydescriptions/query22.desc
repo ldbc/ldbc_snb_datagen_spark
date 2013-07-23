@@ -1,0 +1,19 @@
+{QueryType:Select,
+ params:[
+  {name:COUNTRY_CODE_SET, class:CountryCodeSet, range:[7],
+   default:"'13', '31', '23', '29', '30', '18', '17'"}
+ ],
+ results:[
+  {column:cntrycode,
+   type: str
+  },
+  {column:numcust,
+   type: int
+  },
+  {column:totacctbal,
+   type: real,
+   check: $100
+  }
+ ]
+}
+

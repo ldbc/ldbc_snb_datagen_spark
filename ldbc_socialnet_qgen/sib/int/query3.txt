@@ -1,0 +1,16 @@
+select ?fr ?ct1 ?ct2 (?ct1 + ?ct2) from <sib>  
+where { 
+   {select ?fr 
+(((select count (*) where { ?post sv:creator ?fr . ?post sv:created ?date . 
+     filter (?date >= "%Date0%"^^xsd:date && ?date < bif:dateadd ("day", %Duration%, "%Date0%"^^xsd:date)) .
+     filter (?frcountry != %Country1%) .  ?post sv:ipcountry %Country1% })) as ?ct1)
+  ((select count (*) where { ?post2 sv:creator ?fr . ?post2 sv:created ?date2 . 
+     filter (?date2 >= "%Date0%"^^xsd:date && ?date2 < bif:dateadd ("day", %Duration%, "%Date0%"^^xsd:date)) .
+     filter (?frcountry != %Country2%) . ?post2 sv:ipcountry %Country2% }) as ?ct2)
+   where {
+   { { %Person% sv:knows ?fr } union { %Person% sv:knows ?fr2 . ?fr2 sv:knows ?fr}} .
+   ?fr sv:ipcountry ?frcountry .
+} }.
+  filter (?ct1 > 0 && ?ct2 > 0) .
+} order by desc 4 limit 20
+

@@ -1,0 +1,27 @@
+define sql:signal-void-variables 1
+prefix rdfh: <http://lod2.eu/schemas/rdfh#>
+
+select
+  (sum(?li+>rdfh:l_lineextendedprice * (1 - ?li+>rdfh:l_linediscount))) as ?revenue
+where
+  {
+    ?li a rdfh:lineitem ;
+        rdfh:l_has_part ?part ;
+        rdfh:l_shipinstruct "DELIVER IN PERSON" .
+    filter (?li+>rdfh:l_shipmode in ("AIR", "AIR REG") &&
+      ( ( (?part+>rdfh:p_brand = "%BRAND1%") &&
+          (?part+>rdfh:p_container in ("SM CASE", "SM BOX", "SM PACK", "SM PKG")) &&
+          (?li+>rdfh:l_linequantity >= %QUANTITY1%) &&
+          (?li+>rdfh:l_linequantity <= %QUANTITY1% + 10) &&
+          (?part+>rdfh:p_size >= 1) && (?part+>rdfh:p_size <= 5) ) ||
+        ( (?part+>rdfh:p_brand = "%BRAND2%") &&
+          (?part+>rdfh:p_container in ("MED BAG", "MED BOX", "MED PKG", "MED PACK")) &&
+          (?li+>rdfh:l_linequantity >= %QUANTITY2%) &&
+          (?li+>rdfh:l_linequantity <= %QUANTITY2% + 10) &&
+          (?part+>rdfh:p_size >= 1) && (?part+>rdfh:p_size <= 10) ) ||
+        ( (?part+>rdfh:p_brand = "%BRAND3%") &&
+          (?part+>rdfh:p_container in ("LG CASE", "LG BOX", "LG PACK", "LG PKG")) &&
+          (?li+>rdfh:l_linequantity >= %QUANTITY3%) &&
+          (?li+>rdfh:l_linequantity <= %QUANTITY3% + 10) &&
+          (?part+>rdfh:p_size >= 1) && (?part+>rdfh:p_size <= 15) ) ) )
+  }

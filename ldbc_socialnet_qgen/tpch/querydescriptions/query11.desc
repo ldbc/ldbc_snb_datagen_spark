@@ -1,0 +1,22 @@
+{QueryType:Select,
+ params:[
+  {name:NATION,
+   class:Nation,
+   default:'GERMANY'
+  },
+  {name:FRACTION,
+   class:Fraction,
+   default: 0.0001
+  }
+ ],
+ results:[
+  {column:ps_partkey,
+   type: id
+  },
+  {column:value,
+   type: real,
+   check: $100
+  }
+ ],
+ resultKeys:[1]
+}

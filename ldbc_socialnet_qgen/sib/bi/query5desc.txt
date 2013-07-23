@@ -1,0 +1,4 @@
+QueryType=Select
+
+Country=CountryURI
+TagType=TagTypeURI

@@ -1,0 +1,24 @@
+
+[
+
+		el_1_1, # see the field description in common_fields
+		el_1_2,
+  {
+		k1:el_2_1,
+		k2:el_2_2,
+  },
+  {
+		k2:el_2_2,
+		k1:[el_2_1],
+		k2:el_2_2,
+		k1:[{k1:el_2_1,
+			 k2:el_2_2,
+			},
+			{k2:el_2_2,
+		     k1:[el_2_1],
+		     k2:el_2_2,
+			 k1:[el_2_1],
+			},
+		  ],
+  },
+]

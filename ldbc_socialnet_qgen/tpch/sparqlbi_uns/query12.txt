@@ -1,0 +1,18 @@
+define sql:signal-void-variables 1
+prefix rdfh: <http://lod2.eu/schemas/rdfh#>
+
+select
+  ?li+>rdfh:shipmode,
+  sum (if (?o_orderpriority in ("1-URGENT", "2-HIGH"), 1, 0)) as ?high_line_count,
+  sum (1 - if (?o_orderpriority in ("1-URGENT", "2-HIGH"), 1, 0)) as ?low_line_count
+where
+  { ?li rdfh:has_order ?ord .
+    filter (?li+>rdfh:shipmode in ("%SHIPMODE1%", "%SHIPMODE2%") &&
+      (?li+>rdfh:commitdate < ?li+>rdfh:receiptdate) &&
+      (?li+>rdfh:shipdate < ?li+>rdfh:commitdate) &&
+      (?li+>rdfh:receiptdate >= "%YEAR%-01-01"^^xsd:date) &&
+      (?li+>rdfh:receiptdate < bif:dateadd ("year", 1, "%YEAR%-01-01"^^xsd:date)) )
+  }
+order by
+  ?li+>rdfh:shipmode
+

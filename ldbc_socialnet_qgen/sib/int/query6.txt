@@ -1,0 +1,8 @@
+select ?tag count (*) from <sib>
+where {  
+{ { %Person% sv:knows ?fr } union { %Person% sv:knows ?fr2 . ?fr2 sv:knows ?fr}} .
+  ?post sv:creator ?fr .
+  ?post sv:has_tag ?tag .
+  ?post sv:has_tag %Tag% 
+} group by ?tag order by desc 2 limit 10
+

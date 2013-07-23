@@ -1,0 +1,32 @@
+define sql:signal-void-variables 1
+prefix rdfh: <http://lod2.eu/schemas/rdfh#>
+
+select
+  ?supp+>rdfh:name,
+  ?supp+>rdfh:address
+where
+  {
+      {
+        select
+          ?supp, count (?big_ps) as ?big_ps_cnt
+        where
+          {
+            ?supp+>rdfh:has_nation rdfh:name "%NATION%" .
+            ?big_ps a rdfh:partsupp ; rdfh:has_supplier ?supp .
+            filter (
+              (?big_ps+>rdfh:has_part+>rdfh:name like "%COLOR%%") &&
+              (?big_ps+>rdfh:availqty > (
+                  select
+                    (0.5 * sum(?li+>rdfh:linequantity)) as ?qty_threshold
+                  where
+                    {
+                      ?li a rdfh:lineitem ; rdfh:has_part ?big_ps+>rdfh:has_part ; rdfh:has_supplier ?supp .
+                      filter ((?li+>rdfh:shipdate >= "%YEAR%-01-01"^^xsd:date) &&
+                        (?li+>rdfh:shipdate < bif:dateadd ("year", 1, "%YEAR%-01-01"^^xsd:date)) ) } ) ) )
+          }
+       }
+  }
+order by
+  ?supp+>rdfh:name
+
+

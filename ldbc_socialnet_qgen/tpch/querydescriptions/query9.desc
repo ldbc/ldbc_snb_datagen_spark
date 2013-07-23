@@ -1,0 +1,20 @@
+{QueryType:Select,
+ params:[
+  {name:COLOR,
+   class:Color,
+   default: green
+  }
+ ],
+ results:[
+  {column:nation,
+   type: str,
+  },
+  {column:o_year,
+   type: int,
+  }, 
+  {column:sum_profit,
+   type: real,
+   check: $100
+  }, 
+ ]
+}

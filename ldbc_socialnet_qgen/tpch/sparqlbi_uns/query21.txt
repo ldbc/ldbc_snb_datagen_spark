@@ -1,0 +1,28 @@
+define sql:signal-void-variables 1
+prefix rdfh: <http://lod2.eu/schemas/rdfh#>
+
+select
+    ?supp+>rdfh:name,
+    (count(1)) as ?numwait
+where {
+  ?supp a rdfh:supplier .
+  ?supp+>rdfh:has_nation rdfh:name "%NATION%" .
+  ?li1 a rdfh:lineitem ;
+       rdfh:has_supplier ?supp ;
+       rdfh:has_order ?ord .
+  ?ord rdfh:orderstatus "F" .
+  filter ( ?li1+>rdfh:receiptdate > ?li1+>rdfh:commitdate
+          && bif:exists ((select (1) where {
+               ?li2 rdfh:has_order ?ord.
+               ?li2 rdfh:has_supplier ?supp2 .
+               filter (?supp != ?supp2) }))
+          && !bif:exists ((select (1) where {
+               ?li3 rdfh:has_order ?ord .
+               ?li3 rdfh:has_supplier ?supp3 .
+               filter (?li3+>rdfh:receiptdate > ?li3+>rdfh:commitdate &&
+                  ?supp3 != ?supp) })))
+}
+order by
+    desc (count(1))
+    ?supp+>rdfh:name
+limit 100

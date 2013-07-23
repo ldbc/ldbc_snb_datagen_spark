@@ -1,0 +1,156 @@
+
+
+
+SNA Interactive Query Commentary 
+
+
+
+
+
+I1 - Simple person search 
+
+CP1.7 CP2.3 CP7.1
+
+The query locates a number of people based on equality of first name.
+A multicolumn result set is returned, as for a search page with top 10 shown.
+The infomation is complemented with summaries of the persons'workplaces and places of study.
+
+
+
+The optimizer is expected not to get stuck in comparing different permutations of single valued atttributes, all will be fetched, order does not matter.
+The optimizer is expected to place the functionally dependent (on the person) scalar subqueries  after the top k, as these do not enter into the sort and do not change cardinality.
+The literals should be translated from internal representation after the top k order by.
+
+
+Variants:  Sort on last name or sort on geo distance between the person and self.
+
+
+I3 Friends within 2 steps that have been to countries X and Y.
+
+
+CP3.3
+
+
+This allows exploiting of geographical correlations.
+If one country is large but anticorrellated with the country of self then processing this before a smaller but positively correlated country can be beneficial.
+
+
+The query has different forms:
+
+- 1. The basic form takes people within 2 steps that have posted from 2 different countries.
+- 2. As above but now the post must be from a country other than the country of residence of the poster 
+- 3 - As 2, but now the post is qualified with a time interval of 10% of the dataset's extent in time.
+- 4 as 3, but the results are sorted based on the sum of the post counts from either country 
+
+
+Form 4 has the same optimization possibilities but now the situation is harder to detect since it is expressed as a count > 0 instead of existence.
+
+
+
+
+I4 New Topics 
+
+The query finds tags that are discussed among selfs friends in time interval 1 and not in time interval 2.
+Typically the first interval is a short span and interval 2 is the time from the start of the dataset to the start if the firt interval.  
+The query will quite often come out empty, however this depends on the size of the intervals.
+
+CP2.7
+
+If the intervals are short, a hash join may be preferrable.  If these
+are long, building a hash of posts for the interval is prohibitive and
+inbdex will be much better .  For the negative interval, building a
+hash of the distinct tags in the interval is probably best but for
+this the system needs to know that the hash is used in an
+intijoin/semijoin, i.e. duplicates need not be kept and that the
+distinct tags arte much fewer than distinct posts.
+
+I6 Tag Co-occurrence 
+
+Among posts by friends and friends of friends, find the tags most commonly occurring together with a given tag.
+
+
+
+I7  What am I missing?
+
+Find all tags in a short time window and list the ones that are not discussed by friends of self 
+
+CP2.7
+
+The discussion among friends is likely much smaller than in the network, hence build a hash from this for the not exists.
+
+There is possibility of variation by setting the time limit on the negative window to be different from the positive window, i.e. the formyulation in the i7.sql file takes the tags  in a short window in a large country and subtracts the tags  discussed at any time among self's friends.
+
+
+I8 International connections 
+
+*** Cannot be done, no geo hierarchy, no subject matter hierarchy 
+
+Find people who are located in specified  places, people are identified  by common first names that are anticorrelated to the location.  The people are corresponding in a group about a specific topic.
+
+I9 
+
+I10 - Who to connect with?
+
+The query looks for a friend of a friend who posts much about the interests of the user and little about topics that are not in the interests of the user.
+
+Optionally, the search is restricted by the candidate's horoscope sign or by geo location.
+
+
+sparql select  ?first, ?last,  
+   (((select  count (*) where {  ?post sv:creator ?fof . ?post sv:has_tag ?tag . sn:pers15533 sv:interest ?tag }))
+  - ((select  count (*) where {  ?post sv:creator ?fof . ?post sv:has_tag ?tag . filter (!exists {sn:pers15533 sv:interest ?tag}) })) as ?score),
+  ?fof,  ?gender, ?based
+from <sib> where {
+  {select distinct ?fof where {
+  sn:pers15533 sv:knows ?fr .
+  ?fr sv:knows ?fof .
+  minus { sn:pers15533 sv:knows ?fof } .}} .
+     ?fof sv:firstName ?first .
+  ?fof sv:lastName ?last .
+  ?fof sv:gender ?gender .
+  ?fof sv:birthday ?bday .
+  ?fof sv:based_near ?based .
+  filter (1 = if (bif:month (?bday) = 5, if (bif:dayofmonth (?bday) > 21, 1, 0), if (bif:month (?bday) = 6, if (bif:dayofmonth(?bday) < 22, 1, 0), 0)))
+} order by desc 3 limit 10;
+
+
+CP2.7 CP2.6 CP4.2a, CP5 CP6.3, CP7.1
+
+The query does widely scattered graph traversal, one expects no locality of in friends of friends, as these have been acquired over a long time and have widely scattered identifiers.
+The join order is simple but one must see that the antifjoin for "not in my friends" is better with hash.  Also the last pattern in the scalar subqueries joining or antijoining the tags of the candidate's posts to interests of self should be by hash.  The rest is quite obviously by index.
+
+For SQL systems there is possibility for late projection of the first name, last name, gender. 
+For RDF systems this is not obvious since the predicates are not guaranteed single valued.  For RDF  systems it is significant to translate the ids of teh "dependent columns" (e.g. last name) into strings only after the top k order by.
+
+
+The query should be run in variants:
+
+1.  Without a condition on the candidate, except that this is not alrfeadyu a friend.
+2. With a condition on the birth day:    The 1/12 selection on the sun sign is not obvious for an optimizer and it might throw off cardinality estimation for the scalar subqueries, leading to index based plans as opposed to the better hash based ones.   The condition could be written with dayofyear but this is a conditional expression on purpose.
+3. With a condition on geo location, expressed as a join of the self's location and the candidate's.
+
+
+
+
+
+I11 Referral 
+
+Find a person in 2 steps who has lomg worked in a company in a specified country.  Sort by earliest startdate.
+
+CP2.7  
+
+There are selective joins and top k order by.  
+There is a pattern on a two-part primary key on the entitized relationship work_at with a condition on the company, on the person as well as n attribute of the relationship, i.e. the start date of the employment.
+
+I12   Expert Search 
+
+Find the users in self's prozimity that have replied the most to posts with a tag in a given category.
+
+CP7.2 CP7.3
+
+The chain from original post to the reply is transitive.  The traversal may be initiated at either end, the system may note that this is a tree, hence leaf to root is always best.
+Additionally, a hash table can be built from either end, e.g. from the friends of self, from the tags in the category, from the or other.
+
+
+
+

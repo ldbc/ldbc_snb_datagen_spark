@@ -1,0 +1,4 @@
+QueryType=Select
+
+TagType=TagTypeURI
+

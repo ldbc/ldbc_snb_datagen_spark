@@ -1,0 +1,15 @@
+select ?year ?is_reply ?size  count (*) avg (?len) sum (?len)
+   (xsd:float (count (*)) / ((select count (*) where {?p a sv:Post . ?p sv:created ?dt . filter (?dt < "%Date0%"^^xsd:date)})))
+where { ?post a sv:Post . ?post sv:created ?date .
+?post sv:contentLength ?len .
+  optional { ?post sv:reply_of ?org} .
+  filter (?date < "%Date0%"^^xsd:date)
+} group by ((bound (?org)) as ?is_reply) 
+  ((bif:year (?date)) as ?year)
+  (if (?len < 40,  "short", if (?len < 80, "one liner", if (?len < 160, "tweet", "long")))  as ?size)
+order by ?year ?size
+
+
+
+
+

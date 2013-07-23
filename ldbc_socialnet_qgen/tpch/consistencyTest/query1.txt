@@ -1,0 +1,50 @@
+# retrievs hanging references
+# should return empty result set
+define sql:signal-void-variables 1
+prefix tpcd: <http://www.openlinksw.com/schemas/tpcd#>
+
+select
+  ?s ?o
+from <http://example.com/tpcd>
+where {
+  {
+	?s a tpcd:customer ;
+	  tpcd:c_has_nation ?o .
+    FILTER NOT EXISTS { ?o a tpcd:nation}
+  } UNION {
+	?s a tpcd:lineitem ;
+	  tpcd:l_has_order ?o .
+    FILTER NOT EXISTS { ?o a tpcd:orders}
+  } UNION {
+	?s a tpcd:lineitem ;
+	  tpcd:l_has_part ?o .
+    FILTER NOT EXISTS { ?o a tpcd:part}
+  } UNION {
+	?s a tpcd:lineitem ;
+	  tpcd:l_has_supplier ?o .
+    FILTER NOT EXISTS { ?o a tpcd:supplier}
+  } UNION {
+    ?s a tpcd:nation ;
+	  tpcd:n_has_region ?o .
+	FILTER NOT EXISTS { ?o a tpcd:region}
+  } UNION {
+    ?s a tpcd:orders ;
+	  tpcd:o_has_customer ?o .
+	FILTER NOT EXISTS { ?o a tpcd:customer}
+  } UNION {
+    ?s a tpcd:partsupp ;
+	  tpcd:ps_has_part ?o .
+	FILTER NOT EXISTS { ?o a tpcd:part}
+  } UNION {
+    ?s a tpcd:partsupp ;
+	  tpcd:ps_has_supplier ?o .
+	FILTER NOT EXISTS { ?o a tpcd:supplier}
+  } UNION {
+	?s a tpcd:supplier ;
+	  tpcd:s_has_nation ?o .
+    FILTER NOT EXISTS { ?o a tpcd:nation}
+  }
+} 
+LIMIT 20
+
+

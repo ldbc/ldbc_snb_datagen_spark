@@ -1,0 +1,15 @@
+{QueryType:Select,
+ params:[
+  {name:MONTH,
+   class:Month,
+   range:[1993-01, 1997-12],
+   default: 1995-09
+  }
+ ],
+ results:[
+  {column:promo_revenue,
+   type: real,
+   check: 1%
+  }
+ ]
+}

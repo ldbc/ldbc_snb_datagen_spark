@@ -1,0 +1,22 @@
+{QueryType:Select,
+ params:[
+  {name:QUANTITY1, class:Random, range:[1, 10]
+  , default:1},
+  {name:QUANTITY2, class:Random, range:[10, 20]
+  , default:10},
+  {name:QUANTITY3, class:Random, range:[20, 30]
+  , default:20},
+  {name:BRAND1, class:Brand
+  , default:'Brand#12'},
+  {name:BRAND2, class:Brand
+  , default:'Brand#23'},
+  {name:BRAND3, class:Brand
+ , default:'Brand#34'}
+ ],
+ results:[
+  {column:revenue,
+   type: real,
+   check: $100
+  },
+ ]
+}

@@ -1,0 +1,12 @@
+{QueryType:Select,
+ params:[
+  {name:BRAND, class:Brand, default:'Brand#23'},
+  {name:CONTAINER, class:Container, default:'MED BOX'}
+ ],
+ results:[
+  {column:avg_yearly,
+   type: real,
+   check: 1%
+  }
+ ]
+}

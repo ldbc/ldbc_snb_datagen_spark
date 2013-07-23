@@ -1,0 +1,18 @@
+{QueryType:Select,
+ params:[
+  {name:MONTH,
+   class:Month,
+   range:[1993-01, 1997-10],
+   default: 1993-07
+   }
+ ],
+ results:[
+  {column:o_orderpriority,
+   type: str,
+  }, 
+  {column:order_count,
+   type: int
+  }
+ ],
+ resultKeys:[1]
+}

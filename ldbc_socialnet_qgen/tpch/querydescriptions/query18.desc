@@ -1,0 +1,29 @@
+{QueryType:Select,
+ params:[
+  {name:QUANTITY,
+   class:Random, range:[312, 315], # but why default is 300?!
+   default:300},
+ ],
+ results:[
+  {column:c_name,
+   type: str,
+  },
+  {column:c_custkey,
+   type: int,
+  },
+  {column:o_orderkey,
+   type: int,
+  },
+  {column:o_orderdate,
+   type: date,
+  },
+  {column:o_totalprice,
+   type: decimal.2,
+   check: $100
+  },
+  {column:sum,
+   type: real,
+   check: $100
+  },
+ ]
+}

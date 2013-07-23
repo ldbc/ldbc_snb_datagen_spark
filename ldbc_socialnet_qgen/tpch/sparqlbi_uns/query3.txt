@@ -1,0 +1,19 @@
+define sql:signal-void-variables 1
+prefix rdfh: <http://lod2.eu/schemas/rdfh#>
+
+select
+  ?ord+>rdfh:orderkey,
+  sum(?li+>rdfh:lineextendedprice*(1 - ?li+>rdfh:linediscount)) as ?revenue,
+  ?ord+>rdfh:orderdate,
+  ?ord+>rdfh:shippriority
+where
+  {
+    ?cust a rdfh:customer ; rdfh:mktsegment "BUILDING"  .
+ ?ord rdfh:has_customer ?cust .
+    ?li rdfh:has_order ?ord .
+    filter ((?ord+>rdfh:orderdate < "1995-03-15"^^xsd:date) &&
+      (?li+>rdfh:shipdate > "1995-03-15"^^xsd:date) ) }
+order by
+  desc (sum (?li+>rdfh:lineextendedprice * (1 - ?li+>rdfh:linediscount)))
+  ?ord+>rdfh:orderdate
+limit 10

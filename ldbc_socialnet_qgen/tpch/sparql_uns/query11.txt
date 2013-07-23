@@ -1,0 +1,37 @@
+define sql:signal-void-variables 1
+prefix rdfh: <http://lod2.eu/schemas/rdfh#>
+
+select
+  ?bigpspart,
+  ?bigpsvalue
+where {
+      ?bigps rdfh:has_part ?bigpspart .
+      { select
+          ?bigps,
+          sum(?b_supplycost * ?b_availqty) as ?bigpsvalue
+        where
+          {
+            ?bigps a rdfh:partsupp ;
+                   rdfh:supplycost ?b_supplycost ;
+                   rdfh:availqty ?b_availqty ;
+                   rdfh:has_partkey ?bpartkey ;
+                   rdfh:has_supplier ?b_supplier .
+            ?b_supplier rdfh:has_nation ?b_nation .
+            ?b_nation rdfh:name "%NATION%" .
+          }
+      }
+    filter (?bigpsvalue > (
+        select
+          (sum(?t_supplycost * ?t_availqty) * %FRACTION%) as ?threshold
+        where
+          {
+            ?thr_ps a rdfh:partsupp ;
+                    rdfh:supplycost ?t_supplycost ;
+                    rdfh:availqty ?t_availqty ;
+                    rdfh:has_supplier ?t_supplier .
+            ?t_supplier rdfh:has_nation ?t_nation .
+            ?t_nation rdfh:name "%NATION%" .
+          }))
+  }
+order by
+  desc (?bigpsvalue)

@@ -1,0 +1,33 @@
+{QueryType:Select,
+ params:[
+  {name:SIZE, class:Random, range:[1,50], default:15},	
+  {name:TYPE, class:Type, range:[3], default:'BRASS'},
+  {name:REGION, class:Region, default:'EUROPE'}
+ ],
+ results:[
+  {column:s_acctbal,
+   type: decimal.2,
+  }, 
+  {column:s_name,
+   type: str,
+  }, 
+  {column:n_name,
+   type: str,
+  }, 
+  {column:p_partkey,
+   type: int
+  },
+  {column:p_mfgr,
+   type: str,
+  },
+  {column:s_address, 
+   type: str,
+  },
+  {column:s_phone,
+   type: str,
+  },
+  {column:s_comment,
+   type: str,
+  }
+ ]
+}

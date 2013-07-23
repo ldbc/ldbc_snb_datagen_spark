@@ -1,0 +1,37 @@
+{QueryType:Select,
+ params:[
+  {name:MONTH,
+   class:Month,
+   range:[1993-02, 1995-1],
+   default: 1993-10
+  }
+ ],
+ results:[
+  {column:c_custkey,
+   type: int,
+  },
+  {column:c_name,
+   type: str,
+  }, 
+  {column:revenue,
+   type: real,
+   check: $100
+  }, 
+  {column:c_acctbal,
+   type: decimal.2,
+  }, 
+  {column:n_name,
+   type: str,
+  }, 
+  {column:c_address,
+   type: str,
+  }, 
+  {column:c_phone,
+   type: str,
+  }, 
+  {column:c_comment,
+   type: str,
+  }, 
+ ],
+ resultKeys:[1]
+}

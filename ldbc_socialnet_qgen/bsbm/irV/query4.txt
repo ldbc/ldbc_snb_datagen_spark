@@ -1,0 +1,23 @@
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+prefix rev: <http://purl.org/stuff/rev#>
+prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+prefix dc: <http://purl.org/dc/elements/1.1/>
+prefix bsbm: <http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/vocabulary/>
+
+# Like 3 but non-selective pattern.
+Select
+ ?prod_title,
+ ?rew_title,
+ ?rew_text
+{
+ ?product a %ProductType% ;
+    rdfs:label ?prod_title . 
+ ?review rdf:type bsbm:Review ;
+    bsbm:reviewFor ?product ;
+    dc:title ?rew_title ;
+    rev:text ?rew_text ;
+    dc:date ?rev_date .
+ ?rew_text bif:contains "'%WORD%'" .
+}
+order by desc (?rev_date)
+limit 10
