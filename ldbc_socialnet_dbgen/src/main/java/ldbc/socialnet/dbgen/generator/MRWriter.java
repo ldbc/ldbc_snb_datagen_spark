@@ -59,82 +59,24 @@ public class MRWriter {
 		numberSerializedObject = 0; 
 		
 	}
-	public void writeReducedUserProfiles(int from, int to, int pass, 
-			ReducedUserProfile userProfiles[], Mapper.Context context) {
-		
-		try {
-			if (to > windowSize) {
-				for (int i = from; i < windowSize; i++) {
-					context.write(new IntWritable(userProfiles[i].getDicElementId(pass+1)), userProfiles[i]);
-					numberSerializedObject++;
-					}
-				for (int i = 0; i < to - windowSize; i++) {
-					context.write(new IntWritable(userProfiles[i].getDicElementId(pass+1)), userProfiles[i]);
-					numberSerializedObject++;
-					}
-				} else {
-					for (int i = from; i < to; i++) {
-						context.write(new IntWritable(userProfiles[i].getDicElementId(pass+1)), userProfiles[i]);
-						numberSerializedObject++;
-						}
-					}
-			} 
-		catch (IOException i) {
-			i.printStackTrace();
-			
-		}
-		catch (InterruptedException e) {
-			e.printStackTrace();
-			
-		}
-	}
+	
 	public void writeReducedUserProfiles(int from, int to, int pass, 
 			ReducedUserProfile userProfiles[], Reducer.Context context, boolean isContext, ObjectOutputStream oos) {
 		
 		try {
-			if (isContext){
-				if (to > windowSize) {
-					for (int i = from; i < windowSize; i++) {
-						context.write(new IntWritable(userProfiles[i].getDicElementId(pass+1)), userProfiles[i]);
-						numberSerializedObject++;
-						}
-					for (int i = 0; i < to - windowSize; i++) {
-						context.write(new IntWritable(userProfiles[i].getDicElementId(pass+1)), userProfiles[i]);
-						numberSerializedObject++;
-						}
-				} else {
-					for (int i = from; i < to; i++) {
-						context.write(new IntWritable(userProfiles[i].getDicElementId(pass+1)), userProfiles[i]);
-						numberSerializedObject++;
-						}
-					}
-			}
-			else{
-				if (to > windowSize) {
-					for (int i = from; i < windowSize; i++) {
-						oos.writeObject(userProfiles[i]);
-						//ReducedUserProfile userObject = new ReducedUserProfile();
-						//userObject.copyFields(userProfiles[i]); 
-						//oos.writeObject(userObject);
-						numberSerializedObject++;
-						}
-					for (int i = 0; i < to - windowSize; i++) {
-						oos.writeObject(userProfiles[i]);
-						//ReducedUserProfile userObject = new ReducedUserProfile();
-						//userObject.copyFields(userProfiles[i]); 
-						//oos.writeObject(userObject);
-						numberSerializedObject++;
-						}
-				} else {
-					for (int i = from; i < to; i++) {
-						oos.writeObject(userProfiles[i]);
-						//ReducedUserProfile userObject = new ReducedUserProfile();
-						//userObject.copyFields(userProfiles[i]); 
-						//oos.writeObject(userObject);
-						numberSerializedObject++;
-						}
-					}
-			}
+		    to = to % windowSize;
+            if (isContext){
+                for (int i = from; i != to; i = (i+1)%windowSize) {
+                    context.write(new IntWritable(userProfiles[i].getDicElementId(pass+1)), userProfiles[i]);
+                    numberSerializedObject++;
+                }
+            }
+            else{
+                for (int i = from; i != to; i = (i+1)%windowSize) {
+                    oos.writeObject(userProfiles[i]);
+                    numberSerializedObject++;
+                }
+            }
 		}
 		catch (IOException i) {
 			i.printStackTrace();
@@ -142,12 +84,6 @@ public class MRWriter {
 		}
 		catch (InterruptedException e) {
 			e.printStackTrace();
-			
 		}
 	}
-	
-	public int getNumberSerializedObject() {
-		return numberSerializedObject;
-	}
-	
 }

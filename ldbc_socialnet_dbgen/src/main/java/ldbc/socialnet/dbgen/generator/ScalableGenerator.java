@@ -91,6 +91,15 @@ public class ScalableGenerator{
     public static int  numMaps = -1;
     public static long postId  = -1;
     
+    /**
+     * How many hadoop jobs are used to generate the friendships
+     */
+    private static final int NUM_FRIENDSHIP_HADOOP_JOBS = 3;
+    /**
+     * How many friends (percentagewise) will be generated in each hadoop job.
+     */
+    private static final double  friendRatioPerJob[] = { 0.45, 0.45, 0.1 };
+    
     private static final int startMonth = 1; 
     private static final int startDate  = 1;
     private static final int endMonth   = 1;
@@ -102,9 +111,32 @@ public class ScalableGenerator{
      */
     private static final int USER_RANDOM_ID_LIMIT = 100;
     
+    //schema behaviour paramaters which are not in the private parameter file.
+    //If any of these are upgraded to the parameter file copy the variable elsewhere below,
+    //so this list is updated with only the variables not appearing in the parameter file.
+    /**
+     * Power Law distribution alpha value
+     */
+    private static final double alpha = 0.4;
+    
+    private static final int maxNumLikes = 10;
+    /**
+     * Cumulative probability to join a group for the user direct friends, friends of friends and
+     * friends of the friends of the user friend.
+     */
+    private static final double levelProbs[] = { 0.5, 0.8, 1.0 };
+    /**
+     * Probability to join a group for the user direct friends, friends of friends and
+     * friends of the friends of the user friend.
+     */
+    private static final double joinProbs[] = { 0.7, 0.4, 0.1 };
+    
+    
+    //Files and folders
     private static final String  DICTIONARY_DIRECTORY = "/dictionaries/";
     private static final String  IPZONE_DIRECTORY     = "/ipaddrByCountries";
     private static final String  PARAMETERS_FILE      = "params.ini";
+    private              String  RDF_OUTPUT_FILE      = "ldbc_socialnet_dbg"; //Not static or final: Will be modified to add the machine prefix
     
     // Dictionaries dataset files
     private static final String   browserDicFile         = DICTIONARY_DIRECTORY + "browsersDic.txt";
@@ -149,7 +181,7 @@ public class ScalableGenerator{
     private final String MIN_COMMENT_SIZE              = "minCommentSize";
     private final String MAX_COMMENT_SIZE              = "maxCommentSize";
     private final String REDUCE_TEXT_RATIO             = "ratioReduceText";
-    private final String MAX_PHOTOALBUM                = "maxNumPhotoAlbums";
+    private final String MAX_PHOTOALBUM                = "maxNumPhotoAlbumsPerMonth";
     private final String MAX_PHOTO_PER_ALBUM           = "maxNumPhotoPerAlbums";
     private final String USER_MAX_GROUP                = "maxNumGroupCreatedPerUser";
     private final String MAX_GROUP_MEMBERS             = "maxNumMemberGroup";
@@ -197,6 +229,12 @@ public class ScalableGenerator{
      */
     private final String[] publicCheckParameters = {NUM_USERS, START_YEAR, NUM_YEARS, SERIALIZER_TYPE};
     
+    
+    // Gender string representation, both representations vector/standalone so the string is coherent.
+    private final String MALE   = "male";
+    private final String FEMALE = "female";
+    private final String gender[] = { MALE, FEMALE};
+    
 	// For sliding window
 	int 					cellSize; // Number of user in one cell
 	int 					numberOfCellPerWindow;
@@ -221,12 +259,10 @@ public class ScalableGenerator{
 
 	// For multiple files
 	boolean 				isMultipleFile = true;
-	int 					numFiles = 10;
+	int 					numFiles       = 10;
+	int                     numCellRead    = 0;
 	int 					numCellPerfile;
 	int 					numCellInLastFile;
-	int 					numCellRead = 0;
-	Random 					randomFileSelect;
-	Random 					randomIdxInWindow;
 	HashSet<Integer> 		selectedFileIdx;
 	
 	// For friendship generation
@@ -236,26 +272,16 @@ public class ScalableGenerator{
 	double 				friendRejectRatio;
 	double 				friendReApproveRatio;
 	
-	int					numCorrDimensions = 3;			// Run 3 passes for friendship generation
 	StorageManager	 	storeManager[];
 	StorageManager		groupStoreManager; 		
 	
 	MRWriter			mrWriter; 
 	
-	double 				friendsRatioPerPass[] = { 0.45, 0.45, 0.1 }; // Indicate how many
-											// friends will be created for each pass
-											// e.g., 30% in the first pass with
-											// location information
 	Random 				randFriendReject;
 	Random 				randFriendReapprov;
 	Random 				randInitiator;
-	double 				alpha = 0.4;							// Alpha value for power-law distribution
-	double	 			baseProbLocationCorrelated = 0.8; 	// Higher probability, faster
-														// sliding along this pass
-
-	double 				baseProbCorrelated = 0.9;  	  // Probability that two user having the same 
-												      // atrributes value become friends;
-	double	 			limitProCorrelated = 0.2; 
+	double 				baseProbCorrelated;
+	double	 			limitProCorrelated; 
 	
 	// For each user
 	int                 minNoTagsPerUser; 
@@ -279,13 +305,13 @@ public class ScalableGenerator{
 	Random 				randNumberGroup;
 	Random 				randNumberUserPerGroup;
 	Random 				randGender;
-	Random				randUserRandomIdx;	// For generating the random dimension
+	Random				randUserRandomIdx;	   // For generating the random dimension
 	Random              randNumPopularPlaces; 
-    Random              randFriendLevelSelect;  // For select an level of moderator's friendship
-    Random              randMembership; // For deciding whether or not a user is joined
+    Random              randFriendLevelSelect; // For select an level of moderator's friendship
+    Random              randMembership;        // For deciding whether or not a user is joined
     Random              randMemberIdxSelector;
     Random              randGroupMemStep;
-    Random              randGroupModerator; // Decide whether a user can be moderator of groups or not
+    Random              randGroupModerator;    // Decide whether a user can be moderator of groups or not
     Random              randNumberGroupPost;
     Random              randomExtraInfo;
     Random              randomExactLongLat;
@@ -293,12 +319,14 @@ public class ScalableGenerator{
     Random              randomStatusSingle;
     Random              randomStatus;
     Random              randUserAgent;
+    Random              randFileSelect;
+    Random              randIdsInWindow;
     
 	DateGenerator 		dateTimeGenerator;
 	int					startYear;
 	int                 endYear;
 	
-	// Dictionaries
+	// Dictionary classes
 	LocationDictionary 		locationDic;
 	LanguageDictionary      languageDic;
 	TagDictionary 			mainTagDic;
@@ -315,48 +343,39 @@ public class ScalableGenerator{
 	
     int                     maxNumPopularPlaces;
 	double                  tagCountryCorrProb; 
-	double					geometricProb = 0.2;
 	double 					probUnCorrelatedOrganization;
 	double 					probTopUniv; // 90% users go to top university
 	double 					probUnCorrelatedCompany;
 	double 					probPopularPlaces;		//probability of taking a photo at popular place
 
 	// For generating texts of posts and comments
-	int 					maxNumLikes = 10;
 	int                     maxEmails;
 	int                     maxCompanies;
 	double                  probEnglish;
     double                  probSecondLang;
 
-	int 					numArticles = 3606; // May be set -1 if do not know
-	int 					minTextSize = 20;
-	int 					maxTextSize = 200;
-	int 					minCommentSize = 20;
-	int 					maxCommentSize = 60;
-	double 					ratioReduceText = 0.8; // 80% text has size less than 1/2 max size
+	int 					minTextSize;
+	int 					maxTextSize;
+	int 					minCommentSize;
+	int 					maxCommentSize;
+	double 					ratioReduceText; // 80% text has size less than 1/2 max size
 
 	// For photo generator
 	PhotoGenerator 			photoGenerator;
-	int 					maxNumPhotoAlbums = 5;	// This is number of photo album per month
-	int 					maxNumPhotoPerAlbums = 100;
+	int 					maxNumPhotoAlbumsPerMonth;
+	int 					maxNumPhotoPerAlbums;
 
 	// For generating groups
 	GroupGenerator 			groupGenerator;
-	int 					maxNumGroupCreatedPerUser = 4;
-	int 					maxNumMemberGroup = 100;
-	double 					groupModeratorProb = 0.05;
-	double 					levelProbs[] = { 0.5, 0.8, 1.0 }; 	// Cumulative 'join' probability
-																// for friends of level 1, 2 and 3
-																// of a user
-	double 					joinProbs[] = { 0.7, 0.4, 0.1 };
+	int 					maxNumGroupCreatedPerUser;
+	int 					maxNumMemberGroup;
+	double 					groupModeratorProb;
 
 	// For group posts
-	int 					maxNumGroupPostPerMonth = 20;
+	int 					maxNumGroupPostPerMonth;
 
 
 	// For serialize to RDF format
-	private String rdfOutputFileName = "ldbc_socialnet_dbg";
-	
 	Serializer 		serializer;
 	String 			serializerType;
 	String 			outUserProfileName = "userProf.ser";
@@ -368,66 +387,86 @@ public class ScalableGenerator{
 	String 			sibHomeDir;
 	
 	// For user's extra info
-	String 					gender[] = { "male", "female" };
-	double 					missingRatio = 0.2;
-	double 					missingStatusRatio = 0.5;
-	double 					probSingleStatus = 0.8; // Status "Single" has more probability than
-													// others'
+	double 					missingRatio;
+	double 					missingStatusRatio;
+	double 					probSingleStatus; // Status "Single" has more probability than others'
 	
 	
 	double 		probAnotherBrowser;
-
-	double 		probHavingSmartPhone = 0.5;
-	double 		probSentFromAgent = 0.2;
-	double 		probUnFrequent = 0.01; // Whether or not a user frequently changes
+	double 		probHavingSmartPhone;
+	double 		probSentFromAgent;
 
 	// The probability that normal user posts from different location
-	double 		probDiffIPinTravelSeason = 0.1; // in travel season
-	double 		probDiffIPnotTravelSeason = 0.02; // not in travel season
+	double 		probDiffIPinTravelSeason; // in travel season
+	double 		probDiffIPnotTravelSeason; // not in travel season
 
 	// The probability that travellers post from different location
-	double 		probDiffIPforTraveller = 0.3;
-
-	// For loading parameters;
-	static String	shellArgs[];
-
-	
-	MFStoreManager 		mfStore;
+	double 		probDiffIPforTraveller;
 	
 	// Writing data for test driver
 	OutputDataWriter 	outputDataWriter;
 	int 				thresholdPopularUser = 40;
 	int 				numPopularUser = 0;
-
 	
+	// Data accessed from the hadoop jobs
+	public ReducedUserProfile[] cellReducedUserProfiles;
+	public int     numUserProfilesRead = 0;
+    public int     numUserForNewCell   = 0;
+    public int     mrCurCellPost       = 0;
+    public int     exactOutput         = 0; 
 	
-	public ScalableGenerator(int _mapreduceFileIdx, String _sibOutputDir, String _sibHomeDir){
-		mapreduceFileIdx = _mapreduceFileIdx;
+    
+	/**
+	 * Gets a string representation for a period of time.
+	 * 
+	 * @param startTime Start time in milliseconds.
+	 * @param endTime End time in milliseconds.
+	 * @return The time representation in minutes and seconds.
+	 */
+	public static String getDurationInMinutes(long startTime, long endTime){
+       return (endTime - startTime) / 60000 + " minutes and " + 
+                ((endTime - startTime) % 60000) / 1000 + " seconds";
+    }
+	
+	/**
+	 * Creates the ScalableGenerator
+	 * 
+	 * @param mapreduceFileId The file id used to pass data for successive hadoop jobs.
+	 * @param sibOutputDir The output directory
+	 * @param sibHomeDir The ldbc_socialnet_dbgen base directory.
+	 */
+	public ScalableGenerator(int mapreduceFileId, String sibOutputDir, String sibHomeDir){
+		this.mapreduceFileIdx = mapreduceFileId;
+		this.sibOutputDir = sibOutputDir;
+		this.sibHomeDir = sibHomeDir; 
+		
 		System.out.println("Map Reduce File Idx is: " + mapreduceFileIdx);
 		if (mapreduceFileIdx != -1){
 			outUserProfile = "mr" + mapreduceFileIdx + "_" + outUserProfileName;
 		}
 		
-		sibOutputDir = _sibOutputDir;
-		sibHomeDir = _sibHomeDir; 
-		System.out.println("Current directory in ScaleGenerator is " + _sibHomeDir);
+		System.out.println("Current directory in ScaleGenerator is " + sibHomeDir);
 	}
 	
 	public int getCellSize() {
         return cellSize;
     }
 	
-	public void initParams(String args[], int _numMaps, int mapIdx){
+	/**
+	 * Initializes the generator reading the private parameter file, the user parameter file
+	 * and initialize all the internal variables.
+	 * 
+	 * @param numMaps: How many hadoop reduces are performing the job.
+	 * @param mapId: The hadoop reduce id.
+	 */
+	public void init(int numMaps, int mapId){
 		
-		this.machineId = mapIdx;
+		this.machineId = mapId;
+		numFiles = numMaps;
+        RDF_OUTPUT_FILE = "mr" + mapreduceFileIdx + "_" + RDF_OUTPUT_FILE;
 		
-		loadParamsFromFile();
-
-		numFiles = _numMaps;
-		
-		rdfOutputFileName = "mr" + mapreduceFileIdx + "_" + rdfOutputFileName;
-		
-		init(mapIdx, true);
+		loadParamsFromFile();		
+		_init(mapId, true);
 		
 		System.out.println("Number of files " + numFiles);
 		System.out.println("Number of cells per file " + numCellPerfile);
@@ -437,37 +476,10 @@ public class ScalableGenerator{
 
 	}
 	
-	public void mapreduceTask(String inputFile, int numberCell){
-		startWritingUserData();
-
-		long startPostGeneration = System.currentTimeMillis();
-		
-		groupGenerator.setForumId((numtotalUser + 10) * 2);
-		
-		generatePostandPhoto(inputFile, numberCell);
-
-		long endPostGeneration = System.currentTimeMillis();
-		System.out.println("Post generation takes " + getDuration(startPostGeneration, endPostGeneration));
-
-		finishWritingUserData();
-
-		long startGroupGeneration = System.currentTimeMillis();
-		generateGroupAll(inputFile, numberCell);
-		long endGroupGeneration = System.currentTimeMillis();
-		System.out.println("Group generation takes " + getDuration(startGroupGeneration, endGroupGeneration));
-
-		if (mapreduceFileIdx != -1) {
-			serializer.serialize();
-		}
-
-		System.out.println("Number of generated triples " + serializer.triplesGenerated());
-		
-		// Write data for testdrivers
-		System.out.println("Writing the data for test driver ");
-		System.out.println("Number of popular users " + numPopularUser);
-	}
-	
-	public void loadParamsFromFile() {
+	/**
+	 * Reads and loads the private parameter file and the user parameter file.
+	 */
+	private void loadParamsFromFile() {
 		try {
 		    //First read the internal params.ini
 			Properties properties = new Properties();
@@ -501,7 +513,7 @@ public class ScalableGenerator{
 			minCommentSize = Integer.parseInt(properties.getProperty(MIN_COMMENT_SIZE));
 			maxCommentSize = Integer.parseInt(properties.getProperty(MAX_COMMENT_SIZE));
 			ratioReduceText = Double.parseDouble(properties.getProperty(REDUCE_TEXT_RATIO));
-			maxNumPhotoAlbums = Integer.parseInt(properties.getProperty(MAX_PHOTOALBUM));
+			maxNumPhotoAlbumsPerMonth = Integer.parseInt(properties.getProperty(MAX_PHOTOALBUM));
 			maxNumPhotoPerAlbums = Integer.parseInt(properties.getProperty(MAX_PHOTO_PER_ALBUM));
 			maxNumGroupCreatedPerUser = Integer.parseInt(properties.getProperty(USER_MAX_GROUP));
 			maxNumMemberGroup = Integer.parseInt(properties.getProperty(MAX_GROUP_MEMBERS));
@@ -523,7 +535,7 @@ public class ScalableGenerator{
 			tagCountryCorrProb = Double.parseDouble(properties.getProperty(TAG_UNCORRELATED_COUNTRY));
 			
 		} catch (Exception e) {
-		    System.out.println(e.getMessage());
+		    System.err.println(e.getMessage());
             e.printStackTrace();
             System.exit(-1);
         }
@@ -549,23 +561,41 @@ public class ScalableGenerator{
                 throw new IllegalStateException("serializerType must be ttl, n3 or csv");
             }
 		} catch (Exception e) {
-		    System.out.println(e.getMessage());
+		    System.err.println(e.getMessage());
 		    System.exit(-1);
 		}
 	}
 
-	// Init the data for the first window of cells
-	public void init(int mapId, boolean isFullLoad) {
+	/**
+     * Initializes the internal variables.
+     * @param mapId: The hadoop reduce id.
+     * @param isFullLoad: if has to initialize all the data.
+     */
+	private void _init(int mapId, boolean isFullLoad) {
 	    
-	    // Number of users should be a multiple of the cellsize
 	    if (numtotalUser % cellSize != 0) {
-	        System.out.println("Number of users should be a multiple of the cellsize ");
+	        System.err.println("Number of users should be a multiple of the cellsize");
 	        System.exit(-1);
 	    }
+	    
+	    windowSize = cellSize * numberOfCellPerWindow;
+	    
+	    lastCellPos     = (numtotalUser - windowSize) / cellSize;
+        lastCell        = (numtotalUser / cellSize) - 1; // The last cell of the sliding process
+        lastMapCellPos  = (numtotalUser / numMaps - windowSize) / cellSize;
+        lastMapCell     = (numtotalUser / (numMaps * cellSize)) - 1;
+        startMapUserIdx = (numtotalUser / numMaps) * mapId; 
+        
+        // For multiple output files
+        numCellPerfile    = (lastCell + 1) / numFiles;
+        numCellInLastFile = (lastCell + 1) - numCellPerfile * (numFiles - 1);
+
+        if (numCellPerfile < numberOfCellPerWindow) {
+            System.err.println("The number of Cell per file should be greater than that of a window ");
+            System.exit(-1);
+        }
 
 		seedGenerate(mapId);
-
-		windowSize = (int) cellSize * numberOfCellPerWindow;
 		randPowerlaw    = new PowerDistGenerator(minNoFriends,     maxNoFriends + 1,     alpha, seeds[2]);
 		randTagPowerlaw = new PowerDistGenerator(minNoTagsPerUser, maxNoTagsPerUser + 1, alpha, seeds[2]);
 		randUniform = new Random(seeds[3]);
@@ -573,8 +603,8 @@ public class ScalableGenerator{
 		randNumInterest = new Random(seeds[4]);
 		randNumTags = new Random(seeds[4]);
 		randomFriendIdx = new Random(seeds[6]);
-		randomFileSelect = new Random(seeds[7]);
-		randomIdxInWindow = new Random(seeds[8]);
+		randFileSelect = new Random(seeds[7]);
+		randIdsInWindow = new Random(seeds[8]);
 		randNumberPost = new Random(seeds[9]);
 		randNumberComments = new Random(seeds[10]);
 		randNumberPhotoAlbum = new Random(seeds[11]);
@@ -599,111 +629,134 @@ public class ScalableGenerator{
 		randNumPopularPlaces = new Random(seeds[47]);
 		randUserRandomIdx = new Random(seeds[48]);
 
-		reducedUserProfiles = new ReducedUserProfile[windowSize];	//// Collect of reduced user profile
+		reducedUserProfiles = new ReducedUserProfile[windowSize];	// Collect of reduced user profile
 		cellReducedUserProfiles = new ReducedUserProfile[cellSize];
 		
 		dateTimeGenerator = new DateGenerator(new GregorianCalendar(startYear, startMonth, startDate), 
 		        new GregorianCalendar(endYear, endMonth, endDate), seeds[0], seeds[1], alpha);
 
-		lastCellPos = (int) (numtotalUser - windowSize) / cellSize;
-		lastCell = (int) numtotalUser / cellSize - 1; // The last cell of the sliding process
 		
-		lastMapCellPos = (int)(numtotalUser/numMaps - windowSize) / cellSize;
-		lastMapCell = (int)numtotalUser/(numMaps * cellSize) - 1;
-		startMapUserIdx = (numtotalUser/numMaps) * mapId; 
-		
-		// For multiple output files
-		numCellPerfile = (lastCell + 1) / numFiles;
-		numCellInLastFile = (lastCell + 1) - numCellPerfile * (numFiles - 1);
-
-		if (numCellPerfile < numberOfCellPerWindow) {
-			System.out.println("The number of Cell per file should be greater than that of a window ");
-			System.exit(-1);
-		}
-
 		if (isFullLoad) {
-			System.out.println("Building interests dictionary & locations/interests distribution ");
-
 	
-			System.out.println("Building locations dictionary ");
-	
+			System.out.println("Building location dictionary ");
 			locationDic = new LocationDictionary(numtotalUser, seeds[7] , countryDicFile, cityDicFile);
 			locationDic.init();
 			
+			System.out.println("Building language dictionary ");
 			languageDic = new LanguageDictionary(languageDicFile, locationDic.getLocationNameMapping(), 
 			        probEnglish, probSecondLang, seeds[11]);
 			languageDic.init();
 			
-			System.out.println("Building Tags dictionary ");
-			
+			System.out.println("Building Tag dictionary ");
 			mainTagDic = new TagDictionary(tagNamesFile, mainTagDicFile, tagClassFile, tagHierarchyFile,
 					locationDic.getLocationNameMapping().size(), seeds[5], tagCountryCorrProb);
 			mainTagDic.extractTags();
 			
+			System.out.println("Building Tag-text dictionary ");
 			tagTextDic = new TagTextDictionary(tagTextFile, dateTimeGenerator, mainTagDic.getTagsNamesMapping(),
 			        minTextSize, maxTextSize, minCommentSize, maxCommentSize, ratioReduceText, seeds[15], seeds[16]);
 			tagTextDic.initialize();
 
 			System.out.println("Building Tag Matrix dictionary ");
-			
 			topicTagDic = new TagMatrix(topicTagDicFile, mainTagDic.getNumCelebrity() , seeds[5]);
-			
 			topicTagDic.initMatrix();
 	
+			System.out.println("Building IP addresses dictionary ");
 			ipAddDictionary = new IPAddressDictionary(countryAbbrMappingFile,
 			        IPZONE_DIRECTORY, locationDic.getVecLocations(), seeds[33],
 					probDiffIPinTravelSeason, probDiffIPnotTravelSeason,
 					probDiffIPforTraveller);
 			ipAddDictionary.init();
 			
-			System.out.println("Building dictionary of articles ");
-	
-			groupGenerator = new GroupGenerator(dateTimeGenerator, locationDic,
-					mainTagDic, numtotalUser, seeds[35]);
-	
+			System.out.println("Building Names dictionary");
 			namesDictionary = new NamesDictionary(surnamesDicFile, givennamesDicFile,
-					locationDic.getLocationNameMapping(), seeds[23], geometricProb);
+					locationDic.getLocationNameMapping(), seeds[23]);
 			namesDictionary.init();
 			
+			System.out.println("Building email dictionary");
 			emailDic = new EmailDictionary(emailDicFile, seeds[32]);
 			emailDic.init();
 	
+			System.out.println("Building Group dictionary");
 			browserDic = new BrowserDictionary(browserDicFile, seeds[44], probAnotherBrowser);
 			browserDic.init();			
 			
+			System.out.println("Building university dictionary");
 			organizationsDictionary = new OrganizationsDictionary(organizationsDicFile, locationDic,
 					seeds[24], probUnCorrelatedOrganization, seeds[45], probTopUniv);
 			organizationsDictionary.init();
 	
+			System.out.println("Building companies dictionary");
 			companiesDictionary = new CompanyDictionary(companiesDicFile,locationDic, 
 			        seeds[40], probUnCorrelatedCompany);
 			companiesDictionary.init();
 	
+			System.out.println("Building popular places dictionary");
 			popularDictionary = new PopularPlacesDictionary(popularPlacesDicFile, 
 					locationDic.getLocationNameMapping(), seeds[46]);
 			popularDictionary.init();
 			
-			photoGenerator = new PhotoGenerator(dateTimeGenerator,
-					locationDic.getVecLocations(), seeds[17], 
-					popularDictionary, probPopularPlaces);
-
 			System.out.println("Building user agents dictionary");
 			userAgentDic = new UserAgentDictionary(agentFile, seeds[28], seeds[30], probSentFromAgent);
 			userAgentDic.init();
+			
+			System.out.println("Building photo generator");
+            photoGenerator = new PhotoGenerator(dateTimeGenerator,
+                    locationDic.getVecLocations(), seeds[17], 
+                    popularDictionary, probPopularPlaces);
+            
+            System.out.println("Building Group generator");
+            groupGenerator = new GroupGenerator(dateTimeGenerator, locationDic,
+                    mainTagDic, numtotalUser, seeds[35]);
 
 
 			outputDataWriter = new OutputDataWriter();
-	
-			serializer = getSerializer(serializerType, rdfOutputFileName);
+			serializer = getSerializer(serializerType, RDF_OUTPUT_FILE);
 		}
-
 	}
 	
+	/**
+	 * Generates the user activity (Photos, Posts, Comments, Groups) data 
+	 * of (numberCell * numUserPerCell) users correspondingto this hadoop job (machineId)
+	 * 
+	 * @param inputFile The hadoop file with the user serialization (data and friends)
+	 * @param numberCell The number of cells the generator will parse.
+	 */
+	public void generateUserActivity(String inputFile, int numberCell){
+        startWritingUserData();
+
+        long startPostGeneration = System.currentTimeMillis();
+        
+        groupGenerator.setForumId((numtotalUser + 10) * 2);
+        generatePostandPhoto(inputFile, numberCell);
+
+        long endPostGeneration = System.currentTimeMillis();
+        System.out.println("Post generation takes " + getDurationInMinutes(startPostGeneration, endPostGeneration));
+
+        finishWritingUserData();
+
+        long startGroupGeneration = System.currentTimeMillis();
+        generateGroupAll(inputFile, numberCell);
+        long endGroupGeneration = System.currentTimeMillis();
+        System.out.println("Group generation takes " + getDurationInMinutes(startGroupGeneration, endGroupGeneration));
+
+        if (mapreduceFileIdx != -1) {
+            serializer.serialize();
+        }
+
+        System.out.println("Number of generated triples " + serializer.triplesGenerated());
+        System.out.println("Number of popular users " + numPopularUser);
+        System.out.println("Writing the data for test driver ");
+        
+        writeDataForQGEN();
+    }
+	
 	public void generateGroupAll(String inputFile, int numberOfCell) {
-		// Fifth pass: Group & group posts generator
 		groupStoreManager = new StorageManager(cellSize, windowSize, outUserProfile, sibOutputDir);
 		
 		groupStoreManager.initDeserialization(inputFile);
+		
+		//desi
 		generateGroups();
 		
 		int curCellPost = 0;
@@ -716,14 +769,7 @@ public class ScalableGenerator{
 		
 		groupStoreManager.endDeserialization();
 		System.out.println("Number of deserialized objects for group is " + groupStoreManager.getNumberDeSerializedObject());
-	}	
-	
-	public int		numUserProfilesRead = 0;
-	public int		numUserForNewCell = 0;
-	public int		mrCurCellPost = 0;
-	public ReducedUserProfile[] cellReducedUserProfiles;
-	public int		exactOutput = 0; 
-	
+	}
 	
 	public void pushUserProfile(ReducedUserProfile reduceUser, int pass, 
 			Reducer<IntWritable, ReducedUserProfile,IntWritable, ReducedUserProfile>.Context context, 
@@ -786,7 +832,7 @@ public class ScalableGenerator{
 		
 		for (int i = 0; i < numToGenerateUser; i++) {
 			UserProfile user = generateGeneralInformation(i + startMapUserIdx); 
-			ReducedUserProfile reduceUserProf = new ReducedUserProfile(user, numCorrDimensions);
+			ReducedUserProfile reduceUserProf = new ReducedUserProfile(user, NUM_FRIENDSHIP_HADOOP_JOBS);
 			if (reduceUserProf.getNumPopularPlace() == 0) {
 			    numZeroPopularPlace++;
 			}
@@ -801,7 +847,6 @@ public class ScalableGenerator{
 		}
 		
 		System.out.println("Number of Zero popular places: " + numZeroPopularPlace);
-		
 	}
 	
 	public void generateCellOfUsers2(int newStartIndex, ReducedUserProfile[] _cellReduceUserProfiles){
@@ -924,7 +969,6 @@ public class ScalableGenerator{
 				isContext, oos);
 		
 		exactOutput = exactOutput + cellSize; 
-
 	}
 	
 	public void mr2SlideLastCellsFriendShip(int pass, int cellPos,	int numleftCell, Reducer.Context context,
@@ -1055,7 +1099,7 @@ public class ScalableGenerator{
 	public void generatePhoto(ReducedUserProfile user, UserExtraInfo extraInfo){
 		// Generate photo Album and photos
 		int numOfmonths = (int) dateTimeGenerator.numberOfMonths(user);
-		int numPhotoAlbums = randNumberPhotoAlbum.nextInt(maxNumPhotoAlbums);
+		int numPhotoAlbums = randNumberPhotoAlbum.nextInt(maxNumPhotoAlbumsPerMonth);
 		if (numOfmonths != 0) {
 			numPhotoAlbums = numOfmonths * numPhotoAlbums;
 		}
@@ -1353,17 +1397,17 @@ public class ScalableGenerator{
 		userProf.setCreatedDate(dateTimeGenerator.randomDateInMillis());
 		
 		userProf.setNumFriends((short) randPowerlaw.getValue());
-		userProf.allocateFriendListMemory(numCorrDimensions);
+		userProf.allocateFriendListMemory(NUM_FRIENDSHIP_HADOOP_JOBS);
 		
 		short totalFriendSet = 0; 
-		for (int i = 0; i < numCorrDimensions-1; i++){
-			short numPassFriend = (short) Math.floor(friendsRatioPerPass[0] * userProf.getNumFriends());
+		for (int i = 0; i < NUM_FRIENDSHIP_HADOOP_JOBS-1; i++){
+			short numPassFriend = (short) Math.floor(friendRatioPerJob[0] * userProf.getNumFriends());
 			totalFriendSet = (short) (totalFriendSet + numPassFriend);
 			userProf.setNumPassFriends(totalFriendSet,i);
 			
 		}
 		// Prevent the case that the number of friends added exceeds the total number of friends
-		userProf.setNumPassFriends(userProf.getNumFriends(),numCorrDimensions-1);
+		userProf.setNumPassFriends(userProf.getNumFriends(),NUM_FRIENDSHIP_HADOOP_JOBS-1);
 
 		userProf.setNumFriendsAdded((short) 0);
 		userProf.setLocationIdx(locationDic.getLocation(accountId));
@@ -1634,6 +1678,13 @@ public class ScalableGenerator{
 	private void finishWritingUserData() {
 		outputDataWriter.finishWritingUserData();
 	}
+	
+	private void writeDataForQGEN() {
+        outputDataWriter.writeGeneralDataForTestDriver(numtotalUser, dateTimeGenerator);
+        outputDataWriter.writeGroupDataForTestDriver(groupGenerator);
+        outputDataWriter.writeLocationDataForTestDriver(locationDic);
+        outputDataWriter.writeNamesDataForTestDriver(namesDictionary);
+    }
 
 	public void writeToOutputFile(String filenames[], String outputfile){
 	    Writer output = null;
@@ -1651,13 +1702,7 @@ public class ScalableGenerator{
 	        e.printStackTrace();
 	    }
 	}
-	public String getDuration(long startTime, long endTime){
-		String duration = (endTime - startTime)
-		/ 60000 + " minutes and " + ((endTime - startTime) % 60000)
-		/ 1000 + " seconds";
-		
-		return duration; 
-	}
+	
 	public void printHeapSize(){
 		long heapSize = Runtime.getRuntime().totalMemory();
 		long heapMaxSize = Runtime.getRuntime().maxMemory();

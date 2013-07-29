@@ -57,6 +57,11 @@ import umontreal.iro.lecuyer.probdist.GeometricDist;
 
 public class NamesDictionary {
 	
+    /**
+     * Geometric probability used in 
+     */
+    private static final double GEOMETRIC_RATIO = 0.2;
+    
 	//RandomAccessFile dictionary;
     BufferedReader surnameDictionary; 
     BufferedReader givennameDictionary; 
@@ -71,27 +76,25 @@ public class NamesDictionary {
 	Vector<Vector<Vector<String>>> givenNamesByLocationsMale;    // Year / Location / Names		
 	Vector<Vector<Vector<String>>> givenNamesByLocationsFemale;
 	
+	GeometricDist geoDist;
 	Random 		rand;
 	Random		randUniform;
 	
 	// Store the statistic for testdriver
 	int[][] countBySurNames; 		
-	int[][] countByGivenNames; 
-	
-	GeometricDist geoDist;
+	int[][] countByGivenNames;
 	
 	final int topN = 30; 
 	
-	//public NamesDictionary(String _dicFileName, HashMap<String, Integer> _locationNames, long seedRandom){
 	public NamesDictionary(String _surdicFileName, String _givendicFileName, 
-						HashMap<String, Integer> _locationNames, long seedRandom, double _geometricDistProb){
+						HashMap<String, Integer> _locationNames, long seedRandom){
 		this.locationNames = _locationNames; 
 		//this.dicFileName = _dicFileName;
 		this.surdicFileName = _surdicFileName; 
 		this.givendicFileName = _givendicFileName; 
 		this.rand = new Random(seedRandom);
 		this.randUniform = new Random(seedRandom);
-		geoDist = new GeometricDist(_geometricDistProb);
+		geoDist = new GeometricDist(GEOMETRIC_RATIO);
 	}
 	public void init(){
 		try {
