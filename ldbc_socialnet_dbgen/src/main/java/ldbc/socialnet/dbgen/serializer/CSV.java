@@ -251,7 +251,11 @@ public class CSV implements Serializer {
             printedTagClasses.put(tagClass, tagClass);
             arguments.add(tagClass.toString());
             arguments.add(tagDic.getClassName(tagClass));
-            arguments.add(DBPOWL.fullprefixed(tagDic.getClassName(tagClass)));
+            if (tagDic.getClassName(tagClass).equals("Thing")) {
+                arguments.add("<http://www.w3.org/2002/07/owl#Thing>");
+            } else {
+                arguments.add(DBPOWL.fullprefixed(tagDic.getClassName(tagClass)));
+            }
             ToCSV(arguments, Files.TAGCLASS.ordinal());
             
             Integer parent = tagDic.getClassParent(tagClass);
