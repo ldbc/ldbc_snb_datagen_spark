@@ -49,7 +49,6 @@ import ldbc.socialnet.dbgen.dictionary.NamesDictionary;
 
 
 public class OutputDataWriter {
-	// For data of test driver
 	private static String 	outputDirectory = "td_data";
 	private static String 	experimentDirectory = "experiment";
 	private static String 	groupDataFilename = "gr.dat";
@@ -62,8 +61,7 @@ public class OutputDataWriter {
 	
 	ObjectOutputStream 		userDataOutput;
 	File 					outputDir;
-	File 					experimentOutputDir;
-	//private int userData[]; 		// Store the number of friends per user 		 
+	File 					experimentOutputDir;		 
 	
 	public OutputDataWriter(){
 		outputDir = new File(outputDirectory);
@@ -72,7 +70,6 @@ public class OutputDataWriter {
 		experimentOutputDir.mkdirs();
 	}
 	protected void initWritingUserData(){
-		// Write user info
 		File userDataFile = new File(outputDir, userDataFilename);
 		try {
 			userDataOutput = new ObjectOutputStream(new FileOutputStream(userDataFile, false));
@@ -88,22 +85,19 @@ public class OutputDataWriter {
 			userDataOutput.writeInt(userId);
 			userDataOutput.writeInt(numOfFriend);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	protected void finishWritingUserData(){
 		try {
-			userDataOutput.writeInt(-1);			// End of file
+			userDataOutput.writeInt(-1);
 			userDataOutput.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
 	protected void writeGeneralDataForTestDriver(int numtotalUser, DateGenerator dateTimeGenerator){
-		// Write user info
 		File generalDataFile = new File(outputDir, generalDataFilename);
 		ObjectOutputStream generalDataOutput;
 		try {
@@ -120,7 +114,6 @@ public class OutputDataWriter {
 	}
 
 	protected void writeGroupDataForTestDriver(GroupGenerator groupGenerator){
-		// Write number of groups
 		File groupDataFile = new File(outputDir, groupDataFilename);
 		ObjectOutputStream groupDataOutput;
 		try {
@@ -136,17 +129,11 @@ public class OutputDataWriter {
 	}
 	
 	protected void writeLocationDataForTestDriver(LocationDictionary locationDic){
-		// Write location information
 		File locationDataFile = new File(outputDir, locationDataFilename);
 		ObjectOutputStream locationDataOutput;
 		try {
 			locationDataFile.createNewFile();
 			locationDataOutput = new ObjectOutputStream(new FileOutputStream(locationDataFile, false));
-			/*
-			for (int i = 0; i < locationDic.getVecLocations().size(); i++){
-				locationDataOutput.writeObject(locationDic.getVecLocations().get(i).getName());
-			}
-			*/
 			locationDataOutput.writeObject(locationDic.getVecLocations());
 			
 			locationDataOutput.close();
@@ -158,20 +145,11 @@ public class OutputDataWriter {
 	}
 	
 	protected void writeNamesDataForTestDriver(NamesDictionary namesDictionary){
-		// Write user names
 		File namesDataFile = new File(outputDir, userNameDataFilename);
 		ObjectOutputStream namesDataOutput;
 		try {
 			namesDataFile.createNewFile();
 			namesDataOutput = new ObjectOutputStream(new FileOutputStream(namesDataFile, false));
-			/*
-			for (int i = 0; i < locationDic.getVecLocations().size(); i++){
-				locationDataOutput.writeObject(locationDic.getVecLocations().get(i).getName());
-			}
-			*/
-			//namesDataOutput.writeObject(namesDictionary.getCountBySurNames());
-			//namesDataOutput.writeObject(namesDictionary.getCountByGivenNames());
-			//namesDataOutput.writeObject(namesDictionary.getGivenNamesByLocations());
 			namesDataOutput.writeObject(namesDictionary.getSurNamesByLocations());
 			
 			namesDataOutput.close();
@@ -183,9 +161,7 @@ public class OutputDataWriter {
 
 	}
 	
-	// For experiments
 	protected void writeSocialDegree(int[] socialDegrees, int numOfuser){
-		// Write number of groups
 		try {
 			Writer socialDegreeOutput = null;
 			File file = new File(experimentOutputDir, socialDegreeFileName + numOfuser + ".dat");
@@ -198,14 +174,12 @@ public class OutputDataWriter {
 			socialDegreeOutput.close();
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
 	}
-	// For experiments
+
 	protected void writeClusteringCoefficient(double[] coefficient, int[] socialdegree, int numOfuser){
-		// Write number of groups
 		try {
 			Writer clusteringCoefOutput = null;
 			File file = new File(experimentOutputDir, clustCoefficientFileName + numOfuser + ".dat");
@@ -213,8 +187,6 @@ public class OutputDataWriter {
 			  
 			for (int i = 1; i < coefficient.length; i++){
 				if (socialdegree[i] == 0){
-					//clusteringCoefOutput.write(i + "	0");
-					//clusteringCoefOutput.write("\n");
 					continue;
 				}
 				clusteringCoefOutput.write(i + "	" + (double)(coefficient[i]/(double)socialdegree[i]));
@@ -223,9 +195,7 @@ public class OutputDataWriter {
 			clusteringCoefOutput.close();
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 	}
 }

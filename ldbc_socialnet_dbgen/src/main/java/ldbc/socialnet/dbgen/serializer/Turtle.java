@@ -41,7 +41,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -52,17 +51,13 @@ import ldbc.socialnet.dbgen.dictionary.TagDictionary;
 import ldbc.socialnet.dbgen.generator.DateGenerator;
 import ldbc.socialnet.dbgen.objects.Comment;
 import ldbc.socialnet.dbgen.objects.Friend;
-import ldbc.socialnet.dbgen.objects.FriendShip;
-import ldbc.socialnet.dbgen.objects.GPS;
 import ldbc.socialnet.dbgen.objects.Group;
 import ldbc.socialnet.dbgen.objects.GroupMemberShip;
 import ldbc.socialnet.dbgen.objects.Location;
 import ldbc.socialnet.dbgen.objects.Photo;
 import ldbc.socialnet.dbgen.objects.Post;
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
-import ldbc.socialnet.dbgen.objects.SocialObject;
 import ldbc.socialnet.dbgen.objects.UserExtraInfo;
-import ldbc.socialnet.dbgen.objects.UserProfile;
 import ldbc.socialnet.dbgen.vocabulary.DBP;
 import ldbc.socialnet.dbgen.vocabulary.DBPOWL;
 import ldbc.socialnet.dbgen.vocabulary.DBPPROP;
@@ -82,7 +77,6 @@ public class Turtle implements Serializer {
 	private long nrTriples;
 	private FileWriter[] dataFileWriter;
 	private FileWriter[] staticdbpFileWriter;
-	private boolean forwardChaining;
 	int currentWriter = 0;
 	static long membershipId = 0;
 	static long friendshipId = 0; 
@@ -109,8 +103,7 @@ public class Turtle implements Serializer {
 	TagDictionary tagDic;
 	IPAddressDictionary ipDic;
 	
-	public Turtle(String file, boolean forwardChaining, int nrOfOutputFiles, boolean isTurtle)
-	{
+	public Turtle(String file, boolean forwardChaining, int nrOfOutputFiles, boolean isTurtle) {
 	    this.isTurtle = isTurtle;
 		date = new GregorianCalendar();
 		printedIpaddresses = new HashMap<String, Integer>();
@@ -135,7 +128,7 @@ public class Turtle implements Serializer {
 				}
 			}
 				
-		} catch(IOException e){
+		} catch(IOException e) {
 			System.err.println("Could not open File for writing.");
 			System.err.println(e.getMessage());
 			System.exit(-1);
@@ -152,11 +145,7 @@ public class Turtle implements Serializer {
 			System.err.println(e.getMessage());
 		}
 		
-		this.forwardChaining = forwardChaining;
 		nrTriples = 0l;
-		
-		TurtleShutdown sd = new TurtleShutdown(this);
-		Runtime.getRuntime().addShutdownHook(sd);
 	}
 
 	public Turtle(String file, boolean forwardChaining, int nrOfOutputFiles, boolean isTurtle,
@@ -174,68 +163,21 @@ public class Turtle implements Serializer {
 	    this.languageDic = languageDic;
 	}
 
-	@Override
 	public Long triplesGenerated() {
 		return nrTriples;
 	}
 
-	@Override
-	public void gatherData(SocialObject socialObject){
-
+	public void toWriter(String data){
 	    try {
-	        if(socialObject instanceof UserProfile){
-	            UserContainer container = new UserContainer((UserProfile)socialObject);
-	            dataFileWriter[currentWriter].append(convertUserProfile(container, null));
-	        } else if(socialObject instanceof Post){
-	            dataFileWriter[currentWriter].append(convertPost((Post)socialObject, true, true));
-	        } else if(socialObject instanceof Comment){
-	            dataFileWriter[currentWriter].append(convertComment((Comment)socialObject));
-	        } else if (socialObject instanceof Photo){
-	            dataFileWriter[currentWriter].append(convertPhoto((Photo)socialObject, true, true));
-	        } else if (socialObject instanceof Group){
-	            dataFileWriter[currentWriter].append(convertGroup((Group)socialObject));
-	        } else if (socialObject instanceof GPS){
-	            dataFileWriter[currentWriter].append(convertGPS((GPS)socialObject));
-	        } else {
-	            System.err.println("Trying to serialize an Unknown object");
-	        }
+	        dataFileWriter[currentWriter].append(data);
 	        currentWriter = (currentWriter + 1) % dataFileWriter.length;
 	    } catch(IOException e){
 	        System.out.println("Cannot write to output file ");
 	        e.printStackTrace();
 	        System.exit(-1);
 	    }
-	} 
-	
-	public void gatherData(ReducedUserProfile userProfile, UserExtraInfo extraInfo){
-		
-		try {
-		    UserContainer container = new UserContainer(userProfile);
-			dataFileWriter[currentWriter].append(convertUserProfile(container, extraInfo));
-		} catch (IOException e) {
-			System.out.println("Cannot write to output file ");
-			e.printStackTrace();
-		}
-	}
-	public void gatherData(Post post, boolean isLikeStream){
-		
-		try {
-			dataFileWriter[currentWriter].append(convertPost(post, !isLikeStream, isLikeStream));
-		} catch (IOException e) {
-			System.out.println("Cannot write to output file ");
-			e.printStackTrace();
-		}
 	}
 	
-	public void gatherData(Photo photo, boolean isLikeStream){
-		
-		try {
-			dataFileWriter[currentWriter].append(convertPhoto(photo, !isLikeStream, isLikeStream));
-		} catch (IOException e) {
-			System.out.println("Cannot write to output file ");
-			e.printStackTrace();
-		}
-	}	
 	private String getNamespaces() {
 	    StringBuffer result = new StringBuffer();
 		createPrefixLine(result, RDF.PREFIX, RDF.NS);
@@ -250,6 +192,7 @@ public class Turtle implements Serializer {
 	private String getStaticNamespaces() {
         StringBuffer result = new StringBuffer();
         createPrefixLine(result, RDF.PREFIX, RDF.NS);
+        createPrefixLine(result, RDFS.PREFIX, RDFS.NS);
         createPrefixLine(result, FOAF.PREFIX, FOAF.NS);
         createPrefixLine(result, DBP.PREFIX, DBP.NS);
         createPrefixLine(result, DBPOWL.PREFIX, DBPOWL.NS);
@@ -266,9 +209,7 @@ public class Turtle implements Serializer {
 		result.append(" .\n");
 	}
 
-	//Create URIREF from URI
-	private String createURIref(String uri)
-	{
+	private String createURIref(String uri) {
 		StringBuffer result = new StringBuffer();
 		result.append("<");
 		result.append(uri);
@@ -329,11 +270,6 @@ public class Turtle implements Serializer {
 	}
 	
 	private void AddTriple(StringBuffer result, boolean beginning, 
-            boolean end, String left, String middle, String right, String extra) {
-	    AddTriple(result, beginning, end, left, middle, right, extra, false);
-	}
-	
-	private void AddTriple(StringBuffer result, boolean beginning, 
 	        boolean end, String left, String middle, String right) {
 	    AddTriple(result, beginning, end, left, middle, right, "", false);
 	}
@@ -367,7 +303,7 @@ public class Turtle implements Serializer {
         }
 	}
 	
-	public String convertUserProfile(UserContainer profile, UserExtraInfo extraInfo){
+	public void gatherData(ReducedUserProfile profile, UserExtraInfo extraInfo){
 		StringBuffer result = new StringBuffer();
 		
 		if (extraInfo == null) {
@@ -487,7 +423,7 @@ public class Turtle implements Serializer {
             createTripleSPO(result, prefix, SNVOC.email, createLiteral(email));
         }
 		
-        Iterator<Integer> itInteger = profile.getSetOfInterests().iterator();
+        Iterator<Integer> itInteger = profile.getSetOfTags().iterator();
 		while (itInteger.hasNext()) {
 			Integer interestIdx = itInteger.next();
 			String interest = tagDic.getName(interestIdx);
@@ -518,7 +454,7 @@ public class Turtle implements Serializer {
                 createDataTypeLiteral(dateString, XSD.DateTime));
         AddTriple(result, false, true, forumPrefix, SNVOC.hasModerator, prefix);
         
-        itInteger = profile.getSetOfInterests().iterator();
+        itInteger = profile.getSetOfTags().iterator();
         while (itInteger.hasNext()) {
             Integer interestIdx = itInteger.next();
             String interest = tagDic.getName(interestIdx);
@@ -544,85 +480,79 @@ public class Turtle implements Serializer {
             }
         }
 		
-		return result.toString();	
+		toWriter(result.toString());
 	}
-	
-	public String convertPost(Post post, boolean body, boolean isLiked){
+
+	public void gatherData(Post post){
 	    StringBuffer result = new StringBuffer();
 
-	    if (body) {
-	        
-	        if (post.getIpAddress() != null) {
-	            printLocationHierarchy(result, ipDic.getLocation(post.getIpAddress()));
+	    if (post.getIpAddress() != null) {
+	        printLocationHierarchy(result, ipDic.getLocation(post.getIpAddress()));
+	    }
+	    date.setTimeInMillis(post.getCreatedDate());
+	    String dateString = DateGenerator.formatDateDetail(date);
+	    String prefix = SN.getPostURI(post.getPostId());
+
+	    AddTriple(result, true, false, prefix, RDF.type, SNVOC.Post);
+	    AddTriple(result, false, false, prefix, SNVOC.creationDate, 
+	            createDataTypeLiteral(dateString, XSD.DateTime));
+	    if (post.getIpAddress() != null) {
+	        AddTriple(result, false, false, prefix, SNVOC.ipaddress, 
+	                createLiteral(post.getIpAddress().toString()));
+	        if (post.getBrowserIdx() >= 0) {
+	            AddTriple(result, false, false, prefix, SNVOC.browser,
+	                    createLiteral(vBrowserNames.get(post.getBrowserIdx())));
 	        }
-	        date.setTimeInMillis(post.getCreatedDate());
-            String dateString = DateGenerator.formatDateDetail(date);
-	        String prefix = SN.getPostURI(post.getPostId());
-	        
-	        AddTriple(result, true, false, prefix, RDF.type, SNVOC.Post);
-	        AddTriple(result, false, false, prefix, SNVOC.creationDate, 
+	    }
+	    AddTriple(result, false, true, prefix, SNVOC.content,
+	            createLiteral(post.getContent()));
+
+	    if (post.getLanguage() != -1) {
+	        createTripleSPO(result, prefix, SNVOC.language,
+	                createLiteral(languageDic.getLanguagesName(post.getLanguage())));
+	    }
+
+	    if (post.getIpAddress() != null) {;
+	    createTripleSPO(result, prefix, SNVOC.locatedIn,
+	            DBP.fullPrefixed(locationDic.getLocationName((ipDic.getLocation(post.getIpAddress())))));
+	    }
+
+	    createTripleSPO(result, SN.getForumURI(post.getForumId()),SNVOC.containerOf, prefix);
+
+	    createTripleSPO(result, prefix, SNVOC.hasCreator, SN.getPersonURI(post.getAuthorId()));
+
+	    Iterator<Integer> it = post.getTags().iterator();
+	    while (it.hasNext()) {
+	        Integer tagId = it.next();
+	        String tag = tagDic.getName(tagId);
+	        createTripleSPO(result, prefix, SNVOC.hasTag, DBP.fullPrefixed(tag));
+	        if (!printedTags.containsKey(tagId)) {
+	            printedTags.put(tagId, tagId);
+	            createTripleSPO(result, DBP.fullPrefixed(tag), RDF.type, SNVOC.Tag);
+	            writeTagData(tagId, tag);
+	        }
+	    }
+
+	    int userLikes[] = post.getInterestedUserAccs();
+	    long likeTimestamps[] = post.getInterestedUserAccsTimestamp();
+
+	    for (int i = 0; i < userLikes.length; i ++) {
+	        String likePrefix = SN.getLikeURI(likeId);
+	        createTripleSPO(result, SN.getPersonURI(userLikes[i]), 
+	                SNVOC.like, likePrefix);
+
+	        AddTriple(result, true, false, likePrefix, SNVOC.hasPost, prefix);
+	        date.setTimeInMillis(likeTimestamps[i]);
+	        dateString = DateGenerator.formatDateDetail(date);
+	        AddTriple(result, false, true, likePrefix, SNVOC.creationDate,
 	                createDataTypeLiteral(dateString, XSD.DateTime));
-	        if (post.getIpAddress() != null) {
-	            AddTriple(result, false, false, prefix, SNVOC.ipaddress, 
-	                    createLiteral(post.getIpAddress().toString()));
-	            if (post.getBrowserIdx() >= 0) {
-	                AddTriple(result, false, false, prefix, SNVOC.browser,
-	                        createLiteral(vBrowserNames.get(post.getBrowserIdx())));
-	            }
-	        }
-	        AddTriple(result, false, true, prefix, SNVOC.content,
-                    createLiteral(post.getContent()));
-	        
-	        if (post.getLanguage() != -1) {
-	            createTripleSPO(result, prefix, SNVOC.language,
-	                    createLiteral(languageDic.getLanguagesName(post.getLanguage())));
-	        }
-	        
-	        if (post.getIpAddress() != null) {;
-	            createTripleSPO(result, prefix, SNVOC.locatedIn,
-	                    DBP.fullPrefixed(locationDic.getLocationName((ipDic.getLocation(post.getIpAddress())))));
-	        }
-
-	        createTripleSPO(result, SN.getForumURI(post.getForumId()),SNVOC.containerOf, prefix);
-
-	        createTripleSPO(result, prefix, SNVOC.hasCreator, SN.getPersonURI(post.getAuthorId()));
-
-	        Iterator<Integer> it = post.getTags().iterator();
-	        while (it.hasNext()) {
-	            Integer tagId = it.next();
-                String tag = tagDic.getName(tagId);
-	            createTripleSPO(result, prefix, SNVOC.hasTag, DBP.fullPrefixed(tag));
-	            if (!printedTags.containsKey(tagId)) {
-	                printedTags.put(tagId, tagId);
-	                createTripleSPO(result, DBP.fullPrefixed(tag), RDF.type, SNVOC.Tag);
-	                writeTagData(tagId, tag);
-	            }
-	        }
+	        likeId++;
 	    }
 
-	    if (isLiked) {
-	        String prefix = SN.getPostURI(post.getPostId());
-	        int userLikes[] = post.getInterestedUserAccs();
-	        long likeTimestamps[] = post.getInterestedUserAccsTimestamp();
-	        
-	        for (int i = 0; i < userLikes.length; i ++) {
-	            String likePrefix = SN.getLikeURI(likeId);
-	            createTripleSPO(result, SN.getPersonURI(userLikes[i]), 
-	                    SNVOC.like, likePrefix);
-	            
-	            AddTriple(result, true, false, likePrefix, SNVOC.hasPost, prefix);
-	            date.setTimeInMillis(likeTimestamps[i]);
-	            String dateString = DateGenerator.formatDateDetail(date);
-	            AddTriple(result, false, true, likePrefix, SNVOC.creationDate,
-	                    createDataTypeLiteral(dateString, XSD.DateTime));
-	            likeId++;
-	        }
-	    }
-
-		return result.toString();
+	    toWriter(result.toString());
 	}
 
-	public String convertComment(Comment comment){
+	public void gatherData(Comment comment){
 		StringBuffer result = new StringBuffer();
 		
 		String prefix = SN.getCommentURI(comment.getCommentId());
@@ -652,73 +582,64 @@ public class Turtle implements Serializer {
 		createTripleSPO(result, prefix, SNVOC.hasCreator,
 		        SN.getPersonURI(comment.getAuthorId()));
 
-		return result.toString();
+		toWriter(result.toString());
 	}
 	
-	public String convertPhoto(Photo photo, boolean body, boolean isLiked){
-		StringBuffer result = new StringBuffer();
-		
-		if (body)  {
-		    String prefix = SN.getPostURI(photo.getPhotoId());
-	        AddTriple(result, true, false, prefix, RDF.type, SNVOC.Post);
-	        AddTriple(result, false, false, prefix, SNVOC.hasImage, createLiteral(photo.getImage()));
-	        date.setTimeInMillis(photo.getTakenTime());
-            String dateString = DateGenerator.formatDateDetail(date);
-            if (photo.getIpAddress() != null) {
-                AddTriple(result, false, false, prefix, SNVOC.ipaddress, 
-                        createLiteral(photo.getIpAddress().toString()));
-                if (photo.getBrowserIdx() >= 0) {
-                    AddTriple(result, false, false, prefix, SNVOC.browser,
-                            createLiteral(vBrowserNames.get(photo.getBrowserIdx())));
-                }
-            }
-            AddTriple(result, false, true, prefix, SNVOC.creationDate, 
-                    createDataTypeLiteral(dateString, XSD.DateTime));
-            
-            createTripleSPO(result, prefix, SNVOC.hasCreator, SN.getPersonURI(photo.getCreatorId()));
-            createTripleSPO(result, SN.getForumURI(photo.getAlbumId()), SNVOC.containerOf, prefix);
-            createTripleSPO(result, prefix, SNVOC.locatedIn,
-                    DBP.fullPrefixed(locationDic.getLocationName((ipDic.getLocation(photo.getIpAddress())))));
-            
-            Iterator<Integer> it = photo.getTags().iterator();
-            while (it.hasNext()) {
-                Integer tagId = it.next();
-                String tag = tagDic.getName(tagId);
-                createTripleSPO(result, prefix, SNVOC.hasTag, DBP.fullPrefixed(tag));
-                if (!printedTags.containsKey(tagId)) {
-                    printedTags.put(tagId, tagId);
-                    createTripleSPO(result, DBP.fullPrefixed(tag), RDF.type, SNVOC.Tag);
-                    writeTagData(tagId, tag);
-                }
-            }
-		}
-		if (isLiked) {
-		    String prefix = SN.getPostURI(photo.getPhotoId());
-            int userLikes[] = photo.getInterestedUserAccs();
-            long likeTimestamps[] = photo.getInterestedUserAccsTimestamp();
-            for (int i = 0; i < userLikes.length; i ++) {
-                String likePrefix = SN.getLikeURI(likeId);
-                createTripleSPO(result, SN.getPersonURI(userLikes[i]), 
-                        SNVOC.like, likePrefix);
-                
-                AddTriple(result, true, false, likePrefix, SNVOC.hasPost, prefix);
-                date.setTimeInMillis(likeTimestamps[i]);
-                String dateString = DateGenerator.formatDateDetail(date);
-                AddTriple(result, false, true, likePrefix, SNVOC.creationDate,
-                        createDataTypeLiteral(dateString, XSD.DateTime));
-                likeId++;
-            }
-		}
-		
-		return result.toString(); 
-	}	
+	public void gatherData(Photo photo){
+	    StringBuffer result = new StringBuffer();
 
-	public String convertGPS(GPS gps){
-		StringBuffer result = new StringBuffer();
-		return result.toString(); 
+	    String prefix = SN.getPostURI(photo.getPhotoId());
+	    AddTriple(result, true, false, prefix, RDF.type, SNVOC.Post);
+	    AddTriple(result, false, false, prefix, SNVOC.hasImage, createLiteral(photo.getImage()));
+	    date.setTimeInMillis(photo.getTakenTime());
+	    String dateString = DateGenerator.formatDateDetail(date);
+	    if (photo.getIpAddress() != null) {
+	        AddTriple(result, false, false, prefix, SNVOC.ipaddress, 
+	                createLiteral(photo.getIpAddress().toString()));
+	        if (photo.getBrowserIdx() >= 0) {
+	            AddTriple(result, false, false, prefix, SNVOC.browser,
+	                    createLiteral(vBrowserNames.get(photo.getBrowserIdx())));
+	        }
+	    }
+	    AddTriple(result, false, true, prefix, SNVOC.creationDate, 
+	            createDataTypeLiteral(dateString, XSD.DateTime));
+
+	    createTripleSPO(result, prefix, SNVOC.hasCreator, SN.getPersonURI(photo.getCreatorId()));
+	    createTripleSPO(result, SN.getForumURI(photo.getAlbumId()), SNVOC.containerOf, prefix);
+	    createTripleSPO(result, prefix, SNVOC.locatedIn,
+	            DBP.fullPrefixed(locationDic.getLocationName((ipDic.getLocation(photo.getIpAddress())))));
+
+	    Iterator<Integer> it = photo.getTags().iterator();
+	    while (it.hasNext()) {
+	        Integer tagId = it.next();
+	        String tag = tagDic.getName(tagId);
+	        createTripleSPO(result, prefix, SNVOC.hasTag, DBP.fullPrefixed(tag));
+	        if (!printedTags.containsKey(tagId)) {
+	            printedTags.put(tagId, tagId);
+	            createTripleSPO(result, DBP.fullPrefixed(tag), RDF.type, SNVOC.Tag);
+	            writeTagData(tagId, tag);
+	        }
+	    }
+
+	    int userLikes[] = photo.getInterestedUserAccs();
+	    long likeTimestamps[] = photo.getInterestedUserAccsTimestamp();
+	    for (int i = 0; i < userLikes.length; i ++) {
+	        String likePrefix = SN.getLikeURI(likeId);
+	        createTripleSPO(result, SN.getPersonURI(userLikes[i]), 
+	                SNVOC.like, likePrefix);
+
+	        AddTriple(result, true, false, likePrefix, SNVOC.hasPost, prefix);
+	        date.setTimeInMillis(likeTimestamps[i]);
+	        dateString = DateGenerator.formatDateDetail(date);
+	        AddTriple(result, false, true, likePrefix, SNVOC.creationDate,
+	                createDataTypeLiteral(dateString, XSD.DateTime));
+	        likeId++;
+	    }
+
+	    toWriter(result.toString());
 	}
 
-	public String convertGroup(Group group){
+	public void gatherData(Group group){
 	    StringBuffer result = new StringBuffer();
 	    date.setTimeInMillis(group.getCreatedDate());
 	    String dateString = DateGenerator.formatDateDetail(date);  
@@ -760,11 +681,10 @@ public class Turtle implements Serializer {
 	        membershipId++;
 	    }
         
-	    return result.toString();
+	    toWriter(result.toString());
 	}
 	
-	private String createLiteral(String value)
-	{
+	private String createLiteral(String value) {
 		StringBuffer result = new StringBuffer();
 		result.append("\"");
 		result.append(value);
@@ -772,8 +692,7 @@ public class Turtle implements Serializer {
 		return result.toString();
 	}
 	
-	private String createDataTypeLiteral(String value, String datatypeURI)
-	{
+	private String createDataTypeLiteral(String value, String datatypeURI) {
 		StringBuffer result = new StringBuffer();
 		result.append("\"");
 		result.append(value);
@@ -785,8 +704,7 @@ public class Turtle implements Serializer {
 	/*
 	 * Create a triple consisting of subject predicate and object, end with "."
 	 */
-	private void createTripleSPO(StringBuffer result, String subject, String predicate, String object)
-	{
+	private void createTripleSPO(StringBuffer result, String subject, String predicate, String object) {
 		result.append(subject);		
 		result.append(" ");
 		result.append(predicate);
@@ -799,8 +717,7 @@ public class Turtle implements Serializer {
 	/*
 	 * Create an abbreviated triple consisting of predicate and object; end with ";"
 	 */
-	private String createTriplePO(String predicate, String object)
-	{
+	private String createTriplePO(String predicate, String object) {
 		StringBuffer result = new StringBuffer();
 		result.append("    ");
 		result.append(predicate);
@@ -816,8 +733,7 @@ public class Turtle implements Serializer {
 	/*
 	 * Create an abbreviated triple consisting of predicate and object; end with "."
 	 */
-	private String createTriplePOEnd(String predicate, String object)
-	{
+	private String createTriplePOEnd(String predicate, String object) {
 		StringBuffer result = new StringBuffer();
 		result.append("    ");
 		result.append(predicate);
@@ -831,8 +747,7 @@ public class Turtle implements Serializer {
 	}
 	
 	// Create a triple with two objects separated by an ",". the triple is ended with ";" 
-	private String createTriplePOO(String predicate, String object1, String object2)
-	{
+	private String createTriplePOO(String predicate, String object1, String object2) {
 		StringBuffer result = new StringBuffer();
 		result.append("    ");
 		result.append(predicate);
@@ -848,8 +763,7 @@ public class Turtle implements Serializer {
 	}
 	
 	// Create a triple with two objects separated by an ",". the triple is ended with "." 
-	private String createTriplePOOEnd(String predicate, String object1, String object2)
-	{
+	private String createTriplePOOEnd(String predicate, String object1, String object2) {
 		StringBuffer result = new StringBuffer();
 		result.append("    ");
 		result.append(predicate);
@@ -864,9 +778,7 @@ public class Turtle implements Serializer {
 		return result.toString();
 	}
 	
-	@Override
 	public void serialize() {
-		//Close files
 		try {
 			for(int i=0;i<dataFileWriter.length;i++) {
 				dataFileWriter[i].flush();
@@ -879,27 +791,4 @@ public class Turtle implements Serializer {
 			System.exit(-1);
 		}
 	}
-	
-
-	class TurtleShutdown extends Thread {
-		Turtle serializer;
-		TurtleShutdown(Turtle t) {
-			serializer = t;
-		}
-		
-		@Override
-        public void run() {
-			
-			for(int i=0;i<dataFileWriter.length;i++) {
-				try {
-					serializer.dataFileWriter[i].flush();
-					serializer.dataFileWriter[i].close();
-					staticdbpFileWriter[i].flush();
-					staticdbpFileWriter[i].close();
-				} catch(IOException e) {
-					// Do nothing
-				}
-			}
-		}
-	}	
 }

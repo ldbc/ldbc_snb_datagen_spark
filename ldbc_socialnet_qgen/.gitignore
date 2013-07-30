@@ -1,0 +1,8 @@
+benchmark_result.*.xml
+*.log
+*.nt
+*.classpath
+*.project
+*~
+bin/
+td_data/

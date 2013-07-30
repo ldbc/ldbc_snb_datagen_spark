@@ -36,7 +36,7 @@
  */
 package ldbc.socialnet.dbgen.objects;
 
-public class Comment extends SocialObject {
+public class Comment {
 	long commentId; 
 	String content; 
 	long postId;

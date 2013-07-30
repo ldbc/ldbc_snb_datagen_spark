@@ -51,24 +51,16 @@ import ldbc.socialnet.dbgen.dictionary.TagDictionary;
 import ldbc.socialnet.dbgen.generator.DateGenerator;
 import ldbc.socialnet.dbgen.objects.Comment;
 import ldbc.socialnet.dbgen.objects.Friend;
-import ldbc.socialnet.dbgen.objects.FriendShip;
-import ldbc.socialnet.dbgen.objects.GPS;
 import ldbc.socialnet.dbgen.objects.Group;
 import ldbc.socialnet.dbgen.objects.GroupMemberShip;
 import ldbc.socialnet.dbgen.objects.Location;
 import ldbc.socialnet.dbgen.objects.Photo;
 import ldbc.socialnet.dbgen.objects.Post;
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
-import ldbc.socialnet.dbgen.objects.SocialObject;
 import ldbc.socialnet.dbgen.objects.UserExtraInfo;
-import ldbc.socialnet.dbgen.objects.UserProfile;
 import ldbc.socialnet.dbgen.vocabulary.DBP;
 import ldbc.socialnet.dbgen.vocabulary.DBPOWL;
-import ldbc.socialnet.dbgen.vocabulary.RDF;
-import ldbc.socialnet.dbgen.vocabulary.RDFS;
 import ldbc.socialnet.dbgen.vocabulary.SN;
-import ldbc.socialnet.dbgen.vocabulary.SNVOC;
-import ldbc.socialnet.dbgen.vocabulary.XSD;
 
 
 public class CSV implements Serializer {
@@ -154,8 +146,6 @@ public class CSV implements Serializer {
 	
 	private long nrTriples;
 	private FileWriter[][] dataFileWriter;
-	private boolean forwardChaining;
-	private boolean haveToGeneratePrefixes = true;
 	int[] currentWriter;
 	long[] idList;
 	static long membershipId = 0;
@@ -182,13 +172,11 @@ public class CSV implements Serializer {
 	TagDictionary tagDic;
 	IPAddressDictionary ipDic;
 	
-	public CSV(String file, boolean forwardChaining)
-	{
+	public CSV(String file, boolean forwardChaining) {
 		this(file, forwardChaining, 1);
 	}
 	
-	public CSV(String file, boolean forwardChaining, int nrOfOutputFiles)
-	{
+	public CSV(String file, boolean forwardChaining, int nrOfOutputFiles) {
 		vBrowserNames = new Vector<String>();
 		locations = new Vector<Integer>();
 		organisations = new Vector<String>();
@@ -229,12 +217,7 @@ public class CSV implements Serializer {
 			System.err.println(e.getMessage());
 			System.exit(-1);
 		}
-		
-		this.forwardChaining = forwardChaining;
 		nrTriples = 0l;
-		
-		CSVShutdown sd = new CSVShutdown(this);
-		Runtime.getRuntime().addShutdownHook(sd);
 	}
 	
 	public CSV(String file, boolean forwardChaining, int nrOfOutputFiles, 
@@ -252,45 +235,9 @@ public class CSV implements Serializer {
         this.ipDic = ipDic;
     }
 	
-	@Override
 	public Long triplesGenerated() {
 		return nrTriples;
 	}
-
-	@Override
-	public void gatherData(SocialObject socialObject){
-		if(haveToGeneratePrefixes) {
-			haveToGeneratePrefixes = false;
-		}
-
-		if(socialObject instanceof UserProfile){
-			UserContainer container = new UserContainer((UserProfile)socialObject);
-			convertUserProfile(container, null);
-		} else if(socialObject instanceof Post){
-			convertPost((Post)socialObject, true, true);
-		} else if(socialObject instanceof Comment){
-			convertComment((Comment)socialObject);
-		} else if (socialObject instanceof Photo){
-			convertPhoto((Photo)socialObject, true, true);
-		} else if (socialObject instanceof Group){
-			convertGroup((Group)socialObject);
-		} else if (socialObject instanceof GPS){
-			convertGPS((GPS)socialObject);
-		}
-	} 
-
-	@Override
-	public void gatherData(ReducedUserProfile userProfile, UserExtraInfo extraInfo){
-		UserContainer container = new UserContainer(userProfile);
-		convertUserProfile(container, extraInfo);
-	}
-	public void gatherData(Post post, boolean isLikeStream){
-		convertPost(post, !isLikeStream, isLikeStream);
-	}
-
-	public void gatherData(Photo photo, boolean isLikeStream){
-		convertPhoto(photo, !isLikeStream, isLikeStream);
-	}	
 	
 	public void printTagHierarchy(Integer tagId) {
 	    Vector<String> arguments = new Vector<String>();
@@ -317,8 +264,7 @@ public class CSV implements Serializer {
         }
 	}
 	
-	public void ToCSV(Vector<String> arguments, int index)
-	{
+	public void ToCSV(Vector<String> arguments, int index) {
 		StringBuffer result = new StringBuffer();
 		result.append(arguments.get(0));
 		for (int i = 1; i < arguments.size(); i++)
@@ -332,8 +278,7 @@ public class CSV implements Serializer {
 		idList[index]++;
 	}
 
-	public void WriteTo(String data, int index)
-	{
+	public void WriteTo(String data, int index) {
 		try
 		{
 			dataFileWriter[currentWriter[index]][index].append(data);
@@ -375,7 +320,7 @@ public class CSV implements Serializer {
         }
     }
 	
-	public void convertUserProfile(UserContainer profile, UserExtraInfo extraInfo){
+	public void gatherData(ReducedUserProfile profile, UserExtraInfo extraInfo){
 		Vector<String> arguments = new Vector<String>();
 		
 		if (extraInfo == null) {
@@ -408,7 +353,6 @@ public class CSV implements Serializer {
 		date.setTimeInMillis(profile.getCreatedDate());
 		String dateString = DateGenerator.formatDateDetail(date);
 		arguments.add(dateString);
-		int ipId = ipList.indexOf(profile.getIpAddress().toString());
         if (profile.getIpAddress() != null) {
             arguments.add(profile.getIpAddress().toString());
         } else {
@@ -516,7 +460,7 @@ public class CSV implements Serializer {
 		    ToCSV(arguments, Files.PERSON_WORK_AT_ORGANISATION.ordinal());
 		}
 		
-        Iterator<Integer> itInteger = profile.getSetOfInterests().iterator();
+        Iterator<Integer> itInteger = profile.getSetOfTags().iterator();
         while (itInteger.hasNext()){
             Integer interestIdx = itInteger.next();
             String interest = tagDic.getName(interestIdx);
@@ -565,7 +509,7 @@ public class CSV implements Serializer {
         arguments.add(SN.formId(profile.getForumWallId()));
         ToCSV(arguments,Files.PERSON_MODERATOR_OF_FORUM.ordinal());
         
-        itInteger = profile.getSetOfInterests().iterator();
+        itInteger = profile.getSetOfTags().iterator();
         while (itInteger.hasNext()){
             Integer interestIdx = itInteger.next();
             arguments.add(SN.formId(idList[Files.FORUM_HASTAG_TAG.ordinal()]));
@@ -585,104 +529,101 @@ public class CSV implements Serializer {
         }
 	}
 
-	public void convertPost(Post post, boolean body, boolean isLiked){
-		Vector<String> arguments = new Vector<String>();
-		if (body) {
-		    arguments.add(SN.formId(post.getPostId()));
-            if (post.getTitle() != null) {
-                arguments.add(post.getTitle());
-            } else {
-                String empty = "";
-                arguments.add(empty);
-            }
-            date.setTimeInMillis(post.getCreatedDate());
-            String dateString = DateGenerator.formatDateDetail(date);
-            arguments.add(dateString);
-            if (post.getIpAddress() != null) {
-                arguments.add(post.getIpAddress().toString());
-            }
-            else {
-                String empty = "";
-                arguments.add(empty);
-            }
-            if (post.getBrowserIdx() != -1){
-                arguments.add(vBrowserNames.get(post.getBrowserIdx()));
-            } else {
-                String empty = "";
-                arguments.add(empty);
-            }
-            arguments.add(post.getContent());
-            ToCSV(arguments, Files.POST.ordinal());
-            
-            if (serializedLanguages.indexOf(post.getLanguage()) == -1 && post.getLanguage() != -1) {
-                serializedLanguages.add(post.getLanguage());
-                arguments.add(Integer.toString(post.getLanguage()));
-                arguments.add(languageDic.getLanguagesName(post.getLanguage()));
-                ToCSV(arguments, Files.LANGUAGE.ordinal());
-            }
-            
-            if (post.getIpAddress() != null) {
-                arguments.add(SN.formId(idList[Files.POST_ANNOTATED_LANGUAGE.ordinal()]));
-                arguments.add(SN.formId(post.getPostId()));
-                arguments.add(Integer.toString(post.getLanguage()));
-                ToCSV(arguments, Files.POST_ANNOTATED_LANGUAGE.ordinal());
-            }
-            
-            if (post.getIpAddress() != null) {
-                arguments.add(SN.formId(idList[Files.POST_LOCATED_LOCATION.ordinal()]));
-                arguments.add(SN.formId(post.getPostId()));
-                arguments.add(Integer.toString(ipDic.getLocation(post.getIpAddress())));
-                ToCSV(arguments, Files.POST_LOCATED_LOCATION.ordinal());
-            }
-            arguments.add(SN.formId(idList[Files.FORUM_CONTAINER_OF_POST.ordinal()]));
-            arguments.add(Integer.toString(post.getForumId()));
-            arguments.add(SN.formId(post.getPostId()));
-            ToCSV(arguments, Files.FORUM_CONTAINER_OF_POST.ordinal());
-            
-            arguments.add(SN.formId(idList[Files.PERSON_CREATOR_OF_POST.ordinal()]));
-            arguments.add(Integer.toString(post.getAuthorId()));
-            arguments.add(SN.formId(post.getPostId()));
-            ToCSV(arguments, Files.PERSON_CREATOR_OF_POST.ordinal());
+	public void gatherData(Post post){
+	    Vector<String> arguments = new Vector<String>();
+	    
+	    arguments.add(SN.formId(post.getPostId()));
+	    if (post.getTitle() != null) {
+	        arguments.add(post.getTitle());
+	    } else {
+	        String empty = "";
+	        arguments.add(empty);
+	    }
+	    date.setTimeInMillis(post.getCreatedDate());
+	    String dateString = DateGenerator.formatDateDetail(date);
+	    arguments.add(dateString);
+	    if (post.getIpAddress() != null) {
+	        arguments.add(post.getIpAddress().toString());
+	    }
+	    else {
+	        String empty = "";
+	        arguments.add(empty);
+	    }
+	    if (post.getBrowserIdx() != -1){
+	        arguments.add(vBrowserNames.get(post.getBrowserIdx()));
+	    } else {
+	        String empty = "";
+	        arguments.add(empty);
+	    }
+	    arguments.add(post.getContent());
+	    ToCSV(arguments, Files.POST.ordinal());
 
-            Iterator<Integer> it = post.getTags().iterator();
-            while (it.hasNext()) {
-                Integer tagId = it.next();
-                String tag = tagDic.getName(tagId);
-                if (interests.indexOf(tag) == -1)
-                {
-                    interests.add(tag);
-                    
-                    arguments.add(Integer.toString(tagId));
-                    arguments.add(tag.replace("\"", "\\\""));
-                    arguments.add(DBP.fullPrefixed(tag));
-                    ToCSV(arguments, Files.TAG.ordinal());
-                    
-                    printTagHierarchy(tagId);
-                }
-                
-                arguments.add(SN.formId(idList[Files.POST_HAS_TAG_TAG.ordinal()]));
-                arguments.add(SN.formId(post.getPostId()));
-                arguments.add(Integer.toString(tagId));
-                ToCSV(arguments, Files.POST_HAS_TAG_TAG.ordinal());
-            }
-        }
+	    if (serializedLanguages.indexOf(post.getLanguage()) == -1 && post.getLanguage() != -1) {
+	        serializedLanguages.add(post.getLanguage());
+	        arguments.add(Integer.toString(post.getLanguage()));
+	        arguments.add(languageDic.getLanguagesName(post.getLanguage()));
+	        ToCSV(arguments, Files.LANGUAGE.ordinal());
+	    }
 
-        if (isLiked) {
-            int userLikes[] = post.getInterestedUserAccs();
-            long likeTimestamps[] = post.getInterestedUserAccsTimestamp();
-            for (int i = 0; i < userLikes.length; i ++) {
-                date.setTimeInMillis(likeTimestamps[i]);
-                String dateString = DateGenerator.formatDateDetail(date);
-                arguments.add(SN.formId(idList[Files.PERSON_LIKE_POST.ordinal()]));
-                arguments.add(Integer.toString(userLikes[i]));
-                arguments.add(SN.formId(post.getPostId()));
-                arguments.add(dateString);
-                ToCSV(arguments, Files.PERSON_LIKE_POST.ordinal());
-            }
-        }
+	    if (post.getIpAddress() != null) {
+	        arguments.add(SN.formId(idList[Files.POST_ANNOTATED_LANGUAGE.ordinal()]));
+	        arguments.add(SN.formId(post.getPostId()));
+	        arguments.add(Integer.toString(post.getLanguage()));
+	        ToCSV(arguments, Files.POST_ANNOTATED_LANGUAGE.ordinal());
+	    }
+
+	    if (post.getIpAddress() != null) {
+	        arguments.add(SN.formId(idList[Files.POST_LOCATED_LOCATION.ordinal()]));
+	        arguments.add(SN.formId(post.getPostId()));
+	        arguments.add(Integer.toString(ipDic.getLocation(post.getIpAddress())));
+	        ToCSV(arguments, Files.POST_LOCATED_LOCATION.ordinal());
+	    }
+	    arguments.add(SN.formId(idList[Files.FORUM_CONTAINER_OF_POST.ordinal()]));
+	    arguments.add(Integer.toString(post.getForumId()));
+	    arguments.add(SN.formId(post.getPostId()));
+	    ToCSV(arguments, Files.FORUM_CONTAINER_OF_POST.ordinal());
+
+	    arguments.add(SN.formId(idList[Files.PERSON_CREATOR_OF_POST.ordinal()]));
+	    arguments.add(Integer.toString(post.getAuthorId()));
+	    arguments.add(SN.formId(post.getPostId()));
+	    ToCSV(arguments, Files.PERSON_CREATOR_OF_POST.ordinal());
+
+	    Iterator<Integer> it = post.getTags().iterator();
+	    while (it.hasNext()) {
+	        Integer tagId = it.next();
+	        String tag = tagDic.getName(tagId);
+	        if (interests.indexOf(tag) == -1)
+	        {
+	            interests.add(tag);
+
+	            arguments.add(Integer.toString(tagId));
+	            arguments.add(tag.replace("\"", "\\\""));
+	            arguments.add(DBP.fullPrefixed(tag));
+	            ToCSV(arguments, Files.TAG.ordinal());
+
+	            printTagHierarchy(tagId);
+	        }
+
+	        arguments.add(SN.formId(idList[Files.POST_HAS_TAG_TAG.ordinal()]));
+	        arguments.add(SN.formId(post.getPostId()));
+	        arguments.add(Integer.toString(tagId));
+	        ToCSV(arguments, Files.POST_HAS_TAG_TAG.ordinal());
+	    }
+
+	    int userLikes[] = post.getInterestedUserAccs();
+	    long likeTimestamps[] = post.getInterestedUserAccsTimestamp();
+	    for (int i = 0; i < userLikes.length; i ++) {
+	        date.setTimeInMillis(likeTimestamps[i]);
+	        dateString = DateGenerator.formatDateDetail(date);
+	        arguments.add(SN.formId(idList[Files.PERSON_LIKE_POST.ordinal()]));
+	        arguments.add(Integer.toString(userLikes[i]));
+	        arguments.add(SN.formId(post.getPostId()));
+	        arguments.add(dateString);
+	        ToCSV(arguments, Files.PERSON_LIKE_POST.ordinal());
+	    }
 	}
 
-	public void convertComment(Comment comment){
+	public void gatherData(Comment comment){
 	    Vector<String> arguments = new Vector<String>();
 	    
 	    date.setTimeInMillis(comment.getCreateDate());
@@ -730,89 +671,82 @@ public class CSV implements Serializer {
 	    ToCSV(arguments, Files.PERSON_CREATOR_OF_COMMENT.ordinal());
 	}
 
-	public void convertPhoto(Photo photo, boolean body, boolean isLiked){
-		Vector<String> arguments = new Vector<String>();
-        if (body) {
-            String empty = "";
-            arguments.add(SN.formId(photo.getPhotoId()));
-            arguments.add(photo.getImage());
-            arguments.add(empty);
-            date.setTimeInMillis(photo.getTakenTime());
-            String dateString = DateGenerator.formatDateDetail(date);
-            arguments.add(dateString);
-            if (photo.getIpAddress() != null) {
-                arguments.add(photo.getIpAddress().toString());
-            }
-            else {
-                arguments.add(empty);
-            }
-            if (photo.getBrowserIdx() != -1){
-                arguments.add(vBrowserNames.get(photo.getBrowserIdx()));
-            } else {
-                arguments.add(empty);
-            }
-            arguments.add(empty);
-            ToCSV(arguments, Files.POST.ordinal());
-            
-            if (photo.getIpAddress() != null) {
-                arguments.add(SN.formId(idList[Files.POST_LOCATED_LOCATION.ordinal()]));
-                arguments.add(SN.formId(photo.getPhotoId()));
-                arguments.add(Integer.toString(ipDic.getLocation(photo.getIpAddress())));
-                ToCSV(arguments, Files.POST_LOCATED_LOCATION.ordinal());
-            }
-            
-            arguments.add(SN.formId(idList[Files.PERSON_CREATOR_OF_POST.ordinal()]));
-            arguments.add(Integer.toString(photo.getCreatorId()));
-            arguments.add(SN.formId(photo.getPhotoId()));
-            ToCSV(arguments, Files.PERSON_CREATOR_OF_POST.ordinal());
-            
-            arguments.add(SN.formId(idList[Files.FORUM_CONTAINER_OF_POST.ordinal()]));
-            arguments.add(SN.formId(photo.getAlbumId()));
-            arguments.add(SN.formId(photo.getPhotoId()));
-            ToCSV(arguments, Files.FORUM_CONTAINER_OF_POST.ordinal());
+	public void gatherData(Photo photo){
+	    Vector<String> arguments = new Vector<String>();
 
-            Iterator<Integer> it = photo.getTags().iterator();
-            while (it.hasNext()) {
-                Integer tagId = it.next();
-                String tag = tagDic.getName(tagId);
-                if (interests.indexOf(tag) == -1)
-                {
-                    interests.add(tag);
-                    arguments.add(Integer.toString(tagId));
-                    arguments.add(tag.replace("\"", "\\\""));
-                    arguments.add(DBP.fullPrefixed(tag));
-                    ToCSV(arguments, Files.TAG.ordinal());
-                    
-                    printTagHierarchy(tagId);
-                }
-                
-                arguments.add(SN.formId(idList[Files.POST_HAS_TAG_TAG.ordinal()]));
-                arguments.add(SN.formId(photo.getPhotoId()));
-                arguments.add(Integer.toString(tagId));
-                ToCSV(arguments, Files.POST_HAS_TAG_TAG.ordinal());
-            }
-        }
+	    String empty = "";
+	    arguments.add(SN.formId(photo.getPhotoId()));
+	    arguments.add(photo.getImage());
+	    arguments.add(empty);
+	    date.setTimeInMillis(photo.getTakenTime());
+	    String dateString = DateGenerator.formatDateDetail(date);
+	    arguments.add(dateString);
+	    if (photo.getIpAddress() != null) {
+	        arguments.add(photo.getIpAddress().toString());
+	    }
+	    else {
+	        arguments.add(empty);
+	    }
+	    if (photo.getBrowserIdx() != -1){
+	        arguments.add(vBrowserNames.get(photo.getBrowserIdx()));
+	    } else {
+	        arguments.add(empty);
+	    }
+	    arguments.add(empty);
+	    ToCSV(arguments, Files.POST.ordinal());
 
-        if (isLiked) {
-            int userLikes[] = photo.getInterestedUserAccs();
-            long likeTimestamps[] = photo.getInterestedUserAccsTimestamp();
-            for (int i = 0; i < userLikes.length; i ++) {
-                date.setTimeInMillis(likeTimestamps[i]);
-                String dateString = DateGenerator.formatDateDetail(date);
-                arguments.add(SN.formId(idList[Files.PERSON_LIKE_POST.ordinal()]));
-                arguments.add(Integer.toString(userLikes[i]));
-                arguments.add(SN.formId(photo.getPhotoId()));
-                arguments.add(dateString);
-                ToCSV(arguments, Files.PERSON_LIKE_POST.ordinal());
-            }
-        }
-	}	
+	    if (photo.getIpAddress() != null) {
+	        arguments.add(SN.formId(idList[Files.POST_LOCATED_LOCATION.ordinal()]));
+	        arguments.add(SN.formId(photo.getPhotoId()));
+	        arguments.add(Integer.toString(ipDic.getLocation(photo.getIpAddress())));
+	        ToCSV(arguments, Files.POST_LOCATED_LOCATION.ordinal());
+	    }
 
-	public void convertGPS(GPS gps){
-		Vector<String> arguments = new Vector<String>();
+	    arguments.add(SN.formId(idList[Files.PERSON_CREATOR_OF_POST.ordinal()]));
+	    arguments.add(Integer.toString(photo.getCreatorId()));
+	    arguments.add(SN.formId(photo.getPhotoId()));
+	    ToCSV(arguments, Files.PERSON_CREATOR_OF_POST.ordinal());
+
+	    arguments.add(SN.formId(idList[Files.FORUM_CONTAINER_OF_POST.ordinal()]));
+	    arguments.add(SN.formId(photo.getAlbumId()));
+	    arguments.add(SN.formId(photo.getPhotoId()));
+	    ToCSV(arguments, Files.FORUM_CONTAINER_OF_POST.ordinal());
+
+	    Iterator<Integer> it = photo.getTags().iterator();
+	    while (it.hasNext()) {
+	        Integer tagId = it.next();
+	        String tag = tagDic.getName(tagId);
+	        if (interests.indexOf(tag) == -1)
+	        {
+	            interests.add(tag);
+	            arguments.add(Integer.toString(tagId));
+	            arguments.add(tag.replace("\"", "\\\""));
+	            arguments.add(DBP.fullPrefixed(tag));
+	            ToCSV(arguments, Files.TAG.ordinal());
+
+	            printTagHierarchy(tagId);
+	        }
+
+	        arguments.add(SN.formId(idList[Files.POST_HAS_TAG_TAG.ordinal()]));
+	        arguments.add(SN.formId(photo.getPhotoId()));
+	        arguments.add(Integer.toString(tagId));
+	        ToCSV(arguments, Files.POST_HAS_TAG_TAG.ordinal());
+	    }
+
+	    int userLikes[] = photo.getInterestedUserAccs();
+	    long likeTimestamps[] = photo.getInterestedUserAccsTimestamp();
+	    for (int i = 0; i < userLikes.length; i ++) {
+	        date.setTimeInMillis(likeTimestamps[i]);
+	        dateString = DateGenerator.formatDateDetail(date);
+	        arguments.add(SN.formId(idList[Files.PERSON_LIKE_POST.ordinal()]));
+	        arguments.add(Integer.toString(userLikes[i]));
+	        arguments.add(SN.formId(photo.getPhotoId()));
+	        arguments.add(dateString);
+	        ToCSV(arguments, Files.PERSON_LIKE_POST.ordinal());
+	    }
 	}
 	
-	public void convertGroup(Group group){
+	public void gatherData(Group group){
 	    Vector<String> arguments = new Vector<String>();
 	    
 	    date.setTimeInMillis(group.getCreatedDate());
@@ -864,9 +798,7 @@ public class CSV implements Serializer {
         }
 	}
 
-	@Override
 	public void serialize() {
-		//Close files
 		try {
 			for (int i = 0; i < dataFileWriter.length; i++)
 			{
@@ -881,29 +813,4 @@ public class CSV implements Serializer {
 			System.exit(-1);
 		}
 	}
-
-
-	class CSVShutdown extends Thread {
-		CSV serializer;
-		CSVShutdown(CSV t) {
-			serializer = t;
-		}
-
-		@Override
-		public void run() {
-
-			for (int i = 0; i < dataFileWriter.length; i++)
-			{
-				for (int j = 0; j < Files.NUM_FILES.ordinal(); j++)
-				{
-					try {
-						serializer.dataFileWriter[i][j].flush();
-						serializer.dataFileWriter[i][j].close();
-					} catch(IOException e) {
-						// Do nothing
-					}
-				}
-			}
-		}
-	}	
 }

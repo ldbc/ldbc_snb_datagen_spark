@@ -75,8 +75,7 @@ public class MRGenerateUsers{
 		private int fileIdx;
 
 		@Override
-		public void map(LongWritable key, Text value, 
-				Context context)
+		public void map(LongWritable key, Text value, Context context)
 				throws IOException, InterruptedException {
 
 			Configuration conf = context.getConfiguration();
@@ -94,7 +93,7 @@ public class MRGenerateUsers{
 			
 			generator.numMaps = numMappers;
 			String[] inputParams = new String[0]; 
-			generator.initAllParams(inputParams, numMappers, fileIdx);
+			generator.init(numMappers, fileIdx);
 			
 			//Generate all the users 
 			int pass = 0; 
@@ -131,7 +130,7 @@ public class MRGenerateUsers{
 			
 			friendGenerator.numMaps = numReducer; 
 			String[] inputParams = new String[0]; 
-			friendGenerator.initBasicParams(inputParams, numReducer, "", 0);
+			friendGenerator.init(numReducer, 0);
 			
 			System.out.println("Cell size = " + friendGenerator.getCellSize());
 		}
@@ -209,7 +208,7 @@ public class MRGenerateUsers{
 			
 			friendGenerator.numMaps = numReducer; 
 			String[] inputParams = new String[0]; 
-			friendGenerator.initBasicParams(inputParams, numReducer, "", 0);
+			friendGenerator.init(numReducer, 0);
 			
 			System.out.println("Cell size = " + friendGenerator.getCellSize());
 		}
@@ -285,7 +284,7 @@ public class MRGenerateUsers{
 			friendGenerator = new ScalableGenerator(attempTaskId, outputDir, homeDir);
 			friendGenerator.numMaps = numReducer; 
 			String[] inputParams = new String[0]; 
-			friendGenerator.initAllParams(inputParams, numReducer, attempTaskId);
+			friendGenerator.init(numReducer, attempTaskId);
 			
 			numObject = 0; 
 		}
@@ -307,15 +306,11 @@ public class MRGenerateUsers{
 			try {
 				oos.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
-			// Call the mapreduce function here
 			int numofCell = numObject / friendGenerator.getCellSize();
-			
-			friendGenerator.mapreduceTask(outputFileName, numofCell);
-			
+			friendGenerator.generateUserActivity(outputFileName, numofCell);
 		}
 	}
 	

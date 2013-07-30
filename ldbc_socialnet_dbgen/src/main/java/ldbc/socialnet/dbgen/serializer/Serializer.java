@@ -36,10 +36,11 @@
  */
 package ldbc.socialnet.dbgen.serializer;
 
+import ldbc.socialnet.dbgen.objects.Comment;
+import ldbc.socialnet.dbgen.objects.Group;
 import ldbc.socialnet.dbgen.objects.Photo;
 import ldbc.socialnet.dbgen.objects.Post;
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
-import ldbc.socialnet.dbgen.objects.SocialObject;
 import ldbc.socialnet.dbgen.objects.UserExtraInfo;
 
 
@@ -49,12 +50,13 @@ public interface Serializer {
 	
 	public Long triplesGenerated();
 	
-	public void gatherData(SocialObject socialObject);
-	
 	public void gatherData(ReducedUserProfile user, UserExtraInfo extraInfo);
 	
-	public void gatherData(Post post, boolean isLikeStream);
+	public void gatherData(Post post);
 	
-	public void gatherData(Photo photo, boolean isLikeStream);
-
+	public void gatherData(Photo photo);
+	
+	public void gatherData(Comment comment);
+	
+	public void gatherData(Group group);
 }

@@ -57,20 +57,18 @@ public class PhotoGenerator {
 	PopularPlacesDictionary dicPopularPlaces; 
 	Random 				rand;
 	Random				randLikes;
-	int					maxNumUserTags;
 
 	Random				randPopularPlaces;
 	Random				randPopularPlacesId; 
 	double				probPopularPlaces;			
 	
 	public PhotoGenerator(DateGenerator _dateGen, Vector<Location> _vLocations, 
-						long _seed, int _maxNumUserTags, PopularPlacesDictionary _dicPopularPlaces,
+						long _seed, PopularPlacesDictionary _dicPopularPlaces,
 						double _probPopularPlaces){
 		this.dateGenerator = _dateGen; 
 		this.vLocations = _vLocations; 
 		rand = new Random(_seed);
 		randLikes = new Random(_seed);
-		this.maxNumUserTags = _maxNumUserTags; 
 		this.dicPopularPlaces = _dicPopularPlaces; 
 		this.randPopularPlaces = new Random(_seed);
 		this.randPopularPlacesId = new Random(_seed);

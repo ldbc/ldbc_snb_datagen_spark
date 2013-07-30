@@ -36,7 +36,6 @@
  */
 package ldbc.socialnet.dbgen.generator;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,6 +48,7 @@ import java.io.ObjectOutputStream;
 import java.io.Writer;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Random;
 import java.util.Vector;
 
@@ -88,72 +88,199 @@ import org.apache.hadoop.mapreduce.Reducer;
 
 public class ScalableGenerator{
 
+    public static int  numMaps = -1;
+    public static long postId  = -1;
     
-    public static long postId = -1;
+    /**
+     * How many hadoop jobs are used to generate the friendships
+     */
+    private static final int NUM_FRIENDSHIP_HADOOP_JOBS = 3;
+    /**
+     * How many friends (percentagewise) will be generated in each hadoop job.
+     */
+    private static final double  friendRatioPerJob[] = { 0.45, 0.45, 0.1 };
+    
+    private static final int startMonth = 1; 
+    private static final int startDate  = 1;
+    private static final int endMonth   = 1;
+    private static final int endDate    = 1;
+    
+    /**
+     * Ceil limit to the random number used to sort the users in the third hadoop job.
+     * Creates ids within the interval [0, USER_RANDOM_ID_LIMIT)
+     */
+    private static final int USER_RANDOM_ID_LIMIT = 100;
+    
+    //schema behaviour paramaters which are not in the private parameter file.
+    //If any of these are upgraded to the parameter file copy the variable elsewhere below,
+    //so this list is updated with only the variables not appearing in the parameter file.
+    /**
+     * Power Law distribution alpha value
+     */
+    private static final double alpha = 0.4;
+    
+    private static final int maxNumLikes = 10;
+    /**
+     * Cumulative probability to join a group for the user direct friends, friends of friends and
+     * friends of the friends of the user friend.
+     */
+    private static final double levelProbs[] = { 0.5, 0.8, 1.0 };
+    /**
+     * Probability to join a group for the user direct friends, friends of friends and
+     * friends of the friends of the user friend.
+     */
+    private static final double joinProbs[] = { 0.7, 0.4, 0.1 };
+    
+    
+    //Files and folders
+    private static final String  DICTIONARY_DIRECTORY = "/dictionaries/";
+    private static final String  IPZONE_DIRECTORY     = "/ipaddrByCountries";
+    private static final String  PARAMETERS_FILE      = "params.ini";
+    private              String  RDF_OUTPUT_FILE      = "ldbc_socialnet_dbg"; //Not static or final: Will be modified to add the machine prefix
+    
+    // Dictionaries dataset files
+    private static final String   browserDicFile         = DICTIONARY_DIRECTORY + "browsersDic.txt";
+    private static final String   companiesDicFile       = DICTIONARY_DIRECTORY + "companiesByCountry.txt";
+    private static final String   countryAbbrMappingFile = DICTIONARY_DIRECTORY + "countryAbbrMapping.txt";
+    private static final String   mainTagDicFile         = DICTIONARY_DIRECTORY + "dicCelebritiesByCountry.txt";
+    private static final String   countryDicFile         = DICTIONARY_DIRECTORY + "dicLocation.txt";
+    private static final String   tagNamesFile           = DICTIONARY_DIRECTORY + "dicTopic.txt";
+    private static final String   emailDicFile           = DICTIONARY_DIRECTORY + "email.txt";
+    private static final String   givennamesDicFile      = DICTIONARY_DIRECTORY + "givennameByCountryBirthPlace.txt.freq.full";
+    private static final String   organizationsDicFile   = DICTIONARY_DIRECTORY + "institutesCityByCountry.txt";
+    private static final String   cityDicFile            = DICTIONARY_DIRECTORY + "institutesCityByCountry.txt";
+    private static final String   languageDicFile        = DICTIONARY_DIRECTORY + "languagesByCountry.txt";
+    private static final String   popularPlacesDicFile   = DICTIONARY_DIRECTORY + "popularPlacesByCountry.txt";
+    private static final String   agentFile              = DICTIONARY_DIRECTORY + "smartPhonesProviders.txt";
+    private static final String   surnamesDicFile        = DICTIONARY_DIRECTORY + "surnameByCountryBirthPlace.txt.freq.sort";
+    private static final String   tagClassFile           = DICTIONARY_DIRECTORY + "tagClasses.txt";
+    private static final String   tagHierarchyFile       = DICTIONARY_DIRECTORY + "tagHierarchy.txt";
+    private static final String   tagTextFile            = DICTIONARY_DIRECTORY + "tagText.txt";
+    private static final String   topicTagDicFile        = DICTIONARY_DIRECTORY + "topicMatrixId.txt";
+    
+    //private parameters
+    private final String CELL_SIZE                     = "cellSize";
+    private final String NUM_CELL_WINDOW               = "numberOfCellPerWindow";
+    private final String MIN_FRIENDS                   = "minNumFriends";
+    private final String MAX_FRIENDS                   = "maxNumFriends";
+    private final String FRIEND_REJECT                 = "friendRejectRatio";
+    private final String FRIEND_REACCEPT               = "friendReApproveRatio";
+    private final String USER_MIN_TAGS                 = "minNumTagsPerUser";
+    private final String USER_MAX_TAGS                 = "maxNumTagsPerUser";
+    private final String USER_MAX_POST_MONTH           = "maxNumPostPerMonth";
+    private final String MAX_COMMENT_POST              = "maxNumComments";
+    private final String LIMIT_CORRELATED              = "limitProCorrelated";
+    private final String BASE_CORRELATED               = "baseProbCorrelated";
+    private final String MAX_EMAIL                     = "maxEmails";
+    private final String MAX_COMPANIES                 = "maxCompanies";
+    private final String ENGLISH_RATIO                 = "probEnglish";
+    private final String SECOND_LANGUAGE_RATIO         = "probSecondLang";
+    private final String OTHER_BROWSER_RATIO           = "probAnotherBrowser";
+    private final String MIN_TEXT_SIZE                 = "minTextSize";
+    private final String MAX_TEXT_SIZE                 = "maxTextSize";
+    private final String MIN_COMMENT_SIZE              = "minCommentSize";
+    private final String MAX_COMMENT_SIZE              = "maxCommentSize";
+    private final String REDUCE_TEXT_RATIO             = "ratioReduceText";
+    private final String MAX_PHOTOALBUM                = "maxNumPhotoAlbumsPerMonth";
+    private final String MAX_PHOTO_PER_ALBUM           = "maxNumPhotoPerAlbums";
+    private final String USER_MAX_GROUP                = "maxNumGroupCreatedPerUser";
+    private final String MAX_GROUP_MEMBERS             = "maxNumMemberGroup";
+    private final String GROUP_MODERATOR_RATIO         = "groupModeratorProb";
+    private final String GROUP_MAX_POST_MONTH          = "maxNumGroupPostPerMonth";
+    private final String MISSING_RATIO                 = "missingRatio";
+    private final String STATUS_MISSING_RATIO          = "missingStatusRatio";
+    private final String STATUS_SINGLE_RATIO           = "probSingleStatus";
+    private final String SMARTHPHONE_RATIO             = "probHavingSmartPhone";
+    private final String AGENT_SENT_RATIO              = "probSentFromAgent";
+    private final String DIFFERENT_IP_IN_TRAVEL_RATIO  = "probDiffIPinTravelSeason";
+    private final String DIFFERENT_IP_NOT_TRAVEL_RATIO = "probDiffIPnotTravelSeason";
+    private final String DIFFERENT_IP_TRAVELLER_RATIO  = "probDiffIPforTraveller";
+    private final String COMPANY_UNCORRELATED_RATIO    = "probUnCorrelatedCompany";
+    private final String UNIVERSITY_UNCORRELATED_RATIO = "probUnCorrelatedOrganization";
+    private final String BEST_UNIVERSTY_RATIO          = "probTopUniv";
+    private final String MAX_POPULAR_PLACES            = "maxNumPopularPlaces";
+    private final String POPULAR_PLACE_RATIO           = "probPopularPlaces";
+    private final String TAG_UNCORRELATED_COUNTRY      = "tagCountryCorrProb";
+    
+    /**
+     * This array provides a quick way to check if any of the required parameters is missing and throw the appropriate
+     * exception in the method loadParamsFromFile()
+     */
+    private final String[] checkParameters = {CELL_SIZE, NUM_CELL_WINDOW, MIN_FRIENDS, MAX_FRIENDS, FRIEND_REJECT,
+            FRIEND_REACCEPT, USER_MIN_TAGS, USER_MAX_TAGS, USER_MAX_POST_MONTH, MAX_COMMENT_POST, LIMIT_CORRELATED,
+            BASE_CORRELATED, MAX_EMAIL, MAX_COMPANIES, ENGLISH_RATIO, SECOND_LANGUAGE_RATIO, OTHER_BROWSER_RATIO,
+            MIN_TEXT_SIZE, MAX_TEXT_SIZE, MIN_COMMENT_SIZE, MAX_COMMENT_SIZE, REDUCE_TEXT_RATIO, MAX_PHOTOALBUM,
+            MAX_PHOTO_PER_ALBUM, USER_MAX_GROUP, MAX_GROUP_MEMBERS, GROUP_MODERATOR_RATIO, GROUP_MAX_POST_MONTH, 
+            MISSING_RATIO, STATUS_MISSING_RATIO, STATUS_SINGLE_RATIO, SMARTHPHONE_RATIO, AGENT_SENT_RATIO, 
+            DIFFERENT_IP_IN_TRAVEL_RATIO, DIFFERENT_IP_NOT_TRAVEL_RATIO, DIFFERENT_IP_TRAVELLER_RATIO, 
+            COMPANY_UNCORRELATED_RATIO, UNIVERSITY_UNCORRELATED_RATIO, BEST_UNIVERSTY_RATIO, MAX_POPULAR_PLACES, 
+            POPULAR_PLACE_RATIO, TAG_UNCORRELATED_COUNTRY};
+    
+    
+    //final user parameters
+    private final String NUM_USERS        = "numtotalUser";
+    private final String START_YEAR       = "startYear";
+    private final String NUM_YEARS        = "numYears";
+    private final String SERIALIZER_TYPE  = "serializerType";
+    
+    /**
+     * This array provides a quick way to check if any of the required parameters is missing and throw the appropriate
+     * exception in the method loadParamsFromFile()
+     */
+    private final String[] publicCheckParameters = {NUM_USERS, START_YEAR, NUM_YEARS, SERIALIZER_TYPE};
+    
+    
+    // Gender string representation, both representations vector/standalone so the string is coherent.
+    private final String MALE   = "male";
+    private final String FEMALE = "female";
+    private final String gender[] = { MALE, FEMALE};
     
 	// For sliding window
-	int 					cellSize = 1; // Number of user in one cell
-
-
-	int 					numberOfCellPerWindow = 200;
-	int	 					numtotalUser = 10000;
+	int 					cellSize; // Number of user in one cell
+	int 					numberOfCellPerWindow;
+	int	 					numtotalUser;
 	int 					windowSize;
 	int 					lastCellPos;
 	int 					lastCell;
-	
 	int 					lastMapCellPos;
 	int 					lastMapCell;
 	int 					startMapUserIdx;
 	int						machineId;
 	
 	ReducedUserProfile  	reducedUserProfiles[];
-	ReducedUserProfile 		reducedUserProfilesCell[]; 	// Store new cell of user profiles
-	ReducedUserProfile 		removedUserProfiles[];
+	ReducedUserProfile 		reducedUserProfilesCell[];
 	
 	// For (de-)serialization
 	FileOutputStream 		ofUserProfiles;
 	ObjectOutputStream 		oosUserProfile;
-
 	FileInputStream 		ifUserProfile;
 	ObjectInputStream 		oisUserProfile;
 
 	// For multiple files
 	boolean 				isMultipleFile = true;
-	int 					numFiles = 10;
+	int 					numFiles       = 10;
+	int                     numCellRead    = 0;
 	int 					numCellPerfile;
 	int 					numCellInLastFile;
-	int 					numCellRead = 0;
-	Random 					randomFileSelect;
-	Random 					randomIdxInWindow;
 	HashSet<Integer> 		selectedFileIdx;
 	
 	// For friendship generation
-	int 				friendshipNo = 0;
-	int 				minNoFriends = 5;
-	int 				maxNoFriends = 50;
-	double 				friendRejectRatio = 0.02;
-	double 				friendReApproveRatio = 0.5;
+	int 				friendshipNo;
+	int 				minNoFriends;
+	int 				maxNoFriends;
+	double 				friendRejectRatio;
+	double 				friendReApproveRatio;
 	
-	int					numCorrDimensions = 3;			// Run 3 passes for friendship generation
 	StorageManager	 	storeManager[];
 	StorageManager		groupStoreManager; 		
 	
 	MRWriter			mrWriter; 
 	
-	double 				friendsRatioPerPass[] = { 0.45, 0.45, 0.1 }; // Indicate how many
-											// friends will be created for each pass
-											// e.g., 30% in the first pass with
-											// location information
 	Random 				randFriendReject;
 	Random 				randFriendReapprov;
 	Random 				randInitiator;
-	double 				alpha = 0.4;							// Alpha value for power-law distribution
-	double	 			baseProbLocationCorrelated = 0.8; 	// Higher probability, faster
-														// sliding along this pass
-
-	double 				baseProbCorrelated = 0.9;  	  // Probability that two user having the same 
-												      // atrributes value become friends;
-	double	 			limitProCorrelated = 0.2; 
+	double 				baseProbCorrelated;
+	double	 			limitProCorrelated; 
 	
 	// For each user
 	int                 minNoTagsPerUser; 
@@ -165,136 +292,91 @@ public class ScalableGenerator{
 	// Random values generators
 	PowerDistGenerator 	randPowerlaw;
 	PowerDistGenerator  randTagPowerlaw;
-	//Random 				seedRandom = new Random(53223436L);
 	Long[] 				seeds;
 	Random 				randUniform;
 	Random 				randNumInterest;
 	Random 				randNumTags;
-	Random 				randomFriendIdx; // For third pass
+	Random 				randomFriendIdx;
 	Random 				randNumberPost;
-	Random 				randNumberComments; // Generate number of comments per post
+	Random 				randNumberComments;
 	Random 				randNumberPhotoAlbum;
 	Random 				randNumberPhotos;
 	Random 				randNumberGroup;
 	Random 				randNumberUserPerGroup;
 	Random 				randGender;
-	
-	Random				randUserRandomIdx;	// For generating the 
-											// random dimension
-	int					maxUserRandomIdx = 100;  //SHOULE BE IMPORTANT PARAM
-	
+	Random				randUserRandomIdx;	   // For generating the random dimension
+	Random              randNumPopularPlaces; 
+    Random              randFriendLevelSelect; // For select an level of moderator's friendship
+    Random              randMembership;        // For deciding whether or not a user is joined
+    Random              randMemberIdxSelector;
+    Random              randGroupMemStep;
+    Random              randGroupModerator;    // Decide whether a user can be moderator of groups or not
+    Random              randNumberGroupPost;
+    Random              randomExtraInfo;
+    Random              randomExactLongLat;
+    Random              randomHaveStatus;
+    Random              randomStatusSingle;
+    Random              randomStatus;
+    Random              randUserAgent;
+    Random              randFileSelect;
+    Random              randIdsInWindow;
+    
 	DateGenerator 		dateTimeGenerator;
 	int					startYear;
-	int                 endYear; 
-	private static final int startMonth = 1; 
-	private static final int startDate  = 1;
-	private static final int endMonth   = 1;
-	private static final int endDate    = 1;
-
-	// Dictionaries
-	private static final String   browserDicFile         = "browsersDic.txt";
-	private static final String   companiesDicFile       = "companiesByCountry.txt";
-	private static final String   countryAbbrMappingFile = "countryAbbrMapping.txt";
-	private static final String   mainTagDicFile         = "dicCelebritiesByCountry.txt";
-	private static final String   countryDicFile         = "dicLocation.txt";
-	private static final String   tagNamesFile           = "dicTopic.txt";
-	private static final String   emailDicFile           = "email.txt";
-	private static final String   givennamesDicFile      = "givennameByCountryBirthPlace.txt.freq.full";
-	private static final String   organizationsDicFile   = "institutesCityByCountry.txt";
-	private static final String   cityDicFile            = "institutesCityByCountry.txt";
-	private static final String   languageDicFile        = "languagesByCountry.txt";
-	private static final String   popularPlacesDicFile   = "popularPlacesByCountry.txt";
-	private static final String   agentFile              = "smartPhonesProviders.txt";
-	private static final String   surnamesDicFile        = "surnameByCountryBirthPlace.txt.freq.sort";
-	private static final String   tagClassFile           = "tagClasses.txt";
-	private static final String   tagHierarchyFile       = "tagHierarchy.txt";
-	private static final String   tagTextFile            = "tagText.txt";
-	private static final String   topicTagDicFile        = "topicMatrixId.txt";
+	int                 endYear;
 	
+	// Dictionary classes
 	LocationDictionary 		locationDic;
-	
 	LanguageDictionary      languageDic;
-	
 	TagDictionary 			mainTagDic;
 	TagTextDictionary       tagTextDic;
-	double 					tagCountryCorrProb; 
-
 	TagMatrix	 			topicTagDic;
-
 	NamesDictionary 		namesDictionary;
-	double					geometricProb = 0.2;
-
-	OrganizationsDictionary	organizationsDictionary;
-	double 					probUnCorrelatedOrganization = 0.005;
-	double 					probTopUniv = 0.9; // 90% users go to top university
-
-	CompanyDictionary 		companiesDictionary;
-	double 					probUnCorrelatedCompany = 0.05;
+	OrganizationsDictionary organizationsDictionary;
+	CompanyDictionary       companiesDictionary;
+	UserAgentDictionary     userAgentDic;
+    EmailDictionary         emailDic;
+    BrowserDictionary       browserDic;
+    PopularPlacesDictionary popularDictionary;
+    IPAddressDictionary     ipAddDictionary;
 	
-	UserAgentDictionary 	userAgentDic;
-	
-	EmailDictionary 		emailDic;
-	
-	BrowserDictionary 		browserDic;
-	
-	PopularPlacesDictionary	popularDictionary; 
-	int  					maxNumPopularPlaces;
-	Random 					randNumPopularPlaces; 
-	double 					probPopularPlaces;		//probability of taking a photo at popular place 
-	
-	IPAddressDictionary 	ipAddDictionary;
-
-	int locationIdx = 0; 	//Which is current index of the location in dictionary
+    int                     maxNumPopularPlaces;
+	double                  tagCountryCorrProb; 
+	double 					probUnCorrelatedOrganization;
+	double 					probTopUniv; // 90% users go to top university
+	double 					probUnCorrelatedCompany;
+	double 					probPopularPlaces;		//probability of taking a photo at popular place
 
 	// For generating texts of posts and comments
-	int 					maxNumLikes = 10;
-	
-	int                     maxEmails = 5;
-	int                     maxCompanies = 3;
-	double                  probEnglish = 0.6;
-    double                  probSecondLang = 0.2;
+	int                     maxEmails;
+	int                     maxCompanies;
+	double                  probEnglish;
+    double                  probSecondLang;
 
-	int 					numArticles = 3606; // May be set -1 if do not know
-	int 					minTextSize = 20;
-	int 					maxTextSize = 200;
-	int 					minCommentSize = 20;
-	int 					maxCommentSize = 60;
-	double 					ratioReduceText = 0.8; // 80% text has size less than 1/2 max size
+	int 					minTextSize;
+	int 					maxTextSize;
+	int 					minCommentSize;
+	int 					maxCommentSize;
+	double 					ratioReduceText; // 80% text has size less than 1/2 max size
 
 	// For photo generator
 	PhotoGenerator 			photoGenerator;
-	int 					maxNumUserTags = 10;
-	int 					maxNumPhotoAlbums = 5;	// This is number of photo album per month
-	int 					maxNumPhotoPerAlbums = 100;
+	int 					maxNumPhotoAlbumsPerMonth;
+	int 					maxNumPhotoPerAlbums;
 
 	// For generating groups
 	GroupGenerator 			groupGenerator;
-	int 					maxNumGroupCreatedPerUser = 4;
-	int 					maxNumMemberGroup = 100;
-	double 					groupModeratorProb = 0.05;
-	double 					levelProbs[] = { 0.5, 0.8, 1.0 }; 	// Cumulative 'join' probability
-																// for friends of level 1, 2 and 3
-																// of a user
-	double 					joinProbs[] = { 0.7, 0.4, 0.1 };
-	
-	Random 					randFriendLevelSelect; 	// For select an level of moderator's friendship
-	Random 					randMembership; // For deciding whether or not a user is joined
-
-	Random 					randMemberIdxSelector;
-	Random 					randGroupMemStep;
-
-	Random 					randGroupModerator; // Decide whether a user can be moderator of groups or not
+	int 					maxNumGroupCreatedPerUser;
+	int 					maxNumMemberGroup;
+	double 					groupModeratorProb;
 
 	// For group posts
-	int 					maxNumGroupPostPerMonth = 20;
-	Random 					randNumberGroupPost;
+	int 					maxNumGroupPostPerMonth;
 
 
 	// For serialize to RDF format
-	private String rdfOutputFileName = "ldbc_socialnet_dbg";
-	
 	Serializer 		serializer;
-	String 			serializerType = "ttl";
+	String 			serializerType;
 	String 			outUserProfileName = "userProf.ser";
 	String 			outUserProfile;
 	int 			numRdfOutputFile = 1;
@@ -302,74 +384,88 @@ public class ScalableGenerator{
 	int				mapreduceFileIdx; 
 	String 			sibOutputDir;
 	String 			sibHomeDir;
-	String 			sibDicDataDir = "/dictionaries/";
-	String          ipZoneDir = "/ipaddrByCountries";
 	
 	// For user's extra info
-	String 					gender[] = { "male", "female" };
-	Random					randomExtraInfo;
-	Random					randomExactLongLat;
-	double 					missingRatio = 0.2;
-	Random 					randomHaveStatus;
-	Random 					randomStatusSingle;
-	Random 					randomStatus;
-	double 					missingStatusRatio = 0.5;
-	double 					probSingleStatus = 0.8; // Status "Single" has more probability than
-													// others'
+	double 					missingRatio;
+	double 					missingStatusRatio;
+	double 					probSingleStatus; // Status "Single" has more probability than others'
 	
 	
 	double 		probAnotherBrowser;
-
-	double 		probHavingSmartPhone = 0.5;
-	Random 		randUserAgent;
-	double 		probSentFromAgent = 0.2;
-	Random 		randIsFrequent;
-	double 		probUnFrequent = 0.01; // Whether or not a user frequently changes
+	double 		probHavingSmartPhone;
+	double 		probSentFromAgent;
 
 	// The probability that normal user posts from different location
-	double 		probDiffIPinTravelSeason = 0.1; // in travel season
-	double 		probDiffIPnotTravelSeason = 0.02; // not in travel season
+	double 		probDiffIPinTravelSeason; // in travel season
+	double 		probDiffIPnotTravelSeason; // not in travel season
 
 	// The probability that travellers post from different location
-	double 		probDiffIPforTraveller = 0.3;
-
-	// For loading parameters;
-	String 			paramFileName = "params.ini";
-	static String	shellArgs[];
-
-	// For MapReduce 
-	public static int			numMaps = -1;
-	
-	MFStoreManager 		mfStore;
+	double 		probDiffIPforTraveller;
 	
 	// Writing data for test driver
 	OutputDataWriter 	outputDataWriter;
 	int 				thresholdPopularUser = 40;
 	int 				numPopularUser = 0;
-
-	public ScalableGenerator(int _mapreduceFileIdx, String _sibOutputDir, String _sibHomeDir){
-		mapreduceFileIdx = _mapreduceFileIdx;
+	
+	// Data accessed from the hadoop jobs
+	public ReducedUserProfile[] cellReducedUserProfiles;
+	public int     numUserProfilesRead = 0;
+    public int     numUserForNewCell   = 0;
+    public int     mrCurCellPost       = 0;
+    public int     exactOutput         = 0; 
+	
+    
+	/**
+	 * Gets a string representation for a period of time.
+	 * 
+	 * @param startTime Start time in milliseconds.
+	 * @param endTime End time in milliseconds.
+	 * @return The time representation in minutes and seconds.
+	 */
+	public static String getDurationInMinutes(long startTime, long endTime){
+       return (endTime - startTime) / 60000 + " minutes and " + 
+                ((endTime - startTime) % 60000) / 1000 + " seconds";
+    }
+	
+	/**
+	 * Creates the ScalableGenerator
+	 * 
+	 * @param mapreduceFileId The file id used to pass data for successive hadoop jobs.
+	 * @param sibOutputDir The output directory
+	 * @param sibHomeDir The ldbc_socialnet_dbgen base directory.
+	 */
+	public ScalableGenerator(int mapreduceFileId, String sibOutputDir, String sibHomeDir){
+		this.mapreduceFileIdx = mapreduceFileId;
+		this.sibOutputDir = sibOutputDir;
+		this.sibHomeDir = sibHomeDir; 
+		
 		System.out.println("Map Reduce File Idx is: " + mapreduceFileIdx);
 		if (mapreduceFileIdx != -1){
 			outUserProfile = "mr" + mapreduceFileIdx + "_" + outUserProfileName;
 		}
 		
-		sibOutputDir = _sibOutputDir;
-		sibHomeDir = _sibHomeDir; 
-		System.out.println("Current directory in ScaleGenerator is " + _sibHomeDir);
+		System.out.println("Current directory in ScaleGenerator is " + sibHomeDir);
 	}
 	
-	public void initAllParams(String args[], int _numMaps, int mapIdx){
+	public int getCellSize() {
+        return cellSize;
+    }
+	
+	/**
+	 * Initializes the generator reading the private parameter file, the user parameter file
+	 * and initialize all the internal variables.
+	 * 
+	 * @param numMaps: How many hadoop reduces are performing the job.
+	 * @param mapId: The hadoop reduce id.
+	 */
+	public void init(int numMaps, int mapId){
 		
-		this.machineId = mapIdx;
+		this.machineId = mapId;
+		numFiles = numMaps;
+        RDF_OUTPUT_FILE = "mr" + mapreduceFileIdx + "_" + RDF_OUTPUT_FILE;
 		
-		loadParamsFromFile();
-
-		numFiles = _numMaps;
-		
-		rdfOutputFileName = "mr" + mapreduceFileIdx + "_" + rdfOutputFileName;
-		
-		init(mapIdx, true);
+		loadParamsFromFile();		
+		_init(mapId, true);
 		
 		System.out.println("Number of files " + numFiles);
 		System.out.println("Number of cells per file " + numCellPerfile);
@@ -379,244 +475,126 @@ public class ScalableGenerator{
 
 	}
 	
-	public void mapreduceTask(String inputFile, int numberCell){
-		startWritingUserData();
-
-		long startPostGeneration = System.currentTimeMillis();
-		
-		groupGenerator.setForumId((numtotalUser + 10) * 2);
-		
-		generatePostandPhoto(inputFile, numberCell);
-
-		long endPostGeneration = System.currentTimeMillis();
-		System.out.println("Post generation takes " + getDuration(startPostGeneration, endPostGeneration));
-
-		finishWritingUserData();
-
-		long startGroupGeneration = System.currentTimeMillis();
-		generateGroupAll(inputFile, numberCell);
-		long endGroupGeneration = System.currentTimeMillis();
-		System.out.println("Group generation takes " + getDuration(startGroupGeneration, endGroupGeneration));
-
-		if (mapreduceFileIdx != -1) {
-			serializer.serialize();
-		}
-
-		System.out.println("Number of generated triples " + serializer.triplesGenerated());
-		
-		// Write data for testdrivers
-		System.out.println("Writing the data for test driver ");
-		System.out.println("Number of popular users " + numPopularUser);
-	}
-	
-	public void loadParamsFromFile() {
+	/**
+	 * Reads and loads the private parameter file and the user parameter file.
+	 */
+	private void loadParamsFromFile() {
 		try {
 		    //First read the internal params.ini
-		    BufferedReader paramFile;
-			paramFile = new BufferedReader(new InputStreamReader(getClass( ).getResourceAsStream("/"+paramFileName), "UTF-8"));
-			String line;
-			while ((line = paramFile.readLine()) != null) {
-				String infos[] = line.split(": ");
-				if (infos[0].startsWith("cellSize")) {
-					cellSize = Short.parseShort(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("numberOfCellPerWindow")) {
-					numberOfCellPerWindow = Integer.parseInt(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("minNoFriends")) {
-					minNoFriends = Integer.parseInt(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("maxNoFriends")) {
-					maxNoFriends = Integer.parseInt(infos[1].trim());
-					thresholdPopularUser = (int) (maxNoFriends * 0.9);
-					continue;
-				} else if (infos[0].startsWith("friendRejectRatio")) {
-					friendRejectRatio = Double.parseDouble(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("friendReApproveRatio")) {
-					friendReApproveRatio = Double.parseDouble(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("minNumTagsPerUser")) {
-                    minNoTagsPerUser= Integer.parseInt(infos[1].trim());
-                    continue;
-                } else if (infos[0].startsWith("maxNumTagsPerUser")) {
-					maxNoTagsPerUser= Integer.parseInt(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("maxNumPostPerMonth")) {
-				    maxNumPostPerMonth = Integer.parseInt(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("maxNumComments")) {
-					maxNumComments = Integer.parseInt(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("limitProCorrelated")) {
-                    limitProCorrelated = Double.parseDouble(infos[1].trim());
-                    continue;
-                } else if (infos[0].startsWith("baseProbCorrelated")) {
-                    baseProbCorrelated = Double.parseDouble(infos[1].trim());
-                    continue;
-				} else if (infos[0].startsWith("maxEmails")) {
-				    maxEmails = Integer.parseInt(infos[1].trim());
-                    continue;
-                } else if (infos[0].startsWith("maxCompanies")) {
-                    maxCompanies = Integer.parseInt(infos[1].trim());
-                    continue;
-                }  else if (infos[0].startsWith("probEnglish")) {
-                    probEnglish = Double.parseDouble(infos[1].trim());
-                    continue;
-                } else if (infos[0].startsWith("probSecondLang")) {
-                    probSecondLang = Double.parseDouble(infos[1].trim());
-                    continue;
-                } else if (infos[0].startsWith("probAnotherBrowser")) {
-					probAnotherBrowser = Double.parseDouble(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("minTextSize")) {
-					minTextSize = Integer.parseInt(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("maxTextSize")) {
-					maxTextSize = Integer.parseInt(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("minCommentSize")) {
-					minCommentSize = Integer.parseInt(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("maxCommentSize")) {
-					maxCommentSize = Integer.parseInt(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("ratioReduceText")) {
-					ratioReduceText = Double.parseDouble(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("maxNumUserTags")) {
-					maxNumUserTags = Integer.parseInt(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("maxNumPhotoAlbums")) {
-					maxNumPhotoAlbums = Integer.parseInt(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("maxNumPhotoPerAlbums")) {
-					maxNumPhotoPerAlbums = Integer.parseInt(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("maxNumGroupCreatedPerUser")) {
-					maxNumGroupCreatedPerUser = Integer.parseInt(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("maxNumMemberGroup")) {
-					maxNumMemberGroup = Integer.parseInt(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("groupModeratorProb")) {
-					groupModeratorProb = Double.parseDouble(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("maxNumGroupPostPerMonth")) {
-					maxNumGroupPostPerMonth = Integer.parseInt(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("serializerType")) {
-					serializerType = infos[1].trim();
-					continue;
-				}else if (infos[0].startsWith("missingRatio")) {
-					missingRatio = Double.parseDouble(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("missingStatusRatio")) {
-					missingStatusRatio = Double.parseDouble(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("probSingleStatus")) {
-					probSingleStatus = Double.parseDouble(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("probHavingSmartPhone")) {
-					probHavingSmartPhone = Double.parseDouble(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("probSentFromAgent")) {
-					probSentFromAgent = Double.parseDouble(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("probUnFrequent")) {
-					probUnFrequent = Double.parseDouble(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("probDiffIPinTravelSeason")) {
-					probDiffIPinTravelSeason = Double.parseDouble(infos[1]
-							.trim());
-					continue;
-				} else if (infos[0].startsWith("probDiffIPnotTravelSeason")) {
-					probDiffIPnotTravelSeason = Double.parseDouble(infos[1]
-							.trim());
-					continue;
-				} else if (infos[0].startsWith("probDiffIPforTraveller")) {
-					probDiffIPforTraveller = Double.parseDouble(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("probUnCorrelatedCompany")) {
-					probUnCorrelatedCompany = Double.parseDouble(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("probUnCorrelatedOrganization")) {
-					probUnCorrelatedOrganization = Double.parseDouble(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("probTopUniv")) {
-					probTopUniv = Double.parseDouble(infos[1].trim());
-					continue;
-				} else if (infos[0].startsWith("maxNumPopularPlaces")) {
-					maxNumPopularPlaces = Integer.parseInt(infos[1].trim());
-					continue;					
-				} else if (infos[0].startsWith("probPopularPlaces")) {
-					probPopularPlaces = Double.parseDouble(infos[1].trim());
-					continue;	
-				} else if (infos[0].startsWith("tagCountryCorrProb")) {
-					tagCountryCorrProb = Double.parseDouble(infos[1].trim());
-					continue;	
-				}
+			Properties properties = new Properties();
+			properties.load(new InputStreamReader(getClass( ).getResourceAsStream("/"+PARAMETERS_FILE), "UTF-8"));
+			for (int i = 0; i < checkParameters.length; i++) {
+			    if (properties.getProperty(checkParameters[i]) == null) {
+			        throw new IllegalStateException("Missing " + checkParameters[i] + " parameter");
+			    }
 			}
-
-			paramFile.close();
-		} catch (IOException e) {
+			
+			cellSize = Short.parseShort(properties.getProperty(CELL_SIZE));
+			numberOfCellPerWindow = Integer.parseInt(properties.getProperty(NUM_CELL_WINDOW));
+			minNoFriends = Integer.parseInt(properties.getProperty(MIN_FRIENDS));
+			maxNoFriends = Integer.parseInt(properties.getProperty(MAX_FRIENDS));
+			thresholdPopularUser = (int) (maxNoFriends * 0.9);
+			friendRejectRatio = Double.parseDouble(properties.getProperty(FRIEND_REJECT));
+			friendReApproveRatio = Double.parseDouble(properties.getProperty(FRIEND_REACCEPT));
+			minNoTagsPerUser= Integer.parseInt(properties.getProperty(USER_MIN_TAGS));
+			maxNoTagsPerUser= Integer.parseInt(properties.getProperty(USER_MAX_TAGS));
+			maxNumPostPerMonth = Integer.parseInt(properties.getProperty(USER_MAX_POST_MONTH));
+			maxNumComments = Integer.parseInt(properties.getProperty(MAX_COMMENT_POST));
+			limitProCorrelated = Double.parseDouble(properties.getProperty(LIMIT_CORRELATED));
+			baseProbCorrelated = Double.parseDouble(properties.getProperty(BASE_CORRELATED));
+			maxEmails = Integer.parseInt(properties.getProperty(MAX_EMAIL));
+			maxCompanies = Integer.parseInt(properties.getProperty(MAX_EMAIL));
+			probEnglish = Double.parseDouble(properties.getProperty(MAX_EMAIL));
+			probSecondLang = Double.parseDouble(properties.getProperty(MAX_EMAIL));
+			probAnotherBrowser = Double.parseDouble(properties.getProperty(OTHER_BROWSER_RATIO));
+			minTextSize = Integer.parseInt(properties.getProperty(MIN_TEXT_SIZE));
+			maxTextSize = Integer.parseInt(properties.getProperty(MAX_TEXT_SIZE));
+			minCommentSize = Integer.parseInt(properties.getProperty(MIN_COMMENT_SIZE));
+			maxCommentSize = Integer.parseInt(properties.getProperty(MAX_COMMENT_SIZE));
+			ratioReduceText = Double.parseDouble(properties.getProperty(REDUCE_TEXT_RATIO));
+			maxNumPhotoAlbumsPerMonth = Integer.parseInt(properties.getProperty(MAX_PHOTOALBUM));
+			maxNumPhotoPerAlbums = Integer.parseInt(properties.getProperty(MAX_PHOTO_PER_ALBUM));
+			maxNumGroupCreatedPerUser = Integer.parseInt(properties.getProperty(USER_MAX_GROUP));
+			maxNumMemberGroup = Integer.parseInt(properties.getProperty(MAX_GROUP_MEMBERS));
+			groupModeratorProb = Double.parseDouble(properties.getProperty(GROUP_MODERATOR_RATIO));
+			maxNumGroupPostPerMonth = Integer.parseInt(properties.getProperty(GROUP_MAX_POST_MONTH));
+			missingRatio = Double.parseDouble(properties.getProperty(MISSING_RATIO));
+			missingStatusRatio = Double.parseDouble(properties.getProperty(STATUS_MISSING_RATIO));
+			probSingleStatus = Double.parseDouble(properties.getProperty(STATUS_SINGLE_RATIO));
+			probHavingSmartPhone = Double.parseDouble(properties.getProperty(SMARTHPHONE_RATIO));
+			probSentFromAgent = Double.parseDouble(properties.getProperty(AGENT_SENT_RATIO));
+			probDiffIPinTravelSeason = Double.parseDouble(properties.getProperty(DIFFERENT_IP_IN_TRAVEL_RATIO));
+			probDiffIPnotTravelSeason = Double.parseDouble(properties.getProperty(DIFFERENT_IP_NOT_TRAVEL_RATIO));
+			probDiffIPforTraveller = Double.parseDouble(properties.getProperty(DIFFERENT_IP_TRAVELLER_RATIO));
+			probUnCorrelatedCompany = Double.parseDouble(properties.getProperty(COMPANY_UNCORRELATED_RATIO));
+			probUnCorrelatedOrganization = Double.parseDouble(properties.getProperty(UNIVERSITY_UNCORRELATED_RATIO));
+			probTopUniv = Double.parseDouble(properties.getProperty(BEST_UNIVERSTY_RATIO));
+			maxNumPopularPlaces = Integer.parseInt(properties.getProperty(MAX_POPULAR_PLACES));
+			probPopularPlaces = Double.parseDouble(properties.getProperty(POPULAR_PLACE_RATIO));
+			tagCountryCorrProb = Double.parseDouble(properties.getProperty(TAG_UNCORRELATED_COUNTRY));
+			
+		} catch (Exception e) {
+		    System.err.println(e.getMessage());
             e.printStackTrace();
+            System.exit(-1);
         }
 			
 		try {
 			//read the user param file
-		    BufferedReader paramFile;
-			paramFile = new BufferedReader(new InputStreamReader(new FileInputStream(sibHomeDir + paramFileName), "UTF-8"));
-			String line;
-			numtotalUser = -1;
-			int numYears = -1;
-			startYear = -1;
-			serializerType = "";
-			while ((line = paramFile.readLine()) != null) {
-                String infos[] = line.split(": ");
-                if (infos[0].startsWith("numtotalUser")) {
-                    numtotalUser = Integer.parseInt(infos[1].trim());
-                    continue;
-                } else if (infos[0].startsWith("startYear")) {
-                    startYear = Integer.parseInt(infos[1].trim());
-                    continue;   
-                } else if (infos[0].startsWith("numYears")) {
-                    numYears = Integer.parseInt(infos[1].trim());
-                    continue;   
-                } else if (infos[0].startsWith("serializerType")) {
-                    serializerType = infos[1].trim();
-                    continue;
-                } else {
-                    System.out.println("This param " + line + " does not match any option");
+            Properties properties = new Properties();
+            properties.load(new InputStreamReader(new FileInputStream(sibHomeDir + PARAMETERS_FILE), "UTF-8"));
+            for (int i = 0; i < publicCheckParameters.length; i++) {
+                if (properties.getProperty(publicCheckParameters[i]) == null) {
+                    throw new IllegalStateException("Missing " + publicCheckParameters[i] + " parameter");
                 }
-			}
-			paramFile.close();
-			if (numtotalUser == -1) {
-			    throw new Exception("No numtotalUser parameter provided");
-			}
-			if (startYear == -1) {
-			    throw new Exception("No startYears parameter provided");
-			}
-			if (numYears == -1) {
-			    throw new Exception("No numYears parameter provided");
-			}
+            }
+            
+            int numYears;
+			numtotalUser = Integer.parseInt(properties.getProperty(NUM_USERS));
+			startYear = Integer.parseInt(properties.getProperty(START_YEAR));
+			numYears = Integer.parseInt(properties.getProperty(NUM_YEARS));
+			endYear = startYear + numYears;
+			serializerType = properties.getProperty(SERIALIZER_TYPE);
 			if (!serializerType.equals("ttl") && !serializerType.equals("n3") && 
 			        !serializerType.equals("csv")) {
-                throw new Exception("serializerType must be ttl, nt or csv");
+                throw new IllegalStateException("serializerType must be ttl, n3 or csv");
             }
-			
-			endYear = startYear + numYears;
 		} catch (Exception e) {
-		    System.out.println(e.getMessage());
+		    System.err.println(e.getMessage());
 		    System.exit(-1);
 		}
 	}
 
-	// Init the data for the first window of cells
-	public void init(int mapId, boolean isFullLoad) {
-		seedGenerate(mapId);
+	/**
+     * Initializes the internal variables.
+     * @param mapId: The hadoop reduce id.
+     * @param isFullLoad: if has to initialize all the data.
+     */
+	private void _init(int mapId, boolean isFullLoad) {
+	    
+	    if (numtotalUser % cellSize != 0) {
+	        System.err.println("Number of users should be a multiple of the cellsize");
+	        System.exit(-1);
+	    }
+	    
+	    windowSize = cellSize * numberOfCellPerWindow;
+	    
+	    lastCellPos     = (numtotalUser - windowSize) / cellSize;
+        lastCell        = (numtotalUser / cellSize) - 1; // The last cell of the sliding process
+        lastMapCellPos  = (numtotalUser / numMaps - windowSize) / cellSize;
+        lastMapCell     = (numtotalUser / (numMaps * cellSize)) - 1;
+        startMapUserIdx = (numtotalUser / numMaps) * mapId; 
+        
+        // For multiple output files
+        numCellPerfile    = (lastCell + 1) / numFiles;
+        numCellInLastFile = (lastCell + 1) - numCellPerfile * (numFiles - 1);
 
-		windowSize = (int) cellSize * numberOfCellPerWindow;
+        if (numCellPerfile < numberOfCellPerWindow) {
+            System.err.println("The number of Cell per file should be greater than that of a window ");
+            System.exit(-1);
+        }
+
+		seedGenerate(mapId);
 		randPowerlaw    = new PowerDistGenerator(minNoFriends,     maxNoFriends + 1,     alpha, seeds[2]);
 		randTagPowerlaw = new PowerDistGenerator(minNoTagsPerUser, maxNoTagsPerUser + 1, alpha, seeds[2]);
 		randUniform = new Random(seeds[3]);
@@ -624,8 +602,8 @@ public class ScalableGenerator{
 		randNumInterest = new Random(seeds[4]);
 		randNumTags = new Random(seeds[4]);
 		randomFriendIdx = new Random(seeds[6]);
-		randomFileSelect = new Random(seeds[7]);
-		randomIdxInWindow = new Random(seeds[8]);
+		randFileSelect = new Random(seeds[7]);
+		randIdsInWindow = new Random(seeds[8]);
 		randNumberPost = new Random(seeds[9]);
 		randNumberComments = new Random(seeds[10]);
 		randNumberPhotoAlbum = new Random(seeds[11]);
@@ -640,7 +618,6 @@ public class ScalableGenerator{
 		randomExtraInfo = new Random(seeds[27]);
 		randomExactLongLat = new Random(seeds[27]);
 		randUserAgent = new Random(seeds[29]);
-		randIsFrequent = new Random(seeds[34]);
 		randNumberGroupPost = new Random(seeds[36]);
 		randFriendReject = new Random(seeds[37]);
 		randFriendReapprov = new Random(seeds[38]);
@@ -651,144 +628,216 @@ public class ScalableGenerator{
 		randNumPopularPlaces = new Random(seeds[47]);
 		randUserRandomIdx = new Random(seeds[48]);
 
-		reducedUserProfiles = new ReducedUserProfile[windowSize];	//// Collect of reduced user profile
+		reducedUserProfiles = new ReducedUserProfile[windowSize];	// Collect of reduced user profile
 		cellReducedUserProfiles = new ReducedUserProfile[cellSize];
-
-		// Number of users should be a multiple of the cellsize
-		if (numtotalUser % cellSize != 0) {
-			System.out.println("Number of users should be a multiple of the cellsize ");
-			System.exit(-1);
-		}
 		
 		dateTimeGenerator = new DateGenerator(new GregorianCalendar(startYear, startMonth, startDate), 
 		        new GregorianCalendar(endYear, endMonth, endDate), seeds[0], seeds[1], alpha);
 
-		lastCellPos = (int) (numtotalUser - windowSize) / cellSize;
-		lastCell = (int) numtotalUser / cellSize - 1; // The last cell of the sliding process
 		
-		lastMapCellPos = (int)(numtotalUser/numMaps - windowSize) / cellSize;
-		lastMapCell = (int)numtotalUser/(numMaps * cellSize) - 1;
-		startMapUserIdx = (numtotalUser/numMaps) * mapId; 
-		
-		// For multiple output files
-		numCellPerfile = (lastCell + 1) / numFiles;
-		numCellInLastFile = (lastCell + 1) - numCellPerfile * (numFiles - 1);
-
-		if (numCellPerfile < numberOfCellPerWindow) {
-			System.out.println("The number of Cell per file should be greater than that of a window ");
-			System.exit(-1);
-		}
-
 		if (isFullLoad) {
-			System.out.println("Building interests dictionary & locations/interests distribution ");
-
 	
-			System.out.println("Building locations dictionary ");
-	
-			locationDic = new LocationDictionary(numtotalUser, seeds[7] ,sibDicDataDir + countryDicFile,
-			        sibDicDataDir + cityDicFile);
+			System.out.println("Building location dictionary ");
+			locationDic = new LocationDictionary(numtotalUser, seeds[7] , countryDicFile, cityDicFile);
 			locationDic.init();
 			
-			languageDic = new LanguageDictionary(sibDicDataDir + languageDicFile, 
-			        locationDic.getLocationNameMapping(), probEnglish, probSecondLang, seeds[11]);
+			System.out.println("Building language dictionary ");
+			languageDic = new LanguageDictionary(languageDicFile, locationDic.getLocationNameMapping(), 
+			        probEnglish, probSecondLang, seeds[11]);
 			languageDic.init();
 			
-			System.out.println("Building Tags dictionary ");
-			
-			mainTagDic = new TagDictionary(sibDicDataDir + tagNamesFile,
-			        sibDicDataDir + mainTagDicFile, sibDicDataDir + tagClassFile, sibDicDataDir + tagHierarchyFile,
+			System.out.println("Building Tag dictionary ");
+			mainTagDic = new TagDictionary(tagNamesFile, mainTagDicFile, tagClassFile, tagHierarchyFile,
 					locationDic.getLocationNameMapping().size(), seeds[5], tagCountryCorrProb);
 			mainTagDic.extractTags();
 			
-			tagTextDic = new TagTextDictionary(sibDicDataDir + tagTextFile, dateTimeGenerator, mainTagDic.getTagsNamesMapping(),
+			System.out.println("Building Tag-text dictionary ");
+			tagTextDic = new TagTextDictionary(tagTextFile, dateTimeGenerator, mainTagDic.getTagsNamesMapping(),
 			        minTextSize, maxTextSize, minCommentSize, maxCommentSize, ratioReduceText, seeds[15], seeds[16]);
 			tagTextDic.initialize();
 
 			System.out.println("Building Tag Matrix dictionary ");
-			
-			topicTagDic = new TagMatrix(sibDicDataDir + topicTagDicFile, 
-					mainTagDic.getNumCelebrity() , seeds[5]);
-			
+			topicTagDic = new TagMatrix(topicTagDicFile, mainTagDic.getNumCelebrity() , seeds[5]);
 			topicTagDic.initMatrix();
 	
-			ipAddDictionary = new IPAddressDictionary(sibDicDataDir + countryAbbrMappingFile,
-					ipZoneDir, locationDic.getVecLocations(), seeds[33],
+			System.out.println("Building IP addresses dictionary ");
+			ipAddDictionary = new IPAddressDictionary(countryAbbrMappingFile,
+			        IPZONE_DIRECTORY, locationDic.getVecLocations(), seeds[33],
 					probDiffIPinTravelSeason, probDiffIPnotTravelSeason,
 					probDiffIPforTraveller);
 			ipAddDictionary.init();
 			
-			System.out.println("Building dictionary of articles ");
-	
-			groupGenerator = new GroupGenerator(dateTimeGenerator, locationDic,
-					mainTagDic, numtotalUser, seeds[35]);
-	
-			namesDictionary = new NamesDictionary(sibDicDataDir + surnamesDicFile,
-					sibDicDataDir + givennamesDicFile,
-					locationDic.getLocationNameMapping(), seeds[23], geometricProb);
+			System.out.println("Building Names dictionary");
+			namesDictionary = new NamesDictionary(surnamesDicFile, givennamesDicFile,
+					locationDic.getLocationNameMapping(), seeds[23]);
 			namesDictionary.init();
 			
-			emailDic = new EmailDictionary(sibDicDataDir + emailDicFile, seeds[32]);
+			System.out.println("Building email dictionary");
+			emailDic = new EmailDictionary(emailDicFile, seeds[32]);
 			emailDic.init();
 	
-			browserDic = new BrowserDictionary(sibDicDataDir + browserDicFile, seeds[44],
-					probAnotherBrowser);
+			System.out.println("Building Group dictionary");
+			browserDic = new BrowserDictionary(browserDicFile, seeds[44], probAnotherBrowser);
 			browserDic.init();			
 			
-			organizationsDictionary = new OrganizationsDictionary(
-					sibDicDataDir + organizationsDicFile, locationDic,
+			System.out.println("Building university dictionary");
+			organizationsDictionary = new OrganizationsDictionary(organizationsDicFile, locationDic,
 					seeds[24], probUnCorrelatedOrganization, seeds[45], probTopUniv);
 			organizationsDictionary.init();
 	
-			companiesDictionary = new CompanyDictionary(sibDicDataDir + companiesDicFile,
-					locationDic, seeds[40], probUnCorrelatedCompany);
+			System.out.println("Building companies dictionary");
+			companiesDictionary = new CompanyDictionary(companiesDicFile,locationDic, 
+			        seeds[40], probUnCorrelatedCompany);
 			companiesDictionary.init();
 	
-			popularDictionary = new PopularPlacesDictionary(sibDicDataDir + popularPlacesDicFile, 
+			System.out.println("Building popular places dictionary");
+			popularDictionary = new PopularPlacesDictionary(popularPlacesDicFile, 
 					locationDic.getLocationNameMapping(), seeds[46]);
 			popularDictionary.init();
 			
-			photoGenerator = new PhotoGenerator(dateTimeGenerator,
-					locationDic.getVecLocations(), seeds[17], maxNumUserTags, 
-					popularDictionary, probPopularPlaces);
-
 			System.out.println("Building user agents dictionary");
-			userAgentDic = new UserAgentDictionary(sibDicDataDir + agentFile, seeds[28], seeds[30],
-					probSentFromAgent);
+			userAgentDic = new UserAgentDictionary(agentFile, seeds[28], seeds[30], probSentFromAgent);
 			userAgentDic.init();
+			
+			System.out.println("Building photo generator");
+            photoGenerator = new PhotoGenerator(dateTimeGenerator,
+                    locationDic.getVecLocations(), seeds[17], 
+                    popularDictionary, probPopularPlaces);
+            
+            System.out.println("Building Group generator");
+            groupGenerator = new GroupGenerator(dateTimeGenerator, locationDic,
+                    mainTagDic, numtotalUser, seeds[35]);
 
 
 			outputDataWriter = new OutputDataWriter();
-	
-			serializer = getSerializer(serializerType, rdfOutputFileName);
+			serializer = getSerializer(serializerType, RDF_OUTPUT_FILE);
 		}
-
 	}
 	
-	public void generateGroupAll(String inputFile, int numberOfCell) {
-		// Fifth pass: Group & group posts generator
+	/**
+	 * Generates the user activity (Photos, Posts, Comments, Groups) data 
+	 * of (numberCell * numUserPerCell) users correspondingto this hadoop job (machineId)
+	 * 
+	 * @param inputFile The hadoop file with the user serialization (data and friends)
+	 * @param numCell The number of cells the generator will parse.
+	 */
+	public void generateUserActivity(String inputFile, int numCell){
+        startWritingUserData();
+
+        long startPostGeneration = System.currentTimeMillis();
+        
+        //NOTE: Until this point of the code numtotalUser*2 forums where generated (2 for user) thats
+        //the reason behind this forum id assignment.
+        groupGenerator.setForumId((numtotalUser + 10) * 2);
+        generatePostandPhoto(inputFile, numCell);
+
+        long endPostGeneration = System.currentTimeMillis();
+        System.out.println("Post generation takes " + getDurationInMinutes(startPostGeneration, endPostGeneration));
+
+        finishWritingUserData();
+
+        long startGroupGeneration = System.currentTimeMillis();
+        generateAllGroup(inputFile, numCell);
+        long endGroupGeneration = System.currentTimeMillis();
+        System.out.println("Group generation takes " + getDurationInMinutes(startGroupGeneration, endGroupGeneration));
+
+        serializer.serialize();
+
+        System.out.println("Number of generated triples " + serializer.triplesGenerated());
+        System.out.println("Number of popular users " + numPopularUser);
+        System.out.println("Writing the data for test driver ");
+        
+        writeDataForQGEN();
+    }
+	
+	/**
+	 * Generates the post and photo activity for all users.
+	 * 
+	 * @param inputFile The hadoop file with the user serialization (data and friends)
+	 * @param numCells The number of cells the generator will parse.
+	 */
+	public void generatePostandPhoto(String inputFile, int numCells) {
+        
+	    reducedUserProfilesCell = new ReducedUserProfile[cellSize];
+        StorageManager storeManager = new StorageManager(cellSize, windowSize, outUserProfile, sibOutputDir);
+        
+        storeManager.initDeserialization(inputFile);
+        System.out.println("Generating the posts & comments ");
+        System.out.println("Number of cells in file : " + numCells);
+        
+        for (int i = 0; i < numCells; i++) {
+            storeManager.deserializeOneCellUserProfile(reducedUserProfilesCell);
+            
+            for (int j = 0; j < cellSize; j++) {
+                UserExtraInfo extraInfo = new UserExtraInfo();
+                setInfoFromUserProfile(reducedUserProfilesCell[j], extraInfo);
+                serializer.gatherData(reducedUserProfilesCell[j], extraInfo);
+
+                generatePosts(reducedUserProfilesCell[j], extraInfo);
+                generatePhoto(reducedUserProfilesCell[j], extraInfo);
+            }
+        }
+        
+        storeManager.endDeserialization();
+        System.out.println("Done generating the posts and photos....");
+        System.out.println("Number of deserialized objects is " + storeManager.getNumberDeSerializedObject());
+    }
+	
+	/**
+	 * Generates the Groups and it's posts and comments for all users.
+	 * 
+	 * @param inputFile The user information serialization file from previous jobs
+	 * @param numCell The number of cells to process
+	 */
+	public void generateAllGroup(String inputFile, int numCell) {
 		groupStoreManager = new StorageManager(cellSize, windowSize, outUserProfile, sibOutputDir);
 		
 		groupStoreManager.initDeserialization(inputFile);
-		generateGroups();
 		
-		int curCellPost = 0;
-		while (curCellPost < (numberOfCell - numberOfCellPerWindow)){
-			curCellPost++;
-			generateGroups(4, curCellPost, numberOfCell);
+		for (int i = 0; i < numCell; i++) {
+		    generateGroups(4, i, numCell);
 		}
 
-		System.out.println("Done generating user groups and groups' posts");
-		
 		groupStoreManager.endDeserialization();
+		
+		System.out.println("Done generating user groups and groups' posts");
 		System.out.println("Number of deserialized objects for group is " + groupStoreManager.getNumberDeSerializedObject());
-	}	
+	}
 	
-	public int		numUserProfilesRead = 0;
-	public int		numUserForNewCell = 0;
-	public int		mrCurCellPost = 0;
-	public ReducedUserProfile[] cellReducedUserProfiles;
-	public int		exactOutput = 0; 
-	
+	/**
+	 * Generates the groups for a single user.
+	 * 
+	 * @param pass The algorithm number step.
+	 * @param cellPos The cell position of the user.
+	 * @param numCell The total number of cells.
+	 */
+	public void generateGroups(int pass, int cellPos, int numCell) {
+
+        int newCellPosInWindow = cellPos % numberOfCellPerWindow;
+        int newIdxInWindow = newCellPosInWindow * cellSize;
+        int newStartIndex = (cellPos % numberOfCellPerWindow) * cellSize;
+        
+        groupStoreManager.deserializeOneCellUserProfile(newIdxInWindow, cellSize, reducedUserProfiles);
+        
+        for (int i = 0; i < cellSize; i++) {
+            int curIdxInWindow = newStartIndex + i;
+            double moderatorProb = randGroupModerator.nextDouble();
+            
+            if (moderatorProb > groupModeratorProb) {
+                continue;
+            }
+
+            Friend firstLevelFriends[] = reducedUserProfiles[curIdxInWindow].getFriendList();
+            Vector<Friend> secondLevelFriends = new Vector<Friend>();
+            //TODO: Include friends of friends a.k.a second level friends.
+
+            int numGroup = randNumberGroup.nextInt(maxNumGroupCreatedPerUser);
+            for (int j = 0; j < numGroup; j++) { 
+                createGroupForUser(reducedUserProfiles[curIdxInWindow],
+                        firstLevelFriends, secondLevelFriends);
+            }
+        }
+    }
 	
 	public void pushUserProfile(ReducedUserProfile reduceUser, int pass, 
 			Reducer<IntWritable, ReducedUserProfile,IntWritable, ReducedUserProfile>.Context context, 
@@ -836,32 +885,25 @@ public class ScalableGenerator{
 			Reducer<IntWritable, ReducedUserProfile,IntWritable, ReducedUserProfile>.Context context, 
 			boolean isContext, ObjectOutputStream oos){
 	    
-		int numLeftCell = numberOfCellPerWindow - 1;
-		while (numLeftCell > 0){
-			mrCurCellPost++;
-			mr2SlideLastCellsFriendShip(pass, mrCurCellPost, numLeftCell, context,
-					 isContext,  oos);
-			numLeftCell--;
+	    for (int numLeftCell = numberOfCellPerWindow - 1; numLeftCell > 0; numLeftCell--) {
+			mr2SlideLastCellsFriendShip(pass, ++mrCurCellPost, numLeftCell, context, isContext,  oos);
 		}
 	}
 	
 	public void mrGenerateUserInfo(int pass, Context context, int mapIdx){
 		
-		int numToGenerateUser;
-		if (numMaps == mapIdx){
-			numToGenerateUser = numCellInLastFile * cellSize;
-		}
-		else {
-			numToGenerateUser = numCellPerfile * cellSize;
-		}
+		int numToGenerateUser = (numMaps == mapIdx) ? numCellInLastFile : numCellPerfile;
+		numToGenerateUser = numToGenerateUser * cellSize;
 		
 		System.out.println("numToGenerateUser in Machine " + mapIdx + " = " + numToGenerateUser);
 		int numZeroPopularPlace = 0; 
 		
 		for (int i = 0; i < numToGenerateUser; i++) {
 			UserProfile user = generateGeneralInformation(i + startMapUserIdx); 
-			ReducedUserProfile reduceUserProf = new ReducedUserProfile(user, numCorrDimensions);
-			if (reduceUserProf.getNumPopularPlace() == 0) numZeroPopularPlace++;
+			ReducedUserProfile reduceUserProf = new ReducedUserProfile(user, NUM_FRIENDSHIP_HADOOP_JOBS);
+			if (reduceUserProf.getNumPopularPlace() == 0) {
+			    numZeroPopularPlace++;
+			}
 			user = null;
 			try {
 				context.write(new IntWritable(reduceUserProf.getDicElementId(pass)), reduceUserProf);
@@ -873,28 +915,8 @@ public class ScalableGenerator{
 		}
 		
 		System.out.println("Number of Zero popular places: " + numZeroPopularPlace);
-		
 	}
 	
-	public void initBasicParams(String args[], int _numMaps, String _mrInputFile, int mapIdx){
-		
-		loadParamsFromFile();
-
-		numFiles = _numMaps;
-		
-		rdfOutputFileName = "mr" + mapreduceFileIdx + "_" + rdfOutputFileName;
-		rdfOutputFileName = rdfOutputFileName + numtotalUser;
-		
-		init(mapIdx, false);
-		
-		System.out.println("Number of files " + numFiles);
-		System.out.println("Number of cells per file " + numCellPerfile);
-		System.out.println("Number of cells in last file " + numCellInLastFile);
-		
-		mrWriter = new MRWriter(cellSize, windowSize, sibOutputDir); 
-
-	}
-
 	public void generateCellOfUsers2(int newStartIndex, ReducedUserProfile[] _cellReduceUserProfiles){
 		int curIdxInWindow;
 		for (int i = 0; i < cellSize; i++) {
@@ -909,8 +931,6 @@ public class ScalableGenerator{
 	
 	public void mr2InitFriendShipWindow(int pass, Reducer.Context context, boolean isContext, ObjectOutputStream oos){
 	    
-	    //Generate the friendship in the first window
-		double randProb;
 		for (int i = 0; i < cellSize; i++) {
 			// From this user, check all the user in the window to create friendship
 			for (int j = i + 1; j < windowSize - 1; j++) {
@@ -929,7 +949,7 @@ public class ScalableGenerator{
                 }
 
 				// Generate a random value
-				randProb = randUniform.nextDouble();
+				double randProb = randUniform.nextDouble();
 				
 				double prob = getFriendCreatePro(i, j, pass);  
 				
@@ -951,8 +971,7 @@ public class ScalableGenerator{
 	public void mr2SlideFriendShipWindow(int pass, int cellPos, Reducer.Context context, ReducedUserProfile[] _cellReduceUserProfiles, 
 			boolean isContext, ObjectOutputStream oos){
 
-		// In window, position of new cell = the position of last removed cell =
-		// cellPos - 1
+		// In window, position of new cell = the position of last removed cell = cellPos - 1
 		int newCellPosInWindow = (cellPos - 1) % numberOfCellPerWindow;
 
 		int newStartIndex = newCellPosInWindow * cellSize;
@@ -1018,7 +1037,6 @@ public class ScalableGenerator{
 				isContext, oos);
 		
 		exactOutput = exactOutput + cellSize; 
-
 	}
 	
 	public void mr2SlideLastCellsFriendShip(int pass, int cellPos,	int numleftCell, Reducer.Context context,
@@ -1045,8 +1063,7 @@ public class ScalableGenerator{
 				continue;
 			}
 
-			// From this user, check all the user in the window to create
-			// friendship
+			// From this user, check all the user in the window to create friendship
 			for (int j = i + 1; (j < numleftCell * cellSize - 1)
 					&& reducedUserProfiles[curIdxInWindow].getNumFriendsAdded() 
 					   < reducedUserProfiles[curIdxInWindow].getNumFriends(pass); j++) {
@@ -1085,39 +1102,6 @@ public class ScalableGenerator{
 
 	}
 
-	public void generatePostandPhoto(String inputFile, int numOfCells) {
-		
-		// Init neccessary objects
-		StorageManager storeManager = new StorageManager(cellSize, windowSize, outUserProfile, sibOutputDir);
-		storeManager.initDeserialization(inputFile);
-		reducedUserProfilesCell = new ReducedUserProfile[cellSize];
-		
-		System.out.println("Generating the posts & comments ");
-
-		// Processing for each cell in the file
-		System.out.println("Number of cells in file : " + numOfCells);
-		
-		for (int j = 0; j < numOfCells; j++) {
-			storeManager.deserializeOneCellUserProfile(reducedUserProfilesCell);
-			
-			for (int k = 0; k < cellSize; k++) {
-				// Generate extra info such as names, organization before writing out
-			    UserExtraInfo extraInfo = new UserExtraInfo();
-				setInfoFromUserProfile(reducedUserProfilesCell[k], extraInfo);
-				
-				serializer.gatherData(reducedUserProfilesCell[k], extraInfo);
-
-				generatePosts(reducedUserProfilesCell[k], extraInfo);
-
-				generatePhoto(reducedUserProfilesCell[k], extraInfo);
-			}
-		}
-		
-		storeManager.endDeserialization();
-		System.out.println("Done generating the posts and photos....");
-		System.out.println("Number of deserialized objects is " + storeManager.getNumberDeSerializedObject());
-	}
-	
 	public void generatePosts(ReducedUserProfile user, UserExtraInfo extraInfo){
 		// Generate location-related posts
 		int numPosts = getNumOfPost(user);
@@ -1149,7 +1133,7 @@ public class ScalableGenerator{
 	public void generatePhoto(ReducedUserProfile user, UserExtraInfo extraInfo){
 		// Generate photo Album and photos
 		int numOfmonths = (int) dateTimeGenerator.numberOfMonths(user);
-		int numPhotoAlbums = randNumberPhotoAlbum.nextInt(maxNumPhotoAlbums);
+		int numPhotoAlbums = randNumberPhotoAlbum.nextInt(maxNumPhotoAlbumsPerMonth);
 		if (numOfmonths != 0) {
 			numPhotoAlbums = numOfmonths * numPhotoAlbums;
 		}
@@ -1171,121 +1155,6 @@ public class ScalableGenerator{
 				serializer.gatherData(photo);
 			}
 		}
-	}
-
-	// The group only created from users and their friends in the current
-	// sliding window.
-	// We do that, because we need the user's created date information for
-	// generating the group's joining datetime and group's post created date.
-	// For one user, a number of groups are created. For each group, the number
-	// of members is first generated.
-	// To select a member for joining the group
-	// First, select which level of friends that we are considering
-	// Second, randomSelect one user in that level
-	// Decide whether that user can be a member of the group by their joinProb
-	public void generateGroups() {
-		System.out.println("Generating user groups ");
-
-		groupStoreManager.deserializeWindowlUserProfile(reducedUserProfiles);
-
-		// Init a window of removed users, now it is empty
-		
-		removedUserProfiles = new ReducedUserProfile[windowSize];
-
-		double moderatorProb;
-
-		for (int i = 0; i < cellSize; i++) {
-			moderatorProb = randGroupModerator.nextDouble();
-			if (moderatorProb > groupModeratorProb) {
-				continue;
-			}
-
-			Friend firstLevelFriends[];
-			Vector<Friend> secondLevelFriends = new Vector<Friend>();
-
-			// Get the set of first and second level friends
-			firstLevelFriends = reducedUserProfiles[i].getFriendList();
-			for (int j = 0; j < reducedUserProfiles[i].getNumFriendsAdded(); j++) {
-				int friendId = firstLevelFriends[j].getFriendAcc();
-
-				int friendIdxInWindow = getIdxInWindow(0, 0, friendId);
-
-				if (friendIdxInWindow != -1) {
-					Friend friendOfFriends[] = reducedUserProfiles[friendIdxInWindow].getFriendList();
-
-					for (int k = 0; k < friendOfFriends.length; k++) {
-						if (friendOfFriends[k] != null) {
-							secondLevelFriends.add(friendOfFriends[k]);
-						} else {
-							break;
-						}
-					}
-				}
-			}
-
-			// Create a group whose the moderator is the current user
-			int numGroup = randNumberGroup.nextInt(maxNumGroupCreatedPerUser);
-			for (int j = 0; j < numGroup; j++) {
-				createGroupForUser(reducedUserProfiles[i], firstLevelFriends, secondLevelFriends);
-			}
-
-		}
-	}
-
-	public void generateGroups(int pass, int cellPos, int numberCellInFile) {
-
-		int newCellPosInWindow = (cellPos - 1) % numberOfCellPerWindow;
-
-		int newIdxInWindow = newCellPosInWindow * cellSize;
-
-		// Store the to-be-removed cell to the window
-		storeCellToRemovedWindow(newIdxInWindow, cellSize, pass);
-
-		// Deserialize the cell from file
-		
-		groupStoreManager.deserializeOneCellUserProfile(newIdxInWindow, cellSize, reducedUserProfiles);
-		
-
-		int newStartIndex = (cellPos % numberOfCellPerWindow) * cellSize;
-		int curIdxInWindow;
-		double moderatorProb;
-		for (int i = 0; i < cellSize; i++) {
-			moderatorProb = randGroupModerator.nextDouble();
-			if (moderatorProb > groupModeratorProb) {
-				continue;
-			}
-
-			curIdxInWindow = newStartIndex + i;
-
-			Friend firstLevelFriends[];
-			Vector<Friend> secondLevelFriends = new Vector<Friend>();
-
-			// Get the set of first and second level friends
-			firstLevelFriends = reducedUserProfiles[curIdxInWindow].getFriendList();
-
-			// Create a group whose the moderator is the current user
-			int numGroup = randNumberGroup.nextInt(maxNumGroupCreatedPerUser);
-			for (int j = 0; j < numGroup; j++) { 
-				createGroupForUser(reducedUserProfiles[curIdxInWindow],
-						firstLevelFriends, secondLevelFriends);
-			}
-		}
-	}
-
-	public int getIdxInWindow(int startIndex, int startUserId, int userAccId) {
-		if (((startUserId + windowSize) <= userAccId) || (startUserId > userAccId)) {
-			return -1;
-		}
-		
-		return (startIndex + (userAccId - startUserId)) % windowSize;
-	}
-
-	public int getIdxInRemovedWindow(int startIndex, int startUserId, int userAccId) {
-		if (userAccId >= startUserId|| ((userAccId + windowSize) < startUserId)) {
-			return -1;
-		}
-		
-		return (startIndex + (userAccId + windowSize - startUserId)) % windowSize;
 	}
 
 	public void createGroupForUser(ReducedUserProfile user,
@@ -1447,17 +1316,17 @@ public class ScalableGenerator{
 		userProf.setCreatedDate(dateTimeGenerator.randomDateInMillis());
 		
 		userProf.setNumFriends((short) randPowerlaw.getValue());
-		userProf.allocateFriendListMemory(numCorrDimensions);
+		userProf.allocateFriendListMemory(NUM_FRIENDSHIP_HADOOP_JOBS);
 		
 		short totalFriendSet = 0; 
-		for (int i = 0; i < numCorrDimensions-1; i++){
-			short numPassFriend = (short) Math.floor(friendsRatioPerPass[0] * userProf.getNumFriends());
+		for (int i = 0; i < NUM_FRIENDSHIP_HADOOP_JOBS-1; i++){
+			short numPassFriend = (short) Math.floor(friendRatioPerJob[0] * userProf.getNumFriends());
 			totalFriendSet = (short) (totalFriendSet + numPassFriend);
 			userProf.setNumPassFriends(totalFriendSet,i);
 			
 		}
 		// Prevent the case that the number of friends added exceeds the total number of friends
-		userProf.setNumPassFriends(userProf.getNumFriends(),numCorrDimensions-1);
+		userProf.setNumPassFriends(userProf.getNumFriends(),NUM_FRIENDSHIP_HADOOP_JOBS-1);
 
 		userProf.setNumFriendsAdded((short) 0);
 		userProf.setLocationIdx(locationDic.getLocation(accountId));
@@ -1510,7 +1379,7 @@ public class ScalableGenerator{
 		userProf.setPopularPlaceIds(popularPlaces);
 		
 		// Get random Idx
-		userProf.setRandomIdx(randUserRandomIdx.nextInt(maxUserRandomIdx));
+		userProf.setRandomIdx(randUserRandomIdx.nextInt(USER_RANDOM_ID_LIMIT));
 
 		return userProf;
 	}
@@ -1640,10 +1509,6 @@ public class ScalableGenerator{
 		}
 	}
 
-	public void storeCellToRemovedWindow(int startIdex, int cellSize, int pass) {
-		for (int i = 0; i < cellSize; i++)
-			removedUserProfiles[startIdex + i] = reducedUserProfiles[startIdex + i];
-	}
 
 	public double getFriendCreatePro(int i, int j, int pass){
 		double prob;
@@ -1715,7 +1580,9 @@ public class ScalableGenerator{
                     organizationsDictionary.GetOrganizationLocationMap(),
 					ipAddDictionary,locationDic, languageDic);
 		} else {
-			return null;
+		    System.err.println("Unexpected Serializer - Aborting");
+		    System.exit(-1);
+		    return null;
 		}
 	}
 	
@@ -1726,6 +1593,13 @@ public class ScalableGenerator{
 	private void finishWritingUserData() {
 		outputDataWriter.finishWritingUserData();
 	}
+	
+	private void writeDataForQGEN() {
+        outputDataWriter.writeGeneralDataForTestDriver(numtotalUser, dateTimeGenerator);
+        outputDataWriter.writeGroupDataForTestDriver(groupGenerator);
+        outputDataWriter.writeLocationDataForTestDriver(locationDic);
+        outputDataWriter.writeNamesDataForTestDriver(namesDictionary);
+    }
 
 	public void writeToOutputFile(String filenames[], String outputfile){
 	    Writer output = null;
@@ -1743,13 +1617,7 @@ public class ScalableGenerator{
 	        e.printStackTrace();
 	    }
 	}
-	public String getDuration(long startTime, long endTime){
-		String duration = (endTime - startTime)
-		/ 60000 + " minutes and " + ((endTime - startTime) % 60000)
-		/ 1000 + " seconds";
-		
-		return duration; 
-	}
+	
 	public void printHeapSize(){
 		long heapSize = Runtime.getRuntime().totalMemory();
 		long heapMaxSize = Runtime.getRuntime().maxMemory();
@@ -1761,17 +1629,5 @@ public class ScalableGenerator{
 		System.out.println(" Free Heap Size: " + heapFreeSize/(1024*1024));
 		System.out.println(" ---------------------- ");
 	}
-	public int getCellSize() {
-		return cellSize;
-	}
-	public int getMapId() {
-		return machineId;
-	}
-
-	public void setMapId(int mapId) {
-		this.machineId = mapId;
-	}
-
-
 }
  

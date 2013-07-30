@@ -40,7 +40,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Iterator;
 
-public class UserProfile extends SocialObject implements Serializable {
+public class UserProfile implements Serializable {
     private static final long serialVersionUID = 3657773293974543890L;
 	int 				accountId;
 	int 				locationIdx; 

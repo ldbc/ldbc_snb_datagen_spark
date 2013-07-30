@@ -41,7 +41,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.io.Serializable;
 
-public class Friend extends SocialObject implements Serializable{
+public class Friend implements Serializable{
 	int friendAcc; 
 	long createdTime;			//approved Time 
 	long requestTime;			 
