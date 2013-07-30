@@ -1,7 +1,7 @@
 select ?tag count (*) from <sib>
-where { ?post sv:creator ?fr . ?post sv:has_tag ?tag . ?post sv:created ?date . 
-   %Person% sv:knows ?fr .
+where { ?post snvoc:hasCreator ?fr . ?post snvoc:hasTag ?tag . ?post snvoc:creationDate ?date . 
+   %Person% snvoc:knows ?fr .
 filter (?date >= "%Date0%"^^xsd:date && ?date <= bif:dateadd ("day", %Duration%, "%Date0%"^^xsd:date) ) .
-  filter (!exists { ?post2 sv:creator ?fr . ?post2 sv:has_tag ?tag . ?post2 sv:created ?date2 . filter (?date2 < "%Date0%"^^xsd:date)}) 
+  filter (!exists { ?post2 snvoc:hasCreator ?fr . ?post2 snvoc:hasTag ?tag . ?post2 snvoc:creationDate ?date2 . filter (?date2 < "%Date0%"^^xsd:date)}) 
 }
 group by ?tag order by desc 2 limit 10
