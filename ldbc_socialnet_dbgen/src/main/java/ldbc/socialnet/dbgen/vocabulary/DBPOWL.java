@@ -73,7 +73,7 @@ public class DBPOWL {
 	}
 	
 	public static String fullprefixed(String string) {
-	    return NS + string;
+	    return "<" + NS + string + ">";
 	}
 
 	//Get the URI of this vocabulary
