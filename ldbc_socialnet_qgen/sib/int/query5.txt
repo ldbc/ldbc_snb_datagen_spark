@@ -1,6 +1,6 @@
 select ?group count (*) from <sib>
-where { {{ %Person% sv:knows ?fr} union {  %Person% sv:knows ?fr2 . ?fr2 sv:knows ?fr}}
-  ?group sv:member ?mem . ?mem sv:person ?fr . ?mem sv:join ?date . filter (?date > "%Date0%"^^xsd:date) .
-  ?post sv:creater ?fr . ?gr sv:container_of ?post }
+where { {{ %Person% snvoc:knows ?fr} union {  %Person% snvoc:knows ?fr2 . ?fr2 snvoc:knows ?fr}}
+  ?group snvoc:hasMember ?mem . ?mem snvoc:hasPerson ?fr . ?mem snvoc:joinDate ?date . filter (?date > "%Date0%"^^xsd:date) .
+  ?post snvoc:hasCreator ?fr . ?gr snvoc:containerOf ?post }
 group by ?group order by desc 2
 

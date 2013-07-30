@@ -1,16 +1,12 @@
--- No geo hierarchy 
--- the tags that are musical artests must be in the data 
-
-
-sparql select ?p1 ?p2 from <sib>
-where { ?p1 sv:firstName "%Name0%" .
- ?p2 sv:firstName "%Name1%". 
-    ?p1 sv:based_near ?p1place . ?p1place sv:has_parent_feature *  <http://dbpedia.org/resource/New_York_City> .
-  ?p2 sv:based_near ?p2place . ?p2place sv:has_parent_feature * <http://dbpedia.org/resource/Hong_Kong> .
-?p1 sv:creater ?p1post .
-?p2 sv:creator ?p2post .
-filter (exists { ?p1post sv:reply_of ?p2post } || exists {?p2post sv:reply_of ?p1post })
-?mf sv:container_of ?p2post .
-?mf sv:container_of ?p1post .
-filter (exists { ?mf sv:has_tag ?tag . graph <http://dbpedia.org> { ?tag a dbpedia-owl:Musical_Artist }})
-} order by ?p1 limit 10;
+select ?p1 ?p2 from <sib>
+where { ?p1 snvoc:firstName "%Name0%" .
+ ?p2 snvoc:firstName "%Name1%". 
+    ?p1 snvoc:isLocatedIn ?p1place . ?p1place dbpedia-owl:isPartOf *  <http://dbpedia.org/resource/New_York_City> .
+  ?p2 snvoc:isLocatedIn ?p2place . ?p2place dbpedia-owl:isPartOf * <http://dbpedia.org/resource/Hong_Kong> .
+?p1 snvoc:hasCreator ?p1post .
+?p2 snvoc:hasCreator ?p2post .
+filter (exists { ?p1post snvoc:replyOf ?p2post } || exists {?p2post snvoc:replyOf ?p1post })
+?mf snvoc:containerOf ?p2post .
+?mf snvoc:containerOf ?p1post .
+filter (exists { ?mf snvoc:hasTag ?tag . graph <http://dbpedia.org> { ?tag a dbpedia-owl:Musical_Artist }})
+} order by ?p1 limit 10

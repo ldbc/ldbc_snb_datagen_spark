@@ -1,0 +1,15 @@
+William_Shakespeare  
+George_W._Bush       
+Barack_Obama         
+Elizabeth_II         
+Ronald_Reagan        
+Franklin_D._Roosevelt
+Richard_Nixon        
+Harry_S._Truman      
+John_F._Kennedy      
+Bill_Clinton         
+Adolf_Hitler         
+Joseph_Stalin        
+Dwight_D._Eisenhower 
+George_H._W._Bush    
+Winston_Churchill
