@@ -38,7 +38,7 @@ package ldbc.socialnet.dbgen.objects;
 
 import java.io.Serializable;
 
-public class GPS extends SocialObject implements Serializable{
+public class GPS implements Serializable{
 	long 	trackedTime; 
 	String	trackedLocation;
 	double 	longt;

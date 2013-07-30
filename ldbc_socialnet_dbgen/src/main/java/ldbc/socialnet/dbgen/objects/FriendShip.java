@@ -46,7 +46,7 @@ enum CorrelatedInfo{
 	location, 
 	interest
 }
-public class FriendShip extends SocialObject{
+public class FriendShip {
 	Status status;
 	CorrelatedInfo correlatedInfo;
 	int userAcc01, userAcc02;

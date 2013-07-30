@@ -249,7 +249,6 @@ public class ScalableGenerator{
 	
 	ReducedUserProfile  	reducedUserProfiles[];
 	ReducedUserProfile 		reducedUserProfilesCell[];
-	ReducedUserProfile 		removedUserProfiles[];
 	
 	// For (de-)serialization
 	FileOutputStream 		ofUserProfiles;
@@ -720,15 +719,17 @@ public class ScalableGenerator{
 	 * of (numberCell * numUserPerCell) users correspondingto this hadoop job (machineId)
 	 * 
 	 * @param inputFile The hadoop file with the user serialization (data and friends)
-	 * @param numberCell The number of cells the generator will parse.
+	 * @param numCell The number of cells the generator will parse.
 	 */
-	public void generateUserActivity(String inputFile, int numberCell){
+	public void generateUserActivity(String inputFile, int numCell){
         startWritingUserData();
 
         long startPostGeneration = System.currentTimeMillis();
         
+        //NOTE: Until this point of the code numtotalUser*2 forums where generated (2 for user) thats
+        //the reason behind this forum id assignment.
         groupGenerator.setForumId((numtotalUser + 10) * 2);
-        generatePostandPhoto(inputFile, numberCell);
+        generatePostandPhoto(inputFile, numCell);
 
         long endPostGeneration = System.currentTimeMillis();
         System.out.println("Post generation takes " + getDurationInMinutes(startPostGeneration, endPostGeneration));
@@ -736,13 +737,11 @@ public class ScalableGenerator{
         finishWritingUserData();
 
         long startGroupGeneration = System.currentTimeMillis();
-        generateGroupAll(inputFile, numberCell);
+        generateAllGroup(inputFile, numCell);
         long endGroupGeneration = System.currentTimeMillis();
         System.out.println("Group generation takes " + getDurationInMinutes(startGroupGeneration, endGroupGeneration));
 
-        if (mapreduceFileIdx != -1) {
-            serializer.serialize();
-        }
+        serializer.serialize();
 
         System.out.println("Number of generated triples " + serializer.triplesGenerated());
         System.out.println("Number of popular users " + numPopularUser);
@@ -751,25 +750,94 @@ public class ScalableGenerator{
         writeDataForQGEN();
     }
 	
-	public void generateGroupAll(String inputFile, int numberOfCell) {
+	/**
+	 * Generates the post and photo activity for all users.
+	 * 
+	 * @param inputFile The hadoop file with the user serialization (data and friends)
+	 * @param numCells The number of cells the generator will parse.
+	 */
+	public void generatePostandPhoto(String inputFile, int numCells) {
+        
+	    reducedUserProfilesCell = new ReducedUserProfile[cellSize];
+        StorageManager storeManager = new StorageManager(cellSize, windowSize, outUserProfile, sibOutputDir);
+        
+        storeManager.initDeserialization(inputFile);
+        System.out.println("Generating the posts & comments ");
+        System.out.println("Number of cells in file : " + numCells);
+        
+        for (int i = 0; i < numCells; i++) {
+            storeManager.deserializeOneCellUserProfile(reducedUserProfilesCell);
+            
+            for (int j = 0; j < cellSize; j++) {
+                UserExtraInfo extraInfo = new UserExtraInfo();
+                setInfoFromUserProfile(reducedUserProfilesCell[j], extraInfo);
+                serializer.gatherData(reducedUserProfilesCell[j], extraInfo);
+
+                generatePosts(reducedUserProfilesCell[j], extraInfo);
+                generatePhoto(reducedUserProfilesCell[j], extraInfo);
+            }
+        }
+        
+        storeManager.endDeserialization();
+        System.out.println("Done generating the posts and photos....");
+        System.out.println("Number of deserialized objects is " + storeManager.getNumberDeSerializedObject());
+    }
+	
+	/**
+	 * Generates the Groups and it's posts and comments for all users.
+	 * 
+	 * @param inputFile The user information serialization file from previous jobs
+	 * @param numCell The number of cells to process
+	 */
+	public void generateAllGroup(String inputFile, int numCell) {
 		groupStoreManager = new StorageManager(cellSize, windowSize, outUserProfile, sibOutputDir);
 		
 		groupStoreManager.initDeserialization(inputFile);
 		
-		//desi
-		generateGroups();
-		
-		int curCellPost = 0;
-		while (curCellPost < (numberOfCell - numberOfCellPerWindow)){
-			curCellPost++;
-			generateGroups(4, curCellPost, numberOfCell);
+		for (int i = 0; i < numCell; i++) {
+		    generateGroups(4, i, numCell);
 		}
 
-		System.out.println("Done generating user groups and groups' posts");
-		
 		groupStoreManager.endDeserialization();
+		
+		System.out.println("Done generating user groups and groups' posts");
 		System.out.println("Number of deserialized objects for group is " + groupStoreManager.getNumberDeSerializedObject());
 	}
+	
+	/**
+	 * Generates the groups for a single user.
+	 * 
+	 * @param pass The algorithm number step.
+	 * @param cellPos The cell position of the user.
+	 * @param numCell The total number of cells.
+	 */
+	public void generateGroups(int pass, int cellPos, int numCell) {
+
+        int newCellPosInWindow = cellPos % numberOfCellPerWindow;
+        int newIdxInWindow = newCellPosInWindow * cellSize;
+        int newStartIndex = (cellPos % numberOfCellPerWindow) * cellSize;
+        
+        groupStoreManager.deserializeOneCellUserProfile(newIdxInWindow, cellSize, reducedUserProfiles);
+        
+        for (int i = 0; i < cellSize; i++) {
+            int curIdxInWindow = newStartIndex + i;
+            double moderatorProb = randGroupModerator.nextDouble();
+            
+            if (moderatorProb > groupModeratorProb) {
+                continue;
+            }
+
+            Friend firstLevelFriends[] = reducedUserProfiles[curIdxInWindow].getFriendList();
+            Vector<Friend> secondLevelFriends = new Vector<Friend>();
+            //TODO: Include friends of friends a.k.a second level friends.
+
+            int numGroup = randNumberGroup.nextInt(maxNumGroupCreatedPerUser);
+            for (int j = 0; j < numGroup; j++) { 
+                createGroupForUser(reducedUserProfiles[curIdxInWindow],
+                        firstLevelFriends, secondLevelFriends);
+            }
+        }
+    }
 	
 	public void pushUserProfile(ReducedUserProfile reduceUser, int pass, 
 			Reducer<IntWritable, ReducedUserProfile,IntWritable, ReducedUserProfile>.Context context, 
@@ -995,8 +1063,7 @@ public class ScalableGenerator{
 				continue;
 			}
 
-			// From this user, check all the user in the window to create
-			// friendship
+			// From this user, check all the user in the window to create friendship
 			for (int j = i + 1; (j < numleftCell * cellSize - 1)
 					&& reducedUserProfiles[curIdxInWindow].getNumFriendsAdded() 
 					   < reducedUserProfiles[curIdxInWindow].getNumFriends(pass); j++) {
@@ -1035,39 +1102,6 @@ public class ScalableGenerator{
 
 	}
 
-	public void generatePostandPhoto(String inputFile, int numOfCells) {
-		
-		// Init neccessary objects
-		StorageManager storeManager = new StorageManager(cellSize, windowSize, outUserProfile, sibOutputDir);
-		storeManager.initDeserialization(inputFile);
-		reducedUserProfilesCell = new ReducedUserProfile[cellSize];
-		
-		System.out.println("Generating the posts & comments ");
-
-		// Processing for each cell in the file
-		System.out.println("Number of cells in file : " + numOfCells);
-		
-		for (int j = 0; j < numOfCells; j++) {
-			storeManager.deserializeOneCellUserProfile(reducedUserProfilesCell);
-			
-			for (int k = 0; k < cellSize; k++) {
-				// Generate extra info such as names, organization before writing out
-			    UserExtraInfo extraInfo = new UserExtraInfo();
-				setInfoFromUserProfile(reducedUserProfilesCell[k], extraInfo);
-				
-				serializer.gatherData(reducedUserProfilesCell[k], extraInfo);
-
-				generatePosts(reducedUserProfilesCell[k], extraInfo);
-
-				generatePhoto(reducedUserProfilesCell[k], extraInfo);
-			}
-		}
-		
-		storeManager.endDeserialization();
-		System.out.println("Done generating the posts and photos....");
-		System.out.println("Number of deserialized objects is " + storeManager.getNumberDeSerializedObject());
-	}
-	
 	public void generatePosts(ReducedUserProfile user, UserExtraInfo extraInfo){
 		// Generate location-related posts
 		int numPosts = getNumOfPost(user);
@@ -1121,121 +1155,6 @@ public class ScalableGenerator{
 				serializer.gatherData(photo);
 			}
 		}
-	}
-
-	// The group only created from users and their friends in the current
-	// sliding window.
-	// We do that, because we need the user's created date information for
-	// generating the group's joining datetime and group's post created date.
-	// For one user, a number of groups are created. For each group, the number
-	// of members is first generated.
-	// To select a member for joining the group
-	// First, select which level of friends that we are considering
-	// Second, randomSelect one user in that level
-	// Decide whether that user can be a member of the group by their joinProb
-	public void generateGroups() {
-		System.out.println("Generating user groups ");
-
-		groupStoreManager.deserializeWindowlUserProfile(reducedUserProfiles);
-
-		// Init a window of removed users, now it is empty
-		
-		removedUserProfiles = new ReducedUserProfile[windowSize];
-
-		double moderatorProb;
-
-		for (int i = 0; i < cellSize; i++) {
-			moderatorProb = randGroupModerator.nextDouble();
-			if (moderatorProb > groupModeratorProb) {
-				continue;
-			}
-
-			Friend firstLevelFriends[];
-			Vector<Friend> secondLevelFriends = new Vector<Friend>();
-
-			// Get the set of first and second level friends
-			firstLevelFriends = reducedUserProfiles[i].getFriendList();
-			for (int j = 0; j < reducedUserProfiles[i].getNumFriendsAdded(); j++) {
-				int friendId = firstLevelFriends[j].getFriendAcc();
-
-				int friendIdxInWindow = getIdxInWindow(0, 0, friendId);
-
-				if (friendIdxInWindow != -1) {
-					Friend friendOfFriends[] = reducedUserProfiles[friendIdxInWindow].getFriendList();
-
-					for (int k = 0; k < friendOfFriends.length; k++) {
-						if (friendOfFriends[k] != null) {
-							secondLevelFriends.add(friendOfFriends[k]);
-						} else {
-							break;
-						}
-					}
-				}
-			}
-
-			// Create a group whose the moderator is the current user
-			int numGroup = randNumberGroup.nextInt(maxNumGroupCreatedPerUser);
-			for (int j = 0; j < numGroup; j++) {
-				createGroupForUser(reducedUserProfiles[i], firstLevelFriends, secondLevelFriends);
-			}
-
-		}
-	}
-
-	public void generateGroups(int pass, int cellPos, int numberCellInFile) {
-
-		int newCellPosInWindow = (cellPos - 1) % numberOfCellPerWindow;
-
-		int newIdxInWindow = newCellPosInWindow * cellSize;
-
-		// Store the to-be-removed cell to the window
-		storeCellToRemovedWindow(newIdxInWindow, cellSize, pass);
-
-		// Deserialize the cell from file
-		
-		groupStoreManager.deserializeOneCellUserProfile(newIdxInWindow, cellSize, reducedUserProfiles);
-		
-
-		int newStartIndex = (cellPos % numberOfCellPerWindow) * cellSize;
-		int curIdxInWindow;
-		double moderatorProb;
-		for (int i = 0; i < cellSize; i++) {
-			moderatorProb = randGroupModerator.nextDouble();
-			if (moderatorProb > groupModeratorProb) {
-				continue;
-			}
-
-			curIdxInWindow = newStartIndex + i;
-
-			Friend firstLevelFriends[];
-			Vector<Friend> secondLevelFriends = new Vector<Friend>();
-
-			// Get the set of first and second level friends
-			firstLevelFriends = reducedUserProfiles[curIdxInWindow].getFriendList();
-
-			// Create a group whose the moderator is the current user
-			int numGroup = randNumberGroup.nextInt(maxNumGroupCreatedPerUser);
-			for (int j = 0; j < numGroup; j++) { 
-				createGroupForUser(reducedUserProfiles[curIdxInWindow],
-						firstLevelFriends, secondLevelFriends);
-			}
-		}
-	}
-
-	public int getIdxInWindow(int startIndex, int startUserId, int userAccId) {
-		if (((startUserId + windowSize) <= userAccId) || (startUserId > userAccId)) {
-			return -1;
-		}
-		
-		return (startIndex + (userAccId - startUserId)) % windowSize;
-	}
-
-	public int getIdxInRemovedWindow(int startIndex, int startUserId, int userAccId) {
-		if (userAccId >= startUserId|| ((userAccId + windowSize) < startUserId)) {
-			return -1;
-		}
-		
-		return (startIndex + (userAccId + windowSize - startUserId)) % windowSize;
 	}
 
 	public void createGroupForUser(ReducedUserProfile user,
@@ -1590,10 +1509,6 @@ public class ScalableGenerator{
 		}
 	}
 
-	public void storeCellToRemovedWindow(int startIdex, int cellSize, int pass) {
-		for (int i = 0; i < cellSize; i++)
-			removedUserProfiles[startIdex + i] = reducedUserProfiles[startIdex + i];
-	}
 
 	public double getFriendCreatePro(int i, int j, int pass){
 		double prob;

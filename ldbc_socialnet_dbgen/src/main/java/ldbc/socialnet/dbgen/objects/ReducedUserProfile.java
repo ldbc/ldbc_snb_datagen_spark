@@ -47,7 +47,7 @@ import java.util.Iterator;
 
 import org.apache.hadoop.io.Writable;
 
-public class ReducedUserProfile extends SocialObject implements Serializable, Writable{
+public class ReducedUserProfile implements Serializable, Writable{
 	private static final long serialVersionUID = 3657773293974543890L;
 	int 				accountId;
 	long	 			createdDate; 

@@ -36,7 +36,7 @@
  */
 package ldbc.socialnet.dbgen.objects;
 
-public class Group extends SocialObject{
+public class Group {
 	int groupId; 
 	int moderatorId; 		//creator Id
 	long createdDate;

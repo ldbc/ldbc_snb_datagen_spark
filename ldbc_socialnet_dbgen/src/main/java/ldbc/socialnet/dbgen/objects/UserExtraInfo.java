@@ -41,7 +41,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
 
-public class UserExtraInfo extends SocialObject {
+public class UserExtraInfo {
 	String 				gender;
 	//long 				dateOfBirth;
 	HashSet<String>     email;
