@@ -1,14 +1,25 @@
-select ?person ?last ?based ?ipcountry ?bday  ?since ?gen 
-  ((select group_concat (?lng, ",") where {?person snvoc:speaks ?lng} group by ?person))
-  ((select group_concat ( bif:concat (?o_name, ?o_country), ",") where {?person snvoc:workAt ?w . ?w snvoc:hasOrganization ?org . ?org dbpedia-owl:country ?o_country . ?org foaf:name ?o_name } group by ?person))
-{
-?person a                                   snvoc:Person .
-?person snvoc:firstName "%Name%" .
-?person snvoc:isLocatedIn                       ?based .
-?person snvoc:birthday                         ?bday .
-?person snvoc:creationDate                         ?since . 
-?person snvoc:gender                         ?gen .
-?person snvoc:lastName ?last .
-} order by ?last limit 10
-
-
+select ?person ?last ?based ?ipcountry ?bday ?since ?gen 
+    ((select group_concat (?lng, ",")
+        where {
+            ?person snvoc:speaks ?lng
+        }
+        group by ?person))
+    ((select group_concat ( bif:concat (?o_name, ?o_country), ",")
+        where {
+	    ?person snvoc:workAt ?w .
+            ?w snvoc:hasOrganization ?org .
+            ?org dbpedia-owl:country ?o_country .
+            ?org foaf:name ?o_name
+        }
+        group by ?person))
+    {
+        ?person a snvoc:Person .
+        ?person snvoc:firstName "%Name%" .
+        ?person snvoc:isLocatedIn ?based .
+        ?person snvoc:birthday ?bday .
+        ?person snvoc:creationDate ?since . 
+        ?person snvoc:gender ?gen .
+        ?person snvoc:lastName ?last .
+    }
+    order by ?last
+    limit 10

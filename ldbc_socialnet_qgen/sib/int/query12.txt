@@ -1,9 +1,12 @@
 select ?exp ?tag count (*)
 where {
-%Person% snvoc:knows ?exp .
-?reply snvoc:hasCreator ?exp .
-?reply snvoc:replyOf  ?org_post .
-filter (!exists {?org_post snvoc:replyOf ?xx}) .
-?org_post snvoc:hasTag ?tag .
-?tag a <%TagType%> .
-} group by ?exp ?tag order by desc 3 limit 20
+    %Person% snvoc:knows ?exp .
+    ?reply snvoc:hasCreator ?exp .
+    ?reply snvoc:replyOf  ?org_post .
+    filter (!exists {?org_post snvoc:replyOf ?xx}) .
+    ?org_post snvoc:hasTag ?tag .
+    ?tag a <%TagType%> .
+}
+group by ?exp ?tag
+order by desc 3
+limit 20

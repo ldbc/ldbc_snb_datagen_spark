@@ -1,9 +1,15 @@
 select  ?first ?last ?startdate ?org ?fr 
-where {?w snvoc:hasOrganisation ?org . ?org dbpedia-owl:Country %Country% .
- ?fr snvoc:workAt ?w . ?w snvoc:workFrom ?startdate . filter (?startdate < "%Date0%"^^xsd:date) .
-  {{ %Person% snvoc:knows ?fr} union { <> snvoc:knows ?fr2 . ?fr2 snvoc:knows ?fr}} .
-  ?fr snvoc:firstName ?first .
-  ?fr snvoc:lastName ?last .
-} order by ?startdate limit 10
+where {
+    ?w snvoc:hasOrganisation ?org .
+    ?org dbpedia-owl:Country %Country% .
+    ?fr snvoc:workAt ?w .
+    ?w snvoc:workFrom ?startdate .
+    filter (?startdate < "%Date0%"^^xsd:date) .
+    {{ %Person% snvoc:knows ?fr} union { %Person% snvoc:knows ?fr2 . ?fr2 snvoc:knows ?fr}} .
+    ?fr snvoc:firstName ?first .
+    ?fr snvoc:lastName ?last .
+}
+order by ?startdate
+limit 10
 
 

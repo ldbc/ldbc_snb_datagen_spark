@@ -1,7 +1,12 @@
-select ?tag count (*) from <sib>
+select ?tag count (*)
+from <sib>
 where { 
- ?post snvoc:hasTag ?tag .
-  ?post snvoc:ipcountry %Country% .
-?post snvoc:creationDate ?date . filter (?date >= "%Date0%"^^xsd:date && ?date < bif:dateadd ("day", %Duration%, "%Date0%"^^xsd:date) ) .
-filter (!exists { %Person% snvoc:knows ?fr . ?frpost snvoc:hasCreator ?fr . ?frpost snvoc:hasTag ?tag} )
-} group by ?tag order by desc 2 limit 10
+    ?post snvoc:hasTag ?tag .
+    ?post snvoc:ipcountry %Country% .
+    ?post snvoc:creationDate ?date .
+    filter (?date >= "%Date0%"^^xsd:date && ?date < bif:dateadd ("day", %Duration%, "%Date0%"^^xsd:date) ) .
+    filter (!exists { %Person% snvoc:knows ?fr . ?frpost snvoc:hasCreator ?fr . ?frpost snvoc:hasTag ?tag} )
+}
+group by ?tag
+order by desc 2
+limit 10

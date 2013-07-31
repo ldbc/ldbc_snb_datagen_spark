@@ -1,17 +1,35 @@
 select  ?first, ?last,  
-   (((select  count (*) where {  ?post snvoc:hasCreator ?fof . ?post snvoc:hasTag ?tag . %Person% snvoc:hasInterest ?tag }))
-  - ((select  count (*) where {  ?post snvoc:hasCreator ?fof . ?post snvoc:hasTag ?tag . filter (!exists {%Person% snvoc:hasInterest ?tag}) })) as ?score),
-  ?fof,  ?gender, ?based
-from <sib> where {
-  {select distinct ?fof where {
-  %Person% snvoc:knows ?fr .
-  ?fr snvoc:knows ?fof .
-  minus { %Person% snvoc:knows ?fof } .}} .
-     ?fof snvoc:firstName ?first .
-  ?fof snvoc:lastName ?last .
-  ?fof snvoc:gender ?gender .
-  ?fof snvoc:birthday ?bday .
-  ?fof snvoc:isLocatedIn ?based .
-  filter (1 = if (bif:month (?bday) = %HS0%, if (bif:dayofmonth (?bday) > 21, 1, 0), if (bif:month (?bday) = %HS1%, if (bif:dayofmonth(?bday) < 22, 1, 0), 0)))
-} order by desc 3 limit 10
-
+    ((( select  count (*)
+        where {
+            ?post snvoc:hasCreator ?fof .
+            ?post snvoc:hasTag ?tag .
+            %Person% snvoc:hasInterest ?tag
+        }
+    ))
+    -
+    ((  select  count (*)
+        where {
+            ?post snvoc:hasCreator ?fof .
+            ?post snvoc:hasTag ?tag .
+            filter (!exists {%Person% snvoc:hasInterest ?tag})
+        }
+    )) as ?score),
+    ?fof,  ?gender, ?based
+from <sib>
+where {
+   {select distinct ?fof
+    where {
+        %Person% snvoc:knows ?fr .
+        ?fr snvoc:knows ?fof .
+        minus { %Person% snvoc:knows ?fof } .
+    }
+   } .
+   ?fof snvoc:firstName ?first .
+   ?fof snvoc:lastName ?last .
+   ?fof snvoc:gender ?gender .
+   ?fof snvoc:birthday ?bday .
+   ?fof snvoc:isLocatedIn ?based .
+   filter (1 = if (bif:month (?bday) = %HS0%, if (bif:dayofmonth (?bday) > 21, 1, 0), if (bif:month (?bday) = %HS1%, if (bif:dayofmonth(?bday) < 22, 1, 0), 0)))
+}
+order by desc 3
+limit 10
