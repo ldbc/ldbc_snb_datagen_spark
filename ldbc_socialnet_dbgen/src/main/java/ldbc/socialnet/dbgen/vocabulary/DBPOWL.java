@@ -73,12 +73,13 @@ public class DBPOWL {
 	}
 	
 	public static String fullprefixed(String string) {
-	    return NS + string;
+	    return "<" + NS + string + ">";
 	}
 
 	//Get the URI of this vocabulary
 	public static String getURI() { return NS; }
 	
+	public static final String Place           = PREFIX+"Place";
 	public static final String City            = PREFIX+"City";
 	public static final String Country         = PREFIX+"Country";
 	public static final String Continent       = PREFIX+"Continent";

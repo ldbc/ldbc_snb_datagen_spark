@@ -122,8 +122,8 @@ public class SNVOC{
     public static final String City         =  PREFIX+"City";
     public static final String Country      =  PREFIX+"Country";
     public static final String Region       =  PREFIX+"Region";
-    public static final String Location     =  PREFIX+"Location";
     public static final String Organisation =  PREFIX+"Organisation";
     public static final String Tag          =  PREFIX+"Tag";
     public static final String TagClass     =  PREFIX+"TagClass";
+    public static final String isPartOf     =  PREFIX+"isPartOf";
 }

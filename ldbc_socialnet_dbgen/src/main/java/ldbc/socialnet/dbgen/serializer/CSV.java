@@ -243,6 +243,7 @@ public class CSV implements Serializer {
 	    Vector<String> arguments = new Vector<String>();
 	    Integer tagClass = tagDic.getTagClass(tagId);
 	    
+	    arguments.add(SN.formId(idList[Files.TAG_HAS_TYPE_TAGCLASS.ordinal()]));
 	    arguments.add(tagId.toString());
         arguments.add(tagClass.toString());
         ToCSV(arguments, Files.TAG_HAS_TYPE_TAGCLASS.ordinal());
@@ -251,11 +252,16 @@ public class CSV implements Serializer {
             printedTagClasses.put(tagClass, tagClass);
             arguments.add(tagClass.toString());
             arguments.add(tagDic.getClassName(tagClass));
-            arguments.add(DBPOWL.fullprefixed(tagDic.getClassName(tagClass)));
+            if (tagDic.getClassName(tagClass).equals("Thing")) {
+                arguments.add("<http://www.w3.org/2002/07/owl#Thing>");
+            } else {
+                arguments.add(DBPOWL.fullprefixed(tagDic.getClassName(tagClass)));
+            }
             ToCSV(arguments, Files.TAGCLASS.ordinal());
             
             Integer parent = tagDic.getClassParent(tagClass);
             if (parent != -1) {
+                arguments.add(SN.formId(idList[Files.TAGCLASS_IS_SUBCLASS_OF_TAGCLASS.ordinal()]));
                 arguments.add(tagClass.toString());
                 arguments.add(parent.toString());   
                 ToCSV(arguments, Files.TAGCLASS_IS_SUBCLASS_OF_TAGCLASS.ordinal());
@@ -677,7 +683,6 @@ public class CSV implements Serializer {
 	    String empty = "";
 	    arguments.add(SN.formId(photo.getPhotoId()));
 	    arguments.add(photo.getImage());
-	    arguments.add(empty);
 	    date.setTimeInMillis(photo.getTakenTime());
 	    String dateString = DateGenerator.formatDateDetail(date);
 	    arguments.add(dateString);
