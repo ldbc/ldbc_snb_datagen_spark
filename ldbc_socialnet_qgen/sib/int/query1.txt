@@ -1,4 +1,4 @@
-select ?person ?last ?based ?ipcountry ?bday ?since ?gen 
+select ?person ?last ?based ?bday ?since ?gen 
     ((select group_concat (?lng, ",")
         where {
             ?person snvoc:speaks ?lng
