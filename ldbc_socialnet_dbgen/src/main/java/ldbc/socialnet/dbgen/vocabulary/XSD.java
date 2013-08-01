@@ -39,48 +39,40 @@ package ldbc.socialnet.dbgen.vocabulary;
 import java.util.HashMap;
 
 public class XSD {
-	//The namespace of this vocabulary as String
     public static final String NS = "http://www.w3.org/2001/XMLSchema#";
-    
-    //Get the URI of this vocabulary
-	public static String getURI() { return NS; }
- 
 	public static final String PREFIX = "xsd:";
+	public static final String FACTPREFIX = "xsd_";
 	
-	private static HashMap<String, String> uriMap = new HashMap<String, String>();
 	
-	/*
-	 * For prefixed versions
-	 */
 	public static String prefixed(String string) {
-		if(uriMap.containsKey(string)) {
-			return uriMap.get(string);
-		}
-		else {
-			String newValue = PREFIX + string;
-			uriMap.put(string, newValue);
-			return newValue;
-		}
-	}
+        return PREFIX + string;
+    }
+
+    public static String factprefixed(String string) {
+        return  FACTPREFIX + string;
+    }
+    
+    public static String getUrl(String string) {
+        return NS + string;
+    }
+
+    public static String fullprefixed(String string) {
+        return "<" + NS + string + ">";
+    }
+
+    public static String getURI() {
+        return NS;
+    }
 	
 	//Resources
 	public static final String Integer = PREFIX + "integer";
-	
 	public static final String Int = PREFIX + "int";
-	
 	public static final String Float = PREFIX + "float";
-	
 	public static final String Double = PREFIX + "double";
-
 	public static final String Long = PREFIX + "long";
-
 	public static final String String = PREFIX + "string";
-
 	public static final String Decimal = PREFIX + "decimal";
-
 	public static final String Year = PREFIX + "gYear";
-	
 	public static final String Date = PREFIX + "date";
-	
 	public static final String DateTime = PREFIX + "dateTime";
 }

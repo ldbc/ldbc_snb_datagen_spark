@@ -88,6 +88,11 @@ import org.apache.hadoop.mapreduce.Reducer;
 
 public class ScalableGenerator{
 
+    public enum OrganisationType {
+        university,
+        company
+    }
+    
     public static int  numMaps = -1;
     public static long postId  = -1;
     

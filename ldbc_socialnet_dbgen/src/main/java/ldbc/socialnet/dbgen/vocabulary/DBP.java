@@ -36,47 +36,30 @@
  */
 package ldbc.socialnet.dbgen.vocabulary;
 
-import java.util.HashMap;
-
 public class DBP {
-	//The Namespace of this vocabulary as String
+    
 	public static final String NS = "http://dbpedia.org/resource/";
-	
 	public static final String PREFIX = "dbpedia:";
 	public static final String FACTPREFIX = "dbpedia_";
 	
-	private static HashMap<String, String> uriMap = new HashMap<String, String>();
 	
-	/*
-	 * For prefixed versions
-	 */
 	public static String prefixed(String string) {
-		if(uriMap.containsKey(string)) {
-			return uriMap.get(string);
-		}
-		else {
-			String newValue = PREFIX + string;
-			uriMap.put(string, newValue);
-			return newValue;
-		}
+	    return PREFIX + string;
 	}
+	
+	public static String factprefixed(String string) {
+	    return FACTPREFIX + string;
+	}
+
+	public static String getUrl(String string) {
+        return NS + string;
+    }
 	
 	public static String fullPrefixed(String string) {
 	    return "<" + NS + string + ">";
     }
-
-	public static String factprefixed(String string) {
-		if(uriMap.containsKey(string)) {
-			return uriMap.get(string);
-		}
-		else {
-			String newValue = FACTPREFIX + string;
-			uriMap.put(string, newValue);
-			return newValue;
-		}
-	}
-	//Get the URI of this vocabulary
-	public static String getURI() { return NS; }
 	
-	//Properties
+	public static String getURI() {
+	    return NS;
+	}
 }

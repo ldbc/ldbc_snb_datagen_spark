@@ -36,44 +36,30 @@
  */
 package ldbc.socialnet.dbgen.vocabulary;
 
-import java.util.HashMap;
-
 public class FOAF {
-	//The Namespace of this vocabulary as String
 	public static final String NS = "http://xmlns.com/foaf/0.1/";
-	
 	public static final String PREFIX = "foaf:";
 	public static final String FACTPREFIX = "foaf_";
-	
-	private static HashMap<String, String> uriMap = new HashMap<String, String>();
-	
-	/*
-	 * For prefixed versions
-	 */
-	public static String prefixed(String string) {
-		if(uriMap.containsKey(string)) {
-			return uriMap.get(string);
-		}
-		else {
-			String newValue = PREFIX + string;
-			uriMap.put(string, newValue);
-			return newValue;
-		}
-	}
 
-	public static String factprefixed(String string) {
-		if(uriMap.containsKey(string)) {
-			return uriMap.get(string);
-		}
-		else {
-			String newValue = FACTPREFIX + string;
-			uriMap.put(string, newValue);
-			return newValue;
-		}
-	}
+    public static String prefixed(String string) {
+        return PREFIX + string;
+    }
 
-	//Get the URI of this vocabulary
-	public static String getURI() { return NS; }
+    public static String factprefixed(String string) {
+        return  FACTPREFIX + string;
+    }
+    
+    public static String getUrl(String string) {
+        return NS + string;
+    }
+
+    public static String fullprefixed(String string) {
+        return "<" + NS + string + ">";
+    }
+
+    public static String getURI() {
+        return NS;
+    }
 	
 	public static final String Name = PREFIX+"name";
 }
