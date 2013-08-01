@@ -370,6 +370,7 @@ public class CSV implements Serializer {
 		    int parentId = companyToCountry.get(company);
 		    printLocationHierarchy(parentId);
 		}
+		printLocationHierarchy(universityToCountry.get(extraInfo.getOrganization()));
         printLocationHierarchy(ipDic.getLocation(profile.getIpAddress()));
         
 
