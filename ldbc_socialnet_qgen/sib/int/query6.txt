@@ -1,8 +1,12 @@
-select ?tag count (*) from <sib>
+select ?tag count (*)
+from <sib>
 where {  
-{ { %Person% snvoc:knows ?fr } union { %Person% snvoc:knows ?fr2 . ?fr2 snvoc:knows ?fr}} .
-  ?post snvoc:hasCreator ?fr .
-  ?post snvoc:hasTag ?tag .
-  ?post snvoc:hasTag %Tag% 
-} group by ?tag order by desc 2 limit 10
+    {{ %Person% snvoc:knows ?fr } union { %Person% snvoc:knows ?fr2 . ?fr2 snvoc:knows ?fr}} .
+    ?post snvoc:hasCreator ?fr .
+    ?post snvoc:hasTag ?tag .
+    ?post snvoc:hasTag %Tag% 
+}
+group by ?tag
+order by desc 2
+limit 10
 

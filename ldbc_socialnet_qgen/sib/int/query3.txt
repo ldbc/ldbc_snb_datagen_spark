@@ -1,16 +1,32 @@
-select ?fr ?ct1 ?ct2 (?ct1 + ?ct2) from <sib>  
+select ?fr ?ct1 ?ct2 (?ct1 + ?ct2)
+from <sib>  
 where { 
-   {select ?fr 
-(((select count (*) where { ?post snvoc:hasCreator ?fr . ?post snvoc:creationDate ?date . 
-     filter (?date >= "%Date0%"^^xsd:date && ?date < bif:dateadd ("day", %Duration%, "%Date0%"^^xsd:date)) .
-     filter (?frcountry != %Country1%) .  ?post snvoc:ipcountry %Country1% })) as ?ct1)
-  ((select count (*) where { ?post2 snvoc:hasCreator ?fr . ?post2 snvoc:creationDate ?date2 . 
-     filter (?date2 >= "%Date0%"^^xsd:date && ?date2 < bif:dateadd ("day", %Duration%, "%Date0%"^^xsd:date)) .
-     filter (?frcountry != %Country2%) . ?post2 snvoc:ipcountry %Country2% }) as ?ct2)
-   where {
-   { { %Person% snvoc:knows ?fr } union { %Person% snvoc:knows ?fr2 . ?fr2 snvoc:knows ?fr}} .
-   ?fr snvoc:ipcountry ?frcountry .
-} }.
-  filter (?ct1 > 0 && ?ct2 > 0) .
-} order by desc 4 limit 20
+    {select ?fr 
+        (((select count (*)
+        where {
+            ?post snvoc:hasCreator ?fr .
+            ?post snvoc:creationDate ?date .
+            filter (?date >= "%Date0%"^^xsd:date && ?date < bif:dateadd ("day", %Duration%, "%Date0%"^^xsd:date)) .
+            filter (?frcountry != %Country1%) .
+            ?post snvoc:isLocatedIn %Country1%
+        }))
+        as ?ct1)
+        ((select count (*)
+        where {
+            ?post2 snvoc:hasCreator ?fr .
+            ?post2 snvoc:creationDate ?date2 . 
+            filter (?date2 >= "%Date0%"^^xsd:date && ?date2 < bif:dateadd ("day", %Duration%, "%Date0%"^^xsd:date)) .
+            filter (?frcountry != %Country2%) .
+            ?post2 snvoc:isLocatedIn %Country2%
+        })
+        as ?ct2)
+    where {
+        { {%Person% snvoc:knows ?fr } union { %Person% snvoc:knows ?fr2 . ?fr2 snvoc:knows ?fr}} .
+        ?fr snvoc:isLocatedIn ?frcountry .
+    }
+    }.
+    filter (?ct1 > 0 && ?ct2 > 0) .
+}
+order by desc 4
+limit 20
 

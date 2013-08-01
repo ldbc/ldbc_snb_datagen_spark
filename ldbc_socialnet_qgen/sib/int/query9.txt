@@ -1,6 +1,6 @@
 select ?per count (*) from <sib>
 where {
-  {{ select ?lng count (*) where { ?per snvoc:speaks ?lng . ?per snvoc:ipcountry %Country% . } group by ?lng order by desc 2 limit 1} .
+  {{ select ?lng count (*) where { ?per snvoc:speaks ?lng . ?per snvoc:isLocatedIn %Country% . } group by ?lng order by desc 2 limit 1} .
   ?post snvoc:creator ?per . 
 
 
