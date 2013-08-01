@@ -99,8 +99,8 @@ public class CSV implements Serializer {
 	        "organisation_isLocatedIn_location",
 	        "forum_hasModerator_person",
 	        "forum_container_of_post",
-	        "forum_hastag_tag",
-	        "forum_hasmember_person"
+	        "forum_hasTag_tag",
+	        "forum_hasMember_person"
 	};
 
     enum Files {
