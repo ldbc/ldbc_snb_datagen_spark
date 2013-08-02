@@ -95,7 +95,7 @@ public class CSV implements Serializer {
             "comment_hasCreator_person",
 	        "tag_hasType_tagclass",
 	        "tagclass_isSubclassOf_tagclass",
-	        "location_partOf_location",
+	        "location_isPartOf_location",
 	        "organisation_isLocatedIn_location",
 	        "forum_hasModerator_person",
 	        "forum_container_of_post",
