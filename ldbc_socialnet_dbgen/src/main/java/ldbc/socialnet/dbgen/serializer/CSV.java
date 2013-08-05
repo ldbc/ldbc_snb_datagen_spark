@@ -98,7 +98,7 @@ public class CSV implements Serializer {
 	        "place_isPartOf_place",
 	        "organisation_isLocatedIn_place",
 	        "forum_hasModerator_person",
-	        "forum_container_of_post",
+	        "forum_containerOf_post",
 	        "forum_hasTag_tag",
 	        "forum_hasMember_person"
 	};
