@@ -41,10 +41,10 @@ import java.io.Serializable;
 @SuppressWarnings("serial")
 public class Location implements Serializable{
     
-    public static final String CITY = "CITY";
-    public static final String COUNTRY = "COUNTRY";
-    public static final String CONTINENT = "REGION";
-    public static final String AREA = "AREA";
+    public static final String CITY = "city";
+    public static final String COUNTRY = "country";
+    public static final String CONTINENT = "continent";
+    public static final String AREA = "world";
     
 	int 	id; 
 	int		zId;
