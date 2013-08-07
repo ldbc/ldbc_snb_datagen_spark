@@ -536,7 +536,7 @@ public class CSV implements Serializer {
                 date.setTimeInMillis(friends[i].getCreatedTime());
                 dateString = DateGenerator.formatDateDetail(date);
                 
-                arguments.add(Integer.toString(profile.getForumWallId()));
+                arguments.add(SN.formId(profile.getForumWallId()));
                 arguments.add(Integer.toString(friends[i].getFriendAcc()));
                 arguments.add(dateString);
                 ToCSV(arguments,Files.FORUM_HASMEMBER_PERSON.ordinal());
