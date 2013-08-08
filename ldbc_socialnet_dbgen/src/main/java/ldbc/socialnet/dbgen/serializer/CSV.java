@@ -526,7 +526,7 @@ public class CSV implements Serializer {
         itInteger = profile.getSetOfTags().iterator();
         while (itInteger.hasNext()){
             Integer interestIdx = itInteger.next();
-            arguments.add(Integer.toString(profile.getAccountId()));
+            arguments.add(SN.formId(profile.getForumWallId()));
             arguments.add(Integer.toString(interestIdx));
             ToCSV(arguments, Files.FORUM_HASTAG_TAG.ordinal());
         }   
