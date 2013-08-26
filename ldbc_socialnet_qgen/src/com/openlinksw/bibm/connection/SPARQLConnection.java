@@ -17,6 +17,7 @@ import com.openlinksw.bibm.CompiledQuery;
 import com.openlinksw.bibm.Query;
 import com.openlinksw.bibm.Exceptions.ExceptionException;
 import com.openlinksw.bibm.qualification.SparqlResult;
+import com.openlinksw.bibm.sib.TestDriver;
 import com.openlinksw.util.DoubleLogger;
 import com.openlinksw.util.json.DefaultJsonWalker;
 import com.openlinksw.util.json.JsonParser;
@@ -35,7 +36,8 @@ public class SPARQLConnection implements ServerConnection{
 		
 		NetQuery 	qe = new NetQuery(query,  driver);
         try {
-	    //System.out.println(query.getProcessedQueryString());
+        	if(((TestDriver)(this.driver)).printQueriesBeforeRuns.getValue());
+        		System.out.println(query.getProcessedQueryString());
             InputStream is = qe.exec();
             SparqlResult  result = new SparqlResult(query, is);
             double timeInSeconds = qe.getExecutionTimeInSeconds();

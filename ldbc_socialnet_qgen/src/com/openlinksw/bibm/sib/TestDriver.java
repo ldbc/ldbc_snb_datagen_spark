@@ -55,6 +55,8 @@ public class TestDriver extends AbstractTestDriver {
         "default: 0");
     public BooleanOption warmUpdate=new BooleanOption("wud"
             ,"allow updates during warmups");
+    public BooleanOption printQueriesBeforeRuns=new BooleanOption("pq"
+            ,"print queries before runs");
        
     FileOption resourceDir=new FileOption("idir <data input directory>", "td_data"
                 ,"The input directory for the Test Driver data"
@@ -105,7 +107,7 @@ public class TestDriver extends AbstractTestDriver {
         this.querymixDirs=new File[querymixDirNames.size()];
         int k=0;
         for (String uscaseDirname: querymixDirNames) {
-            this.querymixDirs[k++] = new File(queryRootDir.getValue(), uscaseDirname);
+            this.querymixDirs[k++] = new File(uscaseDirname);
         }
         SIBQueryMix mix0=null;
         //Long seedLoc = drillDown.getValue()?seed:null;
