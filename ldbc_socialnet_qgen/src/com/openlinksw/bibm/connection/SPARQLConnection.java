@@ -36,7 +36,7 @@ public class SPARQLConnection implements ServerConnection{
 		
 		NetQuery 	qe = new NetQuery(query,  driver);
         try {
-        	if(((TestDriver)(this.driver)).printQueriesBeforeRuns.getValue());
+        	if(((TestDriver)(this.driver)).printQueriesBeforeRuns.getValue())
         		System.out.println(query.getProcessedQueryString());
             InputStream is = qe.exec();
             SparqlResult  result = new SparqlResult(query, is);
