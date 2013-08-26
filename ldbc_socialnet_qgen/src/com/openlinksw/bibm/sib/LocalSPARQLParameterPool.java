@@ -127,6 +127,10 @@ public class LocalSPARQLParameterPool extends SIBParameterPool {
 				parameters[i] = getRandomFamousPerson();
 				break;            	
             }
+            case CITY_NAME: {
+            	parameters[i] = getRandomCityName();
+				break; 
+            }
 			default:
 				parameters[i] = null;
 			}
@@ -254,6 +258,16 @@ public class LocalSPARQLParameterPool extends SIBParameterPool {
 		
 		return "dbpedia:" + famousPersonList[i];
 	}
+
+	/*
+	 * Get a random city name
+	 */
+	private String getRandomCityName() {
+		Integer i = valueGen.randomInt(0, cityNameList.length-1);
+		
+		return "dbpedia:" + cityNameList[i];
+	}
+
 	
 	/*
 	 * Return the triples to inserted into the store

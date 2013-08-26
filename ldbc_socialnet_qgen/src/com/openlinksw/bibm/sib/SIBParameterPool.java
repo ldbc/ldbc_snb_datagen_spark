@@ -48,6 +48,7 @@ public abstract class SIBParameterPool extends AbstractParameterPool {
     protected static final byte BIG_COUNTRY_URI = 111;
     protected static final byte TAG_AND_NAME = 112;
     protected static final byte FAMOUS_PERSON = 113;
+    protected static final byte CITY_NAME = 114;
 
     // Initialize Parameter mappings
     private static Map<String, Byte> parameterMapping;
@@ -66,6 +67,7 @@ public abstract class SIBParameterPool extends AbstractParameterPool {
         parameterMapping.put("BigCountryURI", BIG_COUNTRY_URI);
         parameterMapping.put("TagAndName", TAG_AND_NAME);
         parameterMapping.put("FamousPerson", FAMOUS_PERSON);
+        parameterMapping.put("CityName", CITY_NAME);
     }
 
     protected ValueGenerator valueGen;
@@ -87,6 +89,7 @@ public abstract class SIBParameterPool extends AbstractParameterPool {
     protected String[] bigCountryList;
     protected String[] tagAndNameList;
     protected String[] famousPersonList;
+    protected String[] cityNameList;
 
     public double getScalefactor() {
         return 1;
@@ -107,6 +110,7 @@ public abstract class SIBParameterPool extends AbstractParameterPool {
         	readBigCountries(resourceDir);
         	readTagAndName(resourceDir);
         	readFamousPersons(resourceDir);
+        	readCityNames(resourceDir);
     }
     	
     private void readNames(File resourceDir) {    	
@@ -288,6 +292,23 @@ public abstract class SIBParameterPool extends AbstractParameterPool {
     		}
     		reader.close();
     		famousPersonList = names.toArray(new String[names.size()]);
+        } catch (IOException e) {
+            throw new ExceptionException("Could not open or process file " + file.getAbsolutePath(), e);
+        }
+    }
+    
+    private void readCityNames(File resourceDir) {    	
+        File file = new File(resourceDir, "cityNames.txt");
+        try {
+    		BufferedReader reader = new BufferedReader(new FileReader(file));
+    		String line = null;
+    		ArrayList<String> names = new ArrayList<String>();
+    		while ((line = reader.readLine()) != null) {
+    			String[] parts = line.split(" ");
+    			names.add(parts[0]);
+    		}
+    		reader.close();
+    		cityNameList = names.toArray(new String[names.size()]);
         } catch (IOException e) {
             throw new ExceptionException("Could not open or process file " + file.getAbsolutePath(), e);
         }
