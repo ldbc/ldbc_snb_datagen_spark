@@ -1,14 +1,17 @@
 select ?author count (*) 
-  ( sum ((select count (*) where {?xx sv:like ?lk . ?lk sv:post  ?post}))  as ?likes)
+       ( sum ((select count (*) where {?xx snvoc:likes ?lk . ?lk snvoc:post  ?post}))  as ?likes)
 where {
-  ?post sv:creator ?author .
- ?post sv:has_tag ?tag.
- ?tag a <%TagType%> .
- ?author sv:ipcountry %Country% .
-  ?f sv:container_of ?post .
-?f sv:moderator ?mod .
-?mod sv:ipcountry %Country% .
-}  group by ?author order by desc 3 limit 30
+    ?post snvoc:hasCreator ?author .
+    ?post snvoc:hasTag ?tag.
+    ?tag a <%TagType%> .
+    ?author snvoc:isLocatedIn %Country% .
+    ?f snvoc:containerOf ?post .
+    ?f snvoc:hasModerator ?mod .
+    ?mod snvoc:isLocatedIn %Country% .
+}
+group by ?author
+order by desc 3
+limit 30
 
 
 

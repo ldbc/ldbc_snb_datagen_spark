@@ -1,11 +1,14 @@
 select  ?tag count (*)
 where {
- ?post sv:created ?date .
- ?reply sv:reply_of ?post .
- ?reply sv:created ?rdate .
-  filter (?date < "%Date0%"^^xsd:date && ?rdate > "%Date0%"^^xsd:date ) .
-?post sv:creator ?author .
-?author sv:ipcountry %Country% . 
- ?post sv:has_tag ?tag . 
-} group by ?tag order by desc 2 limit 20
+    ?post snvoc:creationDate ?date .
+    ?reply snvoc:replyOf ?post .
+    ?reply snvoc:creationDate ?rdate .
+    filter (?date < "%Date0%"^^xsd:date && ?rdate > "%Date0%"^^xsd:date ) .
+    ?post snvoc:hasCreator ?author .
+    ?author snvoc:isLocatedIn %Country% . 
+    ?post snvoc:hasTag ?tag . 
+}
+group by ?tag
+order by desc 2
+limit 20
  
