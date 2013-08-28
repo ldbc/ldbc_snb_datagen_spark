@@ -1,8 +1,8 @@
 select 
 where {
-
-  ?f sv:container_of ?post .
-  ?post sv:created ?dt .
-  ?post sv:has_tag ?tag . 
- ?tag  a <%TagType%> .
-} group by ((bif:hour (?dt)))
+    ?f snvoc:containerOf ?post .
+    ?post snvoc:creationDate ?dt .
+    ?post snvoc:hasTag ?tag . 
+    ?tag a <%TagType%> .
+}
+group by ((bif:hour (?dt)))

@@ -1,11 +1,21 @@
 select ?title ?volume  (100 *  count (*) / xsd:float (?volume))
 where {
-{select ?f (count (*) as ?volume) 
-  where {?f sv:container_of ?post . ?post sv:has_tag ?tag . ?tag a %TagType% } 
-  group by ?f having count (*) > 500}
-.
- ?f sv:container_of ?post .
-  ?post sv:has_tag %Name% .
-?f sv:title ?title .
- } group by ?f ?title ?volume order by desc 3 limit 20
+    {
+    select ?f (count (*) as ?volume) 
+    where {
+        ?f snvoc:containerOf ?post .
+        ?post snvoc:hasTag ?tag .
+        ?tag a %TagType% 
+    } 
+    group by ?f
+    having count (*) > 500
+    }
+    .
+    ?f snvoc:containerOf ?post .
+    ?post snvoc:hasTag %Name% .
+    ?f snvoc:title ?title .
+}
+group by ?f ?title ?volume
+order by desc 3
+limit 20
 

@@ -1,6 +1,6 @@
 QueryType=Select
 
-Date0=CreationPostDate_50_100
+Date0=CreationPostDate_50_98
 Country1=CountryPair_1
 Country2=CountryPair_2
 Person=FamousPerson

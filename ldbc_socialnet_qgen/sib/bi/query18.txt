@@ -1,9 +1,0 @@
-select ?cnt count (*) where {
-{ select ?post (count (*) as ?cnt) where {
- ?post sv:creator ?u . minus {?post sv:reply_of ?xx} .
- ?reply sv:reply_of * ?post .
-}group by ?post
-}} group by ?cnt order by ?cnt
-
-
-
