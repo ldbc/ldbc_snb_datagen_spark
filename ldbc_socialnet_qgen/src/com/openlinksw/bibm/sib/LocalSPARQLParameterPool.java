@@ -220,7 +220,7 @@ public class LocalSPARQLParameterPool extends SIBParameterPool {
 	private String getRandomTagURI() {
 		Integer i = valueGen.randomInt(0, tagList.length - 1);
 		
-		return "dbpedia:" + tagList[i];
+		return "<http://dbpedia.org/resource/" + tagList[i] + ">";
 	}	
 	
 	/*
