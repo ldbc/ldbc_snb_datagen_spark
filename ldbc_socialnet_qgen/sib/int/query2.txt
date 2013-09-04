@@ -1,4 +1,4 @@
-sparql select count(*)
+select count(*)
 from <sib>
 where {
   ?person1 a snvoc:Person.
