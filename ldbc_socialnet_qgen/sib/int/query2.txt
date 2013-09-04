@@ -1,2 +1,16 @@
+sparql select count(*)
+from <sib>
+where {
+  ?person1 a snvoc:Person.
+  ?person1 snvoc:studyAt ?o1. ?o1 snvoc:hasOrganisation ?org. ?org dbpedia-owl:City ?city.
+  ?city dbpedia-owl:isPartOf ?unicountry. ?unicountry a dbpedia-owl:Country.
+  ?person1 snvoc:isLocatedIn ?location1. ?location1 dbpedia-owl:isPartOf ?country1. ?country1 a dbpedia-owl:Country.
+  filter(?unicountry != ?country1).
+  ?person2 a snvoc:Person.
+  ?person2 snvoc:studyAt ?o2. ?o2 snvoc:hasOrganisation ?org.
+  ?person2 snvoc:isLocatedIn ?location2. ?location2 dbpedia-owl:isPartOf ?country2. ?country2 a dbpedia-owl:Country.
+  filter(?unicountry != ?country2).
+  filter (?person1 != ?person2).
+}
+limit 1000;
 
--- Underspecified 
