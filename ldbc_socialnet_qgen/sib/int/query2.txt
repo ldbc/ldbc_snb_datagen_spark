@@ -12,5 +12,5 @@ where {
   filter(?unicountry != ?country2).
   filter (?person1 != ?person2).
 }
-limit 1000;
+limit 1000
 

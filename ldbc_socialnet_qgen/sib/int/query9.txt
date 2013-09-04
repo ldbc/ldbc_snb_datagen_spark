@@ -1,7 +1,23 @@
-select ?per count (*) from <sib>
+select ?person count(*)
+from <sib>
 where {
-  {{ select ?lng count (*) where { ?per snvoc:speaks ?lng . ?per snvoc:isLocatedIn %Country% . } group by ?lng order by desc 2 limit 1} .
-  ?post snvoc:creator ?per . 
-
-
-
+  { select ?lng count(*)
+    from <sib>
+    where {
+      ?person a snvoc:Person.
+      ?person snvoc:isLocatedIn ?location. ?location dbpedia-owl:isPartOf %Country%.
+      ?person snvoc:speaks ?lng. 
+    }
+    group by ?lng
+    order by desc 2
+    limit 1
+  }
+  ?post snvoc:hasCreator ?person .
+  ?person a snvoc:Person.
+  ?person snvoc:isLocatedIn ?location. ?location dbpedia-owl:isPartOf %Country%.
+  ?person snvoc:speaks ?flng.
+  filter (?flng != ?lng)
+}
+group by ?person
+order by desc 2
+limit 10
