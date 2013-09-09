@@ -15,7 +15,7 @@ where {
   ?post snvoc:hasCreator ?person .
   ?person a snvoc:Person.
   ?person snvoc:isLocatedIn ?location. ?location dbpedia-owl:isPartOf %Country%.
-  ?person snvoc:speaks ?flng.
+  ?post snvoc:language ?flng.
   filter (?flng != ?lng)
 }
 group by ?person
