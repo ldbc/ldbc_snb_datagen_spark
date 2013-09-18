@@ -1,3 +1,5 @@
+-- Europe should be parametrized (a random continent should be used)
+
 select count(*)
 from <sib>
 where {
@@ -6,6 +8,7 @@ where {
   ?city dbpedia-owl:isPartOf ?unicountry. ?unicountry a dbpedia-owl:Country.
   ?person1 snvoc:isLocatedIn ?location1. ?location1 dbpedia-owl:isPartOf ?country1. ?country1 a dbpedia-owl:Country.
   filter(?unicountry != ?country1).
+  filter (!exists { ?unicountry dbpedia-owl:isPartOf dbpedia:Europe } ).
   ?person2 a snvoc:Person.
   ?person2 snvoc:studyAt ?o2. ?o2 snvoc:hasOrganisation ?org.
   ?person2 snvoc:isLocatedIn ?location2. ?location2 dbpedia-owl:isPartOf ?country2. ?country2 a dbpedia-owl:Country.
