@@ -22,7 +22,8 @@ where {
         as ?ct2)
     where {
         { {%Person% snvoc:knows ?fr } union { %Person% snvoc:knows ?fr2 . ?fr2 snvoc:knows ?fr}} .
-        ?fr snvoc:isLocatedIn ?frcountry .
+        ?fr snvoc:isLocatedIn ?city .
+	?city snvoc:isPartOf ?frcountry .
     }
     }.
     filter (?ct1 > 0 && ?ct2 > 0) .
