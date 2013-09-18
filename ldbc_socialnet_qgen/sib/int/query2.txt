@@ -1,4 +1,4 @@
-sparql select ?fr ?post ?date
+select ?fr ?post ?date
 from <sib>
 where {
   %Person% snvoc:knows ?fr.
@@ -8,4 +8,3 @@ where {
 }
 order by desc 3
 limit 20
-;
