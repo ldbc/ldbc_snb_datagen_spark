@@ -2,7 +2,9 @@ select ?tag count (*)
 from <sib>
 where { 
     ?post snvoc:hasTag ?tag .
-    ?post snvoc:isLocatedIn %Country% .
+    ?post snvoc:isLocatedIn ?country .
+    %Person% snvoc:isLocatedIn ?city.
+    ?city snvoc:isPartOf ?country.
     ?post snvoc:creationDate ?date .
     filter (?date >= "%Date0%"^^xsd:date && ?date < bif:dateadd ("day", %Duration%, "%Date0%"^^xsd:date) ) .
     filter (!exists { %Person% snvoc:knows ?fr . ?frpost snvoc:hasCreator ?fr . ?frpost snvoc:hasTag ?tag} )
