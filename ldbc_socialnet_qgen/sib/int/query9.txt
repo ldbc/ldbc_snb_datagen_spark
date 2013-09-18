@@ -1,0 +1,16 @@
+sparql select ?fr ?post ?date
+from <sib>
+where {
+  {select distinct ?fr
+   from <sib>
+   where {
+       {%Person% snvoc:knows ?fr.} union {%Person% snvoc:knows ?fr2. ?fr2 snvoc:knows ?fr}
+   }
+  }
+  ?post snvoc:hasCreator ?fr.
+  ?post snvoc:creationDate ?date.
+  filter (?date <= "%Date0%"^^xsd:date).
+}
+order by desc 3
+limit 20
+;
