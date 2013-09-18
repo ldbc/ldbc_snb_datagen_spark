@@ -1,3 +1,8 @@
+-- This query should be changed in this way:
+-- Find me a country (with qualification of the size of the country),
+-- where a large percentage of user generated content is in the language
+-- that is different from the most common language of the country
+
 select ?person count(*)
 from <sib>
 where {
