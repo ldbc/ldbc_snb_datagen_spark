@@ -33,7 +33,7 @@ This can lead to the generation of two jars in the target folder the default one
 This configuration will generate for the startYear-01-01 to the (startYear+numYears)-01-01 period activity in the simulated social network for the amount of users configurated.
 
 
-##Execution
+## Execution
 To execute ldbc_socialnet_dbgen hadoop is required. And the assumption that the ldbc_socialnet_dbgen.jar is at your ldbc_socialnet_bm/ldbc_socialnet_dbgen/
 
 Terminology:
@@ -46,3 +46,6 @@ The execution instruction is:
 $HADOOP_HOME/bin/hadoop jar $LDBC_SOCIALNET_DBGEN_HOME/ldbc_socialnet_dbgen.jar hadoop_input_folder hadoop_output_folder Num_machines_ldbc_will_use  $LDBC_SOCIALNET_DBGEN_HOME/ Final_output_folder
 
 You can refer to the run.sh script to see a clearer example of how to run it.
+
+## Output
+The generator will create CSV files [with the following format](https://github.com/ldbc/ldbc_socialnet_bm/wiki/Generated-CSV-Files)
