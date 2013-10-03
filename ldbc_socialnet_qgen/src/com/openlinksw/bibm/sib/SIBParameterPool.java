@@ -82,9 +82,9 @@ public abstract class SIBParameterPool extends AbstractParameterPool {
     protected String[] countryPairs;
     protected String[] tagList;
     protected String[] countryList;
-    protected GregorianCalendar workFromDateStart;
-    protected GregorianCalendar workFromDateEnd;
-    protected int totalDaysOfWorkFrom;
+    protected int workFromDateStart;
+    protected int workFromDateEnd;
+    protected int totalYearsOfWorkFrom;
     protected String[] tagTypeList;
     protected String[] bigCountryList;
     protected String[] tagAndNameList;
@@ -114,14 +114,13 @@ public abstract class SIBParameterPool extends AbstractParameterPool {
     }
     	
     private void readNames(File resourceDir) {    	
-        File file = new File(resourceDir, "givennameByCountryBirthPlace.txt.freq.full");
+        File file = new File(resourceDir, "personNames.txt");
         try {
     		BufferedReader reader = new BufferedReader(new FileReader(file));
     		String line = null;
     		ArrayList<String> names = new ArrayList<String>();
     		while ((line = reader.readLine()) != null) {
-    			String[] parts = line.split("  ");
-    			names.add(parts[1]);
+		    names.add(line.trim());
     		}
     		reader.close();
     		nameList = names.toArray(new String[names.size()]);
@@ -147,10 +146,10 @@ public abstract class SIBParameterPool extends AbstractParameterPool {
         try {
     		BufferedReader reader = new BufferedReader(new FileReader(file));
     		String line = reader.readLine();
-    		String[] parts = line.split("-");
+    		String[] parts = line.split("[ -]");
     		creationPostDateStart = new GregorianCalendar(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
     		line = reader.readLine();
-    		parts = line.split("-");
+    		parts = line.split("[ -]");
     		creationPostDateEnd = new GregorianCalendar(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
     		totalDaysOfCreationPost = (int)((creationPostDateEnd.getTime().getTime() - creationPostDateStart.getTime().getTime()) / (1000 * 60 * 60 * 24));
     		reader.close();
@@ -179,14 +178,13 @@ public abstract class SIBParameterPool extends AbstractParameterPool {
     }
 
     private void readTags(File resourceDir) {    	
-        File file = new File(resourceDir, "dicTopic.txt");
+        File file = new File(resourceDir, "tagURI.txt");
         try {
     		BufferedReader reader = new BufferedReader(new FileReader(file));
     		String line = null;
     		ArrayList<String> tags = new ArrayList<String>();
     		while ((line = reader.readLine()) != null) {
-    			int j = line.indexOf(' ');
-    			tags.add(line.substring(j + 1));
+    			tags.add(line.trim());
     		}
     		reader.close();
     		tagList = tags.toArray(new String[tags.size()]);
@@ -196,13 +194,14 @@ public abstract class SIBParameterPool extends AbstractParameterPool {
     }
 
     private void readCountries(File resourceDir) {    	
-        File file = new File(resourceDir, "countries.txt");
+        File file = new File(resourceDir, "orgLocations.txt");
         try {
     		BufferedReader reader = new BufferedReader(new FileReader(file));
     		String line = null;
     		ArrayList<String> countries = new ArrayList<String>();
     		while ((line = reader.readLine()) != null) {
-    			countries.add(line);
+		    String[] parts = line.split(" ");
+		    countries.add(parts[0]);
     		}
     		reader.close();
     		countryList = countries.toArray(new String[countries.size()]);
@@ -216,12 +215,10 @@ public abstract class SIBParameterPool extends AbstractParameterPool {
         try {
     		BufferedReader reader = new BufferedReader(new FileReader(file));
     		String line = reader.readLine();
-    		String[] parts = line.split("-");
-    		workFromDateStart = new GregorianCalendar(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
+    		workFromDateStart = Integer.parseInt(line);
     		line = reader.readLine();
-    		parts = line.split("-");
-    		workFromDateEnd = new GregorianCalendar(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
-    		totalDaysOfWorkFrom = (int)((workFromDateEnd.getTime().getTime() - workFromDateStart.getTime().getTime()) / (1000 * 60 * 60 * 24));
+    		workFromDateEnd = Integer.parseInt(line);
+    		totalYearsOfWorkFrom = workFromDateEnd - workFromDateStart;
     		reader.close();
         } catch (IOException e) {
             throw new ExceptionException("Could not open or process file " + file.getAbsolutePath(), e);
@@ -470,14 +467,11 @@ public abstract class SIBParameterPool extends AbstractParameterPool {
         }
 
         public Object getRandomWorkFromDate() {
-        	int start = percentStart * parameterPool.totalDaysOfWorkFrom / 100;
-        	int end = percentEnd * parameterPool.totalDaysOfWorkFrom / 100;
+        	int start = percentStart * parameterPool.totalYearsOfWorkFrom / 100;
+        	int end = percentEnd * parameterPool.totalYearsOfWorkFrom / 100;
     		Integer i = parameterPool.valueGen.randomInt(start, end);
     		
-    		GregorianCalendar g = (GregorianCalendar) parameterPool.workFromDateStart.clone();
-    		g.add(GregorianCalendar.DAY_OF_MONTH, i);
-    		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-    		return sdf.format(g.getTime());
+		return parameterPool.workFromDateStart + i;
         }
     }
     
