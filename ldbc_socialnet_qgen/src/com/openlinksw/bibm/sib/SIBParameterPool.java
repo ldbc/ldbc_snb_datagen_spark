@@ -184,7 +184,8 @@ public abstract class SIBParameterPool extends AbstractParameterPool {
     		String line = null;
     		ArrayList<String> tags = new ArrayList<String>();
     		while ((line = reader.readLine()) != null) {
-    			tags.add(line.trim());
+    			String[] parts = line.split(" ");
+    		        tags.add(parts[0]);
     		}
     		reader.close();
     		tagList = tags.toArray(new String[tags.size()]);
@@ -368,17 +369,31 @@ public abstract class SIBParameterPool extends AbstractParameterPool {
         }
 
         public Object getRandomCreationPostDate() {
-        	int start = percentStart * parameterPool.totalDaysOfCreationPost / 100;
-        	int end = percentEnd * parameterPool.totalDaysOfCreationPost / 100;
-    		Integer i = parameterPool.valueGen.randomInt(start, end);
-    		
-    		GregorianCalendar g = (GregorianCalendar) parameterPool.creationPostDateStart.clone();
-    		Date d = g.getTime();
-    		g.add(GregorianCalendar.DAY_OF_MONTH, i);
-    		d = g.getTime();
-    		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-    		return sdf.format(g.getTime());
+	    int start = percentStart * parameterPool.totalDaysOfCreationPost / 100;
+	    int end = percentEnd * parameterPool.totalDaysOfCreationPost / 100;
+	    Integer i = parameterPool.valueGen.randomInt(start, end);
+	    
+	    GregorianCalendar g = (GregorianCalendar) parameterPool.creationPostDateStart.clone();
+	    Date d = g.getTime();
+	    g.add(GregorianCalendar.DAY_OF_MONTH, i);
+	    d = g.getTime();
+	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	    return sdf.format(g.getTime());
         }
+	
+	@Override
+	public  String getDefaultValue() {
+	    int start = percentStart * parameterPool.totalDaysOfCreationPost / 100;
+	    int end = percentEnd * parameterPool.totalDaysOfCreationPost / 100;
+	    Integer i = (start + end) / 2;
+	    
+	    GregorianCalendar g = (GregorianCalendar) parameterPool.creationPostDateStart.clone();
+	    Date d = g.getTime();
+	    g.add(GregorianCalendar.DAY_OF_MONTH, i);
+	    d = g.getTime();
+	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	    return sdf.format(g.getTime()).toString();	    
+	}
     }
 
     static class TotalDaysOfCreationPostFP extends SIBFormalParameter {
@@ -402,6 +417,13 @@ public abstract class SIBParameterPool extends AbstractParameterPool {
         	double percent = parameterPool.totalDaysOfCreationPost / 100.0;
         	return parameterPool.valueGen.randomInt((int)(percentStart * percent), (int)(percentEnd * percent));
         }
+
+	@Override
+	public  String getDefaultValue() {
+        	double percent = parameterPool.totalDaysOfCreationPost / 100.0;
+        	return Integer.toString((int)((percentStart + percentEnd) / 2 * percent)) ;
+	}
+
     }
     
     static class CountryPairFP extends SIBFormalParameter {
@@ -423,6 +445,12 @@ public abstract class SIBParameterPool extends AbstractParameterPool {
         public Object getCountry(int index) {
 	    return "dbpedia:" + (first ? parameterPool.countryPairs[2 * index] : parameterPool.countryPairs[2 * index + 1]);
         }
+
+	@Override
+	public  String getDefaultValue() {
+	    return "dbpedia:" + (first ? "China" : "India");
+	}
+
     }
     
     static class HoroscopeFP extends SIBFormalParameter {
@@ -447,6 +475,12 @@ public abstract class SIBParameterPool extends AbstractParameterPool {
         		tmp = 1;
         	return tmp;
         }
+
+	@Override
+	public  String getDefaultValue() {
+	    return Integer.toString(nth + 7);
+	}
+
     }
     
     static class WorkFromDateFP extends SIBFormalParameter {
@@ -473,6 +507,16 @@ public abstract class SIBParameterPool extends AbstractParameterPool {
     		
 		return parameterPool.workFromDateStart + i;
         }
+
+	@Override
+	public  String getDefaultValue() {
+        	int start = percentStart * parameterPool.totalYearsOfWorkFrom / 100;
+        	int end = percentEnd * parameterPool.totalYearsOfWorkFrom / 100;
+    		int i = (start + end) / 2;
+    		
+		return Integer.toString(parameterPool.workFromDateStart + i);
+	}
+
     }
     
     static class TagAndNameFP extends SIBFormalParameter {

@@ -238,7 +238,7 @@ public class LocalSPARQLParameterPool extends SIBParameterPool {
 	private String getRandomTagType() {
 		Integer i = valueGen.randomInt(0, tagTypeList.length-1);
 		
-		return tagTypeList[i];
+		return "<" + tagTypeList[i] + ">";
 	}
 	
 	/*

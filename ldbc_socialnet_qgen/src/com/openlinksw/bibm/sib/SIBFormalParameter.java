@@ -32,7 +32,19 @@ public class SIBFormalParameter extends  FormalParameter{
 	}
 
     public  String getDefaultValue() {
-        throw new UnsupportedOperationException(getClass().getName()+".getDefaultValue()");
+	switch (this.parameterType) {
+	case SIBParameterPool.PERSON_NAME:
+	    return "Meera";
+	case SIBParameterPool.PERSON_URI:
+	    return "sn:pers2053";
+	case SIBParameterPool.TAG_URI:
+	    return "<http://dbpedia.org/resource/Charlie_Chaplin>";
+	case SIBParameterPool.COUNTRY_URI:
+	    return "<http://dbpedia.org/resource/United_States>";
+	case SIBParameterPool.TAG_TYPE_URI:
+	    return "<http://dbpedia.org/ontology/Scientist>";
+	}
+	throw new UnsupportedOperationException(getClass().getName()+".getValue()");
     }
     
     @Override

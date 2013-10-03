@@ -5,7 +5,7 @@ where {
     ?reply snvoc:replyOf  ?org_post .
     filter (!exists {?org_post snvoc:replyOf ?xx}) .
     ?org_post snvoc:hasTag ?tag .
-    ?tag a <%TagType%> .
+    ?tag a %TagType% .
 }
 group by ?exp ?tag
 order by desc 3
