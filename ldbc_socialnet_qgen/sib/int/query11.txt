@@ -1,10 +1,10 @@
 select  ?first ?last ?startdate ?org ?fr 
 where {
     ?w snvoc:hasOrganisation ?org .
-    ?org dbpedia-owl:Country %Country% .
+    ?org snvoc:isLocatedIn %Country% .
     ?fr snvoc:workAt ?w .
     ?w snvoc:workFrom ?startdate .
-    filter (?startdate < "%Date0%"^^xsd:date) .
+    filter (?startdate < "%Date0%"^^xsd:string) .
     {  select distinct ?fr
        from <sib>
        where {

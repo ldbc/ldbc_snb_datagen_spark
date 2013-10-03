@@ -7,8 +7,8 @@ select ?person ?last ?based ?bday ?since ?gen
     ((select group_concat ( bif:concat (?o_name, ?o_country), ",")
         where {
 	    ?person snvoc:workAt ?w .
-            ?w snvoc:hasOrganization ?org .
-            ?org dbpedia-owl:country ?o_country .
+            ?w snvoc:hasOrganisation ?org .
+            ?org snvoc:isLocatedIn ?o_country .
             ?org foaf:name ?o_name
         }
         group by ?person))
