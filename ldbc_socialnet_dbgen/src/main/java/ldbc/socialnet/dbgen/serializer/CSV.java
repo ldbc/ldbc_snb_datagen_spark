@@ -648,7 +648,7 @@ public class CSV implements Serializer {
             ToCSV(arguments, Files.COMMENT_REPLY_OF_COMMENT.ordinal());
         }
 	    if (comment.getIpAddress() != null) {
-            arguments.add(SN.formId(comment.getPostId()));
+            arguments.add(SN.formId(comment.getCommentId()));
             arguments.add(Integer.toString(ipDic.getLocation(comment.getIpAddress())));
             ToCSV(arguments, Files.COMMENT_LOCATED_PLACE.ordinal());
         }
