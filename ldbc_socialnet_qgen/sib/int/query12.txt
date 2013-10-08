@@ -8,6 +8,6 @@ where {
     ?org_post snvoc:hasTag ?tag .
     ?tag a %TagType% .
 }
-group by ?exp ?tag
+group by ?exp ?first ?last ?tag
 order by desc 5
 limit 20
