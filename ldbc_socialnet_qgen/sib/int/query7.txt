@@ -1,14 +1,13 @@
-select ?tag count (*)
+select ?first ?last ?ldt
+       (if ((exists {  %Person% snvoc:knows ?liker}), 0, 1) as ?is_new)
+       ?post ?content (bif:datediff ("minute", ?ldt, ?dt) as ?lag) 
 from <sib>
-where { 
-    ?post snvoc:hasTag ?tag .
-    ?post snvoc:isLocatedIn ?country .
-    %Person% snvoc:isLocatedIn ?city.
-    ?city snvoc:isPartOf ?country.
-    ?post snvoc:creationDate ?date .
-    filter (?date >= "%Date0%"^^xsd:date && ?date < bif:dateadd ("day", %Duration%, "%Date0%"^^xsd:date) ) .
-    filter (!exists { %Person% snvoc:knows ?fr . ?frpost snvoc:hasCreator ?fr . ?frpost snvoc:hasTag ?tag} )
+where {
+  ?post snvoc:hasCreator %Person% .
+  {{ ?post snvoc:content ?content } union {?post snvoc:imageFile ?content}} .
+  ?lk snvoc:hasPost ?post .
+  ?liker snvoc:likes ?lk . ?liker  snvoc:firstName ?first . ?liker snvoc:lastName ?last . 
+  ?post snvoc:creationDate ?dt . ?lk snvoc:creationDate ?ldt .
 }
-group by ?tag
-order by desc 2
-limit 10
+order by desc (?ldt)
+limit 20

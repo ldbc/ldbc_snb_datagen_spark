@@ -1,18 +1,16 @@
-select ?p1 ?p2
-from <sib>
+select ?first ?last ?dt ?content
 where {
-    ?p1 snvoc:firstName "%Name0%" .
-    ?p2 snvoc:firstName "%Name1%". 
-    ?p1 snvoc:isLocatedIn ?p1place .
-    ?p1place dbpedia-owl:isPartOf *  %City1% .
-    ?p2 snvoc:isLocatedIn ?p2place .
-    ?p2place dbpedia-owl:isPartOf * %City2% .
-    ?p1post snvoc:hasCreator ?p1 .
-    ?p2post snvoc:hasCreator ?p2 .
-    filter (exists { ?p1post snvoc:replyOf ?p2post } || exists {?p2post snvoc:replyOf ?p1post })
-    ?mf snvoc:containerOf ?p2post .
-    ?mf snvoc:containerOf ?p1post .
-    filter (exists { ?mf snvoc:hasTag ?tag . graph <http://dbpedia.org> { ?tag a dbpedia-owl:Musical_Artist }})
+  { select ?rep ?dt
+    where {
+        ?post snvoc:hasCreator %Person% .
+        ?rep snvoc:replyOf ?post . ?rep snvoc:creationDate ?dt .
+    }
+    order by desc (?dt)
+    limit 20
+  } .
+  ?rep snvoc:hasCreator ?from .
+  ?from snvoc:firstName ?first . ?from snvoc:lastName ?last . 
+  ?rep snvoc:content ?content.
 }
-order by ?p1
-limit 10
+order by desc (?ldt)
+limit 20

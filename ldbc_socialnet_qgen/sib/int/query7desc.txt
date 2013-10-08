@@ -1,6 +1,3 @@
 QueryType=Select
 
 Person=PersonURI
-Date0=CreationPostDate_0_94
-Duration=TotalDaysOfCreationPost_1_6
-
