@@ -1,4 +1,4 @@
-select ?fr ?post ?date
+select ?fr ?first ?last ?post ?content ?date
 from <sib>
 where {
   {select distinct ?fr
@@ -7,9 +7,11 @@ where {
        {%Person% snvoc:knows ?fr.} union {%Person% snvoc:knows ?fr2. ?fr2 snvoc:knows ?fr}
    }
   }
+  ?fr snvoc:firstName ?first . ?fr snvoc:lastName ?last .
   ?post snvoc:hasCreator ?fr.
   ?post snvoc:creationDate ?date.
   filter (?date <= "%Date0%"^^xsd:date).
+  {{?post snvoc:content ?content} union {?post snvoc:imageFile ?content}} .
 }
-order by desc 3
+order by desc (?date)
 limit 20

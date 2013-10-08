@@ -1,6 +1,7 @@
-select ?exp ?tag count (*)
+select ?exp ?first ?last ?tag count (*)
 where {
     %Person% snvoc:knows ?exp .
+    ?exp snvoc:firstName ?first . ?exp snvoc:lastName ?last .
     ?reply snvoc:hasCreator ?exp .
     ?reply snvoc:replyOf  ?org_post .
     filter (!exists {?org_post snvoc:replyOf ?xx}) .
@@ -8,5 +9,5 @@ where {
     ?tag a %TagType% .
 }
 group by ?exp ?tag
-order by desc 3
+order by desc 5
 limit 20
