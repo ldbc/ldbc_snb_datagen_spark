@@ -1,4 +1,4 @@
-select ?first ?last ?dt ?content
+select ?from ?first ?last ?dt ?content
 where {
   { select ?rep ?dt
     where {
@@ -12,5 +12,3 @@ where {
   ?from snvoc:firstName ?first . ?from snvoc:lastName ?last . 
   ?rep snvoc:content ?content.
 }
-order by desc (?ldt)
-limit 20
