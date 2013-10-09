@@ -389,7 +389,7 @@ public class Turtle implements Serializer {
                 date.setTimeInMillis(extraInfo.getClassYear());
                 String yearString = DateGenerator.formatYear(date);
                 createTripleSPO(result, SN.getStudyAtURI(studyAt), SNVOC.classYear,
-                        createLiteral(yearString));
+                        createDataTypeLiteral(yearString, XSD.Integer));
             }
 
             studyAt++;
@@ -422,7 +422,7 @@ public class Turtle implements Serializer {
             date.setTimeInMillis(extraInfo.getWorkFrom(company));
             String yearString = DateGenerator.formatYear(date);
             createTripleSPO(result, SN.getWorkAtURI(workatId), SNVOC.workFrom,
-                    createLiteral(yearString));
+                    createDataTypeLiteral(yearString, XSD.Integer));
 
             workatId++;
         }
