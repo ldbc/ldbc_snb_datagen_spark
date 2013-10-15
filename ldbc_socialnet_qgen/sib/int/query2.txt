@@ -1,4 +1,4 @@
-select ?fr ?first ?last ?post ?content ?date
+select ?fr %OtherDetails% ?first ?last ?post ?content ?date
 from <sib>
 where {
   %Person% snvoc:knows ?fr.

@@ -49,6 +49,7 @@ public abstract class SIBParameterPool extends AbstractParameterPool {
     protected static final byte TAG_AND_NAME = 112;
     protected static final byte FAMOUS_PERSON = 113;
     protected static final byte CITY_NAME = 114;
+    protected static final byte PROFILE_VIEW_QUERY = 115;
 
     // Initialize Parameter mappings
     private static Map<String, Byte> parameterMapping;
@@ -68,12 +69,14 @@ public abstract class SIBParameterPool extends AbstractParameterPool {
         parameterMapping.put("TagAndName", TAG_AND_NAME);
         parameterMapping.put("FamousPerson", FAMOUS_PERSON);
         parameterMapping.put("CityName", CITY_NAME);
+        parameterMapping.put("ProfileViewQuery", PROFILE_VIEW_QUERY);
     }
 
     protected ValueGenerator valueGen;
     protected GregorianCalendar currentDate;
     protected Random seedGen;
     
+    protected File resourceDir;
     protected String[] nameList;
     protected int maxNumberOfPerson;
     protected GregorianCalendar creationPostDateStart;
@@ -95,7 +98,8 @@ public abstract class SIBParameterPool extends AbstractParameterPool {
         return 1;
     }
     
-    protected void init(File resourceDir, long seed) {      
+    protected void init(File resourceDir, long seed) {  
+    		this.resourceDir = resourceDir;
         	seedGen = new Random(seed);
         	valueGen = new ValueGenerator(seedGen.nextLong());
     	
@@ -330,6 +334,8 @@ public abstract class SIBParameterPool extends AbstractParameterPool {
         	return new WorkFromDateFP(this, addPI);
         case TAG_AND_NAME:
         	return new TagAndNameFP(this, addPI);
+        case PROFILE_VIEW_QUERY:
+        		return new ProfileViewQueryFP(this, addPI);
         default:
             return new SIBFormalParameter(byteType);
         }
@@ -537,6 +543,45 @@ public abstract class SIBParameterPool extends AbstractParameterPool {
 
         public Object getTagOrName(int index) {
         	return first ? parameterPool.tagAndNameList[2 * index] : "dbpedia:" + parameterPool.tagAndNameList[2 * index + 1];
+        }
+    }
+    
+    static class ProfileViewQueryFP extends SIBFormalParameter {
+        SIBParameterPool parameterPool;
+        String column, nameOfQuery;
+
+        public ProfileViewQueryFP(SIBParameterPool parameterPool, String[] addPI) {
+            super(SIBParameterPool.PROFILE_VIEW_QUERY);
+            this.parameterPool = parameterPool;
+            try {
+                if (addPI.length != 2)
+                    throw new IllegalArgumentException("Illegal parameters numbers for ProfileViewQuery: "+addPI.length+" (expected:2)");
+                column = addPI[0];
+                nameOfQuery = addPI[1];
+            } catch (IllegalArgumentException e) {
+                throw new BadSetupException("Illegal parameters for ProfileViewQuery: " + addPI);
+            }
+        }
+
+        public Object getProfileViewQuery(File dir) {
+        	File file = new File(dir, this.nameOfQuery + (this.nameOfQuery.endsWith(".sql") ? "" : ".sql"));
+    		String tmp = "";
+            try {
+        		BufferedReader reader = new BufferedReader(new FileReader(file));
+        		String line = null;
+        		while ((line = reader.readLine()) != null) {
+        			tmp += "(" + line + ")\n\t";
+        		}
+        		reader.close();
+            } catch (IOException e) {
+                throw new ExceptionException("Could not open or process file " + file.getAbsolutePath(), e);
+            }
+        	return tmp.replaceAll("%Column%", this.column);
+        }
+	
+        @Override
+        public  String getDefaultValue() {
+        	return "";	    
         }
     }
 

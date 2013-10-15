@@ -1,3 +1,4 @@
 QueryType=Select
 
 Person=PersonURI
+OtherDetails=ProfileViewQuery_?liker_profile

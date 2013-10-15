@@ -131,6 +131,11 @@ public class LocalSPARQLParameterPool extends SIBParameterPool {
             	parameters[i] = getRandomCityName();
 				break; 
             }
+            case PROFILE_VIEW_QUERY: {
+                ProfileViewQueryFP pvqfp=(ProfileViewQueryFP) fp;
+                parameters[i] = pvqfp.getProfileViewQuery(this.resourceDir);
+                break;
+            }
 			default:
 				parameters[i] = null;
 			}

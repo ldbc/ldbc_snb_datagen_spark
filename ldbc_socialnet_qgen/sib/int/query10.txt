@@ -1,4 +1,4 @@
-select  ?first, ?last,  
+select %OtherDetails% ?first, ?last,  
     ((( select  count (*)
         where {
             ?post snvoc:hasCreator ?fof .

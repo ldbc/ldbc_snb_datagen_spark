@@ -10,6 +10,7 @@ import com.openlinksw.bibm.CompiledQuery;
 import com.openlinksw.bibm.CompiledQueryMix;
 import com.openlinksw.bibm.FormalParameter;
 import com.openlinksw.bibm.Query;
+import com.openlinksw.bibm.sib.SIBParameterPool.ProfileViewQueryFP;
 import com.openlinksw.util.DoubleLogger;
 import com.openlinksw.util.FiniteQueue;
 
@@ -112,7 +113,17 @@ public class ClientManager extends AbstractClientManager<QueryMixStatistics> imp
             }
             return parameters;
         } else {
-            return driver.parameterPool.getParametersForQuery(query, level);
+        	Object [] res = driver.parameterPool.getParametersForQuery(query, level);
+        	if (!driver.profileViewQuery.getValue()) {
+        		FormalParameter[] fps=query.getFormalParameters();
+            	int paramCount=fps.length;
+            	for (int i=0; i<paramCount; i++) {
+                    FormalParameter fp=(SIBFormalParameter) fps[i];
+                    if (fp instanceof ProfileViewQueryFP)
+                    	res[i] = "";
+                }
+        	}
+        	return res;
         }
     }
     

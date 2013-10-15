@@ -1,4 +1,4 @@
-select ?fr ?first ?last ?ct1 ?ct2 (?ct1 + ?ct2)
+select ?fr  %OtherDetails% ?first ?last ?ct1 ?ct2 (?ct1 + ?ct2)
 from <sib>  
 where { 
     {select ?fr 

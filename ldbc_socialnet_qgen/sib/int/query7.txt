@@ -1,4 +1,4 @@
-select ?liker ?first ?last ?ldt
+select ?liker  %OtherDetails% ?first ?last ?ldt
        (if ((exists {  %Person% snvoc:knows ?liker}), 0, 1) as ?is_new)
        ?post ?content (bif:datediff ("minute", ?dt, ?ldt) as ?lag) 
 from <sib>

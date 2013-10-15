@@ -57,6 +57,9 @@ public class TestDriver extends AbstractTestDriver {
             ,"allow updates during warmups");
     public BooleanOption printQueriesBeforeRuns=new BooleanOption("pq"
             ,"print queries before runs");
+    public BooleanOption profileViewQuery=new BooleanOption("pvq"
+            ,"trigger the profile view query for returned persons");
+    
        
     FileOption resourceDir=new FileOption("idir <data input directory>", "td_data"
                 ,"The input directory for the Test Driver data"

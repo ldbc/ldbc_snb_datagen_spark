@@ -1,4 +1,4 @@
-select  ?first ?last ?startdate ?org ?fr 
+select  %OtherDetails% ?first ?last ?startdate ?org ?fr 
 where {
     ?w snvoc:hasOrganisation ?org .
     ?org snvoc:isLocatedIn %Country% .

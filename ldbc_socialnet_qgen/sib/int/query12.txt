@@ -1,4 +1,4 @@
-select ?exp ?first ?last ?tag count (*)
+select ?exp %OtherDetails% ?first ?last ?tag count (*)
 where {
     %Person% snvoc:knows ?exp .
     ?exp snvoc:firstName ?first . ?exp snvoc:lastName ?last .

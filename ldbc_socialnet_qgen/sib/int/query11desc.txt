@@ -3,3 +3,4 @@ QueryType=Select
 Person=PersonURI
 Country=CountryURI
 Date0=WorkFromDate_0_100
+OtherDetails=ProfileViewQuery_?fr_profile
