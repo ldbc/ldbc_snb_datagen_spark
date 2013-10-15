@@ -1,4 +1,4 @@
-select %OtherDetails% ?first, ?last,  
+select %OtherDetails% ?first ?last  
     ((( select  count (*)
         where {
             ?post snvoc:hasCreator ?fof .
@@ -13,8 +13,8 @@ select %OtherDetails% ?first, ?last,
             ?post snvoc:hasTag ?tag .
             filter (!exists {%Person% snvoc:hasInterest ?tag})
         }
-    )) as ?score),
-    ?fof,  ?gender, ?based
+    )) as ?score)
+    ?fof  ?gender ?based
 from <sib>
 where {
    {select distinct ?fof
