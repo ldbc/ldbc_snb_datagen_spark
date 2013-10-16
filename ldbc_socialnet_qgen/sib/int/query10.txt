@@ -31,5 +31,5 @@ where {
    ?fof snvoc:isLocatedIn ?based .
    filter (1 = if (bif:month (?bday) = %HS0%, if (bif:dayofmonth (?bday) > 21, 1, 0), if (bif:month (?bday) = %HS1%, if (bif:dayofmonth(?bday) < 22, 1, 0), 0)))
 }
-order by desc 3
+order by desc(3) ?fof
 limit 10
