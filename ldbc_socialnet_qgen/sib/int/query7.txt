@@ -9,5 +9,5 @@ where {
   ?liker snvoc:likes ?lk . ?liker  snvoc:firstName ?first . ?liker snvoc:lastName ?last . 
   ?post snvoc:creationDate ?dt . ?lk snvoc:creationDate ?ldt .
 }
-order by desc (?ldt)
+order by desc (?ldt) ?liker
 limit 20
