@@ -13,6 +13,6 @@ where {
     ?post snvoc:hasTag %Tag% .
 }
 group by ?tag
-order by desc 2
+order by desc(2) ?tag
 limit 10
 
