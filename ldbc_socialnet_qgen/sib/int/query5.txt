@@ -15,5 +15,5 @@ where {
     ?group snvoc:containerOf ?post
 }
 group by ?group
-order by desc 2
+order by desc(2) ?group
 
