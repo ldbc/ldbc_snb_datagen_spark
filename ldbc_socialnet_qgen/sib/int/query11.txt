@@ -14,7 +14,7 @@ where {
     ?fr snvoc:firstName ?first .
     ?fr snvoc:lastName ?last .
 }
-order by ?startdate
+order by ?startdate ?fr
 limit 10
 
 
