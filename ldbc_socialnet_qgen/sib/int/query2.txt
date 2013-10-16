@@ -8,5 +8,5 @@ where {
   ?post snvoc:creationDate ?date.
   filter (?date <= "%Date0%"^^xsd:date).
 }
-order by desc (?date)
+order by desc (?date) ?post
 limit 20
