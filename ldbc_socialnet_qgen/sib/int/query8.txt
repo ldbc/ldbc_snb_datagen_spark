@@ -1,4 +1,4 @@
-select ?from  %OtherDetails% ?first ?last ?dt ?content
+select ?from  %OtherDetails% ?first ?last ?dt ?rep ?content
 where {
   { select ?rep ?dt
     where {
@@ -12,3 +12,4 @@ where {
   ?from snvoc:firstName ?first . ?from snvoc:lastName ?last . 
   ?rep snvoc:content ?content.
 }
+order by desc(?dt) ?rep
