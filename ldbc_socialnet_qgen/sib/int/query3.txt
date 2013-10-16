@@ -29,6 +29,6 @@ where {
     }.
     filter (?ct1 > 0 && ?ct2 > 0) .
 }
-order by desc 6
+order by desc(6) ?fr
 limit 20
 
