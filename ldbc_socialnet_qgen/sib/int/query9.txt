@@ -13,5 +13,5 @@ where {
   filter (?date < "%Date0%"^^xsd:date).
   {{?post snvoc:content ?content} union {?post snvoc:imageFile ?content}} .
 }
-order by desc (?date)
+order by desc (?date) ?fr
 limit 20
