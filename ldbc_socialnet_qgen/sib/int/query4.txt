@@ -13,5 +13,5 @@ where {
         filter (?date2 < "%Date0%"^^xsd:date)}) 
     }
 group by ?tag
-order by desc 2
+order by desc(2) ?tag
 limit 10
