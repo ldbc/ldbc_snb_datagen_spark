@@ -21,6 +21,7 @@ where {
     where {
         %Person% snvoc:knows ?fr .
         ?fr snvoc:knows ?fof .
+	filter (?fof != %Person%)
         minus { %Person% snvoc:knows ?fof } .
     }
    } .

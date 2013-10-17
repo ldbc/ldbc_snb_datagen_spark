@@ -4,7 +4,7 @@ where {
   {select distinct ?fr
    from <sib>
    where {
-       {%Person% snvoc:knows ?fr.} union {%Person% snvoc:knows ?fr2. ?fr2 snvoc:knows ?fr}
+       {%Person% snvoc:knows ?fr.} union {%Person% snvoc:knows ?fr2. ?fr2 snvoc:knows ?fr. filter (?fr != %Person%)}
    }
   }
   ?fr snvoc:firstName ?first . ?fr snvoc:lastName ?last .
