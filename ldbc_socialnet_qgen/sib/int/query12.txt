@@ -9,5 +9,5 @@ where {
     ?tag a %TagType% .
 }
 group by ?exp ?first ?last ?tag
-order by desc 5
+order by desc(5) ?exp
 limit 20
