@@ -36,7 +36,7 @@
  */
 package ldbc.socialnet.dbgen.objects;
 
-import java.util.HashSet;
+import java.util.TreeSet;
 
 public class Post {
     long postId; 
@@ -50,7 +50,7 @@ public class Post {
     int articleIdx;					// Index of articles in the set of same region/interest article  					
     int interestIdx;				// Index of one interest in user's interests
 
-    HashSet<Integer> tags; 
+    TreeSet<Integer> tags; 
     int interestedUserAccs[];		//List of users who are interested in the post  
     long interestedUserAccsTimestamp[];
 
@@ -73,10 +73,10 @@ public class Post {
         this.interestIdx = interestIdx;
     }
 
-    public HashSet<Integer> getTags() {
+    public TreeSet<Integer> getTags() {
         return tags;
     }
-    public void setTags(HashSet<Integer> tags) {
+    public void setTags(TreeSet<Integer> tags) {
         this.tags = tags;
     }
     public int[] getInterestedUserAccs() {

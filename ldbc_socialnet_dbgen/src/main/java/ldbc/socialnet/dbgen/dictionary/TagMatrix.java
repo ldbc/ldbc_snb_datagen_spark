@@ -44,7 +44,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.RandomAccessFile;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.TreeSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Vector;
@@ -97,8 +97,8 @@ public class TagMatrix {
     
     // Combine the main tag and related tags
     
-    public HashSet<Integer> getSetofTags(int _celebrityId, int numTags){
-        HashSet<Integer> resultTags = new HashSet<Integer>();
+    public TreeSet<Integer> getSetofTags(int _celebrityId, int numTags){
+        TreeSet<Integer> resultTags = new TreeSet<Integer>();
         resultTags.add(_celebrityId);
         
         while (resultTags.size() < numTags) {

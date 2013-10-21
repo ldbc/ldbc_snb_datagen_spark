@@ -40,7 +40,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.TreeSet;
 import java.util.Iterator;
 import java.util.Random;
 
@@ -114,7 +114,7 @@ public class TagTextDictionary {
 	    return tagText.get(id);
 	}
 	
-	public String getRandomText(HashSet<Integer> tags) {
+	public String getRandomText(TreeSet<Integer> tags) {
 
         int textSize;
         int startingPos;
@@ -216,7 +216,7 @@ public class TagTextDictionary {
         ipAddDic.setPostIPAdress(user.isFrequentChange(), user.getIpAddress(), post);
         post.setBrowserIdx(browserDic.getPostBrowserId(user.getBrowserIdx()));
         
-        HashSet<Integer> tags = new HashSet<Integer>();
+        TreeSet<Integer> tags = new TreeSet<Integer>();
         Iterator<Integer> it = user.getSetOfTags().iterator();
         while (it.hasNext()) {
             Integer value = it.next();
@@ -261,7 +261,7 @@ public class TagTextDictionary {
         ipAddDic.setPostIPAdress(memberShip.isFrequentChange(), memberShip.getIP(), post);
         post.setBrowserIdx(browserDic.getPostBrowserId(memberShip.getBrowserIdx()));
         
-        HashSet<Integer> tags = new HashSet<Integer>();
+        TreeSet<Integer> tags = new TreeSet<Integer>();
         for (int i = 0; i < group.getTags().length; i++) {
             tags.add(group.getTags()[i]);
         }
