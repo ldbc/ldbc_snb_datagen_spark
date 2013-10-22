@@ -37,7 +37,7 @@
 package ldbc.socialnet.dbgen.objects;
 
 import java.io.Serializable;
-import java.util.HashSet;
+import java.util.TreeSet;
 
 public class PhotoStream implements Serializable{
 	boolean isPhoto = true; 
@@ -51,7 +51,7 @@ public class PhotoStream implements Serializable{
 	double latt; 
 	double longt; 
 	//long takenTime;    // Replaced by createdDate
-	HashSet<Integer> tags;
+	TreeSet<Integer> tags;
 	int[] interestedUserAccs;
 	
 	IP ipAddress; 
@@ -154,10 +154,10 @@ public class PhotoStream implements Serializable{
 	public void setLongt(double longt) {
 		this.longt = longt;
 	}
-	public HashSet<Integer> getTags() {
+	public TreeSet<Integer> getTags() {
 		return tags;
 	}
-	public void setTags(HashSet<Integer>  tags) {
+	public void setTags(TreeSet<Integer>  tags) {
 		this.tags = tags;
 	}
 	public int[] getInterestedUserAccs() {

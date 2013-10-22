@@ -47,7 +47,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Writer;
 import java.util.GregorianCalendar;
-import java.util.HashSet;
+import java.util.TreeSet;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Vector;
@@ -267,7 +267,7 @@ public class ScalableGenerator{
 	int                     numCellRead    = 0;
 	int 					numCellPerfile;
 	int 					numCellInLastFile;
-	HashSet<Integer> 		selectedFileIdx;
+	TreeSet<Integer> 		selectedFileIdx;
 	
 	// For friendship generation
 	int 				friendshipNo;
@@ -1169,7 +1169,7 @@ public class ScalableGenerator{
 
 		Group group = groupGenerator.createGroup(user);
 
-		HashSet<Integer> memberIds = new HashSet<Integer>();
+		TreeSet<Integer> memberIds = new TreeSet<Integer>();
 
 		int numGroupMember = randNumberUserPerGroup.nextInt(maxNumMemberGroup);
 		group.initAllMemberships(numGroupMember);

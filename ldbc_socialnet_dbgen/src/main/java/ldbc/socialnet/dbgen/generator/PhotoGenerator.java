@@ -36,7 +36,7 @@
  */
 package ldbc.socialnet.dbgen.generator;
 
-import java.util.HashSet;
+import java.util.TreeSet;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Vector;
@@ -129,7 +129,7 @@ public class PhotoGenerator {
 		//Assume that the photo are created one by one after 1 second from the creation of the album
 		photo.setTakenTime(album.getCreatedDate() + 1000*(idxInAlbum+1));	
 		
-		HashSet<Integer> tags = new HashSet<Integer>();
+		TreeSet<Integer> tags = new TreeSet<Integer>();
 //        Iterator<Integer> it = user.getSetOfTags().iterator();
 //        while (it.hasNext()) {
 //            Integer value = it.next();
