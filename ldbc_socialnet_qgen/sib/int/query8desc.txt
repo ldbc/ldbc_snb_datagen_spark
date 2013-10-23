@@ -1,4 +1,6 @@
 QueryType=Select
 
+PersonURIString=from
+
 Person=PersonURI
 OtherDetails=ProfileViewQuery_?from_profile

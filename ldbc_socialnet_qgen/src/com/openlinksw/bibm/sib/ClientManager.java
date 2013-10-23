@@ -30,9 +30,9 @@ public class ClientManager extends AbstractClientManager<QueryMixStatistics> imp
 	public ClientManager(TestDriver parent) {
 		this.driver = parent;
 		this.nrWarmup = parent.warmups.getValue();
-		this.nrRuns = parent.nrRuns.getValue();
+		this.setNrRuns(parent.nrRuns.getValue());
 		this.nrThreads = parent.nrThreads.getValue();
-		this.queryMix = parent.queryMix;
+		this.setQueryMix(parent.queryMix);
         queryMixStat = new QueryMixStatistics();
 		clients = new ClientThread[this.nrThreads];		
 		outBuf=new FiniteQueue<CompiledQueryMix>(new ArrayDeque<CompiledQueryMix>(nrThreads*2)); 
@@ -74,7 +74,7 @@ public class ClientManager extends AbstractClientManager<QueryMixStatistics> imp
         DoubleLogger.getOut().println("Starting actual run...").flush();
 		warmupPhase=false;
 
-        double totalRunTimeInSeconds = makeRuns(0, nrRuns, true);
+        double totalRunTimeInSeconds = makeRuns(0, getNrRuns(), true);
 
 		queryMixStat.setElapsedRuntime(totalRunTimeInSeconds);
 		DoubleLogger.getOut().printf("Benchmark run completed in %.3f s\n", totalRunTimeInSeconds);
@@ -85,14 +85,14 @@ public class ClientManager extends AbstractClientManager<QueryMixStatistics> imp
 	private double makeRuns(int startNr, int endNr, boolean doUpdate) throws InterruptedException {
 		int nrRun=startNr;
 		for (; nrRun<endNr; nrRun++) {
-			CompiledQueryMix item=createCompiledQueriMix(queryMix, nrRun,  doUpdate);
+			CompiledQueryMix item=createCompiledQueriMix(getQueryMix(), nrRun,  doUpdate);
 			boolean full=!outBuf.offer(item);
 			if (full) break;
 		}
         long start = System.nanoTime();
         startClients();
 		for (; nrRun<endNr; nrRun++) {
-			CompiledQueryMix item=createCompiledQueriMix(queryMix, nrRun,  doUpdate);
+			CompiledQueryMix item=createCompiledQueriMix(getQueryMix(), nrRun,  doUpdate);
 			outBuf.add(item);
 		}
 		outBuf.setFinish();
@@ -102,7 +102,7 @@ public class ClientManager extends AbstractClientManager<QueryMixStatistics> imp
 	}
 
     public Object[] getParametersForQuery(Query query, int level) {
-        if (driver.useDefaultParams.getValue()) {
+    	if (driver.useDefaultParams.getValue()) {
             FormalParameter[] fps=query.getFormalParameters();
             int paramCount=fps.length;
             String[] parameters = new String[paramCount];
@@ -192,11 +192,27 @@ public class ClientManager extends AbstractClientManager<QueryMixStatistics> imp
             driver.sutStart();
             doActualRuns();
             driver.sutEnd();
-            queryMixStat.fillFrame(true, driver, queryMix.getQueries());
+            queryMixStat.fillFrame(true, driver, getQueryMix().getQueries());
         } catch (InterruptedException e) {
         } finally {
             outBuf.setFinish();
             driver.resultQueue.setFinish();
         }
     }
+
+	public int getNrRuns() {
+		return nrRuns;
+	}
+
+	public void setNrRuns(int nrRuns) {
+		this.nrRuns = nrRuns;
+	}
+
+	public SIBQueryMix getQueryMix() {
+		return queryMix;
+	}
+
+	public void setQueryMix(SIBQueryMix queryMix) {
+		this.queryMix = queryMix;
+	}
 }

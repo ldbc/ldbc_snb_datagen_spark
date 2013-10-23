@@ -28,8 +28,13 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 import org.apache.log4j.xml.DOMConfigurator;
+
+import umontreal.iro.lecuyer.util.PrintfFormat;
+
+import benchmark.qualification.QueryResult;
 
 import com.openlinksw.bibm.AbstractQueryResult;
 import com.openlinksw.bibm.AbstractTestDriver;
@@ -39,6 +44,7 @@ import com.openlinksw.bibm.Exceptions.ExceptionException;
 import com.openlinksw.bibm.Exceptions.RequestFailedException;
 import com.openlinksw.bibm.qualification.Comparator;
 import com.openlinksw.bibm.qualification.ResultCollector;
+import com.openlinksw.bibm.qualification.ResultDescription;
 import com.openlinksw.bibm.statistics.AbstractQueryMixStatistics;
 import com.openlinksw.util.DoubleLogger;
 import com.openlinksw.util.FiniteQueue;
@@ -50,6 +56,8 @@ public class TestDriver extends AbstractTestDriver {
     MultiStringOption querymixDirNames=new MultiStringOption("uc <use case query mix directory>"
             ,"Directly specifies a query mix directory."
             ,"Can be used several times, and with -ucf optionDirectly specifies a query mix directory.");
+    
+    BooleanOption randomProfileViewQuery = new BooleanOption("rpvq", "trigger the profile view query from the specified directory for some of the returned persons");
     
     public IntegerOption warmups=new IntegerOption("w <number of warm up runs before actual measuring>", 0,
         "default: 0");
@@ -71,7 +79,9 @@ public class TestDriver extends AbstractTestDriver {
             ,"Specifies where the use case description file can be found.");
         
     public File[] querymixDirs;
+    public File querymixProfileViewDir;
     public SIBQueryMix queryMix;// The Benchmark Querymix
+    public SIBQueryMix queryMixProfileView;
    
     public TestDriver(String args[]) throws IOException {
         super(version,
@@ -130,6 +140,18 @@ public class TestDriver extends AbstractTestDriver {
             throw new BadSetupException("no query files found");
         }
         queryMix=mix0;
+        
+        if (randomProfileViewQuery.getValue()) {
+        	querymixProfileViewDir = new File(querymixDirs[0] + "/profile_view");
+	        if (!querymixProfileViewDir.exists()) {
+	            throw new BadSetupException("no such usecase directory: "+ querymixProfileViewDir);
+	        }
+	        SIBQueryMix mix1 = new SIBQueryMix(parameterPool, querymixProfileViewDir, seedLoc);
+	        if (mix1.getQueries().size()==0) {
+	            throw new BadSetupException("no query files for profile view found");
+	        }
+	        queryMixProfileView=mix1;
+        }
   }
 
     /*
@@ -179,11 +201,27 @@ public class TestDriver extends AbstractTestDriver {
             collector.addResultDescriptionsFromDriver(this);
        }
 
+        ClientManager manager1 = new ClientManager(this);
+		manager1.setNrRuns(0);
+		manager1.setQueryMix(this.queryMixProfileView);
+        
         for (;;) {
             AbstractQueryResult result = resultQueue.take();
             if (result==null) {
                 // finish
                 break;
+            }
+            Random r =  new Random(System.currentTimeMillis());
+            com.openlinksw.bibm.qualification.QueryResult qr = result.getQueryResult();
+            int index = qr.getHeader().indexOf(result.getQuery().getQuery().getPersonURIString());
+            if (index != -1) {
+            	result.getQuery().getQueryTypeSequence();
+            	for (int i = 0; i < qr.getResultCount(); i++) {
+            		if (r.nextInt(10) == 0) {
+            			manager1.setNrRuns(manager1.getNrRuns() + 1);
+            			((LocalSPARQLParameterPool)(manager1.driver.parameterPool)).addPeopleURI(qr.getResults().get(i).get(index));
+            		}
+            	}
             }
             if (collector != null) {
                 collector.addResult(result.getQueryResult());
@@ -195,6 +233,24 @@ public class TestDriver extends AbstractTestDriver {
                 cmp.addQueryResult(result.getQueryResult());
             }
         }
+        
+        Thread managerThread1 = new Thread(manager1);
+        if (this.randomProfileViewQuery.getValue()) {
+	        managerThread1.start();
+	        
+	        Thread.sleep(1000);
+	        
+	        for (;;) {
+	            AbstractQueryResult result = resultQueue.take();
+	            if (result==null) {
+	                // finish
+	                break;
+	            }
+	            if (printResults.getValue()) {
+	                result.logResultInfo(logger);
+	             }
+	        }
+        }
 
         AbstractQueryMixStatistics queryMixStat = manager.getQueryMixStat();
         logger.append(queryMixStat.getResultString());
@@ -202,6 +258,13 @@ public class TestDriver extends AbstractTestDriver {
         printXML(queryMixStat);
         if (cmp!=null) {
             cmp.reportTotal();
+        }
+        
+        if (this.randomProfileViewQuery.getValue()) {
+		    AbstractQueryMixStatistics queryMixStat1 = manager1.getQueryMixStat();
+		    logger.append(queryMixStat1.getResultString());
+		    logger.flush();
+		    printXML(queryMixStat1);
         }
     }
 

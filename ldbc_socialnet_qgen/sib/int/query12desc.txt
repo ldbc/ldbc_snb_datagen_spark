@@ -1,5 +1,7 @@
 QueryType=Select
 
+PersonURIString=exp
+
 Person=PersonURI
 TagType=TagTypeURI
 OtherDetails=ProfileViewQuery_?exp_profile

@@ -1,5 +1,7 @@
 QueryType=Select
 
+PersonURIString=fr
+
 Person=PersonURI
 Country=CountryURI
 Date0=WorkFromDate_0_100

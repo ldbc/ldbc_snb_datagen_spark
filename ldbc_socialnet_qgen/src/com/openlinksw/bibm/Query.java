@@ -50,6 +50,8 @@ public class Query extends ResultDescriptionLists  implements Nameable {
 
     private AbstractParameterPool parameterPool;
     private QueryMix queryMix;
+    
+    private String personURIString;
 
 	public Query(String qName, AbstractParameterPool parameterPool, File queryDir, File descDir) throws IOException {
 		this.parameterPool=parameterPool;
@@ -107,9 +109,13 @@ public class Query extends ResultDescriptionLists  implements Nameable {
 			offset++;
 			// Parameter Type
 			String paramType = line.substring(offset);
+			
+			if (parameter.toLowerCase().equals("personuristring")) {
+				setPersonURIString(paramType);
+			}
 
 			// If special parameter querytype is given save query type for later use
-			if (parameter.toLowerCase().equals("querytype")) {
+			else if (parameter.toLowerCase().equals("querytype")) {
 				byte qType = getQueryType(paramType);
 				if (qType == 0) {
 					DoubleLogger.getErr().println("Invalid query type chosen."	+ " Using default: Select");
@@ -309,5 +315,13 @@ public class Query extends ResultDescriptionLists  implements Nameable {
     public byte[] getQueryTypeSequence() {
         return queryTypeSequence;
     }
+
+	public String getPersonURIString() {
+		return personURIString;
+	}
+
+	public void setPersonURIString(String personURIString) {
+		this.personURIString = personURIString;
+	}
 
 }

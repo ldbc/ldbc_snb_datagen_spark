@@ -1,5 +1,7 @@
 QueryType=Select
 
+PersonURIString=fr
+
 Person=PersonURI
 Date0=CreationPostDate_0_66
 Duration=TotalDaysOfCreationPost_33_33

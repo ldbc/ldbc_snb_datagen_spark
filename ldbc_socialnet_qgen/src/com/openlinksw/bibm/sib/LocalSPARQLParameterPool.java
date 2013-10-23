@@ -9,7 +9,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import benchmark.generator.DateGenerator;
 import benchmark.generator.RandomBucket;
@@ -32,6 +34,7 @@ public class LocalSPARQLParameterPool extends SIBParameterPool {
 	private File updateDatasetFile;
 	private BufferedReader updateFileReader = null;
 	private GregorianCalendar publishDateMin = new GregorianCalendar(2007,5,20);
+	private LinkedList<String> listOfPeople = new LinkedList<String>();
 	
 	public LocalSPARQLParameterPool(File resourceDirectory, Long seed) {
 		parameterChar='%';
@@ -53,6 +56,15 @@ public class LocalSPARQLParameterPool extends SIBParameterPool {
 		FormalParameter[] fps=query.getFormalParameters();
 		int paramCount=fps.length;
 		Object[] parameters = new Object[paramCount];
+		
+		if (query.getName().equals("profile")) {
+			StringBuilder tmp = new StringBuilder(listOfPeople.pop());
+			tmp.setCharAt(0, '<');
+			tmp.setCharAt(tmp.length() - 1, '>');
+			parameters[0] = tmp.toString();
+			return parameters;
+		}
+		
 		ArrayList<Integer> productFeatureIndices = new ArrayList<Integer>();
 		ProductType pt = null;
 		GregorianCalendar randomDate = null;
@@ -300,5 +312,9 @@ public class LocalSPARQLParameterPool extends SIBParameterPool {
 	@Override
 	protected String formatDateString(GregorianCalendar date) {
 		return "\"" + DateGenerator.formatDateTime(date) + "\"^^<" + XSD.DateTime + ">";
+	}
+	
+	public void addPeopleURI(String s) {
+		listOfPeople.push(s);
 	}
 }

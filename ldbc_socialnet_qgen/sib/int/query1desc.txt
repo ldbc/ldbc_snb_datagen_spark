@@ -1,3 +1,5 @@
 QueryType=Select
 
+PersonURIString=person
+
 Name=PersonName

@@ -1,0 +1,6 @@
+select ?first ?last
+from <sib>
+    {
+        %Person% snvoc:firstName ?first .
+        %Person% snvoc:lastName ?last .
+    }
