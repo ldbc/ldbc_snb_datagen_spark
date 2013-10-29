@@ -40,7 +40,7 @@ public class SIBFormalParameter extends  FormalParameter{
 	case SIBParameterPool.TAG_URI:
 	    return "<http://dbpedia.org/resource/George_W._Bush>";
 	case SIBParameterPool.COUNTRY_URI:
-	    return "<http://dbpedia.org/resource/United_States>";
+	    return "<http://dbpedia.org/resource/India>";
 	case SIBParameterPool.TAG_TYPE_URI:
 	    return "<http://dbpedia.org/ontology/Scientist>";
 	}
