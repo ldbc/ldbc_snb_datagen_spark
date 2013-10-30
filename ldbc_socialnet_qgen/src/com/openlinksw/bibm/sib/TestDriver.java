@@ -57,7 +57,7 @@ public class TestDriver extends AbstractTestDriver {
             ,"Directly specifies a query mix directory."
             ,"Can be used several times, and with -ucf optionDirectly specifies a query mix directory.");
     
-    BooleanOption randomProfileViewQuery = new BooleanOption("rpvq", "trigger the profile view query from the specified directory for some of the returned persons");
+    BooleanOption randomProfileViewQuery = new BooleanOption("rpvq", "trigger the profile view query for some of the returned persons");
     
     public IntegerOption warmups=new IntegerOption("w <number of warm up runs before actual measuring>", 0,
         "default: 0");
