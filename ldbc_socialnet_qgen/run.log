@@ -1,1 +1,36 @@
-Unknown parameter: --help
+
+Version:                Openlink BIBM Test Driver 0.7.7
+Start date:             Thu Nov 14 12:33:55 CET 2013
+Scale factor:           1.0
+Explore Endpoint:       http://localhost:8608/sparql
+Update Endpoint:        http://localhost:8608/sparql
+Use case:               /home/mirko/ldbc/ldbc_socialnet_bm/ldbc_socialnet_qgen/sib/int
+Number of warmup runs:  0
+Seed:                   808080
+Number of query mix runs (without warmups): 0 times
+min/max Querymix runtime:	179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.0000s / 0.0000s
+Elapsed runtime:        0.101 seconds
+QMpH:                   0.000 query mixes per hour
+CQET:                   NaN seconds average runtime of query mix
+CQET (geom.):           NaN seconds geometric mean runtime of query mix
+AQET (geom.):           NaN seconds geometric mean runtime of query
+TPC-H Throughput:       0.000 qph*scale
+TPC-H Power:            NaN qph*scale (geom)
+
+Version:                Openlink BIBM Test Driver 0.7.7
+Start date:             Thu Nov 14 12:33:55 CET 2013
+Scale factor:           1.0
+Explore Endpoint:       http://localhost:8608/sparql
+Update Endpoint:        http://localhost:8608/sparql
+Use case:               /home/mirko/ldbc/ldbc_socialnet_bm/ldbc_socialnet_qgen/sib/int
+Number of warmup runs:  0
+Seed:                   808080
+Number of query mix runs (without warmups): 0 times
+min/max Querymix runtime:	179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.0000s / 0.0000s
+Elapsed runtime:        0.062 seconds
+QMpH:                   0.000 query mixes per hour
+CQET:                   NaN seconds average runtime of query mix
+CQET (geom.):           NaN seconds geometric mean runtime of query mix
+AQET (geom.):           NaN seconds geometric mean runtime of query
+TPC-H Throughput:       0.000 qph*scale
+TPC-H Power:            NaN qph*scale (geom)
