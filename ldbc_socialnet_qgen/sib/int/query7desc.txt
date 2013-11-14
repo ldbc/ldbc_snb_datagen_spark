@@ -3,4 +3,3 @@ QueryType=Select
 PersonURIString=liker
 
 Person=PersonURI
-OtherDetails=ProfileViewQuery_?liker_profile

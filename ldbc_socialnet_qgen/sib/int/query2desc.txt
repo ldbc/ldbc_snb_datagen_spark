@@ -2,6 +2,5 @@ QueryType=Select
 
 PersonURIString=fr
 
-OtherDetails=ProfileViewQuery_?fr_profile
 Person=PersonURI
 Date0=CreationPostDate_33_66

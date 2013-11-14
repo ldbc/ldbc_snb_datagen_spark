@@ -7,4 +7,3 @@ Date0=CreationPostDate_0_66
 Duration=TotalDaysOfCreationPost_33_33
 Country1=CountryPair_1
 Country2=CountryPair_2
-OtherDetails=ProfileViewQuery_?fr_profile

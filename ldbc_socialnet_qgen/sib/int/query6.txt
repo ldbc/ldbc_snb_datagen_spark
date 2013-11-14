@@ -1,4 +1,4 @@
-select ?tag count (*)
+select ?tag count (*) #Q6
 from <sib>
 where {  
     {  select distinct ?fr

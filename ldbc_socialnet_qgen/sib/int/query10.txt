@@ -1,5 +1,5 @@
-select %OtherDetails% ?first ?last  
-    ((( select  count (*)
+select ?first ?last #Q10
+    ((( select  count (distinct ?post)
         where {
             ?post snvoc:hasCreator ?fof .
             ?post snvoc:hasTag ?tag .
@@ -7,7 +7,7 @@ select %OtherDetails% ?first ?last
         }
     ))
     -
-    ((  select  count (*)
+    ((  select  count (distinct ?post)
         where {
             ?post snvoc:hasCreator ?fof .
             ?post snvoc:hasTag ?tag .

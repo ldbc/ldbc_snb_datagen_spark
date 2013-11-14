@@ -1,4 +1,4 @@
-select ?group count (*)
+select ?group count (*) #Q5
 from <sib>
 where { 
     {select distinct ?fr
@@ -16,4 +16,4 @@ where {
 }
 group by ?group
 order by desc(2) ?group
-
+limit 20

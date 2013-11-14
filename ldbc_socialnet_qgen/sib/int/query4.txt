@@ -1,4 +1,4 @@
-select ?tag count (*)
+select ?tag count (*) #Q4
 from <sib>
 where {
     ?post snvoc:hasCreator ?fr .
@@ -7,7 +7,8 @@ where {
     %Person% snvoc:knows ?fr .
     filter (?date >= "%Date0%"^^xsd:date && ?date <= bif:dateadd ("day", %Duration%, "%Date0%"^^xsd:date) ) .
     filter (!exists {
-        ?post2 snvoc:hasCreator ?fr .
+        %Person% snvoc:knows ?fr2 .
+        ?post2 snvoc:hasCreator ?fr2 .
         ?post2 snvoc:hasTag ?tag .
         ?post2 snvoc:creationDate ?date2 .
         filter (?date2 < "%Date0%"^^xsd:date)}) 

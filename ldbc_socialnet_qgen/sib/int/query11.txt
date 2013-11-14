@@ -1,10 +1,11 @@
-select  %OtherDetails% ?first ?last ?startdate ?org ?fr 
+select ?first ?last ?startdate ?orgname ?fr #Q11
 where {
     ?w snvoc:hasOrganisation ?org .
+    ?org foaf:name ?orgname .
     ?org snvoc:isLocatedIn %Country% .
     ?fr snvoc:workAt ?w .
     ?w snvoc:workFrom ?startdate .
-    filter (?startdate < "%Date0%"^^xsd:string) .
+    filter (?startdate < %Date0%) .
     {  select distinct ?fr
        from <sib>
        where {
@@ -14,7 +15,7 @@ where {
     ?fr snvoc:firstName ?first .
     ?fr snvoc:lastName ?last .
 }
-order by ?startdate ?fr
+order by ?startdate ?fr ?orgname
 limit 10
 
 

@@ -1,4 +1,4 @@
-select ?fr  %OtherDetails% ?first ?last ?post ?content ?date
+select ?fr ?first ?last ?post ?content ?date #Q9
 from <sib>
 where {
   {select distinct ?fr

@@ -1,4 +1,4 @@
-select ?exp %OtherDetails% ?first ?last ?tag count (*)
+select ?exp ?first ?last ?tag count (*) #Q12
 where {
     %Person% snvoc:knows ?exp .
     ?exp snvoc:firstName ?first . ?exp snvoc:lastName ?last .
@@ -9,5 +9,5 @@ where {
     ?tag a %TagType% .
 }
 group by ?exp ?first ?last ?tag
-order by desc(5) ?exp
+order by desc(5) ?exp ?tag
 limit 20

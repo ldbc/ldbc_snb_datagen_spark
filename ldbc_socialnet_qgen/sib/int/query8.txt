@@ -1,4 +1,4 @@
-select ?from  %OtherDetails% ?first ?last ?dt ?rep ?content
+select ?from ?first ?last ?dt ?rep ?content #Q8
 where {
   { select ?rep ?dt
     where {

@@ -5,4 +5,3 @@ PersonURIString=fof
 Person=PersonURI
 HS0=HoroscopeSign_0
 HS1=HoroscopeSign_1
-OtherDetails=ProfileViewQuery_?fof_profile

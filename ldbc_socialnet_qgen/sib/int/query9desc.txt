@@ -4,4 +4,4 @@ PersonURIString=fr
 
 Person=PersonURI
 Date0=CreationPostDate_33_66
-OtherDetails=ProfileViewQuery_?fr_profile
+
