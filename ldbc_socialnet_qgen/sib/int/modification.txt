@@ -2,7 +2,6 @@ Query6 always returns 0 results because of too selective tag.
 Query8 always returns 0 results.
 Query11 always returns 0 results.
 
-
 based_near -> isLocatedIn
 creator -> hasCreator
 created -> creationDate
