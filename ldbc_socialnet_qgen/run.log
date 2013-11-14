@@ -1,36 +1,102 @@
 
-Version:                Openlink BIBM Test Driver 0.7.7
-Start date:             Thu Nov 14 12:33:55 CET 2013
-Scale factor:           1.0
-Explore Endpoint:       http://localhost:8608/sparql
-Update Endpoint:        http://localhost:8608/sparql
-Use case:               /home/mirko/ldbc/ldbc_socialnet_bm/ldbc_socialnet_qgen/sib/int
-Number of warmup runs:  0
-Seed:                   808080
-Number of query mix runs (without warmups): 0 times
-min/max Querymix runtime:	179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.0000s / 0.0000s
-Elapsed runtime:        0.101 seconds
-QMpH:                   0.000 query mixes per hour
-CQET:                   NaN seconds average runtime of query mix
-CQET (geom.):           NaN seconds geometric mean runtime of query mix
-AQET (geom.):           NaN seconds geometric mean runtime of query
-TPC-H Throughput:       0.000 qph*scale
-TPC-H Power:            NaN qph*scale (geom)
+
+	Query 1 of run 0 has been executed in 0.059000 seconds.
+
+	Query string:
+
+select ?person ?last ?bday ?since ?gen ?browser ?locationIP #Q1
+    ((select group_concat (?email, ", ")
+        where {
+            ?person snvoc:email ?email
+        }
+        group by ?person)) as ?email
+    ((select group_concat (?lng, ", ")
+        where {
+            ?person snvoc:speaks ?lng
+        }
+        group by ?person)) as ?lng
+    ?based
+    ((select group_concat ( bif:concat (?o_name, " ", ?year, " ", ?o_country), ", ")
+        where {
+	    ?person snvoc:studyAt ?w .
+	    ?w snvoc:classYear ?year .
+            ?w snvoc:hasOrganisation ?org .
+            ?org snvoc:isLocatedIn ?o_countryURI .
+	    ?o_countryURI foaf:name ?o_country .
+            ?org foaf:name ?o_name
+        }
+        group by ?person)) as ?studyAt
+    ((select group_concat ( bif:concat (?o_name, " ", ?year, " ", ?o_country), ", ")
+        where {
+	    ?person snvoc:workAt ?w .
+	    ?w snvoc:workFrom ?year .
+            ?w snvoc:hasOrganisation ?org .
+            ?org snvoc:isLocatedIn ?o_countryURI .
+	    ?o_countryURI foaf:name ?o_country .
+            ?org foaf:name ?o_name
+        }
+        group by ?person)) as ?workAt
+    {
+        ?person a snvoc:Person .
+        ?person snvoc:firstName "Meera" .
+        ?person snvoc:isLocatedIn ?basedURI .
+	?basedURI foaf:name ?based .
+        ?person snvoc:birthday ?bday .
+        ?person snvoc:creationDate ?since . 
+        ?person snvoc:gender ?gen .
+        ?person snvoc:lastName ?last .
+	?person snvoc:locationIP ?locationIP .
+	?person snvoc:browserUsed ?browser .
+    }
+    order by ?last ?person
+    limit 10
+
+
+	Query results (10 results): 
+{"queryname":1,
+ "nrun":1,
+ "header":["person", "last", "bday", "since", "gen", "browser", "locationIP", "email", "lng", "based", "studyAt", "workAt"],
+ "params":["Meera"],
+ "results":[
+  ["http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers17723", "Khan", "1981-02-12", "2012-01-16T06:16:15Z", "female", "Safari", "1.38.0.11", "Meera17723@gmail.com, Meera17723@yahoo.com", "en, as, ta", "Nabapally", "Christ_University 2002 Bangalore"],
+  ["http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers17749", "Khan", "1982-09-12", "2012-05-13T06:03:11Z", "female", "Opera", "1.38.0.11", "Meera17749@gmail.com, Meera17749@zoho.com", "en, ur, hi", "Sundar_Nagar", "JetLite 1971 India, Kalinga_Airlines 1970 India"],
+  ["http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers17756", "Khan", "1985-05-29", "2012-10-01T01:30:47Z", "female", "Firefox", "1.38.0.11", "Meera17756@gmail.com, Meera17756@gmx.com, Meera17756@zoho.com", "en, ur, mr", "Saravanampatti", "Christ_University 2008 Bangalore", "Air_India_Cargo 2019 India, JetLite 2019 India, Jet_Konnect 2017 India, MDLR_Airlines 2018 India, Pawan_Hans 2019 India"],
+  ["http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers17761", "Khan", "1989-05-11", "2011-07-07T02:41:44Z", "female", "Chrome", "1.38.0.11", "en, ta, bn", "Mysore", "New_Horizon_College_of_Engineering 2012 Bangalore", "JetLite 2018 India, Jet_Konnect 2019 India, Kingfisher_Red 2014 India, Pawan_Hans 2018 India"],
+  ["http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers17774", "Khan", "1984-11-01", "2010-08-03T09:20:13Z", "female", "Chrome", "1.38.0.11", "Meera17774@gmail.com, Meera17774@gmx.com", "en, ta, or", "Bikaner", "Sir_M._Visvesvaraya_Institute_of_Technology 2008 Bangalore", "Air_India_Cargo 2018 India, JetLite 2015 India"],
+  ["http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers17813", "Khan", "1985-09-22", "2011-05-29T02:39:55Z", "female", "Internet Explorer", "1.38.0.11", "en, te, ml", "Kuttikkattoor", "Aurela 1971 Lithuania"],
+  ["http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers17826", "Khan", "1981-11-15", "2010-10-16T04:22:11Z", "female", "Internet Explorer", "1.38.0.11", "Meera17826@krovatka.net, Meera17826@rambler.ru, Meera17826@yahoo.com", "en, te, or", "Kadapa", "Ecumenical_Christian_Centre 2001 Bangalore", "MDLR_Airlines 2009 India"],
+  ["http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers18003", "Khan", "1989-02-10", "2012-06-22T09:55:38Z", "female", "Firefox", "1.38.0.11", "Meera18003@gmx.com", "en, gu, or", "Ravulapalem", "Ecumenical_Christian_Centre 2013 Bangalore", "Air_India_Express 2020 India, IndiGo 2023 India, JetLite 2022 India, Jet_Airways 2021 India, Kingfisher_Red 2021 India"],
+  ["http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers18061", "Khan", "1987-03-31", "2011-12-25T04:38:17Z", "female", "Internet Explorer", "1.38.0.11", "en, as, ta", "Birati", "Himalayan_Aviation 1971 India, JetLite 1970 India"],
+  ["http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers18174", "Khan", "1980-07-16", "2011-07-06T09:37:24Z", "female", "Firefox", "1.38.0.11", "Meera18174@gmail.com", "en, ur, hi", "Vadamanvandal", "National_Institute_of_Business_Management 2001 Colombo", "Blue_Dart_Aviation 2011 India, TajAir 2006 India, Felix_Airways 2006 Abd Rabbuh Mansur Al-Hadi cabinet, Felix_Airways 2006 Yemen"],
+ ],
+
+__________________________________________________________________________________
 
 Version:                Openlink BIBM Test Driver 0.7.7
-Start date:             Thu Nov 14 12:33:55 CET 2013
+Start date:             Thu Nov 14 13:06:39 CET 2013
 Scale factor:           1.0
-Explore Endpoint:       http://localhost:8608/sparql
-Update Endpoint:        http://localhost:8608/sparql
-Use case:               /home/mirko/ldbc/ldbc_socialnet_bm/ldbc_socialnet_qgen/sib/int
+Explore Endpoint:       http://localhost:8607/sparql
+Update Endpoint:        http://localhost:8607/sparql
+Use case:               /home/sib/ldbc_socialnet_bm/ldbc_socialnet_qgen/sib/int
 Number of warmup runs:  0
 Seed:                   808080
-Number of query mix runs (without warmups): 0 times
-min/max Querymix runtime:	179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.0000s / 0.0000s
-Elapsed runtime:        0.062 seconds
-QMpH:                   0.000 query mixes per hour
-CQET:                   NaN seconds average runtime of query mix
-CQET (geom.):           NaN seconds geometric mean runtime of query mix
-AQET (geom.):           NaN seconds geometric mean runtime of query
-TPC-H Throughput:       0.000 qph*scale
-TPC-H Power:            NaN qph*scale (geom)
+Number of query mix runs (without warmups): 1 times
+min/max Querymix runtime:	0.0590s / 0.0590s
+Elapsed runtime:        0.090 seconds
+QMpH:                   39914.105 query mixes per hour
+CQET:                   0.059 seconds average runtime of query mix
+CQET (geom.):           0.059 seconds geometric mean runtime of query mix
+AQET (geom.):           0.059 seconds geometric mean runtime of query
+TPC-H Throughput:       39914.105 qph*scale
+TPC-H Power:            61016.949 qph*scale (geom)
+
+Metrics for Query:      1
+Count:                  1 times executed in whole run
+Time share              100.000% of total execution time
+AQET:                   0.059000 seconds (arithmetic mean)
+AQET(geom.):            0.059000 seconds (geometric mean)
+QPS:                    16.949 Queries per second
+minQET/maxQET:          0.059000s / 0.059000s
+Average result count:   10.000
+min/max result count:   10 / 10
+Number of timeouts:     0

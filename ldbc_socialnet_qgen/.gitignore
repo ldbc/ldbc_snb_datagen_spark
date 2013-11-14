@@ -4,5 +4,6 @@ benchmark_result.*.xml
 *.classpath
 *.project
 *~
+*.qual
 bin/
 td_data/
