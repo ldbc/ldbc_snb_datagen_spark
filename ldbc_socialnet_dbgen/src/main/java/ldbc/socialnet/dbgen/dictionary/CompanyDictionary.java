@@ -37,129 +37,118 @@
 package ldbc.socialnet.dbgen.dictionary;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.RandomAccessFile;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.Vector;
 
+/**
+ * This class reads the file containing the names and countries for the companies used in the ldbc socialnet generation and 
+ * provides access methods to get such data.
+ */
 public class CompanyDictionary {
-    BufferedReader dictionary; 
-	String dicFileName;
-
-	HashMap<String, Integer> locationNames;
+    
+    private static final String SEPARATOR = "  ";
+    
+	String fileName;
 	
-	Vector<Vector<String>> companiesByLocations;
 	HashMap<String, Integer> companyLocation;
-	Random 		rand; 
-	Random		randUnRelatedCompany;
-	double		probUnCorrelatedCompany;
-	Random		randUnRelatedLocation;
+	HashMap<Integer, Vector<String>> companiesByLocations;
 	LocationDictionary locationDic;
 	
-	public CompanyDictionary(String _dicFileName, LocationDictionary _locationDic, 
-							long seedRandom, double _probUnCorrelatedCompany){
-		this.locationNames = _locationDic.getLocationNameMapping(); 
-		this.dicFileName = _dicFileName;
-		this.rand = new Random(seedRandom);
-		this.randUnRelatedCompany = new Random(seedRandom);
-		this.randUnRelatedLocation = new Random(seedRandom);
-		this.locationDic = _locationDic;
+	Random rand; 
+    Random randUnRelatedCompany;
+    Random randUnRelatedLocation;
+    double probUnCorrelatedCompany;
+	
+    /**
+     * Constructor.
+     * 
+     * @param fileName: The file with the company data.
+     * @param locationDic: The location dictionary.
+     * @param seed: Seed for the random selector.
+     * @param probUnCorrelatedCompany: Probability of selecting a country unrelated company.
+     */
+	public CompanyDictionary(String fileName, LocationDictionary locationDic, 
+	        long seed, double probUnCorrelatedCompany) {
+	    
+		this.fileName = fileName;
+		this.locationDic = locationDic;
+		this.probUnCorrelatedCompany = probUnCorrelatedCompany;
 		
-		this.probUnCorrelatedCompany = _probUnCorrelatedCompany;
+		rand                  = new Random(seed);
+		randUnRelatedCompany  = new Random(seed);
+        randUnRelatedLocation = new Random(seed);
 	}
-	
-	public void init(){
-		try {
-		    companyLocation = new HashMap<String, Integer>();
-			dictionary = new BufferedReader(new InputStreamReader(getClass( ).getResourceAsStream(dicFileName), "UTF-8"));
-			
-			System.out.println("Building dictionary of companies (by locations)");
-			
-			companiesByLocations = new Vector<Vector<String>>(locationNames.size());
-			for (int i = 0; i < locationNames.size(); i++){
-				companiesByLocations.add(new Vector<String>());
-			}
-			
-			extractCompanyNames();
-			
-			dictionary.close();
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public void extractCompanyNames(){
-		String line; 
-		String locationName; 
-		String companyName; 
-		String lastLocationName = "";
-		int curLocationId = -1; 
-		int totalNumCompanies = 0;
-		try {
-			while ((line = dictionary.readLine()) != null){
-				String infos[] = line.split("  ");
-				locationName = infos[0];
-				if (locationName.compareTo(lastLocationName) != 0){ 	// New location
-					if (locationNames.containsKey(locationName)){		// Check whether it exists 
-						lastLocationName = locationName;
-						curLocationId = locationNames.get(locationName); 
-						companyName = infos[1].trim();
-						companiesByLocations.get(curLocationId).add(companyName);
-						companyLocation.put(companyName, curLocationId);
-						totalNumCompanies++;
-					}
-				} else{
-					companyName = infos[1].trim();
-					companiesByLocations.get(curLocationId).add(companyName);
-					companyLocation.put(companyName, curLocationId);
-					totalNumCompanies++;
-				}
 
-			}
-			
-			System.out.println("Done ... " + totalNumCompanies + " companies were extracted");
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	/**
+     * Initializes the dictionary extracting the data from the file.
+     */
+	public void init() {
+	    companyLocation = new HashMap<String, Integer>();
+	    
+	    companiesByLocations = new HashMap<Integer, Vector<String>>();
+	    for (Integer id : locationDic.getCountries()){
+	        companiesByLocations.put(id, new Vector<String>());
+	    }
+
+	    try {
+            BufferedReader dictionary = new BufferedReader(
+                    new InputStreamReader(getClass( ).getResourceAsStream(fileName), "UTF-8"));
+            String line;  
+            int previousId = -2;
+            int currentId = -1; 
+            int totalNumCompanies = 0;
+            
+            while ((line = dictionary.readLine()) != null) {
+                String data[] = line.split(SEPARATOR);
+                String locationName = data[0];
+                String companyName  = data[1].trim();
+                if (locationDic.getCountryId(locationName) != LocationDictionary.INVALID_LOCATION) {
+                    if (currentId != previousId) {
+                        currentId  = locationDic.getCountryId(locationName);
+                        previousId = currentId;
+                    }
+                    companiesByLocations.get(currentId).add(companyName);
+                    companyLocation.put(companyName, currentId);
+                    totalNumCompanies++;
+                }
+            }
+            dictionary.close();
+            System.out.println("Done ... " + totalNumCompanies + " companies were extracted");
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+	}
+
+	/**
+	 * Gets the company country id.
+	 */
+	public int getCountry(String company) {
+	    return companyLocation.get(company);
 	}
 	
-	public HashMap<String, Integer> getCompanyLocationMap() {
-	    return companyLocation;
-	}
-	
-	// Get a random company from that location
-	// if that location does not have any company, go to another location
-	public String getRandomCompany(int _locationId){
-		String company = ""; 
-		int randomCompanyIdx;
-		int locationId = _locationId;
+	/**
+	 * Gets a random company of the input country. In case the given country doesn't any company
+	 * a random one will be selected.
+	 * @param countryId: A country id.
+	 */
+	public String getRandomCompany(int countryId) {
+		int locId = countryId;
 		
-		if (randUnRelatedCompany.nextDouble() > probUnCorrelatedCompany){
-			while (companiesByLocations.get(locationId).size() == 0){
-				locationId = randUnRelatedLocation.nextInt(locationNames.size());
-			}
+		Vector<Integer> countries = locationDic.getCountries();
+		if (randUnRelatedCompany.nextDouble() <= probUnCorrelatedCompany) {
+		    locId = countries.get(randUnRelatedLocation.nextInt(countries.size()));
+		}
 		
-			randomCompanyIdx = rand.nextInt(companiesByLocations.get(locationId).size()); 
-			company = companiesByLocations.get(locationId).get(randomCompanyIdx);
-			return company;
-		}
-		else{		// Randomly select one company out of the location
-			int uncorrelateLocationIdx = randUnRelatedLocation.nextInt(locationNames.size());
-			while (companiesByLocations.get(uncorrelateLocationIdx).size() == 0){
-				uncorrelateLocationIdx = randUnRelatedLocation.nextInt(locationNames.size());
-			}
-			
-			
-			randomCompanyIdx = rand.nextInt(companiesByLocations.get(uncorrelateLocationIdx).size()); 
-			company = companiesByLocations.get(uncorrelateLocationIdx).get(randomCompanyIdx);
-			
-			return company;
-		}
-			
+		// In case the country doesn't have any company select another country.
+		while (companiesByLocations.get(locId).size() == 0){
+		    locId = countries.get(randUnRelatedLocation.nextInt(countries.size()));
+        }
+		
+		int randomCompanyIdx = rand.nextInt(companiesByLocations.get(locId).size());
+		return companiesByLocations.get(locId).get(randomCompanyIdx);
 	}
 }

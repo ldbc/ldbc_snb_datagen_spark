@@ -37,169 +37,127 @@
 package ldbc.socialnet.dbgen.dictionary;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.RandomAccessFile;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.Vector;
 
 
-
 public class OrganizationsDictionary {
-    BufferedReader dicAllInstitutes; 
-	String dicFileName;
+    
+    private static final String SEPARATOR = "  ";
+    
+    String dicFileName; 
 
-	HashMap<String, Integer> locationNames;
 	HashMap<String, Integer> organizationToLocation;
+	HashMap<Integer, Vector<String>> organizationsByLocations;
 	
-	Vector<Vector<String>> organizationsByLocations;
-	Random 		rand;
-	
-	Random		randUnRelatedOrganization;
-	double		probUnCorrelatedOrganization;
-	Random		randUnRelatedLocation;
-
-	// For top institutes
-	Random		randTopUniv;
-	double 		probTopUniv; 
+	double probTopUniv; 
+	double probUnCorrelatedOrganization;
+	Random rand;
+	Random randTopUniv;
+	Random randUnRelatedOrganization;
+	Random randUnRelatedLocation;
 	LocationDictionary locationDic; 
 	
-	public OrganizationsDictionary(String _dicFileName, LocationDictionary _locationDic, 
-									long seedRandom, double _probUnCorrelatedOrganization, 
-									long _seedTopUni, double _probTopUni){
-		this.locationNames = _locationDic.getLocationNameMapping(); 
-		this.organizationToLocation = new HashMap<String, Integer>();
-		this.dicFileName = _dicFileName;
-		this.rand = new Random(seedRandom);
-		this.randUnRelatedLocation = new Random(seedRandom);
-		this.randUnRelatedOrganization = new Random(seedRandom);
-		this.probUnCorrelatedOrganization = _probUnCorrelatedOrganization;
-		this.randTopUniv = new Random(_seedTopUni);
-		this.probTopUniv = _probTopUni;
-		this.locationDic = _locationDic;
+	public OrganizationsDictionary(String dicFileName, LocationDictionary locationDic, 
+									long seedRandom, double probUnCorrelatedOrganization, 
+									long seedTopUni, double probTopUni){
+	    
+		this.dicFileName = dicFileName;
+		this.probTopUniv = probTopUni;
+		this.locationDic = locationDic;
+		this.probUnCorrelatedOrganization = probUnCorrelatedOrganization;
+		
+		rand = new Random(seedRandom);
+		randTopUniv = new Random(seedTopUni);
+		randUnRelatedLocation = new Random(seedRandom);
+		randUnRelatedOrganization = new Random(seedRandom);
 	}
+	
 	public void init(){
-		try {
-			dicAllInstitutes = new BufferedReader(new InputStreamReader(getClass( ).getResourceAsStream(dicFileName), "UTF-8"));
-			
-			System.out.println("Building dictionary of organizations (by locations)");
-			
-			organizationsByLocations = new Vector<Vector<String>>(locationNames.size());
-			for (int i = 0; i < locationNames.size(); i++){
-				organizationsByLocations.add(new Vector<String>());
-			}
-			
-			extractOrganizationNames();
-			
-			dicAllInstitutes.close();
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	    organizationToLocation = new HashMap<String, Integer>();
+	    organizationsByLocations = new HashMap<Integer, Vector<String>>();
+	    for (Integer id : locationDic.getCountries()){
+	        organizationsByLocations.put(id, new Vector<String>());
+	    }
+	    extractOrganizationNames();
 	}
 	
 	public HashMap<String, Integer> GetOrganizationLocationMap() {
 	    return organizationToLocation;
 	}
 	
-	public void extractOrganizationNames(){
-		//System.out.println("Extract organizations by location ...");
-		String line; 
-		String locationName; 
-		String organizationName; 
-		String lastLocationName = "";
-		int curLocationId = -1; 
-		int totalNumOrganizations = 0;
+	public void extractOrganizationNames() {
 		try {
+		    BufferedReader dicAllInstitutes = new BufferedReader(
+		            new InputStreamReader(getClass( ).getResourceAsStream(dicFileName), "UTF-8"));
+		    
+		    String line;
+		    int curLocationId = -1; 
+            int totalNumOrganizations = 0;
+		    String lastLocationName = "";
 			while ((line = dicAllInstitutes.readLine()) != null){
-				String infos[] = line.split("  ");
-				locationName = infos[0];
-				if (locationName.compareTo(lastLocationName) != 0){
-					if (locationNames.containsKey(locationName)){
+				String data[] = line.split(SEPARATOR);
+				String locationName = data[0];
+				if (locationName.compareTo(lastLocationName) != 0) {
+					if (locationDic.getCountryId(locationName) != LocationDictionary.INVALID_LOCATION) {
 						lastLocationName = locationName;
-						curLocationId = locationNames.get(locationName); 
-						organizationName = infos[1].trim();
+						curLocationId = locationDic.getCountryId(locationName); 
+						String organizationName = data[1].trim();
 						organizationsByLocations.get(curLocationId).add(organizationName);
-						Integer cityId = locationDic.getCityId(infos[2]);
+						Integer cityId = locationDic.getCityId(data[2]);
 						organizationToLocation.put(organizationName, cityId);
 						totalNumOrganizations++;
 					}
-				}
-				else{
-					organizationName = infos[1].trim();
+				} else{
+				    String organizationName = data[1].trim();
 					organizationsByLocations.get(curLocationId).add(organizationName);
-					Integer cityId = locationDic.getCityId(infos[2]);
+					Integer cityId = locationDic.getCityId(data[2]);
                     organizationToLocation.put(organizationName, cityId);
 					totalNumOrganizations++;
 				}
-
 			}
-			
+			dicAllInstitutes.close();
 			System.out.println("Done ... " + totalNumOrganizations + " organizations were extracted");
-			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
 	// 90% of people go to top-10 universities
 	// 10% go to remaining universities
-	public int getRandomOrganization(int _locationId){
-		int bitmask = 0x00FF; 
-		int locationOrganization; 
-		int randomOrganizationIdx;
-		int locationId = _locationId;
+	public int getRandomOrganization(int countryId) {
+	    
+		int locationId = countryId;
+		double prob = randUnRelatedOrganization.nextDouble();
 		
-		// User may not study at a university in her location
-		if (randUnRelatedOrganization.nextDouble() > probUnCorrelatedOrganization){
-			while (organizationsByLocations.get(locationId).size() == 0){
-				locationId = randUnRelatedLocation.nextInt(locationNames.size());
-			}
-			
-			//Select a university in top 10
-			if (randTopUniv.nextDouble() < probTopUniv){
-				randomOrganizationIdx = rand.nextInt(
-							Math.min(organizationsByLocations.get(locationId).size(), 10));
-			}
-			//Select a random organization
-			else{
-				randomOrganizationIdx = rand.nextInt(organizationsByLocations.get(locationId).size());
-			}
-			
-			int zOrderLocation = locationDic.getZorderID(locationId);
-			
-			locationOrganization = (zOrderLocation << 24) | (randomOrganizationIdx << 12);
-			
-			return locationOrganization;
+		Vector<Integer> countries = locationDic.getCountries();
+		if (randUnRelatedOrganization.nextDouble() <= probUnCorrelatedOrganization) {
+		    locationId = countries.get(randUnRelatedLocation.nextInt(countries.size()));
 		}
-		else{		// Randomly select one institute out of the location
-			int uncorrelateLocationIdx = randUnRelatedLocation.nextInt(locationNames.size());
-			while (organizationsByLocations.get(uncorrelateLocationIdx).size() == 0){
-				uncorrelateLocationIdx = randUnRelatedLocation.nextInt(locationNames.size());
-			}
-			
-			
-			randomOrganizationIdx = rand.nextInt(organizationsByLocations.get(uncorrelateLocationIdx).size());
-			
-			int zOrderLocation = locationDic.getZorderID(uncorrelateLocationIdx);
-			
-			locationOrganization = (zOrderLocation << 24) | (randomOrganizationIdx << 12);
-			
-			return locationOrganization;
+		
+		while (organizationsByLocations.get(locationId).size() == 0) {
+            locationId = countries.get(randUnRelatedLocation.nextInt(countries.size()));
+        }
+		
+		int range = organizationsByLocations.get(locationId).size();
+		if (prob > probUnCorrelatedOrganization && randTopUniv.nextDouble() < probTopUniv) {
+				range = Math.min(organizationsByLocations.get(locationId).size(), 10);
 		}
+		
+		int randomOrganizationIdx = rand.nextInt(range);
+		int zOrderLocation = locationDic.getZorderID(locationId);
+        int locationOrganization = (zOrderLocation << 24) | (randomOrganizationIdx << 12);
+		return locationOrganization;
 	}
-	public String getOrganizationName(int locationOrganization){
-		String organization; 
+	
+	public String getOrganizationName(int locationOrganization) {
 		int zOrderlocationId = locationOrganization >> 24;
 		int organizationId = (locationOrganization >> 12) & 0x0FFF;
 		int locationId = locationDic.getLocationIdFromZOrder(zOrderlocationId);
 		
-		organization = organizationsByLocations.get(locationId).get(organizationId);
-				
-		return organization;
+		return organizationsByLocations.get(locationId).get(organizationId);
 	}
-	
 }

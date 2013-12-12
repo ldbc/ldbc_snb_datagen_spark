@@ -37,44 +37,33 @@
 package ldbc.socialnet.dbgen.dictionary;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.io.RandomAccessFile;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Array;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.TreeSet;
-import java.util.Iterator;
 import java.util.Random;
 import java.util.Vector;
-
-import ldbc.socialnet.dbgen.dictionary.NamesDictionary.NameFreq;
-import ldbc.socialnet.dbgen.objects.Location;
-import ldbc.socialnet.dbgen.util.ZOrder;
 
 
 public class LanguageDictionary {
 
+    private static final String SEPARATOR = "  "; 
+    private static final String ISO_ENGLISH_CODE = "en"; 
+    
     Vector<String> languages;
-    Vector<Vector<Integer>> officalLanguagesFromCountries;
-    Vector<Vector<Integer>> languagesFromCountries;
+    HashMap<Integer, Vector<Integer>> officalLanguagesFromCountries;
+    HashMap<Integer, Vector<Integer>> languagesFromCountries;
 	
-    HashMap<String, Integer> countryNames;
-	BufferedReader dictionary; 
+    LocationDictionary locationDic;
 	String dicFile;
 	double probEnglish;
 	double probSecondLang;
 	
 	Random rand;
 	
-	public LanguageDictionary(String dicFile,  HashMap<String, Integer> countryNames, 
+	public LanguageDictionary(String dicFile,  LocationDictionary locationDic, 
 	        double probEnglish, double probSecondLang, long seed){
         this.dicFile = dicFile; 
-        this.countryNames = countryNames;
+        this.locationDic = locationDic;
         this.probEnglish = probEnglish;
         this.probSecondLang = probSecondLang;
         
@@ -84,52 +73,40 @@ public class LanguageDictionary {
 	public void init(){
 		try {
 		    languages = new Vector<String>();
-		    officalLanguagesFromCountries = new Vector<Vector<Integer>>();
-		    languagesFromCountries = new Vector<Vector<Integer>>();
-		    for (int i = 0; i < countryNames.size(); i++) {
-		        officalLanguagesFromCountries.add(new Vector<Integer>());
-		        languagesFromCountries.add(new Vector<Integer>());
+		    officalLanguagesFromCountries = new HashMap<Integer, Vector<Integer>>();
+		    languagesFromCountries = new HashMap<Integer, Vector<Integer>>();
+		    for (Integer id : locationDic.getCountries()) {
+		        officalLanguagesFromCountries.put(id, new Vector<Integer>());
+		        languagesFromCountries.put(id, new Vector<Integer>());
 		    }
-			
-		    dictionary = new BufferedReader(new InputStreamReader(getClass( ).getResourceAsStream(dicFile), "UTF-8"));
 
-			extractLanguages();
+		    BufferedReader dictionary = new BufferedReader(new InputStreamReader(getClass( ).getResourceAsStream(dicFile), "UTF-8"));
+
+		    String line;
+		    while ((line = dictionary.readLine()) != null) {
+		        String data[] = line.split(SEPARATOR);
+		        if (locationDic.getCountryId(data[0]) != LocationDictionary.INVALID_LOCATION) {
+		            for (int i = 1; i < data.length; i++) {
+		                Integer countryId = locationDic.getCountryId(data[0]);
+		                String languageData[] = data[i].split(" ");
+		                Integer id = languages.indexOf(languageData[0]);
+		                if (id == -1) {
+		                    id = languages.size();
+		                    languages.add(languageData[0]);
+		                }
+		                if (languageData.length == 3) {
+		                    officalLanguagesFromCountries.get(countryId).add(id);
+		                }
+		                languagesFromCountries.get(countryId).add(id);
+		            }
+		        }
+		    }
+		    dictionary.close();
 			
-			dictionary.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
-	public void extractLanguages()
-    {
-        try {
-            String line;
-            while ((line = dictionary.readLine()) != null) {
-                String splitted[] = line.split("  ");
-                if (countryNames.containsKey(splitted[0])) {
-                    for (int i = 1; i < splitted.length; i++) {
-                        Integer countryId = countryNames.get(splitted[0]);
-                        String languageData[] = splitted[i].split(" ");
-                        Integer id = languages.indexOf(languageData[0]);
-                        if (id == -1) {
-                            id = languages.size();
-                            languages.add(languageData[0]);
-                        }
-                        if (languageData.length == 3) {
-                            officalLanguagesFromCountries.get(countryId).add(id);
-                        }
-                        languagesFromCountries.get(countryId).add(id);
-                    }
-                }
-            }
-            System.out.println("Extracted " + languages.size() +  " languages");
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
 	
 	public String getLanguagesName(int languageId) {
         if (languageId < 0 || languageId >= languages.size()) {
@@ -148,8 +125,8 @@ public class LanguageDictionary {
 	        int id = rand.nextInt(languagesFromCountries.get(locationId).size());
             langSet.add(languagesFromCountries.get(locationId).get(id));
 	    }
-	    double prob = rand.nextDouble();
-	    if (prob < probSecondLang) {
+
+	    if (rand.nextDouble() < probSecondLang) {
 	        int id = rand.nextInt(languagesFromCountries.get(locationId).size());
 	        if (langSet.indexOf(languagesFromCountries.get(locationId).get(id)) == -1) {
 	            langSet.add(languagesFromCountries.get(locationId).get(id));
@@ -158,11 +135,11 @@ public class LanguageDictionary {
 	    
 	    return langSet;
 	}
+	
 	public Integer getInternationlLanguage() {
 	    Integer languageId = -1;
-	    double prob = rand.nextDouble();
-        if (prob < probEnglish) {
-            languageId = languages.indexOf("en");
+        if (rand.nextDouble() < probEnglish) {
+            languageId = languages.indexOf(ISO_ENGLISH_CODE);
         }
         return languageId;
 	}

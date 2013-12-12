@@ -36,79 +36,112 @@
  */
 package ldbc.socialnet.dbgen.vocabulary;
 
+/**
+ * LDBC social network data namespace used in the serialization process.
+ */
 public class SN{
-    public static int machineId;
-	public static final String NS = "http://www.ldbc.eu/ldbc_socialnet/1.0/data/";
+    
+    public static String machineId;
+	public static final String NAMESPACE = "http://www.ldbc.eu/ldbc_socialnet/1.0/data/";
 	public static final String PREFIX = "sn:";
-	public static final String FACTPREFIX = "sn_";
 	public static final String BLANK_NODE = "_:";
 	
-	public static void setMachineNumber(int machineId)
-	{
-	    SN.machineId = machineId;
+	/**
+	 * Sets the machine id.
+	 * Used as a suffix in some SN entities' tp create unique IDs in parallel generation.
+	 */
+	public static void setMachineNumber(int machineId, int numMachines) {
+	    int digits = 0;
+	    do {
+	        numMachines /= 10;
+	    } while (numMachines != 0);
+	    SN.machineId = String.valueOf(machineId);
+	    for (int i = SN.machineId.length(); i < digits; i++) {
+	        SN.machineId = '0' + SN.machineId;
+	    }
 	}
 	
-	public static String prefixed(String string) {
+	/**
+     * Gets the LDBC social network data prefix version of the input.
+     */
+    public static String prefixed(String string) {
         return PREFIX + string;
     }
-
-    public static String factprefixed(String string) {
-        return  FACTPREFIX + string;
-    }
     
+    /**
+     * Gets the LDBC social network data URL version of the input.
+     */
     public static String getUrl(String string) {
-        return NS + string;
+        return NAMESPACE + string;
     }
 
+    /**
+     * Gets the LDBC social network data RDF-URL version of the input.
+     */
     public static String fullprefixed(String string) {
-        return "<" + NS + string + ">";
-    }
-
-    public static String getURI() {
-        return NS;
+        return "<" + NAMESPACE + string + ">";
     }
 	
+    /**
+     * Gets the person entity prefix.
+     */
 	public static String getPersonURI(long id) {
         return PREFIX+"pers"+id;
     }
 	
+	/**
+     * Gets the forum entity prefix.
+     */
 	public static String getForumURI(long id) {
         return PREFIX+"forum"+id + "" + machineId;
     }
 	
-	public static String getGroupURI(long id) {
-        return PREFIX+"group"+id + "" + machineId;
-    }
-	
+	/**
+     * Gets the post entity prefix.
+     */
 	public static String getPostURI(long id) {
         return PREFIX+"post"+id + "" + machineId;
     }
 	
+	/**
+     * Gets the comment entity prefix.
+     */
 	public static String getCommentURI(long id) {
         return PREFIX+"comm"+id + "" + machineId;
     }
 	
+	/**
+     * Gets the membership relation prefix.
+     */
 	public static String getMembershipURI(long id) {
         return BLANK_NODE+"mbs"+id + "" + machineId;
     }
 	
+	/**
+     * Gets the like relation prefix.
+     */
 	public static String getLikeURI(long id) {
         return BLANK_NODE+"like"+id + "" + machineId;
     }
 	
-	public static String getSpeaksURI(long id) {
-        return BLANK_NODE+"speak"+id + "" + machineId;
-    }
-	
+	/**
+     * Gets the studyAt relation prefix.
+     */
 	public static String getStudyAtURI(long id) {
         return BLANK_NODE+"study"+id + "" + machineId;
     }
 	
+	/**
+     * Gets the workAt relation prefix.
+     */
 	public static String getWorkAtURI(long id) {
         return BLANK_NODE+"work"+id + "" + machineId;
     }
 	
+	/**
+     * Gets the true id having in consideration the machine.
+     */
 	public static String formId(long id) {
-	    return id + "" + machineId;
+	    return id + machineId;
 	}
 }

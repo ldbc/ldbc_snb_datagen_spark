@@ -37,108 +37,97 @@
 package ldbc.socialnet.dbgen.dictionary;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.RandomAccessFile;
-import java.util.HashMap;
 import java.util.Random;
 import java.util.Vector;
 
-import ldbc.socialnet.dbgen.objects.Location;
 
-
-// Dictionary of emails contains five top email domains which their popularities and list of 460 free emails
-
+/**
+ * This class reads the file containing the email domain and its popularity used in the ldbc socialnet generation and 
+ * provides access methods to get such data.
+ */
 public class EmailDictionary {
-	Vector<Double>  vTopEmailCummulative; 
-	double 			randomFreeEmailCummulative;
+    
+    private static final String SEPARATOR = " "; 
+    
+    Vector<String> emails;
+	Vector<Double> topEmailCummulative;
 	
-	Vector<String> 	vEmail;
-	Random 			randEmail; 
-	Random 			randIdx; 
-	int 			numTopEmail = 5; 
+	String fileName;
 	
-	int 			totalNumEmail = 0;
-	BufferedReader emailDictionary; 
-	String 				emailDicFileName; 
-	public EmailDictionary(String _emailDicFileName, long seedEmail){
-		randEmail = new Random(seedEmail);
-		randIdx = new Random(seedEmail);
-		emailDicFileName = _emailDicFileName;
+	Random randIdx;
+	Random randEmail;
+	
+	/**
+     * Constructor.
+     * 
+     * @param fileName: The file with the email data.
+     * @param seed: Seed for the random selector.
+     */
+	public EmailDictionary(String fileName, long seed) {
+		this.fileName = fileName;
+		
+		randIdx   = new Random(seed);
+		randEmail = new Random(seed);
 	}
 	
+	/**
+	 * Initializes the dictionary with the file data.
+	 */
 	public void init(){
 		try {
-			emailDictionary = new BufferedReader(new InputStreamReader(getClass( ).getResourceAsStream(emailDicFileName), "UTF-8"));
-			vTopEmailCummulative = new Vector<Double>();
-			vEmail = new Vector<String>();
-			
-			emailExtract();
-			
-			emailDictionary.close();
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}	
-	public void emailExtract(){
-		String emailDomain; 
-		double cumdistribution = 0.0;	//cummulative distribution value
-		String line; 
-		int i = 0; 
-		
+		    BufferedReader emailDictionary = new BufferedReader(
+		            new InputStreamReader(getClass( ).getResourceAsStream(fileName), "UTF-8"));
+		    
+		    emails = new Vector<String>();
+		    topEmailCummulative = new Vector<Double>();
 
-		try {
+		    String line;
+			double cummulativeDist = 0.0;
 			while ((line = emailDictionary.readLine()) != null){
-				if (i < numTopEmail){
-					String infos[] = line.split(" ");
-					emailDomain = infos[0];
-					cumdistribution = cumdistribution + Double.parseDouble(infos[1]);
-					vEmail.add(emailDomain);
-					vTopEmailCummulative.add(cumdistribution);
-					i++;
-				}
-				else 
-					vEmail.add(line);
-				
-				totalNumEmail++;
+			    String data[] = line.split(SEPARATOR);
+                emails.add(data[0]);
+                if (data.length == 2) {
+//                	System.out.println(line);
+			        cummulativeDist += Double.parseDouble(data[1]);
+			        topEmailCummulative.add(cummulativeDist);
+			    }
 			}
-			
-			System.out.println("Done ... " + vEmail.size() + " email domains were extracted");
+			emailDictionary.close();
+			System.out.println("Done ... " + emails.size() + " email domains were extracted");
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
+	/**
+	 * Gets a random email domain based on its popularity.
+	 */
 	public String getRandomEmail(){
-		double prob = randEmail.nextDouble();
 		
-		int idx = 0;
 		int minIdx = 0;
-		int maxIdx = numTopEmail - 1;
-		if (prob > vTopEmailCummulative.get(maxIdx)){
-			//Randomly select one email from non-top email
-			idx = randIdx.nextInt(totalNumEmail - numTopEmail) + numTopEmail;
-			return vEmail.get(idx);
-		}
-		if (prob < vTopEmailCummulative.get(minIdx)){
-			return vEmail.get(minIdx);
+		int maxIdx = topEmailCummulative.size() - 1;
+		
+		double prob = randEmail.nextDouble();
+		if (prob > topEmailCummulative.get(maxIdx)){
+		    int Idx = randIdx.nextInt(emails.size() - topEmailCummulative.size()) + topEmailCummulative.size();
+		    return emails.get(Idx);
+		} else if (prob < topEmailCummulative.get(minIdx)){
+		    return emails.get(minIdx);
 		}
 		
 		while ((maxIdx - minIdx) > 1){
 			
-			if (prob > vTopEmailCummulative.get(minIdx + (maxIdx - minIdx)/2)){
-				minIdx =  minIdx + (maxIdx - minIdx)/2;
-			}
-			else{
-				maxIdx =  minIdx + (maxIdx - minIdx)/2;
+		    int middlePoint = minIdx + (maxIdx - minIdx) / 2;
+			if (prob > topEmailCummulative.get(middlePoint)){
+				minIdx =  middlePoint;
+			} else {
+				maxIdx =  middlePoint;
 			}
 		}
 		
-		return vEmail.get(maxIdx);
+		return emails.get(maxIdx);
 	}	
 }

@@ -37,86 +37,51 @@
 package ldbc.socialnet.dbgen.dictionary;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.RandomAccessFile;
 import java.util.Random;
 import java.util.Vector;
 
-import ldbc.socialnet.dbgen.objects.Comment;
-import ldbc.socialnet.dbgen.objects.Friend;
-import ldbc.socialnet.dbgen.objects.GroupMemberShip;
-import ldbc.socialnet.dbgen.objects.Photo;
-import ldbc.socialnet.dbgen.objects.Post;
-import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
-import ldbc.socialnet.dbgen.objects.UserProfile;
-
 
 public class UserAgentDictionary {
-	String 				agentFileName = "";
-	Vector<String> 		vUserAgents;
-	BufferedReader  	agentFile; 
-	Random				randGen;
-	double 				probSentFromAgent; 
-	Random				randSentFrom;
+    
+	String fileName;
 	
-	public UserAgentDictionary(String _agentFileName, long seed, long seed2, double _probSentFromAgent){
-		this.agentFileName = _agentFileName; 
+	Vector<String> userAgents;
+	double probSentFromAgent; 
+	
+	Random randGen;
+	Random randSentFrom;
+	
+	public UserAgentDictionary(String fileName, long seed, long seed2, double probSentFromAgent){
+		this.fileName = fileName; 
+		this.probSentFromAgent = probSentFromAgent;
+		
 		randGen = new Random(seed);
-		randSentFrom = new Random(seed2);
-		this.probSentFromAgent = _probSentFromAgent; 
+        randSentFrom = new Random(seed2);
 	}
 	
 	public void init(){
-		
 		try {
-			vUserAgents = new Vector<String>();
-			agentFile = new BufferedReader(new InputStreamReader(getClass( ).getResourceAsStream(agentFileName), "UTF-8"));
+		    userAgents = new Vector<String>();
+			BufferedReader agentFile = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));
 			
-			extractAgents(); 
-			
+			String line; 
+			while ((line = agentFile.readLine()) != null) {
+			    userAgents.add(line.trim());
+            }
 			agentFile.close();
-			
-			System.out.println("Done ... " + vUserAgents.size() + " agents have been extracted ");
+			System.out.println("Done ... " + userAgents.size() + " agents have been extracted ");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	public void extractAgents(){
-		String line; 
-		
-		try {
-			while ((line = agentFile.readLine()) != null){
-				vUserAgents.add(line.trim());
-			}
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
 	public String getUserAgentName(boolean hasSmathPhone, byte agentId){
-		// Sent from user's agent
-		if (hasSmathPhone && (randSentFrom.nextDouble() > probSentFromAgent)){
-			return getUserAgent(agentId);
-		}
-		return "";
-	}
-	
-	public String getUniformRandomAgent(){
-		int randIdx = randGen.nextInt(vUserAgents.size());
-		
-		return vUserAgents.get(randIdx); 
+		return (hasSmathPhone && (randSentFrom.nextDouble() > probSentFromAgent)) ? userAgents.get(agentId) : "";
 	}
 	
 	public byte getRandomUserAgentIdx(){
-		return (byte)randGen.nextInt(vUserAgents.size());
+		return (byte)randGen.nextInt(userAgents.size());
 	}	
-	public String getUserAgent(int idx){
-		return vUserAgents.get(idx);
-	}
 }

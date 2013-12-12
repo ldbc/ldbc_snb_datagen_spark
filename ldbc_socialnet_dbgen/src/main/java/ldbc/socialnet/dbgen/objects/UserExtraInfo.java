@@ -37,14 +37,14 @@
 package ldbc.socialnet.dbgen.objects;
 
 import java.util.HashMap;
-import java.util.TreeSet;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
 
 public class UserExtraInfo {
 	String 				gender;
 	//long 				dateOfBirth;
-	TreeSet<String>     email;
+	HashSet<String>     email;
 	Vector<Integer>    languages; 
 	int                nativeLanguage;
 	//String 				sourceIp; 			// Source IP address
@@ -65,7 +65,7 @@ public class UserExtraInfo {
 	
 	
 	public UserExtraInfo() {
-	    email = new TreeSet<String>();
+	    email = new HashSet<String>();
 	    companies = new HashMap<String, Long>();
 	}
 	
@@ -90,7 +90,7 @@ public class UserExtraInfo {
 	public void setGender(String gender) {
 		this.gender = gender;
 	}
-	public TreeSet<String> getEmail() {
+	public HashSet<String> getEmail() {
 		return email;
 	}
 	public void addEmail(String email) {

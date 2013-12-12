@@ -36,7 +36,7 @@
  */
 package ldbc.socialnet.dbgen.objects;
 
-import java.util.TreeSet;
+import java.util.HashSet;
 
 public class Photo {
     long photoId; 
@@ -48,7 +48,7 @@ public class Photo {
     double latt; 
     double longt; 
     long takenTime; 
-    TreeSet<Integer> tags;
+    HashSet<Integer> tags;
     int[] interestedUserAccs;
     long[] interestedUserAccsTimestamp;
 
@@ -114,10 +114,10 @@ public class Photo {
     public void setTakenTime(long takenTime) {
         this.takenTime = takenTime;
     }
-    public TreeSet<Integer>  getTags() {
+    public HashSet<Integer>  getTags() {
         return tags;
     }
-    public void setTags(TreeSet<Integer> tags) {
+    public void setTags(HashSet<Integer> tags) {
         this.tags = tags;
     }
     public double getLatt() {

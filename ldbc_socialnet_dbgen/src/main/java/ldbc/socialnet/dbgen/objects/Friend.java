@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 public class Friend implements Serializable{
+    private static final long serialVersionUID = 3657773293974543890L;
 	int friendAcc; 
 	long createdTime;			//approved Time 
 	long requestTime;			 
@@ -81,11 +82,9 @@ public class Friend implements Serializable{
 		agentIdx = arg0.readByte();
 		browserIdx = arg0.readByte(); 
 		isFrequentChange = arg0.readBoolean();
-		short ip1 = arg0.readShort();
-		short ip2 = arg0.readShort();
-		short ip3 = arg0.readShort();
-		short ip4 = arg0.readShort();
-		this.sourceIp = new IP(ip1, ip2, ip3, ip4); 
+		int ip = arg0.readInt();
+		int mask = arg0.readInt();
+		this.sourceIp = new IP(ip, mask); 
 	}
 	public void write(DataOutput arg0) throws IOException {
 		arg0.writeInt(friendAcc);
@@ -99,11 +98,8 @@ public class Friend implements Serializable{
 		arg0.writeByte(agentIdx);
 		arg0.writeByte(browserIdx); 
 		arg0.writeBoolean(isFrequentChange);
-		arg0.writeShort(sourceIp.getIp1());
-		arg0.writeShort(sourceIp.getIp2());
-		arg0.writeShort(sourceIp.getIp3());
-		arg0.writeShort(sourceIp.getIp4());
-		
+		arg0.writeInt(sourceIp.getIp());
+		arg0.writeInt(sourceIp.getMask());
 	}
 
 	public Friend(ReducedUserProfile user, long _requestedTime, long _declinedTime, long _createdTime, 

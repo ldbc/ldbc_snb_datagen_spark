@@ -42,7 +42,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
-import java.util.TreeSet;
+import java.util.HashSet;
 import java.util.Iterator;
 
 import org.apache.hadoop.io.Writable;
@@ -61,7 +61,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 	
 
 	Friend 				friendList[];
-	TreeSet<Integer>	friendIds; 		// Use a hashset for checking the existence
+	HashSet<Integer>	friendIds; 		// Use a hashset for checking the existence
 	
 
 	int					dicElementIds[];	// Id of an element in a dictionary, e.g., locationId
@@ -82,7 +82,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 	int                 cityIdx;
 	int 				forumWallId; 
 	int 				forumStatusId;
-	TreeSet<Integer> 	setOfTags;
+	HashSet<Integer> 	setOfTags;
 	
 	short				popularPlaceIds[]; 
 	byte				numPopularPlace;
@@ -122,7 +122,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 				numPassFriendsAdded[i] = stream.readShort();
 			}
 			friendList = new Friend[numFriends];
-			friendIds = new TreeSet<Integer>();
+			friendIds = new HashSet<Integer>(numFriends);
 			for (int i = 0; i < numFriendsAdded; i++){
 				Friend fr = new Friend(); 
 				fr.readFields(stream);
@@ -143,11 +143,9 @@ public class ReducedUserProfile implements Serializable, Writable{
 			browserIdx = stream.readByte();
 			isFrequentChange = stream.readBoolean();
 
-			short ip1 = stream.readShort();
-			short ip2 = stream.readShort();
-			short ip3 = stream.readShort();
-			short ip4 = stream.readShort();
-			ipAddress = new IP(ip1, ip2, ip3, ip4); 
+			int ip = stream.readInt();
+	        int mask = stream.readInt();
+	        ipAddress = new IP(ip, mask); 
 			
 			locationIdx = stream.readInt();
 			cityIdx = stream.readInt();
@@ -155,7 +153,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 			forumStatusId = stream.readInt();
 			
 			byte numOfTags = stream.readByte();
-			setOfTags = new TreeSet<Integer>();
+			setOfTags = new HashSet<Integer>(numOfTags);
 			for (byte i = 0; i < numOfTags;i++){
 				setOfTags.add(stream.readInt());
 			}
@@ -204,10 +202,8 @@ public class ReducedUserProfile implements Serializable, Writable{
 			stream.writeByte(browserIdx);
 			stream.writeBoolean(isFrequentChange);
 			
-			stream.writeShort(ipAddress.getIp1());
-			stream.writeShort(ipAddress.getIp2());
-			stream.writeShort(ipAddress.getIp3());
-			stream.writeShort(ipAddress.getIp4());
+			stream.writeInt(ipAddress.getIp());
+			stream.writeInt(ipAddress.getMask());
 			
 			
 			stream.writeInt(locationIdx);
@@ -231,8 +227,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 			stream.writeByte(gender);
 			stream.writeLong(birthDay);
 	 }
-	 
-	@Override
+	
 	public void readFields(DataInput arg0) throws IOException {
 		accountId = arg0.readInt();
 		createdDate = arg0.readLong(); 
@@ -248,7 +243,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 			numPassFriendsAdded[i] = arg0.readShort();
 		}
 		friendList = new Friend[numFriends];
-		friendIds = new TreeSet<Integer>();
+		friendIds = new HashSet<Integer>(numFriends);
 		for (int i = 0; i < numFriendsAdded; i++){
 			Friend fr = new Friend(); 
 			fr.readFields(arg0);
@@ -269,11 +264,9 @@ public class ReducedUserProfile implements Serializable, Writable{
 		browserIdx = arg0.readByte();
 		isFrequentChange = arg0.readBoolean();
 
-		short ip1 = arg0.readShort();
-		short ip2 = arg0.readShort();
-		short ip3 = arg0.readShort();
-		short ip4 = arg0.readShort();
-		ipAddress = new IP(ip1, ip2, ip3, ip4); 
+		int ip = arg0.readInt();
+		int mask = arg0.readInt();
+		ipAddress = new IP(ip, mask); 
 		
 		locationIdx = arg0.readInt();
 		cityIdx = arg0.readInt();
@@ -281,7 +274,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 		forumStatusId = arg0.readInt();
 		
 		byte numTags = arg0.readByte(); 
-		setOfTags = new TreeSet<Integer>();
+		setOfTags = new HashSet<Integer>(numTags);
 		for (byte i = 0; i < numTags;i++){
 			setOfTags.add(arg0.readInt());
 		}
@@ -336,7 +329,6 @@ public class ReducedUserProfile implements Serializable, Writable{
 		birthDay = user.getBirthDay();
 	}
 	
-	@Override
 	public void write(DataOutput arg0) throws IOException {
 		arg0.writeInt(accountId);
 		arg0.writeLong(createdDate); 
@@ -369,10 +361,8 @@ public class ReducedUserProfile implements Serializable, Writable{
 		arg0.writeByte(browserIdx);
 		arg0.writeBoolean(isFrequentChange);
 
-		arg0.writeShort(ipAddress.getIp1());
-		arg0.writeShort(ipAddress.getIp2());
-		arg0.writeShort(ipAddress.getIp3());
-		arg0.writeShort(ipAddress.getIp4());
+		arg0.writeInt(ipAddress.getIp());
+		arg0.writeInt(ipAddress.getMask());
 		
 		
 		arg0.writeInt(locationIdx);
@@ -506,7 +496,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 	
 	public void allocateFriendListMemory(){
 		friendList = new Friend[numFriends];
-		friendIds = new TreeSet<Integer>();
+		friendIds = new HashSet<Integer>(numFriends);
 	}
 
 	public Friend[] getFriendList() {
@@ -607,10 +597,10 @@ public class ReducedUserProfile implements Serializable, Writable{
 	public void setForumStatusId(int forumStatusId) {
 		this.forumStatusId = forumStatusId;
 	}
-	public TreeSet<Integer> getSetOfTags() {
+	public HashSet<Integer> getSetOfTags() {
 		return setOfTags;
 	}
-	public void setSetOfTags(TreeSet<Integer> setOfTags) {
+	public void setSetOfTags(HashSet<Integer> setOfTags) {
 		this.setOfTags = setOfTags;
 	}
 	public byte getNumPopularPlace() {
@@ -645,7 +635,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 	public void setNumPassFriendsAdded(short[] numPassFriendsAdded) {
 		this.numPassFriendsAdded = numPassFriendsAdded;
 	}
-	public TreeSet<Integer> getFriendIds() {
+	public HashSet<Integer> getFriendIds() {
 		return friendIds;
 	}
 	public int[] getDicElementIds() {

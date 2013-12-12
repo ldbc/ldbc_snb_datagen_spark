@@ -44,6 +44,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Vector;
 
+import ldbc.socialnet.dbgen.dictionary.BrowserDictionary;
+import ldbc.socialnet.dbgen.dictionary.CompanyDictionary;
 import ldbc.socialnet.dbgen.dictionary.IPAddressDictionary;
 import ldbc.socialnet.dbgen.dictionary.LanguageDictionary;
 import ldbc.socialnet.dbgen.dictionary.LocationDictionary;
@@ -60,7 +62,6 @@ import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
 import ldbc.socialnet.dbgen.objects.UserExtraInfo;
 import ldbc.socialnet.dbgen.vocabulary.DBP;
 import ldbc.socialnet.dbgen.vocabulary.DBPOWL;
-import ldbc.socialnet.dbgen.vocabulary.DBPPROP;
 import ldbc.socialnet.dbgen.vocabulary.FOAF;
 import ldbc.socialnet.dbgen.vocabulary.RDF;
 import ldbc.socialnet.dbgen.vocabulary.RDFS;
@@ -68,50 +69,84 @@ import ldbc.socialnet.dbgen.vocabulary.SN;
 import ldbc.socialnet.dbgen.vocabulary.SNVOC;
 import ldbc.socialnet.dbgen.vocabulary.XSD;
 
-
+/**
+ * Turtle serializer.
+ */
 public class Turtle implements Serializer {
 	
     private static final String STATIC_DBP_DATA_FILE = "static_dbp";
     
-    private boolean isTurtle;
-	private long nrTriples;
 	private FileWriter[] dataFileWriter;
 	private FileWriter[] staticdbpFileWriter;
-	int currentWriter = 0;
-	static long membershipId = 0;
-	static long friendshipId = 0; 
-	static long gpsId = 0; 
-	static long likeId = 0;
-	static long workatId = 0;
-	static long studyAt = 0;
-	static long locationPartOfId = 0;
-	static long speakId = 0;
+	private int currentWriter = 0;
 	
-	HashMap<String, Integer> companyToCountry;
-	HashMap<String, Integer> universityToCountry;
-	HashMap<String, Integer> printedIpaddresses;
-	HashMap<String, Integer> printedOrganizations;
-	HashMap<Integer, Integer> printedLanguages;
-	HashMap<Integer, Integer> printedTags;
-	HashMap<Integer, Integer> printedTagClasses;
-	HashMap<Integer, Integer> printedLocations;
-	Vector<String>	vBrowserNames;
+	private long nrTriples;
+	private GregorianCalendar date;
 	
-	GregorianCalendar date;
-	LocationDictionary locationDic;
-	LanguageDictionary languageDic;
-	TagDictionary tagDic;
-	IPAddressDictionary ipDic;
+	/**
+	 * Generator input classes.
+	 */
+	private boolean isTurtle;
+	private CompanyDictionary companyDic;
+	private HashMap<String, Integer> universityToCountry;
+	private BrowserDictionary  browserDic;
+	private LocationDictionary locationDic;
+	private LanguageDictionary languageDic;
+	private TagDictionary tagDic;
+	private IPAddressDictionary ipDic;
+    
+	/**
+	 * Used to give an unique ID to blank nodes.
+	 */
+	private long membershipId = 0;
+	private long likeId       = 0;
+	private long workAtId     = 0;
+	private long studyAtId    = 0;
 	
-	public Turtle(String file, boolean forwardChaining, int nrOfOutputFiles, boolean isTurtle) {
+	/**
+	 * Used to avoid serialize more than once the same data.
+	 */
+	private HashMap<String, Integer>  printedOrganizations;
+	private HashMap<Integer, Integer> printedTags;
+	private HashMap<Integer, Integer> printedTagClasses;
+	private HashMap<Integer, Integer> printedLocations;
+	
+	/**
+	 * Constructor.
+	 * 
+	 * @param file: The basic file name.
+	 * @param nrOfOutputFiles: How many files will be created.
+	 * @param isTurtle: If the RDF admits turtle abbreviation syntax.
+	 * @param tagDic: The tag dictionary used in the generation.
+	 * @param browsers: The browser dictionary used in the generation.
+	 * @param companyToCountry: The company dictionaty used in the generation.
+	 * @param univesityToCountry: HashMap of universities names to country IDs.
+	 * @param ipDic: The IP dictionary used in the generation.
+	 * @param locationDic: The location dictionary used in the generation.
+	 * @param languageDic: The language dictionary used in the generation.
+	 */
+	public Turtle(String file, int nrOfOutputFiles, boolean isTurtle,
+            TagDictionary tagDic, BrowserDictionary browsers, 
+            CompanyDictionary companies, HashMap<String, Integer> univesityToCountry,
+            IPAddressDictionary ipDic,  LocationDictionary locationDic, 
+            LanguageDictionary languageDic) {
+	    
 	    this.isTurtle = isTurtle;
+	    this.tagDic = tagDic;  
+        this.browserDic = browsers;
+        this.locationDic = locationDic;
+        this.companyDic = companies;
+        this.universityToCountry = univesityToCountry;
+        this.ipDic = ipDic;
+        this.languageDic = languageDic;
+        
+        nrTriples = 0l;
 		date = new GregorianCalendar();
-		printedIpaddresses = new HashMap<String, Integer>();
 		printedOrganizations = new HashMap<String, Integer>();
-		printedLanguages = new HashMap<Integer, Integer>();
 		printedTags = new HashMap<Integer, Integer>();
 		printedTagClasses = new HashMap<Integer, Integer>();
 		printedLocations = new HashMap<Integer, Integer>();
+		
 		int nrOfDigits = ((int)Math.log10(nrOfOutputFiles)) + 1;
 		String formatString = "%0" + nrOfDigits + "d";
 		try{
@@ -127,46 +162,30 @@ public class Turtle implements Serializer {
 					this.staticdbpFileWriter[i-1] = new FileWriter(file+STATIC_DBP_DATA_FILE + String.format(formatString, i) + extension);
 				}
 			}
-				
+			
+			for(int i=0;i<nrOfOutputFiles;i++) {
+                dataFileWriter[i].append(getNamespaces());
+                staticdbpFileWriter[i].append(getStaticNamespaces());
+            }
+			
 		} catch(IOException e) {
-			System.err.println("Could not open File for writing.");
 			System.err.println(e.getMessage());
 			System.exit(-1);
 		}
-		
-		try {
-			for(int i=0;i<nrOfOutputFiles;i++) {
-				dataFileWriter[i].append(getNamespaces());
-			}
-			for(int i=0;i<nrOfOutputFiles;i++) {
-                staticdbpFileWriter[i].append(getStaticNamespaces());
-            }
-		} catch(IOException e) {
-			System.err.println(e.getMessage());
-		}
-		
-		nrTriples = 0l;
 	}
 
-	public Turtle(String file, boolean forwardChaining, int nrOfOutputFiles, boolean isTurtle,
-	        TagDictionary tagDic, Vector<String> _vBrowsers, 
-	        HashMap<String, Integer> companyToCountry, HashMap<String, Integer> univesityToCountry,
-	        IPAddressDictionary ipDic,  LocationDictionary locationDic, 
-	        LanguageDictionary languageDic) {
-	    this(file, forwardChaining, nrOfOutputFiles, isTurtle);
-	    this.tagDic = tagDic;  
-	    this.vBrowserNames = _vBrowsers;
-	    this.locationDic = locationDic;
-	    this.companyToCountry = companyToCountry;
-	    this.universityToCountry = univesityToCountry;
-	    this.ipDic = ipDic;
-	    this.languageDic = languageDic;
-	}
-
-	public Long triplesGenerated() {
+	/**
+	 * Returns how many triples have been generated.
+	 */
+	public Long unitsGenerated() {
 		return nrTriples;
 	}
 
+	/**
+	 * Writes the collected data to the appropriate file.
+	 * 
+	 * @param data: The string to write.
+	 */
 	public void toWriter(String data){
 	    try {
 	        dataFileWriter[currentWriter].append(data);
@@ -178,49 +197,61 @@ public class Turtle implements Serializer {
 	    }
 	}
 	
+	/**
+     * Gets the namespace for the generator file.
+     */
 	private String getNamespaces() {
-	    StringBuffer result = new StringBuffer();
-		createPrefixLine(result, RDF.PREFIX, RDF.NS);
-		createPrefixLine(result, RDFS.PREFIX, RDFS.NS);
-		createPrefixLine(result, XSD.PREFIX, XSD.NS);
-		createPrefixLine(result, SNVOC.PREFIX, SNVOC.NS);
-		createPrefixLine(result, SN.PREFIX, SN.NS);
-		createPrefixLine(result, DBP.PREFIX, DBP.NS);
+	    StringBuffer result = new StringBuffer(350);
+		createPrefixLine(result, RDF.PREFIX, RDF.NAMESPACE);
+		createPrefixLine(result, RDFS.PREFIX, RDFS.NAMESPACE);
+		createPrefixLine(result, XSD.PREFIX, XSD.NAMESPACE);
+		createPrefixLine(result, SNVOC.PREFIX, SNVOC.NAMESPACE);
+		createPrefixLine(result, SN.PREFIX, SN.NAMESPACE);
+		createPrefixLine(result, DBP.PREFIX, DBP.NAMESPACE);
 		return result.toString();
 	}
 	
+	/**
+     * Gets the namespace for the static dbpedia file.
+     */
 	private String getStaticNamespaces() {
-        StringBuffer result = new StringBuffer();
-        createPrefixLine(result, RDF.PREFIX, RDF.NS);
-        createPrefixLine(result, RDFS.PREFIX, RDFS.NS);
-        createPrefixLine(result, FOAF.PREFIX, FOAF.NS);
-        createPrefixLine(result, DBP.PREFIX, DBP.NS);
-        createPrefixLine(result, DBPOWL.PREFIX, DBPOWL.NS);
-        createPrefixLine(result, DBPPROP.PREFIX, DBPPROP.NS);
-        createPrefixLine(result, SNVOC.PREFIX, SNVOC.NS);
+        StringBuffer result = new StringBuffer(400);
+        createPrefixLine(result, RDF.PREFIX, RDF.NAMESPACE);
+        createPrefixLine(result, RDFS.PREFIX, RDFS.NAMESPACE);
+        createPrefixLine(result, FOAF.PREFIX, FOAF.NAMESPACE);
+        createPrefixLine(result, DBP.PREFIX, DBP.NAMESPACE);
+        createPrefixLine(result, DBPOWL.PREFIX, DBPOWL.NAMESPACE);
+        createPrefixLine(result, SNVOC.PREFIX, SNVOC.NAMESPACE);
         return result.toString();
     }
 	
+	/**
+	 * 
+	 * @param result: The StringBuffer to append to.
+	 * @param prefix: The RDF namespace prefix abbreviation.
+	 * @param namespace: The RDF namespace.
+	 */
 	private void createPrefixLine(StringBuffer result, String prefix, String namespace) {
 		result.append("@prefix ");
 		result.append(prefix);
 		result.append(" ");
-		result.append(createURIref(namespace));
+		result.append("<");
+		result.append(namespace);
+		result.append(">");
 		result.append(" .\n");
 	}
-
-	private String createURIref(String uri) {
-		StringBuffer result = new StringBuffer();
-		result.append("<");
-		result.append(uri);
-		result.append(">");
-		return result.toString();
-	}
 	
-	private void writeDBPData(String left, String middle, String right) {
+	/**
+	 * Writes a RDF triple in the dbpedia static data file.
+	 * 
+	 * @param subject: The RDF subject.
+	 * @param predicate: The RDF predicate.
+	 * @param object: The RDF object.
+	 */
+	private void writeDBPData(String subject, String predicate, String object) {
 	    try {
-	        StringBuffer result = new StringBuffer();
-	        createTripleSPO(result, left, middle, right);
+	        StringBuffer result = new StringBuffer(150);
+	        createTripleSPO(result, subject, predicate, object);
 	        staticdbpFileWriter[currentWriter].append(result);
 	    } catch (IOException e) {
             System.out.println("Cannot write to output file ");
@@ -228,6 +259,13 @@ public class Turtle implements Serializer {
         }
 	}
 	
+	/**
+	 * Serializes the tag data and its class hierarchy.
+	 * 
+	 * @param result: The StringBuffer to append to.
+	 * @param tagId: The tag id.
+	 * @param tag: The tag name.
+	 */
 	private void writeTagData(StringBuffer result, Integer tagId, String tag) {
 	    String description = tagDic.getDescription(tagId);
 	    writeDBPData(DBP.fullPrefixed(tag), FOAF.Name, createLiteral(description.replace("\"", "\\\"")));
@@ -256,36 +294,60 @@ public class Turtle implements Serializer {
 	    }
 	}
 	
+	/**
+     * Adds the appropriate triple kind into the input StringBuffer.
+     * 
+     * @param result: The StringBuffer to append to.
+     * @param beginning: The beggining of a subject abbreviation block.
+     * @param end: The end of a subject abbreviation block.
+     * @param subject: The RDF subject.
+     * @param predicate: The RDF predicate.
+     * @param object: The RDF first object.
+     * @param object: The RDF second object.
+     */
 	private void AddTriple(StringBuffer result, boolean beginning, 
-            boolean end, String left, String middle, String right, String extra, boolean ignoreExtra) {
-	    if (isTurtle && beginning) {
-            result.append(left + "\n");
-	    }
-        if (isTurtle && end){
-            if (extra.isEmpty()) {
-                result.append(createTriplePOEnd(middle, right));
-            } else {
-                result.append(createTriplePOOEnd(middle, right, extra));
+            boolean end, String subject, String predicate, String object1, String object2) {
+
+	    if (isTurtle) {
+	        
+	        if (beginning) {
+	            result.append(subject + "\n");
+	        }
+	        
+	        if (object2.isEmpty()) {
+	            createTriplePO(result, predicate, object1, end);
+	        } else {
+                createTriplePOO(result, predicate, object1, object2, end);
             }
-        } else if (isTurtle) {
-            if (extra.isEmpty()) {
-                result.append(createTriplePO(middle, right));
-            } else {
-                result.append(createTriplePOO(middle, right, extra));
-            }
-        } else {
-            createTripleSPO(result, left, middle, right);
-            if (!extra.isEmpty() && !ignoreExtra) {
-                createTripleSPO(result, left, middle, extra);
+	    } else {
+            createTripleSPO(result, subject, predicate, object1);
+            if (!object2.isEmpty()) {
+                createTripleSPO(result, subject, predicate, object2);
             }
         }
 	}
 	
+	/**
+	 * Adds the appropriate triple kind into the input StringBuffer.
+	 * 
+	 * @param result: The StringBuffer to append to.
+	 * @param beginning: The beggining of a subject abbreviation block.
+	 * @param end: The end of a subject abbreviation block.
+	 * @param subject: The RDF subject.
+	 * @param predicate: The RDF predicate.
+	 * @param object: The RDF object.
+	 */
 	private void AddTriple(StringBuffer result, boolean beginning, 
-	        boolean end, String left, String middle, String right) {
-	    AddTriple(result, beginning, end, left, middle, right, "", false);
+	        boolean end, String subject, String predicate, String object) {
+	    AddTriple(result, beginning, end, subject, predicate, object, "");
 	}
 	
+	/**
+	 * Writes the base location and its hierarchy.
+	 * 
+	 * @param result: The StringBuffer to append to.
+	 * @param baseId: The base location id.
+	 */
 	public void printLocationHierarchy(StringBuffer result, int baseId) {
 	    ArrayList<Integer> areas = new ArrayList<Integer>();
         do {
@@ -315,8 +377,11 @@ public class Turtle implements Serializer {
         }
 	}
 	
+	/**
+     * @See {@link ldbc.socialnet.dbgen.serializer.Serializer#gatherData(ReducedUserProfile, UserExtraInfo)}
+     */
 	public void gatherData(ReducedUserProfile profile, UserExtraInfo extraInfo){
-		StringBuffer result = new StringBuffer();
+		StringBuffer result = new StringBuffer(19000);
 		
 		if (extraInfo == null) {
 		    System.err.println("LDBC socialnet must serialize the extraInfo");
@@ -327,7 +392,7 @@ public class Turtle implements Serializer {
 		Iterator<String> itString = extraInfo.getCompanies().iterator();
 		while (itString.hasNext()) {
 		    String company = itString.next();
-		    int parentId = companyToCountry.get(company);
+		    int parentId = companyDic.getCountry(company);
 		    printLocationHierarchy(result, parentId);
 		}
 		printLocationHierarchy(result, universityToCountry.get(extraInfo.getOrganization()));
@@ -360,7 +425,7 @@ public class Turtle implements Serializer {
                     createLiteral(profile.getIpAddress().toString()));
             if (profile.getBrowserIdx() >= 0) {
                 AddTriple(result, false, false, prefix, SNVOC.browser,
-                        createLiteral(vBrowserNames.get(profile.getBrowserIdx())));
+                        createLiteral(browserDic.getName(profile.getBrowserIdx())));
             }
         }
 
@@ -382,24 +447,24 @@ public class Turtle implements Serializer {
                 createTripleSPO(result, DBP.fullPrefixed(extraInfo.getOrganization()), 
                         SNVOC.locatedIn, DBP.fullPrefixed(locationDic.getLocationName(locationId)));
             }
-            createTripleSPO(result, prefix, SNVOC.studyAt, SN.getStudyAtURI(studyAt));
-            createTripleSPO(result, SN.getStudyAtURI(studyAt), SNVOC.hasOrganisation, 
-                    DBP.fullPrefixed(extraInfo.getOrganization()));
+            
             if (extraInfo.getClassYear() != -1 ){
+            createTripleSPO(result, prefix, SNVOC.studyAt, SN.getStudyAtURI(studyAtId));
+            createTripleSPO(result, SN.getStudyAtURI(studyAtId), SNVOC.hasOrganisation, 
+                    DBP.fullPrefixed(extraInfo.getOrganization()));
                 date.setTimeInMillis(extraInfo.getClassYear());
                 String yearString = DateGenerator.formatYear(date);
-                createTripleSPO(result, SN.getStudyAtURI(studyAt), SNVOC.classYear,
+                createTripleSPO(result, SN.getStudyAtURI(studyAtId), SNVOC.classYear,
                         createDataTypeLiteral(yearString, XSD.Integer));
             }
 
-            studyAt++;
+            studyAtId++;
         }
 
         Vector<Integer> languages = extraInfo.getLanguages();
         for (int i = 0; i < languages.size(); i++) {
             createTripleSPO(result, prefix, SNVOC.speaks, 
                     createLiteral(languageDic.getLanguagesName(languages.get(i))));
-            speakId++;
         }
 
         itString = extraInfo.getCompanies().iterator();
@@ -411,20 +476,20 @@ public class Turtle implements Serializer {
                 
                 writeDBPData(DBP.fullPrefixed(company), RDF.type, DBPOWL.Organisation);
                 writeDBPData(DBP.fullPrefixed(company), FOAF.Name, createLiteral(company));
-                int locationId = companyToCountry.get(company);
+                int locationId = companyDic.getCountry(company);
                 createTripleSPO(result, DBP.fullPrefixed(company), 
                         SNVOC.locatedIn, DBP.fullPrefixed(locationDic.getLocationName(locationId)));
             }
 
-            createTripleSPO(result, prefix, SNVOC.workAt, SN.getWorkAtURI(workatId));
-            createTripleSPO(result, SN.getWorkAtURI(workatId), SNVOC.hasOrganisation, 
+            createTripleSPO(result, prefix, SNVOC.workAt, SN.getWorkAtURI(workAtId));
+            createTripleSPO(result, SN.getWorkAtURI(workAtId), SNVOC.hasOrganisation, 
                     DBP.fullPrefixed(company));
             date.setTimeInMillis(extraInfo.getWorkFrom(company));
             String yearString = DateGenerator.formatYear(date);
-            createTripleSPO(result, SN.getWorkAtURI(workatId), SNVOC.workFrom,
+            createTripleSPO(result, SN.getWorkAtURI(workAtId), SNVOC.workFrom,
                     createDataTypeLiteral(yearString, XSD.Integer));
 
-            workatId++;
+            workAtId++;
         }
 
         itString = extraInfo.getEmail().iterator();
@@ -446,12 +511,10 @@ public class Turtle implements Serializer {
 		}
 		
 		Friend friends[] = profile.getFriendList();
-		for (int i = 0; i < friends.length; i ++){
-			if (friends[i] != null){
-				if (friends[i].getCreatedTime() != -1){
-				    createTripleSPO(result, prefix, SNVOC.knows,
-				            SN.getPersonURI(friends[i].getFriendAcc()));
-				}
+		for (int i = 0; i < friends.length; i++){
+			if (friends[i] != null && friends[i].getCreatedTime() != -1){
+			    createTripleSPO(result, prefix, SNVOC.knows,
+			            SN.getPersonURI(friends[i].getFriendAcc()));
 			}
 		}
 		
@@ -493,8 +556,11 @@ public class Turtle implements Serializer {
 		toWriter(result.toString());
 	}
 
+	/**
+     * @See {@link ldbc.socialnet.dbgen.serializer.Serializer#gatherData(Post)}
+     */
 	public void gatherData(Post post){
-	    StringBuffer result = new StringBuffer();
+	    StringBuffer result = new StringBuffer(2500);
 
 	    if (post.getIpAddress() != null) {
 	        printLocationHierarchy(result, ipDic.getLocation(post.getIpAddress()));
@@ -511,7 +577,7 @@ public class Turtle implements Serializer {
 	                createLiteral(post.getIpAddress().toString()));
 	        if (post.getBrowserIdx() >= 0) {
 	            AddTriple(result, false, false, prefix, SNVOC.browser,
-	                    createLiteral(vBrowserNames.get(post.getBrowserIdx())));
+	                    createLiteral(browserDic.getName(post.getBrowserIdx())));
 	        }
 	    }
 	    AddTriple(result, false, true, prefix, SNVOC.content,
@@ -562,8 +628,15 @@ public class Turtle implements Serializer {
 	    toWriter(result.toString());
 	}
 
+	/**
+     * @See {@link ldbc.socialnet.dbgen.serializer.Serializer#gatherData(Comment)}
+     */
 	public void gatherData(Comment comment){
-		StringBuffer result = new StringBuffer();
+		StringBuffer result = new StringBuffer(2000);
+		
+		if (comment.getIpAddress() != null) {
+            printLocationHierarchy(result, ipDic.getLocation(comment.getIpAddress()));
+        }
 		
 		String prefix = SN.getCommentURI(comment.getCommentId());
 		date.setTimeInMillis(comment.getCreateDate());
@@ -576,7 +649,7 @@ public class Turtle implements Serializer {
 		            createLiteral(comment.getIpAddress().toString()));
 		    if (comment.getBrowserIdx() >= 0) {
 		        AddTriple(result, false, false, prefix, SNVOC.browser,
-		                createLiteral(vBrowserNames.get(comment.getBrowserIdx())));
+		                createLiteral(browserDic.getName(comment.getBrowserIdx())));
 		    }
 		}
 		AddTriple(result, false, true, prefix, SNVOC.content, createLiteral(comment.getContent()));
@@ -595,8 +668,15 @@ public class Turtle implements Serializer {
 		toWriter(result.toString());
 	}
 	
+	/**
+     * @See {@link ldbc.socialnet.dbgen.serializer.Serializer#gatherData(Photo)}
+     */
 	public void gatherData(Photo photo){
-	    StringBuffer result = new StringBuffer();
+	    StringBuffer result = new StringBuffer(2500);
+	    
+	    if (photo.getIpAddress() != null) {
+            printLocationHierarchy(result, ipDic.getLocation(photo.getIpAddress()));
+        }
 
 	    String prefix = SN.getPostURI(photo.getPhotoId());
 	    AddTriple(result, true, false, prefix, RDF.type, SNVOC.Post);
@@ -608,7 +688,7 @@ public class Turtle implements Serializer {
 	                createLiteral(photo.getIpAddress().toString()));
 	        if (photo.getBrowserIdx() >= 0) {
 	            AddTriple(result, false, false, prefix, SNVOC.browser,
-	                    createLiteral(vBrowserNames.get(photo.getBrowserIdx())));
+	                    createLiteral(browserDic.getName(photo.getBrowserIdx())));
 	        }
 	    }
 	    AddTriple(result, false, true, prefix, SNVOC.creationDate, 
@@ -649,12 +729,14 @@ public class Turtle implements Serializer {
 	    toWriter(result.toString());
 	}
 
+	/**
+	 * @See {@link ldbc.socialnet.dbgen.serializer.Serializer#gatherData(Group)}
+	 */
 	public void gatherData(Group group){
-	    StringBuffer result = new StringBuffer();
+	    StringBuffer result = new StringBuffer(12000);
 	    date.setTimeInMillis(group.getCreatedDate());
 	    String dateString = DateGenerator.formatDateDetail(date);  
 
-	    // Forums of the group
 	    String forumPrefix = SN.getForumURI(group.getForumWallId());
 	    AddTriple(result, true, false, forumPrefix, RDF.type, SNVOC.Forum);
 	    AddTriple(result, false, false, forumPrefix, SNVOC.title, createLiteral(group.getGroupName()));
@@ -694,25 +776,40 @@ public class Turtle implements Serializer {
 	    toWriter(result.toString());
 	}
 	
+	/**
+	 * Builds a plain RDF literal.
+	 * 
+	 * See<a href="http://www.w3.org/TR/rdf-concepts/#section-Literals">RDF literals.</a>
+	 * 
+	 * @param value: The value.
+	 * @return The RDF literal string representation.
+	 */
 	private String createLiteral(String value) {
-		StringBuffer result = new StringBuffer();
-		result.append("\"");
-		result.append(value);
-		result.append("\"");
-		return result.toString();
+		return "\"" + value + "\"";
 	}
 	
+	/**
+     * Builds a typed RDF literal.
+     * 
+     * See<a href="http://www.w3.org/TR/rdf-concepts/#section-Literals">RDF literals.</a>
+     * 
+     * @param value: The literal value.
+     * @param datatypeURI: The data type.
+     * @return The RDF typed literal string representation.
+     */
 	private String createDataTypeLiteral(String value, String datatypeURI) {
-		StringBuffer result = new StringBuffer();
-		result.append("\"");
-		result.append(value);
-		result.append("\"^^");
-		result.append(datatypeURI);
-		return result.toString();
+		return "\"" + value + "\"^^" + datatypeURI;
 	}
 
-	/*
-	 * Create a triple consisting of subject predicate and object, end with "."
+	/**
+	 * Builds a simple turtle triple: subject predicate object .
+	 * 
+	 * See <a href="http://www.w3.org/TeamSubmission/turtle/">Turtle</a>
+	 * 
+	 * @param result: The stringBuffer where the triple representation will be appended to.
+	 * @param subject: The RDF subject.
+	 * @param predicate: The RDF predicate.
+	 * @param object: The RDF object.
 	 */
 	private void createTripleSPO(StringBuffer result, String subject, String predicate, String object) {
 		result.append(subject);		
@@ -724,71 +821,62 @@ public class Turtle implements Serializer {
 		
 		nrTriples++;
 	}
-	/*
-	 * Create an abbreviated triple consisting of predicate and object; end with ";"
-	 */
-	private String createTriplePO(String predicate, String object) {
-		StringBuffer result = new StringBuffer();
+	
+	/**
+     * Builds a subject abbreviated turtle triple.
+     * 
+     * See <a href="http://www.w3.org/TeamSubmission/turtle/">Turtle</a>
+     * 
+     * @param result: The stringBuffer where the triple representation will be appended to.
+     * @param predicate: The RDF predicate.
+     * @param object: The RDF object.
+     * @param endSubjectRepeat: The marker to end the subject repetition symbol.
+     */
+	private void createTriplePO(StringBuffer result, String predicate, String object, boolean endSubjectRepeat) {
 		result.append("    ");
 		result.append(predicate);
 		result.append(" ");
 		result.append(object);
-		result.append(" ;\n");
+		if (endSubjectRepeat) {
+            result.append(" .\n");
+        } else {
+            result.append(" ;\n");
+        }
 		
 		nrTriples++;
-		
-		return result.toString();
-	}
-
-	/*
-	 * Create an abbreviated triple consisting of predicate and object; end with "."
-	 */
-	private String createTriplePOEnd(String predicate, String object) {
-		StringBuffer result = new StringBuffer();
-		result.append("    ");
-		result.append(predicate);
-		result.append(" ");
-		result.append(object);
-		result.append(" .\n");
-		
-		nrTriples++;
-		
-		return result.toString();
 	}
 	
-	// Create a triple with two objects separated by an ",". the triple is ended with ";" 
-	private String createTriplePOO(String predicate, String object1, String object2) {
-		StringBuffer result = new StringBuffer();
+	/**
+     * Builds a subject abbreviated turtle triple with two objects.
+     * 
+     * See <a href="http://www.w3.org/TeamSubmission/turtle/">Turtle</a>
+     * 
+     * @param result: The stringBuffer where the triple representation will be appended to.
+     * @param predicate: The RDF predicate.
+     * @param object1: The first RDF object.
+     * @param object2: The second RDF object.
+     * @param endSubjectRepeat: The marker to end the subject repetition symbol.
+     */
+	private void createTriplePOO(StringBuffer result, String predicate, String object1, String object2, boolean endSubjectRepeat) {
 		result.append("    ");
 		result.append(predicate);
 		result.append(" ");
 		result.append(object1);
 		result.append(" , ");
-		result.append(object2);		
-		result.append(" ;\n");
+		result.append(object2);
+		if (endSubjectRepeat) {
+		    result.append(" .\n");
+		} else {
+		    result.append(" ;\n");
+		}
 		
 		nrTriples = nrTriples + 2;
-		
-		return result.toString();
 	}
 	
-	// Create a triple with two objects separated by an ",". the triple is ended with "." 
-	private String createTriplePOOEnd(String predicate, String object1, String object2) {
-		StringBuffer result = new StringBuffer();
-		result.append("    ");
-		result.append(predicate);
-		result.append(" ");
-		result.append(object1);
-		result.append(" , ");
-		result.append(object2);		
-		result.append(" .\n");
-		
-		nrTriples = nrTriples + 2;
-		
-		return result.toString();
-	}
-	
-	public void serialize() {
+	/**
+	 * Ends the serialization.
+	 */
+	public void close() {
 		try {
 			for(int i=0;i<dataFileWriter.length;i++) {
 				dataFileWriter[i].flush();

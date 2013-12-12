@@ -47,7 +47,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Writer;
 import java.util.GregorianCalendar;
-import java.util.TreeSet;
+import java.util.HashSet;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Vector;
@@ -76,15 +76,19 @@ import ldbc.socialnet.dbgen.objects.RelationshipStatus;
 import ldbc.socialnet.dbgen.objects.UserExtraInfo;
 import ldbc.socialnet.dbgen.objects.UserProfile;
 import ldbc.socialnet.dbgen.serializer.CSV;
+import ldbc.socialnet.dbgen.serializer.EmptySerializer;
 import ldbc.socialnet.dbgen.serializer.Serializer;
 import ldbc.socialnet.dbgen.serializer.Turtle;
-import ldbc.socialnet.dbgen.storage.MFStoreManager;
+import ldbc.socialnet.dbgen.serializer.Statistics;
 import ldbc.socialnet.dbgen.storage.StorageManager;
 import ldbc.socialnet.dbgen.vocabulary.SN;
 
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.mapreduce.Reducer;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class ScalableGenerator{
 
@@ -141,6 +145,7 @@ public class ScalableGenerator{
     private static final String  DICTIONARY_DIRECTORY = "/dictionaries/";
     private static final String  IPZONE_DIRECTORY     = "/ipaddrByCountries";
     private static final String  PARAMETERS_FILE      = "params.ini";
+    private static final String  STATS_FILE           = "testdata.json";
     private              String  RDF_OUTPUT_FILE      = "ldbc_socialnet_dbg"; //Not static or final: Will be modified to add the machine prefix
     
     // Dictionaries dataset files
@@ -240,6 +245,9 @@ public class ScalableGenerator{
     private final String FEMALE = "female";
     private final String gender[] = { MALE, FEMALE};
     
+    //Stat container
+    private Statistics stats;
+    
 	// For sliding window
 	int 					cellSize; // Number of user in one cell
 	int 					numberOfCellPerWindow;
@@ -267,7 +275,7 @@ public class ScalableGenerator{
 	int                     numCellRead    = 0;
 	int 					numCellPerfile;
 	int 					numCellInLastFile;
-	TreeSet<Integer> 		selectedFileIdx;
+	HashSet<Integer> 		selectedFileIdx;
 	
 	// For friendship generation
 	int 				friendshipNo;
@@ -408,7 +416,6 @@ public class ScalableGenerator{
 	double 		probDiffIPforTraveller;
 	
 	// Writing data for test driver
-	OutputDataWriter 	outputDataWriter;
 	int 				thresholdPopularUser = 40;
 	int 				numPopularUser = 0;
 	
@@ -443,6 +450,7 @@ public class ScalableGenerator{
 		this.mapreduceFileIdx = mapreduceFileId;
 		this.sibOutputDir = sibOutputDir;
 		this.sibHomeDir = sibHomeDir; 
+		this.stats = new Statistics();
 		
 		System.out.println("Map Reduce File Idx is: " + mapreduceFileIdx);
 		if (mapreduceFileIdx != -1){
@@ -561,7 +569,7 @@ public class ScalableGenerator{
 			endYear = startYear + numYears;
 			serializerType = properties.getProperty(SERIALIZER_TYPE);
 			if (!serializerType.equals("ttl") && !serializerType.equals("n3") && 
-			        !serializerType.equals("csv")) {
+			        !serializerType.equals("csv") && !serializerType.equals("none")) {
                 throw new IllegalStateException("serializerType must be ttl, n3 or csv");
             }
 		} catch (Exception e) {
@@ -647,17 +655,17 @@ public class ScalableGenerator{
 			locationDic.init();
 			
 			System.out.println("Building language dictionary ");
-			languageDic = new LanguageDictionary(languageDicFile, locationDic.getLocationNameMapping(), 
+			languageDic = new LanguageDictionary(languageDicFile, locationDic, 
 			        probEnglish, probSecondLang, seeds[11]);
 			languageDic.init();
 			
 			System.out.println("Building Tag dictionary ");
 			mainTagDic = new TagDictionary(tagNamesFile, mainTagDicFile, tagClassFile, tagHierarchyFile,
-					locationDic.getLocationNameMapping().size(), seeds[5], tagCountryCorrProb);
-			mainTagDic.extractTags();
+					locationDic.getCountries().size(), seeds[5], tagCountryCorrProb);
+			mainTagDic.initialize();
 			
 			System.out.println("Building Tag-text dictionary ");
-			tagTextDic = new TagTextDictionary(tagTextFile, dateTimeGenerator, mainTagDic.getTagsNamesMapping(),
+			tagTextDic = new TagTextDictionary(tagTextFile, dateTimeGenerator, mainTagDic,
 			        minTextSize, maxTextSize, minCommentSize, maxCommentSize, ratioReduceText, seeds[15], seeds[16]);
 			tagTextDic.initialize();
 
@@ -667,14 +675,14 @@ public class ScalableGenerator{
 	
 			System.out.println("Building IP addresses dictionary ");
 			ipAddDictionary = new IPAddressDictionary(countryAbbrMappingFile,
-			        IPZONE_DIRECTORY, locationDic.getVecLocations(), seeds[33],
+			        IPZONE_DIRECTORY, locationDic, seeds[33],
 					probDiffIPinTravelSeason, probDiffIPnotTravelSeason,
 					probDiffIPforTraveller);
-			ipAddDictionary.init();
+			ipAddDictionary.initialize();
 			
 			System.out.println("Building Names dictionary");
 			namesDictionary = new NamesDictionary(surnamesDicFile, givennamesDicFile,
-					locationDic.getLocationNameMapping(), seeds[23]);
+					locationDic, seeds[23]);
 			namesDictionary.init();
 			
 			System.out.println("Building email dictionary");
@@ -697,7 +705,7 @@ public class ScalableGenerator{
 	
 			System.out.println("Building popular places dictionary");
 			popularDictionary = new PopularPlacesDictionary(popularPlacesDicFile, 
-					locationDic.getLocationNameMapping(), seeds[46]);
+					locationDic, seeds[46]);
 			popularDictionary.init();
 			
 			System.out.println("Building user agents dictionary");
@@ -706,15 +714,12 @@ public class ScalableGenerator{
 			
 			System.out.println("Building photo generator");
             photoGenerator = new PhotoGenerator(dateTimeGenerator,
-                    locationDic.getVecLocations(), seeds[17], 
-                    popularDictionary, probPopularPlaces);
+                    locationDic, seeds[17], popularDictionary, probPopularPlaces);
             
             System.out.println("Building Group generator");
             groupGenerator = new GroupGenerator(dateTimeGenerator, locationDic,
                     mainTagDic, numtotalUser, seeds[35]);
 
-
-			outputDataWriter = new OutputDataWriter();
 			serializer = getSerializer(serializerType, RDF_OUTPUT_FILE);
 		}
 	}
@@ -726,8 +731,7 @@ public class ScalableGenerator{
 	 * @param inputFile The hadoop file with the user serialization (data and friends)
 	 * @param numCell The number of cells the generator will parse.
 	 */
-	public void generateUserActivity(String inputFile, int numCell){
-        startWritingUserData();
+	public void generateUserActivity(String inputFile, int numCell) {
 
         long startPostGeneration = System.currentTimeMillis();
         
@@ -739,20 +743,17 @@ public class ScalableGenerator{
         long endPostGeneration = System.currentTimeMillis();
         System.out.println("Post generation takes " + getDurationInMinutes(startPostGeneration, endPostGeneration));
 
-        finishWritingUserData();
-
         long startGroupGeneration = System.currentTimeMillis();
         generateAllGroup(inputFile, numCell);
         long endGroupGeneration = System.currentTimeMillis();
         System.out.println("Group generation takes " + getDurationInMinutes(startGroupGeneration, endGroupGeneration));
 
-        serializer.serialize();
+        serializer.close();
+        writeStatistics();
 
-        System.out.println("Number of generated triples " + serializer.triplesGenerated());
+        System.out.println("Number of generated triples " + serializer.unitsGenerated());
         System.out.println("Number of popular users " + numPopularUser);
         System.out.println("Writing the data for test driver ");
-        
-        writeDataForQGEN();
     }
 	
 	/**
@@ -834,7 +835,7 @@ public class ScalableGenerator{
 
             Friend firstLevelFriends[] = reducedUserProfiles[curIdxInWindow].getFriendList();
             Vector<Friend> secondLevelFriends = new Vector<Friend>();
-            //TODO: Include friends of friends a.k.a second level friends.
+            //TODO: Include friends of friends a.k.a second level friends?
 
             int numGroup = randNumberGroup.nextInt(maxNumGroupCreatedPerUser);
             for (int j = 0; j < numGroup; j++) { 
@@ -881,10 +882,7 @@ public class ScalableGenerator{
 				numUserForNewCell = 0;
 			}
 		}
-		
-		if (reduceUser != null){
-			reduceUser = null;
-		}
+		reduceUser = null;
 	}
 	public void pushAllRemainingUser(int pass, 
 			Reducer<IntWritable, ReducedUserProfile,IntWritable, ReducedUserProfile>.Context context, 
@@ -1114,7 +1112,25 @@ public class ScalableGenerator{
 			Post post = tagTextDic.createPost(user, maxNumLikes, userAgentDic, ipAddDictionary, browserDic);
 			Integer languageIndex = randUniform.nextInt(extraInfo.getLanguages().size());
 			post.setLanguage(extraInfo.getLanguages().get(languageIndex));
+			
+			String countryName = locationDic.getLocationName((ipAddDictionary.getLocation(post.getIpAddress())));
+			stats.countries.add(countryName);
 
+			GregorianCalendar date = new GregorianCalendar();
+            date.setTimeInMillis(post.getCreatedDate());
+            String strCreationDate = DateGenerator.formatYear(date);
+            if (stats.maxPostCreationDate == null) {
+                stats.maxPostCreationDate = strCreationDate;
+                stats.minPostCreationDate = strCreationDate;
+            } else {
+                if (stats.maxPostCreationDate.compareTo(strCreationDate) < 0) {
+                    stats.maxPostCreationDate = strCreationDate;
+                }
+                if (stats.minPostCreationDate.compareTo(strCreationDate) > 0) {
+                    stats.minPostCreationDate = strCreationDate;
+                }
+            }
+			
 			serializer.gatherData(post);
 			
 			// Generate comments
@@ -1126,6 +1142,8 @@ public class ScalableGenerator{
 				Comment comment = tagTextDic.createComment(post, user, lastCommentCreatedDate, startCommentId, lastCommentId, 
 				        userAgentDic, ipAddDictionary, browserDic);
 				if (comment.getAuthorId() != -1) {
+				    countryName = locationDic.getLocationName((ipAddDictionary.getLocation(comment.getIpAddress())));
+		            stats.countries.add(countryName);
 					serializer.gatherData(comment);
 					
 					lastCommentCreatedDate = comment.getCreateDate();
@@ -1155,7 +1173,10 @@ public class ScalableGenerator{
 
 				photo.setUserAgent(userAgentDic.getUserAgentName(user.isHaveSmartPhone(), user.getAgentIdx()));
 				photo.setBrowserIdx(browserDic.getPostBrowserId(user.getBrowserIdx()));
-				ipAddDictionary.setPhotoIPAdress(user.isFrequentChange(), user.getIpAddress(), photo);
+				photo.setIpAddress(ipAddDictionary.getIP(user.getIpAddress(), 
+				        user.isFrequentChange(), photo.getTakenTime(), photo.getLocationIdx()));
+				String countryName = locationDic.getLocationName((ipAddDictionary.getLocation(photo.getIpAddress())));
+                stats.countries.add(countryName);
 				
 				serializer.gatherData(photo);
 			}
@@ -1169,7 +1190,7 @@ public class ScalableGenerator{
 
 		Group group = groupGenerator.createGroup(user);
 
-		TreeSet<Integer> memberIds = new TreeSet<Integer>();
+		HashSet<Integer> memberIds = new HashSet<Integer>();
 
 		int numGroupMember = randNumberUserPerGroup.nextInt(maxNumMemberGroup);
 		group.initAllMemberships(numGroupMember);
@@ -1251,7 +1272,8 @@ public class ScalableGenerator{
 //			Integer languageIndex = randUniform.nextInt(extraInfo.getLanguages().size());
 //            post.setLanguage(extraInfo.getLanguages().get(languageIndex));
 			groupPost.setLanguage(-1);
-
+			String countryName = locationDic.getLocationName((ipAddDictionary.getLocation(groupPost.getIpAddress())));
+            stats.countries.add(countryName);
 			serializer.gatherData(groupPost);
 
 
@@ -1264,7 +1286,8 @@ public class ScalableGenerator{
 				Comment comment = tagTextDic.createComment(groupPost, group, lastCommentCreatedDate, startCommentId, lastCommentId, 
                         userAgentDic, ipAddDictionary, browserDic);
 				if (comment.getAuthorId() != -1) { // In case the comment is not reated because of the friendship's createddate
-					
+				    countryName = locationDic.getLocationName((ipAddDictionary.getLocation(comment.getIpAddress())));
+	                stats.countries.add(countryName);
 					serializer.gatherData(comment);
 
 					lastCommentCreatedDate = comment.getCreateDate();
@@ -1368,7 +1391,7 @@ public class ScalableGenerator{
 
 		// source IP
 		userProf.setIpAddress(ipAddDictionary
-				.getRandomIPAddressFromLocation(userProf.getLocationIdx()));
+				.getRandomIPFromLocation(userProf.getLocationIdx()));
 
 		// Popular places 
 		byte numPopularPlaces = (byte) randNumPopularPlaces.nextInt(maxNumPopularPlaces + 1);
@@ -1392,16 +1415,12 @@ public class ScalableGenerator{
 
 	public void setInfoFromUserProfile(ReducedUserProfile user,
 			UserExtraInfo userExtraInfo) {
-
+	    
 		// The country will be always present, but the city can be missing if that data is 
 		// not available on the dictionary
 		int locationId = (user.getCityIdx() != -1) ? user.getCityIdx() : user.getLocationIdx();
 		userExtraInfo.setLocationId(locationId);
-		if (user.getCityIdx() != -1) {
-		    userExtraInfo.setLocation(locationDic.getCityName(user.getCityIdx()));
-		} else {
-		    userExtraInfo.setLocation(locationDic.getLocationName(user.getLocationIdx()));
-		}
+		userExtraInfo.setLocation(locationDic.getLocationName(locationId));
 		
 		// We consider that the distance from where user is living and 
 		double distance = randomExactLongLat.nextDouble() * 2;  
@@ -1461,7 +1480,7 @@ public class ScalableGenerator{
 				user.getLocationIdx(),isMale, 
 				dateTimeGenerator.getBirthYear(user.getBirthDay())));
 		
-		userExtraInfo.setLastName(namesDictionary.getRandomSurName(user.getLocationIdx()));
+		userExtraInfo.setLastName(namesDictionary.getRandomSurname(user.getLocationIdx()));
 
 		// email is created by using the user's first name + userId
 		int numEmails = randomExtraInfo.nextInt(maxEmails) + 1;
@@ -1488,12 +1507,30 @@ public class ScalableGenerator{
         prob = randomExtraInfo.nextDouble();
         if (prob >= missingRatio) {
             for (int i = 0; i < numCompanies; i++) {
+                long workFrom;
                 if (userExtraInfo.getClassYear() != -1) {
-                    long workFrom = dateTimeGenerator.getWorkFromYear(user.getCreatedDate(), user.getBirthDay());
-                    userExtraInfo.addCompany(companiesDictionary.getRandomCompany(user.getLocationIdx()), workFrom);
+                    workFrom = dateTimeGenerator.getWorkFromYear(user.getCreatedDate(), user.getBirthDay());
                 } else {
-                    long workFrom = dateTimeGenerator.getWorkFromYear(userExtraInfo.getClassYear());
-                    userExtraInfo.addCompany(companiesDictionary.getRandomCompany(user.getLocationIdx()), workFrom);
+                    workFrom = dateTimeGenerator.getWorkFromYear(userExtraInfo.getClassYear());
+                }
+                String company = companiesDictionary.getRandomCompany(user.getLocationIdx());
+                userExtraInfo.addCompany(company, workFrom);
+                String countryName = locationDic.getLocationName(companiesDictionary.getCountry(company));
+                stats.countries.add(countryName);
+                
+                GregorianCalendar date = new GregorianCalendar();
+                date.setTimeInMillis(workFrom);
+                String strWorkFrom = DateGenerator.formatYear(date);
+                if (stats.maxWorkFrom == null) {
+                    stats.maxWorkFrom = strWorkFrom;
+                    stats.minWorkFrom = strWorkFrom;
+                } else {
+                    if (stats.maxWorkFrom.compareTo(strWorkFrom) < 0) {
+                        stats.maxWorkFrom = strWorkFrom;
+                    }
+                    if (stats.minWorkFrom.compareTo(strWorkFrom) > 0) {
+                        stats.minWorkFrom = strWorkFrom;
+                    }
                 }
             }
         }
@@ -1505,13 +1542,25 @@ public class ScalableGenerator{
             userLanguages.add(internationalLang);
         }
         userExtraInfo.setLanguages(userLanguages);
-
-		// write user data for test driver
-		if (user.getNumFriendsAdded() > thresholdPopularUser) {
-			outputDataWriter.writeUserData(user.getAccountId(),
-					user.getNumFriendsAdded());
-			numPopularUser++;
-		}
+        
+        
+        stats.maxPersonId = Math.max(stats.maxPersonId, user.getAccountId());
+        stats.minPersonId = Math.min(stats.minPersonId, user.getAccountId());
+        stats.firstNames.add(userExtraInfo.getFirstName());
+        String countryName = locationDic.getLocationName(user.getLocationIdx());
+        stats.countries.add(countryName);
+        
+        // NOTE: [2013-08-06] The tags of posts, forums, etc.. all depend of the user ones
+        // if in the future this fact change add those in the statistics also.
+        HashSet<Integer> tags = user.getSetOfTags();
+        for (Integer tagID : tags) {
+            stats.tagNames.add(mainTagDic.getName(tagID));
+            Integer parent = mainTagDic.getTagClass(tagID);
+            while (parent != -1) {
+                stats.tagClasses.add(mainTagDic.getClassName(parent));
+                parent = mainTagDic.getClassParent(parent);
+            }
+        }
 	}
 
 
@@ -1564,75 +1613,46 @@ public class ScalableGenerator{
 	}
 
 	private Serializer getSerializer(String type, String outputFileName) {
-	    SN.setMachineNumber(machineId);
+	    SN.setMachineNumber(machineId, numFiles);
 		String t = type.toLowerCase();
 		if (t.equals("ttl")) {
-            return new Turtle(sibOutputDir + outputFileName, forwardChaining,
-                    numRdfOutputFile, true, mainTagDic,
-                    browserDic.getvBrowser(), companiesDictionary.getCompanyLocationMap(), 
+            return new Turtle(sibOutputDir + outputFileName, numRdfOutputFile, true, mainTagDic,
+                    browserDic, companiesDictionary, 
                     organizationsDictionary.GetOrganizationLocationMap(),
                     ipAddDictionary, locationDic, languageDic);
 		} else if (t.equals("n3")) {
-            return new Turtle(sibOutputDir + outputFileName, forwardChaining,
-                    numRdfOutputFile, false, mainTagDic,
-                    browserDic.getvBrowser(), companiesDictionary.getCompanyLocationMap(), 
+            return new Turtle(sibOutputDir + outputFileName, numRdfOutputFile, false, mainTagDic,
+                    browserDic, companiesDictionary, 
                     organizationsDictionary.GetOrganizationLocationMap(),
                     ipAddDictionary, locationDic, languageDic);
 		} else if (t.equals("csv")) {
-			return new CSV(sibOutputDir /*+ outputFileName*/, forwardChaining,
-					numRdfOutputFile, mainTagDic,
-					browserDic.getvBrowser(), companiesDictionary.getCompanyLocationMap(), 
+			return new CSV(sibOutputDir, numRdfOutputFile, mainTagDic,
+					browserDic, companiesDictionary, 
                     organizationsDictionary.GetOrganizationLocationMap(),
 					ipAddDictionary,locationDic, languageDic);
-		} else {
+		} else if (t.equals("none")) {
+            return new EmptySerializer();
+        } else {
 		    System.err.println("Unexpected Serializer - Aborting");
 		    System.exit(-1);
 		    return null;
 		}
 	}
 	
-	private void startWritingUserData() {
-		outputDataWriter.initWritingUserData();
-	}
-
-	private void finishWritingUserData() {
-		outputDataWriter.finishWritingUserData();
-	}
-	
-	private void writeDataForQGEN() {
-        outputDataWriter.writeGeneralDataForTestDriver(numtotalUser, dateTimeGenerator);
-        outputDataWriter.writeGroupDataForTestDriver(groupGenerator);
-        outputDataWriter.writeLocationDataForTestDriver(locationDic);
-        outputDataWriter.writeNamesDataForTestDriver(namesDictionary);
+	private void writeStatistics() {
+	    Gson gson = new GsonBuilder().setExclusionStrategies(stats.getExclusion()).disableHtmlEscaping().create();
+	    FileWriter writer;
+        try {
+            stats.makeCountryPairs(locationDic);
+            writer = new FileWriter(sibOutputDir + "m" + machineId + STATS_FILE);
+            writer.append(gson.toJson(stats));
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            System.err.println("Unable to write stastistics");
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+        }
     }
-
-	public void writeToOutputFile(String filenames[], String outputfile){
-	    Writer output = null;
-	    File file = new File(outputfile);
-	    try {
-	        output = new BufferedWriter(new FileWriter(file));
-	        for (int i = 0; i < (filenames.length - 1); i++) {
-	            output.write(filenames[i] + " " + numCellPerfile + "\n");
-	        }
-
-	        output.write(filenames[filenames.length - 1] + " " + numCellInLastFile + "\n");
-
-	        output.close();
-	    } catch (IOException e) {
-	        e.printStackTrace();
-	    }
-	}
-	
-	public void printHeapSize(){
-		long heapSize = Runtime.getRuntime().totalMemory();
-		long heapMaxSize = Runtime.getRuntime().maxMemory();
-		long heapFreeSize = Runtime.getRuntime().freeMemory(); 
-		
-		System.out.println(" ---------------------- ");
-		System.out.println(" Current Heap Size: " + heapSize/(1024*1024));
-		System.out.println(" Max Heap Size: " + heapMaxSize/(1024*1024));
-		System.out.println(" Free Heap Size: " + heapFreeSize/(1024*1024));
-		System.out.println(" ---------------------- ");
-	}
 }
  

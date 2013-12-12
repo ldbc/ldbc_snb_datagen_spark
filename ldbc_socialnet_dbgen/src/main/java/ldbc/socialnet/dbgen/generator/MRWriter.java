@@ -42,7 +42,6 @@ import java.io.ObjectOutputStream;
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
 
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 
 

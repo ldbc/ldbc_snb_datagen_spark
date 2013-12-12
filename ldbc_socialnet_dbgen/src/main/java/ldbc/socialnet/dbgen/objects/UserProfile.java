@@ -37,7 +37,7 @@
 package ldbc.socialnet.dbgen.objects;
 
 import java.io.Serializable;
-import java.util.TreeSet;
+import java.util.HashSet;
 import java.util.Iterator;
 
 public class UserProfile implements Serializable {
@@ -65,9 +65,9 @@ public class UserProfile implements Serializable {
 	
 	public short 		numFriendsAdded;
 	Friend 				friendList[];
-	TreeSet<Integer>	friendIds; 		// Use a hashset for checking the existence
+	HashSet<Integer>	friendIds; 		// Use a hashset for checking the existence
 	
-	TreeSet<Integer> 	setOfTags;
+	HashSet<Integer> 	setOfTags;
 	int					mainTagId; 
 
 	//For user's agent information
@@ -95,7 +95,7 @@ public class UserProfile implements Serializable {
         forumWallId = -1; 
         forumStatusId = -1;
         
-        setOfTags = new TreeSet<Integer>();
+        setOfTags = new HashSet<Integer>();
 	}
 	
 	public byte getGender() {
@@ -177,7 +177,7 @@ public class UserProfile implements Serializable {
 	}
 	public void printTags(){
 		System.out.println("Set of tag for " + accountId);
-		Iterator it = setOfTags.iterator(); 
+		Iterator<Integer> it = setOfTags.iterator(); 
 		while (it.hasNext()){
 			System.out.print(" " + it.next()); 
 		}
@@ -189,7 +189,7 @@ public class UserProfile implements Serializable {
 	public void setNumPassFriends(short numPassFriends, int pass) {
 		this.numPassFriends[pass] = numPassFriends;
 	}
-	public TreeSet<Integer> getSetOfTags() {
+	public HashSet<Integer> getSetOfTags() {
 		return setOfTags;
 	}
 	public int getFirstTagIdx(){
@@ -199,13 +199,13 @@ public class UserProfile implements Serializable {
 		
 		return tagIdx;
 	}
-	public void setSetOfTags(TreeSet<Integer> setOfTags) {
+	public void setSetOfTags(HashSet<Integer> setOfTags) {
 		this.setOfTags = setOfTags;
 	}
 	
 	public void allocateFriendListMemory(int numFriendPasses){
 		friendList = new Friend[numFriends];
-		friendIds = new TreeSet<Integer>();
+		friendIds = new HashSet<Integer>(numFriends);
 		numPassFriends = new short[numFriendPasses];
 	}
 
