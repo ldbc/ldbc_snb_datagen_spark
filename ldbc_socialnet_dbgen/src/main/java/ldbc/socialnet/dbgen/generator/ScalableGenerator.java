@@ -51,6 +51,7 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Vector;
+import java.text.Normalizer;
 
 import ldbc.socialnet.dbgen.dictionary.BrowserDictionary;
 import ldbc.socialnet.dbgen.dictionary.CompanyDictionary;
@@ -732,25 +733,19 @@ public class ScalableGenerator{
 	 * @param numCell The number of cells the generator will parse.
 	 */
 	public void generateUserActivity(String inputFile, int numCell) {
-
         long startPostGeneration = System.currentTimeMillis();
-        
         //NOTE: Until this point of the code numtotalUser*2 forums where generated (2 for user) thats
         //the reason behind this forum id assignment.
         groupGenerator.setForumId((numtotalUser + 10) * 2);
         generatePostandPhoto(inputFile, numCell);
-
         long endPostGeneration = System.currentTimeMillis();
         System.out.println("Post generation takes " + getDurationInMinutes(startPostGeneration, endPostGeneration));
-
         long startGroupGeneration = System.currentTimeMillis();
         generateAllGroup(inputFile, numCell);
         long endGroupGeneration = System.currentTimeMillis();
         System.out.println("Group generation takes " + getDurationInMinutes(startGroupGeneration, endGroupGeneration));
-
         serializer.close();
         writeStatistics();
-
         System.out.println("Number of generated triples " + serializer.unitsGenerated());
         System.out.println("Number of popular users " + numPopularUser);
         System.out.println("Writing the data for test driver ");
@@ -763,17 +758,13 @@ public class ScalableGenerator{
 	 * @param numCells The number of cells the generator will parse.
 	 */
 	public void generatePostandPhoto(String inputFile, int numCells) {
-        
 	    reducedUserProfilesCell = new ReducedUserProfile[cellSize];
         StorageManager storeManager = new StorageManager(cellSize, windowSize, outUserProfile, sibOutputDir);
-        
         storeManager.initDeserialization(inputFile);
         System.out.println("Generating the posts & comments ");
         System.out.println("Number of cells in file : " + numCells);
-        
         for (int i = 0; i < numCells; i++) {
             storeManager.deserializeOneCellUserProfile(reducedUserProfilesCell);
-            
             for (int j = 0; j < cellSize; j++) {
                 UserExtraInfo extraInfo = new UserExtraInfo();
                 setInfoFromUserProfile(reducedUserProfilesCell[j], extraInfo);
@@ -783,7 +774,6 @@ public class ScalableGenerator{
                 generatePhoto(reducedUserProfilesCell[j], extraInfo);
             }
         }
-        
         storeManager.endDeserialization();
         System.out.println("Done generating the posts and photos....");
         System.out.println("Number of deserialized objects is " + storeManager.getNumberDeSerializedObject());
@@ -797,15 +787,11 @@ public class ScalableGenerator{
 	 */
 	public void generateAllGroup(String inputFile, int numCell) {
 		groupStoreManager = new StorageManager(cellSize, windowSize, outUserProfile, sibOutputDir);
-		
 		groupStoreManager.initDeserialization(inputFile);
-		
 		for (int i = 0; i < numCell; i++) {
 		    generateGroups(4, i, numCell);
 		}
-
 		groupStoreManager.endDeserialization();
-		
 		System.out.println("Done generating user groups and groups' posts");
 		System.out.println("Number of deserialized objects for group is " + groupStoreManager.getNumberDeSerializedObject());
 	}
@@ -818,29 +804,22 @@ public class ScalableGenerator{
 	 * @param numCell The total number of cells.
 	 */
 	public void generateGroups(int pass, int cellPos, int numCell) {
-
         int newCellPosInWindow = cellPos % numberOfCellPerWindow;
         int newIdxInWindow = newCellPosInWindow * cellSize;
         int newStartIndex = (cellPos % numberOfCellPerWindow) * cellSize;
-        
         groupStoreManager.deserializeOneCellUserProfile(newIdxInWindow, cellSize, reducedUserProfiles);
-        
         for (int i = 0; i < cellSize; i++) {
             int curIdxInWindow = newStartIndex + i;
             double moderatorProb = randGroupModerator.nextDouble();
-            
-            if (moderatorProb > groupModeratorProb) {
-                continue;
-            }
-
-            Friend firstLevelFriends[] = reducedUserProfiles[curIdxInWindow].getFriendList();
-            Vector<Friend> secondLevelFriends = new Vector<Friend>();
-            //TODO: Include friends of friends a.k.a second level friends?
-
-            int numGroup = randNumberGroup.nextInt(maxNumGroupCreatedPerUser);
-            for (int j = 0; j < numGroup; j++) { 
-                createGroupForUser(reducedUserProfiles[curIdxInWindow],
-                        firstLevelFriends, secondLevelFriends);
+            if (moderatorProb <= groupModeratorProb) {
+                Friend firstLevelFriends[] = reducedUserProfiles[curIdxInWindow].getFriendList();
+                Vector<Friend> secondLevelFriends = new Vector<Friend>();
+                //TODO: Include friends of friends a.k.a second level friends?
+                int numGroup = randNumberGroup.nextInt(maxNumGroupCreatedPerUser);
+                for (int j = 0; j < numGroup; j++) { 
+                    createGroupForUser(reducedUserProfiles[curIdxInWindow],
+                    firstLevelFriends, secondLevelFriends);
+                }
             }
         }
     }
@@ -848,42 +827,31 @@ public class ScalableGenerator{
 	public void pushUserProfile(ReducedUserProfile reduceUser, int pass, 
 			Reducer<IntWritable, ReducedUserProfile,IntWritable, ReducedUserProfile>.Context context, 
 			boolean isContext, ObjectOutputStream oos){
+    		numUserProfilesRead++;
+	       	ReducedUserProfile userObject = new ReducedUserProfile();
+    		userObject.copyFields(reduceUser);
+            if (numUserProfilesRead <= windowSize) {
+                reducedUserProfiles[numUserProfilesRead-1] = userObject;
+                if( numUserProfilesRead == windowSize ) {
+                    mr2InitFriendShipWindow(pass, context, isContext, oos);
+                }
+            } else {
+                numUserForNewCell++;
+                cellReducedUserProfiles[numUserForNewCell-1] = userObject;
+                if (numUserForNewCell == cellSize){
+                    mrCurCellPost++;
+                    mr2SlideFriendShipWindow(   pass,
+                                                mrCurCellPost, 
+                                                context, 
+                                                cellReducedUserProfiles,
+                                                isContext,  
+                                                oos);
+                    numUserForNewCell = 0;
+                }
+            }
+            reduceUser = null;
+        }
 
-		numUserProfilesRead++;
-		ReducedUserProfile userObject = new ReducedUserProfile();
-		userObject.copyFields(reduceUser);
-		
-		if (numUserProfilesRead < windowSize) {
-			if (reducedUserProfiles[numUserProfilesRead-1] != null){
-				reducedUserProfiles[numUserProfilesRead-1].clear();
-				reducedUserProfiles[numUserProfilesRead-1] = null;
-			}
-			reducedUserProfiles[numUserProfilesRead-1] = userObject;
-		} else if (numUserProfilesRead == windowSize) {
-			if (reducedUserProfiles[numUserProfilesRead-1] != null){
-				reducedUserProfiles[numUserProfilesRead-1].clear();
-				reducedUserProfiles[numUserProfilesRead-1] = null;
-			}
-			reducedUserProfiles[numUserProfilesRead-1] = userObject;
-			mr2InitFriendShipWindow(pass, context, isContext, oos);
-		} else {
-			numUserForNewCell++;
-			
-			if (cellReducedUserProfiles[numUserForNewCell-1] != null){
-				cellReducedUserProfiles[numUserForNewCell-1] = null;
-			}
-			
-			cellReducedUserProfiles[numUserForNewCell-1] = userObject;
-			if (numUserForNewCell == cellSize){
-				mrCurCellPost++;
-				mr2SlideFriendShipWindow(pass,mrCurCellPost, context, cellReducedUserProfiles,
-						 isContext,  oos);
-				
-				numUserForNewCell = 0;
-			}
-		}
-		reduceUser = null;
-	}
 	public void pushAllRemainingUser(int pass, 
 			Reducer<IntWritable, ReducedUserProfile,IntWritable, ReducedUserProfile>.Context context, 
 			boolean isContext, ObjectOutputStream oos){
@@ -933,176 +901,89 @@ public class ScalableGenerator{
 	}
 	
 	public void mr2InitFriendShipWindow(int pass, Reducer.Context context, boolean isContext, ObjectOutputStream oos){
-	    
 		for (int i = 0; i < cellSize; i++) {
 			// From this user, check all the user in the window to create friendship
-			for (int j = i + 1; j < windowSize - 1; j++) {
-				if (reducedUserProfiles[i].getNumFriendsAdded() 
-						== reducedUserProfiles[i].getNumFriends(pass)) {
-					break;
-				}
-				if (reducedUserProfiles[j].getNumFriendsAdded() 
-						== reducedUserProfiles[j].getNumFriends(pass)) {
-					continue;
-				}
-
-                if (reducedUserProfiles[i].isExistFriend(
-                		reducedUserProfiles[j].getAccountId())) {
-                    continue;
+            for (int j = i + 1;  (j < windowSize - 1) && 
+                               (reducedUserProfiles[i].getNumFriendsAdded() != reducedUserProfiles[i].getNumFriends(pass));
+                               j++) {
+                if (!((reducedUserProfiles[j].getNumFriendsAdded() 
+                     == reducedUserProfiles[j].getNumFriends(pass)) || 
+                    reducedUserProfiles[i].isExistFriend(reducedUserProfiles[j].getAccountId()))) {
+                    double randProb = randUniform.nextDouble();
+                    double prob = getFriendCreatePro(i, j, pass);  
+                    if ((randProb < prob) || (randProb < limitProCorrelated)) {
+                        createFriendShip(reducedUserProfiles[i], reducedUserProfiles[j], (byte) pass);
+                    }
                 }
-
-				// Generate a random value
-				double randProb = randUniform.nextDouble();
-				
-				double prob = getFriendCreatePro(i, j, pass);  
-				
-				if ((randProb < prob) || (randProb < limitProCorrelated)) {
-					// add a friendship
-					createFriendShip(reducedUserProfiles[i], reducedUserProfiles[j], (byte) pass);
-				}
-
-			}
+            }
 		}
-
 		updateLastPassFriendAdded(0, cellSize, pass);
-
 		mrWriter.writeReducedUserProfiles(0, cellSize, pass, reducedUserProfiles, context, isContext, oos);
-		
 		exactOutput = exactOutput + cellSize; 
 	}
 
 	public void mr2SlideFriendShipWindow(int pass, int cellPos, Reducer.Context context, ReducedUserProfile[] _cellReduceUserProfiles, 
 			boolean isContext, ObjectOutputStream oos){
-
 		// In window, position of new cell = the position of last removed cell = cellPos - 1
 		int newCellPosInWindow = (cellPos - 1) % numberOfCellPerWindow;
-
 		int newStartIndex = newCellPosInWindow * cellSize;
-		
-		int curIdxInWindow;
-
 		// Init the number of friends for each user in the new cell
 		generateCellOfUsers2(newStartIndex, _cellReduceUserProfiles);
-
 		// Create the friendships
 		// Start from each user in the first cell of the window --> at the
 		// cellPos, not from the new cell
 		newStartIndex = (cellPos % numberOfCellPerWindow) * cellSize;
 		for (int i = 0; i < cellSize; i++) {
-			curIdxInWindow = newStartIndex + i;
-			// Generate set of friends list
-
-			// Here assume that all the users in the window including the new
-			// cell have the number of friends
-			// and also the number of friends to add
-
-			double randProb;
-
-			if (reducedUserProfiles[curIdxInWindow].getNumFriendsAdded() 
-					== reducedUserProfiles[curIdxInWindow].getNumFriends(pass)) {
-				continue;
-			}
-
+			int curIdxInWindow = newStartIndex + i;
 			// From this user, check all the user in the window to create friendship
-			for (int j = i + 1; (j < windowSize - 1)
-					&& reducedUserProfiles[curIdxInWindow].getNumFriendsAdded() 
-					< reducedUserProfiles[curIdxInWindow].getNumFriends(pass); j++) {
-
+			for (int j = i + 1; (j < windowSize - 1) && reducedUserProfiles[curIdxInWindow].getNumFriendsAdded() < reducedUserProfiles[curIdxInWindow].getNumFriends(pass); j++) {
 				int checkFriendIdx = (curIdxInWindow + j) % windowSize;
-
-				if (reducedUserProfiles[checkFriendIdx].getNumFriendsAdded() 
-						== reducedUserProfiles[checkFriendIdx].getNumFriends(pass)) {
-					continue;
-				}
-
-                if (reducedUserProfiles[curIdxInWindow].isExistFriend(
-                		reducedUserProfiles[checkFriendIdx].getAccountId())) {
-                    continue;
+				if ( !(reducedUserProfiles[checkFriendIdx].getNumFriendsAdded() 
+						== reducedUserProfiles[checkFriendIdx].getNumFriends(pass) || 
+                        reducedUserProfiles[curIdxInWindow].isExistFriend(reducedUserProfiles[checkFriendIdx].getAccountId()))) {
+    				double randProb = randUniform.nextDouble();
+	       			double prob = getFriendCreatePro(curIdxInWindow, checkFriendIdx, pass);
+    				if ((randProb < prob) || (randProb < limitProCorrelated)) {
+	       				createFriendShip(reducedUserProfiles[curIdxInWindow], reducedUserProfiles[checkFriendIdx], (byte) pass);
+			     	}
                 }
-                
-                
-                // Generate a random value
-				randProb = randUniform.nextDouble();
-				
-				double prob = getFriendCreatePro(curIdxInWindow, checkFriendIdx, pass);
-						
-				if ((randProb < prob) || (randProb < limitProCorrelated)) {
-					// add a friendship
-					createFriendShip(reducedUserProfiles[curIdxInWindow], reducedUserProfiles[checkFriendIdx],
-							(byte) pass);
-				}
 			}
-
 		}
-
 		updateLastPassFriendAdded(newStartIndex, newStartIndex + cellSize, pass);
 		mrWriter.writeReducedUserProfiles(newStartIndex, newStartIndex + cellSize, pass, reducedUserProfiles, context, 
 				isContext, oos);
-		
 		exactOutput = exactOutput + cellSize; 
 	}
 	
 	public void mr2SlideLastCellsFriendShip(int pass, int cellPos,	int numleftCell, Reducer.Context context,
 			boolean isContext, ObjectOutputStream oos) {
-
 		int newStartIndex;
-
 		int curIdxInWindow;
-
 		newStartIndex = (cellPos % numberOfCellPerWindow) * cellSize;
-		
 		for (int i = 0; i < cellSize; i++) {
 			curIdxInWindow = newStartIndex + i;
-			// Generate set of friends list
-
-			// Here assume that all the users in the window including the new
-			// cell have the number of friends
-			// and also the number of friends to add
-
-			double randProb;
-
-			if (reducedUserProfiles[curIdxInWindow].getNumFriendsAdded() 
-					== reducedUserProfiles[curIdxInWindow].getNumFriends(pass)) {
-				continue;
-			}
-
 			// From this user, check all the user in the window to create friendship
 			for (int j = i + 1; (j < numleftCell * cellSize - 1)
 					&& reducedUserProfiles[curIdxInWindow].getNumFriendsAdded() 
 					   < reducedUserProfiles[curIdxInWindow].getNumFriends(pass); j++) {
-
 				int checkFriendIdx = (curIdxInWindow + j) % windowSize;
-
-				if (reducedUserProfiles[checkFriendIdx].getNumFriendsAdded() 
-						== reducedUserProfiles[checkFriendIdx].getNumFriends(pass)) {
-					continue;
-				}
-
-                if (reducedUserProfiles[curIdxInWindow].isExistFriend(
-                		reducedUserProfiles[checkFriendIdx].getAccountId())) {
-                    continue;
+				if ( !(reducedUserProfiles[checkFriendIdx].getNumFriendsAdded() 
+						== reducedUserProfiles[checkFriendIdx].getNumFriends(pass) || 
+                        reducedUserProfiles[curIdxInWindow].isExistFriend(reducedUserProfiles[checkFriendIdx].getAccountId()))) {
+                    double randProb = randUniform.nextDouble();
+                    double prob = getFriendCreatePro(curIdxInWindow, checkFriendIdx, pass);
+                    if ((randProb < prob) || (randProb < limitProCorrelated)) {
+                        createFriendShip(reducedUserProfiles[curIdxInWindow], reducedUserProfiles[checkFriendIdx],
+                                    (byte) pass);
+                    }				
                 }
-                
-                
-				// Generate a random value
-				randProb = randUniform.nextDouble();
-
-				double prob = getFriendCreatePro(curIdxInWindow, checkFriendIdx, pass);
-						
-				if ((randProb < prob) || (randProb < limitProCorrelated)) {
-					// add a friendship
-					createFriendShip(reducedUserProfiles[curIdxInWindow], reducedUserProfiles[checkFriendIdx],
-							(byte) pass);
-				}				
 			}
-
 		}
 
 		updateLastPassFriendAdded(newStartIndex, newStartIndex + cellSize, pass);
 		mrWriter.writeReducedUserProfiles(newStartIndex, newStartIndex + cellSize, pass, reducedUserProfiles, context,
 				isContext, oos);
 		exactOutput = exactOutput + cellSize; 
-
 	}
 
 	public void generatePosts(ReducedUserProfile user, UserExtraInfo extraInfo){
@@ -1226,23 +1107,22 @@ public class ScalableGenerator{
 					}
 				}
 			} else if (randLevelProb < levelProbs[1]) { // ==> level 2
-				if (secondLevelFriends.size() == 0)
-					continue;
-
-				int friendIdx = randMemberIdxSelector.nextInt(secondLevelFriends.size());
-				int potentialMemberAcc = secondLevelFriends.get(friendIdx).getFriendAcc();
-				randMemberProb = randMembership.nextDouble();
-				if (randMemberProb < joinProbs[1]) {
-					// Check whether this user has been added and then add to the group
-					if (!memberIds.contains(potentialMemberAcc)) {
-						memberIds.add(potentialMemberAcc);
-						// Assume the earliest membership date is the friendship created date
-						GroupMemberShip memberShip = groupGenerator.createGroupMember(
-						        potentialMemberAcc, group.getCreatedDate(), 
-						        secondLevelFriends.get(friendIdx));
-						group.addMember(memberShip);
-					}
-				}
+				if (secondLevelFriends.size() != 0) {
+    				int friendIdx = randMemberIdxSelector.nextInt(secondLevelFriends.size());
+	       			int potentialMemberAcc = secondLevelFriends.get(friendIdx).getFriendAcc();
+		      		randMemberProb = randMembership.nextDouble();
+			     	if (randMemberProb < joinProbs[1]) {
+				       	// Check whether this user has been added and then add to the group
+  				        if (!memberIds.contains(potentialMemberAcc)) {
+					       	memberIds.add(potentialMemberAcc);
+    						// Assume the earliest membership date is the friendship created date
+	       					GroupMemberShip memberShip = groupGenerator.createGroupMember(
+		      				        potentialMemberAcc, group.getCreatedDate(), 
+			     			        secondLevelFriends.get(friendIdx));
+				    		group.addMember(memberShip);
+					    }
+				    }
+                }
 			} else { // ==> random users
 				// Select a user from window
 				int friendIdx = randMemberIdxSelector.nextInt(windowSize);
@@ -1486,7 +1366,12 @@ public class ScalableGenerator{
 		int numEmails = randomExtraInfo.nextInt(maxEmails) + 1;
 		double prob = randomExtraInfo.nextDouble();
 		if (prob >= missingRatio) {
-			String base = userExtraInfo.getFirstName().replaceAll(" ", ".");
+			String base = userExtraInfo.getFirstName();
+            base = Normalizer.normalize(base,Normalizer.Form.NFD);
+            base = base.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+            base = base.replaceAll(" ", ".");
+            base = base.replaceAll("[.]+", ".");
+
 			for (int i = 0; i < numEmails; i++) {
 			    String email = base + "" + user.getAccountId() + "@" + emailDic.getRandomEmail();
 			    userExtraInfo.addEmail(email);
