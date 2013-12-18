@@ -50,4 +50,4 @@ $HADOOP_HOME/bin/hadoop jar $LDBC_SOCIALNET_DBGEN_HOME/ldbc_socialnet_dbgen.jar 
 You can refer to the run.sh script to see a clearer example of how to run it.
 
 ## Output
-The generator can create data in three formats: CSV, TTL and N3. For more information please check the (wiki)(https://github.com/ldbc/ldbc_socialnet_bm/wiki/Data-Output)
+The generator can create data in three formats: CSV, TTL and N3. For more information please check the [wiki](https://github.com/ldbc/ldbc_socialnet_bm/wiki/Data-Output)
