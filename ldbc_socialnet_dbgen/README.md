@@ -6,6 +6,8 @@ ldbc_socialnet_dbgen is GPLv3 licensed, to see detailed information about this l
 This software was build using Apache hadoop version 1.0.3 and we not guarantee compatibility with newer releases.
 You can download hadoop 1.0.3 from http://archive.apache.org/dist/hadoop/core/hadoop-1.0.3/
 
+For a more detailed description about how the ldbc_socialnet_dbgen works, check the  [wiki](https://github.com/ldbc/ldbc_socialnet_bm/wiki/Data-Generator)
+
 
 ## Compilation
 
@@ -48,4 +50,4 @@ $HADOOP_HOME/bin/hadoop jar $LDBC_SOCIALNET_DBGEN_HOME/ldbc_socialnet_dbgen.jar 
 You can refer to the run.sh script to see a clearer example of how to run it.
 
 ## Output
-The generator will create CSV files [with the following format](https://github.com/ldbc/ldbc_socialnet_bm/wiki/Generated-CSV-Files)
+The generator can create data in three formats: CSV, TTL and N3. For more information please check the (wiki)(https://github.com/ldbc/ldbc_socialnet_bm/wiki/Data-Output)
