@@ -1,10 +1,10 @@
 # Introduction
 
-The LDBC Social Network Dataset Generator (SNDG) is the responsible of providing the data sets used by all the LDBC benchmarks. This dataset generator is designed to produce directed labeled graphs that mimic the characteristics of those graphs of real data. In the following pages, a detailed description of the generator can be found.
+The LDBC Social Network Dataset Generator (SNDG) is the responsible of providing the data sets used by all the LDBC benchmarks. This dataset generator is designed to produce directed labeled graphs that mimic the characteristics of those graphs of real data. A detailed description of the generator can be found in the following pages:
 
-* In **[Data Schema](https://github.com/ldbc/ldbc_socialnet_bm/wiki/Data-Schema)**, we describe the schema of the data produced by the generator.
-* In **[Data Generation Process](https://github.com/ldbc/ldbc_socialnet_bm/wiki/Data-Generation)**, we give details about the generation process of the data.
-* In **[Data Output](https://github.com/ldbc/ldbc_socialnet_bm/wiki/Data-Output)**, we describe the contents and the format of the files produced by the generator.
+* In **[Data Schema](https://github.com/ldbc/ldbc_socialnet_bm/wiki/Data-Schema)**, a description of the schema of the data produced by the generator.
+* In **[Data Generation Process](https://github.com/ldbc/ldbc_socialnet_bm/wiki/Data-Generation)**, information about the generation process of the data.
+* In **[Data Output](https://github.com/ldbc/ldbc_socialnet_bm/wiki/Data-Output)**, a description of the contents and the format of the files produced by the generator.
 
 
 ldbc_socialnet_dbgen is part of the LDBC project (http://www.ldbc.eu/).
