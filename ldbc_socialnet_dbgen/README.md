@@ -58,7 +58,7 @@ To execute the generator, please type:
 $HADOOP_HOME/bin/hadoop jar $LDBC_SOCIALNET_DBGEN_HOME/ldbc_socialnet_dbgen.jar hadoop_input_folder hadoop_output_folder Num_machines_ldbc_will_use  $LDBC_SOCIALNET_DBGEN_HOME/ Final_output_folder
 ```
 
-You can refer to the run.sh script to see a clearer example of how to run it.
+In ldbc\_socialnet\_bm/ldbc\_socialnet\_dbgen/run.sh you can find a full example of how to compile and execute the SNDG.
 
 ## Output
 The generator can create data in three formats: CSV, TTL and N3. For more information please check the [wiki](https://github.com/ldbc/ldbc_socialnet_bm/wiki/Data-Output)
