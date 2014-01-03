@@ -14,14 +14,12 @@ ldbc_socialnet_dbgen is GPLv3 licensed, to see detailed information about this l
 ## Requirements
 
 This software is build using Apache hadoop version 1.0.3 and we not guarantee compatibility with newer releases.
-You can download hadoop 1.0.3 from [here](http://archive.apache.org/dist/hadoop/core/hadoop-1.0.3/)
+You can download hadoop 1.0.3 from [here](http://archive.apache.org/dist/hadoop/core/hadoop-1.0.3/).
 
 
 ## Compilation
 
-The compilation uses Apache Maven to automatically detect and download the necessary dependencies. See: [maven.apache.org](http://maven.apache.org).
-
-Make sure you are in your ldbc_socialnet_bm/ldbc_socialnet_dbgen/ project folder.
+The compilation uses [Apache Maven](http://maven.apache.org) to automatically detect and download the necessary dependencies. Make sure you are in your ldbc_socialnet_bm/ldbc_socialnet_dbgen/ project folder.
 To generate the jar containing all the dependencies, type
 
 ```
@@ -33,9 +31,9 @@ This can lead to the generation of two jars in the target folder: the default on
 
 ## Configuration
 
-* Configure your hadoop machine or cluster. For more information on how to do it, please refer its official page http://hadoop.apache.org/docs/stable/index.html
+Configure your hadoop machine or cluster. For more information on how to do it, please visit [here](http://hadoop.apache.org/docs/stable/index.html)
 
-* Configure the params.ini to your needs. This file contains:
+Configure the ldbc\_socialnet\_bm/ldbc\_socialnet\_dbgen/_params.init_  to meet your needs. This file has the following format.
 
 ```
 	numtotalUser: #The number of users the social network will have. It shoud be bigger than 1000.
