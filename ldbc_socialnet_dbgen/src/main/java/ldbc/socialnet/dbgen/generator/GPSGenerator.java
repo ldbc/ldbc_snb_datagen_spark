@@ -123,7 +123,7 @@ public class GPSGenerator {
 		for (int i = 0; i < eventSet.size(); i++){
 			int numAttendedUsers = randNumUser.nextInt(100) + 20;
 			//int lastUserId = 0;
-			TreeSet<Integer> attendedUsers = new TreeSet<Integer>(numAttendedUsers);
+			TreeSet<Integer> attendedUsers = new TreeSet<Integer>(Integer(numAttendedUsers));
 			while (attendedUsers.size() < numAttendedUsers){
 				//int step = randNumUser.nextInt(totalNumUsers - numAttendedUsers- lastUserId + j);
 				//lastUserId = lastUserId + step + j;
