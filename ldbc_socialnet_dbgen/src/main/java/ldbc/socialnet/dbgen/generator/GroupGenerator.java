@@ -36,7 +36,7 @@
  */
 package ldbc.socialnet.dbgen.generator;
 
-import java.util.HashSet;
+import java.util.TreeSet;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Vector;
@@ -87,7 +87,7 @@ public class GroupGenerator {
 		//Use the user location for group locationIdx
 		group.setLocationIdx(user.getLocationIdx());
 				
-		HashSet<Integer> tagSet = user.getSetOfTags();
+		TreeSet<Integer> tagSet = user.getSetOfTags();
 		Iterator<Integer> iter = tagSet.iterator();
         int idx = randGroupInterest.nextInt(tagSet.size());
         for (int i = 0; i < idx; i++){

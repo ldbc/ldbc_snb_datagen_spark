@@ -102,7 +102,7 @@ public class MRGenerateUsers{
 			// Generate user information
 			generator.mrGenerateUserInfo(pass, context, fileIdx);
 			
-			System.out.println("Total friendship number from " + fileIdx + " : " + generator.friendshipNo);
+			System.out.println("Total friendship number from " + fileIdx + " : " + generator.friendshipNum);
 		}
 		
 	}
@@ -150,7 +150,7 @@ public class MRGenerateUsers{
 			System.out.println("Summary for " + attempTaskId);
 			System.out.println("Number of user profile read " + friendGenerator.numUserProfilesRead);
 			System.out.println("Number of exact user profile out " + friendGenerator.exactOutput);
-			System.out.println("Number of exact friend added " + friendGenerator.friendshipNo);
+			System.out.println("Number of exact friend added " + friendGenerator.friendshipNum);
 		}
 	}
 	
@@ -230,7 +230,7 @@ public class MRGenerateUsers{
 			System.out.println("Summary for " + attempTaskId);
 			System.out.println("Number of user profile read " + friendGenerator.numUserProfilesRead);
 			System.out.println("Number of exact user profile out " + friendGenerator.exactOutput);
-			System.out.println("Number of exact friend added " + friendGenerator.friendshipNo);
+			System.out.println("Number of exact friend added " + friendGenerator.friendshipNum);
 		}
 	}
 	

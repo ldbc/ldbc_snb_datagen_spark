@@ -3,7 +3,7 @@ package ldbc.socialnet.dbgen.serializer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.TreeSet;
 
 import ldbc.socialnet.dbgen.dictionary.LocationDictionary;
 
@@ -53,19 +53,19 @@ public class Statistics {
     public String maxWorkFrom;
     public String minPostCreationDate;
     public String maxPostCreationDate;
-    public HashSet<String> firstNames;
-    public HashSet<String> tagNames;
-    public HashSet<String> countries;
-    public HashSet<String> tagClasses;
+    public TreeSet<String> firstNames;
+    public TreeSet<String> tagNames;
+    public TreeSet<String> countries;
+    public TreeSet<String> tagClasses;
     private ArrayList<String[]> countryPairs;
     
     public Statistics() {
         minPersonId = Integer.MAX_VALUE;
         maxPersonId = Integer.MIN_VALUE;
-        firstNames = new HashSet<String>();
-        tagNames = new HashSet<String>();
-        tagClasses = new HashSet<String>();
-        countries = new HashSet<String>();
+        firstNames = new TreeSet<String>();
+        tagNames = new TreeSet<String>();
+        tagClasses = new TreeSet<String>();
+        countries = new TreeSet<String>();
         countryPairs = new ArrayList<String[]>();
     }
     

@@ -47,7 +47,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Writer;
 import java.util.GregorianCalendar;
-import java.util.HashSet;
+import java.util.TreeSet;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Vector;
@@ -124,23 +124,28 @@ public class ScalableGenerator{
     //schema behaviour paramaters which are not in the private parameter file.
     //If any of these are upgraded to the parameter file copy the variable elsewhere below,
     //so this list is updated with only the variables not appearing in the parameter file.
+
     /**
      * Power Law distribution alpha value
      */
     private static final double alpha = 0.4;
     
+    /**
+     * The maximum number of likes
+     */
     private static final int maxNumLikes = 10;
+
     /**
      * Cumulative probability to join a group for the user direct friends, friends of friends and
      * friends of the friends of the user friend.
      */
     private static final double levelProbs[] = { 0.5, 0.8, 1.0 };
+
     /**
      * Probability to join a group for the user direct friends, friends of friends and
      * friends of the friends of the user friend.
      */
     private static final double joinProbs[] = { 0.7, 0.4, 0.1 };
-    
     
     //Files and folders
     private static final String  DICTIONARY_DIRECTORY = "/dictionaries/";
@@ -276,12 +281,12 @@ public class ScalableGenerator{
 	int                     numCellRead    = 0;
 	int 					numCellPerfile;
 	int 					numCellInLastFile;
-	HashSet<Integer> 		selectedFileIdx;
+	TreeSet<Integer> 		selectedFileIdx;
 	
 	// For friendship generation
-	int 				friendshipNo;
-	int 				minNoFriends;
-	int 				maxNoFriends;
+	int 				friendshipNum;
+	int 				minNumFriends;
+	int 				maxNumFriends;
 	double 				friendRejectRatio;
 	double 				friendReApproveRatio;
 	
@@ -290,50 +295,50 @@ public class ScalableGenerator{
 	
 	MRWriter			mrWriter; 
 	
-	Random 				randFriendReject;
-	Random 				randFriendReapprov;
-	Random 				randInitiator;
+	Random 				randomFriendReject;
+	Random 				randomFriendAproval;
+	Random 				randomInitiator;
 	double 				baseProbCorrelated;
 	double	 			limitProCorrelated; 
 	
 	// For each user
-	int                 minNoTagsPerUser; 
-	int					maxNoTagsPerUser; 
+	int                 minNumTagsPerUser; 
+	int					maxNumTagsPerUser; 
 	int 				maxNumPostPerMonth;
 	int 				maxNumComments;
 	
 
 	// Random values generators
-	PowerDistGenerator 	randPowerlaw;
-	PowerDistGenerator  randTagPowerlaw;
+	PowerDistGenerator 	randomPowerLaw;
+	PowerDistGenerator  randomTagPowerLaw;
 	Long[] 				seeds;
-	Random 				randUniform;
-	Random 				randNumInterest;
-	Random 				randNumTags;
+	Random 				randomUniform;
+	Random 				randomNumInterests;
+	Random 				randomNumTags;
 	Random 				randomFriendIdx;
-	Random 				randNumberPost;
-	Random 				randNumberComments;
-	Random 				randNumberPhotoAlbum;
-	Random 				randNumberPhotos;
-	Random 				randNumberGroup;
-	Random 				randNumberUserPerGroup;
-	Random 				randGender;
-	Random				randUserRandomIdx;	   // For generating the random dimension
-	Random              randNumPopularPlaces; 
-    Random              randFriendLevelSelect; // For select an level of moderator's friendship
-    Random              randMembership;        // For deciding whether or not a user is joined
-    Random              randMemberIdxSelector;
-    Random              randGroupMemStep;
-    Random              randGroupModerator;    // Decide whether a user can be moderator of groups or not
-    Random              randNumberGroupPost;
+	Random 				randomNumPosts;
+	Random 				randomNumComments;
+	Random 				randomNumPhotoAlbums;
+	Random 				randomNumPhotos;
+	Random 				randomNumGroups;
+	Random 				randomNumUsersPerGroup;
+	Random 				randomGender;
+	Random				randomUserRandomIdx;	   // For generating the random dimension
+	Random              randomNumPopularPlaces; 
+    Random              randomFriendLevelSelect; // For select an level of moderator's friendship
+    Random              randomMembership;        // For deciding whether or not a user is joined
+    Random              randomMemberIdxSelector;
+    Random              randomGroupMemStep;
+    Random              randomGroupModerator;    // Decide whether a user can be moderator of groups or not
+    Random              randomNumGroupPosts;
     Random              randomExtraInfo;
     Random              randomExactLongLat;
     Random              randomHaveStatus;
     Random              randomStatusSingle;
     Random              randomStatus;
-    Random              randUserAgent;
-    Random              randFileSelect;
-    Random              randIdsInWindow;
+    Random              randomUserAgent;
+    Random              randomFileSelect;
+    Random              randomIdsInWindow;
     
 	DateGenerator 		dateTimeGenerator;
 	int					startYear;
@@ -400,25 +405,25 @@ public class ScalableGenerator{
 	String 			sibHomeDir;
 	
 	// For user's extra info
-	double 					missingRatio;
-	double 					missingStatusRatio;
-	double 					probSingleStatus; // Status "Single" has more probability than others'
+	double	       missingRatio;
+	double         missingStatusRatio;
+	double         probSingleStatus; // Status "Single" has more probability than others'
 	
 	
-	double 		probAnotherBrowser;
-	double 		probHavingSmartPhone;
-	double 		probSentFromAgent;
+	double 		   probAnotherBrowser;
+	double         probHavingSmartPhone;
+	double         probSentFromAgent;
 
 	// The probability that normal user posts from different location
-	double 		probDiffIPinTravelSeason; // in travel season
-	double 		probDiffIPnotTravelSeason; // not in travel season
+	double         probDiffIPinTravelSeason; // in travel season
+	double         probDiffIPnotTravelSeason; // not in travel season
 
 	// The probability that travellers post from different location
-	double 		probDiffIPforTraveller;
+	double         probDiffIPforTraveller;
 	
 	// Writing data for test driver
-	int 				thresholdPopularUser = 40;
-	int 				numPopularUser = 0;
+	int            thresholdPopularUser = 40;
+	int            numPopularUser = 0;
 	
 	// Data accessed from the hadoop jobs
 	public ReducedUserProfile[] cellReducedUserProfiles;
@@ -461,6 +466,11 @@ public class ScalableGenerator{
 		System.out.println("Current directory in ScaleGenerator is " + sibHomeDir);
 	}
 	
+    /**
+     * Gets the size of the cell.
+     * 
+     * @return The size of che cell.
+     */
 	public int getCellSize() {
         return cellSize;
     }
@@ -505,13 +515,13 @@ public class ScalableGenerator{
 			
 			cellSize = Short.parseShort(properties.getProperty(CELL_SIZE));
 			numberOfCellPerWindow = Integer.parseInt(properties.getProperty(NUM_CELL_WINDOW));
-			minNoFriends = Integer.parseInt(properties.getProperty(MIN_FRIENDS));
-			maxNoFriends = Integer.parseInt(properties.getProperty(MAX_FRIENDS));
-			thresholdPopularUser = (int) (maxNoFriends * 0.9);
+			minNumFriends = Integer.parseInt(properties.getProperty(MIN_FRIENDS));
+			maxNumFriends = Integer.parseInt(properties.getProperty(MAX_FRIENDS));
+			thresholdPopularUser = (int) (maxNumFriends * 0.9);
 			friendRejectRatio = Double.parseDouble(properties.getProperty(FRIEND_REJECT));
 			friendReApproveRatio = Double.parseDouble(properties.getProperty(FRIEND_REACCEPT));
-			minNoTagsPerUser= Integer.parseInt(properties.getProperty(USER_MIN_TAGS));
-			maxNoTagsPerUser= Integer.parseInt(properties.getProperty(USER_MAX_TAGS));
+			minNumTagsPerUser= Integer.parseInt(properties.getProperty(USER_MIN_TAGS));
+			maxNumTagsPerUser= Integer.parseInt(properties.getProperty(USER_MAX_TAGS));
 			maxNumPostPerMonth = Integer.parseInt(properties.getProperty(USER_MAX_POST_MONTH));
 			maxNumComments = Integer.parseInt(properties.getProperty(MAX_COMMENT_POST));
 			limitProCorrelated = Double.parseDouble(properties.getProperty(LIMIT_CORRELATED));
@@ -609,38 +619,38 @@ public class ScalableGenerator{
         }
 
 		seedGenerate(mapId);
-		randPowerlaw    = new PowerDistGenerator(minNoFriends,     maxNoFriends + 1,     alpha, seeds[2]);
-		randTagPowerlaw = new PowerDistGenerator(minNoTagsPerUser, maxNoTagsPerUser + 1, alpha, seeds[2]);
-		randUniform = new Random(seeds[3]);
-		randGender = new Random(seeds[3]);
-		randNumInterest = new Random(seeds[4]);
-		randNumTags = new Random(seeds[4]);
+		randomPowerLaw    = new PowerDistGenerator(minNumFriends,     maxNumFriends + 1,     alpha, seeds[2]);
+		randomTagPowerLaw = new PowerDistGenerator(minNumTagsPerUser, maxNumTagsPerUser + 1, alpha, seeds[2]);
+		randomUniform = new Random(seeds[3]);
+		randomGender = new Random(seeds[3]);
+		randomNumInterests = new Random(seeds[4]);
+		randomNumTags = new Random(seeds[4]);
 		randomFriendIdx = new Random(seeds[6]);
-		randFileSelect = new Random(seeds[7]);
-		randIdsInWindow = new Random(seeds[8]);
-		randNumberPost = new Random(seeds[9]);
-		randNumberComments = new Random(seeds[10]);
-		randNumberPhotoAlbum = new Random(seeds[11]);
-		randNumberPhotos = new Random(seeds[12]);
-		randNumberGroup = new Random(seeds[13]);
-		randNumberUserPerGroup = new Random(seeds[14]);
-		randMemberIdxSelector = new Random(seeds[18]);
-		randGroupMemStep = new Random(seeds[19]);
-		randFriendLevelSelect = new Random(seeds[20]);
-		randMembership = new Random(seeds[21]);
-		randGroupModerator = new Random(seeds[22]);
+		randomFileSelect = new Random(seeds[7]);
+		randomIdsInWindow = new Random(seeds[8]);
+		randomNumPosts = new Random(seeds[9]);
+		randomNumComments = new Random(seeds[10]);
+		randomNumPhotoAlbums = new Random(seeds[11]);
+		randomNumPhotos = new Random(seeds[12]);
+		randomNumGroups = new Random(seeds[13]);
+		randomNumUsersPerGroup = new Random(seeds[14]);
+		randomMemberIdxSelector = new Random(seeds[18]);
+		randomGroupMemStep = new Random(seeds[19]);
+		randomFriendLevelSelect = new Random(seeds[20]);
+		randomMembership = new Random(seeds[21]);
+		randomGroupModerator = new Random(seeds[22]);
 		randomExtraInfo = new Random(seeds[27]);
 		randomExactLongLat = new Random(seeds[27]);
-		randUserAgent = new Random(seeds[29]);
-		randNumberGroupPost = new Random(seeds[36]);
-		randFriendReject = new Random(seeds[37]);
-		randFriendReapprov = new Random(seeds[38]);
-		randInitiator = new Random(seeds[39]);
+		randomUserAgent = new Random(seeds[29]);
+		randomNumGroupPosts = new Random(seeds[36]);
+		randomFriendReject = new Random(seeds[37]);
+		randomFriendAproval = new Random(seeds[38]);
+		randomInitiator = new Random(seeds[39]);
 		randomHaveStatus = new Random(seeds[41]);
 		randomStatusSingle = new Random(seeds[42]);
 		randomStatus = new Random(seeds[43]);
-		randNumPopularPlaces = new Random(seeds[47]);
-		randUserRandomIdx = new Random(seeds[48]);
+		randomNumPopularPlaces = new Random(seeds[47]);
+		randomUserRandomIdx = new Random(seeds[48]);
 
 		reducedUserProfiles = new ReducedUserProfile[windowSize];	// Collect of reduced user profile
 		cellReducedUserProfiles = new ReducedUserProfile[cellSize];
@@ -810,12 +820,12 @@ public class ScalableGenerator{
         groupStoreManager.deserializeOneCellUserProfile(newIdxInWindow, cellSize, reducedUserProfiles);
         for (int i = 0; i < cellSize; i++) {
             int curIdxInWindow = newStartIndex + i;
-            double moderatorProb = randGroupModerator.nextDouble();
+            double moderatorProb = randomGroupModerator.nextDouble();
             if (moderatorProb <= groupModeratorProb) {
                 Friend firstLevelFriends[] = reducedUserProfiles[curIdxInWindow].getFriendList();
                 Vector<Friend> secondLevelFriends = new Vector<Friend>();
                 //TODO: Include friends of friends a.k.a second level friends?
-                int numGroup = randNumberGroup.nextInt(maxNumGroupCreatedPerUser);
+                int numGroup = randomNumGroups.nextInt(maxNumGroupCreatedPerUser);
                 for (int j = 0; j < numGroup; j++) { 
                     createGroupForUser(reducedUserProfiles[curIdxInWindow],
                     firstLevelFriends, secondLevelFriends);
@@ -824,6 +834,15 @@ public class ScalableGenerator{
         }
     }
 	
+    /**
+     * Pushes a user into the generator.
+     * 
+     * @param reduceUser The user to push.
+     * @param pass The pass identifier, which is used to decide the criteria under the edges are created.
+     * @param context The map-reduce context.
+     * @param isContext
+     * @param oos The output stream used to write the data.
+     */
 	public void pushUserProfile(ReducedUserProfile reduceUser, int pass, 
 			Reducer<IntWritable, ReducedUserProfile,IntWritable, ReducedUserProfile>.Context context, 
 			boolean isContext, ObjectOutputStream oos){
@@ -845,13 +864,22 @@ public class ScalableGenerator{
                                                 context, 
                                                 cellReducedUserProfiles,
                                                 isContext,  
-                                                oos);
+                                                oos );
                     numUserForNewCell = 0;
                 }
             }
             reduceUser = null;
         }
 
+    /**
+     * Creates the remainder of the edges for the currently inserted nodes.
+     * 
+     * @param reduceUser The user to push.
+     * @param pass The pass identifier, which is used to decide the criteria under the edges are created.
+     * @param context The map-reduce context.
+     * @param isContext
+     * @param oos The output stream used to write the data.
+     */
 	public void pushAllRemainingUser(int pass, 
 			Reducer<IntWritable, ReducedUserProfile,IntWritable, ReducedUserProfile>.Context context, 
 			boolean isContext, ObjectOutputStream oos){
@@ -861,6 +889,13 @@ public class ScalableGenerator{
 		}
 	}
 	
+    /**
+     * Generates the users.
+     * 
+     * @param pass The pass identifying the current pass.
+     * @param context The map-reduce context.
+     * @param mapIdx The index of the current map, used to determine how many users to generate.
+     */
 	public void mrGenerateUserInfo(int pass, Context context, int mapIdx){
 		
 		int numToGenerateUser = (numMaps == mapIdx) ? numCellInLastFile : numCellPerfile;
@@ -909,7 +944,7 @@ public class ScalableGenerator{
                 if (!((reducedUserProfiles[j].getNumFriendsAdded() 
                      == reducedUserProfiles[j].getNumFriends(pass)) || 
                     reducedUserProfiles[i].isExistFriend(reducedUserProfiles[j].getAccountId()))) {
-                    double randProb = randUniform.nextDouble();
+                    double randProb = randomUniform.nextDouble();
                     double prob = getFriendCreatePro(i, j, pass);  
                     if ((randProb < prob) || (randProb < limitProCorrelated)) {
                         createFriendShip(reducedUserProfiles[i], reducedUserProfiles[j], (byte) pass);
@@ -941,7 +976,7 @@ public class ScalableGenerator{
 				if ( !(reducedUserProfiles[checkFriendIdx].getNumFriendsAdded() 
 						== reducedUserProfiles[checkFriendIdx].getNumFriends(pass) || 
                         reducedUserProfiles[curIdxInWindow].isExistFriend(reducedUserProfiles[checkFriendIdx].getAccountId()))) {
-    				double randProb = randUniform.nextDouble();
+    				double randProb = randomUniform.nextDouble();
 	       			double prob = getFriendCreatePro(curIdxInWindow, checkFriendIdx, pass);
     				if ((randProb < prob) || (randProb < limitProCorrelated)) {
 	       				createFriendShip(reducedUserProfiles[curIdxInWindow], reducedUserProfiles[checkFriendIdx], (byte) pass);
@@ -970,7 +1005,7 @@ public class ScalableGenerator{
 				if ( !(reducedUserProfiles[checkFriendIdx].getNumFriendsAdded() 
 						== reducedUserProfiles[checkFriendIdx].getNumFriends(pass) || 
                         reducedUserProfiles[curIdxInWindow].isExistFriend(reducedUserProfiles[checkFriendIdx].getAccountId()))) {
-                    double randProb = randUniform.nextDouble();
+                    double randProb = randomUniform.nextDouble();
                     double prob = getFriendCreatePro(curIdxInWindow, checkFriendIdx, pass);
                     if ((randProb < prob) || (randProb < limitProCorrelated)) {
                         createFriendShip(reducedUserProfiles[curIdxInWindow], reducedUserProfiles[checkFriendIdx],
@@ -991,7 +1026,7 @@ public class ScalableGenerator{
 		int numPosts = getNumOfPost(user);
 		for (int m = 0; m < numPosts; m++) {
 			Post post = tagTextDic.createPost(user, maxNumLikes, userAgentDic, ipAddDictionary, browserDic);
-			Integer languageIndex = randUniform.nextInt(extraInfo.getLanguages().size());
+			Integer languageIndex = randomUniform.nextInt(extraInfo.getLanguages().size());
 			post.setLanguage(extraInfo.getLanguages().get(languageIndex));
 			
 			String countryName = locationDic.getLocationName((ipAddDictionary.getLocation(post.getIpAddress())));
@@ -1015,7 +1050,7 @@ public class ScalableGenerator{
 			serializer.gatherData(post);
 			
 			// Generate comments
-			int numComment = randNumberComments.nextInt(maxNumComments);
+			int numComment = randomNumComments.nextInt(maxNumComments);
 			long lastCommentCreatedDate = post.getCreatedDate();
 			long lastCommentId = -1;
 			long startCommentId = TagTextDictionary.commentId;
@@ -1037,18 +1072,18 @@ public class ScalableGenerator{
 	public void generatePhoto(ReducedUserProfile user, UserExtraInfo extraInfo){
 		// Generate photo Album and photos
 		int numOfmonths = (int) dateTimeGenerator.numberOfMonths(user);
-		int numPhotoAlbums = randNumberPhotoAlbum.nextInt(maxNumPhotoAlbumsPerMonth);
+		int numPhotoAlbums = randomNumPhotoAlbums.nextInt(maxNumPhotoAlbumsPerMonth);
 		if (numOfmonths != 0) {
 			numPhotoAlbums = numOfmonths * numPhotoAlbums;
 		}
 		
 		for (int m = 0; m < numPhotoAlbums; m++) {
-		    Group album = groupGenerator.createAlbum(user, extraInfo, m, randMembership, joinProbs[0]);
+		    Group album = groupGenerator.createAlbum(user, extraInfo, m, randomMembership, joinProbs[0]);
 			
 			serializer.gatherData(album);
 			
 			// Generate photos for this album
-			int numPhotos = randNumberPhotos.nextInt(maxNumPhotoPerAlbums);
+			int numPhotos = randomNumPhotos.nextInt(maxNumPhotoPerAlbums);
 			for (int l = 0; l < numPhotos; l++) {
 				Photo photo = photoGenerator.generatePhoto(user, album, l, maxNumLikes);
 
@@ -1071,21 +1106,21 @@ public class ScalableGenerator{
 
 		Group group = groupGenerator.createGroup(user);
 
-		HashSet<Integer> memberIds = new HashSet<Integer>();
+		TreeSet<Integer> memberIds = new TreeSet<Integer>();
 
-		int numGroupMember = randNumberUserPerGroup.nextInt(maxNumMemberGroup);
+		int numGroupMember = randomNumUsersPerGroup.nextInt(maxNumMemberGroup);
 		group.initAllMemberships(numGroupMember);
 		
 		int numLoop = 0;
 		while ((group.getNumMemberAdded() < numGroupMember) && (numLoop < windowSize)) {
 
 			numLoop++;
-			randLevelProb = randFriendLevelSelect.nextDouble();
+			randLevelProb = randomFriendLevelSelect.nextDouble();
 
 			// Select the appropriate friend level
 			if (randLevelProb < levelProbs[0]) { // ==> level 1
 				// Find a friendIdx
-				int friendIdx = randMemberIdxSelector.nextInt(user.getNumFriendsAdded());
+				int friendIdx = randomMemberIdxSelector.nextInt(user.getNumFriendsAdded());
 				// Note: Use user.getNumFriendsAdded(), do not use
 				// firstLevelFriends.length
 				// because we allocate a array for friendLists, but do not
@@ -1094,7 +1129,7 @@ public class ScalableGenerator{
 
 				int potentialMemberAcc = firstLevelFriends[friendIdx].getFriendAcc();
 
-				randMemberProb = randMembership.nextDouble();
+				randMemberProb = randomMembership.nextDouble();
 				if (randMemberProb < joinProbs[0]) {
 					// Check whether this user has been added and then add to the group
 					if (!memberIds.contains(potentialMemberAcc)) {
@@ -1108,9 +1143,9 @@ public class ScalableGenerator{
 				}
 			} else if (randLevelProb < levelProbs[1]) { // ==> level 2
 				if (secondLevelFriends.size() != 0) {
-    				int friendIdx = randMemberIdxSelector.nextInt(secondLevelFriends.size());
+    				int friendIdx = randomMemberIdxSelector.nextInt(secondLevelFriends.size());
 	       			int potentialMemberAcc = secondLevelFriends.get(friendIdx).getFriendAcc();
-		      		randMemberProb = randMembership.nextDouble();
+		      		randMemberProb = randomMembership.nextDouble();
 			     	if (randMemberProb < joinProbs[1]) {
 				       	// Check whether this user has been added and then add to the group
   				        if (!memberIds.contains(potentialMemberAcc)) {
@@ -1125,9 +1160,9 @@ public class ScalableGenerator{
                 }
 			} else { // ==> random users
 				// Select a user from window
-				int friendIdx = randMemberIdxSelector.nextInt(windowSize);
+				int friendIdx = randomMemberIdxSelector.nextInt(windowSize);
 				int potentialMemberAcc = reducedUserProfiles[friendIdx].getAccountId();
-				randMemberProb = randMembership.nextDouble();
+				randMemberProb = randomMembership.nextDouble();
 				if (randMemberProb < joinProbs[2]) {
 					// Check whether this user has been added and then add to the group
 					if (!memberIds.contains(potentialMemberAcc)) {
@@ -1149,7 +1184,7 @@ public class ScalableGenerator{
 		int numberGroupPost = getNumOfGroupPost(group);
 		for (int i = 0; i < numberGroupPost; i++) {
 			Post groupPost = tagTextDic.createPost(group, maxNumLikes, userAgentDic, ipAddDictionary, browserDic);
-//			Integer languageIndex = randUniform.nextInt(extraInfo.getLanguages().size());
+//			Integer languageIndex = randomUniform.nextInt(extraInfo.getLanguages().size());
 //            post.setLanguage(extraInfo.getLanguages().get(languageIndex));
 			groupPost.setLanguage(-1);
 			String countryName = locationDic.getLocationName((ipAddDictionary.getLocation(groupPost.getIpAddress())));
@@ -1157,7 +1192,7 @@ public class ScalableGenerator{
 			serializer.gatherData(groupPost);
 
 
-			int numComment = randNumberComments.nextInt(maxNumComments);
+			int numComment = randomNumComments.nextInt(maxNumComments);
 			long lastCommentCreatedDate = groupPost.getCreatedDate();
 			long lastCommentId = -1;
 			long startCommentId = TagTextDictionary.commentId;
@@ -1184,12 +1219,12 @@ public class ScalableGenerator{
 		int numOfmonths = (int) dateTimeGenerator.numberOfMonths(user);
 		int numberPost;
 		if (numOfmonths == 0) {
-			numberPost = randNumberPost.nextInt(maxNumPostPerMonth);
+			numberPost = randomNumPosts.nextInt(maxNumPostPerMonth);
 		} else {
-			numberPost = randNumberPost.nextInt(maxNumPostPerMonth * numOfmonths);
+			numberPost = randomNumPosts.nextInt(maxNumPostPerMonth * numOfmonths);
 		}
 
-		numberPost = (numberPost * user.getNumFriendsAdded()) / maxNoFriends;
+		numberPost = (numberPost * user.getNumFriendsAdded()) / maxNumFriends;
 
 		return numberPost;
 	}
@@ -1200,9 +1235,9 @@ public class ScalableGenerator{
 
 		int numberPost;
 		if (numOfmonths == 0) {
-			numberPost = randNumberGroupPost.nextInt(maxNumGroupPostPerMonth);
+			numberPost = randomNumGroupPosts.nextInt(maxNumGroupPostPerMonth);
 		} else {
-			numberPost = randNumberGroupPost.nextInt(maxNumGroupPostPerMonth * numOfmonths);
+			numberPost = randomNumGroupPosts.nextInt(maxNumGroupPostPerMonth * numOfmonths);
 		}
 
 		numberPost = (numberPost * group.getNumMemberAdded()) / maxNumMemberGroup;
@@ -1223,7 +1258,7 @@ public class ScalableGenerator{
 
 		userProf.setCreatedDate(dateTimeGenerator.randomDateInMillis());
 		
-		userProf.setNumFriends((short) randPowerlaw.getValue());
+		userProf.setNumFriends((short) randomPowerLaw.getValue());
 		userProf.allocateFriendListMemory(NUM_FRIENDSHIP_HADOOP_JOBS);
 		
 		short totalFriendSet = 0; 
@@ -1246,7 +1281,7 @@ public class ScalableGenerator{
 		
 		userProf.setMainTagId(userMainTag);
 		
-		userProf.setNumTags((short) randTagPowerlaw.getValue());
+		userProf.setNumTags((short) randomTagPowerLaw.getValue());
 		
 		userProf.setSetOfTags(topicTagDic.getSetofTags(userMainTag, userProf.getNumTags()));
 
@@ -1254,14 +1289,14 @@ public class ScalableGenerator{
 
 		userProf.setBirthDay(dateTimeGenerator.getBirthDay(userProf.getCreatedDate()));
 
-		byte gender = (randGender.nextDouble() > 0.5) ? (byte)1 : (byte)0;
+		byte gender = (randomGender.nextDouble() > 0.5) ? (byte)1 : (byte)0;
 		userProf.setGender(gender);
 		
 		userProf.setForumWallId(accountId * 2); // Each user has an wall
 		userProf.setForumStatusId(accountId * 2 + 1);
 
 		// User's Agent
-		userProf.setHaveSmartPhone(randUserAgent.nextDouble() > probHavingSmartPhone);
+		userProf.setHaveSmartPhone(randomUserAgent.nextDouble() > probHavingSmartPhone);
 		if (userProf.isHaveSmartPhone()) {
 			userProf.setAgentIdx(userAgentDic.getRandomUserAgentIdx());
 		}
@@ -1274,7 +1309,7 @@ public class ScalableGenerator{
 				.getRandomIPFromLocation(userProf.getLocationIdx()));
 
 		// Popular places 
-		byte numPopularPlaces = (byte) randNumPopularPlaces.nextInt(maxNumPopularPlaces + 1);
+		byte numPopularPlaces = (byte) randomNumPopularPlaces.nextInt(maxNumPopularPlaces + 1);
 		userProf.setNumPopularPlace(numPopularPlaces);
 		short popularPlaces[] = new short[numPopularPlaces];
 		for (int i = 0; i < numPopularPlaces; i++){
@@ -1287,7 +1322,7 @@ public class ScalableGenerator{
 		userProf.setPopularPlaceIds(popularPlaces);
 		
 		// Get random Idx
-		userProf.setRandomIdx(randUserRandomIdx.nextInt(USER_RANDOM_ID_LIMIT));
+		userProf.setRandomIdx(randomUserRandomIdx.nextInt(USER_RANDOM_ID_LIMIT));
 
 		return userProf;
 	}
@@ -1437,7 +1472,7 @@ public class ScalableGenerator{
         
         // NOTE: [2013-08-06] The tags of posts, forums, etc.. all depend of the user ones
         // if in the future this fact change add those in the statistics also.
-        HashSet<Integer> tags = user.getSetOfTags();
+        TreeSet<Integer> tags = user.getSetOfTags();
         for (Integer tagID : tags) {
             stats.tagNames.add(mainTagDic.getName(tagID));
             Integer parent = mainTagDic.getTagClass(tagID);
@@ -1457,18 +1492,18 @@ public class ScalableGenerator{
 			prob =  Math.pow(baseProbCorrelated, (j + windowSize - i));
 		}
 		return prob; 
-
 	}
+
 	public void createFriendShip(ReducedUserProfile user1, ReducedUserProfile user2, byte pass) {
 		long requestedTime = dateTimeGenerator.randomFriendRequestedDate(user1, user2);
-		byte initiator = (byte) randInitiator.nextInt(2);
+		byte initiator = (byte) randomInitiator.nextInt(2);
 		long createdTime = -1;
 		long declinedTime = -1;
-		if (randFriendReject.nextDouble() > friendRejectRatio) {
+		if (randomFriendReject.nextDouble() > friendRejectRatio) {
 			createdTime = dateTimeGenerator.randomFriendApprovedDate(requestedTime);
 		} else {
 			declinedTime = dateTimeGenerator.randomFriendDeclinedDate(requestedTime);
-			if (randFriendReapprov.nextDouble() < friendReApproveRatio) {
+			if (randomFriendAproval.nextDouble() < friendReApproveRatio) {
 				createdTime = dateTimeGenerator.randomFriendReapprovedDate(declinedTime);
 			}
 		}
@@ -1478,7 +1513,7 @@ public class ScalableGenerator{
 		user1.addNewFriend(new Friend(user2, requestedTime, declinedTime,
 				createdTime, pass, initiator));
 
-		friendshipNo++;
+		friendshipNum++;
 	}
 
 	

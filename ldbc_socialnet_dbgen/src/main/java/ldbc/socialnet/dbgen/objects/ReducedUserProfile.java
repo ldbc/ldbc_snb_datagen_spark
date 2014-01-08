@@ -42,7 +42,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
-import java.util.HashSet;
+import java.util.TreeSet;
 import java.util.Iterator;
 
 import org.apache.hadoop.io.Writable;
@@ -61,7 +61,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 	
 
 	Friend 				friendList[];
-	HashSet<Integer>	friendIds; 		// Use a hashset for checking the existence
+	TreeSet<Integer>	friendIds; 		// Use a Treeset for checking the existence
 	
 
 	int					dicElementIds[];	// Id of an element in a dictionary, e.g., locationId
@@ -82,7 +82,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 	int                 cityIdx;
 	int 				forumWallId; 
 	int 				forumStatusId;
-	HashSet<Integer> 	setOfTags;
+	TreeSet<Integer> 	setOfTags;
 	
 	short				popularPlaceIds[]; 
 	byte				numPopularPlace;
@@ -122,13 +122,13 @@ public class ReducedUserProfile implements Serializable, Writable{
 				numPassFriendsAdded[i] = stream.readShort();
 			}
 			friendList = new Friend[numFriends];
-			friendIds = new HashSet<Integer>(numFriends);
+			friendIds = new TreeSet<Integer>();
 			for (int i = 0; i < numFriendsAdded; i++){
 				Friend fr = new Friend(); 
 				fr.readFields(stream);
 				friendList[i] = fr; 
 			}
-			//Read the size of hashset first
+			//Read the size of Treeset first
 			int size = stream.readInt(); 
 			for (int i = 0; i < size; i++){
 				friendIds.add(stream.readInt());
@@ -153,7 +153,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 			forumStatusId = stream.readInt();
 			
 			byte numOfTags = stream.readByte();
-			setOfTags = new HashSet<Integer>(numOfTags);
+			setOfTags = new TreeSet<Integer>();
 			for (byte i = 0; i < numOfTags;i++){
 				setOfTags.add(stream.readInt());
 			}
@@ -186,7 +186,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 			for (int i = 0; i < numFriendsAdded; i++){
 				friendList[i].write(stream);
 			}
-			//Read the size of hashset first
+			//Read the size of Treeset first
 			stream.writeInt(friendIds.size()); 
 			Iterator<Integer> it = friendIds.iterator();
 			while (it.hasNext()){
@@ -243,13 +243,13 @@ public class ReducedUserProfile implements Serializable, Writable{
 			numPassFriendsAdded[i] = arg0.readShort();
 		}
 		friendList = new Friend[numFriends];
-		friendIds = new HashSet<Integer>(numFriends);
+		friendIds = new TreeSet<Integer>();
 		for (int i = 0; i < numFriendsAdded; i++){
 			Friend fr = new Friend(); 
 			fr.readFields(arg0);
 			friendList[i] = fr; 
 		}
-		//Read the size of hashset first
+		//Read the size of Treeset first
 		int size = arg0.readInt(); 
 		for (int i = 0; i < size; i++){
 			friendIds.add(arg0.readInt());
@@ -274,7 +274,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 		forumStatusId = arg0.readInt();
 		
 		byte numTags = arg0.readByte(); 
-		setOfTags = new HashSet<Integer>(numTags);
+		setOfTags = new TreeSet<Integer>();
 		for (byte i = 0; i < numTags;i++){
 			setOfTags.add(arg0.readInt());
 		}
@@ -345,7 +345,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 		for (int i = 0; i < numFriendsAdded; i++){
 			friendList[i].write(arg0);
 		}
-		//Read the size of hashset first
+		//Read the size of Treeset first
 		arg0.writeInt(friendIds.size()); 
 		Iterator<Integer> it = friendIds.iterator();
 		while (it.hasNext()){
@@ -496,7 +496,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 	
 	public void allocateFriendListMemory(){
 		friendList = new Friend[numFriends];
-		friendIds = new HashSet<Integer>(numFriends);
+		friendIds = new TreeSet<Integer>();
 	}
 
 	public Friend[] getFriendList() {
@@ -597,10 +597,10 @@ public class ReducedUserProfile implements Serializable, Writable{
 	public void setForumStatusId(int forumStatusId) {
 		this.forumStatusId = forumStatusId;
 	}
-	public HashSet<Integer> getSetOfTags() {
+	public TreeSet<Integer> getSetOfTags() {
 		return setOfTags;
 	}
-	public void setSetOfTags(HashSet<Integer> setOfTags) {
+	public void setSetOfTags(TreeSet<Integer> setOfTags) {
 		this.setOfTags = setOfTags;
 	}
 	public byte getNumPopularPlace() {
@@ -635,7 +635,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 	public void setNumPassFriendsAdded(short[] numPassFriendsAdded) {
 		this.numPassFriendsAdded = numPassFriendsAdded;
 	}
-	public HashSet<Integer> getFriendIds() {
+	public TreeSet<Integer> getFriendIds() {
 		return friendIds;
 	}
 	public int[] getDicElementIds() {

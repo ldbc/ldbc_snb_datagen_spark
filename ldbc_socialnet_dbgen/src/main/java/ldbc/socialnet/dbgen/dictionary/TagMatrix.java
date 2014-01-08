@@ -38,7 +38,7 @@ package ldbc.socialnet.dbgen.dictionary;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.HashSet;
+import java.util.TreeSet;
 import java.util.Vector;
 import java.util.Random;
 
@@ -89,8 +89,8 @@ public class TagMatrix {
     }
     
     // Combine the main tag and related tags
-    public HashSet<Integer> getSetofTags(int celebrityId, int numTags){
-        HashSet<Integer> resultTags = new HashSet<Integer>();
+    public TreeSet<Integer> getSetofTags(int celebrityId, int numTags){
+        TreeSet<Integer> resultTags = new TreeSet<Integer>();
         resultTags.add(celebrityId);
         
         while (resultTags.size() < numTags) {
