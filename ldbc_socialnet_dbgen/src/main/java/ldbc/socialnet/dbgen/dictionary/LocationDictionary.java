@@ -56,7 +56,7 @@ public class LocationDictionary {
 
     public static final int INVALID_LOCATION = -1;
     private static final String SEPARATOR = " ";
-    private static final String SEPARATOR_CITY = "  ";
+    private static final String SEPARATOR_CITY = " ";
     
 	int numUsers;
 	int curLocationIdx;
@@ -195,7 +195,9 @@ public class LocationDictionary {
         }
 	    
         if (citiesFromCountry.get(countryId).size() == 0) {
-            System.err.println("Country with no known cities");
+            Location location = locations.get(countryId);
+            String countryName = location.getName(); 
+            System.err.println("Country with no known cities: "+countryName);
             return INVALID_LOCATION;
         }
         
@@ -235,12 +237,13 @@ public class LocationDictionary {
             String line;
             while ((line = dictionary.readLine()) != null){
                 String data[] = line.split(SEPARATOR_CITY);
+//                System.err.println(data[0]);
                 if (countryNames.containsKey(data[0])) {
                     Integer countryId = countryNames.get(data[0]);
-                    if (!cityNames.containsKey(data[2])) {
+                    if (!cityNames.containsKey(data[1])) {
                         Location location = new Location(); 
                         location.setId(locations.size());
-                        location.setName(data[2]);
+                        location.setName(data[1]);
                         location.setLatt(locations.get(countryId).getLatt());
                         location.setLongt(locations.get(countryId).getLongt());
                         location.setPopulation(-1);
@@ -250,7 +253,7 @@ public class LocationDictionary {
                         isPartOf.put(location.getId(), countryId);
                         citiesFromCountry.get(countryId).add(location.getId());
                         
-                        cityNames.put(data[2], location.getId());
+                        cityNames.put(data[1], location.getId());
                         
                         cities++;
                     }

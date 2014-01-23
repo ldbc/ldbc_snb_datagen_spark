@@ -102,7 +102,8 @@ public class OrganizationsDictionary {
 				String data[] = line.split(SEPARATOR);
 				String locationName = data[0];
 				if (locationName.compareTo(lastLocationName) != 0) {
-					if (locationDic.getCountryId(locationName) != LocationDictionary.INVALID_LOCATION) {
+					if (locationDic.getCountryId(locationName) != LocationDictionary.INVALID_LOCATION &&
+					    locationDic.getCityId(data[2]) != LocationDictionary.INVALID_LOCATION ) {
 						lastLocationName = locationName;
 						curLocationId = locationDic.getCountryId(locationName); 
 						String organizationName = data[1].trim();
@@ -110,8 +111,10 @@ public class OrganizationsDictionary {
 						Integer cityId = locationDic.getCityId(data[2]);
 						organizationToLocation.put(organizationName, cityId);
 						totalNumOrganizations++;
-					}
-				} else{
+					} /*else {
+						System.err.println("ERROR:Invalid country or city of organization: "+locationName+" "+data[2]);
+					}*/
+				} else if( locationDic.getCityId(data[2]) != LocationDictionary.INVALID_LOCATION ) {
 				    String organizationName = data[1].trim();
 					organizationsByLocations.get(curLocationId).add(organizationName);
 					Integer cityId = locationDic.getCityId(data[2]);
@@ -128,9 +131,8 @@ public class OrganizationsDictionary {
 	
 	// 90% of people go to top-10 universities
 	// 10% go to remaining universities
-	public int getRandomOrganization(int countryId) {
+	public int getRandomOrganization(int locationId) {
 	    
-		int locationId = countryId;
 		double prob = randUnRelatedOrganization.nextDouble();
 		
 		Vector<Integer> countries = locationDic.getCountries();

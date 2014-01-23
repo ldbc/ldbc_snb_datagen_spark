@@ -164,7 +164,8 @@ public class ScalableGenerator{
     private static final String   emailDicFile           = DICTIONARY_DIRECTORY + "email.txt";
     private static final String   givennamesDicFile      = DICTIONARY_DIRECTORY + "givennameByCountryBirthPlace.txt.freq.full";
     private static final String   organizationsDicFile   = DICTIONARY_DIRECTORY + "institutesCityByCountry.txt";
-    private static final String   cityDicFile            = DICTIONARY_DIRECTORY + "institutesCityByCountry.txt";
+//    private static final String   cityDicFile            = DICTIONARY_DIRECTORY + "institutesCityByCountry.txt";
+    private static final String   cityDicFile            = DICTIONARY_DIRECTORY + "citiesByCountry.txt";
     private static final String   languageDicFile        = DICTIONARY_DIRECTORY + "languagesByCountry.txt";
     private static final String   popularPlacesDicFile   = DICTIONARY_DIRECTORY + "popularPlacesByCountry.txt";
     private static final String   agentFile              = DICTIONARY_DIRECTORY + "smartPhonesProviders.txt";
