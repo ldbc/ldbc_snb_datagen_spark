@@ -20,4 +20,4 @@ done
 
 export CLASSPATH
 
-./sibdriver -t 300000 -idir td_data -uqp query -uc sib/int -mt 1 -runs 1 http://localhost:8607/sparql -printres -q -defaultparams
+./sibdriver -t 300000 -idir td_data -uqp query -uc sib/int -mt 1 -runs 1 http://localhost:8619/sparql -printres -pq  -defaultparams

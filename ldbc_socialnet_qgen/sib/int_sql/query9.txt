@@ -1,0 +1,17 @@
+select top 20 p_personid, p_firstname, p_lastname, ps_postid, ps_content || ps_imagefile, ps_creationdate
+from person, post,
+ ( select k_person2id
+   from knows
+   where
+   k_person1id = @Person@
+   union
+   select k2.k_person2id
+   from knows k1, knows k2
+   where
+   k1.k_person1id = @Person@ and k1.k_person2id = k2.k_person1id and k2.k_person2id <> @Person@
+ ) f
+where
+p_personid = ps_creatorid and p_personid = f.k_person2id and
+ps_creationdate < stringdate('@Date0@')
+order by ps_creationdate desc, ps_postid
+

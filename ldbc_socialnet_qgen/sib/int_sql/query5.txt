@@ -1,0 +1,17 @@
+select top 20 f_title, count(*)
+from forum, post, forum_person,
+ ( select k_person2id
+   from knows
+   where
+   k_person1id = @Person@
+   union
+   select k2.k_person2id
+   from knows k1, knows k2
+   where
+   k1.k_person1id = @Person@ and k1.k_person2id = k2.k_person1id and k2.k_person2id <> @Person@
+ ) f
+where f_forumid = ps_forumid and f_forumid = fp_forumid and fp_personid = f.k_person2id and ps_creatorid = f.k_person2id and
+      fp_creationdate >= stringdate('@Date0@')
+group by f_title
+order by 2 desc, f_title
+

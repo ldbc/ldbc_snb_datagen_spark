@@ -1,8 +1,9 @@
-select ?tag count (*) #Q4
+select ?tagname count (*) #Q4
 from <sib>
 where {
     ?post snvoc:hasCreator ?fr .
     ?post snvoc:hasTag ?tag .
+    ?tag foaf:name ?tagname .
     ?post snvoc:creationDate ?date . 
     %Person% snvoc:knows ?fr .
     filter (?date >= "%Date0%"^^xsd:date && ?date <= bif:dateadd ("day", %Duration%, "%Date0%"^^xsd:date) ) .
@@ -13,6 +14,6 @@ where {
         ?post2 snvoc:creationDate ?date2 .
         filter (?date2 < "%Date0%"^^xsd:date)}) 
     }
-group by ?tag
-order by desc(2) ?tag
+group by ?tagname
+order by desc(2) ?tagname
 limit 10

@@ -50,6 +50,11 @@ public abstract class SIBParameterPool extends AbstractParameterPool {
     protected static final byte FAMOUS_PERSON = 113;
     protected static final byte CITY_NAME = 114;
     protected static final byte PROFILE_VIEW_QUERY = 115;
+    protected static final byte COUNTRY_PAIR_SQL = 116;
+    protected static final byte TAG_SQL_URI = 117;
+    protected static final byte PERSON_ID = 118;
+    protected static final byte COUNTRY_SQL_URI = 119;
+    protected static final byte TAG_TYPE_SQL_URI = 120;
 
     // Initialize Parameter mappings
     private static Map<String, Byte> parameterMapping;
@@ -70,6 +75,11 @@ public abstract class SIBParameterPool extends AbstractParameterPool {
         parameterMapping.put("FamousPerson", FAMOUS_PERSON);
         parameterMapping.put("CityName", CITY_NAME);
         parameterMapping.put("ProfileViewQuery", PROFILE_VIEW_QUERY);
+        parameterMapping.put("CountryPairSQL", COUNTRY_PAIR_SQL);
+        parameterMapping.put("TagSQLURI", TAG_SQL_URI);
+	parameterMapping.put("PersonID", PERSON_ID);
+	parameterMapping.put("CountrySQLURI", COUNTRY_SQL_URI);
+	parameterMapping.put("TagTypeSQLURI", TAG_TYPE_SQL_URI);
     }
 
     protected ValueGenerator valueGen;
@@ -328,6 +338,8 @@ public abstract class SIBParameterPool extends AbstractParameterPool {
         	return new TotalDaysOfCreationPostFP(this, addPI);
         case COUNTRY_PAIR:
         	return new CountryPairFP(this, addPI);
+        case COUNTRY_PAIR_SQL:
+        	return new CountryPairSQLFP(this, addPI);
         case HOROSCOPE_SIGN:
         	return new HoroscopeFP(this, addPI);
         case WORK_FROM_DATE:
@@ -459,6 +471,34 @@ public abstract class SIBParameterPool extends AbstractParameterPool {
 
     }
     
+    static class CountryPairSQLFP extends SIBFormalParameter {
+        SIBParameterPool parameterPool;
+        boolean first;
+
+        public CountryPairSQLFP(SIBParameterPool parameterPool, String[] addPI) {
+            super(SIBParameterPool.COUNTRY_PAIR_SQL);
+            this.parameterPool = parameterPool;
+            try {
+                if (addPI.length != 1)
+                    throw new IllegalArgumentException("Illegal parameters numbers for CountryPairSQL: "+addPI.length+" (expected:1)");
+                first = (addPI[0].equals("1") ? true : false);
+            } catch (IllegalArgumentException e) {
+                throw new BadSetupException("Illegal parameters for CountryPairSQL: " + addPI);
+            }
+        }
+
+        public Object getCountry(int index) {
+	    return (first ? parameterPool.countryPairs[2 * index] : parameterPool.countryPairs[2 * index + 1]);
+        }
+
+	@Override
+	public  String getDefaultValue() {
+	    return (first ? "China" : "India");
+	}
+
+    }
+
+
     static class HoroscopeFP extends SIBFormalParameter {
         SIBParameterPool parameterPool;
         int nth;

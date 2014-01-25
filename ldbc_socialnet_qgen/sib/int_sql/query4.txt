@@ -1,0 +1,19 @@
+select top 10 t_name, count(*)
+from tag, post, post_tag, knows
+where
+	ps_postid = pst_postid and
+	pst_tagid = t_tagid and
+	ps_creatorid = k_person2id and
+	k_person1id = @Person@ and
+	ps_creationdate between stringdate('@Date0@') and dateadd ('day', @Duration@, stringdate('@Date0@')) and
+	not exists (
+	    select * from post, post_tag, knows
+	    where
+		k_person1id = @Person@ and
+		k_person2id = ps_creatorid and
+		pst_postid = ps_postid and
+		pst_tagid = t_tagid and
+		ps_creationdate < '@Date0@'
+	)
+group by t_name
+order by 2 desc, t_name
