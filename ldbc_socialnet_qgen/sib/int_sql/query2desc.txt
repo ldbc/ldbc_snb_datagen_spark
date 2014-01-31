@@ -1,0 +1,4 @@
+QueryType=Select
+
+Person=PersonID
+Date0=CreationPostDate_33_66

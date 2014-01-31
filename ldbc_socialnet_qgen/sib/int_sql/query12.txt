@@ -1,0 +1,16 @@
+select top 20 p_personid, p_firstname, p_lastname, t_name, count(*)
+from person, comment, knows, post, post_tag, tag_tagclass, tagclass, tag
+where
+k_person1id = @Person@ and
+k_person2id = p_personid and
+p_personid = c_creatorid and
+c_replyofpost = ps_postid and
+ps_postid = pst_postid and
+pst_tagid = t_tagid and
+pst_tagid = ttc_tagid and
+ttc_tagclassid = tc_tagclassid and
+tc_url = '@TagType@'
+group by p_personid, p_firstname, p_lastname, t_name
+order by 5 desc, p_personid, t_name
+
+

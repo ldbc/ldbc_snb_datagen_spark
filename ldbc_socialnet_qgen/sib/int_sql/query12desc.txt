@@ -1,0 +1,6 @@
+QueryType=Select
+
+PersonURIString=exp
+
+Person=PersonID
+TagType=TagTypeSQLURI

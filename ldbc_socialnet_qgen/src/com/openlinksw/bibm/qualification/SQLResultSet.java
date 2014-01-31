@@ -83,9 +83,9 @@ public class SQLResultSet extends AbstractQueryResult {
         try {
 			ResultSetMetaData rsmd = resultset.getMetaData();
 			int colCount = rsmd.getColumnCount();
-            if (colCount!=getRds().length) {
-                throw new BadSetupException("For query "+getqName()+": "+getRds().length+" result columns described but "+colCount+" got");
-            }
+			if (getRds() != null && colCount!=getRds().length) {
+			    throw new BadSetupException("For query "+getqName()+": "+getRds().length+" result columns described but "+colCount+" got");
+			}
 			metadata=new String[colCount];
 			for (int i = 0; i < colCount; i++) {
 				metadata[i]=rsmd.getColumnName(i+1);

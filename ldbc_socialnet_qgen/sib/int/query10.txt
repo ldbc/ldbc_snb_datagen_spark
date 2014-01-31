@@ -14,7 +14,7 @@ select ?first ?last #Q10
             filter (!exists {%Person% snvoc:hasInterest ?tag})
         }
     )) as ?score)
-    ?fof  ?gender ?based
+    ?fof  ?gender ?locationname
 from <sib>
 where {
    {select distinct ?fof
@@ -30,6 +30,7 @@ where {
    ?fof snvoc:gender ?gender .
    ?fof snvoc:birthday ?bday .
    ?fof snvoc:isLocatedIn ?based .
+   ?based foaf:name ?locationname .
    filter (1 = if (bif:month (?bday) = %HS0%, if (bif:dayofmonth (?bday) > 21, 1, 0), if (bif:month (?bday) = %HS1%, if (bif:dayofmonth(?bday) < 22, 1, 0), 0)))
 }
 order by desc(3) ?fof

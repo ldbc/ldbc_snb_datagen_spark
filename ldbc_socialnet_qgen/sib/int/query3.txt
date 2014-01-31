@@ -1,7 +1,7 @@
 select ?fr ?first ?last ?ct1 ?ct2 (?ct1 + ?ct2) as ?sum #Q3
 from <sib>  
 where { 
-    {select ?fr 
+    {select distinct ?fr ?first ?last
         (((select count (*)
         where {
             ?post snvoc:hasCreator ?fr .

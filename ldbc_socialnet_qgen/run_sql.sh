@@ -20,4 +20,4 @@ done
 
 export CLASSPATH
 
-./sibdriver -t 300000 -idir td_data -uqp query -uc sib/int -mt 1 -runs 1 http://localhost:8619/sparql -printres -pq  -defaultparams
+./sibdriver -t 300000 -idir td_data -uc sib/int_sql -mt 1 -runs 1 -sql jdbc:virtuoso://localhost:1205/UID=dba/PWD=dba -dbdriver virtuoso.jdbc4.Driver -printres -pq -defaultparams

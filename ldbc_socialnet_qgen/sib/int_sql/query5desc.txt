@@ -1,0 +1,5 @@
+QueryType=Select
+
+Person=PersonID
+Date0=CreationPostDate_0_95
+Duration=TotalDaysOfCreationPost_2_4

@@ -1,4 +1,4 @@
-select ?group count (*) #Q5
+select ?title count (*) #Q5
 from <sib>
 where { 
     {select distinct ?fr
@@ -12,8 +12,9 @@ where {
     ?mem snvoc:joinDate ?date .
     filter (?date >= "%Date0%"^^xsd:date) .
     ?post snvoc:hasCreator ?fr .
-    ?group snvoc:containerOf ?post
+    ?group snvoc:containerOf ?post .
+    ?group snvoc:title ?title.
 }
-group by ?group
-order by desc(2) ?group
+group by ?title
+order by desc(2) ?title
 limit 20

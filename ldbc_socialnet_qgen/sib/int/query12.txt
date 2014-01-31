@@ -1,4 +1,4 @@
-select ?exp ?first ?last ?tag count (*) #Q12
+select ?exp ?first ?last ?tagname count (*) #Q12
 where {
     %Person% snvoc:knows ?exp .
     ?exp snvoc:firstName ?first . ?exp snvoc:lastName ?last .
@@ -7,7 +7,8 @@ where {
     filter (!exists {?org_post snvoc:replyOf ?xx}) .
     ?org_post snvoc:hasTag ?tag .
     ?tag a %TagType% .
+    ?tag foaf:name ?tagname .
 }
-group by ?exp ?first ?last ?tag
-order by desc(5) ?exp ?tag
+group by ?exp ?first ?last ?tagname
+order by desc(5) ?exp ?tagname
 limit 20

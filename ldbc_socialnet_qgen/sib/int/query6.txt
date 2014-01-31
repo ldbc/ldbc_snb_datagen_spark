@@ -1,4 +1,4 @@
-select ?tag count (*) #Q6
+select ?tagname count (*) #Q6
 from <sib>
 where {  
     {  select distinct ?fr
@@ -11,8 +11,9 @@ where {
     ?post snvoc:hasTag ?tag .
     filter (?tag != %Tag%) .
     ?post snvoc:hasTag %Tag% .
+    ?tag foaf:name ?tagname .
 }
-group by ?tag
-order by desc(2) ?tag
+group by ?tagname
+order by desc(2) ?tagname
 limit 10
 
