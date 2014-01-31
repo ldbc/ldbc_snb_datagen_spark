@@ -65,7 +65,7 @@ public class UserProfile implements Serializable {
 	
 	public short 		numFriendsAdded;
 	Friend 				friendList[];
-	TreeSet<Integer>	friendIds; 		// Use a hashset for checking the existence
+	TreeSet<Integer>	friendIds; 		// Use a Treeset for checking the existence
 	
 	TreeSet<Integer> 	setOfTags;
 	int					mainTagId; 
@@ -177,7 +177,7 @@ public class UserProfile implements Serializable {
 	}
 	public void printTags(){
 		System.out.println("Set of tag for " + accountId);
-		Iterator it = setOfTags.iterator(); 
+		Iterator<Integer> it = setOfTags.iterator(); 
 		while (it.hasNext()){
 			System.out.print(" " + it.next()); 
 		}

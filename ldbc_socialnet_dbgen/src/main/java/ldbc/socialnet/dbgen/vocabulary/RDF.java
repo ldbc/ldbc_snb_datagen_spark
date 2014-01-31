@@ -36,32 +36,14 @@
  */
 package ldbc.socialnet.dbgen.vocabulary;
 
-public class RDF{
-	public static final String NS = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+/**
+ * RDF syntax namespace used in the serialization process.
+ */
+public class RDF {
+    
+	public static final String NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 	public static final String PREFIX = "rdf:";
-	public static final String FACTPREFIX = "rdf_";
-
-    public static String prefixed(String string) {
-        return PREFIX + string;
-    }
-
-    public static String factprefixed(String string) {
-        return  FACTPREFIX + string;
-    }
-    
-    public static String getUrl(String string) {
-        return NS + string;
-    }
-
-    public static String fullprefixed(String string) {
-        return "<" + NS + string + ">";
-    }
-
-    public static String getURI() {
-        return NS;
-    }
-    
-    
+	
 	//Resources
     public static final String Alt =  PREFIX+"Alt";
     public static final String Bag =  PREFIX+"Bag";
@@ -79,4 +61,25 @@ public class RDF{
     public static final String object =  PREFIX+"object";
     public static final String type =  PREFIX+"type";
     public static final String value =  PREFIX+"value";
+
+    /**
+     * Gets the RDF syntax prefix version of the input.
+     */
+    public static String prefixed(String string) {
+        return PREFIX + string;
+    }
+    
+    /**
+     * Gets the RDF syntax URL version of the input.
+     */
+    public static String getUrl(String string) {
+        return NAMESPACE + string;
+    }
+
+    /**
+     * Gets the RDF syntax RDF-URL version of the input.
+     */
+    public static String fullprefixed(String string) {
+        return "<" + NAMESPACE + string + ">";
+    }
 }

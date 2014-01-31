@@ -34,32 +34,44 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package ldbc.socialnet.dbgen.vocabulary;
+package ldbc.socialnet.dbgen.serializer;
 
-public class DBPPROP {
-	public static final String NS = "http://dbpedia.org/property/";
-	public static final String PREFIX = "dbpedia-prop:";
-	public static final String FACTPREFIX = "dbpedia-prop_";
-	
-	public static String prefixed(String string) {
-	    return PREFIX + string;
-	}
+import ldbc.socialnet.dbgen.objects.Comment;
+import ldbc.socialnet.dbgen.objects.Group;
+import ldbc.socialnet.dbgen.objects.Photo;
+import ldbc.socialnet.dbgen.objects.Post;
+import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
+import ldbc.socialnet.dbgen.objects.UserExtraInfo;
 
-	public static String factprefixed(String string) {
-	    return  FACTPREFIX + string;
-	}
+/**
+ * The empty serializer does nothing. 
+ * 
+ * Its purpose is to avoid the serializing I/O costs in debug phases.
+ */
+public class EmptySerializer implements Serializer {
 	
-	public static String getUrl(String string) {
-        return NS + string;
+	public EmptySerializer() {
     }
-
-    public static String fullprefixed(String string) {
-        return "<" + NS + string + ">";
-    }
-
-	public static String getURI() {
-	    return NS;
+	
+	public Long unitsGenerated() {
+		return 0L;
 	}
 	
-	public static final String Name = PREFIX+"name";
+	public void gatherData(ReducedUserProfile profile, UserExtraInfo extraInfo){
+	}
+
+	public void gatherData(Post post){
+	}
+
+	public void gatherData(Comment comment){
+	}
+
+	public void gatherData(Photo photo){
+	}
+	
+	public void gatherData(Group group) {
+	}
+
+	public void close() {
+	}
 }

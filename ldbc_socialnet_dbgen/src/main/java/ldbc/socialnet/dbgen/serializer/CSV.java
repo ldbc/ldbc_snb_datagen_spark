@@ -44,6 +44,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Vector;
 
+import ldbc.socialnet.dbgen.dictionary.BrowserDictionary;
+import ldbc.socialnet.dbgen.dictionary.CompanyDictionary;
 import ldbc.socialnet.dbgen.dictionary.IPAddressDictionary;
 import ldbc.socialnet.dbgen.dictionary.LanguageDictionary;
 import ldbc.socialnet.dbgen.dictionary.LocationDictionary;
@@ -63,13 +65,52 @@ import ldbc.socialnet.dbgen.vocabulary.DBP;
 import ldbc.socialnet.dbgen.vocabulary.DBPOWL;
 import ldbc.socialnet.dbgen.vocabulary.SN;
 
-
+/**
+ * CSV serializer.
+ */
 public class CSV implements Serializer {
 	
-	final String NEWLINE = "\n";
-	final String SEPARATOR = "|";
+    private FileWriter[][] dataFileWriter;
+    private int[] currentWriter;
+    
+    private long csvRows;
+    private GregorianCalendar date;
+    
+    /**
+     * Generator input classes.
+     */
+    private CompanyDictionary companyDic;
+    private HashMap<String, Integer> universityToCountry;
+    private BrowserDictionary  browserDic;
+    private LocationDictionary locationDic;
+    private LanguageDictionary languageDic;
+    private TagDictionary tagDic;
+    private IPAddressDictionary ipDic;
+    
+    /**
+     * Used to create an unique id to each file. It is used only in case of an unnumbered entity or in the relations.
+     */
+    private long[] idList;
+    
+    /**
+     * Used to avoid serialize more than once the same data.
+     */
+    HashMap<Integer, Integer> printedTagClasses;
+    Vector<Integer> locations;
+    Vector<Integer> serializedLanguages;
+    Vector<String> organisations;
+    Vector<String> interests;
+    Vector<String> tagList;
+    Vector<String> ipList;
+    
+    private final String NEWLINE = "\n";
+    private final String SEPARATOR = "|";
 
-	final String[] fileNames = {
+	/**
+	 * The fileName vector and the enum Files serves the purpose of facilitate the serialization method
+	 * in the gatherData methods. Both of them must be coherent or it won't work.
+	 */
+    private final String[] fileNames = {
 	        "tag",
 	        "post",
 	        "forum",
@@ -138,7 +179,10 @@ public class CSV implements Serializer {
     	NUM_FILES
     }
 
-    final String[][] fieldNames = {
+    /**
+     * The field names of the CSV files. They are the first thing written in their respective file.
+     */
+    private final String[][] fieldNames = {
             {"id", "name", "url"},
             {"id", "imageFile", "creationDate", "locationIP", "browserUsed", "language", "content"},
             {"id", "title", "creationDate"},
@@ -173,40 +217,34 @@ public class CSV implements Serializer {
             {"Forum.id", "Person.id", "joinDate"}
     };
 
-	private long nrTriples;
-	private FileWriter[][] dataFileWriter;
-	int[] currentWriter;
-	long[] idList;
-	static long membershipId = 0;
-	static long friendshipId = 0; 
-	static long gpsId = 0; 
-	static long emailId = 0;
-	static long ipId = 0;
-	
-	HashMap<Integer, Integer> printedTagClasses;
-	
-	HashMap<String, Integer> companyToCountry;
-    HashMap<String, Integer> universityToCountry;
-	Vector<String>	vBrowserNames;
-	Vector<Integer> locations;
-	Vector<Integer> serializedLanguages;
-	Vector<String> organisations;
-	Vector<String> interests;
-	Vector<String> tagList;
-	Vector<String> ipList;
-	
-	GregorianCalendar date;
-	LocationDictionary locationDic;
-	LanguageDictionary languageDic;
-	TagDictionary tagDic;
-	IPAddressDictionary ipDic;
-	
-	public CSV(String file, boolean forwardChaining) {
-		this(file, forwardChaining, 1);
-	}
-	
-	public CSV(String file, boolean forwardChaining, int nrOfOutputFiles) {
-		vBrowserNames = new Vector<String>();
+    /**
+     * Constructor.
+     * 
+     * @param file: The basic file name.
+     * @param nrOfOutputFiles: How many files will be created.
+     * @param tagDic: The tag dictionary used in the generation.
+     * @param browsers: The browser dictionary used in the generation.
+     * @param companyToCountry: HashMap of company names to country IDs.
+     * @param univesityToCountry: HashMap of universities names to country IDs.
+     * @param ipDic: The IP dictionary used in the generation.
+     * @param locationDic: The location dictionary used in the generation.
+     * @param languageDic: The language dictionary used in the generation.
+     */
+	public CSV(String file, int nrOfOutputFiles, 
+            TagDictionary tagDic, BrowserDictionary browsers, 
+            CompanyDictionary companies, HashMap<String, Integer> univesityToCountry,
+            IPAddressDictionary ipDic, LocationDictionary locationDic, LanguageDictionary languageDic) {
+        
+        this.tagDic = tagDic;  
+        this.browserDic = browsers;
+        this.locationDic = locationDic;
+        this.languageDic = languageDic;
+        this.companyDic = companies;
+        this.universityToCountry = univesityToCountry;
+        this.ipDic = ipDic;
+        
+        csvRows = 0l;
+        date = new GregorianCalendar();
 		locations = new Vector<Integer>();
 		organisations = new Vector<String>();
 		interests = new Vector<String>();
@@ -221,7 +259,7 @@ public class CSV implements Serializer {
 		    idList[i]  = 0;
 			currentWriter[i] = 0;
 		}
-		date = new GregorianCalendar();
+
 		int nrOfDigits = ((int)Math.log10(nrOfOutputFiles)) + 1;
 		String formatString = "%0" + nrOfDigits + "d";
 		try{
@@ -238,7 +276,7 @@ public class CSV implements Serializer {
 				}
 			}
 
-			for(int i=0;i<nrOfOutputFiles;i++) {
+			for(int i=0; i<nrOfOutputFiles; i++) {
 			    for (int j = 0; j < Files.NUM_FILES.ordinal(); j++) {
 			        Vector<String> arguments = new Vector<String>();
 			        for (int k = 0; k < fieldNames[j].length; k++) {
@@ -249,32 +287,59 @@ public class CSV implements Serializer {
 			}
 				
 		} catch(IOException e){
-			System.err.println("Could not open File for writing.");
 			System.err.println(e.getMessage());
 			System.exit(-1);
 		}
-		nrTriples = 0l;
 	}
 	
-	public CSV(String file, boolean forwardChaining, int nrOfOutputFiles, 
-            TagDictionary tagDic, Vector<String> _vBrowsers, 
-            HashMap<String, Integer> companyToCountry, HashMap<String, Integer> univesityToCountry,
-            IPAddressDictionary ipDic, LocationDictionary locationDic, LanguageDictionary languageDic) {
-	    
-	    this(file, forwardChaining, nrOfOutputFiles);
-        this.tagDic = tagDic;  
-        this.vBrowserNames = _vBrowsers;
-        this.locationDic = locationDic;
-        this.languageDic = languageDic;
-        this.companyToCountry = companyToCountry;
-        this.universityToCountry = univesityToCountry;
-        this.ipDic = ipDic;
+	/**
+	 * Returns the number of CSV rows written.
+	 */
+	public Long unitsGenerated() {
+		return csvRows;
+	}
+	
+	/**
+	 * Writes the data into the appropriate file.
+	 * 
+	 * @param column: The column data.
+	 * @param index: The file index.
+	 */
+	public void ToCSV(Vector<String> columns, int index) {
+        StringBuffer result = new StringBuffer();
+        result.append(columns.get(0));
+        for (int i = 1; i < columns.size(); i++) {
+            result.append(SEPARATOR);
+            result.append(columns.get(i));
+        }
+        result.append(NEWLINE);
+        WriteTo(result.toString(), index);
+        columns.clear();
+        idList[index]++;
+    }
+
+	/**
+     * Writes the data into the appropriate file.
+     * 
+     * @param data: The string data.
+     * @param index: The file index.
+     */
+    public void WriteTo(String data, int index) {
+        try {
+            dataFileWriter[currentWriter[index]][index].append(data);
+            currentWriter[index] = (currentWriter[index] + 1) % dataFileWriter.length;
+            csvRows++;
+        } catch (IOException e) {
+            System.out.println("Cannot write to output file ");
+            e.printStackTrace();
+        }
     }
 	
-	public Long triplesGenerated() {
-		return nrTriples;
-	}
-	
+	/**
+     * Serializes the tag data and its class hierarchy.
+     * 
+     * @param tagId: The tag id.
+     */
 	public void printTagHierarchy(Integer tagId) {
 	    Vector<String> arguments = new Vector<String>();
 	    Integer tagClass = tagDic.getTagClass(tagId);
@@ -304,29 +369,11 @@ public class CSV implements Serializer {
         }
 	}
 	
-	public void ToCSV(Vector<String> arguments, int index) {
-		StringBuffer result = new StringBuffer();
-		result.append(arguments.get(0));
-		for (int i = 1; i < arguments.size(); i++) {
-			result.append(SEPARATOR);
-			result.append(arguments.get(i));
-		}
-		result.append(NEWLINE);
-		WriteTo(result.toString(), index);
-		arguments.clear();
-		idList[index]++;
-	}
-
-	public void WriteTo(String data, int index) {
-		try {
-			dataFileWriter[currentWriter[index]][index].append(data);
-			currentWriter[index] = (currentWriter[index] + 1) % dataFileWriter.length;
-		} catch (IOException e) {
-			System.out.println("Cannot write to output file ");
-			e.printStackTrace();
-		}
-	}
-	
+	/**
+     * Writes the base location and its hierarchy.
+     * 
+     * @param baseId: The base location id.
+     */
 	public void printLocationHierarchy(int baseId) {
 	    Vector<String> arguments = new Vector<String>();
 	    
@@ -339,7 +386,6 @@ public class CSV implements Serializer {
         for (int i = areas.size() - 1; i >= 0; i--) {
             if (locations.indexOf(areas.get(i)) == -1) {
                 locations.add(areas.get(i));
-                //print location
                 arguments.add(Integer.toString(areas.get(i)));
                 arguments.add(locationDic.getLocationName(areas.get(i)));
                 arguments.add(DBP.getUrl(locationDic.getLocationName(areas.get(i))));
@@ -355,6 +401,9 @@ public class CSV implements Serializer {
         }
     }
 	
+	/**
+     * @See {@link ldbc.socialnet.dbgen.serializer.Serializer#gatherData(ReducedUserProfile, UserExtraInfo)}
+     */
 	public void gatherData(ReducedUserProfile profile, UserExtraInfo extraInfo){
 		Vector<String> arguments = new Vector<String>();
 		
@@ -367,7 +416,7 @@ public class CSV implements Serializer {
 		Iterator<String> itString = extraInfo.getCompanies().iterator();
 		while (itString.hasNext()) {
 		    String company = itString.next();
-		    int parentId = companyToCountry.get(company);
+		    int parentId = companyDic.getCountry(company);
 		    printLocationHierarchy(parentId);
 		}
 		printLocationHierarchy(universityToCountry.get(extraInfo.getOrganization()));
@@ -396,7 +445,7 @@ public class CSV implements Serializer {
             arguments.add(empty);
         }
         if (profile.getBrowserIdx() >= 0) {
-            arguments.add(vBrowserNames.get(profile.getBrowserIdx()));
+            arguments.add(browserDic.getName(profile.getBrowserIdx()));
         } else {
             String empty = "";
             arguments.add(empty);
@@ -439,16 +488,16 @@ public class CSV implements Serializer {
 		        arguments.add(Integer.toString(universityToCountry.get(extraInfo.getOrganization())));
 		        ToCSV(arguments, Files.ORGANISATION_BASED_NEAR_PLACE.ordinal());
 		    }
-		}
+		    
+		    if (extraInfo.getClassYear() != -1 ) {
+	            date.setTimeInMillis(extraInfo.getClassYear());
+	            dateString = DateGenerator.formatYear(date);
 
-		if (extraInfo.getClassYear() != -1 ) {
-		    date.setTimeInMillis(extraInfo.getClassYear());
-		    dateString = DateGenerator.formatYear(date);
-
-		    arguments.add(Integer.toString(profile.getAccountId()));
-		    arguments.add(SN.formId(organisationId));
-		    arguments.add(dateString);
-		    ToCSV(arguments, Files.PERSON_STUDY_AT_ORGANISATION.ordinal());
+	            arguments.add(Integer.toString(profile.getAccountId()));
+	            arguments.add(SN.formId(organisationId));
+	            arguments.add(dateString);
+	            ToCSV(arguments, Files.PERSON_STUDY_AT_ORGANISATION.ordinal());
+	        }
 		}
 
 		itString = extraInfo.getCompanies().iterator();
@@ -466,7 +515,7 @@ public class CSV implements Serializer {
 		        ToCSV(arguments, Files.ORGANISATION.ordinal());
 
 		        arguments.add(SN.formId(organisationId));
-		        arguments.add(Integer.toString(companyToCountry.get(company)));
+		        arguments.add(Integer.toString(companyDic.getCountry(company)));
 		        ToCSV(arguments, Files.ORGANISATION_BASED_NEAR_PLACE.ordinal());
 		    }
 		    date.setTimeInMillis(extraInfo.getWorkFrom(company));
@@ -499,8 +548,8 @@ public class CSV implements Serializer {
             ToCSV(arguments, Files.PERSON_INTEREST_TAG.ordinal());
         }   
         
-        Friend friends[] = profile.getFriendList();         
-        for (int i = 0; i < friends.length; i ++) {
+        Friend friends[] = profile.getFriendList();
+        for (int i = 0; i < friends.length; i++) {
             if (friends[i] != null && friends[i].getCreatedTime() != -1){
 
                 arguments.add(Integer.toString(profile.getAccountId()));
@@ -544,9 +593,16 @@ public class CSV implements Serializer {
         }
 	}
 
+	/**
+     * @See {@link ldbc.socialnet.dbgen.serializer.Serializer#gatherData(Post)}
+     */
 	public void gatherData(Post post){
 	    Vector<String> arguments = new Vector<String>();
 	    String empty = "";
+	    
+	    if (post.getIpAddress() != null) {
+            printLocationHierarchy(ipDic.getLocation(post.getIpAddress()));
+        }
 	    
 	    arguments.add(SN.formId(post.getPostId()));
 	    arguments.add(empty);
@@ -559,7 +615,7 @@ public class CSV implements Serializer {
 	        arguments.add(empty);
 	    }
 	    if (post.getBrowserIdx() != -1){
-	        arguments.add(vBrowserNames.get(post.getBrowserIdx()));
+	        arguments.add(browserDic.getName(post.getBrowserIdx()));
 	    } else {
 	        arguments.add(empty);
 	    }
@@ -616,8 +672,15 @@ public class CSV implements Serializer {
 	    }
 	}
 
+	/**
+     * @See {@link ldbc.socialnet.dbgen.serializer.Serializer#gatherData(Comment)}
+     */
 	public void gatherData(Comment comment){
 	    Vector<String> arguments = new Vector<String>();
+	    
+	    if (comment.getIpAddress() != null) {
+            printLocationHierarchy(ipDic.getLocation(comment.getIpAddress()));
+        }
 	    
 	    date.setTimeInMillis(comment.getCreateDate());
         String dateString = DateGenerator.formatDateDetail(date); 
@@ -630,7 +693,7 @@ public class CSV implements Serializer {
             arguments.add(empty);
         }
         if (comment.getBrowserIdx() != -1){
-            arguments.add(vBrowserNames.get(comment.getBrowserIdx()));
+            arguments.add(browserDic.getName(comment.getBrowserIdx()));
         } else {
             String empty = "";
             arguments.add(empty);
@@ -658,8 +721,15 @@ public class CSV implements Serializer {
 	    ToCSV(arguments, Files.COMMENT_HAS_CREATOR_PERSON.ordinal());
 	}
 
+	/**
+     * @See {@link ldbc.socialnet.dbgen.serializer.Serializer#gatherData(Photo)}
+     */
 	public void gatherData(Photo photo){
 	    Vector<String> arguments = new Vector<String>();
+	    
+	    if (photo.getIpAddress() != null) {
+            printLocationHierarchy(ipDic.getLocation(photo.getIpAddress()));
+        }
 
 	    String empty = "";
 	    arguments.add(SN.formId(photo.getPhotoId()));
@@ -673,7 +743,7 @@ public class CSV implements Serializer {
 	        arguments.add(empty);
 	    }
 	    if (photo.getBrowserIdx() != -1){
-	        arguments.add(vBrowserNames.get(photo.getBrowserIdx()));
+	        arguments.add(browserDic.getName(photo.getBrowserIdx()));
 	    } else {
 	        arguments.add(empty);
 	    }
@@ -726,6 +796,9 @@ public class CSV implements Serializer {
 	    }
 	}
 	
+	/**
+     * @See {@link ldbc.socialnet.dbgen.serializer.Serializer#gatherData(Group)}
+     */
 	public void gatherData(Group group) {
 	    Vector<String> arguments = new Vector<String>();
 	    
@@ -774,7 +847,10 @@ public class CSV implements Serializer {
         }
 	}
 
-	public void serialize() {
+	/**
+     * Ends the serialization.
+     */
+	public void close() {
 		try {
 			for (int i = 0; i < dataFileWriter.length; i++) {
 				for (int j = 0; j < Files.NUM_FILES.ordinal(); j++) {

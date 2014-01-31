@@ -43,20 +43,70 @@ import ldbc.socialnet.dbgen.objects.Post;
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
 import ldbc.socialnet.dbgen.objects.UserExtraInfo;
 
-
+/**
+ * The ldbc socialnet generator serialize interface. The user of this interface has control of how the entities
+ * are parsed with the gatherData methods.
+ * 
+ * To ensure the correct serialization the close method must be called in the end so the serializer is able
+ * to flush any non written data and close the files used.
+ */
 public interface Serializer {
 	
-	public void serialize();
+    /**
+     * Closes the serializer and flush the remaining data. Once called any GatherData method will produce I/O excpetions.
+     */
+	public void close();
 	
-	public Long triplesGenerated();
+	/**
+	 * Returns how many serializer units (p.e.g rows in csv or triples in RDF) have been generated.
+	 */
+	public Long unitsGenerated();
 	
+	/**
+	 * Serializes the user information.
+	 * Aside from the user itself this includes:
+	 *   · The location hierarchy of the user location and any university and country he has work with.
+	 *   · The company and university data.
+	 *   · The forum of this user wall.
+	 *   · The tag data from its interests.
+	 *   
+	 * @param user: The user.
+	 * @param extraInfo: The user cosmetic data.
+	 */
 	public void gatherData(ReducedUserProfile user, UserExtraInfo extraInfo);
 	
+	/**
+	 * Serializes the post information.
+	 * Aside from the post itself this includes:
+	 *   · The location hierarchy of its location (via IP).
+	 *   · Its tag data.
+	 * 
+	 * @param post: The post.
+	 */
 	public void gatherData(Post post);
 	
+	/**
+     * Serializes the photo information.
+     * Aside from the photo itself this includes:
+     *   · The location hierarchy of its location (via IP).
+     *   · Its tag data.
+     * @param photo: The photo.
+     */
 	public void gatherData(Photo photo);
 	
+	/**
+     * Serializes the comment information.
+     * Aside from the comment itself this includes:
+     *   · The location hierarchy of its location (via IP).
+     *   · Its tag data.
+     * @param comment: The comment.
+     */
 	public void gatherData(Comment comment);
 	
+	/**
+     * Serializes the group information.
+     * 
+     * @param group: The group.
+     */
 	public void gatherData(Group group);
 }

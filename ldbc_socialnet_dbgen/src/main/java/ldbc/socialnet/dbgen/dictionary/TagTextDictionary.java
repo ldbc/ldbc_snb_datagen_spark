@@ -58,31 +58,33 @@ public class TagTextDictionary {
 	
     public static int commentId = -1;
     
+    private static final String SEPARATOR = "  ";
+    
+    String dicFileName;
+    DateGenerator dateGen;
+    
+    TagDictionary tagDic;
 	HashMap<Integer, String> tagText;
 	
-	String dicFileName;
-	
-	DateGenerator dateGen;
-	HashMap<Integer,String> tagIdToName;
 	Random rand;
-	Random randReduceText;
-	Random randTextSize;
 	Random randReplyTo;
+	Random randTextSize;
+	Random randReduceText;
 	
 	int minSizeOfText;
 	int maxSizeOfText;
+	int reduceTextSize;
     int minSizeOfComment;
     int maxSizeOfComment;
-    int reduceTextSize;
     double reduceTextRatio;
 	
-	public TagTextDictionary(String dicFileName, DateGenerator dateGen, HashMap<Integer,String> tagIdToName, 
+	public TagTextDictionary(String dicFileName, DateGenerator dateGen, TagDictionary tagDic, 
 	        int minSizeOfText, int maxSizeOfText, int minSizeOfComment, int maxSizeOfComment, 
 	        double reduceTextRatio, long seed, long seedTextSize){
 		this.dicFileName = dicFileName;
 		this.tagText = new HashMap<Integer, String>();
 		this.dateGen = dateGen;
-		this.tagIdToName = tagIdToName;
+		this.tagDic = tagDic;
 		rand = new Random(seed);
 		randReduceText = new Random(seed);
 		randReplyTo = new Random(seed);
@@ -100,9 +102,9 @@ public class TagTextDictionary {
 	        BufferedReader dictionary = new BufferedReader(new InputStreamReader(getClass( ).getResourceAsStream(dicFileName), "UTF-8"));
 	        String line;
 	        while ((line = dictionary.readLine()) != null){
-	            String[] splitted = line.split("  ");
-	            Integer id = Integer.valueOf(splitted[0]);
-	            tagText.put(id, splitted[1]);
+	            String[] data = line.split(SEPARATOR);
+	            Integer id = Integer.valueOf(data[0]);
+	            tagText.put(id, data[1]);
 	        }
 	        dictionary.close();
 	    } catch (Exception e) {
@@ -140,7 +142,7 @@ public class TagTextDictionary {
                 startingPos = randTextSize.nextInt(content.length() - textSize);
                 String finalString = content.substring(startingPos, startingPos + textSize - 1);
                 
-                String tagName = tagIdToName.get(tag).replace("_", " ");
+                String tagName = tagDic.getName(tag).replace("_", " ");
                 tagName = tagName.replace("\"", "\\\"");
                 String prefix = "About " +tagName+ ", ";
 
@@ -213,7 +215,7 @@ public class TagTextDictionary {
         post.setCreatedDate(dateGen.randomPostCreatedDate(user));
         post.setForumId(user.getAccountId() * 2);
         post.setUserAgent(userAgentDic.getUserAgentName(user.isHaveSmartPhone(), user.getAgentIdx()));
-        ipAddDic.setPostIPAdress(user.isFrequentChange(), user.getIpAddress(), post);
+        post.setIpAddress(ipAddDic.getIP(user.getIpAddress(), user.isFrequentChange(), post.getCreatedDate()));
         post.setBrowserIdx(browserDic.getPostBrowserId(user.getBrowserIdx()));
         
         TreeSet<Integer> tags = new TreeSet<Integer>();
@@ -236,7 +238,7 @@ public class TagTextDictionary {
         post.setInterestedUserAccs(likes);
         long[] likeTimestamp = new long[likes.length];
         for (int i = 0; i < likes.length; i++) {
-            likeTimestamp[i] = (long)(rand.nextDouble()*DateGenerator.sevenDayInMillis+post.getCreatedDate());
+            likeTimestamp[i] = (long)(rand.nextDouble()*DateGenerator.SEVEN_DAYS+post.getCreatedDate());
         }
         post.setInterestedUserAccsTimestamp(likeTimestamp);
         
@@ -258,7 +260,7 @@ public class TagTextDictionary {
         post.setCreatedDate(dateGen.randomGroupPostCreatedDate(memberShip.getJoinDate()));
         post.setForumId(group.getForumWallId());
         post.setUserAgent(userAgentDic.getUserAgentName(memberShip.isHaveSmartPhone(), memberShip.getAgentIdx()));
-        ipAddDic.setPostIPAdress(memberShip.isFrequentChange(), memberShip.getIP(), post);
+        post.setIpAddress(ipAddDic.getIP(memberShip.getIP(), memberShip.isFrequentChange(), post.getCreatedDate()));
         post.setBrowserIdx(browserDic.getPostBrowserId(memberShip.getBrowserIdx()));
         
         TreeSet<Integer> tags = new TreeSet<Integer>();
@@ -274,7 +276,7 @@ public class TagTextDictionary {
         post.setInterestedUserAccs(likes);
         long[] likeTimestamp = new long[likes.length];
         for (int i = 0; i < likes.length; i++) {
-            likeTimestamp[i] = (long)(rand.nextDouble()*DateGenerator.sevenDayInMillis+post.getCreatedDate());
+            likeTimestamp[i] = (long)(rand.nextDouble()*DateGenerator.SEVEN_DAYS+post.getCreatedDate());
         }
         post.setInterestedUserAccsTimestamp(likeTimestamp);
         
@@ -332,14 +334,13 @@ public class TagTextDictionary {
 	    comment.setPostId(post.getPostId());
 	    comment.setReply_of(getReplyToId(startCommentId, lastCommentId));
 	    comment.setForumId(post.getForumId());
+	    comment.setCreateDate(dateGen.powerlawCommDateDay(lastCommentCreatedDate));
 
 	    comment.setUserAgent(userAgentDic.getUserAgentName(friend.isHaveSmartPhone(), friend.getAgentIdx()));
-	    ipAddDic.setCommentIPAdress(friend.isFrequentChange(), friend.getSourceIp(), comment);
+	    comment.setIpAddress(ipAddDic.getIP(friend.getSourceIp(), friend.isFrequentChange(), comment.getCreateDate()));
 	    comment.setBrowserIdx(browserDic.getPostBrowserId(friend.getBrowserIdx()));
 
 	    comment.setContent(getRandomText(post.getTags()));
-
-	    comment.setCreateDate(dateGen.powerlawCommDateDay(lastCommentCreatedDate));
 
 	    return comment;
 	}
@@ -382,7 +383,7 @@ public class TagTextDictionary {
         comment.setForumId(post.getForumId());
 
         comment.setUserAgent(userAgentDic.getUserAgentName(memberShip.isHaveSmartPhone(), memberShip.getAgentIdx()));
-        ipAddDic.setCommentIPAdress(memberShip.isFrequentChange(), memberShip.getIP(), comment);
+        comment.setIpAddress(ipAddDic.getIP(memberShip.getIP(), memberShip.isFrequentChange(), comment.getCreateDate()));
         comment.setBrowserIdx(browserDic.getPostBrowserId(memberShip.getBrowserIdx()));
 
         comment.setContent(getRandomText(post.getTags()));

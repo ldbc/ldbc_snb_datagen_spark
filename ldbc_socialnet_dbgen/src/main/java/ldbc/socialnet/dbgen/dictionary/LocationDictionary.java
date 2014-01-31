@@ -37,497 +37,355 @@
 package ldbc.socialnet.dbgen.dictionary;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.io.RandomAccessFile;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.Vector;
 
-import ldbc.socialnet.dbgen.dictionary.NamesDictionary.NameFreq;
 import ldbc.socialnet.dbgen.objects.Location;
 import ldbc.socialnet.dbgen.util.ZOrder;
 
-
+/**
+ * This class reads the files containing the country data and city data used in the ldbc socialnet generation and 
+ * provides access methods to get such data.
+ * Most of the users has the prerequisite of requiring a valid location id.
+ */
 public class LocationDictionary {
 
-	int numberOfUsers; 
-	Vector<Integer> vecLocationDistribution;	// Store the number of people in each location
-
-	Vector<Location> vecCountry;             // Countries
-	Vector<Location> vecCities;                // Cities
-	Vector<Location> vecContinents;            // Continents
-	Location earth;
-	HashMap<Integer, Integer> cityCountry; // cityId -> countryId
-	HashMap<Integer, Integer> countryContinent; //countryId -> continentId
-	Vector<Vector<Integer>> vecCountryCities; // countryId -> cityId
-	Vector<Vector<Integer>> vecContinentCountries; // continentIds -> countyId
-	
-	BufferedReader dictionary; 
-	String dicCountryFile;
-	String dicCityFile;
-	HashMap<String, Integer> countryNameMapping; 	//Mapping from a Country location name to a id
-	HashMap<String, Integer> citiesNameMapping;    //Mapping from a city location name to a id 
-	HashMap<String, Integer> continentsNameMapping;    //Mapping from a continent location name to a id 
-	
-	boolean isCummulativeDist = false; 	// Store the vecLocationDistribution according to cumulative values
-	int countNumOfSameLocation = 0; 
-	int curLocationIdx = 0;
-	
-	LocationZorder[] sortLocation;
+    public static final int INVALID_LOCATION = -1;
+    private static final String SEPARATOR = " ";
+    private static final String SEPARATOR_CITY = " ";
+    
+	int numUsers;
+	int curLocationIdx;
 	
 	Random rand;
+	LocationZorder[] sortLocation;
+	Vector<Integer> locationDistribution;
+    
+	String cityFile;
+	String countryFile;    
+
+	Vector<Integer> countries;
+    HashMap<Integer, Location> locations;
+    HashMap<Integer, Integer>  isPartOf;
+	HashMap<Integer, Vector<Integer>> citiesFromCountry;
 	
-	public LocationDictionary(int _numberOfUsers, long seed, String dicCountryFile, String dicCityFile){
-        this.numberOfUsers = _numberOfUsers; 
-        this.dicCountryFile = dicCountryFile;
-        this.dicCityFile = dicCityFile;
+	HashMap<String, Integer> cityNames;
+	HashMap<String, Integer> countryNames;
+	
+	/**
+	 * Private class used to sort countries by their z-order value.
+	 */
+    private class LocationZorder implements Comparable<LocationZorder> {
+        
+        public int id;
+        public Integer zvalue; 
+        
+        public LocationZorder(int id, int zvalue) {
+            this.id = id; 
+            this.zvalue = zvalue; 
+        }
+        
+        public int compareTo(LocationZorder obj) {
+            return zvalue.compareTo(obj.zvalue);
+        }
+    }
+	
+    /**
+     * Creator.
+     * 
+     * @param numUsers: The total number of users.
+     * @param seed: The random selector seed.
+     * @param countryFile: The country and continent data file.
+     * @param cityFile: The city data file.
+     */
+	public LocationDictionary(int numUsers, long seed, String countryFile, String cityFile){
+        this.numUsers = numUsers; 
+        this.countryFile = countryFile;
+        this.cityFile = cityFile;
         
         rand = new Random(seed);
     }
 	
-	public HashMap<String, Integer> getLocationNameMapping() {
-		return countryNameMapping;
-	}
-	
-	public void setLocationNameMapping(HashMap<String, Integer> locationNameMapping) {
-		this.countryNameMapping = locationNameMapping;
-	}
-	
-	public Vector<Integer> getVecLocationDistribution() {
-		return vecLocationDistribution;
-	}
-	public void setVecLocationDistribution(Vector<Integer> vecLocationDistribution) {
-		this.vecLocationDistribution = vecLocationDistribution;
+	/**
+	 * Gets a list of the country ids.
+	 */
+	public Vector<Integer> getCountries() {
+		return new Vector<Integer>(countries);
 	}
 
-	public Vector<Location> getVecLocations() {
-		return vecCountry;
-	}
-
-	public void setVecLocations(Vector<Location> vecLocations) {
-		this.vecCountry = vecLocations;
-	}
-
-	public String getLocationName(int locationIdx){
-	    if (locationIdx < 0 || locationIdx >= (vecCountry.size() + vecCities.size() + vecContinents.size() + 1))
-        {
-            System.out.println("Invalid locationId");
-            return "";
-        } else if (locationIdx < vecCountry.size()) {
-            return vecCountry.get(locationIdx).getName();
-        } else if (locationIdx < vecCountry.size() + vecCities.size()) {
-            return vecCities.get(locationIdx - vecCountry.size()).getName();
-        } else if (locationIdx < vecCountry.size() + vecCities.size() + vecContinents.size()){
-            return vecContinents.get(locationIdx - vecCities.size() - vecCountry.size()).getName();
-        } else {
-            return earth.getName();
-        }
-	}
-	public String getType(int locationIdx){
-        if (locationIdx < 0 || locationIdx >= (vecCountry.size() + vecCities.size() + vecContinents.size() + 1))
-        {
-            System.out.println("Invalid locationId");
-            return "";
-        } else if (locationIdx < vecCountry.size()) {
-            return vecCountry.get(locationIdx).getType();
-        } else if (locationIdx < vecCountry.size() + vecCities.size()) {
-            return vecCities.get(locationIdx - vecCountry.size()).getType();
-        } else if (locationIdx < vecCountry.size() + vecCities.size() + vecContinents.size()){
-            return vecContinents.get(locationIdx - vecCities.size() - vecCountry.size()).getType();
-        } else {
-            return earth.getType();
-        }
-    }
-	public double getLatt(int locationIdx){
-	    if (locationIdx < 0 || locationIdx >= (vecCountry.size() + vecCities.size() + vecContinents.size() + 1))
-        {
-            System.out.println("Invalid locationId");
-            return 0;
-        } else if (locationIdx < vecCountry.size()) {
-            return vecCountry.get(locationIdx).getLatt();
-        } else if (locationIdx < vecCountry.size() + vecCities.size()) {
-            return vecCities.get(locationIdx - vecCountry.size()).getLatt();
-        } else if (locationIdx < vecCountry.size() + vecCities.size() + vecContinents.size()){
-            return vecContinents.get(locationIdx - vecCities.size() - vecCountry.size()).getLatt();
-        } else {
-            return earth.getLatt();
-        }
-	}
-	public double getLongt(int locationIdx){
-	    if (locationIdx < 0 || locationIdx >= (vecCountry.size() + vecCities.size() + vecContinents.size() + 1)) {
-            System.out.println("Invalid locationId");
-            return 0;
-        } else if (locationIdx < vecCountry.size()) {
-            return vecCountry.get(locationIdx).getLongt();
-        } else if (locationIdx < vecCountry.size() + vecCities.size()) {
-            return vecCities.get(locationIdx - vecCountry.size()).getLongt();
-        } else if (locationIdx < vecCountry.size() + vecCities.size() + vecContinents.size()){
-            return vecContinents.get(locationIdx - vecCities.size() - vecCountry.size()).getLongt();
-        } else {
-            return earth.getLongt();
-        }
+	/**
+	 * Given a location id returns the name of said location.
+	 */
+	public String getLocationName(int locationId) {
+	    return locations.get(locationId).getName();
 	}
 	
-	public String getCountryName(int countryId) {
-	    if (countryId < 0 || countryId >= vecCountry.size())
-        {
-            System.out.println("Invalid countryId");
-            return "";
-        }
-        
-        return vecCities.get(countryId).getName();
-	}
-	
-	public String getCityName(int cityId) {
-	    if (cityId < vecCountry.size() || cityId >= (vecCountry.size() + vecCities.size()))
-        {
-            System.out.println("Invalid cityId");
-            return "";
-        }
-        
-        return vecCities.get(cityId - vecCountry.size()).getName();
-	}
-	
-	public int getCityId(String cityName) {
-        if (!citiesNameMapping.containsKey(cityName))
-        {
-            System.out.println("Invalid cityId");
-            return -1;
-        }
-        
-        return citiesNameMapping.get(cityName) + vecCountry.size();
+	/**
+     * Given a location id returns the population of said location.
+     */
+	public Long getPopulation(int locationId) {
+	    return locations.get(locationId).getPopulation();
     }
 	
+	/**
+     * Given a location id returns the Type ({@link ldbc.socialnet.dbgen.objects.Location#CITY} |
+     * {@link ldbc.socialnet.dbgen.objects.Location#COUNTRY} | {@link ldbc.socialnet.dbgen.objects.Location#CONTINENT} |
+     * {@link ldbc.socialnet.dbgen.objects.Location#AREA}) of said location.
+     */
+	public String getType(int locationId) {
+	    return locations.get(locationId).getType();
+    }
+	
+	/**
+     * Given a location id returns the latitude of said location.
+     */
+	public double getLatt(int locationId) {
+        return locations.get(locationId).getLatt();
+	}
+	
+	/**
+     * Given a location id returns the longitude of said location.
+     */
+	public double getLongt(int locationId) {
+        return locations.get(locationId).getLongt();
+	}
+	
+	/**
+     * Given a city name returns the id of the city or {{@link #INVALID_LOCATION} if it does not exist.
+     */
+	public int getCityId(String cityName) { 
+	    if (!cityNames.containsKey(cityName)) {
+            return INVALID_LOCATION;
+        }
+        return cityNames.get(cityName);
+    }
+	
+	/**
+     * Given a country name returns the id of the country or {{@link #INVALID_LOCATION} if it does not exist.
+     */
+	public int getCountryId(String countryName) {
+	    if (!countryNames.containsKey(countryName)) {
+	        return INVALID_LOCATION;
+	    }
+        return countryNames.get(countryName);
+    }
+	
+	/**
+     * Given a location id returns the id of the location which the input is part of or 
+     * {{@link #INVALID_LOCATION} if it does not exist any.
+     */
 	public int belongsTo(int locationId) {
-	    if (locationId < 0 || locationId >= (vecCountry.size() + vecCities.size())) {
-	        return -1;
-	    } else if (locationId < vecCountry.size() && countryContinent.containsKey(locationId)) {
-	        return vecContinents.get(countryContinent.get(locationId)).getId();
-	    } else if (locationId < vecCountry.size() + vecCities.size() && cityCountry.containsKey(locationId-vecCountry.size())) {
-	        return vecCountry.get(cityCountry.get(locationId-vecCountry.size())).getId();
+	    if (!isPartOf.containsKey(locationId)) {
+	        return INVALID_LOCATION;
 	    }
-	    return earth.getId();
+	    return isPartOf.get(locationId);
 	}
 	
+	/**
+     * Given a country id returns an id of one of its cities.
+     */
 	public int getRandomCity(int countryId) {
-        if (countryId < 0 || countryId >= vecCountry.size())
-        {
-            System.out.println("Invalid countryId");
-            return -1;
+	    if (!citiesFromCountry.containsKey(countryId)) {
+            System.err.println("Invalid countryId");
+            return INVALID_LOCATION;
         }
-        if (vecCountryCities.get(countryId).size() == 0)
-        {
-            System.out.println("Country with no known cities");
-            return -1;
+	    
+        if (citiesFromCountry.get(countryId).size() == 0) {
+            Location location = locations.get(countryId);
+            String countryName = location.getName(); 
+            System.err.println("Country with no known cities: "+countryName);
+            return INVALID_LOCATION;
         }
         
-        int randomNumber = rand.nextInt(vecCountryCities.get(countryId).size());
-        return vecCountryCities.get(countryId).get(randomNumber) + vecCountry.size();
-	}
-
-	public int getContinent(int countryId) {
-	    if (countryId < 0 || countryId >= vecCountry.size() || !countryContinent.containsKey(countryId))
-	    {
-	        System.err.println("Invalid countryId");
-	        return -1;
-	    }
-	    
-	    
-	    return countryContinent.get(countryId) + vecCountry.size() + vecCities.size();
-    }
-	
-	public String getContinentName(int continentId)
-    {
-        if (continentId < (vecCountry.size() + vecCities.size()) 
-                || continentId >= vecCountry.size() + vecCities.size() + vecContinents.size())
-        {
-            System.err.println("Invalid continentId");
-            return "";
-        }
-        
-        return vecContinents.get(continentId - vecCountry.size() - vecCities.size()).getName();
-    }
-	
-	public void init(){
-		try {
-			vecLocationDistribution = new Vector<Integer>();
-			vecCountry = new Vector<Location>();
-			vecCities = new Vector<Location>();
-		    vecContinents = new Vector<Location>();
-			countryNameMapping = new HashMap<String, Integer>();
-			citiesNameMapping = new HashMap<String, Integer>();
-			continentsNameMapping = new HashMap<String, Integer>();
-			vecCountryCities = new Vector<Vector<Integer>>();
-		    vecContinentCountries = new Vector<Vector<Integer>>();
-		    countryContinent = new HashMap<Integer, Integer>();
-		    cityCountry = new HashMap<Integer, Integer>();
-			
-		    dictionary = new BufferedReader(new InputStreamReader(getClass( ).getResourceAsStream(dicCountryFile), "UTF-8"));
-
-			extractLocationsCummulative();
-			
-			orderByZ();
-			
-			dictionary.close();
-			
-			dictionary = new BufferedReader(new InputStreamReader(getClass( ).getResourceAsStream(dicCityFile), "UTF-8"));
-            
-            extractCities();
-            
-            dictionary.close();
-            
-            for (int i = 0; i < vecContinents.size(); i++) {
-                vecContinents.get(i).setId(vecCountry.size() + vecCities.size() + i);
-            }
-            
-            earth = new Location();
-            earth.setId(vecCountry.size() + vecCities.size() + vecContinents.size());
-            earth.setName("Earth");
-            earth.setLatt(0);
-            earth.setLongt(0);
-            earth.setPopulation(7000000000L);
-            earth.setType("AREA");
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        int randomNumber = rand.nextInt(citiesFromCountry.get(countryId).size());
+        return citiesFromCountry.get(countryId).get(randomNumber);
 	}
 	
-	public void extractCities()
-    {
+	/**
+	 * Initializes the dictionary.
+	 */
+	public void init() {
+	    curLocationIdx = 0;
+	    locationDistribution = new Vector<Integer>();
+	    countryNames = new HashMap<String, Integer>();
+	    cityNames = new HashMap<String, Integer>();
+	    locations = new HashMap<Integer, Location>();
+	    isPartOf = new HashMap<Integer, Integer>();
+	    countries = new Vector<Integer>();
+	    citiesFromCountry = new HashMap<Integer, Vector<Integer>>();
+
+	    readCountries();
+	    orderByZ();
+	    readCities();
+	    readContinents();
+	}
+	
+	/**
+	 * Reads the city data from the file.
+	 * It only stores the cities which belonging to a known country.
+	 */
+	private void readCities() {
         try {
+            BufferedReader dictionary = new BufferedReader(
+                    new InputStreamReader(getClass( ).getResourceAsStream(cityFile), "UTF-8"));
+            
+            int cities = 0;
             String line;
             while ((line = dictionary.readLine()) != null){
-                String infos[] = line.split("  ");
-                if (countryNameMapping.containsKey(infos[0])) {
-                    Integer countryId = countryNameMapping.get(infos[0]);
-                    if (!citiesNameMapping.containsKey(infos[2])) {
+                String data[] = line.split(SEPARATOR_CITY);
+//                System.err.println(data[0]);
+                if (countryNames.containsKey(data[0])) {
+                    Integer countryId = countryNames.get(data[0]);
+                    if (!cityNames.containsKey(data[1])) {
                         Location location = new Location(); 
-                        location.setId(vecCountry.size() + vecCities.size());
-                        location.setName(infos[2]);
-                        location.setLatt(vecCountry.get(countryId).getLatt());
-                        location.setLongt(vecCountry.get(countryId).getLongt());
+                        location.setId(locations.size());
+                        location.setName(data[1]);
+                        location.setLatt(locations.get(countryId).getLatt());
+                        location.setLongt(locations.get(countryId).getLongt());
                         location.setPopulation(-1);
                         location.setType(Location.CITY);
 
-                        citiesNameMapping.put(infos[2], vecCities.size());
-                        vecCities.add(location);
+                        locations.put(location.getId(), location);
+                        isPartOf.put(location.getId(), countryId);
+                        citiesFromCountry.get(countryId).add(location.getId());
                         
-                        Integer cityId = citiesNameMapping.get(infos[2]);
-                        vecCountryCities.get(countryId).add(cityId);
-                        cityCountry.put(cityId, countryId);
+                        cityNames.put(data[1], location.getId());
+                        
+                        cities++;
                     }
-                } else {
-                    //System.err.println("Unknown country " + infos[0] + " for city " + infos[2]);
                 }
             }
+            dictionary.close();
+            System.out.println("Done ... " + cities + " cities were extracted");
         } catch (IOException e) {
-            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+	/**
+     * Reads the countries data from the file.
+     */
+	private void readCountries() {
+	    try {
+	        BufferedReader dictionary = new BufferedReader(
+	                new InputStreamReader(getClass( ).getResourceAsStream(countryFile), "UTF-8"));
+
+	        String line;
+	        while ((line = dictionary.readLine()) != null){
+	            String data[] = line.split(SEPARATOR);
+	            String locationName = data[1];
+
+	            Location location = new Location(); 
+	            location.setId(locations.size());
+	            location.setName(locationName);
+	            location.setLatt(Double.parseDouble(data[2]));
+	            location.setLongt(Double.parseDouble(data[3]));
+	            location.setPopulation(Integer.parseInt(data[4]));
+	            location.setType(Location.COUNTRY);
+
+	            locations.put(location.getId(), location);
+	            countryNames.put(locationName, location.getId());    
+	            float cummulativeDistribution = Float.parseFloat(data[5]);
+	            locationDistribution.add(Math.round(cummulativeDistribution * (float)numUsers));
+                countries.add(location.getId());
+	            
+	            citiesFromCountry.put(location.getId(), new Vector<Integer>());
+	        }
+	        dictionary.close();
+	        System.out.println("Done ... " + countries.size() + " countries were extracted");
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
+	}
+
+	/**
+     * Reads the continent data from the file and links a country to a continent.
+     */
+	private void readContinents() {
+        HashMap<String, Integer> treatedContinents = new HashMap<String, Integer>();
+        try {
+            BufferedReader dictionary = new BufferedReader(
+                    new InputStreamReader(getClass( ).getResourceAsStream(countryFile), "UTF-8"));
+            
+            String line;
+            while ((line = dictionary.readLine()) != null){
+                String data[] = line.split(SEPARATOR);
+                String locationName = data[1];
+
+                int countryId = countryNames.get(locationName);
+
+                if (!treatedContinents.containsKey(data[0])) {
+                    
+                    Location continent = new Location(); 
+                    continent.setId(locations.size());
+                    continent.setName(data[0]);
+                    continent.setLatt(Double.parseDouble(data[2]));
+                    continent.setLongt(Double.parseDouble(data[3]));
+                    continent.setPopulation(0);
+                    continent.setType(Location.CONTINENT);
+
+                    locations.put(continent.getId(), continent);
+                    treatedContinents.put(data[0], continent.getId());
+                }
+                Integer continentId = treatedContinents.get(data[0]);
+                long population = locations.get(continentId).getPopulation() + locations.get(countryId).getPopulation();
+                locations.get(continentId).setPopulation(population);
+                isPartOf.put(countryId, continentId);
+            }
+            dictionary.close();
+            System.out.println("Done ... " + treatedContinents.size() + " continents were extracted");
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 	
-	public void extractLocationsCummulative(){
-		String locationName; 
-		float cumdistribution;	//cummulative distribution value
-		String line; 
-		
-		isCummulativeDist = true; 
-		
-		try {
-			while ((line = dictionary.readLine()) != null){
-				String infos[] = line.split(" ");
-				locationName = infos[1];
-
-				countryNameMapping.put(locationName,vecCountry.size());	
-				
-				Location location = new Location(); 
-				location.setId(vecCountry.size());
-				location.setName(locationName);
-				location.setLatt(Double.parseDouble(infos[2]));
-				location.setLongt(Double.parseDouble(infos[3]));
-				location.setPopulation(Integer.parseInt(infos[4]));
-				location.setType(Location.COUNTRY);
-				
-				vecCountry.add(location);
-				vecCountryCities.add(new Vector<Integer>());
-				
-				cumdistribution = Float.parseFloat(infos[5]);
-				vecLocationDistribution.add(Math.round(cumdistribution*(float)numberOfUsers));
-
-				if (!continentsNameMapping.containsKey(infos[0])) {
-				    
-				    vecContinentCountries.add(new Vector<Integer>());
-				    Location continent = new Location(); 
-				    continent.setId(0); //Defined later
-				    continent.setName(infos[0]);
-				    continent.setLatt(Double.parseDouble(infos[2]));
-				    continent.setLongt(Double.parseDouble(infos[3]));
-				    continent.setPopulation(0);
-				    continent.setType(Location.CONTINENT);
-
-				    continentsNameMapping.put(infos[0], vecContinents.size());
-				    vecContinents.add(continent);
-				}
-
-				Integer continentId = continentsNameMapping.get(infos[0]);
-				Integer countryId = countryNameMapping.get(infos[1]);
-				countryContinent.put(countryId, continentId);
-				vecContinentCountries.get(continentId).add(countryId);
-				vecContinents.get(continentId).setPopulation(vecContinents.get(continentId).getPopulation() + vecCountry.get(countryId).getPopulation());
-			}
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
-		System.out.println("Done ... " + vecLocationDistribution.size() + " locations were extracted");
-		//Recalculate the number of people for each locations
-	}
-	public void extractLocations(){
-		String locationName; 
-		float cumdistribution;	//cummulative distribution value
-		String line; 
-		int total = 0;
-		int lasttotal = 0; 
-		
-		isCummulativeDist = false; 
-		
-		try {
-			while ((line = dictionary.readLine()) != null){
-				String infos[] = line.split(" ");
-				locationName = infos[1];
-				cumdistribution = Integer.parseInt(infos[4]);
-				
-				Location location = new Location(); 
-				location.setId(vecCountry.size());
-				location.setName(locationName);
-				location.setLatt(Double.parseDouble(infos[1]));
-				location.setLongt(Double.parseDouble(infos[2]));
-				location.setPopulation(Integer.parseInt(infos[3]));
-				location.setType("COUNTRY");
-				
-				vecCountry.add(location);
-				vecCountryCities.add(new Vector<Integer>());
-				
-				total = Math.round(cumdistribution*(float)numberOfUsers);
-				vecLocationDistribution.add(total - lasttotal);
-				lasttotal = total;
-				
-				if (!continentsNameMapping.containsKey(infos[0])) {
-				    vecContinentCountries.add(new Vector<Integer>());
-                    Location continent = new Location(); 
-                    continent.setId(0); //Defined later
-                    continent.setName(infos[0]);
-                    continent.setLatt(Double.parseDouble(infos[2]));
-                    continent.setLongt(Double.parseDouble(infos[3]));
-                    continent.setPopulation(0);
-                    continent.setType("CONTINENT");
-
-                    continentsNameMapping.put(infos[0], vecContinents.size());
-                    vecContinents.add(continent);
-                }
-
-                Integer continentId = continentsNameMapping.get(infos[0]);
-                Integer countryId = countryNameMapping.get(infos[1]);
-                countryContinent.put(countryId, continentId);
-                vecContinentCountries.get(continentId).add(countryId);
-                vecContinents.get(continentId).setPopulation(vecContinents.get(continentId).getPopulation() + vecCountry.get(countryId).getPopulation());
-			}
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
-		System.out.println(vecLocationDistribution.size() + " locations were extracted");
-		//Recalculate the number of people for each locations
+	/**
+	 * Gets a country id based on population.
+	 * This method is assumed to be called in an ascending order of user ID.
+	 */
+	public int getLocation(int userId) {
+	    if (userId >= locationDistribution.get(curLocationIdx)) {
+	        curLocationIdx++;
+	    }
+	    return countries.get(curLocationIdx);
 	}
 	
-	public int getLocation(int userIdx){
-		if (isCummulativeDist){
-			if (userIdx < vecLocationDistribution.get(curLocationIdx))	return curLocationIdx;
-			else
-			{
-				curLocationIdx++;
-				return curLocationIdx;
-			}
-					
-		}
-		else{
-			if (countNumOfSameLocation < vecLocationDistribution.get(curLocationIdx)){
-				countNumOfSameLocation++;
-				return curLocationIdx;
-			}
-			else{
-				countNumOfSameLocation = 0;
-				curLocationIdx++;
-				return curLocationIdx;
-			}
-		}
-	}
-	
-	public void orderByZ(){
-		sortLocation = new LocationZorder[vecCountry.size()];
-		ZOrder zorder = new ZOrder(8);
+	/**
+	 * Sorts countries by its z-order value.
+	 */
+	private void orderByZ() {
+	    ZOrder zorder = new ZOrder(8);
+		sortLocation = new LocationZorder[countries.size()];
 		
-		for (int i = 0; i < vecCountry.size(); i++){
-			Location loc = vecCountry.get(i);
+		for (int i = 0; i < countries.size(); i++) {
+			Location loc = locations.get(countries.get(i));
 			int zvalue = zorder.getZValue(((int)Math.round(loc.getLongt()) + 180)/2, ((int)Math.round(loc.getLatt()) + 180)/2);
-			sortLocation[i] = new LocationZorder(loc.getId(),zvalue);
+			sortLocation[i] = new LocationZorder(loc.getId(), zvalue);
 		}
 		
 		Arrays.sort(sortLocation);
+		System.out.println("Sorted countries according to their z-value");
 		
-		System.out.println("Sorted location according to their z-value ");
-		
-		for (int i = 0; i < sortLocation.length; i ++){
-			//sortLocation[i].print();
-			//System.out.println(sortLocation[i].id + "   " + vecLocations.get(sortLocation[i].id).getName() + "   "  + sortLocation[i].zvalue);
-		    vecCountry.get(sortLocation[i].id).setzId(i);
+		for (int i = 0; i < sortLocation.length; i++) {
+		    locations.get(sortLocation[i].id).setzId(i);
 		}
 	}
 	
-	public int getZorderID(int _locationId){
-		return vecCountry.get(_locationId).getzId();
-	}
-	public int getLocationIdFromZOrder(int _zOrderId){
-		return sortLocation[_zOrderId].id;
+	/**
+	 * Gets the z-order ID from the given country.
+	 */
+	public int getZorderID(int locationId) {
+		return locations.get(locationId).getzId();
 	}
 	
-	class LocationZorder implements Comparable{
-		int id;
-		int zvalue; 
-		public LocationZorder(int _id, int _zvalue){
-			this.id = _id; 
-			this.zvalue = _zvalue; 
-		}
-		public int compareTo(Object obj)
-		{
-			LocationZorder tmp = (LocationZorder)obj;
-			if(this.zvalue < tmp.zvalue)
-			{	
-				return -1;
-			}
-			else if(this.zvalue > tmp.zvalue)
-			{
-				return 1;
-			}
-			return 0;
-		}
-		public void print(){
-			System.out.println(id + "  " + zvalue);
-		}
+	/**
+     * Gets country id from the given z-order ID.
+     */
+	public int getLocationIdFromZOrder(int zOrderId) {
+		return sortLocation[zOrderId].id;
 	}
 }

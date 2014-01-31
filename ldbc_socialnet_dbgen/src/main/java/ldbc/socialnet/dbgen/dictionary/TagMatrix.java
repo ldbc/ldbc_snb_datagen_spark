@@ -37,100 +37,86 @@
 package ldbc.socialnet.dbgen.dictionary;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.RandomAccessFile;
-import java.util.HashMap;
 import java.util.TreeSet;
-import java.util.Iterator;
-import java.util.Map.Entry;
 import java.util.Vector;
 import java.util.Random;
 
 public class TagMatrix {
     
-    BufferedReader dictionary;
+    private static final String SEPARATOR = " ";
+    
     String dicFileName;
     
-    Vector < Vector<Double> > vecCumulative;
-    Vector < Vector <Integer>> vecTopicID;
+    Vector<Vector<Double>> vecCumulative;
+    Vector<Vector<Integer>> vecTopicID;
     
     Random  rnd;
     Random  rnd2;
     
-    public TagMatrix(String _dicFileName, int _numCelebrities, long seed){
-        this.dicFileName = _dicFileName;
-        vecCumulative = new Vector<Vector<Double>>(_numCelebrities);
-        vecTopicID = new Vector<Vector<Integer>>(_numCelebrities);
+    public TagMatrix(String dicFileName, int numCelebrities, long seed){
         
-        for (int i =  0; i < _numCelebrities; i++){
+        this.dicFileName = dicFileName;
+        
+        vecCumulative = new Vector<Vector<Double>>(numCelebrities);
+        vecTopicID    = new Vector<Vector<Integer>>(numCelebrities);
+        for (int i =  0; i < numCelebrities; i++){
             vecCumulative.add(new Vector<Double>());
             vecTopicID.add(new Vector<Integer>());
         }
         
-        rnd = new Random(seed);
+        rnd  = new Random(seed);
         rnd2 = new Random(seed);
     }
     
     public void initMatrix() {
         try {
-            dictionary = new BufferedReader(new InputStreamReader(getClass( ).getResourceAsStream(dicFileName), "UTF-8"));
+            BufferedReader dictionary = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(dicFileName), "UTF-8"));
             String line;
-            while ((line = dictionary.readLine()) != null){
-                String infos[] = line.split(" ");
-                int celebrityId = Integer.parseInt(infos[0]);
-                int topicId = Integer.parseInt(infos[1]);
-                double cumuluative = Double.parseDouble(infos[2]);
+            while ((line = dictionary.readLine()) != null) {
+                String data[] = line.split(SEPARATOR);
+                int celebrityId = Integer.parseInt(data[0]);
+                int topicId = Integer.parseInt(data[1]);
+                double cumuluative = Double.parseDouble(data[2]);
                 
                 vecCumulative.get(celebrityId).add(cumuluative);
                 vecTopicID.get(celebrityId).add(topicId);
             }
             dictionary.close();
-            	
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
     
     // Combine the main tag and related tags
-    
-    public TreeSet<Integer> getSetofTags(int _celebrityId, int numTags){
+    public TreeSet<Integer> getSetofTags(int celebrityId, int numTags){
         TreeSet<Integer> resultTags = new TreeSet<Integer>();
-        resultTags.add(_celebrityId);
+        resultTags.add(celebrityId);
         
         while (resultTags.size() < numTags) {
             int tagId; 
-            tagId = _celebrityId; 
-
-            if (vecTopicID.get(tagId).size() == 0){
-                //Randomly get from other country.
-                do {
-                    tagId = rnd.nextInt(vecTopicID.size());
-                } while (vecTopicID.get(tagId).size() == 0);
+            tagId = celebrityId; 
+            
+            while (vecTopicID.get(tagId).size() == 0) {
+                tagId = rnd.nextInt(vecTopicID.size());
             }
-
 
             // Doing binary search for finding the tag
             double randomDis = rnd2.nextDouble(); 
             int lowerBound = 0;
-            int upperBound = vecTopicID.get(tagId).size(); 
-
-            int curIdx = (upperBound + lowerBound)  / 2;
+            int upperBound = vecTopicID.get(tagId).size();
+            int midPoint = (upperBound + lowerBound)  / 2;
 
             while (upperBound > (lowerBound+1)){
-                if (vecCumulative.get(tagId).get(curIdx) > randomDis ){
-                    upperBound = curIdx;
+                if (vecCumulative.get(tagId).get(midPoint) > randomDis ){
+                    upperBound = midPoint;
+                } else{
+                    lowerBound = midPoint; 
                 }
-                else{
-                    lowerBound = curIdx; 
-                }
-                curIdx = (upperBound + lowerBound)  / 2;
+                midPoint = (upperBound + lowerBound)  / 2;
             }
             
-            resultTags.add(vecTopicID.get(tagId).get(curIdx));
+            resultTags.add(vecTopicID.get(tagId).get(midPoint));
         }
         
         return resultTags;    

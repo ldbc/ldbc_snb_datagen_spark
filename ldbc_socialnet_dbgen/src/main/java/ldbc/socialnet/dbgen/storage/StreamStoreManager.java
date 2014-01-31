@@ -44,8 +44,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import ldbc.socialnet.dbgen.objects.GPS;
-import ldbc.socialnet.dbgen.objects.PhotoStream;
-import ldbc.socialnet.dbgen.objects.PostStream;
 
 
 public class StreamStoreManager {
@@ -105,26 +103,6 @@ public class StreamStoreManager {
 			
 		} catch (IOException i) {
 			i.printStackTrace();
-		}
-	}
-	
-	public void serialize(PostStream postStream){
-		try {
-			oos.writeObject(postStream);
-			numberSerializedObject++;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	public void serialize(PhotoStream photoStream){
-		try {
-			oos.writeObject(photoStream);
-			numberSerializedObject++;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 	

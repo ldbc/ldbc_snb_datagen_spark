@@ -39,6 +39,7 @@ package ldbc.socialnet.dbgen.objects;
 import java.io.Serializable;
 
 public class GPS implements Serializable{
+    private static final long serialVersionUID = 3657773293974543890L;
 	long 	trackedTime; 
 	String	trackedLocation;
 	double 	longt;

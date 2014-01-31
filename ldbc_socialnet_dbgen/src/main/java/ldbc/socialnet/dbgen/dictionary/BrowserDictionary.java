@@ -37,160 +37,106 @@
 package ldbc.socialnet.dbgen.dictionary;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.RandomAccessFile;
 import java.util.Random;
 import java.util.Vector;
 
+/**
+ * This class reads the file containing the names and distributions for the browsers used in the ldbc socialnet generation and 
+ * provides access methods to get such data.
+ */
 public class BrowserDictionary {
 	
+    private static final String SEPARATOR = "  ";
+    
+    Vector<String>      vBrowser;
 	Vector<Double>  	vBrowserCummulative; 
-	Vector<String> 		vBrowser;
 
-	Random 				randBrowsers; 
-	BufferedReader 	browserDictionary; 
-	String 				browserDicFileName;
+	String fileName;
 	
-	int 				totalNumBrowsers;
+	double probAnotherBrowser;
+	Random randDifBrowser;
+	Random randBrowsers; 
 	
-	double 				probAnotherBrowser; 	// Probability that a user uses another browser
-	Random				randDifBrowser;			// whether user change to another browser or not
-	
-	public BrowserDictionary(String _browserDicFileName, long seedBrowser,double _probAnotherBrowser){
-		randBrowsers = new Random(seedBrowser);
-		randDifBrowser = new Random(seedBrowser);
-		browserDicFileName = _browserDicFileName;
-		probAnotherBrowser = _probAnotherBrowser;
+	/**
+	 * Creator.
+	 * 
+	 * @param fileName: The file which contains the browser data.
+	 * @param seedBrowser: Seed for the browsers random selection. 
+	 * @param probAnotherBrowser: Probability of the user using another browser.
+	 */
+	public BrowserDictionary(String fileName, long seedBrowser, double probAnotherBrowser){
+		this.fileName = fileName;
+		this.probAnotherBrowser = probAnotherBrowser;
+		
+		randBrowsers   = new Random(seedBrowser);
+        randDifBrowser = new Random(seedBrowser);
 	}
 	
+	/**
+	 * Initializes the dictionary extracting the data from the file.
+	 */
 	public void init(){
 		try {
-			browserDictionary = new BufferedReader(new InputStreamReader(getClass( ).getResourceAsStream(browserDicFileName), "UTF-8"));
+		    BufferedReader dictionary = new BufferedReader(
+		            new InputStreamReader(getClass( ).getResourceAsStream(fileName), "UTF-8"));
 			vBrowser = new Vector<String>();
 			vBrowserCummulative = new Vector<Double>();
 			
-			browsersExtract();
-			
-			browserDictionary.close();
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}	
-	public void browsersExtract(){
-		String browser; 
-		double cumdistribution = 0.0;	//cummulative distribution value
-		String line; 
-		int i = 0; 
-		totalNumBrowsers = 0;
+			String line; 
+			double cummulativeDist = 0.0;
 
-		try {
-			while ((line = browserDictionary.readLine()) != null){
-				String infos[] = line.split("  ");
-				browser = infos[0];
-				cumdistribution = cumdistribution + Double.parseDouble(infos[1]);
-				vBrowser.add(browser);
-				//System.out.println(cumdistribution);
-				vBrowserCummulative.add(cumdistribution);
-				i++;
-				
-				totalNumBrowsers++;
-			}
-			
+			while ((line = dictionary.readLine()) != null){
+			    String data[] = line.split(SEPARATOR);
+			    String browser = data[0];
+			    cummulativeDist += Double.parseDouble(data[1]);
+			    vBrowser.add(browser);
+			    vBrowserCummulative.add(cummulativeDist);
+			}			
+			dictionary.close();
 			System.out.println("Done ... " + vBrowser.size() + " browsers were extracted");
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
-	public String getRandomBrowser(){
-		double prob = randBrowsers.nextDouble();
-
-		int minIdx = 0;
-		int maxIdx = totalNumBrowsers - 1;
-
-		if (prob < vBrowserCummulative.get(minIdx)){
-			return vBrowser.get(minIdx);
-		}
-		
-		while ((maxIdx - minIdx) > 1){
-			
-			if (prob > vBrowserCummulative.get(minIdx + (maxIdx - minIdx)/2)){
-				minIdx =  minIdx + (maxIdx - minIdx)/2;
-			}
-			else{
-				maxIdx =  minIdx + (maxIdx - minIdx)/2;
-			}
-		}
-		
-		return vBrowser.get(maxIdx);
-	}
+	/**
+	 * Gets the browser name.
+	 */
+	public String getName(byte id) {
+        return vBrowser.get(id);
+    }
 	
-	public String getBrowserName(byte browserId){
-		return vBrowser.get(browserId);
-	}
-	public byte getRandomBrowserId(){
-		double prob = randBrowsers.nextDouble();
+	/**
+	 * Gets a random browser id.
+	 */
+	public byte getRandomBrowserId() {
+	    double prob = randBrowsers.nextDouble();
+	    
 		int minIdx = 0;
-		int maxIdx = totalNumBrowsers - 1;
-
-		if (prob < vBrowserCummulative.get(minIdx)){
-			return (byte)minIdx;
-		}
+		int maxIdx = (prob < vBrowserCummulative.get(minIdx)) ? minIdx : vBrowserCummulative.size() - 1;
 		
-		while ((maxIdx - minIdx) > 1){
+		while ((maxIdx - minIdx) > 1) {
 			
-			if (prob > vBrowserCummulative.get(minIdx + (maxIdx - minIdx)/2)){
-				minIdx =  minIdx + (maxIdx - minIdx)/2;
-			}
-			else{
-				maxIdx =  minIdx + (maxIdx - minIdx)/2;
+		    int middlePoint = minIdx + (maxIdx - minIdx) / 2;
+			if (prob > vBrowserCummulative.get(middlePoint)) {
+				minIdx = middlePoint;
+			} else {
+				maxIdx = middlePoint;
 			}
 		}
 		
 		return (byte)maxIdx;
 	}
 
+	/**
+	 * Gets the post browser. There is a chance of being different from the user preferred browser
+	 * @param userBrowserId: The user preferred browser.
+	 */
 	public byte getPostBrowserId(byte userBrowserId){
 		double prob = randDifBrowser.nextDouble();
-		if (prob < probAnotherBrowser){
-			return getRandomBrowserId();
-		}
-		else{
-			return userBrowserId;
-		}
+		return (prob < probAnotherBrowser) ? getRandomBrowserId() : userBrowserId;
 	}
-	public byte getCommentBrowserId(byte userBrowserId){
-		double prob = randDifBrowser.nextDouble();
-		if (prob < probAnotherBrowser){
-			return getRandomBrowserId();
-		}
-		else{
-			return userBrowserId;
-		}
-	}	
-	
-	public String getBrowserForAUser(String originalBrowser){
-		double prob = randDifBrowser.nextDouble();
-		if (prob < probAnotherBrowser){
-			return getRandomBrowser();
-		}
-		else{
-			return originalBrowser;
-		}
-	}
-	
-	public Vector<String> getvBrowser() {
-		return vBrowser;
-	}
-
-	public void setvBrowser(Vector<String> vBrowser) {
-		this.vBrowser = vBrowser;
-	}
-
 }

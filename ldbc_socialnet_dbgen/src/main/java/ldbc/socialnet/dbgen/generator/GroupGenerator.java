@@ -39,36 +39,38 @@ package ldbc.socialnet.dbgen.generator;
 import java.util.TreeSet;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.Vector;
 
 import ldbc.socialnet.dbgen.dictionary.LocationDictionary;
 import ldbc.socialnet.dbgen.dictionary.TagDictionary;
 import ldbc.socialnet.dbgen.objects.Friend;
 import ldbc.socialnet.dbgen.objects.Group;
 import ldbc.socialnet.dbgen.objects.GroupMemberShip;
-import ldbc.socialnet.dbgen.objects.IP;
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
 import ldbc.socialnet.dbgen.objects.UserExtraInfo;
 
 
 public class GroupGenerator {
 	static int groupId = 0;
+	static int forumId;
+	
 	DateGenerator dateGenerator; 
 	LocationDictionary locationDic;
 	TagDictionary tagDic;
-	static int forumId; 
 	Random 	randGroupInterest;
 	
-	public GroupGenerator(DateGenerator _dateGenerator, LocationDictionary _locationDic, 
+	public GroupGenerator(DateGenerator dateGenerator, LocationDictionary locationDic, 
 			TagDictionary tagDic, int numUsers, long seed){
-		this.dateGenerator = _dateGenerator; 
-		this.locationDic = _locationDic; 
+		this.dateGenerator = dateGenerator; 
+		this.locationDic = locationDic; 
 		this.tagDic = tagDic; 
-		this.forumId = numUsers * 2 + 1;
+		
+		GroupGenerator.forumId = numUsers * 2 + 1;
 		randGroupInterest = new Random(seed);
 	}
 	
 	public void setForumId(int forumId) {
-	    this.forumId = forumId;
+	    GroupGenerator.forumId = forumId;
 	}
 	
 	public Group createGroup(ReducedUserProfile user){
@@ -99,7 +101,7 @@ public class GroupGenerator {
 		tags[0] = interestIdx;
 		
 		//Set name of group
-		group.setGroupName("Group for " + tagDic.getTagsNamesMapping().get(interestIdx).replace("\"","\\\"") + " in " + locationDic.getLocationName(group.getLocationIdx()));
+		group.setGroupName("Group for " + tagDic.getName(interestIdx).replace("\"","\\\"") + " in " + locationDic.getLocationName(group.getLocationIdx()));
 		
 		group.setTags(tags);
 		
@@ -109,7 +111,9 @@ public class GroupGenerator {
 	public Group createAlbum(ReducedUserProfile user, UserExtraInfo extraInfo, int numAlbum, Random rand, double memberProb) {
 	    Group group = createGroup(user);
 	    group.setCreatedDate(dateGenerator.randomPhotoAlbumCreatedDate(user));
-	    group.setLocationIdx(rand.nextInt(locationDic.getVecLocations().size()));
+	    Vector<Integer> countries = locationDic.getCountries();
+	    int random = rand.nextInt(countries.size());
+	    group.setLocationIdx(countries.get(random));
 	    group.setGroupName("Album " + numAlbum + " of " + extraInfo.getFirstName() + " " + extraInfo.getLastName());
 	    Friend[] friends = user.getFriendList();
 	    group.initAllMemberships(user.getNumFriendsAdded());

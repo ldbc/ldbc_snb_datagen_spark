@@ -47,41 +47,27 @@ import ldbc.socialnet.dbgen.objects.UserProfile;
 
 
 public class DateGenerator {
-	public static long oneDayInMillis = 24*60*60*1000;
-	public static long thirtyDayInMillis = (long)24*60*60*1000*30;
-	public static long sevenDayInMillis = (long)24*60*60*1000*7;	
-	public static long thirtyYear = (long)24*60*60*1000*365*30;
-	public static long tenYear = (long)24*60*60*1000*365*10;
-	public static long oneYear = (long)24*60*60*1000*365;
-	public static long twoYear = (long)24*60*60*1000*365*2;		
+	public static long ONE_DAY      = 24L * 60L * 60L * 1000L;
+	public static long SEVEN_DAYS   = 7L * ONE_DAY;
+	public static long THIRTY_DAYS  = 30L * ONE_DAY;
+	public static long ONE_YEAR     = 365L * ONE_DAY;
+	public static long TWO_YEARS    = 2L * ONE_YEAR;
+	public static long TEN_YEARS    = 10L * ONE_YEAR;
+	public static long THIRTY_YEARS = 30L * ONE_YEAR;
 	
-	
-	
-	private long from, to;
-	private long fromBirthDay, toBirthDay;
+	private long from;
+	private long to;
+	private long fromBirthDay;
+	private long toBirthDay;
 	GregorianCalendar birthCalendar;
 	
 	private Random ranGen;
 	private Random ranClassYear;
 	private Random ranWorkingYear;
-	
 	private Random thirtyDayRanGen;
 	private Random sevenDayRanGen;
 	private PowerDistGenerator disGen;
 	
-	
-	/*
-	public DateGenerator(GregorianCalendar from, GregorianCalendar to, Long seed)
-	{
-		this.from = from.getTimeInMillis();
-		this.to = to.getTimeInMillis();
-		ranGen = new Random(seed);
-		ranClassYear = new Random(seed);
-		ranWorkingYear = new Random(seed);
-		
-	}
-	*/
-
 	// This constructor is for the case of friendship's created date generator
 	public DateGenerator(GregorianCalendar from, GregorianCalendar to, 
 			Long seed, Long seedForThirtyday, double alphaForPowerlaw)
@@ -102,44 +88,6 @@ public class DateGenerator {
 		this.toBirthDay = tobirthCalendar.getTimeInMillis();
 		this.birthCalendar = new GregorianCalendar();
 	}
-	
-	/*
-	 * Date generator with range from - (from+toSpanInDays) 
-	 */
-	/*
-	public DateGenerator(GregorianCalendar from, Integer toSpanInDays, Long seed)
-	{
-		this.from = from.getTimeInMillis();
-		this.to = this.from + oneDayInMillis*toSpanInDays;
-
-		ranGen = new Random(seed);
-		ranClassYear = new Random(seed);
-		ranWorkingYear = new Random(seed);
-	}
-	*/
-	
-	/*
-	 * Date generator with range (to-fromSpanInDays) - to 
-	 */
-	/*
-	public DateGenerator(Integer fromSpanInDays, GregorianCalendar to, Long seed)
-	{
-		this.to = to.getTimeInMillis();
-		this.from = this.to - oneDayInMillis*fromSpanInDays;
-		ranGen = new Random(seed);
-		ranClassYear = new Random(seed);
-		ranWorkingYear = new Random(seed);
-	}
-	
-	public DateGenerator(Long seed)
-	{
-		this.from = 0l;
-		this.to = 0l;
-		ranGen = new Random(seed);
-		ranClassYear = new Random(seed);
-		ranWorkingYear = new Random(seed);
-	}
-	*/
 	
 	/*
 	 * Date between from and to
@@ -284,7 +232,7 @@ public class DateGenerator {
 	}
 	
 	public Long randomThirtyDaysSpan(Long from){
-		long randomSpanMilis =  (long) (thirtyDayRanGen.nextDouble()* (thirtyDayInMillis));
+		long randomSpanMilis =  (long) (thirtyDayRanGen.nextDouble()* (THIRTY_DAYS));
 		return (from + randomSpanMilis);
 	}
 	public long randomFriendRequestedDate(UserProfile user1, UserProfile user2){
@@ -299,23 +247,23 @@ public class DateGenerator {
 	}
 	
 	public long randomFriendApprovedDate(long requestedDate){
-		long randomSpanMilis =  (long) (sevenDayRanGen.nextDouble()* (sevenDayInMillis));
+		long randomSpanMilis =  (long) (sevenDayRanGen.nextDouble()* (SEVEN_DAYS));
 		return (requestedDate + randomSpanMilis);
 	}
 	public long randomFriendDeclinedDate(long requestedDate){
-		long randomSpanMilis =  (long) (sevenDayRanGen.nextDouble()* (sevenDayInMillis));
+		long randomSpanMilis =  (long) (sevenDayRanGen.nextDouble()* (SEVEN_DAYS));
 		return (requestedDate + randomSpanMilis);
 	}
 	public long randomFriendReapprovedDate(long declined){
-		long randomSpanMilis =  (long) (thirtyDayRanGen.nextDouble()* (thirtyDayInMillis));
+		long randomSpanMilis =  (long) (thirtyDayRanGen.nextDouble()* (THIRTY_DAYS));
 		return (declined + randomSpanMilis);
 	}	
 	public long numberOfMonths(ReducedUserProfile user){
-		return (to - user.getCreatedDate())/thirtyDayInMillis;
+		return (to - user.getCreatedDate())/THIRTY_DAYS;
 	}
 	
 	public long numberOfMonths(long fromDate){
-		return (to - fromDate)/thirtyDayInMillis;
+		return (to - fromDate)/THIRTY_DAYS;
 	}
 	
 	public long randomPostCreatedDate(ReducedUserProfile user){
@@ -370,19 +318,11 @@ public class DateGenerator {
 	}
 	
 	public long powerlawCommDateDay(long lastCommentCreatedDate){
-		long createdDate = (long)(disGen.getDouble() * oneDayInMillis+lastCommentCreatedDate);
+		long createdDate = (long)(disGen.getDouble() * ONE_DAY+lastCommentCreatedDate);
 		
 		return createdDate; 
 	}
-	
-	// Assume that users are of 10 to 70 years' old
-	// Randomly select a long value in this range, then, minus this value from user's created date
-	/*
-	public long getBirthDay(long userCreatedDate){
-		long age = (long)(ranGen.nextDouble() * thirtyYear + tenYear);
-		return (userCreatedDate - age);
-	}
-	*/
+
 	// The birthday is fixed during 1980 --> 1990
 	public long getBirthDay(long userCreatedDate){
 		long date = (long)(ranGen.nextDouble()*(toBirthDay -fromBirthDay)+fromBirthDay);
@@ -399,30 +339,30 @@ public class DateGenerator {
 
 	public long getClassYear(long userCreatedDate, long birthday){
 		long age;
-		long graduateage = (ranClassYear.nextInt(5) + 20) * oneYear; 
+		long graduateage = (ranClassYear.nextInt(5) + 20) * ONE_YEAR; 
 		if (birthday != -1){
 			return (long)(birthday + graduateage); 
 		}
 		else{
-			age = (long)(ranGen.nextDouble() * thirtyYear + tenYear);
+			age = (long)(ranGen.nextDouble() * THIRTY_YEARS + TEN_YEARS);
 			return (userCreatedDate - age + graduateage);
 		}
 	}
 	
 	public long getWorkFromYear(long userCreatedDate, long birthday){
 		long age;
-		long workingage = (ranClassYear.nextInt(10) + 25) * oneYear; 
+		long workingage = (ranClassYear.nextInt(10) + 25) * ONE_YEAR; 
 		if (birthday != -1){
 			return (long)(birthday + workingage); 
 		}
 		else{
-			age = (long)(ranGen.nextDouble() * thirtyYear + tenYear);
+			age = (long)(ranGen.nextDouble() * THIRTY_YEARS + TEN_YEARS);
 			return (userCreatedDate - age + workingage);
 		}
 	}
 	
 	public long getWorkFromYear(long classYear){
-		return (classYear + (long)(ranWorkingYear.nextDouble()*twoYear));
+		return (classYear + (long)(ranWorkingYear.nextDouble()*TWO_YEARS));
 	}
 	
 	public long getStartDateTime(){

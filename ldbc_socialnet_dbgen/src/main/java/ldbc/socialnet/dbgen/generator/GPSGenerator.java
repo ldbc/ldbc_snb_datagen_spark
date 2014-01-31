@@ -40,6 +40,7 @@ import java.util.TreeSet;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Vector;
+import java.lang.Integer;
 
 import ldbc.socialnet.dbgen.objects.Event;
 import ldbc.socialnet.dbgen.objects.GPS;
@@ -123,6 +124,7 @@ public class GPSGenerator {
 		for (int i = 0; i < eventSet.size(); i++){
 			int numAttendedUsers = randNumUser.nextInt(100) + 20;
 			//int lastUserId = 0;
+//			TreeSet<Integer> attendedUsers = new TreeSet<Integer>(new Integer(numAttendedUsers));
 			TreeSet<Integer> attendedUsers = new TreeSet<Integer>();
 			while (attendedUsers.size() < numAttendedUsers){
 				//int step = randNumUser.nextInt(totalNumUsers - numAttendedUsers- lastUserId + j);

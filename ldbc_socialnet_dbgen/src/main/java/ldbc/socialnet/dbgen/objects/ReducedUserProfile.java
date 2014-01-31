@@ -61,7 +61,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 	
 
 	Friend 				friendList[];
-	TreeSet<Integer>	friendIds; 		// Use a hashset for checking the existence
+	TreeSet<Integer>	friendIds; 		// Use a Treeset for checking the existence
 	
 
 	int					dicElementIds[];	// Id of an element in a dictionary, e.g., locationId
@@ -128,7 +128,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 				fr.readFields(stream);
 				friendList[i] = fr; 
 			}
-			//Read the size of hashset first
+			//Read the size of Treeset first
 			int size = stream.readInt(); 
 			for (int i = 0; i < size; i++){
 				friendIds.add(stream.readInt());
@@ -143,11 +143,9 @@ public class ReducedUserProfile implements Serializable, Writable{
 			browserIdx = stream.readByte();
 			isFrequentChange = stream.readBoolean();
 
-			short ip1 = stream.readShort();
-			short ip2 = stream.readShort();
-			short ip3 = stream.readShort();
-			short ip4 = stream.readShort();
-			ipAddress = new IP(ip1, ip2, ip3, ip4); 
+			int ip = stream.readInt();
+	        int mask = stream.readInt();
+	        ipAddress = new IP(ip, mask); 
 			
 			locationIdx = stream.readInt();
 			cityIdx = stream.readInt();
@@ -188,7 +186,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 			for (int i = 0; i < numFriendsAdded; i++){
 				friendList[i].write(stream);
 			}
-			//Read the size of hashset first
+			//Read the size of Treeset first
 			stream.writeInt(friendIds.size()); 
 			Iterator<Integer> it = friendIds.iterator();
 			while (it.hasNext()){
@@ -204,10 +202,8 @@ public class ReducedUserProfile implements Serializable, Writable{
 			stream.writeByte(browserIdx);
 			stream.writeBoolean(isFrequentChange);
 			
-			stream.writeShort(ipAddress.getIp1());
-			stream.writeShort(ipAddress.getIp2());
-			stream.writeShort(ipAddress.getIp3());
-			stream.writeShort(ipAddress.getIp4());
+			stream.writeInt(ipAddress.getIp());
+			stream.writeInt(ipAddress.getMask());
 			
 			
 			stream.writeInt(locationIdx);
@@ -231,8 +227,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 			stream.writeByte(gender);
 			stream.writeLong(birthDay);
 	 }
-	 
-	@Override
+	
 	public void readFields(DataInput arg0) throws IOException {
 		accountId = arg0.readInt();
 		createdDate = arg0.readLong(); 
@@ -254,7 +249,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 			fr.readFields(arg0);
 			friendList[i] = fr; 
 		}
-		//Read the size of hashset first
+		//Read the size of Treeset first
 		int size = arg0.readInt(); 
 		for (int i = 0; i < size; i++){
 			friendIds.add(arg0.readInt());
@@ -269,11 +264,9 @@ public class ReducedUserProfile implements Serializable, Writable{
 		browserIdx = arg0.readByte();
 		isFrequentChange = arg0.readBoolean();
 
-		short ip1 = arg0.readShort();
-		short ip2 = arg0.readShort();
-		short ip3 = arg0.readShort();
-		short ip4 = arg0.readShort();
-		ipAddress = new IP(ip1, ip2, ip3, ip4); 
+		int ip = arg0.readInt();
+		int mask = arg0.readInt();
+		ipAddress = new IP(ip, mask); 
 		
 		locationIdx = arg0.readInt();
 		cityIdx = arg0.readInt();
@@ -336,7 +329,6 @@ public class ReducedUserProfile implements Serializable, Writable{
 		birthDay = user.getBirthDay();
 	}
 	
-	@Override
 	public void write(DataOutput arg0) throws IOException {
 		arg0.writeInt(accountId);
 		arg0.writeLong(createdDate); 
@@ -353,7 +345,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 		for (int i = 0; i < numFriendsAdded; i++){
 			friendList[i].write(arg0);
 		}
-		//Read the size of hashset first
+		//Read the size of Treeset first
 		arg0.writeInt(friendIds.size()); 
 		Iterator<Integer> it = friendIds.iterator();
 		while (it.hasNext()){
@@ -369,10 +361,8 @@ public class ReducedUserProfile implements Serializable, Writable{
 		arg0.writeByte(browserIdx);
 		arg0.writeBoolean(isFrequentChange);
 
-		arg0.writeShort(ipAddress.getIp1());
-		arg0.writeShort(ipAddress.getIp2());
-		arg0.writeShort(ipAddress.getIp3());
-		arg0.writeShort(ipAddress.getIp4());
+		arg0.writeInt(ipAddress.getIp());
+		arg0.writeInt(ipAddress.getMask());
 		
 		
 		arg0.writeInt(locationIdx);

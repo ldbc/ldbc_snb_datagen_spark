@@ -36,32 +36,52 @@
  */
 package ldbc.socialnet.dbgen.objects;
 
-import java.io.Serializable;
+public class IP {
+    
+    public static final int BYTE_MASK = 0xFF;
+    public static final int BYTE_SIZE = 8;
+    public static final int IP4_SIZE_BITS = 32;
+    public static final int IP4_SIZE_BYTES = IP4_SIZE_BITS / 8;;
+    public static final int BYTE1_SHIFT_POSITION = 24;
+    public static final int BYTE2_SHIFT_POSITION = 16;
+    public static final int BYTE3_SHIFT_POSITION = 8;
+    
+    int ip;
+    int mask;
+    
+    public IP(int byte1, int byte2, int byte3, int byte4, int networkMask) {
+        ip = ((byte1 & BYTE_MASK) << BYTE1_SHIFT_POSITION) | 
+                ((byte2 & BYTE_MASK) << BYTE2_SHIFT_POSITION) | 
+                ((byte3 & BYTE_MASK) << BYTE3_SHIFT_POSITION) | 
+                (byte4 & BYTE_MASK);
+        
+        mask = (networkMask == IP4_SIZE_BITS) ? 0 : 1;
+        for (int k = networkMask+1; k < IP4_SIZE_BITS; k++) {
+            mask = mask | mask << 1;
+        }
+    }
 
-public class IP implements Serializable {
-	short ip1;
-	short ip2;
-	public short getIp1() {
-		return ip1;
+	public IP(int ip, int mask){
+		this.ip = ip;
+		this.mask = mask;
 	}
-	public short getIp2() {
-		return ip2;
+	
+	public int getIp() {
+	    return ip;
 	}
-	public short getIp3() {
-		return ip3;
+	
+	public int getMask() {
+        return mask;
+    }
+	
+	public boolean belongsToMyNetwork(IP ip) {
+	    return (mask == ip.mask) && ((this.ip & ~this.mask) == (ip.ip & ~ip.mask));
 	}
-	public short getIp4() {
-		return ip4;
-	}
-	short ip3;
-	short ip4;
-	public IP(short _ip1, short _ip2, short _ip3, short _ip4){
-		this.ip1 = _ip1;
-		this.ip2 = _ip2;
-		this.ip3 = _ip3;
-		this.ip4 = _ip4;
-	}
+	
 	public String toString(){
-		return ip1 + "." + ip2 + "." + ip3 + "." + ip4;
+		return ((ip >>> BYTE1_SHIFT_POSITION) & BYTE_MASK) + "." + 
+	           ((ip >>> BYTE2_SHIFT_POSITION) & BYTE_MASK) + "." + 
+	           ((ip >>> BYTE3_SHIFT_POSITION) & BYTE_MASK) + "." + 
+	           (ip & BYTE_MASK);
 	}
 }
