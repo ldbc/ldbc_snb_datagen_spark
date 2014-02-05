@@ -92,6 +92,9 @@ public class ReducedUserProfile implements Serializable, Writable{
 	byte				gender; 
 	long				birthDay;
 
+	// For posting
+	boolean 			isLargePoster;
+
 	public void clear(){
 		Arrays.fill(friendList,null);
 		friendList = null;
@@ -226,6 +229,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 			stream.writeInt(locationOrganizationIdx);
 			stream.writeByte(gender);
 			stream.writeLong(birthDay);
+			stream.writeBoolean(isLargePoster);
 	 }
 	
 	public void readFields(DataInput arg0) throws IOException {
@@ -289,6 +293,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 		locationOrganizationIdx = arg0.readInt(); 
 		gender = arg0.readByte();
 		birthDay = arg0.readLong();
+		isLargePoster = arg0.readBoolean();
 	}
 	
 	public void copyFields(ReducedUserProfile user){
@@ -327,6 +332,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 		locationOrganizationIdx = user.getLocationOrganizationIdx(); 
 		gender = user.getGender();
 		birthDay = user.getBirthDay();
+		isLargePoster = user.isLargePoster();
 	}
 	
 	public void write(DataOutput arg0) throws IOException {
@@ -386,6 +392,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 		arg0.writeInt(locationOrganizationIdx);
 		arg0.writeByte(gender);
 		arg0.writeLong(birthDay);
+		arg0.writeBoolean(isLargePoster);
 	}
 
 	public ReducedUserProfile(){
@@ -438,6 +445,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 		this.setNumPopularPlace(user.getNumPopularPlace());
 		
 		this.numPassFriendsAdded = new short[numCorrDimensions];
+		this.isLargePoster = user.isLargePoster();
 	}
 	
 	public int getDicElementId(int index) {
@@ -662,5 +670,13 @@ public class ReducedUserProfile implements Serializable, Writable{
 
 	public void setBirthDay(long birthDay) {
 		this.birthDay = birthDay;
+	}
+
+	public boolean isLargePoster() {
+		return this.isLargePoster;
+	}
+
+	public void setLargePoster(boolean isLargePoster) {
+		this.isLargePoster = isLargePoster;
 	}
 }

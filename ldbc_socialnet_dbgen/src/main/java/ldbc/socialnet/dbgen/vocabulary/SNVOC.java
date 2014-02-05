@@ -86,6 +86,7 @@ public class SNVOC{
     public static final String hasImage    =  PREFIX+"imageFile";
     public static final String retweet     =  PREFIX+"retweet";
     public static final String replyOf     =  PREFIX+"replyOf";
+    public static final String length      =  PREFIX+"length"; 
     
     //Others
     public static final String Organisation =  PREFIX+"Organisation";

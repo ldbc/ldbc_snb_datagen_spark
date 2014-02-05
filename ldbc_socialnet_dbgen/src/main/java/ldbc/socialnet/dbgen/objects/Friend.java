@@ -58,15 +58,18 @@ public class Friend implements Serializable{
 	
 	boolean 			isFrequentChange;		
 	IP	 				sourceIp; 				// Source IP address of the friend
+
+	boolean 			isLargePoster;			// True if friend is a large poster.
 	
 	
-	public Friend(int friendAcc, long _requestedTime, long _declinedTime, long _createdTime, byte passidx, byte initiator){
+	public Friend(int friendAcc, long _requestedTime, long _declinedTime, long _createdTime, byte passidx, byte initiator, boolean isLargePoster){
 		this.friendAcc = friendAcc;
 		this.requestTime = _requestedTime;
 		this.declinedTime = _declinedTime;
 		this.createdTime = _createdTime; 
 		this.passIdx = passidx; 
 		this.initiator = initiator;
+		this.isLargePoster = isLargePoster;
 	}
 	public Friend(){}
 	
@@ -85,6 +88,7 @@ public class Friend implements Serializable{
 		int ip = arg0.readInt();
 		int mask = arg0.readInt();
 		this.sourceIp = new IP(ip, mask); 
+		this.isLargePoster = arg0.readBoolean();
 	}
 	public void write(DataOutput arg0) throws IOException {
 		arg0.writeInt(friendAcc);
@@ -100,6 +104,7 @@ public class Friend implements Serializable{
 		arg0.writeBoolean(isFrequentChange);
 		arg0.writeInt(sourceIp.getIp());
 		arg0.writeInt(sourceIp.getMask());
+		arg0.writeBoolean(isLargePoster);
 	}
 
 	public Friend(ReducedUserProfile user, long _requestedTime, long _declinedTime, long _createdTime, 
@@ -116,6 +121,7 @@ public class Friend implements Serializable{
 	    this.browserIdx = user.getBrowserIdx();
 	    this.isFrequentChange = user.isFrequentChange; 
 	    this.setSourceIp(user.getIpAddress());
+	    this.isLargePoster = user.isLargePoster();
 	}	
 	
 	
@@ -193,6 +199,14 @@ public class Friend implements Serializable{
 
 	public void setFrequentChange(boolean isFrequentChange) {
 		this.isFrequentChange = isFrequentChange;
+	}
+
+	public boolean isLargePoster() {
+		return this.isLargePoster;
+	}
+
+	public void setLargePoster(boolean isLargePoster) {
+		this.isLargePoster = isLargePoster;
 	}
 
 }

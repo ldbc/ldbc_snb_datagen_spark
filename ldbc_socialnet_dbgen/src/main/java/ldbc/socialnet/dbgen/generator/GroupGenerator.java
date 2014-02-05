@@ -137,6 +137,7 @@ public class GroupGenerator {
 		memberShip.setAgentIdx(friend.getAgentIdx());
 		memberShip.setFrequentChange(friend.isFrequentChange());
 		memberShip.setHaveSmartPhone(friend.isHaveSmartPhone());
+        memberShip.setLargePoster(friend.isLargePoster());
 		
 		return memberShip;
 	}
@@ -150,7 +151,7 @@ public class GroupGenerator {
         memberShip.setAgentIdx(user.getAgentIdx());
         memberShip.setFrequentChange(user.isFrequentChange());
         memberShip.setHaveSmartPhone(user.isHaveSmartPhone());
-        
+        memberShip.setLargePoster(user.isLargePoster());
         return memberShip;
     }
 	

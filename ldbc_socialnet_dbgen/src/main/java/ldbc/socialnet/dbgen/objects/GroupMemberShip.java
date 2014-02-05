@@ -42,9 +42,11 @@ public class GroupMemberShip {
 	IP      ip;
 	byte    browserIdx;
 	byte    agentIdx;
+    boolean isLargePoster = false;       //This is used for creating large posts.
 	boolean isFrequentChange;
 	boolean isHaveSmartPhone;
-	
+
+
 	public int getUserId() {
 		return userId;
 	}
@@ -98,4 +100,12 @@ public class GroupMemberShip {
 	public void setJoinDate(long joinDate) {
 		this.joinDate = joinDate;
 	}
+
+    public boolean isLargePoster() {
+        return this.isLargePoster;
+    }
+
+    public void setLargePoster( boolean isLargePoster ) {
+        this.isLargePoster = isLargePoster;
+    } 
 }

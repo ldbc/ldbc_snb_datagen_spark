@@ -77,6 +77,7 @@ import ldbc.socialnet.dbgen.objects.RelationshipStatus;
 import ldbc.socialnet.dbgen.objects.UserExtraInfo;
 import ldbc.socialnet.dbgen.objects.UserProfile;
 import ldbc.socialnet.dbgen.serializer.CSV;
+import ldbc.socialnet.dbgen.serializer.CSVMergeForeign;
 import ldbc.socialnet.dbgen.serializer.EmptySerializer;
 import ldbc.socialnet.dbgen.serializer.Serializer;
 import ldbc.socialnet.dbgen.serializer.Turtle;
@@ -198,6 +199,14 @@ public class ScalableGenerator{
     private final String MIN_COMMENT_SIZE              = "minCommentSize";
     private final String MAX_COMMENT_SIZE              = "maxCommentSize";
     private final String REDUCE_TEXT_RATIO             = "ratioReduceText";
+
+
+    private final String MIN_LARGE_TEXT_SIZE                 = "minLargeTextSize";
+    private final String MAX_LARGE_TEXT_SIZE                 = "maxLargeTextSize";
+    private final String MIN_LARGE_COMMENT_SIZE              = "minLargeCommentSize";
+    private final String MAX_LARGE_COMMENT_SIZE              = "maxLargeCommentSize";
+    private final String LARGE_TEXT_RATIO             = "ratioLargeText";
+
     private final String MAX_PHOTOALBUM                = "maxNumPhotoAlbumsPerMonth";
     private final String MAX_PHOTO_PER_ALBUM           = "maxNumPhotoPerAlbums";
     private final String USER_MAX_GROUP                = "maxNumGroupCreatedPerUser";
@@ -226,7 +235,8 @@ public class ScalableGenerator{
     private final String[] checkParameters = {CELL_SIZE, NUM_CELL_WINDOW, MIN_FRIENDS, MAX_FRIENDS, FRIEND_REJECT,
             FRIEND_REACCEPT, USER_MIN_TAGS, USER_MAX_TAGS, USER_MAX_POST_MONTH, MAX_COMMENT_POST, LIMIT_CORRELATED,
             BASE_CORRELATED, MAX_EMAIL, MAX_COMPANIES, ENGLISH_RATIO, SECOND_LANGUAGE_RATIO, OTHER_BROWSER_RATIO,
-            MIN_TEXT_SIZE, MAX_TEXT_SIZE, MIN_COMMENT_SIZE, MAX_COMMENT_SIZE, REDUCE_TEXT_RATIO, MAX_PHOTOALBUM,
+            MIN_TEXT_SIZE, MAX_TEXT_SIZE, MIN_COMMENT_SIZE, MAX_COMMENT_SIZE, REDUCE_TEXT_RATIO,
+            MIN_LARGE_TEXT_SIZE, MAX_LARGE_TEXT_SIZE, MIN_LARGE_COMMENT_SIZE, MAX_LARGE_COMMENT_SIZE, LARGE_TEXT_RATIO, MAX_PHOTOALBUM,
             MAX_PHOTO_PER_ALBUM, USER_MAX_GROUP, MAX_GROUP_MEMBERS, GROUP_MODERATOR_RATIO, GROUP_MAX_POST_MONTH, 
             MISSING_RATIO, STATUS_MISSING_RATIO, STATUS_SINGLE_RATIO, SMARTHPHONE_RATIO, AGENT_SENT_RATIO, 
             DIFFERENT_IP_IN_TRAVEL_RATIO, DIFFERENT_IP_NOT_TRAVEL_RATIO, DIFFERENT_IP_TRAVELLER_RATIO, 
@@ -378,6 +388,13 @@ public class ScalableGenerator{
 	int 					minCommentSize;
 	int 					maxCommentSize;
 	double 					ratioReduceText; // 80% text has size less than 1/2 max size
+
+    // This parameters configure the amount of large posts are created 
+    int                     minLargeTextSize;
+    int                     maxLargeTextSize;
+    int                     minLargeCommentSize;
+    int                     maxLargeCommentSize;
+    double                  ratioLargeText; 
 
 	// For photo generator
 	PhotoGenerator 			photoGenerator;
@@ -537,6 +554,11 @@ public class ScalableGenerator{
 			minCommentSize = Integer.parseInt(properties.getProperty(MIN_COMMENT_SIZE));
 			maxCommentSize = Integer.parseInt(properties.getProperty(MAX_COMMENT_SIZE));
 			ratioReduceText = Double.parseDouble(properties.getProperty(REDUCE_TEXT_RATIO));
+            minLargeTextSize = Integer.parseInt(properties.getProperty(MIN_LARGE_TEXT_SIZE));
+            maxLargeTextSize = Integer.parseInt(properties.getProperty(MAX_LARGE_TEXT_SIZE));
+            minLargeCommentSize = Integer.parseInt(properties.getProperty(MIN_LARGE_COMMENT_SIZE));
+            maxLargeCommentSize = Integer.parseInt(properties.getProperty(MAX_LARGE_COMMENT_SIZE));
+            ratioLargeText = Double.parseDouble(properties.getProperty(LARGE_TEXT_RATIO));
 			maxNumPhotoAlbumsPerMonth = Integer.parseInt(properties.getProperty(MAX_PHOTOALBUM));
 			maxNumPhotoPerAlbums = Integer.parseInt(properties.getProperty(MAX_PHOTO_PER_ALBUM));
 			maxNumGroupCreatedPerUser = Integer.parseInt(properties.getProperty(USER_MAX_GROUP));
@@ -581,8 +603,8 @@ public class ScalableGenerator{
 			endYear = startYear + numYears;
 			serializerType = properties.getProperty(SERIALIZER_TYPE);
 			if (!serializerType.equals("ttl") && !serializerType.equals("n3") && 
-			        !serializerType.equals("csv") && !serializerType.equals("none")) {
-                throw new IllegalStateException("serializerType must be ttl, n3 or csv");
+			        !serializerType.equals("csv") && !serializerType.equals("none") && !serializerType.equals("csv_merge_foreign")) {
+                throw new IllegalStateException("serializerType must be ttl, n3, csv, csv_merge_foreign");
             }
 		} catch (Exception e) {
 		    System.err.println(e.getMessage());
@@ -677,8 +699,11 @@ public class ScalableGenerator{
 			mainTagDic.initialize();
 			
 			System.out.println("Building Tag-text dictionary ");
+            /// IMPORTANT: ratioLargeText is divided 0.083333, the probability 
+            /// that SetUserLargePoster returns true.
 			tagTextDic = new TagTextDictionary(tagTextFile, dateTimeGenerator, mainTagDic,
-			        minTextSize, maxTextSize, minCommentSize, maxCommentSize, ratioReduceText, seeds[15], seeds[16]);
+			        minTextSize, maxTextSize, minCommentSize, maxCommentSize, ratioReduceText,
+                    minLargeTextSize, maxLargeTextSize, minLargeCommentSize, maxLargeCommentSize, ratioLargeText/0.0833333, seeds[15], seeds[16]);
 			tagTextDic.initialize();
 
 			System.out.println("Building Tag Matrix dictionary ");
@@ -1025,8 +1050,8 @@ public class ScalableGenerator{
 	public void generatePosts(ReducedUserProfile user, UserExtraInfo extraInfo){
 		// Generate location-related posts
 		int numPosts = getNumOfPost(user);
-		for (int m = 0; m < numPosts; m++) {
-			Post post = tagTextDic.createPost(user, maxNumLikes, userAgentDic, ipAddDictionary, browserDic);
+        for (int m = 0; m < numPosts; m++) {
+            Post post = tagTextDic.createPost(user, maxNumLikes, userAgentDic, ipAddDictionary, browserDic);
 			Integer languageIndex = randomUniform.nextInt(extraInfo.getLanguages().size());
 			post.setLanguage(extraInfo.getLanguages().get(languageIndex));
 			
@@ -1062,7 +1087,6 @@ public class ScalableGenerator{
 				    countryName = locationDic.getLocationName((ipAddDictionary.getLocation(comment.getIpAddress())));
 		            stats.countries.add(countryName);
 					serializer.gatherData(comment);
-					
 					lastCommentCreatedDate = comment.getCreateDate();
 					lastCommentId = comment.getCommentId();
 				}
@@ -1325,8 +1349,14 @@ public class ScalableGenerator{
 		// Get random Idx
 		userProf.setRandomIdx(randomUserRandomIdx.nextInt(USER_RANDOM_ID_LIMIT));
 
+        userProf.setLargePoster(IsUserALargePoster(userProf));
+
 		return userProf;
 	}
+
+    private boolean IsUserALargePoster(UserProfile user) {
+        return dateTimeGenerator.getBirthMonth(user.getBirthDay()) == 1; 
+    }
 	
 
 	public void setInfoFromUserProfile(ReducedUserProfile user,
@@ -1551,6 +1581,11 @@ public class ScalableGenerator{
 					browserDic, companiesDictionary, 
                     organizationsDictionary.GetOrganizationLocationMap(),
 					ipAddDictionary,locationDic, languageDic);
+        } else if (t.equals("csv_merge_foreign")) {
+            return new CSVMergeForeign(sibOutputDir, numRdfOutputFile, mainTagDic,
+                    browserDic, companiesDictionary, 
+                    organizationsDictionary.GetOrganizationLocationMap(),
+                    ipAddDictionary,locationDic, languageDic);
 		} else if (t.equals("none")) {
             return new EmptySerializer();
         } else {

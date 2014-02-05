@@ -333,6 +333,11 @@ public class DateGenerator {
 		birthCalendar.setTimeInMillis(birthDay);
 		return birthCalendar.get(GregorianCalendar.YEAR);
 	}
+
+	public int getBirthMonth(long birthDay){
+		birthCalendar.setTimeInMillis(birthDay);
+		return birthCalendar.get(GregorianCalendar.MONTH);
+	}
 	//If do not know the birthday, first randomly guess the age of user
 	//Randomly get the age when user graduate
 	//User's age for graduating is from 20 to 30

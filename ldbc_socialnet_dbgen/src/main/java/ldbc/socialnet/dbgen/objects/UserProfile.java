@@ -86,6 +86,9 @@ public class UserProfile implements Serializable {
 	// For dimesion of university
 	byte 				gender; 
 	long				birthDay;
+
+	// For posting
+	boolean				isLargePoster;
 	
 	
 	public UserProfile(int accountId) {
@@ -94,6 +97,7 @@ public class UserProfile implements Serializable {
         locationOrganizationId = -1; 
         forumWallId = -1; 
         forumStatusId = -1;
+        isLargePoster = false;
         
         setOfTags = new TreeSet<Integer>();
 	}
@@ -338,6 +342,14 @@ public class UserProfile implements Serializable {
 	}
 	public void setMainTagId(int mainTagId) {
 		this.mainTagId = mainTagId;
+	}
+
+	public boolean isLargePoster() {
+		return this.isLargePoster;
+	}
+
+	public void setLargePoster(boolean isLargePoster) {
+		this.isLargePoster = isLargePoster;
 	}
 
 }

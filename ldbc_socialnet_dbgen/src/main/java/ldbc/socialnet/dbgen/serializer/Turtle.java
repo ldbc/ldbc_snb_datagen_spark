@@ -580,8 +580,10 @@ public class Turtle implements Serializer {
 	                    createLiteral(browserDic.getName(post.getBrowserIdx())));
 	        }
 	    }
-	    AddTriple(result, false, true, prefix, SNVOC.content,
+	    AddTriple(result, false, false, prefix, SNVOC.content,
 	            createLiteral(post.getContent()));
+        AddTriple(result, false, true, prefix, SNVOC.length,
+                createLiteral(Integer.toString(post.getContent().length())));
 
 	    if (post.getLanguage() != -1) {
 	        createTripleSPO(result, prefix, SNVOC.language,
@@ -652,7 +654,8 @@ public class Turtle implements Serializer {
 		                createLiteral(browserDic.getName(comment.getBrowserIdx())));
 		    }
 		}
-		AddTriple(result, false, true, prefix, SNVOC.content, createLiteral(comment.getContent()));
+		AddTriple(result, false, false, prefix, SNVOC.content, createLiteral(comment.getContent()));
+        AddTriple(result, false, true, prefix, SNVOC.length,createLiteral(Integer.toString(comment.getContent().length())));
 
 		String replied = (comment.getReply_of() == -1) ? SN.getPostURI(comment.getPostId()) : 
 		    SN.getCommentURI(comment.getReply_of());
@@ -691,7 +694,7 @@ public class Turtle implements Serializer {
 	                    createLiteral(browserDic.getName(photo.getBrowserIdx())));
 	        }
 	    }
-	    AddTriple(result, false, true, prefix, SNVOC.creationDate, 
+	    AddTriple(result, false, false, prefix, SNVOC.creationDate, 
 	            createDataTypeLiteral(dateString, XSD.DateTime));
 
 	    createTripleSPO(result, prefix, SNVOC.hasCreator, SN.getPersonURI(photo.getCreatorId()));
