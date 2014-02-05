@@ -1355,7 +1355,7 @@ public class ScalableGenerator{
 	}
 
     private boolean IsUserALargePoster(UserProfile user) {
-        return dateTimeGenerator.getBirthMonth(user.getBirthDay()) == 1; 
+        return dateTimeGenerator.getBirthMonth(user.getBirthDay()) == GregorianCalendar.JANUARY; 
     }
 	
 
