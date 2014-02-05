@@ -184,6 +184,7 @@ public class TagTextDictionary {
     }
 
     private String generateRandomString( int length ) {
+        System.out.println("ENTRA");
         Random rand = new Random();
         char[] text = new char[length];
         for (int i = 0; i < length; i++)
