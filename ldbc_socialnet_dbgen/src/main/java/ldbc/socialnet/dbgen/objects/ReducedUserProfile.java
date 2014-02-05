@@ -170,6 +170,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 			locationOrganizationIdx = stream.readInt(); 
 			gender = stream.readByte();
 			birthDay = stream.readLong();
+			isLargePoster = stream.readBoolean();
 	 }
 	
 	private void writeObject(java.io.ObjectOutputStream stream)
