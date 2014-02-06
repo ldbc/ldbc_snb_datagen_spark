@@ -178,20 +178,36 @@ public class TagTextDictionary {
     public String getRandomLargeText(TreeSet<Integer> tags) {
             if( randLargeText.nextDouble() > (1.0f-largeTextRatio) ) {
                int textSize = randLargeText.nextInt(maxLargeSizeOfText - minLargeSizeOfText) + minLargeSizeOfText;
-               return generateRandomString( textSize );
+               return generateRandomString( tags, textSize );
             } else {
                return getRandomText(tags);
             }
     }
 
-    private String generateRandomString( int length ) {
-        Random rand = new Random();
+    private String generateRandomString(TreeSet<Integer> tags, int length ) {
+/*        Random rand = new Random();
         char[] text = new char[length];
         for (int i = 0; i < length; i++)
         {
             text[i] = (char)rand.nextInt(256);
         }
         return new String(text);
+        */
+        String content = new String(); 
+        Iterator<Integer> it = tags.iterator();
+        while(content.length() < length) {
+            if (!it.hasNext()){
+                it = tags.iterator();
+            }
+            Integer tag = it.next();
+            String tagContent = getTagText(tag);
+            if( content.length() + tagContent.length() < length) {
+                content = content.concat(tagContent);
+            } else {
+                content = content.concat(tagContent.substring(0,length - content.length()));
+            }
+        }
+        return content;
     }
 
 	public int[] getLikeFriends(ReducedUserProfile user, int numberOfLikes) {
@@ -264,6 +280,9 @@ public class TagTextDictionary {
         post.setTags(tags);    
         if( user.isLargePoster() ) {
             post.setContent(getRandomLargeText(tags));
+            if(post.getContent().length > 1000) {
+                System.out.println(post.getPostId());
+            }
         } else {
             post.setContent(getRandomText(tags));
         }
@@ -306,6 +325,9 @@ public class TagTextDictionary {
 
         if( memberShip.isLargePoster() ) {
             post.setContent(getRandomLargeText(tags));
+            if(post.getContent().length > 1000) {
+                System.out.println(post.getPostId());
+            }
         } else {
             post.setContent(getRandomText(tags));
         }
