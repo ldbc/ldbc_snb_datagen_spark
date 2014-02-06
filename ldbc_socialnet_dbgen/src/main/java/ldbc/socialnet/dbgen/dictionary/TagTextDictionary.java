@@ -280,9 +280,9 @@ public class TagTextDictionary {
         post.setTags(tags);    
         if( user.isLargePoster() ) {
             post.setContent(getRandomLargeText(tags));
-            if(post.getContent().length > 1000) {
+            /*if(post.getContent().length() > 1000) {
                 System.out.println(post.getPostId());
-            }
+            }*/
         } else {
             post.setContent(getRandomText(tags));
         }
@@ -325,9 +325,10 @@ public class TagTextDictionary {
 
         if( memberShip.isLargePoster() ) {
             post.setContent(getRandomLargeText(tags));
-            if(post.getContent().length > 1000) {
+/*            if(post.getContent().length() > 1000) {
                 System.out.println(post.getPostId());
             }
+            */
         } else {
             post.setContent(getRandomText(tags));
         }
