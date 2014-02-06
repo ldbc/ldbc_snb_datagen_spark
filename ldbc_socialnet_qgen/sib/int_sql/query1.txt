@@ -1,4 +1,4 @@
-select top 10 p_personid, p_lastname, p_birthday, p_creationdate, p_gender, p_browserused,
+select top 10 cast (p_personid as varchar), p_lastname, p_birthday, p_creationdate, p_gender, p_browserused,
        	      bit_shift(bit_and(p_locationip, 4278190080), -24) || '.' ||
 	      bit_shift(bit_and(p_locationip, 16711680), -16) || '.' ||
 	      bit_shift(bit_and(p_locationip, 65280), -8) || '.' ||
@@ -22,4 +22,4 @@ where
 	p_personid = pc_personid and
 	pc_organisationid = o3.o_organisationid and
 	o3.o_placeid = p3.pl_placeid
-order by p_lastname, p_personid
+order by p_lastname, 1
