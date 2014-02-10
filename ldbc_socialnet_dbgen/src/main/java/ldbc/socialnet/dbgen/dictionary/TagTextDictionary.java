@@ -70,24 +70,26 @@ public class TagTextDictionary {
 	Random randReplyTo;
 	Random randTextSize;
 	Random randReduceText;
-    Random randLargeText;
+    Random randLargePost;
+    Random randLargeComment;
 	
 	int minSizeOfText;
 	int maxSizeOfText;
 	int reduceTextSize;
     int minSizeOfComment;
     int maxSizeOfComment;
-    int minLargeSizeOfText;
-    int maxLargeSizeOfText;
+    int minLargeSizeOfPost;
+    int maxLargeSizeOfPost;
     int minLargeSizeOfComment;
     int maxLargeSizeOfComment;
     double reduceTextRatio;
-    double largeTextRatio;
+    double largePostRatio;
+    double largeCommentRatio;
 	
 	public TagTextDictionary(String dicFileName, DateGenerator dateGen, TagDictionary tagDic, 
 	        int minSizeOfText, int maxSizeOfText, int minSizeOfComment, int maxSizeOfComment, 
-	        double reduceTextRatio, int minLargeSizeOfText, int maxLargeSizeOfText, int minLargeSizeOfComment,
-            int maxLargeSizeOfComment, double largeTextRatio, long seed, long seedTextSize){
+	        double reduceTextRatio, int minLargeSizeOfPost, int maxLargeSizeOfPost, int minLargeSizeOfComment,
+            int maxLargeSizeOfComment, double largePostRatio, double largeCommentRatio, long seed, long seedTextSize){
 		this.dicFileName = dicFileName;
 		this.tagText = new HashMap<Integer, String>();
 		this.dateGen = dateGen;
@@ -102,12 +104,14 @@ public class TagTextDictionary {
 		this.maxSizeOfComment = maxSizeOfComment;
 		this.reduceTextRatio = reduceTextRatio;
 		this.reduceTextSize = maxSizeOfText >> 1;
-        this.minLargeSizeOfText = minLargeSizeOfText; 
-        this.maxLargeSizeOfText = maxLargeSizeOfText; 
+        this.minLargeSizeOfPost = minLargeSizeOfPost; 
+        this.maxLargeSizeOfPost = maxLargeSizeOfPost; 
         this.minLargeSizeOfComment = minLargeSizeOfComment; 
         this.maxLargeSizeOfComment = maxLargeSizeOfComment; 
-        this.randLargeText = new Random(seed);
-        this.largeTextRatio = largeTextRatio;
+        this.randLargePost = new Random(seed);
+        this.randLargeComment = new Random(seed);
+        this.largePostRatio = largePostRatio;
+        this.largeCommentRatio = largeCommentRatio;
 	}
 	
 	public void initialize() {
@@ -175,9 +179,18 @@ public class TagTextDictionary {
         return returnString.replace("|", " ");
     }
 
-    public String getRandomLargeText(TreeSet<Integer> tags) {
-            if( randLargeText.nextDouble() > (1.0f-largeTextRatio) ) {
-               int textSize = randLargeText.nextInt(maxLargeSizeOfText - minLargeSizeOfText) + minLargeSizeOfText;
+    public String getRandomLargePost(TreeSet<Integer> tags) {
+            if( randLargePost.nextDouble() > (1.0f-largePostRatio) ) {
+               int textSize = randLargePost.nextInt(maxLargeSizeOfPost - minLargeSizeOfPost) + minLargeSizeOfPost;
+               return generateRandomString( tags, textSize );
+            } else {
+               return getRandomText(tags);
+            }
+    }
+
+    public String getRandomLargeComment(TreeSet<Integer> tags) {
+            if( randLargeComment.nextDouble() > (1.0f-largeCommentRatio) ) {
+               int textSize = randLargeComment.nextInt(maxLargeSizeOfComment - minLargeSizeOfComment) + minLargeSizeOfComment;
                return generateRandomString( tags, textSize );
             } else {
                return getRandomText(tags);
@@ -185,14 +198,6 @@ public class TagTextDictionary {
     }
 
     private String generateRandomString(TreeSet<Integer> tags, int length ) {
-/*        Random rand = new Random();
-        char[] text = new char[length];
-        for (int i = 0; i < length; i++)
-        {
-            text[i] = (char)rand.nextInt(256);
-        }
-        return new String(text);
-        */
         String content = new String(); 
         Iterator<Integer> it = tags.iterator();
         while(content.length() < length) {
@@ -279,10 +284,7 @@ public class TagTextDictionary {
         }
         post.setTags(tags);    
         if( user.isLargePoster() ) {
-            post.setContent(getRandomLargeText(tags));
-            /*if(post.getContent().length() > 1000) {
-                System.out.println(post.getPostId());
-            }*/
+            post.setContent(getRandomLargePost(tags));
         } else {
             post.setContent(getRandomText(tags));
         }
@@ -324,11 +326,7 @@ public class TagTextDictionary {
         post.setTags(tags); 
 
         if( memberShip.isLargePoster() ) {
-            post.setContent(getRandomLargeText(tags));
-/*            if(post.getContent().length() > 1000) {
-                System.out.println(post.getPostId());
-            }
-            */
+            post.setContent(getRandomLargePost(tags));
         } else {
             post.setContent(getRandomText(tags));
         }
@@ -404,7 +402,7 @@ public class TagTextDictionary {
 	    comment.setBrowserIdx(browserDic.getPostBrowserId(friend.getBrowserIdx()));
 
         if( user.isLargePoster() ) {
-            comment.setContent(getRandomLargeText(post.getTags()));
+            comment.setContent(getRandomLargeComment(post.getTags()));
         } else {
             comment.setContent(getRandomText(post.getTags()));
         }
@@ -454,7 +452,7 @@ public class TagTextDictionary {
         comment.setBrowserIdx(browserDic.getPostBrowserId(memberShip.getBrowserIdx()));
 
         if( memberShip.isLargePoster() ) {
-            comment.setContent(getRandomLargeText(post.getTags()));
+            comment.setContent(getRandomLargeComment(post.getTags()));
         } else {
             comment.setContent(getRandomText(post.getTags()));
         }

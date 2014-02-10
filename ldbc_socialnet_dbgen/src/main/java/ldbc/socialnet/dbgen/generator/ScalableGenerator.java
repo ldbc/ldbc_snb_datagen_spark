@@ -201,11 +201,12 @@ public class ScalableGenerator{
     private final String REDUCE_TEXT_RATIO             = "ratioReduceText";
 
 
-    private final String MIN_LARGE_TEXT_SIZE                 = "minLargeTextSize";
-    private final String MAX_LARGE_TEXT_SIZE                 = "maxLargeTextSize";
+    private final String MIN_LARGE_POST_SIZE                 = "minLargePostSize";
+    private final String MAX_LARGE_POST_SIZE                 = "maxLargePostSize";
     private final String MIN_LARGE_COMMENT_SIZE              = "minLargeCommentSize";
     private final String MAX_LARGE_COMMENT_SIZE              = "maxLargeCommentSize";
-    private final String LARGE_TEXT_RATIO             = "ratioLargeText";
+    private final String LARGE_POST_RATIO                    = "ratioLargePost";
+    private final String LARGE_COMMENT_RATIO                 = "ratioLargeComment";
 
     private final String MAX_PHOTOALBUM                = "maxNumPhotoAlbumsPerMonth";
     private final String MAX_PHOTO_PER_ALBUM           = "maxNumPhotoPerAlbums";
@@ -236,7 +237,8 @@ public class ScalableGenerator{
             FRIEND_REACCEPT, USER_MIN_TAGS, USER_MAX_TAGS, USER_MAX_POST_MONTH, MAX_COMMENT_POST, LIMIT_CORRELATED,
             BASE_CORRELATED, MAX_EMAIL, MAX_COMPANIES, ENGLISH_RATIO, SECOND_LANGUAGE_RATIO, OTHER_BROWSER_RATIO,
             MIN_TEXT_SIZE, MAX_TEXT_SIZE, MIN_COMMENT_SIZE, MAX_COMMENT_SIZE, REDUCE_TEXT_RATIO,
-            MIN_LARGE_TEXT_SIZE, MAX_LARGE_TEXT_SIZE, MIN_LARGE_COMMENT_SIZE, MAX_LARGE_COMMENT_SIZE, LARGE_TEXT_RATIO, MAX_PHOTOALBUM,
+            MIN_LARGE_POST_SIZE, MAX_LARGE_POST_SIZE, MIN_LARGE_COMMENT_SIZE, MAX_LARGE_COMMENT_SIZE, LARGE_POST_RATIO,
+            LARGE_COMMENT_RATIO,MAX_PHOTOALBUM,
             MAX_PHOTO_PER_ALBUM, USER_MAX_GROUP, MAX_GROUP_MEMBERS, GROUP_MODERATOR_RATIO, GROUP_MAX_POST_MONTH, 
             MISSING_RATIO, STATUS_MISSING_RATIO, STATUS_SINGLE_RATIO, SMARTHPHONE_RATIO, AGENT_SENT_RATIO, 
             DIFFERENT_IP_IN_TRAVEL_RATIO, DIFFERENT_IP_NOT_TRAVEL_RATIO, DIFFERENT_IP_TRAVELLER_RATIO, 
@@ -390,11 +392,12 @@ public class ScalableGenerator{
 	double 					ratioReduceText; // 80% text has size less than 1/2 max size
 
     // This parameters configure the amount of large posts are created 
-    int                     minLargeTextSize;
-    int                     maxLargeTextSize;
+    int                     minLargePostSize;
+    int                     maxLargePostSize;
     int                     minLargeCommentSize;
     int                     maxLargeCommentSize;
-    double                  ratioLargeText; 
+    double                  ratioLargePost; 
+    double                  ratioLargeComment; 
 
 	// For photo generator
 	PhotoGenerator 			photoGenerator;
@@ -554,11 +557,12 @@ public class ScalableGenerator{
 			minCommentSize = Integer.parseInt(properties.getProperty(MIN_COMMENT_SIZE));
 			maxCommentSize = Integer.parseInt(properties.getProperty(MAX_COMMENT_SIZE));
 			ratioReduceText = Double.parseDouble(properties.getProperty(REDUCE_TEXT_RATIO));
-            minLargeTextSize = Integer.parseInt(properties.getProperty(MIN_LARGE_TEXT_SIZE));
-            maxLargeTextSize = Integer.parseInt(properties.getProperty(MAX_LARGE_TEXT_SIZE));
+            minLargePostSize = Integer.parseInt(properties.getProperty(MIN_LARGE_POST_SIZE));
+            maxLargePostSize = Integer.parseInt(properties.getProperty(MAX_LARGE_POST_SIZE));
             minLargeCommentSize = Integer.parseInt(properties.getProperty(MIN_LARGE_COMMENT_SIZE));
             maxLargeCommentSize = Integer.parseInt(properties.getProperty(MAX_LARGE_COMMENT_SIZE));
-            ratioLargeText = Double.parseDouble(properties.getProperty(LARGE_TEXT_RATIO));
+            ratioLargePost = Double.parseDouble(properties.getProperty(LARGE_POST_RATIO));
+            ratioLargeComment = Double.parseDouble(properties.getProperty(LARGE_COMMENT_RATIO));
 			maxNumPhotoAlbumsPerMonth = Integer.parseInt(properties.getProperty(MAX_PHOTOALBUM));
 			maxNumPhotoPerAlbums = Integer.parseInt(properties.getProperty(MAX_PHOTO_PER_ALBUM));
 			maxNumGroupCreatedPerUser = Integer.parseInt(properties.getProperty(USER_MAX_GROUP));
@@ -703,7 +707,8 @@ public class ScalableGenerator{
             /// that SetUserLargePoster returns true.
 			tagTextDic = new TagTextDictionary(tagTextFile, dateTimeGenerator, mainTagDic,
 			        minTextSize, maxTextSize, minCommentSize, maxCommentSize, ratioReduceText,
-                    minLargeTextSize, maxLargeTextSize, minLargeCommentSize, maxLargeCommentSize, ratioLargeText/0.0833333, seeds[15], seeds[16]);
+                    minLargePostSize, maxLargePostSize, minLargeCommentSize, maxLargeCommentSize, ratioLargePost/0.0833333,
+                    ratioLargeComment/0.0833333, seeds[15], seeds[16]);
 			tagTextDic.initialize();
 
 			System.out.println("Building Tag Matrix dictionary ");
