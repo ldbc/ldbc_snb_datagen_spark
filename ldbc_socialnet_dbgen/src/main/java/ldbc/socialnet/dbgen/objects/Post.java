@@ -39,127 +39,124 @@ package ldbc.socialnet.dbgen.objects;
 import java.util.TreeSet;
 
 public class Post {
-    long postId; 
-    String title; 
-    String content; 
-    long createdDate; 
-    int authorId; 
-    int forumId;
-    int language;
 
-    int articleIdx;					// Index of articles in the set of same region/interest article  					
-    int interestIdx;				// Index of one interest in user's interests
+    private long postId;                        /**< @brief The post identifier.*/ 
+    private String title;                       /**< @brief The title of the post.*/
+    private String content;                     /**< @brief The string containing the content of the post.*/
+    private long createdDate;                   /**< @brief The creation date of the post.*/
+    private int authorId;                       /**< @brief The author identifier of the post.*/
+    private int groupId;                        /**< @brief The group identifier where the post belongs to.*/
+    private int language;                       /**< @brief The language used in the post.*/
+    private int articleIdx;					    /**< @brief Index of articles in the set of same region/interest article*/
+    private int interestIdx;				    /**< @brief Index of one interest in user's interests*/
+    private TreeSet<Integer> tags;              /**< @brief The set of tags related to the post.*/
+    private int interestedUserAccs[];		    /**< @brief The list of users who are interested in the post*/
+    private long interestedUserAccsTimestamp[]; /**< @brief The timestamps when the interested users where actually interested.*/
+    private IP ipAddress;                       /**< @brief The ip from where the post was created.*/
+    private String userAgent;				    /**< @brief The media used to send the post.*/
+    private byte browserIdx;					/**< @brief The id of the browser used to send the post.*/ 
+    private boolean isInterestPost; 		    /**< @brief Only use for group's post*/
 
-    TreeSet<Integer> tags; 
-    int interestedUserAccs[];		//List of users who are interested in the post  
-    long interestedUserAccsTimestamp[];
 
-    IP ipAddress; 
-    String userAgent;				// Send from where e.g., iPhone, Samsung, HTC
 
-    byte browserIdx;					// Set browser Idx 
+    public Post() {
 
-    boolean isInterestPost; 		//Only use for group's post
-    /*
-		public Post(int numOfTags, int numOfLikes){
-			tags = new ArrayList<String>(numOfTags);
-			interestedUserAccs = new ArrayList<Integer>(numOfLikes);
-		}
-     */
+    }
+
     public int getInterestIdx() {
-        return interestIdx;
+        return this.interestIdx;
     }
     public void setInterestIdx(int interestIdx) {
         this.interestIdx = interestIdx;
     }
 
     public TreeSet<Integer> getTags() {
-        return tags;
+        return this.tags;
     }
     public void setTags(TreeSet<Integer> tags) {
         this.tags = tags;
     }
     public int[] getInterestedUserAccs() {
-        return interestedUserAccs;
+        return this.interestedUserAccs;
     }
     public void setInterestedUserAccs(int[] interestedUserAccs) {
         this.interestedUserAccs = interestedUserAccs;
     }
     public long[] getInterestedUserAccsTimestamp() {
-        return interestedUserAccsTimestamp;
+        return this.interestedUserAccsTimestamp;
     }
     public void setInterestedUserAccsTimestamp(long[] timestamps) {
         this.interestedUserAccsTimestamp = timestamps;
     }
 
     public long getPostId() {
-        return postId;
+        return this.postId;
     }
     public void setPostId(long postId) {
         this.postId = postId;
     }
     public String getTitle() {
-        return title;
+        return this.title;
     }
     public void setTitle(String title) {
         this.title = title;
     }
     public int getLanguage() {
-        return language;
+        return this.language;
     }
     public void setLanguage(int language) {
         this.language = language;
     }
     public String getContent() {
-        return content;
+        return this.content;
     }
     public void setContent(String content) {
         this.content = content;
     }
     public long getCreatedDate() {
-        return createdDate;
+        return this.createdDate;
     }
     public void setCreatedDate(long createdDate) {
         this.createdDate = createdDate;
     }
     public int getAuthorId() {
-        return authorId;
+        return this.authorId;
     }
     public void setAuthorId(int authorId) {
         this.authorId = authorId;
     }
     public int getForumId() {
-        return forumId;
+        return this.forumId;
     }
     public void setForumId(int forumId) {
         this.forumId = forumId;
     }
     public int getArticleIdx() {
-        return articleIdx;
+        return this.articleIdx;
     }
     public void setArticleIdx(int articleIdx) {
         this.articleIdx = articleIdx;
     }
     public String getUserAgent() {
-        return userAgent;
+        return this.userAgent;
     }
     public void setUserAgent(String userAgent) {
         this.userAgent = userAgent;
     }
     public IP getIpAddress() {
-        return ipAddress;
+        return this.ipAddress;
     }
     public void setIpAddress(IP ipAddress) {
         this.ipAddress = ipAddress;
     }
     public boolean isInterestPost() {
-        return isInterestPost;
+        return this.isInterestPost;
     }
     public void setInterestPost(boolean isInterestPost) {
         this.isInterestPost = isInterestPost;
     }
     public byte getBrowserIdx() {
-        return browserIdx;
+        return this.browserIdx;
     }
     public void setBrowserIdx(byte browserId) {
         this.browserIdx = browserId;
