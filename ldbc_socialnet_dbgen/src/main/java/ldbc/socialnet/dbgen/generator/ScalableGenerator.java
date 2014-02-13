@@ -85,6 +85,9 @@ import ldbc.socialnet.dbgen.serializer.Statistics;
 import ldbc.socialnet.dbgen.storage.StorageManager;
 import ldbc.socialnet.dbgen.vocabulary.SN;
 
+import ldbc.socialnet.dbgen.generator.PostGenerator;
+import ldbc.socialnet.dbgen.generator.CommentGenerator;
+
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -411,6 +414,8 @@ public class ScalableGenerator{
 	double 					groupModeratorProb;
 
 	// For group posts
+    PostGenerator           postGenerator;
+    CommentGenerator        commentGenerator;
 	int 					maxNumGroupPostPerMonth;
 
 
@@ -706,9 +711,7 @@ public class ScalableGenerator{
             /// IMPORTANT: ratioLargeText is divided 0.083333, the probability 
             /// that SetUserLargePoster returns true.
 			tagTextDic = new TagTextDictionary(tagTextFile, dateTimeGenerator, mainTagDic,
-			        minTextSize, maxTextSize, minCommentSize, maxCommentSize, ratioReduceText,
-                    minLargePostSize, maxLargePostSize, minLargeCommentSize, maxLargeCommentSize, ratioLargePost/0.0833333,
-                    ratioLargeComment/0.0833333, seeds[15], seeds[16]);
+			        ratioReduceText, seeds[15], seeds[16]);
 			tagTextDic.initialize();
 
 			System.out.println("Building Tag Matrix dictionary ");
@@ -761,6 +764,20 @@ public class ScalableGenerator{
             System.out.println("Building Group generator");
             groupGenerator = new GroupGenerator(dateTimeGenerator, locationDic,
                     mainTagDic, numtotalUser, seeds[35]);
+
+            System.out.println("Building Post Generator");
+            postGenerator = new PostGenerator(tagTextDic, dateTimeGenerator,
+                    minTextSize, maxTextSize, ratioReduceText,
+                    minLargePostSize, maxLargePostSize, ratioLargePost/0.0833333, maxNumLikes,
+                    seeds[15], seeds[16]);
+            postGenerator.initialize();
+
+            System.out.println("Building Comment Generator");
+            commentGenerator = new CommentGenerator(tagTextDic, dateTimeGenerator,
+                    minCommentSize, maxCommentSize, ratioReduceText,
+                    minLargeCommentSize, maxLargeCommentSize, ratioLargeComment/0.0833333,
+                    seeds[15], seeds[16]);
+            commentGenerator.initialize();
 
 			serializer = getSerializer(serializerType, RDF_OUTPUT_FILE);
 		}
@@ -1056,15 +1073,14 @@ public class ScalableGenerator{
 		// Generate location-related posts
 		int numPosts = getNumOfPost(user);
         for (int m = 0; m < numPosts; m++) {
-            Post post = tagTextDic.createPost(user, maxNumLikes, userAgentDic, ipAddDictionary, browserDic);
-			Integer languageIndex = randomUniform.nextInt(extraInfo.getLanguages().size());
-			post.setLanguage(extraInfo.getLanguages().get(languageIndex));
+            Integer languageIndex = randomUniform.nextInt(extraInfo.getLanguages().size());
+            Post post = postGenerator.createPost(user, extraInfo.getLanguages().get(languageIndex), maxNumLikes, userAgentDic, ipAddDictionary, browserDic);
 			
 			String countryName = locationDic.getLocationName((ipAddDictionary.getLocation(post.getIpAddress())));
 			stats.countries.add(countryName);
 
 			GregorianCalendar date = new GregorianCalendar();
-            date.setTimeInMillis(post.getCreatedDate());
+            date.setTimeInMillis(post.getCreationDate());
             String strCreationDate = DateGenerator.formatYear(date);
             if (stats.maxPostCreationDate == null) {
                 stats.maxPostCreationDate = strCreationDate;
@@ -1082,17 +1098,17 @@ public class ScalableGenerator{
 			
 			// Generate comments
 			int numComment = randomNumComments.nextInt(maxNumComments);
-			long lastCommentCreatedDate = post.getCreatedDate();
+			long lastCommentCreatedDate = post.getCreationDate();
 			long lastCommentId = -1;
 			long startCommentId = TagTextDictionary.commentId;
 			for (int l = 0; l < numComment; l++) {
-				Comment comment = tagTextDic.createComment(post, user, lastCommentCreatedDate, startCommentId, lastCommentId, 
+				Comment comment = commentGenerator.createComment(post, user, lastCommentCreatedDate, startCommentId, lastCommentId, 
 				        userAgentDic, ipAddDictionary, browserDic);
 				if (comment.getAuthorId() != -1) {
 				    countryName = locationDic.getLocationName((ipAddDictionary.getLocation(comment.getIpAddress())));
 		            stats.countries.add(countryName);
 					serializer.gatherData(comment);
-					lastCommentCreatedDate = comment.getCreateDate();
+					lastCommentCreatedDate = comment.getCreationDate();
 					lastCommentId = comment.getCommentId();
 				}
 			}
@@ -1213,29 +1229,25 @@ public class ScalableGenerator{
 	public void generatePostForGroup(Group group) {
 		int numberGroupPost = getNumOfGroupPost(group);
 		for (int i = 0; i < numberGroupPost; i++) {
-			Post groupPost = tagTextDic.createPost(group, maxNumLikes, userAgentDic, ipAddDictionary, browserDic);
-//			Integer languageIndex = randomUniform.nextInt(extraInfo.getLanguages().size());
-//            post.setLanguage(extraInfo.getLanguages().get(languageIndex));
-			groupPost.setLanguage(-1);
+			Post groupPost = postGenerator.createPost(group, -1, maxNumLikes, userAgentDic, ipAddDictionary, browserDic);
 			String countryName = locationDic.getLocationName((ipAddDictionary.getLocation(groupPost.getIpAddress())));
             stats.countries.add(countryName);
 			serializer.gatherData(groupPost);
 
-
 			int numComment = randomNumComments.nextInt(maxNumComments);
-			long lastCommentCreatedDate = groupPost.getCreatedDate();
+			long lastCommentCreatedDate = groupPost.getCreationDate();
 			long lastCommentId = -1;
 			long startCommentId = TagTextDictionary.commentId;
 
 			for (int j = 0; j < numComment; j++) {
-				Comment comment = tagTextDic.createComment(groupPost, group, lastCommentCreatedDate, startCommentId, lastCommentId, 
+				Comment comment = commentGenerator.createComment(groupPost, group, lastCommentCreatedDate, startCommentId, lastCommentId, 
                         userAgentDic, ipAddDictionary, browserDic);
 				if (comment.getAuthorId() != -1) { // In case the comment is not reated because of the friendship's createddate
 				    countryName = locationDic.getLocationName((ipAddDictionary.getLocation(comment.getIpAddress())));
 	                stats.countries.add(countryName);
 					serializer.gatherData(comment);
 
-					lastCommentCreatedDate = comment.getCreateDate();
+					lastCommentCreatedDate = comment.getCreationDate();
 					lastCommentId = comment.getCommentId();
 				}
 			}

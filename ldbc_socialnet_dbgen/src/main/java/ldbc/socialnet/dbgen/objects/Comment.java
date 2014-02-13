@@ -25,7 +25,7 @@
  * the Free Software Foundation;  only Version 2 of the License dated
  * June 1991.
  *
- * This program is distributed in the hope that it will be useful,
+() * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
@@ -37,19 +37,41 @@
 package ldbc.socialnet.dbgen.objects;
 
 public class Comment {
-	long commentId; 
-	String content; 
-	long postId;
-	int authorId; 
-	long createDate;
-	
-	int forumId; 
-	long reply_of; 			//Id of the parent post/comment of this comment
-	
-	IP ipAddress; 
-	String userAgent;				// Send from where e.g., iPhone, Samsung, HTC
-	byte browserIdx;				// Set browser Idx	
-	
+
+	private long commentId;			/**< @brief The identifier of the comment.**/
+	private String content;			/**< @brief The content of the comment.**/ 
+	private long postId;			/**< @brief The post identifier of the replied post.**/
+	private	int authorId;			/**< @brief The identifier of the author.**/
+	private	long creationDate;		/**< @brief The creation date of the comment.**/
+	private	int groupId;			/**< @brief The identifier of the group where the comment has been written.**/
+	private	long replyOf;			/**< @brief The id of the parent post/comment of this comment.**/
+	private	IP ipAddress;			/**< @brief The ip address from which the comment has been posted.**/
+	private	String userAgent;		/**< @brief The type of device used to send the comment.**/
+	private	byte browserIdx;		/**< @brief The browser used to send the comment.**/	
+
+	public Comment( long commentId,
+					String contentId,
+					long postId,
+					int authorId,
+					long creationDate,
+					int groupId,
+					long replyOf,
+					IP ipAddress,
+					String userAgent,
+					byte browserIdx ) {
+
+		this.commentId = commentId;
+		this.content = content;
+		this.postId = postId;
+		this.authorId = authorId;
+		this.creationDate = creationDate;
+		this.groupId = groupId;
+		this.replyOf = replyOf;
+		this.ipAddress = ipAddress;
+		this.userAgent = userAgent;
+		this.browserIdx = browserIdx;
+	}
+
 	public IP getIpAddress() {
 		return ipAddress;
 	}
@@ -68,17 +90,17 @@ public class Comment {
 	public void setBrowserIdx(byte browserIdx) {
 		this.browserIdx = browserIdx;
 	}
-	public long getReply_of() {
-		return reply_of;
+	public long getReplyOf() {
+		return replyOf;
 	}
-	public void setReply_of(long reply_of) {
-		this.reply_of = reply_of;
+	public void setReplyOf(long replyOf) {
+		this.replyOf = replyOf;
 	}
-	public int getForumId() {
-		return forumId;
+	public int getGroupId() {
+		return groupId;
 	}
-	public void setForumId(int forumId) {
-		this.forumId = forumId;
+	public void setGroupId(int groupId) {
+		this.groupId = groupId;
 	}
 	public long getCommentId() {
 		return commentId;
@@ -104,11 +126,10 @@ public class Comment {
 	public void setAuthorId(int authorId) {
 		this.authorId = authorId;
 	}
-	public long getCreateDate() {
-		return createDate;
+	public long getCreationDate() {
+		return creationDate;
 	}
-	public void setCreateDate(long createDate) {
-		this.createDate = createDate;
+	public void setCreationDate(long creationDate) {
+		this.creationDate = creationDate;
 	} 
-	
 }

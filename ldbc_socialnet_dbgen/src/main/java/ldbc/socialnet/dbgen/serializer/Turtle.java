@@ -565,7 +565,7 @@ public class Turtle implements Serializer {
 	    if (post.getIpAddress() != null) {
 	        printLocationHierarchy(result, ipDic.getLocation(post.getIpAddress()));
 	    }
-	    date.setTimeInMillis(post.getCreatedDate());
+	    date.setTimeInMillis(post.getCreationDate());
 	    String dateString = DateGenerator.formatDateDetail(date);
 	    String prefix = SN.getPostURI(post.getPostId());
 
@@ -595,7 +595,7 @@ public class Turtle implements Serializer {
 	            DBP.fullPrefixed(locationDic.getLocationName((ipDic.getLocation(post.getIpAddress())))));
 	    }
 
-	    createTripleSPO(result, SN.getForumURI(post.getForumId()),SNVOC.containerOf, prefix);
+	    createTripleSPO(result, SN.getForumURI(post.getGroupId()),SNVOC.containerOf, prefix);
 
 	    createTripleSPO(result, prefix, SNVOC.hasCreator, SN.getPersonURI(post.getAuthorId()));
 
@@ -641,7 +641,7 @@ public class Turtle implements Serializer {
         }
 		
 		String prefix = SN.getCommentURI(comment.getCommentId());
-		date.setTimeInMillis(comment.getCreateDate());
+		date.setTimeInMillis(comment.getCreationDate());
 		String dateString = DateGenerator.formatDateDetail(date); 
 		
 		AddTriple(result, true, false, prefix, RDF.type, SNVOC.Comment);
@@ -657,8 +657,8 @@ public class Turtle implements Serializer {
 		AddTriple(result, false, false, prefix, SNVOC.content, createLiteral(comment.getContent()));
         AddTriple(result, false, true, prefix, SNVOC.length,createLiteral(Integer.toString(comment.getContent().length())));
 
-		String replied = (comment.getReply_of() == -1) ? SN.getPostURI(comment.getPostId()) : 
-		    SN.getCommentURI(comment.getReply_of());
+		String replied = (comment.getReplyOf() == -1) ? SN.getPostURI(comment.getPostId()) : 
+		    SN.getCommentURI(comment.getReplyOf());
 		createTripleSPO(result, prefix, SNVOC.replyOf, replied);
 		if (comment.getIpAddress() != null) {
 		    createTripleSPO(result, prefix, SNVOC.locatedIn,

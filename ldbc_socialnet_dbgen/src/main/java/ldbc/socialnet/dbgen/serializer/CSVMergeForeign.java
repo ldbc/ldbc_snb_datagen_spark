@@ -622,7 +622,7 @@ public class CSVMergeForeign implements Serializer {
 	    
 	    arguments.add(SN.formId(post.getPostId()));
 	    arguments.add(empty);
-	    date.setTimeInMillis(post.getCreatedDate());
+	    date.setTimeInMillis(post.getCreationDate());
 	    String dateString = DateGenerator.formatDateDetail(date);
 	    arguments.add(dateString);
 	    if (post.getIpAddress() != null) {
@@ -652,7 +652,7 @@ public class CSVMergeForeign implements Serializer {
 	        ToCSV(arguments, Files.POST_LOCATED_PLACE.ordinal());
 	    }
         */
-	    arguments.add(SN.formId(post.getForumId()));
+	    arguments.add(SN.formId(post.getGroupId()));
 	    arguments.add(SN.formId(post.getPostId()));
 	    ToCSV(arguments, Files.FORUM_CONTAINER_OF_POST.ordinal());
 
@@ -703,7 +703,7 @@ public class CSVMergeForeign implements Serializer {
             printLocationHierarchy(ipDic.getLocation(comment.getIpAddress()));
         }
 	    
-	    date.setTimeInMillis(comment.getCreateDate());
+	    date.setTimeInMillis(comment.getCreationDate());
         String dateString = DateGenerator.formatDateDetail(date); 
 	    arguments.add(SN.formId(comment.getCommentId()));
 	    arguments.add(dateString);
@@ -723,14 +723,14 @@ public class CSVMergeForeign implements Serializer {
         arguments.add(Integer.toString(comment.getContent().length()));
         arguments.add(Integer.toString(comment.getAuthorId()));
         arguments.add(Integer.toString(ipDic.getLocation(comment.getIpAddress())));
-        if (comment.getReply_of() == -1) {
+        if (comment.getReplyOf() == -1) {
             arguments.add(SN.formId(comment.getPostId()));
             String empty = "";
             arguments.add(empty);
         } else {
             String empty = "";
             arguments.add(empty);
-            arguments.add(SN.formId(comment.getReply_of()));
+            arguments.add(SN.formId(comment.getReplyOf()));
         }
 	    ToCSV(arguments, Files.COMMENT.ordinal());
 	    

@@ -605,7 +605,7 @@ public class CSV implements Serializer {
 	    
 	    arguments.add(SN.formId(post.getPostId()));
 	    arguments.add(empty);
-	    date.setTimeInMillis(post.getCreatedDate());
+	    date.setTimeInMillis(post.getCreationDate());
 	    String dateString = DateGenerator.formatDateDetail(date);
 	    arguments.add(dateString);
 	    if (post.getIpAddress() != null) {
@@ -632,7 +632,7 @@ public class CSV implements Serializer {
 	        arguments.add(Integer.toString(ipDic.getLocation(post.getIpAddress())));
 	        ToCSV(arguments, Files.POST_LOCATED_PLACE.ordinal());
 	    }
-	    arguments.add(SN.formId(post.getForumId()));
+	    arguments.add(SN.formId(post.getGroupId()));
 	    arguments.add(SN.formId(post.getPostId()));
 	    ToCSV(arguments, Files.FORUM_CONTAINER_OF_POST.ordinal());
 
@@ -682,7 +682,7 @@ public class CSV implements Serializer {
             printLocationHierarchy(ipDic.getLocation(comment.getIpAddress()));
         }
 	    
-	    date.setTimeInMillis(comment.getCreateDate());
+	    date.setTimeInMillis(comment.getCreationDate());
         String dateString = DateGenerator.formatDateDetail(date); 
 	    arguments.add(SN.formId(comment.getCommentId()));
 	    arguments.add(dateString);
@@ -702,13 +702,13 @@ public class CSV implements Serializer {
         arguments.add(Integer.toString(comment.getContent().length()));
 	    ToCSV(arguments, Files.COMMENT.ordinal());
 	    
-	    if (comment.getReply_of() == -1) {
+	    if (comment.getReplyOf() == -1) {
             arguments.add(SN.formId(comment.getCommentId()));
             arguments.add(SN.formId(comment.getPostId()));
             ToCSV(arguments, Files.COMMENT_REPLY_OF_POST.ordinal());
         } else {
             arguments.add(SN.formId(comment.getCommentId()));
-            arguments.add(SN.formId(comment.getReply_of()));
+            arguments.add(SN.formId(comment.getReplyOf()));
             ToCSV(arguments, Files.COMMENT_REPLY_OF_COMMENT.ordinal());
         }
 	    if (comment.getIpAddress() != null) {
