@@ -209,4 +209,14 @@ public class TagDictionary {
 	public int getNumCelebrity() {
 		return numCelebrity;
 	}
+
+	public Integer[] getRandomTags( int num ) {
+		Integer[] tags = new Integer[num];
+		for( int i = 0; i < num; ++i ) {
+			int randomCountry = rnd.nextInt(tagsByCountry.size());
+			Vector<Integer> tags = tagsByCountry(randomCountry);
+			tags[i] = rnd.nextInt(tags.size());
+		}
+		return tags;
+	}
 }

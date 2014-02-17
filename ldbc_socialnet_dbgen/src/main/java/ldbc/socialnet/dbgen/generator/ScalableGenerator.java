@@ -86,6 +86,8 @@ import ldbc.socialnet.dbgen.storage.StorageManager;
 import ldbc.socialnet.dbgen.vocabulary.SN;
 
 import ldbc.socialnet.dbgen.generator.PostGenerator;
+import ldbc.socialnet.dbgen.generator.UniformPostGenerator;
+import ldbc.socialnet.dbgen.generator.FlashmobPostGenerator;
 import ldbc.socialnet.dbgen.generator.CommentGenerator;
 
 import org.apache.hadoop.io.IntWritable;
@@ -168,7 +170,6 @@ public class ScalableGenerator{
     private static final String   emailDicFile           = DICTIONARY_DIRECTORY + "email.txt";
     private static final String   givennamesDicFile      = DICTIONARY_DIRECTORY + "givennameByCountryBirthPlace.txt.freq.full";
     private static final String   organizationsDicFile   = DICTIONARY_DIRECTORY + "institutesCityByCountry.txt";
-//    private static final String   cityDicFile            = DICTIONARY_DIRECTORY + "institutesCityByCountry.txt";
     private static final String   cityDicFile            = DICTIONARY_DIRECTORY + "citiesByCountry.txt";
     private static final String   languageDicFile        = DICTIONARY_DIRECTORY + "languagesByCountry.txt";
     private static final String   popularPlacesDicFile   = DICTIONARY_DIRECTORY + "popularPlacesByCountry.txt";
@@ -231,6 +232,9 @@ public class ScalableGenerator{
     private final String MAX_POPULAR_PLACES            = "maxNumPopularPlaces";
     private final String POPULAR_PLACE_RATIO           = "probPopularPlaces";
     private final String TAG_UNCORRELATED_COUNTRY      = "tagCountryCorrProb";
+
+    private final String FLASHMOB_TAGS_PER_MONTH       = "flashmobTagsPerMonth"
+    private final String USER_POSTS_PER_FLASHMOB_TAG   = "userPostsPerFlashMobTag"
     
     /**
      * This array provides a quick way to check if any of the required parameters is missing and throw the appropriate
@@ -246,7 +250,7 @@ public class ScalableGenerator{
             MISSING_RATIO, STATUS_MISSING_RATIO, STATUS_SINGLE_RATIO, SMARTHPHONE_RATIO, AGENT_SENT_RATIO, 
             DIFFERENT_IP_IN_TRAVEL_RATIO, DIFFERENT_IP_NOT_TRAVEL_RATIO, DIFFERENT_IP_TRAVELLER_RATIO, 
             COMPANY_UNCORRELATED_RATIO, UNIVERSITY_UNCORRELATED_RATIO, BEST_UNIVERSTY_RATIO, MAX_POPULAR_PLACES, 
-            POPULAR_PLACE_RATIO, TAG_UNCORRELATED_COUNTRY};
+            POPULAR_PLACE_RATIO, TAG_UNCORRELATED_COUNTRY, FLASHMOB_TAGS_PER_MONTH, USER_POSTS_PER_FLASHMOB_TAG};
     
     
     //final user parameters
@@ -414,7 +418,8 @@ public class ScalableGenerator{
 	double 					groupModeratorProb;
 
 	// For group posts
-    PostGenerator           postGenerator;
+    UniformPostGenerator           uniformPostGenerator;
+    FlashmobPostGenerator          flashmobPostGenerator;
     CommentGenerator        commentGenerator;
 	int 					maxNumGroupPostPerMonth;
 
@@ -450,6 +455,9 @@ public class ScalableGenerator{
 	// Writing data for test driver
 	int            thresholdPopularUser = 40;
 	int            numPopularUser = 0;
+
+    int            flashmobTagsPerMonth = 0;
+    int            userPostsPerFlashMobTag = 0;
 	
 	// Data accessed from the hadoop jobs
 	public ReducedUserProfile[] cellReducedUserProfiles;
@@ -588,7 +596,8 @@ public class ScalableGenerator{
 			maxNumPopularPlaces = Integer.parseInt(properties.getProperty(MAX_POPULAR_PLACES));
 			probPopularPlaces = Double.parseDouble(properties.getProperty(POPULAR_PLACE_RATIO));
 			tagCountryCorrProb = Double.parseDouble(properties.getProperty(TAG_UNCORRELATED_COUNTRY));
-			
+            flashmobTagsPerMonth = Integer.parseInt(properties.getProperty(FLASHMOB_TAGS_PER_MONTH));
+            userpostsPerFlashmobTag = Integer.parseInt(properties.getProperty(USER_POSTS_PER_FLASHMOB_TAG));
 		} catch (Exception e) {
 		    System.err.println(e.getMessage());
             e.printStackTrace();
@@ -765,12 +774,19 @@ public class ScalableGenerator{
             groupGenerator = new GroupGenerator(dateTimeGenerator, locationDic,
                     mainTagDic, numtotalUser, seeds[35]);
 
-            System.out.println("Building Post Generator");
-            postGenerator = new PostGenerator(tagTextDic, dateTimeGenerator,
+            System.out.println("Building Uniform Post Generator");
+            uniformPostGenerator = new UniformPostGenerator(tagTextDic, dateTimeGenerator,
                     minTextSize, maxTextSize, ratioReduceText,
                     minLargePostSize, maxLargePostSize, ratioLargePost/0.0833333, maxNumLikes,
                     seeds[15], seeds[16]);
-            postGenerator.initialize();
+            uniformPostGenerator.initialize();
+
+            System.out.println("Building Flashmob Post Generator");
+            uniformPostGenerator = new FlashmobPostGenerator(tagTextDic, dateTimeGenerator,
+                    minTextSize, maxTextSize, ratioReduceText,
+                    minLargePostSize, maxLargePostSize, ratioLargePost/0.0833333, maxNumLikes,
+                    seeds[15], seeds[16]);
+            uniformPostGenerator.initialize();
 
             System.out.println("Building Comment Generator");
             commentGenerator = new CommentGenerator(tagTextDic, dateTimeGenerator,
@@ -829,6 +845,7 @@ public class ScalableGenerator{
                 serializer.gatherData(reducedUserProfilesCell[j], extraInfo);
 
                 generatePosts(reducedUserProfilesCell[j], extraInfo);
+                generateFlashmobPosts(reducedUserProfilesCell[j], extraInfo);
                 generatePhoto(reducedUserProfilesCell[j], extraInfo);
             }
         }
@@ -1074,7 +1091,7 @@ public class ScalableGenerator{
 		int numPosts = getNumOfPost(user);
         for (int m = 0; m < numPosts; m++) {
             Integer languageIndex = randomUniform.nextInt(extraInfo.getLanguages().size());
-            Post post = postGenerator.createPost(user, extraInfo.getLanguages().get(languageIndex), maxNumLikes, userAgentDic, ipAddDictionary, browserDic);
+            Post post = uniformPostGenerator.createPost(user, extraInfo.getLanguages().get(languageIndex), maxNumLikes, userAgentDic, ipAddDictionary, browserDic);
 			
 			String countryName = locationDic.getLocationName((ipAddDictionary.getLocation(post.getIpAddress())));
 			stats.countries.add(countryName);
@@ -1104,7 +1121,8 @@ public class ScalableGenerator{
 			for (int l = 0; l < numComment; l++) {
 				Comment comment = commentGenerator.createComment(post, user, lastCommentCreatedDate, startCommentId, lastCommentId, 
 				        userAgentDic, ipAddDictionary, browserDic);
-				if (comment.getAuthorId() != -1) {
+//				if (comment.getAuthorId() != -1) {
+                if ( comment!=null ) {
 				    countryName = locationDic.getLocationName((ipAddDictionary.getLocation(comment.getIpAddress())));
 		            stats.countries.add(countryName);
 					serializer.gatherData(comment);
@@ -1114,6 +1132,53 @@ public class ScalableGenerator{
 			}
 		}
 	}
+
+    public void generateFlashmobPosts(ReducedUserProfile user, UserExtraInfo extraInfo){
+        // Generate location-related posts
+        int numPosts = getNumOfFlashmobPost(user);
+        for (int m = 0; m < numPosts; m++) {
+            Integer languageIndex = randomUniform.nextInt(extraInfo.getLanguages().size());
+            Post post = uniformPostGenerator.createPost(user, extraInfo.getLanguages().get(languageIndex), maxNumLikes, userAgentDic, ipAddDictionary, browserDic);
+            
+            String countryName = locationDic.getLocationName((ipAddDictionary.getLocation(post.getIpAddress())));
+            stats.countries.add(countryName);
+
+            GregorianCalendar date = new GregorianCalendar();
+            date.setTimeInMillis(post.getCreationDate());
+            String strCreationDate = DateGenerator.formatYear(date);
+            if (stats.maxPostCreationDate == null) {
+                stats.maxPostCreationDate = strCreationDate;
+                stats.minPostCreationDate = strCreationDate;
+            } else {
+                if (stats.maxPostCreationDate.compareTo(strCreationDate) < 0) {
+                    stats.maxPostCreationDate = strCreationDate;
+                }
+                if (stats.minPostCreationDate.compareTo(strCreationDate) > 0) {
+                    stats.minPostCreationDate = strCreationDate;
+                }
+            }
+            
+            serializer.gatherData(post);
+            
+            // Generate comments
+            int numComment = randomNumComments.nextInt(maxNumComments);
+            long lastCommentCreatedDate = post.getCreationDate();
+            long lastCommentId = -1;
+            long startCommentId = TagTextDictionary.commentId;
+            for (int l = 0; l < numComment; l++) {
+                Comment comment = commentGenerator.createComment(post, user, lastCommentCreatedDate, startCommentId, lastCommentId, 
+                        userAgentDic, ipAddDictionary, browserDic);
+//              if (comment.getAuthorId() != -1) {
+                if ( comment!=null ) {
+                    countryName = locationDic.getLocationName((ipAddDictionary.getLocation(comment.getIpAddress())));
+                    stats.countries.add(countryName);
+                    serializer.gatherData(comment);
+                    lastCommentCreatedDate = comment.getCreationDate();
+                    lastCommentId = comment.getCommentId();
+                }
+            }
+        }
+    }
 	
 	public void generatePhoto(ReducedUserProfile user, UserExtraInfo extraInfo){
 		// Generate photo Album and photos
@@ -1229,7 +1294,7 @@ public class ScalableGenerator{
 	public void generatePostForGroup(Group group) {
 		int numberGroupPost = getNumOfGroupPost(group);
 		for (int i = 0; i < numberGroupPost; i++) {
-			Post groupPost = postGenerator.createPost(group, -1, maxNumLikes, userAgentDic, ipAddDictionary, browserDic);
+			Post groupPost = uniformPostGenerator.createPost(group, -1, maxNumLikes, userAgentDic, ipAddDictionary, browserDic);
 			String countryName = locationDic.getLocationName((ipAddDictionary.getLocation(groupPost.getIpAddress())));
             stats.countries.add(countryName);
 			serializer.gatherData(groupPost);
@@ -1242,7 +1307,8 @@ public class ScalableGenerator{
 			for (int j = 0; j < numComment; j++) {
 				Comment comment = commentGenerator.createComment(groupPost, group, lastCommentCreatedDate, startCommentId, lastCommentId, 
                         userAgentDic, ipAddDictionary, browserDic);
-				if (comment.getAuthorId() != -1) { // In case the comment is not reated because of the friendship's createddate
+//				if (comment.getAuthorId() != -1) { // In case the comment is not reated because of the friendship's createddate
+                if ( comment!=null ) { // In case the comment is not reated because of the friendship's createddate
 				    countryName = locationDic.getLocationName((ipAddDictionary.getLocation(comment.getIpAddress())));
 	                stats.countries.add(countryName);
 					serializer.gatherData(comment);
@@ -1270,6 +1336,20 @@ public class ScalableGenerator{
 
 		return numberPost;
 	}
+
+    public int getNumOfFlashmobPost(ReducedUserProfile user) {
+        int numOfmonths = (int) dateTimeGenerator.numberOfMonths(user);
+        int numberPost;
+        if (numOfmonths == 0) {
+            numberPost = randomNumPosts.nextInt(maxNumPostPerMonth);
+        } else {
+            numberPost = randomNumPosts.nextInt(maxNumPostPerMonth * numOfmonths);
+        }
+
+        numberPost = (numberPost * user.getNumFriendsAdded()) / maxNumFriends;
+
+        return numberPost;
+    }
 
 	public int getNumOfGroupPost(Group group) {
 	    

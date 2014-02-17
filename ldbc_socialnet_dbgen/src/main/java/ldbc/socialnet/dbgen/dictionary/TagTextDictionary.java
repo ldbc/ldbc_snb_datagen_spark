@@ -149,23 +149,23 @@ public class TagTextDictionary {
     }
 
     public String getRandomLargeText(TreeSet<Integer> tags, int minSize, int maxSize) {
-               int textSize = rand.nextInt(maxSize - minSize) + minSize;
-               String content = new String(); 
-               Iterator<Integer> it = tags.iterator();
-               while(content.length() < textSize) {
-                if (!it.hasNext()){
-                    it = tags.iterator();
-                }
-                Integer tag = it.next();
-                String tagContent = getTagText(tag);
-                if( content.length() + tagContent.length() < textSize) {
-                    content = content.concat(tagContent);
-                } else {
-                    content = content.concat(tagContent.substring(0,textSize - content.length()));
-                }
-            }
-            return content;
+       int textSize = rand.nextInt(maxSize - minSize) + minSize;
+       String content = new String(); 
+       Iterator<Integer> it = tags.iterator();
+       while(content.length() < textSize) {
+        if (!it.hasNext()){
+            it = tags.iterator();
         }
-	
+        Integer tag = it.next();
+        String tagContent = getTagText(tag);
+        if( content.length() + tagContent.length() < textSize) {
+            content = content.concat(tagContent);
+        } else {
+            content = content.concat(tagContent.substring(0,textSize - content.length()));
+        }
+    }
+    return content;
+}
+
 
 }

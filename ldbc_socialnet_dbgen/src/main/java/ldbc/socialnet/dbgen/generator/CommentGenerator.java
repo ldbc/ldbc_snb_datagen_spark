@@ -139,10 +139,10 @@ public class CommentGenerator {
             if( randLargeComment.nextDouble() > (1.0f-largeCommentRatio) ) {
                 content = tagTextDic.getRandomLargeText(post.getTags(), minLargeSizeOfComment, maxLargeSizeOfComment);
             } else {
-                content = tagTextDic.getRandomText(post.getTags(), maxSizeOfComment, maxSizeOfComment);
+                content = tagTextDic.getRandomText(post.getTags(), minSizeOfComment, maxSizeOfComment);
             }
         } else {
-            content = tagTextDic.getRandomText(post.getTags(), maxSizeOfComment, maxSizeOfComment);
+            content = tagTextDic.getRandomText(post.getTags(), minSizeOfComment, maxSizeOfComment);
         }
 
         commentId++;

@@ -59,15 +59,14 @@ import ldbc.socialnet.dbgen.objects.Post;
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
 
 
-public class PostGenerator {
+abstract public class PostGenerator {
 
     private static final String SEPARATOR = "  ";
     
     private TagTextDictionary tagTextDic;       /**< @brief The TagTextDictionary used to obtain the texts posts/comments.**/
-    private DateGenerator dateGen;              /**< @brief the date generator.**/
 
     /* A set of random number generator for different purposes.*/ 
-	private Random rand;                   
+	protected Random rand;                   
 	private Random randReplyTo;            
 	private Random randTextSize ;
 	private Random randReduceText;
@@ -86,7 +85,6 @@ public class PostGenerator {
 
 
 	public PostGenerator( TagTextDictionary tagTextDic, 
-                          DateGenerator dateGen,
 	                      int minSizeOfPost, 
                           int maxSizeOfPost, 
 	                      double reducedTextRatio,
@@ -98,7 +96,6 @@ public class PostGenerator {
                           long seedTextSize){
 
         this.tagTextDic = tagTextDic;
-        this.dateGen = dateGen;
 		this.rand = new Random(seed);
 		this.randReduceText = new Random(seed);
 		this.randReplyTo = new Random(seed);
@@ -185,19 +182,7 @@ public class PostGenerator {
             UserAgentDictionary userAgentDic, IPAddressDictionary ipAddDic,
             BrowserDictionary browserDic) {
         
-        // Select the set of tags of the post.
-        TreeSet<Integer> tags = new TreeSet<Integer>();
-        Iterator<Integer> it = user.getSetOfTags().iterator();
-        while (it.hasNext()) {
-            Integer value = it.next();
-            if (tags.isEmpty()) {
-                tags.add(value);
-            } else {
-                if (rand.nextDouble() < 0.2) {
-                    tags.add(value);
-                }
-            }
-        }
+        TreeSet<Integer> tags = GenerateTags(user.getSetOfTags());
 
         // Create the content of the post from its tags.
         String content;
@@ -211,7 +196,8 @@ public class PostGenerator {
             content = tagTextDic.getRandomText(tags, minSizeOfPost, maxSizeOfPost);
         }
 
-        long creationDate = dateGen.randomPostCreatedDate(user);
+//        long creationDate = dateGen.randomPostCreatedDate(user);
+        long creationDate = GeneratePostDate(user.getCreatedDate(), tags);
         ScalableGenerator.postId++;
         Post post = new Post( ScalableGenerator.postId, 
                               content,
@@ -223,7 +209,7 @@ public class PostGenerator {
                               ipAddDic.getIP(user.getIpAddress(), user.isFrequentChange(), creationDate),
                               userAgentDic.getUserAgentName(user.isHaveSmartPhone(), user.getAgentIdx()),
                               browserDic.getPostBrowserId(user.getBrowserIdx()));
-        
+
         // Create post likes.
         SetLikes(post, user);
         return post;
@@ -255,7 +241,8 @@ public class PostGenerator {
             content = tagTextDic.getRandomText(tags, minSizeOfPost, maxSizeOfPost);
         }
 
-        long creationDate = dateGen.randomGroupPostCreatedDate(memberShip.getJoinDate());
+//        long creationDate = dateGen.randomGroupPostCreatedDate(memberShip.getJoinDate());
+        long creationDate = GeneratePostDate(memberShip.getJoinDate(), tags);
         ScalableGenerator.postId++;
         Post post = new Post( ScalableGenerator.postId, 
                               content,
@@ -272,4 +259,9 @@ public class PostGenerator {
         SetLikes(post, group);
         return post;
     }
+
+    protected abstract long GeneratePostDate( long minDate, TreeSet<Integer> tags );
+
+    protected abstract TreeSet<Integer> GenerateTags( TreeSet<Integer> tags );
+        
 }

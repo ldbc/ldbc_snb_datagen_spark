@@ -266,12 +266,6 @@ public class DateGenerator {
 		return (to - fromDate)/THIRTY_DAYS;
 	}
 	
-	public long randomPostCreatedDate(ReducedUserProfile user){
-		long createdDate = (long)(ranGen.nextDouble()*(to-user.getCreatedDate())+user.getCreatedDate());
- 
-		return createdDate; 
-	}
-	
 	public long randomPhotoAlbumCreatedDate(ReducedUserProfile user){
 		long createdDate = (long)(ranGen.nextDouble()*(to-user.getCreatedDate())+user.getCreatedDate());
  
@@ -291,9 +285,8 @@ public class DateGenerator {
 		return joinDate; 
 	}
 	
-	public long randomGroupPostCreatedDate(long memberJoinDate){
-		long createdDate = (long)(ranGen.nextDouble()*(to-memberJoinDate)+memberJoinDate);
- 
+	public long randomPostCreatedDate(long minDate){
+		long createdDate = (long)(ranGen.nextDouble()*(to-minDate)+minDate);
 		return createdDate; 
 	}
 	

@@ -50,7 +50,7 @@ public class Comment {
 	private	byte browserIdx;		/**< @brief The browser used to send the comment.**/	
 
 	public Comment( long commentId,
-					String contentId,
+					String content,
 					long postId,
 					int authorId,
 					long creationDate,
