@@ -68,6 +68,7 @@ public class TagDictionary {
 	
 	Random 	rnd; 
 	Random 	rnd2;
+	Random 	rndTags; 
 	
 	public TagDictionary(String dicTopic, String _dicFileName, String tagClassFile, String tagHierarchyFile, 
 	        int numLocations, long seed, double tagCountryCorrProb) {
@@ -93,6 +94,7 @@ public class TagDictionary {
 		}
 		
 		rnd  = new Random(seed); 
+		rndTags  = new Random(seed); 
 		rnd2 = new Random(seed);
 		
 		numCelebrity = 0;
@@ -213,9 +215,9 @@ public class TagDictionary {
 	public Integer[] getRandomTags( int num ) {
 		Integer[] tags = new Integer[num];
 		for( int i = 0; i < num; ++i ) {
-			int randomCountry = rnd.nextInt(tagsByCountry.size());
+			int randomCountry = rndTags.nextInt(tagsByCountry.size());
 			Vector<Integer> tags = tagsByCountry(randomCountry);
-			tags[i] = rnd.nextInt(tags.size());
+			tags[i] = rndTags.nextInt(tags.size());
 		}
 		return tags;
 	}

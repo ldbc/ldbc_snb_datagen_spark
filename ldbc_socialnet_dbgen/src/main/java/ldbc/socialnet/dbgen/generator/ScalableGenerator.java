@@ -234,7 +234,9 @@ public class ScalableGenerator{
     private final String TAG_UNCORRELATED_COUNTRY      = "tagCountryCorrProb";
 
     private final String FLASHMOB_TAGS_PER_MONTH       = "flashmobTagsPerMonth"
-    private final String USER_POSTS_PER_FLASHMOB_TAG   = "userPostsPerFlashMobTag"
+    private final String MAX_USER_POSTS_PER_FLASHMOB_TAG   = "maxUserPostsPerFlashmobTag"
+    private final String PROB_INTEREST_FLASHMOB_TAG     = "probInterestFlashmobTag"
+    private final String MAX_RANDOM_FLASHMOB_TAGS_USER_MONTH     = "maxRandomFlashmobTagsUserMonth"
     
     /**
      * This array provides a quick way to check if any of the required parameters is missing and throw the appropriate
@@ -250,7 +252,8 @@ public class ScalableGenerator{
             MISSING_RATIO, STATUS_MISSING_RATIO, STATUS_SINGLE_RATIO, SMARTHPHONE_RATIO, AGENT_SENT_RATIO, 
             DIFFERENT_IP_IN_TRAVEL_RATIO, DIFFERENT_IP_NOT_TRAVEL_RATIO, DIFFERENT_IP_TRAVELLER_RATIO, 
             COMPANY_UNCORRELATED_RATIO, UNIVERSITY_UNCORRELATED_RATIO, BEST_UNIVERSTY_RATIO, MAX_POPULAR_PLACES, 
-            POPULAR_PLACE_RATIO, TAG_UNCORRELATED_COUNTRY, FLASHMOB_TAGS_PER_MONTH, USER_POSTS_PER_FLASHMOB_TAG};
+            POPULAR_PLACE_RATIO, TAG_UNCORRELATED_COUNTRY, FLASHMOB_TAGS_PER_MONTH, MAX_USER_POSTS_PER_FLASHMOB_TAG,
+            PROB_INTEREST_FLASHMOB_TAG, MAX_RANDOM_FLASHMOB_TAGS_USER_MONTH};
     
     
     //final user parameters
@@ -457,7 +460,9 @@ public class ScalableGenerator{
 	int            numPopularUser = 0;
 
     int            flashmobTagsPerMonth = 0;
-    int            userPostsPerFlashMobTag = 0;
+    int            maxUserPostsPerFlashmobTag = 0;
+    double            probInterestFlashmobTag = 0.0;
+    int            maxRandomFlashmobTagsUserMonth = 0;
 	
 	// Data accessed from the hadoop jobs
 	public ReducedUserProfile[] cellReducedUserProfiles;
@@ -597,7 +602,9 @@ public class ScalableGenerator{
 			probPopularPlaces = Double.parseDouble(properties.getProperty(POPULAR_PLACE_RATIO));
 			tagCountryCorrProb = Double.parseDouble(properties.getProperty(TAG_UNCORRELATED_COUNTRY));
             flashmobTagsPerMonth = Integer.parseInt(properties.getProperty(FLASHMOB_TAGS_PER_MONTH));
-            userpostsPerFlashmobTag = Integer.parseInt(properties.getProperty(USER_POSTS_PER_FLASHMOB_TAG));
+            maxUserPostsPerFlashmobTag = Integer.parseInt(properties.getProperty(MAX_USER_POSTS_PER_FLASHMOB_TAG));
+            probInterestFlashmobTag = Double.parseDouble(properties.getProperty(PROB_INTEREST_FLASHMOB_TAG));
+            maxRandomFlashmobTagsUserMonth = Integer.parseInt(properties.getProperty(MAX_RANDOM_FLASHMOB_TAGS_USER_MONTH))
 		} catch (Exception e) {
 		    System.err.println(e.getMessage());
             e.printStackTrace();

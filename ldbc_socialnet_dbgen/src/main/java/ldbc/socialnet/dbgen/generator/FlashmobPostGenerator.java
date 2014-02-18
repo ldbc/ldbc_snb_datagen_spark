@@ -84,7 +84,7 @@ public class FlashmobPostGenerator extends PostGenerator {
     protected long GeneratePostDate( long minDate, TreeSet<Integer> tags ) {
         return dateGen.randomPostCreatedDate(minDate);
     }
-    
+
     protected abstract TreeSet<Integer> GenerateTags( TreeSet<Integer> tags ) {
         TreeSet<Integer> returnTags = new TreeSet<Integer>();
         Iterator<Integer> it = tags.iterator();

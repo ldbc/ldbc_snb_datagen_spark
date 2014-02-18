@@ -43,25 +43,33 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.Vector;
 import ldbc.socialnet.dbgen.dictionary.TagTextDictionary;
+import ldbc.socialnet.dbgen.generator.DateGenerator;
 
 public class FlashmobTagDictionary {
-	
+
     private static final String SEPARATOR = "\t";
     
-	Random 	rnd; 
+    DateGenerator dateGen;
+	Random rand; 
 	TagTextDictionary tagTextDictionary;
-	Vector<Integer> flashMobTags;
-	int numFlashmobTags;
-	double probRandomFlashmobTag;
+	HashMap<Integer,Vector<long> > flashmobTags;
+	double flashmobTagsPerMonth;
+	double probInterestFlashmobTag;
+	double maxRandomFlashmobTagsUserMonth;
 
 	public FlashmobTagDictionary( TagTextDictionary tagTextDictionary, 
-								  int numFlashmobTags,
-								  double probRandomFlashmobTag ) {
+								  DateGenerator dateGen,
+								  int flashmobTagsPerMonth,
+								  double probInterestFlashmobTag,
+								  int maxRandomFlashmobTagsUserMonth,
+								  long seed ) {
+
 		this.tagTextDictionary = tagTextDictionary;	    
-		rnd  = new Random(seed); 
-		this.flashMobTags = new TreeSet<Integer>();
-		this.numFlashmobTags = numFlashmobTags;
-		this.probRandomFlashmobTag = probRandomFlashmobTag;
+		this.dateGen = dateGen;
+		rand  = new Random(seed); 
+		this.flashmobtags = new HashMap<Integer,Vector<Integer> >();
+		this.flashmobTagsPerMonth = flashmobTagsPerMonth;
+		this.probInterestFlashmobTag = probInterestFlashmobTag;
 	}
 	
 	public String getName(int id) {
@@ -92,13 +100,24 @@ public class FlashmobTagDictionary {
     }
 
     public void initialize() {
+    	int numFlashmobTags = flashmobTagsPerMonth * dateGen.numberOfMonths(dateGen.getStartDateTime());
     	Integer[] tags = tagTextDictionary.getRandomTags(numFlashmobTags);
     	for( int i = 0; i < numFlashmobTags; ++i ){
-    		flashMobTags.add(tags[i]);
+    		Vector<long> dates = flashmobTags.get(tags[i]);
+    		if( dates == null ) {
+    			dates = new Vector<long>();	
+    			dates.add(dateGen.randomDateInMillis(dateGen.getStartDateTime(), dateGen.getCurrentDateTime()));
+    			flashmobTags.add(tags[i],dates);
+    		} else {
+    			dates.add(dateGen.randomDateInMillis(dateGen.getStartDateTime(), dateGen.getCurrentDateTime()));
+    		}
     	}
     }
 
-	public Integer GetFlashmobTag( TreeSet<Integer> tags ) {
+	public Integer[] GetFlashmobTags( TreeSet<Integer> tags, long fromDate ) {
+		// Per cada tag a integer set, 
+			// comprobar si es flashmob i en cas afirmatiu, calcular si cal affegirlo.
+		// Calcular el nombre de random tags.
 		
 	}
 }
