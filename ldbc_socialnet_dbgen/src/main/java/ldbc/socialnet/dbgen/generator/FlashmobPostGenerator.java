@@ -84,6 +84,9 @@ public class FlashmobPostGenerator extends PostGenerator {
     private Mode currentMode = USER;
 
 	public FlashmobPostGenerator( TagTextDictionary tagTextDic, 
+                          UserAgentDictionary userAgentDic,
+                          IPAddressDictionary ipAddressDic,
+                          BrowserDictionary browserDic,
                           FlashmobTagDictionary flashmobTagDictionary,
                           DateGenerator dateGen,
                           int minSizeOfPost, 
@@ -95,12 +98,13 @@ public class FlashmobPostGenerator extends PostGenerator {
                           int maxNumberOfLikes,
                           long seed,
                           long seedTextSize ) {
-        super(tagTextDic, minSizeOfPost, maxSizeOfPost, reducedTextRatio, minLargeSizeOfPost,
+        super(tagTextDic, userAgentDic, ipAddressDic, browserDic, minSizeOfPost, maxSizeOfPost, reducedTextRatio, minLargeSizeOfPost,
               maxLargeSizeOfPost, largePostRatio, maxNumberOfLikes, seed, seedTextSize);
         this.dateGen = dateGen;
         this.flashmobTagDictionary = flashmobTagDictionary;
 	}
 
+    @Override
     protected long GeneratePostDate( long minDate, TreeSet<Integer> tags ) {
         //falta ajustar la data.
         switch(currentMode){
@@ -113,6 +117,7 @@ public class FlashmobPostGenerator extends PostGenerator {
         }
     }
 
+    @Override
     protected TreeSet<Integer> GenerateTags( TreeSet<Integer> tags ) {
       TreeSet<Integer> returnTags = new TreeSet<Integer>();
       switch(currentMode){

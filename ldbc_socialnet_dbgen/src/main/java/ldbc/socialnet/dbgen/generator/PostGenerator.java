@@ -64,9 +64,12 @@ abstract public class PostGenerator {
     private static final String SEPARATOR = "  ";
     
     private TagTextDictionary tagTextDic;       /**< @brief The TagTextDictionary used to obtain the texts posts/comments.**/
+    private UserAgentDictionary userAgentDic;   /**< @brief The user agent dictionary used to obtain the user agents.*/
+    private IPAddressDictionary ipAddressDic;   /**< @brief The IP dictionary used to obtain the ips from countries.*/
+    private BrowserDictionary browserDic;       /**< @brief The Browser dictioanry used to obtain the browsers used by the users.*/
 
     /* A set of random number generator for different purposes.*/ 
-	protected Random rand;                   
+	protected Random rand;                      
 	private Random randReplyTo;            
 	private Random randTextSize ;
 	private Random randReduceText;
@@ -77,14 +80,16 @@ abstract public class PostGenerator {
 	private int reduceTextSize;            /**< @brief The size of small sized posts.*/
     private int minLargeSizeOfPost;        /**< @brief The minimum size of large posts.*/ 
     private int maxLargeSizeOfPost;        /**< @brief The maximum size of large posts.*/ 
-
-    private int maxNumberOfLikes;
+    private int maxNumberOfLikes;          /**< @brief The maximum number of likes a post can have.*/
 
     private double reducedTextRatio;       /**< @brief The ratio of reduced texts.*/
     private double largePostRatio;         /**< @brief The ratio of large posts.*/
 
 
 	public PostGenerator( TagTextDictionary tagTextDic, 
+                          UserAgentDictionary userAgentDic,
+                          IPAddressDictionary ipAddressDic,
+                          BrowserDictionary browserDic,
 	                      int minSizeOfPost, 
                           int maxSizeOfPost, 
 	                      double reducedTextRatio,
@@ -96,6 +101,9 @@ abstract public class PostGenerator {
                           long seedTextSize){
 
         this.tagTextDic = tagTextDic;
+        this.userAgentDic = userAgentDic;
+        this.ipAddressDic = ipAddressDic;
+        this.browserDic = browserDic;
 		this.rand = new Random(seed);
 		this.randReduceText = new Random(seed);
 		this.randReplyTo = new Random(seed);
@@ -156,7 +164,7 @@ abstract public class PostGenerator {
         return friends; 
     }
 	
-    private void SetLikes( Post post, ReducedUserProfile user ) {
+    private void setLikes( Post post, ReducedUserProfile user ) {
         int numberOfLikes = rand.nextInt(maxNumberOfLikes);
         int[] likes = getLikeFriends(user, numberOfLikes);
         post.setInterestedUserAccs(likes);
@@ -167,7 +175,7 @@ abstract public class PostGenerator {
         post.setInterestedUserAccsTimestamp(likeTimestamp);
     }
 
-    private void SetLikes( Post post, Group group ) {
+    private void setLikes( Post post, Group group ) {
         int numberOfLikes = rand.nextInt(maxNumberOfLikes);
         int[] likes = getLikeFriends(group, numberOfLikes);
         post.setInterestedUserAccs(likes);
@@ -177,91 +185,105 @@ abstract public class PostGenerator {
         }
         post.setInterestedUserAccsTimestamp(likeTimestamp);
     }
+
+
     
-    public Post createPost(ReducedUserProfile user, int language, int maxNumberOfLikes,
-            UserAgentDictionary userAgentDic, IPAddressDictionary ipAddDic,
-            BrowserDictionary browserDic) {
-        
-        TreeSet<Integer> tags = GenerateTags(user.getSetOfTags());
+    public Vector<Post> createPosts(ReducedUserProfile user, int language){
+
+        Vector<Post> result = new Vector<Post>();
+        int numPosts = getNumOfPost(user);
+        for( int i = 0; i < numPosts; ++i ) {
+            TreeSet<Integer> tags = GenerateTags(user);
 
         // Create the content of the post from its tags.
-        String content;
-        if( user.isLargePoster() ) {
-            if( randLargePost.nextDouble() > (1.0f-largePostRatio) ) {
-                content = tagTextDic.getRandomLargeText( tags, minLargeSizeOfPost, maxLargeSizeOfPost );
+            String content;
+            if( user.isLargePoster() ) {
+                if( randLargePost.nextDouble() > (1.0f-largePostRatio) ) {
+                    content = tagTextDic.getRandomLargeText( tags, minLargeSizeOfPost, maxLargeSizeOfPost );
+                } else {
+                    content = tagTextDic.getRandomText(tags, minSizeOfPost, maxSizeOfPost);
+                }
             } else {
                 content = tagTextDic.getRandomText(tags, minSizeOfPost, maxSizeOfPost);
             }
-        } else {
-            content = tagTextDic.getRandomText(tags, minSizeOfPost, maxSizeOfPost);
-        }
 
 //        long creationDate = dateGen.randomPostCreatedDate(user);
-        long creationDate = GeneratePostDate(user.getCreatedDate(), tags);
-        ScalableGenerator.postId++;
-        Post post = new Post( ScalableGenerator.postId, 
-                              content,
-                              creationDate,
-                              user.getAccountId(),
-                              user.getAccountId() * 2,
-                              language,
-                              tags,
-                              ipAddDic.getIP(user.getIpAddress(), user.isFrequentChange(), creationDate),
-                              userAgentDic.getUserAgentName(user.isHaveSmartPhone(), user.getAgentIdx()),
-                              browserDic.getPostBrowserId(user.getBrowserIdx()));
+            long creationDate = GeneratePostDate(user, tags);
+            ScalableGenerator.postId++;
+            Post post = new Post( ScalableGenerator.postId, 
+              content,
+              creationDate,
+              user.getAccountId(),
+              user.getAccountId() * 2,
+              language,
+              tags,
+              ipAddressDic.getIP(user.getIpAddress(), user.isFrequentChange(), creationDate),
+              userAgentDic.getUserAgentName(user.isHaveSmartPhone(), user.getAgentIdx()),
+              browserDic.getPostBrowserId(user.getBrowserIdx()));
 
         // Create post likes.
-        SetLikes(post, user);
+            setLikes(post, user);
+            result.add(post);
+        }
         return post;
     }
 
-    public Post createPost(Group group, int language, int maxNumberOfLikes,
-            UserAgentDictionary userAgentDic, IPAddressDictionary ipAddDic,
-            BrowserDictionary browserDic) {
+    public Vector<Post> createPosts(Group group, int language) {
+
+        Vector<Post> result = new Vector<Post>();
+        int numPosts = getNumOfPost(group);
+        for( int i = 0; i < numPosts; ++i ) {
 
         // Create the set of tags of the post.
-        TreeSet<Integer> tags = new TreeSet<Integer>();
-        for (int i = 0; i < group.getTags().length; i++) {
-            tags.add(group.getTags()[i]);
-        }
+            TreeSet<Integer> tags = new TreeSet<Integer>();
+            for (int i = 0; i < group.getTags().length; i++) {
+                tags.add(group.getTags()[i]);
+            }
 
         // Obtain the membership information about the creator of the post.
-        int memberIdx = rand.nextInt(group.getNumMemberAdded());
-        GroupMemberShip memberShip = group.getMemberShips()[memberIdx];
+            int memberIdx = rand.nextInt(group.getNumMemberAdded());
+            GroupMemberShip memberShip = group.getMemberShips()[memberIdx];
 
         // Create the content of the post from its tags.
-        String content;
-        if( memberShip.isLargePoster() ) {
-            if( randLargePost.nextDouble() > (1.0f-largePostRatio) ) {
-                content = tagTextDic.getRandomLargeText(tags, minLargeSizeOfPost, maxLargeSizeOfPost);
+            String content;
+            if( memberShip.isLargePoster() ) {
+                if( randLargePost.nextDouble() > (1.0f-largePostRatio) ) {
+                    content = tagTextDic.getRandomLargeText(tags, minLargeSizeOfPost, maxLargeSizeOfPost);
+                } else {
+                    content = tagTextDic.getRandomText(tags, minSizeOfPost, maxSizeOfPost);
+                }
             } else {
                 content = tagTextDic.getRandomText(tags, minSizeOfPost, maxSizeOfPost);
             }
-        } else {
-            content = tagTextDic.getRandomText(tags, minSizeOfPost, maxSizeOfPost);
-        }
 
 //        long creationDate = dateGen.randomGroupPostCreatedDate(memberShip.getJoinDate());
-        long creationDate = GeneratePostDate(memberShip.getJoinDate(), tags);
-        ScalableGenerator.postId++;
-        Post post = new Post( ScalableGenerator.postId, 
-                              content,
-                              creationDate,
-                              memberShip.getUserId(),
-                              group.getForumWallId(),
-                              language,
-                              tags,
-                              ipAddDic.getIP(memberShip.getIP(), memberShip.isFrequentChange(), creationDate),
-                              userAgentDic.getUserAgentName(memberShip.isHaveSmartPhone(), memberShip.getAgentIdx()),
-                              browserDic.getPostBrowserId(memberShip.getBrowserIdx()));
-        
+            long creationDate = GeneratePostDate(group, membership, tags);
+            ScalableGenerator.postId++;
+            Post post = new Post( ScalableGenerator.postId, 
+              content,
+              creationDate,
+              memberShip.getUserId(),
+              group.getForumWallId(),
+              language,
+              tags,
+              ipAddressDic.getIP(memberShip.getIP(), memberShip.isFrequentChange(), creationDate),
+              userAgentDic.getUserAgentName(memberShip.isHaveSmartPhone(), memberShip.getAgentIdx()),
+              browserDic.getPostBrowserId(memberShip.getBrowserIdx()));
+
         // Create the post likes
-        SetLikes(post, group);
+            setLikes(post, group)   ;
+            result.add(post);
+        }
         return post;
     }
 
-    protected abstract long GeneratePostDate( long minDate, TreeSet<Integer> tags );
+    protected abstract long GeneratePostDate( ReducedUserProfile user, TreeSet<Integer> tags );
 
-    protected abstract TreeSet<Integer> GenerateTags( TreeSet<Integer> tags );
+    protected abstract long GeneratePostDate( Group group, GroupMemberShip membership, TreeSet<Integer> tags );
+
+    protected abstract TreeSet<Integer> GenerateTags( ReducedUserProfile user );
         
+    protected abstract int getNumOfPost(ReducedUserProfile user);
+
+    protected abstract int getNumOfPost(Group group);
 }

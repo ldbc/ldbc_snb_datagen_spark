@@ -344,7 +344,6 @@ public class ScalableGenerator{
 	Random 				randomNumInterests;
 	Random 				randomNumTags;
 	Random 				randomFriendIdx;
-	Random 				randomNumPosts;
 	Random 				randomNumComments;
 	Random 				randomNumPhotoAlbums;
 	Random 				randomNumPhotos;
@@ -358,7 +357,6 @@ public class ScalableGenerator{
     Random              randomMemberIdxSelector;
     Random              randomGroupMemStep;
     Random              randomGroupModerator;    // Decide whether a user can be moderator of groups or not
-    Random              randomNumGroupPosts;
     Random              randomExtraInfo;
     Random              randomExactLongLat;
     Random              randomHaveStatus;
@@ -686,7 +684,6 @@ public class ScalableGenerator{
 		randomFriendIdx = new Random(seeds[6]);
 		randomFileSelect = new Random(seeds[7]);
 		randomIdsInWindow = new Random(seeds[8]);
-		randomNumPosts = new Random(seeds[9]);
 		randomNumComments = new Random(seeds[10]);
 		randomNumPhotoAlbums = new Random(seeds[11]);
 		randomNumPhotos = new Random(seeds[12]);
@@ -700,7 +697,6 @@ public class ScalableGenerator{
 		randomExtraInfo = new Random(seeds[27]);
 		randomExactLongLat = new Random(seeds[27]);
 		randomUserAgent = new Random(seeds[29]);
-		randomNumGroupPosts = new Random(seeds[36]);
 		randomFriendReject = new Random(seeds[37]);
 		randomFriendAproval = new Random(seeds[38]);
 		randomInitiator = new Random(seeds[39]);
@@ -792,10 +788,26 @@ public class ScalableGenerator{
                     mainTagDic, numtotalUser, seeds[35]);
 
             System.out.println("Building Uniform Post Generator");
-            uniformPostGenerator = new UniformPostGenerator(tagTextDic, dateTimeGenerator,
-                    minTextSize, maxTextSize, ratioReduceText,
-                    minLargePostSize, maxLargePostSize, ratioLargePost/0.0833333, maxNumLikes,
-                    seeds[15], seeds[16]);
+            uniformPostGenerator = new UniformPostGenerator( tagTextDic, 
+                                                             userAgentDic,
+                                                             ipAddDictionary,
+                                                             browserDic,
+                                                             minTextSize,
+                                                             maxTextSize,
+                                                             ratioReduceText,
+                                                             minLargePostSize,
+                                                             maxLargePostSize,
+                                                             ratioLargePost/0.0833333,
+                                                             maxNumLikes,
+                                                             seeds[15],
+                                                             seeds[16],
+                                                             dateTimeGenerator,
+                                                             maxNumPostPerMonth,
+                                                             maxNumFriends,
+                                                             maxNumGroupPostPerMonth,
+                                                             maxNumMemberGroup,
+                                                             seeds[9],
+                                                             seeds[36] );
             uniformPostGenerator.initialize();
 
             System.out.println("Building Flashmob Tag Dictionary");
@@ -812,7 +824,8 @@ public class ScalableGenerator{
 
 
             System.out.println("Building Flashmob Post Generator");
-            flashmobPostGenerator = new FlashmobPostGenerator(tagTextDic, flashmobTagDictionary, dateTimeGenerator,
+            flashmobPostGenerator = new FlashmobPostGenerator(tagTextDic, userAgentDic, ipAddDictionary, browserDic, flashmobTagDictionary,
+                    dateTimeGenerator,
                     minTextSize, maxTextSize, ratioReduceText,
                     minLargePostSize, maxLargePostSize, ratioLargePost/0.0833333, maxNumLikes,
                     seeds[15], seeds[16]);
@@ -1118,11 +1131,11 @@ public class ScalableGenerator{
 
 	public void generatePosts(ReducedUserProfile user, UserExtraInfo extraInfo){
 		// Generate location-related posts
-		int numPosts = getNumOfPost(user);
-        for (int m = 0; m < numPosts; m++) {
-            Integer languageIndex = randomUniform.nextInt(extraInfo.getLanguages().size());
-            Post post = uniformPostGenerator.createPost(user, extraInfo.getLanguages().get(languageIndex), maxNumLikes, userAgentDic, ipAddDictionary, browserDic);
-			
+        Integer languageIndex = randomUniform.nextInt(extraInfo.getLanguages().size());
+        Vector<Post> createdPosts = uniformPostGenerator.createPosts(user, extraInfo.getLanguages().get(languageIndex));
+        Iterator<Post> it = createdPosts.iterator();
+        while(it.hasNext()) {
+            Post post = it.next();
 			String countryName = locationDic.getLocationName((ipAddDictionary.getLocation(post.getIpAddress())));
 			stats.countries.add(countryName);
 
@@ -1166,7 +1179,7 @@ public class ScalableGenerator{
     public void generateFlashmobPosts(ReducedUserProfile user, UserExtraInfo extraInfo){
         // Generate location-related posts
             Integer languageIndex = randomUniform.nextInt(extraInfo.getLanguages().size());
-            Vector<Post> createdPosts = flashmobPostGenerator.createPosts(user, extraInfo.getLanguages().get(languageIndex), maxNumLikes, userAgentDic, ipAddDictionary, browserDic);
+            Vector<Post> createdPosts = flashmobPostGenerator.createPosts(user, extraInfo.getLanguages().get(languageIndex));
             
             Iterator<Post> it = createdPosts.iterator();
         while(it.hasNext()){
@@ -1324,10 +1337,12 @@ public class ScalableGenerator{
 	}
 
 	public void generatePostForGroup(Group group) {
-		int numberGroupPost = getNumOfGroupPost(group);
-		for (int i = 0; i < numberGroupPost; i++) {
-			Post groupPost = uniformPostGenerator.createPost(group, -1, maxNumLikes, userAgentDic, ipAddDictionary, browserDic);
-			String countryName = locationDic.getLocationName((ipAddDictionary.getLocation(groupPost.getIpAddress())));
+
+        Vector<Post> createdPosts =  uniformPostGenerator.createPosts(group, -1);
+        Iterator<Post> it = createdPosts.iterator();
+        while(it.hasNext()) {
+			Post groupPost = it.next();
+            String countryName = locationDic.getLocationName((ipAddDictionary.getLocation(groupPost.getIpAddress())));
             stats.countries.add(countryName);
 			serializer.gatherData(groupPost);
 
@@ -1383,39 +1398,7 @@ public class ScalableGenerator{
         }
     }
 
-	// User has more friends will have more posts
-	// Thus, the number of post is calculated according
-	// to the number of friends and createdDate of a user
-	public int getNumOfPost(ReducedUserProfile user) {
-		int numOfmonths = (int) dateTimeGenerator.numberOfMonths(user);
-		int numberPost;
-		if (numOfmonths == 0) {
-			numberPost = randomNumPosts.nextInt(maxNumPostPerMonth);
-		} else {
-			numberPost = randomNumPosts.nextInt(maxNumPostPerMonth * numOfmonths);
-		}
 
-		numberPost = (numberPost * user.getNumFriendsAdded()) / maxNumFriends;
-
-		return numberPost;
-	}
-
-
-	public int getNumOfGroupPost(Group group) {
-	    
-		int numOfmonths = (int) dateTimeGenerator.numberOfMonths(group.getCreatedDate());
-
-		int numberPost;
-		if (numOfmonths == 0) {
-			numberPost = randomNumGroupPosts.nextInt(maxNumGroupPostPerMonth);
-		} else {
-			numberPost = randomNumGroupPosts.nextInt(maxNumGroupPostPerMonth * numOfmonths);
-		}
-
-		numberPost = (numberPost * group.getNumMemberAdded()) / maxNumMemberGroup;
-
-		return numberPost;
-	}
 
 	public void seedGenerate(int mapIdx) {
 		seeds = new Long[50];
