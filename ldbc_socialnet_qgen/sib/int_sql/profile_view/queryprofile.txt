@@ -1,0 +1,13 @@
+select p_firstname, p_lastname, p_birthday, p_creationdate, p_gender, p_browserused,
+       bit_shift(bit_and(p_locationip, 4278190080), -24) || '.' ||
+       bit_shift(bit_and(p_locationip, 16711680), -16) || '.' ||
+       bit_shift(bit_and(p_locationip, 65280), -8) || '.' ||
+       bit_and(p_locationip, 255) as ip,
+       (select group_concat (pe_email, ', ') from person_email where pe_personid = p1.p_personid group by pe_personid) as emails,
+       (select group_concat (plang_language, ', ') from person_language where plang_personid = p1.p_personid group by plang_personid) as languages,
+       (select group_concat (p2.p_firstname || ' ' || p2.p_lastname , ', ') from knows, person p2 where k_person1id = p1.p_personid and k_person2id = p2.p_personid group by k_person1id) as friends,
+       pl_name
+from person p1, place
+where 
+      p1.p_personid = @Person@ and
+      p1.p_placeid = pl_placeid

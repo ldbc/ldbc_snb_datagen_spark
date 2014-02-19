@@ -1,0 +1,46 @@
+select ?person ?last ?bday ?since ?gen ?browser ?locationIP #Q1
+    ((select group_concat (?email, ", ")
+        where {
+            ?person snvoc:email ?email
+        }
+        group by ?person)) as ?email
+    ((select group_concat (?lng, ", ")
+        where {
+            ?person snvoc:speaks ?lng
+        }
+        group by ?person)) as ?lng
+    ?based
+    ((select group_concat ( bif:concat (?o_name, " ", ?year, " ", ?o_country), ", ")
+        where {
+	    ?person snvoc:studyAt ?w .
+	    ?w snvoc:classYear ?year .
+            ?w snvoc:hasOrganisation ?org .
+            ?org snvoc:isLocatedIn ?o_countryURI .
+	    ?o_countryURI foaf:name ?o_country .
+            ?org foaf:name ?o_name
+        }
+        group by ?person)) as ?studyAt
+    ((select group_concat ( bif:concat (?o_name, " ", ?year, " ", ?o_country), ", ")
+        where {
+	    ?person snvoc:workAt ?w .
+	    ?w snvoc:workFrom ?year .
+            ?w snvoc:hasOrganisation ?org .
+            ?org snvoc:isLocatedIn ?o_countryURI .
+	    ?o_countryURI foaf:name ?o_country .
+            ?org foaf:name ?o_name
+        }
+        group by ?person)) as ?workAt
+    {
+        ?person a snvoc:Person .
+        ?person snvoc:firstName "%Name%" .
+        ?person snvoc:isLocatedIn ?basedURI .
+	?basedURI foaf:name ?based .
+        ?person snvoc:birthday ?bday .
+        ?person snvoc:creationDate ?since . 
+        ?person snvoc:gender ?gen .
+        ?person snvoc:lastName ?last .
+	?person snvoc:locationIP ?locationIP .
+	?person snvoc:browserUsed ?browser .
+    }
+    order by ?last ?person
+    limit 10
