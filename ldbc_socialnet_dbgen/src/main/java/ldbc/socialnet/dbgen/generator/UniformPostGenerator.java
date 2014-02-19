@@ -72,7 +72,7 @@ public class UniformPostGenerator extends PostGenerator {
                           int maxLargeSizeOfPost, 
                           double largePostRatio,
                           int maxNumberOfLikes,
-                          long seed,i
+                          long seed,
                           long seedTextSize ) {
         super(tagTextDic, minSizeOfPost, maxSizeOfPost, reducedTextRatio, minLargeSizeOfPost,
               maxLargeSizeOfPost, largePostRatio, maxNumberOfLikes, seed, seedTextSize);
@@ -83,7 +83,7 @@ public class UniformPostGenerator extends PostGenerator {
         return dateGen.randomPostCreatedDate(minDate);
     }
 
-    protected abstract TreeSet<Integer> GenerateTags( TreeSet<Integer> tags ) {
+    protected TreeSet<Integer> GenerateTags( TreeSet<Integer> tags ) {
         TreeSet<Integer> returnTags = new TreeSet<Integer>();
         Iterator<Integer> it = tags.iterator();
         while (it.hasNext()) {

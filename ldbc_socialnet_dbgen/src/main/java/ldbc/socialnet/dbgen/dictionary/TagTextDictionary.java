@@ -55,6 +55,7 @@ import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
 
 
 public class TagTextDictionary {
+
 	
     public static int commentId = -1;
     

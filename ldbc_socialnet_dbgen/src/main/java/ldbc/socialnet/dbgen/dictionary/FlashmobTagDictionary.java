@@ -42,82 +42,141 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.Vector;
-import ldbc.socialnet.dbgen.dictionary.TagTextDictionary;
+import java.util.TreeSet;
+import java.util.Arrays;
+import java.util.Iterator;
+import ldbc.socialnet.dbgen.dictionary.TagDictionary;
 import ldbc.socialnet.dbgen.generator.DateGenerator;
+import ldbc.socialnet.dbgen.generator.PowerDistGenerator;
+import ldbc.socialnet.dbgen.objects.FlashmobTag;
 
 public class FlashmobTagDictionary {
 
     private static final String SEPARATOR = "\t";
     
     DateGenerator dateGen;
-	Random rand; 
-	TagTextDictionary tagTextDictionary;
-	HashMap<Integer,Vector<long> > flashmobTags;
+	PowerDistGenerator levelGenerator;
+	Random random;
+	TagDictionary tagDictionary;
+	HashMap<Integer,Vector<FlashmobTag> > flashmobTags;
+	FlashmobTag[] flashmobTagCumDist;
 	double flashmobTagsPerMonth;
 	double probInterestFlashmobTag;
 	double maxRandomFlashmobTagsUserMonth;
+	int maxUserPostsPerFlashmobTag;
 
-	public FlashmobTagDictionary( TagTextDictionary tagTextDictionary, 
+	public FlashmobTagDictionary( TagDictionary tagDictionary, 
 								  DateGenerator dateGen,
 								  int flashmobTagsPerMonth,
 								  double probInterestFlashmobTag,
 								  int maxRandomFlashmobTagsUserMonth,
+								  double flashmobTagMinLevel,
+								  double flashmobTagMaxLevel,
+								  double flashmobTagDistExp,
 								  long seed ) {
 
-		this.tagTextDictionary = tagTextDictionary;	    
+		this.tagDictionary = tagDictionary;	    
 		this.dateGen = dateGen;
-		rand  = new Random(seed); 
-		this.flashmobtags = new HashMap<Integer,Vector<Integer> >();
+		this.levelGenerator  = new PowerDistGenerator(flashmobTagMinLevel, flashmobTagMaxLevel, flashmobTagDistExp, seed); 
+		this.random = new Random(seed);
+		this.flashmobTags = new HashMap<Integer,Vector<FlashmobTag> >();
 		this.flashmobTagsPerMonth = flashmobTagsPerMonth;
 		this.probInterestFlashmobTag = probInterestFlashmobTag;
+		this.maxUserPostsPerFlashmobTag = maxUserPostsPerFlashmobTag;
 	}
-	
-	public String getName(int id) {
-	    return tagNames.get(id);
-	}
-	
-	public String getDescription(int id) {
-        return tagDescription.get(id);
-    }
-	
-	public Integer getTagClass(int id) {
-        return tagClass.get(id);
-    }
-	
-	public String getClassName(int id) {
-        return className.get(id);
-    }
-	
-	public String getClassLabel(int id) {
-        return classLabel.get(id);
-    }
-	
-	public Integer getClassParent(int id) {
-	    if (!classHierarchy.containsKey(id)) {
-	        return -1;
-	    }
-        return classHierarchy.get(id);
-    }
 
     public void initialize() {
-    	int numFlashmobTags = flashmobTagsPerMonth * dateGen.numberOfMonths(dateGen.getStartDateTime());
-    	Integer[] tags = tagTextDictionary.getRandomTags(numFlashmobTags);
+    	int numFlashmobTags = (int)(flashmobTagsPerMonth * dateGen.numberOfMonths(dateGen.getStartDateTime()));
+    	Integer[] tags = tagDictionary.getRandomTags(numFlashmobTags);
+    	flashmobTagCumDist = new FlashmobTag[numFlashmobTags];
+    	double sumLevels = 0;
     	for( int i = 0; i < numFlashmobTags; ++i ){
-    		Vector<long> dates = flashmobTags.get(tags[i]);
-    		if( dates == null ) {
-    			dates = new Vector<long>();	
-    			dates.add(dateGen.randomDateInMillis(dateGen.getStartDateTime(), dateGen.getCurrentDateTime()));
-    			flashmobTags.add(tags[i],dates);
-    		} else {
-    			dates.add(dateGen.randomDateInMillis(dateGen.getStartDateTime(), dateGen.getCurrentDateTime()));
+    		Vector<FlashmobTag> instances = flashmobTags.get(tags[i]);
+    		if( instances == null ) {
+    			instances = new Vector<FlashmobTag>();	
+    			flashmobTags.put(tags[i],instances);
     		}
+   			FlashmobTag flashmobTag = new FlashmobTag();
+   			flashmobTag.date = dateGen.randomDateInMillis(dateGen.getStartDateTime(), dateGen.getCurrentDateTime());
+   			flashmobTag.level = levelGenerator.getValue();
+   			sumLevels += flashmobTag.level;
+   			flashmobTag.tag = tags[i];
+    		instances.add(flashmobTag);
+    		flashmobTagCumDist[i] = flashmobTag;
+    	}
+    	Arrays.sort(flashmobTagCumDist);
+    	int size = flashmobTagCumDist.length;
+    	double currentProb = 0.0;
+    	for( int i = 0; i < numFlashmobTags; ++i ) {
+    		flashmobTagCumDist[i].prob = currentProb;
+    		currentProb += flashmobTagCumDist[i].level / sumLevels;
     	}
     }
 
-	public Integer[] GetFlashmobTags( TreeSet<Integer> tags, long fromDate ) {
-		// Per cada tag a integer set, 
-			// comprobar si es flashmob i en cas afirmatiu, calcular si cal affegirlo.
-		// Calcular el nombre de random tags.
-		
+    private int searchEarliestIndex( long fromDate ) {
+            int lowerBound = 0;
+            int upperBound = flashmobTagCumDist.length;
+            int midPoint = (upperBound + lowerBound)  / 2;
+            while (upperBound > (lowerBound+1)){
+                if (flashmobTagCumDist[midPoint].date > fromDate ){
+                    upperBound = midPoint;
+                } else{
+                    lowerBound = midPoint; 
+                }
+                midPoint = (upperBound + lowerBound)  / 2;
+            }
+            return midPoint;
+
+    }
+
+    private FlashmobTag searchRandomFlashmobTag( int index ) {
+            double randomDis = random.nextDouble()*(1.0 - flashmobTagCumDist[index].prob) + flashmobTagCumDist[index].prob; 
+            int lowerBound = index;
+            int upperBound = flashmobTagCumDist.length;
+            int midPoint = (upperBound + lowerBound)  / 2;
+            while (upperBound > (lowerBound+1)){
+                if (flashmobTagCumDist[midPoint].prob > randomDis ){
+                    upperBound = midPoint;
+                } else{
+                    lowerBound = midPoint; 
+                }
+                midPoint = (upperBound + lowerBound)  / 2;
+            }
+            return flashmobTagCumDist[midPoint];
+    }
+
+	public Vector<FlashmobTag> getFlashmobTags( TreeSet<Integer> interests, long fromDate ) {
+		Vector<FlashmobTag> result = new Vector<FlashmobTag>();
+		Iterator<Integer> it = interests.iterator();
+		while(it.hasNext()) {
+			Integer tag = it.next();
+			Vector<FlashmobTag> instances = flashmobTags.get(tag);
+			if( instances != null ) {
+				Iterator<FlashmobTag> it2 = instances.iterator();
+				while( it2.hasNext()){
+					FlashmobTag instance = it2.next();
+					if( instance.date >= fromDate ) {
+						if(random.nextDouble() > probInterestFlashmobTag){
+							int numInstances = random.nextInt((int)(instance.level)) + 1;
+							for( int k = 0; k < numInstances; ++k ) {
+								result.add(instance);
+							}
+						}
+					} 
+				}
+			}
+		}
+		int numberOfMonths = (int)(dateGen.numberOfMonths(fromDate));	
+		int randomTagsPerMonth = random.nextInt((int)(maxRandomFlashmobTagsUserMonth) + 1);
+		int numberOfRandomTags = numberOfMonths * randomTagsPerMonth; 
+		int earliestIndex = searchEarliestIndex(fromDate);
+		for( int i = 0; i < numberOfRandomTags; ++i ) {
+				FlashmobTag flashmobTag = searchRandomFlashmobTag(earliestIndex);
+				int numInstances = random.nextInt((int)(flashmobTag.level)) + 1;
+				for( int k = 0; k < numInstances; ++k ) {
+					result.add(flashmobTag); 
+				}
+		}
+		return result;
 	}
 }

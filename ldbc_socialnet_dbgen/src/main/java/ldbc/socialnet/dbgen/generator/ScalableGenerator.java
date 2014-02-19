@@ -51,6 +51,7 @@ import java.util.TreeSet;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Vector;
+import java.util.Iterator;
 import java.text.Normalizer;
 
 import ldbc.socialnet.dbgen.dictionary.BrowserDictionary;
@@ -63,6 +64,7 @@ import ldbc.socialnet.dbgen.dictionary.NamesDictionary;
 import ldbc.socialnet.dbgen.dictionary.OrganizationsDictionary;
 import ldbc.socialnet.dbgen.dictionary.PopularPlacesDictionary;
 import ldbc.socialnet.dbgen.dictionary.TagDictionary;
+import ldbc.socialnet.dbgen.dictionary.FlashmobTagDictionary;
 import ldbc.socialnet.dbgen.dictionary.TagMatrix;
 import ldbc.socialnet.dbgen.dictionary.TagTextDictionary;
 import ldbc.socialnet.dbgen.dictionary.UserAgentDictionary;
@@ -233,10 +235,12 @@ public class ScalableGenerator{
     private final String POPULAR_PLACE_RATIO           = "probPopularPlaces";
     private final String TAG_UNCORRELATED_COUNTRY      = "tagCountryCorrProb";
 
-    private final String FLASHMOB_TAGS_PER_MONTH       = "flashmobTagsPerMonth"
-    private final String MAX_USER_POSTS_PER_FLASHMOB_TAG   = "maxUserPostsPerFlashmobTag"
-    private final String PROB_INTEREST_FLASHMOB_TAG     = "probInterestFlashmobTag"
-    private final String MAX_RANDOM_FLASHMOB_TAGS_USER_MONTH     = "maxRandomFlashmobTagsUserMonth"
+    private final String FLASHMOB_TAGS_PER_MONTH                = "flashmobTagsPerMonth";
+    private final String PROB_INTEREST_FLASHMOB_TAG             = "probInterestFlashmobTag";
+    private final String MAX_RANDOM_FLASHMOB_TAGS_USER_MONTH    = "maxRandomFlashmobTagsUserMonth";
+    private final String FLASHMOB_TAG_MIN_LEVEL                 = "flashmobTagMinLevel";
+    private final String FLASHMOB_TAG_MAX_LEVEL                 = "flashmobTagMaxLevel";
+    private final String FLASHMOB_TAG_DIST_EXP                  = "flashmobTagDistExp";
     
     /**
      * This array provides a quick way to check if any of the required parameters is missing and throw the appropriate
@@ -253,7 +257,8 @@ public class ScalableGenerator{
             DIFFERENT_IP_IN_TRAVEL_RATIO, DIFFERENT_IP_NOT_TRAVEL_RATIO, DIFFERENT_IP_TRAVELLER_RATIO, 
             COMPANY_UNCORRELATED_RATIO, UNIVERSITY_UNCORRELATED_RATIO, BEST_UNIVERSTY_RATIO, MAX_POPULAR_PLACES, 
             POPULAR_PLACE_RATIO, TAG_UNCORRELATED_COUNTRY, FLASHMOB_TAGS_PER_MONTH, MAX_USER_POSTS_PER_FLASHMOB_TAG,
-            PROB_INTEREST_FLASHMOB_TAG, MAX_RANDOM_FLASHMOB_TAGS_USER_MONTH};
+            PROB_INTEREST_FLASHMOB_TAG, FLASHMOB_TAG_MIN_LEVEL, FLASHMOB_TAG_MAX_LEVEL,
+            FLASHMOB_TAG_DIST_EXP};
     
     
     //final user parameters
@@ -371,6 +376,7 @@ public class ScalableGenerator{
 	LocationDictionary 		locationDic;
 	LanguageDictionary      languageDic;
 	TagDictionary 			mainTagDic;
+    FlashmobTagDictionary   flashmobTagDictionary;
 	TagTextDictionary       tagTextDic;
 	TagMatrix	 			topicTagDic;
 	NamesDictionary 		namesDictionary;
@@ -424,7 +430,7 @@ public class ScalableGenerator{
     UniformPostGenerator           uniformPostGenerator;
     FlashmobPostGenerator          flashmobPostGenerator;
     CommentGenerator        commentGenerator;
-	int 					maxNumGroupPostPerMonth;
+    int 					maxNumGroupPostPerMonth;
 
 
 	// For serialize to RDF format
@@ -460,9 +466,11 @@ public class ScalableGenerator{
 	int            numPopularUser = 0;
 
     int            flashmobTagsPerMonth = 0;
-    int            maxUserPostsPerFlashmobTag = 0;
-    double            probInterestFlashmobTag = 0.0;
+    double         probInterestFlashmobTag = 0.0;
     int            maxRandomFlashmobTagsUserMonth = 0;
+    double         flashmobTagMinLevel = 0.0f;
+    double         flashmobTagMaxLevel = 0.0f;
+    double         flashmobTagDistExp  = 0.0f;
 	
 	// Data accessed from the hadoop jobs
 	public ReducedUserProfile[] cellReducedUserProfiles;
@@ -602,9 +610,11 @@ public class ScalableGenerator{
 			probPopularPlaces = Double.parseDouble(properties.getProperty(POPULAR_PLACE_RATIO));
 			tagCountryCorrProb = Double.parseDouble(properties.getProperty(TAG_UNCORRELATED_COUNTRY));
             flashmobTagsPerMonth = Integer.parseInt(properties.getProperty(FLASHMOB_TAGS_PER_MONTH));
-            maxUserPostsPerFlashmobTag = Integer.parseInt(properties.getProperty(MAX_USER_POSTS_PER_FLASHMOB_TAG));
             probInterestFlashmobTag = Double.parseDouble(properties.getProperty(PROB_INTEREST_FLASHMOB_TAG));
-            maxRandomFlashmobTagsUserMonth = Integer.parseInt(properties.getProperty(MAX_RANDOM_FLASHMOB_TAGS_USER_MONTH))
+            maxRandomFlashmobTagsUserMonth = Integer.parseInt(properties.getProperty(MAX_RANDOM_FLASHMOB_TAGS_USER_MONTH));
+            flashmobTagMinLevel = Double.parseDouble(properties.getProperty(FLASHMOB_TAG_MIN_LEVEL));
+            flashmobTagMaxLevel = Double.parseDouble(properties.getProperty(FLASHMOB_TAG_MAX_LEVEL));
+            flashmobTagDistExp = Double.parseDouble(properties.getProperty(FLASHMOB_TAG_DIST_EXP));
 		} catch (Exception e) {
 		    System.err.println(e.getMessage());
             e.printStackTrace();
@@ -788,12 +798,25 @@ public class ScalableGenerator{
                     seeds[15], seeds[16]);
             uniformPostGenerator.initialize();
 
+            System.out.println("Building Flashmob Tag Dictionary");
+            flashmobTagDictionary = new FlashmobTagDictionary( mainTagDic, 
+                                  dateTimeGenerator,
+                                  flashmobTagsPerMonth,
+                                  probInterestFlashmobTag,
+                                  maxRandomFlashmobTagsUserMonth,
+                                  flashmobTagMinLevel,
+                                  flashmobTagMaxLevel,
+                                  flashmobTagDistExp,
+                                  seeds[16]);
+            flashmobTagDictionary.initialize();
+
+
             System.out.println("Building Flashmob Post Generator");
-            uniformPostGenerator = new FlashmobPostGenerator(tagTextDic, dateTimeGenerator,
+            flashmobPostGenerator = new FlashmobPostGenerator(tagTextDic, flashmobTagDictionary, dateTimeGenerator,
                     minTextSize, maxTextSize, ratioReduceText,
                     minLargePostSize, maxLargePostSize, ratioLargePost/0.0833333, maxNumLikes,
                     seeds[15], seeds[16]);
-            uniformPostGenerator.initialize();
+            flashmobPostGenerator.initialize();
 
             System.out.println("Building Comment Generator");
             commentGenerator = new CommentGenerator(tagTextDic, dateTimeGenerator,
@@ -1142,11 +1165,12 @@ public class ScalableGenerator{
 
     public void generateFlashmobPosts(ReducedUserProfile user, UserExtraInfo extraInfo){
         // Generate location-related posts
-        int numPosts = getNumOfFlashmobPost(user);
-        for (int m = 0; m < numPosts; m++) {
             Integer languageIndex = randomUniform.nextInt(extraInfo.getLanguages().size());
-            Post post = uniformPostGenerator.createPost(user, extraInfo.getLanguages().get(languageIndex), maxNumLikes, userAgentDic, ipAddDictionary, browserDic);
+            Vector<Post> createdPosts = flashmobPostGenerator.createPosts(user, extraInfo.getLanguages().get(languageIndex), maxNumLikes, userAgentDic, ipAddDictionary, browserDic);
             
+            Iterator<Post> it = createdPosts.iterator();
+        while(it.hasNext()){
+            Post post = it.next();
             String countryName = locationDic.getLocationName((ipAddDictionary.getLocation(post.getIpAddress())));
             stats.countries.add(countryName);
 
@@ -1296,6 +1320,7 @@ public class ScalableGenerator{
 
 		serializer.gatherData(group);
 		generatePostForGroup(group);
+        generateFlashmobPostForGroup(group);
 	}
 
 	public void generatePostForGroup(Group group) {
@@ -1327,6 +1352,37 @@ public class ScalableGenerator{
 		}
 	}
 
+    public void generateFlashmobPostForGroup(Group group) {
+        int numberGroupPost = getNumOfGroupPost(group);
+        Vector<Post> createdPosts = flashmobPostGenerator.createPosts(group, -1, maxNumLikes, userAgentDic, ipAddDictionary, browserDic);
+        Iterator<Post> it = createdPosts.iterator();
+        while(it.hasNext() ) {
+            Post groupPost = it.next();
+            String countryName = locationDic.getLocationName((ipAddDictionary.getLocation(groupPost.getIpAddress())));
+            stats.countries.add(countryName);
+            serializer.gatherData(groupPost);
+
+            int numComment = randomNumComments.nextInt(maxNumComments);
+            long lastCommentCreatedDate = groupPost.getCreationDate();
+            long lastCommentId = -1;
+            long startCommentId = TagTextDictionary.commentId;
+
+            for (int j = 0; j < numComment; j++) {
+                Comment comment = commentGenerator.createComment(groupPost, group, lastCommentCreatedDate, startCommentId, lastCommentId, 
+                        userAgentDic, ipAddDictionary, browserDic);
+//              if (comment.getAuthorId() != -1) { // In case the comment is not reated because of the friendship's createddate
+                if ( comment!=null ) { // In case the comment is not reated because of the friendship's createddate
+                    countryName = locationDic.getLocationName((ipAddDictionary.getLocation(comment.getIpAddress())));
+                    stats.countries.add(countryName);
+                    serializer.gatherData(comment);
+
+                    lastCommentCreatedDate = comment.getCreationDate();
+                    lastCommentId = comment.getCommentId();
+                }
+            }
+        }
+    }
+
 	// User has more friends will have more posts
 	// Thus, the number of post is calculated according
 	// to the number of friends and createdDate of a user
@@ -1344,19 +1400,6 @@ public class ScalableGenerator{
 		return numberPost;
 	}
 
-    public int getNumOfFlashmobPost(ReducedUserProfile user) {
-        int numOfmonths = (int) dateTimeGenerator.numberOfMonths(user);
-        int numberPost;
-        if (numOfmonths == 0) {
-            numberPost = randomNumPosts.nextInt(maxNumPostPerMonth);
-        } else {
-            numberPost = randomNumPosts.nextInt(maxNumPostPerMonth * numOfmonths);
-        }
-
-        numberPost = (numberPost * user.getNumFriendsAdded()) / maxNumFriends;
-
-        return numberPost;
-    }
 
 	public int getNumOfGroupPost(Group group) {
 	    

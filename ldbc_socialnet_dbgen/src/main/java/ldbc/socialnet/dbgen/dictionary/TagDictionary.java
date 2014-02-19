@@ -183,7 +183,7 @@ public class TagDictionary {
 	public int getaTagByCountry(int _countryId){
 		int countryId; 
 		countryId = _countryId; 
-		
+			
 		if (tagsByCountry.get(countryId).size() == 0 || rnd.nextDouble() > tagCountryCorrProb) {
 			do {
 				countryId = rnd.nextInt(tagsByCountry.size());
@@ -213,12 +213,15 @@ public class TagDictionary {
 	}
 
 	public Integer[] getRandomTags( int num ) {
-		Integer[] tags = new Integer[num];
-		for( int i = 0; i < num; ++i ) {
+		Integer[] result = new Integer[num];
+		for( int i = 0; i < num; ) {
 			int randomCountry = rndTags.nextInt(tagsByCountry.size());
-			Vector<Integer> tags = tagsByCountry(randomCountry);
-			tags[i] = rndTags.nextInt(tags.size());
+			Vector<Integer> tags = tagsByCountry.get(randomCountry);
+			if( tags.size() > 0 ){ 
+				result[i] = tags.get(rndTags.nextInt(tags.size()));
+				++i;
+			}
 		}
-		return tags;
+		return result;
 	}
 }
