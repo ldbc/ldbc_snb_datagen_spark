@@ -47,4 +47,11 @@ public class FlashmobTag implements Comparable<FlashmobTag> {
 		if( this.date - t.date == 0) return 0;
 		return 0;
 	}
+
+    public void copyTo( FlashmobTag t ) {
+        t.level = this.level;
+        t.date = this.date;
+        t.prob = this.prob;
+        t.tag = this.tag;
+    }
 }

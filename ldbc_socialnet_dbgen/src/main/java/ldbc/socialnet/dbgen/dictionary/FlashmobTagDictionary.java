@@ -54,22 +54,21 @@ public class FlashmobTagDictionary {
 
     private static final String SEPARATOR = "\t";
     
-    DateGenerator dateGen;
-	PowerDistGenerator levelGenerator;
-	Random random;
-	TagDictionary tagDictionary;
-	HashMap<Integer,Vector<FlashmobTag> > flashmobTags;
-	FlashmobTag[] flashmobTagCumDist;
-	double flashmobTagsPerMonth;
-	double probInterestFlashmobTag;
-	double maxRandomFlashmobTagsUserMonth;
-	int maxUserPostsPerFlashmobTag;
+    DateGenerator dateGen;                              /**< @brief The date generator used to generate dates.*/
+	PowerDistGenerator levelGenerator;                  /**< @brief The powerlaw distribution generator used to generate the levels.*/
+	Random random;                                      /**< @brief A uniform random genereator.*/
+	TagDictionary tagDictionary;                        /**< @brief The tag dictionary used to create the flashmob tags.*/
+	HashMap<Integer,Vector<FlashmobTag> > flashmobTags; /**< @brief A map of identifiers of tags to flashmob tag instances.*/
+	FlashmobTag[] flashmobTagCumDist;                   /**< @brief The cumulative distribution of flashmob tags sorted by date.*/
+	double flashmobTagsPerMonth;                        /**< @brief The number of flashmob tags per month.*/
+	double probInterestFlashmobTag;                     /**< @brief The probability to take an interest flashmob tag.*/
+    double probRandomPerLevel;                          /**< @brief The probability per level to take a flashmob tag.*/
 
 	public FlashmobTagDictionary( TagDictionary tagDictionary, 
 								  DateGenerator dateGen,
 								  int flashmobTagsPerMonth,
 								  double probInterestFlashmobTag,
-								  int maxRandomFlashmobTagsUserMonth,
+								  double probRandomPerLevel,
 								  double flashmobTagMinLevel,
 								  double flashmobTagMaxLevel,
 								  double flashmobTagDistExp,
@@ -82,9 +81,10 @@ public class FlashmobTagDictionary {
 		this.flashmobTags = new HashMap<Integer,Vector<FlashmobTag> >();
 		this.flashmobTagsPerMonth = flashmobTagsPerMonth;
 		this.probInterestFlashmobTag = probInterestFlashmobTag;
-		this.maxUserPostsPerFlashmobTag = maxUserPostsPerFlashmobTag;
+        this.probRandomPerLevel = probRandomPerLevel;
 	}
 
+    /** @brief Initializes the flashmob tag dictionary, by selecting a set of tags as flashmob tags.*/
     public void initialize() {
     	int numFlashmobTags = (int)(flashmobTagsPerMonth * dateGen.numberOfMonths(dateGen.getStartDateTime()));
     	Integer[] tags = tagDictionary.getRandomTags(numFlashmobTags);
@@ -107,12 +107,16 @@ public class FlashmobTagDictionary {
     	Arrays.sort(flashmobTagCumDist);
     	int size = flashmobTagCumDist.length;
     	double currentProb = 0.0;
-    	for( int i = 0; i < numFlashmobTags; ++i ) {
+    	for( int i = 0; i < size; ++i ) {
     		flashmobTagCumDist[i].prob = currentProb;
     		currentProb += flashmobTagCumDist[i].level / sumLevels;
     	}
+        System.out.println("Number of flashmob tags generated: "+numFlashmobTags);
     }
 
+    /** @brief Selects the earliest flashmob tag index from a given date.
+     *  @param[in] fromDate The minimum date to consider.
+     *  @return The index to the earliest flashmob tag.*/
     private int searchEarliestIndex( long fromDate ) {
             int lowerBound = 0;
             int upperBound = flashmobTagCumDist.length;
@@ -129,23 +133,18 @@ public class FlashmobTagDictionary {
 
     }
 
-    private FlashmobTag searchRandomFlashmobTag( int index ) {
-            double randomDis = random.nextDouble()*(1.0 - flashmobTagCumDist[index].prob) + flashmobTagCumDist[index].prob; 
-            int lowerBound = index;
-            int upperBound = flashmobTagCumDist.length;
-            int midPoint = (upperBound + lowerBound)  / 2;
-            while (upperBound > (lowerBound+1)){
-                if (flashmobTagCumDist[midPoint].prob > randomDis ){
-                    upperBound = midPoint;
-                } else{
-                    lowerBound = midPoint; 
-                }
-                midPoint = (upperBound + lowerBound)  / 2;
-            }
-            return flashmobTagCumDist[midPoint];
+    /** @brief Makes a decision of selecting or not a flashmob tag.
+     *  @param[in] index The index of the flashmob tag to select.
+     *  @return true if the flashmob tag is selected. false otherwise.*/
+    private boolean selectFlashmobTag( int index ) {
+            return random.nextDouble() > (1-probRandomPerLevel*flashmobTagCumDist[index].level);
     }
 
-	public Vector<FlashmobTag> getFlashmobTags( TreeSet<Integer> interests, long fromDate ) {
+    /** @brief Given a set of interests and a date, generates a set of flashmob tags.
+     *  @param[in] interests The set of interests.
+     *  @param[in] fromDate The date from which to consider the flashmob tags.
+     *  @return A vector containing the selected flashmob tags.*/
+	public Vector<FlashmobTag> generateFlashmobTags( TreeSet<Integer> interests, long fromDate ) {
 		Vector<FlashmobTag> result = new Vector<FlashmobTag>();
 		Iterator<Integer> it = interests.iterator();
 		while(it.hasNext()) {
@@ -157,25 +156,18 @@ public class FlashmobTagDictionary {
 					FlashmobTag instance = it2.next();
 					if( instance.date >= fromDate ) {
 						if(random.nextDouble() > probInterestFlashmobTag){
-							int numInstances = random.nextInt((int)(instance.level)) + 1;
-							for( int k = 0; k < numInstances; ++k ) {
-								result.add(instance);
-							}
+                            result.add(instance);
 						}
 					} 
 				}
 			}
 		}
 		int numberOfMonths = (int)(dateGen.numberOfMonths(fromDate));	
-		int randomTagsPerMonth = random.nextInt((int)(maxRandomFlashmobTagsUserMonth) + 1);
-		int numberOfRandomTags = numberOfMonths * randomTagsPerMonth; 
 		int earliestIndex = searchEarliestIndex(fromDate);
-		for( int i = 0; i < numberOfRandomTags; ++i ) {
-				FlashmobTag flashmobTag = searchRandomFlashmobTag(earliestIndex);
-				int numInstances = random.nextInt((int)(flashmobTag.level)) + 1;
-				for( int k = 0; k < numInstances; ++k ) {
-					result.add(flashmobTag); 
-				}
+		for( int i = earliestIndex; i < flashmobTagCumDist.length; ++i ) {
+				if(selectFlashmobTag(i)) {
+                    result.add(flashmobTagCumDist[i]); 
+                }
 		}
 		return result;
 	}

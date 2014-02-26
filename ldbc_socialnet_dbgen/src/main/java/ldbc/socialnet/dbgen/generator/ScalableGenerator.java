@@ -181,6 +181,7 @@ public class ScalableGenerator{
     private static final String   tagHierarchyFile       = DICTIONARY_DIRECTORY + "tagHierarchy.txt";
     private static final String   tagTextFile            = DICTIONARY_DIRECTORY + "tagText.txt";
     private static final String   topicTagDicFile        = DICTIONARY_DIRECTORY + "topicMatrixId.txt";
+    private static final String   flashmobDistFile       = DICTIONARY_DIRECTORY + "flashmobDist.txt";
     
     //private parameters
     private final String CELL_SIZE                     = "cellSize";
@@ -237,7 +238,8 @@ public class ScalableGenerator{
 
     private final String FLASHMOB_TAGS_PER_MONTH                = "flashmobTagsPerMonth";
     private final String PROB_INTEREST_FLASHMOB_TAG             = "probInterestFlashmobTag";
-    private final String MAX_RANDOM_FLASHMOB_TAGS_USER_MONTH    = "maxRandomFlashmobTagsUserMonth";
+    private final String PROB_RANDOM_PER_LEVEL                  = "probRandomPerLevel";
+    private final String POST_PER_LEVEL_SCALE_FACTOR            = "postPerLevelScaleFactor";
     private final String FLASHMOB_TAG_MIN_LEVEL                 = "flashmobTagMinLevel";
     private final String FLASHMOB_TAG_MAX_LEVEL                 = "flashmobTagMaxLevel";
     private final String FLASHMOB_TAG_DIST_EXP                  = "flashmobTagDistExp";
@@ -256,8 +258,8 @@ public class ScalableGenerator{
             MISSING_RATIO, STATUS_MISSING_RATIO, STATUS_SINGLE_RATIO, SMARTHPHONE_RATIO, AGENT_SENT_RATIO, 
             DIFFERENT_IP_IN_TRAVEL_RATIO, DIFFERENT_IP_NOT_TRAVEL_RATIO, DIFFERENT_IP_TRAVELLER_RATIO, 
             COMPANY_UNCORRELATED_RATIO, UNIVERSITY_UNCORRELATED_RATIO, BEST_UNIVERSTY_RATIO, MAX_POPULAR_PLACES, 
-            POPULAR_PLACE_RATIO, TAG_UNCORRELATED_COUNTRY, FLASHMOB_TAGS_PER_MONTH, MAX_USER_POSTS_PER_FLASHMOB_TAG,
-            PROB_INTEREST_FLASHMOB_TAG, FLASHMOB_TAG_MIN_LEVEL, FLASHMOB_TAG_MAX_LEVEL,
+            POPULAR_PLACE_RATIO, TAG_UNCORRELATED_COUNTRY, FLASHMOB_TAGS_PER_MONTH, 
+            PROB_INTEREST_FLASHMOB_TAG, PROB_RANDOM_PER_LEVEL, POST_PER_LEVEL_SCALE_FACTOR, FLASHMOB_TAG_MIN_LEVEL, FLASHMOB_TAG_MAX_LEVEL,
             FLASHMOB_TAG_DIST_EXP};
     
     
@@ -465,7 +467,8 @@ public class ScalableGenerator{
 
     int            flashmobTagsPerMonth = 0;
     double         probInterestFlashmobTag = 0.0;
-    int            maxRandomFlashmobTagsUserMonth = 0;
+    double         probRandomPerLevel = 0.0;
+    int            postPerLevelScaleFactor = 0;
     double         flashmobTagMinLevel = 0.0f;
     double         flashmobTagMaxLevel = 0.0f;
     double         flashmobTagDistExp  = 0.0f;
@@ -609,7 +612,8 @@ public class ScalableGenerator{
 			tagCountryCorrProb = Double.parseDouble(properties.getProperty(TAG_UNCORRELATED_COUNTRY));
             flashmobTagsPerMonth = Integer.parseInt(properties.getProperty(FLASHMOB_TAGS_PER_MONTH));
             probInterestFlashmobTag = Double.parseDouble(properties.getProperty(PROB_INTEREST_FLASHMOB_TAG));
-            maxRandomFlashmobTagsUserMonth = Integer.parseInt(properties.getProperty(MAX_RANDOM_FLASHMOB_TAGS_USER_MONTH));
+            probRandomPerLevel = Double.parseDouble(properties.getProperty(PROB_RANDOM_PER_LEVEL));
+            postPerLevelScaleFactor = Integer.parseInt(properties.getProperty(POST_PER_LEVEL_SCALE_FACTOR));
             flashmobTagMinLevel = Double.parseDouble(properties.getProperty(FLASHMOB_TAG_MIN_LEVEL));
             flashmobTagMaxLevel = Double.parseDouble(properties.getProperty(FLASHMOB_TAG_MAX_LEVEL));
             flashmobTagDistExp = Double.parseDouble(properties.getProperty(FLASHMOB_TAG_DIST_EXP));
@@ -730,8 +734,6 @@ public class ScalableGenerator{
 			mainTagDic.initialize();
 			
 			System.out.println("Building Tag-text dictionary ");
-            /// IMPORTANT: ratioLargeText is divided 0.083333, the probability 
-            /// that SetUserLargePoster returns true.
 			tagTextDic = new TagTextDictionary(tagTextFile, dateTimeGenerator, mainTagDic,
 			        ratioReduceText, seeds[15], seeds[16]);
 			tagTextDic.initialize();
@@ -788,6 +790,8 @@ public class ScalableGenerator{
                     mainTagDic, numtotalUser, seeds[35]);
 
             System.out.println("Building Uniform Post Generator");
+            /// IMPORTANT: ratioLargeText is divided 0.083333, the probability 
+            /// that SetUserLargePoster returns true.
             uniformPostGenerator = new UniformPostGenerator( tagTextDic, 
                                                              userAgentDic,
                                                              ipAddDictionary,
@@ -806,6 +810,7 @@ public class ScalableGenerator{
                                                              maxNumFriends,
                                                              maxNumGroupPostPerMonth,
                                                              maxNumMemberGroup,
+                                                             seeds[3],
                                                              seeds[9],
                                                              seeds[36] );
             uniformPostGenerator.initialize();
@@ -815,20 +820,34 @@ public class ScalableGenerator{
                                   dateTimeGenerator,
                                   flashmobTagsPerMonth,
                                   probInterestFlashmobTag,
-                                  maxRandomFlashmobTagsUserMonth,
+                                  probRandomPerLevel,
                                   flashmobTagMinLevel,
                                   flashmobTagMaxLevel,
                                   flashmobTagDistExp,
-                                  seeds[16]);
+                                  seeds[16]
+                                  );
             flashmobTagDictionary.initialize();
 
 
             System.out.println("Building Flashmob Post Generator");
-            flashmobPostGenerator = new FlashmobPostGenerator(tagTextDic, userAgentDic, ipAddDictionary, browserDic, flashmobTagDictionary,
-                    dateTimeGenerator,
-                    minTextSize, maxTextSize, ratioReduceText,
-                    minLargePostSize, maxLargePostSize, ratioLargePost/0.0833333, maxNumLikes,
-                    seeds[15], seeds[16]);
+            flashmobPostGenerator = new FlashmobPostGenerator( tagTextDic, 
+                                    userAgentDic,
+                                    ipAddDictionary,
+                                    browserDic,
+                                    minTextSize,
+                                    maxTextSize,
+                                    ratioReduceText,
+                                    minLargePostSize,
+                                    maxLargePostSize,
+                                    ratioLargePost/0.0833333,
+                                    maxNumLikes,
+                                    seeds[15],
+                                    seeds[16],
+                                    dateTimeGenerator,
+                                    flashmobTagDictionary,
+                                    postPerLevelScaleFactor,
+                                    flashmobDistFile
+                                    );
             flashmobPostGenerator.initialize();
 
             System.out.println("Building Comment Generator");
@@ -1131,8 +1150,7 @@ public class ScalableGenerator{
 
 	public void generatePosts(ReducedUserProfile user, UserExtraInfo extraInfo){
 		// Generate location-related posts
-        Integer languageIndex = randomUniform.nextInt(extraInfo.getLanguages().size());
-        Vector<Post> createdPosts = uniformPostGenerator.createPosts(user, extraInfo.getLanguages().get(languageIndex));
+        Vector<Post> createdPosts = uniformPostGenerator.createPosts(user, extraInfo );
         Iterator<Post> it = createdPosts.iterator();
         while(it.hasNext()) {
             Post post = it.next();
@@ -1178,8 +1196,7 @@ public class ScalableGenerator{
 
     public void generateFlashmobPosts(ReducedUserProfile user, UserExtraInfo extraInfo){
         // Generate location-related posts
-            Integer languageIndex = randomUniform.nextInt(extraInfo.getLanguages().size());
-            Vector<Post> createdPosts = flashmobPostGenerator.createPosts(user, extraInfo.getLanguages().get(languageIndex));
+            Vector<Post> createdPosts = flashmobPostGenerator.createPosts(user, extraInfo );
             
             Iterator<Post> it = createdPosts.iterator();
         while(it.hasNext()){
@@ -1333,12 +1350,11 @@ public class ScalableGenerator{
 
 		serializer.gatherData(group);
 		generatePostForGroup(group);
-        generateFlashmobPostForGroup(group);
+        //generateFlashmobPostForGroup(group);
 	}
 
 	public void generatePostForGroup(Group group) {
-
-        Vector<Post> createdPosts =  uniformPostGenerator.createPosts(group, -1);
+        Vector<Post> createdPosts =  uniformPostGenerator.createPosts(group);
         Iterator<Post> it = createdPosts.iterator();
         while(it.hasNext()) {
 			Post groupPost = it.next();
@@ -1368,8 +1384,7 @@ public class ScalableGenerator{
 	}
 
     public void generateFlashmobPostForGroup(Group group) {
-        int numberGroupPost = getNumOfGroupPost(group);
-        Vector<Post> createdPosts = flashmobPostGenerator.createPosts(group, -1, maxNumLikes, userAgentDic, ipAddDictionary, browserDic);
+        Vector<Post> createdPosts = flashmobPostGenerator.createPosts(group);
         Iterator<Post> it = createdPosts.iterator();
         while(it.hasNext() ) {
             Post groupPost = it.next();
