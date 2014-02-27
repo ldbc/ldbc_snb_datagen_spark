@@ -106,10 +106,7 @@ public class CompanyDictionary {
                 String locationName = data[0];
                 String companyName  = data[1].trim();
                 if (locationDic.getCountryId(locationName) != LocationDictionary.INVALID_LOCATION) {
-                    if (currentId != previousId) {
-                        currentId  = locationDic.getCountryId(locationName);
-                        previousId = currentId;
-                    }
+                    currentId  = locationDic.getCountryId(locationName);
                     companiesByLocations.get(currentId).add(companyName);
                     companyLocation.put(companyName, currentId);
                     totalNumCompanies++;
