@@ -1,5 +1,6 @@
 QueryType=Select
 
-PersonURIString=person
+PersonURIString=fr
 
 Name=PersonName
+Person=PersonURI

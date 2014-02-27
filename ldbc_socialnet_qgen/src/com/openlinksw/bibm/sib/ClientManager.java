@@ -215,4 +215,8 @@ public class ClientManager extends AbstractClientManager<QueryMixStatistics> imp
 	public void setQueryMix(SIBQueryMix queryMix) {
 		this.queryMix = queryMix;
 	}
+
+	public void setNrWarmup(int n) {
+	    this.nrWarmup = n;
+	}
 }

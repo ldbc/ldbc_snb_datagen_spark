@@ -1,4 +1,4 @@
-select top 20 cast (p_personid as varchar), p_firstname, p_lastname, ct1, ct2, total
+select top 20 cast (p_personid as varchar) as fr, p_firstname, p_lastname, ct1, ct2, total
 from
  ( select k_person2id
    from knows

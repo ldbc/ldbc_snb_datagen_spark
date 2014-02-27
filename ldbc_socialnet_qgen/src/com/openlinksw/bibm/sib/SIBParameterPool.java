@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.LinkedList;
 
 import com.openlinksw.bibm.AbstractParameterPool;
 import com.openlinksw.bibm.Exceptions.BadSetupException;
@@ -103,6 +104,12 @@ public abstract class SIBParameterPool extends AbstractParameterPool {
     protected String[] tagAndNameList;
     protected String[] famousPersonList;
     protected String[] cityNameList;
+
+    protected LinkedList<String> listOfPeople = new LinkedList<String>();
+
+    public void addPeopleURI(String s) {
+	listOfPeople.push(s);
+    }
 
     public double getScalefactor() {
         return 1;

@@ -1,6 +1,0 @@
-QueryType=Select
-
-Name0=PersonName
-Name1=PersonName
-City1=CityName
-City2=CityName

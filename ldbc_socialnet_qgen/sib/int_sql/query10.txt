@@ -11,7 +11,7 @@ select top 10 p_firstname, p_lastname,
          ps_creatorid = p_personid and ps_postid = pst_postid and
 	 not exists (select * from person_tag where pt_personid = @Person@ and pt_tagid = pt1.pst_tagid)
        ) as score,
-       cast (p_personid as varchar), p_gender, pl_name
+       cast (p_personid as varchar) as fof, p_gender, pl_name
 from person, place,
  ( select distinct k2.k_person2id
    from knows k1, knows k2

@@ -1,4 +1,4 @@
-select top 20 c_creatorid, p_firstname, p_lastname, c_creationdate, cast (c_commentid as varchar), c_content
+select top 20 c_creatorid as id, p_firstname, p_lastname, c_creationdate, cast (c_commentid as varchar), c_content
 from
  (
   select c_creatorid, c_creationdate, c_commentid, c_content

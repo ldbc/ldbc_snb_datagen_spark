@@ -1,46 +1,76 @@
-select ?person ?last ?bday ?since ?gen ?browser ?locationIP #Q1
+select ?fr ?last min(?dist) as ?mindist  ?bday ?since ?gen ?browser ?locationIP #Q1
     ((select group_concat (?email, ", ")
         where {
-            ?person snvoc:email ?email
+            ?frr snvoc:email ?email .
+	    filter (?frr = ?fr) .
         }
-        group by ?person)) as ?email
+        group by ?frr)) as ?email
     ((select group_concat (?lng, ", ")
         where {
-            ?person snvoc:speaks ?lng
+            ?frr snvoc:speaks ?lng .
+	    filter (?frr = ?fr) .
         }
-        group by ?person)) as ?lng
+        group by ?frr)) as ?lng
     ?based
     ((select group_concat ( bif:concat (?o_name, " ", ?year, " ", ?o_country), ", ")
         where {
-	    ?person snvoc:studyAt ?w .
+	    ?frr snvoc:studyAt ?w .
 	    ?w snvoc:classYear ?year .
             ?w snvoc:hasOrganisation ?org .
             ?org snvoc:isLocatedIn ?o_countryURI .
 	    ?o_countryURI foaf:name ?o_country .
-            ?org foaf:name ?o_name
+            ?org foaf:name ?o_name .
+	    filter (?frr = ?fr) .
         }
-        group by ?person)) as ?studyAt
+        group by ?frr)) as ?studyAt
     ((select group_concat ( bif:concat (?o_name, " ", ?year, " ", ?o_country), ", ")
         where {
-	    ?person snvoc:workAt ?w .
+	    ?frr snvoc:workAt ?w .
 	    ?w snvoc:workFrom ?year .
             ?w snvoc:hasOrganisation ?org .
             ?org snvoc:isLocatedIn ?o_countryURI .
 	    ?o_countryURI foaf:name ?o_country .
-            ?org foaf:name ?o_name
+            ?org foaf:name ?o_name .
+	    filter (?frr = ?fr) .
         }
-        group by ?person)) as ?workAt
+        group by ?frr)) as ?workAt
     {
-        ?person a snvoc:Person .
-        ?person snvoc:firstName "%Name%" .
-        ?person snvoc:isLocatedIn ?basedURI .
+        ?fr a snvoc:Person .
+        ?fr snvoc:firstName "%Name%" .
+	?fr snvoc:lastName ?last .
+        ?fr snvoc:birthday ?bday .
+        ?fr snvoc:isLocatedIn ?basedURI .
 	?basedURI foaf:name ?based .
-        ?person snvoc:birthday ?bday .
-        ?person snvoc:creationDate ?since . 
-        ?person snvoc:gender ?gen .
-        ?person snvoc:lastName ?last .
-	?person snvoc:locationIP ?locationIP .
-	?person snvoc:browserUsed ?browser .
+        ?fr snvoc:creationDate ?since . 
+        ?fr snvoc:gender ?gen .
+	?fr snvoc:locationIP ?locationIP .
+	?fr snvoc:browserUsed ?browser .
+
+        {
+          { select distinct ?fr (1 as ?dist)
+            where {
+              %Person% snvoc:knows ?fr.
+            }
+          } 
+	  union
+          { select distinct ?fr (2 as ?dist)
+            where {
+              %Person% snvoc:knows ?fr2. ?fr2 snvoc:knows ?fr. filter (?fr != %Person%).
+            }
+          }
+	  union
+          { select distinct ?fr (3 as ?dist)
+            where {
+              %Person% snvoc:knows ?fr2. ?fr2 snvoc:knows ?fr3. ?fr3 snvoc:knows ?fr. filter (?fr != %Person%).
+            }
+          } .
+        }
     }
-    order by ?last ?person
-    limit 10
+    group by ?fr ?last ?bday ?since ?gen ?browser ?locationIP ?based
+    order by ?mindist ?last ?fr
+    limit 20
+
+
+
+
+

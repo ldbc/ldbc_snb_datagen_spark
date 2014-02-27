@@ -1,4 +1,4 @@
-select top 20 cast (p_personid as varchar), p_firstname, p_lastname, t_name, count(*)
+select top 20 cast (p_personid as varchar) as exp, p_firstname, p_lastname, t_name, count(*)
 from person, comment, knows, post, post_tag, tag_tagclass, tagclass, tag
 where
   k_person1id = @Person@ and
