@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.TreeSet;
 
 import ldbc.socialnet.dbgen.dictionary.LocationDictionary;
+import ldbc.socialnet.dbgen.objects.FlashmobTag;
 
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
@@ -57,6 +58,7 @@ public class Statistics {
     public TreeSet<String> tagNames;
     public TreeSet<String> countries;
     public TreeSet<String> tagClasses;
+    public FlashmobTag[] flashmobTags;
     private ArrayList<String[]> countryPairs;
     
     public Statistics() {
@@ -66,6 +68,7 @@ public class Statistics {
         tagNames = new TreeSet<String>();
         tagClasses = new TreeSet<String>();
         countries = new TreeSet<String>();
+        flashmobTags = null; 
         countryPairs = new ArrayList<String[]>();
     }
     

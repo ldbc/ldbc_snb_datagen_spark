@@ -828,6 +828,8 @@ public class ScalableGenerator{
                                   );
             flashmobTagDictionary.initialize();
 
+            stats.flashmobTags = flashmobTagDictionary.getFlashmobTags();
+
 
             System.out.println("Building Flashmob Post Generator");
             flashmobPostGenerator = new FlashmobPostGenerator( tagTextDic, 
@@ -1350,7 +1352,7 @@ public class ScalableGenerator{
 
 		serializer.gatherData(group);
 		generatePostForGroup(group);
-        //generateFlashmobPostForGroup(group);
+        generateFlashmobPostForGroup(group);
 	}
 
 	public void generatePostForGroup(Group group) {

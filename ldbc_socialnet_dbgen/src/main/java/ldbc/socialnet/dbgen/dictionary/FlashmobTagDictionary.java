@@ -101,6 +101,7 @@ public class FlashmobTagDictionary {
    			flashmobTag.level = levelGenerator.getValue();
    			sumLevels += flashmobTag.level;
    			flashmobTag.tag = tags[i];
+            System.out.println(flashmobTag.tag);
     		instances.add(flashmobTag);
     		flashmobTagCumDist[i] = flashmobTag;
     	}
@@ -130,7 +131,6 @@ public class FlashmobTagDictionary {
                 midPoint = (upperBound + lowerBound)  / 2;
             }
             return midPoint;
-
     }
 
     /** @brief Makes a decision of selecting or not a flashmob tag.
@@ -171,4 +171,8 @@ public class FlashmobTagDictionary {
 		}
 		return result;
 	}
+
+    public FlashmobTag[] getFlashmobTags() {
+        return flashmobTagCumDist;
+    }
 }
