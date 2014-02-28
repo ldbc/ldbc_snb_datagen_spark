@@ -110,7 +110,7 @@ public class FlashmobTagDictionary {
     	double currentProb = 0.0;
     	for( int i = 0; i < size; ++i ) {
     		flashmobTagCumDist[i].prob = currentProb;
-    		currentProb += flashmobTagCumDist[i].level / sumLevels;
+    		currentProb += (double)(flashmobTagCumDist[i].level) / (double)(sumLevels);
     	}
         System.out.println("Number of flashmob tags generated: "+numFlashmobTags);
     }
@@ -155,7 +155,7 @@ public class FlashmobTagDictionary {
 				while( it2.hasNext()){
 					FlashmobTag instance = it2.next();
 					if( instance.date >= fromDate ) {
-						if(random.nextDouble() > probInterestFlashmobTag){
+						if(random.nextDouble() > 1 - probInterestFlashmobTag){
                             result.add(instance);
 						}
 					} 

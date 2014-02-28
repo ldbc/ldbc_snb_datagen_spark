@@ -79,12 +79,8 @@ public class FlashmobPostGenerator extends PostGenerator {
 
 
     /** This fields are used in order to reduce the number of computations needed and hence improve the performance. **/
-//    private ReducedUserProfile currentUser = null;          
     private FlashmobTag[] userFlashmobTags = null;    
- //   private int currentUserTag = 0;                             
-  //  private Group currentGroup = null;
     private FlashmobTag[] groupFlashmobTags = null;
-   // private int currentGroupTag = 0;
     private int postPerLevelScaleFactor = 0;
 
     public FlashmobPostGenerator( TagTextDictionary tagTextDic, 
@@ -122,16 +118,6 @@ public class FlashmobPostGenerator extends PostGenerator {
     }
 
 
-    @Override
-        protected PostInfo generatePostInfo( ReducedUserProfile user ) {
-            PostInfo postInfo = new PostInfo();
-            int index = selectRandomTag( userFlashmobTags, 0 );
-            FlashmobTag flashmobTag = userFlashmobTags[index];
-            if( flashmobTag.date < user.getCreatedDate() )  return null;
-            postInfo.tags.add(flashmobTag.tag);
-            postInfo.date = flashmobTag.date - flashmobSpan/2 + (long)(dateDistribution.nextDouble() * flashmobSpan); 
-            return postInfo;
-        }
 
     /** @brief Selects a random tag from a given index.
      *  @param[in] tags The array of sorted tags to select from.
@@ -141,6 +127,7 @@ public class FlashmobPostGenerator extends PostGenerator {
         int upperBound = tags.length - 1;
         int lowerBound = index;
         double prob = randomUniform.nextDouble() * (tags[upperBound].prob - tags[lowerBound].prob) + tags[lowerBound].prob;
+        //System.out.println(tags[upperBound].prob+" "+tags[lowerBound].prob+" "+prob);
         int midPoint = (upperBound + lowerBound)  / 2;
         while (upperBound > (lowerBound+1)){
             if (tags[midPoint].prob > prob ){
@@ -174,6 +161,18 @@ public class FlashmobPostGenerator extends PostGenerator {
     }
 
     @Override
+        protected PostInfo generatePostInfo( ReducedUserProfile user ) {
+            PostInfo postInfo = new PostInfo();
+            int index = selectRandomTag( userFlashmobTags, 0 );
+            FlashmobTag flashmobTag = userFlashmobTags[index];
+            if( flashmobTag.date < user.getCreatedDate() )  return null;
+            postInfo.tags.add(flashmobTag.tag);
+//            System.out.println("USER "+user.getAccountId()+" SELECTED TAG: "+flashmobTag.tag+" from "+userFlashmobTags.length);
+            postInfo.date = flashmobTag.date - flashmobSpan/2 + (long)(dateDistribution.nextDouble() * flashmobSpan); 
+            return postInfo;
+        }
+
+    @Override
         protected PostInfo generatePostInfo( Group group, GroupMemberShip membership ) {
             PostInfo postInfo = new PostInfo();
             int index = searchEarliest(groupFlashmobTags,membership);
@@ -204,7 +203,7 @@ public class FlashmobPostGenerator extends PostGenerator {
             double currentProb = 0.0;
             for( int i = 0; i < size; ++i ) {
                 userFlashmobTags[i].prob = currentProb;
-                currentProb += userFlashmobTags[i].level / sumLevels;
+                currentProb += (double)(userFlashmobTags[i].level) / (double)(sumLevels);
             }
             return sumLevels;
         }
@@ -233,7 +232,7 @@ public class FlashmobPostGenerator extends PostGenerator {
             double currentProb = 0.0;
             for( int i = 0; i < size; ++i ) {
                 groupFlashmobTags[i].prob = currentProb;
-                currentProb += groupFlashmobTags[i].level / sumLevels;
+                currentProb += (double)(groupFlashmobTags[i].level) / (double)(sumLevels);
             }
             return sumLevels * postPerLevelScaleFactor * group.getNumMemberAdded();
         }

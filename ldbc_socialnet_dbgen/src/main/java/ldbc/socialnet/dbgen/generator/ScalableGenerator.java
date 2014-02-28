@@ -1199,7 +1199,6 @@ public class ScalableGenerator{
     public void generateFlashmobPosts(ReducedUserProfile user, UserExtraInfo extraInfo){
         // Generate location-related posts
             Vector<Post> createdPosts = flashmobPostGenerator.createPosts(user, extraInfo );
-            
             Iterator<Post> it = createdPosts.iterator();
         while(it.hasNext()){
             Post post = it.next();
