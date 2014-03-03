@@ -93,6 +93,11 @@ public class Distribution {
     }
 
     public double nextDouble() {
-        return binarySearch(uniform.nextDouble());
+        int init = binarySearch(uniform.nextDouble());
+        int end = init + 1;
+        if( end == distribution.length ) {
+            return (1.0 - distribution[init])*uniform.nextDouble() + distribution[init];
+        } 
+        return (distribution[end] - distribution[init])*uniform.nextDouble() + distribution[init];
     }
 }

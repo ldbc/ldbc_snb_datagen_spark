@@ -109,7 +109,7 @@ public class FlashmobPostGenerator extends PostGenerator {
         this.postPerLevelScaleFactor = postPerLevelScaleFactor;
         this.dateDistribution = new Distribution(flashmobDistFile, seed);
         this.hoursToMillis = 60*60*1000;
-        this.flashmobSpan = 96 * hoursToMillis;
+        this.flashmobSpan = 72 * hoursToMillis;
     }
 
     public void initialize() {
@@ -168,7 +168,9 @@ public class FlashmobPostGenerator extends PostGenerator {
             if( flashmobTag.date < user.getCreatedDate() )  return null;
             postInfo.tags.add(flashmobTag.tag);
 //            System.out.println("USER "+user.getAccountId()+" SELECTED TAG: "+flashmobTag.tag+" from "+userFlashmobTags.length);
-            postInfo.date = flashmobTag.date - flashmobSpan/2 + (long)(dateDistribution.nextDouble() * flashmobSpan); 
+            double prob = dateDistribution.nextDouble();
+            System.out.println(prob);
+            postInfo.date = flashmobTag.date - flashmobSpan/2 + (long)( prob * flashmobSpan); 
             return postInfo;
         }
 
@@ -180,7 +182,9 @@ public class FlashmobPostGenerator extends PostGenerator {
             index = selectRandomTag(groupFlashmobTags,index);
             FlashmobTag flashmobTag =  groupFlashmobTags[index];
             postInfo.tags.add(flashmobTag.tag);
-            postInfo.date = flashmobTag.date - flashmobSpan/2 + (long)(dateDistribution.nextDouble() * flashmobSpan); 
+            double prob = dateDistribution.nextDouble();
+            System.out.println(prob);
+            postInfo.date = flashmobTag.date - flashmobSpan/2 + (long)(prob * flashmobSpan); 
             return postInfo;
         }
 
