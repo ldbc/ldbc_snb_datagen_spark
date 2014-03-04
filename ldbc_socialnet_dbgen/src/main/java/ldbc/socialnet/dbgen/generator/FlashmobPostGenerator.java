@@ -167,9 +167,7 @@ public class FlashmobPostGenerator extends PostGenerator {
             FlashmobTag flashmobTag = userFlashmobTags[index];
             if( flashmobTag.date < user.getCreatedDate() )  return null;
             postInfo.tags.add(flashmobTag.tag);
-//            System.out.println("USER "+user.getAccountId()+" SELECTED TAG: "+flashmobTag.tag+" from "+userFlashmobTags.length);
             double prob = dateDistribution.nextDouble();
-            System.out.println(prob);
             postInfo.date = flashmobTag.date - flashmobSpan/2 + (long)( prob * flashmobSpan); 
             return postInfo;
         }
@@ -183,7 +181,6 @@ public class FlashmobPostGenerator extends PostGenerator {
             FlashmobTag flashmobTag =  groupFlashmobTags[index];
             postInfo.tags.add(flashmobTag.tag);
             double prob = dateDistribution.nextDouble();
-            System.out.println(prob);
             postInfo.date = flashmobTag.date - flashmobSpan/2 + (long)(prob * flashmobSpan); 
             return postInfo;
         }

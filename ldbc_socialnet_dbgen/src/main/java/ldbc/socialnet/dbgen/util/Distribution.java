@@ -77,7 +77,7 @@ public class Distribution {
 		}
     }
 
-    private double binarySearch( double prob ) {
+    private int binarySearch( double prob ) {
         int upperBound = distribution.length - 1;
         int lowerBound = 0;
         int midPoint = (upperBound + lowerBound)  / 2;
@@ -89,15 +89,10 @@ public class Distribution {
             }
             midPoint = (upperBound + lowerBound)  / 2;
         }
-        return distribution[midPoint];
+        return midPoint;
     }
 
     public double nextDouble() {
-        int init = binarySearch(uniform.nextDouble());
-        int end = init + 1;
-        if( end == distribution.length ) {
-            return (1.0 - distribution[init])*uniform.nextDouble() + distribution[init];
-        } 
-        return (distribution[end] - distribution[init])*uniform.nextDouble() + distribution[init];
+        return (double)binarySearch(uniform.nextDouble())/(double)distribution.length; 
     }
 }
