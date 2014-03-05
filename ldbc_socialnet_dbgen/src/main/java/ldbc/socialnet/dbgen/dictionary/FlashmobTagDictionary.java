@@ -101,7 +101,6 @@ public class FlashmobTagDictionary {
    			flashmobTag.level = levelGenerator.getValue();
    			sumLevels += flashmobTag.level;
    			flashmobTag.tag = tags[i];
-            System.out.println(flashmobTag.tag);
     		instances.add(flashmobTag);
     		flashmobTagCumDist[i] = flashmobTag;
     	}

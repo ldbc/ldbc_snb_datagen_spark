@@ -1716,12 +1716,12 @@ public class ScalableGenerator{
 	    SN.setMachineNumber(machineId, numFiles);
 		String t = type.toLowerCase();
 		if (t.equals("ttl")) {
-            return new Turtle(sibOutputDir + outputFileName, numRdfOutputFile, true, mainTagDic,
+            return new Turtle(sibOutputDir +"/" + outputFileName, numRdfOutputFile, true, mainTagDic,
                     browserDic, companiesDictionary, 
                     organizationsDictionary.GetOrganizationLocationMap(),
                     ipAddDictionary, locationDic, languageDic);
 		} else if (t.equals("n3")) {
-            return new Turtle(sibOutputDir + outputFileName, numRdfOutputFile, false, mainTagDic,
+            return new Turtle(sibOutputDir + "/" + outputFileName, numRdfOutputFile, false, mainTagDic,
                     browserDic, companiesDictionary, 
                     organizationsDictionary.GetOrganizationLocationMap(),
                     ipAddDictionary, locationDic, languageDic);

@@ -265,12 +265,12 @@ public class CSV implements Serializer {
 			dataFileWriter = new FileWriter[nrOfOutputFiles][Files.NUM_FILES.ordinal()];
 			if(nrOfOutputFiles==1) {
 				for (int i = 0; i < Files.NUM_FILES.ordinal(); i++) {
-					this.dataFileWriter[0][i] = new FileWriter(file + fileNames[i] + ".csv");
+					this.dataFileWriter[0][i] = new FileWriter(file +"/" + fileNames[i] + ".csv");
 				}
 			} else {
 				for(int i=0;i<nrOfOutputFiles;i++) {
 					for (int j = 0; j < Files.NUM_FILES.ordinal(); j++) {
-						dataFileWriter[i][j] = new FileWriter(file + fileNames[j] + String.format(formatString, i+1) + ".csv");
+						dataFileWriter[i][j] = new FileWriter(file +"/"+ fileNames[j] + String.format(formatString, i+1) + ".csv");
 					}
 				}
 			}
@@ -646,9 +646,7 @@ public class CSV implements Serializer {
 	        String tag = tagDic.getName(tagId);
 	        if (interests.indexOf(tag) == -1) {
 	            interests.add(tag);
-
 	            arguments.add(Integer.toString(tagId));
-                System.out.println(tag);
 	            arguments.add(tag.replace("\"", "\\\""));
 	            arguments.add(DBP.getUrl(tag));
 	            ToCSV(arguments, Files.TAG.ordinal());
