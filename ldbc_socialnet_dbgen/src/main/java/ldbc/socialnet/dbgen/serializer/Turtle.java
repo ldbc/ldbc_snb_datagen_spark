@@ -611,7 +611,7 @@ public class Turtle implements Serializer {
 	        }
 	    }
 
-	    int userLikes[] = post.getInterestedUserAccs();
+	    long userLikes[] = post.getInterestedUserAccs();
 	    long likeTimestamps[] = post.getInterestedUserAccsTimestamp();
 
 	    for (int i = 0; i < userLikes.length; i ++) {
@@ -714,7 +714,7 @@ public class Turtle implements Serializer {
 	        }
 	    }
 
-	    int userLikes[] = photo.getInterestedUserAccs();
+	    long userLikes[] = photo.getInterestedUserAccs();
 	    long likeTimestamps[] = photo.getInterestedUserAccsTimestamp();
 	    for (int i = 0; i < userLikes.length; i ++) {
 	        String likePrefix = SN.getLikeURI(likeId);

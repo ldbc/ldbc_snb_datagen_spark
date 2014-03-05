@@ -136,8 +136,7 @@ public class PhotoGenerator {
         photo.setTags(tags);
 		
 		int numberOfLikes = randLikes.nextInt(maxNumLikes);
-		
-		int[] likes = getFriendsLiked(album, numberOfLikes);
+		long[] likes = getFriendsLiked(album, numberOfLikes);
 		photo.setInterestedUserAccs(likes);
         long[] likeTimestamp = new long[likes.length];
         for (int i = 0; i < likes.length; i++) {
@@ -148,17 +147,17 @@ public class PhotoGenerator {
 		return photo; 
 	}
 	
-	public int[] getFriendsLiked(Group album, int numOfLikes){
+	public long[] getFriendsLiked(Group album, int numOfLikes){
 		GroupMemberShip fullMembers[] = album.getMemberShips();
 		
-		int friends[];
+		long friends[];
 		if (numOfLikes >= album.getNumMemberAdded()){
-			friends = new int[album.getNumMemberAdded()];
+			friends = new long[album.getNumMemberAdded()];
 			for (int j = 0; j < album.getNumMemberAdded(); j++){
 				friends[j] = fullMembers[j].getUserId();
 			}
 		} else{
-			friends = new int[numOfLikes];
+			friends = new long[numOfLikes];
 			int startIdx = randLikes.nextInt(album.getNumMemberAdded() - numOfLikes);
 			for (int j = 0; j < numOfLikes; j++){
 				friends[j] = fullMembers[j+startIdx].getUserId();

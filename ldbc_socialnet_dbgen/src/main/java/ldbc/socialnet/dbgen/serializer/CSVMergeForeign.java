@@ -431,7 +431,7 @@ public class CSVMergeForeign implements Serializer {
         printLocationHierarchy(ipDic.getLocation(profile.getIpAddress()));
         
 
-        arguments.add(Integer.toString(profile.getAccountId()));
+        arguments.add(Long.toString(profile.getAccountId()));
         arguments.add(extraInfo.getFirstName());
         arguments.add(extraInfo.getLastName());
         arguments.add(extraInfo.getGender());
@@ -463,7 +463,7 @@ public class CSVMergeForeign implements Serializer {
 
 		Vector<Integer> languages = extraInfo.getLanguages();
 		for (int i = 0; i < languages.size(); i++) {
-		    arguments.add(Integer.toString(profile.getAccountId()));
+		    arguments.add(Long.toString(profile.getAccountId()));
 		    arguments.add(languageDic.getLanguagesName(languages.get(i)));
 		    ToCSV(arguments, Files.PERSON_SPEAKS_LANGUAGE.ordinal());
 		}
@@ -471,7 +471,7 @@ public class CSVMergeForeign implements Serializer {
 		itString = extraInfo.getEmail().iterator();
 		while (itString.hasNext()){
 		    String email = itString.next();
-		    arguments.add(Integer.toString(profile.getAccountId()));
+		    arguments.add(Long.toString(profile.getAccountId()));
 		    arguments.add(email);
 		    ToCSV(arguments, Files.PERSON_HAS_EMAIL_EMAIL.ordinal());
 		}
@@ -505,7 +505,7 @@ public class CSVMergeForeign implements Serializer {
 	            date.setTimeInMillis(extraInfo.getClassYear());
 	            dateString = DateGenerator.formatYear(date);
 
-	            arguments.add(Integer.toString(profile.getAccountId()));
+	            arguments.add(Long.toString(profile.getAccountId()));
 	            arguments.add(SN.formId(organisationId));
 	            arguments.add(dateString);
 	            ToCSV(arguments, Files.PERSON_STUDY_AT_ORGANISATION.ordinal());
@@ -535,7 +535,7 @@ public class CSVMergeForeign implements Serializer {
 		    date.setTimeInMillis(extraInfo.getWorkFrom(company));
 		    dateString = DateGenerator.formatYear(date);
 
-		    arguments.add(Integer.toString(profile.getAccountId()));
+		    arguments.add(Long.toString(profile.getAccountId()));
 		    arguments.add(SN.formId(organisationId));
 		    arguments.add(dateString);
 		    ToCSV(arguments, Files.PERSON_WORK_AT_ORGANISATION.ordinal());
@@ -557,7 +557,7 @@ public class CSVMergeForeign implements Serializer {
                 printTagHierarchy(interestIdx);
             }
             
-            arguments.add(Integer.toString(profile.getAccountId()));
+            arguments.add(Long.toString(profile.getAccountId()));
             arguments.add(Integer.toString(interestIdx));
             ToCSV(arguments, Files.PERSON_INTEREST_TAG.ordinal());
         }   
@@ -566,8 +566,8 @@ public class CSVMergeForeign implements Serializer {
         for (int i = 0; i < friends.length; i++) {
             if (friends[i] != null && friends[i].getCreatedTime() != -1){
 
-                arguments.add(Integer.toString(profile.getAccountId()));
-                arguments.add(Integer.toString(friends[i].getFriendAcc()));
+                arguments.add(Long.toString(profile.getAccountId()));
+                arguments.add(Long.toString(friends[i].getFriendAcc()));
                 ToCSV(arguments,Files.PERSON_KNOWS_PERSON.ordinal());
             }
         }
@@ -580,7 +580,7 @@ public class CSVMergeForeign implements Serializer {
         arguments.add(SN.formId(profile.getForumWallId()));
         arguments.add(title);
         arguments.add(dateString);
-        arguments.add(Integer.toString(profile.getAccountId()));
+        arguments.add(Long.toString(profile.getAccountId()));
         ToCSV(arguments,Files.FORUM.ordinal());
         
 /*        arguments.add(SN.formId(profile.getForumWallId()));
@@ -602,7 +602,7 @@ public class CSVMergeForeign implements Serializer {
                 dateString = DateGenerator.formatDateDetail(date);
                 
                 arguments.add(SN.formId(profile.getForumWallId()));
-                arguments.add(Integer.toString(friends[i].getFriendAcc()));
+                arguments.add(Long.toString(friends[i].getFriendAcc()));
                 arguments.add(dateString);
                 ToCSV(arguments,Files.FORUM_HASMEMBER_PERSON.ordinal());
             }
@@ -642,7 +642,7 @@ public class CSVMergeForeign implements Serializer {
         }
 	    arguments.add(post.getContent());
         arguments.add(Integer.toString(post.getContent().length()));
-        arguments.add(Integer.toString(post.getAuthorId()));
+        arguments.add(Long.toString(post.getAuthorId()));
         arguments.add(Integer.toString(ipDic.getLocation(post.getIpAddress())));
 	    ToCSV(arguments, Files.POST.ordinal());
 
@@ -681,12 +681,12 @@ public class CSVMergeForeign implements Serializer {
 	        ToCSV(arguments, Files.POST_HAS_TAG_TAG.ordinal());
 	    }
 
-	    int userLikes[] = post.getInterestedUserAccs();
+	    long userLikes[] = post.getInterestedUserAccs();
 	    long likeTimestamps[] = post.getInterestedUserAccsTimestamp();
 	    for (int i = 0; i < userLikes.length; i ++) {
 	        date.setTimeInMillis(likeTimestamps[i]);
 	        dateString = DateGenerator.formatDateDetail(date);
-	        arguments.add(Integer.toString(userLikes[i]));
+	        arguments.add(Long.toString(userLikes[i]));
 	        arguments.add(SN.formId(post.getPostId()));
 	        arguments.add(dateString);
 	        ToCSV(arguments, Files.PERSON_LIKE_POST.ordinal());
@@ -721,7 +721,7 @@ public class CSVMergeForeign implements Serializer {
         }
 	    arguments.add(comment.getContent());
         arguments.add(Integer.toString(comment.getContent().length()));
-        arguments.add(Integer.toString(comment.getAuthorId()));
+        arguments.add(Long.toString(comment.getAuthorId()));
         arguments.add(Integer.toString(ipDic.getLocation(comment.getIpAddress())));
         if (comment.getReplyOf() == -1) {
             arguments.add(SN.formId(comment.getPostId()));
@@ -776,7 +776,7 @@ public class CSVMergeForeign implements Serializer {
 	    arguments.add(empty);
 	    arguments.add(empty);
         arguments.add(Integer.toString(0));
-        arguments.add(Integer.toString(photo.getCreatorId()));
+        arguments.add(Long.toString(photo.getCreatorId()));
         arguments.add(Integer.toString(ipDic.getLocation(photo.getIpAddress())));
 	    ToCSV(arguments, Files.POST.ordinal());
 
@@ -815,12 +815,12 @@ public class CSVMergeForeign implements Serializer {
 	        ToCSV(arguments, Files.POST_HAS_TAG_TAG.ordinal());
 	    }
 
-	    int userLikes[] = photo.getInterestedUserAccs();
+	    long userLikes[] = photo.getInterestedUserAccs();
 	    long likeTimestamps[] = photo.getInterestedUserAccsTimestamp();
 	    for (int i = 0; i < userLikes.length; i ++) {
 	        date.setTimeInMillis(likeTimestamps[i]);
 	        dateString = DateGenerator.formatDateDetail(date);
-	        arguments.add(Integer.toString(userLikes[i]));
+	        arguments.add(Long.toString(userLikes[i]));
 	        arguments.add(SN.formId(photo.getPhotoId()));
 	        arguments.add(dateString);
 	        ToCSV(arguments, Files.PERSON_LIKE_POST.ordinal());
@@ -839,7 +839,7 @@ public class CSVMergeForeign implements Serializer {
 	    arguments.add(SN.formId(group.getForumWallId()));
 	    arguments.add(group.getGroupName());
 	    arguments.add(dateString);
-        arguments.add(Integer.toString(group.getModeratorId()));
+        arguments.add(Long.toString(group.getModeratorId()));
 	    ToCSV(arguments,Files.FORUM.ordinal());
 	    
 /*	    arguments.add(SN.formId(group.getForumWallId()));
@@ -874,7 +874,7 @@ public class CSVMergeForeign implements Serializer {
             dateString = DateGenerator.formatDateDetail(date);
             
             arguments.add(SN.formId(group.getForumWallId()));
-            arguments.add(Integer.toString(memberShips[i].getUserId()));
+            arguments.add(Long.toString(memberShips[i].getUserId()));
             arguments.add(dateString);
             ToCSV(arguments,Files.FORUM_HASMEMBER_PERSON.ordinal());
         }

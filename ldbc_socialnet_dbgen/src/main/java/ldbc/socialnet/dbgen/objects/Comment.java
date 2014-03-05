@@ -41,9 +41,9 @@ public class Comment {
 	private long commentId;			/**< @brief The identifier of the comment.**/
 	private String content;			/**< @brief The content of the comment.**/ 
 	private long postId;			/**< @brief The post identifier of the replied post.**/
-	private	int authorId;			/**< @brief The identifier of the author.**/
+	private	long authorId;			/**< @brief The identifier of the author.**/
 	private	long creationDate;		/**< @brief The creation date of the comment.**/
-	private	int groupId;			/**< @brief The identifier of the group where the comment has been written.**/
+	private	long groupId;			/**< @brief The identifier of the group where the comment has been written.**/
 	private	long replyOf;			/**< @brief The id of the parent post/comment of this comment.**/
 	private	IP ipAddress;			/**< @brief The ip address from which the comment has been posted.**/
 	private	String userAgent;		/**< @brief The type of device used to send the comment.**/
@@ -52,9 +52,9 @@ public class Comment {
 	public Comment( long commentId,
 					String content,
 					long postId,
-					int authorId,
+					long authorId,
 					long creationDate,
-					int groupId,
+					long groupId,
 					long replyOf,
 					IP ipAddress,
 					String userAgent,
@@ -96,10 +96,10 @@ public class Comment {
 	public void setReplyOf(long replyOf) {
 		this.replyOf = replyOf;
 	}
-	public int getGroupId() {
+	public long getGroupId() {
 		return groupId;
 	}
-	public void setGroupId(int groupId) {
+	public void setGroupId(long groupId) {
 		this.groupId = groupId;
 	}
 	public long getCommentId() {
@@ -120,10 +120,10 @@ public class Comment {
 	public void setPostId(long postId) {
 		this.postId = postId;
 	}
-	public int getAuthorId() {
+	public long getAuthorId() {
 		return authorId;
 	}
-	public void setAuthorId(int authorId) {
+	public void setAuthorId(long authorId) {
 		this.authorId = authorId;
 	}
 	public long getCreationDate() {

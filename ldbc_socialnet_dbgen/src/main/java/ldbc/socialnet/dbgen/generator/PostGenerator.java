@@ -138,17 +138,17 @@ abstract public class PostGenerator {
      *  @param[in] user The user.
      *  @param[in] numOfLikes The number of likes we want to generate
      *  @return The array of generated likes.*/
-	private int[] generateLikeFriends( ReducedUserProfile user, int numberOfLikes) {
+	private long[] generateLikeFriends( ReducedUserProfile user, int numberOfLikes) {
 	    Friend[] friendList = user.getFriendList();
 	    int numFriends = user.getNumFriendsAdded();
-	    int[] friends;
+	    long[] friends;
         if (numberOfLikes >= numFriends){
-            friends = new int[numFriends];
+            friends = new long[numFriends];
             for (int i = 0; i < numFriends; i++) {
                 friends[i] = friendList[i].getFriendAcc();
             }
         } else {
-            friends = new int[numberOfLikes];
+            friends = new long[numberOfLikes];
             int startIdx = rand.nextInt(numFriends - numberOfLikes);
             for (int i = 0; i < numberOfLikes ; i++) {
                 friends[i] = friendList[i+startIdx].getFriendAcc();
@@ -161,18 +161,18 @@ abstract public class PostGenerator {
      *  @param[in] group The group.
      *  @param[in] numOfLikes The number of likes we want to generate
      *  @return The array of generated likes.*/
-	private int[] generateLikeFriends(Group group, int numOfLikes){
+	private long[] generateLikeFriends(Group group, int numOfLikes){
         GroupMemberShip groupMembers[] = group.getMemberShips();
 
         int numAddedMember = group.getNumMemberAdded();
-        int friends[];
+        long friends[];
         if (numOfLikes >= numAddedMember){
-            friends = new int[numAddedMember];
+            friends = new long[numAddedMember];
             for (int j = 0; j < numAddedMember; j++){
                 friends[j] = groupMembers[j].getUserId();
             }
         } else{
-            friends = new int[numOfLikes];
+            friends = new long[numOfLikes];
             int startIdx = rand.nextInt(numAddedMember - numOfLikes);
             for (int j = 0; j < numOfLikes; j++){
                 friends[j] = groupMembers[j+startIdx].getUserId();
@@ -186,7 +186,7 @@ abstract public class PostGenerator {
      *  @param[in] user The user that created the post.*/ 
     private void setLikes( Post post, ReducedUserProfile user ) {
         int numberOfLikes = rand.nextInt(maxNumberOfLikes);
-        int[] likes = generateLikeFriends(user, numberOfLikes);
+        long[] likes = generateLikeFriends(user, numberOfLikes);
         post.setInterestedUserAccs(likes);
         long[] likeTimestamp = new long[likes.length];
         for (int i = 0; i < likes.length; i++) {
@@ -200,7 +200,7 @@ abstract public class PostGenerator {
      *  @param[in] group The group where the post was created.*/ 
     private void setLikes( Post post, Group group ) {
         int numberOfLikes = rand.nextInt(maxNumberOfLikes);
-        int[] likes = generateLikeFriends(group, numberOfLikes);
+        long[] likes = generateLikeFriends(group, numberOfLikes);
         post.setInterestedUserAccs(likes);
         long[] likeTimestamp = new long[likes.length];
         for (int i = 0; i < likes.length; i++) {

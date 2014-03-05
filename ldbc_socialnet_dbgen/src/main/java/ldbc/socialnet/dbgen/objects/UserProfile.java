@@ -65,7 +65,7 @@ public class UserProfile implements Serializable {
 	
 	public short 		numFriendsAdded;
 	Friend 				friendList[];
-	TreeSet<Integer>	friendIds; 		// Use a Treeset for checking the existence
+	TreeSet<Long>   	friendIds; 		// Use a Treeset for checking the existence
 	
 	TreeSet<Integer> 	setOfTags;
 	int					mainTagId; 
@@ -209,7 +209,7 @@ public class UserProfile implements Serializable {
 	
 	public void allocateFriendListMemory(int numFriendPasses){
 		friendList = new Friend[numFriends];
-		friendIds = new TreeSet<Integer>();
+		friendIds = new TreeSet<Long>();
 		numPassFriends = new short[numFriendPasses];
 	}
 

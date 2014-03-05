@@ -61,7 +61,7 @@ public class UserExtraInfo {
 	long               classYear; 				// When graduate from the institute		
 	
 	RelationshipStatus 	status;
-	int					specialFriendIdx; 	
+	long					specialFriendIdx; 	
 	
 	
 	public UserExtraInfo() {
@@ -161,10 +161,10 @@ public class UserExtraInfo {
 	public void setStatus(RelationshipStatus status) {
 		this.status = status;
 	}
-	public int getSpecialFriendIdx() {
+	public long getSpecialFriendIdx() {
 		return specialFriendIdx;
 	}
-	public void setSpecialFriendIdx(int specialFriendIdx) {
+	public void setSpecialFriendIdx(long specialFriendIdx) {
 		this.specialFriendIdx = specialFriendIdx;
 	}
 	public double getLatt() {

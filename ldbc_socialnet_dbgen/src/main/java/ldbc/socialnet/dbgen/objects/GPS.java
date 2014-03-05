@@ -44,7 +44,7 @@ public class GPS implements Serializable{
 	String	trackedLocation;
 	double 	longt;
 	double 	latt; 
-	int 	userId; 	// Id of the user has been tracked
+	long 	userId; 	// Id of the user has been tracked
 	
 	public long getTrackedTime() {
 		return trackedTime;
@@ -70,10 +70,10 @@ public class GPS implements Serializable{
 	public void setLatt(double latt) {
 		this.latt = latt;
 	}
-	public int getUserId() {
+	public long getUserId() {
 		return userId;
 	}
-	public void setUserId(int userId) {
+	public void setUserId(long userId) {
 		this.userId = userId;
 	}
 	

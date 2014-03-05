@@ -61,7 +61,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 	
 
 	Friend 				friendList[];
-	TreeSet<Integer>	friendIds; 		// Use a Treeset for checking the existence
+	TreeSet<Long>	friendIds; 		// Use a Treeset for checking the existence
 	
 
 	int					dicElementIds[];	// Id of an element in a dictionary, e.g., locationId
@@ -125,7 +125,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 				numPassFriendsAdded[i] = stream.readShort();
 			}
 			friendList = new Friend[numFriends];
-			friendIds = new TreeSet<Integer>();
+			friendIds = new TreeSet<Long>();
 			for (int i = 0; i < numFriendsAdded; i++){
 				Friend fr = new Friend(); 
 				fr.readFields(stream);
@@ -134,7 +134,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 			//Read the size of Treeset first
 			int size = stream.readInt(); 
 			for (int i = 0; i < size; i++){
-				friendIds.add(stream.readInt());
+				friendIds.add(stream.readLong());
 			}
 			dicElementIds = new int[numCorDimensions];
 			for (int i = 0; i < numCorDimensions; i++){
@@ -192,9 +192,9 @@ public class ReducedUserProfile implements Serializable, Writable{
 			}
 			//Read the size of Treeset first
 			stream.writeInt(friendIds.size()); 
-			Iterator<Integer> it = friendIds.iterator();
+			Iterator<Long> it = friendIds.iterator();
 			while (it.hasNext()){
-				stream.writeInt(it.next());
+				stream.writeLong(it.next());
 			}
 			
 			for (int i = 0; i < numCorDimensions; i++){
@@ -248,7 +248,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 			numPassFriendsAdded[i] = arg0.readShort();
 		}
 		friendList = new Friend[numFriends];
-		friendIds = new TreeSet<Integer>();
+		friendIds = new TreeSet<Long>();
 		for (int i = 0; i < numFriendsAdded; i++){
 			Friend fr = new Friend(); 
 			fr.readFields(arg0);
@@ -257,7 +257,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 		//Read the size of Treeset first
 		int size = arg0.readInt(); 
 		for (int i = 0; i < size; i++){
-			friendIds.add(arg0.readInt());
+			friendIds.add(arg0.readLong());
 		}
 		dicElementIds = new int[numCorDimensions];
 		for (int i = 0; i < numCorDimensions; i++){
@@ -354,9 +354,9 @@ public class ReducedUserProfile implements Serializable, Writable{
 		}
 		//Read the size of Treeset first
 		arg0.writeInt(friendIds.size()); 
-		Iterator<Integer> it = friendIds.iterator();
+		Iterator<Long> it = friendIds.iterator();
 		while (it.hasNext()){
-			arg0.writeInt(it.next());
+			arg0.writeLong(it.next());
 		}
 		
 		for (int i = 0; i < numCorDimensions; i++){
@@ -505,7 +505,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 	
 	public void allocateFriendListMemory(){
 		friendList = new Friend[numFriends];
-		friendIds = new TreeSet<Integer>();
+		friendIds = new TreeSet<Long>();
 	}
 
 	public Friend[] getFriendList() {
@@ -644,7 +644,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 	public void setNumPassFriendsAdded(short[] numPassFriendsAdded) {
 		this.numPassFriendsAdded = numPassFriendsAdded;
 	}
-	public TreeSet<Integer> getFriendIds() {
+	public TreeSet<Long> getFriendIds() {
 		return friendIds;
 	}
 	public int[] getDicElementIds() {

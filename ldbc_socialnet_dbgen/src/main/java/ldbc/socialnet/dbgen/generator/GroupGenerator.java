@@ -128,7 +128,7 @@ public class GroupGenerator {
 	    return group;
 	}
 	
-	public GroupMemberShip createGroupMember(int userId, long groupCreatedDate, Friend friend){
+	public GroupMemberShip createGroupMember(long userId, long groupCreatedDate, Friend friend){
 		GroupMemberShip memberShip = new GroupMemberShip();
 		memberShip.setUserId(userId);
 		memberShip.setJoinDate(dateGenerator.randomGroupMemberJoinDate(groupCreatedDate, friend.getCreatedTime()));
@@ -142,7 +142,7 @@ public class GroupGenerator {
 		return memberShip;
 	}
 	
-	public GroupMemberShip createGroupMember(int userId, long groupCreatedDate, ReducedUserProfile user){
+	public GroupMemberShip createGroupMember(long userId, long groupCreatedDate, ReducedUserProfile user){
         GroupMemberShip memberShip = new GroupMemberShip();
         memberShip.setUserId(userId);
         memberShip.setJoinDate(dateGenerator.randomGroupMemberJoinDate(groupCreatedDate, user.getCreatedDate()));

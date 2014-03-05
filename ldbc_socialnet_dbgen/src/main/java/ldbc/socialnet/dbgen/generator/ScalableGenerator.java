@@ -1279,7 +1279,7 @@ public class ScalableGenerator{
 
 		Group group = groupGenerator.createGroup(user);
 
-		TreeSet<Integer> memberIds = new TreeSet<Integer>();
+		TreeSet<Long> memberIds = new TreeSet<Long>();
 
 		int numGroupMember = randomNumUsersPerGroup.nextInt(maxNumMemberGroup);
 		group.initAllMemberships(numGroupMember);
@@ -1300,7 +1300,7 @@ public class ScalableGenerator{
 				// guarantee that
 				// all the element in this array contain values
 
-				int potentialMemberAcc = firstLevelFriends[friendIdx].getFriendAcc();
+				long potentialMemberAcc = firstLevelFriends[friendIdx].getFriendAcc();
 
 				randMemberProb = randomMembership.nextDouble();
 				if (randMemberProb < joinProbs[0]) {
@@ -1317,7 +1317,7 @@ public class ScalableGenerator{
 			} else if (randLevelProb < levelProbs[1]) { // ==> level 2
 				if (secondLevelFriends.size() != 0) {
     				int friendIdx = randomMemberIdxSelector.nextInt(secondLevelFriends.size());
-	       			int potentialMemberAcc = secondLevelFriends.get(friendIdx).getFriendAcc();
+	       			long potentialMemberAcc = secondLevelFriends.get(friendIdx).getFriendAcc();
 		      		randMemberProb = randomMembership.nextDouble();
 			     	if (randMemberProb < joinProbs[1]) {
 				       	// Check whether this user has been added and then add to the group
@@ -1334,7 +1334,7 @@ public class ScalableGenerator{
 			} else { // ==> random users
 				// Select a user from window
 				int friendIdx = randomMemberIdxSelector.nextInt(windowSize);
-				int potentialMemberAcc = reducedUserProfiles[friendIdx].getAccountId();
+				long potentialMemberAcc = reducedUserProfiles[friendIdx].getAccountId();
 				randMemberProb = randomMembership.nextDouble();
 				if (randMemberProb < joinProbs[2]) {
 					// Check whether this user has been added and then add to the group
@@ -1539,7 +1539,7 @@ public class ScalableGenerator{
 		        // Select a special friend
 		        Friend friends[] = user.getFriendList();
 
-		        int relationid = -1;
+		        long relationid = -1;
 		        if (user.getNumFriendsAdded() > 0) {
 		            int specialFriendId = 0;
 		            int numFriendCheck = 0;

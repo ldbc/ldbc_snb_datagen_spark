@@ -44,13 +44,13 @@ public class Post {
 //    private String title;                       /**< @brief The title of the post.*/
     private String content;                     /**< @brief The string containing the content of the post.*/
     private long creationDate;                   /**< @brief The creation date of the post.*/
-    private int authorId;                       /**< @brief The author identifier of the post.*/
-    private int groupId;                        /**< @brief The group identifier where the post belongs to.*/
+    private long authorId;                       /**< @brief The author identifier of the post.*/
+    private long groupId;                        /**< @brief The group identifier where the post belongs to.*/
     private int language;                       /**< @brief The language used in the post.*/
     //private int articleIdx;					    /**< @brief Index of articles in the set of same region/interest article*/
     //private int interestIdx;				    /**< @brief Index of one interest in user's interests*/
     private TreeSet<Integer> tags;              /**< @brief The set of tags related to the post.*/
-    private int interestedUserAccs[];		    /**< @brief The list of users who are interested in the post*/
+    private long interestedUserAccs[];		    /**< @brief The list of users who are interested in the post*/
     private long interestedUserAccsTimestamp[]; /**< @brief The timestamps when the interested users where actually interested.*/
     private IP ipAddress;                       /**< @brief The ip from where the post was created.*/
     private String userAgent;				    /**< @brief The media used to send the post.*/
@@ -63,8 +63,8 @@ public class Post {
   //             String title,
                  String content,
                  long creationDate,
-                 int authorId, 
-                 int groupId,
+                 long authorId, 
+                 long groupId,
                  int language,
                  TreeSet<Integer> tags,
                  IP ipAddress,
@@ -98,10 +98,10 @@ public class Post {
     public void setTags(TreeSet<Integer> tags) {
         this.tags = tags;
     }
-    public int[] getInterestedUserAccs() {
+    public long[] getInterestedUserAccs() {
         return this.interestedUserAccs;
     }
-    public void setInterestedUserAccs(int[] interestedUserAccs) {
+    public void setInterestedUserAccs(long[] interestedUserAccs) {
         this.interestedUserAccs = interestedUserAccs;
     }
     public long[] getInterestedUserAccsTimestamp() {
@@ -143,16 +143,16 @@ public class Post {
     public void setCreationDate(long creationDate) {
         this.creationDate = creationDate;
     }
-    public int getAuthorId() {
+    public long getAuthorId() {
         return this.authorId;
     }
-    public void setAuthorId(int authorId) {
+    public void setAuthorId(long authorId) {
         this.authorId = authorId;
     }
-    public int getGroupId() {
+    public long getGroupId() {
         return this.groupId;
     }
-    public void setGroupId(int groupId) {
+    public void setGroupId(long groupId) {
         this.groupId = groupId;
     }
 /*    public int getArticleIdx() {
