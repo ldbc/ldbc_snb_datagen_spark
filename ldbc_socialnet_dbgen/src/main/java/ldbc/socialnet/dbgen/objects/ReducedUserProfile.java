@@ -49,7 +49,7 @@ import org.apache.hadoop.io.Writable;
 
 public class ReducedUserProfile implements Serializable, Writable{
 	private static final long serialVersionUID = 3657773293974543890L;
-	int 				accountId;
+	long 				accountId;
 	long	 			createdDate; 
 	public short 		numFriends;
 
@@ -111,7 +111,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 	private void readObject(java.io.ObjectInputStream stream)
 			 throws IOException, ClassNotFoundException{
 			// TODO Auto-generated method stub
-			accountId = stream.readInt();
+			accountId = stream.readLong();
 			createdDate = stream.readLong(); 
 			numFriends = stream.readShort(); 
 			numFriendsAdded = stream.readShort();
@@ -175,7 +175,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 	
 	private void writeObject(java.io.ObjectOutputStream stream)
 	throws IOException{
-		 	stream.writeInt(accountId);
+		 	stream.writeLong(accountId);
 			stream.writeLong(createdDate); 
 			stream.writeShort(numFriends); 
 			stream.writeShort(numFriendsAdded);
@@ -234,7 +234,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 	 }
 	
 	public void readFields(DataInput arg0) throws IOException {
-		accountId = arg0.readInt();
+		accountId = arg0.readLong();
 		createdDate = arg0.readLong(); 
 		numFriends = arg0.readShort(); 
 		numFriendsAdded = arg0.readShort();
@@ -337,7 +337,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 	}
 	
 	public void write(DataOutput arg0) throws IOException {
-		arg0.writeInt(accountId);
+		arg0.writeLong(accountId);
 		arg0.writeLong(createdDate); 
 		arg0.writeShort(numFriends); 
 		arg0.writeShort(numFriendsAdded);
@@ -494,7 +494,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 	    }
 	}
 	
-	public boolean isExistFriend(int friendId){
+	public boolean isExistFriend(long friendId){
 		return friendIds.contains(friendId);
 	}
 	
@@ -531,10 +531,10 @@ public class ReducedUserProfile implements Serializable, Writable{
 		this.createdDate = createdDate;
 	}
 
-	public int getAccountId() {
+	public long getAccountId() {
 		return accountId;
 	}
-	public void setAccountId(int accountId) {
+	public void setAccountId(long accountId) {
 		this.accountId = accountId;
 	}
 	public boolean isHaveSmartPhone() {

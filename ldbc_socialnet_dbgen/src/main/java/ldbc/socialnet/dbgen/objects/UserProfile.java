@@ -42,7 +42,7 @@ import java.util.Iterator;
 
 public class UserProfile implements Serializable {
     private static final long serialVersionUID = 3657773293974543890L;
-	int 				accountId;
+	long 				accountId;
 	int 				locationIdx; 
 	int 				locationZId;
 	int                 cityIdx; 
@@ -91,7 +91,7 @@ public class UserProfile implements Serializable {
 	boolean				isLargePoster;
 	
 	
-	public UserProfile(int accountId) {
+	public UserProfile(long accountId) {
 	    this.accountId = accountId;
         locationIdx = -1; 
         locationOrganizationId = -1; 
@@ -237,7 +237,7 @@ public class UserProfile implements Serializable {
 		this.createdDate = createdDate;
 	}
 	
-	public int getAccountId() {
+	public long getAccountId() {
 		return accountId;
 	}
 

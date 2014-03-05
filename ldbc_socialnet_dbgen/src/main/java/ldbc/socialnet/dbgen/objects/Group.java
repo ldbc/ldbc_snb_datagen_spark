@@ -38,7 +38,7 @@ package ldbc.socialnet.dbgen.objects;
 
 public class Group {
 	int groupId; 
-	int moderatorId; 		//creator Id
+	long moderatorId; 		//creator Id
 	long createdDate;
 	
 	int forumWallId; 
@@ -66,10 +66,10 @@ public class Group {
 	public void setGroupId(int groupId) {
 		this.groupId = groupId;
 	}
-	public int getModeratorId() {
+	public long getModeratorId() {
 		return moderatorId;
 	}
-	public void setModeratorId(int moderatorId) {
+	public void setModeratorId(long moderatorId) {
 		this.moderatorId = moderatorId;
 	}
 	public long getCreatedDate() {
