@@ -1,4 +1,4 @@
-select top 20 p_personid, p_firstname, p_lastname, ct1, ct2, total
+select top 20 cast (p_personid as varchar) as fr, p_firstname, p_lastname, ct1, ct2, total
 from
  ( select k_person2id
    from knows
@@ -55,5 +55,5 @@ where
 f.k_person2id = p_personid and p_placeid = p1.pl_placeid and
 p1.pl_containerplaceid = p2.pl_placeid and p2.pl_name <> '@Country1@' and p2.pl_name <> '@Country2@' and
 f.k_person2id = cpc.ps_c_creatorid
-order by 6 desc, p_personid
+order by 6 desc, 1
 

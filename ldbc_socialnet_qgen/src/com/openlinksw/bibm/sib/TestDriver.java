@@ -204,6 +204,7 @@ public class TestDriver extends AbstractTestDriver {
         ClientManager manager1 = new ClientManager(this);
 		manager1.setNrRuns(0);
 		manager1.setQueryMix(this.queryMixProfileView);
+		manager1.setNrWarmup(0);
         
         for (;;) {
             AbstractQueryResult result = resultQueue.take();
@@ -214,13 +215,17 @@ public class TestDriver extends AbstractTestDriver {
             }
             Random r =  new Random(System.currentTimeMillis());
             com.openlinksw.bibm.qualification.QueryResult qr = result.getQueryResult();
-            int index = qr.getHeader().indexOf(result.getQuery().getQuery().getPersonURIString());
+            int index;
+	    if (doSQL.getValue())
+		index = qr.getHeader().indexOf("'" + result.getQuery().getQuery().getPersonURIString() + "'");
+	    else
+		index = qr.getHeader().indexOf(result.getQuery().getQuery().getPersonURIString());
             if (index != -1) {
             	result.getQuery().getQueryTypeSequence();
             	for (int i = 0; i < qr.getResultCount(); i++) {
-            		if (r.nextInt(10) == 0) {
+		        if (r.nextInt(10) == 0) {
             			manager1.setNrRuns(manager1.getNrRuns() + 1);
-            			((LocalSPARQLParameterPool)(manager1.driver.parameterPool)).addPeopleURI(qr.getResults().get(i).get(index));
+				((SIBParameterPool)manager1.driver.parameterPool).addPeopleURI(qr.getResults().get(i).get(index));
             		}
             	}
             }

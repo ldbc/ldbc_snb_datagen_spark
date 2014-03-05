@@ -11,7 +11,7 @@ select top 10 p_firstname, p_lastname,
          ps_creatorid = p_personid and ps_postid = pst_postid and
 	 not exists (select * from person_tag where pt_personid = @Person@ and pt_tagid = pt1.pst_tagid)
        ) as score,
-       p_personid, p_gender, pl_name
+       cast (p_personid as varchar) as fof, p_gender, pl_name
 from person, place,
  ( select distinct k2.k_person2id
    from knows k1, knows k2
@@ -26,4 +26,4 @@ case month(p_birthday) when @HS0@ then (case when dayofmonth(p_birthday) > 21 th
      		       when @HS1@ then (case when dayofmonth(p_birthday) < 22 then 1 else 0 end)
 		       else 0
 end
-order by 3 desc, p_personid
+order by 3 desc, 4

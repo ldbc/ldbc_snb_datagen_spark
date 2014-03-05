@@ -49,6 +49,15 @@ public class SQLParameterPool extends SIBParameterPool {
 		FormalParameter[] fps=query.getFormalParameters();
 		int paramCount=fps.length;
 		Object[] parameters = new Object[paramCount];
+
+		if (query.getName().equals("profile")) {
+			StringBuilder tmp = new StringBuilder(listOfPeople.pop());
+			tmp.setCharAt(0, ' ');
+			tmp.setCharAt(tmp.length() - 1, ' ');
+			parameters[0] = tmp.toString();
+			return parameters;
+		}
+
 		ArrayList<Integer> productFeatureIndices = new ArrayList<Integer>();
 		ProductType pt = null;
 		Integer index = null, index1 = null;
@@ -254,6 +263,5 @@ public class SQLParameterPool extends SIBParameterPool {
 		
 		return "dbpedia:" + cityNameList[i];
 	}
-
 
 }

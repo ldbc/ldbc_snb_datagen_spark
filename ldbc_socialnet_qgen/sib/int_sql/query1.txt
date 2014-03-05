@@ -1,25 +1,28 @@
-select top 10 p_personid, p_lastname, p_birthday, p_creationdate, p_gender, p_browserused,
-       	      bit_shift(bit_and(p_locationip, 4278190080), -24) || '.' ||
-	      bit_shift(bit_and(p_locationip, 16711680), -16) || '.' ||
-	      bit_shift(bit_and(p_locationip, 65280), -8) || '.' ||
-	      bit_and(p_locationip, 255) as ip,
-	      group_concat_distinct (pe_email, ', ') as emails,
-	      group_concat_distinct (plang_language, ', ') as languages,
-	      p1.pl_name,
-	      group_concat_distinct (o2.o_name || ' ' || pu_classyear || ' ' || p2.pl_name, ', ') as university,
-	      group_concat_distinct (o3.o_name || ' ' || pc_workfrom || ' ' || p3.pl_name, ', ') as company
-from person, place p1, person_email, person_language,
-     person_university, organisation o2, place p2,
-     person_company, organisation o3, place p3
-where
-	p_firstname = '@Name@' and
-	p_placeid = p1.pl_placeid and
-	p_personid = pe_personid and
-	p_personid = plang_personid and
-	p_personid = pu_personid and
-	pu_organisationid = o2.o_organisationid and
-	o2.o_placeid = p2.pl_placeid and
-	p_personid = pc_personid and
-	pc_organisationid = o3.o_organisationid and
-	o3.o_placeid = p3.pl_placeid
-order by p_lastname, p_personid
+select top 20 id, p_lastname, min (dist) as dist, 
+       p_birthday, p_creationdate, p_gender, p_browserused,
+       bit_shift(bit_and(p_locationip, 4278190080), -24) || '.' ||
+       bit_shift(bit_and(p_locationip, 16711680), -16) || '.' ||
+       bit_shift(bit_and(p_locationip, 65280), -8) || '.' ||
+       bit_and(p_locationip, 255) as ip,
+       (select group_concat (pe_email, ', ') from person_email where pe_personid = id group by pe_personid) as emails,
+       (select group_concat (plang_language, ', ') from person_language where plang_personid = id group by plang_personid) as languages,
+       p1.pl_name,
+       (select group_concat (o2.o_name || ' ' || pu_classyear || ' ' || p2.pl_name, ', ') from person_university, organisation o2, place p2  where pu_personid = id and pu_organisationid = o2.o_organisationid and o2.o_placeid = p2.pl_placeid group by pu_personid) as university,
+       (select group_concat (o3.o_name || ' ' || pc_workfrom || ' ' || p3.pl_name, ', ') from person_company, organisation o3, place p3 where pc_personid = id and pc_organisationid = o3.o_organisationid and o3.o_placeid = p3.pl_placeid group by pc_personid) as company
+from 
+    (
+    select k_person2id as id, 1 as dist from knows, person where k_person1id = @Person@ and p_personid = k_person2id and p_firstname = '@Name@'
+    union all
+    select b.k_person2id as id, 2 as dist from knows a, knows b, person
+    where
+      a.k_person1id = @Person@ and b.k_person1id = a.k_person2id and p_personid = b.k_person2id and p_firstname = '@Name@'
+    union all
+    select c.k_person2id as id, 3 as dist from knows a, knows b, knows c, person
+    where
+      a.k_person1id = @Person@ and b.k_person1id = a.k_person2id and b.k_person2id = c.k_person1id and p_personid = c.k_person2id and p_firstname = '@Name@'
+    ) tmp, person, place p1
+  where
+	p_personid = id and
+	p_placeid = p1.pl_placeid
+  group by id, p_lastname
+  order by dist, p_lastname, id

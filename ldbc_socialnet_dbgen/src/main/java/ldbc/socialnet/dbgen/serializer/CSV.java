@@ -648,6 +648,7 @@ public class CSV implements Serializer {
 	            interests.add(tag);
 
 	            arguments.add(Integer.toString(tagId));
+                System.out.println(tag);
 	            arguments.add(tag.replace("\"", "\\\""));
 	            arguments.add(DBP.getUrl(tag));
 	            ToCSV(arguments, Files.TAG.ordinal());

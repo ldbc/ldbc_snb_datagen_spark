@@ -1,4 +1,4 @@
-select top 10 p_firstname, p_lastname, pc_workfrom, o_name, p_personid
+select top 10 p_firstname, p_lastname, pc_workfrom, o_name, cast (p_personid as varchar) as fr
 from person, person_company, organisation, place, 
  ( select k_person2id
    from knows
@@ -17,4 +17,4 @@ where
 	pc_workfrom < @Date0@ and
 	o_placeid = pl_placeid and
 	pl_url = '@Country@'
-order by pc_workfrom, p_personid, o_name
+order by pc_workfrom, p_personid, 5

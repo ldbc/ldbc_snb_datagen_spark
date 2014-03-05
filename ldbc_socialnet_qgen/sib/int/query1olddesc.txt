@@ -1,6 +1,5 @@
 QueryType=Select
 
-PersonURIString=id
+PersonURIString=person
 
-Person=PersonID
 Name=PersonName

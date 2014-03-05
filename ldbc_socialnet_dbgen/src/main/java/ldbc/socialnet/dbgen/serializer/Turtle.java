@@ -267,8 +267,7 @@ public class Turtle implements Serializer {
 	 * @param tag: The tag name.
 	 */
 	private void writeTagData(StringBuffer result, Integer tagId, String tag) {
-	    String description = tagDic.getDescription(tagId);
-	    writeDBPData(DBP.fullPrefixed(tag), FOAF.Name, createLiteral(description.replace("\"", "\\\"")));
+	    writeDBPData(DBP.fullPrefixed(tag), FOAF.Name, createLiteral(tag.replace("\"", "\\\"")));
 	    Integer tagClass = tagDic.getTagClass(tagId);
 	    writeDBPData(DBP.fullPrefixed(tag), RDF.type, DBPOWL.prefixed(tagDic.getClassName(tagClass)));
 	    while (tagClass != -1 && !printedTagClasses.containsKey(tagClass)) {
@@ -506,6 +505,7 @@ public class Turtle implements Serializer {
 			if (!printedTags.containsKey(interestIdx)) {
 			    printedTags.put(interestIdx, interestIdx);
 			    createTripleSPO(result, DBP.fullPrefixed(interest), RDF.type, SNVOC.Tag);
+			    //writeTagData(result, interestIdx, interest.replace("\"", "\\\""));
 			    writeTagData(result, interestIdx, interest);
 			}
 		}

@@ -1,4 +1,4 @@
-select top 20 *
+select top 20 c_creatorid as id, p_firstname, p_lastname, c_creationdate, cast (c_commentid as varchar), c_content
 from
  (
   select c_creatorid, c_creationdate, c_commentid, c_content
@@ -12,5 +12,7 @@ from
   where
         c1.c_replyofcomment = c2.c_commentid and
         c2.c_creatorid = @Person@
- ) tmp
-order by c_creationdate desc, c_commentid
+ ) tmp, person
+where 
+      p_personid = c_creatorid
+order by c_creationdate desc, 3

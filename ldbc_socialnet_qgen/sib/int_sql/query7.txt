@@ -1,4 +1,4 @@
-select top 20 p_personid, p_firstname, p_lastname, l_creationdate,
+select top 20 cast (p_personid as varchar) as liker, p_firstname, p_lastname, l_creationdate,
        	      (case when k_person2id is null then 1 else 0 end) as is_new,
        	      ps_postid, content, lag
 from
@@ -14,4 +14,4 @@ where
 left join
 (select * from knows where k_person1id = @Person@) k
 on k.k_person2id = p.p_personid
-order by l_creationdate desc, p_personid
+order by l_creationdate desc, 1

@@ -4,7 +4,6 @@ where {
   %Person% snvoc:knows ?fr.
   ?fr snvoc:firstName ?first. ?fr snvoc:lastName ?last .
   ?post snvoc:hasCreator ?fr.
-  ?post a snvoc:Post.
   { {?post snvoc:content ?content } union { ?post snvoc:imageFile ?content }} .
   ?post snvoc:creationDate ?date.
   filter (?date <= "%Date0%"^^xsd:date).
