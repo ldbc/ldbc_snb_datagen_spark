@@ -694,7 +694,7 @@ public class Turtle implements Serializer {
 	                    createLiteral(browserDic.getName(photo.getBrowserIdx())));
 	        }
 	    }
-	    AddTriple(result, false, false, prefix, SNVOC.creationDate, 
+	    AddTriple(result, false, true, prefix, SNVOC.creationDate, 
 	            createDataTypeLiteral(dateString, XSD.DateTime));
 
 	    createTripleSPO(result, prefix, SNVOC.hasCreator, SN.getPersonURI(photo.getCreatorId()));
