@@ -1431,13 +1431,12 @@ public class ScalableGenerator{
 		
 		userProf.setNumFriends((short) randomPowerLaw.getValue());
 		userProf.allocateFriendListMemory(NUM_FRIENDSHIP_HADOOP_JOBS);
-		
+
 		short totalFriendSet = 0; 
 		for (int i = 0; i < NUM_FRIENDSHIP_HADOOP_JOBS-1; i++){
-			short numPassFriend = (short) Math.floor(friendRatioPerJob[0] * userProf.getNumFriends());
+			short numPassFriend = (short) Math.floor(friendRatioPerJob[i] * userProf.getNumFriends());
 			totalFriendSet = (short) (totalFriendSet + numPassFriend);
 			userProf.setNumPassFriends(totalFriendSet,i);
-			
 		}
 		// Prevent the case that the number of friends added exceeds the total number of friends
 		userProf.setNumPassFriends(userProf.getNumFriends(),NUM_FRIENDSHIP_HADOOP_JOBS-1);
