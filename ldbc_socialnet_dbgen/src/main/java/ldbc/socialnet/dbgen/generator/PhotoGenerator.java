@@ -83,7 +83,7 @@ public class PhotoGenerator {
 		int locationId = album.getLocationIdx();
 		byte numPopularPlace = user.getNumPopularPlace();
 		
-		photo.setLocationIdx(locationId);
+		photo.setLocationId(locationId);
 		if (numPopularPlace == 0){
 			photo.setLocationName(locationDic.getLocationName(locationId));
 			photo.setLatt(locationDic.getLatt(locationId));
@@ -95,7 +95,7 @@ public class PhotoGenerator {
 				//Generate photo information from user's popular place
 				int popularIndex = randPopularPlacesId.nextInt(numPopularPlace);
 				popularPlaceId = user.getPopularId(popularIndex);
-				popularPlace = dicPopularPlaces.getPopularPlace(user.getLocationIdx(),popularPlaceId);
+				popularPlace = dicPopularPlaces.getPopularPlace(user.getLocationId(),popularPlaceId);
 				photo.setLocationName(popularPlace.getName());
 				photo.setLatt(popularPlace.getLatt());
 				photo.setLongt(popularPlace.getLongt());

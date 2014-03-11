@@ -236,13 +236,13 @@ public class DateGenerator {
 		return (from + randomSpanMilis);
 	}
 	public long randomFriendRequestedDate(UserProfile user1, UserProfile user2){
-		long fromDate = Math.max(user1.getCreatedDate(), user2.getCreatedDate());
+		long fromDate = Math.max(user1.getCreationDate(), user2.getCreationDate());
 		
 		return randomThirtyDaysSpan(fromDate);
 	}
 	
 	public long randomFriendRequestedDate(ReducedUserProfile user1, ReducedUserProfile user2){
-		long fromDate = Math.max(user1.getCreatedDate(), user2.getCreatedDate());
+		long fromDate = Math.max(user1.getCreationDate(), user2.getCreationDate());
 		return randomThirtyDaysSpan(fromDate);
 	}
 	
@@ -259,7 +259,7 @@ public class DateGenerator {
 		return (declined + randomSpanMilis);
 	}	
 	public long numberOfMonths(ReducedUserProfile user){
-		return (to - user.getCreatedDate())/THIRTY_DAYS;
+		return (to - user.getCreationDate())/THIRTY_DAYS;
 	}
 	
 	public long numberOfMonths(long fromDate){
@@ -267,13 +267,13 @@ public class DateGenerator {
 	}
 	
 	public long randomPhotoAlbumCreatedDate(ReducedUserProfile user){
-		long createdDate = (long)(ranGen.nextDouble()*(to-user.getCreatedDate())+user.getCreatedDate());
+		long createdDate = (long)(ranGen.nextDouble()*(to-user.getCreationDate())+user.getCreationDate());
  
 		return createdDate; 
 	}
 
 	public long randomGroupCreatedDate(ReducedUserProfile user){
-		long createdDate = (long)(ranGen.nextDouble()*(to-user.getCreatedDate())+user.getCreatedDate());
+		long createdDate = (long)(ranGen.nextDouble()*(to-user.getCreationDate())+user.getCreationDate());
  
 		return createdDate; 
 	}
@@ -291,7 +291,7 @@ public class DateGenerator {
 	}
 	
 	public long powerlawPostCreatedDate(UserProfile user){
-		long createdDate = (long)(disGen.getDouble()*(to-user.getCreatedDate())+user.getCreatedDate());
+		long createdDate = (long)(disGen.getDouble()*(to-user.getCreationDate())+user.getCreationDate());
  
 		return createdDate; 
 	}

@@ -394,7 +394,7 @@ public class Turtle implements Serializer {
 		    int parentId = companyDic.getCountry(company);
 		    printLocationHierarchy(result, parentId);
 		}
-		printLocationHierarchy(result, universityToCountry.get(extraInfo.getOrganization()));
+		printLocationHierarchy(result, universityToCountry.get(extraInfo.getUniversity()));
 		printLocationHierarchy(result, ipDic.getLocation(profile.getIpAddress()));
 		
 		
@@ -428,29 +428,29 @@ public class Turtle implements Serializer {
             }
         }
 
-        date.setTimeInMillis(profile.getCreatedDate());
+        date.setTimeInMillis(profile.getCreationDate());
         String dateString = DateGenerator.formatDateDetail(date);
         AddTriple(result, false, true, prefix, SNVOC.creationDate,
                 createDataTypeLiteral(dateString, XSD.DateTime));
 
         createTripleSPO(result, prefix, SNVOC.locatedIn, DBP.fullPrefixed(locationDic.getLocationName(extraInfo.getLocationId())));
 
-        if (!extraInfo.getOrganization().equals("")) {
-            if (!printedOrganizations.containsKey(extraInfo.getOrganization())) {
+        if (!extraInfo.getUniversity().equals("")) {
+            if (!printedOrganizations.containsKey(extraInfo.getUniversity())) {
                 int organizationId = printedOrganizations.size();
-                printedOrganizations.put(extraInfo.getOrganization(), organizationId);
+                printedOrganizations.put(extraInfo.getUniversity(), organizationId);
                 
-                writeDBPData(DBP.fullPrefixed(extraInfo.getOrganization()), RDF.type, DBPOWL.Organisation);
-                writeDBPData(DBP.fullPrefixed(extraInfo.getOrganization()), FOAF.Name, createLiteral(extraInfo.getOrganization()));
-                int locationId = universityToCountry.get(extraInfo.getOrganization());
-                createTripleSPO(result, DBP.fullPrefixed(extraInfo.getOrganization()), 
+                writeDBPData(DBP.fullPrefixed(extraInfo.getUniversity()), RDF.type, DBPOWL.Organisation);
+                writeDBPData(DBP.fullPrefixed(extraInfo.getUniversity()), FOAF.Name, createLiteral(extraInfo.getUniversity()));
+                int locationId = universityToCountry.get(extraInfo.getUniversity());
+                createTripleSPO(result, DBP.fullPrefixed(extraInfo.getUniversity()), 
                         SNVOC.locatedIn, DBP.fullPrefixed(locationDic.getLocationName(locationId)));
             }
             
             if (extraInfo.getClassYear() != -1 ){
             createTripleSPO(result, prefix, SNVOC.studyAt, SN.getStudyAtURI(studyAtId));
             createTripleSPO(result, SN.getStudyAtURI(studyAtId), SNVOC.hasOrganisation, 
-                    DBP.fullPrefixed(extraInfo.getOrganization()));
+                    DBP.fullPrefixed(extraInfo.getUniversity()));
                 date.setTimeInMillis(extraInfo.getClassYear());
                 String yearString = DateGenerator.formatYear(date);
                 createTripleSPO(result, SN.getStudyAtURI(studyAtId), SNVOC.classYear,

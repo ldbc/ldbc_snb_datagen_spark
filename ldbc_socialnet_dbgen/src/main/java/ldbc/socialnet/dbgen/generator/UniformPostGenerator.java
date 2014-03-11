@@ -119,7 +119,7 @@ public class UniformPostGenerator extends PostGenerator {
                 }
             }
         }
-        postInfo.date = dateGen.randomPostCreatedDate(user.getCreatedDate());
+        postInfo.date = dateGen.randomPostCreatedDate(user.getCreationDate());
         return postInfo;
     }
 

@@ -102,10 +102,10 @@ public class Photo {
     public void setAlbumId(long albumId) {
         this.albumId = albumId;
     }
-    public int getLocationIdx() {
+    public int getLocationId() {
         return locationIdx;
     }
-    public void setLocationIdx(int locationIdx) {
+    public void setLocationId(int locationIdx) {
         this.locationIdx = locationIdx;
     }
     public long getTakenTime() {

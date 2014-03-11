@@ -133,18 +133,14 @@ public class UserExtraInfo {
 	public void setLocation(String location) {
 		this.location = location;
 	}
-	public String getOrganization() {
+	public String getUniversity() {
 		return organization;
 	}
-	public void setOrganization(String organization) {
+
+	public void setUniversity(String organization) {
 		this.organization = organization;
 	}
-	public String getInstitution() {
-		return institution;
-	}
-	public void setInstitution(String institution) {
-		this.institution = institution;
-	}
+
 	public Set<String> getCompanies() {
 		return companies.keySet();
 	}

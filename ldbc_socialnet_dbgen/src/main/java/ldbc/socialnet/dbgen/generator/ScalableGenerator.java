@@ -61,7 +61,7 @@ import ldbc.socialnet.dbgen.dictionary.IPAddressDictionary;
 import ldbc.socialnet.dbgen.dictionary.LanguageDictionary;
 import ldbc.socialnet.dbgen.dictionary.LocationDictionary;
 import ldbc.socialnet.dbgen.dictionary.NamesDictionary;
-import ldbc.socialnet.dbgen.dictionary.OrganizationsDictionary;
+import ldbc.socialnet.dbgen.dictionary.UniversityDictionary;
 import ldbc.socialnet.dbgen.dictionary.PopularPlacesDictionary;
 import ldbc.socialnet.dbgen.dictionary.TagDictionary;
 import ldbc.socialnet.dbgen.dictionary.FlashmobTagDictionary;
@@ -380,7 +380,7 @@ public class ScalableGenerator{
 	TagTextDictionary       tagTextDic;
 	TagMatrix	 			topicTagDic;
 	NamesDictionary 		namesDictionary;
-	OrganizationsDictionary organizationsDictionary;
+	UniversityDictionary    unversityDictionary;
 	CompanyDictionary       companiesDictionary;
 	UserAgentDictionary     userAgentDic;
     EmailDictionary         emailDic;
@@ -763,9 +763,9 @@ public class ScalableGenerator{
 			browserDic.init();			
 			
 			System.out.println("Building university dictionary");
-			organizationsDictionary = new OrganizationsDictionary(organizationsDicFile, locationDic,
+			unversityDictionary = new UniversityDictionary(organizationsDicFile, locationDic,
 					seeds[24], probUnCorrelatedOrganization, seeds[45], probTopUniv);
-			organizationsDictionary.init();
+			unversityDictionary.init();
 	
 			System.out.println("Building companies dictionary");
 			companiesDictionary = new CompanyDictionary(companiesDicFile,locationDic, 
@@ -789,9 +789,11 @@ public class ScalableGenerator{
             groupGenerator = new GroupGenerator(dateTimeGenerator, locationDic,
                     mainTagDic, numtotalUser, seeds[35]);
 
-            System.out.println("Building Uniform Post Generator");
+            
+            
             /// IMPORTANT: ratioLargeText is divided 0.083333, the probability 
             /// that SetUserLargePoster returns true.
+            System.out.println("Building Uniform Post Generator");
             uniformPostGenerator = new UniformPostGenerator( tagTextDic, 
                                                              userAgentDic,
                                                              ipAddDictionary,
@@ -830,7 +832,8 @@ public class ScalableGenerator{
 
             stats.flashmobTags = flashmobTagDictionary.getFlashmobTags();
 
-
+            /// IMPORTANT: ratioLargeText is divided 0.083333, the probability 
+            /// that SetUserLargePoster returns true.
             System.out.println("Building Flashmob Post Generator");
             flashmobPostGenerator = new FlashmobPostGenerator( tagTextDic, 
                                     userAgentDic,
@@ -841,7 +844,7 @@ public class ScalableGenerator{
                                     ratioReduceText,
                                     minLargePostSize,
                                     maxLargePostSize,
-                                    ratioLargePost/0.0833333,
+                                    ratioLargePost/0.0833333, 
                                     maxNumLikes,
                                     seeds[15],
                                     seeds[16],
@@ -852,6 +855,8 @@ public class ScalableGenerator{
                                     );
             flashmobPostGenerator.initialize();
 
+            /// IMPORTANT: ratioLargeText is divided 0.083333, the probability 
+            /// that SetUserLargePoster returns true.
             System.out.println("Building Comment Generator");
             commentGenerator = new CommentGenerator(tagTextDic, dateTimeGenerator,
                     minCommentSize, maxCommentSize, ratioReduceText,
@@ -908,9 +913,9 @@ public class ScalableGenerator{
                 setInfoFromUserProfile(reducedUserProfilesCell[j], extraInfo);
                 serializer.gatherData(reducedUserProfilesCell[j], extraInfo);
 
-                generatePosts(reducedUserProfilesCell[j], extraInfo);
-                generateFlashmobPosts(reducedUserProfilesCell[j], extraInfo);
-                generatePhoto(reducedUserProfilesCell[j], extraInfo);
+                //generatePosts(reducedUserProfilesCell[j], extraInfo);
+                //generateFlashmobPosts(reducedUserProfilesCell[j], extraInfo);
+                //generatePhoto(reducedUserProfilesCell[j], extraInfo);
             }
         }
         storeManager.endDeserialization();
@@ -1263,7 +1268,7 @@ public class ScalableGenerator{
 				photo.setUserAgent(userAgentDic.getUserAgentName(user.isHaveSmartPhone(), user.getAgentIdx()));
 				photo.setBrowserIdx(browserDic.getPostBrowserId(user.getBrowserIdx()));
 				photo.setIpAddress(ipAddDictionary.getIP(user.getIpAddress(), 
-				        user.isFrequentChange(), photo.getTakenTime(), photo.getLocationIdx()));
+				        user.isFrequentChange(), photo.getTakenTime(), photo.getLocationId()));
 				String countryName = locationDic.getLocationName((ipAddDictionary.getLocation(photo.getIpAddress())));
                 stats.countries.add(countryName);
 				
@@ -1425,78 +1430,69 @@ public class ScalableGenerator{
 	}
 
 	public UserProfile generateGeneralInformation(int accountId) {
-		UserProfile userProf = new UserProfile(accountId);
 
-		userProf.setCreatedDate(dateTimeGenerator.randomDateInMillis());
-		
+        // User Creation
+        long creationDate = dateTimeGenerator.randomDateInMillis();
+        int locationId = locationDic.getLocation(accountId);
+        UserProfile userProf = new UserProfile( 
+                        accountId,
+                        creationDate,
+                        (randomGender.nextDouble() > 0.5) ? (byte)1 : (byte)0,
+                        dateTimeGenerator.getBirthDay(creationDate),
+                        browserDic.getRandomBrowserId(),
+                        locationId,
+                        locationDic.getZorderID(locationId),
+                        locationDic.getRandomCity(locationId),
+                        ipAddDictionary.getRandomIPFromLocation(locationId),
+                        accountId*2);
+
 		userProf.setNumFriends((short) randomPowerLaw.getValue());
 		userProf.allocateFriendListMemory(NUM_FRIENDSHIP_HADOOP_JOBS);
 		
+        // Setting the number of friends and friends per pass
 		short totalFriendSet = 0; 
 		for (int i = 0; i < NUM_FRIENDSHIP_HADOOP_JOBS-1; i++){
 			short numPassFriend = (short) Math.floor(friendRatioPerJob[0] * userProf.getNumFriends());
 			totalFriendSet = (short) (totalFriendSet + numPassFriend);
 			userProf.setNumPassFriends(totalFriendSet,i);
-			
 		}
-		// Prevent the case that the number of friends added exceeds the total number of friends
 		userProf.setNumPassFriends(userProf.getNumFriends(),NUM_FRIENDSHIP_HADOOP_JOBS-1);
 
-		userProf.setNumFriendsAdded((short) 0);
-		userProf.setLocationIdx(locationDic.getLocation(accountId));
-		userProf.setCityIdx(locationDic.getRandomCity(userProf.getLocationIdx()));
-		userProf.setLocationZId(locationDic.getZorderID(userProf.getLocationIdx()));
-		
-		
-		int userMainTag = mainTagDic.getaTagByCountry(userProf.getLocationIdx());
-		
+		int userMainTag = mainTagDic.getaTagByCountry(userProf.getLocationId());
 		userProf.setMainTagId(userMainTag);
+		short numTags = ((short) randomTagPowerLaw.getValue());
+		userProf.setSetOfTags(topicTagDic.getSetofTags(userMainTag, numTags));
+		userProf.setUniversityLocationId(unversityDictionary.getRandomUniversity(userProf.getLocationId()));
 		
-		userProf.setNumTags((short) randomTagPowerLaw.getValue());
-		
-		userProf.setSetOfTags(topicTagDic.getSetofTags(userMainTag, userProf.getNumTags()));
-
-		userProf.setLocationOrganizationId(organizationsDictionary.getRandomOrganization(userProf.getLocationIdx()));
-
-		userProf.setBirthDay(dateTimeGenerator.getBirthDay(userProf.getCreatedDate()));
-
-		byte gender = (randomGender.nextDouble() > 0.5) ? (byte)1 : (byte)0;
-		userProf.setGender(gender);
-		
-		userProf.setForumWallId(accountId * 2); // Each user has an wall
-		userProf.setForumStatusId(accountId * 2 + 1);
-
-		// User's Agent
+		// Set wether the user has a smartphone or not. 
 		userProf.setHaveSmartPhone(randomUserAgent.nextDouble() > probHavingSmartPhone);
 		if (userProf.isHaveSmartPhone()) {
-			userProf.setAgentIdx(userAgentDic.getRandomUserAgentIdx());
+			userProf.setAgentId(userAgentDic.getRandomUserAgentIdx());
 		}
 
-		// User's browser
-		userProf.setBrowserIdx(browserDic.getRandomBrowserId());
-
-		// source IP
-		userProf.setIpAddress(ipAddDictionary
-				.getRandomIPFromLocation(userProf.getLocationIdx()));
-
-		// Popular places 
+		// Compute the popular places the user uses to visit. 
 		byte numPopularPlaces = (byte) randomNumPopularPlaces.nextInt(maxNumPopularPlaces + 1);
-		userProf.setNumPopularPlace(numPopularPlaces);
-		short popularPlaces[] = new short[numPopularPlaces];
+        Vector<Short> auxPopularPlaces = new Vector<Short>();
 		for (int i = 0; i < numPopularPlaces; i++){
-			popularPlaces[i] = popularDictionary.getPopularPlace(userProf.getLocationIdx());
-			if (popularPlaces[i] == -1){ 	// no popular place here
-				userProf.setNumPopularPlace((byte)0);
-				break;
-			}
+			short aux = popularDictionary.getPopularPlace(userProf.getLocationId());
+            if(aux != -1) {
+                auxPopularPlaces.add(aux);
+            }
 		}
+		short popularPlaces[] = new short[auxPopularPlaces.size()];
+        Iterator<Short> it = auxPopularPlaces.iterator();
+        int i = 0;
+        while(it.hasNext()) {
+            popularPlaces[i] = it.next();
+            ++i;
+        }
 		userProf.setPopularPlaceIds(popularPlaces);
-		
-		// Get random Idx
+
+		// Set random Index used to sort users randomly
 		userProf.setRandomIdx(randomUserRandomIdx.nextInt(USER_RANDOM_ID_LIMIT));
-
+        
+        // Set whether the user is a large poster or not.
         userProf.setLargePoster(IsUserALargePoster(userProf));
-
 		return userProf;
 	}
 
@@ -1513,17 +1509,16 @@ public class ScalableGenerator{
 	    
 		// The country will be always present, but the city can be missing if that data is 
 		// not available on the dictionary
-		int locationId = (user.getCityIdx() != -1) ? user.getCityIdx() : user.getLocationIdx();
+		int locationId = (user.getCityId() != -1) ? user.getCityId() : user.getLocationId();
 		userExtraInfo.setLocationId(locationId);
 		userExtraInfo.setLocation(locationDic.getLocationName(locationId));
 		
 		// We consider that the distance from where user is living and 
 		double distance = randomExactLongLat.nextDouble() * 2;  
-		userExtraInfo.setLatt(locationDic.getLatt(user.getLocationIdx()) + distance);
-		userExtraInfo.setLongt(locationDic.getLongt(user.getLocationIdx()) + distance);
+		userExtraInfo.setLatt(locationDic.getLatt(user.getLocationId()) + distance);
+		userExtraInfo.setLongt(locationDic.getLongt(user.getLocationId()) + distance);
 		
-		userExtraInfo.setOrganization(
-				organizationsDictionary.getOrganizationName(user.getLocationOrganizationIdx()));
+		userExtraInfo.setUniversity(unversityDictionary.getUniversityName(user.getUniversityLocationId()));
 		
 		// Relationship status
 		if (randomHaveStatus.nextDouble() > missingStatusRatio) {
@@ -1572,10 +1567,10 @@ public class ScalableGenerator{
 		}
 		
 		userExtraInfo.setFirstName(namesDictionary.getRandomGivenName(
-				user.getLocationIdx(),isMale, 
+				user.getLocationId(),isMale, 
 				dateTimeGenerator.getBirthYear(user.getBirthDay())));
 		
-		userExtraInfo.setLastName(namesDictionary.getRandomSurname(user.getLocationIdx()));
+		userExtraInfo.setLastName(namesDictionary.getRandomSurname(user.getLocationId()));
 
 		// email is created by using the user's first name + userId
 		int numEmails = randomExtraInfo.nextInt(maxEmails) + 1;
@@ -1595,11 +1590,11 @@ public class ScalableGenerator{
 		
 		// Set class year
 		prob = randomExtraInfo.nextDouble();
-		if ((prob < missingRatio) || userExtraInfo.getOrganization().equals("")) {
+		if ((prob < missingRatio) || userExtraInfo.getUniversity().equals("")) {
 			userExtraInfo.setClassYear(-1);
 		} else {
 			userExtraInfo.setClassYear(dateTimeGenerator.getClassYear(
-					user.getCreatedDate(), user.getBirthDay()));
+					user.getCreationDate(), user.getBirthDay()));
 		}
 
 		// Set company and workFrom
@@ -1609,11 +1604,11 @@ public class ScalableGenerator{
             for (int i = 0; i < numCompanies; i++) {
                 long workFrom;
                 if (userExtraInfo.getClassYear() != -1) {
-                    workFrom = dateTimeGenerator.getWorkFromYear(user.getCreatedDate(), user.getBirthDay());
+                    workFrom = dateTimeGenerator.getWorkFromYear(user.getCreationDate(), user.getBirthDay());
                 } else {
                     workFrom = dateTimeGenerator.getWorkFromYear(userExtraInfo.getClassYear());
                 }
-                String company = companiesDictionary.getRandomCompany(user.getLocationIdx());
+                String company = companiesDictionary.getRandomCompany(user.getLocationId());
                 userExtraInfo.addCompany(company, workFrom);
                 String countryName = locationDic.getLocationName(companiesDictionary.getCountry(company));
                 stats.countries.add(countryName);
@@ -1634,7 +1629,7 @@ public class ScalableGenerator{
                 }
             }
         }
-        Vector<Integer> userLanguages = languageDic.getLanguages(user.getLocationIdx());
+        Vector<Integer> userLanguages = languageDic.getLanguages(user.getLocationId());
         int nativeLanguage = randomExtraInfo.nextInt(userLanguages.size());
         userExtraInfo.setNativeLanguage(userLanguages.get(nativeLanguage));
         int internationalLang = languageDic.getInternationlLanguage();
@@ -1647,7 +1642,7 @@ public class ScalableGenerator{
         stats.maxPersonId = Math.max(stats.maxPersonId, user.getAccountId());
         stats.minPersonId = Math.min(stats.minPersonId, user.getAccountId());
         stats.firstNames.add(userExtraInfo.getFirstName());
-        String countryName = locationDic.getLocationName(user.getLocationIdx());
+        String countryName = locationDic.getLocationName(user.getLocationId());
         stats.countries.add(countryName);
         
         // NOTE: [2013-08-06] The tags of posts, forums, etc.. all depend of the user ones
@@ -1718,22 +1713,22 @@ public class ScalableGenerator{
 		if (t.equals("ttl")) {
             return new Turtle(sibOutputDir +"/" + outputFileName, numRdfOutputFile, true, mainTagDic,
                     browserDic, companiesDictionary, 
-                    organizationsDictionary.GetOrganizationLocationMap(),
+                    unversityDictionary.GetUniversityLocationMap(),
                     ipAddDictionary, locationDic, languageDic);
 		} else if (t.equals("n3")) {
             return new Turtle(sibOutputDir + "/" + outputFileName, numRdfOutputFile, false, mainTagDic,
                     browserDic, companiesDictionary, 
-                    organizationsDictionary.GetOrganizationLocationMap(),
+                    unversityDictionary.GetUniversityLocationMap(),
                     ipAddDictionary, locationDic, languageDic);
 		} else if (t.equals("csv")) {
 			return new CSV(sibOutputDir, numRdfOutputFile, mainTagDic,
 					browserDic, companiesDictionary, 
-                    organizationsDictionary.GetOrganizationLocationMap(),
+                    unversityDictionary.GetUniversityLocationMap(),
 					ipAddDictionary,locationDic, languageDic);
         } else if (t.equals("csv_merge_foreign")) {
             return new CSVMergeForeign(sibOutputDir, numRdfOutputFile, mainTagDic,
                     browserDic, companiesDictionary, 
-                    organizationsDictionary.GetOrganizationLocationMap(),
+                    unversityDictionary.GetUniversityLocationMap(),
                     ipAddDictionary,locationDic, languageDic);
 		} else if (t.equals("none")) {
             return new EmptySerializer();

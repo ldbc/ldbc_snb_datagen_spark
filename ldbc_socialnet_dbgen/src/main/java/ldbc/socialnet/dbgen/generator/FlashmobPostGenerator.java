@@ -165,7 +165,7 @@ public class FlashmobPostGenerator extends PostGenerator {
             PostInfo postInfo = new PostInfo();
             int index = selectRandomTag( userFlashmobTags, 0 );
             FlashmobTag flashmobTag = userFlashmobTags[index];
-            if( flashmobTag.date < user.getCreatedDate() )  return null;
+            if( flashmobTag.date < user.getCreationDate() )  return null;
             postInfo.tags.add(flashmobTag.tag);
             double prob = dateDistribution.nextDouble();
             postInfo.date = flashmobTag.date - flashmobSpan/2 + (long)( prob * flashmobSpan); 
@@ -187,7 +187,7 @@ public class FlashmobPostGenerator extends PostGenerator {
 
     @Override
         protected int generateNumOfPost(ReducedUserProfile user) {
-            Vector<FlashmobTag> temp = flashmobTagDictionary.generateFlashmobTags( user.getSetOfTags(), user.getCreatedDate());
+            Vector<FlashmobTag> temp = flashmobTagDictionary.generateFlashmobTags( user.getSetOfTags(), user.getCreationDate());
             userFlashmobTags = new FlashmobTag[temp.size()];
             int index = 0;
             int sumLevels = 0;

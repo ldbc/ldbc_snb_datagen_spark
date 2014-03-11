@@ -44,59 +44,58 @@ import java.util.Random;
 import java.util.Vector;
 
 
-public class OrganizationsDictionary {
+public class UniversityDictionary {
     
     private static final String SEPARATOR = "  ";
     
     String dicFileName; 
 
-	HashMap<String, Integer> organizationToLocation;
-	HashMap<Integer, Vector<String>> organizationsByLocations;
+	HashMap<String, Integer> universityToLocation;
+	HashMap<Integer, Vector<String>> universitiesByLocation;
 	
 	double probTopUniv; 
-	double probUnCorrelatedOrganization;
+	double probUncorrelatedUniversity;
 	Random rand;
 	Random randTopUniv;
-	Random randUnRelatedOrganization;
-	Random randUnRelatedLocation;
+	Random randUnrelatedUniversity;
+	Random randUnrelatedLocation;
 	LocationDictionary locationDic; 
 	
-	public OrganizationsDictionary(String dicFileName, LocationDictionary locationDic, 
-									long seedRandom, double probUnCorrelatedOrganization, 
+	public UniversityDictionary(String dicFileName, LocationDictionary locationDic, 
+									long seedRandom, double probUncorrelatedUniversity, 
 									long seedTopUni, double probTopUni){
 	    
 		this.dicFileName = dicFileName;
 		this.probTopUniv = probTopUni;
 		this.locationDic = locationDic;
-		this.probUnCorrelatedOrganization = probUnCorrelatedOrganization;
-		
-		rand = new Random(seedRandom);
-		randTopUniv = new Random(seedTopUni);
-		randUnRelatedLocation = new Random(seedRandom);
-		randUnRelatedOrganization = new Random(seedRandom);
+		this.probUncorrelatedUniversity = probUncorrelatedUniversity;
+		this.rand = new Random(seedRandom);
+		this.randTopUniv = new Random(seedTopUni);
+		this.randUnrelatedUniversity = new Random(seedRandom);
+		this.randUnrelatedLocation = new Random(seedRandom);
 	}
 	
 	public void init(){
-	    organizationToLocation = new HashMap<String, Integer>();
-	    organizationsByLocations = new HashMap<Integer, Vector<String>>();
+	    universityToLocation = new HashMap<String, Integer>();
+	    universitiesByLocation = new HashMap<Integer, Vector<String>>();
 	    for (Integer id : locationDic.getCountries()){
-	        organizationsByLocations.put(id, new Vector<String>());
+	        universitiesByLocation.put(id, new Vector<String>());
 	    }
-	    extractOrganizationNames();
+	    extractUniversityNames();
 	}
 	
-	public HashMap<String, Integer> GetOrganizationLocationMap() {
-	    return organizationToLocation;
+	public HashMap<String, Integer> GetUniversityLocationMap() {
+	    return universityToLocation;
 	}
 	
-	public void extractOrganizationNames() {
+	public void extractUniversityNames() {
 		try {
 		    BufferedReader dicAllInstitutes = new BufferedReader(
 		            new InputStreamReader(getClass( ).getResourceAsStream(dicFileName), "UTF-8"));
 		    
 		    String line;
 		    int curLocationId = -1; 
-            int totalNumOrganizations = 0;
+            int totalNumUniversities = 0;
 		    String lastLocationName = "";
 			while ((line = dicAllInstitutes.readLine()) != null){
 				String data[] = line.split(SEPARATOR);
@@ -106,24 +105,22 @@ public class OrganizationsDictionary {
 					    locationDic.getCityId(data[2]) != LocationDictionary.INVALID_LOCATION ) {
 						lastLocationName = locationName;
 						curLocationId = locationDic.getCountryId(locationName); 
-						String organizationName = data[1].trim();
-						organizationsByLocations.get(curLocationId).add(organizationName);
+						String universityName = data[1].trim();
+						universitiesByLocation.get(curLocationId).add(universityName);
 						Integer cityId = locationDic.getCityId(data[2]);
-						organizationToLocation.put(organizationName, cityId);
-						totalNumOrganizations++;
-					} /*else {
-						System.err.println("ERROR:Invalid country or city of organization: "+locationName+" "+data[2]);
-					}*/
+						universityToLocation.put(universityName, cityId);
+						totalNumUniversities++;
+					} 
 				} else if( locationDic.getCityId(data[2]) != LocationDictionary.INVALID_LOCATION ) {
-				    String organizationName = data[1].trim();
-					organizationsByLocations.get(curLocationId).add(organizationName);
+				    String universityName = data[1].trim();
+					universitiesByLocation.get(curLocationId).add(universityName);
 					Integer cityId = locationDic.getCityId(data[2]);
-                    organizationToLocation.put(organizationName, cityId);
-					totalNumOrganizations++;
+                    universityToLocation.put(universityName, cityId);
+					totalNumUniversities++;
 				}
 			}
 			dicAllInstitutes.close();
-			System.out.println("Done ... " + totalNumOrganizations + " organizations were extracted");
+			System.out.println("Done ... " + totalNumUniversities + " universities were extracted");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -131,35 +128,35 @@ public class OrganizationsDictionary {
 	
 	// 90% of people go to top-10 universities
 	// 10% go to remaining universities
-	public int getRandomOrganization(int locationId) {
+	public int getRandomUniversity(int locationId) {
 	    
-		double prob = randUnRelatedOrganization.nextDouble();
+		double prob = randUnrelatedUniversity.nextDouble();
 		
 		Vector<Integer> countries = locationDic.getCountries();
-		if (randUnRelatedOrganization.nextDouble() <= probUnCorrelatedOrganization) {
-		    locationId = countries.get(randUnRelatedLocation.nextInt(countries.size()));
+		if (randUnrelatedUniversity.nextDouble() <= probUncorrelatedUniversity) {
+		    locationId = countries.get(randUnrelatedUniversity.nextInt(countries.size()));
 		}
 		
-		while (organizationsByLocations.get(locationId).size() == 0) {
-            locationId = countries.get(randUnRelatedLocation.nextInt(countries.size()));
+		while (universitiesByLocation.get(locationId).size() == 0) {
+            locationId = countries.get(randUnrelatedUniversity.nextInt(countries.size()));
         }
 		
-		int range = organizationsByLocations.get(locationId).size();
-		if (prob > probUnCorrelatedOrganization && randTopUniv.nextDouble() < probTopUniv) {
-				range = Math.min(organizationsByLocations.get(locationId).size(), 10);
+		int range = universitiesByLocation.get(locationId).size();
+		if (prob > probUncorrelatedUniversity && randTopUniv.nextDouble() < probTopUniv) {
+				range = Math.min(universitiesByLocation.get(locationId).size(), 10);
 		}
 		
-		int randomOrganizationIdx = rand.nextInt(range);
+		int randomUniversityIdx = rand.nextInt(range);
 		int zOrderLocation = locationDic.getZorderID(locationId);
-        int locationOrganization = (zOrderLocation << 24) | (randomOrganizationIdx << 12);
-		return locationOrganization;
+        int universityLocation = (zOrderLocation << 24) | (randomUniversityIdx << 12);
+		return universityLocation;
 	}
 	
-	public String getOrganizationName(int locationOrganization) {
-		int zOrderlocationId = locationOrganization >> 24;
-		int organizationId = (locationOrganization >> 12) & 0x0FFF;
+	public String getUniversityName(int universityLocation) {
+		int zOrderlocationId = universityLocation >> 24;
+		int universityId = (universityLocation >> 12) & 0x0FFF;
 		int locationId = locationDic.getLocationIdFromZOrder(zOrderlocationId);
 		
-		return organizationsByLocations.get(locationId).get(organizationId);
+		return universitiesByLocation.get(locationId).get(universityId);
 	}
 }

@@ -85,7 +85,7 @@ public class GroupGenerator {
 		group.setForumStatusId(forumId + 1);
 		
 		//Use the user location for group locationIdx
-		group.setLocationIdx(user.getLocationIdx());
+		group.setLocationIdx(user.getLocationId());
 				
 		TreeSet<Integer> tagSet = user.getSetOfTags();
 		Iterator<Integer> iter = tagSet.iterator();
@@ -145,7 +145,7 @@ public class GroupGenerator {
 	public GroupMemberShip createGroupMember(long userId, long groupCreatedDate, ReducedUserProfile user){
         GroupMemberShip memberShip = new GroupMemberShip();
         memberShip.setUserId(userId);
-        memberShip.setJoinDate(dateGenerator.randomGroupMemberJoinDate(groupCreatedDate, user.getCreatedDate()));
+        memberShip.setJoinDate(dateGenerator.randomGroupMemberJoinDate(groupCreatedDate, user.getCreationDate()));
         memberShip.setIP(user.getIpAddress());
         memberShip.setBrowserIdx(user.getBrowserIdx());
         memberShip.setAgentIdx(user.getAgentIdx());

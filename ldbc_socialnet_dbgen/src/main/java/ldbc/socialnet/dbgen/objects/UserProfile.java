@@ -42,81 +42,93 @@ import java.util.Iterator;
 
 public class UserProfile implements Serializable {
     private static final long serialVersionUID = 3657773293974543890L;
-	long 				accountId;
-	int 				locationIdx; 
-	int 				locationZId;
-	int                 cityIdx; 
+	private long 				accountId;              /**< @brief A unique account id identifying the user.*/
+	private int 				locationId;             /**< @brief The location id of the place were the user lives.*/
+	private int 				locationZId;            /**< @brief The location Z id.*/
+	private int                 cityId;                 /**< @brief The index of the city where the user lives.*/
+	private int 				randomIdx;              /**< @brief Random index used to sort the users in the last map/reduce job*/
+	private int 				universityLocationId;   /**< @brief The location identifier of the university where the user studies.*/
+	private int 				forumWallId;            /**< @brief The identifier of the wall (group) of the user.*/
+	private long	 			creationDate;           /**< @brief The date when the user was created.*/
+	private short         		numFriends;             /**< @brief The expected number of friends of the user.*/
+	private short 		        numPassFriends[];		/**< @brief Max number of friends can be generated after kth passes*/
 	
-
-	int 				randomIdx; 
-	int 				locationOrganizationId;
-	int 				forumWallId; 
-	int 				forumStatusId;
-	long	 			createdDate; 
-	public short 		numFriends;
-	public short 		numTags;
-
-	public short 		numPassFriends[];		// Max number of friends can be 
-												// generated after kth passes
 	
-	public short		lastLocationFriendIdx; 
-	public short		startInterestFriendIdx; 
-	public short 		lastInterestFriendIdx; 
-	
-	public short 		numFriendsAdded;
-	Friend 				friendList[];
-	TreeSet<Long>   	friendIds; 		// Use a Treeset for checking the existence
-	
-	TreeSet<Integer> 	setOfTags;
-	int					mainTagId; 
+	private short 		        numFriendsAdded;        /**< @brief The actual number of friends of the user.*/
+	private Friend 				friendList[];           /**< @brief The list of friends of the user.*/ 
+	private TreeSet<Long>   	friendIds; 		        /**< @brief A set containing the friend identifiers for fast lookup.*/	
+	private TreeSet<Integer> 	setOfTags;              /**< @brief The set of tags the user is interested in.*/
+	private int					mainTagId;              /**< @brief The principal user interest.*/
 
 	//For user's agent information
-	boolean				isHaveSmartPhone; 		// Use for providing the user agent information
-	byte 				agentIdx; 				// Index of user agent in the dictionary, e.g., 0 for iPhone, 1 for HTC
-	byte				browserIdx;				// Index of web browser, e.g., 0 for Internet Explorer
+	private boolean				isHaveSmartPhone; 		/**< @brief True if the user has a smartphone.*/
+    private byte 				agentId; 				/**< @brief Index of user agent in the dictionary, e.g., 0 for iPhone, 1 for HTC*/
+	private byte				browserId;				/**< @brief Index of web browser, e.g., 0 for Internet Explorer.*/
 	
 	//For IP address
-	IP					ipAddress;				// IP address
+	IP					        ipAddress;  	        /**< @brief The IP address from which the account of the user was created.*/
 	
 	//For popular places
-	short				popularPlaceIds[]; 
-	byte				numPopularPlace; 
+	private short				popularPlaceIds[];      
+//	private byte				numPopularPlace; 
 	
 	
 	// For dimesion of university
-	byte 				gender; 
-	long				birthDay;
+	private byte 				gender;                 /**< @brief The gender of the user.*/
+	private long				birthDay;               /**< @brief The birthDay of the user.*/
 
 	// For posting
-	boolean				isLargePoster;
+	private boolean				isLargePoster;          /**< @brief True if the user is selected as a candidate to post large posts.*/
+
+	private short		        lastLocationFriendIdx; 
+	private short		        startInterestFriendIdx; 
+	private short 		        lastInterestFriendIdx; 
 	
 	
-	public UserProfile(long accountId) {
+	public UserProfile( long accountId,
+                        long creationDate,
+                        byte gender,
+                        long birthDay,
+                        byte browserId,
+                        int locationId,
+                        int locationZId,
+                        int cityId,
+                        IP ipAddress,
+                        int forumWallId ) {
+
 	    this.accountId = accountId;
-        locationIdx = -1; 
-        locationOrganizationId = -1; 
-        forumWallId = -1; 
-        forumStatusId = -1;
-        isLargePoster = false;
-        
-        setOfTags = new TreeSet<Integer>();
+        this.creationDate = creationDate;
+        this.gender = gender;
+        this.birthDay = birthDay;
+        this.browserId = browserId;
+        this.locationId = locationId;
+        this.locationZId = locationZId;
+        this.cityId = cityId;
+        this.ipAddress = ipAddress;
+        this.forumWallId = forumWallId;
+        this.universityLocationId = -1; 
+        this.numFriends = 0;
+        this.numFriendsAdded = 0;
+        this.isLargePoster = false;
+        this.setOfTags = new TreeSet<Integer>();
+        this.popularPlaceIds = null;
+        this.friendList = null;
+        this.friendIds = null;
+        this.numPassFriends = null;
 	}
 	
 	public byte getGender() {
 		return gender;
 	}
-	public void setGender(byte gender) {
-		this.gender = gender;
-	}
+
 	public long getBirthDay() {
 		return birthDay;
 	}
-	public void setBirthDay(long birthDay) {
-		this.birthDay = birthDay;
-	}
+
 	public short getPopularId(int index){
 		return popularPlaceIds[index];
 	}
+
 	public short[] getPopularPlaceIds() {
 		return popularPlaceIds;
 	}
@@ -124,11 +136,13 @@ public class UserProfile implements Serializable {
 		this.popularPlaceIds = popularPlaceIds;
 	}
 	public byte getNumPopularPlace() {
-		return numPopularPlace;
+		return (byte)(popularPlaceIds.length);
 	}
-	public void setNumPopularPlace(byte numPopularPlace) {
+    
+	/*public void setNumPopularPlace(byte numPopularPlace) {
 		this.numPopularPlace = numPopularPlace;
 	}
+    */
 	public IP getIpAddress() {
 		return ipAddress;
 	}
@@ -157,14 +171,14 @@ public class UserProfile implements Serializable {
 
 	public void print(){
 		System.out.println("Account Id: " + accountId);
-		System.out.println("User location: " + locationIdx);
+		System.out.println("User location: " + locationId);
 		System.out.println("Friends added: " + numFriendsAdded + " / " + numFriends);
 		System.out.println("Number of location friends " + numPassFriends[0]);
 		System.out.println("Number of interest friends " + numPassFriends[1]);
 	}
 	public void printDetail(){
 		System.out.println("Account Id: " + accountId);
-		System.out.println("User location: " + locationIdx);
+		System.out.println("User location: " + locationId);
 		System.out.print("Total number of friends: " + numFriends);
 		System.out.print(numFriendsAdded + " user friends added: ");
 		for (int i = 0; i < numFriendsAdded; i ++){
@@ -179,6 +193,7 @@ public class UserProfile implements Serializable {
 		
 		System.out.println();
 	}
+
 	public void printTags(){
 		System.out.println("Set of tag for " + accountId);
 		Iterator<Integer> it = setOfTags.iterator(); 
@@ -229,14 +244,10 @@ public class UserProfile implements Serializable {
 		this.numFriends = numFriends;
 	}
 
-	public long getCreatedDate() {
-		return createdDate;
+	public long getCreationDate() {
+		return creationDate;
 	}
 
-	public void setCreatedDate(long createdDate) {
-		this.createdDate = createdDate;
-	}
-	
 	public long getAccountId() {
 		return accountId;
 	}
@@ -244,38 +255,22 @@ public class UserProfile implements Serializable {
 	public int getForumWallId() {
 		return forumWallId;
 	}
-	public void setForumWallId(int forumWallId) {
-		this.forumWallId = forumWallId;
-	}
-	public int getForumStatusId() {
-		return forumStatusId;
-	}
-	public void setForumStatusId(int forumStatusId) {
-		this.forumStatusId = forumStatusId;
-	} 
 	
-	public int getLocationIdx() {
-		return locationIdx;
+	public int getLocationId() {
+		return locationId;
 	}
 
-	public void setLocationIdx(int locationIdx) {
-		this.locationIdx = locationIdx;
-	}
 	
-	public int getCityIdx() {
-        return cityIdx;
+	public int getCityId() {
+        return cityId;
     }
 
-    public void setCityIdx(int cityIdx) {
-        this.cityIdx = cityIdx;
-    }
-
-	public int getLocationOrganizationId() {
-		return locationOrganizationId;
+	public int getUniversityLocationId() {
+		return universityLocationId;
 	}
 
-	public void setLocationOrganizationId(int locationOrganizationId) {
-		this.locationOrganizationId = locationOrganizationId;
+	public void setUniversityLocationId(int universityLocationId) {
+		this.universityLocationId = universityLocationId;
 	}
 	public short getLastLocationFriendIdx() {
 		return lastLocationFriendIdx;
@@ -295,11 +290,11 @@ public class UserProfile implements Serializable {
 	public void setHaveSmartPhone(boolean isHaveSmartPhone) {
 		this.isHaveSmartPhone = isHaveSmartPhone;
 	}
-	public byte getAgentIdx() {
-		return agentIdx;
+	public byte getAgentId() {
+		return agentId;
 	}
-	public void setAgentIdx(byte agentIdx) {
-		this.agentIdx = agentIdx;
+	public void setAgentId(byte agentId) {
+		this.agentId = agentId;
 	}
 	public short getStartInterestFriendIdx() {
 		return startInterestFriendIdx;
@@ -307,11 +302,11 @@ public class UserProfile implements Serializable {
 	public void setStartInterestFriendIdx(short startInterestFriendIdx) {
 		this.startInterestFriendIdx = startInterestFriendIdx;
 	}
-	public byte getBrowserIdx() {
-		return browserIdx;
+	public byte getBrowserId() {
+		return browserId;
 	}
-	public void setBrowserIdx(byte browserIdx) {
-		this.browserIdx = browserIdx;
+	public void setBrowserId(byte browserId) {
+		this.browserId = browserId;
 	}
 	public int getRandomIdx() {
 		return randomIdx;
@@ -328,15 +323,7 @@ public class UserProfile implements Serializable {
 	public int getLocationZId() {
 		return locationZId;
 	}
-	public void setLocationZId(int locationZId) {
-		this.locationZId = locationZId;
-	}
-	public short getNumTags() {
-		return numTags;
-	}
-	public void setNumTags(short numTags) {
-		this.numTags = numTags;
-	}
+
 	public int getMainTagId() {
 		return mainTagId;
 	}
@@ -351,5 +338,4 @@ public class UserProfile implements Serializable {
 	public void setLargePoster(boolean isLargePoster) {
 		this.isLargePoster = isLargePoster;
 	}
-
 }

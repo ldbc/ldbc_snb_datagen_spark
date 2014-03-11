@@ -418,7 +418,7 @@ public class CSV implements Serializer {
 		    int parentId = companyDic.getCountry(company);
 		    printLocationHierarchy(parentId);
 		}
-		printLocationHierarchy(universityToCountry.get(extraInfo.getOrganization()));
+		printLocationHierarchy(universityToCountry.get(extraInfo.getUniversity()));
         printLocationHierarchy(ipDic.getLocation(profile.getIpAddress()));
         
 
@@ -434,7 +434,7 @@ public class CSV implements Serializer {
             String empty = "";
             arguments.add(empty);
         }
-		date.setTimeInMillis(profile.getCreatedDate());
+		date.setTimeInMillis(profile.getCreationDate());
 		String dateString = DateGenerator.formatDateDetail(date);
 		arguments.add(dateString);
         if (profile.getIpAddress() != null) {
@@ -471,20 +471,20 @@ public class CSV implements Serializer {
 		ToCSV(arguments, Files.PERSON_LOCATED_IN_PLACE.ordinal());
 
 		int organisationId = -1;
-		if (!extraInfo.getOrganization().equals("")){
-		    organisationId = organisations.indexOf(extraInfo.getOrganization());
+		if (!extraInfo.getUniversity().equals("")){
+		    organisationId = organisations.indexOf(extraInfo.getUniversity());
 		    if(organisationId == -1) {
 		        organisationId = organisations.size();
-		        organisations.add(extraInfo.getOrganization());
+		        organisations.add(extraInfo.getUniversity());
 
 		        arguments.add(SN.formId(organisationId));
 		        arguments.add(ScalableGenerator.OrganisationType.university.toString());
-		        arguments.add(extraInfo.getOrganization());
-		        arguments.add(DBP.getUrl(extraInfo.getOrganization()));
+		        arguments.add(extraInfo.getUniversity());
+		        arguments.add(DBP.getUrl(extraInfo.getUniversity()));
 		        ToCSV(arguments, Files.ORGANISATION.ordinal());
 
 		        arguments.add(SN.formId(organisationId));
-		        arguments.add(Integer.toString(universityToCountry.get(extraInfo.getOrganization())));
+		        arguments.add(Integer.toString(universityToCountry.get(extraInfo.getUniversity())));
 		        ToCSV(arguments, Files.ORGANISATION_BASED_NEAR_PLACE.ordinal());
 		    }
 		    
@@ -558,7 +558,7 @@ public class CSV implements Serializer {
         }
 		
         //The forums of the user
-		date.setTimeInMillis(profile.getCreatedDate());
+		date.setTimeInMillis(profile.getCreationDate());
         dateString = DateGenerator.formatDateDetail(date);
 
         String title = "Wall of " + extraInfo.getFirstName() + " " + extraInfo.getLastName();
