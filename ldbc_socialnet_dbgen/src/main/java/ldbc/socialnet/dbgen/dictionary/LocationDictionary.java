@@ -61,7 +61,6 @@ public class LocationDictionary {
 	int numUsers;
 	int curLocationIdx;
 	
-	Random rand;
 	LocationZorder[] sortLocation;
 	Vector<Integer> locationDistribution;
     
@@ -102,12 +101,10 @@ public class LocationDictionary {
      * @param countryFile: The country and continent data file.
      * @param cityFile: The city data file.
      */
-	public LocationDictionary(int numUsers, long seed, String countryFile, String cityFile){
+	public LocationDictionary(int numUsers, String countryFile, String cityFile){
         this.numUsers = numUsers; 
         this.countryFile = countryFile;
         this.cityFile = cityFile;
-        
-        rand = new Random(seed);
     }
 	
 	/**
@@ -188,7 +185,7 @@ public class LocationDictionary {
 	/**
      * Given a country id returns an id of one of its cities.
      */
-	public int getRandomCity(int countryId) {
+	public int getRandomCity(Random random, int countryId) {
 	    if (!citiesFromCountry.containsKey(countryId)) {
             System.err.println("Invalid countryId");
             return INVALID_LOCATION;
@@ -201,7 +198,7 @@ public class LocationDictionary {
             return INVALID_LOCATION;
         }
         
-        int randomNumber = rand.nextInt(citiesFromCountry.get(countryId).size());
+        int randomNumber = random.nextInt(citiesFromCountry.get(countryId).size());
         return citiesFromCountry.get(countryId).get(randomNumber);
 	}
 	

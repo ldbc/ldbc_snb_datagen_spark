@@ -140,9 +140,9 @@ public class IPAddressDictionary {
 	    return (ipCountry.containsKey(network)) ? ipCountry.get(network) : -1;
 	}
 	
-	public IP getRandomIPFromLocation(int locationIdx) {
+	public IP getRandomIPFromLocation(Random random, int locationIdx) {
 		Vector<IP> countryIPs = ipsByCountry.get(locationIdx);
-		int idx = randIP.nextInt(countryIPs.size());
+		int idx = random.nextInt(countryIPs.size());
 		
 		IP networkIp = countryIPs.get(idx);
 		
@@ -152,42 +152,35 @@ public class IPAddressDictionary {
 		
 		for (int i = 0; i < IP.IP4_SIZE_BYTES; i++) {
 		    int randomRange = ((mask >>> (IP.BYTE_SIZE * i)) & 0xFF) + 1;
-		    int base = ((ip >>> (IP.BYTE_SIZE * i)) & 0xFF) + randIP.nextInt(randomRange);
+		    int base = ((ip >>> (IP.BYTE_SIZE * i)) & 0xFF) + random.nextInt(randomRange);
 		    formattedIP = formattedIP | (base << IP.BYTE_SIZE * i);
         }
 		
 		return new IP(formattedIP, mask);
 	}
 	
-	public IP getRandomIP() {
+	public IP getRandomIP(Random random) {
 	    Vector<Integer> countries = locationDic.getCountries();
-        int randomLocationIdx = randIP.nextInt(countries.size());
+        int randomLocationIdx = random.nextInt(countries.size());
 		return getRandomIPFromLocation(randomLocationIdx);
 	}
 	
-	private boolean changeUsualIp(boolean isFrequentChange, long date) {
-	    boolean change = false;
-        if (isFrequentChange) {
-            if (randDiffIPforTravellers.nextDouble() < probDiffIPforTraveller) {
-                change = true;
-            }
-        } else {
-            if (DateGenerator.isTravelSeason(date)) {
-                if (randDiffIP.nextDouble() < probDiffIPinTravelSeason) {
-                    change = true;
-                }
-            } else if (randDiffIP.nextDouble() < probDiffIPnotTravelSeason) {
-                change = true;
-            }
+	private boolean changeUsualIp(Random random, boolean isFrequentChange, long date) {
+        double randomNumber = random.nextDouble();
+        boolean isTravelSeason = DateGenerator.isTravelSeason(date);
+        if ( (isFrequentChange && randomNumber < probDiffIPforTraveller ) || 
+             (!isFrequentChange && ((isTravelSeason && randomNumber < probDiffIPinTravelSeason) ||
+                                   (!isTravelSeason && randomNumber < probDiffIPnotTravelSeason)))) {
+                 return true;
         }
-        return change;
+        return false;
 	}
 	
-	public IP getIP(IP ip, boolean isFrequentChange, long date) {
-	    return (changeUsualIp(isFrequentChange, date)) ? new IP(ip.getIp(), ip.getMask()) : getRandomIP();
+	public IP getIP(Random random, IP ip, boolean isFrequentChange, long date) {
+	    return (changeUsualIp(random, isFrequentChange, date)) ? new IP(ip.getIp(), ip.getMask()) : getRandomIP(random);
 	}
 	
-	public IP getIP(IP ip, boolean isFrequentChange, long date, int countryId) {
-        return (changeUsualIp(isFrequentChange, date)) ? new IP(ip.getIp(), ip.getMask()) : getRandomIPFromLocation(countryId);
+	public IP getIP(Random random, IP ip, boolean isFrequentChange, long date, int countryId) {
+        return (changeUsualIp(random, isFrequentChange, date)) ? new IP(ip.getIp(), ip.getMask()) : getRandomIPFromLocation(random, countryId);
     }
 }

@@ -63,18 +63,13 @@ public class NamesDictionary {
 	Vector<HashMap<Integer, Vector<String>>> givenNamesByLocationsMale;    // Year / Location / Names		
 	Vector<HashMap<Integer, Vector<String>>> givenNamesByLocationsFemale;
 	
-	Random rand;
-	Random randUniform;
 	GeometricDist geoDist;
 	
 	public NamesDictionary(String surnameFile, String givennameFile, 
-						LocationDictionary locationDic, long seed) {
+						LocationDictionary locationDic) {
 		this.locationDic = locationDic;
 		this.surnameFile = surnameFile; 
 		this.givennameFile = givennameFile; 
-		
-		rand        = new Random(seed);
-		randUniform = new Random(seed);
 		geoDist = new GeometricDist(GEOMETRIC_RATIO);
 	}
 	
@@ -183,22 +178,22 @@ public class NamesDictionary {
 	 * Else, from 0 to (limitRank - 1) will be distributed according to 
 	 * geometric distribution, out of this scope will be distribution
 	 */
-	private int getGeoDistRandomIdx(int numNames){
+	private int getGeoDistRandomIdx(Random random, int numNames){
 		int nameIdx = -1; 
-		double prob = rand.nextDouble();
+		double prob = random.nextDouble();
 		int rank = geoDist.inverseFInt(prob);
 		
 		if (rank < topN) {
 			if (numNames > rank) {
 				nameIdx = rank;
 			} else {
-				nameIdx = randUniform.nextInt(numNames);
+				nameIdx = random.nextInt(numNames);
 			}
 		} else {
 			if (numNames > rank) {
-				nameIdx = topN + randUniform.nextInt(numNames - topN);
+				nameIdx = topN + random.nextInt(numNames - topN);
 			} else {
-				nameIdx = randUniform.nextInt(numNames);
+				nameIdx = random.nextInt(numNames);
 			}
 		}
 		return nameIdx;

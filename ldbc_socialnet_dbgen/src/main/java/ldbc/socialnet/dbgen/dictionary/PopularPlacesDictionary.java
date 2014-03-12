@@ -53,15 +53,10 @@ public class PopularPlacesDictionary {
     LocationDictionary locationDic;
 	HashMap<Integer, Vector<PopularPlace>> popularPlacesByLocations;
 	
-	Random rand;
-
 	public PopularPlacesDictionary(String dicFileName, LocationDictionary locationDic, 
 			long seedRandom){
-		
 		this.dicFileName = dicFileName; 
 		this.locationDic = locationDic; 
-		
-		rand = new Random(seedRandom);
 	}
 	
 	public void init(){
@@ -116,12 +111,12 @@ public class PopularPlacesDictionary {
 		}
 	}
 	
-	public short getPopularPlace(int locationidx) {
+	public short getPopularPlace(Random random, int locationidx) {
 		if (popularPlacesByLocations.get(locationidx).size() == 0) {
 		    return -1;
 		}
 		
-		return (short) rand.nextInt(popularPlacesByLocations.get(locationidx).size());
+		return (short) random.nextInt(popularPlacesByLocations.get(locationidx).size());
 	}
 	
 	public PopularPlace getPopularPlace(int locationIdx, int placeId){

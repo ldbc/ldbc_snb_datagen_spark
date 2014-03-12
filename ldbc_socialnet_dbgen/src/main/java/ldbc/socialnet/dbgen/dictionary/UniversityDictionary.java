@@ -55,24 +55,15 @@ public class UniversityDictionary {
 	
 	double probTopUniv; 
 	double probUncorrelatedUniversity;
-	Random rand;
-	Random randTopUniv;
-	Random randUnrelatedUniversity;
-	Random randUnrelatedLocation;
 	LocationDictionary locationDic; 
 	
 	public UniversityDictionary(String dicFileName, LocationDictionary locationDic, 
-									long seedRandom, double probUncorrelatedUniversity, 
-									long seedTopUni, double probTopUni){
-	    
+									 double probUncorrelatedUniversity, 
+									 double probTopUni){
 		this.dicFileName = dicFileName;
 		this.probTopUniv = probTopUni;
 		this.locationDic = locationDic;
 		this.probUncorrelatedUniversity = probUncorrelatedUniversity;
-		this.rand = new Random(seedRandom);
-		this.randTopUniv = new Random(seedTopUni);
-		this.randUnrelatedUniversity = new Random(seedRandom);
-		this.randUnrelatedLocation = new Random(seedRandom);
 	}
 	
 	public void init(){
@@ -128,25 +119,25 @@ public class UniversityDictionary {
 	
 	// 90% of people go to top-10 universities
 	// 10% go to remaining universities
-	public int getRandomUniversity(int locationId) {
+	public int getRandomUniversity(Random random, int locationId) {
 	    
-		double prob = randUnrelatedUniversity.nextDouble();
+		double prob = random.nextDouble();
 		
 		Vector<Integer> countries = locationDic.getCountries();
-		if (randUnrelatedUniversity.nextDouble() <= probUncorrelatedUniversity) {
-		    locationId = countries.get(randUnrelatedUniversity.nextInt(countries.size()));
+		if (random.nextDouble() <= probUncorrelatedUniversity) {
+		    locationId = countries.get(random.nextInt(countries.size()));
 		}
 		
 		while (universitiesByLocation.get(locationId).size() == 0) {
-            locationId = countries.get(randUnrelatedUniversity.nextInt(countries.size()));
+            locationId = countries.get(random.nextInt(countries.size()));
         }
 		
 		int range = universitiesByLocation.get(locationId).size();
-		if (prob > probUncorrelatedUniversity && randTopUniv.nextDouble() < probTopUniv) {
+		if (prob > probUncorrelatedUniversity && random.nextDouble() < probTopUniv) {
 				range = Math.min(universitiesByLocation.get(locationId).size(), 10);
 		}
 		
-		int randomUniversityIdx = rand.nextInt(range);
+		int randomUniversityIdx = random.nextInt(range);
 		int zOrderLocation = locationDic.getZorderID(locationId);
         int universityLocation = (zOrderLocation << 24) | (randomUniversityIdx << 12);
 		return universityLocation;
@@ -156,7 +147,6 @@ public class UniversityDictionary {
 		int zOrderlocationId = universityLocation >> 24;
 		int universityId = (universityLocation >> 12) & 0x0FFF;
 		int locationId = locationDic.getLocationIdFromZOrder(zOrderlocationId);
-		
 		return universitiesByLocation.get(locationId).get(universityId);
 	}
 }

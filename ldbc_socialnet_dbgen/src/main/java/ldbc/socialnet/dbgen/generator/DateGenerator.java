@@ -44,6 +44,7 @@ import java.util.Random;
 
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
 import ldbc.socialnet.dbgen.objects.UserProfile;
+import umontreal.iro.lecuyer.probdist.PowerDist;
 
 
 public class DateGenerator {
@@ -61,25 +62,15 @@ public class DateGenerator {
 	private long toBirthDay;
 	GregorianCalendar birthCalendar;
 	
-	private Random ranGen;
-	private Random ranClassYear;
-	private Random ranWorkingYear;
-	private Random thirtyDayRanGen;
-	private Random sevenDayRanGen;
-	private PowerDistGenerator disGen;
+	private PowerDist powerDist;
 	
 	// This constructor is for the case of friendship's created date generator
 	public DateGenerator(GregorianCalendar from, GregorianCalendar to, 
-			Long seed, Long seedForThirtyday, double alphaForPowerlaw)
+			double alpha)
 	{
 		this.from = from.getTimeInMillis();
 		this.to = to.getTimeInMillis();
-		ranGen = new Random(seed);
-		thirtyDayRanGen = new Random(seedForThirtyday);
-		sevenDayRanGen = new Random(seedForThirtyday);
-		disGen = new PowerDistGenerator(0.0, 1.0, alphaForPowerlaw, seed);
-		ranClassYear = new Random(seed);
-		ranWorkingYear = new Random(seed);
+		powerDist = new PowerDist(0.0, 1.0, alpha );
 		
 		// For birthday from 1980 to 1990
 		GregorianCalendar frombirthCalendar = new GregorianCalendar(1980,1,1);
@@ -92,9 +83,9 @@ public class DateGenerator {
 	/*
 	 * Date between from and to
 	 */
-	public GregorianCalendar randomDate()
+	public GregorianCalendar randomDate( Random random )
 	{
-		long date = (long)(ranGen.nextDouble()*(to-from)+from);
+		long date = (long)(random.nextDouble()*(to-from)+from);
 		GregorianCalendar gc = new GregorianCalendar();
 		gc.setTime(new Date(date));
 		
@@ -104,9 +95,9 @@ public class DateGenerator {
 	/*
 	 * Date between from and to
 	 */
-	public Long randomDateInMillis()
+	public Long randomDateInMillis( Random random )
 	{
-		long date = (long)(ranGen.nextDouble()*(to-from)+from);
+		long date = (long)(random.nextDouble()*(to-from)+from);
 		GregorianCalendar gc = new GregorianCalendar();
 		gc.setTime(new Date(date));
 		
@@ -222,40 +213,39 @@ public class DateGenerator {
 		return dateString + "T00:00:00";
 	}
 	
-	public Long randomDateInMillis(Long from, Long to)
+	public Long randomDateInMillis(Random random, Long from, Long to)
 	{
-		long date = (long)(ranGen.nextDouble()*(to-from)+from);
+		long date = (long)(random.nextDouble()*(to-from)+from);
 		GregorianCalendar gc = new GregorianCalendar();
 		gc.setTime(new Date(date));
 		
 		return gc.getTimeInMillis();
 	}
 	
-	public Long randomThirtyDaysSpan(Long from){
-		long randomSpanMilis =  (long) (thirtyDayRanGen.nextDouble()* (THIRTY_DAYS));
+	public Long randomThirtyDaysSpan(Random random, Long from){
+		long randomSpanMilis =  (long) (random.nextDouble()* (THIRTY_DAYS));
 		return (from + randomSpanMilis);
 	}
-	public long randomFriendRequestedDate(UserProfile user1, UserProfile user2){
+	public long randomFriendRequestedDate(Random random, UserProfile user1, UserProfile user2){
 		long fromDate = Math.max(user1.getCreationDate(), user2.getCreationDate());
-		
-		return randomThirtyDaysSpan(fromDate);
+		return randomThirtyDaysSpan(random, fromDate);
 	}
 	
-	public long randomFriendRequestedDate(ReducedUserProfile user1, ReducedUserProfile user2){
+	public long randomFriendRequestedDate(Random random, ReducedUserProfile user1, ReducedUserProfile user2){
 		long fromDate = Math.max(user1.getCreationDate(), user2.getCreationDate());
-		return randomThirtyDaysSpan(fromDate);
+		return randomThirtyDaysSpan(random,fromDate);
 	}
 	
-	public long randomFriendApprovedDate(long requestedDate){
-		long randomSpanMilis =  (long) (sevenDayRanGen.nextDouble()* (SEVEN_DAYS));
+	public long randomFriendApprovedDate(Random random, long requestedDate){
+		long randomSpanMilis =  (long) (random.nextDouble()* (SEVEN_DAYS));
 		return (requestedDate + randomSpanMilis);
 	}
-	public long randomFriendDeclinedDate(long requestedDate){
-		long randomSpanMilis =  (long) (sevenDayRanGen.nextDouble()* (SEVEN_DAYS));
+	public long randomFriendDeclinedDate(Random random, long requestedDate){
+		long randomSpanMilis =  (long) (random.nextDouble()* (SEVEN_DAYS));
 		return (requestedDate + randomSpanMilis);
 	}
-	public long randomFriendReapprovedDate(long declined){
-		long randomSpanMilis =  (long) (thirtyDayRanGen.nextDouble()* (THIRTY_DAYS));
+	public long randomFriendReapprovedDate(Random random, long declined){
+		long randomSpanMilis =  (long) (random.nextDouble()* (THIRTY_DAYS));
 		return (declined + randomSpanMilis);
 	}	
 	public long numberOfMonths(ReducedUserProfile user){
@@ -266,60 +256,43 @@ public class DateGenerator {
 		return (to - fromDate)/THIRTY_DAYS;
 	}
 	
-	public long randomPhotoAlbumCreatedDate(ReducedUserProfile user){
-		long createdDate = (long)(ranGen.nextDouble()*(to-user.getCreationDate())+user.getCreationDate());
- 
-		return createdDate; 
+	public long randomPhotoAlbumCreatedDate(Random random, ReducedUserProfile user){
+		return  (long)(random.nextDouble()*(to-user.getCreationDate())+user.getCreationDate());
 	}
 
-	public long randomGroupCreatedDate(ReducedUserProfile user){
-		long createdDate = (long)(ranGen.nextDouble()*(to-user.getCreationDate())+user.getCreationDate());
- 
-		return createdDate; 
+	public long randomGroupCreatedDate(Random random, ReducedUserProfile user){
+		return  (long)(random.nextDouble()*(to-user.getCreationDate())+user.getCreationDate());
 	}
 
-	public long randomGroupMemberJoinDate(long groupCreateDate, long userCreatedDate){
+	public long randomGroupMemberJoinDate(Random random, long groupCreateDate, long userCreatedDate){
 		long earliestJoinDate = Math.max(groupCreateDate, userCreatedDate);
-		long joinDate = (long)(ranGen.nextDouble()*(to - earliestJoinDate) + earliestJoinDate);
- 
-		return joinDate; 
+	    return  (long)(random.nextDouble()*(to - earliestJoinDate) + earliestJoinDate);
 	}
 	
-	public long randomPostCreatedDate(long minDate){
-		long createdDate = (long)(ranGen.nextDouble()*(to-minDate)+minDate);
-		return createdDate; 
+	public long randomPostCreatedDate(Random random, long minDate){
+		return (long)(random.nextDouble()*(to-minDate)+minDate);
 	}
 	
 	public long powerlawPostCreatedDate(UserProfile user){
-		long createdDate = (long)(disGen.getDouble()*(to-user.getCreationDate())+user.getCreationDate());
- 
-		return createdDate; 
+		return (long)(powerDist.getDouble()*(to-user.getCreationDate())+user.getCreationDate());
 	}
 	
-	public long randomCommentCreatedDate(long lastCommentCreatedDate){
-		long createdDate = (long)(ranGen.nextDouble()*(to-lastCommentCreatedDate)+lastCommentCreatedDate);
-		
-		return createdDate;
-
+	public long randomCommentCreatedDate(Random random, long lastCommentCreatedDate){
+		return (long)(random.nextDouble()*(to-lastCommentCreatedDate)+lastCommentCreatedDate);
 	}
 	
 	//Assume that this powerlaw generate powerlaw value between 0 - 1 
-	public long powerlawCommentCreatDate(long lastCommentCreatedDate){
-		long createdDate = (long)(disGen.getDouble() *(to-lastCommentCreatedDate)+lastCommentCreatedDate);
-		
-		return createdDate; 
+	public long powerlawCommentCreatDate( long lastCommentCreatedDate){
+		return (long)(powerDist.getDouble() *(to-lastCommentCreatedDate)+lastCommentCreatedDate);
 	}
 	
 	public long powerlawCommDateDay(long lastCommentCreatedDate){
-		long createdDate = (long)(disGen.getDouble() * ONE_DAY+lastCommentCreatedDate);
-		
-		return createdDate; 
+		return (long)(powerDist.getDouble() * ONE_DAY+lastCommentCreatedDate);
 	}
 
 	// The birthday is fixed during 1980 --> 1990
-	public long getBirthDay(long userCreatedDate){
-		long date = (long)(ranGen.nextDouble()*(toBirthDay -fromBirthDay)+fromBirthDay);
-		return date;
+	public long getBirthDay(Random random, long userCreatedDate){
+		return (long)(random.nextDouble()*(toBirthDay -fromBirthDay)+fromBirthDay);
 	}
 	
 	public int getBirthYear(long birthDay){
@@ -335,32 +308,32 @@ public class DateGenerator {
 	//Randomly get the age when user graduate
 	//User's age for graduating is from 20 to 30
 
-	public long getClassYear(long userCreatedDate, long birthday){
+	public long getClassYear(Random random, long userCreatedDate, long birthday){
 		long age;
-		long graduateage = (ranClassYear.nextInt(5) + 20) * ONE_YEAR; 
+		long graduateage = (random.nextInt(5) + 20) * ONE_YEAR; 
 		if (birthday != -1){
 			return (long)(birthday + graduateage); 
 		}
 		else{
-			age = (long)(ranGen.nextDouble() * THIRTY_YEARS + TEN_YEARS);
+			age = (long)(random.nextDouble() * THIRTY_YEARS + TEN_YEARS);
 			return (userCreatedDate - age + graduateage);
 		}
 	}
 	
-	public long getWorkFromYear(long userCreatedDate, long birthday){
+	public long getWorkFromYear(Random random, long userCreatedDate, long birthday){
 		long age;
-		long workingage = (ranClassYear.nextInt(10) + 25) * ONE_YEAR; 
+		long workingage = (random.nextInt(10) + 25) * ONE_YEAR; 
 		if (birthday != -1){
 			return (long)(birthday + workingage); 
 		}
 		else{
-			age = (long)(ranGen.nextDouble() * THIRTY_YEARS + TEN_YEARS);
+			age = (long)(random.nextDouble() * THIRTY_YEARS + TEN_YEARS);
 			return (userCreatedDate - age + workingage);
 		}
 	}
 	
-	public long getWorkFromYear(long classYear){
-		return (classYear + (long)(ranWorkingYear.nextDouble()*TWO_YEARS));
+	public long getWorkFromYear(Random random, long classYear){
+		return (classYear + (long)(random.nextDouble()*TWO_YEARS));
 	}
 	
 	public long getStartDateTime(){
