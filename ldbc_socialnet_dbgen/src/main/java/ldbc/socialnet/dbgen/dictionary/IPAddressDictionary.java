@@ -72,7 +72,7 @@ public class IPAddressDictionary {
     double probDiffIPforTraveller;
 	
 	public IPAddressDictionary(String _mappingFileName, String _baseIPdir, LocationDictionary locationDic, 
-								long seedIP, double _probDiffIPinTravelSeason, 
+								double _probDiffIPinTravelSeason, 
 								double _probDiffIPnotTravelSeason, double _probDiffIPforTraveller){
 		this.mappingFileName = _mappingFileName;
 		this.baseIPdir = _baseIPdir;
@@ -84,10 +84,6 @@ public class IPAddressDictionary {
 		probDiffIPinTravelSeason = _probDiffIPinTravelSeason; 
 		probDiffIPnotTravelSeason = _probDiffIPnotTravelSeason;
 		probDiffIPforTraveller = _probDiffIPforTraveller;
-		
-		randIP = new Random(seedIP);
-		randDiffIP = new Random(seedIP);
-		randDiffIPforTravellers = new Random(seedIP);
 	}
 	
 	public void initialize() {
@@ -162,7 +158,7 @@ public class IPAddressDictionary {
 	public IP getRandomIP(Random random) {
 	    Vector<Integer> countries = locationDic.getCountries();
         int randomLocationIdx = random.nextInt(countries.size());
-		return getRandomIPFromLocation(randomLocationIdx);
+		return getRandomIPFromLocation(random, randomLocationIdx);
 	}
 	
 	private boolean changeUsualIp(Random random, boolean isFrequentChange, long date) {

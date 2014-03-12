@@ -51,10 +51,7 @@ public class TagMatrix {
     Vector<Vector<Double>> vecCumulative;
     Vector<Vector<Integer>> vecTopicID;
     
-    Random  rnd;
-    Random  rnd2;
-    
-    public TagMatrix(String dicFileName, int numCelebrities, long seed){
+    public TagMatrix(String dicFileName, int numCelebrities){
         
         this.dicFileName = dicFileName;
         
@@ -64,9 +61,6 @@ public class TagMatrix {
             vecCumulative.add(new Vector<Double>());
             vecTopicID.add(new Vector<Integer>());
         }
-        
-        rnd  = new Random(seed);
-        rnd2 = new Random(seed);
     }
     
     public void initMatrix() {
@@ -89,20 +83,19 @@ public class TagMatrix {
     }
     
     // Combine the main tag and related tags
-    public TreeSet<Integer> getSetofTags(int celebrityId, int numTags){
+    public TreeSet<Integer> getSetofTags(Random random, int celebrityId, int numTags){
         TreeSet<Integer> resultTags = new TreeSet<Integer>();
         resultTags.add(celebrityId);
-        
         while (resultTags.size() < numTags) {
             int tagId; 
             tagId = celebrityId; 
             
             while (vecTopicID.get(tagId).size() == 0) {
-                tagId = rnd.nextInt(vecTopicID.size());
+                tagId = random.nextInt(vecTopicID.size());
             }
 
             // Doing binary search for finding the tag
-            double randomDis = rnd2.nextDouble(); 
+            double randomDis = random.nextDouble(); 
             int lowerBound = 0;
             int upperBound = vecTopicID.get(tagId).size();
             int midPoint = (upperBound + lowerBound)  / 2;
@@ -115,10 +108,8 @@ public class TagMatrix {
                 }
                 midPoint = (upperBound + lowerBound)  / 2;
             }
-            
             resultTags.add(vecTopicID.get(tagId).get(midPoint));
         }
-        
         return resultTags;    
     }
 }

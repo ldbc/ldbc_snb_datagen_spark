@@ -340,40 +340,49 @@ public class ScalableGenerator{
     int 				maxNumComments;
 
 
-    Random              randomNumberGenerator;
-    PowerDist           friendshipPowerDist;
-    PowerDist           tagPowerDist;
 
     // Random values generators
-    /*PowerDistGenerator 	randomPowerLaw;
-      PowerDistGenerator  randomTagPowerLaw;
-      Long[] 				seeds;
-      Random 				randomUniform;
-      Random 				randomNumInterests;
-      Random 				randomNumTags;
-      Random 				randomFriendIdx;
-      Random 				randomNumComments;
-      Random 				randomNumPhotoAlbums;
-      Random 				randomNumPhotos;
-      Random 				randomNumGroups;
-      Random 				randomNumUsersPerGroup;
-      Random 				randomGender;
-      Random				randomUserRandomIdx;	   // For generating the random dimension
-      Random              randomNumPopularPlaces; 
-      Random              randomFriendLevelSelect; // For select an level of moderator's friendship
-      Random              randomMembership;        // For deciding whether or not a user is joined
-      Random              randomMemberIdxSelector;
-      Random              randomGroupMemStep;
-      Random              randomGroupModerator;    // Decide whether a user can be moderator of groups or not
-      Random              randomExtraInfo;
-      Random              randomExactLongLat;
-      Random              randomHaveStatus;
-      Random              randomStatusSingle;
-      Random              randomStatus;
-      Random              randomUserAgent;
-      Random              randomFileSelect;
-      Random              randomIdsInWindow;
-      */
+    PowerDistGenerator 	randomPowerLaw;
+    PowerDistGenerator  randomTagPowerLaw;
+    Long[] 				seeds;
+    Random              randomDate;
+    Random              randomBirthDay;
+    Random              randomFriendRequest;
+    Random 				randomUniform;
+    Random 				randomNumInterests;
+    Random 				randomNumTags;
+    Random 				randomFriendIdx;
+    Random 				randomNumComments;
+    Random 				randomNumPhotoAlbums;
+    Random 				randomNumPhotos;
+    Random 				randomNumGroups;
+    Random 				randomNumUsersPerGroup;
+    Random 				randomGender;
+    Random				randomUserRandomIdx;	   // For generating the random dimension
+    Random              randomNumPopularPlaces; 
+    Random              randomFriendLevelSelect; // For select an level of moderator's friendship
+    Random              randomMembership;        // For deciding whether or not a user is joined
+    Random              randomMemberIdxSelector;
+    Random              randomGroupMemStep;
+    Random              randomGroupModerator;    // Decide whether a user can be moderator of groups or not
+    Random              randomExtraInfo;
+    Random              randomExactLongLat;
+    Random              randomHaveStatus;
+    Random              randomStatusSingle;
+    Random              randomStatus;
+    Random              randomUserAgent;
+    Random              randomFileSelect;
+    Random              randomIdsInWindow;
+    Random              randomIP;
+    Random              randomBrowser;
+    Random              randomCity;
+    Random              randomTag;
+    Random              randomUniversity;
+    Random              randomUserAgent;
+    Random              randomPopular;
+    Random              randomEmail;
+    Random              randomCompany;
+    Random              randomLanguage;
 
     DateGenerator 		dateTimeGenerator;
     int					startYear;
@@ -684,41 +693,51 @@ public class ScalableGenerator{
             System.exit(-1);
         }
 
-        randomNumberGenerator   = new Random();
-        friendshipPowerDist     = new PowerDist(minNumFriends, maxNumFriends + 1, alpha);  
-        tagPowerDist            = new PowerDist(minNumTagsPerUser, maxNumTagsPerUser + 1, alpha);  
-        /*seedGenerate(mapId);
-          randomPowerLaw    = new PowerDistGenerator(minNumFriends,     maxNumFriends + 1,     alpha, seeds[2]);
-          randomTagPowerLaw = new PowerDistGenerator(minNumTagsPerUser, maxNumTagsPerUser + 1, alpha, seeds[2]);
-          randomUniform = new Random(seeds[3]);
-          randomGender = new Random(seeds[3]);
-          randomNumInterests = new Random(seeds[4]);
-          randomNumTags = new Random(seeds[4]);
-          randomFriendIdx = new Random(seeds[6]);
-          randomFileSelect = new Random(seeds[7]);
-          randomIdsInWindow = new Random(seeds[8]);
-          randomNumComments = new Random(seeds[10]);
-          randomNumPhotoAlbums = new Random(seeds[11]);
-          randomNumPhotos = new Random(seeds[12]);
-          randomNumGroups = new Random(seeds[13]);
-          randomNumUsersPerGroup = new Random(seeds[14]);
-          randomMemberIdxSelector = new Random(seeds[18]);
-          randomGroupMemStep = new Random(seeds[19]);
-          randomFriendLevelSelect = new Random(seeds[20]);
-          randomMembership = new Random(seeds[21]);
-          randomGroupModerator = new Random(seeds[22]);
-          randomExtraInfo = new Random(seeds[27]);
-          randomExactLongLat = new Random(seeds[27]);
-          randomUserAgent = new Random(seeds[29]);
-          randomFriendReject = new Random(seeds[37]);
-          randomFriendAproval = new Random(seeds[38]);
-          randomInitiator = new Random(seeds[39]);
-          randomHaveStatus = new Random(seeds[41]);
-          randomStatusSingle = new Random(seeds[42]);
-          randomStatus = new Random(seeds[43]);
-          randomNumPopularPlaces = new Random(seeds[47]);
-          randomUserRandomIdx = new Random(seeds[48]);
-          */
+        seedGenerate(mapId);
+        randomDate = new Random(seeds[1]);
+        randomBirthDay = new Random(seeds[2]);
+        randomFriendRequest = new Random(seeds[3]);
+        randomPowerLaw    = new PowerDistGenerator(minNumFriends,     maxNumFriends + 1,     alpha, seeds[2]);
+        randomTagPowerLaw = new PowerDistGenerator(minNumTagsPerUser, maxNumTagsPerUser + 1, alpha, seeds[2]);
+        randomUniform = new Random(seeds[3]);
+        randomGender = new Random(seeds[3]);
+        randomNumInterests = new Random(seeds[4]);
+        randomNumTags = new Random(seeds[4]);
+        randomFriendIdx = new Random(seeds[6]);
+        randomFileSelect = new Random(seeds[7]);
+        randomIdsInWindow = new Random(seeds[8]);
+        randomNumComments = new Random(seeds[10]);
+        randomNumPhotoAlbums = new Random(seeds[11]);
+        randomNumPhotos = new Random(seeds[12]);
+        randomNumGroups = new Random(seeds[13]);
+        randomNumUsersPerGroup = new Random(seeds[14]);
+        randomMemberIdxSelector = new Random(seeds[18]);
+        randomGroupMemStep = new Random(seeds[19]);
+        randomFriendLevelSelect = new Random(seeds[20]);
+        randomMembership = new Random(seeds[21]);
+        randomGroupModerator = new Random(seeds[22]);
+        randomExtraInfo = new Random(seeds[27]);
+        randomExactLongLat = new Random(seeds[27]);
+        randomUserAgent = new Random(seeds[29]);
+        randomFriendReject = new Random(seeds[37]);
+        randomFriendAproval = new Random(seeds[38]);
+        randomInitiator = new Random(seeds[39]);
+        randomHaveStatus = new Random(seeds[41]);
+        randomStatusSingle = new Random(seeds[42]);
+        randomStatus = new Random(seeds[43]);
+        randomNumPopularPlaces = new Random(seeds[47]);
+        randomUserRandomIdx = new Random(seeds[48]);
+        randomIP = new Random(seeds[49]);
+        randomBrowser = new Random(seeds[49]);
+        randomBrowser = new Random(seeds[49]);
+        randomCity = new Random(seeds[49]);
+        randomTag = new Random(seeds[49]);
+        randomUniversity = new Random(seeds[49]);
+        randomUserAgent = new Random(seeds[49]);
+        randomPopular = new Random(seeds[49]);
+        randomEmail = new Random(seeds[49]);
+        randomCompany = new Random(seeds[49]);
+        randomLanguage = new Random(seeds[49]);
 
         // Initializing window memory
         reducedUserProfiles = new ReducedUserProfile[windowSize];
@@ -732,26 +751,24 @@ public class ScalableGenerator{
         locationDictionary = new LocationDictionary(numtotalUser, countryDictionaryFile, cityDictionaryFile);
         locationDictionary.init();
 
-/*        System.out.println("Building language dictionary ");
+        System.out.println("Building language dictionary ");
         languageDictionary = new LanguageDictionary(languageDictionaryFile, locationDictionary, 
-                probEnglish, probSecondLang, seeds[11]);
+                probEnglish, probSecondLang);
         languageDictionary.init();
-        */
 
         System.out.println("Building Tag dictionary ");
         tagDictionary = new TagDictionary(tagNamesFile, tagDictionaryFile, tagClassFile, tagHierarchyFile,
                 locationDictionary.getCountries().size(), tagCountryCorrProb);
         tagDictionary.initialize();
 
-        /*System.out.println("Building Tag-text dictionary ");
+        System.out.println("Building Tag-text dictionary ");
         tagTextDictionary = new TagTextDictionary(tagTextFile, dateTimeGenerator, tagDictionary,
-                ratioReduceText, seeds[15], seeds[16]);
+                ratioReduceText);
         tagTextDictionary.initialize();
 
         System.out.println("Building Tag Matrix dictionary ");
-        topicTagDictionary = new TagMatrix(topicTagDictionaryFile, tagDictionary.getNumCelebrity() , seeds[5]);
+        topicTagDictionary = new TagMatrix(topicTagDictionaryFile, tagDictionary.getNumCelebrity());
         topicTagDictionary.initMatrix();
-        */
 
         System.out.println("Building IP addresses dictionary ");
         ipAddDictionary = new IPAddressDictionary(countryAbbrMappingFile,
@@ -791,20 +808,21 @@ public class ScalableGenerator{
         userAgentDictionary = new UserAgentDictionary(agentFile, probSentFromAgent);
         userAgentDictionary.init();
 
-        /*System.out.println("Building photo generator");
+        // Building generators.
+        
+        System.out.println("Building photo generator");
         photoGenerator = new PhotoGenerator(dateTimeGenerator,
-                locationDictionary, seeds[17], popularDictionary, probPopularPlaces);
+                locationDictionary, 0, popularDictionary, probPopularPlaces);
 
         System.out.println("Building Group generator");
         groupGenerator = new GroupGenerator(dateTimeGenerator, locationDictionary,
-                tagDictionary, numtotalUser, seeds[35]);
-                */
+                tagDictionary, numtotalUser, 0);
 
 
 
         /// IMPORTANT: ratioLargeText is divided 0.083333, the probability 
         /// that SetUserLargePoster returns true.
-/*        System.out.println("Building Uniform Post Generator");
+        System.out.println("Building Uniform Post Generator");
         uniformPostGenerator = new UniformPostGenerator( tagTextDictionary, 
                 userAgentDictionary,
                 ipAddDictionary,
@@ -816,16 +834,16 @@ public class ScalableGenerator{
                 maxLargePostSize,
                 ratioLargePost/0.0833333,
                 maxNumLikes,
-                seeds[15],
-                seeds[16],
+                0,
+                0,
                 dateTimeGenerator,
                 maxNumPostPerMonth,
                 maxNumFriends,
                 maxNumGroupPostPerMonth,
                 maxNumMemberGroup,
-                seeds[3],
-                seeds[9],
-                seeds[36] );
+                0,
+                0,
+                0 );
         uniformPostGenerator.initialize();
 
         System.out.println("Building Flashmob Tag Dictionary");
@@ -837,7 +855,7 @@ public class ScalableGenerator{
                 flashmobTagMinLevel,
                 flashmobTagMaxLevel,
                 flashmobTagDistExp,
-                seeds[16]
+                0 
                 );
         flashmobTagDictionary.initialize();
 
@@ -857,8 +875,8 @@ public class ScalableGenerator{
                 maxLargePostSize,
                 ratioLargePost/0.0833333, 
                 maxNumLikes,
-                seeds[15],
-                seeds[16],
+                0,
+                0,
                 dateTimeGenerator,
                 flashmobTagDictionary,
                 postPerLevelScaleFactor,
@@ -872,9 +890,8 @@ public class ScalableGenerator{
         commentGenerator = new CommentGenerator(tagTextDictionary, dateTimeGenerator,
                 minCommentSize, maxCommentSize, ratioReduceText,
                 minLargeCommentSize, maxLargeCommentSize, ratioLargeComment/0.0833333,
-                seeds[15], seeds[16]);
+                0, 0);
         commentGenerator.initialize();
-        */
 
         serializer = getSerializer(serializerType, RDF_OUTPUT_FILE);
     }
@@ -1278,11 +1295,10 @@ public class ScalableGenerator{
 
                         photo.setUserAgent(userAgentDictionary.getUserAgentName(user.isHaveSmartPhone(), user.getAgentIdx()));
                         photo.setBrowserIdx(browserDictonry.getPostBrowserId(user.getBrowserIdx()));
-                        photo.setIpAddress(ipAddDictionary.getIP(randomNumberGenerator,user.getIpAddress(), 
+                        photo.setIpAddress(ipAddDictionary.getIP(randomIP,user.getIpAddress(), 
                                     user.isFrequentChange(), photo.getTakenTime(), photo.getLocationId()));
                         String countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(photo.getIpAddress())));
                         stats.countries.add(countryName);
-
                         serializer.gatherData(photo);
                     }
                 }
@@ -1430,30 +1446,29 @@ public class ScalableGenerator{
                 }
 
 
-                /*public void seedGenerate(int mapIdx) {
+                public void seedGenerate(int mapIdx) {
                   seeds = new Long[50];
                   Random seedRandom = new Random(53223436L + 1234567*mapIdx);
                   for (int i = 0; i < 50; i++) {
-                  seeds[i] = seedRandom.nextLong();
+                      seeds[i] = seedRandom.nextLong();
                   }
                 }
-                */
 
                 public UserProfile generateGeneralInformation(int accountId) {
 
                     // User Creation
-                    long creationDate = dateTimeGenerator.randomDateInMillis( randomNumberGenerator );
+                    long creationDate = dateTimeGenerator.randomDateInMillis( randomDate );
                     int locationId = locationDictionary.getLocation(accountId);
                     UserProfile userProf = new UserProfile( 
                             accountId,
                             creationDate,
                             (randomGender.nextDouble() > 0.5) ? (byte)1 : (byte)0,
-                            dateTimeGenerator.getBirthDay(randomNumberGenerator, creationDate),
-                            browserDictonry.getRandomBrowserId(),
+                            dateTimeGenerator.getBirthDay(randomBirthDay, creationDate),
+                            browserDictonry.getRandomBrowserId(randomBrowser),
                             locationId,
                             locationDictionary.getZorderID(locationId),
-                            locationDictionary.getRandomCity(locationId),
-                            ipAddDictionary.getRandomIPFromLocation(locationId),
+                            locationDictionary.getRandomCity(randomCity,locationId),
+                            ipAddDictionary.getRandomIPFromLocation(randomIP,locationId),
                             accountId*2);
 
                     userProf.setNumFriends((short) randomPowerLaw.getValue());
@@ -1472,12 +1487,12 @@ public class ScalableGenerator{
                     userProf.setMainTagId(userMainTag);
                     short numTags = ((short) randomTagPowerLaw.getValue());
                     userProf.setSetOfTags(topicTagDictionary.getSetofTags(userMainTag, numTags));
-                    userProf.setUniversityLocationId(unversityDictionary.getRandomUniversity(userProf.getLocationId()));
+                    userProf.setUniversityLocationId(unversityDictionary.getRandomUniversity(randomUniversity,userProf.getLocationId()));
 
                     // Set wether the user has a smartphone or not. 
                     userProf.setHaveSmartPhone(randomUserAgent.nextDouble() > probHavingSmartPhone);
                     if (userProf.isHaveSmartPhone()) {
-                        userProf.setAgentId(userAgentDictionary.getRandomUserAgentIdx());
+                        userProf.setAgentId(userAgentDictionary.getRandomUserAgentIdx(randomAgent));
                     }
 
                     // Compute the popular places the user uses to visit. 
@@ -1576,11 +1591,11 @@ public class ScalableGenerator{
                         userExtraInfo.setGender(gender[1]); // female
                     }
 
-                    userExtraInfo.setFirstName(namesDictionary.getRandomGivenName(
+                    userExtraInfo.setFirstName(namesDictionary.getRandomGivenName(randomName,
                                 user.getLocationId(),isMale, 
                                 dateTimeGenerator.getBirthYear(user.getBirthDay())));
 
-                    userExtraInfo.setLastName(namesDictionary.getRandomSurname(user.getLocationId()));
+                    userExtraInfo.setLastName(namesDictionary.getRandomSurname(randomSurname,user.getLocationId()));
 
                     // email is created by using the user's first name + userId
                     int numEmails = randomExtraInfo.nextInt(maxEmails) + 1;
@@ -1593,7 +1608,7 @@ public class ScalableGenerator{
                         base = base.replaceAll("[.]+", ".");
 
                         for (int i = 0; i < numEmails; i++) {
-                            String email = base + "" + user.getAccountId() + "@" + emailDictionary.getRandomEmail();
+                            String email = base + "" + user.getAccountId() + "@" + emailDictionary.getRandomEmail(randomEmail);
                             userExtraInfo.addEmail(email);
                         }
                     }
@@ -1614,13 +1629,13 @@ public class ScalableGenerator{
                         for (int i = 0; i < numCompanies; i++) {
                             long workFrom;
                             if (userExtraInfo.getClassYear() != -1) {
-                                workFrom = dateTimeGenerator.getWorkFromYear( randomNumberGenerator, 
+                                workFrom = dateTimeGenerator.getWorkFromYear( randomDate, 
                                                                               user.getCreationDate(), 
                                                                               user.getBirthDay());
                             } else {
-                                workFrom = dateTimeGenerator.getWorkFromYear(randomNumberGenerator, userExtraInfo.getClassYear());
+                                workFrom = dateTimeGenerator.getWorkFromYear(randomDate, userExtraInfo.getClassYear());
                             }
-                            String company = companiesDictionary.getRandomCompany(user.getLocationId());
+                            String company = companiesDictionary.getRandomCompany(randomCompany,user.getLocationId());
                             userExtraInfo.addCompany(company, workFrom);
                             String countryName = locationDictionary.getLocationName(companiesDictionary.getCountry(company));
                             stats.countries.add(countryName);
@@ -1682,16 +1697,16 @@ public class ScalableGenerator{
                 }
 
                 public void createFriendShip(ReducedUserProfile user1, ReducedUserProfile user2, byte pass) {
-                    long requestedTime = dateTimeGenerator.randomFriendRequestedDate(randomNumberGenerator,user1, user2);
+                    long requestedTime = dateTimeGenerator.randomFriendRequestedDate(randomFriendRequest,user1, user2);
                     byte initiator = (byte) randomInitiator.nextInt(2);
                     long createdTime = -1;
                     long declinedTime = -1;
                     if (randomFriendReject.nextDouble() > friendRejectRatio) {
-                        createdTime = dateTimeGenerator.randomFriendApprovedDate(randomNumberGenerator,requestedTime);
+                        createdTime = dateTimeGenerator.randomFriendApprovedDate(randomFriendApproval,requestedTime);
                     } else {
-                        declinedTime = dateTimeGenerator.randomFriendDeclinedDate(randomNumberGenerator,requestedTime);
+                        declinedTime = dateTimeGenerator.randomFriendDeclinedDate(randomFriendReject,requestedTime);
                         if (randomFriendAproval.nextDouble() < friendReApproveRatio) {
-                            createdTime = dateTimeGenerator.randomFriendReapprovedDate(randomNumberGenerator,declinedTime);
+                            createdTime = dateTimeGenerator.randomFriendReapprovedDate(randomDate,declinedTime);
                         }
                     }
 

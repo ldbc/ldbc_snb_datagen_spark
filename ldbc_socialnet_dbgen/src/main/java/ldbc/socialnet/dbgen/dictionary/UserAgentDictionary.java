@@ -39,8 +39,8 @@ package ldbc.socialnet.dbgen.dictionary;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Random;
 import java.util.Vector;
+import java.util.Random;
 
 
 public class UserAgentDictionary {
@@ -50,22 +50,15 @@ public class UserAgentDictionary {
 	Vector<String> userAgents;
 	double probSentFromAgent; 
 	
-	Random randGen;
-	Random randSentFrom;
-	
-	public UserAgentDictionary(String fileName, long seed, long seed2, double probSentFromAgent){
+	public UserAgentDictionary(String fileName, double probSentFromAgent){
 		this.fileName = fileName; 
 		this.probSentFromAgent = probSentFromAgent;
-		
-		randGen = new Random(seed);
-        randSentFrom = new Random(seed2);
 	}
 	
 	public void init(){
 		try {
 		    userAgents = new Vector<String>();
 			BufferedReader agentFile = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));
-			
 			String line; 
 			while ((line = agentFile.readLine()) != null) {
 			    userAgents.add(line.trim());
@@ -77,11 +70,11 @@ public class UserAgentDictionary {
 		}
 	}
 	
-	public String getUserAgentName(boolean hasSmathPhone, byte agentId){
-		return (hasSmathPhone && (randSentFrom.nextDouble() > probSentFromAgent)) ? userAgents.get(agentId) : "";
+	public String getUserAgentName(Random random, boolean hasSmathPhone, byte agentId){
+		return (hasSmathPhone && (random.nextDouble() > probSentFromAgent)) ? userAgents.get(agentId) : "";
 	}
 	
-	public byte getRandomUserAgentIdx(){
-		return (byte)randGen.nextInt(userAgents.size());
+	public byte getRandomUserAgentIdx(Random random){
+		return (byte)random.nextInt(userAgents.size());
 	}	
 }

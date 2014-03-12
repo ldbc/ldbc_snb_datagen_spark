@@ -59,7 +59,7 @@ public class EmailDictionary {
      * @param fileName: The file with the email data.
      * @param seed: Seed for the random selector.
      */
-	public EmailDictionary(String fileName, long seed) {
+	public EmailDictionary(String fileName) {
 		this.fileName = fileName;
 	}
 	

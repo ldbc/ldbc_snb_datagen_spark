@@ -53,8 +53,7 @@ public class PopularPlacesDictionary {
     LocationDictionary locationDic;
 	HashMap<Integer, Vector<PopularPlace>> popularPlacesByLocations;
 	
-	public PopularPlacesDictionary(String dicFileName, LocationDictionary locationDic, 
-			long seedRandom){
+	public PopularPlacesDictionary(String dicFileName, LocationDictionary locationDic){
 		this.dicFileName = dicFileName; 
 		this.locationDic = locationDic; 
 	}

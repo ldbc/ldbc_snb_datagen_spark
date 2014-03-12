@@ -67,20 +67,14 @@ public class TagTextDictionary {
     TagDictionary tagDic;
 	HashMap<Integer, String> tagText;
 	
-	Random rand;
-	Random randTextSize;
-	Random randReducedText;
     double reducedTextRatio;
 	
 	public TagTextDictionary(String dicFileName, DateGenerator dateGen, TagDictionary tagDic, 
-	        double reduceTextRatio, long seed, long seedTextSize ){
+	        double reduceTextRatio){
 		this.dicFileName = dicFileName;
 		this.tagText = new HashMap<Integer, String>();
 		this.dateGen = dateGen;
 		this.tagDic = tagDic;
-		this.rand = new Random(seed);
-		this.randReducedText = new Random(seed);
-		this.randTextSize = new Random(seedTextSize);
 		this.reducedTextRatio = reducedTextRatio;
 	}
 	
@@ -103,18 +97,18 @@ public class TagTextDictionary {
 	    return tagText.get(id);
 	}
 
-    public String getRandomText(TreeSet<Integer> tags, int minSize, int maxSize ) {
+    public String getRandomText(Random random, TreeSet<Integer> tags, int minSize, int maxSize ) {
 
         int textSize;
         int startingPos;
         String returnString = "";
         
         // Generate random fragment from the content 
-        if (randReducedText.nextDouble() > reducedTextRatio){
-            textSize = randTextSize.nextInt(maxSize - minSize) + minSize;
+        if (random.nextDouble() > reducedTextRatio){
+            textSize = random.nextInt(maxSize - minSize) + minSize;
         }
         else{
-            textSize = randTextSize.nextInt((maxSize >> 1) - minSize) + minSize;
+            textSize = random.nextInt((maxSize >> 1) - minSize) + minSize;
         }
 
         int textSizePerTag = textSize / tags.size();
@@ -125,7 +119,7 @@ public class TagTextDictionary {
             if (textSizePerTag >= content.length()) {
                 returnString += content;
             } else {
-                startingPos = randTextSize.nextInt(content.length() - textSizePerTag);
+                startingPos = random.nextInt(content.length() - textSizePerTag);
                 String finalString = content.substring(startingPos, startingPos + textSizePerTag - 1);
                 
                 String tagName = tagDic.getName(tag).replace("_", " ");
@@ -149,8 +143,8 @@ public class TagTextDictionary {
         return returnString.replace("|", " ");
     }
 
-    public String getRandomLargeText(TreeSet<Integer> tags, int minSize, int maxSize) {
-       int textSize = rand.nextInt(maxSize - minSize) + minSize;
+    public String getRandomLargeText(Random random, TreeSet<Integer> tags, int minSize, int maxSize) {
+       int textSize = random.nextInt(maxSize - minSize) + minSize;
        String content = new String(); 
        Iterator<Integer> it = tags.iterator();
        while(content.length() < textSize) {
@@ -167,6 +161,5 @@ public class TagTextDictionary {
     }
     return content;
 }
-
 
 }

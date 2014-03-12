@@ -62,7 +62,7 @@ public class DateGenerator {
 	private long toBirthDay;
 	GregorianCalendar birthCalendar;
 	
-	private PowerDist powerDist;
+	private PowerDistGenerator powerDist;
 	
 	// This constructor is for the case of friendship's created date generator
 	public DateGenerator(GregorianCalendar from, GregorianCalendar to, 
@@ -70,7 +70,7 @@ public class DateGenerator {
 	{
 		this.from = from.getTimeInMillis();
 		this.to = to.getTimeInMillis();
-		powerDist = new PowerDist(0.0, 1.0, alpha );
+		powerDist = new PowerDistGenerator(0.0, 1.0, alpha );
 		
 		// For birthday from 1980 to 1990
 		GregorianCalendar frombirthCalendar = new GregorianCalendar(1980,1,1);
