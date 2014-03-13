@@ -137,18 +137,18 @@ public class CommentGenerator {
         String content;
         if( user.isLargePoster() ) {
             if( randLargeComment.nextDouble() > (1.0f-largeCommentRatio) ) {
-                content = tagTextDic.getRandomLargeText(post.getTags(), minLargeSizeOfComment, maxLargeSizeOfComment);
+                content = tagTextDic.getRandomLargeText(rand,post.getTags(), minLargeSizeOfComment, maxLargeSizeOfComment);
             } else {
-                content = tagTextDic.getRandomText(post.getTags(), minSizeOfComment, maxSizeOfComment);
+                content = tagTextDic.getRandomText(rand,post.getTags(), minSizeOfComment, maxSizeOfComment);
             }
         } else {
-            content = tagTextDic.getRandomText(post.getTags(), minSizeOfComment, maxSizeOfComment);
+            content = tagTextDic.getRandomText(rand,post.getTags(), minSizeOfComment, maxSizeOfComment);
         }
 
         commentId++;
         int friendIdx = rand.nextInt(validIds.size());
         Friend friend = user.getFriendList()[friendIdx];
-        long creationDate = dateGen.powerlawCommDateDay(lastCommentCreatedDate);
+        long creationDate = dateGen.powerlawCommDateDay(rand,lastCommentCreatedDate);
         Comment comment = new Comment( commentId,
                                        content,
                                        post.getPostId(),
@@ -156,9 +156,9 @@ public class CommentGenerator {
                                        creationDate,
                                        post.getGroupId(),
                                        getReplyToId(startCommentId, lastCommentId),
-                                       ipAddDic.getIP(friend.getSourceIp(), friend.isFrequentChange(), creationDate),
-                                       userAgentDic.getUserAgentName(friend.isHaveSmartPhone(), friend.getAgentIdx()),
-                                       browserDic.getPostBrowserId(friend.getBrowserIdx()) );
+                                       ipAddDic.getIP(rand,friend.getSourceIp(), friend.isFrequentChange(), creationDate),
+                                       userAgentDic.getUserAgentName(rand,friend.isHaveSmartPhone(), friend.getAgentIdx()),
+                                       browserDic.getPostBrowserId(rand,friend.getBrowserIdx()) );
         return comment;
     }
     
@@ -184,16 +184,16 @@ public class CommentGenerator {
         String content;
         if( membership.isLargePoster() ) {
             if( randLargeComment.nextDouble() > (1.0f-largeCommentRatio) ) {
-                content = tagTextDic.getRandomLargeText(post.getTags(), minLargeSizeOfComment, maxLargeSizeOfComment);
+                content = tagTextDic.getRandomLargeText(rand,post.getTags(), minLargeSizeOfComment, maxLargeSizeOfComment);
             } else {
-                content = tagTextDic.getRandomText( post.getTags(), minSizeOfComment, maxSizeOfComment );
+                content = tagTextDic.getRandomText(rand, post.getTags(), minSizeOfComment, maxSizeOfComment );
             }
         } else {
-            content = tagTextDic.getRandomText( post.getTags(), minSizeOfComment, maxSizeOfComment );
+            content = tagTextDic.getRandomText(rand, post.getTags(), minSizeOfComment, maxSizeOfComment );
         }
 
         commentId++;
-        long creationDate = dateGen.powerlawCommDateDay(lastCommentCreatedDate);
+        long creationDate = dateGen.powerlawCommDateDay(rand,lastCommentCreatedDate);
         Comment comment = new Comment( commentId,
                                        content,
                                        post.getPostId(),
@@ -201,9 +201,9 @@ public class CommentGenerator {
                                        creationDate,
                                        post.getGroupId(),
                                        getReplyToId(startCommentId, lastCommentId),
-                                       ipAddDic.getIP(membership.getIP(), membership.isFrequentChange(), creationDate),
-                                       userAgentDic.getUserAgentName(membership.isHaveSmartPhone(), membership.getAgentIdx()),
-                                       browserDic.getPostBrowserId(membership.getBrowserIdx()));
+                                       ipAddDic.getIP(rand,membership.getIP(), membership.isFrequentChange(), creationDate),
+                                       userAgentDic.getUserAgentName(rand,membership.isHaveSmartPhone(), membership.getAgentIdx()),
+                                       browserDic.getPostBrowserId(rand,membership.getBrowserIdx()));
         return comment;
     }
 }

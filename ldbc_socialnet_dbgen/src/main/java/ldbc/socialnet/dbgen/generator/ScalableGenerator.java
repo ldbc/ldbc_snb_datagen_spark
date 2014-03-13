@@ -291,10 +291,7 @@ public class ScalableGenerator{
     int 					numberOfCellPerWindow;
     int	 					numtotalUser;
     int 					windowSize;
-    int 					lastCellPos;
     int 					lastCell;
-    int 					lastMapCellPos;
-    int 					lastMapCell;
     int 					startMapUserIdx;
     int						machineId;
 
@@ -327,9 +324,6 @@ public class ScalableGenerator{
 
     MRWriter			mrWriter; 
 
-    /*Random 				randomFriendReject;
-    Random 				randomFriendAproval;
-    Random 				randomInitiator;*/
     double 				baseProbCorrelated;
     double	 			limitProCorrelated; 
 
@@ -344,13 +338,19 @@ public class ScalableGenerator{
     // Random values generators
     PowerDistGenerator 	randomPowerLaw;
     PowerDistGenerator  randomTagPowerLaw;
-    Long[] 				seeds;
+
+    final int           numRandomGenerators = 50;
+    Random[]              randomGenerators;
     Random              randomDate;
     Random              randomBirthDay;
     Random              randomFriendRequest;
+    Random              randomFriendReject;
+    Random              randomFriendAproval;
+    Random              randomInitiator;
     Random 				randomUniform;
     Random 				randomNumInterests;
     Random 				randomNumTags;
+    Random              randomNumFriends;
     Random 				randomFriendIdx;
     Random 				randomNumComments;
     Random 				randomNumPhotoAlbums;
@@ -378,11 +378,14 @@ public class ScalableGenerator{
     Random              randomCity;
     Random              randomTag;
     Random              randomUniversity;
-    Random              randomUserAgent;
     Random              randomPopular;
     Random              randomEmail;
     Random              randomCompany;
     Random              randomLanguage;
+    Random              randomAlbum;
+    Random              randomGroup;
+    Random              randomName;
+    Random              randomSurname;
 
     DateGenerator 		dateTimeGenerator;
     int					startYear;
@@ -547,20 +550,12 @@ public class ScalableGenerator{
      * @param mapId: The hadoop reduce id.
      */
     public void init(int numMaps, int mapId){
-
         this.machineId = mapId;
         numFiles = numMaps;
         RDF_OUTPUT_FILE = "mr" + mapreduceFileIdx + "_" + RDF_OUTPUT_FILE;
-
         loadParamsFromFile();		
         _init(mapId);
-
-        System.out.println("Number of files " + numFiles);
-        System.out.println("Number of cells per file " + numCellPerfile);
-        System.out.println("Number of cells in last file " + numCellInLastFile);
-
         mrWriter = new MRWriter(cellSize, windowSize, sibOutputDir); 
-
     }
 
     /**
@@ -671,73 +666,62 @@ public class ScalableGenerator{
      */
     private void _init(int mapId) {
 
-        if (numtotalUser % cellSize != 0) {
-            System.err.println("Number of users should be a multiple of the cellsize");
-            System.exit(-1);
+
+        windowSize = cellSize * numberOfCellPerWindow;                          // We compute the size of the window.
+
+        randomPowerLaw    = new PowerDistGenerator(minNumFriends,     maxNumFriends + 1,     alpha);
+        randomTagPowerLaw = new PowerDistGenerator(minNumTagsPerUser, maxNumTagsPerUser + 1, alpha);
+
+        randomGenerators = new Random[numRandomGenerators];
+        for( int i = 0; i < numRandomGenerators; ++i) {
+            randomGenerators[i] = new Random();
         }
-
-        windowSize = cellSize * numberOfCellPerWindow;
-
-        lastCellPos     = (numtotalUser - windowSize) / cellSize;
-        lastCell        = (numtotalUser / cellSize) - 1; // The last cell of the sliding process
-        lastMapCellPos  = (numtotalUser / numMaps - windowSize) / cellSize;
-        lastMapCell     = (numtotalUser / (numMaps * cellSize)) - 1;
-        startMapUserIdx = (numtotalUser / numMaps) * mapId; 
-
-        // For multiple output files
-        numCellPerfile    = (lastCell + 1) / numFiles;
-        numCellInLastFile = (lastCell + 1) - numCellPerfile * (numFiles - 1);
-
-        if (numCellPerfile < numberOfCellPerWindow) {
-            System.err.println("The number of Cell per file should be greater than that of a window ");
-            System.exit(-1);
-        }
-
-        seedGenerate(mapId);
-        randomDate = new Random(seeds[1]);
-        randomBirthDay = new Random(seeds[2]);
-        randomFriendRequest = new Random(seeds[3]);
-        randomPowerLaw    = new PowerDistGenerator(minNumFriends,     maxNumFriends + 1,     alpha, seeds[2]);
-        randomTagPowerLaw = new PowerDistGenerator(minNumTagsPerUser, maxNumTagsPerUser + 1, alpha, seeds[2]);
-        randomUniform = new Random(seeds[3]);
-        randomGender = new Random(seeds[3]);
-        randomNumInterests = new Random(seeds[4]);
-        randomNumTags = new Random(seeds[4]);
-        randomFriendIdx = new Random(seeds[6]);
-        randomFileSelect = new Random(seeds[7]);
-        randomIdsInWindow = new Random(seeds[8]);
-        randomNumComments = new Random(seeds[10]);
-        randomNumPhotoAlbums = new Random(seeds[11]);
-        randomNumPhotos = new Random(seeds[12]);
-        randomNumGroups = new Random(seeds[13]);
-        randomNumUsersPerGroup = new Random(seeds[14]);
-        randomMemberIdxSelector = new Random(seeds[18]);
-        randomGroupMemStep = new Random(seeds[19]);
-        randomFriendLevelSelect = new Random(seeds[20]);
-        randomMembership = new Random(seeds[21]);
-        randomGroupModerator = new Random(seeds[22]);
-        randomExtraInfo = new Random(seeds[27]);
-        randomExactLongLat = new Random(seeds[27]);
-        randomUserAgent = new Random(seeds[29]);
-        randomFriendReject = new Random(seeds[37]);
-        randomFriendAproval = new Random(seeds[38]);
-        randomInitiator = new Random(seeds[39]);
-        randomHaveStatus = new Random(seeds[41]);
-        randomStatusSingle = new Random(seeds[42]);
-        randomStatus = new Random(seeds[43]);
-        randomNumPopularPlaces = new Random(seeds[47]);
-        randomUserRandomIdx = new Random(seeds[48]);
-        randomIP = new Random(seeds[49]);
-        randomBrowser = new Random(seeds[49]);
-        randomBrowser = new Random(seeds[49]);
-        randomCity = new Random(seeds[49]);
-        randomTag = new Random(seeds[49]);
-        randomUniversity = new Random(seeds[49]);
-        randomUserAgent = new Random(seeds[49]);
-        randomPopular = new Random(seeds[49]);
-        randomEmail = new Random(seeds[49]);
-        randomCompany = new Random(seeds[49]);
-        randomLanguage = new Random(seeds[49]);
+        randomDate = randomGenerators[0]; 
+        randomBirthDay = randomGenerators[1]; 
+        randomFriendRequest = randomGenerators[2]; 
+        randomUniform = randomGenerators[3];
+        randomGender = randomGenerators[4];
+        randomNumInterests = randomGenerators[5];
+        randomNumTags = randomGenerators[6];
+        randomNumFriends = randomGenerators[7];
+        randomFriendIdx = randomGenerators[8];
+        randomFileSelect = randomGenerators[9];
+        randomIdsInWindow = randomGenerators[10];
+        randomNumComments = randomGenerators[11];
+        randomNumPhotoAlbums = randomGenerators[12];
+        randomNumPhotos = randomGenerators[13];
+        randomNumGroups = randomGenerators[14];
+        randomNumUsersPerGroup = randomGenerators[15];
+        randomMemberIdxSelector = randomGenerators[16];
+        randomGroupMemStep = randomGenerators[17];
+        randomFriendLevelSelect = randomGenerators[18];
+        randomMembership = randomGenerators[19];
+        randomGroupModerator = randomGenerators[20];
+        randomExtraInfo = randomGenerators[21];
+        randomExactLongLat = randomGenerators[22];
+        randomUserAgent = randomGenerators[23];
+        randomFriendReject = randomGenerators[24];
+        randomFriendAproval = randomGenerators[25];
+        randomInitiator = randomGenerators[26];
+        randomHaveStatus = randomGenerators[27];
+        randomStatusSingle = randomGenerators[28];
+        randomStatus = randomGenerators[29];
+        randomNumPopularPlaces = randomGenerators[30];
+        randomUserRandomIdx = randomGenerators[31];
+        randomIP = randomGenerators[32];
+        randomBrowser = randomGenerators[33];
+        randomBrowser = randomGenerators[34];
+        randomCity = randomGenerators[35];
+        randomTag = randomGenerators[36];
+        randomUniversity = randomGenerators[37];
+        randomPopular = randomGenerators[38];
+        randomEmail = randomGenerators[39];
+        randomCompany = randomGenerators[40];
+        randomLanguage = randomGenerators[41];
+        randomAlbum = randomGenerators[42];
+        randomGroup = randomGenerators[43];
+        randomName = randomGenerators[44];
+        randomSurname = randomGenerators[45];
 
         // Initializing window memory
         reducedUserProfiles = new ReducedUserProfile[windowSize];
@@ -767,7 +751,7 @@ public class ScalableGenerator{
         tagTextDictionary.initialize();
 
         System.out.println("Building Tag Matrix dictionary ");
-        topicTagDictionary = new TagMatrix(topicTagDictionaryFile, tagDictionary.getNumCelebrity());
+        topicTagDictionary = new TagMatrix(tagTopicDictionaryFile, tagDictionary.getNumCelebrity());
         topicTagDictionary.initMatrix();
 
         System.out.println("Building IP addresses dictionary ");
@@ -1051,6 +1035,14 @@ public class ScalableGenerator{
         }
     }
 
+
+    public void resetRandomGenerators( long seed ) {
+        Random seedRandom = new Random(53223436L + 1234567*seed);
+        for (int i = 0; i < numRandomGenerators; i++) {
+            randomGenerators[i].setSeed(seedRandom.nextLong());
+        }
+    }
+
     /**
      * Generates the users.
      * 
@@ -1060,29 +1052,56 @@ public class ScalableGenerator{
      */
     public void mrGenerateUserInfo(int pass, Context context, int mapIdx){
 
-        int numToGenerateUser = (numMaps == mapIdx) ? numCellInLastFile : numCellPerfile;
-        numToGenerateUser = numToGenerateUser * cellSize;
-
-        System.out.println("numToGenerateUser in Machine " + mapIdx + " = " + numToGenerateUser);
-        int numZeroPopularPlace = 0; 
-
-        for (int i = 0; i < numToGenerateUser; i++) {
-            UserProfile user = generateGeneralInformation(i + startMapUserIdx); 
-            ReducedUserProfile reduceUserProf = new ReducedUserProfile(user, NUM_FRIENDSHIP_HADOOP_JOBS);
-            if (reduceUserProf.getNumPopularPlace() == 0) {
-                numZeroPopularPlace++;
-            }
-            user = null;
-            try {
-                context.write(new IntWritable(reduceUserProf.getDicElementId(pass)), reduceUserProf);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        if (numtotalUser % cellSize != 0) {
+            System.err.println("Number of users should be a multiple of the cellsize");
+            System.exit(-1);
         }
 
-        System.out.println("Number of Zero popular places: " + numZeroPopularPlace);
+        int blockSize = windowSize*4;
+        int numBlocks = (int) (Math.ceil(numtotalUser / (double)blockSize));
+        int initBlock = (int) (Math.ceil((numBlocks / (double)numFiles) * mapIdx ));
+        int endBlock  = (int) (Math.ceil((numBlocks / (double)numFiles) * (mapIdx+1)));
+
+        System.out.println("Block Size: "+blockSize);
+        System.out.println("Init Block: "+initBlock);
+        System.out.println("End Block: "+endBlock);
+        System.out.println("Num users to generate: "+(endBlock-initBlock)*blockSize);
+
+
+
+/*        lastCell        = (numtotalUser / cellSize) - 1;                        // The last cell of the whole sliding process
+        startMapUserIdx = (numtotalUser / numFiles) * mapIdx;                   // The first user assigned to this mapper. 
+        numCellPerfile    = (lastCell + 1) / numFiles;                          // The number of cells per mapper. numFiles == numMaps.
+        numCellInLastFile = (lastCell + 1) - numCellPerfile * (numFiles - 1);   // The number of cells assigned to the last file. 
+
+        if (numCellPerfile < numberOfCellPerWindow) {
+            System.err.println("The number of Cell per file should be greater than that of a window ");
+            System.exit(-1);
+        }
+
+        int numToGenerateUser = (numFiles - 1 == mapIdx) ? numCellInLastFile : numCellPerfile;
+        numToGenerateUser = numToGenerateUser * cellSize;
+        System.out.println("numToGenerateUser in Machine " + mapIdx + " = " + numToGenerateUser);
+        */
+
+        int numUsersToGenerate = 0;
+        for( int i = initBlock; i < endBlock;++i) {
+            resetRandomGenerators((long)i);
+            for (int j = i*blockSize; j < (i+1)*blockSize && j <numtotalUser; j++) {
+                UserProfile user = generateGeneralInformation(j); 
+                ReducedUserProfile reduceUserProf = new ReducedUserProfile(user, NUM_FRIENDSHIP_HADOOP_JOBS);
+                user = null;
+                ++numUsersToGenerate;
+                try {
+                    context.write(new IntWritable(reduceUserProf.getDicElementId(pass)), reduceUserProf);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        System.out.println("Number of generated users: "+numUsersToGenerate);
     }
 
     public void generateCellOfUsers2(int newStartIndex, ReducedUserProfile[] _cellReduceUserProfiles){
@@ -1284,8 +1303,7 @@ public class ScalableGenerator{
                 }
 
                 for (int m = 0; m < numPhotoAlbums; m++) {
-                    Group album = groupGenerator.createAlbum(user, extraInfo, m, randomMembership, joinProbs[0]);
-
+                    Group album = groupGenerator.createAlbum(randomAlbum,user, extraInfo, m, joinProbs[0]);
                     serializer.gatherData(album);
 
                     // Generate photos for this album
@@ -1293,8 +1311,8 @@ public class ScalableGenerator{
                     for (int l = 0; l < numPhotos; l++) {
                         Photo photo = photoGenerator.generatePhoto(user, album, l, maxNumLikes);
 
-                        photo.setUserAgent(userAgentDictionary.getUserAgentName(user.isHaveSmartPhone(), user.getAgentIdx()));
-                        photo.setBrowserIdx(browserDictonry.getPostBrowserId(user.getBrowserIdx()));
+                        photo.setUserAgent(userAgentDictionary.getUserAgentName(randomUserAgent,user.isHaveSmartPhone(), user.getAgentIdx()));
+                        photo.setBrowserIdx(browserDictonry.getPostBrowserId(randomBrowser,user.getBrowserIdx()));
                         photo.setIpAddress(ipAddDictionary.getIP(randomIP,user.getIpAddress(), 
                                     user.isFrequentChange(), photo.getTakenTime(), photo.getLocationId()));
                         String countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(photo.getIpAddress())));
@@ -1309,8 +1327,7 @@ public class ScalableGenerator{
                 double randLevelProb;
                 double randMemberProb;
 
-                Group group = groupGenerator.createGroup(user);
-
+                Group group = groupGenerator.createGroup(randomGroup,user);
                 TreeSet<Long> memberIds = new TreeSet<Long>();
 
                 int numGroupMember = randomNumUsersPerGroup.nextInt(maxNumMemberGroup);
@@ -1340,7 +1357,7 @@ public class ScalableGenerator{
                             if (!memberIds.contains(potentialMemberAcc)) {
                                 memberIds.add(potentialMemberAcc);
                                 // Assume the earliest membership date is the friendship created date
-                                GroupMemberShip memberShip = groupGenerator.createGroupMember(
+                                GroupMemberShip memberShip = groupGenerator.createGroupMember(randomMembership,
                                         potentialMemberAcc, group.getCreatedDate(),
                                         firstLevelFriends[friendIdx]);
                                 group.addMember(memberShip);
@@ -1356,7 +1373,7 @@ public class ScalableGenerator{
                                 if (!memberIds.contains(potentialMemberAcc)) {
                                     memberIds.add(potentialMemberAcc);
                                     // Assume the earliest membership date is the friendship created date
-                                    GroupMemberShip memberShip = groupGenerator.createGroupMember(
+                                    GroupMemberShip memberShip = groupGenerator.createGroupMember(randomMembership,
                                             potentialMemberAcc, group.getCreatedDate(), 
                                             secondLevelFriends.get(friendIdx));
                                     group.addMember(memberShip);
@@ -1372,7 +1389,7 @@ public class ScalableGenerator{
                             // Check whether this user has been added and then add to the group
                             if (!memberIds.contains(potentialMemberAcc)) {
                                 memberIds.add(potentialMemberAcc);
-                                GroupMemberShip memberShip = groupGenerator.createGroupMember(
+                                GroupMemberShip memberShip = groupGenerator.createGroupMember(randomMembership,
                                         potentialMemberAcc, group.getCreatedDate(),
                                         reducedUserProfiles[friendIdx]);
                                 group.addMember(memberShip);
@@ -1446,13 +1463,6 @@ public class ScalableGenerator{
                 }
 
 
-                public void seedGenerate(int mapIdx) {
-                  seeds = new Long[50];
-                  Random seedRandom = new Random(53223436L + 1234567*mapIdx);
-                  for (int i = 0; i < 50; i++) {
-                      seeds[i] = seedRandom.nextLong();
-                  }
-                }
 
                 public UserProfile generateGeneralInformation(int accountId) {
 
@@ -1471,7 +1481,7 @@ public class ScalableGenerator{
                             ipAddDictionary.getRandomIPFromLocation(randomIP,locationId),
                             accountId*2);
 
-                    userProf.setNumFriends((short) randomPowerLaw.getValue());
+                    userProf.setNumFriends((short) randomPowerLaw.getValue(randomNumFriends));
                     userProf.allocateFriendListMemory(NUM_FRIENDSHIP_HADOOP_JOBS);
 
                     // Setting the number of friends and friends per pass
@@ -1483,23 +1493,23 @@ public class ScalableGenerator{
                     }
                     userProf.setNumPassFriends(userProf.getNumFriends(),NUM_FRIENDSHIP_HADOOP_JOBS-1);
 
-                    int userMainTag = tagDictionary.getaTagByCountry(userProf.getLocationId());
+                    int userMainTag = tagDictionary.getaTagByCountry(randomTag,userProf.getLocationId());
                     userProf.setMainTagId(userMainTag);
-                    short numTags = ((short) randomTagPowerLaw.getValue());
-                    userProf.setSetOfTags(topicTagDictionary.getSetofTags(userMainTag, numTags));
+                    short numTags = ((short) randomTagPowerLaw.getValue(randomNumTags));
+                    userProf.setSetOfTags(topicTagDictionary.getSetofTags(randomTag,userMainTag, numTags));
                     userProf.setUniversityLocationId(unversityDictionary.getRandomUniversity(randomUniversity,userProf.getLocationId()));
 
                     // Set wether the user has a smartphone or not. 
                     userProf.setHaveSmartPhone(randomUserAgent.nextDouble() > probHavingSmartPhone);
                     if (userProf.isHaveSmartPhone()) {
-                        userProf.setAgentId(userAgentDictionary.getRandomUserAgentIdx(randomAgent));
+                        userProf.setAgentId(userAgentDictionary.getRandomUserAgentIdx(randomUserAgent));
                     }
 
                     // Compute the popular places the user uses to visit. 
                     byte numPopularPlaces = (byte) randomNumPopularPlaces.nextInt(maxNumPopularPlaces + 1);
                     Vector<Short> auxPopularPlaces = new Vector<Short>();
                     for (int i = 0; i < numPopularPlaces; i++){
-                        short aux = popularDictionary.getPopularPlace(userProf.getLocationId());
+                        short aux = popularDictionary.getPopularPlace(randomPopular,userProf.getLocationId());
                         if(aux != -1) {
                             auxPopularPlaces.add(aux);
                         }
@@ -1618,7 +1628,7 @@ public class ScalableGenerator{
                     if ((prob < missingRatio) || userExtraInfo.getUniversity().equals("")) {
                         userExtraInfo.setClassYear(-1);
                     } else {
-                        userExtraInfo.setClassYear(dateTimeGenerator.getClassYear(
+                        userExtraInfo.setClassYear(dateTimeGenerator.getClassYear(randomDate,
                                     user.getCreationDate(), user.getBirthDay()));
                     }
 
@@ -1656,10 +1666,10 @@ public class ScalableGenerator{
                             }
                         }
                     }
-                    Vector<Integer> userLanguages = languageDictionary.getLanguages(user.getLocationId());
+                    Vector<Integer> userLanguages = languageDictionary.getLanguages(randomLanguage,user.getLocationId());
                     int nativeLanguage = randomExtraInfo.nextInt(userLanguages.size());
                     userExtraInfo.setNativeLanguage(userLanguages.get(nativeLanguage));
-                    int internationalLang = languageDictionary.getInternationlLanguage();
+                    int internationalLang = languageDictionary.getInternationlLanguage(randomLanguage);
                     if (internationalLang != -1 && userLanguages.indexOf(internationalLang) == -1) {
                         userLanguages.add(internationalLang);
                     }
@@ -1702,7 +1712,7 @@ public class ScalableGenerator{
                     long createdTime = -1;
                     long declinedTime = -1;
                     if (randomFriendReject.nextDouble() > friendRejectRatio) {
-                        createdTime = dateTimeGenerator.randomFriendApprovedDate(randomFriendApproval,requestedTime);
+                        createdTime = dateTimeGenerator.randomFriendApprovedDate(randomFriendAproval,requestedTime);
                     } else {
                         declinedTime = dateTimeGenerator.randomFriendDeclinedDate(randomFriendReject,requestedTime);
                         if (randomFriendAproval.nextDouble() < friendReApproveRatio) {

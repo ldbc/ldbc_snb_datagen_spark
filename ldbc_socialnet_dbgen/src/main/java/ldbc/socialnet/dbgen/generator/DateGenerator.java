@@ -273,8 +273,8 @@ public class DateGenerator {
 		return (long)(random.nextDouble()*(to-minDate)+minDate);
 	}
 	
-	public long powerlawPostCreatedDate(UserProfile user){
-		return (long)(powerDist.getDouble()*(to-user.getCreationDate())+user.getCreationDate());
+	public long powerlawPostCreatedDate(Random random, UserProfile user){
+		return (long)(powerDist.getDouble(random)*(to-user.getCreationDate())+user.getCreationDate());
 	}
 	
 	public long randomCommentCreatedDate(Random random, long lastCommentCreatedDate){
@@ -282,12 +282,12 @@ public class DateGenerator {
 	}
 	
 	//Assume that this powerlaw generate powerlaw value between 0 - 1 
-	public long powerlawCommentCreatDate( long lastCommentCreatedDate){
-		return (long)(powerDist.getDouble() *(to-lastCommentCreatedDate)+lastCommentCreatedDate);
+	public long powerlawCommentCreatDate( Random random, long lastCommentCreatedDate){
+		return (long)(powerDist.getDouble(random) *(to-lastCommentCreatedDate)+lastCommentCreatedDate);
 	}
 	
-	public long powerlawCommDateDay(long lastCommentCreatedDate){
-		return (long)(powerDist.getDouble() * ONE_DAY+lastCommentCreatedDate);
+	public long powerlawCommDateDay(Random random, long lastCommentCreatedDate){
+		return (long)(powerDist.getDouble(random) * ONE_DAY+lastCommentCreatedDate);
 	}
 
 	// The birthday is fixed during 1980 --> 1990

@@ -67,7 +67,7 @@ public class TagDictionary {
 	HashMap<Integer, String>  tagDescription;  // a.k.a foaf:Names
 	
 	public TagDictionary(String dicTopic, String _dicFileName, String tagClassFile, String tagHierarchyFile, 
-	        int numLocations, long seed, double tagCountryCorrProb) {
+	        int numLocations, double tagCountryCorrProb) {
 	    
 		this.dicFileName = _dicFileName;
 		this.dicTopic = dicTopic;

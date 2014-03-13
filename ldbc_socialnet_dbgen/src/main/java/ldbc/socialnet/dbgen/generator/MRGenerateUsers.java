@@ -102,7 +102,7 @@ public class MRGenerateUsers{
 			// Generate user information
 			generator.mrGenerateUserInfo(pass, context, fileIdx);
 			
-			System.out.println("Total friendship number from " + fileIdx + " : " + generator.friendshipNum);
+//			System.out.println("Total friendship number from " + fileIdx + " : " + generator.friendshipNum);
 		}
 		
 	}
@@ -243,6 +243,9 @@ public class MRGenerateUsers{
 			context.write(new IntWritable(value.getDicElementId(2)), value);
 		}
 	}
+
+
+
 	public static class RandomReducer extends Reducer <IntWritable, ReducedUserProfile, IntWritable, ReducedUserProfile>{
 		
 		public static ScalableGenerator friendGenerator; 
@@ -293,6 +296,7 @@ public class MRGenerateUsers{
 		public void reduce(IntWritable key, Iterable<ReducedUserProfile> valueSet, 
 			Context context) throws IOException, InterruptedException{
 			
+            friendGenerator.resetRandomGenerators(key.get());
 			for (ReducedUserProfile user:valueSet){
 				friendGenerator.pushUserProfile(user, 2, context, false, oos);
 				numObject++;

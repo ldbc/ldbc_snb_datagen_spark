@@ -101,7 +101,7 @@ public class PhotoGenerator {
 				photo.setLongt(popularPlace.getLongt());
 			} else{
 				// Randomly select one places from Album location idx
-				popularPlaceId = dicPopularPlaces.getPopularPlace(locationId);
+				popularPlaceId = dicPopularPlaces.getPopularPlace(rand,locationId);
 				if (popularPlaceId != -1){
 					popularPlace = dicPopularPlaces.getPopularPlace(locationId, popularPlaceId);
 					photo.setLocationName(popularPlace.getName());

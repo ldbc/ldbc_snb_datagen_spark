@@ -199,18 +199,18 @@ public class NamesDictionary {
 		return nameIdx;
 	}
 	
-	public String getRandomSurname(int locationId) {
-		int surNameIdx = getGeoDistRandomIdx(surNamesByLocations.get(locationId).size());
+	public String getRandomSurname(Random random,int locationId) {
+		int surNameIdx = getGeoDistRandomIdx(random,surNamesByLocations.get(locationId).size());
 		return surNamesByLocations.get(locationId).get(surNameIdx);
 	}
 	
-	public String getRandomGivenName(int locationId, boolean isMale, int birthYear){
+	public String getRandomGivenName(Random random, int locationId, boolean isMale, int birthYear){
 		String name = "";
 		int period = (birthYear < 1985) ? 0 : 1;
 		Vector<HashMap<Integer, Vector<String>>> target = (isMale) ? givenNamesByLocationsMale : givenNamesByLocationsFemale;
 		
 		// Note that, only vector of names for the first period contains list of names not in topN
-		int nameId = getGeoDistRandomIdx(target.get(0).get(locationId).size());
+		int nameId = getGeoDistRandomIdx(random, target.get(0).get(locationId).size());
 		if (nameId >= topN) {
 		    name = target.get(0).get(locationId).get(nameId);
 		} else {

@@ -225,12 +225,12 @@ abstract public class PostGenerator {
                 String content;
                 if( user.isLargePoster() ) {
                     if( randLargePost.nextDouble() > (1.0f-largePostRatio) ) {
-                        content = tagTextDic.getRandomLargeText( postInfo.tags, minLargeSizeOfPost, maxLargeSizeOfPost );
+                        content = tagTextDic.getRandomLargeText( rand, postInfo.tags, minLargeSizeOfPost, maxLargeSizeOfPost );
                     } else {
-                        content = tagTextDic.getRandomText(postInfo.tags, minSizeOfPost, maxSizeOfPost);
+                        content = tagTextDic.getRandomText(rand, postInfo.tags, minSizeOfPost, maxSizeOfPost);
                     }
                 } else {
-                    content = tagTextDic.getRandomText(postInfo.tags, minSizeOfPost, maxSizeOfPost);
+                    content = tagTextDic.getRandomText(rand,postInfo.tags, minSizeOfPost, maxSizeOfPost);
                 }
 
                 Integer languageIndex = rand.nextInt(extraInfo.getLanguages().size());
@@ -242,9 +242,9 @@ abstract public class PostGenerator {
                   user.getAccountId() * 2,
                   extraInfo.getLanguages().get(languageIndex),
                   postInfo.tags,
-                  ipAddressDic.getIP(user.getIpAddress(), user.isFrequentChange(), postInfo.date),
-                  userAgentDic.getUserAgentName(user.isHaveSmartPhone(), user.getAgentIdx()),
-                  browserDic.getPostBrowserId(user.getBrowserIdx()));
+                  ipAddressDic.getIP(rand,user.getIpAddress(), user.isFrequentChange(), postInfo.date),
+                  userAgentDic.getUserAgentName(rand,user.isHaveSmartPhone(), user.getAgentIdx()),
+                  browserDic.getPostBrowserId(rand,user.getBrowserIdx()));
 
             // Create post likes.
                 setLikes(post, user);
@@ -271,12 +271,12 @@ abstract public class PostGenerator {
                 String content;
                 if( memberShip.isLargePoster() ) {
                     if( randLargePost.nextDouble() > (1.0f-largePostRatio) ) {
-                        content = tagTextDic.getRandomLargeText(postInfo.tags, minLargeSizeOfPost, maxLargeSizeOfPost);
+                        content = tagTextDic.getRandomLargeText(rand,postInfo.tags, minLargeSizeOfPost, maxLargeSizeOfPost);
                     } else {
-                        content = tagTextDic.getRandomText(postInfo.tags, minSizeOfPost, maxSizeOfPost);
+                        content = tagTextDic.getRandomText(rand,postInfo.tags, minSizeOfPost, maxSizeOfPost);
                     }
                 } else {
-                    content = tagTextDic.getRandomText(postInfo.tags, minSizeOfPost, maxSizeOfPost);
+                    content = tagTextDic.getRandomText(rand,postInfo.tags, minSizeOfPost, maxSizeOfPost);
                 }
                 ScalableGenerator.postId++;
                 Post post = new Post( ScalableGenerator.postId, 
@@ -286,9 +286,9 @@ abstract public class PostGenerator {
                   group.getForumWallId(),
                   -1,
                   postInfo.tags,
-                  ipAddressDic.getIP(memberShip.getIP(), memberShip.isFrequentChange(), postInfo.date),
-                  userAgentDic.getUserAgentName(memberShip.isHaveSmartPhone(), memberShip.getAgentIdx()),
-                  browserDic.getPostBrowserId(memberShip.getBrowserIdx()));
+                  ipAddressDic.getIP(rand,memberShip.getIP(), memberShip.isFrequentChange(), postInfo.date),
+                  userAgentDic.getUserAgentName(rand,memberShip.isHaveSmartPhone(), memberShip.getAgentIdx()),
+                  browserDic.getPostBrowserId(rand,memberShip.getBrowserIdx()));
 
                 // Create the post likes
                 setLikes(post, group)   ;

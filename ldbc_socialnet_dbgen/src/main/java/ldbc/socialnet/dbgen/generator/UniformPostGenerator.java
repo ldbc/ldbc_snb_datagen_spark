@@ -119,7 +119,7 @@ public class UniformPostGenerator extends PostGenerator {
                 }
             }
         }
-        postInfo.date = dateGen.randomPostCreatedDate(user.getCreationDate());
+        postInfo.date = dateGen.randomPostCreatedDate(randomUserNumPost,user.getCreationDate());
         return postInfo;
     }
 
@@ -129,7 +129,7 @@ public class UniformPostGenerator extends PostGenerator {
         for (int i = 0; i < group.getTags().length; i++) {
             postInfo.tags.add(group.getTags()[i]);
         }
-        postInfo.date = dateGen.randomPostCreatedDate(membership.getJoinDate());
+        postInfo.date = dateGen.randomPostCreatedDate(randomGroupNumPost,membership.getJoinDate());
         return postInfo;
     }
 
