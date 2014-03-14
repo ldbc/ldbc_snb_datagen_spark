@@ -301,16 +301,16 @@ public class MRGenerateUsers{
 		public void reduce(MapReduceKey key, Iterable<ReducedUserProfile> valueSet, 
 			Context context) throws IOException, InterruptedException{
 			
-            System.out.println("Start group: "+key.block);
+//            System.out.println("Start group: "+key.block);
             friendGenerator.resetWindow();
             friendGenerator.resetRandomGenerators(key.block);
 			for (ReducedUserProfile user:valueSet){
-                System.out.println(user.getAccountId());
+ //               System.out.println(user.getAccountId());
 				friendGenerator.pushUserProfile(user, 2, context, false, oos);
 				numObject++;
 			}
 			friendGenerator.pushAllRemainingUser(2, context, false, oos);
-            System.out.println("End group");
+  //          System.out.println("End group");
 		}
 		
 		@Override
