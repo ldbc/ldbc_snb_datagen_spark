@@ -48,6 +48,7 @@ import java.io.Writer;
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
 import ldbc.socialnet.dbgen.util.MapReduceKey;
 import ldbc.socialnet.dbgen.util.MapReduceKeyComparator;
+import ldbc.socialnet.dbgen.util.MapReduceKeyGroupKeyComparator;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -300,13 +301,16 @@ public class MRGenerateUsers{
 		public void reduce(MapReduceKey key, Iterable<ReducedUserProfile> valueSet, 
 			Context context) throws IOException, InterruptedException{
 			
+            System.out.println("Start group: "+key.block);
             friendGenerator.resetWindow();
             friendGenerator.resetRandomGenerators(key.block);
 			for (ReducedUserProfile user:valueSet){
+                System.out.println(user.getAccountId());
 				friendGenerator.pushUserProfile(user, 2, context, false, oos);
 				numObject++;
 			}
 			friendGenerator.pushAllRemainingUser(2, context, false, oos);
+            System.out.println("End group");
 		}
 		
 		@Override
@@ -372,6 +376,7 @@ public class MRGenerateUsers{
 		
 		job.setOutputFormatClass(SequenceFileOutputFormat.class);
         job.setSortComparatorClass(MapReduceKeyComparator.class);
+        job.setGroupingComparatorClass(MapReduceKeyGroupKeyComparator.class);
 		
 	    FileInputFormat.setInputPaths(job, new Path(args[0]));
 	    FileOutputFormat.setOutputPath(job, new Path(args[1]));
@@ -396,6 +401,7 @@ public class MRGenerateUsers{
 		job2.setInputFormatClass(SequenceFileInputFormat.class);
 		job2.setOutputFormatClass(SequenceFileOutputFormat.class);
         job2.setSortComparatorClass(MapReduceKeyComparator.class);
+        job2.setGroupingComparatorClass(MapReduceKeyGroupKeyComparator.class);
 		
 		
 	    FileInputFormat.setInputPaths(job2, new Path(args[1]));
@@ -423,6 +429,7 @@ public class MRGenerateUsers{
 		job3.setOutputFormatClass(SequenceFileOutputFormat.class);
 //		job3.setPartitionerClass(RandomPartitioner.class);
         job3.setSortComparatorClass(MapReduceKeyComparator.class);
+        job3.setGroupingComparatorClass(MapReduceKeyGroupKeyComparator.class);
 		
 	    FileInputFormat.setInputPaths(job3, new Path(args[1] + "2"));
 	    FileOutputFormat.setOutputPath(job3, new Path(args[1] + "3") );

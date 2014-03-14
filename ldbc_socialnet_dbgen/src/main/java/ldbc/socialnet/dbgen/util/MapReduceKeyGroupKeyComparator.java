@@ -46,8 +46,8 @@ import java.util.Random;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class MapReduceKeyComparator extends WritableComparator {
-    protected MapReduceKeyComparator() {
+public class MapReduceKeyGroupKeyComparator extends WritableComparator {
+    protected MapReduceKeyGroupKeyComparator() {
             super(MapReduceKey.class);
     }
 
@@ -55,12 +55,6 @@ public class MapReduceKeyComparator extends WritableComparator {
     public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2){
         int block1 = readInt(b1, s1);
         int block2 = readInt(b2, s2);
-        if( block1 != block2 ) return block1 - block2;
-        int key1 = readInt(b1,s1+4);
-        int key2 = readInt(b2,s2+4);
-        if( key1 != key2) return key1 - key2;
-        long id1 = readLong(b1,s1+8);
-        long id2 = readLong(b2,s2+8);
-        return (int)(id1 - id2);
+        return block1 - block2;
     }
 }

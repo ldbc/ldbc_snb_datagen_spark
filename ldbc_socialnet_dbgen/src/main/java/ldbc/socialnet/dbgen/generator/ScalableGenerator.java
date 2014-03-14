@@ -53,6 +53,7 @@ import java.util.Random;
 import java.util.Vector;
 import java.util.Iterator;
 import java.text.Normalizer;
+import java.lang.Math;
 
 import ldbc.socialnet.dbgen.dictionary.BrowserDictionary;
 import ldbc.socialnet.dbgen.dictionary.CompanyDictionary;
@@ -1027,14 +1028,14 @@ public class ScalableGenerator{
                 numUserForNewCell = 0;
             }
         }*/
-        numUserProfilesRead++;
         ReducedUserProfile userObject = new ReducedUserProfile();
         userObject.copyFields(reduceUser);
         if (numUserProfilesRead < windowSize) {                             // We fill the window until it is full
-            reducedUserProfiles[numUserProfilesRead-1] = userObject;
+            reducedUserProfiles[numUserProfilesRead] = userObject;
+            numUserProfilesRead++;
         } else {                                                            // Put the user in the new cell.
+            cellReducedUserProfiles[numUserForNewCell] = userObject;
             numUserForNewCell++;
-            cellReducedUserProfiles[numUserForNewCell-1] = userObject;
             if (numUserForNewCell == cellSize) {                            // Once the cell is full, slide the window and create friendships.
                 mr2SlideFriendShipWindow(   pass,
                         mrCurCellPost, 
@@ -1064,10 +1065,13 @@ public class ScalableGenerator{
             mr2SlideLastCellsFriendShip(pass, ++mrCurCellPost, numLeftCell, context, isContext,  oos);
         }
         */
-
-        for (int numLeftCell = numberOfCellPerWindow - 1; numLeftCell > 0; --numLeftCell, --mrCurCellPost++) {
+        for (int numLeftCell = Math.min(numberOfCellPerWindow, numUserProfilesRead/cellSize); numLeftCell > 0; --numLeftCell, ++mrCurCellPost) {
             mr2SlideLastCellsFriendShip(pass, mrCurCellPost, numLeftCell, context, isContext,  oos);
         }
+
+        mrWriter.writeReducedUserProfiles(0, numUserForNewCell, pass, cellReducedUserProfiles, context,
+                isContext, oos, reducerBlockSize);
+        exactOutput+=numUserForNewCell;
     }
 
 
@@ -1254,18 +1258,17 @@ public class ScalableGenerator{
                 isContext, oos, reducerBlockSize);
         exactOutput = exactOutput + cellSize; */
 
-        System.out.println("ENTRA "+numleftCell);
         int startIndex = (cellPos % numberOfCellPerWindow) * cellSize;
-        for (int i = 0; i < cellSize && i < numUserProfilesRead; i++) {
+        for (int i = 0; i < cellSize /*&& i < numUserProfilesRead*/; i++) {
             int curIdxInWindow = startIndex + i;
             // From this user, check all the user in the window to create friendship
-            for (int j = i + 1; (j < numleftCell * cellSize - 1)
+            for (int j = i + 1; (j < numleftCell * cellSize )
                     && reducedUserProfiles[curIdxInWindow].getNumFriendsAdded() 
                     < reducedUserProfiles[curIdxInWindow].getNumFriends(pass)
-                    && j < numUserProfilesRead;
+                    /*&& j < numUserProfilesRead*/;
                     j++) {
                             int checkFriendIdx = (curIdxInWindow + j) % windowSize;
-                            System.out.println(curIdxInWindow+" "+checkFriendIdx+" "+j+" "+windowSize+" "+numUserProfilesRead);
+                //            System.out.println(curIdxInWindow+" "+checkFriendIdx+" "+j+" "+windowSize+" "+numUserProfilesRead+" "+numleftCell);
                             if ( !(reducedUserProfiles[checkFriendIdx].getNumFriendsAdded() == 
                                    reducedUserProfiles[checkFriendIdx].getNumFriends(pass) || 
                                    reducedUserProfiles[curIdxInWindow].isExistFriend(reducedUserProfiles[checkFriendIdx].getAccountId()))) {
@@ -1277,6 +1280,18 @@ public class ScalableGenerator{
                                     }				
                             }
                     }
+            for (int j = 0; j < numUserForNewCell; ++j) {
+                if ( !(cellReducedUserProfiles[j].getNumFriendsAdded() == 
+                            cellReducedUserProfiles[j].getNumFriends(pass) || 
+                            reducedUserProfiles[curIdxInWindow].isExistFriend(cellReducedUserProfiles[j].getAccountId()))) {
+                    double randProb = randomUniform.nextDouble();
+                    double prob = getFriendCreatePro(curIdxInWindow, windowSize + curIdxInWindow + j, pass);
+                    if ((randProb < prob) || (randProb < limitProCorrelated)) {
+                        createFriendShip(reducedUserProfiles[curIdxInWindow], cellReducedUserProfiles[j],
+                                (byte) pass);
+                    }				
+                }
+            }
         }
 
         updateLastPassFriendAdded(startIndex, startIndex + cellSize, pass);
