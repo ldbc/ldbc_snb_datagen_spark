@@ -34,60 +34,33 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package ldbc.socialnet.dbgen.generator;
+package ldbc.socialnet.dbgen.util;
 
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 
-import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
+import org.apache.hadoop.io.WritableComparator;
 import ldbc.socialnet.dbgen.util.MapReduceKey;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Random;
+import java.util.ArrayList;
+import java.util.Iterator;
 
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.mapreduce.Reducer;
+public class MapReduceKeyComparator extends WritableComparator {
+    protected MapReduceKeyComparator() {
+            super(MapReduceKey.class);
+    }
 
-
-public class MRWriter {
-	int windowSize; 
-	int cellSize; 
-	int numberSerializedObject;
-	String baseDir; 
-	
-	public MRWriter(int _cellSize, int _windowSize, String _baseDir){
-		this.cellSize = _cellSize;
-		this.windowSize = _windowSize;
-		this.baseDir = _baseDir; 
-		numberSerializedObject = 0; 
-		
-	}
-	
-	public void writeReducedUserProfiles(int from, int to, int pass, 
-			ReducedUserProfile userProfiles[], Reducer.Context context, boolean isContext, ObjectOutputStream oos, int [] blockSize) {
-		
-		try {
-		    to = to % windowSize;
-            if (isContext){
-                for (int i = from; i != to; i = (i+1)%windowSize) {
-                    int key = userProfiles[i].getDicElementId(pass+1);
-                    int block = key/blockSize[pass+1];
-                    long id = userProfiles[i].getAccountId();
-                    MapReduceKey mpk = new MapReduceKey(block,key,id);
-                    context.write(mpk, userProfiles[i]);
-                    numberSerializedObject++;
-                }
-            }
-            else{
-                for (int i = from; i != to; i = (i+1)%windowSize) {
-                    oos.writeObject(userProfiles[i]);
-                    numberSerializedObject++;
-                }
-            }
-		}
-		catch (IOException i) {
-			i.printStackTrace();
-			
-		}
-		catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
+    @Override
+    public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2){
+        int block1 = readInt(b1, s1);
+        int block2 = readInt(b2, s2);
+        if( block1 != block2 ) return block1 - block2;
+        int key1 = readInt(b1,s1+4);
+        int key2 = readInt(b1,s1+4);
+        if( key1 != key2) return key1 - key2;
+        long id1 = readLong(b1,s1+8);
+        long id2 = readLong(b1,s1+8);
+        return (int)(id1 - id2);
+    }
 }

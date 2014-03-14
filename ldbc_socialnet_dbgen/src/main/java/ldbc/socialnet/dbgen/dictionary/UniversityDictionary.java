@@ -43,7 +43,6 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.Vector;
 
-
 public class UniversityDictionary {
     
     private static final String SEPARATOR = "  ";
@@ -56,6 +55,7 @@ public class UniversityDictionary {
 	double probTopUniv; 
 	double probUncorrelatedUniversity;
 	LocationDictionary locationDic; 
+    int totalNumUniversities;
 	
 	public UniversityDictionary(String dicFileName, LocationDictionary locationDic, 
 									 double probUncorrelatedUniversity, 
@@ -64,6 +64,7 @@ public class UniversityDictionary {
 		this.probTopUniv = probTopUni;
 		this.locationDic = locationDic;
 		this.probUncorrelatedUniversity = probUncorrelatedUniversity;
+        this.totalNumUniversities = 0;
 	}
 	
 	public void init(){
@@ -86,7 +87,6 @@ public class UniversityDictionary {
 		    
 		    String line;
 		    int curLocationId = -1; 
-            int totalNumUniversities = 0;
 		    String lastLocationName = "";
 			while ((line = dicAllInstitutes.readLine()) != null){
 				String data[] = line.split(SEPARATOR);
@@ -149,4 +149,8 @@ public class UniversityDictionary {
 		int locationId = locationDic.getLocationIdFromZOrder(zOrderlocationId);
 		return universitiesByLocation.get(locationId).get(universityId);
 	}
+
+    public int getTotalNumUniversities() {
+        return totalNumUniversities;
+    }
 }
