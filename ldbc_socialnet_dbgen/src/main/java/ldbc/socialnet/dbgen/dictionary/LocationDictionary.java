@@ -350,6 +350,13 @@ public class LocationDictionary {
 	    }
 	    return countries.get(curLocationIdx);
 	}
+
+
+    public void advanceToUser(int user) {
+       for(int i = 0; i < user-1; ++i){
+           getLocation(i);
+       } 
+    }
 	
 	/**
 	 * Sorts countries by its z-order value.

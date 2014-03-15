@@ -72,7 +72,7 @@ public class StorageManager {
 
 
 
-	public StorageManager(){}
+//	public StorageManager(){}
 	
 	public StorageManager(int _cellSize, int _windowSize, String _outUserProfileName, String _baseDir){
 		this.cellSize = _cellSize;
@@ -81,7 +81,7 @@ public class StorageManager {
 		this.baseDir = _baseDir; 
 	}
 	
-	public StorageManager(int _cellSize, int _windowSize, int pass, 
+/*	public StorageManager(int _cellSize, int _windowSize, int pass, 
 			String _outUserProfileName, String _baseDir){
 		this.cellSize = _cellSize;
 		this.windowSize = _windowSize;
@@ -91,15 +91,18 @@ public class StorageManager {
 		passOutUserProf = pass + "_" + outUserProfile;
 		passOutUserProfSorted= pass + "_" + outUserProfile + ".sorted";
 	}
+    */
 
-	public void serializeReducedUserProfiles(int from, int to, int pass, 
+	/*public void serializeReducedUserProfiles(int from, int to, int pass, 
 			ReducedUserProfile userProfiles[]){
 		
 		serializeReducedUserProfiles(from, to, pass, userProfiles, oos);
 	}
 	
+    */
+
 	// This function can be used for the case of a file in multiple files storage
-	public void serializeReducedUserProfiles(int from, int to, int pass, 
+/*	public void serializeReducedUserProfiles(int from, int to, int pass, 
 							ReducedUserProfile userProfiles[], ObjectOutputStream _oos) {
 		try {
 				if (to > windowSize) {
@@ -143,8 +146,9 @@ public class StorageManager {
 			e.printStackTrace();
 		}                                                                              
 	}	
+    */
 	
-	public void deserializeWindowlUserProfile(ReducedUserProfile userProfiles[]) {
+	/*public void deserializeWindowlUserProfile(ReducedUserProfile userProfiles[]) {
 		try {
 			for (int i = 0; i < windowSize; i++) {
 				if (userProfiles[i] != null){
@@ -159,6 +163,7 @@ public class StorageManager {
 			e.printStackTrace();
 		}
 	}
+    */
 	
 	public void deserializeOneCellUserProfile(int startIdex, int cellSize,
 			ReducedUserProfile userProfiles[]) {
@@ -198,7 +203,8 @@ public class StorageManager {
 
 		}
 	}	
-	public void initDeserialization(int pass) {
+
+	/*public void initDeserialization(int pass) {
 		numberDeSerializedObject = 0;
 		try {
 			//passOutUserProfSorted= pass + "_" + outUserProfile + ".sorted";
@@ -210,13 +216,13 @@ public class StorageManager {
 			return;
 		}
 	}
+    */
 	
 	public void initDeserialization(String inputfile) {
 		numberDeSerializedObject = 0;
 		try {
 			fis = new FileInputStream(baseDir + inputfile);
 			ois = new ObjectInputStream(fis);
-			
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -232,7 +238,8 @@ public class StorageManager {
 			e.printStackTrace();
 		}
 	}
-	public int getCellSize() {
+
+	/*public int getCellSize() {
 		return cellSize;
 	}
 
@@ -265,12 +272,14 @@ public class StorageManager {
 	public int getNumberSerializedObject() {
 		return numberSerializedObject;
 	}
+    */
 	public int getNumberDeSerializedObject() {
 		return numberDeSerializedObject;
 	}
-
+/*
 	public void setNumberDeSerializedObject(int numberDeSerializedObject) {
 		this.numberDeSerializedObject = numberDeSerializedObject;
 	}
+    */
 
 }

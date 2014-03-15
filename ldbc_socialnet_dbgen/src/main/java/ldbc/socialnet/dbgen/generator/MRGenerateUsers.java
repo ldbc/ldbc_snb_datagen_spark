@@ -143,10 +143,13 @@ public class MRGenerateUsers{
 				Context context) throws IOException, InterruptedException{	
                 friendGenerator.resetWindow();
                 friendGenerator.resetRandomGenerators(key.block);
+//                System.out.println("Start group: "+key.block);
 				for (ReducedUserProfile user:valueSet){
+   //                 System.out.println(user.getAccountId());
 					friendGenerator.pushUserProfile(user, 0, context, true, null);
 				}
 			    friendGenerator.pushAllRemainingUser(0, context, true, null);
+   //             System.out.println("End group");
 		}
 		@Override
 		protected void cleanup(Context context){
@@ -248,8 +251,6 @@ public class MRGenerateUsers{
 			context.write(key, value);
 		}
 	}
-
-
 
 	public static class RandomReducer extends Reducer <MapReduceKey, ReducedUserProfile, MapReduceKey, ReducedUserProfile>{
 		
@@ -382,7 +383,7 @@ public class MRGenerateUsers{
 	    FileOutputFormat.setOutputPath(job, new Path(args[1]));
 	    
 	    
-	    /// --------------- second job ----------------
+	    /// --------------- Second job ----------------
 	    
 		Job job2 = new Job(conf,"SIB Generate Friendship - Interest");
 		job2.setMapOutputKeyClass(MapReduceKey.class);
@@ -392,9 +393,7 @@ public class MRGenerateUsers{
 		
 		
 		job2.setJarByClass(InterestMapper.class);
-		
 		job2.setMapperClass(InterestMapper.class);
-
 		job2.setReducerClass(InterestReducer.class);
 		job2.setNumReduceTasks(numMachines);
 		
@@ -402,7 +401,6 @@ public class MRGenerateUsers{
 		job2.setOutputFormatClass(SequenceFileOutputFormat.class);
         job2.setSortComparatorClass(MapReduceKeyComparator.class);
         job2.setGroupingComparatorClass(MapReduceKeyGroupKeyComparator.class);
-		
 		
 	    FileInputFormat.setInputPaths(job2, new Path(args[1]));
 	    FileOutputFormat.setOutputPath(job2, new Path(args[1] + "2") );
