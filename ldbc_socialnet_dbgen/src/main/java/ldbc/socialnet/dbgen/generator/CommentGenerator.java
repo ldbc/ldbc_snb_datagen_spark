@@ -37,12 +37,7 @@
 
 package ldbc.socialnet.dbgen.generator;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.TreeSet;
-import java.util.Iterator;
 import java.util.Random;
 
 import ldbc.socialnet.dbgen.generator.DateGenerator;
@@ -57,6 +52,7 @@ import ldbc.socialnet.dbgen.objects.Group;
 import ldbc.socialnet.dbgen.objects.GroupMemberShip;
 import ldbc.socialnet.dbgen.objects.Post;
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
+import ldbc.socialnet.dbgen.util.RandomGeneratorFarm;
 
 
 public class CommentGenerator {
@@ -66,12 +62,6 @@ public class CommentGenerator {
     
     private TagTextDictionary tagTextDic; /**< @brief The TagTextDictionary used to obtain the texts posts/comments.**/
     private DateGenerator dateGen;
-
-    /* A set of random number generator for different purposes.*/ 
-	private Random rand;                   
-	private Random randReplyTo;            
-	private Random randTextSize ;
-    private Random randLargeComment;
 
     private int minSizeOfComment;          /**< @brief The minimum size of a comment.*/
     private int maxSizeOfComment;          /**< @brief The maximum size of a comment.*/       
@@ -87,15 +77,11 @@ public class CommentGenerator {
 	                         double reducedTextRatio,
                              int minLargeSizeOfComment,
                              int maxLargeSizeOfComment, 
-                             double largeCommentRatio,
-                             long seed,
-                             long seedTextSize){
+                             double largeCommentRatio
+                             ){
 
         this.tagTextDic = tagTextDic;
         this.dateGen = dateGen;
-		this.rand = new Random(seed);
-		this.randReplyTo = new Random(seed);
-        this.randLargeComment = new Random(seed);
 
 		this.minSizeOfComment = minSizeOfComment;
 		this.maxSizeOfComment = maxSizeOfComment;
@@ -107,10 +93,10 @@ public class CommentGenerator {
 	public void initialize() {
 	}
 
-    public long getReplyToId(long startId, long lastId) {
+    public long getReplyToId(Random randomReplyTo, long startId, long lastId) {
         int parentId; 
         if (lastId > (startId+1)){
-            parentId = randReplyTo.nextInt((int)(lastId - startId));
+            parentId = randomReplyTo.nextInt((int)(lastId - startId));
             if (parentId == 0) return -1; 
             else return (long)(parentId + startId); 
         }
@@ -118,10 +104,10 @@ public class CommentGenerator {
         return -1; 
     }
 
-    public Comment createComment(Post post, ReducedUserProfile user, 
-            long lastCommentCreatedDate, long startCommentId, long lastCommentId,
-            UserAgentDictionary userAgentDic, IPAddressDictionary ipAddDic,
-            BrowserDictionary browserDic) {
+    public Comment createComment(RandomGeneratorFarm randomFarm, Post post, ReducedUserProfile user,
+                                 long lastCommentCreatedDate, long startCommentId, long lastCommentId,
+                                 UserAgentDictionary userAgentDic, IPAddressDictionary ipAddDic,
+                                 BrowserDictionary browserDic) {
 
         ArrayList<Integer> validIds = new ArrayList<Integer>();
         Friend[] friends = user.getFriendList();
@@ -136,33 +122,33 @@ public class CommentGenerator {
 
         String content;
         if( user.isLargePoster() ) {
-            if( randLargeComment.nextDouble() > (1.0f-largeCommentRatio) ) {
-                content = tagTextDic.getRandomLargeText(rand,post.getTags(), minLargeSizeOfComment, maxLargeSizeOfComment);
+            if( randomFarm.get(RandomGeneratorFarm.Aspect.LARGE_TEXT).nextDouble() > (1.0f-largeCommentRatio) ) {
+                content = tagTextDic.getRandomLargeText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE),post.getTags(), minLargeSizeOfComment, maxLargeSizeOfComment);
             } else {
-                content = tagTextDic.getRandomText(rand,post.getTags(), minSizeOfComment, maxSizeOfComment);
+                content = tagTextDic.getRandomText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT),post.getTags(), minSizeOfComment, maxSizeOfComment);
             }
         } else {
-            content = tagTextDic.getRandomText(rand,post.getTags(), minSizeOfComment, maxSizeOfComment);
+            content = tagTextDic.getRandomText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT),post.getTags(), minSizeOfComment, maxSizeOfComment);
         }
 
         commentId++;
-        int friendIdx = rand.nextInt(validIds.size());
+        int friendIdx = randomFarm.get(RandomGeneratorFarm.Aspect.FRIEND).nextInt(validIds.size());
         Friend friend = user.getFriendList()[friendIdx];
-        long creationDate = dateGen.powerlawCommDateDay(rand,lastCommentCreatedDate);
+        long creationDate = dateGen.powerlawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),lastCommentCreatedDate);
         Comment comment = new Comment( commentId,
                                        content,
                                        post.getPostId(),
                                        friend.getFriendAcc(),
                                        creationDate,
                                        post.getGroupId(),
-                                       getReplyToId(startCommentId, lastCommentId),
-                                       ipAddDic.getIP(rand,friend.getSourceIp(), friend.isFrequentChange(), creationDate),
-                                       userAgentDic.getUserAgentName(rand,friend.isHaveSmartPhone(), friend.getAgentIdx()),
-                                       browserDic.getPostBrowserId(rand,friend.getBrowserIdx()) );
+                                       getReplyToId(randomFarm.get(RandomGeneratorFarm.Aspect.REPLY_TO),startCommentId, lastCommentId),
+                                       ipAddDic.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER),friend.getSourceIp(), friend.isFrequentChange(), creationDate),
+                                       userAgentDic.getUserAgentName(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT),friend.isHaveSmartPhone(), friend.getAgentIdx()),
+                                       browserDic.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER),friend.getBrowserIdx()) );
         return comment;
     }
     
-    public Comment createComment(Post post, Group group, 
+    public Comment createComment(RandomGeneratorFarm randomFarm,Post post, Group group,
             long lastCommentCreatedDate, long startCommentId, long lastCommentId,
             UserAgentDictionary userAgentDic, IPAddressDictionary ipAddDic,
             BrowserDictionary browserDic) {
@@ -178,32 +164,32 @@ public class CommentGenerator {
             return null;
         }
 
-        int memberIdx = rand.nextInt(validIds.size());
+        int memberIdx = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX).nextInt(validIds.size());
         GroupMemberShip membership = group.getMemberShips()[memberIdx];
 
         String content;
         if( membership.isLargePoster() ) {
-            if( randLargeComment.nextDouble() > (1.0f-largeCommentRatio) ) {
-                content = tagTextDic.getRandomLargeText(rand,post.getTags(), minLargeSizeOfComment, maxLargeSizeOfComment);
+            if( randomFarm.get(RandomGeneratorFarm.Aspect.LARGE_TEXT).nextDouble() > (1.0f-largeCommentRatio) ) {
+                content = tagTextDic.getRandomLargeText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE),post.getTags(), minLargeSizeOfComment, maxLargeSizeOfComment);
             } else {
-                content = tagTextDic.getRandomText(rand, post.getTags(), minSizeOfComment, maxSizeOfComment );
+                content = tagTextDic.getRandomText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT), post.getTags(), minSizeOfComment, maxSizeOfComment );
             }
         } else {
-            content = tagTextDic.getRandomText(rand, post.getTags(), minSizeOfComment, maxSizeOfComment );
+            content = tagTextDic.getRandomText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT), post.getTags(), minSizeOfComment, maxSizeOfComment );
         }
 
         commentId++;
-        long creationDate = dateGen.powerlawCommDateDay(rand,lastCommentCreatedDate);
+        long creationDate = dateGen.powerlawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),lastCommentCreatedDate);
         Comment comment = new Comment( commentId,
                                        content,
                                        post.getPostId(),
                                        membership.getUserId(),
                                        creationDate,
                                        post.getGroupId(),
-                                       getReplyToId(startCommentId, lastCommentId),
-                                       ipAddDic.getIP(rand,membership.getIP(), membership.isFrequentChange(), creationDate),
-                                       userAgentDic.getUserAgentName(rand,membership.isHaveSmartPhone(), membership.getAgentIdx()),
-                                       browserDic.getPostBrowserId(rand,membership.getBrowserIdx()));
+                                       getReplyToId(randomFarm.get(RandomGeneratorFarm.Aspect.REPLY_TO),startCommentId, lastCommentId),
+                                       ipAddDic.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER), membership.getIP(), membership.isFrequentChange(), creationDate),
+                                       userAgentDic.getUserAgentName(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT), membership.isHaveSmartPhone(), membership.getAgentIdx()),
+                                       browserDic.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), membership.getBrowserIdx()));
         return comment;
     }
 }

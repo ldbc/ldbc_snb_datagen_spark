@@ -64,9 +64,6 @@ public class IPAddressDictionary {
 	String 	mappingFileName;
 	String 	baseIPdir;
 	
-	Random randIP;
-	Random randDiffIP; 
-	Random randDiffIPforTravellers;
 	double probDiffIPinTravelSeason;
     double probDiffIPnotTravelSeason;
     double probDiffIPforTraveller;
@@ -161,22 +158,23 @@ public class IPAddressDictionary {
 		return getRandomIPFromLocation(random, randomLocationIdx);
 	}
 	
-	private boolean changeUsualIp(Random random, boolean isFrequentChange, long date) {
-        double randomNumber = random.nextDouble();
+	private boolean changeUsualIp(Random randomDiffIP, Random randomDiffIPForTravelers, boolean isFrequentChange, long date) {
+        double diffIpProb = randomDiffIP.nextDouble();
+        double diffIpForTravelersProb = randomDiffIPForTravelers.nextDouble();
         boolean isTravelSeason = DateGenerator.isTravelSeason(date);
-        if ( (isFrequentChange && randomNumber < probDiffIPforTraveller ) || 
-             (!isFrequentChange && ((isTravelSeason && randomNumber < probDiffIPinTravelSeason) ||
-                                   (!isTravelSeason && randomNumber < probDiffIPnotTravelSeason)))) {
+        if ( (isFrequentChange && diffIpProb < probDiffIPforTraveller ) ||
+             (!isFrequentChange && ((isTravelSeason && diffIpForTravelersProb < probDiffIPinTravelSeason) ||
+                                   (!isTravelSeason && diffIpForTravelersProb < probDiffIPnotTravelSeason)))) {
                  return true;
         }
         return false;
 	}
 	
-	public IP getIP(Random random, IP ip, boolean isFrequentChange, long date) {
-	    return (changeUsualIp(random, isFrequentChange, date)) ? new IP(ip.getIp(), ip.getMask()) : getRandomIP(random);
+	public IP getIP(Random randomIP, Random randomDiffIP, Random randomDiffIPForTravelers, IP ip, boolean isFrequentChange, long date) {
+	    return (changeUsualIp(randomDiffIP, randomDiffIPForTravelers, isFrequentChange, date)) ? new IP(ip.getIp(), ip.getMask()) : getRandomIP(randomIP);
 	}
 	
-	public IP getIP(Random random, IP ip, boolean isFrequentChange, long date, int countryId) {
-        return (changeUsualIp(random, isFrequentChange, date)) ? new IP(ip.getIp(), ip.getMask()) : getRandomIPFromLocation(random, countryId);
+	public IP getIP(Random randomIP, Random randomDiffIP, Random randomDiffIPForTravelers, IP ip, boolean isFrequentChange, long date, int countryId) {
+        return (changeUsualIp(randomDiffIP, randomDiffIPForTravelers, isFrequentChange, date)) ? new IP(ip.getIp(), ip.getMask()) : getRandomIPFromLocation(randomIP, countryId);
     }
 }

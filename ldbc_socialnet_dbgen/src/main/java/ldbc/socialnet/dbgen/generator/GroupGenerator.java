@@ -48,6 +48,7 @@ import ldbc.socialnet.dbgen.objects.Group;
 import ldbc.socialnet.dbgen.objects.GroupMemberShip;
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
 import ldbc.socialnet.dbgen.objects.UserExtraInfo;
+import ldbc.socialnet.dbgen.util.RandomGeneratorFarm;
 
 
 public class GroupGenerator {
@@ -57,30 +58,28 @@ public class GroupGenerator {
 	DateGenerator dateGenerator; 
 	LocationDictionary locationDic;
 	TagDictionary tagDic;
-	Random 	randGroupInterest;
-	
+
 	public GroupGenerator(DateGenerator dateGenerator, LocationDictionary locationDic, 
-			TagDictionary tagDic, int numUsers, long seed){
+			TagDictionary tagDic, int numUsers){
 		this.dateGenerator = dateGenerator; 
 		this.locationDic = locationDic; 
 		this.tagDic = tagDic; 
 		
 		GroupGenerator.forumId = numUsers * 2 + 1;
-		randGroupInterest = new Random(seed);
 	}
 	
 	public void setForumId(int forumId) {
 	    GroupGenerator.forumId = forumId;
 	}
 	
-	public Group createGroup(Random random, ReducedUserProfile user){
+	public Group createGroup(RandomGeneratorFarm randomFarm, ReducedUserProfile user){
 		Group group = new Group(); 
 		forumId = forumId + 2;
 		groupId++;
 		
 		group.setGroupId(groupId);
 		group.setModeratorId(user.getAccountId());
-		group.setCreatedDate(dateGenerator.randomGroupCreatedDate(random,user));
+		group.setCreatedDate(dateGenerator.randomGroupCreatedDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),user));
 		group.setForumWallId(forumId);
 		group.setForumStatusId(forumId + 1);
 		
@@ -89,7 +88,7 @@ public class GroupGenerator {
 				
 		TreeSet<Integer> tagSet = user.getSetOfTags();
 		Iterator<Integer> iter = tagSet.iterator();
-        int idx = randGroupInterest.nextInt(tagSet.size());
+        int idx = randomFarm.get(RandomGeneratorFarm.Aspect.GROUP_INTEREST).nextInt(tagSet.size());
         for (int i = 0; i < idx; i++){
             iter.next();
         }
@@ -108,19 +107,19 @@ public class GroupGenerator {
 		return group; 
 	}
 	
-	public Group createAlbum(Random random, ReducedUserProfile user, UserExtraInfo extraInfo, int numAlbum, double memberProb) {
-	    Group group = createGroup(random,user);
-	    group.setCreatedDate(dateGenerator.randomPhotoAlbumCreatedDate(random,user));
+	public Group createAlbum(RandomGeneratorFarm randomFarm, ReducedUserProfile user, UserExtraInfo extraInfo, int numAlbum, double memberProb) {
+	    Group group = createGroup(randomFarm,user);
+	    group.setCreatedDate(dateGenerator.randomPhotoAlbumCreatedDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),user));
 	    Vector<Integer> countries = locationDic.getCountries();
-	    int randomCountry = random.nextInt(countries.size());
+	    int randomCountry = randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY).nextInt(countries.size());
 	    group.setLocationIdx(countries.get(randomCountry));
 	    group.setGroupName("Album " + numAlbum + " of " + extraInfo.getFirstName() + " " + extraInfo.getLastName());
 	    Friend[] friends = user.getFriendList();
 	    group.initAllMemberships(user.getNumFriendsAdded());
 	    for (int i = 0; i < user.getNumFriendsAdded(); i++) {
-	        double randMemberProb = random.nextDouble();
+	        double randMemberProb = randomFarm.get(RandomGeneratorFarm.Aspect.ALBUM_MEMBERSHIP).nextDouble();
 	        if (randMemberProb < memberProb) {
-	            GroupMemberShip memberShip = createGroupMember(random,friends[i].getFriendAcc(), 
+	            GroupMemberShip memberShip = createGroupMember(randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX),friends[i].getFriendAcc(),
 	                    group.getCreatedDate(), friends[i]);
 	            group.addMember(memberShip);
 	        }

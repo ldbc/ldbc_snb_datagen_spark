@@ -70,8 +70,8 @@ public class UserAgentDictionary {
 		}
 	}
 	
-	public String getUserAgentName(Random random, boolean hasSmathPhone, byte agentId){
-		return (hasSmathPhone && (random.nextDouble() > probSentFromAgent)) ? userAgents.get(agentId) : "";
+	public String getUserAgentName(Random randomSent, boolean hasSmathPhone, byte agentId){
+		return (hasSmathPhone && (randomSent.nextDouble() > probSentFromAgent)) ? userAgents.get(agentId) : "";
 	}
 	
 	public byte getRandomUserAgentIdx(Random random){

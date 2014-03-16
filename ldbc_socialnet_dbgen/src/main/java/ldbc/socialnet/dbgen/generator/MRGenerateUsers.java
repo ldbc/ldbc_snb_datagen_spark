@@ -153,10 +153,8 @@ public class MRGenerateUsers{
 		}
 		@Override
 		protected void cleanup(Context context){
-			System.out.println("Number of user profile already read " + friendGenerator.numUserProfilesRead);
-			System.out.println("Start putting remaining users ");
 			System.out.println("Summary for " + attempTaskId);
-			System.out.println("Number of user profile read " + friendGenerator.numUserProfilesRead);
+			System.out.println("Number of user profile read " + friendGenerator.totalNumUserProfilesRead);
 			System.out.println("Number of exact user profile out " + friendGenerator.exactOutput);
 			System.out.println("Number of exact friend added " + friendGenerator.friendshipNum);
 		}
@@ -233,10 +231,8 @@ public class MRGenerateUsers{
 		}
 		@Override
 		protected void cleanup(Context context){
-			System.out.println("Number of user profile already read " + friendGenerator.numUserProfilesRead);
-			System.out.println("Start putting remaining users ");
 			System.out.println("Summary for " + attempTaskId);
-			System.out.println("Number of user profile read " + friendGenerator.numUserProfilesRead);
+			System.out.println("Number of user profile read " + friendGenerator.totalNumUserProfilesRead);
 			System.out.println("Number of exact user profile out " + friendGenerator.exactOutput);
 			System.out.println("Number of exact friend added " + friendGenerator.friendshipNum);
 		}
@@ -285,7 +281,6 @@ public class MRGenerateUsers{
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
@@ -351,7 +346,6 @@ public class MRGenerateUsers{
     */
 
 	public int runGenerateJob(String[] args) throws Exception {
-		// TODO Auto-generated method stub
 		Configuration conf = new Configuration();
 		
 		int numMachines = Integer.parseInt(args[2]);

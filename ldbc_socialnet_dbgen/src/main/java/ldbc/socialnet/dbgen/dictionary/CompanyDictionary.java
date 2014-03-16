@@ -36,6 +36,8 @@
  */
 package ldbc.socialnet.dbgen.dictionary;
 
+import ldbc.socialnet.dbgen.util.RandomGeneratorFarm;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -121,17 +123,17 @@ public class CompanyDictionary {
 	 * a random one will be selected.
 	 * @param countryId: A country id.
 	 */
-	public String getRandomCompany(Random random, int countryId) {
+	public String getRandomCompany(RandomGeneratorFarm randomFarm, int countryId) {
 		int locId = countryId;
 		Vector<Integer> countries = locationDic.getCountries();
-		if (random.nextDouble() <= probUnCorrelatedCompany) {
-		    locId = countries.get(random.nextInt(countries.size()));
+		if (randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_COMPANY).nextDouble() <= probUnCorrelatedCompany) {
+		    locId = countries.get(randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_COMPANY_LOCATION).nextInt(countries.size()));
 		}
 		// In case the country doesn't have any company select another country.
 		while (companiesByLocations.get(locId).size() == 0){
-		    locId = countries.get(random.nextInt(countries.size()));
+		    locId = countries.get(randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_COMPANY_LOCATION).nextInt(countries.size()));
         }
-		int randomCompanyIdx = random.nextInt(companiesByLocations.get(locId).size());
+		int randomCompanyIdx = randomFarm.get(RandomGeneratorFarm.Aspect.COMPANY).nextInt(companiesByLocations.get(locId).size());
 		return companiesByLocations.get(locId).get(randomCompanyIdx);
 	}
 }

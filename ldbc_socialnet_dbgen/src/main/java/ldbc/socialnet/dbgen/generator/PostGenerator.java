@@ -38,23 +38,21 @@
 package ldbc.socialnet.dbgen.generator;
 
 import java.util.TreeSet;
-import java.util.Iterator;
 import java.util.Random;
 import java.util.Vector;
 
-import ldbc.socialnet.dbgen.generator.DateGenerator;
-import ldbc.socialnet.dbgen.generator.ScalableGenerator;
+import cern.jet.random.engine.RandomGenerator;
 import ldbc.socialnet.dbgen.dictionary.TagTextDictionary;
 import ldbc.socialnet.dbgen.dictionary.UserAgentDictionary;
 import ldbc.socialnet.dbgen.dictionary.IPAddressDictionary;
 import ldbc.socialnet.dbgen.dictionary.BrowserDictionary;
-import ldbc.socialnet.dbgen.objects.Comment;
 import ldbc.socialnet.dbgen.objects.Friend;
 import ldbc.socialnet.dbgen.objects.Group;
 import ldbc.socialnet.dbgen.objects.GroupMemberShip;
 import ldbc.socialnet.dbgen.objects.Post;
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
 import ldbc.socialnet.dbgen.objects.UserExtraInfo;
+import ldbc.socialnet.dbgen.util.RandomGeneratorFarm;
 
 
 abstract public class PostGenerator {
@@ -75,11 +73,6 @@ abstract public class PostGenerator {
     private BrowserDictionary browserDic;       /**< @brief The Browser dictioanry used to obtain the browsers used by the users.*/
 
     /* A set of random number generator for different purposes.*/ 
-	private Random rand;                      
-	private Random randReplyTo;            
-	private Random randTextSize ;
-	private Random randReduceText;
-    private Random randLargePost;
 
 	private int minSizeOfPost;             /**< @brief The minimum size of a post.*/
 	private int maxSizeOfPost;             /**< @brief The maximum size of a post.*/
@@ -91,9 +84,6 @@ abstract public class PostGenerator {
     private double reducedTextRatio;       /**< @brief The ratio of reduced texts.*/
     private double largePostRatio;         /**< @brief The ratio of large posts.*/
 
-
-
-
 	public PostGenerator( TagTextDictionary tagTextDic, 
                           UserAgentDictionary userAgentDic,
                           IPAddressDictionary ipAddressDic,
@@ -104,19 +94,13 @@ abstract public class PostGenerator {
                           int minLargeSizeOfPost, 
                           int maxLargeSizeOfPost, 
                           double largePostRatio,
-                          int maxNumberOfLikes,
-                          long seed,
-                          long seedTextSize){
+                          int maxNumberOfLikes
+                          ){
 
         this.tagTextDic = tagTextDic;
         this.userAgentDic = userAgentDic;
         this.ipAddressDic = ipAddressDic;
         this.browserDic = browserDic;
-		this.rand = new Random(seed);
-		this.randReduceText = new Random(seed);
-		this.randReplyTo = new Random(seed);
-		this.randTextSize = new Random(seedTextSize);
-        this.randLargePost = new Random(seed);
 
 		this.minSizeOfPost = minSizeOfPost;
 		this.maxSizeOfPost = maxSizeOfPost;
@@ -136,9 +120,8 @@ abstract public class PostGenerator {
 
     /** @brief Gets an array of likes for a user.
      *  @param[in] user The user.
-     *  @param[in] numOfLikes The number of likes we want to generate
      *  @return The array of generated likes.*/
-	private long[] generateLikeFriends( ReducedUserProfile user, int numberOfLikes) {
+	private long[] generateLikeFriends( Random randomNumLikes, ReducedUserProfile user, int numberOfLikes) {
 	    Friend[] friendList = user.getFriendList();
 	    int numFriends = user.getNumFriendsAdded();
 	    long[] friends;
@@ -149,7 +132,7 @@ abstract public class PostGenerator {
             }
         } else {
             friends = new long[numberOfLikes];
-            int startIdx = rand.nextInt(numFriends - numberOfLikes);
+            int startIdx = randomNumLikes.nextInt(numFriends - numberOfLikes);
             for (int i = 0; i < numberOfLikes ; i++) {
                 friends[i] = friendList[i+startIdx].getFriendAcc();
             }
@@ -161,7 +144,7 @@ abstract public class PostGenerator {
      *  @param[in] group The group.
      *  @param[in] numOfLikes The number of likes we want to generate
      *  @return The array of generated likes.*/
-	private long[] generateLikeFriends(Group group, int numOfLikes){
+	private long[] generateLikeFriends(Random randomNumLikes, Group group, int numOfLikes){
         GroupMemberShip groupMembers[] = group.getMemberShips();
 
         int numAddedMember = group.getNumMemberAdded();
@@ -173,7 +156,7 @@ abstract public class PostGenerator {
             }
         } else{
             friends = new long[numOfLikes];
-            int startIdx = rand.nextInt(numAddedMember - numOfLikes);
+            int startIdx = randomNumLikes.nextInt(numAddedMember - numOfLikes);
             for (int j = 0; j < numOfLikes; j++){
                 friends[j] = groupMembers[j+startIdx].getUserId();
             }           
@@ -184,13 +167,13 @@ abstract public class PostGenerator {
     /** @brief Assigns a set of likes to a post created by a user.
      *  @param[in] post The post to which we want to assign the likes.
      *  @param[in] user The user that created the post.*/ 
-    private void setLikes( Post post, ReducedUserProfile user ) {
-        int numberOfLikes = rand.nextInt(maxNumberOfLikes);
-        long[] likes = generateLikeFriends(user, numberOfLikes);
+    private void setLikes( Random randomNumLikes, Random randomDate, Post post, ReducedUserProfile user ) {
+        int numberOfLikes = randomNumLikes.nextInt(maxNumberOfLikes);
+        long[] likes = generateLikeFriends(randomNumLikes,user, numberOfLikes);
         post.setInterestedUserAccs(likes);
         long[] likeTimestamp = new long[likes.length];
         for (int i = 0; i < likes.length; i++) {
-            likeTimestamp[i] = (long)(rand.nextDouble()*DateGenerator.SEVEN_DAYS+post.getCreationDate());
+            likeTimestamp[i] = (long)(randomDate.nextDouble()*DateGenerator.SEVEN_DAYS+post.getCreationDate());
         }
         post.setInterestedUserAccsTimestamp(likeTimestamp);
     }
@@ -198,13 +181,13 @@ abstract public class PostGenerator {
     /** @brief Assigns a set of likes to a post created by a user.
      *  @param[in] post The post to which we want to assign the likes.
      *  @param[in] group The group where the post was created.*/ 
-    private void setLikes( Post post, Group group ) {
-        int numberOfLikes = rand.nextInt(maxNumberOfLikes);
-        long[] likes = generateLikeFriends(group, numberOfLikes);
+    private void setLikes( Random randomNumLikes, Random randomDate, Post post, Group group ) {
+        int numberOfLikes = randomNumLikes.nextInt(maxNumberOfLikes);
+        long[] likes = generateLikeFriends(randomNumLikes,group, numberOfLikes);
         post.setInterestedUserAccs(likes);
         long[] likeTimestamp = new long[likes.length];
         for (int i = 0; i < likes.length; i++) {
-            likeTimestamp[i] = (long)(rand.nextDouble()*DateGenerator.SEVEN_DAYS+post.getCreationDate());
+            likeTimestamp[i] = (long)(randomDate.nextDouble()*DateGenerator.SEVEN_DAYS+post.getCreationDate());
         }
         post.setInterestedUserAccsTimestamp(likeTimestamp);
     }
@@ -214,26 +197,26 @@ abstract public class PostGenerator {
      *  @param[in] user The user which we want to create the posts..
      *  @param[in] extraInfo The extra information of the user.
      *  @return The set of posts.*/ 
-    public Vector<Post> createPosts(ReducedUserProfile user, UserExtraInfo extraInfo ){
+    public Vector<Post> createPosts(RandomGeneratorFarm randomFarm, ReducedUserProfile user, UserExtraInfo extraInfo ){
         Vector<Post> result = new Vector<Post>();
-        int numPosts = generateNumOfPost(user);
+        int numPosts = generateNumOfPost(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_POST), user);
         for( int i = 0; i < numPosts; ++i ) {
             //Generate the post info.
-            PostInfo postInfo = generatePostInfo(user);
+            PostInfo postInfo = generatePostInfo(randomFarm.get(RandomGeneratorFarm.Aspect.TAG), randomFarm.get(RandomGeneratorFarm.Aspect.DATE), user);
             if( postInfo != null ) {
                 // Create the content of the post from its tags.
                 String content;
                 if( user.isLargePoster() ) {
-                    if( randLargePost.nextDouble() > (1.0f-largePostRatio) ) {
-                        content = tagTextDic.getRandomLargeText( rand, postInfo.tags, minLargeSizeOfPost, maxLargeSizeOfPost );
+                    if( randomFarm.get(RandomGeneratorFarm.Aspect.LARGE_TEXT).nextDouble() > (1.0f-largePostRatio) ) {
+                        content = tagTextDic.getRandomLargeText( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), postInfo.tags, minLargeSizeOfPost, maxLargeSizeOfPost );
                     } else {
-                        content = tagTextDic.getRandomText(rand, postInfo.tags, minSizeOfPost, maxSizeOfPost);
+                        content = tagTextDic.getRandomText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE),randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT), postInfo.tags, minSizeOfPost, maxSizeOfPost);
                     }
                 } else {
-                    content = tagTextDic.getRandomText(rand,postInfo.tags, minSizeOfPost, maxSizeOfPost);
+                    content = tagTextDic.getRandomText( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE),randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT), postInfo.tags, minSizeOfPost, maxSizeOfPost);
                 }
 
-                Integer languageIndex = rand.nextInt(extraInfo.getLanguages().size());
+                Integer languageIndex = randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE).nextInt(extraInfo.getLanguages().size());
                 ScalableGenerator.postId++;
                 Post post = new Post( ScalableGenerator.postId, 
                   content,
@@ -242,12 +225,12 @@ abstract public class PostGenerator {
                   user.getAccountId() * 2,
                   extraInfo.getLanguages().get(languageIndex),
                   postInfo.tags,
-                  ipAddressDic.getIP(rand,user.getIpAddress(), user.isFrequentChange(), postInfo.date),
-                  userAgentDic.getUserAgentName(rand,user.isHaveSmartPhone(), user.getAgentIdx()),
-                  browserDic.getPostBrowserId(rand,user.getBrowserIdx()));
+                  ipAddressDic.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER),user.getIpAddress(), user.isFrequentChange(), postInfo.date),
+                  userAgentDic.getUserAgentName(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT), user.isHaveSmartPhone(), user.getAgentIdx()),
+                  browserDic.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), user.getBrowserIdx()));
 
             // Create post likes.
-                setLikes(post, user);
+                setLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), randomFarm.get(RandomGeneratorFarm.Aspect.DATE),post, user);
                 result.add(post);
             }
         }
@@ -257,26 +240,26 @@ abstract public class PostGenerator {
     /** @brief Creates a set of posts for a user..
      *  @param[in] group The group which we want to create the posts.
      *  @return The set of posts.*/ 
-    public Vector<Post> createPosts(Group group) {
+    public Vector<Post> createPosts( RandomGeneratorFarm randomFarm, Group group) {
         Vector<Post> result = new Vector<Post>();
-        int numPosts = generateNumOfPost(group);
+        int numPosts = generateNumOfPost(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_POST), group);
         for( int i = 0; i < numPosts; ++i ) {
              // Obtain the membership information about the creator of the post.
-            int memberIdx = rand.nextInt(group.getNumMemberAdded());
+            int memberIdx = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_POST_CREATOR).nextInt(group.getNumMemberAdded());
             GroupMemberShip memberShip = group.getMemberShips()[memberIdx];
             // Generate the post info.
-            PostInfo postInfo = generatePostInfo(group, memberShip);
+            PostInfo postInfo = generatePostInfo(randomFarm.get(RandomGeneratorFarm.Aspect.TAG), randomFarm.get(RandomGeneratorFarm.Aspect.DATE), group, memberShip);
             if( postInfo != null ) {
                 // Create the content of the post from its tags.
                 String content;
                 if( memberShip.isLargePoster() ) {
-                    if( randLargePost.nextDouble() > (1.0f-largePostRatio) ) {
-                        content = tagTextDic.getRandomLargeText(rand,postInfo.tags, minLargeSizeOfPost, maxLargeSizeOfPost);
+                    if( randomFarm.get(RandomGeneratorFarm.Aspect.LARGE_TEXT).nextDouble() > (1.0f-largePostRatio) ) {
+                        content = tagTextDic.getRandomLargeText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), postInfo.tags, minLargeSizeOfPost, maxLargeSizeOfPost);
                     } else {
-                        content = tagTextDic.getRandomText(rand,postInfo.tags, minSizeOfPost, maxSizeOfPost);
+                        content = tagTextDic.getRandomText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT),postInfo.tags, minSizeOfPost, maxSizeOfPost);
                     }
                 } else {
-                    content = tagTextDic.getRandomText(rand,postInfo.tags, minSizeOfPost, maxSizeOfPost);
+                    content = tagTextDic.getRandomText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT),postInfo.tags, minSizeOfPost, maxSizeOfPost);
                 }
                 ScalableGenerator.postId++;
                 Post post = new Post( ScalableGenerator.postId, 
@@ -286,12 +269,12 @@ abstract public class PostGenerator {
                   group.getForumWallId(),
                   -1,
                   postInfo.tags,
-                  ipAddressDic.getIP(rand,memberShip.getIP(), memberShip.isFrequentChange(), postInfo.date),
-                  userAgentDic.getUserAgentName(rand,memberShip.isHaveSmartPhone(), memberShip.getAgentIdx()),
-                  browserDic.getPostBrowserId(rand,memberShip.getBrowserIdx()));
+                  ipAddressDic.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER),memberShip.getIP(), memberShip.isFrequentChange(), postInfo.date),
+                  userAgentDic.getUserAgentName(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT), memberShip.isHaveSmartPhone(), memberShip.getAgentIdx()),
+                  browserDic.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), memberShip.getBrowserIdx()));
 
                 // Create the post likes
-                setLikes(post, group)   ;
+                setLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), randomFarm.get(RandomGeneratorFarm.Aspect.DATE), post, group);
                 result.add(post);
             } 
         }
@@ -301,21 +284,21 @@ abstract public class PostGenerator {
     /** @brief Returs the tag and creation date information of a post.
      *  @param[in] user The user that creates the post.
      *  @return The post info struct containing the information. null if it was not possible to generate.*/
-    protected abstract PostInfo generatePostInfo( ReducedUserProfile user );
+    protected abstract PostInfo generatePostInfo( Random randomTag, Random randomDate, ReducedUserProfile user );
 
     /** @brief Returs the tag and creation date information of a post.
      *  @param[in] group The group where the post belongs.
      *  @param[in] membership The membership information of the user that creates the post.
      *  @return The post info struct containing the information. null if it was not possible to generate.*/
-    protected abstract PostInfo generatePostInfo( Group group, GroupMemberShip membership );
+    protected abstract PostInfo generatePostInfo( Random randomTag, Random randomDate, Group group, GroupMemberShip membership );
 
     /** @brief Gets the number of posts a user will create.
      *  @param[in] user The user which we want to know the number of posts.
      *  @return The number of posts of the user.*/
-    protected abstract int generateNumOfPost(ReducedUserProfile user);
+    protected abstract int generateNumOfPost(Random randomNumPost, ReducedUserProfile user);
 
     /** @brief Gets the number of posts that will be created in a group.
      *  @param[in] group The group which we want to know the number of posts.
      *  @return The number of posts in the group.*/
-    protected abstract int generateNumOfPost(Group group);
+    protected abstract int generateNumOfPost(Random randomNumPost, Group group);
 }

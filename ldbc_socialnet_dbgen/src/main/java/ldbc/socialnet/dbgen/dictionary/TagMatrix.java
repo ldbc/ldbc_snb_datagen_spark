@@ -83,7 +83,7 @@ public class TagMatrix {
     }
     
     // Combine the main tag and related tags
-    public TreeSet<Integer> getSetofTags(Random random, int celebrityId, int numTags){
+    public TreeSet<Integer> getSetofTags(Random randomTopic, Random randomTag, int celebrityId, int numTags){
         TreeSet<Integer> resultTags = new TreeSet<Integer>();
         resultTags.add(celebrityId);
         while (resultTags.size() < numTags) {
@@ -91,11 +91,11 @@ public class TagMatrix {
             tagId = celebrityId; 
             
             while (vecTopicID.get(tagId).size() == 0) {
-                tagId = random.nextInt(vecTopicID.size());
+                tagId = randomTopic.nextInt(vecTopicID.size());
             }
 
             // Doing binary search for finding the tag
-            double randomDis = random.nextDouble(); 
+            double randomDis = randomTag.nextDouble();
             int lowerBound = 0;
             int upperBound = vecTopicID.get(tagId).size();
             int midPoint = (upperBound + lowerBound)  / 2;

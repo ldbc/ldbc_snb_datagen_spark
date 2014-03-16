@@ -97,18 +97,18 @@ public class TagTextDictionary {
 	    return tagText.get(id);
 	}
 
-    public String getRandomText(Random random, TreeSet<Integer> tags, int minSize, int maxSize ) {
+    public String getRandomText(Random randomTextSize, Random randomReducedText, TreeSet<Integer> tags, int minSize, int maxSize ) {
 
         int textSize;
         int startingPos;
         String returnString = "";
         
         // Generate random fragment from the content 
-        if (random.nextDouble() > reducedTextRatio){
-            textSize = random.nextInt(maxSize - minSize) + minSize;
+        if (randomReducedText.nextDouble() > reducedTextRatio){
+            textSize = randomTextSize.nextInt(maxSize - minSize) + minSize;
         }
         else{
-            textSize = random.nextInt((maxSize >> 1) - minSize) + minSize;
+            textSize = randomTextSize.nextInt((maxSize >> 1) - minSize) + minSize;
         }
 
         int textSizePerTag = textSize / tags.size();
@@ -119,7 +119,7 @@ public class TagTextDictionary {
             if (textSizePerTag >= content.length()) {
                 returnString += content;
             } else {
-                startingPos = random.nextInt(content.length() - textSizePerTag);
+                startingPos = randomTextSize.nextInt(content.length() - textSizePerTag);
                 String finalString = content.substring(startingPos, startingPos + textSizePerTag - 1);
                 
                 String tagName = tagDic.getName(tag).replace("_", " ");
@@ -143,8 +143,8 @@ public class TagTextDictionary {
         return returnString.replace("|", " ");
     }
 
-    public String getRandomLargeText(Random random, TreeSet<Integer> tags, int minSize, int maxSize) {
-       int textSize = random.nextInt(maxSize - minSize) + minSize;
+    public String getRandomLargeText(Random randomTextSize, TreeSet<Integer> tags, int minSize, int maxSize) {
+       int textSize = randomTextSize.nextInt(maxSize - minSize) + minSize;
        String content = new String(); 
        Iterator<Integer> it = tags.iterator();
        while(content.length() < textSize) {

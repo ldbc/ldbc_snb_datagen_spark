@@ -95,12 +95,12 @@ public class EmailDictionary {
 	/**
 	 * Gets a random email domain based on its popularity.
 	 */
-	public String getRandomEmail(Random random){
+	public String getRandomEmail(Random randomTop, Random randomEmail){
 		int minIdx = 0;
 		int maxIdx = topEmailCummulative.size() - 1;
-		double prob = random.nextDouble();
+		double prob = randomTop.nextDouble();
 		if (prob > topEmailCummulative.get(maxIdx)){
-		    int Idx = random.nextInt(emails.size() - topEmailCummulative.size()) + topEmailCummulative.size();
+		    int Idx = randomEmail.nextInt(emails.size() - topEmailCummulative.size()) + topEmailCummulative.size();
 		    return emails.get(Idx);
 		} else if (prob < topEmailCummulative.get(minIdx)){
 		    return emails.get(minIdx);

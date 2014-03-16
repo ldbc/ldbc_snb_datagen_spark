@@ -37,15 +37,10 @@
 
 package ldbc.socialnet.dbgen.generator;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.TreeSet;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Vector;
-import java.util.TreeSet;
 import java.util.Arrays;
 
 import ldbc.socialnet.dbgen.generator.DateGenerator;
@@ -72,7 +67,6 @@ public class FlashmobPostGenerator extends PostGenerator {
 
     private DateGenerator dateGen;                          /**< @brief the date generator.*/
     private FlashmobTagDictionary flashmobTagDictionary;    /**< @brief The flashmobTagDictionary used to get the tags of the posts.*/
-    private Random randomUniform;
     private Distribution dateDistribution;
     private long hoursToMillis;
     private long flashmobSpan;
@@ -94,20 +88,17 @@ public class FlashmobPostGenerator extends PostGenerator {
             int maxLargeSizeOfPost, 
             double largePostRatio,
             int maxNumberOfLikes,
-            long seed,
-            long seedTextSize,
             DateGenerator dateGen,
             FlashmobTagDictionary flashmobTagDictionary,
             int postPerLevelScaleFactor,
             String flashmobDistFile
             ) {
         super(tagTextDic, userAgentDic, ipAddressDic, browserDic, minSizeOfPost, maxSizeOfPost, reducedTextRatio, minLargeSizeOfPost,
-                maxLargeSizeOfPost, largePostRatio, maxNumberOfLikes, seed, seedTextSize);
+                maxLargeSizeOfPost, largePostRatio, maxNumberOfLikes);
         this.dateGen = dateGen;
         this.flashmobTagDictionary = flashmobTagDictionary;
-        this.randomUniform = new Random(seed);
         this.postPerLevelScaleFactor = postPerLevelScaleFactor;
-        this.dateDistribution = new Distribution(flashmobDistFile, seed);
+        this.dateDistribution = new Distribution(flashmobDistFile);
         this.hoursToMillis = 60*60*1000;
         this.flashmobSpan = 72 * hoursToMillis;
     }
@@ -123,10 +114,10 @@ public class FlashmobPostGenerator extends PostGenerator {
      *  @param[in] tags The array of sorted tags to select from.
      *  @param[in] index The first tag to consider.
      *  @return The index of a random tag.*/
-    private int selectRandomTag( FlashmobTag[] tags, int index ) {
+    private int selectRandomTag( Random randomFlashmobTag, FlashmobTag[] tags, int index ) {
         int upperBound = tags.length - 1;
         int lowerBound = index;
-        double prob = randomUniform.nextDouble() * (tags[upperBound].prob - tags[lowerBound].prob) + tags[lowerBound].prob;
+        double prob = randomFlashmobTag.nextDouble() * (tags[upperBound].prob - tags[lowerBound].prob) + tags[lowerBound].prob;
         //System.out.println(tags[upperBound].prob+" "+tags[lowerBound].prob+" "+prob);
         int midPoint = (upperBound + lowerBound)  / 2;
         while (upperBound > (lowerBound+1)){
@@ -141,7 +132,6 @@ public class FlashmobPostGenerator extends PostGenerator {
     }
 
     /** @brief Selects the earliest flashmob tag index from a given date.
-     *  @param[in] fromDate The minimum date to consider.
      *  @return The index to the earliest flashmob tag.*/
     private int searchEarliest( FlashmobTag[] tags, GroupMemberShip membership ) {
         long fromDate = membership.getJoinDate();
@@ -161,32 +151,32 @@ public class FlashmobPostGenerator extends PostGenerator {
     }
 
     @Override
-        protected PostInfo generatePostInfo( ReducedUserProfile user ) {
+        protected PostInfo generatePostInfo( Random randomTag, Random randomDate, ReducedUserProfile user ) {
             PostInfo postInfo = new PostInfo();
-            int index = selectRandomTag( userFlashmobTags, 0 );
+            int index = selectRandomTag( randomTag, userFlashmobTags, 0 );
             FlashmobTag flashmobTag = userFlashmobTags[index];
             if( flashmobTag.date < user.getCreationDate() )  return null;
             postInfo.tags.add(flashmobTag.tag);
-            double prob = dateDistribution.nextDouble();
+            double prob = dateDistribution.nextDouble(randomDate);
             postInfo.date = flashmobTag.date - flashmobSpan/2 + (long)( prob * flashmobSpan); 
             return postInfo;
         }
 
     @Override
-        protected PostInfo generatePostInfo( Group group, GroupMemberShip membership ) {
+        protected PostInfo generatePostInfo( Random randomTag, Random randomDate, Group group, GroupMemberShip membership ) {
             PostInfo postInfo = new PostInfo();
             int index = searchEarliest(groupFlashmobTags,membership);
             if( index < 0 ) return null;
-            index = selectRandomTag(groupFlashmobTags,index);
+            index = selectRandomTag( randomTag, groupFlashmobTags,index);
             FlashmobTag flashmobTag =  groupFlashmobTags[index];
             postInfo.tags.add(flashmobTag.tag);
-            double prob = dateDistribution.nextDouble();
+            double prob = dateDistribution.nextDouble(randomDate);
             postInfo.date = flashmobTag.date - flashmobSpan/2 + (long)(prob * flashmobSpan); 
             return postInfo;
         }
 
     @Override
-        protected int generateNumOfPost(ReducedUserProfile user) {
+        protected int generateNumOfPost(Random randomNumPost, ReducedUserProfile user) {
             Vector<FlashmobTag> temp = flashmobTagDictionary.generateFlashmobTags( user.getSetOfTags(), user.getCreationDate());
             userFlashmobTags = new FlashmobTag[temp.size()];
             int index = 0;
@@ -210,7 +200,7 @@ public class FlashmobPostGenerator extends PostGenerator {
         }
 
     @Override
-        protected int generateNumOfPost(Group group) {
+        protected int generateNumOfPost(Random randomNumPost, Group group) {
             Integer[] groupTags = group.getTags();
             TreeSet<Integer> tags = new TreeSet<Integer>(); 
             for( int i = 0; i < groupTags.length; ++i ) {

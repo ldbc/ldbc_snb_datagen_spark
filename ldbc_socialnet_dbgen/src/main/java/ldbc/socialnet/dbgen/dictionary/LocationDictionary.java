@@ -353,9 +353,10 @@ public class LocationDictionary {
 
 
     public void advanceToUser(int user) {
-       for(int i = 0; i < user-1; ++i){
-           getLocation(i);
-       } 
+        curLocationIdx=0;
+        for(int i = 0; i < user-1; ++i){
+            getLocation(i);
+        } 
     }
 	
 	/**

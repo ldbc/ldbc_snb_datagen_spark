@@ -172,17 +172,17 @@ public class TagDictionary {
 		}
 	}
 
-	public int getaTagByCountry(Random random, int _countryId){
+	public int getaTagByCountry(Random randomTagOtherCountry, Random randomTagCountryProb, int _countryId){
 		int countryId; 
 		countryId = _countryId; 
 			
-		if (tagsByCountry.get(countryId).size() == 0 || random.nextDouble() > tagCountryCorrProb) {
+		if (tagsByCountry.get(countryId).size() == 0 || randomTagOtherCountry.nextDouble() > tagCountryCorrProb) {
 			do {
-				countryId = random.nextInt(tagsByCountry.size());
+				countryId = randomTagOtherCountry.nextInt(tagsByCountry.size());
 			} while (tagsByCountry.get(countryId).size() == 0);
 		}
 		
-		double randomDis = random.nextDouble(); 
+		double randomDis = randomTagCountryProb.nextDouble();
 		int lowerBound = 0;
 		int upperBound = tagsByCountry.get(countryId).size();
 		int curIdx = (upperBound + lowerBound)  / 2;

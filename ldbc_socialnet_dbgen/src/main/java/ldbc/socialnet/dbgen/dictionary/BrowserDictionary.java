@@ -125,8 +125,8 @@ public class BrowserDictionary {
 	 * Gets the post browser. There is a chance of being different from the user preferred browser
 	 * @param userBrowserId: The user preferred browser.
 	 */
-	public byte getPostBrowserId(Random random, byte userBrowserId){
-		double prob = random.nextDouble();
-		return (prob < probAnotherBrowser) ? getRandomBrowserId(random) : userBrowserId;
+	public byte getPostBrowserId(Random randomDiffBrowser, Random randomBrowser, byte userBrowserId){
+		double prob = randomDiffBrowser.nextDouble();
+		return (prob < probAnotherBrowser) ? getRandomBrowserId(randomBrowser) : userBrowserId;
 	}
 }

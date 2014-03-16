@@ -42,6 +42,7 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.Vector;
+import ldbc.socialnet.dbgen.util.RandomGeneratorFarm;
 
 public class UniversityDictionary {
     
@@ -119,34 +120,33 @@ public class UniversityDictionary {
 	
 	// 90% of people go to top-10 universities
 	// 10% go to remaining universities
-	public int getRandomUniversity(Random random, int locationId) {
-	    
-		double prob = random.nextDouble();
-		
+	public int getRandomUniversity(RandomGeneratorFarm randomFarm, int locationId) {
+
+        double prob = randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_UNIVERSITY).nextDouble();
 		Vector<Integer> countries = locationDic.getCountries();
-		if (random.nextDouble() <= probUncorrelatedUniversity) {
-		    locationId = countries.get(random.nextInt(countries.size()));
+		if (randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_UNIVERSITY).nextDouble() <= probUncorrelatedUniversity) {
+		    locationId = countries.get(randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_UNIVERSITY_LOCATION).nextInt(countries.size()));
 		}
 		
 		while (universitiesByLocation.get(locationId).size() == 0) {
-            locationId = countries.get(random.nextInt(countries.size()));
+            locationId = countries.get(randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_UNIVERSITY_LOCATION).nextInt(countries.size()));
         }
 		
 		int range = universitiesByLocation.get(locationId).size();
-		if (prob > probUncorrelatedUniversity && random.nextDouble() < probTopUniv) {
+		if (prob > probUncorrelatedUniversity && randomFarm.get(RandomGeneratorFarm.Aspect.TOP_UNIVERSITY).nextDouble() < probTopUniv) {
 				range = Math.min(universitiesByLocation.get(locationId).size(), 10);
 		}
 		
-		int randomUniversityIdx = random.nextInt(range);
+		int randomUniversityIdx = randomFarm.get(RandomGeneratorFarm.Aspect.UNIVERSITY).nextInt(range);
 		int zOrderLocation = locationDic.getZorderID(locationId);
         int universityLocation = (zOrderLocation << 24) | (randomUniversityIdx << 12);
 		return universityLocation;
 	}
 	
 	public String getUniversityName(int universityLocation) {
-		int zOrderlocationId = universityLocation >> 24;
+		int zOrderLocationId = universityLocation >> 24;
 		int universityId = (universityLocation >> 12) & 0x0FFF;
-		int locationId = locationDic.getLocationIdFromZOrder(zOrderlocationId);
+		int locationId = locationDic.getLocationIdFromZOrder(zOrderLocationId);
 		return universitiesByLocation.get(locationId).get(universityId);
 	}
 
