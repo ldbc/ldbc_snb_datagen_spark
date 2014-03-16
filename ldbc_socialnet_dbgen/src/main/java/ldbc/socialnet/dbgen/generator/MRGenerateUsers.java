@@ -49,6 +49,7 @@ import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
 import ldbc.socialnet.dbgen.util.MapReduceKey;
 import ldbc.socialnet.dbgen.util.MapReduceKeyComparator;
 import ldbc.socialnet.dbgen.util.MapReduceKeyGroupKeyComparator;
+import ldbc.socialnet.dbgen.util.MapReduceKeyPartitioner;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -153,7 +154,7 @@ public class MRGenerateUsers{
 		}
 		@Override
 		protected void cleanup(Context context){
-			System.out.println("Summary for " + attempTaskId);
+			System.out.println("Summary for reducer" + attempTaskId);
 			System.out.println("Number of user profile read " + friendGenerator.totalNumUserProfilesRead);
 			System.out.println("Number of exact user profile out " + friendGenerator.exactOutput);
 			System.out.println("Number of exact friend added " + friendGenerator.friendshipNum);
@@ -231,7 +232,7 @@ public class MRGenerateUsers{
 		}
 		@Override
 		protected void cleanup(Context context){
-			System.out.println("Summary for " + attempTaskId);
+			System.out.println("Summary for reducer " + attempTaskId);
 			System.out.println("Number of user profile read " + friendGenerator.totalNumUserProfilesRead);
 			System.out.println("Number of exact user profile out " + friendGenerator.exactOutput);
 			System.out.println("Number of exact friend added " + friendGenerator.friendshipNum);
@@ -260,7 +261,7 @@ public class MRGenerateUsers{
 		
 		private FileOutputStream fos;
 		private ObjectOutputStream oos; 
-		private static int	numObject; 
+		private int	totalObjects;
 		
 		@Override
 		protected void setup(Context context){
@@ -275,51 +276,53 @@ public class MRGenerateUsers{
 			
 			outputFileName =  "_userProf_" + attempTaskId;
 			
-			try {
-				fos = new FileOutputStream(outputDir + outputFileName);
-				oos = new ObjectOutputStream(fos);
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			
-				
+
 			friendGenerator = new ScalableGenerator(attempTaskId, outputDir, homeDir);
 			friendGenerator.numMaps = numReducer; 
 			String[] inputParams = new String[0]; 
 			friendGenerator.init(numReducer, attempTaskId);
-			
-			numObject = 0; 
+            totalObjects = 0;
 		}
 		
 		@Override
 		public void reduce(MapReduceKey key, Iterable<ReducedUserProfile> valueSet, 
 			Context context) throws IOException, InterruptedException{
-			
-//            System.out.println("Start group: "+key.block);
+
+            int numObject = 0;
+            // We open the file were data will be written.
+            try {
+                fos = new FileOutputStream(outputDir + outputFileName);
+                oos = new ObjectOutputStream(fos);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             friendGenerator.resetWindow();
             friendGenerator.resetRandomGenerators(key.block);
 			for (ReducedUserProfile user:valueSet){
- //               System.out.println(user.getAccountId());
 				friendGenerator.pushUserProfile(user, 2, context, false, oos);
 				numObject++;
+                totalObjects++;
 			}
 			friendGenerator.pushAllRemainingUser(2, context, false, oos);
-  //          System.out.println("End group");
+
+//            System.out.println("Number of output object is: " + numObject);
+            try {
+                oos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            int numOfCell = numObject / friendGenerator.getCellSize();
+            friendGenerator.generateUserActivity(outputFileName, numOfCell);
 		}
 		
 		@Override
 		protected void cleanup(Context context){
-			System.out.println("Number of output object is: " + numObject);
-			try {
-				oos.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			
-			int numofCell = numObject / friendGenerator.getCellSize();
-			friendGenerator.generateUserActivity(outputFileName, numofCell);
+            friendGenerator.closeFileWriting();
+            System.out.println("Number of users serialized by reducer "+attempTaskId+": "+totalObjects);
 		}
 	}
 	
@@ -370,6 +373,7 @@ public class MRGenerateUsers{
 		conf.setInt("mapred.line.input.format.linespermap", 1);	
 		
 		job.setOutputFormatClass(SequenceFileOutputFormat.class);
+        job.setPartitionerClass(MapReduceKeyPartitioner.class);
         job.setSortComparatorClass(MapReduceKeyComparator.class);
         job.setGroupingComparatorClass(MapReduceKeyGroupKeyComparator.class);
 		
@@ -393,6 +397,7 @@ public class MRGenerateUsers{
 		
 		job2.setInputFormatClass(SequenceFileInputFormat.class);
 		job2.setOutputFormatClass(SequenceFileOutputFormat.class);
+        job2.setPartitionerClass(MapReduceKeyPartitioner.class);
         job2.setSortComparatorClass(MapReduceKeyComparator.class);
         job2.setGroupingComparatorClass(MapReduceKeyGroupKeyComparator.class);
 		
@@ -420,6 +425,7 @@ public class MRGenerateUsers{
 		job3.setInputFormatClass(SequenceFileInputFormat.class);
 		job3.setOutputFormatClass(SequenceFileOutputFormat.class);
 //		job3.setPartitionerClass(RandomPartitioner.class);
+        job3.setPartitionerClass(MapReduceKeyPartitioner.class);
         job3.setSortComparatorClass(MapReduceKeyComparator.class);
         job3.setGroupingComparatorClass(MapReduceKeyGroupKeyComparator.class);
 		

@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * ldbc_socialnet_dbgen is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ldbc_socialnet_dbgen.  If not, see <http://www.gnu.org/licenses/>.
  *
@@ -34,60 +34,21 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package ldbc.socialnet.dbgen.generator;
 
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-
+package ldbc.socialnet.dbgen.util;
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
-import ldbc.socialnet.dbgen.util.MapReduceKey;
-
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.Partitioner;
 
 
-public class MRWriter {
-	int windowSize; 
-	int cellSize; 
-	int numberSerializedObject;
-	String baseDir; 
-	
-	public MRWriter(int _cellSize, int _windowSize, String _baseDir){
-		this.cellSize = _cellSize;
-		this.windowSize = _windowSize;
-		this.baseDir = _baseDir; 
-		numberSerializedObject = 0; 
-		
-	}
-	
-	public void writeReducedUserProfiles(int from, int to, int pass, 
-			ReducedUserProfile userProfiles[], Reducer.Context context, boolean isContext, ObjectOutputStream oos, int [] blockShift) {
-		
-		try {
-		    to = to % windowSize;
-            if (isContext){
-                for (int i = from; i != to; i = (i+1)%windowSize) {
-                    int key = userProfiles[i].getDicElementId(pass+1);
-                    int block = key >> blockShift[pass+1];
-                    long id = userProfiles[i].getAccountId();
-                    MapReduceKey mpk = new MapReduceKey(block,key,id);
-                    context.write(mpk, userProfiles[i]);
-                    numberSerializedObject++;
-                }
-            }
-            else{
-                for (int i = from; i != to; i = (i+1)%windowSize) {
-                    oos.writeObject(userProfiles[i]);
-                    numberSerializedObject++;
-                }
-            }
-		}
-		catch (IOException i) {
-			i.printStackTrace();
-			
-		}
-		catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
+public class MapReduceKeyPartitioner extends Partitioner<MapReduceKey, ReducedUserProfile> {
+
+    public MapReduceKeyPartitioner(){
+        super();
+
+    }
+    @Override
+    public int getPartition(MapReduceKey key, ReducedUserProfile value,
+                            int numReduceTasks) {
+        return key.block % numReduceTasks;
+    }
 }

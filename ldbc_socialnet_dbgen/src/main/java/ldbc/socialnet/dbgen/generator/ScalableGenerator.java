@@ -277,7 +277,7 @@ public class ScalableGenerator{
     private Statistics stats;
 
     // For blocking
-    private static final int  reducerBlockSize[] = { 20, 20, 5 };
+    private static final int  reducerShift[] = { 26, 8, 2 };
 
     // For sliding window
     int 					cellSize; // Number of user in one cell
@@ -765,17 +765,20 @@ public class ScalableGenerator{
      * @param numCell The number of cells the generator will parse.
      */
     public void generateUserActivity(String inputFile, int numCell) {
-        long startPostGeneration = System.currentTimeMillis();
+        //long startPostGeneration = System.currentTimeMillis();
         //NOTE: Until this point of the code numTotalUser*2 forums where generated (2 for user) thats
         //the reason behind this forum id assignment.
         groupGenerator.setForumId((numTotalUser + 10) * 2);
         generatePostandPhoto(inputFile, numCell);
-        long endPostGeneration = System.currentTimeMillis();
-        System.out.println("Post generation takes " + getDurationInMinutes(startPostGeneration, endPostGeneration));
-        long startGroupGeneration = System.currentTimeMillis();
-        //generateAllGroup(inputFile, numCell);
-        long endGroupGeneration = System.currentTimeMillis();
-        System.out.println("Group generation takes " + getDurationInMinutes(startGroupGeneration, endGroupGeneration));
+        //long endPostGeneration = System.currentTimeMillis();
+        //System.out.println("Post generation takes " + getDurationInMinutes(startPostGeneration, endPostGeneration));
+//        long startGroupGeneration = System.currentTimeMillis();
+        generateAllGroup(inputFile, numCell);
+//        long endGroupGeneration = System.currentTimeMillis();
+//        System.out.println("Group generation takes " + getDurationInMinutes(startGroupGeneration, endGroupGeneration));
+    }
+
+    public void closeFileWriting() {
         serializer.close();
         writeStatistics();
         System.out.println("Number of generated triples " + serializer.unitsGenerated());
@@ -793,8 +796,8 @@ public class ScalableGenerator{
         reducedUserProfilesCell = new ReducedUserProfile[cellSize];
         StorageManager storeManager = new StorageManager(cellSize, windowSize, outUserProfile, sibOutputDir);
         storeManager.initDeserialization(inputFile);
-        System.out.println("Generating the posts & comments ");
-        System.out.println("Number of cells in file : " + numCells);
+//        System.out.println("Generating the posts & comments ");
+//       System.out.println("Number of cells in file : " + numCells);
         for (int i = 0; i < numCells; i++) {
             storeManager.deserializeOneCellUserProfile(reducedUserProfilesCell);
             for (int j = 0; j < cellSize; j++) {
@@ -802,13 +805,13 @@ public class ScalableGenerator{
                 setInfoFromUserProfile(reducedUserProfilesCell[j], extraInfo);
                 serializer.gatherData(reducedUserProfilesCell[j], extraInfo);
 
-                //generatePosts(reducedUserProfilesCell[j], extraInfo);
-                //generateFlashmobPosts(reducedUserProfilesCell[j], extraInfo);
-                //generatePhoto(reducedUserProfilesCell[j], extraInfo);
+                generatePosts(reducedUserProfilesCell[j], extraInfo);
+                generateFlashmobPosts(reducedUserProfilesCell[j], extraInfo);
+                generatePhoto(reducedUserProfilesCell[j], extraInfo);
             }
         }
         storeManager.endDeserialization();
-        System.out.println("Done generating the posts and photos....");
+        System.out.println("Post and Photo generation done for " + numCells*cellSize + " users.");
         System.out.println("Number of deserialized objects is " + storeManager.getNumberDeSerializedObject());
     }
 
@@ -918,7 +921,7 @@ public class ScalableGenerator{
 
         // We write to the context the users that might have been left into not fully filled cell.
         mrWriter.writeReducedUserProfiles(0, numUserForNewCell, pass, cellReducedUserProfiles, context,
-                isContext, oos, reducerBlockSize);
+                isContext, oos, reducerShift);
         exactOutput+=numUserForNewCell;
     }
 
@@ -963,7 +966,7 @@ public class ScalableGenerator{
                 ReducedUserProfile reduceUserProf = new ReducedUserProfile(user, NUM_FRIENDSHIP_HADOOP_JOBS);
                 ++numUsersToGenerate;
                 try {
-                    int block =  reduceUserProf.getDicElementId(pass) / reducerBlockSize[0];          // The mapreduce group this university will be assigned.
+                    int block =  reduceUserProf.getDicElementId(pass) >> reducerShift[0];          // The mapreduce group this university will be assigned.
                     int key = reduceUserProf.getDicElementId(pass);                                   // The key used to sort within the block. 
                     long id = reduceUserProf.getAccountId();                                          // The id used to sort within the key, to guarantee determinism.
                     MapReduceKey mpk = new MapReduceKey( block, key, id );
@@ -1015,8 +1018,8 @@ public class ScalableGenerator{
         }
         updateLastPassFriendAdded(startIndex, startIndex + cellSize, pass);
         mrWriter.writeReducedUserProfiles(startIndex, startIndex + cellSize, pass, reducedUserProfiles, context, 
-                isContext, oos, reducerBlockSize);
-        generateCellOfUsers2(cellPos, _cellReduceUserProfiles);
+                isContext, oos, reducerShift);
+        generateCellOfUsers2(startIndex, _cellReduceUserProfiles);
         exactOutput = exactOutput + cellSize; 
     }
 
@@ -1046,7 +1049,7 @@ public class ScalableGenerator{
         }
         updateLastPassFriendAdded(startIndex, startIndex + cellSize, pass);
         mrWriter.writeReducedUserProfiles(startIndex, startIndex + cellSize, pass, reducedUserProfiles, context,
-                isContext, oos, reducerBlockSize);
+                isContext, oos, reducerShift);
         exactOutput = exactOutput + cellSize; 
     }
 
