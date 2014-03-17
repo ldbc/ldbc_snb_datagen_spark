@@ -182,6 +182,7 @@ public class ScalableGenerator{
     private static final String   tagTextFile            = DICTIONARY_DIRECTORY + "tagText.txt";
     private static final String   topicTagDicFile        = DICTIONARY_DIRECTORY + "topicMatrixId.txt";
     private static final String   flashmobDistFile       = DICTIONARY_DIRECTORY + "flashmobDist.txt";
+    private static final String   fbSocialDegreeFile	 = DICTIONARY_DIRECTORY + "facebookBucket100.dat";
     
     //private parameters
     private final String CELL_SIZE                     = "cellSize";
@@ -319,6 +320,9 @@ public class ScalableGenerator{
 	int 				maxNumFriends;
 	double 				friendRejectRatio;
 	double 				friendReApproveRatio;
+	
+	//For facebook-like social degree distribution
+	FBSocialDegreeGenerator	fbDegreeGenerator; 
 	
 	StorageManager	 	storeManager[];
 	StorageManager		groupStoreManager; 		
@@ -858,7 +862,12 @@ public class ScalableGenerator{
                     minLargeCommentSize, maxLargeCommentSize, ratioLargeComment/0.0833333,
                     seeds[15], seeds[16]);
             commentGenerator.initialize();
-
+            
+            System.out.println("Building Facebook-like social degree generator");
+            fbDegreeGenerator = new FBSocialDegreeGenerator(numtotalUser, fbSocialDegreeFile, seeds[2]);
+            fbDegreeGenerator.loadFBBuckets();
+            fbDegreeGenerator.rebuildBucketRange();
+            
 			serializer = getSerializer(serializerType, RDF_OUTPUT_FILE);
 		}
 	}
@@ -1429,7 +1438,10 @@ public class ScalableGenerator{
 
 		userProf.setCreatedDate(dateTimeGenerator.randomDateInMillis());
 		
-		userProf.setNumFriends((short) randomPowerLaw.getValue());
+		//userProf.setNumFriends((short) randomPowerLaw.getValue());
+		userProf.setNumFriends(fbDegreeGenerator.getSocialDegree());
+		userProf.setSdpId(fbDegreeGenerator.getIDByPercentile());  	//Generate Id from its percentile in the social degree distribution
+		
 		userProf.allocateFriendListMemory(NUM_FRIENDSHIP_HADOOP_JOBS);
 
 		short totalFriendSet = 0; 

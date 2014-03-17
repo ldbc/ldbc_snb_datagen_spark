@@ -28,4 +28,4 @@ rm -f .degreeAnalysis.tmp
 python extractDegrees.py $1 .degreeAnalysis.tmp 
 R --no-save --args .degreeAnalysis.tmp $2 degree < cumulative.R 
 pstopdf $2
-rm .degreeAnalysis.tmp
+#rm .degreeAnalysis.tmp
