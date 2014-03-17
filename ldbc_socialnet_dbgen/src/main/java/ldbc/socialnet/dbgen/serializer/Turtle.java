@@ -94,6 +94,7 @@ public class Turtle implements Serializer {
 	private LanguageDictionary languageDic;
 	private TagDictionary tagDic;
 	private IPAddressDictionary ipDic;
+    private boolean exportText;
     
 	/**
 	 * Used to give an unique ID to blank nodes.
@@ -129,7 +130,7 @@ public class Turtle implements Serializer {
             TagDictionary tagDic, BrowserDictionary browsers, 
             CompanyDictionary companies, HashMap<String, Integer> univesityToCountry,
             IPAddressDictionary ipDic,  LocationDictionary locationDic, 
-            LanguageDictionary languageDic) {
+            LanguageDictionary languageDic, boolean exportText) {
 	    
 	    this.isTurtle = isTurtle;
 	    this.tagDic = tagDic;  
@@ -139,6 +140,7 @@ public class Turtle implements Serializer {
         this.universityToCountry = univesityToCountry;
         this.ipDic = ipDic;
         this.languageDic = languageDic;
+        this.exportText = exportText;
         
         nrTriples = 0l;
 		date = new GregorianCalendar();
@@ -580,8 +582,10 @@ public class Turtle implements Serializer {
 	                    createLiteral(browserDic.getName(post.getBrowserIdx())));
 	        }
 	    }
+        if( exportText ) {
 	    AddTriple(result, false, false, prefix, SNVOC.content,
 	            createLiteral(post.getContent()));
+        }
         AddTriple(result, false, true, prefix, SNVOC.length,
                 createLiteral(Integer.toString(post.getContent().length())));
 
@@ -654,7 +658,9 @@ public class Turtle implements Serializer {
 		                createLiteral(browserDic.getName(comment.getBrowserIdx())));
 		    }
 		}
-		AddTriple(result, false, false, prefix, SNVOC.content, createLiteral(comment.getContent()));
+        if( exportText ) {
+            AddTriple(result, false, false, prefix, SNVOC.content, createLiteral(comment.getContent()));
+        }
         AddTriple(result, false, true, prefix, SNVOC.length,createLiteral(Integer.toString(comment.getContent().length())));
 
 		String replied = (comment.getReplyOf() == -1) ? SN.getPostURI(comment.getPostId()) : 
