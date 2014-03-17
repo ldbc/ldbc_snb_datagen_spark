@@ -229,7 +229,7 @@ public class CSVMergeForeign implements Serializer {
      * @param locationDic: The location dictionary used in the generation.
      * @param languageDic: The language dictionary used in the generation.
      */
-	public CSVMergeForeign(String file, int nrOfOutputFiles, 
+	public CSVMergeForeign(String file, int reducerID, int nrOfOutputFiles,
             TagDictionary tagDic, BrowserDictionary browsers, 
             CompanyDictionary companies, HashMap<String, Integer> univesityToCountry,
             IPAddressDictionary ipDic, LocationDictionary locationDic, LanguageDictionary languageDic) {
@@ -265,12 +265,12 @@ public class CSVMergeForeign implements Serializer {
 			dataFileWriter = new FileWriter[nrOfOutputFiles][Files.NUM_FILES.ordinal()];
 			if(nrOfOutputFiles==1) {
 				for (int i = 0; i < Files.NUM_FILES.ordinal(); i++) {
-					this.dataFileWriter[0][i] = new FileWriter(file +"/"+ fileNames[i] + ".csv");
+					this.dataFileWriter[0][i] = new FileWriter(file +"/reducer_"+reducerID+"_"+fileNames[i] + ".csv");
 				}
 			} else {
 				for(int i=0;i<nrOfOutputFiles;i++) {
 					for (int j = 0; j < Files.NUM_FILES.ordinal(); j++) {
-						dataFileWriter[i][j] = new FileWriter(file +"/"+ fileNames[j] + String.format(formatString, i+1) + ".csv");
+						dataFileWriter[i][j] = new FileWriter(file +"/reducer_"+reducerID+"_"+ fileNames[j] + String.format(formatString, i+1) + ".csv");
 					}
 				}
 			}

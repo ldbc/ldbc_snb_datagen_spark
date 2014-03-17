@@ -277,7 +277,7 @@ public class ScalableGenerator{
     private Statistics stats;
 
     // For blocking
-    private static final int  reducerShift[] = { 26, 8, 2 };
+    private static final int  reducerShift[] = { 26, 8, 1 };
 
     // For sliding window
     int 					cellSize; // Number of user in one cell
@@ -385,8 +385,7 @@ public class ScalableGenerator{
     String 			outUserProfileName = "userProf.ser";
     String 			outUserProfile;
     int 			numRdfOutputFile = 1;
-    boolean 		forwardChaining = false;
-    int				mapreduceFileIdx; 
+    int				mapreduceFileIdx;
     String 			sibOutputDir;
     String 			sibHomeDir;
 
@@ -425,6 +424,7 @@ public class ScalableGenerator{
     public int     totalNumUserProfilesRead = 0;
     private int     numUserForNewCell        = 0;
     private int     mrCurCellPost            = 0;
+    public static int     blockId                 = 0;
     public int     exactOutput              = 0;
 
 
@@ -773,7 +773,7 @@ public class ScalableGenerator{
         //long endPostGeneration = System.currentTimeMillis();
         //System.out.println("Post generation takes " + getDurationInMinutes(startPostGeneration, endPostGeneration));
 //        long startGroupGeneration = System.currentTimeMillis();
-        generateAllGroup(inputFile, numCell);
+//        generateAllGroup(inputFile, numCell);
 //        long endGroupGeneration = System.currentTimeMillis();
 //        System.out.println("Group generation takes " + getDurationInMinutes(startGroupGeneration, endGroupGeneration));
     }
@@ -926,8 +926,12 @@ public class ScalableGenerator{
     }
 
 
-    public void resetRandomGenerators(long seed) {
-        randomFarm.resetRandomGenerators(seed);
+    public void resetState(int seed) {
+        blockId = seed;
+        postId = 0;
+        SN.setMachineNumber(blockId, USER_RANDOM_ID_LIMIT >> reducerShift[2]);
+        resetWindow();
+        randomFarm.resetRandomGenerators((long)seed);
     }
 
 
@@ -1231,7 +1235,7 @@ public class ScalableGenerator{
                         }
                     } else { // ==> random users
                         // Select a user from window
-                        int friendIdx = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX).nextInt(windowSize);
+                        int friendIdx = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX).nextInt(Math.min(numUserProfilesRead,windowSize));
                         long potentialMemberAcc = reducedUserProfiles[friendIdx].getAccountId();
                         randMemberProb = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP).nextDouble();
                         if (randMemberProb < joinProbs[2]) {
@@ -1594,25 +1598,25 @@ public class ScalableGenerator{
                 }
 
                 private Serializer getSerializer(String type, String outputFileName) {
-                    SN.setMachineNumber(machineId, numFiles);
+                    //SN.setMachineNumber(machineId, numFiles);
                     String t = type.toLowerCase();
                     if (t.equals("ttl")) {
-                        return new Turtle(sibOutputDir +"/" + outputFileName, numRdfOutputFile, true, tagDictionary,
+                        return new Turtle(sibOutputDir +"/reducer_"+this.machineId+"_"+outputFileName, numRdfOutputFile, true, tagDictionary,
                                 browserDictonry, companiesDictionary, 
                                 unversityDictionary.GetUniversityLocationMap(),
                                 ipAddDictionary, locationDictionary, languageDictionary);
                     } else if (t.equals("n3")) {
-                        return new Turtle(sibOutputDir + "/" + outputFileName, numRdfOutputFile, false, tagDictionary,
+                        return new Turtle(sibOutputDir + "/reducer_"+this.machineId+"_"+outputFileName, numRdfOutputFile, false, tagDictionary,
                                 browserDictonry, companiesDictionary, 
                                 unversityDictionary.GetUniversityLocationMap(),
                                 ipAddDictionary, locationDictionary, languageDictionary);
                     } else if (t.equals("csv")) {
-                        return new CSV(sibOutputDir, numRdfOutputFile, tagDictionary,
+                        return new CSV(sibOutputDir, this.machineId, numRdfOutputFile, tagDictionary,
                                 browserDictonry, companiesDictionary, 
                                 unversityDictionary.GetUniversityLocationMap(),
                                 ipAddDictionary,locationDictionary, languageDictionary);
                     } else if (t.equals("csv_merge_foreign")) {
-                        return new CSVMergeForeign(sibOutputDir, numRdfOutputFile, tagDictionary,
+                        return new CSVMergeForeign(sibOutputDir, this.machineId, numRdfOutputFile, tagDictionary,
                                 browserDictonry, companiesDictionary, 
                                 unversityDictionary.GetUniversityLocationMap(),
                                 ipAddDictionary,locationDictionary, languageDictionary);

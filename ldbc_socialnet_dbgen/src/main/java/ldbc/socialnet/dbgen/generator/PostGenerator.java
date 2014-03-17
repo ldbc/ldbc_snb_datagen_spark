@@ -217,8 +217,7 @@ abstract public class PostGenerator {
                 }
 
                 Integer languageIndex = randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE).nextInt(extraInfo.getLanguages().size());
-                ScalableGenerator.postId++;
-                Post post = new Post( ScalableGenerator.postId, 
+                Post post = new Post( ScalableGenerator.postId,
                   content,
                   postInfo.date,
                   user.getAccountId(),
@@ -228,6 +227,7 @@ abstract public class PostGenerator {
                   ipAddressDic.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER),user.getIpAddress(), user.isFrequentChange(), postInfo.date),
                   userAgentDic.getUserAgentName(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT), user.isHaveSmartPhone(), user.getAgentIdx()),
                   browserDic.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), user.getBrowserIdx()));
+                ScalableGenerator.postId++;
 
             // Create post likes.
                 setLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), randomFarm.get(RandomGeneratorFarm.Aspect.DATE),post, user);
@@ -261,8 +261,7 @@ abstract public class PostGenerator {
                 } else {
                     content = tagTextDic.getRandomText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT),postInfo.tags, minSizeOfPost, maxSizeOfPost);
                 }
-                ScalableGenerator.postId++;
-                Post post = new Post( ScalableGenerator.postId, 
+                Post post = new Post( ScalableGenerator.postId,
                   content,
                   postInfo.date,
                   memberShip.getUserId(),
@@ -272,6 +271,7 @@ abstract public class PostGenerator {
                   ipAddressDic.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER),memberShip.getIP(), memberShip.isFrequentChange(), postInfo.date),
                   userAgentDic.getUserAgentName(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT), memberShip.isHaveSmartPhone(), memberShip.getAgentIdx()),
                   browserDic.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), memberShip.getBrowserIdx()));
+                ScalableGenerator.postId++;
 
                 // Create the post likes
                 setLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), randomFarm.get(RandomGeneratorFarm.Aspect.DATE), post, group);

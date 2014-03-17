@@ -54,6 +54,7 @@ public class SN{
 	    int digits = 0;
 	    do {
 	        numMachines /= 10;
+            digits++;
 	    } while (numMachines != 0);
 	    SN.machineId = String.valueOf(machineId);
 	    for (int i = SN.machineId.length(); i < digits; i++) {

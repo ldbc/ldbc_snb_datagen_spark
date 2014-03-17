@@ -142,15 +142,16 @@ public class MRGenerateUsers{
 		@Override
 		public void reduce(MapReduceKey key, Iterable<ReducedUserProfile> valueSet, 
 				Context context) throws IOException, InterruptedException{	
-                friendGenerator.resetWindow();
-                friendGenerator.resetRandomGenerators(key.block);
-//                System.out.println("Start group: "+key.block);
+                friendGenerator.resetState(key.block);
+                int counter = 0;
+                System.out.println("Start University group: "+key.block);
 				for (ReducedUserProfile user:valueSet){
    //                 System.out.println(user.getAccountId());
 					friendGenerator.pushUserProfile(user, 0, context, true, null);
+                    counter++;
 				}
 			    friendGenerator.pushAllRemainingUser(0, context, true, null);
-   //             System.out.println("End group");
+                System.out.println("End group with size: "+counter);
 		}
 		@Override
 		protected void cleanup(Context context){
@@ -220,15 +221,16 @@ public class MRGenerateUsers{
 		
 		@Override
 		public void reduce(MapReduceKey key, Iterable<ReducedUserProfile> valueSet, 
-				Context context) throws IOException, InterruptedException{	
-				int numInterestKey = 0; 
-                friendGenerator.resetWindow();
-                friendGenerator.resetRandomGenerators(key.block);
+				Context context) throws IOException, InterruptedException{
+                int counter = 0;
+                friendGenerator.resetState(key.block);
+                System.out.println("Start Interest group: "+key.block);
 				for (ReducedUserProfile user:valueSet){
 					friendGenerator.pushUserProfile(user, 1, context, true, null);
-					numInterestKey++;
+                    counter++;
 				}
                 friendGenerator.pushAllRemainingUser(1, context, true, null);
+                System.out.println("End group with size: "+counter);
 		}
 		@Override
 		protected void cleanup(Context context){
@@ -298,17 +300,18 @@ public class MRGenerateUsers{
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-            friendGenerator.resetWindow();
-            friendGenerator.resetRandomGenerators(key.block);
+            int counter = 0;
+//            System.out.println("Start Random group: "+key.block);
+            friendGenerator.resetState(key.block);
 			for (ReducedUserProfile user:valueSet){
 				friendGenerator.pushUserProfile(user, 2, context, false, oos);
 				numObject++;
                 totalObjects++;
+                counter++;
 			}
+ //           System.out.println("End group with size: "+counter);
 			friendGenerator.pushAllRemainingUser(2, context, false, oos);
 
-//            System.out.println("Number of output object is: " + numObject);
             try {
                 oos.close();
             } catch (IOException e) {
