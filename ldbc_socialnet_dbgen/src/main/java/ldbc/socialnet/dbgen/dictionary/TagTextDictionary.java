@@ -103,6 +103,18 @@ public class TagTextDictionary {
 	    return tagText.get(id);
 	}
 
+    public int getRandomTextSize( int minSize, int maxSize ) {
+
+        if (randReducedText.nextDouble() > reducedTextRatio){
+            return randTextSize.nextInt(maxSize - minSize) + minSize;
+        }
+            return randTextSize.nextInt((maxSize >> 1) - minSize) + minSize;
+    }
+
+    public int getRandomLargeTextSize( int minSize, int maxSize ) {
+        return rand.nextInt(maxSize - minSize) + minSize;
+    }
+
     public String getRandomText(TreeSet<Integer> tags, int minSize, int maxSize ) {
 
         int textSize;

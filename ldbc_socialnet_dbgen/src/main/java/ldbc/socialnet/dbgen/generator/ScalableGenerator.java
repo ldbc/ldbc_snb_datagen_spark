@@ -809,6 +809,7 @@ public class ScalableGenerator{
                                                              maxLargePostSize,
                                                              ratioLargePost/0.0833333,
                                                              maxNumLikes,
+                                                             exportText,
                                                              seeds[15],
                                                              seeds[16],
                                                              dateTimeGenerator,
@@ -849,6 +850,7 @@ public class ScalableGenerator{
                                     maxLargePostSize,
                                     ratioLargePost/0.0833333,
                                     maxNumLikes,
+                                    exportText,
                                     seeds[15],
                                     seeds[16],
                                     dateTimeGenerator,
@@ -861,7 +863,7 @@ public class ScalableGenerator{
             System.out.println("Building Comment Generator");
             commentGenerator = new CommentGenerator(tagTextDic, dateTimeGenerator,
                     minCommentSize, maxCommentSize, ratioReduceText,
-                    minLargeCommentSize, maxLargeCommentSize, ratioLargeComment/0.0833333,
+                    minLargeCommentSize, maxLargeCommentSize, ratioLargeComment/0.0833333, this.exportText,
                     seeds[15], seeds[16]);
             commentGenerator.initialize();
             
