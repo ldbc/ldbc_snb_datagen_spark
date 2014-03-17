@@ -268,12 +268,13 @@ public class ScalableGenerator{
     private final String START_YEAR       = "startYear";
     private final String NUM_YEARS        = "numYears";
     private final String SERIALIZER_TYPE  = "serializerType";
+    private final String EXPORT_TEXT      = "exportText";
     
     /**
      * This array provides a quick way to check if any of the required parameters is missing and throw the appropriate
      * exception in the method loadParamsFromFile()
      */
-    private final String[] publicCheckParameters = {NUM_USERS, START_YEAR, NUM_YEARS, SERIALIZER_TYPE};
+    private final String[] publicCheckParameters = {NUM_USERS, START_YEAR, NUM_YEARS, SERIALIZER_TYPE, EXPORT_TEXT};
     
     
     // Gender string representation, both representations vector/standalone so the string is coherent.
@@ -480,7 +481,7 @@ public class ScalableGenerator{
     public int     mrCurCellPost       = 0;
     public int     exactOutput         = 0; 
 	
-    
+    public boolean exportText = true;
 	/**
 	 * Gets a string representation for a period of time.
 	 * 
@@ -639,6 +640,7 @@ public class ScalableGenerator{
 			numYears = Integer.parseInt(properties.getProperty(NUM_YEARS));
 			endYear = startYear + numYears;
 			serializerType = properties.getProperty(SERIALIZER_TYPE);
+            exportText = Boolean.parseBoolean(properties.getProperty(EXPORT_TEXT));
 			if (!serializerType.equals("ttl") && !serializerType.equals("n3") && 
 			        !serializerType.equals("csv") && !serializerType.equals("none") && !serializerType.equals("csv_merge_foreign")) {
                 throw new IllegalStateException("serializerType must be ttl, n3, csv, csv_merge_foreign");
@@ -1432,6 +1434,7 @@ public class ScalableGenerator{
 		userProf.setNumFriends((short) randomPowerLaw.getValue());
 		userProf.allocateFriendListMemory(NUM_FRIENDSHIP_HADOOP_JOBS);
 
+
 		short totalFriendSet = 0; 
 		for (int i = 0; i < NUM_FRIENDSHIP_HADOOP_JOBS-1; i++){
 			short numPassFriend = (short) Math.floor(friendRatioPerJob[i] * userProf.getNumFriends());
@@ -1718,22 +1721,22 @@ public class ScalableGenerator{
             return new Turtle(sibOutputDir +"/" + outputFileName, numRdfOutputFile, true, mainTagDic,
                     browserDic, companiesDictionary, 
                     organizationsDictionary.GetOrganizationLocationMap(),
-                    ipAddDictionary, locationDic, languageDic);
+                    ipAddDictionary, locationDic, languageDic, exportText);
 		} else if (t.equals("n3")) {
             return new Turtle(sibOutputDir + "/" + outputFileName, numRdfOutputFile, false, mainTagDic,
                     browserDic, companiesDictionary, 
                     organizationsDictionary.GetOrganizationLocationMap(),
-                    ipAddDictionary, locationDic, languageDic);
+                    ipAddDictionary, locationDic, languageDic, exportText);
 		} else if (t.equals("csv")) {
 			return new CSV(sibOutputDir, numRdfOutputFile, mainTagDic,
 					browserDic, companiesDictionary, 
                     organizationsDictionary.GetOrganizationLocationMap(),
-					ipAddDictionary,locationDic, languageDic);
+					ipAddDictionary,locationDic, languageDic, exportText);
         } else if (t.equals("csv_merge_foreign")) {
             return new CSVMergeForeign(sibOutputDir, numRdfOutputFile, mainTagDic,
                     browserDic, companiesDictionary, 
                     organizationsDictionary.GetOrganizationLocationMap(),
-                    ipAddDictionary,locationDic, languageDic);
+                    ipAddDictionary,locationDic, languageDic, exportText);
 		} else if (t.equals("none")) {
             return new EmptySerializer();
         } else {
