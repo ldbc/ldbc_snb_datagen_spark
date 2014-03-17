@@ -9,6 +9,6 @@ data.max = max(data)
 data.min = min(data)
 
 postscript(args[2])
-plot(data.ecdf, xlab = args[3], ylab = "cumulative probability", main = '')
+plot(data.ecdf, xlab = args[3], log="x",xlim=c(1,data.max), ylab = "cumulative probability", main = '')
 text((data.max - data.min)/10,0.9,paste("Average degree: ",data.mean,sep=" "))
 dev.off()
