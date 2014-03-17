@@ -86,7 +86,8 @@ public class CSV implements Serializer {
     private LanguageDictionary languageDic;
     private TagDictionary tagDic;
     private IPAddressDictionary ipDic;
-    
+    private boolean exportText;
+
     /**
      * Used to create an unique id to each file. It is used only in case of an unnumbered entity or in the relations.
      */
@@ -232,7 +233,7 @@ public class CSV implements Serializer {
 	public CSV(String file, int nrOfOutputFiles, 
             TagDictionary tagDic, BrowserDictionary browsers, 
             CompanyDictionary companies, HashMap<String, Integer> univesityToCountry,
-            IPAddressDictionary ipDic, LocationDictionary locationDic, LanguageDictionary languageDic) {
+            IPAddressDictionary ipDic, LocationDictionary locationDic, LanguageDictionary languageDic, boolean exportText) {
         
         this.tagDic = tagDic;  
         this.browserDic = browsers;
@@ -241,6 +242,7 @@ public class CSV implements Serializer {
         this.companyDic = companies;
         this.universityToCountry = univesityToCountry;
         this.ipDic = ipDic;
+        this.exportText = exportText;
         
         csvRows = 0l;
         date = new GregorianCalendar();
@@ -623,7 +625,11 @@ public class CSV implements Serializer {
         } else {
             arguments.add(empty);
         }
-	    arguments.add(post.getContent());
+        if(exportText ) {
+	        arguments.add(post.getContent());
+        } else {
+            arguments.add(empty);
+        }
         arguments.add(Integer.toString(post.getContent().length()));
 	    ToCSV(arguments, Files.POST.ordinal());
 
@@ -697,7 +703,11 @@ public class CSV implements Serializer {
             String empty = "";
             arguments.add(empty);
         }
-	    arguments.add(comment.getContent());
+        if( exportText ) {
+	        arguments.add(comment.getContent());
+        } else {
+            arguments.add(new String(""));
+        }
         arguments.add(Integer.toString(comment.getContent().length()));
 	    ToCSV(arguments, Files.COMMENT.ordinal());
 	    
