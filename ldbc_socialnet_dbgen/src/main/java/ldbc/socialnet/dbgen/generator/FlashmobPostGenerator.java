@@ -94,6 +94,7 @@ public class FlashmobPostGenerator extends PostGenerator {
             int maxLargeSizeOfPost, 
             double largePostRatio,
             int maxNumberOfLikes,
+            boolean exportText,
             long seed,
             long seedTextSize,
             DateGenerator dateGen,
@@ -102,7 +103,7 @@ public class FlashmobPostGenerator extends PostGenerator {
             String flashmobDistFile
             ) {
         super(tagTextDic, userAgentDic, ipAddressDic, browserDic, minSizeOfPost, maxSizeOfPost, reducedTextRatio, minLargeSizeOfPost,
-                maxLargeSizeOfPost, largePostRatio, maxNumberOfLikes, seed, seedTextSize);
+                maxLargeSizeOfPost, largePostRatio, maxNumberOfLikes,exportText, seed, seedTextSize);
         this.dateGen = dateGen;
         this.flashmobTagDictionary = flashmobTagDictionary;
         this.randomUniform = new Random(seed);

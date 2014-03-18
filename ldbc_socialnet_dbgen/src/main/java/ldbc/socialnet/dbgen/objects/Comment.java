@@ -39,7 +39,8 @@ package ldbc.socialnet.dbgen.objects;
 public class Comment {
 
 	private long commentId;			/**< @brief The identifier of the comment.**/
-	private String content;			/**< @brief The content of the comment.**/ 
+	private String content;			/**< @brief The content of the comment.**/
+    private int    textSize;        /**< @brief The size of the comment. Needed in case we do not generate the content.*/
 	private long postId;			/**< @brief The post identifier of the replied post.**/
 	private	int authorId;			/**< @brief The identifier of the author.**/
 	private	long creationDate;		/**< @brief The creation date of the comment.**/
@@ -51,6 +52,7 @@ public class Comment {
 
 	public Comment( long commentId,
 					String content,
+                    int textSize,
 					long postId,
 					int authorId,
 					long creationDate,
@@ -70,6 +72,7 @@ public class Comment {
 		this.ipAddress = ipAddress;
 		this.userAgent = userAgent;
 		this.browserIdx = browserIdx;
+        this.textSize = textSize;
 	}
 
 	public IP getIpAddress() {
@@ -131,5 +134,8 @@ public class Comment {
 	}
 	public void setCreationDate(long creationDate) {
 		this.creationDate = creationDate;
-	} 
+	}
+    public int getTextSize() {
+        return textSize;
+    }
 }

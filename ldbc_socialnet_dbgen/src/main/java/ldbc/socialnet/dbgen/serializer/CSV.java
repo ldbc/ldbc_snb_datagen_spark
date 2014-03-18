@@ -630,7 +630,7 @@ public class CSV implements Serializer {
         } else {
             arguments.add(empty);
         }
-        arguments.add(Integer.toString(post.getContent().length()));
+        arguments.add(Integer.toString(post.getTextSize()));
 	    ToCSV(arguments, Files.POST.ordinal());
 
 	    if (post.getIpAddress() != null) {
@@ -708,7 +708,7 @@ public class CSV implements Serializer {
         } else {
             arguments.add(new String(""));
         }
-        arguments.add(Integer.toString(comment.getContent().length()));
+        arguments.add(Integer.toString(comment.getTextSize()));
 	    ToCSV(arguments, Files.COMMENT.ordinal());
 	    
 	    if (comment.getReplyOf() == -1) {
