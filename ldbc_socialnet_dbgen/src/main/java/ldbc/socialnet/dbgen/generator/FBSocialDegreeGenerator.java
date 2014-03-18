@@ -66,14 +66,15 @@ public class FBSocialDegreeGenerator {
 	Bucket[] 			buckets;
 	static final int	FB_MEAN = 190;
 	static final int	BUCKET_NUM = 100;
-	static final double	PATHLENGTH = 4.00;
+	double 				avgPathLength; 
 	int[]				counter;  		/* Count the number of users at specific social degree */
 	int[]				percenttileIDCounter;	/* Current user Id in a certain percentile */
 	int					percentileIdx; 			/* Store the Idx of the current percentile */
 	
 	
-	public FBSocialDegreeGenerator(int networkSize, String fbDataFile, long seed){
-		mean = (int) Math.round(Math.pow(networkSize, 1.00/PATHLENGTH));
+	public FBSocialDegreeGenerator(int networkSize, String fbDataFile, long seed, double avgPathLength){
+		this.avgPathLength = avgPathLength;
+		mean = (int) Math.round(Math.pow(networkSize, 1.00/avgPathLength));
 		System.out.println("Mean = " + mean);
 		randomPercentile = new Random(seed);
 		percenttileIDCounter = new int[BUCKET_NUM];

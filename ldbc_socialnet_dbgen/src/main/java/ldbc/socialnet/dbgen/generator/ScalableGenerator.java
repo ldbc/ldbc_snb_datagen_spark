@@ -189,6 +189,7 @@ public class ScalableGenerator{
     private final String NUM_CELL_WINDOW               = "numberOfCellPerWindow";
     private final String MIN_FRIENDS                   = "minNumFriends";
     private final String MAX_FRIENDS                   = "maxNumFriends";
+    private final String AVG_PATHLENGTH				   = "averagePathLength";
     private final String FRIEND_REJECT                 = "friendRejectRatio";
     private final String FRIEND_REACCEPT               = "friendReApproveRatio";
     private final String USER_MIN_TAGS                 = "minNumTagsPerUser";
@@ -249,7 +250,7 @@ public class ScalableGenerator{
      * This array provides a quick way to check if any of the required parameters is missing and throw the appropriate
      * exception in the method loadParamsFromFile()
      */
-    private final String[] checkParameters = {CELL_SIZE, NUM_CELL_WINDOW, MIN_FRIENDS, MAX_FRIENDS, FRIEND_REJECT,
+    private final String[] checkParameters = {CELL_SIZE, NUM_CELL_WINDOW, MIN_FRIENDS, MAX_FRIENDS, AVG_PATHLENGTH, FRIEND_REJECT,
             FRIEND_REACCEPT, USER_MIN_TAGS, USER_MAX_TAGS, USER_MAX_POST_MONTH, MAX_COMMENT_POST, LIMIT_CORRELATED,
             BASE_CORRELATED, MAX_EMAIL, MAX_COMPANIES, ENGLISH_RATIO, SECOND_LANGUAGE_RATIO, OTHER_BROWSER_RATIO,
             MIN_TEXT_SIZE, MAX_TEXT_SIZE, MIN_COMMENT_SIZE, MAX_COMMENT_SIZE, REDUCE_TEXT_RATIO,
@@ -323,7 +324,8 @@ public class ScalableGenerator{
 	double 				friendReApproveRatio;
 	
 	//For facebook-like social degree distribution
-	FBSocialDegreeGenerator	fbDegreeGenerator; 
+	FBSocialDegreeGenerator	fbDegreeGenerator;
+	double				averagePathLength;
 	
 	StorageManager	 	storeManager[];
 	StorageManager		groupStoreManager; 		
@@ -570,6 +572,7 @@ public class ScalableGenerator{
 			numberOfCellPerWindow = Integer.parseInt(properties.getProperty(NUM_CELL_WINDOW));
 			minNumFriends = Integer.parseInt(properties.getProperty(MIN_FRIENDS));
 			maxNumFriends = Integer.parseInt(properties.getProperty(MAX_FRIENDS));
+			averagePathLength = Double.parseDouble(properties.getProperty(AVG_PATHLENGTH));
 			thresholdPopularUser = (int) (maxNumFriends * 0.9);
 			friendRejectRatio = Double.parseDouble(properties.getProperty(FRIEND_REJECT));
 			friendReApproveRatio = Double.parseDouble(properties.getProperty(FRIEND_REACCEPT));
@@ -868,7 +871,7 @@ public class ScalableGenerator{
             commentGenerator.initialize();
             
             System.out.println("Building Facebook-like social degree generator");
-            fbDegreeGenerator = new FBSocialDegreeGenerator(numtotalUser, fbSocialDegreeFile, seeds[2]);
+            fbDegreeGenerator = new FBSocialDegreeGenerator(numtotalUser, fbSocialDegreeFile, seeds[2], averagePathLength);
             fbDegreeGenerator.loadFBBuckets();
             fbDegreeGenerator.rebuildBucketRange();
             
