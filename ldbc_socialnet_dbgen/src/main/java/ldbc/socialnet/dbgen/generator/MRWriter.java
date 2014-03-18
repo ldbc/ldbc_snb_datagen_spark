@@ -68,7 +68,8 @@ public class MRWriter {
             if (isContext){
                 for (int i = from; i != to; i = (i+1)%windowSize) {
                     int key = userProfiles[i].getDicElementId(pass+1);
-                    int block = key >> blockShift[pass+1];
+                    //int block = key >> blockShift[pass+1];
+                    int block = 0;
                     long id = userProfiles[i].getAccountId();
                     MapReduceKey mpk = new MapReduceKey(block,key,id);
                     context.write(mpk, userProfiles[i]);

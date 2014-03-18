@@ -181,7 +181,35 @@ public class MRGenerateUsers{
 		}
 	}
     */
-	
+
+    public static class RankMapper extends  Mapper <MapReduceKey, ReducedUserProfile, MapReduceKey, ReducedUserProfile> {
+        @Override
+        public void map(MapReduceKey key, ReducedUserProfile value,
+                        Context context)
+                throws IOException, InterruptedException {
+            context.write(key, value);
+        }
+    }
+
+    public static class RankReducer extends Reducer<MapReduceKey, ReducedUserProfile, MapReduceKey, ReducedUserProfile>{
+
+        @Override
+        protected void setup(Context context){
+        }
+
+        @Override
+        public void reduce(MapReduceKey key, Iterable<ReducedUserProfile> valueSet,
+                           Context context) throws IOException, InterruptedException{
+
+            int numUser = 0;
+            int blockSize = 2000;
+            for (ReducedUserProfile user:valueSet){
+                context.write(new MapReduceKey(numUser / blockSize, key.key, key.id), user);
+                numUser++;
+            }
+        }
+    }
+
 	public static class InterestMapper extends  Mapper <MapReduceKey, ReducedUserProfile, MapReduceKey, ReducedUserProfile> {
 		@Override
 		public void map(MapReduceKey key, ReducedUserProfile value, 
@@ -359,30 +387,46 @@ public class MRGenerateUsers{
 		conf.set("numberMappers", args[2]);
 		conf.set("sibHomeDir", args[3]);
 		conf.set("sibOutputDir", args[4]);
-		
+
+        /// --------------- First job ----------------
+
 		Job job = new Job(conf,"SIB Generate Users & 1st Dimension");
-	
 		job.setMapOutputKeyClass(MapReduceKey.class);
 		job.setMapOutputValueClass(ReducedUserProfile.class);
 		job.setOutputKeyClass(MapReduceKey.class);
 		job.setOutputValueClass(ReducedUserProfile.class);
-		
 		job.setJarByClass(GenerateUsersMapper.class);
 		job.setMapperClass(GenerateUsersMapper.class);
 		job.setReducerClass(UniversityReducer.class);
 		job.setNumReduceTasks(numMachines);
-		
 		job.setInputFormatClass(NLineInputFormat.class);
 		conf.setInt("mapred.line.input.format.linespermap", 1);	
-		
 		job.setOutputFormatClass(SequenceFileOutputFormat.class);
         job.setPartitionerClass(MapReduceKeyPartitioner.class);
         job.setSortComparatorClass(MapReduceKeyComparator.class);
         job.setGroupingComparatorClass(MapReduceKeyGroupKeyComparator.class);
-		
 	    FileInputFormat.setInputPaths(job, new Path(args[0]));
 	    FileOutputFormat.setOutputPath(job, new Path(args[1]));
-	    
+
+        /// --------------- Sorting phase --------------
+
+        Job jobSorting = new Job(conf,"Sorting phase to create blocks");
+        jobSorting.setMapOutputKeyClass(MapReduceKey.class);
+        jobSorting.setMapOutputValueClass(ReducedUserProfile.class);
+        jobSorting.setOutputKeyClass(MapReduceKey.class);
+        jobSorting.setOutputValueClass(ReducedUserProfile.class);
+        jobSorting.setJarByClass(RankMapper.class);
+        jobSorting.setMapperClass(RankMapper.class);
+        jobSorting.setReducerClass(RankReducer.class);
+        jobSorting.setNumReduceTasks(1);
+        jobSorting.setInputFormatClass(SequenceFileInputFormat.class);
+        jobSorting.setOutputFormatClass(SequenceFileOutputFormat.class);
+        jobSorting.setPartitionerClass(MapReduceKeyPartitioner.class);
+        jobSorting.setSortComparatorClass(MapReduceKeyComparator.class);
+        jobSorting.setGroupingComparatorClass(MapReduceKeyGroupKeyComparator.class);
+        FileInputFormat.setInputPaths(jobSorting, new Path(args[1]));
+        FileOutputFormat.setOutputPath(jobSorting, new Path(args[1]+"Sorting"));
+
 	    
 	    /// --------------- Second job ----------------
 	    
@@ -391,22 +435,37 @@ public class MRGenerateUsers{
 		job2.setMapOutputValueClass(ReducedUserProfile.class);
 		job2.setOutputKeyClass(MapReduceKey.class);
 		job2.setOutputValueClass(ReducedUserProfile.class);
-		
-		
 		job2.setJarByClass(InterestMapper.class);
 		job2.setMapperClass(InterestMapper.class);
 		job2.setReducerClass(InterestReducer.class);
 		job2.setNumReduceTasks(numMachines);
-		
 		job2.setInputFormatClass(SequenceFileInputFormat.class);
 		job2.setOutputFormatClass(SequenceFileOutputFormat.class);
         job2.setPartitionerClass(MapReduceKeyPartitioner.class);
         job2.setSortComparatorClass(MapReduceKeyComparator.class);
         job2.setGroupingComparatorClass(MapReduceKeyGroupKeyComparator.class);
-		
-	    FileInputFormat.setInputPaths(job2, new Path(args[1]));
+	    FileInputFormat.setInputPaths(job2, new Path(args[1]+"Sorting"));
 	    FileOutputFormat.setOutputPath(job2, new Path(args[1] + "2") );
-	    
+
+        /// --------------- Sorting phase 2--------------
+
+        Job jobSorting2 = new Job(conf,"Sorting phase 2 to create blocks");
+        jobSorting2.setMapOutputKeyClass(MapReduceKey.class);
+        jobSorting2.setMapOutputValueClass(ReducedUserProfile.class);
+        jobSorting2.setOutputKeyClass(MapReduceKey.class);
+        jobSorting2.setOutputValueClass(ReducedUserProfile.class);
+        jobSorting2.setJarByClass(RankMapper.class);
+        jobSorting2.setMapperClass(RankMapper.class);
+        jobSorting2.setReducerClass(RankReducer.class);
+        jobSorting2.setNumReduceTasks(1);
+        jobSorting2.setInputFormatClass(SequenceFileInputFormat.class);
+        jobSorting2.setOutputFormatClass(SequenceFileOutputFormat.class);
+        jobSorting2.setPartitionerClass(MapReduceKeyPartitioner.class);
+        jobSorting2.setSortComparatorClass(MapReduceKeyComparator.class);
+        jobSorting2.setGroupingComparatorClass(MapReduceKeyGroupKeyComparator.class);
+        FileInputFormat.setInputPaths(jobSorting2, new Path(args[1]+"2"));
+        FileOutputFormat.setOutputPath(jobSorting2, new Path(args[1]+"Sorting2"));
+
 	    
 	    /// --------------- Third job ----------------
 	    
@@ -432,16 +491,20 @@ public class MRGenerateUsers{
         job3.setSortComparatorClass(MapReduceKeyComparator.class);
         job3.setGroupingComparatorClass(MapReduceKeyGroupKeyComparator.class);
 		
-	    FileInputFormat.setInputPaths(job3, new Path(args[1] + "2"));
+	    FileInputFormat.setInputPaths(job3, new Path(args[1] + "Sorting2"));
 	    FileOutputFormat.setOutputPath(job3, new Path(args[1] + "3") );
 	    /// --------- Execute Jobs ------
 	    
 	    long start = System.currentTimeMillis();
 	
 	    int res = job.waitForCompletion(true) ? 0 : 1;
-	    
+
+        int resSorting = jobSorting.waitForCompletion(true) ? 0 : 1;
+
 	    int res2 = job2.waitForCompletion(true) ? 0 : 1;
-	    
+
+        int resSorting2 = jobSorting2.waitForCompletion(true) ? 0 : 1;
+
 	    int res3 = job3.waitForCompletion(true) ? 0 : 1;
 	    
 	    long end = System.currentTimeMillis();

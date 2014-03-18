@@ -429,6 +429,7 @@ public class ScalableGenerator{
 
 
     RandomGeneratorFarm randomFarm;
+    public final int blockSize = 2000;
 
 
     /**
@@ -807,7 +808,7 @@ public class ScalableGenerator{
 
                 generatePosts(reducedUserProfilesCell[j], extraInfo);
                 generateFlashmobPosts(reducedUserProfilesCell[j], extraInfo);
-                generatePhoto(reducedUserProfilesCell[j], extraInfo);
+        //       generatePhoto(reducedUserProfilesCell[j], extraInfo);
             }
         }
         storeManager.endDeserialization();
@@ -929,7 +930,7 @@ public class ScalableGenerator{
     public void resetState(int seed) {
         blockId = seed;
         postId = 0;
-        SN.setMachineNumber(blockId, USER_RANDOM_ID_LIMIT >> reducerShift[2]);
+        SN.setMachineNumber(blockId, numTotalUser / blockSize );
         resetWindow();
         randomFarm.resetRandomGenerators((long)seed);
     }
@@ -955,7 +956,6 @@ public class ScalableGenerator{
         }
 
         // Here we determine the blocks in the "block space" that this mapper is responsible for.
-        int blockSize = windowSize*4;
         int numBlocks = (int) (Math.ceil(numTotalUser / (double)blockSize));
         int initBlock = (int) (Math.ceil((numBlocks / (double)numFiles) * mapIdx ));
         int endBlock  = (int) (Math.ceil((numBlocks / (double)numFiles) * (mapIdx+1)));
@@ -970,8 +970,9 @@ public class ScalableGenerator{
                 ReducedUserProfile reduceUserProf = new ReducedUserProfile(user, NUM_FRIENDSHIP_HADOOP_JOBS);
                 ++numUsersToGenerate;
                 try {
-                    int block =  reduceUserProf.getDicElementId(pass) >> reducerShift[0];          // The mapreduce group this university will be assigned.
-                    int key = reduceUserProf.getDicElementId(pass);                                   // The key used to sort within the block. 
+//                    int block =  reduceUserProf.getDicElementId(pass) >> reducerShift[0];          // The mapreduce group this university will be assigned.
+                    int block =  0;                                                                  // The mapreduce group this university will be assigned.
+                    int key = reduceUserProf.getDicElementId(pass);                                  // The key used to sort within the block.
                     long id = reduceUserProf.getAccountId();                                          // The id used to sort within the key, to guarantee determinism.
                     MapReduceKey mpk = new MapReduceKey( block, key, id );
                     context.write(mpk, reduceUserProf);
@@ -1601,12 +1602,12 @@ public class ScalableGenerator{
                     //SN.setMachineNumber(machineId, numFiles);
                     String t = type.toLowerCase();
                     if (t.equals("ttl")) {
-                        return new Turtle(sibOutputDir +"/reducer_"+this.machineId+"_"+outputFileName, numRdfOutputFile, true, tagDictionary,
+                        return new Turtle(sibOutputDir +"/"+this.machineId+"_"+outputFileName, numRdfOutputFile, true, tagDictionary,
                                 browserDictonry, companiesDictionary, 
                                 unversityDictionary.GetUniversityLocationMap(),
                                 ipAddDictionary, locationDictionary, languageDictionary);
                     } else if (t.equals("n3")) {
-                        return new Turtle(sibOutputDir + "/reducer_"+this.machineId+"_"+outputFileName, numRdfOutputFile, false, tagDictionary,
+                        return new Turtle(sibOutputDir + "/"+this.machineId+"_"+outputFileName, numRdfOutputFile, false, tagDictionary,
                                 browserDictonry, companiesDictionary, 
                                 unversityDictionary.GetUniversityLocationMap(),
                                 ipAddDictionary, locationDictionary, languageDictionary);
