@@ -106,7 +106,8 @@ abstract public class PostGenerator {
                           double largePostRatio,
                           int maxNumberOfLikes,
                           long seed,
-                          long seedTextSize){
+                          long seedTextSize
+                          ){
 
         this.tagTextDic = tagTextDic;
         this.userAgentDic = userAgentDic;
