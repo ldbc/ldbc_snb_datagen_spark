@@ -191,7 +191,6 @@ public class CSVMergeForeign implements Serializer {
      * @param nrOfOutputFiles: How many files will be created.
      * @param tagDic: The tag dictionary used in the generation.
      * @param browsers: The browser dictionary used in the generation.
-     * @param companyToCountry: HashMap of company names to country IDs.
      * @param univesityToCountry: HashMap of universities names to country IDs.
      * @param ipDic: The IP dictionary used in the generation.
      * @param locationDic: The location dictionary used in the generation.
@@ -270,7 +269,6 @@ public class CSVMergeForeign implements Serializer {
 	/**
 	 * Writes the data into the appropriate file.
 	 * 
-	 * @param column: The column data.
 	 * @param index: The file index.
 	 */
 	public void ToCSV(Vector<String> columns, int index) {
@@ -280,6 +278,7 @@ public class CSVMergeForeign implements Serializer {
             result.append(SEPARATOR);
             result.append(columns.get(i));
         }
+        result.append(SEPARATOR);
         result.append(NEWLINE);
         WriteTo(result.toString(), index);
         columns.clear();
@@ -614,7 +613,7 @@ public class CSVMergeForeign implements Serializer {
         } else {
             arguments.add(empty);
         }
-        arguments.add(Integer.toString(post.getContent().length()));
+        arguments.add(Integer.toString(post.getTextSize()));
         arguments.add(Integer.toString(post.getAuthorId()));
         arguments.add(SN.formId(post.getGroupId()));
         arguments.add(Integer.toString(ipDic.getLocation(post.getIpAddress())));
@@ -684,7 +683,7 @@ public class CSVMergeForeign implements Serializer {
         else {
             arguments.add("");
         }
-        arguments.add(Integer.toString(comment.getContent().length()));
+        arguments.add(Integer.toString(comment.getTextSize()));
         arguments.add(Integer.toString(comment.getAuthorId()));
         arguments.add(Integer.toString(ipDic.getLocation(comment.getIpAddress())));
         if (comment.getReplyOf() == -1) {

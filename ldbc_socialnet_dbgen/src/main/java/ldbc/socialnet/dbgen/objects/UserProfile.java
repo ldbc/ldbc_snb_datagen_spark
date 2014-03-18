@@ -43,7 +43,9 @@ import java.util.Iterator;
 public class UserProfile implements Serializable {
     private static final long serialVersionUID = 3657773293974543890L;
 	int 				accountId;
-	int 				locationIdx; 
+	int					sdpId; 		//Social degree percentile Id: computed from percentile in the social degree distribution 
+
+	int 				locationIdx;
 	int 				locationZId;
 	int                 cityIdx; 
 	
@@ -101,7 +103,13 @@ public class UserProfile implements Serializable {
         
         setOfTags = new TreeSet<Integer>();
 	}
-	
+	public int getSdpId() {
+		return sdpId;
+	}
+
+	public void setSdpId(int sdpId) {
+		this.sdpId = sdpId;
+	}
 	public byte getGender() {
 		return gender;
 	}

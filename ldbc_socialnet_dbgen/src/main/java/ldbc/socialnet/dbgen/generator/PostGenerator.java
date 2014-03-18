@@ -90,6 +90,7 @@ abstract public class PostGenerator {
 
     private double reducedTextRatio;       /**< @brief The ratio of reduced texts.*/
     private double largePostRatio;         /**< @brief The ratio of large posts.*/
+    private boolean generateText;          /**< @brief To generate text for post and comment.*/
 
 
 
@@ -105,6 +106,7 @@ abstract public class PostGenerator {
                           int maxLargeSizeOfPost, 
                           double largePostRatio,
                           int maxNumberOfLikes,
+                          boolean generateText,
                           long seed,
                           long seedTextSize
                           ){
@@ -128,6 +130,7 @@ abstract public class PostGenerator {
         this.reducedTextRatio = reducedTextRatio;
         this.largePostRatio = largePostRatio;
         this.maxNumberOfLikes = maxNumberOfLikes;
+        this.generateText = generateText;
 	}
 	
     /** @brief Initializes the post generator.*/
@@ -223,21 +226,36 @@ abstract public class PostGenerator {
             PostInfo postInfo = generatePostInfo(user);
             if( postInfo != null ) {
                 // Create the content of the post from its tags.
-                String content;
-                if( user.isLargePoster() ) {
-                    if( randLargePost.nextDouble() > (1.0f-largePostRatio) ) {
-                        content = tagTextDic.getRandomLargeText( postInfo.tags, minLargeSizeOfPost, maxLargeSizeOfPost );
+                String content = "";
+                int textSize = 0;
+                if( generateText ) {
+                    if( user.isLargePoster() ) {
+                        if( randLargePost.nextDouble() > (1.0f-largePostRatio) ) {
+                            content = tagTextDic.getRandomLargeText( postInfo.tags, minLargeSizeOfPost, maxLargeSizeOfPost );
+                        } else {
+                            content = tagTextDic.getRandomText(postInfo.tags, minSizeOfPost, maxSizeOfPost);
+                        }
                     } else {
                         content = tagTextDic.getRandomText(postInfo.tags, minSizeOfPost, maxSizeOfPost);
                     }
+                    textSize = content.length();
                 } else {
-                    content = tagTextDic.getRandomText(postInfo.tags, minSizeOfPost, maxSizeOfPost);
+                    if( user.isLargePoster() ) {
+                        if( randLargePost.nextDouble() > (1.0f-largePostRatio) ) {
+                            textSize = tagTextDic.getRandomLargeTextSize( minLargeSizeOfPost, maxLargeSizeOfPost );
+                        } else {
+                            textSize = tagTextDic.getRandomTextSize( minSizeOfPost, maxSizeOfPost);
+                        }
+                    } else {
+                        textSize = tagTextDic.getRandomTextSize( minSizeOfPost, maxSizeOfPost);
+                    }
                 }
 
                 Integer languageIndex = rand.nextInt(extraInfo.getLanguages().size());
                 ScalableGenerator.postId++;
                 Post post = new Post( ScalableGenerator.postId, 
                   content,
+                  textSize,
                   postInfo.date,
                   user.getAccountId(),
                   user.getAccountId() * 2,
@@ -269,19 +287,34 @@ abstract public class PostGenerator {
             PostInfo postInfo = generatePostInfo(group, memberShip);
             if( postInfo != null ) {
                 // Create the content of the post from its tags.
-                String content;
-                if( memberShip.isLargePoster() ) {
-                    if( randLargePost.nextDouble() > (1.0f-largePostRatio) ) {
-                        content = tagTextDic.getRandomLargeText(postInfo.tags, minLargeSizeOfPost, maxLargeSizeOfPost);
+                String content = "";
+                int textSize = 0;
+                if( generateText ) {
+                    if( memberShip.isLargePoster() ) {
+                        if( randLargePost.nextDouble() > (1.0f-largePostRatio) ) {
+                            content = tagTextDic.getRandomLargeText(postInfo.tags, minLargeSizeOfPost, maxLargeSizeOfPost);
+                        } else {
+                            content = tagTextDic.getRandomText(postInfo.tags, minSizeOfPost, maxSizeOfPost);
+                        }
                     } else {
                         content = tagTextDic.getRandomText(postInfo.tags, minSizeOfPost, maxSizeOfPost);
                     }
+                    textSize = content.length();
                 } else {
-                    content = tagTextDic.getRandomText(postInfo.tags, minSizeOfPost, maxSizeOfPost);
+                    if( memberShip.isLargePoster() ) {
+                        if( randLargePost.nextDouble() > (1.0f-largePostRatio) ) {
+                            textSize = tagTextDic.getRandomLargeTextSize( minLargeSizeOfPost, maxLargeSizeOfPost );
+                        } else {
+                            textSize = tagTextDic.getRandomTextSize( minSizeOfPost, maxSizeOfPost);
+                        }
+                    } else {
+                        textSize = tagTextDic.getRandomTextSize( minSizeOfPost, maxSizeOfPost);
+                    }
                 }
                 ScalableGenerator.postId++;
                 Post post = new Post( ScalableGenerator.postId, 
                   content,
+                  textSize,
                   postInfo.date,
                   memberShip.getUserId(),
                   group.getForumWallId(),
