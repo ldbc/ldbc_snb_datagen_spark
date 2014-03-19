@@ -925,7 +925,7 @@ public class ScalableGenerator{
                 serializer.gatherData(reducedUserProfilesCell[j], extraInfo);
 
                 generatePosts(reducedUserProfilesCell[j], extraInfo);
-                generateFlashmobPosts(reducedUserProfilesCell[j], extraInfo);
+                //generateFlashmobPosts(reducedUserProfilesCell[j], extraInfo);
                 generatePhoto(reducedUserProfilesCell[j], extraInfo);
             }
         }
@@ -1367,7 +1367,7 @@ public class ScalableGenerator{
 
 		serializer.gatherData(group);
 		generatePostForGroup(group);
-        generateFlashmobPostForGroup(group);
+        //generateFlashmobPostForGroup(group);
 	}
 
 	public void generatePostForGroup(Group group) {

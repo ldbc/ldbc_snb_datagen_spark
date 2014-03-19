@@ -57,7 +57,7 @@ import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
 public class TagTextDictionary {
 
 	
-    public static int commentId = -1;
+    public static long commentId = -1;
     
     private static final String SEPARATOR = "  ";
     
