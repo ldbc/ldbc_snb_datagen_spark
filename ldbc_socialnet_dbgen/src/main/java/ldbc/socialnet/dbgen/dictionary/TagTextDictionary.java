@@ -55,10 +55,6 @@ import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
 
 
 public class TagTextDictionary {
-
-	
-    public static int commentId = -1;
-    
     private static final String SEPARATOR = "  ";
     
     String dicFileName;
@@ -97,8 +93,19 @@ public class TagTextDictionary {
 	    return tagText.get(id);
 	}
 
-    public String getRandomText(Random randomTextSize, Random randomReducedText, TreeSet<Integer> tags, int minSize, int maxSize ) {
+    public int getRandomTextSize(Random randomTextSize, Random randomReducedText, int minSize, int maxSize ) {
 
+        if (randomReducedText.nextDouble() > reducedTextRatio){
+            return randomTextSize.nextInt(maxSize - minSize) + minSize;
+        }
+        return randomTextSize.nextInt((maxSize >> 1) - minSize) + minSize;
+    }
+
+    public int getRandomLargeTextSize( Random randomTextSize, int minSize, int maxSize ) {
+        return randomTextSize.nextInt(maxSize - minSize) + minSize;
+    }
+
+    public String getRandomText(Random randomTextSize, Random randomReducedText, TreeSet<Integer> tags, int minSize, int maxSize ) {
         int textSize;
         int startingPos;
         String returnString = "";

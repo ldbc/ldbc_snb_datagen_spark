@@ -86,6 +86,7 @@ public class CSVMergeForeign implements Serializer {
     private LanguageDictionary languageDic;
     private TagDictionary tagDic;
     private IPAddressDictionary ipDic;
+    private boolean exportText;
     
     /**
      * Used to create an unique id to each file. It is used only in case of an unnumbered entity or in the relations.
@@ -125,21 +126,10 @@ public class CSVMergeForeign implements Serializer {
             "person_speaks_language",
             "person_workAt_organisation",
             "person_studyAt_organisation",
-        //    "person_isLocatedIn_place",
             "person_email_emailaddress",
-//            "post_isLocatedIn_place",
             "post_hasTag_tag",
- //           "post_hasCreator_person",
- //           "comment_isLocatedIn_place",
- //           "comment_replyOf_post",
- //           "comment_replyOf_comment",
- //           "comment_hasCreator_person",
 	        "tag_hasType_tagclass",
 	        "tagclass_isSubclassOf_tagclass",
-//	        "place_isPartOf_place",
-//	        "organisation_isLocatedIn_place",
-//	        "forum_hasModerator_person",
-	        "forum_containerOf_post",
 	        "forum_hasTag_tag",
 	        "forum_hasMember_person"
 	};
@@ -159,21 +149,10 @@ public class CSVMergeForeign implements Serializer {
         PERSON_SPEAKS_LANGUAGE,
         PERSON_WORK_AT_ORGANISATION,
         PERSON_STUDY_AT_ORGANISATION,
-//        PERSON_LOCATED_IN_PLACE,
         PERSON_HAS_EMAIL_EMAIL,
-//        POST_LOCATED_PLACE,
-          POST_HAS_TAG_TAG,
-//        POST_HAS_CREATOR_PERSON,
-//        COMMENT_LOCATED_PLACE,
-//        COMMENT_REPLY_OF_POST,
-//        COMMENT_REPLY_OF_COMMENT,
-//        COMMENT_HAS_CREATOR_PERSON,
+        POST_HAS_TAG_TAG,
     	TAG_HAS_TYPE_TAGCLASS,
     	TAGCLASS_IS_SUBCLASS_OF_TAGCLASS,
-    //	PLACE_PART_OF_PLACE,
- //   	ORGANISATION_BASED_NEAR_PLACE,
-    //	FORUM_HAS_MODERATOR_PERSON,
-    	FORUM_CONTAINER_OF_POST,
     	FORUM_HASTAG_TAG,
         FORUM_HASMEMBER_PERSON,
     	NUM_FILES
@@ -184,7 +163,7 @@ public class CSVMergeForeign implements Serializer {
      */
     private final String[][] fieldNames = {
             {"id", "name", "url"},
-            {"id", "imageFile", "creationDate", "locationIP", "browserUsed", "language", "content", "length", "creator","place"},
+            {"id", "imageFile", "creationDate", "locationIP", "browserUsed", "language", "content", "length", "creator","Forum.id","place"},
             {"id", "title", "creationDate","moderator"},
             {"id", "firstName", "lastName", "gender", "birthday", "creationDate", "locationIP", "browserUsed","place"},
             {"id", "creationDate", "locationIP", "browserUsed", "content", "length", "creator", "place","replyOfPost","replyOfComment"},
@@ -197,21 +176,10 @@ public class CSVMergeForeign implements Serializer {
             {"Person.id", "language"},
             {"Person.id", "Organisation.id", "workFrom"},
             {"Person.id", "Organisation.id", "classYear"},
-//            {"Person.id", "Place.id"},
             {"Person.id", "email"},
-       //     {"Post.id", "Place.id"},
             {"Post.id", "Tag.id"},
-       //     {"Post.id", "Person.id"},
-       //     {"Comment.id", "Place.id"},
-       //     {"Comment.id", "Post.id"},
-       //     {"Comment.id", "Comment.id"},
-       //     {"Comment.id", "Person.id"},
             {"Tag.id", "TagClass.id"},
             {"TagClass.id", "TagClass.id"},
-    //        {"Place.id", "Place.id"},
- //           {"Organisation.id", "Place.id"},
- //           {"Forum.id", "Person.id"},
-            {"Forum.id", "Post.id"},
             {"Forum.id", "Tag.id"},
             {"Forum.id", "Person.id", "joinDate"}
     };
@@ -223,7 +191,6 @@ public class CSVMergeForeign implements Serializer {
      * @param nrOfOutputFiles: How many files will be created.
      * @param tagDic: The tag dictionary used in the generation.
      * @param browsers: The browser dictionary used in the generation.
-     * @param companyToCountry: HashMap of company names to country IDs.
      * @param univesityToCountry: HashMap of universities names to country IDs.
      * @param ipDic: The IP dictionary used in the generation.
      * @param locationDic: The location dictionary used in the generation.
@@ -232,7 +199,7 @@ public class CSVMergeForeign implements Serializer {
 	public CSVMergeForeign(String file, int reducerID, int nrOfOutputFiles,
             TagDictionary tagDic, BrowserDictionary browsers, 
             CompanyDictionary companies, HashMap<String, Integer> univesityToCountry,
-            IPAddressDictionary ipDic, LocationDictionary locationDic, LanguageDictionary languageDic) {
+            IPAddressDictionary ipDic, LocationDictionary locationDic, LanguageDictionary languageDic, boolean exportText) {
         
         this.tagDic = tagDic;  
         this.browserDic = browsers;
@@ -241,6 +208,7 @@ public class CSVMergeForeign implements Serializer {
         this.companyDic = companies;
         this.universityToCountry = univesityToCountry;
         this.ipDic = ipDic;
+        this.exportText = exportText;
         
         csvRows = 0l;
         date = new GregorianCalendar();
@@ -301,7 +269,6 @@ public class CSVMergeForeign implements Serializer {
 	/**
 	 * Writes the data into the appropriate file.
 	 * 
-	 * @param column: The column data.
 	 * @param index: The file index.
 	 */
 	public void ToCSV(Vector<String> columns, int index) {
@@ -311,6 +278,7 @@ public class CSVMergeForeign implements Serializer {
             result.append(SEPARATOR);
             result.append(columns.get(i));
         }
+        result.append(SEPARATOR);
         result.append(NEWLINE);
         WriteTo(result.toString(), index);
         columns.clear();
@@ -640,26 +608,16 @@ public class CSVMergeForeign implements Serializer {
         } else {
             arguments.add(empty);
         }
-	    arguments.add(post.getContent());
-        arguments.add(Integer.toString(post.getContent().length()));
+        if( exportText ) {
+            arguments.add(post.getContent());
+        } else {
+            arguments.add(empty);
+        }
+        arguments.add(Integer.toString(post.getTextSize()));
         arguments.add(Long.toString(post.getAuthorId()));
+        arguments.add(SN.formId(post.getGroupId()));
         arguments.add(Integer.toString(ipDic.getLocation(post.getIpAddress())));
 	    ToCSV(arguments, Files.POST.ordinal());
-
-/*	    if (post.getIpAddress() != null) {
-	        arguments.add(SN.formId(post.getPostId()));
-	        arguments.add(Integer.toString(ipDic.getLocation(post.getIpAddress())));
-	        ToCSV(arguments, Files.POST_LOCATED_PLACE.ordinal());
-	    }
-        */
-	    arguments.add(SN.formId(post.getGroupId()));
-	    arguments.add(SN.formId(post.getPostId()));
-	    ToCSV(arguments, Files.FORUM_CONTAINER_OF_POST.ordinal());
-
-	    /*arguments.add(SN.formId(post.getPostId()));
-	    arguments.add(Integer.toString(post.getAuthorId()));
-	    ToCSV(arguments, Files.POST_HAS_CREATOR_PERSON.ordinal());
-        */
 
 	    Iterator<Integer> it = post.getTags().iterator();
 	    while (it.hasNext()) {
@@ -719,8 +677,13 @@ public class CSVMergeForeign implements Serializer {
             String empty = "";
             arguments.add(empty);
         }
-	    arguments.add(comment.getContent());
-        arguments.add(Integer.toString(comment.getContent().length()));
+        if( exportText ) {
+            arguments.add(comment.getContent());
+        }
+        else {
+            arguments.add("");
+        }
+        arguments.add(Integer.toString(comment.getTextSize()));
         arguments.add(Long.toString(comment.getAuthorId()));
         arguments.add(Integer.toString(ipDic.getLocation(comment.getIpAddress())));
         if (comment.getReplyOf() == -1) {
@@ -734,17 +697,6 @@ public class CSVMergeForeign implements Serializer {
         }
 	    ToCSV(arguments, Files.COMMENT.ordinal());
 	    
-/*	    if (comment.getIpAddress() != null) {
-            arguments.add(SN.formId(comment.getCommentId()));
-            arguments.add(Integer.toString(ipDic.getLocation(comment.getIpAddress())));
-            ToCSV(arguments, Files.COMMENT_LOCATED_PLACE.ordinal());
-        }
-        */
-	    
-	    /*arguments.add(SN.formId(comment.getCommentId()));
-	    arguments.add(Integer.toString(comment.getAuthorId()));
-	    ToCSV(arguments, Files.COMMENT_HAS_CREATOR_PERSON.ordinal());
-        */
 	}
 
 	/**
@@ -777,24 +729,13 @@ public class CSVMergeForeign implements Serializer {
 	    arguments.add(empty);
         arguments.add(Integer.toString(0));
         arguments.add(Long.toString(photo.getCreatorId()));
+        arguments.add(SN.formId(photo.getAlbumId()));
         arguments.add(Integer.toString(ipDic.getLocation(photo.getIpAddress())));
 	    ToCSV(arguments, Files.POST.ordinal());
 
-/*	    if (photo.getIpAddress() != null) {
-	        arguments.add(SN.formId(photo.getPhotoId()));
-	        arguments.add(Integer.toString(ipDic.getLocation(photo.getIpAddress())));
-	        ToCSV(arguments, Files.POST_LOCATED_PLACE.ordinal());
-	    }
-        */
-
-	   /* arguments.add(SN.formId(photo.getPhotoId()));
-	    arguments.add(Integer.toString(photo.getCreatorId()));
-	    ToCSV(arguments, Files.POST_HAS_CREATOR_PERSON.ordinal());
-        */
-
-	    arguments.add(SN.formId(photo.getAlbumId()));
-	    arguments.add(SN.formId(photo.getPhotoId()));
-	    ToCSV(arguments, Files.FORUM_CONTAINER_OF_POST.ordinal());
+	    //arguments.add(SN.formId(photo.getAlbumId()));
+	    //arguments.add(SN.formId(photo.getPhotoId()));
+	    //ToCSV(arguments, Files.FORUM_CONTAINER_OF_POST.ordinal());
 
 	    Iterator<Integer> it = photo.getTags().iterator();
 	    while (it.hasNext()) {
@@ -841,11 +782,6 @@ public class CSVMergeForeign implements Serializer {
 	    arguments.add(dateString);
         arguments.add(Long.toString(group.getModeratorId()));
 	    ToCSV(arguments,Files.FORUM.ordinal());
-	    
-/*	    arguments.add(SN.formId(group.getForumWallId()));
-	    arguments.add(Integer.toString(group.getModeratorId()));
-	    ToCSV(arguments,Files.FORUM_HAS_MODERATOR_PERSON.ordinal());
-        */
 	    
 	    Integer groupTags[] = group.getTags();
         for (int i = 0; i < groupTags.length; i ++) {

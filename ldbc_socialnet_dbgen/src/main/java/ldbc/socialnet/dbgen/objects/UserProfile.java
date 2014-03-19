@@ -41,8 +41,10 @@ import java.util.TreeSet;
 import java.util.Iterator;
 
 public class UserProfile implements Serializable {
+
     private static final long serialVersionUID = 3657773293974543890L;
 	private long 				accountId;              /**< @brief A unique account id identifying the user.*/
+    private int					sdpId; 		            /**< @brief Social degree percentile Id: computed from percentile in the social degree distribution*/
 	private int 				locationId;             /**< @brief The location id of the place were the user lives.*/
 	private int 				locationZId;            /**< @brief The location Z id.*/
 	private int                 cityId;                 /**< @brief The index of the city where the user lives.*/
@@ -52,7 +54,7 @@ public class UserProfile implements Serializable {
 	private long	 			creationDate;           /**< @brief The date when the user was created.*/
 	private short         		numFriends;             /**< @brief The expected number of friends of the user.*/
 	private short 		        numPassFriends[];		/**< @brief Max number of friends can be generated after kth passes*/
-	
+
 	
 	private short 		        numFriendsAdded;        /**< @brief The actual number of friends of the user.*/
 	private Friend 				friendList[];           /**< @brief The list of friends of the user.*/ 
@@ -116,7 +118,13 @@ public class UserProfile implements Serializable {
         this.friendIds = null;
         this.numPassFriends = null;
 	}
-	
+	public int getSdpId() {
+		return sdpId;
+	}
+
+	public void setSdpId(int sdpId) {
+		this.sdpId = sdpId;
+	}
 	public byte getGender() {
 		return gender;
 	}

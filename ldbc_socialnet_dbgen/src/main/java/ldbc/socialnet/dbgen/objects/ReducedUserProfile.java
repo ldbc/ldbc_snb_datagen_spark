@@ -50,10 +50,9 @@ import org.apache.hadoop.io.Writable;
 public class ReducedUserProfile implements Serializable, Writable{
 	private static final long serialVersionUID = 3657773293974543890L;
 	long 				accountId;
-	long	 			creationDate; 
+    int					sdpId;
+	long	 			creationDate;
 	public short 		numFriends;
-
-
 	public short 		numFriendsAdded;
 	public byte			numCorDimensions; 
 	public short 		numPassFriends[];
@@ -112,8 +111,9 @@ public class ReducedUserProfile implements Serializable, Writable{
 			 throws IOException, ClassNotFoundException{
 			// TODO Auto-generated method stub
 			accountId = stream.readLong();
-			creationDate = stream.readLong(); 
-			numFriends = stream.readShort(); 
+            sdpId = stream.readInt();
+			creationDate = stream.readLong();
+			numFriends = stream.readShort();
 			numFriendsAdded = stream.readShort();
 			numCorDimensions = stream.readByte();
 			numPassFriends = new short[numCorDimensions];
@@ -176,8 +176,9 @@ public class ReducedUserProfile implements Serializable, Writable{
 	private void writeObject(java.io.ObjectOutputStream stream)
 	throws IOException{
 		 	stream.writeLong(accountId);
-			stream.writeLong(creationDate); 
-			stream.writeShort(numFriends); 
+            stream.writeInt(sdpId);
+			stream.writeLong(creationDate);
+			stream.writeShort(numFriends);
 			stream.writeShort(numFriendsAdded);
 			stream.writeByte(numCorDimensions);
 			for (int i = 0; i < numCorDimensions; i ++){
@@ -235,8 +236,9 @@ public class ReducedUserProfile implements Serializable, Writable{
 	
 	public void readFields(DataInput arg0) throws IOException {
 		accountId = arg0.readLong();
-		creationDate = arg0.readLong(); 
-		numFriends = arg0.readShort(); 
+        sdpId = arg0.readInt();
+		creationDate = arg0.readLong();
+		numFriends = arg0.readShort();
 		numFriendsAdded = arg0.readShort();
 		numCorDimensions = arg0.readByte();
 		numPassFriends = new short[numCorDimensions];
@@ -299,6 +301,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 	
 	public void copyFields(ReducedUserProfile user){
 		accountId = user.getAccountId();
+        sdpId = user.getSdpId();
 		creationDate = user.getCreationDate();
 		numFriends = user.getNumFriends();
 		numFriendsAdded = user.getNumFriendsAdded();
@@ -337,8 +340,9 @@ public class ReducedUserProfile implements Serializable, Writable{
 	
 	public void write(DataOutput arg0) throws IOException {
 		arg0.writeLong(accountId);
-		arg0.writeLong(creationDate); 
-		arg0.writeShort(numFriends); 
+        arg0.writeInt(sdpId);
+		arg0.writeLong(creationDate);
+		arg0.writeShort(numFriends);
 		arg0.writeShort(numFriendsAdded);
 		arg0.writeByte(numCorDimensions);
 		for (int i = 0; i < numCorDimensions; i ++){
@@ -401,6 +405,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 	
 	public ReducedUserProfile(UserProfile user, int numCorrDimensions){
 		this.setAccountId(user.getAccountId());
+        this.setSdpId(user.getSdpId());
 		this.setCreationDate(user.getCreationDate());
 		this.setNumFriends(user.getNumFriends());
 		this.setNumFriendsAdded((short)0);
@@ -538,6 +543,13 @@ public class ReducedUserProfile implements Serializable, Writable{
 		this.accountId = accountId;
 	}
 
+	public int getSdpId() {
+		return sdpId;
+	}
+
+	public void setSdpId(int sdpId) {
+		this.sdpId = sdpId;
+	}
 	public boolean isHaveSmartPhone() {
 		return isHaveSmartPhone;
 	}

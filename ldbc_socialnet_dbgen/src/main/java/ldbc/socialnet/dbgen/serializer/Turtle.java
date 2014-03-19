@@ -94,6 +94,7 @@ public class Turtle implements Serializer {
 	private LanguageDictionary languageDic;
 	private TagDictionary tagDic;
 	private IPAddressDictionary ipDic;
+    private boolean exportText;
     
 	/**
 	 * Used to give an unique ID to blank nodes.
@@ -119,7 +120,6 @@ public class Turtle implements Serializer {
 	 * @param isTurtle: If the RDF admits turtle abbreviation syntax.
 	 * @param tagDic: The tag dictionary used in the generation.
 	 * @param browsers: The browser dictionary used in the generation.
-	 * @param companyToCountry: The company dictionaty used in the generation.
 	 * @param univesityToCountry: HashMap of universities names to country IDs.
 	 * @param ipDic: The IP dictionary used in the generation.
 	 * @param locationDic: The location dictionary used in the generation.
@@ -129,7 +129,7 @@ public class Turtle implements Serializer {
             TagDictionary tagDic, BrowserDictionary browsers, 
             CompanyDictionary companies, HashMap<String, Integer> univesityToCountry,
             IPAddressDictionary ipDic,  LocationDictionary locationDic, 
-            LanguageDictionary languageDic) {
+            LanguageDictionary languageDic, boolean exportText) {
 	    
 	    this.isTurtle = isTurtle;
 	    this.tagDic = tagDic;  
@@ -139,6 +139,7 @@ public class Turtle implements Serializer {
         this.universityToCountry = univesityToCountry;
         this.ipDic = ipDic;
         this.languageDic = languageDic;
+        this.exportText = exportText;
         
         nrTriples = 0l;
 		date = new GregorianCalendar();
@@ -301,8 +302,6 @@ public class Turtle implements Serializer {
      * @param end: The end of a subject abbreviation block.
      * @param subject: The RDF subject.
      * @param predicate: The RDF predicate.
-     * @param object: The RDF first object.
-     * @param object: The RDF second object.
      */
 	private void AddTriple(StringBuffer result, boolean beginning, 
             boolean end, String subject, String predicate, String object1, String object2) {
@@ -580,10 +579,12 @@ public class Turtle implements Serializer {
 	                    createLiteral(browserDic.getName(post.getBrowserIdx())));
 	        }
 	    }
+        if( exportText ) {
 	    AddTriple(result, false, false, prefix, SNVOC.content,
 	            createLiteral(post.getContent()));
+        }
         AddTriple(result, false, true, prefix, SNVOC.length,
-                createLiteral(Integer.toString(post.getContent().length())));
+                createLiteral(Integer.toString(post.getTextSize())));
 
 	    if (post.getLanguage() != -1) {
 	        createTripleSPO(result, prefix, SNVOC.language,
@@ -654,8 +655,10 @@ public class Turtle implements Serializer {
 		                createLiteral(browserDic.getName(comment.getBrowserIdx())));
 		    }
 		}
-		AddTriple(result, false, false, prefix, SNVOC.content, createLiteral(comment.getContent()));
-        AddTriple(result, false, true, prefix, SNVOC.length,createLiteral(Integer.toString(comment.getContent().length())));
+        if( exportText ) {
+            AddTriple(result, false, false, prefix, SNVOC.content, createLiteral(comment.getContent()));
+        }
+        AddTriple(result, false, true, prefix, SNVOC.length,createLiteral(Integer.toString(comment.getTextSize())));
 
 		String replied = (comment.getReplyOf() == -1) ? SN.getPostURI(comment.getPostId()) : 
 		    SN.getCommentURI(comment.getReplyOf());

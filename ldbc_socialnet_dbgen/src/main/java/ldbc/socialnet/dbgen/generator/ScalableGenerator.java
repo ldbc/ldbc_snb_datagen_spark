@@ -174,12 +174,14 @@ public class ScalableGenerator{
     private static final String   tagTextFile               = DICTIONARY_DIRECTORY + "tagText.txt";
     private static final String   tagTopicDictionaryFile    = DICTIONARY_DIRECTORY + "topicMatrixId.txt";
     private static final String   flashmobDistFile          = DICTIONARY_DIRECTORY + "flashmobDist.txt";
+    private static final String   fbSocialDegreeFile	    = DICTIONARY_DIRECTORY + "facebookBucket100.dat";
 
     //private parameters
     private final String CELL_SIZE                     = "cellSize";
     private final String NUM_CELL_WINDOW               = "numberOfCellPerWindow";
     private final String MIN_FRIENDS                   = "minNumFriends";
     private final String MAX_FRIENDS                   = "maxNumFriends";
+    private final String AVG_PATHLENGTH				   = "averagePathLength";
     private final String FRIEND_REJECT                 = "friendRejectRatio";
     private final String FRIEND_REACCEPT               = "friendReApproveRatio";
     private final String USER_MIN_TAGS                 = "minNumTagsPerUser";
@@ -240,7 +242,7 @@ public class ScalableGenerator{
      * This array provides a quick way to check if any of the required parameters is missing and throw the appropriate
      * exception in the method loadParamsFromFile()
      */
-    private final String[] checkParameters = {CELL_SIZE, NUM_CELL_WINDOW, MIN_FRIENDS, MAX_FRIENDS, FRIEND_REJECT,
+    private final String[] checkParameters = {CELL_SIZE, NUM_CELL_WINDOW, MIN_FRIENDS, MAX_FRIENDS, AVG_PATHLENGTH, FRIEND_REJECT,
         FRIEND_REACCEPT, USER_MIN_TAGS, USER_MAX_TAGS, USER_MAX_POST_MONTH, MAX_COMMENT_POST, LIMIT_CORRELATED,
         BASE_CORRELATED, MAX_EMAIL, MAX_COMPANIES, ENGLISH_RATIO, SECOND_LANGUAGE_RATIO, OTHER_BROWSER_RATIO,
         MIN_TEXT_SIZE, MAX_TEXT_SIZE, MIN_COMMENT_SIZE, MAX_COMMENT_SIZE, REDUCE_TEXT_RATIO,
@@ -254,20 +256,19 @@ public class ScalableGenerator{
         PROB_INTEREST_FLASHMOB_TAG, PROB_RANDOM_PER_LEVEL, POST_PER_LEVEL_SCALE_FACTOR, FLASHMOB_TAG_MIN_LEVEL, FLASHMOB_TAG_MAX_LEVEL,
         FLASHMOB_TAG_DIST_EXP};
 
-
     //final user parameters
     private final String NUM_USERS        = "numtotalUser";
     private final String START_YEAR       = "startYear";
     private final String NUM_YEARS        = "numYears";
     private final String SERIALIZER_TYPE  = "serializerType";
-
+    private final String EXPORT_TEXT      = "exportText";
+    
     /**
      * This array provides a quick way to check if any of the required parameters is missing and throw the appropriate
      * exception in the method loadParamsFromFile()
      */
-    private final String[] publicCheckParameters = {NUM_USERS, START_YEAR, NUM_YEARS, SERIALIZER_TYPE};
-
-
+    private final String[] publicCheckParameters = {NUM_USERS, START_YEAR, NUM_YEARS, SERIALIZER_TYPE, EXPORT_TEXT};
+    
     // Gender string representation, both representations vector/standalone so the string is coherent.
     private final String MALE   = "male";
     private final String FEMALE = "female";
@@ -322,6 +323,10 @@ public class ScalableGenerator{
     LocationDictionary 		locationDictionary;
     LanguageDictionary      languageDictionary;
     TagDictionary 			tagDictionary;
+
+    //For facebook-like social degree distribution
+    FBSocialDegreeGenerator	fbDegreeGenerator;
+    double  				averagePathLength;
     FlashmobTagDictionary   flashmobTagDictionary;
     TagTextDictionary       tagTextDictionary;
     TagMatrix	 			topicTagDictionary;
@@ -417,6 +422,7 @@ public class ScalableGenerator{
     double         flashmobTagMinLevel = 0.0f;
     double         flashmobTagMaxLevel = 0.0f;
     double         flashmobTagDistExp  = 0.0f;
+<<<<<<< HEAD
 
     // Data accessed from the hadoop jobs
     private ReducedUserProfile[] cellReducedUserProfiles;
@@ -426,6 +432,8 @@ public class ScalableGenerator{
     private int     mrCurCellPost            = 0;
     public static int     blockId                 = 0;
     public int     exactOutput              = 0;
+
+    public boolean exportText = true;
 
 
     RandomGeneratorFarm randomFarm;
@@ -485,7 +493,7 @@ public class ScalableGenerator{
         this.machineId = mapId;
         numFiles = numMaps;
         RDF_OUTPUT_FILE = "mr" + mapreduceFileIdx + "_" + RDF_OUTPUT_FILE;
-        loadParamsFromFile();		
+        loadParamsFromFile();
         _init(mapId);
         mrWriter = new MRWriter(cellSize, windowSize, sibOutputDir); 
     }
@@ -508,6 +516,7 @@ public class ScalableGenerator{
             numberOfCellPerWindow = Integer.parseInt(properties.getProperty(NUM_CELL_WINDOW));
             minNumFriends = Integer.parseInt(properties.getProperty(MIN_FRIENDS));
             maxNumFriends = Integer.parseInt(properties.getProperty(MAX_FRIENDS));
+            averagePathLength = Double.parseDouble(properties.getProperty(AVG_PATHLENGTH));
             thresholdPopularUser = (int) (maxNumFriends * 0.9);
             friendRejectRatio = Double.parseDouble(properties.getProperty(FRIEND_REJECT));
             friendReApproveRatio = Double.parseDouble(properties.getProperty(FRIEND_REACCEPT));
@@ -582,7 +591,8 @@ public class ScalableGenerator{
             numYears = Integer.parseInt(properties.getProperty(NUM_YEARS));
             endYear = startYear + numYears;
             serializerType = properties.getProperty(SERIALIZER_TYPE);
-            if (!serializerType.equals("ttl") && !serializerType.equals("n3") && 
+            exportText = Boolean.parseBoolean(properties.getProperty(EXPORT_TEXT));
+            if (!serializerType.equals("ttl") && !serializerType.equals("n3") &&
                     !serializerType.equals("csv") && !serializerType.equals("none") && !serializerType.equals("csv_merge_foreign")) {
                 throw new IllegalStateException("serializerType must be ttl, n3, csv, csv_merge_foreign");
             }
@@ -702,6 +712,7 @@ public class ScalableGenerator{
                 maxLargePostSize,
                 ratioLargePost/0.0833333,
                 maxNumLikes,
+                exportText,
                 dateTimeGenerator,
                 maxNumPostPerMonth,
                 maxNumFriends,
@@ -739,6 +750,7 @@ public class ScalableGenerator{
                 maxLargePostSize,
                 ratioLargePost/0.0833333, 
                 maxNumLikes,
+                exportText,
                 dateTimeGenerator,
                 flashmobTagDictionary,
                 postPerLevelScaleFactor,
@@ -751,32 +763,28 @@ public class ScalableGenerator{
         System.out.println("Building Comment Generator");
         commentGenerator = new CommentGenerator(tagTextDictionary, dateTimeGenerator,
                 minCommentSize, maxCommentSize, ratioReduceText,
-                minLargeCommentSize, maxLargeCommentSize, ratioLargeComment/0.0833333
+                minLargeCommentSize, maxLargeCommentSize, ratioLargeComment/0.0833333, exportText
                 );
         commentGenerator.initialize();
+
+        System.out.println("Building Facebook-like social degree generator");
+        fbDegreeGenerator = new FBSocialDegreeGenerator(numTotalUser, fbSocialDegreeFile, 0, averagePathLength);
+        fbDegreeGenerator.loadFBBuckets();
+        fbDegreeGenerator.rebuildBucketRange();
 
         serializer = getSerializer(serializerType, RDF_OUTPUT_FILE);
     }
 
     /**
-     * Generates the user activity (Photos, Posts, Comments, Groups) data 
+     * Generates the user activity (Photos, Posts, Comments, Groups) data
      * of (numberCell * numUserPerCell) users correspondingto this hadoop job (machineId)
-     * 
+     *
      * @param inputFile The hadoop file with the user serialization (data and friends)
      * @param numCell The number of cells the generator will parse.
      */
     public void generateUserActivity(String inputFile, int numCell) {
-        //long startPostGeneration = System.currentTimeMillis();
-        //NOTE: Until this point of the code numTotalUser*2 forums where generated (2 for user) thats
-        //the reason behind this forum id assignment.
-//        groupGenerator.setForumId((numTotalUser + 10) * 2);
         generatePostandPhoto(inputFile, numCell);
-        //long endPostGeneration = System.currentTimeMillis();
-        //System.out.println("Post generation takes " + getDurationInMinutes(startPostGeneration, endPostGeneration));
-//        long startGroupGeneration = System.currentTimeMillis();
         generateAllGroup(inputFile, numCell);
-//        long endGroupGeneration = System.currentTimeMillis();
-//        System.out.println("Group generation takes " + getDurationInMinutes(startGroupGeneration, endGroupGeneration));
     }
 
     public void closeFileWriting() {
@@ -797,8 +805,6 @@ public class ScalableGenerator{
         reducedUserProfilesCell = new ReducedUserProfile[cellSize];
         StorageManager storeManager = new StorageManager(cellSize, windowSize, outUserProfile, sibOutputDir);
         storeManager.initDeserialization(inputFile);
-//        System.out.println("Generating the posts & comments ");
-//       System.out.println("Number of cells in file : " + numCells);
         for (int i = 0; i < numCells; i++) {
             storeManager.deserializeOneCellUserProfile(reducedUserProfilesCell);
             for (int j = 0; j < cellSize; j++) {
@@ -982,7 +988,6 @@ public class ScalableGenerator{
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                user = null;
             }
         }
         System.out.println("Number of generated users: "+numUsersToGenerate);
@@ -1089,7 +1094,7 @@ public class ScalableGenerator{
             int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments);
             long lastCommentCreatedDate = post.getCreationDate();
             long lastCommentId = -1;
-            long startCommentId = TagTextDictionary.commentId;
+            long startCommentId = postId;
             for (int l = 0; l < numComment; l++) {
                 Comment comment = commentGenerator.createComment(randomFarm, post, user, lastCommentCreatedDate, startCommentId, lastCommentId,
                         userAgentDictionary, ipAddDictionary, browserDictonry);
@@ -1133,7 +1138,7 @@ public class ScalableGenerator{
                 int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments);
                 long lastCommentCreatedDate = post.getCreationDate();
                 long lastCommentId = -1;
-                long startCommentId = TagTextDictionary.commentId;
+                long startCommentId = postId;
                 for (int l = 0; l < numComment; l++) {
                     Comment comment = commentGenerator.createComment(randomFarm, post, user, lastCommentCreatedDate, startCommentId, lastCommentId,
                             userAgentDictionary, ipAddDictionary, browserDictonry);
@@ -1146,8 +1151,8 @@ public class ScalableGenerator{
                         lastCommentId = comment.getCommentId();
                     }
                 }
-                }
             }
+        }
 
             public void generatePhoto(ReducedUserProfile user, UserExtraInfo extraInfo){
                 // Generate photo Album and photos
@@ -1270,7 +1275,7 @@ public class ScalableGenerator{
                     int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments);
                     long lastCommentCreatedDate = groupPost.getCreationDate();
                     long lastCommentId = -1;
-                    long startCommentId = TagTextDictionary.commentId;
+                    long startCommentId = postId;
 
                     for (int j = 0; j < numComment; j++) {
                         Comment comment = commentGenerator.createComment(randomFarm,groupPost, group, lastCommentCreatedDate, startCommentId, lastCommentId,
@@ -1300,7 +1305,7 @@ public class ScalableGenerator{
                         int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments);
                         long lastCommentCreatedDate = groupPost.getCreationDate();
                         long lastCommentId = -1;
-                        long startCommentId = TagTextDictionary.commentId;
+                        long startCommentId = postId;
 
                         for (int j = 0; j < numComment; j++) {
                             Comment comment = commentGenerator.createComment(randomFarm,groupPost, group, lastCommentCreatedDate, startCommentId, lastCommentId,
@@ -1316,7 +1321,6 @@ public class ScalableGenerator{
                         }
                     }
                 }
-
 
 
                 public UserProfile generateGeneralInformation(int accountId) {
@@ -1336,8 +1340,10 @@ public class ScalableGenerator{
                             ipAddDictionary.getRandomIPFromLocation(randomFarm.get(RandomGeneratorFarm.Aspect.IP),locationId),
                             accountId*2);
 
-                    userProf.setNumFriends((short) randomPowerLaw.getValue(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_FRIEND)));
-                    userProf.allocateFriendListMemory(NUM_FRIENDSHIP_HADOOP_JOBS);
+                    userProf.setNumFriends(fbDegreeGenerator.getSocialDegree());
+                    userProf.setSdpId(fbDegreeGenerator.getIDByPercentile());  	//Generate Id from its percentile in the social degree distribution
+                    /*userProf.setNumFriends((short) randomPowerLaw.getValue(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_FRIEND)));
+                    userProf.allocateFriendListMemory(NUM_FRIENDSHIP_HADOOP_JOBS);*/
 
                     // Setting the number of friends and friends per pass
                     short totalFriendSet = 0; 
@@ -1606,22 +1612,22 @@ public class ScalableGenerator{
                         return new Turtle(sibOutputDir +"/"+this.machineId+"_"+outputFileName, numRdfOutputFile, true, tagDictionary,
                                 browserDictonry, companiesDictionary, 
                                 unversityDictionary.GetUniversityLocationMap(),
-                                ipAddDictionary, locationDictionary, languageDictionary);
+                                ipAddDictionary, locationDictionary, languageDictionary, exportText);
                     } else if (t.equals("n3")) {
                         return new Turtle(sibOutputDir + "/"+this.machineId+"_"+outputFileName, numRdfOutputFile, false, tagDictionary,
                                 browserDictonry, companiesDictionary, 
                                 unversityDictionary.GetUniversityLocationMap(),
-                                ipAddDictionary, locationDictionary, languageDictionary);
+                                ipAddDictionary, locationDictionary, languageDictionary, exportText);
                     } else if (t.equals("csv")) {
                         return new CSV(sibOutputDir, this.machineId, numRdfOutputFile, tagDictionary,
                                 browserDictonry, companiesDictionary, 
                                 unversityDictionary.GetUniversityLocationMap(),
-                                ipAddDictionary,locationDictionary, languageDictionary);
+                                ipAddDictionary,locationDictionary, languageDictionary, exportText);
                     } else if (t.equals("csv_merge_foreign")) {
                         return new CSVMergeForeign(sibOutputDir, this.machineId, numRdfOutputFile, tagDictionary,
                                 browserDictonry, companiesDictionary, 
                                 unversityDictionary.GetUniversityLocationMap(),
-                                ipAddDictionary,locationDictionary, languageDictionary);
+                                ipAddDictionary,locationDictionary, languageDictionary, exportText);
                     } else if (t.equals("none")) {
                         return new EmptySerializer();
                     } else {
