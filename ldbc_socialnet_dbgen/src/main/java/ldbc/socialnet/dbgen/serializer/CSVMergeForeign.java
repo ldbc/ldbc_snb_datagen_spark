@@ -836,7 +836,7 @@ public class CSVMergeForeign implements Serializer {
 	    date.setTimeInMillis(group.getCreatedDate());
         String dateString = DateGenerator.formatDateDetail(date);  
         
-	    arguments.add(SN.formId(group.getForumWallId()));
+	    arguments.add(SN.formId(group.getGroupId()));
 	    arguments.add(group.getGroupName());
 	    arguments.add(dateString);
         arguments.add(Long.toString(group.getModeratorId()));
@@ -862,7 +862,7 @@ public class CSVMergeForeign implements Serializer {
                 printTagHierarchy(groupTags[i]);
             }
             
-            arguments.add(SN.formId(group.getForumWallId()));
+            arguments.add(SN.formId(group.getGroupId()));
             arguments.add(Integer.toString(groupTags[i]));
             ToCSV(arguments,Files.FORUM_HASTAG_TAG.ordinal());
         }
@@ -873,7 +873,7 @@ public class CSVMergeForeign implements Serializer {
             date.setTimeInMillis(memberShips[i].getJoinDate());
             dateString = DateGenerator.formatDateDetail(date);
             
-            arguments.add(SN.formId(group.getForumWallId()));
+            arguments.add(SN.formId(group.getGroupId()));
             arguments.add(Long.toString(memberShips[i].getUserId()));
             arguments.add(dateString);
             ToCSV(arguments,Files.FORUM_HASMEMBER_PERSON.ordinal());

@@ -740,7 +740,7 @@ public class Turtle implements Serializer {
 	    date.setTimeInMillis(group.getCreatedDate());
 	    String dateString = DateGenerator.formatDateDetail(date);  
 
-	    String forumPrefix = SN.getForumURI(group.getForumWallId());
+	    String forumPrefix = SN.getForumURI(group.getGroupId());
 	    AddTriple(result, true, false, forumPrefix, RDF.type, SNVOC.Forum);
 	    AddTriple(result, false, false, forumPrefix, SNVOC.title, createLiteral(group.getGroupName()));
 	    AddTriple(result, false, true, forumPrefix, SNVOC.creationDate, 

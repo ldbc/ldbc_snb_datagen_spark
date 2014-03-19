@@ -265,7 +265,7 @@ abstract public class PostGenerator {
                   content,
                   postInfo.date,
                   memberShip.getUserId(),
-                  group.getForumWallId(),
+                  group.getGroupId(),
                   -1,
                   postInfo.tags,
                   ipAddressDic.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER),memberShip.getIP(), memberShip.isFrequentChange(), postInfo.date),

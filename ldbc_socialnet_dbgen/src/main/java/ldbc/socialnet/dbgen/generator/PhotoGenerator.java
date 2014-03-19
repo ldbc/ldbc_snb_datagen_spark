@@ -75,10 +75,9 @@ public class PhotoGenerator {
 	
 	public Photo generatePhoto(ReducedUserProfile user, Group album, 
 								int idxInAlbum, int maxNumLikes){
-		ScalableGenerator.postId++;
 		Photo photo = new Photo();
 		
-		photo.setAlbumId(album.getForumWallId());
+		photo.setAlbumId(album.getGroupId());
 		photo.setCreatorId(album.getModeratorId());
 		int locationId = album.getLocationIdx();
 		byte numPopularPlace = user.getNumPopularPlace();
@@ -116,6 +115,7 @@ public class PhotoGenerator {
 		}
 		
 		photo.setPhotoId(ScalableGenerator.postId);
+        ScalableGenerator.postId++;
 		photo.setImage("photo" + photo.getPhotoId() + ".jpg");
 		
 		//Assume that the photo are created one by one after 1 second from the creation of the album
@@ -163,8 +163,6 @@ public class PhotoGenerator {
 				friends[j] = fullMembers[j+startIdx].getUserId();
 			}			
 		}
-		
-		return friends; 
-		 
-	}	
+		return friends;
+	}
 }

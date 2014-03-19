@@ -202,7 +202,7 @@ public class MRGenerateUsers{
                            Context context) throws IOException, InterruptedException{
 
             int numUser = 0;
-            int blockSize = 2000;
+            int blockSize = ScalableGenerator.blockSize;
             for (ReducedUserProfile user:valueSet){
                 context.write(new MapReduceKey(numUser / blockSize, key.key, key.id), user);
                 numUser++;

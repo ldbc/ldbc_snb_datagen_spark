@@ -99,7 +99,7 @@ public class ScalableGenerator{
     }
 
     public static int  numMaps = -1;
-    public static long postId  = -1;
+    public static long postId  = 0;
 
     /**
      * How many hadoop jobs are used to generate the friendships
@@ -429,7 +429,7 @@ public class ScalableGenerator{
 
 
     RandomGeneratorFarm randomFarm;
-    public final int blockSize = 2000;
+    public static final int blockSize = 2000;
 
 
     /**
@@ -769,12 +769,12 @@ public class ScalableGenerator{
         //long startPostGeneration = System.currentTimeMillis();
         //NOTE: Until this point of the code numTotalUser*2 forums where generated (2 for user) thats
         //the reason behind this forum id assignment.
-        groupGenerator.setForumId((numTotalUser + 10) * 2);
+//        groupGenerator.setForumId((numTotalUser + 10) * 2);
         generatePostandPhoto(inputFile, numCell);
         //long endPostGeneration = System.currentTimeMillis();
         //System.out.println("Post generation takes " + getDurationInMinutes(startPostGeneration, endPostGeneration));
 //        long startGroupGeneration = System.currentTimeMillis();
-//        generateAllGroup(inputFile, numCell);
+        generateAllGroup(inputFile, numCell);
 //        long endGroupGeneration = System.currentTimeMillis();
 //        System.out.println("Group generation takes " + getDurationInMinutes(startGroupGeneration, endGroupGeneration));
     }
@@ -807,8 +807,8 @@ public class ScalableGenerator{
                 serializer.gatherData(reducedUserProfilesCell[j], extraInfo);
 
                 generatePosts(reducedUserProfilesCell[j], extraInfo);
-                generateFlashmobPosts(reducedUserProfilesCell[j], extraInfo);
-        //       generatePhoto(reducedUserProfilesCell[j], extraInfo);
+                //generateFlashmobPosts(reducedUserProfilesCell[j], extraInfo);
+                generatePhoto(reducedUserProfilesCell[j], extraInfo);
             }
         }
         storeManager.endDeserialization();
@@ -930,6 +930,7 @@ public class ScalableGenerator{
     public void resetState(int seed) {
         blockId = seed;
         postId = 0;
+        GroupGenerator.groupId = 0;
         SN.setMachineNumber(blockId, numTotalUser / blockSize );
         resetWindow();
         randomFarm.resetRandomGenerators((long)seed);
@@ -1254,7 +1255,7 @@ public class ScalableGenerator{
 
                 serializer.gatherData(group);
                 generatePostForGroup(group);
-                generateFlashmobPostForGroup(group);
+                //generateFlashmobPostForGroup(group);
             }
 
             public void generatePostForGroup(Group group) {

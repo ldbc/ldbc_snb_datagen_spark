@@ -131,11 +131,11 @@ public class CommentGenerator {
             content = tagTextDic.getRandomText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT),post.getTags(), minSizeOfComment, maxSizeOfComment);
         }
 
-        commentId++;
+//        commentId++;
         int friendIdx = randomFarm.get(RandomGeneratorFarm.Aspect.FRIEND).nextInt(validIds.size());
         Friend friend = user.getFriendList()[friendIdx];
         long creationDate = dateGen.powerlawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),lastCommentCreatedDate);
-        Comment comment = new Comment( commentId,
+        Comment comment = new Comment( ScalableGenerator.postId,
                                        content,
                                        post.getPostId(),
                                        friend.getFriendAcc(),
@@ -145,6 +145,7 @@ public class CommentGenerator {
                                        ipAddDic.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER),friend.getSourceIp(), friend.isFrequentChange(), creationDate),
                                        userAgentDic.getUserAgentName(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT),friend.isHaveSmartPhone(), friend.getAgentIdx()),
                                        browserDic.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER),friend.getBrowserIdx()) );
+        ScalableGenerator.postId++;
         return comment;
     }
     
@@ -178,9 +179,9 @@ public class CommentGenerator {
             content = tagTextDic.getRandomText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT), post.getTags(), minSizeOfComment, maxSizeOfComment );
         }
 
-        commentId++;
+//        commentId++;
         long creationDate = dateGen.powerlawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),lastCommentCreatedDate);
-        Comment comment = new Comment( commentId,
+        Comment comment = new Comment( ScalableGenerator.postId++,
                                        content,
                                        post.getPostId(),
                                        membership.getUserId(),
@@ -190,6 +191,7 @@ public class CommentGenerator {
                                        ipAddDic.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER), membership.getIP(), membership.isFrequentChange(), creationDate),
                                        userAgentDic.getUserAgentName(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT), membership.isHaveSmartPhone(), membership.getAgentIdx()),
                                        browserDic.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), membership.getBrowserIdx()));
+        ScalableGenerator.postId++;
         return comment;
     }
 }

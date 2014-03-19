@@ -52,9 +52,8 @@ import ldbc.socialnet.dbgen.util.RandomGeneratorFarm;
 
 
 public class GroupGenerator {
-	static int groupId = 0;
-	static int forumId;
-	
+	public static int groupId = 0;
+
 	DateGenerator dateGenerator; 
 	LocationDictionary locationDic;
 	TagDictionary tagDic;
@@ -64,25 +63,16 @@ public class GroupGenerator {
 		this.dateGenerator = dateGenerator; 
 		this.locationDic = locationDic; 
 		this.tagDic = tagDic; 
-		
-		GroupGenerator.forumId = numUsers * 2 + 1;
 	}
-	
-	public void setForumId(int forumId) {
-	    GroupGenerator.forumId = forumId;
-	}
-	
+
 	public Group createGroup(RandomGeneratorFarm randomFarm, ReducedUserProfile user){
 		Group group = new Group(); 
-		forumId = forumId + 2;
-		groupId++;
-		
+
 		group.setGroupId(groupId);
+        groupId++;
 		group.setModeratorId(user.getAccountId());
 		group.setCreatedDate(dateGenerator.randomGroupCreatedDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),user));
-		group.setForumWallId(forumId);
-		group.setForumStatusId(forumId + 1);
-		
+
 		//Use the user location for group locationIdx
 		group.setLocationIdx(user.getLocationId());
 				
@@ -153,5 +143,4 @@ public class GroupGenerator {
         memberShip.setLargePoster(user.isLargePoster());
         return memberShip;
     }
-	
 }
