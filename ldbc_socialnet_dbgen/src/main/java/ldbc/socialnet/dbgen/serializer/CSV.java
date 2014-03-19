@@ -224,7 +224,6 @@ public class CSV implements Serializer {
      * @param nrOfOutputFiles: How many files will be created.
      * @param tagDic: The tag dictionary used in the generation.
      * @param browsers: The browser dictionary used in the generation.
-     * @param companyToCountry: HashMap of company names to country IDs.
      * @param univesityToCountry: HashMap of universities names to country IDs.
      * @param ipDic: The IP dictionary used in the generation.
      * @param locationDic: The location dictionary used in the generation.

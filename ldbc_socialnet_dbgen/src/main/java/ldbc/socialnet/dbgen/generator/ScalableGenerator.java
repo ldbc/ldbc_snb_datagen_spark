@@ -93,66 +93,37 @@ import com.google.gson.GsonBuilder;
 
 public class ScalableGenerator{
 
+    /** @brief A type of organization.**/
     public enum OrganisationType {
         university,
         company
     }
 
-    public static int  numMaps = -1;
-    public static long postId  = 0;
 
-    /**
-     * How many hadoop jobs are used to generate the friendships
-     */
-    private static final int NUM_FRIENDSHIP_HADOOP_JOBS = 3;
-    /**
-     * How many friends (percentagewise) will be generated in each hadoop job.
-     */
-    private static final double  friendRatioPerJob[] = { 0.45, 0.45, 0.1 };
+    public static int  numMaps = 0;                             /**< @brief The number of compute units in the execution.*/
+    public static long postId  = 0;                             /**< @brief The post and comment identifier counter.*/
 
-    private static final int startMonth = 1; 
+    private static final int        NUM_FRIENDSHIP_HADOOP_JOBS = 3;                 /**< @brief The number of hadoop jobs used to generate the friendships.*/
+    private static final double     friendRatioPerJob[] = { 0.45, 0.45, 0.1 };      /**< @brief The percentage of friendships generated in each hadoop job.*/
+    private static final int        USER_RANDOM_ID_LIMIT = 100;                     /**< @brief The number of different random ids generated in the last hadoop job.*/
+
+    private static final int startMonth = 1;
     private static final int startDate  = 1;
     private static final int endMonth   = 1;
     private static final int endDate    = 1;
 
-    /**
-     * Ceil limit to the random number used to sort the users in the third hadoop job.
-     * Creates ids within the interval [0, USER_RANDOM_ID_LIMIT)
-     */
-    private static final int USER_RANDOM_ID_LIMIT = 100;
+    private static final double alpha = 0.4;        /**< @brief PowerLaw distribution alpha parameter.*/
+    private static final int maxNumLikes = 10;      /**< @brief The maximum number of likes per post*/
 
-    //schema behaviour paramaters which are not in the private parameter file.
-    //If any of these are upgraded to the parameter file copy the variable elsewhere below,
-    //so this list is updated with only the variables not appearing in the parameter file.
-
-    /**
-     * Power Law distribution alpha value
-     */
-    private static final double alpha = 0.4;
-
-    /**
-     * The maximum number of likes
-     */
-    private static final int maxNumLikes = 10;
-
-    /**
-     * Cumulative probability to join a group for the user direct friends, friends of friends and
-     * friends of the friends of the user friend.
-     */
-    private static final double levelProbs[] = { 0.5, 0.8, 1.0 };
-
-    /**
-     * Probability to join a group for the user direct friends, friends of friends and
-     * friends of the friends of the user friend.
-     */
-    private static final double joinProbs[] = { 0.7, 0.4, 0.1 };
+    private static final double levelProbs[] = { 0.5, 0.8, 1.0 };  /**< @brief Cumulative probability to join a group for the user direct friends, friends of friends and friends of the friends of the user friend.*/
+    private static final double joinProbs[] = { 0.7, 0.4, 0.1 }; /**< @brief Probability to join a group for the user direct friends, friends of friends and friends of the friends of the user friend.*/
 
     //Files and folders
     private static final String  DICTIONARY_DIRECTORY = "/dictionaries/";
     private static final String  IPZONE_DIRECTORY     = "/ipaddrByCountries";
     private static final String  PARAMETERS_FILE      = "params.ini";
     private static final String  STATS_FILE           = "testdata.json";
-    private              String  RDF_OUTPUT_FILE      = "ldbc_socialnet_dbg"; //Not static or final: Will be modified to add the machine prefix
+    private static final String  RDF_OUTPUT_FILE      = "ldbc_socialnet_dbg";
 
     // Dictionaries dataset files
     private static final String   browserDictonryFile       = DICTIONARY_DIRECTORY + "browsersDic.txt";
@@ -243,18 +214,18 @@ public class ScalableGenerator{
      * exception in the method loadParamsFromFile()
      */
     private final String[] checkParameters = {CELL_SIZE, NUM_CELL_WINDOW, MIN_FRIENDS, MAX_FRIENDS, AVG_PATHLENGTH, FRIEND_REJECT,
-        FRIEND_REACCEPT, USER_MIN_TAGS, USER_MAX_TAGS, USER_MAX_POST_MONTH, MAX_COMMENT_POST, LIMIT_CORRELATED,
-        BASE_CORRELATED, MAX_EMAIL, MAX_COMPANIES, ENGLISH_RATIO, SECOND_LANGUAGE_RATIO, OTHER_BROWSER_RATIO,
-        MIN_TEXT_SIZE, MAX_TEXT_SIZE, MIN_COMMENT_SIZE, MAX_COMMENT_SIZE, REDUCE_TEXT_RATIO,
-        MIN_LARGE_POST_SIZE, MAX_LARGE_POST_SIZE, MIN_LARGE_COMMENT_SIZE, MAX_LARGE_COMMENT_SIZE, LARGE_POST_RATIO,
-        LARGE_COMMENT_RATIO,MAX_PHOTOALBUM,
-        MAX_PHOTO_PER_ALBUM, USER_MAX_GROUP, MAX_GROUP_MEMBERS, GROUP_MODERATOR_RATIO, GROUP_MAX_POST_MONTH, 
-        MISSING_RATIO, STATUS_MISSING_RATIO, STATUS_SINGLE_RATIO, SMARTHPHONE_RATIO, AGENT_SENT_RATIO, 
-        DIFFERENT_IP_IN_TRAVEL_RATIO, DIFFERENT_IP_NOT_TRAVEL_RATIO, DIFFERENT_IP_TRAVELLER_RATIO, 
-        COMPANY_UNCORRELATED_RATIO, UNIVERSITY_UNCORRELATED_RATIO, BEST_UNIVERSTY_RATIO, MAX_POPULAR_PLACES, 
-        POPULAR_PLACE_RATIO, TAG_UNCORRELATED_COUNTRY, FLASHMOB_TAGS_PER_MONTH, 
-        PROB_INTEREST_FLASHMOB_TAG, PROB_RANDOM_PER_LEVEL, POST_PER_LEVEL_SCALE_FACTOR, FLASHMOB_TAG_MIN_LEVEL, FLASHMOB_TAG_MAX_LEVEL,
-        FLASHMOB_TAG_DIST_EXP};
+            FRIEND_REACCEPT, USER_MIN_TAGS, USER_MAX_TAGS, USER_MAX_POST_MONTH, MAX_COMMENT_POST, LIMIT_CORRELATED,
+            BASE_CORRELATED, MAX_EMAIL, MAX_COMPANIES, ENGLISH_RATIO, SECOND_LANGUAGE_RATIO, OTHER_BROWSER_RATIO,
+            MIN_TEXT_SIZE, MAX_TEXT_SIZE, MIN_COMMENT_SIZE, MAX_COMMENT_SIZE, REDUCE_TEXT_RATIO,
+            MIN_LARGE_POST_SIZE, MAX_LARGE_POST_SIZE, MIN_LARGE_COMMENT_SIZE, MAX_LARGE_COMMENT_SIZE, LARGE_POST_RATIO,
+            LARGE_COMMENT_RATIO,MAX_PHOTOALBUM,
+            MAX_PHOTO_PER_ALBUM, USER_MAX_GROUP, MAX_GROUP_MEMBERS, GROUP_MODERATOR_RATIO, GROUP_MAX_POST_MONTH,
+            MISSING_RATIO, STATUS_MISSING_RATIO, STATUS_SINGLE_RATIO, SMARTHPHONE_RATIO, AGENT_SENT_RATIO,
+            DIFFERENT_IP_IN_TRAVEL_RATIO, DIFFERENT_IP_NOT_TRAVEL_RATIO, DIFFERENT_IP_TRAVELLER_RATIO,
+            COMPANY_UNCORRELATED_RATIO, UNIVERSITY_UNCORRELATED_RATIO, BEST_UNIVERSTY_RATIO, MAX_POPULAR_PLACES,
+            POPULAR_PLACE_RATIO, TAG_UNCORRELATED_COUNTRY, FLASHMOB_TAGS_PER_MONTH,
+            PROB_INTEREST_FLASHMOB_TAG, PROB_RANDOM_PER_LEVEL, POST_PER_LEVEL_SCALE_FACTOR, FLASHMOB_TAG_MIN_LEVEL, FLASHMOB_TAG_MAX_LEVEL,
+            FLASHMOB_TAG_DIST_EXP};
 
     //final user parameters
     private final String NUM_USERS        = "numtotalUser";
@@ -262,13 +233,13 @@ public class ScalableGenerator{
     private final String NUM_YEARS        = "numYears";
     private final String SERIALIZER_TYPE  = "serializerType";
     private final String EXPORT_TEXT      = "exportText";
-    
+
     /**
      * This array provides a quick way to check if any of the required parameters is missing and throw the appropriate
      * exception in the method loadParamsFromFile()
      */
     private final String[] publicCheckParameters = {NUM_USERS, START_YEAR, NUM_YEARS, SERIALIZER_TYPE, EXPORT_TEXT};
-    
+
     // Gender string representation, both representations vector/standalone so the string is coherent.
     private final String MALE   = "male";
     private final String FEMALE = "female";
@@ -300,14 +271,14 @@ public class ScalableGenerator{
 
     StorageManager		groupStoreManager;
 
-    MRWriter			mrWriter; 
+    MRWriter			mrWriter;
 
     double 				baseProbCorrelated;
-    double	 			limitProCorrelated; 
+    double	 			limitProCorrelated;
 
     // For each user
-    int                 minNumTagsPerUser; 
-    int					maxNumTagsPerUser; 
+    int                 minNumTagsPerUser;
+    int					maxNumTagsPerUser;
     int 				maxNumPostPerMonth;
     int 				maxNumComments;
 
@@ -340,7 +311,7 @@ public class ScalableGenerator{
     IPAddressDictionary     ipAddDictionary;
 
     int                     maxNumPopularPlaces;
-    double                  tagCountryCorrProb; 
+    double                  tagCountryCorrProb;
     double 					probUnCorrelatedOrganization;
     double 					probTopUniv; // 90% users go to top university
     double 					probUnCorrelatedCompany;
@@ -363,8 +334,8 @@ public class ScalableGenerator{
     int                     maxLargePostSize;
     int                     minLargeCommentSize;
     int                     maxLargeCommentSize;
-    double                  ratioLargePost; 
-    double                  ratioLargeComment; 
+    double                  ratioLargePost;
+    double                  ratioLargeComment;
 
     // For photo generator
     PhotoGenerator 			photoGenerator;
@@ -422,7 +393,6 @@ public class ScalableGenerator{
     double         flashmobTagMinLevel = 0.0f;
     double         flashmobTagMaxLevel = 0.0f;
     double         flashmobTagDistExp  = 0.0f;
-<<<<<<< HEAD
 
     // Data accessed from the hadoop jobs
     private ReducedUserProfile[] cellReducedUserProfiles;
@@ -442,19 +412,19 @@ public class ScalableGenerator{
 
     /**
      * Gets a string representation for a period of time.
-     * 
+     *
      * @param startTime Start time in milliseconds.
      * @param endTime End time in milliseconds.
      * @return The time representation in minutes and seconds.
      */
     public static String getDurationInMinutes(long startTime, long endTime){
-        return (endTime - startTime) / 60000 + " minutes and " + 
-            ((endTime - startTime) % 60000) / 1000 + " seconds";
+        return (endTime - startTime) / 60000 + " minutes and " +
+                ((endTime - startTime) % 60000) / 1000 + " seconds";
     }
 
     /**
      * Creates the ScalableGenerator
-     * 
+     *
      * @param mapreduceFileId The file id used to pass data for successive hadoop jobs.
      * @param sibOutputDir The output directory
      * @param sibHomeDir The ldbc_socialnet_dbgen base directory.
@@ -462,7 +432,7 @@ public class ScalableGenerator{
     public ScalableGenerator(int mapreduceFileId, String sibOutputDir, String sibHomeDir){
         this.mapreduceFileIdx = mapreduceFileId;
         this.sibOutputDir = sibOutputDir;
-        this.sibHomeDir = sibHomeDir; 
+        this.sibHomeDir = sibHomeDir;
         this.stats = new Statistics();
 
         System.out.println("Map Reduce File Idx is: " + mapreduceFileIdx);
@@ -475,7 +445,7 @@ public class ScalableGenerator{
 
     /**
      * Gets the size of the cell.
-     * 
+     *
      * @return The size of che cell.
      */
     public int getCellSize() {
@@ -485,17 +455,16 @@ public class ScalableGenerator{
     /**
      * Initializes the generator reading the private parameter file, the user parameter file
      * and initialize all the internal variables.
-     * 
+     *
      * @param numMaps: How many hadoop reduces are performing the job.
      * @param mapId: The hadoop reduce id.
      */
     public void init(int numMaps, int mapId){
         this.machineId = mapId;
         numFiles = numMaps;
-        RDF_OUTPUT_FILE = "mr" + mapreduceFileIdx + "_" + RDF_OUTPUT_FILE;
         loadParamsFromFile();
         _init(mapId);
-        mrWriter = new MRWriter(cellSize, windowSize, sibOutputDir); 
+        mrWriter = new MRWriter(cellSize, windowSize, sibOutputDir);
     }
 
     /**
@@ -621,7 +590,7 @@ public class ScalableGenerator{
         reducedUserProfiles = new ReducedUserProfile[windowSize];
         cellReducedUserProfiles = new ReducedUserProfile[cellSize];
 
-        dateTimeGenerator = new DateGenerator( new GregorianCalendar(startYear, startMonth, startDate), 
+        dateTimeGenerator = new DateGenerator( new GregorianCalendar(startYear, startMonth, startDate),
                 new GregorianCalendar(endYear, endMonth, endDate), alpha);
 
 
@@ -630,7 +599,7 @@ public class ScalableGenerator{
         locationDictionary.init();
 
         System.out.println("Building language dictionary ");
-        languageDictionary = new LanguageDictionary(languageDictionaryFile, locationDictionary, 
+        languageDictionary = new LanguageDictionary(languageDictionaryFile, locationDictionary,
                 probEnglish, probSecondLang);
         languageDictionary.init();
 
@@ -665,7 +634,7 @@ public class ScalableGenerator{
 
         System.out.println("Building browser dictionary");
         browserDictonry = new BrowserDictionary(browserDictonryFile, probAnotherBrowser);
-        browserDictonry.init();			
+        browserDictonry.init();
 
         System.out.println("Building university dictionary");
         unversityDictionary = new UniversityDictionary(universityDictionaryFile, locationDictionary,
@@ -673,12 +642,12 @@ public class ScalableGenerator{
         unversityDictionary.init();
 
         System.out.println("Building companies dictionary");
-        companiesDictionary = new CompanyDictionary(companiesDictionaryFile,locationDictionary, 
+        companiesDictionary = new CompanyDictionary(companiesDictionaryFile,locationDictionary,
                 probUnCorrelatedCompany);
         companiesDictionary.init();
 
         System.out.println("Building popular places dictionary");
-        popularDictionary = new PopularPlacesDictionary(popularDictionaryFile, 
+        popularDictionary = new PopularPlacesDictionary(popularDictionaryFile,
                 locationDictionary);
         popularDictionary.init();
 
@@ -701,7 +670,7 @@ public class ScalableGenerator{
         /// IMPORTANT: ratioLargeText is divided 0.083333, the probability 
         /// that SetUserLargePoster returns true.
         System.out.println("Building Uniform Post Generator");
-        uniformPostGenerator = new UniformPostGenerator( tagTextDictionary, 
+        uniformPostGenerator = new UniformPostGenerator( tagTextDictionary,
                 userAgentDictionary,
                 ipAddDictionary,
                 browserDictonry,
@@ -718,11 +687,11 @@ public class ScalableGenerator{
                 maxNumFriends,
                 maxNumGroupPostPerMonth,
                 maxNumMemberGroup
-                );
+        );
         uniformPostGenerator.initialize();
 
         System.out.println("Building Flashmob Tag Dictionary");
-        flashmobTagDictionary = new FlashmobTagDictionary( tagDictionary, 
+        flashmobTagDictionary = new FlashmobTagDictionary( tagDictionary,
                 dateTimeGenerator,
                 flashmobTagsPerMonth,
                 probInterestFlashmobTag,
@@ -730,8 +699,8 @@ public class ScalableGenerator{
                 flashmobTagMinLevel,
                 flashmobTagMaxLevel,
                 flashmobTagDistExp,
-                0 
-                );
+                0
+        );
         flashmobTagDictionary.initialize();
 
         stats.flashmobTags = flashmobTagDictionary.getFlashmobTags();
@@ -739,7 +708,7 @@ public class ScalableGenerator{
         /// IMPORTANT: ratioLargeText is divided 0.083333, the probability 
         /// that SetUserLargePoster returns true.
         System.out.println("Building Flashmob Post Generator");
-        flashmobPostGenerator = new FlashmobPostGenerator( tagTextDictionary, 
+        flashmobPostGenerator = new FlashmobPostGenerator( tagTextDictionary,
                 userAgentDictionary,
                 ipAddDictionary,
                 browserDictonry,
@@ -748,14 +717,14 @@ public class ScalableGenerator{
                 ratioReduceText,
                 minLargePostSize,
                 maxLargePostSize,
-                ratioLargePost/0.0833333, 
+                ratioLargePost/0.0833333,
                 maxNumLikes,
                 exportText,
                 dateTimeGenerator,
                 flashmobTagDictionary,
                 postPerLevelScaleFactor,
                 flashmobDistFile
-                );
+        );
         flashmobPostGenerator.initialize();
 
         /// IMPORTANT: ratioLargeText is divided 0.083333, the probability 
@@ -764,7 +733,7 @@ public class ScalableGenerator{
         commentGenerator = new CommentGenerator(tagTextDictionary, dateTimeGenerator,
                 minCommentSize, maxCommentSize, ratioReduceText,
                 minLargeCommentSize, maxLargeCommentSize, ratioLargeComment/0.0833333, exportText
-                );
+        );
         commentGenerator.initialize();
 
         System.out.println("Building Facebook-like social degree generator");
@@ -797,14 +766,14 @@ public class ScalableGenerator{
 
     /**
      * Generates the post and photo activity for all users.
-     * 
+     *
      * @param inputFile The hadoop file with the user serialization (data and friends)
      * @param numCells The number of cells the generator will parse.
      */
     public void generatePostandPhoto(String inputFile, int numCells) {
         reducedUserProfilesCell = new ReducedUserProfile[cellSize];
-        StorageManager storeManager = new StorageManager(cellSize, windowSize, outUserProfile, sibOutputDir);
-        storeManager.initDeserialization(inputFile);
+        StorageManager storeManager = new StorageManager(cellSize, windowSize);
+        storeManager.initDeserialization(sibOutputDir + inputFile);
         for (int i = 0; i < numCells; i++) {
             storeManager.deserializeOneCellUserProfile(reducedUserProfilesCell);
             for (int j = 0; j < cellSize; j++) {
@@ -824,13 +793,13 @@ public class ScalableGenerator{
 
     /**
      * Generates the Groups and it's posts and comments for all users.
-     * 
+     *
      * @param inputFile The user information serialization file from previous jobs
      * @param numCell The number of cells to process
      */
     public void generateAllGroup(String inputFile, int numCell) {
-        groupStoreManager = new StorageManager(cellSize, windowSize, outUserProfile, sibOutputDir);
-        groupStoreManager.initDeserialization(inputFile);
+        groupStoreManager = new StorageManager(cellSize, windowSize);
+        groupStoreManager.initDeserialization(sibOutputDir + inputFile);
         for (int i = 0; i < numCell; i++) {
             generateGroups(4, i, numCell);
         }
@@ -841,7 +810,7 @@ public class ScalableGenerator{
 
     /**
      * Generates the groups for a single user.
-     * 
+     *
      * @param pass The algorithm number step.
      * @param cellPos The cell position of the user.
      * @param numCell The total number of cells.
@@ -859,7 +828,7 @@ public class ScalableGenerator{
                 Vector<Friend> secondLevelFriends = new Vector<Friend>();
                 //TODO: Include friends of friends a.k.a second level friends?
                 int numGroup = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_GROUP).nextInt(maxNumGroupCreatedPerUser);
-                for (int j = 0; j < numGroup; j++) { 
+                for (int j = 0; j < numGroup; j++) {
                     createGroupForUser(reducedUserProfiles[curIdxInWindow],
                             firstLevelFriends, secondLevelFriends);
                 }
@@ -876,16 +845,16 @@ public class ScalableGenerator{
 
     /**
      * Pushes a user into the generator.
-     * 
+     *
      * @param reduceUser The user to push.
      * @param pass The pass identifier, which is used to decide the criteria under the edges are created.
      * @param context The map-reduce context.
      * @param isContext Indicates if the data has to be written into a context or the output stream.
      * @param oos The output stream used to write the data.
      */
-    public void pushUserProfile(ReducedUserProfile reduceUser, int pass, 
-            Reducer<MapReduceKey, ReducedUserProfile,MapReduceKey, ReducedUserProfile>.Context context, 
-            boolean isContext, ObjectOutputStream oos){
+    public void pushUserProfile(ReducedUserProfile reduceUser, int pass,
+                                Reducer<MapReduceKey, ReducedUserProfile,MapReduceKey, ReducedUserProfile>.Context context,
+                                boolean isContext, ObjectOutputStream oos){
         ReducedUserProfile userObject = new ReducedUserProfile();
         userObject.copyFields(reduceUser);
 
@@ -898,10 +867,10 @@ public class ScalableGenerator{
             numUserForNewCell++;
             if (numUserForNewCell == cellSize) {                            // Once the backup cell is full, create friendships and slide the window.
                 mr2SlideFriendShipWindow(   pass,
-                        mrCurCellPost, 
-                        context, 
+                        mrCurCellPost,
+                        context,
                         cellReducedUserProfiles,
-                        isContext,  
+                        isContext,
                         oos );
                 mrCurCellPost++;
                 numUserForNewCell = 0;
@@ -911,15 +880,15 @@ public class ScalableGenerator{
 
     /**
      * Creates the remainder of the edges for the currently inserted nodes.
-     * 
+     *
      * @param pass The pass identifier, which is used to decide the criteria under the edges are created.
      * @param context The map-reduce context.
      * @param isContext Indicates if the data has to be written into a context or the output stream.
      * @param oos The output stream used to write the data.
      */
-    public void pushAllRemainingUser(int pass, 
-            Reducer<MapReduceKey, ReducedUserProfile,MapReduceKey, ReducedUserProfile>.Context context, 
-            boolean isContext, ObjectOutputStream oos){
+    public void pushAllRemainingUser(int pass,
+                                     Reducer<MapReduceKey, ReducedUserProfile,MapReduceKey, ReducedUserProfile>.Context context,
+                                     boolean isContext, ObjectOutputStream oos){
 
         // For each remianing cell in the window, we create the edges.
         for (int numLeftCell = Math.min(numberOfCellPerWindow, numUserProfilesRead/cellSize); numLeftCell > 0; --numLeftCell, ++mrCurCellPost) {
@@ -938,6 +907,7 @@ public class ScalableGenerator{
         postId = 0;
         GroupGenerator.groupId = 0;
         SN.setMachineNumber(blockId, numTotalUser / blockSize );
+        fbDegreeGenerator.resetState(seed);
         resetWindow();
         randomFarm.resetRandomGenerators((long)seed);
     }
@@ -950,7 +920,7 @@ public class ScalableGenerator{
      * block, the seeds are set deterministically, and therefore, we make this generation phase 
      * deterministic. This implies that the different mappers have to process blocks of full size,
      * that is, a block have to be fully processed by a mapper.
-     * 
+     *
      * @param pass The pass identifying the current pass.
      * @param context The map-reduce context.
      * @param mapIdx The index of the current map, used to determine how many users to generate.
@@ -970,10 +940,11 @@ public class ScalableGenerator{
         int numUsersToGenerate = 0;
         for( int i = initBlock; i < endBlock;++i) {
             // Setting the state for the block
-            randomFarm.resetRandomGenerators((long) i);                     // We reset the seeds of the generators at the beginning of each block.
+//            randomFarm.resetRandomGenerators((long) i);                     // We reset the seeds of the generators at the beginning of each block.
+            resetState(i);
             locationDictionary.advanceToUser(i*blockSize);      // We location dictionary has to be advanced to the specific point.
             for (int j = i*blockSize; j < (i+1)*blockSize && j < numTotalUser; ++j) {
-                UserProfile user = generateGeneralInformation(j); 
+                UserProfile user = generateGeneralInformation(j);
                 ReducedUserProfile reduceUserProf = new ReducedUserProfile(user, NUM_FRIENDSHIP_HADOOP_JOBS);
                 ++numUsersToGenerate;
                 try {
@@ -1006,19 +977,19 @@ public class ScalableGenerator{
     }
 
 
-    public void mr2SlideFriendShipWindow(int pass, int cellPos, Reducer.Context context, ReducedUserProfile[] _cellReduceUserProfiles, 
-            boolean isContext, ObjectOutputStream oos){
+    public void mr2SlideFriendShipWindow(int pass, int cellPos, Reducer.Context context, ReducedUserProfile[] _cellReduceUserProfiles,
+                                         boolean isContext, ObjectOutputStream oos){
 
         int cellPosInWindow = (cellPos) % numberOfCellPerWindow;
         int startIndex = cellPosInWindow * cellSize;
         for (int i = 0; i < cellSize; i++) {
             int curIdxInWindow = startIndex + i;
-            for (int j = i + 1; (j < windowSize - 1) && 
-                    reducedUserProfiles[curIdxInWindow].getNumFriendsAdded() < reducedUserProfiles[curIdxInWindow].getNumFriends(pass); 
-                    j++) {
+            for (int j = i + 1; (j < windowSize - 1) &&
+                    reducedUserProfiles[curIdxInWindow].getNumFriendsAdded() < reducedUserProfiles[curIdxInWindow].getNumFriends(pass);
+                 j++) {
                 int checkFriendIdx = (curIdxInWindow + j) % windowSize;
-                if ( !(reducedUserProfiles[checkFriendIdx].getNumFriendsAdded() == reducedUserProfiles[checkFriendIdx].getNumFriends(pass) || 
-                            reducedUserProfiles[curIdxInWindow].isExistFriend(reducedUserProfiles[checkFriendIdx].getAccountId()))) {
+                if ( !(reducedUserProfiles[checkFriendIdx].getNumFriendsAdded() == reducedUserProfiles[checkFriendIdx].getNumFriends(pass) ||
+                        reducedUserProfiles[curIdxInWindow].isExistFriend(reducedUserProfiles[checkFriendIdx].getAccountId()))) {
                     double randProb = randomFarm.get(RandomGeneratorFarm.Aspect.UNIFORM).nextDouble();
                     double prob = getFriendCreatePro(curIdxInWindow, checkFriendIdx, pass);
                     if ((randProb < prob) || (randProb < limitProCorrelated)) {
@@ -1028,40 +999,40 @@ public class ScalableGenerator{
             }
         }
         updateLastPassFriendAdded(startIndex, startIndex + cellSize, pass);
-        mrWriter.writeReducedUserProfiles(startIndex, startIndex + cellSize, pass, reducedUserProfiles, context, 
+        mrWriter.writeReducedUserProfiles(startIndex, startIndex + cellSize, pass, reducedUserProfiles, context,
                 isContext, oos, reducerShift);
         generateCellOfUsers2(startIndex, _cellReduceUserProfiles);
-        exactOutput = exactOutput + cellSize; 
+        exactOutput = exactOutput + cellSize;
     }
 
     public void mr2SlideLastCellsFriendShip(int pass, int cellPos,	int numleftCell, Reducer.Context context,
-            boolean isContext, ObjectOutputStream oos) {
+                                            boolean isContext, ObjectOutputStream oos) {
 
         int startIndex = (cellPos % numberOfCellPerWindow) * cellSize;
         for (int i = 0; i < cellSize; i++) {
             int curIdxInWindow = startIndex + i;
             // From this user, check all the user in the window to create friendship
             for (int j = i + 1; (j < numleftCell * cellSize )
-                    && reducedUserProfiles[curIdxInWindow].getNumFriendsAdded() 
+                    && reducedUserProfiles[curIdxInWindow].getNumFriendsAdded()
                     < reducedUserProfiles[curIdxInWindow].getNumFriends(pass);
-                    j++) {
+                 j++) {
                 int checkFriendIdx = (curIdxInWindow + j) % windowSize;
-                if ( !(reducedUserProfiles[checkFriendIdx].getNumFriendsAdded() == 
-                            reducedUserProfiles[checkFriendIdx].getNumFriends(pass) || 
-                            reducedUserProfiles[curIdxInWindow].isExistFriend(reducedUserProfiles[checkFriendIdx].getAccountId()))) {
+                if ( !(reducedUserProfiles[checkFriendIdx].getNumFriendsAdded() ==
+                        reducedUserProfiles[checkFriendIdx].getNumFriends(pass) ||
+                        reducedUserProfiles[curIdxInWindow].isExistFriend(reducedUserProfiles[checkFriendIdx].getAccountId()))) {
                     double randProb = randomFarm.get(RandomGeneratorFarm.Aspect.UNIFORM).nextDouble();
                     double prob = getFriendCreatePro(curIdxInWindow, checkFriendIdx, pass);
                     if ((randProb < prob) || (randProb < limitProCorrelated)) {
                         createFriendShip(reducedUserProfiles[curIdxInWindow], reducedUserProfiles[checkFriendIdx],
                                 (byte) pass);
-                    }				
+                    }
                 }
             }
         }
         updateLastPassFriendAdded(startIndex, startIndex + cellSize, pass);
         mrWriter.writeReducedUserProfiles(startIndex, startIndex + cellSize, pass, reducedUserProfiles, context,
                 isContext, oos, reducerShift);
-        exactOutput = exactOutput + cellSize; 
+        exactOutput = exactOutput + cellSize;
     }
 
     public void generatePosts(ReducedUserProfile user, UserExtraInfo extraInfo){
@@ -1106,551 +1077,547 @@ public class ScalableGenerator{
                     lastCommentId = comment.getCommentId();
                 }
             }
+        }
+    }
+
+    public void generateFlashmobPosts(ReducedUserProfile user, UserExtraInfo extraInfo){
+        // Generate location-related posts
+        Vector<Post> createdPosts = flashmobPostGenerator.createPosts( randomFarm, user, extraInfo );
+        Iterator<Post> it = createdPosts.iterator();
+        while(it.hasNext()){
+            Post post = it.next();
+            String countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(post.getIpAddress())));
+            stats.countries.add(countryName);
+
+            GregorianCalendar date = new GregorianCalendar();
+            date.setTimeInMillis(post.getCreationDate());
+            String strCreationDate = DateGenerator.formatYear(date);
+            if (stats.maxPostCreationDate == null) {
+                stats.maxPostCreationDate = strCreationDate;
+                stats.minPostCreationDate = strCreationDate;
+            } else {
+                if (stats.maxPostCreationDate.compareTo(strCreationDate) < 0) {
+                    stats.maxPostCreationDate = strCreationDate;
+                }
+                if (stats.minPostCreationDate.compareTo(strCreationDate) > 0) {
+                    stats.minPostCreationDate = strCreationDate;
+                }
+            }
+            serializer.gatherData(post);
+
+            // Generate comments
+            int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments);
+            long lastCommentCreatedDate = post.getCreationDate();
+            long lastCommentId = -1;
+            long startCommentId = postId;
+            for (int l = 0; l < numComment; l++) {
+                Comment comment = commentGenerator.createComment(randomFarm, post, user, lastCommentCreatedDate, startCommentId, lastCommentId,
+                        userAgentDictionary, ipAddDictionary, browserDictonry);
+                //              if (comment.getAuthorId() != -1) {
+                if ( comment!=null ) {
+                    countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(comment.getIpAddress())));
+                    stats.countries.add(countryName);
+                    serializer.gatherData(comment);
+                    lastCommentCreatedDate = comment.getCreationDate();
+                    lastCommentId = comment.getCommentId();
+                }
+            }
+        }
+    }
+
+    public void generatePhoto(ReducedUserProfile user, UserExtraInfo extraInfo){
+        // Generate photo Album and photos
+        int numOfmonths = (int) dateTimeGenerator.numberOfMonths(user);
+        int numPhotoAlbums = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_PHOTO_ALBUM).nextInt(maxNumPhotoAlbumsPerMonth);
+        if (numOfmonths != 0) {
+            numPhotoAlbums = numOfmonths * numPhotoAlbums;
+        }
+
+        for (int m = 0; m < numPhotoAlbums; m++) {
+            Group album = groupGenerator.createAlbum(randomFarm,user, extraInfo, m, joinProbs[0]);
+            serializer.gatherData(album);
+
+            // Generate photos for this album
+            int numPhotos = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_PHOTO).nextInt(maxNumPhotoPerAlbums);
+            for (int l = 0; l < numPhotos; l++) {
+                Photo photo = photoGenerator.generatePhoto(user, album, l, maxNumLikes);
+
+                photo.setUserAgent(userAgentDictionary.getUserAgentName(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT_SENT),user.isHaveSmartPhone(), user.getAgentIdx()));
+                photo.setBrowserIdx(browserDictonry.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), user.getBrowserIdx()));
+                photo.setIpAddress(ipAddDictionary.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER), user.getIpAddress(),
+                        user.isFrequentChange(), photo.getTakenTime(), photo.getLocationId()));
+                String countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(photo.getIpAddress())));
+                stats.countries.add(countryName);
+                serializer.gatherData(photo);
+            }
+        }
+    }
+
+    public void createGroupForUser(ReducedUserProfile user,
+                                   Friend firstLevelFriends[], Vector<Friend> secondLevelFriends) {
+        double randLevelProb;
+        double randMemberProb;
+
+        Group group = groupGenerator.createGroup(randomFarm,user);
+        TreeSet<Long> memberIds = new TreeSet<Long>();
+
+        int numGroupMember = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_USERS_PER_GROUP).nextInt(maxNumMemberGroup);
+        group.initAllMemberships(numGroupMember);
+
+        int numLoop = 0;
+        while ((group.getNumMemberAdded() < numGroupMember) && (numLoop < windowSize)) {
+
+            numLoop++;
+            randLevelProb = randomFarm.get(RandomGeneratorFarm.Aspect.FRIEND_LEVEL).nextDouble();
+
+            // Select the appropriate friend level
+            if (randLevelProb < levelProbs[0]) { // ==> level 1
+                // Find a friendIdx
+                int friendIdx = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX).nextInt(user.getNumFriendsAdded());
+                // Note: Use user.getNumFriendsAdded(), do not use
+                // firstLevelFriends.length
+                // because we allocate a array for friendLists, but do not
+                // guarantee that
+                // all the element in this array contain values
+
+                long potentialMemberAcc = firstLevelFriends[friendIdx].getFriendAcc();
+
+                randMemberProb = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP).nextDouble();
+                if (randMemberProb < joinProbs[0]) {
+                    // Check whether this user has been added and then add to the group
+                    if (!memberIds.contains(potentialMemberAcc)) {
+                        memberIds.add(potentialMemberAcc);
+                        // Assume the earliest membership date is the friendship created date
+                        GroupMemberShip memberShip = groupGenerator.createGroupMember(randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX),
+                                potentialMemberAcc, group.getCreatedDate(),
+                                firstLevelFriends[friendIdx]);
+                        group.addMember(memberShip);
+                    }
+                }
+            } else if (randLevelProb < levelProbs[1]) { // ==> level 2
+                if (secondLevelFriends.size() != 0) {
+                    int friendIdx = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX).nextInt(secondLevelFriends.size());
+                    long potentialMemberAcc = secondLevelFriends.get(friendIdx).getFriendAcc();
+                    randMemberProb = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP).nextDouble();
+                    if (randMemberProb < joinProbs[1]) {
+                        // Check whether this user has been added and then add to the group
+                        if (!memberIds.contains(potentialMemberAcc)) {
+                            memberIds.add(potentialMemberAcc);
+                            // Assume the earliest membership date is the friendship created date
+                            GroupMemberShip memberShip = groupGenerator.createGroupMember(randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX),
+                                    potentialMemberAcc, group.getCreatedDate(),
+                                    secondLevelFriends.get(friendIdx));
+                            group.addMember(memberShip);
+                        }
+                    }
+                }
+            } else { // ==> random users
+                // Select a user from window
+                int friendIdx = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX).nextInt(Math.min(numUserProfilesRead,windowSize));
+                long potentialMemberAcc = reducedUserProfiles[friendIdx].getAccountId();
+                randMemberProb = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP).nextDouble();
+                if (randMemberProb < joinProbs[2]) {
+                    // Check whether this user has been added and then add to the group
+                    if (!memberIds.contains(potentialMemberAcc)) {
+                        memberIds.add(potentialMemberAcc);
+                        GroupMemberShip memberShip = groupGenerator.createGroupMember(randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX),
+                                potentialMemberAcc, group.getCreatedDate(),
+                                reducedUserProfiles[friendIdx]);
+                        group.addMember(memberShip);
+                    }
+                }
             }
         }
 
-        public void generateFlashmobPosts(ReducedUserProfile user, UserExtraInfo extraInfo){
-            // Generate location-related posts
-            Vector<Post> createdPosts = flashmobPostGenerator.createPosts( randomFarm, user, extraInfo );
-            Iterator<Post> it = createdPosts.iterator();
-            while(it.hasNext()){
-                Post post = it.next();
-                String countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(post.getIpAddress())));
+        serializer.gatherData(group);
+        generatePostForGroup(group);
+        //generateFlashmobPostForGroup(group);
+    }
+
+    public void generatePostForGroup(Group group) {
+        Vector<Post> createdPosts =  uniformPostGenerator.createPosts( randomFarm, group);
+        Iterator<Post> it = createdPosts.iterator();
+        while(it.hasNext()) {
+            Post groupPost = it.next();
+            String countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(groupPost.getIpAddress())));
+            stats.countries.add(countryName);
+            serializer.gatherData(groupPost);
+
+            int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments);
+            long lastCommentCreatedDate = groupPost.getCreationDate();
+            long lastCommentId = -1;
+            long startCommentId = postId;
+
+            for (int j = 0; j < numComment; j++) {
+                Comment comment = commentGenerator.createComment(randomFarm,groupPost, group, lastCommentCreatedDate, startCommentId, lastCommentId,
+                        userAgentDictionary, ipAddDictionary, browserDictonry);
+                //				if (comment.getAuthorId() != -1) { // In case the comment is not reated because of the friendship's createddate
+                if ( comment!=null ) { // In case the comment is not reated because of the friendship's createddate
+                    countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(comment.getIpAddress())));
+                    stats.countries.add(countryName);
+                    serializer.gatherData(comment);
+
+                    lastCommentCreatedDate = comment.getCreationDate();
+                    lastCommentId = comment.getCommentId();
+                }
+            }
+        }
+    }
+
+    public void generateFlashmobPostForGroup(Group group) {
+        Vector<Post> createdPosts = flashmobPostGenerator.createPosts( randomFarm, group);
+        Iterator<Post> it = createdPosts.iterator();
+        while(it.hasNext() ) {
+            Post groupPost = it.next();
+            String countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(groupPost.getIpAddress())));
+            stats.countries.add(countryName);
+            serializer.gatherData(groupPost);
+
+            int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments);
+            long lastCommentCreatedDate = groupPost.getCreationDate();
+            long lastCommentId = -1;
+            long startCommentId = postId;
+
+            for (int j = 0; j < numComment; j++) {
+                Comment comment = commentGenerator.createComment(randomFarm,groupPost, group, lastCommentCreatedDate, startCommentId, lastCommentId,
+                        userAgentDictionary, ipAddDictionary, browserDictonry);
+                if ( comment!=null ) { // In case the comment is not reated because of the friendship's createddate
+                    countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(comment.getIpAddress())));
+                    stats.countries.add(countryName);
+                    serializer.gatherData(comment);
+
+                    lastCommentCreatedDate = comment.getCreationDate();
+                    lastCommentId = comment.getCommentId();
+                }
+            }
+        }
+    }
+
+
+    public UserProfile generateGeneralInformation(int accountId) {
+
+        // User Creation
+        long creationDate = dateTimeGenerator.randomDateInMillis( randomFarm.get(RandomGeneratorFarm.Aspect.DATE) );
+        int locationId = locationDictionary.getLocation(accountId);
+        UserProfile userProf = new UserProfile(
+                accountId,
+                creationDate,
+                (randomFarm.get(RandomGeneratorFarm.Aspect.GENDER).nextDouble() > 0.5) ? (byte)1 : (byte)0,
+                dateTimeGenerator.getBirthDay(randomFarm.get(RandomGeneratorFarm.Aspect.BIRTH_DAY), creationDate),
+                browserDictonry.getRandomBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER)),
+                locationId,
+                locationDictionary.getZorderID(locationId),
+                locationDictionary.getRandomCity(randomFarm.get(RandomGeneratorFarm.Aspect.CITY),locationId),
+                ipAddDictionary.getRandomIPFromLocation(randomFarm.get(RandomGeneratorFarm.Aspect.IP),locationId),
+                accountId*2);
+
+        userProf.setNumFriends(fbDegreeGenerator.getSocialDegree());
+        userProf.setSdpId(fbDegreeGenerator.getIDByPercentile());  	//Generate Id from its percentile in the social degree distribution
+        userProf.allocateFriendListMemory(NUM_FRIENDSHIP_HADOOP_JOBS);
+
+        // Setting the number of friends and friends per pass
+        short totalFriendSet = 0;
+        for (int i = 0; i < NUM_FRIENDSHIP_HADOOP_JOBS-1; i++){
+            short numPassFriend = (short) Math.floor(friendRatioPerJob[i] * userProf.getNumFriends());
+            totalFriendSet = (short) (totalFriendSet + numPassFriend);
+            userProf.setNumPassFriends(totalFriendSet,i);
+        }
+        userProf.setNumPassFriends(userProf.getNumFriends(),NUM_FRIENDSHIP_HADOOP_JOBS-1);
+
+        int userMainTag = tagDictionary.getaTagByCountry(randomFarm.get(RandomGeneratorFarm.Aspect.TAG_OTHER_COUNTRY), randomFarm.get(RandomGeneratorFarm.Aspect.TAG),userProf.getLocationId());
+        userProf.setMainTagId(userMainTag);
+        short numTags = ((short) randomTagPowerLaw.getValue(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_TAG)));
+        userProf.setSetOfTags(topicTagDictionary.getSetofTags(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), randomFarm.get(RandomGeneratorFarm.Aspect.TAG_OTHER_COUNTRY), userMainTag, numTags));
+        userProf.setUniversityLocationId(unversityDictionary.getRandomUniversity(randomFarm, userProf.getLocationId()));
+
+        // Set whether the user has a smartphone or not.
+        userProf.setHaveSmartPhone(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT).nextDouble() > probHavingSmartPhone);
+        if (userProf.isHaveSmartPhone()) {
+            userProf.setAgentId(userAgentDictionary.getRandomUserAgentIdx(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT)));
+        }
+
+        // Compute the popular places the user uses to visit.
+        byte numPopularPlaces = (byte) randomFarm.get(RandomGeneratorFarm.Aspect.NUM_POPULAR).nextInt(maxNumPopularPlaces + 1);
+        Vector<Short> auxPopularPlaces = new Vector<Short>();
+        for (int i = 0; i < numPopularPlaces; i++){
+            short aux = popularDictionary.getPopularPlace(randomFarm.get(RandomGeneratorFarm.Aspect.POPULAR),userProf.getLocationId());
+            if(aux != -1) {
+                auxPopularPlaces.add(aux);
+            }
+        }
+        short popularPlaces[] = new short[auxPopularPlaces.size()];
+        Iterator<Short> it = auxPopularPlaces.iterator();
+        int i = 0;
+        while(it.hasNext()) {
+            popularPlaces[i] = it.next();
+            ++i;
+        }
+        userProf.setPopularPlaceIds(popularPlaces);
+
+        // Set random Index used to sort users randomly
+        userProf.setRandomIdx(randomFarm.get(RandomGeneratorFarm.Aspect.RANDOM).nextInt(USER_RANDOM_ID_LIMIT));
+
+        // Set whether the user is a large poster or not.
+        userProf.setLargePoster(IsUserALargePoster(userProf));
+        return userProf;
+    }
+
+    private boolean IsUserALargePoster(UserProfile user) {
+        if(dateTimeGenerator.getBirthMonth(user.getBirthDay()) == GregorianCalendar.JANUARY) {
+            return true;
+        }
+        return false;
+    }
+
+
+    public void setInfoFromUserProfile(ReducedUserProfile user,
+                                       UserExtraInfo userExtraInfo) {
+
+        // The country will be always present, but the city can be missing if that data is
+        // not available on the dictionary
+        int locationId = (user.getCityId() != -1) ? user.getCityId() : user.getLocationId();
+        userExtraInfo.setLocationId(locationId);
+        userExtraInfo.setLocation(locationDictionary.getLocationName(locationId));
+
+        // We consider that the distance from where user is living and
+        double distance = randomFarm.get(RandomGeneratorFarm.Aspect.EXACT_LONG_LAT).nextDouble() * 2;
+        userExtraInfo.setLatt(locationDictionary.getLatt(user.getLocationId()) + distance);
+        userExtraInfo.setLongt(locationDictionary.getLongt(user.getLocationId()) + distance);
+
+        userExtraInfo.setUniversity(unversityDictionary.getUniversityName(user.getUniversityLocationId()));
+
+        // Relationship status
+        if (randomFarm.get(RandomGeneratorFarm.Aspect.HAVE_STATUS).nextDouble() > missingStatusRatio) {
+
+            if (randomFarm.get(RandomGeneratorFarm.Aspect.STATUS_SINGLE).nextDouble() < probSingleStatus) {
+                userExtraInfo.setStatus(RelationshipStatus.SINGLE);
+                userExtraInfo.setSpecialFriendIdx(-1);
+            } else {
+                // The two first status, "NO_STATUS" and "SINGLE", are not included
+                int statusIdx = randomFarm.get(RandomGeneratorFarm.Aspect.STATUS).nextInt(RelationshipStatus.values().length - 2) + 2;
+                userExtraInfo.setStatus(RelationshipStatus.values()[statusIdx]);
+
+                // Select a special friend
+                Friend friends[] = user.getFriendList();
+
+                long relationid = -1;
+                if (user.getNumFriendsAdded() > 0) {
+                    int specialFriendId = 0;
+                    int numFriendCheck = 0;
+
+                    do {
+                        specialFriendId = randomFarm.get(RandomGeneratorFarm.Aspect.HAVE_STATUS).nextInt(user
+                                .getNumFriendsAdded());
+                        numFriendCheck++;
+                    } while (friends[specialFriendId].getCreatedTime() == -1
+                            && numFriendCheck < friends.length);
+
+                    if (friends[specialFriendId].getCreatedTime() != -1) {
+                        relationid = friends[specialFriendId].getFriendAcc();
+                    }
+                }
+                userExtraInfo.setSpecialFriendIdx(relationid);
+            }
+        } else {
+            userExtraInfo.setStatus(RelationshipStatus.NOSTATUS);
+        }
+
+
+        boolean isMale;
+        if (user.getGender() == 1) {
+            isMale = true;
+            userExtraInfo.setGender(gender[0]); // male
+        } else {
+            isMale = false;
+            userExtraInfo.setGender(gender[1]); // female
+        }
+
+        userExtraInfo.setFirstName(namesDictionary.getRandomGivenName(randomFarm.get(RandomGeneratorFarm.Aspect.NAME),
+                user.getLocationId(),isMale,
+                dateTimeGenerator.getBirthYear(user.getBirthDay())));
+
+        userExtraInfo.setLastName(namesDictionary.getRandomSurname(randomFarm.get(RandomGeneratorFarm.Aspect.SURNAME),user.getLocationId()));
+
+        // email is created by using the user's first name + userId
+        int numEmails = randomFarm.get(RandomGeneratorFarm.Aspect.EXTRA_INFO).nextInt(maxEmails) + 1;
+        double prob = randomFarm.get(RandomGeneratorFarm.Aspect.EXTRA_INFO).nextDouble();
+        if (prob >= missingRatio) {
+            String base = userExtraInfo.getFirstName();
+            base = Normalizer.normalize(base,Normalizer.Form.NFD);
+            base = base.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+            base = base.replaceAll(" ", ".");
+            base = base.replaceAll("[.]+", ".");
+
+            for (int i = 0; i < numEmails; i++) {
+                String email = base + "" + user.getAccountId() + "@" + emailDictionary.getRandomEmail(randomFarm.get(RandomGeneratorFarm.Aspect.TOP_EMAIL),randomFarm.get(RandomGeneratorFarm.Aspect.EMAIL));
+                userExtraInfo.addEmail(email);
+            }
+        }
+
+        // Set class year
+        prob = randomFarm.get(RandomGeneratorFarm.Aspect.EXTRA_INFO).nextDouble();
+        if ((prob < missingRatio) || userExtraInfo.getUniversity().equals("")) {
+            userExtraInfo.setClassYear(-1);
+        } else {
+            userExtraInfo.setClassYear(dateTimeGenerator.getClassYear(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),
+                    user.getCreationDate(), user.getBirthDay()));
+        }
+
+        // Set company and workFrom
+        int numCompanies = randomFarm.get(RandomGeneratorFarm.Aspect.EXTRA_INFO).nextInt(maxCompanies) + 1;
+        prob = randomFarm.get(RandomGeneratorFarm.Aspect.EXTRA_INFO).nextDouble();
+        if (prob >= missingRatio) {
+            for (int i = 0; i < numCompanies; i++) {
+                long workFrom;
+                if (userExtraInfo.getClassYear() != -1) {
+                    workFrom = dateTimeGenerator.getWorkFromYear( randomFarm.get(RandomGeneratorFarm.Aspect.DATE),
+                            user.getCreationDate(),
+                            user.getBirthDay());
+                } else {
+                    workFrom = dateTimeGenerator.getWorkFromYear(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), userExtraInfo.getClassYear());
+                }
+                String company = companiesDictionary.getRandomCompany(randomFarm, user.getLocationId());
+                userExtraInfo.addCompany(company, workFrom);
+                String countryName = locationDictionary.getLocationName(companiesDictionary.getCountry(company));
                 stats.countries.add(countryName);
 
                 GregorianCalendar date = new GregorianCalendar();
-                date.setTimeInMillis(post.getCreationDate());
-                String strCreationDate = DateGenerator.formatYear(date);
-                if (stats.maxPostCreationDate == null) {
-                    stats.maxPostCreationDate = strCreationDate;
-                    stats.minPostCreationDate = strCreationDate;
+                date.setTimeInMillis(workFrom);
+                String strWorkFrom = DateGenerator.formatYear(date);
+                if (stats.maxWorkFrom == null) {
+                    stats.maxWorkFrom = strWorkFrom;
+                    stats.minWorkFrom = strWorkFrom;
                 } else {
-                    if (stats.maxPostCreationDate.compareTo(strCreationDate) < 0) {
-                        stats.maxPostCreationDate = strCreationDate;
+                    if (stats.maxWorkFrom.compareTo(strWorkFrom) < 0) {
+                        stats.maxWorkFrom = strWorkFrom;
                     }
-                    if (stats.minPostCreationDate.compareTo(strCreationDate) > 0) {
-                        stats.minPostCreationDate = strCreationDate;
-                    }
-                }
-                serializer.gatherData(post);
-
-                // Generate comments
-                int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments);
-                long lastCommentCreatedDate = post.getCreationDate();
-                long lastCommentId = -1;
-                long startCommentId = postId;
-                for (int l = 0; l < numComment; l++) {
-                    Comment comment = commentGenerator.createComment(randomFarm, post, user, lastCommentCreatedDate, startCommentId, lastCommentId,
-                            userAgentDictionary, ipAddDictionary, browserDictonry);
-                    //              if (comment.getAuthorId() != -1) {
-                    if ( comment!=null ) {
-                        countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(comment.getIpAddress())));
-                        stats.countries.add(countryName);
-                        serializer.gatherData(comment);
-                        lastCommentCreatedDate = comment.getCreationDate();
-                        lastCommentId = comment.getCommentId();
+                    if (stats.minWorkFrom.compareTo(strWorkFrom) > 0) {
+                        stats.minWorkFrom = strWorkFrom;
                     }
                 }
             }
         }
+        Vector<Integer> userLanguages = languageDictionary.getLanguages(randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE),user.getLocationId());
+        int nativeLanguage = randomFarm.get(RandomGeneratorFarm.Aspect.EXTRA_INFO).nextInt(userLanguages.size());
+        userExtraInfo.setNativeLanguage(userLanguages.get(nativeLanguage));
+        int internationalLang = languageDictionary.getInternationlLanguage(randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE));
+        if (internationalLang != -1 && userLanguages.indexOf(internationalLang) == -1) {
+            userLanguages.add(internationalLang);
+        }
+        userExtraInfo.setLanguages(userLanguages);
 
-            public void generatePhoto(ReducedUserProfile user, UserExtraInfo extraInfo){
-                // Generate photo Album and photos
-                int numOfmonths = (int) dateTimeGenerator.numberOfMonths(user);
-                int numPhotoAlbums = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_PHOTO_ALBUM).nextInt(maxNumPhotoAlbumsPerMonth);
-                if (numOfmonths != 0) {
-                    numPhotoAlbums = numOfmonths * numPhotoAlbums;
-                }
+        stats.maxPersonId = Math.max(stats.maxPersonId, user.getAccountId());
+        stats.minPersonId = Math.min(stats.minPersonId, user.getAccountId());
+        stats.firstNames.add(userExtraInfo.getFirstName());
+        String countryName = locationDictionary.getLocationName(user.getLocationId());
+        stats.countries.add(countryName);
 
-                for (int m = 0; m < numPhotoAlbums; m++) {
-                    Group album = groupGenerator.createAlbum(randomFarm,user, extraInfo, m, joinProbs[0]);
-                    serializer.gatherData(album);
-
-                    // Generate photos for this album
-                    int numPhotos = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_PHOTO).nextInt(maxNumPhotoPerAlbums);
-                    for (int l = 0; l < numPhotos; l++) {
-                        Photo photo = photoGenerator.generatePhoto(user, album, l, maxNumLikes);
-
-                        photo.setUserAgent(userAgentDictionary.getUserAgentName(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT_SENT),user.isHaveSmartPhone(), user.getAgentIdx()));
-                        photo.setBrowserIdx(browserDictonry.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), user.getBrowserIdx()));
-                        photo.setIpAddress(ipAddDictionary.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER), user.getIpAddress(),
-                                    user.isFrequentChange(), photo.getTakenTime(), photo.getLocationId()));
-                        String countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(photo.getIpAddress())));
-                        stats.countries.add(countryName);
-                        serializer.gatherData(photo);
-                    }
-                }
+        TreeSet<Integer> tags = user.getSetOfTags();
+        for (Integer tagID : tags) {
+            stats.tagNames.add(tagDictionary.getName(tagID));
+            Integer parent = tagDictionary.getTagClass(tagID);
+            while (parent != -1) {
+                stats.tagClasses.add(tagDictionary.getClassName(parent));
+                parent = tagDictionary.getClassParent(parent);
             }
+        }
+    }
 
-            public void createGroupForUser(ReducedUserProfile user,
-                    Friend firstLevelFriends[], Vector<Friend> secondLevelFriends) {
-                double randLevelProb;
-                double randMemberProb;
 
-                Group group = groupGenerator.createGroup(randomFarm,user);
-                TreeSet<Long> memberIds = new TreeSet<Long>();
+    public double getFriendCreatePro(int i, int j, int pass){
+        double prob;
+        if (j > i){
+            prob = Math.pow(baseProbCorrelated, (j- i));
+        } else{
+            prob =  Math.pow(baseProbCorrelated, (j + windowSize - i));
+        }
+        return prob;
+    }
 
-                int numGroupMember = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_USERS_PER_GROUP).nextInt(maxNumMemberGroup);
-                group.initAllMemberships(numGroupMember);
-
-                int numLoop = 0;
-                while ((group.getNumMemberAdded() < numGroupMember) && (numLoop < windowSize)) {
-
-                    numLoop++;
-                    randLevelProb = randomFarm.get(RandomGeneratorFarm.Aspect.FRIEND_LEVEL).nextDouble();
-
-                    // Select the appropriate friend level
-                    if (randLevelProb < levelProbs[0]) { // ==> level 1
-                        // Find a friendIdx
-                        int friendIdx = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX).nextInt(user.getNumFriendsAdded());
-                        // Note: Use user.getNumFriendsAdded(), do not use
-                        // firstLevelFriends.length
-                        // because we allocate a array for friendLists, but do not
-                        // guarantee that
-                        // all the element in this array contain values
-
-                        long potentialMemberAcc = firstLevelFriends[friendIdx].getFriendAcc();
-
-                        randMemberProb = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP).nextDouble();
-                        if (randMemberProb < joinProbs[0]) {
-                            // Check whether this user has been added and then add to the group
-                            if (!memberIds.contains(potentialMemberAcc)) {
-                                memberIds.add(potentialMemberAcc);
-                                // Assume the earliest membership date is the friendship created date
-                                GroupMemberShip memberShip = groupGenerator.createGroupMember(randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX),
-                                        potentialMemberAcc, group.getCreatedDate(),
-                                        firstLevelFriends[friendIdx]);
-                                group.addMember(memberShip);
-                            }
-                        }
-                    } else if (randLevelProb < levelProbs[1]) { // ==> level 2
-                        if (secondLevelFriends.size() != 0) {
-                            int friendIdx = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX).nextInt(secondLevelFriends.size());
-                            long potentialMemberAcc = secondLevelFriends.get(friendIdx).getFriendAcc();
-                            randMemberProb = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP).nextDouble();
-                            if (randMemberProb < joinProbs[1]) {
-                                // Check whether this user has been added and then add to the group
-                                if (!memberIds.contains(potentialMemberAcc)) {
-                                    memberIds.add(potentialMemberAcc);
-                                    // Assume the earliest membership date is the friendship created date
-                                    GroupMemberShip memberShip = groupGenerator.createGroupMember(randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX),
-                                            potentialMemberAcc, group.getCreatedDate(), 
-                                            secondLevelFriends.get(friendIdx));
-                                    group.addMember(memberShip);
-                                }
-                            }
-                        }
-                    } else { // ==> random users
-                        // Select a user from window
-                        int friendIdx = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX).nextInt(Math.min(numUserProfilesRead,windowSize));
-                        long potentialMemberAcc = reducedUserProfiles[friendIdx].getAccountId();
-                        randMemberProb = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP).nextDouble();
-                        if (randMemberProb < joinProbs[2]) {
-                            // Check whether this user has been added and then add to the group
-                            if (!memberIds.contains(potentialMemberAcc)) {
-                                memberIds.add(potentialMemberAcc);
-                                GroupMemberShip memberShip = groupGenerator.createGroupMember(randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX),
-                                        potentialMemberAcc, group.getCreatedDate(),
-                                        reducedUserProfiles[friendIdx]);
-                                group.addMember(memberShip);
-                            }
-                        }
-                    }
-                }
-
-                serializer.gatherData(group);
-                generatePostForGroup(group);
-                //generateFlashmobPostForGroup(group);
+    public void createFriendShip(ReducedUserProfile user1, ReducedUserProfile user2, byte pass) {
+        long requestedTime = dateTimeGenerator.randomFriendRequestedDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),user1, user2);
+        byte initiator = (byte) randomFarm.get(RandomGeneratorFarm.Aspect.INITIATOR).nextInt(2);
+        long createdTime = -1;
+        long declinedTime = -1;
+        if (randomFarm.get(RandomGeneratorFarm.Aspect.FRIEND_REJECT).nextDouble() > friendRejectRatio) {
+            createdTime = dateTimeGenerator.randomFriendApprovedDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),requestedTime);
+        } else {
+            declinedTime = dateTimeGenerator.randomFriendDeclinedDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),requestedTime);
+            if (randomFarm.get(RandomGeneratorFarm.Aspect.FRIEND_APROVAL).nextDouble() < friendReApproveRatio) {
+                createdTime = dateTimeGenerator.randomFriendReapprovedDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),declinedTime);
             }
+        }
 
-            public void generatePostForGroup(Group group) {
-                Vector<Post> createdPosts =  uniformPostGenerator.createPosts( randomFarm, group);
-                Iterator<Post> it = createdPosts.iterator();
-                while(it.hasNext()) {
-                    Post groupPost = it.next();
-                    String countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(groupPost.getIpAddress())));
-                    stats.countries.add(countryName);
-                    serializer.gatherData(groupPost);
+        user2.addNewFriend(new Friend(user1, requestedTime, declinedTime,
+                createdTime, pass, initiator));
+        user1.addNewFriend(new Friend(user2, requestedTime, declinedTime,
+                createdTime, pass, initiator));
 
-                    int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments);
-                    long lastCommentCreatedDate = groupPost.getCreationDate();
-                    long lastCommentId = -1;
-                    long startCommentId = postId;
-
-                    for (int j = 0; j < numComment; j++) {
-                        Comment comment = commentGenerator.createComment(randomFarm,groupPost, group, lastCommentCreatedDate, startCommentId, lastCommentId,
-                                userAgentDictionary, ipAddDictionary, browserDictonry);
-                        //				if (comment.getAuthorId() != -1) { // In case the comment is not reated because of the friendship's createddate
-                        if ( comment!=null ) { // In case the comment is not reated because of the friendship's createddate
-                            countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(comment.getIpAddress())));
-                            stats.countries.add(countryName);
-                            serializer.gatherData(comment);
-
-                            lastCommentCreatedDate = comment.getCreationDate();
-                            lastCommentId = comment.getCommentId();
-                        }
-                    }
-                    }
-                }
-
-                public void generateFlashmobPostForGroup(Group group) {
-                    Vector<Post> createdPosts = flashmobPostGenerator.createPosts( randomFarm, group);
-                    Iterator<Post> it = createdPosts.iterator();
-                    while(it.hasNext() ) {
-                        Post groupPost = it.next();
-                        String countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(groupPost.getIpAddress())));
-                        stats.countries.add(countryName);
-                        serializer.gatherData(groupPost);
-
-                        int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments);
-                        long lastCommentCreatedDate = groupPost.getCreationDate();
-                        long lastCommentId = -1;
-                        long startCommentId = postId;
-
-                        for (int j = 0; j < numComment; j++) {
-                            Comment comment = commentGenerator.createComment(randomFarm,groupPost, group, lastCommentCreatedDate, startCommentId, lastCommentId,
-                                    userAgentDictionary, ipAddDictionary, browserDictonry);
-                            if ( comment!=null ) { // In case the comment is not reated because of the friendship's createddate
-                                countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(comment.getIpAddress())));
-                                stats.countries.add(countryName);
-                                serializer.gatherData(comment);
-
-                                lastCommentCreatedDate = comment.getCreationDate();
-                                lastCommentId = comment.getCommentId();
-                            }
-                        }
-                    }
-                }
+        friendshipNum++;
+    }
 
 
-                public UserProfile generateGeneralInformation(int accountId) {
-
-                    // User Creation
-                    long creationDate = dateTimeGenerator.randomDateInMillis( randomFarm.get(RandomGeneratorFarm.Aspect.DATE) );
-                    int locationId = locationDictionary.getLocation(accountId);
-                    UserProfile userProf = new UserProfile( 
-                            accountId,
-                            creationDate,
-                            (randomFarm.get(RandomGeneratorFarm.Aspect.GENDER).nextDouble() > 0.5) ? (byte)1 : (byte)0,
-                            dateTimeGenerator.getBirthDay(randomFarm.get(RandomGeneratorFarm.Aspect.BIRTH_DAY), creationDate),
-                            browserDictonry.getRandomBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER)),
-                            locationId,
-                            locationDictionary.getZorderID(locationId),
-                            locationDictionary.getRandomCity(randomFarm.get(RandomGeneratorFarm.Aspect.CITY),locationId),
-                            ipAddDictionary.getRandomIPFromLocation(randomFarm.get(RandomGeneratorFarm.Aspect.IP),locationId),
-                            accountId*2);
-
-                    userProf.setNumFriends(fbDegreeGenerator.getSocialDegree());
-                    userProf.setSdpId(fbDegreeGenerator.getIDByPercentile());  	//Generate Id from its percentile in the social degree distribution
-                    /*userProf.setNumFriends((short) randomPowerLaw.getValue(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_FRIEND)));
-                    userProf.allocateFriendListMemory(NUM_FRIENDSHIP_HADOOP_JOBS);*/
-
-                    // Setting the number of friends and friends per pass
-                    short totalFriendSet = 0; 
-                    for (int i = 0; i < NUM_FRIENDSHIP_HADOOP_JOBS-1; i++){
-                        short numPassFriend = (short) Math.floor(friendRatioPerJob[i] * userProf.getNumFriends());
-                        totalFriendSet = (short) (totalFriendSet + numPassFriend);
-                        userProf.setNumPassFriends(totalFriendSet,i);
-                    }
-                    userProf.setNumPassFriends(userProf.getNumFriends(),NUM_FRIENDSHIP_HADOOP_JOBS-1);
-
-                    int userMainTag = tagDictionary.getaTagByCountry(randomFarm.get(RandomGeneratorFarm.Aspect.TAG_OTHER_COUNTRY), randomFarm.get(RandomGeneratorFarm.Aspect.TAG),userProf.getLocationId());
-                    userProf.setMainTagId(userMainTag);
-                    short numTags = ((short) randomTagPowerLaw.getValue(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_TAG)));
-                    userProf.setSetOfTags(topicTagDictionary.getSetofTags(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), randomFarm.get(RandomGeneratorFarm.Aspect.TAG_OTHER_COUNTRY), userMainTag, numTags));
-                    userProf.setUniversityLocationId(unversityDictionary.getRandomUniversity(randomFarm, userProf.getLocationId()));
-
-                    // Set whether the user has a smartphone or not. 
-                    userProf.setHaveSmartPhone(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT).nextDouble() > probHavingSmartPhone);
-                    if (userProf.isHaveSmartPhone()) {
-                        userProf.setAgentId(userAgentDictionary.getRandomUserAgentIdx(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT)));
-                    }
-
-                    // Compute the popular places the user uses to visit. 
-                    byte numPopularPlaces = (byte) randomFarm.get(RandomGeneratorFarm.Aspect.NUM_POPULAR).nextInt(maxNumPopularPlaces + 1);
-                    Vector<Short> auxPopularPlaces = new Vector<Short>();
-                    for (int i = 0; i < numPopularPlaces; i++){
-                        short aux = popularDictionary.getPopularPlace(randomFarm.get(RandomGeneratorFarm.Aspect.POPULAR),userProf.getLocationId());
-                        if(aux != -1) {
-                            auxPopularPlaces.add(aux);
-                        }
-                    }
-                    short popularPlaces[] = new short[auxPopularPlaces.size()];
-                    Iterator<Short> it = auxPopularPlaces.iterator();
-                    int i = 0;
-                    while(it.hasNext()) {
-                        popularPlaces[i] = it.next();
-                        ++i;
-                    }
-                    userProf.setPopularPlaceIds(popularPlaces);
-
-                    // Set random Index used to sort users randomly
-                    userProf.setRandomIdx(randomFarm.get(RandomGeneratorFarm.Aspect.RANDOM).nextInt(USER_RANDOM_ID_LIMIT));
-
-                    // Set whether the user is a large poster or not.
-                    userProf.setLargePoster(IsUserALargePoster(userProf));
-                    return userProf;
-                }
-
-                private boolean IsUserALargePoster(UserProfile user) {
-                    if(dateTimeGenerator.getBirthMonth(user.getBirthDay()) == GregorianCalendar.JANUARY) {
-                        return true;
-                    } 
-                    return false;
-                }
-
-
-                public void setInfoFromUserProfile(ReducedUserProfile user,
-                        UserExtraInfo userExtraInfo) {
-
-                    // The country will be always present, but the city can be missing if that data is 
-                    // not available on the dictionary
-                    int locationId = (user.getCityId() != -1) ? user.getCityId() : user.getLocationId();
-                    userExtraInfo.setLocationId(locationId);
-                    userExtraInfo.setLocation(locationDictionary.getLocationName(locationId));
-
-                    // We consider that the distance from where user is living and 
-                    double distance = randomFarm.get(RandomGeneratorFarm.Aspect.EXACT_LONG_LAT).nextDouble() * 2;
-                    userExtraInfo.setLatt(locationDictionary.getLatt(user.getLocationId()) + distance);
-                    userExtraInfo.setLongt(locationDictionary.getLongt(user.getLocationId()) + distance);
-
-                    userExtraInfo.setUniversity(unversityDictionary.getUniversityName(user.getUniversityLocationId()));
-
-                    // Relationship status
-                    if (randomFarm.get(RandomGeneratorFarm.Aspect.HAVE_STATUS).nextDouble() > missingStatusRatio) {
-
-                        if (randomFarm.get(RandomGeneratorFarm.Aspect.STATUS_SINGLE).nextDouble() < probSingleStatus) {
-                            userExtraInfo.setStatus(RelationshipStatus.SINGLE);
-                            userExtraInfo.setSpecialFriendIdx(-1);
-                        } else {
-                            // The two first status, "NO_STATUS" and "SINGLE", are not included
-                            int statusIdx = randomFarm.get(RandomGeneratorFarm.Aspect.STATUS).nextInt(RelationshipStatus.values().length - 2) + 2;
-                            userExtraInfo.setStatus(RelationshipStatus.values()[statusIdx]);
-
-                            // Select a special friend
-                            Friend friends[] = user.getFriendList();
-
-                            long relationid = -1;
-                            if (user.getNumFriendsAdded() > 0) {
-                                int specialFriendId = 0;
-                                int numFriendCheck = 0;
-
-                                do {
-                                    specialFriendId = randomFarm.get(RandomGeneratorFarm.Aspect.HAVE_STATUS).nextInt(user
-                                            .getNumFriendsAdded());
-                                    numFriendCheck++;
-                                } while (friends[specialFriendId].getCreatedTime() == -1
-                                        && numFriendCheck < friends.length);
-
-                                if (friends[specialFriendId].getCreatedTime() != -1) {
-                                    relationid = friends[specialFriendId].getFriendAcc();
-                                }
-                            }
-                            userExtraInfo.setSpecialFriendIdx(relationid);
-                        }
-                    } else {
-                        userExtraInfo.setStatus(RelationshipStatus.NOSTATUS);
-                    }
-
-
-                    boolean isMale;
-                    if (user.getGender() == 1) {
-                        isMale = true;
-                        userExtraInfo.setGender(gender[0]); // male
-                    } else {
-                        isMale = false;
-                        userExtraInfo.setGender(gender[1]); // female
-                    }
-
-                    userExtraInfo.setFirstName(namesDictionary.getRandomGivenName(randomFarm.get(RandomGeneratorFarm.Aspect.NAME),
-                                user.getLocationId(),isMale, 
-                                dateTimeGenerator.getBirthYear(user.getBirthDay())));
-
-                    userExtraInfo.setLastName(namesDictionary.getRandomSurname(randomFarm.get(RandomGeneratorFarm.Aspect.SURNAME),user.getLocationId()));
-
-                    // email is created by using the user's first name + userId
-                    int numEmails = randomFarm.get(RandomGeneratorFarm.Aspect.EXTRA_INFO).nextInt(maxEmails) + 1;
-                    double prob = randomFarm.get(RandomGeneratorFarm.Aspect.EXTRA_INFO).nextDouble();
-                    if (prob >= missingRatio) {
-                        String base = userExtraInfo.getFirstName();
-                        base = Normalizer.normalize(base,Normalizer.Form.NFD);
-                        base = base.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
-                        base = base.replaceAll(" ", ".");
-                        base = base.replaceAll("[.]+", ".");
-
-                        for (int i = 0; i < numEmails; i++) {
-                            String email = base + "" + user.getAccountId() + "@" + emailDictionary.getRandomEmail(randomFarm.get(RandomGeneratorFarm.Aspect.TOP_EMAIL),randomFarm.get(RandomGeneratorFarm.Aspect.EMAIL));
-                            userExtraInfo.addEmail(email);
-                        }
-                    }
-
-                    // Set class year
-                    prob = randomFarm.get(RandomGeneratorFarm.Aspect.EXTRA_INFO).nextDouble();
-                    if ((prob < missingRatio) || userExtraInfo.getUniversity().equals("")) {
-                        userExtraInfo.setClassYear(-1);
-                    } else {
-                        userExtraInfo.setClassYear(dateTimeGenerator.getClassYear(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),
-                                    user.getCreationDate(), user.getBirthDay()));
-                    }
-
-                    // Set company and workFrom
-                    int numCompanies = randomFarm.get(RandomGeneratorFarm.Aspect.EXTRA_INFO).nextInt(maxCompanies) + 1;
-                    prob = randomFarm.get(RandomGeneratorFarm.Aspect.EXTRA_INFO).nextDouble();
-                    if (prob >= missingRatio) {
-                        for (int i = 0; i < numCompanies; i++) {
-                            long workFrom;
-                            if (userExtraInfo.getClassYear() != -1) {
-                                workFrom = dateTimeGenerator.getWorkFromYear( randomFarm.get(RandomGeneratorFarm.Aspect.DATE),
-                                        user.getCreationDate(), 
-                                        user.getBirthDay());
-                            } else {
-                                workFrom = dateTimeGenerator.getWorkFromYear(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), userExtraInfo.getClassYear());
-                            }
-                            String company = companiesDictionary.getRandomCompany(randomFarm, user.getLocationId());
-                            userExtraInfo.addCompany(company, workFrom);
-                            String countryName = locationDictionary.getLocationName(companiesDictionary.getCountry(company));
-                            stats.countries.add(countryName);
-
-                            GregorianCalendar date = new GregorianCalendar();
-                            date.setTimeInMillis(workFrom);
-                            String strWorkFrom = DateGenerator.formatYear(date);
-                            if (stats.maxWorkFrom == null) {
-                                stats.maxWorkFrom = strWorkFrom;
-                                stats.minWorkFrom = strWorkFrom;
-                            } else {
-                                if (stats.maxWorkFrom.compareTo(strWorkFrom) < 0) {
-                                    stats.maxWorkFrom = strWorkFrom;
-                                }
-                                if (stats.minWorkFrom.compareTo(strWorkFrom) > 0) {
-                                    stats.minWorkFrom = strWorkFrom;
-                                }
-                            }
-                        }
-                    }
-                    Vector<Integer> userLanguages = languageDictionary.getLanguages(randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE),user.getLocationId());
-                    int nativeLanguage = randomFarm.get(RandomGeneratorFarm.Aspect.EXTRA_INFO).nextInt(userLanguages.size());
-                    userExtraInfo.setNativeLanguage(userLanguages.get(nativeLanguage));
-                    int internationalLang = languageDictionary.getInternationlLanguage(randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE));
-                    if (internationalLang != -1 && userLanguages.indexOf(internationalLang) == -1) {
-                        userLanguages.add(internationalLang);
-                    }
-                    userExtraInfo.setLanguages(userLanguages);
-
-
-                    stats.maxPersonId = Math.max(stats.maxPersonId, user.getAccountId());
-                    stats.minPersonId = Math.min(stats.minPersonId, user.getAccountId());
-                    stats.firstNames.add(userExtraInfo.getFirstName());
-                    String countryName = locationDictionary.getLocationName(user.getLocationId());
-                    stats.countries.add(countryName);
-
-                    // NOTE: [2013-08-06] The tags of posts, forums, etc.. all depend of the user ones
-                    // if in the future this fact change add those in the statistics also.
-                    TreeSet<Integer> tags = user.getSetOfTags();
-                    for (Integer tagID : tags) {
-                        stats.tagNames.add(tagDictionary.getName(tagID));
-                        Integer parent = tagDictionary.getTagClass(tagID);
-                        while (parent != -1) {
-                            stats.tagClasses.add(tagDictionary.getClassName(parent));
-                            parent = tagDictionary.getClassParent(parent);
-                        }
-                    }
-                }
-
-
-                public double getFriendCreatePro(int i, int j, int pass){
-                    double prob;
-                    if (j > i){
-                        prob = Math.pow(baseProbCorrelated, (j- i));
-                    } else{
-                        prob =  Math.pow(baseProbCorrelated, (j + windowSize - i));
-                    }
-                    return prob; 
-                }
-
-                public void createFriendShip(ReducedUserProfile user1, ReducedUserProfile user2, byte pass) {
-                    long requestedTime = dateTimeGenerator.randomFriendRequestedDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),user1, user2);
-                    byte initiator = (byte) randomFarm.get(RandomGeneratorFarm.Aspect.INITIATOR).nextInt(2);
-                    long createdTime = -1;
-                    long declinedTime = -1;
-                    if (randomFarm.get(RandomGeneratorFarm.Aspect.FRIEND_REJECT).nextDouble() > friendRejectRatio) {
-                        createdTime = dateTimeGenerator.randomFriendApprovedDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),requestedTime);
-                    } else {
-                        declinedTime = dateTimeGenerator.randomFriendDeclinedDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),requestedTime);
-                        if (randomFarm.get(RandomGeneratorFarm.Aspect.FRIEND_APROVAL).nextDouble() < friendReApproveRatio) {
-                            createdTime = dateTimeGenerator.randomFriendReapprovedDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),declinedTime);
-                        }
-                    }
-
-                    user2.addNewFriend(new Friend(user1, requestedTime, declinedTime,
-                                createdTime, pass, initiator));
-                    user1.addNewFriend(new Friend(user2, requestedTime, declinedTime,
-                                createdTime, pass, initiator));
-
-                    friendshipNum++;
-                }
-
-
-                public void updateLastPassFriendAdded(int from, int to, int pass) {
-                    if (to > windowSize) {
-                        for (int i = from; i < windowSize; i++) {
-                            reducedUserProfiles[i].setPassFriendsAdded(pass, reducedUserProfiles[i].getNumFriendsAdded());
-                        }
-                        for (int i = 0; i < to - windowSize; i++) {
-                            reducedUserProfiles[i].setPassFriendsAdded(pass, reducedUserProfiles[i].getNumFriendsAdded());
-                        }
-                    } else {
-                        for (int i = from; i < to; i++) {
-                            reducedUserProfiles[i].setPassFriendsAdded(pass, reducedUserProfiles[i].getNumFriendsAdded());
-                        }
-                    }
-                }
-
-                private Serializer getSerializer(String type, String outputFileName) {
-                    //SN.setMachineNumber(machineId, numFiles);
-                    String t = type.toLowerCase();
-                    if (t.equals("ttl")) {
-                        return new Turtle(sibOutputDir +"/"+this.machineId+"_"+outputFileName, numRdfOutputFile, true, tagDictionary,
-                                browserDictonry, companiesDictionary, 
-                                unversityDictionary.GetUniversityLocationMap(),
-                                ipAddDictionary, locationDictionary, languageDictionary, exportText);
-                    } else if (t.equals("n3")) {
-                        return new Turtle(sibOutputDir + "/"+this.machineId+"_"+outputFileName, numRdfOutputFile, false, tagDictionary,
-                                browserDictonry, companiesDictionary, 
-                                unversityDictionary.GetUniversityLocationMap(),
-                                ipAddDictionary, locationDictionary, languageDictionary, exportText);
-                    } else if (t.equals("csv")) {
-                        return new CSV(sibOutputDir, this.machineId, numRdfOutputFile, tagDictionary,
-                                browserDictonry, companiesDictionary, 
-                                unversityDictionary.GetUniversityLocationMap(),
-                                ipAddDictionary,locationDictionary, languageDictionary, exportText);
-                    } else if (t.equals("csv_merge_foreign")) {
-                        return new CSVMergeForeign(sibOutputDir, this.machineId, numRdfOutputFile, tagDictionary,
-                                browserDictonry, companiesDictionary, 
-                                unversityDictionary.GetUniversityLocationMap(),
-                                ipAddDictionary,locationDictionary, languageDictionary, exportText);
-                    } else if (t.equals("none")) {
-                        return new EmptySerializer();
-                    } else {
-                        System.err.println("Unexpected Serializer - Aborting");
-                        System.exit(-1);
-                        return null;
-                    }
-                }
-
-                private void writeStatistics() {
-                    Gson gson = new GsonBuilder().setExclusionStrategies(stats.getExclusion()).disableHtmlEscaping().create();
-                    FileWriter writer;
-                    try {
-                        stats.makeCountryPairs(locationDictionary);
-                        writer = new FileWriter(sibOutputDir + "m" + machineId + STATS_FILE);
-                        writer.append(gson.toJson(stats));
-                        writer.flush();
-                        writer.close();
-                    } catch (IOException e) {
-                        System.err.println("Unable to write stastistics");
-                        System.err.println(e.getMessage());
-                        e.printStackTrace();
-                    }
-                }
+    public void updateLastPassFriendAdded(int from, int to, int pass) {
+        if (to > windowSize) {
+            for (int i = from; i < windowSize; i++) {
+                reducedUserProfiles[i].setPassFriendsAdded(pass, reducedUserProfiles[i].getNumFriendsAdded());
             }
+            for (int i = 0; i < to - windowSize; i++) {
+                reducedUserProfiles[i].setPassFriendsAdded(pass, reducedUserProfiles[i].getNumFriendsAdded());
+            }
+        } else {
+            for (int i = from; i < to; i++) {
+                reducedUserProfiles[i].setPassFriendsAdded(pass, reducedUserProfiles[i].getNumFriendsAdded());
+            }
+        }
+    }
+
+    private Serializer getSerializer(String type, String outputFileName) {
+        //SN.setMachineNumber(machineId, numFiles);
+        String t = type.toLowerCase();
+        if (t.equals("ttl")) {
+            return new Turtle(sibOutputDir +"/"+this.machineId+"_"+outputFileName, numRdfOutputFile, true, tagDictionary,
+                    browserDictonry, companiesDictionary,
+                    unversityDictionary.GetUniversityLocationMap(),
+                    ipAddDictionary, locationDictionary, languageDictionary, exportText);
+        } else if (t.equals("n3")) {
+            return new Turtle(sibOutputDir + "/"+this.machineId+"_"+outputFileName, numRdfOutputFile, false, tagDictionary,
+                    browserDictonry, companiesDictionary,
+                    unversityDictionary.GetUniversityLocationMap(),
+                    ipAddDictionary, locationDictionary, languageDictionary, exportText);
+        } else if (t.equals("csv")) {
+            return new CSV(sibOutputDir, this.machineId, numRdfOutputFile, tagDictionary,
+                    browserDictonry, companiesDictionary,
+                    unversityDictionary.GetUniversityLocationMap(),
+                    ipAddDictionary,locationDictionary, languageDictionary, exportText);
+        } else if (t.equals("csv_merge_foreign")) {
+            return new CSVMergeForeign(sibOutputDir, this.machineId, numRdfOutputFile, tagDictionary,
+                    browserDictonry, companiesDictionary,
+                    unversityDictionary.GetUniversityLocationMap(),
+                    ipAddDictionary,locationDictionary, languageDictionary, exportText);
+        } else if (t.equals("none")) {
+            return new EmptySerializer();
+        } else {
+            System.err.println("Unexpected Serializer - Aborting");
+            System.exit(-1);
+            return null;
+        }
+    }
+
+    private void writeStatistics() {
+        Gson gson = new GsonBuilder().setExclusionStrategies(stats.getExclusion()).disableHtmlEscaping().create();
+        FileWriter writer;
+        try {
+            stats.makeCountryPairs(locationDictionary);
+            writer = new FileWriter(sibOutputDir + "m" + machineId + STATS_FILE);
+            writer.append(gson.toJson(stats));
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            System.err.println("Unable to write stastistics");
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
 

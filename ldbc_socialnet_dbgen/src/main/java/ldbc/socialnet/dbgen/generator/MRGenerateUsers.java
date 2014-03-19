@@ -162,25 +162,6 @@ public class MRGenerateUsers{
 		}
 	}
 	
-/*	// Parition for second Id of interest
-	
-	public static class UniversityPartitioner extends Partitioner<IntWritable, ReducedUserProfile> {
-		//private int	numDifKey = 8000;  
-
-		double[] interestKey;
-		
-		public UniversityPartitioner(){
-			super(); 
-	
-		}
-
-		@Override
-		public int getPartition(IntWritable key, ReducedUserProfile value,
-				int numReduceTasks) {
-				return -1; 
-		}
-	}
-    */
 
     public static class RankMapper extends  Mapper <MapReduceKey, ReducedUserProfile, MapReduceKey, ReducedUserProfile> {
         @Override
@@ -357,28 +338,6 @@ public class MRGenerateUsers{
 		}
 	}
 	
-/*	public static class RandomPartitioner extends Partitioner<MapReduceKey, ReducedUserProfile> {
-		private int	numDifKey = 100;  // InterestId from 0 to 33 
-		
-		@Override
-		public int getPartition(MapReduceKey key, ReducedUserProfile value,
-				int numReduceTasks) {
-			int numItemPerReduce;
-			int extra = numDifKey % numReduceTasks;
-			
-			numItemPerReduce = (numDifKey )/numReduceTasks;
-			
-			int dividePortion = extra * (numItemPerReduce+1);
-			
-			int i = key.key;
-			if (i < dividePortion)
-				return (i/(numItemPerReduce+1));  //Return the year mod number of reduce tasks as the partitioner number to send the record to.
-			else
-				return ((i-dividePortion)/numItemPerReduce + extra);
-		}
-	}
-    */
-
 	public int runGenerateJob(String[] args) throws Exception {
 		Configuration conf = new Configuration();
 		

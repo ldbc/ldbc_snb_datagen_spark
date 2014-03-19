@@ -87,8 +87,14 @@ public class FBSocialDegreeGenerator {
 		}
 		this.fbDataFile = fbDataFile;
 		this.buckets = new Bucket[BUCKET_NUM];
-
 	}
+
+    public void resetState(long seed) {
+        for (int i = 0; i < BUCKET_NUM; i++){
+            randomDegree[i].setSeed(seed);
+        }
+        randomPercentile.setSeed(seed);
+    }
 	
 	public void loadFBBuckets(){
 		try{
