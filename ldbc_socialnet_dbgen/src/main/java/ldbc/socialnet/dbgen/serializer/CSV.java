@@ -301,8 +301,6 @@ public class CSV implements Serializer {
 	
 	/**
 	 * Writes the data into the appropriate file.
-	 * 
-	 * @param column: The column data.
 	 * @param index: The file index.
 	 */
 	public void ToCSV(Vector<String> columns, int index) {

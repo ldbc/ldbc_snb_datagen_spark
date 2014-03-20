@@ -200,7 +200,7 @@ abstract public class PostGenerator {
      *  @param[in] user The user which we want to create the posts..
      *  @param[in] extraInfo The extra information of the user.
      *  @return The set of posts.*/ 
-    public Vector<Post> createPosts(RandomGeneratorFarm randomFarm, ReducedUserProfile user, UserExtraInfo extraInfo ){
+    public Vector<Post> createPosts(RandomGeneratorFarm randomFarm, ReducedUserProfile user, UserExtraInfo extraInfo, long startPostId ){
         Vector<Post> result = new Vector<Post>();
         int numPosts = generateNumOfPost(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_POST), user);
         for( int i = 0; i < numPosts; ++i ) {
@@ -209,32 +209,24 @@ abstract public class PostGenerator {
             if( postInfo != null ) {
                 // Create the content of the post from its tags.
                 String content = "";
-                int textSize = 0;
-                if( generateText ) {
-                    if( user.isLargePoster() ) {
-                        if( randomFarm.get(RandomGeneratorFarm.Aspect.LARGE_TEXT).nextDouble() > (1.0f-largePostRatio) ) {
-                            content = tagTextDic.getRandomLargeText( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), postInfo.tags, minLargeSizeOfPost, maxLargeSizeOfPost );
-                        } else {
-                            content = tagTextDic.getRandomText( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE),randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT), postInfo.tags, minSizeOfPost, maxSizeOfPost);
-                        }
-                    } else {
-                        content = tagTextDic.getRandomText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE),randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT), postInfo.tags, minSizeOfPost, maxSizeOfPost);
-                    }
-                    textSize = content.length();
+                int textSize;
+
+                if( user.isLargePoster() && randomFarm.get(RandomGeneratorFarm.Aspect.LARGE_TEXT).nextDouble() > (1.0f-largePostRatio) ) {
+                    textSize = tagTextDic.getRandomLargeTextSize( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), minLargeSizeOfPost, maxLargeSizeOfPost );
                 } else {
-                    if( user.isLargePoster() ) {
-                        if( randomFarm.get(RandomGeneratorFarm.Aspect.LARGE_TEXT).nextDouble() > (1.0f-largePostRatio) ) {
-                            textSize = tagTextDic.getRandomLargeTextSize( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE),  minLargeSizeOfPost, maxLargeSizeOfPost );
-                        } else {
-                            textSize = tagTextDic.getRandomTextSize( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT),minSizeOfPost, maxSizeOfPost);
-                        }
-                    } else {
-                        textSize = tagTextDic.getRandomTextSize( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT),minSizeOfPost, maxSizeOfPost);
+                    textSize = tagTextDic.getRandomTextSize( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT), minSizeOfPost, maxSizeOfPost);
+                }
+
+                if( generateText ) {
+                    content = tagTextDic.generateText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), postInfo.tags, textSize );
+                    if( content.length() != textSize ) {
+                        System.out.println("ERROR while generating text - content size: "+ content.length()+", actual size: "+ textSize);
+                        System.exit(-1);
                     }
                 }
 
                 Integer languageIndex = randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE).nextInt(extraInfo.getLanguages().size());
-                Post post = new Post( ScalableGenerator.postId,
+                Post post = new Post( startPostId,
                   content,
                   textSize,
                   postInfo.date,
@@ -245,7 +237,7 @@ abstract public class PostGenerator {
                   ipAddressDic.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER),user.getIpAddress(), user.isFrequentChange(), postInfo.date),
                   userAgentDic.getUserAgentName(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT), user.isHaveSmartPhone(), user.getAgentIdx()),
                   browserDic.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), user.getBrowserIdx()));
-                ScalableGenerator.postId++;
+                startPostId++;
 
             // Create post likes.
                 setLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), randomFarm.get(RandomGeneratorFarm.Aspect.DATE),post, user);
@@ -258,7 +250,7 @@ abstract public class PostGenerator {
     /** @brief Creates a set of posts for a user..
      *  @param[in] group The group which we want to create the posts.
      *  @return The set of posts.*/ 
-    public Vector<Post> createPosts( RandomGeneratorFarm randomFarm, Group group) {
+    public Vector<Post> createPosts( RandomGeneratorFarm randomFarm, Group group, long startPostId) {
         Vector<Post> result = new Vector<Post>();
         int numPosts = generateNumOfPost(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_POST), group);
         for( int i = 0; i < numPosts; ++i ) {
@@ -270,30 +262,21 @@ abstract public class PostGenerator {
             if( postInfo != null ) {
                 // Create the content of the post from its tags.
                 String content = "";
-                int textSize = 0;
-                if( generateText ) {
-                    if( memberShip.isLargePoster() ) {
-                        if( randomFarm.get(RandomGeneratorFarm.Aspect.LARGE_TEXT).nextDouble() > (1.0f-largePostRatio) ) {
-                            content = tagTextDic.getRandomLargeText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), postInfo.tags, minLargeSizeOfPost, maxLargeSizeOfPost);
-                        } else {
-                            content = tagTextDic.getRandomText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT),postInfo.tags, minSizeOfPost, maxSizeOfPost);
-                        }
-                    } else {
-                        content = tagTextDic.getRandomText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT),postInfo.tags, minSizeOfPost, maxSizeOfPost);
-                    }
-                    textSize = content.length();
+                int textSize;
+                if( memberShip.isLargePoster() && randomFarm.get(RandomGeneratorFarm.Aspect.LARGE_TEXT).nextDouble() > (1.0f-largePostRatio) ) {
+                    textSize = tagTextDic.getRandomLargeTextSize( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), minLargeSizeOfPost, maxLargeSizeOfPost );
                 } else {
-                    if( memberShip.isLargePoster() ) {
-                        if( randomFarm.get(RandomGeneratorFarm.Aspect.LARGE_TEXT).nextDouble() > (1.0f-largePostRatio) ) {
-                            textSize = tagTextDic.getRandomLargeTextSize( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), minLargeSizeOfPost, maxLargeSizeOfPost );
-                        } else {
-                            textSize = tagTextDic.getRandomTextSize( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT),minSizeOfPost, maxSizeOfPost);
-                        }
-                    } else {
-                        textSize = tagTextDic.getRandomTextSize( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT),minSizeOfPost, maxSizeOfPost);
+                    textSize = tagTextDic.getRandomTextSize( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT), minSizeOfPost, maxSizeOfPost);
+                }
+
+                if( generateText ) {
+                    content = tagTextDic.generateText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), postInfo.tags, textSize );
+                    if( content.length() != textSize ) {
+                        System.out.println("ERROR while generating text - content size: "+ content.length()+", actual size: "+ textSize);
+                        System.exit(-1);
                     }
                 }
-                Post post = new Post( ScalableGenerator.postId,
+                Post post = new Post( startPostId,
                   content,
                   textSize,
                   postInfo.date,
@@ -304,7 +287,7 @@ abstract public class PostGenerator {
                   ipAddressDic.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER),memberShip.getIP(), memberShip.isFrequentChange(), postInfo.date),
                   userAgentDic.getUserAgentName(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT), memberShip.isHaveSmartPhone(), memberShip.getAgentIdx()),
                   browserDic.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), memberShip.getBrowserIdx()));
-                ScalableGenerator.postId++;
+                startPostId++;
 
                 // Create the post likes
                 setLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), randomFarm.get(RandomGeneratorFarm.Aspect.DATE), post, group);

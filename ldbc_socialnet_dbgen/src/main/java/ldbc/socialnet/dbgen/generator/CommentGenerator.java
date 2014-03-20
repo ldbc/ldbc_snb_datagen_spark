@@ -40,8 +40,6 @@ package ldbc.socialnet.dbgen.generator;
 import java.util.ArrayList;
 import java.util.Random;
 
-import ldbc.socialnet.dbgen.generator.DateGenerator;
-import ldbc.socialnet.dbgen.generator.ScalableGenerator;
 import ldbc.socialnet.dbgen.dictionary.UserAgentDictionary;
 import ldbc.socialnet.dbgen.dictionary.TagTextDictionary;
 import ldbc.socialnet.dbgen.dictionary.IPAddressDictionary;
@@ -91,13 +89,13 @@ public class CommentGenerator {
 	}
 
     public long getReplyToId(Random randomReplyTo, long startId, long lastId) {
-        if( lastId == -1 ) return -1;
+        if( lastId == -1 || startId == -1 ) return -1;
         int parentId = randomReplyTo.nextInt((int)(lastId - startId + 1));
         if (parentId == 0) return -1;
-        return (long)(startId + parentId);
+        return (long)(startId + parentId - 1);
     }
 
-    public Comment createComment(RandomGeneratorFarm randomFarm, Post post, ReducedUserProfile user,
+    public Comment createComment(RandomGeneratorFarm randomFarm, long postId, Post post, ReducedUserProfile user,
                                  long lastCommentCreatedDate, long startCommentId, long lastCommentId,
                                  UserAgentDictionary userAgentDic, IPAddressDictionary ipAddDic,
                                  BrowserDictionary browserDic) {
@@ -114,34 +112,21 @@ public class CommentGenerator {
         }
 
         String content = "";
-        int textSize = 0;
-        if( generateText ) {
-            if( user.isLargePoster() ) {
-                if( randomFarm.get(RandomGeneratorFarm.Aspect.LARGE_TEXT).nextDouble() > (1.0f-largeCommentRatio) ) {
-                    content = tagTextDic.getRandomLargeText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE),post.getTags(), minLargeSizeOfComment, maxLargeSizeOfComment);
-                } else {
-                    content = tagTextDic.getRandomText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT),post.getTags(), minSizeOfComment, maxSizeOfComment);
-                }
-            } else {
-                content = tagTextDic.getRandomText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT),post.getTags(), minSizeOfComment, maxSizeOfComment);
-            }
-            textSize = content.length();
+        int textSize;
+        if( user.isLargePoster() && randomFarm.get(RandomGeneratorFarm.Aspect.LARGE_TEXT).nextDouble() > (1.0f-largeCommentRatio) ) {
+            textSize = tagTextDic.getRandomLargeTextSize( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), minLargeSizeOfComment, maxLargeSizeOfComment );
         } else {
-            if( user.isLargePoster() ) {
-                if( randomFarm.get(RandomGeneratorFarm.Aspect.LARGE_TEXT).nextDouble() > (1.0f-largeCommentRatio) ) {
-                    textSize = tagTextDic.getRandomLargeTextSize( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), minLargeSizeOfComment, maxLargeSizeOfComment );
-                } else {
-                    textSize = tagTextDic.getRandomTextSize( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT), minSizeOfComment, maxSizeOfComment);
-                }
-            } else {
-                textSize = tagTextDic.getRandomTextSize( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT), minSizeOfComment, maxSizeOfComment);
-            }
+            textSize = tagTextDic.getRandomTextSize( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT), minSizeOfComment, maxSizeOfComment);
+        }
+
+        if( generateText ) {
+            content = tagTextDic.generateText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), post.getTags(), textSize );
         }
 
         int friendIdx = randomFarm.get(RandomGeneratorFarm.Aspect.FRIEND).nextInt(validIds.size());
         Friend friend = user.getFriendList()[friendIdx];
         long creationDate = dateGen.powerlawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),lastCommentCreatedDate);
-        Comment comment = new Comment( ScalableGenerator.postId,
+        Comment comment = new Comment( postId,
                                        content,
                                        textSize,
                                        post.getPostId(),
@@ -152,11 +137,10 @@ public class CommentGenerator {
                                        ipAddDic.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER),friend.getSourceIp(), friend.isFrequentChange(), creationDate),
                                        userAgentDic.getUserAgentName(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT),friend.isHaveSmartPhone(), friend.getAgentIdx()),
                                        browserDic.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER),friend.getBrowserIdx()) );
-        ScalableGenerator.postId++;
         return comment;
     }
     
-    public Comment createComment(RandomGeneratorFarm randomFarm,Post post, Group group,
+    public Comment createComment(RandomGeneratorFarm randomFarm, long postId, Post post, Group group,
             long lastCommentCreatedDate, long startCommentId, long lastCommentId,
             UserAgentDictionary userAgentDic, IPAddressDictionary ipAddDic,
             BrowserDictionary browserDic) {
@@ -176,33 +160,23 @@ public class CommentGenerator {
         GroupMemberShip membership = group.getMemberShips()[memberIdx];
 
         String content = "";
-        int textSize = 0;
-        if( generateText ) {
-            if( membership.isLargePoster() ) {
-                if( randomFarm.get(RandomGeneratorFarm.Aspect.LARGE_TEXT).nextDouble() > (1.0f-largeCommentRatio) ) {
-                    content = tagTextDic.getRandomLargeText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE),post.getTags(), minLargeSizeOfComment, maxLargeSizeOfComment);
-                } else {
-                    content = tagTextDic.getRandomText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT), post.getTags(), minSizeOfComment, maxSizeOfComment );
-                }
-            } else {
-                content = tagTextDic.getRandomText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT), post.getTags(), minSizeOfComment, maxSizeOfComment );
-            }
-            textSize = content.length();
+        int textSize;
+        if( membership.isLargePoster() && randomFarm.get(RandomGeneratorFarm.Aspect.LARGE_TEXT).nextDouble() > (1.0f-largeCommentRatio) ) {
+            textSize = tagTextDic.getRandomLargeTextSize( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), minLargeSizeOfComment, maxLargeSizeOfComment );
         } else {
-            if( membership.isLargePoster() ) {
-                    if( randomFarm.get(RandomGeneratorFarm.Aspect.LARGE_TEXT).nextDouble() > (1.0f-largeCommentRatio) ) {
-                    textSize = tagTextDic.getRandomLargeTextSize( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), minLargeSizeOfComment, maxLargeSizeOfComment );
-                } else {
-                    textSize = tagTextDic.getRandomTextSize( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT), minSizeOfComment, maxSizeOfComment);
-                }
-            } else {
-                textSize = tagTextDic.getRandomTextSize( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT), minSizeOfComment, maxSizeOfComment);
+            textSize = tagTextDic.getRandomTextSize( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT), minSizeOfComment, maxSizeOfComment);
+        }
+
+        if( generateText ) {
+            content = tagTextDic.generateText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), post.getTags(), textSize );
+            if( content.length() != textSize ) {
+                System.out.println("ERROR while generating text - content size: "+ content.length()+", actual size: "+ textSize);
+                System.exit(-1);
             }
         }
 
-//        commentId++;
         long creationDate = dateGen.powerlawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),lastCommentCreatedDate);
-        Comment comment = new Comment( ScalableGenerator.postId++,
+        Comment comment = new Comment( postId,
                                        content,
                                        textSize,
                                        post.getPostId(),
@@ -213,7 +187,6 @@ public class CommentGenerator {
                                        ipAddDic.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER), membership.getIP(), membership.isFrequentChange(), creationDate),
                                        userAgentDic.getUserAgentName(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT), membership.isHaveSmartPhone(), membership.getAgentIdx()),
                                        browserDic.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), membership.getBrowserIdx()));
-        ScalableGenerator.postId++;
         return comment;
     }
 }

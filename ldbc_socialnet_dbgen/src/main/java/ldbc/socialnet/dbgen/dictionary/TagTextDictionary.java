@@ -105,68 +105,41 @@ public class TagTextDictionary {
         return randomTextSize.nextInt(maxSize - minSize) + minSize;
     }
 
-    public String getRandomText(Random randomTextSize, Random randomReducedText, TreeSet<Integer> tags, int minSize, int maxSize ) {
-        int textSize;
-        int startingPos;
+    public String generateText(Random randomTextSize, TreeSet<Integer> tags, int textSize ) {
         String returnString = "";
-        
-        // Generate random fragment from the content 
-        if (randomReducedText.nextDouble() > reducedTextRatio){
-            textSize = randomTextSize.nextInt(maxSize - minSize) + minSize;
-        }
-        else{
-            textSize = randomTextSize.nextInt((maxSize >> 1) - minSize) + minSize;
-        }
-
         int textSizePerTag = textSize / tags.size();
-        Iterator<Integer> it = tags.iterator();
-        while (it.hasNext()) {
-            Integer tag = it.next();
-            String content = getTagText(tag);
-            if (textSizePerTag >= content.length()) {
-                returnString += content;
-            } else {
-                startingPos = randomTextSize.nextInt(content.length() - textSizePerTag);
-                String finalString = content.substring(startingPos, startingPos + textSizePerTag - 1);
-                
-                String tagName = tagDic.getName(tag).replace("_", " ");
-                tagName = tagName.replace("\"", "\\\"");
-                String prefix = "About " +tagName+ ", ";
+        while( returnString.length() < textSize ) {
+            Iterator<Integer> it = tags.iterator();
+            while (it.hasNext() && returnString.length() < textSize) {
+                Integer tag = it.next();
+                String content = getTagText(tag);
+                int thisTagTextSize = Math.min(textSizePerTag,textSize - returnString.length());
+                if (thisTagTextSize >= content.length()) {
+                    returnString += content;
+                } else {
+                    int startingPos = randomTextSize.nextInt(content.length() - thisTagTextSize);
+                    String finalString = content.substring(startingPos, startingPos + thisTagTextSize - 1);
+                    String tagName = tagDic.getName(tag).replace("_", " ");
+                    tagName = tagName.replace("\"", "\\\"");
+                    String prefix = "About " +tagName+ ", ";
 
-                int posSpace = finalString.indexOf(" ");
-                returnString += (posSpace != -1) ? prefix + finalString.substring(posSpace).trim() : prefix + finalString;
-                posSpace = returnString.lastIndexOf(" ");
-                if (posSpace != -1){
-                    returnString = returnString.substring(0, posSpace);
+                    int posSpace = finalString.indexOf(" ");
+                    finalString = (posSpace != -1) ? prefix + finalString.substring(posSpace).trim() : prefix + finalString;
+                    posSpace = finalString.lastIndexOf(" ");
+                    if (posSpace != -1){
+                        finalString = finalString.substring(0, posSpace);
+                    }
+                    finalString = finalString.substring(0,Math.min(thisTagTextSize,finalString.length()));
+                    returnString+=finalString;
                 }
-            }
-            if (!returnString.endsWith(".")) {
-                returnString =  returnString + ".";
-            }
-            if (it.hasNext()) {
-                returnString += " ";
+                if (!returnString.endsWith(".")) {
+                    returnString = returnString.substring(0,returnString.length() - 1) + ".";
+                }
+                if (returnString.length() < textSize-1) {
+                    returnString += " ";
+                }
             }
         }
         return returnString.replace("|", " ");
     }
-
-    public String getRandomLargeText(Random randomTextSize, TreeSet<Integer> tags, int minSize, int maxSize) {
-       int textSize = randomTextSize.nextInt(maxSize - minSize) + minSize;
-       String content = new String(); 
-       Iterator<Integer> it = tags.iterator();
-       while(content.length() < textSize) {
-        if (!it.hasNext()){
-            it = tags.iterator();
-        }
-        Integer tag = it.next();
-        String tagContent = getTagText(tag);
-        if( content.length() + tagContent.length() < textSize) {
-            content = content.concat(tagContent);
-        } else {
-            content = content.concat(tagContent.substring(0,textSize - content.length()));
-        }
-    }
-    return content;
-}
-
 }

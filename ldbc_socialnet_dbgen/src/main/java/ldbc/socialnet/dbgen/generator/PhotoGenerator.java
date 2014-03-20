@@ -74,7 +74,7 @@ public class PhotoGenerator {
 	}
 	
 	public Photo generatePhoto(ReducedUserProfile user, Group album, 
-								int idxInAlbum, int maxNumLikes){
+								int idxInAlbum, int maxNumLikes, long photoId){
 		Photo photo = new Photo();
 		
 		photo.setAlbumId(album.getGroupId());
@@ -114,8 +114,7 @@ public class PhotoGenerator {
 			}
 		}
 		
-		photo.setPhotoId(ScalableGenerator.postId);
-        ScalableGenerator.postId++;
+		photo.setPhotoId(photoId);
 		photo.setImage("photo" + photo.getPhotoId() + ".jpg");
 		
 		//Assume that the photo are created one by one after 1 second from the creation of the album

@@ -233,13 +233,13 @@ public class MRGenerateUsers{
 				Context context) throws IOException, InterruptedException{
                 int counter = 0;
                 friendGenerator.resetState(key.block);
-                System.out.println("Start Interest group: "+key.block);
+                //System.out.println("Start Interest group: "+key.block);
 				for (ReducedUserProfile user:valueSet){
 					friendGenerator.pushUserProfile(user, 1, context, true, null);
                     counter++;
 				}
                 friendGenerator.pushAllRemainingUser(1, context, true, null);
-                System.out.println("End group with size: "+counter);
+               // System.out.println("End group with size: "+counter);
 		}
 		@Override
 		protected void cleanup(Context context){
