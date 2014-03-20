@@ -57,9 +57,6 @@ import ldbc.socialnet.dbgen.util.RandomGeneratorFarm;
 
 public class CommentGenerator {
 	
-    public static int commentId = -1;
-    private static final String SEPARATOR = "  ";
-    
     private TagTextDictionary tagTextDic; /**< @brief The TagTextDictionary used to obtain the texts posts/comments.**/
     private DateGenerator dateGen;
 
@@ -94,14 +91,10 @@ public class CommentGenerator {
 	}
 
     public long getReplyToId(Random randomReplyTo, long startId, long lastId) {
-        int parentId; 
-        if (lastId > (startId+1)){
-            parentId = randomReplyTo.nextInt((int)(lastId - startId));
-            if (parentId == 0) return -1; 
-            else return (long)(parentId + startId); 
-        }
-
-        return -1; 
+        if( lastId == -1 ) return -1;
+        int parentId = randomReplyTo.nextInt((int)(lastId - startId + 1));
+        if (parentId == 0) return -1;
+        return (long)(startId + parentId);
     }
 
     public Comment createComment(RandomGeneratorFarm randomFarm, Post post, ReducedUserProfile user,
@@ -145,7 +138,6 @@ public class CommentGenerator {
             }
         }
 
-//        commentId++;
         int friendIdx = randomFarm.get(RandomGeneratorFarm.Aspect.FRIEND).nextInt(validIds.size());
         Friend friend = user.getFriendList()[friendIdx];
         long creationDate = dateGen.powerlawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),lastCommentCreatedDate);

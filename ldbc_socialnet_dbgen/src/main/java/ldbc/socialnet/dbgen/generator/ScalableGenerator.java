@@ -1065,7 +1065,7 @@ public class ScalableGenerator{
             int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments);
             long lastCommentCreatedDate = post.getCreationDate();
             long lastCommentId = -1;
-            long startCommentId = postId;
+            long startCommentId = post.getGroupId();
             for (int l = 0; l < numComment; l++) {
                 Comment comment = commentGenerator.createComment(randomFarm, post, user, lastCommentCreatedDate, startCommentId, lastCommentId,
                         userAgentDictionary, ipAddDictionary, browserDictonry);
@@ -1109,7 +1109,7 @@ public class ScalableGenerator{
             int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments);
             long lastCommentCreatedDate = post.getCreationDate();
             long lastCommentId = -1;
-            long startCommentId = postId;
+            long startCommentId = post.getGroupId();
             for (int l = 0; l < numComment; l++) {
                 Comment comment = commentGenerator.createComment(randomFarm, post, user, lastCommentCreatedDate, startCommentId, lastCommentId,
                         userAgentDictionary, ipAddDictionary, browserDictonry);
@@ -1246,8 +1246,7 @@ public class ScalableGenerator{
             int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments);
             long lastCommentCreatedDate = groupPost.getCreationDate();
             long lastCommentId = -1;
-            long startCommentId = postId;
-
+            long startCommentId = groupPost.getGroupId();
             for (int j = 0; j < numComment; j++) {
                 Comment comment = commentGenerator.createComment(randomFarm,groupPost, group, lastCommentCreatedDate, startCommentId, lastCommentId,
                         userAgentDictionary, ipAddDictionary, browserDictonry);
@@ -1497,6 +1496,7 @@ public class ScalableGenerator{
                 }
             }
         }
+
         Vector<Integer> userLanguages = languageDictionary.getLanguages(randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE),user.getLocationId());
         int nativeLanguage = randomFarm.get(RandomGeneratorFarm.Aspect.EXTRA_INFO).nextInt(userLanguages.size());
         userExtraInfo.setNativeLanguage(userLanguages.get(nativeLanguage));
