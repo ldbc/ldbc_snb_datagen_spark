@@ -36,13 +36,16 @@
  */
 package ldbc.socialnet.dbgen.serializer;
 
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Vector;
+import java.util.zip.GZIPOutputStream;
 
 import ldbc.socialnet.dbgen.dictionary.BrowserDictionary;
 import ldbc.socialnet.dbgen.dictionary.CompanyDictionary;
@@ -76,8 +79,8 @@ public class Turtle implements Serializer {
 	
     private static final String STATIC_DBP_DATA_FILE = "static_dbp";
     
-	private FileWriter[] dataFileWriter;
-	private FileWriter[] staticdbpFileWriter;
+	private OutputStream[] dataFileWriter;
+	private OutputStream[] staticdbpFileWriter;
 	private int currentWriter = 0;
 	
 	private long nrTriples;
@@ -129,7 +132,7 @@ public class Turtle implements Serializer {
             TagDictionary tagDic, BrowserDictionary browsers, 
             CompanyDictionary companies, HashMap<String, Integer> univesityToCountry,
             IPAddressDictionary ipDic,  LocationDictionary locationDic, 
-            LanguageDictionary languageDic, boolean exportText) {
+            LanguageDictionary languageDic, boolean exportText, boolean compressed) {
 	    
 	    this.isTurtle = isTurtle;
 	    this.tagDic = tagDic;  
@@ -152,21 +155,36 @@ public class Turtle implements Serializer {
 		String formatString = "%0" + nrOfDigits + "d";
 		try{
 		    String extension = (isTurtle) ? ".ttl": ".n3";
-			dataFileWriter = new FileWriter[nrOfOutputFiles];
-			staticdbpFileWriter = new FileWriter[nrOfOutputFiles];
-			if(nrOfOutputFiles==1) {
-				this.dataFileWriter[0] = new FileWriter(file + extension);
-				this.staticdbpFileWriter[0] = new FileWriter(file+STATIC_DBP_DATA_FILE + extension);
-			} else {
-				for(int i=1;i<=nrOfOutputFiles;i++) {
-					dataFileWriter[i-1] = new FileWriter(file + String.format(formatString, i) + extension);
-					this.staticdbpFileWriter[i-1] = new FileWriter(file+STATIC_DBP_DATA_FILE + String.format(formatString, i) + extension);
-				}
-			}
+            if( compressed ) {
+                dataFileWriter = new OutputStream[nrOfOutputFiles];
+                staticdbpFileWriter = new OutputStream[nrOfOutputFiles];
+                if(nrOfOutputFiles==1) {
+                    this.dataFileWriter[0] = new GZIPOutputStream(new FileOutputStream(file + extension+".gz"));
+                    this.staticdbpFileWriter[0] = new GZIPOutputStream(new FileOutputStream(file+STATIC_DBP_DATA_FILE + extension+".gz"));
+                } else {
+                    for(int i=1;i<=nrOfOutputFiles;i++) {
+                        this.dataFileWriter[i-1] = new GZIPOutputStream(new FileOutputStream(file + String.format(formatString, i) + extension+".gz"));
+                        this.staticdbpFileWriter[i-1] = new GZIPOutputStream(new FileOutputStream(file+STATIC_DBP_DATA_FILE + String.format(formatString, i) + extension+".gz"));
+                    }
+                }
+            } else {
+                dataFileWriter = new OutputStream[nrOfOutputFiles];
+                staticdbpFileWriter = new OutputStream[nrOfOutputFiles];
+                if(nrOfOutputFiles==1) {
+                    this.dataFileWriter[0] = new FileOutputStream(file + extension);
+                    this.staticdbpFileWriter[0] = new FileOutputStream(file+STATIC_DBP_DATA_FILE + extension);
+                } else {
+                    for(int i=1;i<=nrOfOutputFiles;i++) {
+                        this.dataFileWriter[i-1] = new FileOutputStream(file + String.format(formatString, i) + extension);
+                        this.staticdbpFileWriter[i-1] = new FileOutputStream(file+STATIC_DBP_DATA_FILE + String.format(formatString, i) + extension);
+                    }
+                }
+
+            }
 			
 			for(int i=0;i<nrOfOutputFiles;i++) {
-                dataFileWriter[i].append(getNamespaces());
-                staticdbpFileWriter[i].append(getStaticNamespaces());
+                toWriter(i,getNamespaces());
+                writeDBPData(i,getStaticNamespaces());
             }
 			
 		} catch(IOException e) {
@@ -187,17 +205,22 @@ public class Turtle implements Serializer {
 	 * 
 	 * @param data: The string to write.
 	 */
-	public void toWriter(String data){
+	public void toWriter(int index, String data){
 	    try {
-	        dataFileWriter[currentWriter].append(data);
-	        currentWriter = (currentWriter + 1) % dataFileWriter.length;
+            byte[] dataArray =data.getBytes("UTF8");
+	        dataFileWriter[index].write(dataArray);
 	    } catch(IOException e){
 	        System.out.println("Cannot write to output file ");
 	        e.printStackTrace();
 	        System.exit(-1);
 	    }
 	}
-	
+
+    public void toWriter(String data){
+        toWriter(currentWriter,data);
+        currentWriter = (currentWriter + 1) % dataFileWriter.length;
+    }
+
 	/**
      * Gets the namespace for the generator file.
      */
@@ -249,17 +272,30 @@ public class Turtle implements Serializer {
 	 * @param predicate: The RDF predicate.
 	 * @param object: The RDF object.
 	 */
-	private void writeDBPData(String subject, String predicate, String object) {
+	private void writeDBPData(int index, String subject, String predicate, String object) {
 	    try {
 	        StringBuffer result = new StringBuffer(150);
 	        createTripleSPO(result, subject, predicate, object);
-	        staticdbpFileWriter[currentWriter].append(result);
+	        staticdbpFileWriter[index].write(result.toString().getBytes("UTF8"));
 	    } catch (IOException e) {
             System.out.println("Cannot write to output file ");
             e.printStackTrace();
         }
 	}
-	
+
+    private void writeDBPData(String subject, String predicate, String object) {
+        writeDBPData(currentWriter,subject,predicate,object);
+    }
+
+    private void writeDBPData(int index, String data) {
+        try {
+            staticdbpFileWriter[index].write(data.getBytes("UTF8"));
+        } catch (IOException e) {
+            System.out.println("Cannot write to output file ");
+            e.printStackTrace();
+        }
+    }
+
 	/**
 	 * Serializes the tag data and its class hierarchy.
 	 * 
@@ -591,7 +627,7 @@ public class Turtle implements Serializer {
 	                createLiteral(languageDic.getLanguagesName(post.getLanguage())));
 	    }
 
-	    if (post.getIpAddress() != null) {;
+	    if (post.getIpAddress() != null) {
 	    createTripleSPO(result, prefix, SNVOC.locatedIn,
 	            DBP.fullPrefixed(locationDic.getLocationName((ipDic.getLocation(post.getIpAddress())))));
 	    }

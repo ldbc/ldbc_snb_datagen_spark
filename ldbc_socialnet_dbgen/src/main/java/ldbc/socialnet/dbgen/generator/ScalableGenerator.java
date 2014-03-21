@@ -152,7 +152,6 @@ public class ScalableGenerator{
     private final String NUM_CELL_WINDOW               = "numberOfCellPerWindow";
     private final String MIN_FRIENDS                   = "minNumFriends";
     private final String MAX_FRIENDS                   = "maxNumFriends";
-    private final String AVG_PATHLENGTH				   = "averagePathLength";
     private final String FRIEND_REJECT                 = "friendRejectRatio";
     private final String FRIEND_REACCEPT               = "friendReApproveRatio";
     private final String USER_MIN_TAGS                 = "minNumTagsPerUser";
@@ -215,7 +214,7 @@ public class ScalableGenerator{
      * This array provides a quick way to check if any of the required parameters is missing and throw the appropriate
      * exception in the method loadParamsFromFile()
      */
-    private final String[] checkParameters = {CELL_SIZE, NUM_CELL_WINDOW, MIN_FRIENDS, MAX_FRIENDS, AVG_PATHLENGTH, FRIEND_REJECT,
+    private final String[] checkParameters = {CELL_SIZE, NUM_CELL_WINDOW, MIN_FRIENDS, MAX_FRIENDS, FRIEND_REJECT,
             FRIEND_REACCEPT, USER_MIN_TAGS, USER_MAX_TAGS, USER_MAX_POST_MONTH, MAX_COMMENT_POST, LIMIT_CORRELATED,
             BASE_CORRELATED, MAX_EMAIL, MAX_COMPANIES, ENGLISH_RATIO, SECOND_LANGUAGE_RATIO, OTHER_BROWSER_RATIO,
             MIN_TEXT_SIZE, MAX_TEXT_SIZE, MIN_COMMENT_SIZE, MAX_COMMENT_SIZE, REDUCE_TEXT_RATIO,
@@ -230,17 +229,18 @@ public class ScalableGenerator{
             FLASHMOB_TAG_DIST_EXP};
 
     //final user parameters
-    private final String NUM_USERS        = "numtotalUser";
-    private final String START_YEAR       = "startYear";
-    private final String NUM_YEARS        = "numYears";
-    private final String SERIALIZER_TYPE  = "serializerType";
-    private final String EXPORT_TEXT      = "exportText";
+    private final String NUM_USERS          = "numtotalUser";
+    private final String START_YEAR         = "startYear";
+    private final String NUM_YEARS          = "numYears";
+    private final String SERIALIZER_TYPE    = "serializerType";
+    private final String EXPORT_TEXT        = "exportText";
+    private final String ENABLE_COMPRESSION = "enableCompression";
 
     /**
      * This array provides a quick way to check if any of the required parameters is missing and throw the appropriate
      * exception in the method loadParamsFromFile()
      */
-    private final String[] publicCheckParameters = {NUM_USERS, START_YEAR, NUM_YEARS, SERIALIZER_TYPE, EXPORT_TEXT};
+    private final String[] publicCheckParameters = {NUM_USERS, START_YEAR, NUM_YEARS, SERIALIZER_TYPE, EXPORT_TEXT, ENABLE_COMPRESSION};
 
     // Gender string representation, both representations vector/standalone so the string is coherent.
     private final String MALE   = "male";
@@ -299,7 +299,6 @@ public class ScalableGenerator{
 
     //For facebook-like social degree distribution
     FBSocialDegreeGenerator	fbDegreeGenerator;
-    double  				averagePathLength;
     FlashmobTagDictionary   flashmobTagDictionary;
     TagTextDictionary       tagTextDictionary;
     TagMatrix	 			topicTagDictionary;
@@ -408,10 +407,11 @@ public class ScalableGenerator{
     public int     exactOutput              = 0;
 
     public boolean exportText = true;
+    public boolean enableCompression = true;
 
 
     RandomGeneratorFarm randomFarm;
-    public static final int blockSize = 2000;
+    public static final int blockSize = 10000;
 
 
     /**
@@ -489,7 +489,6 @@ public class ScalableGenerator{
             numberOfCellPerWindow = Integer.parseInt(properties.getProperty(NUM_CELL_WINDOW));
             minNumFriends = Integer.parseInt(properties.getProperty(MIN_FRIENDS));
             maxNumFriends = Integer.parseInt(properties.getProperty(MAX_FRIENDS));
-            averagePathLength = Double.parseDouble(properties.getProperty(AVG_PATHLENGTH));
             thresholdPopularUser = (int) (maxNumFriends * 0.9);
             friendRejectRatio = Double.parseDouble(properties.getProperty(FRIEND_REJECT));
             friendReApproveRatio = Double.parseDouble(properties.getProperty(FRIEND_REACCEPT));
@@ -567,6 +566,7 @@ public class ScalableGenerator{
             endYear = startYear + numYears;
             serializerType = properties.getProperty(SERIALIZER_TYPE);
             exportText = Boolean.parseBoolean(properties.getProperty(EXPORT_TEXT));
+            enableCompression = Boolean.parseBoolean(properties.getProperty(ENABLE_COMPRESSION));
             if (!serializerType.equals("ttl") && !serializerType.equals("n3") &&
                     !serializerType.equals("csv") && !serializerType.equals("none") && !serializerType.equals("csv_merge_foreign")) {
                 throw new IllegalStateException("serializerType must be ttl, n3, csv, csv_merge_foreign");
@@ -748,7 +748,7 @@ public class ScalableGenerator{
         commentGenerator.initialize();
 
         System.out.println("Building Facebook-like social degree generator");
-        fbDegreeGenerator = new FBSocialDegreeGenerator(numTotalUser, fbSocialDegreeFile, 0, averagePathLength);
+        fbDegreeGenerator = new FBSocialDegreeGenerator(numTotalUser, fbSocialDegreeFile, 0);
         fbDegreeGenerator.loadFBBuckets();
         fbDegreeGenerator.rebuildBucketRange();
 
@@ -1599,22 +1599,22 @@ public class ScalableGenerator{
             return new Turtle(sibOutputDir +"/"+this.machineId+"_"+outputFileName, numRdfOutputFile, true, tagDictionary,
                     browserDictonry, companiesDictionary,
                     unversityDictionary.GetUniversityLocationMap(),
-                    ipAddDictionary, locationDictionary, languageDictionary, exportText);
+                    ipAddDictionary, locationDictionary, languageDictionary, exportText, enableCompression);
         } else if (t.equals("n3")) {
             return new Turtle(sibOutputDir + "/"+this.machineId+"_"+outputFileName, numRdfOutputFile, false, tagDictionary,
                     browserDictonry, companiesDictionary,
                     unversityDictionary.GetUniversityLocationMap(),
-                    ipAddDictionary, locationDictionary, languageDictionary, exportText);
+                    ipAddDictionary, locationDictionary, languageDictionary, exportText, enableCompression);
         } else if (t.equals("csv")) {
-            return new CSV(sibOutputDir, this.machineId, numRdfOutputFile, tagDictionary,
+            return new CSV(sibOutputDir, this.machineId, tagDictionary,
                     browserDictonry, companiesDictionary,
                     unversityDictionary.GetUniversityLocationMap(),
-                    ipAddDictionary,locationDictionary, languageDictionary, exportText);
+                    ipAddDictionary,locationDictionary, languageDictionary, exportText, enableCompression);
         } else if (t.equals("csv_merge_foreign")) {
-            return new CSVMergeForeign(sibOutputDir, this.machineId, numRdfOutputFile, tagDictionary,
+            return new CSVMergeForeign(sibOutputDir, this.machineId, tagDictionary,
                     browserDictonry, companiesDictionary,
                     unversityDictionary.GetUniversityLocationMap(),
-                    ipAddDictionary,locationDictionary, languageDictionary, exportText);
+                    ipAddDictionary,locationDictionary, languageDictionary, exportText, enableCompression);
         } else if (t.equals("none")) {
             return new EmptySerializer();
         } else {

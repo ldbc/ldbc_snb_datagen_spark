@@ -64,6 +64,8 @@ public class CommentGenerator {
     private int maxLargeSizeOfComment;     /**< @brief The maximum size of large comments.*/
     private double largeCommentRatio;      /**< @brief The ratio of large comments.*/
     private boolean generateText;          /**< @brief To generate the text of comments.*/
+
+    private String[] shortComments = {"ok", "good", "great", "cool", "thx", "fine", "LOL", "roflol", "no way!", "I see", "right", "yes", "no", "duh", "thanks", "maybe"};
 	
 	public CommentGenerator( TagTextDictionary tagTextDic, 
                              DateGenerator dateGen,
@@ -113,15 +115,24 @@ public class CommentGenerator {
 
         String content = "";
         int textSize;
-        if( user.isLargePoster() && randomFarm.get(RandomGeneratorFarm.Aspect.LARGE_TEXT).nextDouble() > (1.0f-largeCommentRatio) ) {
-            textSize = tagTextDic.getRandomLargeTextSize( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), minLargeSizeOfComment, maxLargeSizeOfComment );
+        if( randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT).nextDouble() > 0.6666) {
+            if( user.isLargePoster() && randomFarm.get(RandomGeneratorFarm.Aspect.LARGE_TEXT).nextDouble() > (1.0f-largeCommentRatio) ) {
+                textSize = tagTextDic.getRandomLargeTextSize(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), minLargeSizeOfComment, maxLargeSizeOfComment);
+            } else {
+                textSize = tagTextDic.getRandomTextSize( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT), minSizeOfComment, maxSizeOfComment);
+            }
+
+            if( generateText ) {
+                content = tagTextDic.generateText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), post.getTags(), textSize );
+            }
         } else {
-            textSize = tagTextDic.getRandomTextSize( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT), minSizeOfComment, maxSizeOfComment);
+            int index = randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE).nextInt(shortComments.length);
+            textSize = shortComments[index].length();
+            if( generateText ) {
+                content = shortComments[index];
+            }
         }
 
-        if( generateText ) {
-            content = tagTextDic.generateText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), post.getTags(), textSize );
-        }
 
         int friendIdx = randomFarm.get(RandomGeneratorFarm.Aspect.FRIEND).nextInt(validIds.size());
         Friend friend = user.getFriendList()[friendIdx];

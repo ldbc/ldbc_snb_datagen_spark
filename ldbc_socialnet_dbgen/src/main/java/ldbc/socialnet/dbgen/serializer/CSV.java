@@ -36,13 +36,15 @@
  */
 package ldbc.socialnet.dbgen.serializer;
 
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Vector;
+import java.util.zip.GZIPOutputStream;
+import java.io.OutputStream;
 
 import ldbc.socialnet.dbgen.dictionary.BrowserDictionary;
 import ldbc.socialnet.dbgen.dictionary.CompanyDictionary;
@@ -70,9 +72,9 @@ import ldbc.socialnet.dbgen.vocabulary.SN;
  */
 public class CSV implements Serializer {
 	
-    private FileWriter[][] dataFileWriter;
-    private int[] currentWriter;
-    
+//    private FileWriter[][] dataFileWriter;
+    OutputStream[] fileOutputStream;
+
     private long csvRows;
     private GregorianCalendar date;
     
@@ -88,11 +90,6 @@ public class CSV implements Serializer {
     private IPAddressDictionary ipDic;
     private boolean exportText;
 
-    /**
-     * Used to create an unique id to each file. It is used only in case of an unnumbered entity or in the relations.
-     */
-    private long[] idList;
-    
     /**
      * Used to avoid serialize more than once the same data.
      */
@@ -221,7 +218,6 @@ public class CSV implements Serializer {
      * Constructor.
      * 
      * @param file: The basic file name.
-     * @param nrOfOutputFiles: How many files will be created.
      * @param tagDic: The tag dictionary used in the generation.
      * @param browsers: The browser dictionary used in the generation.
      * @param univesityToCountry: HashMap of universities names to country IDs.
@@ -229,10 +225,10 @@ public class CSV implements Serializer {
      * @param locationDic: The location dictionary used in the generation.
      * @param languageDic: The language dictionary used in the generation.
      */
-	public CSV(String file, int reducerID, int nrOfOutputFiles,
+	public CSV(String file, int reducerID,
             TagDictionary tagDic, BrowserDictionary browsers, 
             CompanyDictionary companies, HashMap<String, Integer> univesityToCountry,
-            IPAddressDictionary ipDic, LocationDictionary locationDic, LanguageDictionary languageDic, boolean exportText) {
+            IPAddressDictionary ipDic, LocationDictionary locationDic, LanguageDictionary languageDic, boolean exportText, boolean compressed) {
         
         this.tagDic = tagDic;  
         this.browserDic = browsers;
@@ -253,39 +249,27 @@ public class CSV implements Serializer {
 		serializedLanguages = new Vector<Integer>();
 		printedTagClasses = new HashMap<Integer, Integer>();
 		
-		idList = new long[Files.NUM_FILES.ordinal()];
-		currentWriter = new int[Files.NUM_FILES.ordinal()];
-		for (int i = 0; i < Files.NUM_FILES.ordinal(); i++) {
-		    idList[i]  = 0;
-			currentWriter[i] = 0;
-		}
 
-		int nrOfDigits = ((int)Math.log10(nrOfOutputFiles)) + 1;
-		String formatString = "%0" + nrOfDigits + "d";
 		try{
-			dataFileWriter = new FileWriter[nrOfOutputFiles][Files.NUM_FILES.ordinal()];
-			if(nrOfOutputFiles==1) {
-				for (int i = 0; i < Files.NUM_FILES.ordinal(); i++) {
-					this.dataFileWriter[0][i] = new FileWriter(file +"/"+fileNames[i] +"_"+reducerID+".csv");
-				}
-			} else {
-				for(int i=0;i<nrOfOutputFiles;i++) {
-					for (int j = 0; j < Files.NUM_FILES.ordinal(); j++) {
-						dataFileWriter[i][j] = new FileWriter(file +"/"+fileNames[j] + String.format(formatString, i+1)+"_"+reducerID+ ".csv");
-					}
-				}
-			}
+			fileOutputStream = new OutputStream[Files.NUM_FILES.ordinal()];
+            if( compressed ) {
+                for (int i = 0; i < Files.NUM_FILES.ordinal(); i++) {
+                    this.fileOutputStream[i] = new GZIPOutputStream(new FileOutputStream(file +"/"+fileNames[i] +"_"+reducerID+".csv.gz"));
+                }
+            } else {
+                for (int i = 0; i < Files.NUM_FILES.ordinal(); i++) {
+                    this.fileOutputStream[i] = new FileOutputStream(file +"/"+fileNames[i] +"_"+reducerID+".csv");
+                }
+            }
 
-			for(int i=0; i<nrOfOutputFiles; i++) {
-			    for (int j = 0; j < Files.NUM_FILES.ordinal(); j++) {
-			        Vector<String> arguments = new Vector<String>();
-			        for (int k = 0; k < fieldNames[j].length; k++) {
-			            arguments.add(fieldNames[j][k]);
-			        }
-			        ToCSV(arguments, j);
-			    }
-			}
-				
+            for (int j = 0; j < Files.NUM_FILES.ordinal(); j++) {
+                Vector<String> arguments = new Vector<String>();
+                for (int k = 0; k < fieldNames[j].length; k++) {
+                    arguments.add(fieldNames[j][k]);
+                }
+                ToCSV(arguments, j);
+            }
+
 		} catch(IOException e){
 			System.err.println(e.getMessage());
 			System.exit(-1);
@@ -310,10 +294,10 @@ public class CSV implements Serializer {
             result.append(SEPARATOR);
             result.append(columns.get(i));
         }
+        result.append(SEPARATOR);
         result.append(NEWLINE);
         WriteTo(result.toString(), index);
         columns.clear();
-        idList[index]++;
     }
 
 	/**
@@ -324,8 +308,8 @@ public class CSV implements Serializer {
      */
     public void WriteTo(String data, int index) {
         try {
-            dataFileWriter[currentWriter[index]][index].append(data);
-            currentWriter[index] = (currentWriter[index] + 1) % dataFileWriter.length;
+            byte [] dataArray = data.getBytes("UTF8");
+            fileOutputStream[index].write(dataArray);
             csvRows++;
         } catch (IOException e) {
             System.out.println("Cannot write to output file ");
@@ -860,12 +844,10 @@ public class CSV implements Serializer {
      */
 	public void close() {
 		try {
-			for (int i = 0; i < dataFileWriter.length; i++) {
-				for (int j = 0; j < Files.NUM_FILES.ordinal(); j++) {
-					dataFileWriter[i][j].flush();
-					dataFileWriter[i][j].close();
-				}
-			}
+            for (int j = 0; j < Files.NUM_FILES.ordinal(); j++) {
+                fileOutputStream[j].flush();
+                fileOutputStream[j].close();
+            }
 		} catch(IOException e) {
 			System.err.println(e.getMessage());
 			System.exit(-1);
