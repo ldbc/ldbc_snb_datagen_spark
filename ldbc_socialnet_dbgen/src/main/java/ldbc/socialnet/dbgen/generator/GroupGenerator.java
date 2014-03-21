@@ -52,9 +52,7 @@ import ldbc.socialnet.dbgen.util.RandomGeneratorFarm;
 
 
 public class GroupGenerator {
-	public static int groupId = 0;
-
-	DateGenerator dateGenerator; 
+	DateGenerator dateGenerator;
 	LocationDictionary locationDic;
 	TagDictionary tagDic;
 
@@ -65,11 +63,10 @@ public class GroupGenerator {
 		this.tagDic = tagDic; 
 	}
 
-	public Group createGroup(RandomGeneratorFarm randomFarm, ReducedUserProfile user){
+	public Group createGroup(RandomGeneratorFarm randomFarm, long groupId, ReducedUserProfile user){
 		Group group = new Group(); 
 
 		group.setGroupId(groupId);
-        groupId++;
 		group.setModeratorId(user.getAccountId());
 		group.setCreatedDate(dateGenerator.randomGroupCreatedDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),user));
 
@@ -97,8 +94,8 @@ public class GroupGenerator {
 		return group; 
 	}
 	
-	public Group createAlbum(RandomGeneratorFarm randomFarm, ReducedUserProfile user, UserExtraInfo extraInfo, int numAlbum, double memberProb) {
-	    Group group = createGroup(randomFarm,user);
+	public Group createAlbum(RandomGeneratorFarm randomFarm, long groupId, ReducedUserProfile user, UserExtraInfo extraInfo, int numAlbum, double memberProb) {
+	    Group group = createGroup(randomFarm, groupId,user);
 	    group.setCreatedDate(dateGenerator.randomPhotoAlbumCreatedDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),user));
 	    Vector<Integer> countries = locationDic.getCountries();
 	    int randomCountry = randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY).nextInt(countries.size());

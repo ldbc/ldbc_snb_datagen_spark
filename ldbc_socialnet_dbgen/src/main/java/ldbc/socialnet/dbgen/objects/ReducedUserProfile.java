@@ -79,7 +79,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 	// Store redundant info
 	int 				locationId;
 	int                 cityIdx;
-	int 				forumWallId; 
+	long 				forumWallId;
 //	int 				forumStatusId;
 	TreeSet<Integer> 	setOfTags;
 	
@@ -152,7 +152,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 			
 			locationId = stream.readInt();
 			cityIdx = stream.readInt();
-			forumWallId = stream.readInt();
+			forumWallId = stream.readLong();
 			//forumStatusId = stream.readInt();
 			
 			byte numOfTags = stream.readByte();
@@ -213,7 +213,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 			
 			stream.writeInt(locationId);
 			stream.writeInt(cityIdx);
-			stream.writeInt(forumWallId);
+			stream.writeLong(forumWallId);
 //			stream.writeInt(forumStatusId);
 			
 			stream.writeByte((byte)setOfTags.size());
@@ -277,7 +277,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 		
 		locationId = arg0.readInt();
 		cityIdx = arg0.readInt();
-		forumWallId = arg0.readInt();
+		forumWallId = arg0.readLong();
 		//forumStatusId = arg0.readInt();
 		
 		byte numTags = arg0.readByte(); 
@@ -377,7 +377,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 		
 		arg0.writeInt(locationId);
 		arg0.writeInt(cityIdx);
-		arg0.writeInt(forumWallId);
+		arg0.writeLong(forumWallId);
 //		arg0.writeInt(forumStatusId);
 		
 		arg0.writeByte((byte)setOfTags.size()); 
@@ -607,10 +607,10 @@ public class ReducedUserProfile implements Serializable, Writable{
     public void setCityIdx(int cityIdx) {
         this.cityIdx = cityIdx;
     }
-	public int getForumWallId() {
+	public long getForumWallId() {
 		return forumWallId;
 	}
-	public void setForumWallId(int forumWallId) {
+	public void setForumWallId(long forumWallId) {
 		this.forumWallId = forumWallId;
 	}
 

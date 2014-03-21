@@ -50,7 +50,7 @@ public class UserProfile implements Serializable {
 	private int                 cityId;                 /**< @brief The index of the city where the user lives.*/
 	private int 				randomIdx;              /**< @brief Random index used to sort the users in the last map/reduce job*/
 	private int 				universityLocationId;   /**< @brief The location identifier of the university where the user studies.*/
-	private int 				forumWallId;            /**< @brief The identifier of the wall (group) of the user.*/
+	private long 				forumWallId;            /**< @brief The identifier of the wall (group) of the user.*/
 	private long	 			creationDate;           /**< @brief The date when the user was created.*/
 	private short         		numFriends;             /**< @brief The expected number of friends of the user.*/
 	private short 		        numPassFriends[];		/**< @brief Max number of friends can be generated after kth passes*/
@@ -95,8 +95,8 @@ public class UserProfile implements Serializable {
                         int locationId,
                         int locationZId,
                         int cityId,
-                        IP ipAddress,
-                        int forumWallId ) {
+                        IP ipAddress
+                        ) {
 
 	    this.accountId = accountId;
         this.creationDate = creationDate;
@@ -107,7 +107,7 @@ public class UserProfile implements Serializable {
         this.locationZId = locationZId;
         this.cityId = cityId;
         this.ipAddress = ipAddress;
-        this.forumWallId = forumWallId;
+        this.forumWallId = -1;
         this.universityLocationId = -1; 
         this.numFriends = 0;
         this.numFriendsAdded = 0;
@@ -260,7 +260,7 @@ public class UserProfile implements Serializable {
 		return accountId;
 	}
 
-	public int getForumWallId() {
+	public long getForumWallId() {
 		return forumWallId;
 	}
 	

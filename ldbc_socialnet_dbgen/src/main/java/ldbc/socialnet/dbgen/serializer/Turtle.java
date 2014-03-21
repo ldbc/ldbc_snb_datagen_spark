@@ -106,6 +106,7 @@ public class Turtle implements Serializer {
 	private long likeId       = 0;
 	private long workAtId     = 0;
 	private long studyAtId    = 0;
+    private long knowsId      = 0;
 	
 	/**
 	 * Used to avoid serialize more than once the same data.
@@ -548,8 +549,14 @@ public class Turtle implements Serializer {
 		Friend friends[] = profile.getFriendList();
 		for (int i = 0; i < friends.length; i++){
 			if (friends[i] != null && friends[i].getCreatedTime() != -1){
-			    createTripleSPO(result, prefix, SNVOC.knows,
-			            SN.getPersonURI(friends[i].getFriendAcc()));
+			    //createTripleSPO(result, prefix, SNVOC.knows, SN.getPersonURI(friends[i].getFriendAcc()));
+                createTripleSPO(result, prefix, SNVOC.knows, SN.getKnowsURI(knowsId));
+                createTripleSPO(result, SN.getKnowsURI(knowsId), SNVOC.hasPerson,
+                        SN.getPersonURI(friends[i].getFriendAcc()));
+                date.setTimeInMillis(profile.getCreationDate());
+                createTripleSPO(result, SN.getKnowsURI(knowsId), SNVOC.creationDate,
+                                createDataTypeLiteral(DateGenerator.formatDateDetail(date), XSD.DateTime));
+                knowsId++;
 			}
 		}
 		
@@ -602,7 +609,7 @@ public class Turtle implements Serializer {
 	    }
 	    date.setTimeInMillis(post.getCreationDate());
 	    String dateString = DateGenerator.formatDateDetail(date);
-	    String prefix = SN.getPostURI(post.getPostId());
+	    String prefix = SN.getPostURI(post.getMessageId());
 
 	    AddTriple(result, true, false, prefix, RDF.type, SNVOC.Post);
 	    AddTriple(result, false, false, prefix, SNVOC.creationDate, 
@@ -677,7 +684,7 @@ public class Turtle implements Serializer {
             printLocationHierarchy(result, ipDic.getLocation(comment.getIpAddress()));
         }
 		
-		String prefix = SN.getCommentURI(comment.getCommentId());
+		String prefix = SN.getCommentURI(comment.getMessageId());
 		date.setTimeInMillis(comment.getCreationDate());
 		String dateString = DateGenerator.formatDateDetail(date); 
 		
@@ -696,7 +703,7 @@ public class Turtle implements Serializer {
         }
         AddTriple(result, false, true, prefix, SNVOC.length,createLiteral(Integer.toString(comment.getTextSize())));
 
-		String replied = (comment.getReplyOf() == -1) ? SN.getPostURI(comment.getPostId()) : 
+		String replied = (comment.getReplyOf() == comment.getPostId()) ? SN.getPostURI(comment.getPostId()) :
 		    SN.getCommentURI(comment.getReplyOf());
 		createTripleSPO(result, prefix, SNVOC.replyOf, replied);
 		if (comment.getIpAddress() != null) {
@@ -706,6 +713,34 @@ public class Turtle implements Serializer {
 
 		createTripleSPO(result, prefix, SNVOC.hasCreator,
 		        SN.getPersonURI(comment.getAuthorId()));
+
+        Iterator<Integer> it = comment.getTags().iterator();
+        while (it.hasNext()) {
+            Integer tagId = it.next();
+            String tag = tagDic.getName(tagId);
+            createTripleSPO(result, prefix, SNVOC.hasTag, DBP.fullPrefixed(tag));
+            if (!printedTags.containsKey(tagId)) {
+                printedTags.put(tagId, tagId);
+                createTripleSPO(result, DBP.fullPrefixed(tag), RDF.type, SNVOC.Tag);
+                writeTagData(result, tagId, tag);
+            }
+        }
+
+        long userLikes[] = comment.getInterestedUserAccs();
+        long likeTimestamps[] = comment.getInterestedUserAccsTimestamp();
+
+        for (int i = 0; i < userLikes.length; i ++) {
+            String likePrefix = SN.getLikeURI(likeId);
+            createTripleSPO(result, SN.getPersonURI(userLikes[i]),
+                    SNVOC.like, likePrefix);
+
+            AddTriple(result, true, false, likePrefix, SNVOC.hasPost, prefix);
+            date.setTimeInMillis(likeTimestamps[i]);
+            dateString = DateGenerator.formatDateDetail(date);
+            AddTriple(result, false, true, likePrefix, SNVOC.creationDate,
+                    createDataTypeLiteral(dateString, XSD.DateTime));
+            likeId++;
+        }
 
 		toWriter(result.toString());
 	}

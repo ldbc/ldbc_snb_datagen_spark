@@ -119,6 +119,7 @@ public class CSVMergeForeign implements Serializer {
 	        "tagclass",
 	        "organisation",
 	        "person_likes_post",
+            "person_likes_comment",
             "person_hasInterest_tag",
             "person_knows_person",
             "person_speaks_language",
@@ -126,6 +127,7 @@ public class CSVMergeForeign implements Serializer {
             "person_studyAt_organisation",
             "person_email_emailaddress",
             "post_hasTag_tag",
+            "comment_hasTag_tag",
 	        "tag_hasType_tagclass",
 	        "tagclass_isSubclassOf_tagclass",
 	        "forum_hasTag_tag",
@@ -142,6 +144,7 @@ public class CSVMergeForeign implements Serializer {
     	TAGCLASS,
     	ORGANISATION,
     	PERSON_LIKE_POST,
+        PERSON_LIKE_COMMENT,
         PERSON_INTEREST_TAG,
         PERSON_KNOWS_PERSON,
         PERSON_SPEAKS_LANGUAGE,
@@ -149,6 +152,7 @@ public class CSVMergeForeign implements Serializer {
         PERSON_STUDY_AT_ORGANISATION,
         PERSON_HAS_EMAIL_EMAIL,
         POST_HAS_TAG_TAG,
+        COMMENT_HAS_TAG_TAG,
     	TAG_HAS_TYPE_TAGCLASS,
     	TAGCLASS_IS_SUBCLASS_OF_TAGCLASS,
     	FORUM_HASTAG_TAG,
@@ -169,13 +173,15 @@ public class CSVMergeForeign implements Serializer {
             {"id", "name", "url"},
             {"id", "type", "name", "url","place"},
             {"Person.id", "Post.id", "creationDate"},
+            {"Person.id", "Comment.id", "creationDate"},
             {"Person.id", "Tag.id"},
-            {"Person.id", "Person.id"},
+            {"Person.id", "Person.id","creationDate"},
             {"Person.id", "language"},
             {"Person.id", "Organisation.id", "workFrom"},
             {"Person.id", "Organisation.id", "classYear"},
             {"Person.id", "email"},
             {"Post.id", "Tag.id"},
+            {"Comment.id", "Tag.id"},
             {"Tag.id", "TagClass.id"},
             {"TagClass.id", "TagClass.id"},
             {"Forum.id", "Tag.id"},
@@ -520,6 +526,8 @@ public class CSVMergeForeign implements Serializer {
 
                 arguments.add(Long.toString(profile.getAccountId()));
                 arguments.add(Long.toString(friends[i].getFriendAcc()));
+                date.setTimeInMillis(friends[i].getCreatedTime());
+                arguments.add(DateGenerator.formatDateDetail(date));
                 ToCSV(arguments,Files.PERSON_KNOWS_PERSON.ordinal());
             }
         }
@@ -572,7 +580,7 @@ public class CSVMergeForeign implements Serializer {
             printLocationHierarchy(ipDic.getLocation(post.getIpAddress()));
         }
 	    
-	    arguments.add(SN.formId(post.getPostId()));
+	    arguments.add(SN.formId(post.getMessageId()));
 	    arguments.add(empty);
 	    date.setTimeInMillis(post.getCreationDate());
 	    String dateString = DateGenerator.formatDateDetail(date);
@@ -618,7 +626,7 @@ public class CSVMergeForeign implements Serializer {
 	            printTagHierarchy(tagId);
 	        }
 
-	        arguments.add(SN.formId(post.getPostId()));
+	        arguments.add(SN.formId(post.getMessageId()));
 	        arguments.add(Integer.toString(tagId));
 	        ToCSV(arguments, Files.POST_HAS_TAG_TAG.ordinal());
 	    }
@@ -629,7 +637,7 @@ public class CSVMergeForeign implements Serializer {
 	        date.setTimeInMillis(likeTimestamps[i]);
 	        dateString = DateGenerator.formatDateDetail(date);
 	        arguments.add(Long.toString(userLikes[i]));
-	        arguments.add(SN.formId(post.getPostId()));
+	        arguments.add(SN.formId(post.getMessageId()));
 	        arguments.add(dateString);
 	        ToCSV(arguments, Files.PERSON_LIKE_POST.ordinal());
 	    }
@@ -647,7 +655,7 @@ public class CSVMergeForeign implements Serializer {
 	    
 	    date.setTimeInMillis(comment.getCreationDate());
         String dateString = DateGenerator.formatDateDetail(date); 
-	    arguments.add(SN.formId(comment.getCommentId()));
+	    arguments.add(SN.formId(comment.getMessageId()));
 	    arguments.add(dateString);
 	    if (comment.getIpAddress() != null) {
             arguments.add(comment.getIpAddress().toString());
@@ -670,7 +678,7 @@ public class CSVMergeForeign implements Serializer {
         arguments.add(Integer.toString(comment.getTextSize()));
         arguments.add(Long.toString(comment.getAuthorId()));
         arguments.add(Integer.toString(ipDic.getLocation(comment.getIpAddress())));
-        if (comment.getReplyOf() == -1) {
+        if (comment.getReplyOf() == comment.getPostId()) {
             arguments.add(SN.formId(comment.getPostId()));
             String empty = "";
             arguments.add(empty);
@@ -680,7 +688,37 @@ public class CSVMergeForeign implements Serializer {
             arguments.add(SN.formId(comment.getReplyOf()));
         }
 	    ToCSV(arguments, Files.COMMENT.ordinal());
-	    
+
+        Iterator<Integer> it = comment.getTags().iterator();
+        while (it.hasNext()) {
+            Integer tagId = it.next();
+            String tag = tagDic.getName(tagId);
+            if (interests.indexOf(tag) == -1) {
+                interests.add(tag);
+                arguments.add(Integer.toString(tagId));
+                arguments.add(tag.replace("\"", "\\\""));
+                arguments.add(DBP.getUrl(tag));
+                ToCSV(arguments, Files.TAG.ordinal());
+
+                printTagHierarchy(tagId);
+            }
+
+            arguments.add(SN.formId(comment.getMessageId()));
+            arguments.add(Integer.toString(tagId));
+            ToCSV(arguments, Files.COMMENT_HAS_TAG_TAG.ordinal());
+        }
+
+        long userLikes[] = comment.getInterestedUserAccs();
+        long likeTimestamps[] = comment.getInterestedUserAccsTimestamp();
+        for (int i = 0; i < userLikes.length; i ++) {
+            date.setTimeInMillis(likeTimestamps[i]);
+            dateString = DateGenerator.formatDateDetail(date);
+            arguments.add(Long.toString(userLikes[i]));
+            arguments.add(SN.formId(comment.getMessageId()));
+            arguments.add(dateString);
+            ToCSV(arguments, Files.PERSON_LIKE_COMMENT.ordinal());
+        }
+
 	}
 
 	/**

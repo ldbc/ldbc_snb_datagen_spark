@@ -138,7 +138,11 @@ public class SN{
 	public static String getWorkAtURI(long id) {
         return BLANK_NODE+"work"+id + "" + machineId;
     }
-	
+
+    public static String getKnowsURI(long id) {
+        return BLANK_NODE+"knows"+id + "" + machineId;
+    }
+
 	/**
      * Gets the true id having in consideration the machine.
      */
