@@ -74,7 +74,12 @@ public class FBSocialDegreeGenerator {
 	
 	public FBSocialDegreeGenerator(int networkSize, String fbDataFile, long seed, double avgPathLength){
 		this.avgPathLength = avgPathLength;
-		mean = (int) Math.round(Math.pow(networkSize, 1.00/avgPathLength));
+		//mean = (int) Math.round(Math.pow(networkSize, 1.00/avgPathLength));
+		//Do not use the simple mean computation from network size, but use the formula
+		// considering the upward trend over the degree of separation (path length)
+		// mean = N ^ (0.512 - 0.028 * log(N))
+		mean = (int) Math.round(Math.pow(networkSize, (0.512 - 0.028 * Math.log10(networkSize))));
+		
 		System.out.println("Mean = " + mean);
 		randomPercentile = new Random(seed);
 		percenttileIDCounter = new int[BUCKET_NUM];
