@@ -40,8 +40,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
-import java.util.Random;
 import java.util.Vector;
+import java.util.Random;
 
 
 public class LanguageDictionary {
@@ -58,16 +58,12 @@ public class LanguageDictionary {
 	double probEnglish;
 	double probSecondLang;
 	
-	Random rand;
-	
 	public LanguageDictionary(String dicFile,  LocationDictionary locationDic, 
-	        double probEnglish, double probSecondLang, long seed){
+	        double probEnglish, double probSecondLang){
         this.dicFile = dicFile; 
         this.locationDic = locationDic;
         this.probEnglish = probEnglish;
         this.probSecondLang = probSecondLang;
-        
-        rand = new Random(seed);
     }
 	
 	public void init(){
@@ -116,29 +112,27 @@ public class LanguageDictionary {
         return languages.get(languageId);
     }
 	
-	public Vector<Integer> getLanguages(int locationId) {
+	public Vector<Integer> getLanguages(Random random, int locationId) {
 	    Vector<Integer> langSet = new Vector<Integer>();
 	    if (officalLanguagesFromCountries.get(locationId).size() != 0) {
-	        int id = rand.nextInt(officalLanguagesFromCountries.get(locationId).size());
+	        int id = random.nextInt(officalLanguagesFromCountries.get(locationId).size());
 	        langSet.add(officalLanguagesFromCountries.get(locationId).get(id));
 	    } else {
-	        int id = rand.nextInt(languagesFromCountries.get(locationId).size());
+	        int id = random.nextInt(languagesFromCountries.get(locationId).size());
             langSet.add(languagesFromCountries.get(locationId).get(id));
 	    }
-
-	    if (rand.nextDouble() < probSecondLang) {
-	        int id = rand.nextInt(languagesFromCountries.get(locationId).size());
+	    if (random.nextDouble() < probSecondLang) {
+	        int id = random.nextInt(languagesFromCountries.get(locationId).size());
 	        if (langSet.indexOf(languagesFromCountries.get(locationId).get(id)) == -1) {
 	            langSet.add(languagesFromCountries.get(locationId).get(id));
 	        }
 	    }
-	    
 	    return langSet;
 	}
 	
-	public Integer getInternationlLanguage() {
+	public Integer getInternationlLanguage(Random random) {
 	    Integer languageId = -1;
-        if (rand.nextDouble() < probEnglish) {
+        if (random.nextDouble() < probEnglish) {
             languageId = languages.indexOf(ISO_ENGLISH_CODE);
         }
         return languageId;

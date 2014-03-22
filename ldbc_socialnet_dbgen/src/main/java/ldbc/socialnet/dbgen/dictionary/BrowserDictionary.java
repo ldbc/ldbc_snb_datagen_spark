@@ -56,22 +56,15 @@ public class BrowserDictionary {
 	String fileName;
 	
 	double probAnotherBrowser;
-	Random randDifBrowser;
-	Random randBrowsers; 
-	
 	/**
 	 * Creator.
 	 * 
 	 * @param fileName: The file which contains the browser data.
-	 * @param seedBrowser: Seed for the browsers random selection. 
 	 * @param probAnotherBrowser: Probability of the user using another browser.
 	 */
-	public BrowserDictionary(String fileName, long seedBrowser, double probAnotherBrowser){
+	public BrowserDictionary(String fileName, double probAnotherBrowser){
 		this.fileName = fileName;
 		this.probAnotherBrowser = probAnotherBrowser;
-		
-		randBrowsers   = new Random(seedBrowser);
-        randDifBrowser = new Random(seedBrowser);
 	}
 	
 	/**
@@ -112,12 +105,10 @@ public class BrowserDictionary {
 	/**
 	 * Gets a random browser id.
 	 */
-	public byte getRandomBrowserId() {
-	    double prob = randBrowsers.nextDouble();
-	    
+	public byte getRandomBrowserId(Random random) {
+	    double prob = random.nextDouble();
 		int minIdx = 0;
 		int maxIdx = (prob < vBrowserCummulative.get(minIdx)) ? minIdx : vBrowserCummulative.size() - 1;
-		
 		while ((maxIdx - minIdx) > 1) {
 			
 		    int middlePoint = minIdx + (maxIdx - minIdx) / 2;
@@ -127,7 +118,6 @@ public class BrowserDictionary {
 				maxIdx = middlePoint;
 			}
 		}
-		
 		return (byte)maxIdx;
 	}
 
@@ -135,8 +125,8 @@ public class BrowserDictionary {
 	 * Gets the post browser. There is a chance of being different from the user preferred browser
 	 * @param userBrowserId: The user preferred browser.
 	 */
-	public byte getPostBrowserId(byte userBrowserId){
-		double prob = randDifBrowser.nextDouble();
-		return (prob < probAnotherBrowser) ? getRandomBrowserId() : userBrowserId;
+	public byte getPostBrowserId(Random randomDiffBrowser, Random randomBrowser, byte userBrowserId){
+		double prob = randomDiffBrowser.nextDouble();
+		return (prob < probAnotherBrowser) ? getRandomBrowserId(randomBrowser) : userBrowserId;
 	}
 }

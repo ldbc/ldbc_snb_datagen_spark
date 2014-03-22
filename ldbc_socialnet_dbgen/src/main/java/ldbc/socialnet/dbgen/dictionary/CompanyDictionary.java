@@ -36,6 +36,8 @@
  */
 package ldbc.socialnet.dbgen.dictionary;
 
+import ldbc.socialnet.dbgen.util.RandomGeneratorFarm;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -57,9 +59,6 @@ public class CompanyDictionary {
 	HashMap<Integer, Vector<String>> companiesByLocations;
 	LocationDictionary locationDic;
 	
-	Random rand; 
-    Random randUnRelatedCompany;
-    Random randUnRelatedLocation;
     double probUnCorrelatedCompany;
 	
     /**
@@ -67,19 +66,14 @@ public class CompanyDictionary {
      * 
      * @param fileName: The file with the company data.
      * @param locationDic: The location dictionary.
-     * @param seed: Seed for the random selector.
      * @param probUnCorrelatedCompany: Probability of selecting a country unrelated company.
      */
 	public CompanyDictionary(String fileName, LocationDictionary locationDic, 
-	        long seed, double probUnCorrelatedCompany) {
+	         double probUnCorrelatedCompany) {
 	    
 		this.fileName = fileName;
 		this.locationDic = locationDic;
 		this.probUnCorrelatedCompany = probUnCorrelatedCompany;
-		
-		rand                  = new Random(seed);
-		randUnRelatedCompany  = new Random(seed);
-        randUnRelatedLocation = new Random(seed);
 	}
 
 	/**
@@ -87,12 +81,10 @@ public class CompanyDictionary {
      */
 	public void init() {
 	    companyLocation = new HashMap<String, Integer>();
-	    
 	    companiesByLocations = new HashMap<Integer, Vector<String>>();
 	    for (Integer id : locationDic.getCountries()){
 	        companiesByLocations.put(id, new Vector<String>());
 	    }
-
 	    try {
             BufferedReader dictionary = new BufferedReader(
                     new InputStreamReader(getClass( ).getResourceAsStream(fileName), "UTF-8"));
@@ -100,7 +92,6 @@ public class CompanyDictionary {
             int previousId = -2;
             int currentId = -1; 
             int totalNumCompanies = 0;
-            
             while ((line = dictionary.readLine()) != null) {
                 String data[] = line.split(SEPARATOR);
                 String locationName = data[0];
@@ -132,20 +123,17 @@ public class CompanyDictionary {
 	 * a random one will be selected.
 	 * @param countryId: A country id.
 	 */
-	public String getRandomCompany(int countryId) {
+	public String getRandomCompany(RandomGeneratorFarm randomFarm, int countryId) {
 		int locId = countryId;
-		
 		Vector<Integer> countries = locationDic.getCountries();
-		if (randUnRelatedCompany.nextDouble() <= probUnCorrelatedCompany) {
-		    locId = countries.get(randUnRelatedLocation.nextInt(countries.size()));
+		if (randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_COMPANY).nextDouble() <= probUnCorrelatedCompany) {
+		    locId = countries.get(randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_COMPANY_LOCATION).nextInt(countries.size()));
 		}
-		
 		// In case the country doesn't have any company select another country.
 		while (companiesByLocations.get(locId).size() == 0){
-		    locId = countries.get(randUnRelatedLocation.nextInt(countries.size()));
+		    locId = countries.get(randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_COMPANY_LOCATION).nextInt(countries.size()));
         }
-		
-		int randomCompanyIdx = rand.nextInt(companiesByLocations.get(locId).size());
+		int randomCompanyIdx = randomFarm.get(RandomGeneratorFarm.Aspect.COMPANY).nextInt(companiesByLocations.get(locId).size());
 		return companiesByLocations.get(locId).get(randomCompanyIdx);
 	}
 }

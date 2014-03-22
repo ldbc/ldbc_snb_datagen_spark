@@ -66,12 +66,8 @@ public class TagDictionary {
 	HashMap<Integer, String>  tagNames;
 	HashMap<Integer, String>  tagDescription;  // a.k.a foaf:Names
 	
-	Random 	rnd; 
-	Random 	rnd2;
-	Random 	rndTags; 
-	
 	public TagDictionary(String dicTopic, String _dicFileName, String tagClassFile, String tagHierarchyFile, 
-	        int numLocations, long seed, double tagCountryCorrProb) {
+	        int numLocations, double tagCountryCorrProb) {
 	    
 		this.dicFileName = _dicFileName;
 		this.dicTopic = dicTopic;
@@ -92,10 +88,6 @@ public class TagDictionary {
 			tagCummulativeDist.add(new Vector<Double>());
 			tagsByCountry.add(new Vector<Integer>());
 		}
-		
-		rnd  = new Random(seed); 
-		rndTags  = new Random(seed); 
-		rnd2 = new Random(seed);
 		
 		numCelebrity = 0;
 	}
@@ -180,18 +172,17 @@ public class TagDictionary {
 		}
 	}
 
-	public int getaTagByCountry(int _countryId){
+	public int getaTagByCountry(Random randomTagOtherCountry, Random randomTagCountryProb, int _countryId){
 		int countryId; 
 		countryId = _countryId; 
 			
-		if (tagsByCountry.get(countryId).size() == 0 || rnd.nextDouble() > tagCountryCorrProb) {
+		if (tagsByCountry.get(countryId).size() == 0 || randomTagOtherCountry.nextDouble() > tagCountryCorrProb) {
 			do {
-				countryId = rnd.nextInt(tagsByCountry.size());
+				countryId = randomTagOtherCountry.nextInt(tagsByCountry.size());
 			} while (tagsByCountry.get(countryId).size() == 0);
 		}
 		
-		// Doing binary search for finding the tag
-		double randomDis = rnd2.nextDouble(); 
+		double randomDis = randomTagCountryProb.nextDouble();
 		int lowerBound = 0;
 		int upperBound = tagsByCountry.get(countryId).size();
 		int curIdx = (upperBound + lowerBound)  / 2;
@@ -212,13 +203,13 @@ public class TagDictionary {
 		return numCelebrity;
 	}
 
-	public Integer[] getRandomTags( int num ) {
+	public Integer[] getRandomTags( Random random, int num ) {
 		Integer[] result = new Integer[num];
 		for( int i = 0; i < num; ) {
-			int randomCountry = rndTags.nextInt(tagsByCountry.size());
+			int randomCountry = random.nextInt(tagsByCountry.size());
 			Vector<Integer> tags = tagsByCountry.get(randomCountry);
 			if( tags.size() > 0 ){ 
-				result[i] = tags.get(rndTags.nextInt(tags.size()));
+				result[i] = tags.get(random.nextInt(tags.size()));
 				++i;
 			}
 		}

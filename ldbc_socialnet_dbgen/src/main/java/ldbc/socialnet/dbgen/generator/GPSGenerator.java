@@ -105,7 +105,7 @@ public class GPSGenerator {
 					gps.setLatt(extraInfo.getLatt() + randGPS.nextDouble() * 0.01);
 					gps.setLongt(extraInfo.getLongt() + randGPS.nextDouble() * 0.01);
 					// Tracked 10s for each gps
-					long trackedTime = (long)(user.getCreatedDate() + i * oneday + j * 5000);
+					long trackedTime = (long)(user.getCreationDate() + i * oneday + j * 5000);
 					gps.setTrackedTime(trackedTime);
 					gps.setTrackedLocation(extraInfo.getLocation());
 					

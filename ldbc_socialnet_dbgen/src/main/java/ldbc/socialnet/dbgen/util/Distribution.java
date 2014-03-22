@@ -48,11 +48,9 @@ public class Distribution {
     
 
     double[] distribution;
-    Random uniform;
     String distributionFile;
     
-    public Distribution( String distributionFile, long seed ){
-        this.uniform = new Random(seed);
+    public Distribution( String distributionFile ){
         this.distributionFile = distributionFile;
     }
 
@@ -92,7 +90,7 @@ public class Distribution {
         return midPoint;
     }
 
-    public double nextDouble() {
-        return (double)binarySearch(uniform.nextDouble())/(double)distribution.length; 
+    public double nextDouble( Random random) {
+        return (double)binarySearch(random.nextDouble())/(double)distribution.length;
     }
 }

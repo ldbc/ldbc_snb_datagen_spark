@@ -34,47 +34,49 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package ldbc.socialnet.dbgen.dictionary;
+package ldbc.socialnet.dbgen.util;
 
+
+import org.apache.hadoop.io.WritableComparable;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Vector;
+import java.io.DataOutput;
+import java.io.DataInput;
 import java.util.Random;
+import java.util.ArrayList;
+import java.util.Iterator;
 
+public class MapReduceKey implements WritableComparable<MapReduceKey> {
+    public int block;       
+    public int key;
+    public long id;
 
-public class UserAgentDictionary {
-    
-	String fileName;
-	
-	Vector<String> userAgents;
-	double probSentFromAgent; 
-	
-	public UserAgentDictionary(String fileName, double probSentFromAgent){
-		this.fileName = fileName; 
-		this.probSentFromAgent = probSentFromAgent;
-	}
-	
-	public void init(){
-		try {
-		    userAgents = new Vector<String>();
-			BufferedReader agentFile = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));
-			String line; 
-			while ((line = agentFile.readLine()) != null) {
-			    userAgents.add(line.trim());
-            }
-			agentFile.close();
-			System.out.println("Done ... " + userAgents.size() + " agents have been extracted ");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public String getUserAgentName(Random randomSent, boolean hasSmathPhone, byte agentId){
-		return (hasSmathPhone && (randomSent.nextDouble() > probSentFromAgent)) ? userAgents.get(agentId) : "";
-	}
-	
-	public byte getRandomUserAgentIdx(Random random){
-		return (byte)random.nextInt(userAgents.size());
-	}	
+    public MapReduceKey( ) {
+    }
+
+    public MapReduceKey( int block, int key, long id) {
+        this.block = block;
+        this.key = key;
+        this.id = id;
+    }
+
+    @Override
+    public void write(DataOutput out) throws IOException {
+        out.writeInt(block);
+        out.writeInt(key);
+        out.writeLong(id);
+    }
+
+    @Override
+    public void readFields(DataInput in) throws IOException {
+        block = in.readInt();
+        key = in.readInt();
+        id = in.readLong();
+    }
+
+    @Override
+    public int compareTo( MapReduceKey mpk) {
+        return block - mpk.block; 
+    }
 }

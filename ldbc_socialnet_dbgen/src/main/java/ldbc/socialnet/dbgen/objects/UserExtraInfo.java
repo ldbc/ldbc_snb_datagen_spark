@@ -61,7 +61,7 @@ public class UserExtraInfo {
 	long               classYear; 				// When graduate from the institute		
 	
 	RelationshipStatus 	status;
-	int					specialFriendIdx; 	
+	long					specialFriendIdx; 	
 	
 	
 	public UserExtraInfo() {
@@ -133,18 +133,14 @@ public class UserExtraInfo {
 	public void setLocation(String location) {
 		this.location = location;
 	}
-	public String getOrganization() {
+	public String getUniversity() {
 		return organization;
 	}
-	public void setOrganization(String organization) {
+
+	public void setUniversity(String organization) {
 		this.organization = organization;
 	}
-	public String getInstitution() {
-		return institution;
-	}
-	public void setInstitution(String institution) {
-		this.institution = institution;
-	}
+
 	public Set<String> getCompanies() {
 		return companies.keySet();
 	}
@@ -161,10 +157,10 @@ public class UserExtraInfo {
 	public void setStatus(RelationshipStatus status) {
 		this.status = status;
 	}
-	public int getSpecialFriendIdx() {
+	public long getSpecialFriendIdx() {
 		return specialFriendIdx;
 	}
-	public void setSpecialFriendIdx(int specialFriendIdx) {
+	public void setSpecialFriendIdx(long specialFriendIdx) {
 		this.specialFriendIdx = specialFriendIdx;
 	}
 	public double getLatt() {

@@ -54,6 +54,7 @@ public class SN{
 	    int digits = 0;
 	    do {
 	        numMachines /= 10;
+            digits++;
 	    } while (numMachines != 0);
 	    SN.machineId = String.valueOf(machineId);
 	    for (int i = SN.machineId.length(); i < digits; i++) {
@@ -137,7 +138,11 @@ public class SN{
 	public static String getWorkAtURI(long id) {
         return BLANK_NODE+"work"+id + "" + machineId;
     }
-	
+
+    public static String getKnowsURI(long id) {
+        return BLANK_NODE+"knows"+id + "" + machineId;
+    }
+
 	/**
      * Gets the true id having in consideration the machine.
      */

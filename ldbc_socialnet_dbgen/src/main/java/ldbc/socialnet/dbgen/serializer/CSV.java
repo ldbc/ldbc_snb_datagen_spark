@@ -36,13 +36,15 @@
  */
 package ldbc.socialnet.dbgen.serializer;
 
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Vector;
+import java.util.zip.GZIPOutputStream;
+import java.io.OutputStream;
 
 import ldbc.socialnet.dbgen.dictionary.BrowserDictionary;
 import ldbc.socialnet.dbgen.dictionary.CompanyDictionary;
@@ -70,9 +72,9 @@ import ldbc.socialnet.dbgen.vocabulary.SN;
  */
 public class CSV implements Serializer {
 	
-    private FileWriter[][] dataFileWriter;
-    private int[] currentWriter;
-    
+//    private FileWriter[][] dataFileWriter;
+    OutputStream[] fileOutputStream;
+
     private long csvRows;
     private GregorianCalendar date;
     
@@ -88,11 +90,6 @@ public class CSV implements Serializer {
     private IPAddressDictionary ipDic;
     private boolean exportText;
 
-    /**
-     * Used to create an unique id to each file. It is used only in case of an unnumbered entity or in the relations.
-     */
-    private long[] idList;
-    
     /**
      * Used to avoid serialize more than once the same data.
      */
@@ -121,6 +118,7 @@ public class CSV implements Serializer {
 	        "tagclass",
 	        "organisation",
 	        "person_likes_post",
+            "person_likes_comment",
             "person_hasInterest_tag",
             "person_knows_person",
             "person_speaks_language",
@@ -135,6 +133,7 @@ public class CSV implements Serializer {
             "comment_replyOf_post",
             "comment_replyOf_comment",
             "comment_hasCreator_person",
+            "comment_hasTag_tag",
 	        "tag_hasType_tagclass",
 	        "tagclass_isSubclassOf_tagclass",
 	        "place_isPartOf_place",
@@ -155,6 +154,7 @@ public class CSV implements Serializer {
     	TAGCLASS,
     	ORGANISATION,
     	PERSON_LIKE_POST,
+        PERSON_LIKE_COMMENT,
         PERSON_INTEREST_TAG,
         PERSON_KNOWS_PERSON,
         PERSON_SPEAKS_LANGUAGE,
@@ -169,6 +169,7 @@ public class CSV implements Serializer {
         COMMENT_REPLY_OF_POST,
         COMMENT_REPLY_OF_COMMENT,
         COMMENT_HAS_CREATOR_PERSON,
+        COMMENT_HAS_TAG_TAG,
     	TAG_HAS_TYPE_TAGCLASS,
     	TAGCLASS_IS_SUBCLASS_OF_TAGCLASS,
     	PLACE_PART_OF_PLACE,
@@ -193,8 +194,9 @@ public class CSV implements Serializer {
             {"id", "name", "url"},
             {"id", "type", "name", "url"},
             {"Person.id", "Post.id", "creationDate"},
+            {"Person.id", "Comment.id", "creationDate"},
             {"Person.id", "Tag.id"},
-            {"Person.id", "Person.id"},
+            {"Person.id", "Person.id", "creationDate"},
             {"Person.id", "language"},
             {"Person.id", "Organisation.id", "workFrom"},
             {"Person.id", "Organisation.id", "classYear"},
@@ -207,6 +209,7 @@ public class CSV implements Serializer {
             {"Comment.id", "Post.id"},
             {"Comment.id", "Comment.id"},
             {"Comment.id", "Person.id"},
+            {"Comment.id", "Tag.id"},
             {"Tag.id", "TagClass.id"},
             {"TagClass.id", "TagClass.id"},
             {"Place.id", "Place.id"},
@@ -221,19 +224,17 @@ public class CSV implements Serializer {
      * Constructor.
      * 
      * @param file: The basic file name.
-     * @param nrOfOutputFiles: How many files will be created.
      * @param tagDic: The tag dictionary used in the generation.
      * @param browsers: The browser dictionary used in the generation.
-     * @param companyToCountry: HashMap of company names to country IDs.
      * @param univesityToCountry: HashMap of universities names to country IDs.
      * @param ipDic: The IP dictionary used in the generation.
      * @param locationDic: The location dictionary used in the generation.
      * @param languageDic: The language dictionary used in the generation.
      */
-	public CSV(String file, int nrOfOutputFiles, 
+	public CSV(String file, int reducerID,
             TagDictionary tagDic, BrowserDictionary browsers, 
             CompanyDictionary companies, HashMap<String, Integer> univesityToCountry,
-            IPAddressDictionary ipDic, LocationDictionary locationDic, LanguageDictionary languageDic, boolean exportText) {
+            IPAddressDictionary ipDic, LocationDictionary locationDic, LanguageDictionary languageDic, boolean exportText, boolean compressed) {
         
         this.tagDic = tagDic;  
         this.browserDic = browsers;
@@ -254,39 +255,27 @@ public class CSV implements Serializer {
 		serializedLanguages = new Vector<Integer>();
 		printedTagClasses = new HashMap<Integer, Integer>();
 		
-		idList = new long[Files.NUM_FILES.ordinal()];
-		currentWriter = new int[Files.NUM_FILES.ordinal()];
-		for (int i = 0; i < Files.NUM_FILES.ordinal(); i++) {
-		    idList[i]  = 0;
-			currentWriter[i] = 0;
-		}
 
-		int nrOfDigits = ((int)Math.log10(nrOfOutputFiles)) + 1;
-		String formatString = "%0" + nrOfDigits + "d";
 		try{
-			dataFileWriter = new FileWriter[nrOfOutputFiles][Files.NUM_FILES.ordinal()];
-			if(nrOfOutputFiles==1) {
-				for (int i = 0; i < Files.NUM_FILES.ordinal(); i++) {
-					this.dataFileWriter[0][i] = new FileWriter(file +"/" + fileNames[i] + ".csv");
-				}
-			} else {
-				for(int i=0;i<nrOfOutputFiles;i++) {
-					for (int j = 0; j < Files.NUM_FILES.ordinal(); j++) {
-						dataFileWriter[i][j] = new FileWriter(file +"/"+ fileNames[j] + String.format(formatString, i+1) + ".csv");
-					}
-				}
-			}
+			fileOutputStream = new OutputStream[Files.NUM_FILES.ordinal()];
+            if( compressed ) {
+                for (int i = 0; i < Files.NUM_FILES.ordinal(); i++) {
+                    this.fileOutputStream[i] = new GZIPOutputStream(new FileOutputStream(file +"/"+fileNames[i] +"_"+reducerID+".csv.gz"));
+                }
+            } else {
+                for (int i = 0; i < Files.NUM_FILES.ordinal(); i++) {
+                    this.fileOutputStream[i] = new FileOutputStream(file +"/"+fileNames[i] +"_"+reducerID+".csv");
+                }
+            }
 
-			for(int i=0; i<nrOfOutputFiles; i++) {
-			    for (int j = 0; j < Files.NUM_FILES.ordinal(); j++) {
-			        Vector<String> arguments = new Vector<String>();
-			        for (int k = 0; k < fieldNames[j].length; k++) {
-			            arguments.add(fieldNames[j][k]);
-			        }
-			        ToCSV(arguments, j);
-			    }
-			}
-				
+            for (int j = 0; j < Files.NUM_FILES.ordinal(); j++) {
+                Vector<String> arguments = new Vector<String>();
+                for (int k = 0; k < fieldNames[j].length; k++) {
+                    arguments.add(fieldNames[j][k]);
+                }
+                ToCSV(arguments, j);
+            }
+
 		} catch(IOException e){
 			System.err.println(e.getMessage());
 			System.exit(-1);
@@ -302,8 +291,6 @@ public class CSV implements Serializer {
 	
 	/**
 	 * Writes the data into the appropriate file.
-	 * 
-	 * @param column: The column data.
 	 * @param index: The file index.
 	 */
 	public void ToCSV(Vector<String> columns, int index) {
@@ -313,10 +300,10 @@ public class CSV implements Serializer {
             result.append(SEPARATOR);
             result.append(columns.get(i));
         }
+        result.append(SEPARATOR);
         result.append(NEWLINE);
         WriteTo(result.toString(), index);
         columns.clear();
-        idList[index]++;
     }
 
 	/**
@@ -327,8 +314,8 @@ public class CSV implements Serializer {
      */
     public void WriteTo(String data, int index) {
         try {
-            dataFileWriter[currentWriter[index]][index].append(data);
-            currentWriter[index] = (currentWriter[index] + 1) % dataFileWriter.length;
+            byte [] dataArray = data.getBytes("UTF8");
+            fileOutputStream[index].write(dataArray);
             csvRows++;
         } catch (IOException e) {
             System.out.println("Cannot write to output file ");
@@ -420,11 +407,11 @@ public class CSV implements Serializer {
 		    int parentId = companyDic.getCountry(company);
 		    printLocationHierarchy(parentId);
 		}
-		printLocationHierarchy(universityToCountry.get(extraInfo.getOrganization()));
+		printLocationHierarchy(universityToCountry.get(extraInfo.getUniversity()));
         printLocationHierarchy(ipDic.getLocation(profile.getIpAddress()));
         
 
-        arguments.add(Integer.toString(profile.getAccountId()));
+        arguments.add(Long.toString(profile.getAccountId()));
         arguments.add(extraInfo.getFirstName());
         arguments.add(extraInfo.getLastName());
         arguments.add(extraInfo.getGender());
@@ -436,7 +423,7 @@ public class CSV implements Serializer {
             String empty = "";
             arguments.add(empty);
         }
-		date.setTimeInMillis(profile.getCreatedDate());
+		date.setTimeInMillis(profile.getCreationDate());
 		String dateString = DateGenerator.formatDateDetail(date);
 		arguments.add(dateString);
         if (profile.getIpAddress() != null) {
@@ -455,7 +442,7 @@ public class CSV implements Serializer {
 
 		Vector<Integer> languages = extraInfo.getLanguages();
 		for (int i = 0; i < languages.size(); i++) {
-		    arguments.add(Integer.toString(profile.getAccountId()));
+		    arguments.add(Long.toString(profile.getAccountId()));
 		    arguments.add(languageDic.getLanguagesName(languages.get(i)));
 		    ToCSV(arguments, Files.PERSON_SPEAKS_LANGUAGE.ordinal());
 		}
@@ -463,30 +450,30 @@ public class CSV implements Serializer {
 		itString = extraInfo.getEmail().iterator();
 		while (itString.hasNext()){
 		    String email = itString.next();
-		    arguments.add(Integer.toString(profile.getAccountId()));
+		    arguments.add(Long.toString(profile.getAccountId()));
 		    arguments.add(email);
 		    ToCSV(arguments, Files.PERSON_HAS_EMAIL_EMAIL.ordinal());
 		}
 
-		arguments.add(Integer.toString(profile.getAccountId()));
+		arguments.add(Long.toString(profile.getAccountId()));
 		arguments.add(Integer.toString(extraInfo.getLocationId()));
 		ToCSV(arguments, Files.PERSON_LOCATED_IN_PLACE.ordinal());
 
 		int organisationId = -1;
-		if (!extraInfo.getOrganization().equals("")){
-		    organisationId = organisations.indexOf(extraInfo.getOrganization());
+		if (!extraInfo.getUniversity().equals("")){
+		    organisationId = organisations.indexOf(extraInfo.getUniversity());
 		    if(organisationId == -1) {
 		        organisationId = organisations.size();
-		        organisations.add(extraInfo.getOrganization());
+		        organisations.add(extraInfo.getUniversity());
 
 		        arguments.add(SN.formId(organisationId));
 		        arguments.add(ScalableGenerator.OrganisationType.university.toString());
-		        arguments.add(extraInfo.getOrganization());
-		        arguments.add(DBP.getUrl(extraInfo.getOrganization()));
+		        arguments.add(extraInfo.getUniversity());
+		        arguments.add(DBP.getUrl(extraInfo.getUniversity()));
 		        ToCSV(arguments, Files.ORGANISATION.ordinal());
 
 		        arguments.add(SN.formId(organisationId));
-		        arguments.add(Integer.toString(universityToCountry.get(extraInfo.getOrganization())));
+		        arguments.add(Integer.toString(universityToCountry.get(extraInfo.getUniversity())));
 		        ToCSV(arguments, Files.ORGANISATION_BASED_NEAR_PLACE.ordinal());
 		    }
 		    
@@ -494,7 +481,7 @@ public class CSV implements Serializer {
 	            date.setTimeInMillis(extraInfo.getClassYear());
 	            dateString = DateGenerator.formatYear(date);
 
-	            arguments.add(Integer.toString(profile.getAccountId()));
+	            arguments.add(Long.toString(profile.getAccountId()));
 	            arguments.add(SN.formId(organisationId));
 	            arguments.add(dateString);
 	            ToCSV(arguments, Files.PERSON_STUDY_AT_ORGANISATION.ordinal());
@@ -522,7 +509,7 @@ public class CSV implements Serializer {
 		    date.setTimeInMillis(extraInfo.getWorkFrom(company));
 		    dateString = DateGenerator.formatYear(date);
 
-		    arguments.add(Integer.toString(profile.getAccountId()));
+		    arguments.add(Long.toString(profile.getAccountId()));
 		    arguments.add(SN.formId(organisationId));
 		    arguments.add(dateString);
 		    ToCSV(arguments, Files.PERSON_WORK_AT_ORGANISATION.ordinal());
@@ -544,7 +531,7 @@ public class CSV implements Serializer {
                 printTagHierarchy(interestIdx);
             }
             
-            arguments.add(Integer.toString(profile.getAccountId()));
+            arguments.add(Long.toString(profile.getAccountId()));
             arguments.add(Integer.toString(interestIdx));
             ToCSV(arguments, Files.PERSON_INTEREST_TAG.ordinal());
         }   
@@ -553,14 +540,16 @@ public class CSV implements Serializer {
         for (int i = 0; i < friends.length; i++) {
             if (friends[i] != null && friends[i].getCreatedTime() != -1){
 
-                arguments.add(Integer.toString(profile.getAccountId()));
-                arguments.add(Integer.toString(friends[i].getFriendAcc()));
+                arguments.add(Long.toString(profile.getAccountId()));
+                arguments.add(Long.toString(friends[i].getFriendAcc()));
+                date.setTimeInMillis(friends[i].getCreatedTime());
+                arguments.add(DateGenerator.formatDateDetail(date));
                 ToCSV(arguments,Files.PERSON_KNOWS_PERSON.ordinal());
             }
         }
 		
         //The forums of the user
-		date.setTimeInMillis(profile.getCreatedDate());
+		date.setTimeInMillis(profile.getCreationDate());
         dateString = DateGenerator.formatDateDetail(date);
 
         String title = "Wall of " + extraInfo.getFirstName() + " " + extraInfo.getLastName();
@@ -570,7 +559,7 @@ public class CSV implements Serializer {
         ToCSV(arguments,Files.FORUM.ordinal());
         
         arguments.add(SN.formId(profile.getForumWallId()));
-        arguments.add(Integer.toString(profile.getAccountId()));
+        arguments.add(Long.toString(profile.getAccountId()));
         ToCSV(arguments,Files.FORUM_HAS_MODERATOR_PERSON.ordinal());
         
         itInteger = profile.getSetOfTags().iterator();
@@ -587,7 +576,7 @@ public class CSV implements Serializer {
                 dateString = DateGenerator.formatDateDetail(date);
                 
                 arguments.add(SN.formId(profile.getForumWallId()));
-                arguments.add(Integer.toString(friends[i].getFriendAcc()));
+                arguments.add(Long.toString(friends[i].getFriendAcc()));
                 arguments.add(dateString);
                 ToCSV(arguments,Files.FORUM_HASMEMBER_PERSON.ordinal());
             }
@@ -605,7 +594,7 @@ public class CSV implements Serializer {
             printLocationHierarchy(ipDic.getLocation(post.getIpAddress()));
         }
 	    
-	    arguments.add(SN.formId(post.getPostId()));
+	    arguments.add(SN.formId(post.getMessageId()));
 	    arguments.add(empty);
 	    date.setTimeInMillis(post.getCreationDate());
 	    String dateString = DateGenerator.formatDateDetail(date);
@@ -634,16 +623,16 @@ public class CSV implements Serializer {
 	    ToCSV(arguments, Files.POST.ordinal());
 
 	    if (post.getIpAddress() != null) {
-	        arguments.add(SN.formId(post.getPostId()));
+	        arguments.add(SN.formId(post.getMessageId()));
 	        arguments.add(Integer.toString(ipDic.getLocation(post.getIpAddress())));
 	        ToCSV(arguments, Files.POST_LOCATED_PLACE.ordinal());
 	    }
 	    arguments.add(SN.formId(post.getGroupId()));
-	    arguments.add(SN.formId(post.getPostId()));
+	    arguments.add(SN.formId(post.getMessageId()));
 	    ToCSV(arguments, Files.FORUM_CONTAINER_OF_POST.ordinal());
 
-	    arguments.add(SN.formId(post.getPostId()));
-	    arguments.add(Integer.toString(post.getAuthorId()));
+	    arguments.add(SN.formId(post.getMessageId()));
+	    arguments.add(Long.toString(post.getAuthorId()));
 	    ToCSV(arguments, Files.POST_HAS_CREATOR_PERSON.ordinal());
 
 	    Iterator<Integer> it = post.getTags().iterator();
@@ -660,18 +649,18 @@ public class CSV implements Serializer {
 	            printTagHierarchy(tagId);
 	        }
 
-	        arguments.add(SN.formId(post.getPostId()));
+	        arguments.add(SN.formId(post.getMessageId()));
 	        arguments.add(Integer.toString(tagId));
 	        ToCSV(arguments, Files.POST_HAS_TAG_TAG.ordinal());
 	    }
 
-	    int userLikes[] = post.getInterestedUserAccs();
+	    long userLikes[] = post.getInterestedUserAccs();
 	    long likeTimestamps[] = post.getInterestedUserAccsTimestamp();
 	    for (int i = 0; i < userLikes.length; i ++) {
 	        date.setTimeInMillis(likeTimestamps[i]);
 	        dateString = DateGenerator.formatDateDetail(date);
-	        arguments.add(Integer.toString(userLikes[i]));
-	        arguments.add(SN.formId(post.getPostId()));
+	        arguments.add(Long.toString(userLikes[i]));
+	        arguments.add(SN.formId(post.getMessageId()));
 	        arguments.add(dateString);
 	        ToCSV(arguments, Files.PERSON_LIKE_POST.ordinal());
 	    }
@@ -689,7 +678,7 @@ public class CSV implements Serializer {
 	    
 	    date.setTimeInMillis(comment.getCreationDate());
         String dateString = DateGenerator.formatDateDetail(date); 
-	    arguments.add(SN.formId(comment.getCommentId()));
+	    arguments.add(SN.formId(comment.getMessageId()));
 	    arguments.add(dateString);
 	    if (comment.getIpAddress() != null) {
             arguments.add(comment.getIpAddress().toString());
@@ -711,24 +700,54 @@ public class CSV implements Serializer {
         arguments.add(Integer.toString(comment.getTextSize()));
 	    ToCSV(arguments, Files.COMMENT.ordinal());
 	    
-	    if (comment.getReplyOf() == -1) {
-            arguments.add(SN.formId(comment.getCommentId()));
+	    if (comment.getReplyOf() == comment.getPostId()) {
+            arguments.add(SN.formId(comment.getMessageId()));
             arguments.add(SN.formId(comment.getPostId()));
             ToCSV(arguments, Files.COMMENT_REPLY_OF_POST.ordinal());
         } else {
-            arguments.add(SN.formId(comment.getCommentId()));
+            arguments.add(SN.formId(comment.getMessageId()));
             arguments.add(SN.formId(comment.getReplyOf()));
             ToCSV(arguments, Files.COMMENT_REPLY_OF_COMMENT.ordinal());
         }
 	    if (comment.getIpAddress() != null) {
-            arguments.add(SN.formId(comment.getCommentId()));
+            arguments.add(SN.formId(comment.getMessageId()));
             arguments.add(Integer.toString(ipDic.getLocation(comment.getIpAddress())));
             ToCSV(arguments, Files.COMMENT_LOCATED_PLACE.ordinal());
         }
 	    
-	    arguments.add(SN.formId(comment.getCommentId()));
-	    arguments.add(Integer.toString(comment.getAuthorId()));
+	    arguments.add(SN.formId(comment.getMessageId()));
+	    arguments.add(Long.toString(comment.getAuthorId()));
 	    ToCSV(arguments, Files.COMMENT_HAS_CREATOR_PERSON.ordinal());
+
+        Iterator<Integer> it = comment.getTags().iterator();
+        while (it.hasNext()) {
+            Integer tagId = it.next();
+            String tag = tagDic.getName(tagId);
+            if (interests.indexOf(tag) == -1) {
+                interests.add(tag);
+                arguments.add(Integer.toString(tagId));
+                arguments.add(tag.replace("\"", "\\\""));
+                arguments.add(DBP.getUrl(tag));
+                ToCSV(arguments, Files.TAG.ordinal());
+
+                printTagHierarchy(tagId);
+            }
+
+            arguments.add(SN.formId(comment.getMessageId()));
+            arguments.add(Integer.toString(tagId));
+            ToCSV(arguments, Files.COMMENT_HAS_TAG_TAG.ordinal());
+        }
+
+        long userLikes[] = comment.getInterestedUserAccs();
+        long likeTimestamps[] = comment.getInterestedUserAccsTimestamp();
+        for (int i = 0; i < userLikes.length; i ++) {
+            date.setTimeInMillis(likeTimestamps[i]);
+            dateString = DateGenerator.formatDateDetail(date);
+            arguments.add(Long.toString(userLikes[i]));
+            arguments.add(SN.formId(comment.getMessageId()));
+            arguments.add(dateString);
+            ToCSV(arguments, Files.PERSON_LIKE_COMMENT.ordinal());
+        }
 	}
 
 	/**
@@ -769,7 +788,7 @@ public class CSV implements Serializer {
 	    }
 
 	    arguments.add(SN.formId(photo.getPhotoId()));
-	    arguments.add(Integer.toString(photo.getCreatorId()));
+	    arguments.add(Long.toString(photo.getCreatorId()));
 	    ToCSV(arguments, Files.POST_HAS_CREATOR_PERSON.ordinal());
 
 	    arguments.add(SN.formId(photo.getAlbumId()));
@@ -795,12 +814,12 @@ public class CSV implements Serializer {
 	        ToCSV(arguments, Files.POST_HAS_TAG_TAG.ordinal());
 	    }
 
-	    int userLikes[] = photo.getInterestedUserAccs();
+	    long userLikes[] = photo.getInterestedUserAccs();
 	    long likeTimestamps[] = photo.getInterestedUserAccsTimestamp();
 	    for (int i = 0; i < userLikes.length; i ++) {
 	        date.setTimeInMillis(likeTimestamps[i]);
 	        dateString = DateGenerator.formatDateDetail(date);
-	        arguments.add(Integer.toString(userLikes[i]));
+	        arguments.add(Long.toString(userLikes[i]));
 	        arguments.add(SN.formId(photo.getPhotoId()));
 	        arguments.add(dateString);
 	        ToCSV(arguments, Files.PERSON_LIKE_POST.ordinal());
@@ -816,13 +835,13 @@ public class CSV implements Serializer {
 	    date.setTimeInMillis(group.getCreatedDate());
         String dateString = DateGenerator.formatDateDetail(date);  
         
-	    arguments.add(SN.formId(group.getForumWallId()));
+	    arguments.add(SN.formId(group.getGroupId()));
 	    arguments.add(group.getGroupName());
 	    arguments.add(dateString);
 	    ToCSV(arguments,Files.FORUM.ordinal());
 	    
-	    arguments.add(SN.formId(group.getForumWallId()));
-	    arguments.add(Integer.toString(group.getModeratorId()));
+	    arguments.add(SN.formId(group.getGroupId()));
+	    arguments.add(Long.toString(group.getModeratorId()));
 	    ToCSV(arguments,Files.FORUM_HAS_MODERATOR_PERSON.ordinal());
 	    
 	    Integer groupTags[] = group.getTags();
@@ -840,7 +859,7 @@ public class CSV implements Serializer {
                 printTagHierarchy(groupTags[i]);
             }
             
-            arguments.add(SN.formId(group.getForumWallId()));
+            arguments.add(SN.formId(group.getGroupId()));
             arguments.add(Integer.toString(groupTags[i]));
             ToCSV(arguments,Files.FORUM_HASTAG_TAG.ordinal());
         }
@@ -851,8 +870,8 @@ public class CSV implements Serializer {
             date.setTimeInMillis(memberShips[i].getJoinDate());
             dateString = DateGenerator.formatDateDetail(date);
             
-            arguments.add(SN.formId(group.getForumWallId()));
-            arguments.add(Integer.toString(memberShips[i].getUserId()));
+            arguments.add(SN.formId(group.getGroupId()));
+            arguments.add(Long.toString(memberShips[i].getUserId()));
             arguments.add(dateString);
             ToCSV(arguments,Files.FORUM_HASMEMBER_PERSON.ordinal());
         }
@@ -863,12 +882,10 @@ public class CSV implements Serializer {
      */
 	public void close() {
 		try {
-			for (int i = 0; i < dataFileWriter.length; i++) {
-				for (int j = 0; j < Files.NUM_FILES.ordinal(); j++) {
-					dataFileWriter[i][j].flush();
-					dataFileWriter[i][j].close();
-				}
-			}
+            for (int j = 0; j < Files.NUM_FILES.ordinal(); j++) {
+                fileOutputStream[j].flush();
+                fileOutputStream[j].close();
+            }
 		} catch(IOException e) {
 			System.err.println(e.getMessage());
 			System.exit(-1);

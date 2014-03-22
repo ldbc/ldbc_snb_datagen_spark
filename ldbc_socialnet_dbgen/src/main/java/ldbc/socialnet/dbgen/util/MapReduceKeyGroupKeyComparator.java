@@ -34,47 +34,27 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package ldbc.socialnet.dbgen.dictionary;
+package ldbc.socialnet.dbgen.util;
 
+
+import org.apache.hadoop.io.WritableComparator;
+import ldbc.socialnet.dbgen.util.MapReduceKey;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Vector;
 import java.util.Random;
+import java.util.ArrayList;
+import java.util.Iterator;
 
+public class MapReduceKeyGroupKeyComparator extends WritableComparator {
+    protected MapReduceKeyGroupKeyComparator() {
+            super(MapReduceKey.class);
+    }
 
-public class UserAgentDictionary {
-    
-	String fileName;
-	
-	Vector<String> userAgents;
-	double probSentFromAgent; 
-	
-	public UserAgentDictionary(String fileName, double probSentFromAgent){
-		this.fileName = fileName; 
-		this.probSentFromAgent = probSentFromAgent;
-	}
-	
-	public void init(){
-		try {
-		    userAgents = new Vector<String>();
-			BufferedReader agentFile = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));
-			String line; 
-			while ((line = agentFile.readLine()) != null) {
-			    userAgents.add(line.trim());
-            }
-			agentFile.close();
-			System.out.println("Done ... " + userAgents.size() + " agents have been extracted ");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public String getUserAgentName(Random randomSent, boolean hasSmathPhone, byte agentId){
-		return (hasSmathPhone && (randomSent.nextDouble() > probSentFromAgent)) ? userAgents.get(agentId) : "";
-	}
-	
-	public byte getRandomUserAgentIdx(Random random){
-		return (byte)random.nextInt(userAgents.size());
-	}	
+    @Override
+    public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2){
+        int block1 = readInt(b1, s1);
+        int block2 = readInt(b2, s2);
+        return block1 - block2;
+    }
 }
