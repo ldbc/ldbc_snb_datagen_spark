@@ -96,7 +96,7 @@ public class UniformPostGenerator extends PostGenerator {
             if (postInfo.tags.isEmpty()) {
                 postInfo.tags.add(value);
             } else {
-                if (randomTag.nextDouble() < 0.2) {
+                if (randomTag.nextDouble() < 0.05) {
                     postInfo.tags.add(value);
                 }
             }

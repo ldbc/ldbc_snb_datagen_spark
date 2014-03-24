@@ -966,4 +966,12 @@ public class Turtle implements Serializer {
 			System.exit(-1);
 		}
 	}
+
+    public void resetState(long seed) {
+        membershipId = 0;
+        likeId       = 0;
+        workAtId     = 0;
+        studyAtId    = 0;
+        knowsId      = 0;
+    }
 }

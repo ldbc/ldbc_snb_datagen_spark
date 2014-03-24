@@ -729,7 +729,7 @@ public class ScalableGenerator{
         /// IMPORTANT: ratioLargeText is divided 0.083333, the probability 
         /// that SetUserLargePoster returns true.
         System.out.println("Building Comment Generator");
-        commentGenerator = new CommentGenerator(tagDictionary,tagTextDictionary, dateTimeGenerator,
+        commentGenerator = new CommentGenerator(tagDictionary,tagTextDictionary, topicTagDictionary, dateTimeGenerator,
                 minCommentSize, maxCommentSize,
                 minLargeCommentSize, maxLargeCommentSize, ratioLargeComment/0.0833333, maxNumLikes,exportText
         );
@@ -910,6 +910,7 @@ public class ScalableGenerator{
         fbDegreeGenerator.resetState(seed);
         resetWindow();
         randomFarm.resetRandomGenerators((long)seed);
+        serializer.resetState(seed);
     }
 
 
@@ -1168,10 +1169,7 @@ public class ScalableGenerator{
 
         int numLoop = 0;
         while ((group.getNumMemberAdded() < numGroupMember) && (numLoop < windowSize)) {
-
-            numLoop++;
             randLevelProb = randomFarm.get(RandomGeneratorFarm.Aspect.FRIEND_LEVEL).nextDouble();
-
             // Select the appropriate friend level
             if (randLevelProb < levelProbs[0]) { // ==> level 1
                 // Find a friendIdx
@@ -1229,6 +1227,7 @@ public class ScalableGenerator{
                     }
                 }
             }
+            numLoop++;
         }
 
         serializer.gatherData(group);

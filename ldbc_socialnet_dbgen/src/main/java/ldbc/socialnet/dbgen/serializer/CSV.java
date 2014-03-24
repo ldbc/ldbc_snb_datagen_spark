@@ -891,4 +891,9 @@ public class CSV implements Serializer {
 			System.exit(-1);
 		}
 	}
+
+
+    public void resetState(long seed) {
+
+    }
 }

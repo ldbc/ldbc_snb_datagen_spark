@@ -41,7 +41,8 @@ package ldbc.socialnet.dbgen.vocabulary;
  */
 public class SN{
     
-    public static String machineId;
+    public static long machineId;
+    private static long numBits;
 	public static final String NAMESPACE = "http://www.ldbc.eu/ldbc_socialnet/1.0/data/";
 	public static final String PREFIX = "sn:";
 	public static final String BLANK_NODE = "_:";
@@ -51,7 +52,7 @@ public class SN{
 	 * Used as a suffix in some SN entities' tp create unique IDs in parallel generation.
 	 */
 	public static void setMachineNumber(int machineId, int numMachines) {
-	    int digits = 0;
+/*	    int digits = 0;
 	    do {
 	        numMachines /= 10;
             digits++;
@@ -59,7 +60,9 @@ public class SN{
 	    SN.machineId = String.valueOf(machineId);
 	    for (int i = SN.machineId.length(); i < digits; i++) {
 	        SN.machineId = '0' + SN.machineId;
-	    }
+	    }*/
+        SN.numBits = (int)Math.ceil(Math.log10(numMachines) / Math.log10(2));
+        SN.machineId = machineId;
 	}
 	
 	/**
@@ -147,6 +150,11 @@ public class SN{
      * Gets the true id having in consideration the machine.
      */
 	public static String formId(long id) {
-	    return id + machineId;
+        long lowMask = 0x0FFFFF;                                // This mask is used to get the lowest 20 bits.
+        long lowerPart = ( lowMask & id );
+        long machinePart = machineId << 20 ;
+        long upperPart = (id >> 20) << 20 + numBits;
+        long finalId =  upperPart | machinePart | lowerPart ;
+        return Long.toString(finalId);
 	}
 }

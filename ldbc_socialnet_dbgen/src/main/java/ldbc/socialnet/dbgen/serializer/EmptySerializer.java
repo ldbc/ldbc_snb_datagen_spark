@@ -74,4 +74,8 @@ public class EmptySerializer implements Serializer {
 
 	public void close() {
 	}
+
+    public void resetState(long seed) {
+
+    }
 }
