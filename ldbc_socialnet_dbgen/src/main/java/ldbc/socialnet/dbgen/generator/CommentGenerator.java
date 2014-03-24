@@ -51,6 +51,7 @@ public class CommentGenerator {
 
     private TagDictionary tagDictionary;
     private TagTextDictionary tagTextDic; /**< @brief The TagTextDictionary used to obtain the texts posts/comments.**/
+    private TagMatrix tagMatrix;
     private DateGenerator dateGen;
 
     private int minSizeOfComment;          /**< @brief The minimum size of a comment.*/
@@ -65,6 +66,7 @@ public class CommentGenerator {
 	
 	public CommentGenerator( TagDictionary tagDictionary,
                              TagTextDictionary tagTextDic,
+                             TagMatrix tagMatrix,
                              DateGenerator dateGen,
                              int minSizeOfComment, 
                              int maxSizeOfComment, 
@@ -76,6 +78,7 @@ public class CommentGenerator {
                              ){
         this.tagDictionary = tagDictionary;
         this.tagTextDic = tagTextDic;
+        this.tagMatrix = tagMatrix;
         this.dateGen = dateGen;
 		this.minSizeOfComment = minSizeOfComment;
 		this.maxSizeOfComment = maxSizeOfComment;
@@ -189,16 +192,19 @@ public class CommentGenerator {
                 textSize = tagTextDic.getRandomTextSize( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT), minSizeOfComment, maxSizeOfComment);
             }
 
+            ArrayList<Integer> currentTags = new ArrayList<Integer>();
             Iterator<Integer> it = replyTo.getTags().iterator();
             while(it.hasNext()) {
                 Integer tag = it.next();
                 if( randomFarm.get(RandomGeneratorFarm.Aspect.TAG).nextDouble() > 0.5) {
                     tags.add(tag);
                 }
+                currentTags.add(tag);
             }
-            for(int i = 0; i < Math.ceil(replyTo.getTags().size() / 2.0); ++i){
-                Integer tag = tagDictionary.getaTagByCountry(randomFarm.get(RandomGeneratorFarm.Aspect.TAG_OTHER_COUNTRY), randomFarm.get(RandomGeneratorFarm.Aspect.TAG), user.getLocationId() );
-                tags.add(tag);
+
+            for( int i = 0; i < (int)Math.ceil(replyTo.getTags().size() / 2.0); ++i) {
+                int randomTag = currentTags.get(randomFarm.get(RandomGeneratorFarm.Aspect.TAG).nextInt(currentTags.size()));
+                tags.add(tagMatrix.getRandomRelated(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), randomFarm.get(RandomGeneratorFarm.Aspect.TAG),randomTag));
             }
 
             if( generateText ) {
@@ -260,16 +266,20 @@ public class CommentGenerator {
                 textSize = tagTextDic.getRandomTextSize( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT), minSizeOfComment, maxSizeOfComment);
             }
 
+            ArrayList<Integer> currentTags = new ArrayList<Integer>();
             Iterator<Integer> it = replyTo.getTags().iterator();
             while(it.hasNext()) {
                 Integer tag = it.next();
                 if( randomFarm.get(RandomGeneratorFarm.Aspect.TAG).nextDouble() > 0.5) {
                     tags.add(tag);
+                    tags.add(tagMatrix.getRandomRelated(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), randomFarm.get(RandomGeneratorFarm.Aspect.TAG),tag));
                 }
+                currentTags.add(tag);
             }
-            for(int i = 0; i < Math.ceil(replyTo.getTags().size() / 2.0); ++i){
-                Integer tag = tagDictionary.getaTagByCountry(randomFarm.get(RandomGeneratorFarm.Aspect.TAG_OTHER_COUNTRY), randomFarm.get(RandomGeneratorFarm.Aspect.TAG), group.getLocationIdx());
-                tags.add(tag);
+
+            for( int i = 0; i < (int)Math.ceil(replyTo.getTags().size() / 2.0); ++i) {
+                int randomTag = currentTags.get(randomFarm.get(RandomGeneratorFarm.Aspect.TAG).nextInt(currentTags.size()));
+                tags.add(tagMatrix.getRandomRelated(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), randomFarm.get(RandomGeneratorFarm.Aspect.TAG),randomTag));
             }
 
             if( generateText ) {

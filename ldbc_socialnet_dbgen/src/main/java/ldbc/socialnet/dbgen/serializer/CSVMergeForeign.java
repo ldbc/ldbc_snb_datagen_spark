@@ -718,7 +718,6 @@ public class CSVMergeForeign implements Serializer {
             arguments.add(dateString);
             ToCSV(arguments, Files.PERSON_LIKE_COMMENT.ordinal());
         }
-
 	}
 
 	/**
@@ -851,5 +850,9 @@ public class CSVMergeForeign implements Serializer {
             System.err.println(e.getMessage());
             System.exit(-1);
         }
+    }
+
+    public void resetState(long seed) {
+
     }
 }
