@@ -85,6 +85,8 @@ abstract public class PostGenerator {
     private double largePostRatio;         /**< @brief The ratio of large posts.*/
     private boolean generateText;          /**< @brief To generate text for post and comment.*/
 
+    private long deltaTime;                /**< @brief Delta time.*/
+
 	public PostGenerator( TagTextDictionary tagTextDic, 
                           UserAgentDictionary userAgentDic,
                           IPAddressDictionary ipAddressDic,
@@ -96,7 +98,8 @@ abstract public class PostGenerator {
                           int maxLargeSizeOfPost, 
                           double largePostRatio,
                           int maxNumberOfLikes,
-                          boolean generateText
+                          boolean generateText,
+                          long deltaTime
                           ){
 
         this.tagTextDic = tagTextDic;
@@ -114,6 +117,7 @@ abstract public class PostGenerator {
         this.largePostRatio = largePostRatio;
         this.maxNumberOfLikes = maxNumberOfLikes;
         this.generateText = generateText;
+        this.deltaTime = deltaTime;
 	}
 	
     /** @brief Initializes the post generator.*/
@@ -176,7 +180,7 @@ abstract public class PostGenerator {
         post.setInterestedUserAccs(likes);
         long[] likeTimestamp = new long[likes.length];
         for (int i = 0; i < likes.length; i++) {
-            likeTimestamp[i] = (long)(randomDate.nextDouble()*DateGenerator.SEVEN_DAYS+post.getCreationDate());
+            likeTimestamp[i] = (long)(randomDate.nextDouble()*DateGenerator.SEVEN_DAYS+post.getCreationDate()+deltaTime);
         }
         post.setInterestedUserAccsTimestamp(likeTimestamp);
     }
@@ -190,7 +194,7 @@ abstract public class PostGenerator {
         post.setInterestedUserAccs(likes);
         long[] likeTimestamp = new long[likes.length];
         for (int i = 0; i < likes.length; i++) {
-            likeTimestamp[i] = (long)(randomDate.nextDouble()*DateGenerator.SEVEN_DAYS+post.getCreationDate());
+            likeTimestamp[i] = (long)(randomDate.nextDouble()*DateGenerator.SEVEN_DAYS+post.getCreationDate()+deltaTime);
         }
         post.setInterestedUserAccsTimestamp(likeTimestamp);
     }

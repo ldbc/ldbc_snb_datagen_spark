@@ -198,6 +198,9 @@ public class ScalableGenerator{
     private final String FLASHMOB_TAG_MAX_LEVEL                 = "flashmobTagMaxLevel";
     private final String FLASHMOB_TAG_DIST_EXP                  = "flashmobTagDistExp";
 
+
+    private final String DELTA_TIME                             = "deltaTime";
+
     /**
      * This array provides a quick way to check if any of the required parameters is missing and throw the appropriate
      * exception in the method loadParamsFromFile()
@@ -214,7 +217,7 @@ public class ScalableGenerator{
             COMPANY_UNCORRELATED_RATIO, UNIVERSITY_UNCORRELATED_RATIO, BEST_UNIVERSTY_RATIO, MAX_POPULAR_PLACES,
             POPULAR_PLACE_RATIO, TAG_UNCORRELATED_COUNTRY, FLASHMOB_TAGS_PER_MONTH,
             PROB_INTEREST_FLASHMOB_TAG, PROB_RANDOM_PER_LEVEL,MAX_NUM_FLASHMOB_POST_PER_MONTH, MAX_NUM_GROUP_FLASHMOB_POST_PER_MONTH, MAX_NUM_TAG_PER_FLASHMOB_POST, FLASHMOB_TAG_MIN_LEVEL, FLASHMOB_TAG_MAX_LEVEL,
-            FLASHMOB_TAG_DIST_EXP};
+            FLASHMOB_TAG_DIST_EXP, DELTA_TIME};
 
     //final user parameters
     private final String NUM_USERS          = "numtotalUser";
@@ -385,6 +388,8 @@ public class ScalableGenerator{
     double         flashmobTagMaxLevel = 0.0f;
     double         flashmobTagDistExp  = 0.0f;
 
+    long            deltaTime = 0;
+
     // Data accessed from the hadoop jobs
     private ReducedUserProfile[] cellReducedUserProfiles;
     private int     numUserProfilesRead      = 0;
@@ -531,6 +536,7 @@ public class ScalableGenerator{
             flashmobTagMinLevel = Double.parseDouble(properties.getProperty(FLASHMOB_TAG_MIN_LEVEL));
             flashmobTagMaxLevel = Double.parseDouble(properties.getProperty(FLASHMOB_TAG_MAX_LEVEL));
             flashmobTagDistExp = Double.parseDouble(properties.getProperty(FLASHMOB_TAG_DIST_EXP));
+            deltaTime = Long.parseLong(properties.getProperty(DELTA_TIME));
         } catch (Exception e) {
             System.err.println(e.getMessage());
             e.printStackTrace();
@@ -585,7 +591,7 @@ public class ScalableGenerator{
         cellReducedUserProfiles = new ReducedUserProfile[cellSize];
 
         dateTimeGenerator = new DateGenerator( new GregorianCalendar(startYear, startMonth, startDate),
-                new GregorianCalendar(endYear, endMonth, endDate), alpha);
+                new GregorianCalendar(endYear, endMonth, endDate), alpha, deltaTime);
 
 
         System.out.println("Building location dictionary ");
@@ -680,7 +686,8 @@ public class ScalableGenerator{
                 maxNumPostPerMonth,
                 maxNumFriends,
                 maxNumGroupPostPerMonth,
-                maxNumMemberGroup
+                maxNumMemberGroup,
+                deltaTime
         );
         uniformPostGenerator.initialize();
 
@@ -1547,6 +1554,8 @@ public class ScalableGenerator{
                 createdTime = dateTimeGenerator.randomFriendReapprovedDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),declinedTime);
             }
         }
+        createdTime = createdTime - user1.getCreationDate() >= deltaTime ? createdTime : createdTime + (deltaTime - (createdTime - user1.getCreationDate() ));
+        createdTime = createdTime - user2.getCreationDate() >= deltaTime ? createdTime : createdTime + (deltaTime - (createdTime - user2.getCreationDate() ));
 
         user2.addNewFriend(new Friend(user1, requestedTime, declinedTime,
                 createdTime, pass, initiator));

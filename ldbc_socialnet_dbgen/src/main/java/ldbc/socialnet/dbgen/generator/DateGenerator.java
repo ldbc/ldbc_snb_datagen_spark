@@ -61,16 +61,18 @@ public class DateGenerator {
 	private long fromBirthDay;
 	private long toBirthDay;
 	GregorianCalendar birthCalendar;
+    private long deltaTime;
 	
 	private PowerDistGenerator powerDist;
 	
 	// This constructor is for the case of friendship's created date generator
 	public DateGenerator(GregorianCalendar from, GregorianCalendar to, 
-			double alpha)
+			double alpha, long deltaTime )
 	{
 		this.from = from.getTimeInMillis();
 		this.to = to.getTimeInMillis();
 		powerDist = new PowerDistGenerator(0.0, 1.0, alpha );
+        this.deltaTime = deltaTime;
 		
 		// For birthday from 1980 to 1990
 		GregorianCalendar frombirthCalendar = new GregorianCalendar(1980,1,1);
@@ -257,11 +259,11 @@ public class DateGenerator {
 	}
 	
 	public long randomPhotoAlbumCreatedDate(Random random, ReducedUserProfile user){
-		return  (long)(random.nextDouble()*(to-user.getCreationDate())+user.getCreationDate());
+		return  (long)(random.nextDouble()*(to-(user.getCreationDate()+deltaTime))+user.getCreationDate()+deltaTime);
 	}
 
 	public long randomGroupCreatedDate(Random random, ReducedUserProfile user){
-		return  (long)(random.nextDouble()*(to-user.getCreationDate())+user.getCreationDate());
+		return  (long)(random.nextDouble()*(to-(user.getCreationDate()+deltaTime))+user.getCreationDate()+deltaTime);
 	}
 
 	public long randomGroupMemberJoinDate(Random random, long groupCreateDate, long userCreatedDate){
