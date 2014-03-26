@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.Set;
 import java.util.Vector;
 
 
@@ -215,4 +216,8 @@ public class TagDictionary {
 		}
 		return result;
 	}
+
+    public Set<Integer> getTags() {
+        return tagNames.keySet();
+    }
 }

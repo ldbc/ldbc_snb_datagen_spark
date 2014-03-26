@@ -96,6 +96,7 @@ public class FlashmobPostGenerator extends PostGenerator {
             double largePostRatio,
             int maxNumberOfLikes,
             boolean exportText,
+            long deltaTime,
             DateGenerator dateGen,
             FlashmobTagDictionary flashmobTagDictionary,
             TagMatrix tagMatrix,
@@ -107,7 +108,7 @@ public class FlashmobPostGenerator extends PostGenerator {
             String flashmobDistFile
             ) {
         super(tagTextDic, userAgentDic, ipAddressDic, browserDic, minSizeOfPost, maxSizeOfPost, reducedTextRatio, minLargeSizeOfPost,
-                maxLargeSizeOfPost, largePostRatio, maxNumberOfLikes,exportText);
+                maxLargeSizeOfPost, largePostRatio, maxNumberOfLikes,exportText,deltaTime);
         this.dateGen = dateGen;
         this.flashmobTagDictionary = flashmobTagDictionary;
         this.tagMatrix = tagMatrix;

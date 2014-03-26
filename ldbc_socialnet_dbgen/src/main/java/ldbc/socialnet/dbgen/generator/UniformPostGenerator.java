@@ -72,15 +72,15 @@ public class UniformPostGenerator extends PostGenerator {
                           double largePostRatio,
                           int maxNumberOfLikes,
                           boolean exportText,
+                          long deltaTime,
                           DateGenerator dateGen,
                           int maxNumPostPerMonth,
                           int maxNumFriends,
                           int maxNumGroupPostPerMonth,
-                          int maxNumMembers,
-                          long deltaTime
+                          int maxNumMembers
                           ) {
         super(tagTextDic, userAgentDic, ipAddressDic, browserDic, minSizeOfPost, maxSizeOfPost, reducedTextRatio, minLargeSizeOfPost,
-              maxLargeSizeOfPost, largePostRatio, maxNumberOfLikes,exportText);
+              maxLargeSizeOfPost, largePostRatio, maxNumberOfLikes,exportText, deltaTime);
         this.dateGen = dateGen;
         this.maxNumPostPerMonth = maxNumPostPerMonth;
         this.maxNumFriends = maxNumFriends;

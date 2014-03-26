@@ -101,7 +101,7 @@ public class ScalableGenerator{
     private static final int endDate    = 1;
 
     private static final double alpha = 0.4;        /**< @brief PowerLaw distribution alpha parameter.*/
-    private static final int maxNumLikes = 10;      /**< @brief The maximum number of likes per post*/
+    private static final int maxNumLikes = 3;      /**< @brief The maximum number of likes per post*/
 
     private static final double levelProbs[] = { 0.5, 0.8, 1.0 };  /**< @brief Cumulative probability to join a group for the user direct friends, friends of friends and friends of the friends of the user friend.*/
     private static final double joinProbs[] = { 0.7, 0.4, 0.1 }; /**< @brief Probability to join a group for the user direct friends, friends of friends and friends of the friends of the user friend.*/
@@ -118,7 +118,7 @@ public class ScalableGenerator{
     private static final String   companiesDictionaryFile   = DICTIONARY_DIRECTORY + "companiesByCountry.txt";
     private static final String   countryAbbrMappingFile    = DICTIONARY_DIRECTORY + "countryAbbrMapping.txt";
     private static final String   tagDictionaryFile         = DICTIONARY_DIRECTORY + "dicCelebritiesByCountry.txt";
-    private static final String   countryDictionaryFile     = DICTIONARY_DIRECTORY + "dicLocation.txt";
+    private static final String   countryDictionaryFile     = DICTIONARY_DIRECTORY + "dicLocations.txt";
     private static final String   tagNamesFile              = DICTIONARY_DIRECTORY + "dicTopic.txt";
     private static final String   emailDictionaryFile       = DICTIONARY_DIRECTORY + "email.txt";
     private static final String   nameDictionaryFile        = DICTIONARY_DIRECTORY + "givennameByCountryBirthPlace.txt.freq.full";
@@ -682,12 +682,12 @@ public class ScalableGenerator{
                 ratioLargePost/0.0833333,
                 maxNumLikes,
                 exportText,
+                deltaTime,
                 dateTimeGenerator,
                 maxNumPostPerMonth,
                 maxNumFriends,
                 maxNumGroupPostPerMonth,
-                maxNumMemberGroup,
-                deltaTime
+                maxNumMemberGroup
         );
         uniformPostGenerator.initialize();
 
@@ -721,6 +721,7 @@ public class ScalableGenerator{
                 ratioLargePost/0.0833333,
                 maxNumLikes,
                 exportText,
+                deltaTime,
                 dateTimeGenerator,
                 flashmobTagDictionary,
                 topicTagDictionary,
@@ -738,7 +739,7 @@ public class ScalableGenerator{
         System.out.println("Building Comment Generator");
         commentGenerator = new CommentGenerator(tagDictionary,tagTextDictionary, topicTagDictionary, dateTimeGenerator,
                 minCommentSize, maxCommentSize,
-                minLargeCommentSize, maxLargeCommentSize, ratioLargeComment/0.0833333, maxNumLikes,exportText
+                minLargeCommentSize, maxLargeCommentSize, ratioLargeComment/0.0833333, maxNumLikes,exportText,deltaTime
         );
         commentGenerator.initialize();
 
@@ -1587,22 +1588,22 @@ public class ScalableGenerator{
         if (t.equals("ttl")) {
             return new Turtle(sibOutputDir +"/"+this.machineId+"_"+outputFileName, numRdfOutputFile, true, tagDictionary,
                     browserDictonry, companiesDictionary,
-                    unversityDictionary.GetUniversityLocationMap(),
+                    unversityDictionary,
                     ipAddDictionary, locationDictionary, languageDictionary, exportText, enableCompression);
         } else if (t.equals("n3")) {
             return new Turtle(sibOutputDir + "/"+this.machineId+"_"+outputFileName, numRdfOutputFile, false, tagDictionary,
                     browserDictonry, companiesDictionary,
-                    unversityDictionary.GetUniversityLocationMap(),
+                    unversityDictionary,
                     ipAddDictionary, locationDictionary, languageDictionary, exportText, enableCompression);
         } else if (t.equals("csv")) {
             return new CSV(sibOutputDir, this.machineId, tagDictionary,
                     browserDictonry, companiesDictionary,
-                    unversityDictionary.GetUniversityLocationMap(),
+                    unversityDictionary,
                     ipAddDictionary,locationDictionary, languageDictionary, exportText, enableCompression);
         } else if (t.equals("csv_merge_foreign")) {
             return new CSVMergeForeign(sibOutputDir, this.machineId, tagDictionary,
                     browserDictonry, companiesDictionary,
-                    unversityDictionary.GetUniversityLocationMap(),
+                    unversityDictionary,
                     ipAddDictionary,locationDictionary, languageDictionary, exportText, enableCompression);
         } else if (t.equals("none")) {
             return new EmptySerializer();
