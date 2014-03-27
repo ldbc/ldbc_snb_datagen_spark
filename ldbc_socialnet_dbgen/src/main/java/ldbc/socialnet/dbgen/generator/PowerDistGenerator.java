@@ -40,19 +40,17 @@ import java.util.Random;
 import umontreal.iro.lecuyer.probdist.PowerDist;
 
 public class PowerDistGenerator {
-    private Random rand;
 	private PowerDist powerDist; 
 	
-	public PowerDistGenerator(double a, double b, double alpha, long seed){
-		rand = new Random(seed);
+	public PowerDistGenerator(double a, double b, double alpha){
 		powerDist = new PowerDist(a, b, alpha);
 	}
 	
-	public int getValue(){
-	    return (int) powerDist.inverseF(rand.nextDouble());
+	public int getValue(Random random){
+	    return (int) powerDist.inverseF(random.nextDouble());
 	}
 	
-	public double getDouble(){
-		return powerDist.inverseF(rand.nextDouble());
+	public double getDouble(Random random){
+		return powerDist.inverseF(random.nextDouble());
 	}
 }

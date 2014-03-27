@@ -66,15 +66,18 @@ public class FBSocialDegreeGenerator {
 	Bucket[] 			buckets;
 	static final int	FB_MEAN = 190;
 	static final int	BUCKET_NUM = 100;
-	double 				avgPathLength; 
 	int[]				counter;  		/* Count the number of users at specific social degree */
 	int[]				percenttileIDCounter;	/* Current user Id in a certain percentile */
 	int					percentileIdx; 			/* Store the Idx of the current percentile */
 	
 	
-	public FBSocialDegreeGenerator(int networkSize, String fbDataFile, long seed, double avgPathLength){
-		this.avgPathLength = avgPathLength;
-		mean = (int) Math.round(Math.pow(networkSize, 1.00/avgPathLength));
+	public FBSocialDegreeGenerator(int networkSize, String fbDataFile, long seed){
+		//mean = (int) Math.round(Math.pow(networkSize, 1.00/avgPathLength));
+		//Do not use the simple mean computation from network size, but use the formula
+		// considering the upward trend over the degree of separation (path length)
+		// mean = N ^ (0.512 - 0.028 * log(N))
+		mean = (int) Math.round(Math.pow(networkSize, (0.512 - 0.028 * Math.log10(networkSize))));
+		
 		System.out.println("Mean = " + mean);
 		randomPercentile = new Random(seed);
 		percenttileIDCounter = new int[BUCKET_NUM];
@@ -87,8 +90,15 @@ public class FBSocialDegreeGenerator {
 		}
 		this.fbDataFile = fbDataFile;
 		this.buckets = new Bucket[BUCKET_NUM];
-
 	}
+
+    public void resetState(long seed) {
+        Random seedRandom = new Random(53223436L + 1234567*seed);
+        for (int i = 0; i < BUCKET_NUM; i++) {
+            randomDegree[i].setSeed(seedRandom.nextLong());
+        }
+        randomPercentile.setSeed(seedRandom.nextLong());
+    }
 	
 	public void loadFBBuckets(){
 		try{

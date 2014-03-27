@@ -50,26 +50,17 @@ import java.util.Vector;
 public class EmailDictionary {
     
     private static final String SEPARATOR = " "; 
-    
     Vector<String> emails;
 	Vector<Double> topEmailCummulative;
-	
 	String fileName;
-	
-	Random randIdx;
-	Random randEmail;
-	
 	/**
      * Constructor.
      * 
      * @param fileName: The file with the email data.
      * @param seed: Seed for the random selector.
      */
-	public EmailDictionary(String fileName, long seed) {
+	public EmailDictionary(String fileName) {
 		this.fileName = fileName;
-		
-		randIdx   = new Random(seed);
-		randEmail = new Random(seed);
 	}
 	
 	/**
@@ -89,7 +80,6 @@ public class EmailDictionary {
 			    String data[] = line.split(SEPARATOR);
                 emails.add(data[0]);
                 if (data.length == 2) {
-//                	System.out.println(line);
 			        cummulativeDist += Double.parseDouble(data[1]);
 			        topEmailCummulative.add(cummulativeDist);
 			    }
@@ -105,21 +95,18 @@ public class EmailDictionary {
 	/**
 	 * Gets a random email domain based on its popularity.
 	 */
-	public String getRandomEmail(){
-		
+	public String getRandomEmail(Random randomTop, Random randomEmail){
 		int minIdx = 0;
 		int maxIdx = topEmailCummulative.size() - 1;
-		
-		double prob = randEmail.nextDouble();
+		double prob = randomTop.nextDouble();
 		if (prob > topEmailCummulative.get(maxIdx)){
-		    int Idx = randIdx.nextInt(emails.size() - topEmailCummulative.size()) + topEmailCummulative.size();
+		    int Idx = randomEmail.nextInt(emails.size() - topEmailCummulative.size()) + topEmailCummulative.size();
 		    return emails.get(Idx);
 		} else if (prob < topEmailCummulative.get(minIdx)){
 		    return emails.get(minIdx);
 		}
 		
 		while ((maxIdx - minIdx) > 1){
-			
 		    int middlePoint = minIdx + (maxIdx - minIdx) / 2;
 			if (prob > topEmailCummulative.get(middlePoint)){
 				minIdx =  middlePoint;
@@ -127,7 +114,6 @@ public class EmailDictionary {
 				maxIdx =  middlePoint;
 			}
 		}
-		
 		return emails.get(maxIdx);
 	}	
 }

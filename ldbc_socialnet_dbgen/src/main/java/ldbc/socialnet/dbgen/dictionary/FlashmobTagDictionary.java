@@ -76,7 +76,7 @@ public class FlashmobTagDictionary {
 
 		this.tagDictionary = tagDictionary;	    
 		this.dateGen = dateGen;
-		this.levelGenerator  = new PowerDistGenerator(flashmobTagMinLevel, flashmobTagMaxLevel, flashmobTagDistExp, seed); 
+		this.levelGenerator  = new PowerDistGenerator(flashmobTagMinLevel, flashmobTagMaxLevel, flashmobTagDistExp); 
 		this.random = new Random(seed);
 		this.flashmobTags = new HashMap<Integer,Vector<FlashmobTag> >();
 		this.flashmobTagsPerMonth = flashmobTagsPerMonth;
@@ -87,7 +87,7 @@ public class FlashmobTagDictionary {
     /** @brief Initializes the flashmob tag dictionary, by selecting a set of tags as flashmob tags.*/
     public void initialize() {
     	int numFlashmobTags = (int)(flashmobTagsPerMonth * dateGen.numberOfMonths(dateGen.getStartDateTime()));
-    	Integer[] tags = tagDictionary.getRandomTags(numFlashmobTags);
+    	Integer[] tags = tagDictionary.getRandomTags(random,numFlashmobTags);
     	flashmobTagCumDist = new FlashmobTag[numFlashmobTags];
     	double sumLevels = 0;
     	for( int i = 0; i < numFlashmobTags; ++i ){
@@ -97,8 +97,8 @@ public class FlashmobTagDictionary {
     			flashmobTags.put(tags[i],instances);
     		}
    			FlashmobTag flashmobTag = new FlashmobTag();
-   			flashmobTag.date = dateGen.randomDateInMillis(dateGen.getStartDateTime(), dateGen.getCurrentDateTime());
-   			flashmobTag.level = levelGenerator.getValue();
+   			flashmobTag.date = dateGen.randomDateInMillis(random,dateGen.getStartDateTime(), dateGen.getCurrentDateTime());
+   			flashmobTag.level = levelGenerator.getValue(random);
    			sumLevels += flashmobTag.level;
    			flashmobTag.tag = tags[i];
     		instances.add(flashmobTag);

@@ -37,7 +37,7 @@
 package ldbc.socialnet.dbgen.objects;
 
 public class GroupMemberShip {
-	int		userId;
+	long	userId;
 	long 	joinDate;
 	IP      ip;
 	byte    browserIdx;
@@ -47,10 +47,10 @@ public class GroupMemberShip {
 	boolean isHaveSmartPhone;
 
 
-	public int getUserId() {
+	public long getUserId() {
 		return userId;
 	}
-	public void setUserId(int userId) {
+	public void setUserId(long userId) {
 		this.userId = userId;
 	}
 	

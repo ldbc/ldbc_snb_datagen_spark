@@ -43,7 +43,7 @@ import java.io.Serializable;
 
 public class Friend implements Serializable{
     private static final long serialVersionUID = 3657773293974543890L;
-	int friendAcc; 
+	long friendAcc; 
 	long createdTime;			//approved Time 
 	long requestTime;			 
 	long declinedTime; 
@@ -62,7 +62,7 @@ public class Friend implements Serializable{
 	boolean 			isLargePoster;			// True if friend is a large poster.
 	
 	
-	public Friend(int friendAcc, long _requestedTime, long _declinedTime, long _createdTime, byte passidx, byte initiator, boolean isLargePoster){
+	public Friend(long friendAcc, long _requestedTime, long _declinedTime, long _createdTime, byte passidx, byte initiator, boolean isLargePoster){
 		this.friendAcc = friendAcc;
 		this.requestTime = _requestedTime;
 		this.declinedTime = _declinedTime;
@@ -74,7 +74,7 @@ public class Friend implements Serializable{
 	public Friend(){}
 	
 	public void readFields(DataInput arg0) throws IOException{
-		friendAcc = arg0.readInt();
+		friendAcc = arg0.readLong();
 		createdTime = arg0.readLong();
 		requestTime = arg0.readLong();
 		declinedTime = arg0.readLong(); 
@@ -91,7 +91,7 @@ public class Friend implements Serializable{
 		this.isLargePoster = arg0.readBoolean();
 	}
 	public void write(DataOutput arg0) throws IOException {
-		arg0.writeInt(friendAcc);
+		arg0.writeLong(friendAcc);
 		arg0.writeLong(createdTime);
 		arg0.writeLong(requestTime);
 		arg0.writeLong(declinedTime);
@@ -125,10 +125,10 @@ public class Friend implements Serializable{
 	}	
 	
 	
-	public int getFriendAcc() {
+	public long getFriendAcc() {
 		return friendAcc;
 	}
-	public void setFriendAcc(int friendAcc) {
+	public void setFriendAcc(long friendAcc) {
 		this.friendAcc = friendAcc;
 	}
 	public long getCreatedTime() {

@@ -48,8 +48,8 @@ public class Statistics {
         }
     }
     
-    public Integer minPersonId;
-    public Integer maxPersonId;
+    public Long minPersonId;
+    public Long maxPersonId;
     public String minWorkFrom;
     public String maxWorkFrom;
     public String minPostCreationDate;
@@ -62,8 +62,8 @@ public class Statistics {
     private ArrayList<String[]> countryPairs;
     
     public Statistics() {
-        minPersonId = Integer.MAX_VALUE;
-        maxPersonId = Integer.MIN_VALUE;
+        minPersonId = Long.MAX_VALUE;
+        maxPersonId = Long.MIN_VALUE;
         firstNames = new TreeSet<String>();
         tagNames = new TreeSet<String>();
         tagClasses = new TreeSet<String>();

@@ -49,13 +49,10 @@ import org.apache.hadoop.io.Writable;
 
 public class ReducedUserProfile implements Serializable, Writable{
 	private static final long serialVersionUID = 3657773293974543890L;
-	int 				accountId;
-	int					sdpId;
-
-	long	 			createdDate; 
+	long 				accountId;
+    int					sdpId;
+	long	 			creationDate;
 	public short 		numFriends;
-
-
 	public short 		numFriendsAdded;
 	public byte			numCorDimensions; 
 	public short 		numPassFriends[];
@@ -63,7 +60,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 	
 
 	Friend 				friendList[];
-	TreeSet<Integer>	friendIds; 		// Use a Treeset for checking the existence
+	TreeSet<Long>	friendIds; 		// Use a Treeset for checking the existence
 	
 
 	int					dicElementIds[];	// Id of an element in a dictionary, e.g., locationId
@@ -80,18 +77,18 @@ public class ReducedUserProfile implements Serializable, Writable{
 	
 	
 	// Store redundant info
-	int 				locationIdx;
+	int 				locationId;
 	int                 cityIdx;
-	int 				forumWallId; 
-	int 				forumStatusId;
+	long 				forumWallId;
+//	int 				forumStatusId;
 	TreeSet<Integer> 	setOfTags;
 	
 	short				popularPlaceIds[]; 
 	byte				numPopularPlace;
 	
 	// For organization dimension
-	int 				locationOrganizationIdx;	// Contain zOderLocation  ... OrganizationId
-	byte				gender; 
+	int 				universityLocatonId;	
+    byte				gender; 
 	long				birthDay;
 
 	// For posting
@@ -113,10 +110,10 @@ public class ReducedUserProfile implements Serializable, Writable{
 	private void readObject(java.io.ObjectInputStream stream)
 			 throws IOException, ClassNotFoundException{
 			// TODO Auto-generated method stub
-			accountId = stream.readInt();
-			sdpId = stream.readInt();
-			createdDate = stream.readLong(); 
-			numFriends = stream.readShort(); 
+			accountId = stream.readLong();
+            sdpId = stream.readInt();
+			creationDate = stream.readLong();
+			numFriends = stream.readShort();
 			numFriendsAdded = stream.readShort();
 			numCorDimensions = stream.readByte();
 			numPassFriends = new short[numCorDimensions];
@@ -128,7 +125,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 				numPassFriendsAdded[i] = stream.readShort();
 			}
 			friendList = new Friend[numFriends];
-			friendIds = new TreeSet<Integer>();
+			friendIds = new TreeSet<Long>();
 			for (int i = 0; i < numFriendsAdded; i++){
 				Friend fr = new Friend(); 
 				fr.readFields(stream);
@@ -137,7 +134,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 			//Read the size of Treeset first
 			int size = stream.readInt(); 
 			for (int i = 0; i < size; i++){
-				friendIds.add(stream.readInt());
+				friendIds.add(stream.readLong());
 			}
 			dicElementIds = new int[numCorDimensions];
 			for (int i = 0; i < numCorDimensions; i++){
@@ -153,10 +150,10 @@ public class ReducedUserProfile implements Serializable, Writable{
 	        int mask = stream.readInt();
 	        ipAddress = new IP(ip, mask); 
 			
-			locationIdx = stream.readInt();
+			locationId = stream.readInt();
 			cityIdx = stream.readInt();
-			forumWallId = stream.readInt();
-			forumStatusId = stream.readInt();
+			forumWallId = stream.readLong();
+			//forumStatusId = stream.readInt();
 			
 			byte numOfTags = stream.readByte();
 			setOfTags = new TreeSet<Integer>();
@@ -170,7 +167,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 				popularPlaceIds[i] = stream.readShort();
 			}
 			
-			locationOrganizationIdx = stream.readInt(); 
+			universityLocatonId = stream.readInt(); 
 			gender = stream.readByte();
 			birthDay = stream.readLong();
 			isLargePoster = stream.readBoolean();
@@ -178,10 +175,10 @@ public class ReducedUserProfile implements Serializable, Writable{
 	
 	private void writeObject(java.io.ObjectOutputStream stream)
 	throws IOException{
-		 	stream.writeInt(accountId);
-		 	stream.writeInt(sdpId);
-			stream.writeLong(createdDate); 
-			stream.writeShort(numFriends); 
+		 	stream.writeLong(accountId);
+            stream.writeInt(sdpId);
+			stream.writeLong(creationDate);
+			stream.writeShort(numFriends);
 			stream.writeShort(numFriendsAdded);
 			stream.writeByte(numCorDimensions);
 			for (int i = 0; i < numCorDimensions; i ++){
@@ -196,9 +193,9 @@ public class ReducedUserProfile implements Serializable, Writable{
 			}
 			//Read the size of Treeset first
 			stream.writeInt(friendIds.size()); 
-			Iterator<Integer> it = friendIds.iterator();
+			Iterator<Long> it = friendIds.iterator();
 			while (it.hasNext()){
-				stream.writeInt(it.next());
+				stream.writeLong(it.next());
 			}
 			
 			for (int i = 0; i < numCorDimensions; i++){
@@ -214,10 +211,10 @@ public class ReducedUserProfile implements Serializable, Writable{
 			stream.writeInt(ipAddress.getMask());
 			
 			
-			stream.writeInt(locationIdx);
+			stream.writeInt(locationId);
 			stream.writeInt(cityIdx);
-			stream.writeInt(forumWallId);
-			stream.writeInt(forumStatusId);
+			stream.writeLong(forumWallId);
+//			stream.writeInt(forumStatusId);
 			
 			stream.writeByte((byte)setOfTags.size());
 			Iterator<Integer> iter2 = setOfTags.iterator();
@@ -231,17 +228,17 @@ public class ReducedUserProfile implements Serializable, Writable{
 				stream.writeShort(popularPlaceIds[i]);
 			}
 			
-			stream.writeInt(locationOrganizationIdx);
+			stream.writeInt(universityLocatonId);
 			stream.writeByte(gender);
 			stream.writeLong(birthDay);
 			stream.writeBoolean(isLargePoster);
 	 }
 	
 	public void readFields(DataInput arg0) throws IOException {
-		accountId = arg0.readInt();
-		sdpId = arg0.readInt();
-		createdDate = arg0.readLong(); 
-		numFriends = arg0.readShort(); 
+		accountId = arg0.readLong();
+        sdpId = arg0.readInt();
+		creationDate = arg0.readLong();
+		numFriends = arg0.readShort();
 		numFriendsAdded = arg0.readShort();
 		numCorDimensions = arg0.readByte();
 		numPassFriends = new short[numCorDimensions];
@@ -253,7 +250,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 			numPassFriendsAdded[i] = arg0.readShort();
 		}
 		friendList = new Friend[numFriends];
-		friendIds = new TreeSet<Integer>();
+		friendIds = new TreeSet<Long>();
 		for (int i = 0; i < numFriendsAdded; i++){
 			Friend fr = new Friend(); 
 			fr.readFields(arg0);
@@ -262,7 +259,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 		//Read the size of Treeset first
 		int size = arg0.readInt(); 
 		for (int i = 0; i < size; i++){
-			friendIds.add(arg0.readInt());
+			friendIds.add(arg0.readLong());
 		}
 		dicElementIds = new int[numCorDimensions];
 		for (int i = 0; i < numCorDimensions; i++){
@@ -278,10 +275,10 @@ public class ReducedUserProfile implements Serializable, Writable{
 		int mask = arg0.readInt();
 		ipAddress = new IP(ip, mask); 
 		
-		locationIdx = arg0.readInt();
+		locationId = arg0.readInt();
 		cityIdx = arg0.readInt();
-		forumWallId = arg0.readInt();
-		forumStatusId = arg0.readInt();
+		forumWallId = arg0.readLong();
+		//forumStatusId = arg0.readInt();
 		
 		byte numTags = arg0.readByte(); 
 		setOfTags = new TreeSet<Integer>();
@@ -296,17 +293,16 @@ public class ReducedUserProfile implements Serializable, Writable{
 			popularPlaceIds[i] = arg0.readShort();
 		}
 		
-		locationOrganizationIdx = arg0.readInt(); 
+		universityLocatonId = arg0.readInt(); 
 		gender = arg0.readByte();
 		birthDay = arg0.readLong();
 		isLargePoster = arg0.readBoolean();
 	}
 	
 	public void copyFields(ReducedUserProfile user){
-		// TODO Auto-generated method stub
 		accountId = user.getAccountId();
-		sdpId = user.getSdpId();
-		createdDate = user.getCreatedDate();
+        sdpId = user.getSdpId();
+		creationDate = user.getCreationDate();
 		numFriends = user.getNumFriends();
 		numFriendsAdded = user.getNumFriendsAdded();
 		numCorDimensions = user.getNumCorDimensions();
@@ -319,34 +315,34 @@ public class ReducedUserProfile implements Serializable, Writable{
 		
 		dicElementIds = user.getDicElementIds();
 		
-		isHaveSmartPhone = user.isHaveSmartPhone ;
+		isHaveSmartPhone = user.isHaveSmartPhone();
 		agentIdx = user.getAgentIdx();
 		browserIdx = user.getBrowserIdx();
 		isFrequentChange = user.isFrequentChange;
 
 		ipAddress = user.getIpAddress();  
 		
-		locationIdx = user.getLocationIdx();
-		cityIdx = user.getCityIdx();
+		locationId = user.getLocationId();
+		cityIdx = user.getCityId();
 		forumWallId = user.getForumWallId();
-		forumStatusId = user.getForumStatusId();
+//		forumStatusId = user.getForumStatusId();
 		
 		setOfTags = user.getSetOfTags();
 
 		numPopularPlace = user.getNumPopularPlace();
 		popularPlaceIds = user.getPopularPlaceIds();
 		
-		locationOrganizationIdx = user.getLocationOrganizationIdx(); 
+		universityLocatonId = user.getUniversityLocationId(); 
 		gender = user.getGender();
 		birthDay = user.getBirthDay();
 		isLargePoster = user.isLargePoster();
 	}
 	
 	public void write(DataOutput arg0) throws IOException {
-		arg0.writeInt(accountId);
-		arg0.writeInt(sdpId);
-		arg0.writeLong(createdDate); 
-		arg0.writeShort(numFriends); 
+		arg0.writeLong(accountId);
+        arg0.writeInt(sdpId);
+		arg0.writeLong(creationDate);
+		arg0.writeShort(numFriends);
 		arg0.writeShort(numFriendsAdded);
 		arg0.writeByte(numCorDimensions);
 		for (int i = 0; i < numCorDimensions; i ++){
@@ -361,9 +357,9 @@ public class ReducedUserProfile implements Serializable, Writable{
 		}
 		//Read the size of Treeset first
 		arg0.writeInt(friendIds.size()); 
-		Iterator<Integer> it = friendIds.iterator();
+		Iterator<Long> it = friendIds.iterator();
 		while (it.hasNext()){
-			arg0.writeInt(it.next());
+			arg0.writeLong(it.next());
 		}
 		
 		for (int i = 0; i < numCorDimensions; i++){
@@ -379,10 +375,10 @@ public class ReducedUserProfile implements Serializable, Writable{
 		arg0.writeInt(ipAddress.getMask());
 		
 		
-		arg0.writeInt(locationIdx);
+		arg0.writeInt(locationId);
 		arg0.writeInt(cityIdx);
-		arg0.writeInt(forumWallId);
-		arg0.writeInt(forumStatusId);
+		arg0.writeLong(forumWallId);
+//		arg0.writeInt(forumStatusId);
 		
 		arg0.writeByte((byte)setOfTags.size()); 
 		
@@ -397,7 +393,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 			arg0.writeShort(popularPlaceIds[i]);
 		}
 		
-		arg0.writeInt(locationOrganizationIdx);
+		arg0.writeInt(universityLocatonId);
 		arg0.writeByte(gender);
 		arg0.writeLong(birthDay);
 		arg0.writeBoolean(isLargePoster);
@@ -409,13 +405,13 @@ public class ReducedUserProfile implements Serializable, Writable{
 	
 	public ReducedUserProfile(UserProfile user, int numCorrDimensions){
 		this.setAccountId(user.getAccountId());
-		this.setSdpId(user.getSdpId());
-		this.setCreatedDate(user.getCreatedDate());
+        this.setSdpId(user.getSdpId());
+		this.setCreationDate(user.getCreationDate());
 		this.setNumFriends(user.getNumFriends());
 		this.setNumFriendsAdded((short)0);
 		this.numCorDimensions = (byte)numCorrDimensions;
 		
-		this.setLocationOrganizationIdx(user.getLocationOrganizationId());
+		this.setUniversityLocationId(user.getUniversityLocationId());
 		
 		dicElementIds = new int[numCorrDimensions];
 		
@@ -426,7 +422,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 		date.setTimeInMillis(birthDay);
 		int birthYear = date.get(GregorianCalendar.YEAR);
 		
-		int organizationDimension = locationOrganizationIdx | (birthYear << 1) | gender;		
+		int organizationDimension = universityLocatonId | (birthYear << 1) | gender;		
 		
 		this.setDicElementId(organizationDimension,0);
 		
@@ -437,17 +433,17 @@ public class ReducedUserProfile implements Serializable, Writable{
 		this.allocateFriendListMemory();
 		
 		// for user's agent information
-		this.setHaveSmartPhone(user.isHaveSmartPhone);
-		this.setAgentIdx(user.getAgentIdx());
-		this.setBrowserIdx(user.getBrowserIdx());
+		this.setHaveSmartPhone(user.isHaveSmartPhone());
+		this.setAgentIdx(user.getAgentId());
+		this.setBrowserIdx(user.getBrowserId());
 		this.setIpAddress(user.getIpAddress());
 		
 		this.setNumPassFriends(user.getNumPassFriends());
 		
 		// DucPM: Need to check whether this info needs to be stored here
-		this.setLocationIdx(user.getLocationIdx());
-		this.setCityIdx(user.getCityIdx());
-		this.setForumStatusId(user.getForumStatusId());
+		this.setLocationIdx(user.getLocationId());
+		this.setCityIdx(user.getCityId());
+		//this.setForumStatusId(user.getForumStatusId());
 		this.setForumWallId(user.getForumWallId());
 		this.setSetOfTags(user.getSetOfTags());
 		this.setPopularPlaceIds(user.getPopularPlaceIds());
@@ -502,7 +498,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 	    }
 	}
 	
-	public boolean isExistFriend(int friendId){
+	public boolean isExistFriend(long friendId){
 		return friendIds.contains(friendId);
 	}
 	
@@ -513,7 +509,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 	
 	public void allocateFriendListMemory(){
 		friendList = new Friend[numFriends];
-		friendIds = new TreeSet<Integer>();
+		friendIds = new TreeSet<Long>();
 	}
 
 	public Friend[] getFriendList() {
@@ -531,20 +527,22 @@ public class ReducedUserProfile implements Serializable, Writable{
 		this.numFriends = numFriends;
 	}
 
-	public long getCreatedDate() {
-		return createdDate;
+	public long getCreationDate() {
+		return creationDate;
 	}
 
-	public void setCreatedDate(long createdDate) {
-		this.createdDate = createdDate;
+	public void setCreationDate(long creationDate) {
+		this.creationDate = creationDate;
 	}
 
-	public int getAccountId() {
+	public long getAccountId() {
 		return accountId;
 	}
-	public void setAccountId(int accountId) {
+
+	public void setAccountId(long accountId) {
 		this.accountId = accountId;
 	}
+
 	public int getSdpId() {
 		return sdpId;
 	}
@@ -597,33 +595,29 @@ public class ReducedUserProfile implements Serializable, Writable{
 	public void setNumPassFriends(short[] numPassFriends) {
 		this.numPassFriends = numPassFriends;
 	}
-	public int getLocationIdx() {
-		return locationIdx;
+	public int getLocationId() {
+		return locationId;
 	}
-	public void setLocationIdx(int locationIdx) {
-		this.locationIdx = locationIdx;
+	public void setLocationIdx(int locationId) {
+		this.locationId = locationId;
 	}
-	public int getCityIdx() {
+	public int getCityId() {
         return cityIdx;
     }
     public void setCityIdx(int cityIdx) {
         this.cityIdx = cityIdx;
     }
-	public int getForumWallId() {
+	public long getForumWallId() {
 		return forumWallId;
 	}
-	public void setForumWallId(int forumWallId) {
+	public void setForumWallId(long forumWallId) {
 		this.forumWallId = forumWallId;
 	}
-	public int getForumStatusId() {
-		return forumStatusId;
-	}
-	public void setForumStatusId(int forumStatusId) {
-		this.forumStatusId = forumStatusId;
-	}
+
 	public TreeSet<Integer> getSetOfTags() {
 		return setOfTags;
 	}
+
 	public void setSetOfTags(TreeSet<Integer> setOfTags) {
 		this.setOfTags = setOfTags;
 	}
@@ -642,6 +636,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 	public void setPopularPlaceIds(short[] popularPlaceIds) {
 		this.popularPlaceIds = popularPlaceIds;
 	}
+
 	public short getNumFriends() {
 		return numFriends;
 	}
@@ -659,18 +654,18 @@ public class ReducedUserProfile implements Serializable, Writable{
 	public void setNumPassFriendsAdded(short[] numPassFriendsAdded) {
 		this.numPassFriendsAdded = numPassFriendsAdded;
 	}
-	public TreeSet<Integer> getFriendIds() {
+	public TreeSet<Long> getFriendIds() {
 		return friendIds;
 	}
 	public int[] getDicElementIds() {
 		return dicElementIds;
 	}
-	public int getLocationOrganizationIdx() {
-		return locationOrganizationIdx;
+	public int getUniversityLocationId() {
+		return universityLocatonId;
 	}
 
-	public void setLocationOrganizationIdx(int locationOrganizationIdx) {
-		this.locationOrganizationIdx = locationOrganizationIdx;
+	public void setUniversityLocationId(int universityLocatonId) {
+		this.universityLocatonId = universityLocatonId;
 	}
 	public byte getGender() {
 		return gender;

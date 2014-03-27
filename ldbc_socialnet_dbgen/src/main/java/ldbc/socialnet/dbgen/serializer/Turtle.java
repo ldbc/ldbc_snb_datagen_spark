@@ -36,20 +36,18 @@
  */
 package ldbc.socialnet.dbgen.serializer;
 
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Vector;
+import java.util.zip.GZIPOutputStream;
 
-import ldbc.socialnet.dbgen.dictionary.BrowserDictionary;
-import ldbc.socialnet.dbgen.dictionary.CompanyDictionary;
-import ldbc.socialnet.dbgen.dictionary.IPAddressDictionary;
-import ldbc.socialnet.dbgen.dictionary.LanguageDictionary;
-import ldbc.socialnet.dbgen.dictionary.LocationDictionary;
-import ldbc.socialnet.dbgen.dictionary.TagDictionary;
+import ldbc.socialnet.dbgen.dictionary.*;
 import ldbc.socialnet.dbgen.generator.DateGenerator;
 import ldbc.socialnet.dbgen.objects.Comment;
 import ldbc.socialnet.dbgen.objects.Friend;
@@ -76,8 +74,8 @@ public class Turtle implements Serializer {
 	
     private static final String STATIC_DBP_DATA_FILE = "static_dbp";
     
-	private FileWriter[] dataFileWriter;
-	private FileWriter[] staticdbpFileWriter;
+	private OutputStream[] dataFileWriter;
+	private OutputStream[] staticdbpFileWriter;
 	private int currentWriter = 0;
 	
 	private long nrTriples;
@@ -103,6 +101,7 @@ public class Turtle implements Serializer {
 	private long likeId       = 0;
 	private long workAtId     = 0;
 	private long studyAtId    = 0;
+    private long knowsId      = 0;
 	
 	/**
 	 * Used to avoid serialize more than once the same data.
@@ -127,16 +126,16 @@ public class Turtle implements Serializer {
 	 */
 	public Turtle(String file, int nrOfOutputFiles, boolean isTurtle,
             TagDictionary tagDic, BrowserDictionary browsers, 
-            CompanyDictionary companies, HashMap<String, Integer> univesityToCountry,
+            CompanyDictionary companies, UniversityDictionary universityDictionary,
             IPAddressDictionary ipDic,  LocationDictionary locationDic, 
-            LanguageDictionary languageDic, boolean exportText) {
+            LanguageDictionary languageDic, boolean exportText, boolean compressed) {
 	    
 	    this.isTurtle = isTurtle;
 	    this.tagDic = tagDic;  
         this.browserDic = browsers;
         this.locationDic = locationDic;
         this.companyDic = companies;
-        this.universityToCountry = univesityToCountry;
+        this.universityToCountry = universityDictionary.GetUniversityLocationMap();
         this.ipDic = ipDic;
         this.languageDic = languageDic;
         this.exportText = exportText;
@@ -152,21 +151,36 @@ public class Turtle implements Serializer {
 		String formatString = "%0" + nrOfDigits + "d";
 		try{
 		    String extension = (isTurtle) ? ".ttl": ".n3";
-			dataFileWriter = new FileWriter[nrOfOutputFiles];
-			staticdbpFileWriter = new FileWriter[nrOfOutputFiles];
-			if(nrOfOutputFiles==1) {
-				this.dataFileWriter[0] = new FileWriter(file + extension);
-				this.staticdbpFileWriter[0] = new FileWriter(file+STATIC_DBP_DATA_FILE + extension);
-			} else {
-				for(int i=1;i<=nrOfOutputFiles;i++) {
-					dataFileWriter[i-1] = new FileWriter(file + String.format(formatString, i) + extension);
-					this.staticdbpFileWriter[i-1] = new FileWriter(file+STATIC_DBP_DATA_FILE + String.format(formatString, i) + extension);
-				}
-			}
+            if( compressed ) {
+                dataFileWriter = new OutputStream[nrOfOutputFiles];
+                staticdbpFileWriter = new OutputStream[nrOfOutputFiles];
+                if(nrOfOutputFiles==1) {
+                    this.dataFileWriter[0] = new GZIPOutputStream(new FileOutputStream(file + extension+".gz"));
+                    this.staticdbpFileWriter[0] = new GZIPOutputStream(new FileOutputStream(file+STATIC_DBP_DATA_FILE + extension+".gz"));
+                } else {
+                    for(int i=1;i<=nrOfOutputFiles;i++) {
+                        this.dataFileWriter[i-1] = new GZIPOutputStream(new FileOutputStream(file + String.format(formatString, i) + extension+".gz"));
+                        this.staticdbpFileWriter[i-1] = new GZIPOutputStream(new FileOutputStream(file+STATIC_DBP_DATA_FILE + String.format(formatString, i) + extension+".gz"));
+                    }
+                }
+            } else {
+                dataFileWriter = new OutputStream[nrOfOutputFiles];
+                staticdbpFileWriter = new OutputStream[nrOfOutputFiles];
+                if(nrOfOutputFiles==1) {
+                    this.dataFileWriter[0] = new FileOutputStream(file + extension);
+                    this.staticdbpFileWriter[0] = new FileOutputStream(file+STATIC_DBP_DATA_FILE + extension);
+                } else {
+                    for(int i=1;i<=nrOfOutputFiles;i++) {
+                        this.dataFileWriter[i-1] = new FileOutputStream(file + String.format(formatString, i) + extension);
+                        this.staticdbpFileWriter[i-1] = new FileOutputStream(file+STATIC_DBP_DATA_FILE + String.format(formatString, i) + extension);
+                    }
+                }
+
+            }
 			
 			for(int i=0;i<nrOfOutputFiles;i++) {
-                dataFileWriter[i].append(getNamespaces());
-                staticdbpFileWriter[i].append(getStaticNamespaces());
+                toWriter(i,getNamespaces());
+                writeDBPData(i,getStaticNamespaces());
             }
 			
 		} catch(IOException e) {
@@ -187,17 +201,22 @@ public class Turtle implements Serializer {
 	 * 
 	 * @param data: The string to write.
 	 */
-	public void toWriter(String data){
+	public void toWriter(int index, String data){
 	    try {
-	        dataFileWriter[currentWriter].append(data);
-	        currentWriter = (currentWriter + 1) % dataFileWriter.length;
+            byte[] dataArray =data.getBytes("UTF8");
+	        dataFileWriter[index].write(dataArray);
 	    } catch(IOException e){
 	        System.out.println("Cannot write to output file ");
 	        e.printStackTrace();
 	        System.exit(-1);
 	    }
 	}
-	
+
+    public void toWriter(String data){
+        toWriter(currentWriter,data);
+        currentWriter = (currentWriter + 1) % dataFileWriter.length;
+    }
+
 	/**
      * Gets the namespace for the generator file.
      */
@@ -249,17 +268,30 @@ public class Turtle implements Serializer {
 	 * @param predicate: The RDF predicate.
 	 * @param object: The RDF object.
 	 */
-	private void writeDBPData(String subject, String predicate, String object) {
+	private void writeDBPData(int index, String subject, String predicate, String object) {
 	    try {
 	        StringBuffer result = new StringBuffer(150);
 	        createTripleSPO(result, subject, predicate, object);
-	        staticdbpFileWriter[currentWriter].append(result);
+	        staticdbpFileWriter[index].write(result.toString().getBytes("UTF8"));
 	    } catch (IOException e) {
             System.out.println("Cannot write to output file ");
             e.printStackTrace();
         }
 	}
-	
+
+    private void writeDBPData(String subject, String predicate, String object) {
+        writeDBPData(currentWriter,subject,predicate,object);
+    }
+
+    private void writeDBPData(int index, String data) {
+        try {
+            staticdbpFileWriter[index].write(data.getBytes("UTF8"));
+        } catch (IOException e) {
+            System.out.println("Cannot write to output file ");
+            e.printStackTrace();
+        }
+    }
+
 	/**
 	 * Serializes the tag data and its class hierarchy.
 	 * 
@@ -393,7 +425,7 @@ public class Turtle implements Serializer {
 		    int parentId = companyDic.getCountry(company);
 		    printLocationHierarchy(result, parentId);
 		}
-		printLocationHierarchy(result, universityToCountry.get(extraInfo.getOrganization()));
+		printLocationHierarchy(result, universityToCountry.get(extraInfo.getUniversity()));
 		printLocationHierarchy(result, ipDic.getLocation(profile.getIpAddress()));
 		
 		
@@ -427,29 +459,29 @@ public class Turtle implements Serializer {
             }
         }
 
-        date.setTimeInMillis(profile.getCreatedDate());
+        date.setTimeInMillis(profile.getCreationDate());
         String dateString = DateGenerator.formatDateDetail(date);
         AddTriple(result, false, true, prefix, SNVOC.creationDate,
                 createDataTypeLiteral(dateString, XSD.DateTime));
 
         createTripleSPO(result, prefix, SNVOC.locatedIn, DBP.fullPrefixed(locationDic.getLocationName(extraInfo.getLocationId())));
 
-        if (!extraInfo.getOrganization().equals("")) {
-            if (!printedOrganizations.containsKey(extraInfo.getOrganization())) {
+        if (!extraInfo.getUniversity().equals("")) {
+            if (!printedOrganizations.containsKey(extraInfo.getUniversity())) {
                 int organizationId = printedOrganizations.size();
-                printedOrganizations.put(extraInfo.getOrganization(), organizationId);
+                printedOrganizations.put(extraInfo.getUniversity(), organizationId);
                 
-                writeDBPData(DBP.fullPrefixed(extraInfo.getOrganization()), RDF.type, DBPOWL.Organisation);
-                writeDBPData(DBP.fullPrefixed(extraInfo.getOrganization()), FOAF.Name, createLiteral(extraInfo.getOrganization()));
-                int locationId = universityToCountry.get(extraInfo.getOrganization());
-                createTripleSPO(result, DBP.fullPrefixed(extraInfo.getOrganization()), 
+                writeDBPData(DBP.fullPrefixed(extraInfo.getUniversity()), RDF.type, DBPOWL.Organisation);
+                writeDBPData(DBP.fullPrefixed(extraInfo.getUniversity()), FOAF.Name, createLiteral(extraInfo.getUniversity()));
+                int locationId = universityToCountry.get(extraInfo.getUniversity());
+                createTripleSPO(result, DBP.fullPrefixed(extraInfo.getUniversity()), 
                         SNVOC.locatedIn, DBP.fullPrefixed(locationDic.getLocationName(locationId)));
             }
             
             if (extraInfo.getClassYear() != -1 ){
             createTripleSPO(result, prefix, SNVOC.studyAt, SN.getStudyAtURI(studyAtId));
             createTripleSPO(result, SN.getStudyAtURI(studyAtId), SNVOC.hasOrganisation, 
-                    DBP.fullPrefixed(extraInfo.getOrganization()));
+                    DBP.fullPrefixed(extraInfo.getUniversity()));
                 date.setTimeInMillis(extraInfo.getClassYear());
                 String yearString = DateGenerator.formatYear(date);
                 createTripleSPO(result, SN.getStudyAtURI(studyAtId), SNVOC.classYear,
@@ -512,8 +544,14 @@ public class Turtle implements Serializer {
 		Friend friends[] = profile.getFriendList();
 		for (int i = 0; i < friends.length; i++){
 			if (friends[i] != null && friends[i].getCreatedTime() != -1){
-			    createTripleSPO(result, prefix, SNVOC.knows,
-			            SN.getPersonURI(friends[i].getFriendAcc()));
+			    //createTripleSPO(result, prefix, SNVOC.knows, SN.getPersonURI(friends[i].getFriendAcc()));
+                createTripleSPO(result, prefix, SNVOC.knows, SN.getKnowsURI(knowsId));
+                createTripleSPO(result, SN.getKnowsURI(knowsId), SNVOC.hasPerson,
+                        SN.getPersonURI(friends[i].getFriendAcc()));
+                date.setTimeInMillis(profile.getCreationDate());
+                createTripleSPO(result, SN.getKnowsURI(knowsId), SNVOC.creationDate,
+                                createDataTypeLiteral(DateGenerator.formatDateDetail(date), XSD.DateTime));
+                knowsId++;
 			}
 		}
 		
@@ -566,7 +604,7 @@ public class Turtle implements Serializer {
 	    }
 	    date.setTimeInMillis(post.getCreationDate());
 	    String dateString = DateGenerator.formatDateDetail(date);
-	    String prefix = SN.getPostURI(post.getPostId());
+	    String prefix = SN.getPostURI(post.getMessageId());
 
 	    AddTriple(result, true, false, prefix, RDF.type, SNVOC.Post);
 	    AddTriple(result, false, false, prefix, SNVOC.creationDate, 
@@ -591,7 +629,7 @@ public class Turtle implements Serializer {
 	                createLiteral(languageDic.getLanguagesName(post.getLanguage())));
 	    }
 
-	    if (post.getIpAddress() != null) {;
+	    if (post.getIpAddress() != null) {
 	    createTripleSPO(result, prefix, SNVOC.locatedIn,
 	            DBP.fullPrefixed(locationDic.getLocationName((ipDic.getLocation(post.getIpAddress())))));
 	    }
@@ -612,7 +650,7 @@ public class Turtle implements Serializer {
 	        }
 	    }
 
-	    int userLikes[] = post.getInterestedUserAccs();
+	    long userLikes[] = post.getInterestedUserAccs();
 	    long likeTimestamps[] = post.getInterestedUserAccsTimestamp();
 
 	    for (int i = 0; i < userLikes.length; i ++) {
@@ -641,7 +679,7 @@ public class Turtle implements Serializer {
             printLocationHierarchy(result, ipDic.getLocation(comment.getIpAddress()));
         }
 		
-		String prefix = SN.getCommentURI(comment.getCommentId());
+		String prefix = SN.getCommentURI(comment.getMessageId());
 		date.setTimeInMillis(comment.getCreationDate());
 		String dateString = DateGenerator.formatDateDetail(date); 
 		
@@ -660,7 +698,7 @@ public class Turtle implements Serializer {
         }
         AddTriple(result, false, true, prefix, SNVOC.length,createLiteral(Integer.toString(comment.getTextSize())));
 
-		String replied = (comment.getReplyOf() == -1) ? SN.getPostURI(comment.getPostId()) : 
+		String replied = (comment.getReplyOf() == comment.getPostId()) ? SN.getPostURI(comment.getPostId()) :
 		    SN.getCommentURI(comment.getReplyOf());
 		createTripleSPO(result, prefix, SNVOC.replyOf, replied);
 		if (comment.getIpAddress() != null) {
@@ -670,6 +708,34 @@ public class Turtle implements Serializer {
 
 		createTripleSPO(result, prefix, SNVOC.hasCreator,
 		        SN.getPersonURI(comment.getAuthorId()));
+
+        Iterator<Integer> it = comment.getTags().iterator();
+        while (it.hasNext()) {
+            Integer tagId = it.next();
+            String tag = tagDic.getName(tagId);
+            createTripleSPO(result, prefix, SNVOC.hasTag, DBP.fullPrefixed(tag));
+            if (!printedTags.containsKey(tagId)) {
+                printedTags.put(tagId, tagId);
+                createTripleSPO(result, DBP.fullPrefixed(tag), RDF.type, SNVOC.Tag);
+                writeTagData(result, tagId, tag);
+            }
+        }
+
+        long userLikes[] = comment.getInterestedUserAccs();
+        long likeTimestamps[] = comment.getInterestedUserAccsTimestamp();
+
+        for (int i = 0; i < userLikes.length; i ++) {
+            String likePrefix = SN.getLikeURI(likeId);
+            createTripleSPO(result, SN.getPersonURI(userLikes[i]),
+                    SNVOC.like, likePrefix);
+
+            AddTriple(result, true, false, likePrefix, SNVOC.hasPost, prefix);
+            date.setTimeInMillis(likeTimestamps[i]);
+            dateString = DateGenerator.formatDateDetail(date);
+            AddTriple(result, false, true, likePrefix, SNVOC.creationDate,
+                    createDataTypeLiteral(dateString, XSD.DateTime));
+            likeId++;
+        }
 
 		toWriter(result.toString());
 	}
@@ -717,7 +783,7 @@ public class Turtle implements Serializer {
 	        }
 	    }
 
-	    int userLikes[] = photo.getInterestedUserAccs();
+	    long userLikes[] = photo.getInterestedUserAccs();
 	    long likeTimestamps[] = photo.getInterestedUserAccsTimestamp();
 	    for (int i = 0; i < userLikes.length; i ++) {
 	        String likePrefix = SN.getLikeURI(likeId);
@@ -743,7 +809,7 @@ public class Turtle implements Serializer {
 	    date.setTimeInMillis(group.getCreatedDate());
 	    String dateString = DateGenerator.formatDateDetail(date);  
 
-	    String forumPrefix = SN.getForumURI(group.getForumWallId());
+	    String forumPrefix = SN.getForumURI(group.getGroupId());
 	    AddTriple(result, true, false, forumPrefix, RDF.type, SNVOC.Forum);
 	    AddTriple(result, false, false, forumPrefix, SNVOC.title, createLiteral(group.getGroupName()));
 	    AddTriple(result, false, true, forumPrefix, SNVOC.creationDate, 
@@ -895,4 +961,12 @@ public class Turtle implements Serializer {
 			System.exit(-1);
 		}
 	}
+
+    public void resetState(long seed) {
+        membershipId = 0;
+        likeId       = 0;
+        workAtId     = 0;
+        studyAtId    = 0;
+        knowsId      = 0;
+    }
 }

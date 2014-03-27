@@ -37,12 +37,12 @@
 package ldbc.socialnet.dbgen.objects;
 
 public class Group {
-	int groupId; 
-	int moderatorId; 		//creator Id
+	long groupId;
+	long moderatorId; 		//creator Id
 	long createdDate;
-	
-	int forumWallId; 
-	int forumStatusId; 
+//    int forumWallId;
+
+	//int forumStatusId;
 	
 	String groupName; 
 
@@ -60,16 +60,17 @@ public class Group {
 		memberShips[numMemberAdded] = member;
 		numMemberAdded++;
 	}
-	public int getGroupId() {
+	public long getGroupId() {
 		return groupId;
 	}
-	public void setGroupId(int groupId) {
+
+	public void setGroupId(long groupId) {
 		this.groupId = groupId;
 	}
-	public int getModeratorId() {
+	public long getModeratorId() {
 		return moderatorId;
 	}
-	public void setModeratorId(int moderatorId) {
+	public void setModeratorId(long moderatorId) {
 		this.moderatorId = moderatorId;
 	}
 	public long getCreatedDate() {
@@ -96,18 +97,20 @@ public class Group {
 	public void setMemberShips(GroupMemberShip[] memberShips) {
 		this.memberShips = memberShips;
 	}
-	public int getForumWallId() {
+/*	public int getForumWallId() {
 		return forumWallId;
 	}
 	public void setForumWallId(int forumWallId) {
 		this.forumWallId = forumWallId;
 	}
-	public int getForumStatusId() {
+	*/
+	/*public int getForumStatusId() {
 		return forumStatusId;
 	}
 	public void setForumStatusId(int forumStatusId) {
 		this.forumStatusId = forumStatusId;
 	}
+	*/
 	public int getNumMemberAdded() {
 		return numMemberAdded;
 	}

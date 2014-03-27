@@ -37,25 +37,17 @@
 
 package ldbc.socialnet.dbgen.generator;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.TreeSet;
 import java.util.Iterator;
 import java.util.Random;
 
 import ldbc.socialnet.dbgen.generator.DateGenerator;
-import ldbc.socialnet.dbgen.generator.ScalableGenerator;
 import ldbc.socialnet.dbgen.dictionary.TagTextDictionary;
 import ldbc.socialnet.dbgen.dictionary.UserAgentDictionary;
 import ldbc.socialnet.dbgen.dictionary.IPAddressDictionary;
 import ldbc.socialnet.dbgen.dictionary.BrowserDictionary;
-import ldbc.socialnet.dbgen.objects.Comment;
-import ldbc.socialnet.dbgen.objects.Friend;
 import ldbc.socialnet.dbgen.objects.Group;
 import ldbc.socialnet.dbgen.objects.GroupMemberShip;
-import ldbc.socialnet.dbgen.objects.Post;
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
 
 
@@ -66,9 +58,7 @@ public class UniformPostGenerator extends PostGenerator {
     private int maxNumGroupPostPerMonth;        /**< @brief The maximum number of posts per group per month.*/
     private int maxNumFriends;                  /**< @brief The maximum number of friends.*/
     private int maxNumMembers;                  /**< @brief The maximum number of members of a group.*/
-    private Random randomTags;
-    private Random randomUserNumPost;           
-    private Random randomGroupNumPost;
+    private long deltaTime;                     /**< @brief The delta time used to guarantee a minimum time between post creation and user creation.*/
 
 	public UniformPostGenerator( TagTextDictionary tagTextDic, 
                           UserAgentDictionary userAgentDic,
@@ -82,31 +72,25 @@ public class UniformPostGenerator extends PostGenerator {
                           double largePostRatio,
                           int maxNumberOfLikes,
                           boolean exportText,
-                          long seed,
-                          long seedTextSize,
+                          long deltaTime,
                           DateGenerator dateGen,
                           int maxNumPostPerMonth,
                           int maxNumFriends,
                           int maxNumGroupPostPerMonth,
-                          int maxNumMembers,
-                          long seedTags,
-                          long seedUserNumPost,
-                          long seedGroupNumPost
+                          int maxNumMembers
                           ) {
         super(tagTextDic, userAgentDic, ipAddressDic, browserDic, minSizeOfPost, maxSizeOfPost, reducedTextRatio, minLargeSizeOfPost,
-              maxLargeSizeOfPost, largePostRatio, maxNumberOfLikes,exportText, seed, seedTextSize);
+              maxLargeSizeOfPost, largePostRatio, maxNumberOfLikes,exportText, deltaTime);
         this.dateGen = dateGen;
         this.maxNumPostPerMonth = maxNumPostPerMonth;
         this.maxNumFriends = maxNumFriends;
         this.maxNumGroupPostPerMonth = maxNumGroupPostPerMonth;
         this.maxNumMembers = maxNumMembers;
-        this.randomUserNumPost = new Random(seedUserNumPost);
-        this.randomGroupNumPost = new Random(seedGroupNumPost);
-        this.randomTags = new Random(seedTags);
+        this.deltaTime = deltaTime;
 	}
 
     @Override
-    protected PostInfo generatePostInfo( ReducedUserProfile user ) {
+    protected PostInfo generatePostInfo( Random randomTag, Random randomDate, ReducedUserProfile user ) {
         PostInfo postInfo = new PostInfo();
         postInfo.tags = new TreeSet<Integer>();
         Iterator<Integer> it = user.getSetOfTags().iterator();
@@ -115,46 +99,46 @@ public class UniformPostGenerator extends PostGenerator {
             if (postInfo.tags.isEmpty()) {
                 postInfo.tags.add(value);
             } else {
-                if (randomTags.nextDouble() < 0.2) {
+                if (randomTag.nextDouble() < 0.05) {
                     postInfo.tags.add(value);
                 }
             }
         }
-        postInfo.date = dateGen.randomPostCreatedDate(user.getCreatedDate());
+        postInfo.date = dateGen.randomPostCreatedDate(randomDate,user.getCreationDate()+deltaTime);
         return postInfo;
     }
 
     @Override
-    protected PostInfo generatePostInfo( Group group, GroupMemberShip membership ) {
+    protected PostInfo generatePostInfo( Random randomTag, Random randomDate, Group group, GroupMemberShip membership ) {
         PostInfo postInfo = new PostInfo();
         for (int i = 0; i < group.getTags().length; i++) {
             postInfo.tags.add(group.getTags()[i]);
         }
-        postInfo.date = dateGen.randomPostCreatedDate(membership.getJoinDate());
+        postInfo.date = dateGen.randomPostCreatedDate(randomDate,membership.getJoinDate()+deltaTime);
         return postInfo;
     }
 
     @Override
-    protected int generateNumOfPost(ReducedUserProfile user) {
+    protected int generateNumOfPost( Random randomNumPost, ReducedUserProfile user) {
         int numOfmonths = (int) dateGen.numberOfMonths(user);
         int numberPost;
         if (numOfmonths == 0) {
-            numberPost = randomUserNumPost.nextInt(maxNumPostPerMonth);
+            numberPost = randomNumPost.nextInt(maxNumPostPerMonth);
         } else {
-            numberPost = randomUserNumPost.nextInt(maxNumPostPerMonth * numOfmonths);
+            numberPost = randomNumPost.nextInt(maxNumPostPerMonth * numOfmonths);
         }
         numberPost = (numberPost * user.getNumFriendsAdded()) / maxNumFriends;
         return numberPost;
     }
 
     @Override
-    protected int generateNumOfPost(Group group) {
+    protected int generateNumOfPost( Random randomNumPost, Group group) {
       int numOfmonths = (int) dateGen.numberOfMonths(group.getCreatedDate());
       int numberPost;
       if (numOfmonths == 0) {
-        numberPost = randomGroupNumPost.nextInt(maxNumGroupPostPerMonth);
+        numberPost = randomNumPost.nextInt(maxNumGroupPostPerMonth);
       } else {
-        numberPost = randomGroupNumPost.nextInt(maxNumGroupPostPerMonth * numOfmonths);
+        numberPost = randomNumPost.nextInt(maxNumGroupPostPerMonth * numOfmonths);
       }
       numberPost = (numberPost * group.getNumMemberAdded()) / maxNumMembers;
       return numberPost;

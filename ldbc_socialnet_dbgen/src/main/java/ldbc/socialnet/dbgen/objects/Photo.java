@@ -43,13 +43,13 @@ public class Photo {
     String image;
     long albumId; 
     int locationIdx; 
-    int creatorId;		// Id of user's account
+    long creatorId;		// Id of user's account
     String locationName;
     double latt; 
     double longt; 
     long takenTime; 
     TreeSet<Integer> tags;
-    int[] interestedUserAccs;
+    long[] interestedUserAccs;
     long[] interestedUserAccsTimestamp;
 
     IP ipAddress; 
@@ -57,10 +57,10 @@ public class Photo {
 
     byte 	browserIdx; 
 
-    public int getCreatorId() {
+    public long getCreatorId() {
         return creatorId;
     }
-    public void setCreatorId(int creatorId) {
+    public void setCreatorId(long creatorId) {
         this.creatorId = creatorId;
     }
     public byte getBrowserIdx() {
@@ -102,10 +102,10 @@ public class Photo {
     public void setAlbumId(long albumId) {
         this.albumId = albumId;
     }
-    public int getLocationIdx() {
+    public int getLocationId() {
         return locationIdx;
     }
-    public void setLocationIdx(int locationIdx) {
+    public void setLocationId(int locationIdx) {
         this.locationIdx = locationIdx;
     }
     public long getTakenTime() {
@@ -138,10 +138,10 @@ public class Photo {
     public void setLocationName(String locationName) {
         this.locationName = locationName;
     }
-    public int[] getInterestedUserAccs() {
+    public long[] getInterestedUserAccs() {
         return interestedUserAccs;
     }
-    public void setInterestedUserAccs(int[] interestedUserAccs) {
+    public void setInterestedUserAccs(long[] interestedUserAccs) {
         this.interestedUserAccs = interestedUserAccs;
     }	
     public long[] getInterestedUserAccsTimestamp() {

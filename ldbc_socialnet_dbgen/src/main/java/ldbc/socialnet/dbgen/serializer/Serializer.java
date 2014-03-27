@@ -109,4 +109,7 @@ public interface Serializer {
      * @param group: The group.
      */
 	public void gatherData(Group group);
+
+
+    public void resetState(long block);
 }

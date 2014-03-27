@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * ldbc_socialnet_dbgen is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ldbc_socialnet_dbgen.  If not, see <http://www.gnu.org/licenses/>.
  *
@@ -34,47 +34,21 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package ldbc.socialnet.dbgen.dictionary;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Vector;
-import java.util.Random;
+package ldbc.socialnet.dbgen.util;
+import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
+import org.apache.hadoop.mapreduce.Partitioner;
 
 
-public class UserAgentDictionary {
-    
-	String fileName;
-	
-	Vector<String> userAgents;
-	double probSentFromAgent; 
-	
-	public UserAgentDictionary(String fileName, double probSentFromAgent){
-		this.fileName = fileName; 
-		this.probSentFromAgent = probSentFromAgent;
-	}
-	
-	public void init(){
-		try {
-		    userAgents = new Vector<String>();
-			BufferedReader agentFile = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));
-			String line; 
-			while ((line = agentFile.readLine()) != null) {
-			    userAgents.add(line.trim());
-            }
-			agentFile.close();
-			System.out.println("Done ... " + userAgents.size() + " agents have been extracted ");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public String getUserAgentName(Random randomSent, boolean hasSmathPhone, byte agentId){
-		return (hasSmathPhone && (randomSent.nextDouble() > probSentFromAgent)) ? userAgents.get(agentId) : "";
-	}
-	
-	public byte getRandomUserAgentIdx(Random random){
-		return (byte)random.nextInt(userAgents.size());
-	}	
+public class MapReduceKeyPartitioner extends Partitioner<MapReduceKey, ReducedUserProfile> {
+
+    public MapReduceKeyPartitioner(){
+        super();
+
+    }
+    @Override
+    public int getPartition(MapReduceKey key, ReducedUserProfile value,
+                            int numReduceTasks) {
+        return key.block % numReduceTasks;
+    }
 }

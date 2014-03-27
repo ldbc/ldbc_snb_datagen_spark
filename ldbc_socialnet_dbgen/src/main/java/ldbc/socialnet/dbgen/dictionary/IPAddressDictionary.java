@@ -64,15 +64,12 @@ public class IPAddressDictionary {
 	String 	mappingFileName;
 	String 	baseIPdir;
 	
-	Random randIP;
-	Random randDiffIP; 
-	Random randDiffIPforTravellers;
 	double probDiffIPinTravelSeason;
     double probDiffIPnotTravelSeason;
     double probDiffIPforTraveller;
 	
 	public IPAddressDictionary(String _mappingFileName, String _baseIPdir, LocationDictionary locationDic, 
-								long seedIP, double _probDiffIPinTravelSeason, 
+								double _probDiffIPinTravelSeason, 
 								double _probDiffIPnotTravelSeason, double _probDiffIPforTraveller){
 		this.mappingFileName = _mappingFileName;
 		this.baseIPdir = _baseIPdir;
@@ -84,10 +81,6 @@ public class IPAddressDictionary {
 		probDiffIPinTravelSeason = _probDiffIPinTravelSeason; 
 		probDiffIPnotTravelSeason = _probDiffIPnotTravelSeason;
 		probDiffIPforTraveller = _probDiffIPforTraveller;
-		
-		randIP = new Random(seedIP);
-		randDiffIP = new Random(seedIP);
-		randDiffIPforTravellers = new Random(seedIP);
 	}
 	
 	public void initialize() {
@@ -140,9 +133,9 @@ public class IPAddressDictionary {
 	    return (ipCountry.containsKey(network)) ? ipCountry.get(network) : -1;
 	}
 	
-	public IP getRandomIPFromLocation(int locationIdx) {
+	public IP getRandomIPFromLocation(Random random, int locationIdx) {
 		Vector<IP> countryIPs = ipsByCountry.get(locationIdx);
-		int idx = randIP.nextInt(countryIPs.size());
+		int idx = random.nextInt(countryIPs.size());
 		
 		IP networkIp = countryIPs.get(idx);
 		
@@ -152,42 +145,36 @@ public class IPAddressDictionary {
 		
 		for (int i = 0; i < IP.IP4_SIZE_BYTES; i++) {
 		    int randomRange = ((mask >>> (IP.BYTE_SIZE * i)) & 0xFF) + 1;
-		    int base = ((ip >>> (IP.BYTE_SIZE * i)) & 0xFF) + randIP.nextInt(randomRange);
+		    int base = ((ip >>> (IP.BYTE_SIZE * i)) & 0xFF) + random.nextInt(randomRange);
 		    formattedIP = formattedIP | (base << IP.BYTE_SIZE * i);
         }
 		
 		return new IP(formattedIP, mask);
 	}
 	
-	public IP getRandomIP() {
+	public IP getRandomIP(Random random) {
 	    Vector<Integer> countries = locationDic.getCountries();
-        int randomLocationIdx = randIP.nextInt(countries.size());
-		return getRandomIPFromLocation(randomLocationIdx);
+        int randomLocationIdx = random.nextInt(countries.size());
+		return getRandomIPFromLocation(random, randomLocationIdx);
 	}
 	
-	private boolean changeUsualIp(boolean isFrequentChange, long date) {
-	    boolean change = false;
-        if (isFrequentChange) {
-            if (randDiffIPforTravellers.nextDouble() < probDiffIPforTraveller) {
-                change = true;
-            }
-        } else {
-            if (DateGenerator.isTravelSeason(date)) {
-                if (randDiffIP.nextDouble() < probDiffIPinTravelSeason) {
-                    change = true;
-                }
-            } else if (randDiffIP.nextDouble() < probDiffIPnotTravelSeason) {
-                change = true;
-            }
+	private boolean changeUsualIp(Random randomDiffIP, Random randomDiffIPForTravelers, boolean isFrequentChange, long date) {
+        double diffIpProb = randomDiffIP.nextDouble();
+        double diffIpForTravelersProb = randomDiffIPForTravelers.nextDouble();
+        boolean isTravelSeason = DateGenerator.isTravelSeason(date);
+        if ( (isFrequentChange && diffIpProb < probDiffIPforTraveller ) ||
+             (!isFrequentChange && ((isTravelSeason && diffIpForTravelersProb < probDiffIPinTravelSeason) ||
+                                   (!isTravelSeason && diffIpForTravelersProb < probDiffIPnotTravelSeason)))) {
+                 return true;
         }
-        return change;
+        return false;
 	}
 	
-	public IP getIP(IP ip, boolean isFrequentChange, long date) {
-	    return (changeUsualIp(isFrequentChange, date)) ? new IP(ip.getIp(), ip.getMask()) : getRandomIP();
+	public IP getIP(Random randomIP, Random randomDiffIP, Random randomDiffIPForTravelers, IP ip, boolean isFrequentChange, long date) {
+	    return (changeUsualIp(randomDiffIP, randomDiffIPForTravelers, isFrequentChange, date)) ? new IP(ip.getIp(), ip.getMask()) : getRandomIP(randomIP);
 	}
 	
-	public IP getIP(IP ip, boolean isFrequentChange, long date, int countryId) {
-        return (changeUsualIp(isFrequentChange, date)) ? new IP(ip.getIp(), ip.getMask()) : getRandomIPFromLocation(countryId);
+	public IP getIP(Random randomIP, Random randomDiffIP, Random randomDiffIPForTravelers, IP ip, boolean isFrequentChange, long date, int countryId) {
+        return (changeUsualIp(randomDiffIP, randomDiffIPForTravelers, isFrequentChange, date)) ? new IP(ip.getIp(), ip.getMask()) : getRandomIPFromLocation(randomIP, countryId);
     }
 }
