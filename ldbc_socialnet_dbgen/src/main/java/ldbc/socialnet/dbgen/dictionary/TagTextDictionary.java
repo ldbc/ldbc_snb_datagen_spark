@@ -118,7 +118,8 @@ public class TagTextDictionary {
                     returnString += content;
                 } else {
                     int startingPos = randomTextSize.nextInt(content.length() - thisTagTextSize);
-                    String finalString = content.substring(startingPos, startingPos + thisTagTextSize - 1);
+                    String finalString = content.substring(startingPos, startingPos + thisTagTextSize);
+//                    String finalString = content.substring(0, thisTagTextSize );
                     String tagName = tagDic.getName(tag).replace("_", " ");
                     tagName = tagName.replace("\"", "\\\"");
                     String prefix = "About " +tagName+ ", ";
