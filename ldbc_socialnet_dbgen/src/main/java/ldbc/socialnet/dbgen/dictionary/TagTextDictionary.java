@@ -134,7 +134,11 @@ public class TagTextDictionary {
                     returnString+=finalString;
                 }
                 if (!returnString.endsWith(".")) {
-                    returnString = returnString.substring(0,returnString.length() - 1) + ".";
+                    if( returnString.length() == 1 ) {
+                        returnString = ".";
+                    } else {
+                        returnString = returnString.substring(0,returnString.length() - 1) + ".";
+                    }
                 }
                 if (returnString.length() < textSize-1) {
                     returnString += " ";
