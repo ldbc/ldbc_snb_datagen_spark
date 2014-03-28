@@ -20,4 +20,4 @@ done
 
 export CLASSPATH
 
-./sibdriver -t 300000 -idir td_data -uc sib/int_sql -mt 1 -runs 1 -sql jdbc:virtuoso://localhost:1205/UID=dba/PWD=dba -dbdriver virtuoso.jdbc4.Driver -printres -pq -defaultparams
+./sibdriver -t 300000 -idir td_data -uc sib/int_sql -mt 8 -runs 100 -sql jdbc:virtuoso://localhost:1206/UID=dba/PWD=dba -dbdriver virtuoso.jdbc4.Driver -printres -w 10
