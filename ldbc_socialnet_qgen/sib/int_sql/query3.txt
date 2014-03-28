@@ -14,40 +14,18 @@ from
   select chn.ps_c_creatorid, ct1, ct2, ct1 + ct2 as total
   from
    (
-    select ps_c_creatorid, sum(ct1) as ct1
-    from
-    (
       select ps_creatorid as ps_c_creatorid, count(*) as ct1 from post, place
       where
         ps_locationid = pl_placeid and pl_name = '@Country1@' and
-        ps_creationdate between stringdate('2011-03-02') and dateadd ('day', 366, stringdate('2011-03-02'))
+        ps_creationdate between stringdate('@Date0@') and dateadd ('day', @Duration@, stringdate('@Date0@'))
       group by ps_c_creatorid
-      union
-      select c_creatorid as ps_c_creatorid, count(*) as ct1 from comment, place
-      where
-        c_locationid = pl_placeid and pl_name = '@Country1@' and
-        c_creationdate between stringdate('2011-03-02') and dateadd ('day', 366, stringdate('2011-03-02'))
-      group by ps_c_creatorid
-    ) tmp 
-    group by ps_c_creatorid
    ) chn, 
    (
-    select ps_c_creatorid, sum(ct1) as ct2
-    from
-    (
-      select ps_creatorid as ps_c_creatorid, count(*) as ct1 from post, place
+      select ps_creatorid as ps_c_creatorid, count(*) as ct2 from post, place
       where
         ps_locationid = pl_placeid and pl_name = '@Country2@' and
-        ps_creationdate between stringdate('2011-03-02') and dateadd ('day', 366, stringdate('2011-03-02'))
+        ps_creationdate between stringdate('@Date0@') and dateadd ('day', @Duration@, stringdate('@Date0@'))
       group by ps_c_creatorid
-      union
-      select c_creatorid as ps_c_creatorid, count(*) as ct1 from comment, place
-      where
-        c_locationid = pl_placeid and pl_name = '@Country2@' and
-        c_creationdate between stringdate('2011-03-02') and dateadd ('day', 366, stringdate('2011-03-02'))
-      group by ps_c_creatorid
-    ) tmp
-    group by ps_c_creatorid
    ) ind
   where CHN.ps_c_creatorid = IND.ps_c_creatorid 
  ) cpc
