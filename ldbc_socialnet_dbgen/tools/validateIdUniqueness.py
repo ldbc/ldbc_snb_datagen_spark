@@ -22,5 +22,4 @@ for i in range(1,len(sys.argv)):
             ids.add(newId)
         index+=1
     inputFile.close()
-
 print("GREAT! All ids are different.")
