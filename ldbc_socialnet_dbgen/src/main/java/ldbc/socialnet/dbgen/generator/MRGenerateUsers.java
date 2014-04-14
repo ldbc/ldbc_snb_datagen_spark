@@ -386,7 +386,6 @@ public class MRGenerateUsers{
         FileInputFormat.setInputPaths(jobSorting, new Path(args[1]));
         FileOutputFormat.setOutputPath(jobSorting, new Path(args[1]+"Sorting"));
 
-	    
 	    /// --------------- Second job ----------------
 	    
 		Job job2 = new Job(conf,"SIB Generate Friendship - Interest");
@@ -434,8 +433,8 @@ public class MRGenerateUsers{
 		job3.setMapOutputValueClass(ReducedUserProfile.class);
 		job3.setOutputKeyClass(MapReduceKey.class);
 		job3.setOutputValueClass(ReducedUserProfile.class);
-		
-		
+
+
 		job3.setJarByClass(RandomMapper.class);
 		
 		job3.setMapperClass(RandomMapper.class);
@@ -445,13 +444,13 @@ public class MRGenerateUsers{
 		
 		job3.setInputFormatClass(SequenceFileInputFormat.class);
 		job3.setOutputFormatClass(SequenceFileOutputFormat.class);
-//		job3.setPartitionerClass(RandomPartitioner.class);
         job3.setPartitionerClass(MapReduceKeyPartitioner.class);
         job3.setSortComparatorClass(MapReduceKeyComparator.class);
         job3.setGroupingComparatorClass(MapReduceKeyGroupKeyComparator.class);
 		
 	    FileInputFormat.setInputPaths(job3, new Path(args[1] + "Sorting2"));
-	    FileOutputFormat.setOutputPath(job3, new Path(args[1] + "3") );
+	    FileOutputFormat.setOutputPath(job3, new Path(args[1] + "UpdateStreams") );
+
 	    /// --------- Execute Jobs ------
 	    
 	    long start = System.currentTimeMillis();
@@ -464,7 +463,7 @@ public class MRGenerateUsers{
 
         int resSorting2 = jobSorting2.waitForCompletion(true) ? 0 : 1;
 
-	    int res3 = job3.waitForCompletion(true) ? 0 : 1;
+	    int resUpdateStreamsh= job3.waitForCompletion(true) ? 0 : 1;
 	    
 	    long end = System.currentTimeMillis();
 	    System.out.println(((end - start) / 1000)

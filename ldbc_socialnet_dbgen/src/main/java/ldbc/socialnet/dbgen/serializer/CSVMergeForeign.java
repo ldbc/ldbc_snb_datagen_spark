@@ -45,15 +45,7 @@ import java.util.zip.GZIPOutputStream;
 import ldbc.socialnet.dbgen.dictionary.*;
 import ldbc.socialnet.dbgen.generator.DateGenerator;
 import ldbc.socialnet.dbgen.generator.ScalableGenerator;
-import ldbc.socialnet.dbgen.objects.Comment;
-import ldbc.socialnet.dbgen.objects.Friend;
-import ldbc.socialnet.dbgen.objects.Group;
-import ldbc.socialnet.dbgen.objects.GroupMemberShip;
-import ldbc.socialnet.dbgen.objects.Location;
-import ldbc.socialnet.dbgen.objects.Photo;
-import ldbc.socialnet.dbgen.objects.Post;
-import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
-import ldbc.socialnet.dbgen.objects.UserExtraInfo;
+import ldbc.socialnet.dbgen.objects.*;
 import ldbc.socialnet.dbgen.vocabulary.DBP;
 import ldbc.socialnet.dbgen.vocabulary.DBPOWL;
 import ldbc.socialnet.dbgen.vocabulary.SN;
@@ -82,6 +74,7 @@ public class CSVMergeForeign implements Serializer {
     private TagDictionary tagDic;
     private IPAddressDictionary ipDic;
     private boolean exportText;
+    private long deltaTime;
     
 
     /**
@@ -193,7 +186,7 @@ public class CSVMergeForeign implements Serializer {
 	public CSVMergeForeign(String file, int reducerID,
             TagDictionary tagDic, BrowserDictionary browsers, 
             CompanyDictionary companyDic, UniversityDictionary universityDictionary,
-            IPAddressDictionary ipDic, LocationDictionary locationDic, LanguageDictionary languageDic, boolean exportText, boolean compressed) {
+            IPAddressDictionary ipDic, LocationDictionary locationDic, LanguageDictionary languageDic, long deltaTime, long dateThreshold, boolean exportText, boolean compressed) {
 
         this.updateEventSerializer = new UpdateEventSerializer( file, "update_events_"+reducerID+".txt", compressed );
         
@@ -206,6 +199,8 @@ public class CSVMergeForeign implements Serializer {
         this.universityDic = universityDictionary;
         this.ipDic = ipDic;
         this.exportText = exportText;
+        this.deltaTime = deltaTime;
+        this.dateThreshold = dateThreshold;
         
         csvRows = 0l;
         date = new GregorianCalendar();
@@ -232,7 +227,7 @@ public class CSVMergeForeign implements Serializer {
                 for (int k = 0; k < fieldNames[j].length; k++) {
                     arguments.add(fieldNames[j][k]);
                 }
-                ToCSV(UpdateEventSerializer.UpdateEventType.NO_EVENT,arguments, j);
+                ToCSV(UpdateEvent.UpdateEventType.NO_EVENT,arguments, j);
             }
             loadOrganisations();
             if( reducerID == 0 ) {
@@ -297,7 +292,7 @@ public class CSVMergeForeign implements Serializer {
             arguments.add(company);
             arguments.add(DBP.getUrl(company));
             arguments.add(Integer.toString(companyDic.getCountry(company)));
-            ToCSV(UpdateEventSerializer.UpdateEventType.NO_EVENT,arguments, Files.ORGANISATION.ordinal());
+            ToCSV(UpdateEvent.UpdateEventType.NO_EVENT,arguments, Files.ORGANISATION.ordinal());
         }
 
         Set<String> universitiesSet = universities.keySet();
@@ -310,7 +305,7 @@ public class CSVMergeForeign implements Serializer {
             arguments.add(university);
             arguments.add(DBP.getUrl(university));
             arguments.add(Integer.toString(universityToCountry.get(university)));
-            ToCSV(UpdateEventSerializer.UpdateEventType.NO_EVENT,arguments, Files.ORGANISATION.ordinal());
+            ToCSV(UpdateEvent.UpdateEventType.NO_EVENT,arguments, Files.ORGANISATION.ordinal());
         }
     }
 
@@ -324,7 +319,7 @@ public class CSVMergeForeign implements Serializer {
            arguments.add(Integer.toString(tag));
            arguments.add(tagName.replace("\"", "\\\""));
            arguments.add(DBP.getUrl(tagName));
-           ToCSV(UpdateEventSerializer.UpdateEventType.NO_EVENT,arguments, Files.TAG.ordinal());
+           ToCSV(UpdateEvent.UpdateEventType.NO_EVENT,arguments, Files.TAG.ordinal());
            printTagHierarchy(tag);
        }
     }
@@ -341,11 +336,11 @@ public class CSVMergeForeign implements Serializer {
 	 * 
 	 * @param index: The file index.
 	 */
-	public void ToCSV(UpdateEventSerializer.UpdateEventType eventType, Vector<String> columns, int index) {
+	public void ToCSV(UpdateEvent.UpdateEventType eventType, Vector<String> columns, int index) {
         ToCSV(0,eventType,columns,index);
     }
 
-    public void ToCSV(long date, UpdateEventSerializer.UpdateEventType eventType, Vector<String> columns, int index) {
+    public void ToCSV(long date, UpdateEvent.UpdateEventType eventType, Vector<String> columns, int index) {
         StringBuffer result = new StringBuffer();
         result.append(columns.get(0));
         for (int i = 1; i < columns.size(); i++) {
@@ -391,7 +386,7 @@ public class CSVMergeForeign implements Serializer {
 	    
 	    arguments.add(tagId.toString());
         arguments.add(tagClass.toString());
-        ToCSV(UpdateEventSerializer.UpdateEventType.NO_EVENT,arguments, Files.TAG_HAS_TYPE_TAGCLASS.ordinal());
+        ToCSV(UpdateEvent.UpdateEventType.NO_EVENT,arguments, Files.TAG_HAS_TYPE_TAGCLASS.ordinal());
 	    
         while (tagClass != -1 && !printedTagClasses.containsKey(tagClass)) {
             printedTagClasses.put(tagClass, tagClass);
@@ -402,13 +397,13 @@ public class CSVMergeForeign implements Serializer {
             } else {
                 arguments.add(DBPOWL.getUrl(tagDic.getClassName(tagClass)));
             }
-            ToCSV(UpdateEventSerializer.UpdateEventType.NO_EVENT,arguments, Files.TAGCLASS.ordinal());
+            ToCSV(UpdateEvent.UpdateEventType.NO_EVENT,arguments, Files.TAGCLASS.ordinal());
             
             Integer parent = tagDic.getClassParent(tagClass);
             if (parent != -1) {
                 arguments.add(tagClass.toString());
                 arguments.add(parent.toString());   
-                ToCSV(UpdateEventSerializer.UpdateEventType.NO_EVENT,arguments, Files.TAGCLASS_IS_SUBCLASS_OF_TAGCLASS.ordinal());
+                ToCSV(UpdateEvent.UpdateEventType.NO_EVENT,arguments, Files.TAGCLASS_IS_SUBCLASS_OF_TAGCLASS.ordinal());
             }
             tagClass = parent;
         }
@@ -443,7 +438,7 @@ public class CSVMergeForeign implements Serializer {
                     String empty = ""; 
                     arguments.add(empty);
                 }
-                ToCSV(UpdateEventSerializer.UpdateEventType.NO_EVENT,arguments, Files.PLACE.ordinal());
+                ToCSV(UpdateEvent.UpdateEventType.NO_EVENT,arguments, Files.PLACE.ordinal());
             }
         }
     }
@@ -487,13 +482,13 @@ public class CSVMergeForeign implements Serializer {
             arguments.add(empty);
         }
         arguments.add(Integer.toString(extraInfo.getLocationId()));
-		ToCSV(profile.getCreationDate(), UpdateEventSerializer.UpdateEventType.ADD_PERSON, arguments, Files.PERSON.ordinal());
+		ToCSV(profile.getCreationDate(), UpdateEvent.UpdateEventType.ADD_PERSON, arguments, Files.PERSON.ordinal());
 
 		Vector<Integer> languages = extraInfo.getLanguages();
 		for (int i = 0; i < languages.size(); i++) {
 		    arguments.add(Long.toString(profile.getAccountId()));
 		    arguments.add(languageDic.getLanguagesName(languages.get(i)));
-		    ToCSV(arguments, Files.PERSON_SPEAKS_LANGUAGE.ordinal());
+		    ToCSV(profile.getCreationDate()+deltaTime, UpdateEvent.UpdateEventType.ADD_PERSON_SPEAKS,arguments, Files.PERSON_SPEAKS_LANGUAGE.ordinal());
 		}
 
 		Iterator<String> itString = extraInfo.getEmail().iterator();
@@ -501,7 +496,7 @@ public class CSVMergeForeign implements Serializer {
 		    String email = itString.next();
 		    arguments.add(Long.toString(profile.getAccountId()));
 		    arguments.add(email);
-		    ToCSV(arguments, Files.PERSON_HAS_EMAIL_EMAIL.ordinal());
+		    ToCSV(profile.getCreationDate()+deltaTime, UpdateEvent.UpdateEventType.ADD_PERSON_HAS_EMAIL, arguments, Files.PERSON_HAS_EMAIL_EMAIL.ordinal());
 		}
 
 		int organisationId = -1;
@@ -513,7 +508,7 @@ public class CSVMergeForeign implements Serializer {
 	            arguments.add(Long.toString(profile.getAccountId()));
 	            arguments.add(Integer.toString(organisationId));
 	            arguments.add(dateString);
-	            ToCSV(arguments, Files.PERSON_STUDY_AT_ORGANISATION.ordinal());
+	            ToCSV(profile.getCreationDate()+deltaTime, UpdateEvent.UpdateEventType.ADD_PERSON_STUDYAT, arguments, Files.PERSON_STUDY_AT_ORGANISATION.ordinal());
 	        }
 		}
 
@@ -526,7 +521,7 @@ public class CSVMergeForeign implements Serializer {
 		    arguments.add(Long.toString(profile.getAccountId()));
 		    arguments.add(Integer.toString(organisationId));
 		    arguments.add(dateString);
-		    ToCSV(arguments, Files.PERSON_WORK_AT_ORGANISATION.ordinal());
+		    ToCSV(profile.getCreationDate()+deltaTime, UpdateEvent.UpdateEventType.ADD_PERSON_WORKAT, arguments, Files.PERSON_WORK_AT_ORGANISATION.ordinal());
 		}
 		
         Iterator<Integer> itInteger = profile.getSetOfTags().iterator();
@@ -534,7 +529,7 @@ public class CSVMergeForeign implements Serializer {
             Integer interestIdx = itInteger.next();
             arguments.add(Long.toString(profile.getAccountId()));
             arguments.add(Integer.toString(interestIdx));
-            ToCSV(arguments, Files.PERSON_INTEREST_TAG.ordinal());
+            ToCSV(profile.getCreationDate()+deltaTime, UpdateEvent.UpdateEventType.ADD_PERSON_INTEREST,arguments,Files.PERSON_INTEREST_TAG.ordinal());
         }   
         
         Friend friends[] = profile.getFriendList();
@@ -545,7 +540,7 @@ public class CSVMergeForeign implements Serializer {
                 arguments.add(Long.toString(friends[i].getFriendAcc()));
                 date.setTimeInMillis(friends[i].getCreatedTime());
                 arguments.add(DateGenerator.formatDateDetail(date));
-                ToCSV(arguments,Files.PERSON_KNOWS_PERSON.ordinal());
+                ToCSV(friends[i].getCreatedTime(), UpdateEvent.UpdateEventType.ADD_PERSON_FRIENDSHIP, arguments,Files.PERSON_KNOWS_PERSON.ordinal());
             }
         }
 		
@@ -558,14 +553,14 @@ public class CSVMergeForeign implements Serializer {
         arguments.add(title);
         arguments.add(dateString);
         arguments.add(Long.toString(profile.getAccountId()));
-        ToCSV(arguments,Files.FORUM.ordinal());
+        ToCSV(profile.getCreationDate(), UpdateEvent.UpdateEventType.ADD_FORUM, arguments,Files.FORUM.ordinal());
         
         itInteger = profile.getSetOfTags().iterator();
         while (itInteger.hasNext()){
             Integer interestIdx = itInteger.next();
             arguments.add(SN.formId(profile.getForumWallId()));
             arguments.add(Integer.toString(interestIdx));
-            ToCSV(arguments, Files.FORUM_HASTAG_TAG.ordinal());
+            ToCSV(profile.getCreationDate()+deltaTime, UpdateEvent.UpdateEventType.ADD_FORUM_HAS_TAG,arguments, Files.FORUM_HASTAG_TAG.ordinal());
         }   
              
         for (int i = 0; i < friends.length; i ++){
@@ -576,7 +571,7 @@ public class CSVMergeForeign implements Serializer {
                 arguments.add(SN.formId(profile.getForumWallId()));
                 arguments.add(Long.toString(friends[i].getFriendAcc()));
                 arguments.add(dateString);
-                ToCSV(arguments,Files.FORUM_HASMEMBER_PERSON.ordinal());
+                ToCSV(friends[i].getCreatedTime(), UpdateEvent.UpdateEventType.ADD_FORUM_MEMBERSHIP,arguments,Files.FORUM_HASMEMBER_PERSON.ordinal());
             }
         }
 	}
@@ -617,14 +612,14 @@ public class CSVMergeForeign implements Serializer {
         arguments.add(Long.toString(post.getAuthorId()));
         arguments.add(SN.formId(post.getGroupId()));
         arguments.add(Integer.toString(ipDic.getLocation(post.getIpAddress())));
-	    ToCSV(arguments, Files.POST.ordinal());
+	    ToCSV(post.getCreationDate(), UpdateEvent.UpdateEventType.ADD_POST, arguments, Files.POST.ordinal());
 
 	    Iterator<Integer> it = post.getTags().iterator();
 	    while (it.hasNext()) {
 	        Integer tagId = it.next();
 	        arguments.add(SN.formId(post.getMessageId()));
 	        arguments.add(Integer.toString(tagId));
-	        ToCSV(arguments, Files.POST_HAS_TAG_TAG.ordinal());
+	        ToCSV(post.getCreationDate()+deltaTime, UpdateEvent.UpdateEventType.ADD_POST_HAS_TAG,arguments, Files.POST_HAS_TAG_TAG.ordinal());
 	    }
 
 	    long userLikes[] = post.getInterestedUserAccs();
@@ -635,7 +630,7 @@ public class CSVMergeForeign implements Serializer {
 	        arguments.add(Long.toString(userLikes[i]));
 	        arguments.add(SN.formId(post.getMessageId()));
 	        arguments.add(dateString);
-	        ToCSV(arguments, Files.PERSON_LIKE_POST.ordinal());
+	        ToCSV(likeTimestamps[i], UpdateEvent.UpdateEventType.ADD_PERSON_LIKES_POST,arguments, Files.PERSON_LIKE_POST.ordinal());
 	    }
 	}
 
@@ -679,14 +674,14 @@ public class CSVMergeForeign implements Serializer {
             arguments.add(empty);
             arguments.add(SN.formId(comment.getReplyOf()));
         }
-	    ToCSV(arguments, Files.COMMENT.ordinal());
+	    ToCSV(comment.getCreationDate(), UpdateEvent.UpdateEventType.ADD_COMMENT, arguments, Files.COMMENT.ordinal());
 
         Iterator<Integer> it = comment.getTags().iterator();
         while (it.hasNext()) {
             Integer tagId = it.next();
             arguments.add(SN.formId(comment.getMessageId()));
             arguments.add(Integer.toString(tagId));
-            ToCSV(arguments, Files.COMMENT_HAS_TAG_TAG.ordinal());
+            ToCSV(comment.getCreationDate()+deltaTime, UpdateEvent.UpdateEventType.ADD_COMMENT_HAS_TAG,arguments, Files.COMMENT_HAS_TAG_TAG.ordinal());
         }
 
         long userLikes[] = comment.getInterestedUserAccs();
@@ -697,7 +692,7 @@ public class CSVMergeForeign implements Serializer {
             arguments.add(Long.toString(userLikes[i]));
             arguments.add(SN.formId(comment.getMessageId()));
             arguments.add(dateString);
-            ToCSV(arguments, Files.PERSON_LIKE_COMMENT.ordinal());
+            ToCSV(likeTimestamps[i], UpdateEvent.UpdateEventType.ADD_PERSON_LIKES_COMMENT, arguments, Files.PERSON_LIKE_COMMENT.ordinal());
         }
 	}
 
@@ -729,7 +724,7 @@ public class CSVMergeForeign implements Serializer {
         arguments.add(Long.toString(photo.getCreatorId()));
         arguments.add(SN.formId(photo.getAlbumId()));
         arguments.add(Integer.toString(ipDic.getLocation(photo.getIpAddress())));
-	    ToCSV(arguments, Files.POST.ordinal());
+	    ToCSV(photo.getTakenTime(), UpdateEvent.UpdateEventType.ADD_POST, arguments, Files.POST.ordinal());
 
 	    //arguments.add(SN.formId(photo.getAlbumId()));
 	    //arguments.add(SN.formId(photo.getPhotoId()));
@@ -740,7 +735,7 @@ public class CSVMergeForeign implements Serializer {
 	        Integer tagId = it.next();
 	        arguments.add(SN.formId(photo.getPhotoId()));
 	        arguments.add(Integer.toString(tagId));
-	        ToCSV(arguments, Files.POST_HAS_TAG_TAG.ordinal());
+	        ToCSV(photo.getTakenTime()+deltaTime, UpdateEvent.UpdateEventType.ADD_POST_HAS_TAG,arguments, Files.POST_HAS_TAG_TAG.ordinal());
 	    }
 
 	    long userLikes[] = photo.getInterestedUserAccs();
@@ -751,7 +746,7 @@ public class CSVMergeForeign implements Serializer {
 	        arguments.add(Long.toString(userLikes[i]));
 	        arguments.add(SN.formId(photo.getPhotoId()));
 	        arguments.add(dateString);
-	        ToCSV(arguments, Files.PERSON_LIKE_POST.ordinal());
+	        ToCSV(likeTimestamps[i], UpdateEvent.UpdateEventType.ADD_PERSON_LIKES_POST, arguments, Files.PERSON_LIKE_POST.ordinal());
 	    }
 	}
 	
@@ -768,14 +763,14 @@ public class CSVMergeForeign implements Serializer {
 	    arguments.add(group.getGroupName());
 	    arguments.add(dateString);
         arguments.add(Long.toString(group.getModeratorId()));
-	    ToCSV(arguments,Files.FORUM.ordinal());
+	    ToCSV(group.getCreatedDate(), UpdateEvent.UpdateEventType.ADD_FORUM, arguments,Files.FORUM.ordinal());
 	    
 	    Integer groupTags[] = group.getTags();
         for (int i = 0; i < groupTags.length; i ++) {
             String interest = tagDic.getName(groupTags[i]);
             arguments.add(SN.formId(group.getGroupId()));
             arguments.add(Integer.toString(groupTags[i]));
-            ToCSV(arguments,Files.FORUM_HASTAG_TAG.ordinal());
+            ToCSV(group.getCreatedDate()+deltaTime, UpdateEvent.UpdateEventType.ADD_FORUM_HAS_TAG, arguments,Files.FORUM_HASTAG_TAG.ordinal());
         }
 	    
 	    GroupMemberShip memberShips[] = group.getMemberShips();
@@ -787,7 +782,7 @@ public class CSVMergeForeign implements Serializer {
             arguments.add(SN.formId(group.getGroupId()));
             arguments.add(Long.toString(memberShips[i].getUserId()));
             arguments.add(dateString);
-            ToCSV(arguments,Files.FORUM_HASMEMBER_PERSON.ordinal());
+            ToCSV(memberShips[i].getJoinDate(), UpdateEvent.UpdateEventType.ADD_FORUM_MEMBERSHIP,arguments,Files.FORUM_HASMEMBER_PERSON.ordinal());
         }
 	}
 

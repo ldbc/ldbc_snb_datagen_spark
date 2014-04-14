@@ -126,7 +126,6 @@ public class GroupGenerator {
 		memberShip.setFrequentChange(friend.isFrequentChange());
 		memberShip.setHaveSmartPhone(friend.isHaveSmartPhone());
         memberShip.setLargePoster(friend.isLargePoster());
-		
 		return memberShip;
 	}
 	

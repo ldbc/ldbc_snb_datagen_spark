@@ -109,7 +109,6 @@ public class ReducedUserProfile implements Serializable, Writable{
 	
 	private void readObject(java.io.ObjectInputStream stream)
 			 throws IOException, ClassNotFoundException{
-			// TODO Auto-generated method stub
 			accountId = stream.readLong();
             sdpId = stream.readInt();
 			creationDate = stream.readLong();

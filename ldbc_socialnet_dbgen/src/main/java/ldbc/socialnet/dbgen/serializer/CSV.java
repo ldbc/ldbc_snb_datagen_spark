@@ -45,15 +45,7 @@ import java.io.OutputStream;
 import ldbc.socialnet.dbgen.dictionary.*;
 import ldbc.socialnet.dbgen.generator.DateGenerator;
 import ldbc.socialnet.dbgen.generator.ScalableGenerator;
-import ldbc.socialnet.dbgen.objects.Comment;
-import ldbc.socialnet.dbgen.objects.Friend;
-import ldbc.socialnet.dbgen.objects.Group;
-import ldbc.socialnet.dbgen.objects.GroupMemberShip;
-import ldbc.socialnet.dbgen.objects.Location;
-import ldbc.socialnet.dbgen.objects.Photo;
-import ldbc.socialnet.dbgen.objects.Post;
-import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
-import ldbc.socialnet.dbgen.objects.UserExtraInfo;
+import ldbc.socialnet.dbgen.objects.*;
 import ldbc.socialnet.dbgen.vocabulary.DBP;
 import ldbc.socialnet.dbgen.vocabulary.DBPOWL;
 import ldbc.socialnet.dbgen.vocabulary.SN;
@@ -68,7 +60,8 @@ public class CSV implements Serializer {
 
     private long csvRows;
     private GregorianCalendar date;
-    
+    private UpdateEventSerializer updateEventSerializer;
+
     /**
      * Generator input classes.
      */
@@ -81,6 +74,8 @@ public class CSV implements Serializer {
     private TagDictionary tagDic;
     private IPAddressDictionary ipDic;
     private boolean exportText;
+    private long deltaTime;
+    private long dateThreshold;
 
     /**
      * Used to avoid serialize more than once the same data.
@@ -223,9 +218,11 @@ public class CSV implements Serializer {
 	public CSV(String file, int reducerID,
             TagDictionary tagDic, BrowserDictionary browsers, 
             CompanyDictionary companyDic, UniversityDictionary universityDictionary,
-            IPAddressDictionary ipDic, LocationDictionary locationDic, LanguageDictionary languageDic, boolean exportText, boolean compressed) {
-        
-        this.tagDic = tagDic;  
+            IPAddressDictionary ipDic, LocationDictionary locationDic, LanguageDictionary languageDic, long deltaTime, long dateThreshold, boolean exportText, boolean compressed) {
+
+        this.updateEventSerializer = new UpdateEventSerializer( file, "update_events_"+reducerID+".txt", compressed );
+
+        this.tagDic = tagDic;
         this.browserDic = browsers;
         this.locationDic = locationDic;
         this.languageDic = languageDic;
@@ -261,7 +258,7 @@ public class CSV implements Serializer {
                 for (int k = 0; k < fieldNames[j].length; k++) {
                     arguments.add(fieldNames[j][k]);
                 }
-                ToCSV(arguments, j);
+                ToCSV(UpdateEvent.UpdateEventType.NO_EVENT,arguments, j);
             }
 
             loadOrganisations();
@@ -325,11 +322,11 @@ public class CSV implements Serializer {
             arguments.add(ScalableGenerator.OrganisationType.company.toString());
             arguments.add(company);
             arguments.add(DBP.getUrl(company));
-            ToCSV(arguments, Files.ORGANISATION.ordinal());
+            ToCSV(UpdateEvent.UpdateEventType.NO_EVENT,arguments, Files.ORGANISATION.ordinal());
 
             arguments.add(Integer.toString(index));
             arguments.add(Integer.toString(companyDic.getCountry(company)));
-            ToCSV(arguments, Files.ORGANISATION_BASED_NEAR_PLACE.ordinal());
+            ToCSV(UpdateEvent.UpdateEventType.NO_EVENT,arguments, Files.ORGANISATION_BASED_NEAR_PLACE.ordinal());
         }
 
         Set<String> universitiesSet = universities.keySet();
@@ -341,11 +338,11 @@ public class CSV implements Serializer {
             arguments.add(ScalableGenerator.OrganisationType.university.toString());
             arguments.add(university);
             arguments.add(DBP.getUrl(university));
-            ToCSV(arguments, Files.ORGANISATION.ordinal());
+            ToCSV(UpdateEvent.UpdateEventType.NO_EVENT,arguments, Files.ORGANISATION.ordinal());
 
             arguments.add(Integer.toString(index));
             arguments.add(Integer.toString(universityToCountry.get(university)));
-            ToCSV(arguments, Files.ORGANISATION_BASED_NEAR_PLACE.ordinal());
+            ToCSV(UpdateEvent.UpdateEventType.NO_EVENT, arguments, Files.ORGANISATION_BASED_NEAR_PLACE.ordinal());
         }
     }
 
@@ -359,7 +356,7 @@ public class CSV implements Serializer {
             arguments.add(Integer.toString(tag));
             arguments.add(tagName.replace("\"", "\\\""));
             arguments.add(DBP.getUrl(tagName));
-            ToCSV(arguments, Files.TAG.ordinal());
+            ToCSV(UpdateEvent.UpdateEventType.NO_EVENT, arguments, Files.TAG.ordinal());
             printTagHierarchy(tag);
         }
     }
@@ -375,7 +372,11 @@ public class CSV implements Serializer {
 	 * Writes the data into the appropriate file.
 	 * @param index: The file index.
 	 */
-	public void ToCSV(Vector<String> columns, int index) {
+    public void ToCSV(UpdateEvent.UpdateEventType eventType, Vector<String> columns, int index) {
+        ToCSV(0,eventType,columns,index);
+    }
+
+    public void ToCSV(long date, UpdateEvent.UpdateEventType eventType, Vector<String> columns, int index) {
         StringBuffer result = new StringBuffer();
         result.append(columns.get(0));
         for (int i = 1; i < columns.size(); i++) {
@@ -384,7 +385,12 @@ public class CSV implements Serializer {
         }
         result.append(SEPARATOR);
         result.append(NEWLINE);
-        WriteTo(result.toString(), index);
+
+        if( date <= dateThreshold )  {
+            WriteTo(result.toString(), index);
+        } else {
+            updateEventSerializer.writeEvent(date, eventType, result.toString());
+        }
         columns.clear();
     }
 
@@ -416,7 +422,7 @@ public class CSV implements Serializer {
 	    
 	    arguments.add(tagId.toString());
         arguments.add(tagClass.toString());
-        ToCSV(arguments, Files.TAG_HAS_TYPE_TAGCLASS.ordinal());
+        ToCSV(UpdateEvent.UpdateEventType.NO_EVENT, arguments, Files.TAG_HAS_TYPE_TAGCLASS.ordinal());
 	    
         while (tagClass != -1 && !printedTagClasses.containsKey(tagClass)) {
             printedTagClasses.put(tagClass, tagClass);
@@ -427,13 +433,13 @@ public class CSV implements Serializer {
             } else {
                 arguments.add(DBPOWL.getUrl(tagDic.getClassName(tagClass)));
             }
-            ToCSV(arguments, Files.TAGCLASS.ordinal());
+            ToCSV(UpdateEvent.UpdateEventType.NO_EVENT,arguments, Files.TAGCLASS.ordinal());
             
             Integer parent = tagDic.getClassParent(tagClass);
             if (parent != -1) {
                 arguments.add(tagClass.toString());
                 arguments.add(parent.toString());   
-                ToCSV(arguments, Files.TAGCLASS_IS_SUBCLASS_OF_TAGCLASS.ordinal());
+                ToCSV(UpdateEvent.UpdateEventType.NO_EVENT,arguments, Files.TAGCLASS_IS_SUBCLASS_OF_TAGCLASS.ordinal());
             }
             tagClass = parent;
         }
@@ -460,12 +466,12 @@ public class CSV implements Serializer {
                 arguments.add(locationDic.getLocationName(areas.get(i)));
                 arguments.add(DBP.getUrl(locationDic.getLocationName(areas.get(i))));
                 arguments.add(locationDic.getType(areas.get(i)));
-                ToCSV(arguments, Files.PLACE.ordinal());
+                ToCSV(UpdateEvent.UpdateEventType.NO_EVENT,arguments, Files.PLACE.ordinal());
                 if (locationDic.getType(areas.get(i)) == Location.CITY ||
                         locationDic.getType(areas.get(i)) == Location.COUNTRY) {
                     arguments.add(Integer.toString(areas.get(i)));
                     arguments.add(Integer.toString(areas.get(i+1)));
-                    ToCSV(arguments, Files.PLACE_PART_OF_PLACE.ordinal());
+                    ToCSV(UpdateEvent.UpdateEventType.NO_EVENT,arguments, Files.PLACE_PART_OF_PLACE.ordinal());
                 }
             }
         }
@@ -509,13 +515,13 @@ public class CSV implements Serializer {
             String empty = "";
             arguments.add(empty);
         }
-		ToCSV(arguments, Files.PERSON.ordinal());
+		ToCSV(profile.getCreationDate(), UpdateEvent.UpdateEventType.ADD_PERSON,arguments, Files.PERSON.ordinal());
 
 		Vector<Integer> languages = extraInfo.getLanguages();
 		for (int i = 0; i < languages.size(); i++) {
 		    arguments.add(Long.toString(profile.getAccountId()));
 		    arguments.add(languageDic.getLanguagesName(languages.get(i)));
-		    ToCSV(arguments, Files.PERSON_SPEAKS_LANGUAGE.ordinal());
+		    ToCSV(profile.getCreationDate()+deltaTime, UpdateEvent.UpdateEventType.ADD_PERSON_SPEAKS, arguments, Files.PERSON_SPEAKS_LANGUAGE.ordinal());
 		}
 
 		Iterator<String> itString = extraInfo.getEmail().iterator();
@@ -523,12 +529,12 @@ public class CSV implements Serializer {
 		    String email = itString.next();
 		    arguments.add(Long.toString(profile.getAccountId()));
 		    arguments.add(email);
-		    ToCSV(arguments, Files.PERSON_HAS_EMAIL_EMAIL.ordinal());
+		    ToCSV(profile.getCreationDate()+deltaTime, UpdateEvent.UpdateEventType.ADD_PERSON_HAS_EMAIL, arguments, Files.PERSON_HAS_EMAIL_EMAIL.ordinal());
 		}
 
 		arguments.add(Long.toString(profile.getAccountId()));
 		arguments.add(Integer.toString(extraInfo.getLocationId()));
-		ToCSV(arguments, Files.PERSON_LOCATED_IN_PLACE.ordinal());
+		ToCSV(profile.getCreationDate()+deltaTime, arguments, Files.PERSON_LOCATED_IN_PLACE.ordinal());
 
 		int organisationId = -1;
 		if (!extraInfo.getUniversity().equals("")){

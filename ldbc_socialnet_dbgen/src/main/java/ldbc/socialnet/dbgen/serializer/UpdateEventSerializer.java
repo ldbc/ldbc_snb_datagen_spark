@@ -36,6 +36,8 @@
  */
 package ldbc.socialnet.dbgen.serializer;
 
+import ldbc.socialnet.dbgen.objects.UpdateEvent;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -46,22 +48,7 @@ import java.util.zip.GZIPOutputStream;
  */
 public class UpdateEventSerializer {
 
-
-    public enum UpdateEventType {
-        ADD_PERSON,
-        ADD_FRIENDSHIP,
-        ADD_FORUM,
-        ADD_MEMBERSHIP,
-        ADD_POST,
-        ADD_COMMENT,
-        ADD_LIKE,
-        ADD_INTEREST,
-        ADD_WORKAT,
-        ADD_STUDYAT,
-        NO_EVENT
-    }
-
-    OutputStream fileOutputStream;
+    private OutputStream fileOutputStream;
 
     public UpdateEventSerializer( String outputDir, String outputFileName, boolean compress ) {
         try{
@@ -76,7 +63,7 @@ public class UpdateEventSerializer {
         }
     }
 
-    public void writeEvent( long date, UpdateEventType type, String data ) {
+    public void writeEvent( long date, UpdateEvent.UpdateEventType type, String data ) {
         String result = new String();
         result = result + Long.toString(date);
         result = result + ";";
