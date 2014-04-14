@@ -60,7 +60,7 @@ import ldbc.socialnet.dbgen.dictionary.TagMatrix;
 import ldbc.socialnet.dbgen.dictionary.TagTextDictionary;
 import ldbc.socialnet.dbgen.dictionary.UserAgentDictionary;
 import ldbc.socialnet.dbgen.objects.*;
-import ldbc.socialnet.dbgen.serializer.CSV;
+import ldbc.socialnet.dbgen.serializer.CSVSerializer.CSV;
 import ldbc.socialnet.dbgen.serializer.CSVMergeForeign;
 import ldbc.socialnet.dbgen.serializer.EmptySerializer;
 import ldbc.socialnet.dbgen.serializer.Serializer;
@@ -634,15 +634,16 @@ public class ScalableGenerator{
         browserDictonry = new BrowserDictionary(browserDictonryFile, probAnotherBrowser);
         browserDictonry.init();
 
-        System.out.println("Building university dictionary");
-        unversityDictionary = new UniversityDictionary(universityDictionaryFile, locationDictionary,
-                probUnCorrelatedOrganization, probTopUniv);
-        unversityDictionary.init();
 
         System.out.println("Building companies dictionary");
         companiesDictionary = new CompanyDictionary(companiesDictionaryFile,locationDictionary,
                 probUnCorrelatedCompany);
         companiesDictionary.init();
+
+        System.out.println("Building university dictionary");
+        unversityDictionary = new UniversityDictionary(universityDictionaryFile, locationDictionary,
+                probUnCorrelatedOrganization, probTopUniv, companiesDictionary.getNumCompanies());
+        unversityDictionary.init();
 
         System.out.println("Building popular places dictionary");
         popularDictionary = new PopularPlacesDictionary(popularDictionaryFile,
@@ -1313,7 +1314,7 @@ public class ScalableGenerator{
 
         // User Creation
         long creationDate = dateTimeGenerator.randomDateInMillis( randomFarm.get(RandomGeneratorFarm.Aspect.DATE) );
-        int locationId = locationDictionary.getLocation(accountId);
+        int locationId = locationDictionary.getLocationForUser(accountId);
         UserProfile userProf = new UserProfile(
                 accountId,
                 creationDate,
@@ -1399,7 +1400,7 @@ public class ScalableGenerator{
         userExtraInfo.setLatt(locationDictionary.getLatt(user.getLocationId()) + distance);
         userExtraInfo.setLongt(locationDictionary.getLongt(user.getLocationId()) + distance);
 
-        userExtraInfo.setUniversity(unversityDictionary.getUniversityName(user.getUniversityLocationId()));
+        userExtraInfo.setUniversity(unversityDictionary.getUniversityFromLocation(user.getUniversityLocationId()));
 
         // Relationship status
         if (randomFarm.get(RandomGeneratorFarm.Aspect.HAVE_STATUS).nextDouble() > missingStatusRatio) {

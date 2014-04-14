@@ -36,12 +36,7 @@
  */
 package ldbc.socialnet.dbgen.serializer;
 
-import ldbc.socialnet.dbgen.objects.Comment;
-import ldbc.socialnet.dbgen.objects.Group;
-import ldbc.socialnet.dbgen.objects.Photo;
-import ldbc.socialnet.dbgen.objects.Post;
-import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
-import ldbc.socialnet.dbgen.objects.UserExtraInfo;
+import ldbc.socialnet.dbgen.objects.*;
 
 /**
  * The ldbc socialnet generator serialize interface. The user of this interface has control of how the entities
@@ -51,65 +46,19 @@ import ldbc.socialnet.dbgen.objects.UserExtraInfo;
  * to flush any non written data and close the files used.
  */
 public interface Serializer {
-	
-    /**
-     * Closes the serializer and flush the remaining data. Once called any GatherData method will produce I/O excpetions.
-     */
 	public void close();
-	
-	/**
-	 * Returns how many serializer units (p.e.g rows in csv or triples in RDF) have been generated.
-	 */
 	public Long unitsGenerated();
-	
-	/**
-	 * Serializes the user information.
-	 * Aside from the user itself this includes:
-	 *   · The location hierarchy of the user location and any university and country he has work with.
-	 *   · The company and university data.
-	 *   · The forum of this user wall.
-	 *   · The tag data from its interests.
-	 *   
-	 * @param user: The user.
-	 * @param extraInfo: The user cosmetic data.
-	 */
-	public void gatherData(ReducedUserProfile user, UserExtraInfo extraInfo);
-	
-	/**
-	 * Serializes the post information.
-	 * Aside from the post itself this includes:
-	 *   · The location hierarchy of its location (via IP).
-	 *   · Its tag data.
-	 * 
-	 * @param post: The post.
-	 */
-	public void gatherData(Post post);
-	
-	/**
-     * Serializes the photo information.
-     * Aside from the photo itself this includes:
-     *   · The location hierarchy of its location (via IP).
-     *   · Its tag data.
-     * @param photo: The photo.
-     */
-	public void gatherData(Photo photo);
-	
-	/**
-     * Serializes the comment information.
-     * Aside from the comment itself this includes:
-     *   · The location hierarchy of its location (via IP).
-     *   · Its tag data.
-     * @param comment: The comment.
-     */
-	public void gatherData(Comment comment);
-	
-	/**
-     * Serializes the group information.
-     * 
-     * @param group: The group.
-     */
-	public void gatherData(Group group);
+	public void serialize( UserInfo info );
+    public void serialize( Friend friend );
+	public void serialize( Post post);
+    public void serialize( Like like );
+	public void serialize( Photo photo);
+	public void serialize( Comment comment);
+	public void serialize( Group group);
+    public void serialize( GroupMemberShip membership );
 
-
-    public void resetState(long block);
+    public void serialize( Organization organization );
+    public void serialize( Tag tag );
+    public void serialize( Location location );
+    public void serialize( TagClass tagClass );
 }
