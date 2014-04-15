@@ -1,9 +1,1 @@
-sparql select ?loc count(*)
-from <sib> 
-where { 
-   ?w snvoc:hasOrganisation ?org .
-   ?org snvoc:isLocatedIn ?loc.
-}
-group by ?loc
-order by desc 2
-limit 100;
+select top 100 pl_url, count(*) from organisation, place where o_placeid = pl_placeid group by 1 order by 2 desc;

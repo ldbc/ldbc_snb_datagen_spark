@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.Set;
 import java.util.Vector;
 import ldbc.socialnet.dbgen.util.RandomGeneratorFarm;
 
@@ -92,24 +93,16 @@ public class UniversityDictionary {
 			while ((line = dicAllInstitutes.readLine()) != null){
 				String data[] = line.split(SEPARATOR);
 				String locationName = data[0];
-				if (locationName.compareTo(lastLocationName) != 0) {
-					if (locationDic.getCountryId(locationName) != LocationDictionary.INVALID_LOCATION &&
-					    locationDic.getCityId(data[2]) != LocationDictionary.INVALID_LOCATION ) {
-						lastLocationName = locationName;
-						curLocationId = locationDic.getCountryId(locationName); 
-						String universityName = data[1].trim();
-						universitiesByLocation.get(curLocationId).add(universityName);
-						Integer cityId = locationDic.getCityId(data[2]);
-						universityToLocation.put(universityName, cityId);
-						totalNumUniversities++;
-					} 
-				} else if( locationDic.getCityId(data[2]) != LocationDictionary.INVALID_LOCATION ) {
-				    String universityName = data[1].trim();
-					universitiesByLocation.get(curLocationId).add(universityName);
-					Integer cityId = locationDic.getCityId(data[2]);
+                String cityName = data[2];
+                if (locationDic.getCountryId(locationName) != LocationDictionary.INVALID_LOCATION &&
+                        locationDic.getCityId(cityName) != LocationDictionary.INVALID_LOCATION ) {
+                    curLocationId = locationDic.getCountryId(locationName);
+                    String universityName = data[1].trim();
+                    universitiesByLocation.get(curLocationId).add(universityName);
+                    Integer cityId = locationDic.getCityId(cityName);
                     universityToLocation.put(universityName, cityId);
-					totalNumUniversities++;
-				}
+                    totalNumUniversities++;
+                }
 			}
 			dicAllInstitutes.close();
 			System.out.println("Done ... " + totalNumUniversities + " universities were extracted");
@@ -149,6 +142,10 @@ public class UniversityDictionary {
 		int locationId = locationDic.getLocationIdFromZOrder(zOrderLocationId);
 		return universitiesByLocation.get(locationId).get(universityId);
 	}
+
+    public Set<String> getUniversities() {
+        return universityToLocation.keySet();
+    }
 
     public int getTotalNumUniversities() {
         return totalNumUniversities;

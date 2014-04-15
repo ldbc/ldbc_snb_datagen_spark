@@ -39,10 +39,7 @@ package ldbc.socialnet.dbgen.dictionary;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Random;
-import java.util.Vector;
+import java.util.*;
 
 import ldbc.socialnet.dbgen.objects.Location;
 import ldbc.socialnet.dbgen.util.ZOrder;
@@ -105,6 +102,10 @@ public class LocationDictionary {
         this.numUsers = numUsers; 
         this.countryFile = countryFile;
         this.cityFile = cityFile;
+    }
+
+    public Set<Integer> getLocations() {
+        return locations.keySet();
     }
 	
 	/**

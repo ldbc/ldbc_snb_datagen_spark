@@ -55,12 +55,14 @@ public class GroupGenerator {
 	DateGenerator dateGenerator;
 	LocationDictionary locationDic;
 	TagDictionary tagDic;
+    long deltaTime;
 
 	public GroupGenerator(DateGenerator dateGenerator, LocationDictionary locationDic, 
-			TagDictionary tagDic, int numUsers){
+			TagDictionary tagDic, long deltaTime ){
 		this.dateGenerator = dateGenerator; 
 		this.locationDic = locationDic; 
-		this.tagDic = tagDic; 
+		this.tagDic = tagDic;
+        this.deltaTime = deltaTime;
 	}
 
 	public Group createGroup(RandomGeneratorFarm randomFarm, long groupId, ReducedUserProfile user){
@@ -117,7 +119,7 @@ public class GroupGenerator {
 	public GroupMemberShip createGroupMember(Random random, long userId, long groupCreatedDate, Friend friend){
 		GroupMemberShip memberShip = new GroupMemberShip();
 		memberShip.setUserId(userId);
-		memberShip.setJoinDate(dateGenerator.randomGroupMemberJoinDate(random,groupCreatedDate, friend.getCreatedTime()));
+		memberShip.setJoinDate(dateGenerator.randomGroupMemberJoinDate(random,groupCreatedDate, friend.getCreatedTime()+deltaTime));
 		memberShip.setIP(friend.getSourceIp());
 		memberShip.setBrowserIdx(friend.getBrowserIdx());
 		memberShip.setAgentIdx(friend.getAgentIdx());
@@ -131,7 +133,7 @@ public class GroupGenerator {
 	public GroupMemberShip createGroupMember(Random random, long userId, long groupCreatedDate, ReducedUserProfile user){
         GroupMemberShip memberShip = new GroupMemberShip();
         memberShip.setUserId(userId);
-        memberShip.setJoinDate(dateGenerator.randomGroupMemberJoinDate(random, groupCreatedDate, user.getCreationDate()));
+        memberShip.setJoinDate(dateGenerator.randomGroupMemberJoinDate(random, groupCreatedDate, user.getCreationDate()+deltaTime));
         memberShip.setIP(user.getIpAddress());
         memberShip.setBrowserIdx(user.getBrowserIdx());
         memberShip.setAgentIdx(user.getAgentIdx());

@@ -38,20 +38,11 @@ package ldbc.socialnet.dbgen.serializer;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Vector;
+import java.util.*;
 import java.util.zip.GZIPOutputStream;
 import java.io.OutputStream;
 
-import ldbc.socialnet.dbgen.dictionary.BrowserDictionary;
-import ldbc.socialnet.dbgen.dictionary.CompanyDictionary;
-import ldbc.socialnet.dbgen.dictionary.IPAddressDictionary;
-import ldbc.socialnet.dbgen.dictionary.LanguageDictionary;
-import ldbc.socialnet.dbgen.dictionary.LocationDictionary;
-import ldbc.socialnet.dbgen.dictionary.TagDictionary;
+import ldbc.socialnet.dbgen.dictionary.*;
 import ldbc.socialnet.dbgen.generator.DateGenerator;
 import ldbc.socialnet.dbgen.generator.ScalableGenerator;
 import ldbc.socialnet.dbgen.objects.Comment;
@@ -82,6 +73,7 @@ public class CSV implements Serializer {
      * Generator input classes.
      */
     private CompanyDictionary companyDic;
+    private UniversityDictionary universityDic;
     private HashMap<String, Integer> universityToCountry;
     private BrowserDictionary  browserDic;
     private LocationDictionary locationDic;
@@ -96,11 +88,9 @@ public class CSV implements Serializer {
     HashMap<Integer, Integer> printedTagClasses;
     Vector<Integer> locations;
     Vector<Integer> serializedLanguages;
-    Vector<String> organisations;
-    Vector<String> interests;
-    Vector<String> tagList;
-    Vector<String> ipList;
-    
+    HashMap<String,Integer> universities;
+    HashMap<String,Integer> companies;
+
     private final String NEWLINE = "\n";
     private final String SEPARATOR = "|";
 
@@ -226,32 +216,30 @@ public class CSV implements Serializer {
      * @param file: The basic file name.
      * @param tagDic: The tag dictionary used in the generation.
      * @param browsers: The browser dictionary used in the generation.
-     * @param univesityToCountry: HashMap of universities names to country IDs.
      * @param ipDic: The IP dictionary used in the generation.
      * @param locationDic: The location dictionary used in the generation.
      * @param languageDic: The language dictionary used in the generation.
      */
 	public CSV(String file, int reducerID,
             TagDictionary tagDic, BrowserDictionary browsers, 
-            CompanyDictionary companies, HashMap<String, Integer> univesityToCountry,
+            CompanyDictionary companyDic, UniversityDictionary universityDictionary,
             IPAddressDictionary ipDic, LocationDictionary locationDic, LanguageDictionary languageDic, boolean exportText, boolean compressed) {
         
         this.tagDic = tagDic;  
         this.browserDic = browsers;
         this.locationDic = locationDic;
         this.languageDic = languageDic;
-        this.companyDic = companies;
-        this.universityToCountry = univesityToCountry;
+        this.companyDic = companyDic;
+        this.universityToCountry = universityDictionary.GetUniversityLocationMap();
+        this.universityDic = universityDictionary;
         this.ipDic = ipDic;
         this.exportText = exportText;
         
         csvRows = 0l;
         date = new GregorianCalendar();
 		locations = new Vector<Integer>();
-		organisations = new Vector<String>();
-		interests = new Vector<String>();
-		tagList = new Vector<String>();
-		ipList = new Vector<String>();
+		companies = new HashMap<String,Integer>();
+        universities = new HashMap<String,Integer>();
 		serializedLanguages = new Vector<Integer>();
 		printedTagClasses = new HashMap<Integer, Integer>();
 		
@@ -276,12 +264,106 @@ public class CSV implements Serializer {
                 ToCSV(arguments, j);
             }
 
+            loadOrganisations();
+            if( reducerID == 0 ) {
+                serializerCommonData();
+            }
+
 		} catch(IOException e){
 			System.err.println(e.getMessage());
 			System.exit(-1);
 		}
 	}
-	
+
+    private void serializerCommonData() {
+        // Locations
+        serializeLocations();
+
+        // Organisations
+        serializeOrganisations();
+
+        // Tags
+        serializeTags();
+    }
+
+    private void serializeLocations() {
+        Set<Integer> locations = locationDic.getLocations();
+        Iterator<Integer> it = locations.iterator();
+        while(it.hasNext()) {
+            printLocationHierarchy(it.next());
+        }
+    }
+
+    private void loadOrganisations() {
+        int index = 0;
+        Set<String> companiesSet = companyDic.getCompanies();
+        Iterator<String> it = companiesSet.iterator();
+        while(it.hasNext()) {
+            String company = it.next();
+            companies.put(company,index);
+            index++;
+        }
+
+        Set<String> universitiesSet = universityDic.getUniversities();
+        it = universitiesSet.iterator();
+        while(it.hasNext()) {
+            String university = it.next();
+            universities.put(university,index);
+            index++;
+        }
+
+    }
+
+    private void serializeOrganisations() {
+        Vector<String> arguments = new Vector<String>();
+        Set<String> companiesSet = companies.keySet();
+        Iterator<String> it = companiesSet.iterator();
+        while(it.hasNext()) {
+            String company = it.next();
+            int index = companies.get(company);
+            arguments.add(Integer.toString(index));
+            arguments.add(ScalableGenerator.OrganisationType.company.toString());
+            arguments.add(company);
+            arguments.add(DBP.getUrl(company));
+            ToCSV(arguments, Files.ORGANISATION.ordinal());
+
+            arguments.add(Integer.toString(index));
+            arguments.add(Integer.toString(companyDic.getCountry(company)));
+            ToCSV(arguments, Files.ORGANISATION_BASED_NEAR_PLACE.ordinal());
+        }
+
+        Set<String> universitiesSet = universities.keySet();
+        it = universitiesSet.iterator();
+        while(it.hasNext()) {
+            String university = it.next();
+            int index = universities.get(university);
+            arguments.add(Integer.toString(index));
+            arguments.add(ScalableGenerator.OrganisationType.university.toString());
+            arguments.add(university);
+            arguments.add(DBP.getUrl(university));
+            ToCSV(arguments, Files.ORGANISATION.ordinal());
+
+            arguments.add(Integer.toString(index));
+            arguments.add(Integer.toString(universityToCountry.get(university)));
+            ToCSV(arguments, Files.ORGANISATION_BASED_NEAR_PLACE.ordinal());
+        }
+    }
+
+    public void serializeTags() {
+        Vector<String> arguments = new Vector<String>();
+        Set<Integer>  tags = tagDic.getTags();
+        Iterator<Integer> it = tags.iterator();
+        while(it.hasNext()) {
+            int tag = it.next();
+            String tagName = tagDic.getName(tag);
+            arguments.add(Integer.toString(tag));
+            arguments.add(tagName.replace("\"", "\\\""));
+            arguments.add(DBP.getUrl(tagName));
+            ToCSV(arguments, Files.TAG.ordinal());
+            printTagHierarchy(tag);
+        }
+    }
+
 	/**
 	 * Returns the number of CSV rows written.
 	 */
@@ -399,17 +481,6 @@ public class CSV implements Serializer {
             System.err.println("LDBC socialnet must serialize the extraInfo");
             System.exit(-1);
         }
-		
-		printLocationHierarchy(extraInfo.getLocationId());
-		Iterator<String> itString = extraInfo.getCompanies().iterator();
-		while (itString.hasNext()) {
-		    String company = itString.next();
-		    int parentId = companyDic.getCountry(company);
-		    printLocationHierarchy(parentId);
-		}
-		printLocationHierarchy(universityToCountry.get(extraInfo.getUniversity()));
-        printLocationHierarchy(ipDic.getLocation(profile.getIpAddress()));
-        
 
         arguments.add(Long.toString(profile.getAccountId()));
         arguments.add(extraInfo.getFirstName());
@@ -447,7 +518,7 @@ public class CSV implements Serializer {
 		    ToCSV(arguments, Files.PERSON_SPEAKS_LANGUAGE.ordinal());
 		}
 
-		itString = extraInfo.getEmail().iterator();
+		Iterator<String> itString = extraInfo.getEmail().iterator();
 		while (itString.hasNext()){
 		    String email = itString.next();
 		    arguments.add(Long.toString(profile.getAccountId()));
@@ -461,28 +532,13 @@ public class CSV implements Serializer {
 
 		int organisationId = -1;
 		if (!extraInfo.getUniversity().equals("")){
-		    organisationId = organisations.indexOf(extraInfo.getUniversity());
-		    if(organisationId == -1) {
-		        organisationId = organisations.size();
-		        organisations.add(extraInfo.getUniversity());
-
-		        arguments.add(SN.formId(organisationId));
-		        arguments.add(ScalableGenerator.OrganisationType.university.toString());
-		        arguments.add(extraInfo.getUniversity());
-		        arguments.add(DBP.getUrl(extraInfo.getUniversity()));
-		        ToCSV(arguments, Files.ORGANISATION.ordinal());
-
-		        arguments.add(SN.formId(organisationId));
-		        arguments.add(Integer.toString(universityToCountry.get(extraInfo.getUniversity())));
-		        ToCSV(arguments, Files.ORGANISATION_BASED_NEAR_PLACE.ordinal());
-		    }
-		    
+		    organisationId = universities.get(extraInfo.getUniversity());
 		    if (extraInfo.getClassYear() != -1 ) {
 	            date.setTimeInMillis(extraInfo.getClassYear());
 	            dateString = DateGenerator.formatYear(date);
 
 	            arguments.add(Long.toString(profile.getAccountId()));
-	            arguments.add(SN.formId(organisationId));
+	            arguments.add(Integer.toString(organisationId));
 	            arguments.add(dateString);
 	            ToCSV(arguments, Files.PERSON_STUDY_AT_ORGANISATION.ordinal());
 	        }
@@ -491,26 +547,12 @@ public class CSV implements Serializer {
 		itString = extraInfo.getCompanies().iterator();
 		while (itString.hasNext()) {
 		    String company = itString.next();
-		    organisationId = organisations.indexOf(company);
-		    if(organisationId == -1) {
-		        organisationId = organisations.size();
-		        organisations.add(company);
-
-		        arguments.add(SN.formId(organisationId));
-		        arguments.add(ScalableGenerator.OrganisationType.company.toString());
-		        arguments.add(company);
-		        arguments.add(DBP.getUrl(company));
-		        ToCSV(arguments, Files.ORGANISATION.ordinal());
-
-		        arguments.add(SN.formId(organisationId));
-		        arguments.add(Integer.toString(companyDic.getCountry(company)));
-		        ToCSV(arguments, Files.ORGANISATION_BASED_NEAR_PLACE.ordinal());
-		    }
+		    organisationId = companies.get(company);
 		    date.setTimeInMillis(extraInfo.getWorkFrom(company));
 		    dateString = DateGenerator.formatYear(date);
 
 		    arguments.add(Long.toString(profile.getAccountId()));
-		    arguments.add(SN.formId(organisationId));
+		    arguments.add(Integer.toString(organisationId));
 		    arguments.add(dateString);
 		    ToCSV(arguments, Files.PERSON_WORK_AT_ORGANISATION.ordinal());
 		}
@@ -518,19 +560,6 @@ public class CSV implements Serializer {
         Iterator<Integer> itInteger = profile.getSetOfTags().iterator();
         while (itInteger.hasNext()){
             Integer interestIdx = itInteger.next();
-            String interest = tagDic.getName(interestIdx);
-            
-            if (interests.indexOf(interest) == -1) {
-                interests.add(interest);
-                
-                arguments.add(Integer.toString(interestIdx));
-                arguments.add(interest.replace("\"", "\\\""));
-                arguments.add(DBP.getUrl(interest));
-                ToCSV(arguments, Files.TAG.ordinal());
-                
-                printTagHierarchy(interestIdx);
-            }
-            
             arguments.add(Long.toString(profile.getAccountId()));
             arguments.add(Integer.toString(interestIdx));
             ToCSV(arguments, Files.PERSON_INTEREST_TAG.ordinal());
@@ -590,10 +619,6 @@ public class CSV implements Serializer {
 	    Vector<String> arguments = new Vector<String>();
 	    String empty = "";
 	    
-	    if (post.getIpAddress() != null) {
-            printLocationHierarchy(ipDic.getLocation(post.getIpAddress()));
-        }
-	    
 	    arguments.add(SN.formId(post.getMessageId()));
 	    arguments.add(empty);
 	    date.setTimeInMillis(post.getCreationDate());
@@ -638,17 +663,6 @@ public class CSV implements Serializer {
 	    Iterator<Integer> it = post.getTags().iterator();
 	    while (it.hasNext()) {
 	        Integer tagId = it.next();
-	        String tag = tagDic.getName(tagId);
-	        if (interests.indexOf(tag) == -1) {
-	            interests.add(tag);
-	            arguments.add(Integer.toString(tagId));
-	            arguments.add(tag.replace("\"", "\\\""));
-	            arguments.add(DBP.getUrl(tag));
-	            ToCSV(arguments, Files.TAG.ordinal());
-
-	            printTagHierarchy(tagId);
-	        }
-
 	        arguments.add(SN.formId(post.getMessageId()));
 	        arguments.add(Integer.toString(tagId));
 	        ToCSV(arguments, Files.POST_HAS_TAG_TAG.ordinal());
@@ -671,10 +685,6 @@ public class CSV implements Serializer {
      */
 	public void gatherData(Comment comment){
 	    Vector<String> arguments = new Vector<String>();
-	    
-	    if (comment.getIpAddress() != null) {
-            printLocationHierarchy(ipDic.getLocation(comment.getIpAddress()));
-        }
 	    
 	    date.setTimeInMillis(comment.getCreationDate());
         String dateString = DateGenerator.formatDateDetail(date); 
@@ -722,17 +732,6 @@ public class CSV implements Serializer {
         Iterator<Integer> it = comment.getTags().iterator();
         while (it.hasNext()) {
             Integer tagId = it.next();
-            String tag = tagDic.getName(tagId);
-            if (interests.indexOf(tag) == -1) {
-                interests.add(tag);
-                arguments.add(Integer.toString(tagId));
-                arguments.add(tag.replace("\"", "\\\""));
-                arguments.add(DBP.getUrl(tag));
-                ToCSV(arguments, Files.TAG.ordinal());
-
-                printTagHierarchy(tagId);
-            }
-
             arguments.add(SN.formId(comment.getMessageId()));
             arguments.add(Integer.toString(tagId));
             ToCSV(arguments, Files.COMMENT_HAS_TAG_TAG.ordinal());
@@ -756,10 +755,6 @@ public class CSV implements Serializer {
 	public void gatherData(Photo photo){
 	    Vector<String> arguments = new Vector<String>();
 	    
-	    if (photo.getIpAddress() != null) {
-            printLocationHierarchy(ipDic.getLocation(photo.getIpAddress()));
-        }
-
 	    String empty = "";
 	    arguments.add(SN.formId(photo.getPhotoId()));
 	    arguments.add(photo.getImage());
@@ -799,16 +794,6 @@ public class CSV implements Serializer {
 	    while (it.hasNext()) {
 	        Integer tagId = it.next();
 	        String tag = tagDic.getName(tagId);
-	        if (interests.indexOf(tag) == -1) {
-	            interests.add(tag);
-	            arguments.add(Integer.toString(tagId));
-	            arguments.add(tag.replace("\"", "\\\""));
-	            arguments.add(DBP.getUrl(tag));
-	            ToCSV(arguments, Files.TAG.ordinal());
-
-	            printTagHierarchy(tagId);
-	        }
-
 	        arguments.add(SN.formId(photo.getPhotoId()));
 	        arguments.add(Integer.toString(tagId));
 	        ToCSV(arguments, Files.POST_HAS_TAG_TAG.ordinal());
@@ -846,19 +831,6 @@ public class CSV implements Serializer {
 	    
 	    Integer groupTags[] = group.getTags();
         for (int i = 0; i < groupTags.length; i ++) {
-            String interest = tagDic.getName(groupTags[i]);
-            
-            if (interests.indexOf(interest) == -1) {
-                interests.add(interest);
-                
-                arguments.add(Integer.toString(groupTags[i]));
-                arguments.add(interest.replace("\"", "\\\""));
-                arguments.add(DBP.getUrl(interest));
-                ToCSV(arguments, Files.TAG.ordinal());
-                
-                printTagHierarchy(groupTags[i]);
-            }
-            
             arguments.add(SN.formId(group.getGroupId()));
             arguments.add(Integer.toString(groupTags[i]));
             ToCSV(arguments,Files.FORUM_HASTAG_TAG.ordinal());

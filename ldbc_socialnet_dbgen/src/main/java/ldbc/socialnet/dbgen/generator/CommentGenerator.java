@@ -61,6 +61,7 @@ public class CommentGenerator {
     private double largeCommentRatio;      /**< @brief The ratio of large comments.*/
     private boolean generateText;          /**< @brief To generate the text of comments.*/
     private int maxNumberOfLikes;
+    private long deltaTime;                 /**< @brief The minimum time to span between post creation and its reply.*/
 
     private String[] shortComments = {"ok", "good", "great", "cool", "thx", "fine", "LOL", "roflol", "no way!", "I see", "right", "yes", "no", "duh", "thanks", "maybe"};
 	
@@ -74,7 +75,8 @@ public class CommentGenerator {
                              int maxLargeSizeOfComment,
                              double largeCommentRatio,
                              int maxNumberOfLikes,
-                             boolean generateText
+                             boolean generateText,
+                             long deltaTime
                              ){
         this.tagDictionary = tagDictionary;
         this.tagTextDic = tagTextDic;
@@ -87,6 +89,7 @@ public class CommentGenerator {
         this.largeCommentRatio = largeCommentRatio;
         this.generateText = generateText;
         this.maxNumberOfLikes = maxNumberOfLikes;
+        this.deltaTime = deltaTime;
 	}
 	
 	public void initialize() {
@@ -146,7 +149,7 @@ public class CommentGenerator {
         message.setInterestedUserAccs(likes);
         long[] likeTimestamp = new long[likes.length];
         for (int i = 0; i < likes.length; i++) {
-            likeTimestamp[i] = (long)(randomDate.nextDouble()*DateGenerator.SEVEN_DAYS+message.getCreationDate());
+            likeTimestamp[i] = (long)(randomDate.nextDouble()*DateGenerator.SEVEN_DAYS+message.getCreationDate()+deltaTime);
         }
         message.setInterestedUserAccsTimestamp(likeTimestamp);
     }
@@ -159,7 +162,7 @@ public class CommentGenerator {
         message.setInterestedUserAccs(likes);
         long[] likeTimestamp = new long[likes.length];
         for (int i = 0; i < likes.length; i++) {
-            likeTimestamp[i] = (long)(randomDate.nextDouble()*DateGenerator.SEVEN_DAYS+message.getCreationDate());
+            likeTimestamp[i] = (long)(randomDate.nextDouble()*DateGenerator.SEVEN_DAYS+message.getCreationDate()+deltaTime);
         }
         message.setInterestedUserAccsTimestamp(likeTimestamp);
     }
@@ -171,7 +174,7 @@ public class CommentGenerator {
         ArrayList<Integer> validIds = new ArrayList<Integer>();
         Friend[] friends = user.getFriendList();
         for (int i = 0; i <user.getNumFriendsAdded(); i++) {
-            if ((friends[i].getCreatedTime() > post.getCreationDate()) || (friends[i].getCreatedTime() == -1)){
+            if ((friends[i].getCreatedTime()+deltaTime <= post.getCreationDate()) || (friends[i].getCreatedTime() == -1)){
                 validIds.add(i);
             }
         }
@@ -221,7 +224,7 @@ public class CommentGenerator {
                 content = shortComments[index];
             }
         }
-        long creationDate = dateGen.powerlawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),replyTo.getCreationDate());
+        long creationDate = dateGen.powerlawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),replyTo.getCreationDate()+deltaTime);
         Comment comment = new Comment( commentId,
                                        content,
                                        textSize,
@@ -245,7 +248,7 @@ public class CommentGenerator {
         ArrayList<Integer> validIds = new ArrayList<Integer>();
         GroupMemberShip[] memberShips = group.getMemberShips();
         for (int i = 0; i <group.getNumMemberAdded(); i++) {
-            if (memberShips[i].getJoinDate() > post.getCreationDate()){
+            if (memberShips[i].getJoinDate()+deltaTime <= post.getCreationDate()){
                 validIds.add(i);
             }
         }
@@ -297,7 +300,7 @@ public class CommentGenerator {
             }
         }
 
-        long creationDate = dateGen.powerlawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),replyTo.getCreationDate());
+        long creationDate = dateGen.powerlawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),replyTo.getCreationDate()+deltaTime);
         Comment comment = new Comment( commentId,
                 content,
                 textSize,

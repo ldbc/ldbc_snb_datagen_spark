@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.Set;
 import java.util.Vector;
 
 /**
@@ -136,4 +137,9 @@ public class CompanyDictionary {
 		int randomCompanyIdx = randomFarm.get(RandomGeneratorFarm.Aspect.COMPANY).nextInt(companiesByLocations.get(locId).size());
 		return companiesByLocations.get(locId).get(randomCompanyIdx);
 	}
+
+
+    public Set<String> getCompanies() {
+        return companyLocation.keySet();
+    }
 }

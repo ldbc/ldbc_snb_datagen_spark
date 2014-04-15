@@ -47,12 +47,7 @@ import java.util.Iterator;
 import java.util.Vector;
 import java.util.zip.GZIPOutputStream;
 
-import ldbc.socialnet.dbgen.dictionary.BrowserDictionary;
-import ldbc.socialnet.dbgen.dictionary.CompanyDictionary;
-import ldbc.socialnet.dbgen.dictionary.IPAddressDictionary;
-import ldbc.socialnet.dbgen.dictionary.LanguageDictionary;
-import ldbc.socialnet.dbgen.dictionary.LocationDictionary;
-import ldbc.socialnet.dbgen.dictionary.TagDictionary;
+import ldbc.socialnet.dbgen.dictionary.*;
 import ldbc.socialnet.dbgen.generator.DateGenerator;
 import ldbc.socialnet.dbgen.objects.Comment;
 import ldbc.socialnet.dbgen.objects.Friend;
@@ -131,7 +126,7 @@ public class Turtle implements Serializer {
 	 */
 	public Turtle(String file, int nrOfOutputFiles, boolean isTurtle,
             TagDictionary tagDic, BrowserDictionary browsers, 
-            CompanyDictionary companies, HashMap<String, Integer> univesityToCountry,
+            CompanyDictionary companies, UniversityDictionary universityDictionary,
             IPAddressDictionary ipDic,  LocationDictionary locationDic, 
             LanguageDictionary languageDic, boolean exportText, boolean compressed) {
 	    
@@ -140,7 +135,7 @@ public class Turtle implements Serializer {
         this.browserDic = browsers;
         this.locationDic = locationDic;
         this.companyDic = companies;
-        this.universityToCountry = univesityToCountry;
+        this.universityToCountry = universityDictionary.GetUniversityLocationMap();
         this.ipDic = ipDic;
         this.languageDic = languageDic;
         this.exportText = exportText;

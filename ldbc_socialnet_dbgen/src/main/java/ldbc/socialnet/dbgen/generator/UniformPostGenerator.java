@@ -58,6 +58,7 @@ public class UniformPostGenerator extends PostGenerator {
     private int maxNumGroupPostPerMonth;        /**< @brief The maximum number of posts per group per month.*/
     private int maxNumFriends;                  /**< @brief The maximum number of friends.*/
     private int maxNumMembers;                  /**< @brief The maximum number of members of a group.*/
+    private long deltaTime;                     /**< @brief The delta time used to guarantee a minimum time between post creation and user creation.*/
 
 	public UniformPostGenerator( TagTextDictionary tagTextDic, 
                           UserAgentDictionary userAgentDic,
@@ -71,6 +72,7 @@ public class UniformPostGenerator extends PostGenerator {
                           double largePostRatio,
                           int maxNumberOfLikes,
                           boolean exportText,
+                          long deltaTime,
                           DateGenerator dateGen,
                           int maxNumPostPerMonth,
                           int maxNumFriends,
@@ -78,12 +80,13 @@ public class UniformPostGenerator extends PostGenerator {
                           int maxNumMembers
                           ) {
         super(tagTextDic, userAgentDic, ipAddressDic, browserDic, minSizeOfPost, maxSizeOfPost, reducedTextRatio, minLargeSizeOfPost,
-              maxLargeSizeOfPost, largePostRatio, maxNumberOfLikes,exportText);
+              maxLargeSizeOfPost, largePostRatio, maxNumberOfLikes,exportText, deltaTime);
         this.dateGen = dateGen;
         this.maxNumPostPerMonth = maxNumPostPerMonth;
         this.maxNumFriends = maxNumFriends;
         this.maxNumGroupPostPerMonth = maxNumGroupPostPerMonth;
         this.maxNumMembers = maxNumMembers;
+        this.deltaTime = deltaTime;
 	}
 
     @Override
@@ -101,7 +104,7 @@ public class UniformPostGenerator extends PostGenerator {
                 }
             }
         }
-        postInfo.date = dateGen.randomPostCreatedDate(randomDate,user.getCreationDate());
+        postInfo.date = dateGen.randomPostCreatedDate(randomDate,user.getCreationDate()+deltaTime);
         return postInfo;
     }
 
@@ -111,7 +114,7 @@ public class UniformPostGenerator extends PostGenerator {
         for (int i = 0; i < group.getTags().length; i++) {
             postInfo.tags.add(group.getTags()[i]);
         }
-        postInfo.date = dateGen.randomPostCreatedDate(randomDate,membership.getJoinDate());
+        postInfo.date = dateGen.randomPostCreatedDate(randomDate,membership.getJoinDate()+deltaTime);
         return postInfo;
     }
 

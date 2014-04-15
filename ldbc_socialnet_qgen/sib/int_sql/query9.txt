@@ -1,8 +1,6 @@
-select top 20 personid, firstname, lastname, cast (id as varchar), content, creationdate
-from (
- select p_personid as personid, p_firstname as firstname, p_lastname as lastname,
- 	ps_postid as id, ps_content || ps_imagefile as content, ps_creationdate as creationdate
- from person, post,
+select top 20 p_personid, p_firstname, p_lastname,
+       cast (ps_postid as varchar), ps_content || ps_imagefile, ps_creationdate
+from person, post,
   ( select k_person2id
     from knows
     where
@@ -13,26 +11,8 @@ from (
     where
     k1.k_person1id = @Person@ and k1.k_person2id = k2.k_person1id and k2.k_person2id <> @Person@
   ) f
- where
- p_personid = ps_creatorid and p_personid = f.k_person2id and
- ps_creationdate < stringdate('@Date0@')
- union
- select p_personid as personid, p_firstname as firstname, p_lastname as lastname,
- 	c_commentid as id, c_content as content, c_creationdate as creationdate
- from person, comment,
-  ( select k_person2id
-    from knows
-    where
-    k_person1id = @Person@
-    union
-    select k2.k_person2id
-    from knows k1, knows k2
-    where
-    k1.k_person1id = @Person@ and k1.k_person2id = k2.k_person1id and k2.k_person2id <> @Person@
-  ) f
- where
- p_personid = c_creatorid and p_personid = f.k_person2id and
- c_creationdate < stringdate('@Date0@')
-) tmp
-order by creationdate desc, 4
+where
+	p_personid = ps_creatorid and p_personid = f.k_person2id and
+	ps_creationdate < stringdate('@Date0@')
+order by ps_creationdate desc, 4
 
