@@ -49,6 +49,10 @@ import ldbc.socialnet.dbgen.objects.*;
 import ldbc.socialnet.dbgen.vocabulary.DBP;
 import ldbc.socialnet.dbgen.vocabulary.DBPOWL;
 import ldbc.socialnet.dbgen.vocabulary.SN;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
 
 /**
  * CSV serializer.
@@ -227,7 +231,6 @@ public class CSVOriginal implements Serializer {
         this.universityDic = universityDictionary;
         this.ipDic = ipDic;
         this.exportText = exportText;
-        
         csvRows = 0l;
         date = new GregorianCalendar();
 		locations = new Vector<Integer>();

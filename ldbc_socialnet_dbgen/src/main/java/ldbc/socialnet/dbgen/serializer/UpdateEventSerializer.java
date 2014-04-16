@@ -43,6 +43,9 @@ import ldbc.socialnet.dbgen.dictionary.TagDictionary;
 import ldbc.socialnet.dbgen.generator.DateGenerator;
 import ldbc.socialnet.dbgen.objects.*;
 import ldbc.socialnet.dbgen.vocabulary.SN;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -59,6 +62,7 @@ import java.util.zip.GZIPOutputStream;
 public class UpdateEventSerializer implements Serializer{
 
     private OutputStream fileOutputStream;
+    private FSDataOutputStream hdfsOutput;
     private ArrayList<String> data;
     private ArrayList<String> list;
     private UpdateEvent currentEvent;
@@ -86,11 +90,14 @@ public class UpdateEventSerializer implements Serializer{
         this.minDate = Long.MAX_VALUE;
         this.maxDate = Long.MIN_VALUE;
         try{
+            Configuration conf = new Configuration();
+            FileSystem fs = FileSystem.get(conf);
             if( compress ) {
                 this.fileOutputStream = new GZIPOutputStream(new FileOutputStream(outputDir + "/" + outputFileName +".gz"));
             } else {
                 this.fileOutputStream = new FileOutputStream(outputDir + "/" + outputFileName );
             }
+            hdfsOutput = new FSDataOutputStream(this.fileOutputStream, new FileSystem.Statistics(null));
         } catch(IOException e){
             System.err.println(e.getMessage());
             System.exit(-1);
@@ -193,7 +200,8 @@ public class UpdateEventSerializer implements Serializer{
             string.append(event.eventData);
             string.append("|");
             string.append("\n");
-            fileOutputStream.write(string.toString().getBytes("UTF8"));
+            //fileOutputStream.write(string.toString().getBytes("UTF8"));
+            hdfsOutput.write(string.toString().getBytes("UTF8"));
         } catch(IOException e){
             System.err.println(e.getMessage());
             System.exit(-1);
@@ -234,7 +242,9 @@ public class UpdateEventSerializer implements Serializer{
 
         try {
             fileOutputStream.flush();
+            hdfsOutput.flush();
             fileOutputStream.close();
+            hdfsOutput.close();
         } catch(IOException e){
             System.err.println(e.getMessage());
             System.exit(-1);
