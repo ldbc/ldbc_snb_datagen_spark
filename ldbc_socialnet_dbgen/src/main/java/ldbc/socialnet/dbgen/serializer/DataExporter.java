@@ -40,26 +40,25 @@ package ldbc.socialnet.dbgen.serializer;
 import ldbc.socialnet.dbgen.dictionary.*;
 import ldbc.socialnet.dbgen.generator.ScalableGenerator;
 import ldbc.socialnet.dbgen.objects.*;
+import ldbc.socialnet.dbgen.serializer.CSVSerializer.CSVSerializer;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * Created by aprat on 4/14/14.
  */
 public class DataExporter {
 
-    enum DataFormat {
+    public enum DataFormat {
         CSV,
         CSV_MERGE_FOREIGN,
         TURTLE,
-        N3
+        N3,
+        NONE
     }
 
     private Serializer staticSerializer         = null;
-    private Serializer updateStreamSerializer   = null;
+    private UpdateEventSerializer updateStreamSerializer   = null;
     private long dateThreshold                  = 0;
 
     private LocationDictionary locationDic = null;
@@ -80,12 +79,28 @@ public class DataExporter {
                          UniversityDictionary universityDic,
                          IPAddressDictionary ipDic,
                          LocationDictionary locationDic,
-                         LanguageDictionary languageDic ) {
+                         LanguageDictionary languageDic,
+                         String configFile,
+                         Statistics statistics) {
         this.locationDic = locationDic;
         this.companyDic = companyDic;
         this.universityDic = universityDic;
         this.tagDic = tagDic;
         this.reducerId = reducerId;
+        this.dateThreshold = dateThreshold;
+        if( format == DataFormat.CSV ) {
+            staticSerializer = new CSVOriginal(directory,reducerId,tagDic,browsers,companyDic,universityDic,ipDic,locationDic,languageDic,0,dateThreshold,exportText,compressed);
+        } else if( format == DataFormat.CSV_MERGE_FOREIGN ) {
+            staticSerializer = new CSVMergeForeign(directory,reducerId,tagDic,browsers,companyDic,universityDic,ipDic,locationDic,languageDic,0,dateThreshold,exportText,compressed);
+        } else if( format == DataFormat.TURTLE ) {
+            staticSerializer = new Turtle(directory,reducerId,1,true,tagDic,browsers,companyDic,universityDic,ipDic,locationDic,languageDic,exportText,compressed);
+        } else if( format == DataFormat.N3 ) {
+            staticSerializer = new Turtle(directory,reducerId,1,false,tagDic,browsers,companyDic,universityDic,ipDic,locationDic,languageDic,exportText,compressed);
+        } else if( format == DataFormat.NONE) {
+            staticSerializer = new EmptySerializer();
+        }
+        updateStreamSerializer = new UpdateEventSerializer(directory,"updateStreams_"+reducerId+".csv",exportText, compressed,tagDic,browsers,languageDic,ipDic, statistics);
+        exportCommonEntities();
     }
 
     public void close() {
@@ -143,7 +158,9 @@ public class DataExporter {
         Set<Integer> locations = locationDic.getLocations();
         Iterator<Integer> it = locations.iterator();
         while(it.hasNext()) {
-            printLocationHierarchy(it.next());
+//            printLocationHierarchy(it.next());
+            Location location = locationDic.getLocation(it.next());
+            staticSerializer.serialize(location);
         }
     }
 
@@ -186,23 +203,91 @@ public class DataExporter {
     }
 
 
-    public void export(ReducedUserProfile user, UserExtraInfo extraInfo) {
-       long date =  user.getCreationDate();
-       if( date <= dateThreshold ) {
-            staticSerializer.serialize(user, extraInfo);
+    public void export( UserInfo userInfo ) {
+       long creationDate =  userInfo.user.getCreationDate();
+       if( creationDate <= dateThreshold ) {
+            staticSerializer.serialize(userInfo);
        } else {
-            updateStreamSerializer.serialize(user, extraInfo);
+           updateStreamSerializer.serialize(userInfo);
        }
 
-       Friend friends[] = user.getFriendList();
-       short numFriends = user.getNumFriends();
-        for( int i = 0; i < numFriends; ++i ) {
-            if( friends[i].getCreatedTime() <= dateThreshold ) {
-                staticSerializer.serialize(user, friends[i]);
-            } else {
-                updateStreamSerializer.serialize(user, friends[i]);
+
+        long universityId = userInfo.extraInfo.getUniversity();
+        if ( universityId != -1){
+            if (userInfo.extraInfo.getClassYear() != -1 ) {
+                StudyAt studyAt = new StudyAt();
+                studyAt.year = userInfo.extraInfo.getClassYear();
+                studyAt.user = userInfo.user.getAccountId();
+                studyAt.university = universityId;
+                if( creationDate <= dateThreshold ) {
+                    staticSerializer.serialize(studyAt);
+                } else {
+                    updateStreamSerializer.serialize(studyAt);
+                }
             }
         }
+        Iterator<Long> it = userInfo.extraInfo.getCompanies().iterator();
+        while (it.hasNext()) {
+            long companyId = it.next();
+            WorkAt workAt = new WorkAt();
+            workAt.company = companyId;
+            workAt.user = userInfo.user.getAccountId();
+            workAt.year = userInfo.extraInfo.getWorkFrom(companyId);
+            if( creationDate <= dateThreshold ) {
+                staticSerializer.serialize(workAt);
+            } else {
+                updateStreamSerializer.serialize(workAt);
+            }
+        }
+
+        Friend friends[] = userInfo.user.getFriendList();
+        int numFriends = friends.length;
+        for( int i = 0; i < numFriends; ++i ) {
+            if (friends[i] != null && friends[i].getCreatedTime() != -1) {
+                if( friends[i].getCreatedTime() <= dateThreshold ) {
+                    staticSerializer.serialize(friends[i]);
+                } else {
+                    updateStreamSerializer.serialize(friends[i]);
+                }
+            }
+        }
+
+        Group group = new Group();
+        //The forums of the user
+        group.setCreatedDate(userInfo.user.getCreationDate());
+        group.setGroupName("Wall of " + userInfo.extraInfo.getFirstName() + " " + userInfo.extraInfo.getLastName());
+        group.setGroupId(userInfo.user.getForumWallId());
+        group.setModeratorId(userInfo.user.getAccountId());
+
+        Iterator<Integer> itTags = userInfo.user.getSetOfTags().iterator();
+        Integer tags[] = new Integer[userInfo.user.getSetOfTags().size()];
+        int index = 0;
+        while (itTags.hasNext()){
+            tags[index] = itTags.next();
+            index++;
+        }
+        group.setTags(tags);
+
+        if( group.getCreatedDate() <= dateThreshold ) {
+            staticSerializer.serialize(group);
+        } else {
+            updateStreamSerializer.serialize(group);
+        }
+
+        for (int i = 0; i < friends.length; i ++){
+            if (friends[i] != null && friends[i].getCreatedTime() != -1){
+                GroupMemberShip membership = new GroupMemberShip();
+                membership.setGroupId(group.getGroupId());
+                membership.setJoinDate(friends[i].getCreatedTime());
+                membership.setUserId(friends[i].getFriendAcc());
+                if( membership.getJoinDate() <= dateThreshold ) {
+                    staticSerializer.serialize(membership);
+                } else {
+                    updateStreamSerializer.serialize(membership);
+                }
+            }
+        }
+
     }
 
     public void export(Post post) {
@@ -212,34 +297,33 @@ public class DataExporter {
         } else {
             updateStreamSerializer.serialize(post);
         }
-        long likeUsers[] = post.getInterestedUserAccs();
-        long likeTimes[] = post.getInterestedUserAccsTimestamp();
-        int numLikes = likeUsers.length;
-        for( int i = 0; i < numLikes; ++i ) {
-            if( likeTimes[i] <= dateThreshold ) {
-                staticSerializer.serialize(post,likeUsers[i], likeTimes[i]);
-            } else {
-                updateStreamSerializer.serialize(post, likeUsers[i], likeTimes[i]);
-            }
-        }
+        exportLikes(post,0);
     }
 
     public void export(Photo photo){
-        long date =  photo.getTakenTime();
+        long date =  photo.getCreationDate();
         if( date <= dateThreshold ) {
             staticSerializer.serialize(photo);
         } else {
             updateStreamSerializer.serialize(photo);
         }
+        exportLikes(photo,2);
+    }
 
-        long likeUsers[] = photo.getInterestedUserAccs();
-        long likeTimes[] = photo.getInterestedUserAccsTimestamp();
+    private void exportLikes ( Message message, int type ) {
+        long likeUsers[] = message.getInterestedUserAccs();
+        long likeTimes[] = message.getInterestedUserAccsTimestamp();
         int numLikes = likeUsers.length;
         for( int i = 0; i < numLikes; ++i ) {
-            if( likeTimes[i] <= dateThreshold ) {
-                staticSerializer.serialize(photo,likeUsers[i], likeTimes[i]);
+            Like like = new Like();
+            like.date = likeTimes[i];
+            like.user = likeUsers[i];
+            like.messageId = message.getMessageId();
+            like.type = type;
+            if( like.date <= dateThreshold ) {
+                staticSerializer.serialize(like);
             } else {
-                updateStreamSerializer.serialize(photo, likeUsers[i], likeTimes[i]);
+                updateStreamSerializer.serialize(like);
             }
         }
     }
@@ -251,17 +335,7 @@ public class DataExporter {
         } else {
             updateStreamSerializer.serialize(comment);
         }
-
-        long likeUsers[] = comment.getInterestedUserAccs();
-        long likeTimes[] = comment.getInterestedUserAccsTimestamp();
-        int numLikes = likeUsers.length;
-        for( int i = 0; i < numLikes; ++i ) {
-            if( likeTimes[i] <= dateThreshold ) {
-                staticSerializer.serialize(comment, likeUsers[i], likeTimes[i]);
-            } else {
-                updateStreamSerializer.serialize(comment, likeUsers[i], likeTimes[i]);
-            }
-        }
+        exportLikes(comment,1);
     }
 
     public void export(Group group) {
@@ -276,9 +350,9 @@ public class DataExporter {
         int numMembers = group.getNumMemberAdded();
         for( int i = 0; i < numMembers; ++i ) {
             if( memberships[i].getJoinDate() <= dateThreshold ) {
-                staticSerializer.serialize(group, memberships[i]);
+                staticSerializer.serialize(memberships[i]);
             } else {
-                updateStreamSerializer.serialize(group, memberships[i]);
+                updateStreamSerializer.serialize(memberships[i]);
             }
         }
     }

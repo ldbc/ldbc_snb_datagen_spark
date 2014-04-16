@@ -60,12 +60,7 @@ import ldbc.socialnet.dbgen.dictionary.TagMatrix;
 import ldbc.socialnet.dbgen.dictionary.TagTextDictionary;
 import ldbc.socialnet.dbgen.dictionary.UserAgentDictionary;
 import ldbc.socialnet.dbgen.objects.*;
-import ldbc.socialnet.dbgen.serializer.CSVSerializer.CSV;
-import ldbc.socialnet.dbgen.serializer.CSVMergeForeign;
-import ldbc.socialnet.dbgen.serializer.EmptySerializer;
-import ldbc.socialnet.dbgen.serializer.Serializer;
-import ldbc.socialnet.dbgen.serializer.Turtle;
-import ldbc.socialnet.dbgen.serializer.Statistics;
+import ldbc.socialnet.dbgen.serializer.*;
 import ldbc.socialnet.dbgen.storage.StorageManager;
 import ldbc.socialnet.dbgen.vocabulary.SN;
 import ldbc.socialnet.dbgen.util.MapReduceKey;
@@ -95,7 +90,7 @@ public class ScalableGenerator{
     private static final double     friendRatioPerJob[] = { 0.45, 0.45, 0.1 };      /**< @brief The percentage of friendships generated in each hadoop job.*/
     private static final int        USER_RANDOM_ID_LIMIT = 100;                     /**< @brief The number of different random ids generated in the last hadoop job.*/
 
-    private static final int startMonth = 0;
+    private static final int startMonth = 1;
     private static final int startDate  = 1;
     private static final int endMonth   = 1;
     private static final int endDate    = 1;
@@ -109,6 +104,7 @@ public class ScalableGenerator{
     //Files and folders
     private static final String  DICTIONARY_DIRECTORY = "/dictionaries/";
     private static final String  IPZONE_DIRECTORY     = "/ipaddrByCountries";
+    private static final String  CSV_DIRECTORY        = "/csvSerializers";
     private static final String  PARAMETERS_FILE      = "params.ini";
     private static final String  STATS_FILE           = "testdata.json";
     private static final String  RDF_OUTPUT_FILE      = "ldbc_socialnet_dbg";
@@ -347,7 +343,8 @@ public class ScalableGenerator{
 
 
     // For serialize to RDF format
-    Serializer 		serializer;
+    //Serializer 		serializer;
+    DataExporter    dataExporter;
     String 			serializerType;
     String 			outUserProfileName = "userProf.ser";
     String 			outUserProfile;
@@ -559,7 +556,7 @@ public class ScalableGenerator{
             numTotalUser = Integer.parseInt(properties.getProperty(NUM_USERS));
             startYear = Integer.parseInt(properties.getProperty(START_YEAR));
             numYears = Integer.parseInt(properties.getProperty(NUM_YEARS));
-            endYear = startYear + numYears - 1;
+            endYear = startYear + numYears;
             serializerType = properties.getProperty(SERIALIZER_TYPE);
             exportText = Boolean.parseBoolean(properties.getProperty(EXPORT_TEXT));
             enableCompression = Boolean.parseBoolean(properties.getProperty(ENABLE_COMPRESSION));
@@ -747,7 +744,7 @@ public class ScalableGenerator{
         fbDegreeGenerator.loadFBBuckets();
         fbDegreeGenerator.rebuildBucketRange();
 
-        serializer = getSerializer(serializerType, RDF_OUTPUT_FILE);
+        dataExporter = getSerializer(serializerType, RDF_OUTPUT_FILE);
     }
 
     /**
@@ -763,9 +760,9 @@ public class ScalableGenerator{
     }
 
     public void closeFileWriting() {
-        serializer.close();
+        dataExporter.close();
         writeStatistics();
-        System.out.println("Number of generated triples " + serializer.unitsGenerated());
+        System.out.println("Number of generated triples " + dataExporter.unitsGenerated());
         System.out.println("Number of popular users " + numPopularUser);
         System.out.println("Writing the data for test driver ");
     }
@@ -787,7 +784,10 @@ public class ScalableGenerator{
                 reducedUserProfilesCell[j].setForumWallId(groupId);
                 groupId++;
                 setInfoFromUserProfile(reducedUserProfilesCell[j], extraInfo);
-                serializer.gatherData(reducedUserProfilesCell[j], extraInfo);
+                UserInfo userInfo = new UserInfo();
+                userInfo.user = reducedUserProfilesCell[j];
+                userInfo.extraInfo = extraInfo;
+                dataExporter.export(userInfo);
                 generatePosts(reducedUserProfilesCell[j], extraInfo);
                 //generateFlashmobPosts(reducedUserProfilesCell[j], extraInfo);
                 generatePhoto(reducedUserProfilesCell[j], extraInfo);
@@ -921,7 +921,7 @@ public class ScalableGenerator{
         fbDegreeGenerator.resetState(seed);
         resetWindow();
         randomFarm.resetRandomGenerators((long)seed);
-        serializer.resetState(seed);
+        dataExporter.resetState(seed);
     }
 
 
@@ -1077,7 +1077,7 @@ public class ScalableGenerator{
                     stats.minPostCreationDate = strCreationDate;
                 }
             }
-            serializer.gatherData(post);
+            dataExporter.export(post);
             // Generate comments
             int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments);
             ArrayList<Message> replyCandidates = new ArrayList<Message>();
@@ -1089,7 +1089,7 @@ public class ScalableGenerator{
                 if ( comment!=null ) {
                     countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(comment.getIpAddress())));
                     stats.countries.add(countryName);
-                    serializer.gatherData(comment);
+                    dataExporter.export(comment);
                     if( comment.getTextSize() > 10 ) replyCandidates.add(comment);
                     postId++;
                 }
@@ -1121,7 +1121,7 @@ public class ScalableGenerator{
                     stats.minPostCreationDate = strCreationDate;
                 }
             }
-            serializer.gatherData(post);
+            dataExporter.export(post);
 
             // Generate comments
             int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments);
@@ -1135,7 +1135,7 @@ public class ScalableGenerator{
                 if ( comment!=null ) {
                     countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(comment.getIpAddress())));
                     stats.countries.add(countryName);
-                    serializer.gatherData(comment);
+                    dataExporter.export(comment);
                     if( comment.getTextSize() > 10 ) replyCandidates.add(comment);
                     postId++;
                 }
@@ -1154,7 +1154,7 @@ public class ScalableGenerator{
         for (int m = 0; m < numPhotoAlbums; m++) {
             Group album = groupGenerator.createAlbum(randomFarm, groupId, user, extraInfo, m, joinProbs[0]);
             groupId++;
-            serializer.gatherData(album);
+            dataExporter.export(album);
 
             // Generate photos for this album
             int numPhotos = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_PHOTO).nextInt(maxNumPhotoPerAlbums);
@@ -1164,10 +1164,10 @@ public class ScalableGenerator{
                 photo.setUserAgent(userAgentDictionary.getUserAgentName(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT_SENT),user.isHaveSmartPhone(), user.getAgentIdx()));
                 photo.setBrowserIdx(browserDictonry.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), user.getBrowserIdx()));
                 photo.setIpAddress(ipAddDictionary.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER), user.getIpAddress(),
-                        user.isFrequentChange(), photo.getTakenTime(), photo.getLocationId()));
+                        user.isFrequentChange(), photo.getCreationDate(), photo.getLocationId()));
                 String countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(photo.getIpAddress())));
                 stats.countries.add(countryName);
-                serializer.gatherData(photo);
+                dataExporter.export(photo);
             }
         }
     }
@@ -1208,6 +1208,7 @@ public class ScalableGenerator{
                         GroupMemberShip memberShip = groupGenerator.createGroupMember(randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX),
                                 potentialMemberAcc, group.getCreatedDate(),
                                 firstLevelFriends[friendIdx]);
+                        memberShip.setGroupId(group.getGroupId());
                         group.addMember(memberShip);
                     }
                 }
@@ -1224,6 +1225,7 @@ public class ScalableGenerator{
                             GroupMemberShip memberShip = groupGenerator.createGroupMember(randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX),
                                     potentialMemberAcc, group.getCreatedDate(),
                                     secondLevelFriends.get(friendIdx));
+                            memberShip.setGroupId(group.getGroupId());
                             group.addMember(memberShip);
                         }
                     }
@@ -1240,6 +1242,7 @@ public class ScalableGenerator{
                         GroupMemberShip memberShip = groupGenerator.createGroupMember(randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX),
                                 potentialMemberAcc, group.getCreatedDate(),
                                 reducedUserProfiles[friendIdx]);
+                        memberShip.setGroupId(group.getGroupId());
                         group.addMember(memberShip);
                     }
                 }
@@ -1247,7 +1250,7 @@ public class ScalableGenerator{
             numLoop++;
         }
 
-        serializer.gatherData(group);
+        dataExporter.export(group);
         generatePostForGroup(group);
         //generateFlashmobPostForGroup(group);
     }
@@ -1260,7 +1263,7 @@ public class ScalableGenerator{
             Post groupPost = it.next();
             String countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(groupPost.getIpAddress())));
             stats.countries.add(countryName);
-            serializer.gatherData(groupPost);
+            dataExporter.export(groupPost);
 
             int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments);
             ArrayList<Message> replyCandidates = new ArrayList<Message>();
@@ -1273,7 +1276,7 @@ public class ScalableGenerator{
                 if ( comment!=null ) { // In case the comment is not reated because of the friendship's createddate
                     countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(comment.getIpAddress())));
                     stats.countries.add(countryName);
-                    serializer.gatherData(comment);
+                    dataExporter.export(comment);
                     if( comment.getTextSize() > 10 ) replyCandidates.add(comment);
                     postId++;
                 }
@@ -1289,7 +1292,7 @@ public class ScalableGenerator{
             Post groupPost = it.next();
             String countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(groupPost.getIpAddress())));
             stats.countries.add(countryName);
-            serializer.gatherData(groupPost);
+            dataExporter.export(groupPost);
 
             int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments);
             ArrayList<Message> replyCandidates = new ArrayList<Message>();
@@ -1301,7 +1304,7 @@ public class ScalableGenerator{
                 if ( comment!=null ) { // In case the comment is not reated because of the friendship's createddate
                     countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(comment.getIpAddress())));
                     stats.countries.add(countryName);
-                    serializer.gatherData(comment);
+                    dataExporter.export(comment);
                     if( comment.getTextSize() > 10 ) replyCandidates.add(comment);
                     postId++;
                 }
@@ -1472,7 +1475,7 @@ public class ScalableGenerator{
 
         // Set class year
         prob = randomFarm.get(RandomGeneratorFarm.Aspect.EXTRA_INFO).nextDouble();
-        if ((prob < missingRatio) || userExtraInfo.getUniversity().equals("")) {
+        if ((prob < missingRatio) || userExtraInfo.getUniversity() == -1 ) {
             userExtraInfo.setClassYear(-1);
         } else {
             userExtraInfo.setClassYear(dateTimeGenerator.getClassYear(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),
@@ -1492,7 +1495,7 @@ public class ScalableGenerator{
                 } else {
                     workFrom = dateTimeGenerator.getWorkFromYear(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), userExtraInfo.getClassYear());
                 }
-                String company = companiesDictionary.getRandomCompany(randomFarm, user.getLocationId());
+                long company = companiesDictionary.getRandomCompany(randomFarm, user.getLocationId());
                 userExtraInfo.addCompany(company, workFrom);
                 String countryName = locationDictionary.getLocationName(companiesDictionary.getCountry(company));
                 stats.countries.add(countryName);
@@ -1567,9 +1570,9 @@ public class ScalableGenerator{
         createdTime = createdTime - user1.getCreationDate() >= deltaTime ? createdTime : createdTime + (deltaTime - (createdTime - user1.getCreationDate() ));
         createdTime = createdTime - user2.getCreationDate() >= deltaTime ? createdTime : createdTime + (deltaTime - (createdTime - user2.getCreationDate() ));
 
-        user2.addNewFriend(new Friend(user1, requestedTime, declinedTime,
+        user2.addNewFriend(new Friend(user2, user1, requestedTime, declinedTime,
                 createdTime, pass, initiator));
-        user1.addNewFriend(new Friend(user2, requestedTime, declinedTime,
+        user1.addNewFriend(new Friend(user1, user2, requestedTime, declinedTime,
                 createdTime, pass, initiator));
 
         friendshipNum++;
@@ -1591,36 +1594,31 @@ public class ScalableGenerator{
         }
     }
 
-    private Serializer getSerializer(String type, String outputFileName) {
+    private DataExporter getSerializer(String type, String outputFileName) {
         //SN.setMachineNumber(machineId, numFiles);
         String t = type.toLowerCase();
+        DataExporter.DataFormat format;
+        String configFile = new String("");
         if (t.equals("ttl")) {
-            return new Turtle(sibOutputDir +"/"+this.machineId+"_"+outputFileName, numRdfOutputFile, true, tagDictionary,
-                    browserDictonry, companiesDictionary,
-                    unversityDictionary,
-                    ipAddDictionary, locationDictionary, languageDictionary, exportText, enableCompression);
+            format = DataExporter.DataFormat.TURTLE;
         } else if (t.equals("n3")) {
-            return new Turtle(sibOutputDir + "/"+this.machineId+"_"+outputFileName, numRdfOutputFile, false, tagDictionary,
-                    browserDictonry, companiesDictionary,
-                    unversityDictionary,
-                    ipAddDictionary, locationDictionary, languageDictionary, exportText, enableCompression);
+            format = DataExporter.DataFormat.N3;
         } else if (t.equals("csv")) {
-            return new CSV(sibOutputDir, this.machineId, tagDictionary,
-                    browserDictonry, companiesDictionary,
-                    unversityDictionary,
-                    ipAddDictionary,locationDictionary, languageDictionary, exportText, enableCompression);
+            format = DataExporter.DataFormat.CSV;
+ //           configFile = new String(CSV_DIRECTORY+"/csv.xml");
         } else if (t.equals("csv_merge_foreign")) {
-            return new CSVMergeForeign(sibOutputDir, this.machineId, tagDictionary,
-                    browserDictonry, companiesDictionary,
-                    unversityDictionary,
-                    ipAddDictionary,locationDictionary, languageDictionary, deltaTime, dateThreshold, exportText, enableCompression);
+            format = DataExporter.DataFormat.CSV_MERGE_FOREIGN;
+//            configFile = new String(CSV_DIRECTORY+"/csvMergeForeign.xml");
         } else if (t.equals("none")) {
-            return new EmptySerializer();
+            format = DataExporter.DataFormat.NONE;
         } else {
             System.err.println("Unexpected Serializer - Aborting");
             System.exit(-1);
             return null;
         }
+        return new DataExporter(format,sibOutputDir,this.machineId,dateThreshold,
+                exportText,enableCompression,tagDictionary,browserDictonry,companiesDictionary,
+                unversityDictionary,ipAddDictionary,locationDictionary,languageDictionary, configFile, stats);
     }
 
     private void writeStatistics() {
@@ -1628,6 +1626,7 @@ public class ScalableGenerator{
         FileWriter writer;
         try {
             stats.makeCountryPairs(locationDictionary);
+            stats.deltaTime = deltaTime;
             writer = new FileWriter(sibOutputDir + "m" + machineId + STATS_FILE);
             writer.append(gson.toJson(stats));
             writer.flush();
