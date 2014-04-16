@@ -1,11 +1,11 @@
 select top 20 cast (p_personid as varchar) as exp, p_firstname, p_lastname, t_name, count(*)
-from person, comment, knows, post, post_tag, tag_tagclass, tagclass, tag
+from person, post p1, knows, post p2, post_tag, tag_tagclass, tagclass, tag
 where
   k_person1id = @Person@ and
   k_person2id = p_personid and
-  p_personid = c_creatorid and
-  c_replyofpost = ps_postid and
-  ps_postid = pst_postid and
+  p_personid = p1.ps_creatorid and
+  p1.ps_replyof = p2.ps_postid and
+  p2.ps_postid = pst_postid and
   pst_tagid = t_tagid and
   pst_tagid = ttc_tagid and
   ttc_tagclassid = tc_tagclassid and

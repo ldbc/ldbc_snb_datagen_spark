@@ -1,6 +1,1 @@
-sparql select concat(min(?date), '\n', max(?date))
-from <sib>
-where {
-   ?post a snvoc:Post.
-   ?post snvoc:creationDate ?date.
-};
+select concat(min(ps_creationdate), '\n', max(ps_creationdate)) from post;

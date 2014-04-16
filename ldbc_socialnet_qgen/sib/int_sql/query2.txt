@@ -1,21 +1,9 @@
-select top 20 *
-from (
-  select p_personid as personid, p_firstname as firstname, p_lastname as lastname,
+select top 20 p_personid as personid, p_firstname as firstname, p_lastname as lastname,
   	 cast (ps_postid as varchar) as id, ps_content || ps_imagefile as content, ps_creationdate as creationdate
-  from person, post, knows
-  where
+from person, post, knows
+where
 	p_personid = ps_creatorid and
 	ps_creationdate <= stringdate('@Date0@') and
 	k_person1id = @Person@ and
 	k_person2id = p_personid
-  union
-  select p_personid as personid, p_firstname as firstname, p_lastname as lastname,
-  	 cast (c_commentid as varchar) as id, c_content as content, c_creationdate as creationdate
-  from person, comment, knows
-  where
-	p_personid = c_creatorid and
-	c_creationdate <= stringdate('@Date0@') and
-	k_person1id = @Person@ and
-	k_person2id = p_personid
-  ) tmp
 order by creationdate desc, id
