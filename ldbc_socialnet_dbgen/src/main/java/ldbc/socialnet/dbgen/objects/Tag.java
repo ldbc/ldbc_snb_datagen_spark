@@ -37,39 +37,8 @@
 package ldbc.socialnet.dbgen.objects;
 
 public class Tag {
-	int	id; 
-	int locationId;  //Country Id 
-	String text;
-	int noRef; 
-	
-	public Tag(int _id, int _locationId, String _text, int _noRef){
-		id = _id; 
-		locationId = _locationId; 
-		text = _text; 
-		noRef = _noRef; 
-	}
-	public int getNoRef() {
-		return noRef;
-	}
-	public void setNoRef(int noRef) {
-		this.noRef = noRef;
-	}
-	public int getLocationId() {
-		return locationId;
-	}
-	public void setLocationId(int locationId) {
-		this.locationId = locationId;
-	}
-	public int getId() {
-		return id;
-	}
-	public void setId(int id) {
-		this.id = id;
-	}
-	public String getText() {
-		return text;
-	}
-	public void setText(String text) {
-		this.text = text;
-	} 
+	public int	id;
+    public int tagClass;
+    public String name;
+
 }

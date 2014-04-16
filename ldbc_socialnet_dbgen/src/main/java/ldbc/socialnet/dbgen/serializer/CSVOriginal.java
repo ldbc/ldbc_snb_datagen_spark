@@ -53,7 +53,7 @@ import ldbc.socialnet.dbgen.vocabulary.SN;
 /**
  * CSV serializer.
  */
-public class CSV implements Serializer {
+public class CSVOriginal implements Serializer {
 	
 //    private FileWriter[][] dataFileWriter;
     OutputStream[] fileOutputStream;

@@ -60,7 +60,7 @@ import ldbc.socialnet.dbgen.dictionary.TagMatrix;
 import ldbc.socialnet.dbgen.dictionary.TagTextDictionary;
 import ldbc.socialnet.dbgen.dictionary.UserAgentDictionary;
 import ldbc.socialnet.dbgen.objects.*;
-import ldbc.socialnet.dbgen.serializer.CSV;
+import ldbc.socialnet.dbgen.serializer.CSVSerializer.CSV;
 import ldbc.socialnet.dbgen.serializer.CSVMergeForeign;
 import ldbc.socialnet.dbgen.serializer.EmptySerializer;
 import ldbc.socialnet.dbgen.serializer.Serializer;
@@ -95,7 +95,7 @@ public class ScalableGenerator{
     private static final double     friendRatioPerJob[] = { 0.45, 0.45, 0.1 };      /**< @brief The percentage of friendships generated in each hadoop job.*/
     private static final int        USER_RANDOM_ID_LIMIT = 100;                     /**< @brief The number of different random ids generated in the last hadoop job.*/
 
-    private static final int startMonth = 1;
+    private static final int startMonth = 0;
     private static final int startDate  = 1;
     private static final int endMonth   = 1;
     private static final int endDate    = 1;
@@ -197,9 +197,8 @@ public class ScalableGenerator{
     private final String FLASHMOB_TAG_MIN_LEVEL                 = "flashmobTagMinLevel";
     private final String FLASHMOB_TAG_MAX_LEVEL                 = "flashmobTagMaxLevel";
     private final String FLASHMOB_TAG_DIST_EXP                  = "flashmobTagDistExp";
-
-
     private final String DELTA_TIME                             = "deltaTime";
+    private final String UPDATE_PORTION                         = "updatePortion";
 
     /**
      * This array provides a quick way to check if any of the required parameters is missing and throw the appropriate
@@ -217,7 +216,7 @@ public class ScalableGenerator{
             COMPANY_UNCORRELATED_RATIO, UNIVERSITY_UNCORRELATED_RATIO, BEST_UNIVERSTY_RATIO, MAX_POPULAR_PLACES,
             POPULAR_PLACE_RATIO, TAG_UNCORRELATED_COUNTRY, FLASHMOB_TAGS_PER_MONTH,
             PROB_INTEREST_FLASHMOB_TAG, PROB_RANDOM_PER_LEVEL,MAX_NUM_FLASHMOB_POST_PER_MONTH, MAX_NUM_GROUP_FLASHMOB_POST_PER_MONTH, MAX_NUM_TAG_PER_FLASHMOB_POST, FLASHMOB_TAG_MIN_LEVEL, FLASHMOB_TAG_MAX_LEVEL,
-            FLASHMOB_TAG_DIST_EXP, DELTA_TIME};
+            FLASHMOB_TAG_DIST_EXP, DELTA_TIME, UPDATE_PORTION};
 
     //final user parameters
     private final String NUM_USERS          = "numtotalUser";
@@ -389,6 +388,8 @@ public class ScalableGenerator{
     double         flashmobTagDistExp  = 0.0f;
 
     long            deltaTime = 0;
+    long            dateThreshold = 0;
+    double          updatePortion = 0.0;
 
     // Data accessed from the hadoop jobs
     private ReducedUserProfile[] cellReducedUserProfiles;
@@ -537,6 +538,7 @@ public class ScalableGenerator{
             flashmobTagMaxLevel = Double.parseDouble(properties.getProperty(FLASHMOB_TAG_MAX_LEVEL));
             flashmobTagDistExp = Double.parseDouble(properties.getProperty(FLASHMOB_TAG_DIST_EXP));
             deltaTime = Long.parseLong(properties.getProperty(DELTA_TIME));
+            updatePortion = Double.parseDouble(properties.getProperty(UPDATE_PORTION));
         } catch (Exception e) {
             System.err.println(e.getMessage());
             e.printStackTrace();
@@ -557,7 +559,7 @@ public class ScalableGenerator{
             numTotalUser = Integer.parseInt(properties.getProperty(NUM_USERS));
             startYear = Integer.parseInt(properties.getProperty(START_YEAR));
             numYears = Integer.parseInt(properties.getProperty(NUM_YEARS));
-            endYear = startYear + numYears;
+            endYear = startYear + numYears - 1;
             serializerType = properties.getProperty(SERIALIZER_TYPE);
             exportText = Boolean.parseBoolean(properties.getProperty(EXPORT_TEXT));
             enableCompression = Boolean.parseBoolean(properties.getProperty(ENABLE_COMPRESSION));
@@ -576,15 +578,11 @@ public class ScalableGenerator{
      * @param mapId: The hadoop reduce id.
      */
     private void _init(int mapId) {
-
         randomFarm = new RandomGeneratorFarm();
-
         windowSize = cellSize * numberOfCellPerWindow;                          // We compute the size of the window.
         resetWindow();
-
         randomPowerLaw    = new PowerDistGenerator(minNumFriends,     maxNumFriends + 1,     alpha);
         randomTagPowerLaw = new PowerDistGenerator(minNumTagsPerUser, maxNumTagsPerUser + 1, alpha);
-
 
         // Initializing window memory
         reducedUserProfiles = new ReducedUserProfile[windowSize];
@@ -592,7 +590,7 @@ public class ScalableGenerator{
 
         dateTimeGenerator = new DateGenerator( new GregorianCalendar(startYear, startMonth, startDate),
                 new GregorianCalendar(endYear, endMonth, endDate), alpha, deltaTime);
-
+        dateThreshold = dateTimeGenerator.getStartDateTime() + (long)((dateTimeGenerator.getCurrentDateTime() - dateTimeGenerator.getStartDateTime())*(1.0 - updatePortion));
 
         System.out.println("Building location dictionary ");
         locationDictionary = new LocationDictionary(numTotalUser, countryDictionaryFile, cityDictionaryFile);
@@ -636,15 +634,16 @@ public class ScalableGenerator{
         browserDictonry = new BrowserDictionary(browserDictonryFile, probAnotherBrowser);
         browserDictonry.init();
 
-        System.out.println("Building university dictionary");
-        unversityDictionary = new UniversityDictionary(universityDictionaryFile, locationDictionary,
-                probUnCorrelatedOrganization, probTopUniv);
-        unversityDictionary.init();
 
         System.out.println("Building companies dictionary");
         companiesDictionary = new CompanyDictionary(companiesDictionaryFile,locationDictionary,
                 probUnCorrelatedCompany);
         companiesDictionary.init();
+
+        System.out.println("Building university dictionary");
+        unversityDictionary = new UniversityDictionary(universityDictionaryFile, locationDictionary,
+                probUnCorrelatedOrganization, probTopUniv, companiesDictionary.getNumCompanies());
+        unversityDictionary.init();
 
         System.out.println("Building popular places dictionary");
         popularDictionary = new PopularPlacesDictionary(popularDictionaryFile,
@@ -874,7 +873,7 @@ public class ScalableGenerator{
             cellReducedUserProfiles[numUserForNewCell] = userObject;
             numUserForNewCell++;
             if (numUserForNewCell == cellSize) {                            // Once the backup cell is full, create friendships and slide the window.
-                mr2SlideFriendShipWindow(   pass,
+                mr2SlideFriendShipWindow( pass,
                         mrCurCellPost,
                         context,
                         cellReducedUserProfiles,
@@ -904,8 +903,12 @@ public class ScalableGenerator{
         }
 
         // We write to the context the users that might have been left into not fully filled cell.
-        mrWriter.writeReducedUserProfiles(0, numUserForNewCell, pass, cellReducedUserProfiles, context,
-                isContext, oos, reducerShift);
+        if( isContext ) {
+            mrWriter.writeReducedUserProfiles(0, numUserForNewCell, pass, cellReducedUserProfiles, context);
+        } else
+        {
+            mrWriter.writeReducedUserProfiles(0, numUserForNewCell, pass, cellReducedUserProfiles, oos);
+        }
         exactOutput+=numUserForNewCell;
     }
 
@@ -1008,8 +1011,11 @@ public class ScalableGenerator{
             }
         }
         updateLastPassFriendAdded(startIndex, startIndex + cellSize, pass);
-        mrWriter.writeReducedUserProfiles(startIndex, startIndex + cellSize, pass, reducedUserProfiles, context,
-                isContext, oos, reducerShift);
+        if( isContext ) {
+            mrWriter.writeReducedUserProfiles(startIndex, startIndex + cellSize, pass, reducedUserProfiles, context);
+        } else {
+            mrWriter.writeReducedUserProfiles(startIndex, startIndex + cellSize, pass, reducedUserProfiles, oos);
+        }
         generateCellOfUsers2(startIndex, _cellReduceUserProfiles);
         exactOutput = exactOutput + cellSize;
     }
@@ -1039,8 +1045,11 @@ public class ScalableGenerator{
             }
         }
         updateLastPassFriendAdded(startIndex, startIndex + cellSize, pass);
-        mrWriter.writeReducedUserProfiles(startIndex, startIndex + cellSize, pass, reducedUserProfiles, context,
-                isContext, oos, reducerShift);
+        if( isContext ) {
+            mrWriter.writeReducedUserProfiles(startIndex, startIndex + cellSize, pass, reducedUserProfiles, context);
+        } else {
+            mrWriter.writeReducedUserProfiles(startIndex, startIndex + cellSize, pass, reducedUserProfiles, oos);
+        }
         exactOutput = exactOutput + cellSize;
     }
 
@@ -1305,7 +1314,7 @@ public class ScalableGenerator{
 
         // User Creation
         long creationDate = dateTimeGenerator.randomDateInMillis( randomFarm.get(RandomGeneratorFarm.Aspect.DATE) );
-        int locationId = locationDictionary.getLocation(accountId);
+        int locationId = locationDictionary.getLocationForUser(accountId);
         UserProfile userProf = new UserProfile(
                 accountId,
                 creationDate,
@@ -1391,7 +1400,7 @@ public class ScalableGenerator{
         userExtraInfo.setLatt(locationDictionary.getLatt(user.getLocationId()) + distance);
         userExtraInfo.setLongt(locationDictionary.getLongt(user.getLocationId()) + distance);
 
-        userExtraInfo.setUniversity(unversityDictionary.getUniversityName(user.getUniversityLocationId()));
+        userExtraInfo.setUniversity(unversityDictionary.getUniversityFromLocation(user.getUniversityLocationId()));
 
         // Relationship status
         if (randomFarm.get(RandomGeneratorFarm.Aspect.HAVE_STATUS).nextDouble() > missingStatusRatio) {
@@ -1604,7 +1613,7 @@ public class ScalableGenerator{
             return new CSVMergeForeign(sibOutputDir, this.machineId, tagDictionary,
                     browserDictonry, companiesDictionary,
                     unversityDictionary,
-                    ipAddDictionary,locationDictionary, languageDictionary, exportText, enableCompression);
+                    ipAddDictionary,locationDictionary, languageDictionary, deltaTime, dateThreshold, exportText, enableCompression);
         } else if (t.equals("none")) {
             return new EmptySerializer();
         } else {

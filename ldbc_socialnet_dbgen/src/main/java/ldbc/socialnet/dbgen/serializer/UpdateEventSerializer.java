@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * ldbc_socialnet_dbgen is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ldbc_socialnet_dbgen.  If not, see <http://www.gnu.org/licenses/>.
  *
@@ -36,29 +36,55 @@
  */
 package ldbc.socialnet.dbgen.serializer;
 
-import ldbc.socialnet.dbgen.objects.*;
+import ldbc.socialnet.dbgen.objects.UpdateEvent;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.zip.GZIPOutputStream;
 
 /**
- * The ldbc socialnet generator serialize interface. The user of this interface has control of how the entities
- * are parsed with the gatherData methods.
- * 
- * To ensure the correct serialization the close method must be called in the end so the serializer is able
- * to flush any non written data and close the files used.
+ * Created by aprat on 3/27/14.
  */
-public interface Serializer {
-	public void close();
-	public Long unitsGenerated();
-	public void serialize( UserInfo info );
-    public void serialize( Friend friend );
-	public void serialize( Post post);
-    public void serialize( Like like );
-	public void serialize( Photo photo);
-	public void serialize( Comment comment);
-	public void serialize( Group group);
-    public void serialize( GroupMemberShip membership );
+public class UpdateEventSerializer {
 
-    public void serialize( Organization organization );
-    public void serialize( Tag tag );
-    public void serialize( Location location );
-    public void serialize( TagClass tagClass );
+    private OutputStream fileOutputStream;
+
+    public UpdateEventSerializer( String outputDir, String outputFileName, boolean compress ) {
+        try{
+            if( compress ) {
+                this.fileOutputStream = new GZIPOutputStream(new FileOutputStream(outputDir + "/" + outputFileName +".gz"));
+            } else {
+                this.fileOutputStream = new FileOutputStream(outputDir + "/" + outputFileName );
+            }
+        } catch(IOException e){
+            System.err.println(e.getMessage());
+            System.exit(-1);
+        }
+    }
+
+    public void writeEvent( long date, UpdateEvent.UpdateEventType type, String data ) {
+        String result = new String();
+        result = result + Long.toString(date);
+        result = result + ";";
+        result = result + type.name();
+        result = result + ";";
+        result = result + data;
+        try{
+            fileOutputStream.write(result.getBytes());
+        } catch(IOException e){
+            System.err.println(e.getMessage());
+            System.exit(-1);
+        }
+    }
+
+    public void close() {
+        try {
+            fileOutputStream.flush();
+            fileOutputStream.close();
+        } catch(IOException e){
+            System.err.println(e.getMessage());
+            System.exit(-1);
+        }
+    }
 }

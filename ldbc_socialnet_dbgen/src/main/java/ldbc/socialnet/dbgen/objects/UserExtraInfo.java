@@ -54,9 +54,8 @@ public class UserExtraInfo {
 	String 				location;
 	double				latt; 
 	double				longt; 
-	String 				organization; 
-	String 				institution;
-	HashMap<String, Long> companies;
+	long 				university;
+	HashMap<Long, Long> companies;
 
 	long               classYear; 				// When graduate from the institute		
 	
@@ -66,7 +65,7 @@ public class UserExtraInfo {
 	
 	public UserExtraInfo() {
 	    email = new TreeSet<String>();
-	    companies = new HashMap<String, Long>();
+	    companies = new HashMap<Long, Long>();
 	}
 	
 	public long getClassYear() {
@@ -133,18 +132,18 @@ public class UserExtraInfo {
 	public void setLocation(String location) {
 		this.location = location;
 	}
-	public String getUniversity() {
-		return organization;
+	public long getUniversity() {
+		return university;
 	}
 
-	public void setUniversity(String organization) {
-		this.organization = organization;
+	public void setUniversity( long university ) {
+		this.university = university;
 	}
 
-	public Set<String> getCompanies() {
+	public Set<Long> getCompanies() {
 		return companies.keySet();
 	}
-	public void addCompany(String company, long workFrom) {
+	public void addCompany(long company, long workFrom) {
 		this.companies.put(company, workFrom);
 	}
 	public long getWorkFrom(String company) {

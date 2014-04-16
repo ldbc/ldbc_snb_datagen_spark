@@ -59,36 +59,41 @@ public class MRWriter {
 		numberSerializedObject = 0; 
 		
 	}
+
+    public void writeReducedUserProfiles(int from, int to, int pass,
+                                         ReducedUserProfile userProfiles[], ObjectOutputStream oos)  {
+        try {
+            to = to % windowSize;
+            for (int i = from; i != to; i = (i + 1) % windowSize) {
+                oos.writeObject(userProfiles[i]);
+                numberSerializedObject++;
+            }
+        }
+        catch (IOException i) {
+            i.printStackTrace();
+        }
+    }
 	
-	public void writeReducedUserProfiles(int from, int to, int pass, 
-			ReducedUserProfile userProfiles[], Reducer.Context context, boolean isContext, ObjectOutputStream oos, int [] blockShift) {
-		
-		try {
-		    to = to % windowSize;
-            if (isContext){
-                for (int i = from; i != to; i = (i+1)%windowSize) {
-                    int key = userProfiles[i].getDicElementId(pass+1);
-                    //int block = key >> blockShift[pass+1];
-                    int block = 0;
-                    long id = userProfiles[i].getAccountId();
-                    MapReduceKey mpk = new MapReduceKey(block,key,id);
-                    context.write(mpk, userProfiles[i]);
-                    numberSerializedObject++;
-                }
+	public void writeReducedUserProfiles(int from, int to, int pass,
+                                         ReducedUserProfile userProfiles[], Reducer.Context context) {
+
+        try {
+            to = to % windowSize;
+            for (int i = from; i != to; i = (i+1)%windowSize) {
+                int key = userProfiles[i].getDicElementId(pass+1);
+                int block = 0;
+                long id = userProfiles[i].getAccountId();
+                MapReduceKey mpk = new MapReduceKey(block,key,id);
+                context.write(mpk, userProfiles[i]);
+                numberSerializedObject++;
             }
-            else{
-                for (int i = from; i != to; i = (i+1)%windowSize) {
-                    oos.writeObject(userProfiles[i]);
-                    numberSerializedObject++;
-                }
-            }
-		}
-		catch (IOException i) {
-			i.printStackTrace();
-			
-		}
-		catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+        }
+        catch (IOException i) {
+            i.printStackTrace();
+
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 	}
 }

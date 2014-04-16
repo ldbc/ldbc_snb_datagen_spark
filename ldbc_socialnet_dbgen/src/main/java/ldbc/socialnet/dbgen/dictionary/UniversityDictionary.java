@@ -39,10 +39,8 @@ package ldbc.socialnet.dbgen.dictionary;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Random;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
+
 import ldbc.socialnet.dbgen.util.RandomGeneratorFarm;
 
 public class UniversityDictionary {
@@ -51,35 +49,37 @@ public class UniversityDictionary {
     
     String dicFileName; 
 
-	HashMap<String, Integer> universityToLocation;
-	HashMap<Integer, Vector<String>> universitiesByLocation;
+    TreeMap<Long,String> universityName;
+	TreeMap<Long, Integer> universityToLocation;
+	TreeMap<Integer, Vector<Long>> universitiesByLocation;
 	
 	double probTopUniv; 
 	double probUncorrelatedUniversity;
-	LocationDictionary locationDic; 
-    int totalNumUniversities;
-	
+	LocationDictionary locationDic;
+    long startIndex = 0;
+
 	public UniversityDictionary(String dicFileName, LocationDictionary locationDic, 
 									 double probUncorrelatedUniversity, 
-									 double probTopUni){
+									 double probTopUni, int startIndex){
 		this.dicFileName = dicFileName;
 		this.probTopUniv = probTopUni;
 		this.locationDic = locationDic;
 		this.probUncorrelatedUniversity = probUncorrelatedUniversity;
-        this.totalNumUniversities = 0;
+        this.startIndex = startIndex;
 	}
 	
 	public void init(){
-	    universityToLocation = new HashMap<String, Integer>();
-	    universitiesByLocation = new HashMap<Integer, Vector<String>>();
+        universityName = new TreeMap<Long,String>();
+	    universityToLocation = new TreeMap<Long, Integer>();
+	    universitiesByLocation = new TreeMap<Integer, Vector<Long>>();
 	    for (Integer id : locationDic.getCountries()){
-	        universitiesByLocation.put(id, new Vector<String>());
+	        universitiesByLocation.put(id, new Vector<Long>());
 	    }
 	    extractUniversityNames();
 	}
 	
-	public HashMap<String, Integer> GetUniversityLocationMap() {
-	    return universityToLocation;
+	public int getUniversityLocation( long university ) {
+	    return universityToLocation.get(university);
 	}
 	
 	public void extractUniversityNames() {
@@ -90,6 +90,7 @@ public class UniversityDictionary {
 		    String line;
 		    int curLocationId = -1; 
 		    String lastLocationName = "";
+            long totalNumUniversities = startIndex;
 			while ((line = dicAllInstitutes.readLine()) != null){
 				String data[] = line.split(SEPARATOR);
 				String locationName = data[0];
@@ -98,9 +99,10 @@ public class UniversityDictionary {
                         locationDic.getCityId(cityName) != LocationDictionary.INVALID_LOCATION ) {
                     curLocationId = locationDic.getCountryId(locationName);
                     String universityName = data[1].trim();
-                    universitiesByLocation.get(curLocationId).add(universityName);
+                    universitiesByLocation.get(curLocationId).add(totalNumUniversities);
                     Integer cityId = locationDic.getCityId(cityName);
-                    universityToLocation.put(universityName, cityId);
+                    universityToLocation.put(totalNumUniversities, cityId);
+                    this.universityName.put(totalNumUniversities,universityName);
                     totalNumUniversities++;
                 }
 			}
@@ -136,18 +138,18 @@ public class UniversityDictionary {
 		return universityLocation;
 	}
 	
-	public String getUniversityName(int universityLocation) {
+	public long getUniversityFromLocation(int universityLocation) {
 		int zOrderLocationId = universityLocation >> 24;
 		int universityId = (universityLocation >> 12) & 0x0FFF;
 		int locationId = locationDic.getLocationIdFromZOrder(zOrderLocationId);
 		return universitiesByLocation.get(locationId).get(universityId);
 	}
 
-    public Set<String> getUniversities() {
-        return universityToLocation.keySet();
+    public String getUniversityName( long university ) {
+        return universityName.get(university);
     }
 
-    public int getTotalNumUniversities() {
-        return totalNumUniversities;
+    public Set<Long> getUniversities() {
+        return universityToLocation.keySet();
     }
 }
