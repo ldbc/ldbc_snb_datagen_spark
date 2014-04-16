@@ -56,6 +56,8 @@ public interface Serializer {
 	public void serialize( Comment comment);
 	public void serialize( Group group);
     public void serialize( GroupMemberShip membership );
+    public void serialize( WorkAt workAt );
+    public void serialize( StudyAt studyAt );
 
     public void serialize( Organization organization );
     public void serialize( Tag tag );

@@ -75,18 +75,16 @@ public class PhotoGenerator {
 	
 	public Photo generatePhoto(ReducedUserProfile user, Group album, 
 								int idxInAlbum, int maxNumLikes, long photoId){
-		Photo photo = new Photo();
-		
-		photo.setAlbumId(album.getGroupId());
-		photo.setCreatorId(album.getModeratorId());
+
 		int locationId = album.getLocationIdx();
+        double latt = 0;
+        double longt = 0;
+        String locationName = "";
 		byte numPopularPlace = user.getNumPopularPlace();
-		
-		photo.setLocationId(locationId);
 		if (numPopularPlace == 0){
-			photo.setLocationName(locationDic.getLocationName(locationId));
-			photo.setLatt(locationDic.getLatt(locationId));
-			photo.setLongt(locationDic.getLongt(locationId));
+			locationName = locationDic.getLocationName(locationId);
+			latt = locationDic.getLatt(locationId);
+			longt = locationDic.getLongt(locationId);
 		} else{
 			int popularPlaceId;
 			PopularPlace popularPlace;
@@ -95,30 +93,24 @@ public class PhotoGenerator {
 				int popularIndex = randPopularPlacesId.nextInt(numPopularPlace);
 				popularPlaceId = user.getPopularId(popularIndex);
 				popularPlace = dicPopularPlaces.getPopularPlace(user.getLocationId(),popularPlaceId);
-				photo.setLocationName(popularPlace.getName());
-				photo.setLatt(popularPlace.getLatt());
-				photo.setLongt(popularPlace.getLongt());
+				locationName = popularPlace.getName();
+				latt = popularPlace.getLatt();
+				longt = popularPlace.getLongt();
 			} else{
 				// Randomly select one places from Album location idx
 				popularPlaceId = dicPopularPlaces.getPopularPlace(rand,locationId);
 				if (popularPlaceId != -1){
 					popularPlace = dicPopularPlaces.getPopularPlace(locationId, popularPlaceId);
-					photo.setLocationName(popularPlace.getName());
-					photo.setLatt(popularPlace.getLatt());
-					photo.setLongt(popularPlace.getLongt());
+					locationName = popularPlace.getName();
+					latt = popularPlace.getLatt();
+					longt = popularPlace.getLongt();
 				} else{
-					photo.setLocationName(locationDic.getLocationName(locationId));
-					photo.setLatt(locationDic.getLatt(locationId));
-					photo.setLongt(locationDic.getLongt(locationId));
+					locationName = locationDic.getLocationName(locationId);
+					latt = locationDic.getLatt(locationId);
+					longt = locationDic.getLongt(locationId);
 				}
 			}
 		}
-		
-		photo.setPhotoId(photoId);
-		photo.setImage("photo" + photo.getPhotoId() + ".jpg");
-		
-		//Assume that the photo are created one by one after 1 second from the creation of the album
-		photo.setTakenTime(album.getCreatedDate() + 1000*(idxInAlbum+1));	
 		
 		TreeSet<Integer> tags = new TreeSet<Integer>();
 //        Iterator<Integer> it = user.getSetOfTags().iterator();
@@ -132,14 +124,15 @@ public class PhotoGenerator {
 //                }
 //            }
 //        }
-        photo.setTags(tags);
-		
+
+        Photo photo = new Photo(photoId,"photo"+photoId+".jpg",0,album.getCreatedDate()+1000*(idxInAlbum+1),album.getModeratorId(),album.getGroupId(),tags,null,new String(""),(byte)-1,locationId,locationName,latt,longt);
+
 		int numberOfLikes = randLikes.nextInt(maxNumLikes);
 		long[] likes = getFriendsLiked(album, numberOfLikes);
 		photo.setInterestedUserAccs(likes);
         long[] likeTimestamp = new long[likes.length];
         for (int i = 0; i < likes.length; i++) {
-            likeTimestamp[i] = (long)(rand.nextDouble()*DateGenerator.SEVEN_DAYS+photo.getTakenTime());
+            likeTimestamp[i] = (long)(rand.nextDouble()*DateGenerator.SEVEN_DAYS+photo.getCreationDate());
         }
         photo.setInterestedUserAccsTimestamp(likeTimestamp);
 		

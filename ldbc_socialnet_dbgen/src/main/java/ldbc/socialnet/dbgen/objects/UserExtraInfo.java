@@ -53,8 +53,8 @@ public class UserExtraInfo {
 	int                 locationId;
 	String 				location;
 	double				latt; 
-	double				longt; 
-	long 				university;
+	double				longt;
+	long 				university = -1;
 	HashMap<Long, Long> companies;
 
 	long               classYear; 				// When graduate from the institute		
@@ -146,7 +146,7 @@ public class UserExtraInfo {
 	public void addCompany(long company, long workFrom) {
 		this.companies.put(company, workFrom);
 	}
-	public long getWorkFrom(String company) {
+	public long getWorkFrom(long company) {
 		return companies.get(company);
 	}
 	

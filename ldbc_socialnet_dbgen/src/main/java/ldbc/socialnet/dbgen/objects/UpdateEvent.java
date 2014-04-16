@@ -11,27 +11,19 @@ public class UpdateEvent implements Serializable, Writable {
 
     public enum UpdateEventType {
         ADD_PERSON,
-        ADD_PERSON_SPEAKS,
-        ADD_PERSON_HAS_EMAIL,
-        ADD_PERSON_STUDYAT,
-        ADD_PERSON_WORKAT,
-        ADD_PERSON_INTEREST,
-        ADD_PERSON_FRIENDSHIP,
-        ADD_PERSON_LIKES_POST,
-        ADD_PERSON_LIKES_COMMENT,
+        ADD_LIKE_POST,
+        ADD_LIKE_COMMENT,
         ADD_FORUM,
         ADD_FORUM_MEMBERSHIP,
-        ADD_FORUM_HAS_TAG,
         ADD_POST,
-        ADD_POST_HAS_TAG,
         ADD_COMMENT,
-        ADD_COMMENT_HAS_TAG,
+        ADD_FRIENDSHIP,
         NO_EVENT
     }
 
-    long    date;
-    String eventData;
-    UpdateEventType type;
+    public long    date;
+    public String eventData;
+    public UpdateEventType type;
 
     public UpdateEvent( long date, UpdateEventType type, String eventData) {
         this.date = date;
