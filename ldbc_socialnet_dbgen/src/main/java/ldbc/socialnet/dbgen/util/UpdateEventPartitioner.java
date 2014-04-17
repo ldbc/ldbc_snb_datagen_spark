@@ -39,17 +39,18 @@ package ldbc.socialnet.dbgen.util;
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
 import ldbc.socialnet.dbgen.objects.UpdateEvent;
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Partitioner;
 
 
-public class UpdateEventPartitioner extends Partitioner<LongWritable, UpdateEvent> {
+public class UpdateEventPartitioner extends Partitioner<LongWritable, Text> {
 
     public UpdateEventPartitioner(){
         super();
 
     }
     @Override
-    public int getPartition(LongWritable key, UpdateEvent value,
+    public int getPartition(LongWritable key, Text value,
                             int numReduceTasks) {
         return (int) (key.get() % numReduceTasks);
     }

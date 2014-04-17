@@ -71,31 +71,27 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 public class MRGenerateUsers{
 
 
-    public static class UpdateEventMapper extends Mapper <LongWritable, Text, LongWritable, UpdateEvent> {
+    public static class UpdateEventMapper extends Mapper <LongWritable, Text, LongWritable, Text> {
 
-        private String outputDir;
-        private String homeDir;
-        private int numMappers;
-        private int fileIdx;
-
+        private int numEvents = 0;
         @Override
         public void map(LongWritable key, Text value, Context context)
                 throws IOException, InterruptedException {
-            String event = value.toString();
-            int index = event.indexOf("|");
-            long date = Long.parseLong(event.substring(0, index));
-            int index2 = event.indexOf("|",index);
-            UpdateEvent.UpdateEventType eventType = UpdateEvent.UpdateEventType.valueOf(event.substring(index+1,index2));
-            String data = event.substring(index2+1,event.length()-1);
-            UpdateEvent updateEvent = new UpdateEvent(date,eventType,data);
-            context.write(new LongWritable(date),updateEvent);
+            context.write(key,value);
+            numEvents++;
+        }
+
+        @Override
+        protected void cleanup(Context context) {
+           System.out.println("Number of events mapped: "+numEvents);
         }
 
     }
 
-    public static class UpdateEventReducer extends Reducer<LongWritable, UpdateEvent, LongWritable, UpdateEvent>{
+    public static class UpdateEventReducer extends Reducer<LongWritable, Text, LongWritable, Text>{
 
         FSDataOutputStream out;
+        private int numEvents = 0;
         @Override
         protected void setup(Context context){
             Configuration conf = new Configuration();
@@ -103,7 +99,7 @@ public class MRGenerateUsers{
                 FileSystem fs = FileSystem.get(conf);
                 String strTaskId = context.getTaskAttemptID().getTaskID().toString();
                 int attempTaskId = Integer.parseInt(strTaskId.substring(strTaskId.length() - 3));
-                Path outFile = new Path(context.getConfiguration().get("sibOutputDir")+"/sortedStream_"+attempTaskId+".csv");
+                Path outFile = new Path(context.getConfiguration().get("sibOutputDir")+"/updateStream_"+attempTaskId+".csv");
                 out = fs.create(outFile);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -111,15 +107,19 @@ public class MRGenerateUsers{
         }
 
         @Override
-        public void reduce(LongWritable key, Iterable<UpdateEvent> valueSet,
+        public void reduce(LongWritable key, Iterable<Text> valueSet,
                            Context context) throws IOException, InterruptedException{
-            for( UpdateEvent event : valueSet ) {
-                UpdateEvent.writeEvent(out,event);
+            for( Text event : valueSet ) {
+//                out.writeBytes(event.toString());
+                out.write(event.toString().getBytes("UTF8"));
+                numEvents++;
             }
         }
         @Override
         protected void cleanup(Context context){
             try {
+                System.out.println("Number of events reduced "+numEvents);
+                out.flush();
                 out.close();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -509,13 +509,14 @@ public class MRGenerateUsers{
 
         /// --------------- Fourth job: Sort update streams ----------------
 
+        conf.setInt("mapred.line.input.format.linespermap", 1000000);
         Job job4 = new Job(conf,"Soring update streams");
 
 
         job4.setMapOutputKeyClass(LongWritable.class);
-        job4.setMapOutputValueClass(UpdateEvent.class);
+        job4.setMapOutputValueClass(Text.class);
         job4.setOutputKeyClass(LongWritable.class);
-        job4.setOutputValueClass(UpdateEvent.class);
+        job4.setOutputValueClass(Text.class);
 
         job4.setJarByClass(UpdateEventMapper.class);
         job4.setMapperClass(UpdateEventMapper.class);
@@ -529,10 +530,9 @@ public class MRGenerateUsers{
  //       job4.setGroupingComparatorClass(UpdateEventGroupKeyComparator.class);
 
         for( int i =0; i < numMachines; ++i ) {
-            FileInputFormat.setInputPaths(job4, new Path(args[4] + "/updateStreams_"+i+".csv"));
+            FileInputFormat.setInputPaths(job4, new Path(args[4] + "/temp_updateStream_"+i+".csv"));
         }
         FileOutputFormat.setOutputPath(job4, new Path(args[1] + "end") );
-
 
 
 
@@ -549,6 +549,13 @@ public class MRGenerateUsers{
         int resSorting2 = jobSorting2.waitForCompletion(true) ? 0 : 1;
 
 	    int resUpdateStreamsh= job3.waitForCompletion(true) ? 0 : 1;
+
+        int sortUpdateStreams= job4.waitForCompletion(true) ? 0 : 1;
+
+        FileSystem fs = FileSystem.get(conf);
+        for( int i =0; i < numMachines; ++i ) {
+            fs.delete(new Path(args[4] + "/temp_updateStream_"+i+".csv"),false);
+        }
 
 	    long end = System.currentTimeMillis();
 	    System.out.println(((end - start) / 1000)

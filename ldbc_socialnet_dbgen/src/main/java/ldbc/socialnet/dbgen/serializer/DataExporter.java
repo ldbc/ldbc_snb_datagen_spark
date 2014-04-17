@@ -99,7 +99,7 @@ public class DataExporter {
         } else if( format == DataFormat.NONE) {
             staticSerializer = new EmptySerializer();
         }
-        updateStreamSerializer = new UpdateEventSerializer(directory,"updateStreams_"+reducerId+".csv",exportText, compressed,tagDic,browsers,languageDic,ipDic, statistics);
+        updateStreamSerializer = new UpdateEventSerializer(directory,"temp_updateStream_"+reducerId+".csv",exportText, compressed,tagDic,browsers,languageDic,ipDic, statistics);
         exportCommonEntities();
     }
 
