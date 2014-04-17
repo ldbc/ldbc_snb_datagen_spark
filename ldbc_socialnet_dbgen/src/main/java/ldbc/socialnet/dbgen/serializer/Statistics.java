@@ -61,8 +61,8 @@ public class Statistics {
     public FlashmobTag[] flashmobTags;
     public ArrayList<ArrayList<String>> eventParams;
     public long deltaTime;
-    public ArrayList<String> minUpdateStream;
-    public ArrayList<String> maxUpdateStream;
+    public ArrayList<Object> minUpdateStream;
+    public ArrayList<Object> maxUpdateStream;
     private ArrayList<String[]> countryPairs;
     
     public Statistics() {
@@ -75,8 +75,8 @@ public class Statistics {
         flashmobTags = null; 
         countryPairs = new ArrayList<String[]>();
         eventParams = new ArrayList<ArrayList<String>>();
-        minUpdateStream = new ArrayList<String>();
-        maxUpdateStream = new ArrayList<String>();
+        minUpdateStream = new ArrayList<Object>();
+        maxUpdateStream = new ArrayList<Object>();
     }
     
     /**
