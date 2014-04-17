@@ -46,12 +46,11 @@ import java.io.ObjectOutputStream;
 import java.io.Writer;
 
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
-import ldbc.socialnet.dbgen.util.MapReduceKey;
-import ldbc.socialnet.dbgen.util.MapReduceKeyComparator;
-import ldbc.socialnet.dbgen.util.MapReduceKeyGroupKeyComparator;
-import ldbc.socialnet.dbgen.util.MapReduceKeyPartitioner;
+import ldbc.socialnet.dbgen.objects.UpdateEvent;
+import ldbc.socialnet.dbgen.util.*;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -70,6 +69,63 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 
 
 public class MRGenerateUsers{
+
+
+    public static class UpdateEventMapper extends Mapper <LongWritable, Text, LongWritable, UpdateEvent> {
+
+        private String outputDir;
+        private String homeDir;
+        private int numMappers;
+        private int fileIdx;
+
+        @Override
+        public void map(LongWritable key, Text value, Context context)
+                throws IOException, InterruptedException {
+            String event = value.toString();
+            int index = event.indexOf("|");
+            long date = Long.parseLong(event.substring(0, index));
+            int index2 = event.indexOf("|",index);
+            UpdateEvent.UpdateEventType eventType = UpdateEvent.UpdateEventType.valueOf(event.substring(index+1,index2));
+            String data = event.substring(index2+1,event.length()-1);
+            UpdateEvent updateEvent = new UpdateEvent(date,eventType,data);
+            context.write(new LongWritable(date),updateEvent);
+        }
+
+    }
+
+    public static class UpdateEventReducer extends Reducer<LongWritable, UpdateEvent, LongWritable, UpdateEvent>{
+
+        FSDataOutputStream out;
+        @Override
+        protected void setup(Context context){
+            Configuration conf = new Configuration();
+            try {
+                FileSystem fs = FileSystem.get(conf);
+                String strTaskId = context.getTaskAttemptID().getTaskID().toString();
+                int attempTaskId = Integer.parseInt(strTaskId.substring(strTaskId.length() - 3));
+                Path outFile = new Path(context.getConfiguration().get("sibOutputDir")+"/sortedStream_"+attempTaskId+".csv");
+                out = fs.create(outFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void reduce(LongWritable key, Iterable<UpdateEvent> valueSet,
+                           Context context) throws IOException, InterruptedException{
+            for( UpdateEvent event : valueSet ) {
+                UpdateEvent.writeEvent(out,event);
+            }
+        }
+        @Override
+        protected void cleanup(Context context){
+            try {
+                out.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 	public static class GenerateUsersMapper extends Mapper <LongWritable, Text, MapReduceKey, ReducedUserProfile> {
 			
@@ -94,18 +150,18 @@ public class MRGenerateUsers{
 			ScalableGenerator generator;
 			generator = new ScalableGenerator(fileIdx, outputDir, homeDir);
 			System.out.println("Successfully init Generator object");
-			
+
 			generator.numMaps = numMappers;
-			String[] inputParams = new String[0]; 
+			String[] inputParams = new String[0];
 			generator.init(numMappers, fileIdx);
-			
-			//Generate all the users 
-			int pass = 0; 
+
+			//Generate all the users
+			int pass = 0;
 			int numCorrelations = 3;
-			
+
 			// Generate user information
 			generator.mrGenerateUserInfo(pass, context, fileIdx);
-			
+
 //			System.out.println("Total friendship number from " + fileIdx + " : " + generator.friendshipNum);
 		}
 		
@@ -261,7 +317,7 @@ public class MRGenerateUsers{
 	}
 
 	public static class RandomReducer extends Reducer <MapReduceKey, ReducedUserProfile, MapReduceKey, ReducedUserProfile>{
-		
+
 		public static ScalableGenerator friendGenerator; 
 		private String outputDir; 
 		private String homeDir; 
@@ -451,10 +507,39 @@ public class MRGenerateUsers{
 	    FileInputFormat.setInputPaths(job3, new Path(args[1] + "Sorting2"));
 	    FileOutputFormat.setOutputPath(job3, new Path(args[1] + "UpdateStreams") );
 
+        /// --------------- Fourth job: Sort update streams ----------------
+
+        Job job4 = new Job(conf,"Soring update streams");
+
+
+        job4.setMapOutputKeyClass(LongWritable.class);
+        job4.setMapOutputValueClass(UpdateEvent.class);
+        job4.setOutputKeyClass(LongWritable.class);
+        job4.setOutputValueClass(UpdateEvent.class);
+
+        job4.setJarByClass(UpdateEventMapper.class);
+        job4.setMapperClass(UpdateEventMapper.class);
+        job4.setReducerClass(UpdateEventReducer.class);
+        job4.setNumReduceTasks(numMachines);
+
+        job4.setInputFormatClass(SequenceFileInputFormat.class);
+        job4.setOutputFormatClass(SequenceFileOutputFormat.class);
+        job4.setPartitionerClass(UpdateEventPartitioner.class);
+//        job4.setSortComparatorClass(UpdateEventComparator.class);
+ //       job4.setGroupingComparatorClass(UpdateEventGroupKeyComparator.class);
+
+        for( int i =0; i < numMachines; ++i ) {
+            FileInputFormat.setInputPaths(job4, new Path(args[4] + "/updateStreams_"+i+".csv"));
+        }
+        FileOutputFormat.setOutputPath(job4, new Path(args[1] + "end") );
+
+
+
+
 	    /// --------- Execute Jobs ------
-	    
+
 	    long start = System.currentTimeMillis();
-	
+
 	    int res = job.waitForCompletion(true) ? 0 : 1;
 
         int resSorting = jobSorting.waitForCompletion(true) ? 0 : 1;
@@ -464,38 +549,38 @@ public class MRGenerateUsers{
         int resSorting2 = jobSorting2.waitForCompletion(true) ? 0 : 1;
 
 	    int resUpdateStreamsh= job3.waitForCompletion(true) ? 0 : 1;
-	    
+
 	    long end = System.currentTimeMillis();
 	    System.out.println(((end - start) / 1000)
 	                    + " total seconds");
-	    return res; 
+	    return res;
 	}
-	
+
 	public static void main(String[] args)  throws Exception{
-		
+
 		int numMapers;
 		// Create input text file in HDFS
-		numMapers = Integer.parseInt(args[2]); 
-		
+		numMapers = Integer.parseInt(args[2]);
+
 		String mapperInputFile = "mrInputFile.txt";
-		
+
 		FileSystem dfs = FileSystem.get(new Configuration());
-		
+
 		writeToOutputFile(mapperInputFile, numMapers);
-		
+
 		Path src = new Path(mapperInputFile);
 
 		Path dst = new Path(dfs.getWorkingDirectory()+"/input/sib/");
 
 		System.out.println("DFS Working directory is " + dfs.getWorkingDirectory());
-		
+
 		dfs.copyFromLocalFile(src, dst);
-		
+
 		MRGenerateUsers mrGenerator = new MRGenerateUsers();
 		mrGenerator.runGenerateJob(args);
-		
+
 	}
-	
+
 	public static void writeToOutputFile(String filename, int numMaps){
 	 	Writer output = null;
 	 	File file = new File(filename);
@@ -503,7 +588,7 @@ public class MRGenerateUsers{
 			output = new BufferedWriter(new FileWriter(file));
 			for (int i = 0; i < numMaps; i++)
 				output.write(i + "\n");
-			
+
 			output.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

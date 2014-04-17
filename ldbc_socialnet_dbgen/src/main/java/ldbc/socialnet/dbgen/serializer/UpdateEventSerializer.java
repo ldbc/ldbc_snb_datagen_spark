@@ -46,6 +46,7 @@ import ldbc.socialnet.dbgen.vocabulary.SN;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -92,12 +93,15 @@ public class UpdateEventSerializer implements Serializer{
         try{
             Configuration conf = new Configuration();
             FileSystem fs = FileSystem.get(conf);
-            if( compress ) {
+            /*if( compress ) {
                 this.fileOutputStream = new GZIPOutputStream(new FileOutputStream(outputDir + "/" + outputFileName +".gz"));
             } else {
                 this.fileOutputStream = new FileOutputStream(outputDir + "/" + outputFileName );
             }
             hdfsOutput = new FSDataOutputStream(this.fileOutputStream, new FileSystem.Statistics(null));
+            */
+            Path outFile = new Path(outputDir + "/" + outputFileName);
+            hdfsOutput = fs.create(outFile);
         } catch(IOException e){
             System.err.println(e.getMessage());
             System.exit(-1);
@@ -190,23 +194,6 @@ public class UpdateEventSerializer implements Serializer{
         statistics.eventParams.add(params);
     }
 
-    private void writeEvent( UpdateEvent event ) {
-        try{
-            StringBuffer string = new StringBuffer();
-            string.append(Long.toString(event.date));
-            string.append("|");
-            string.append(event.type.toString());
-            string.append("|");
-            string.append(event.eventData);
-            string.append("|");
-            string.append("\n");
-            //fileOutputStream.write(string.toString().getBytes("UTF8"));
-            hdfsOutput.write(string.toString().getBytes("UTF8"));
-        } catch(IOException e){
-            System.err.println(e.getMessage());
-            System.exit(-1);
-        }
-    }
 
     private void beginEvent( long date, UpdateEvent.UpdateEventType type ) {
         if( date < minDate ) minDate = date;
@@ -219,7 +206,7 @@ public class UpdateEventSerializer implements Serializer{
 
     private void endEvent() {
         currentEvent.eventData = formatData(data);
-        writeEvent(currentEvent);
+        UpdateEvent.writeEvent(hdfsOutput,currentEvent);
     }
 
     private void beginList() {
@@ -241,9 +228,9 @@ public class UpdateEventSerializer implements Serializer{
         statistics.maxUpdateStream.add(DateGenerator.formatDateDetail(date));
 
         try {
-            fileOutputStream.flush();
+//            fileOutputStream.flush();
             hdfsOutput.flush();
-            fileOutputStream.close();
+ //k           fileOutputStream.close();
             hdfsOutput.close();
         } catch(IOException e){
             System.err.println(e.getMessage());
