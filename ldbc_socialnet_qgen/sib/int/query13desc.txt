@@ -1,0 +1,6 @@
+QueryType=Select
+
+PersonURIString=fr
+
+Person1=PersonURI
+Person2=PersonURI

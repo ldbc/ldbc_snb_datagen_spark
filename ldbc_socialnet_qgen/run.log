@@ -1,2 +1,429 @@
-Could not open or process file /home/ldbc/ldbc_socialnet_bm/ldbc_socialnet_qgen/td_data/personNames.txt
-td_data/personNames.txt (No such file or directory)
+
+
+	Query 13 of run 0 has been executed in 0.018000 seconds.
+
+	Query string:
+
+select count(*)
+where
+  {
+    {
+      select ?s ?o
+      where
+        {
+          ?s snvoc:knows ?o1.
+          ?o1 snvoc:hasPerson ?o .
+        }
+    }
+    option ( transitive,
+             t_distinct,
+             t_in(?s),
+             t_out(?o),
+             t_shortest_only,
+             t_direction 3,
+             t_step ('path_id') as ?path_no) .
+    filter ( ?s = sn:pers911434 ).
+    filter ( ?o = sn:pers480635 ).
+    filter (?path_no = 0).
+  }
+
+
+	Query results (1 results): 
+{"queryname":13,
+ "nrun":1,
+ "header":["callret-0"],
+ "params":["sn:pers911434", "sn:pers480635"],
+ "results":[
+  ["0"],
+ ],
+
+__________________________________________________________________________________
+
+
+	Query 13 of run 1 has been executed in 0.005000 seconds.
+
+	Query string:
+
+select count(*)
+where
+  {
+    {
+      select ?s ?o
+      where
+        {
+          ?s snvoc:knows ?o1.
+          ?o1 snvoc:hasPerson ?o .
+        }
+    }
+    option ( transitive,
+             t_distinct,
+             t_in(?s),
+             t_out(?o),
+             t_shortest_only,
+             t_direction 3,
+             t_step ('path_id') as ?path_no) .
+    filter ( ?s = sn:pers339556 ).
+    filter ( ?o = sn:pers160888 ).
+    filter (?path_no = 0).
+  }
+
+
+	Query results (1 results): 
+{"queryname":13,
+ "nrun":2,
+ "header":["callret-0"],
+ "params":["sn:pers339556", "sn:pers160888"],
+ "results":[
+  ["0"],
+ ],
+
+__________________________________________________________________________________
+
+
+	Query 13 of run 2 has been executed in 0.004000 seconds.
+
+	Query string:
+
+select count(*)
+where
+  {
+    {
+      select ?s ?o
+      where
+        {
+          ?s snvoc:knows ?o1.
+          ?o1 snvoc:hasPerson ?o .
+        }
+    }
+    option ( transitive,
+             t_distinct,
+             t_in(?s),
+             t_out(?o),
+             t_shortest_only,
+             t_direction 3,
+             t_step ('path_id') as ?path_no) .
+    filter ( ?s = sn:pers861271 ).
+    filter ( ?o = sn:pers736215 ).
+    filter (?path_no = 0).
+  }
+
+
+	Query results (1 results): 
+{"queryname":13,
+ "nrun":3,
+ "header":["callret-0"],
+ "params":["sn:pers861271", "sn:pers736215"],
+ "results":[
+  ["0"],
+ ],
+
+__________________________________________________________________________________
+
+
+	Query 13 of run 3 has been executed in 0.004000 seconds.
+
+	Query string:
+
+select count(*)
+where
+  {
+    {
+      select ?s ?o
+      where
+        {
+          ?s snvoc:knows ?o1.
+          ?o1 snvoc:hasPerson ?o .
+        }
+    }
+    option ( transitive,
+             t_distinct,
+             t_in(?s),
+             t_out(?o),
+             t_shortest_only,
+             t_direction 3,
+             t_step ('path_id') as ?path_no) .
+    filter ( ?s = sn:pers61727 ).
+    filter ( ?o = sn:pers194155 ).
+    filter (?path_no = 0).
+  }
+
+
+	Query results (1 results): 
+{"queryname":13,
+ "nrun":4,
+ "header":["callret-0"],
+ "params":["sn:pers61727", "sn:pers194155"],
+ "results":[
+  ["0"],
+ ],
+
+__________________________________________________________________________________
+
+
+	Query 13 of run 4 has been executed in 0.004000 seconds.
+
+	Query string:
+
+select count(*)
+where
+  {
+    {
+      select ?s ?o
+      where
+        {
+          ?s snvoc:knows ?o1.
+          ?o1 snvoc:hasPerson ?o .
+        }
+    }
+    option ( transitive,
+             t_distinct,
+             t_in(?s),
+             t_out(?o),
+             t_shortest_only,
+             t_direction 3,
+             t_step ('path_id') as ?path_no) .
+    filter ( ?s = sn:pers731151 ).
+    filter ( ?o = sn:pers122800 ).
+    filter (?path_no = 0).
+  }
+
+
+	Query results (1 results): 
+{"queryname":13,
+ "nrun":5,
+ "header":["callret-0"],
+ "params":["sn:pers731151", "sn:pers122800"],
+ "results":[
+  ["0"],
+ ],
+
+__________________________________________________________________________________
+
+
+	Query 13 of run 5 has been executed in 0.033000 seconds.
+
+	Query string:
+
+select count(*)
+where
+  {
+    {
+      select ?s ?o
+      where
+        {
+          ?s snvoc:knows ?o1.
+          ?o1 snvoc:hasPerson ?o .
+        }
+    }
+    option ( transitive,
+             t_distinct,
+             t_in(?s),
+             t_out(?o),
+             t_shortest_only,
+             t_direction 3,
+             t_step ('path_id') as ?path_no) .
+    filter ( ?s = sn:pers547 ).
+    filter ( ?o = sn:pers691636 ).
+    filter (?path_no = 0).
+  }
+
+
+	Query results (1 results): 
+{"queryname":13,
+ "nrun":6,
+ "header":["callret-0"],
+ "params":["sn:pers547", "sn:pers691636"],
+ "results":[
+  ["0"],
+ ],
+
+__________________________________________________________________________________
+
+
+	Query 13 of run 6 has been executed in 0.005000 seconds.
+
+	Query string:
+
+select count(*)
+where
+  {
+    {
+      select ?s ?o
+      where
+        {
+          ?s snvoc:knows ?o1.
+          ?o1 snvoc:hasPerson ?o .
+        }
+    }
+    option ( transitive,
+             t_distinct,
+             t_in(?s),
+             t_out(?o),
+             t_shortest_only,
+             t_direction 3,
+             t_step ('path_id') as ?path_no) .
+    filter ( ?s = sn:pers868592 ).
+    filter ( ?o = sn:pers317074 ).
+    filter (?path_no = 0).
+  }
+
+
+	Query results (1 results): 
+{"queryname":13,
+ "nrun":7,
+ "header":["callret-0"],
+ "params":["sn:pers868592", "sn:pers317074"],
+ "results":[
+  ["0"],
+ ],
+
+__________________________________________________________________________________
+
+
+	Query 13 of run 7 has been executed in 0.004000 seconds.
+
+	Query string:
+
+select count(*)
+where
+  {
+    {
+      select ?s ?o
+      where
+        {
+          ?s snvoc:knows ?o1.
+          ?o1 snvoc:hasPerson ?o .
+        }
+    }
+    option ( transitive,
+             t_distinct,
+             t_in(?s),
+             t_out(?o),
+             t_shortest_only,
+             t_direction 3,
+             t_step ('path_id') as ?path_no) .
+    filter ( ?s = sn:pers225956 ).
+    filter ( ?o = sn:pers91487 ).
+    filter (?path_no = 0).
+  }
+
+
+	Query results (1 results): 
+{"queryname":13,
+ "nrun":8,
+ "header":["callret-0"],
+ "params":["sn:pers225956", "sn:pers91487"],
+ "results":[
+  ["0"],
+ ],
+
+__________________________________________________________________________________
+
+
+	Query 13 of run 8 has been executed in 0.004000 seconds.
+
+	Query string:
+
+select count(*)
+where
+  {
+    {
+      select ?s ?o
+      where
+        {
+          ?s snvoc:knows ?o1.
+          ?o1 snvoc:hasPerson ?o .
+        }
+    }
+    option ( transitive,
+             t_distinct,
+             t_in(?s),
+             t_out(?o),
+             t_shortest_only,
+             t_direction 3,
+             t_step ('path_id') as ?path_no) .
+    filter ( ?s = sn:pers909533 ).
+    filter ( ?o = sn:pers549043 ).
+    filter (?path_no = 0).
+  }
+
+
+	Query results (1 results): 
+{"queryname":13,
+ "nrun":9,
+ "header":["callret-0"],
+ "params":["sn:pers909533", "sn:pers549043"],
+ "results":[
+  ["0"],
+ ],
+
+__________________________________________________________________________________
+
+
+	Query 13 of run 9 has been executed in 0.004000 seconds.
+
+	Query string:
+
+select count(*)
+where
+  {
+    {
+      select ?s ?o
+      where
+        {
+          ?s snvoc:knows ?o1.
+          ?o1 snvoc:hasPerson ?o .
+        }
+    }
+    option ( transitive,
+             t_distinct,
+             t_in(?s),
+             t_out(?o),
+             t_shortest_only,
+             t_direction 3,
+             t_step ('path_id') as ?path_no) .
+    filter ( ?s = sn:pers512244 ).
+    filter ( ?o = sn:pers323754 ).
+    filter (?path_no = 0).
+  }
+
+
+	Query results (1 results): 
+{"queryname":13,
+ "nrun":10,
+ "header":["callret-0"],
+ "params":["sn:pers512244", "sn:pers323754"],
+ "results":[
+  ["0"],
+ ],
+
+__________________________________________________________________________________
+
+Version:                Openlink BIBM Test Driver 0.7.7
+Start date:             Thu Apr 17 14:38:21 CEST 2014
+Scale factor:           1.0
+Explore Endpoint:       http://localhost:8610/sparql
+Update Endpoint:        http://localhost:8610/sparql
+Use case:               /home/ldbc/ldbc_socialnet_bm/ldbc_socialnet_qgen/sib/int
+Number of warmup runs:  0
+Seed:                   808080
+Number of query mix runs (without warmups): 10 times
+min/max Querymix runtime:	0.0040s / 0.0330s
+Elapsed runtime:        0.136 seconds
+QMpH:                   263927.632 query mixes per hour
+CQET:                   0.009 seconds average runtime of query mix
+CQET (geom.):           0.006 seconds geometric mean runtime of query mix
+AQET (geom.):           0.006 seconds geometric mean runtime of query
+TPC-H Throughput:       263927.632 qph*scale
+TPC-H Power:            599644.508 qph*scale (geom)
+
+Metrics for Query:      13
+Count:                  10 times executed in whole run
+Time share              100.000% of total execution time
+AQET:                   0.008500 seconds (arithmetic mean)
+AQET(geom.):            0.006004 seconds (geometric mean)
+QPS:                    117.647 Queries per second
+minQET/maxQET:          0.004000s / 0.033000s
+Average result count:   1.000
+min/max result count:   1 / 1
+Number of timeouts:     0

@@ -1,3 +1,8 @@
+xml_set_ns_decl ('snvoc', 'http://www.ldbc.eu/ldbc_socialnet/1.0/vocabulary/', 2);
+xml_set_ns_decl ('sn', 'http://www.ldbc.eu/ldbc_socialnet/1.0/data/', 2);
+xml_set_ns_decl ('dbpedia-owl', 'http://dbpedia.org/ontology/', 2);
+
+
 create procedure path_str (in path any)
 {
   declare str any;
