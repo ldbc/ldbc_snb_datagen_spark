@@ -297,7 +297,7 @@ public class DataExporter {
         } else {
             updateStreamSerializer.serialize(post);
         }
-        exportLikes(post,0);
+        exportLikes(post);
     }
 
     public void export(Photo photo){
@@ -307,23 +307,19 @@ public class DataExporter {
         } else {
             updateStreamSerializer.serialize(photo);
         }
-        exportLikes(photo,2);
+        exportLikes(photo);
     }
 
-    private void exportLikes ( Message message, int type ) {
-        long likeUsers[] = message.getInterestedUserAccs();
-        long likeTimes[] = message.getInterestedUserAccsTimestamp();
-        int numLikes = likeUsers.length;
-        for( int i = 0; i < numLikes; ++i ) {
-            Like like = new Like();
-            like.date = likeTimes[i];
-            like.user = likeUsers[i];
-            like.messageId = message.getMessageId();
-            like.type = type;
-            if( like.date <= dateThreshold ) {
-                staticSerializer.serialize(like);
-            } else {
-                updateStreamSerializer.serialize(like);
+    private void exportLikes ( Message message ) {
+        Like likes[] = message.getLikes();
+        if( likes != null ) {
+            int numLikes = likes.length;
+            for( int i = 0; i < numLikes; ++i ) {
+                if( likes[i].date <= dateThreshold ) {
+                    staticSerializer.serialize(likes[i]);
+                } else {
+                    updateStreamSerializer.serialize(likes[i]);
+                }
             }
         }
     }
@@ -335,7 +331,7 @@ public class DataExporter {
         } else {
             updateStreamSerializer.serialize(comment);
         }
-        exportLikes(comment,1);
+        exportLikes(comment);
     }
 
     public void export(Group group) {

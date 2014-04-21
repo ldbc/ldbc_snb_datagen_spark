@@ -96,7 +96,7 @@ public class ScalableGenerator{
     private static final int endDate    = 1;
 
     private static final double alpha = 0.4;        /**< @brief PowerLaw distribution alpha parameter.*/
-    private static final int maxNumLikes = 3;      /**< @brief The maximum number of likes per post*/
+    private static final int maxNumLikes = 1000;      /**< @brief The maximum number of likes per post*/
 
     private static final double levelProbs[] = { 0.5, 0.8, 1.0 };  /**< @brief Cumulative probability to join a group for the user direct friends, friends of friends and friends of the friends of the user friend.*/
     private static final double joinProbs[] = { 0.7, 0.4, 0.1 }; /**< @brief Probability to join a group for the user direct friends, friends of friends and friends of the friends of the user friend.*/
@@ -655,7 +655,7 @@ public class ScalableGenerator{
 
         System.out.println("Building photo generator");
         photoGenerator = new PhotoGenerator(dateTimeGenerator,
-                locationDictionary, 0, popularDictionary, probPopularPlaces);
+                locationDictionary, 0, popularDictionary, probPopularPlaces, maxNumLikes, deltaTime, randomFarm);
 
         System.out.println("Building Group generator");
         groupGenerator = new GroupGenerator(dateTimeGenerator, locationDictionary,
@@ -1159,7 +1159,7 @@ public class ScalableGenerator{
             // Generate photos for this album
             int numPhotos = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_PHOTO).nextInt(maxNumPhotoPerAlbums);
             for (int l = 0; l < numPhotos; l++) {
-                Photo photo = photoGenerator.generatePhoto(user, album, l, maxNumLikes, postId);
+                Photo photo = photoGenerator.generatePhoto(user, album, l, postId);
                 postId++;
                 photo.setUserAgent(userAgentDictionary.getUserAgentName(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT_SENT),user.isHaveSmartPhone(), user.getAgentIdx()));
                 photo.setBrowserIdx(browserDictonry.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), user.getBrowserIdx()));
