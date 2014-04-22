@@ -72,8 +72,7 @@ public class CSVMergeForeign implements Serializer {
     private TagDictionary tagDic;
     private IPAddressDictionary ipDic;
     private boolean exportText;
-    private long deltaTime;
-    
+
 
     /**
      * Used to avoid serialize more than once the same data.
@@ -86,7 +85,6 @@ public class CSVMergeForeign implements Serializer {
     private final String NEWLINE = "\n";
     private final String SEPARATOR = "|";
 
-    long dateThreshold = 0;
 
 	/**
 	 * The fileName vector and the enum Files serves the purpose of facilitate the serialization method
@@ -184,7 +182,7 @@ public class CSVMergeForeign implements Serializer {
 	public CSVMergeForeign(String file, int reducerID,
             TagDictionary tagDic, BrowserDictionary browsers, 
             CompanyDictionary companyDic, UniversityDictionary universityDictionary,
-            IPAddressDictionary ipDic, LocationDictionary locationDic, LanguageDictionary languageDic, long deltaTime, long dateThreshold, boolean exportText, boolean compressed) {
+            IPAddressDictionary ipDic, LocationDictionary locationDic, LanguageDictionary languageDic, boolean exportText, boolean compressed) {
 
         this.tagDic = tagDic;
         this.browserDic = browsers;
@@ -194,9 +192,7 @@ public class CSVMergeForeign implements Serializer {
         this.universityDic = universityDictionary;
         this.ipDic = ipDic;
         this.exportText = exportText;
-        this.deltaTime = deltaTime;
-        this.dateThreshold = dateThreshold;
-        
+
         csvRows = 0l;
         date = new GregorianCalendar();
 		locations = new Vector<Integer>();
@@ -496,7 +492,7 @@ public class CSVMergeForeign implements Serializer {
         arguments.add(SN.formId(membership.getGroupId()));
         arguments.add(Long.toString(membership.getUserId()));
         arguments.add(dateString);
-        ToCSV(arguments,Files.FORUM_HASMEMBER_PERSON.ordinal());
+        ToCSV(arguments, Files.FORUM_HASMEMBER_PERSON.ordinal());
     }
 
     @Override

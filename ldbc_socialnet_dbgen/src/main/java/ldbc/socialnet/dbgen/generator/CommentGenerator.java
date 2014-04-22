@@ -114,7 +114,7 @@ public class CommentGenerator {
             likes[i].user = friendList[startIndex+i].getFriendAcc();
             likes[i].messageId = message.getMessageId();
             long minDate = message.getCreationDate() > friendList[startIndex+i].getCreatedTime() ? message.getCreationDate() : friendList[startIndex+i].getCreatedTime();
-            likes[i].date = (long)(randomDate.nextDouble()*DateGenerator.SEVEN_DAYS+minDate+deltaTime);
+            likes[i].date = dateGen.randomLikeDate(randomDate,minDate+deltaTime);
             likes[i].type = 1;
         }
         message.setLikes(likes);
@@ -137,7 +137,7 @@ public class CommentGenerator {
             likes[i].user = groupMembers[startIndex+i].getUserId();
             likes[i].messageId = message.getMessageId();
             long minDate = message.getCreationDate() > groupMembers[startIndex+i].getJoinDate() ? message.getCreationDate() : groupMembers[startIndex+i].getJoinDate();
-            likes[i].date = (long)(randomDate.nextDouble()*DateGenerator.SEVEN_DAYS+minDate+deltaTime);
+            likes[i].date = dateGen.randomLikeDate(randomDate,minDate+deltaTime);
             likes[i].type = 1;
         }
         message.setLikes(likes);

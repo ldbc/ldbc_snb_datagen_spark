@@ -344,7 +344,7 @@ public class ScalableGenerator{
 
     // For serialize to RDF format
     //Serializer 		serializer;
-    DataExporter    dataExporter;
+    DataExporter    dataExporter = null;
     String 			serializerType;
     String 			outUserProfileName = "userProf.ser";
     String 			outUserProfile;
@@ -587,7 +587,7 @@ public class ScalableGenerator{
 
         dateTimeGenerator = new DateGenerator( new GregorianCalendar(startYear, startMonth, startDate),
                 new GregorianCalendar(endYear, endMonth, endDate), alpha, deltaTime);
-        dateThreshold = dateTimeGenerator.getStartDateTime() + (long)((dateTimeGenerator.getCurrentDateTime() - dateTimeGenerator.getStartDateTime())*(1.0 - updatePortion));
+        dateThreshold = dateTimeGenerator.getCurrentDateTime() - (long)((dateTimeGenerator.getCurrentDateTime() - dateTimeGenerator.getStartDateTime())*(updatePortion));
 
         System.out.println("Building location dictionary ");
         locationDictionary = new LocationDictionary(numTotalUser, countryDictionaryFile, cityDictionaryFile);
@@ -666,7 +666,8 @@ public class ScalableGenerator{
         /// IMPORTANT: ratioLargeText is divided 0.083333, the probability 
         /// that SetUserLargePoster returns true.
         System.out.println("Building Uniform Post Generator");
-        uniformPostGenerator = new UniformPostGenerator( tagTextDictionary,
+        uniformPostGenerator = new UniformPostGenerator( dateTimeGenerator,
+                tagTextDictionary,
                 userAgentDictionary,
                 ipAddDictionary,
                 browserDictonry,
@@ -679,7 +680,6 @@ public class ScalableGenerator{
                 maxNumLikes,
                 exportText,
                 deltaTime,
-                dateTimeGenerator,
                 maxNumPostPerMonth,
                 maxNumFriends,
                 maxNumGroupPostPerMonth,
@@ -705,7 +705,7 @@ public class ScalableGenerator{
         /// IMPORTANT: ratioLargeText is divided 0.083333, the probability 
         /// that SetUserLargePoster returns true.
         System.out.println("Building Flashmob Post Generator");
-        flashmobPostGenerator = new FlashmobPostGenerator( tagTextDictionary,
+        flashmobPostGenerator = new FlashmobPostGenerator(dateTimeGenerator, tagTextDictionary,
                 userAgentDictionary,
                 ipAddDictionary,
                 browserDictonry,
@@ -718,7 +718,6 @@ public class ScalableGenerator{
                 maxNumLikes,
                 exportText,
                 deltaTime,
-                dateTimeGenerator,
                 flashmobTagDictionary,
                 topicTagDictionary,
                 maxNumFlashmobPostPerMonth,
@@ -744,7 +743,7 @@ public class ScalableGenerator{
         fbDegreeGenerator.loadFBBuckets();
         fbDegreeGenerator.rebuildBucketRange();
 
-        dataExporter = getSerializer(serializerType, RDF_OUTPUT_FILE);
+//        dataExporter = getSerializer(serializerType, RDF_OUTPUT_FILE);
     }
 
     /**
@@ -759,7 +758,11 @@ public class ScalableGenerator{
         generateAllGroup(inputFile, numCell);
     }
 
-    public void closeFileWriting() {
+    public void openSerializer() {
+        dataExporter = getSerializer(serializerType, RDF_OUTPUT_FILE);
+    }
+
+    public void closeSerializer() {
         dataExporter.close();
         writeStatistics();
         System.out.println("Number of generated triples " + dataExporter.unitsGenerated());
@@ -921,7 +924,9 @@ public class ScalableGenerator{
         fbDegreeGenerator.resetState(seed);
         resetWindow();
         randomFarm.resetRandomGenerators((long)seed);
-        dataExporter.resetState(seed);
+        if( dataExporter != null ) {
+            dataExporter.resetState(seed);
+        }
     }
 
 
@@ -1569,6 +1574,7 @@ public class ScalableGenerator{
         }
         createdTime = createdTime - user1.getCreationDate() >= deltaTime ? createdTime : createdTime + (deltaTime - (createdTime - user1.getCreationDate() ));
         createdTime = createdTime - user2.getCreationDate() >= deltaTime ? createdTime : createdTime + (deltaTime - (createdTime - user2.getCreationDate() ));
+        createdTime = Math.min(createdTime,dateTimeGenerator.getCurrentDateTime());
 
         user2.addNewFriend(new Friend(user2, user1, requestedTime, declinedTime,
                 createdTime, pass, initiator));

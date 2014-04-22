@@ -77,8 +77,6 @@ public class CSVOriginal implements Serializer {
     private TagDictionary tagDic;
     private IPAddressDictionary ipDic;
     private boolean exportText;
-    private long deltaTime;
-    private long dateThreshold;
 
     /**
      * Used to avoid serialize more than once the same data.
@@ -221,7 +219,7 @@ public class CSVOriginal implements Serializer {
 	public CSVOriginal(String file, int reducerID,
             TagDictionary tagDic, BrowserDictionary browsers, 
             CompanyDictionary companyDic, UniversityDictionary universityDictionary,
-            IPAddressDictionary ipDic, LocationDictionary locationDic, LanguageDictionary languageDic, long deltaTime, long dateThreshold, boolean exportText, boolean compressed) {
+            IPAddressDictionary ipDic, LocationDictionary locationDic, LanguageDictionary languageDic, boolean exportText, boolean compressed) {
 
         this.tagDic = tagDic;
         this.browserDic = browsers;

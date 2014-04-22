@@ -81,8 +81,10 @@ abstract public class PostGenerator {
     private boolean generateText;          /**< @brief To generate text for post and comment.*/
     private long deltaTime;                /**< @brief Delta time.*/
     private PowerDistGenerator likesGenerator;
+    protected DateGenerator dateGen;
 
-	public PostGenerator( TagTextDictionary tagTextDic, 
+	public PostGenerator( DateGenerator dateGen,
+                          TagTextDictionary tagTextDic,
                           UserAgentDictionary userAgentDic,
                           IPAddressDictionary ipAddressDic,
                           BrowserDictionary browserDic,
@@ -96,7 +98,7 @@ abstract public class PostGenerator {
                           boolean generateText,
                           long deltaTime
                           ){
-
+        this.dateGen = dateGen;
         this.tagTextDic = tagTextDic;
         this.userAgentDic = userAgentDic;
         this.ipAddressDic = ipAddressDic;
@@ -137,7 +139,7 @@ abstract public class PostGenerator {
             likes[i].user = friendList[startIndex+i].getFriendAcc();
             likes[i].messageId = message.getMessageId();
             long minDate = message.getCreationDate() > friendList[startIndex+i].getCreatedTime() ? message.getCreationDate() : friendList[startIndex+i].getCreatedTime();
-            likes[i].date = (long)(randomDate.nextDouble()*DateGenerator.SEVEN_DAYS+minDate+deltaTime);
+            likes[i].date = dateGen.randomLikeDate(randomDate,minDate+deltaTime);
             likes[i].type = 0;
         }
         message.setLikes(likes);
@@ -160,7 +162,7 @@ abstract public class PostGenerator {
             likes[i].user = groupMembers[startIndex+i].getUserId();
             likes[i].messageId = message.getMessageId();
             long minDate = message.getCreationDate() > groupMembers[startIndex+i].getJoinDate() ? message.getCreationDate() : groupMembers[startIndex+i].getJoinDate();
-            likes[i].date = (long)(randomDate.nextDouble()*DateGenerator.SEVEN_DAYS+minDate+deltaTime);
+            likes[i].date = dateGen.randomLikeDate(randomDate,minDate+deltaTime);
             likes[i].type = 0;
         }
         message.setLikes(likes);
