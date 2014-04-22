@@ -104,7 +104,8 @@ public class UniformPostGenerator extends PostGenerator {
                 }
             }
         }
-        postInfo.date = dateGen.randomPostCreatedDate(randomDate,user.getCreationDate()+deltaTime);
+        postInfo.date = dateGen.randomDate(randomDate,user.getCreationDate()+deltaTime);
+        if( postInfo.date > dateGen.getEndDateTime() ) return null;
         return postInfo;
     }
 
@@ -114,7 +115,8 @@ public class UniformPostGenerator extends PostGenerator {
         for (int i = 0; i < group.getTags().length; i++) {
             postInfo.tags.add(group.getTags()[i]);
         }
-        postInfo.date = dateGen.randomPostCreatedDate(randomDate,membership.getJoinDate()+deltaTime);
+        postInfo.date = dateGen.randomDate(randomDate,membership.getJoinDate()+deltaTime);
+        if( postInfo.date > dateGen.getEndDateTime() ) return null;
         return postInfo;
     }
 

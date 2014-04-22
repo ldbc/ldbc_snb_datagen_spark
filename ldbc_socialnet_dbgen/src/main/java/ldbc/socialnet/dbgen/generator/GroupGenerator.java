@@ -70,7 +70,7 @@ public class GroupGenerator {
 
 		group.setGroupId(groupId);
 		group.setModeratorId(user.getAccountId());
-		group.setCreatedDate(dateGenerator.randomGroupCreatedDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),user));
+		group.setCreatedDate(dateGenerator.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), user.getCreationDate() + deltaTime));
 
 		//Use the user location for group locationIdx
 		group.setLocationIdx(user.getLocationId());
@@ -98,7 +98,7 @@ public class GroupGenerator {
 	
 	public Group createAlbum(RandomGeneratorFarm randomFarm, long groupId, ReducedUserProfile user, UserExtraInfo extraInfo, int numAlbum, double memberProb) {
 	    Group group = createGroup(randomFarm, groupId,user);
-	    group.setCreatedDate(dateGenerator.randomPhotoAlbumCreatedDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),user));
+	    group.setCreatedDate(dateGenerator.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), user.getCreationDate() + deltaTime));
 	    Vector<Integer> countries = locationDic.getCountries();
 	    int randomCountry = randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY).nextInt(countries.size());
 	    group.setLocationIdx(countries.get(randomCountry));
@@ -110,17 +110,21 @@ public class GroupGenerator {
 	        if (randMemberProb < memberProb) {
 	            GroupMemberShip memberShip = createGroupMember(randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX),friends[i].getFriendAcc(),
 	                    group.getCreatedDate(), friends[i]);
-                memberShip.setGroupId(group.getGroupId());
-	            group.addMember(memberShip);
+                if( memberShip != null ) {
+                    memberShip.setGroupId(group.getGroupId());
+                    group.addMember(memberShip);
+                }
 	        }
 	    }
 	    return group;
 	}
 	
 	public GroupMemberShip createGroupMember(Random random, long userId, long groupCreatedDate, Friend friend){
+        long date = dateGenerator.randomDate(random,Math.max(groupCreatedDate, friend.getCreatedTime()+deltaTime));
+        if( date > dateGenerator.getEndDateTime() ) return null;
 		GroupMemberShip memberShip = new GroupMemberShip();
 		memberShip.setUserId(userId);
-		memberShip.setJoinDate(dateGenerator.randomGroupMemberJoinDate(random,groupCreatedDate, friend.getCreatedTime()+deltaTime));
+		memberShip.setJoinDate(date);
 		memberShip.setIP(friend.getSourceIp());
 		memberShip.setBrowserIdx(friend.getBrowserIdx());
 		memberShip.setAgentIdx(friend.getAgentIdx());
@@ -131,9 +135,12 @@ public class GroupGenerator {
 	}
 	
 	public GroupMemberShip createGroupMember(Random random, long userId, long groupCreatedDate, ReducedUserProfile user){
+
+        long date = dateGenerator.randomDate(random, Math.max(groupCreatedDate, user.getCreationDate()+deltaTime));
+        if( date > dateGenerator.getEndDateTime() ) return null;
         GroupMemberShip memberShip = new GroupMemberShip();
         memberShip.setUserId(userId);
-        memberShip.setJoinDate(dateGenerator.randomGroupMemberJoinDate(random, groupCreatedDate, user.getCreationDate()+deltaTime));
+        memberShip.setJoinDate(date);
         memberShip.setIP(user.getIpAddress());
         memberShip.setBrowserIdx(user.getBrowserIdx());
         memberShip.setAgentIdx(user.getAgentIdx());

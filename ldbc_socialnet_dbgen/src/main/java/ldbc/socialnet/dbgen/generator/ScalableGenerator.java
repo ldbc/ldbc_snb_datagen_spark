@@ -587,7 +587,7 @@ public class ScalableGenerator{
 
         dateTimeGenerator = new DateGenerator( new GregorianCalendar(startYear, startMonth, startDate),
                 new GregorianCalendar(endYear, endMonth, endDate), alpha, deltaTime);
-        dateThreshold = dateTimeGenerator.getCurrentDateTime() - (long)((dateTimeGenerator.getCurrentDateTime() - dateTimeGenerator.getStartDateTime())*(updatePortion));
+        dateThreshold = dateTimeGenerator.getMaxDateTime() - (long)((dateTimeGenerator.getMaxDateTime() - dateTimeGenerator.getStartDateTime())*(updatePortion));
 
         System.out.println("Building location dictionary ");
         locationDictionary = new LocationDictionary(numTotalUser, countryDictionaryFile, cityDictionaryFile);
@@ -1213,8 +1213,10 @@ public class ScalableGenerator{
                         GroupMemberShip memberShip = groupGenerator.createGroupMember(randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX),
                                 potentialMemberAcc, group.getCreatedDate(),
                                 firstLevelFriends[friendIdx]);
-                        memberShip.setGroupId(group.getGroupId());
-                        group.addMember(memberShip);
+                        if( memberShip != null ) {
+                            memberShip.setGroupId(group.getGroupId());
+                            group.addMember(memberShip);
+                        }
                     }
                 }
             } else if (randLevelProb < levelProbs[1]) { // ==> level 2
@@ -1230,8 +1232,10 @@ public class ScalableGenerator{
                             GroupMemberShip memberShip = groupGenerator.createGroupMember(randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX),
                                     potentialMemberAcc, group.getCreatedDate(),
                                     secondLevelFriends.get(friendIdx));
-                            memberShip.setGroupId(group.getGroupId());
-                            group.addMember(memberShip);
+                            if( memberShip != null ) {
+                                memberShip.setGroupId(group.getGroupId());
+                                group.addMember(memberShip);
+                            }
                         }
                     }
                 }
@@ -1247,8 +1251,10 @@ public class ScalableGenerator{
                         GroupMemberShip memberShip = groupGenerator.createGroupMember(randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX),
                                 potentialMemberAcc, group.getCreatedDate(),
                                 reducedUserProfiles[friendIdx]);
-                        memberShip.setGroupId(group.getGroupId());
-                        group.addMember(memberShip);
+                        if( memberShip != null ) {
+                            memberShip.setGroupId(group.getGroupId());
+                            group.addMember(memberShip);
+                        }
                     }
                 }
             }
@@ -1574,14 +1580,14 @@ public class ScalableGenerator{
         }
         createdTime = createdTime - user1.getCreationDate() >= deltaTime ? createdTime : createdTime + (deltaTime - (createdTime - user1.getCreationDate() ));
         createdTime = createdTime - user2.getCreationDate() >= deltaTime ? createdTime : createdTime + (deltaTime - (createdTime - user2.getCreationDate() ));
-        createdTime = Math.min(createdTime,dateTimeGenerator.getCurrentDateTime());
+        if( createdTime <= dateTimeGenerator.getEndDateTime() ) {
+            user2.addNewFriend(new Friend(user2, user1, requestedTime, declinedTime,
+                    createdTime, pass, initiator));
+            user1.addNewFriend(new Friend(user1, user2, requestedTime, declinedTime,
+                    createdTime, pass, initiator));
 
-        user2.addNewFriend(new Friend(user2, user1, requestedTime, declinedTime,
-                createdTime, pass, initiator));
-        user1.addNewFriend(new Friend(user1, user2, requestedTime, declinedTime,
-                createdTime, pass, initiator));
-
-        friendshipNum++;
+            friendshipNum++;
+        }
     }
 
 

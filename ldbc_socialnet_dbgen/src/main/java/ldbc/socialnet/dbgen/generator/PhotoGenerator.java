@@ -140,12 +140,16 @@ public class PhotoGenerator {
             startIndex = randomNumLikes.nextInt(numMembers - numLikes);
         }
         for (int i = 0; i < numLikes; i++) {
-            likes[i] = new Like();
-            likes[i].user = groupMembers[startIndex+i].getUserId();
-            likes[i].messageId = message.getMessageId();
+            likes[i] = null;
             long minDate = message.getCreationDate() > groupMembers[startIndex+i].getJoinDate() ? message.getCreationDate() : groupMembers[startIndex+i].getJoinDate();
-            likes[i].date = (long)(randomDate.nextDouble()*DateGenerator.SEVEN_DAYS+minDate+deltaTime);
-            likes[i].type = 2;
+            long date = Math.max(dateGenerator.randomSevenDays(randomDate),deltaTime) + minDate;
+            if( date <= dateGenerator.getEndDateTime() ) {
+                likes[i] = new Like();
+                likes[i].user = groupMembers[startIndex + i].getUserId();
+                likes[i].messageId = message.getMessageId();
+                likes[i].date = date;
+                likes[i].type = 2;
+            }
         }
         message.setLikes(likes);
     }

@@ -315,10 +315,12 @@ public class DataExporter {
         if( likes != null ) {
             int numLikes = likes.length;
             for( int i = 0; i < numLikes; ++i ) {
-                if( likes[i].date <= dateThreshold ) {
-                    staticSerializer.serialize(likes[i]);
-                } else {
-                    updateStreamSerializer.serialize(likes[i]);
+                if( likes[i] != null ) {
+                    if (likes[i].date <= dateThreshold) {
+                        staticSerializer.serialize(likes[i]);
+                    } else {
+                        updateStreamSerializer.serialize(likes[i]);
+                    }
                 }
             }
         }

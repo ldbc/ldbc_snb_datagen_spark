@@ -110,12 +110,16 @@ public class CommentGenerator {
             startIndex = randomNumLikes.nextInt(numFriends - numLikes);
         }
         for (int i = 0; i < numLikes; i++) {
-            likes[i] = new Like();
-            likes[i].user = friendList[startIndex+i].getFriendAcc();
-            likes[i].messageId = message.getMessageId();
+            likes[i] = null;
             long minDate = message.getCreationDate() > friendList[startIndex+i].getCreatedTime() ? message.getCreationDate() : friendList[startIndex+i].getCreatedTime();
-            likes[i].date = dateGen.randomLikeDate(randomDate,minDate+deltaTime);
-            likes[i].type = 1;
+            long date = Math.max(dateGen.randomSevenDays(randomDate),deltaTime) + minDate;
+            if( date <= dateGen.getEndDateTime() ) {
+                likes[i] = new Like();
+                likes[i].user = friendList[startIndex + i].getFriendAcc();
+                likes[i].messageId = message.getMessageId();
+                likes[i].date = date;
+                likes[i].type = 1;
+            }
         }
         message.setLikes(likes);
     }
@@ -133,12 +137,16 @@ public class CommentGenerator {
             startIndex = randomNumLikes.nextInt(numMembers - numLikes);
         }
         for (int i = 0; i < numLikes; i++) {
-            likes[i] = new Like();
-            likes[i].user = groupMembers[startIndex+i].getUserId();
-            likes[i].messageId = message.getMessageId();
+            likes[i] = null;
             long minDate = message.getCreationDate() > groupMembers[startIndex+i].getJoinDate() ? message.getCreationDate() : groupMembers[startIndex+i].getJoinDate();
-            likes[i].date = dateGen.randomLikeDate(randomDate,minDate+deltaTime);
-            likes[i].type = 1;
+            long date = Math.max(dateGen.randomSevenDays(randomDate),deltaTime) + minDate;
+            if( date <= dateGen.getEndDateTime() ) {
+                likes[i] = new Like();
+                likes[i].user = groupMembers[startIndex + i].getUserId();
+                likes[i].messageId = message.getMessageId();
+                likes[i].date = date;
+                likes[i].type = 1;
+            }
         }
         message.setLikes(likes);
     }
@@ -205,6 +213,7 @@ public class CommentGenerator {
             }
         }
         long creationDate = dateGen.powerlawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),replyTo.getCreationDate()+deltaTime);
+        if( creationDate > dateGen.getEndDateTime() ) return null;
         Comment comment = new Comment( commentId,
                                        content,
                                        textSize,
@@ -285,6 +294,7 @@ public class CommentGenerator {
         }
 
         long creationDate = dateGen.powerlawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),replyTo.getCreationDate()+deltaTime);
+        if( creationDate > dateGen.getEndDateTime() ) return null;
         Comment comment = new Comment( commentId,
                 content,
                 textSize,

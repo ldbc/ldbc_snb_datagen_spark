@@ -70,7 +70,7 @@ public class DateGenerator {
 			double alpha, long deltaTime )
 	{
 		this.from = from.getTimeInMillis();
-		this.to = to.getTimeInMillis()+deltaTime;
+		this.to = to.getTimeInMillis();
 		powerDist = new PowerDistGenerator(0.0, 1.0, alpha );
         this.deltaTime = deltaTime;
 		
@@ -80,18 +80,6 @@ public class DateGenerator {
 		this.fromBirthDay = frombirthCalendar.getTimeInMillis();
 		this.toBirthDay = tobirthCalendar.getTimeInMillis();
 		this.birthCalendar = new GregorianCalendar();
-	}
-	
-	/*
-	 * Date between from and to
-	 */
-	public GregorianCalendar randomDate( Random random )
-	{
-		long date = (long)(random.nextDouble()*(to-from)+from);
-		GregorianCalendar gc = new GregorianCalendar();
-		gc.setTime(new Date(date));
-		
-		return gc;
 	}
 	
 	/*
@@ -228,11 +216,7 @@ public class DateGenerator {
 		long randomSpanMilis =  (long) (random.nextDouble()* (THIRTY_DAYS));
 		return (from + randomSpanMilis);
 	}
-	public long randomFriendRequestedDate(Random random, UserProfile user1, UserProfile user2){
-		long fromDate = Math.max(user1.getCreationDate(), user2.getCreationDate());
-		return randomThirtyDaysSpan(random, fromDate);
-	}
-	
+
 	public long randomFriendRequestedDate(Random random, ReducedUserProfile user1, ReducedUserProfile user2){
 		long fromDate = Math.max(user1.getCreationDate(), user2.getCreationDate());
 		return randomThirtyDaysSpan(random,fromDate);
@@ -258,25 +242,37 @@ public class DateGenerator {
 		return (to - fromDate)/THIRTY_DAYS;
 	}
 	
-	public long randomPhotoAlbumCreatedDate(Random random, ReducedUserProfile user){
-		return  Math.min((long)(random.nextDouble()*(to-(user.getCreationDate()+deltaTime))+user.getCreationDate()+deltaTime),to);
+	/*public long randomPhotoAlbumCreatedDate(Random random, ReducedUserProfile user){
+		return  (long)(random.nextDouble()*(to-(user.getCreationDate()+deltaTime))+user.getCreationDate()+deltaTime);
 	}
+	*/
 
-	public long randomGroupCreatedDate(Random random, ReducedUserProfile user){
-		return  Math.min((long)(random.nextDouble()*(to-(user.getCreationDate()+deltaTime))+user.getCreationDate()+deltaTime),to);
+	/*public long randomGroupCreatedDate(Random random, ReducedUserProfile user){
+		return  (long)(random.nextDouble()*(to-(user.getCreationDate()+deltaTime))+user.getCreationDate()+deltaTime);
 	}
+	*/
 
-	public long randomGroupMemberJoinDate(Random random, long groupCreateDate, long userCreatedDate){
+/*	public long randomGroupMemberJoinDate(Random random, long groupCreateDate, long userCreatedDate){
 		long earliestJoinDate = Math.max(groupCreateDate, userCreatedDate);
-	    return  Math.min((long)(random.nextDouble()*(to - earliestJoinDate) + earliestJoinDate),to);
+	    return  (long)(random.nextDouble()*(to - earliestJoinDate) + earliestJoinDate);
 	}
-	
-	public long randomPostCreatedDate(Random random, long minDate){
-		return Math.min((long)(random.nextDouble()*(to-minDate)+minDate),to);
-	}
+	*/
 
-    public long randomLikeDate(Random random, long minDate) {
-        return Math.min((long)(random.nextDouble()*DateGenerator.SEVEN_DAYS+minDate+deltaTime),to);
+    public long randomDate( Random random, long minDate ) {
+        return  (long)(random.nextDouble()*(to-minDate)+minDate);
+    }
+	
+	/*public long randomPostCreatedDate(Random random, long minDate){
+		return (long)(random.nextDouble()*(to-minDate)+minDate);
+	}*/
+
+    /*public long randomLikeDate(Random random, long minDate) {
+        return (long)(random.nextDouble()*DateGenerator.SEVEN_DAYS+minDate+deltaTime);
+    }
+    */
+
+    public long randomSevenDays(Random random ) {
+        return (long)(random.nextDouble()*DateGenerator.SEVEN_DAYS);
     }
 	
 /*	public long powerlawPostCreatedDate(Random random, UserProfile user){
@@ -284,9 +280,10 @@ public class DateGenerator {
 	}
 	*/
 	
-	public long randomCommentCreatedDate(Random random, long lastCommentCreatedDate){
-		return Math.min((long)(random.nextDouble()*(to-lastCommentCreatedDate)+lastCommentCreatedDate),to);
+	/*public long randomCommentCreatedDate(Random random, long lastCommentCreatedDate){
+		return (long)(random.nextDouble()*(to-lastCommentCreatedDate)+lastCommentCreatedDate);
 	}
+	*/
 
 	/*//Assume that this powerlaw generate powerlaw value between 0 - 1
 	public long powerlawCommentCreatDate( Random random, long lastCommentCreatedDate){
@@ -295,7 +292,7 @@ public class DateGenerator {
 	*/
 
 	public long powerlawCommDateDay(Random random, long lastCommentCreatedDate){
-		return Math.min((long)(powerDist.getDouble(random) * ONE_DAY+lastCommentCreatedDate),to);
+		return (long)(powerDist.getDouble(random) * ONE_DAY+lastCommentCreatedDate);
 	}
 
 	// The birthday is fixed during 1980 --> 1990
@@ -347,8 +344,11 @@ public class DateGenerator {
 	public long getStartDateTime(){
 		return from;
 	}
-	public long getCurrentDateTime(){
+	public long getEndDateTime() {
 		return to;
 	}
+    public long getMaxDateTime() {
+        return to + SEVEN_DAYS + deltaTime;
+    }
 }
 
