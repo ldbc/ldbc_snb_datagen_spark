@@ -52,8 +52,9 @@ abstract public class Message {
     private byte browserIdx;					/**< @brief The id of the browser used to send the post.*/
 
 
-    private long interestedUserAccs[];		    /**< @brief The list of users who are interested in the post*/
-    private long interestedUserAccsTimestamp[]; /**< @brief The timestamps when the interested users where actually interested.*/
+    private Like likes[] = null;
+//    private long interestedUserAccs[];		    /**< @brief The list of users who are interested in the post*/
+//   private long interestedUserAccsTimestamp[]; /**< @brief The timestamps when the interested users where actually interested.*/
 
     public Message(long messageId,
                    String content,
@@ -131,9 +132,9 @@ abstract public class Message {
         return this.browserIdx;
     }
     public void setBrowserIdx(byte browserId) {
-
         this.browserIdx = browserId;
     }
+   /*
       public long[] getInterestedUserAccs() {
         return this.interestedUserAccs;
     }
@@ -145,6 +146,14 @@ abstract public class Message {
     }
     public void setInterestedUserAccsTimestamp(long[] timestamps) {
         this.interestedUserAccsTimestamp = timestamps;
+    }
+    */
+    public Like[] getLikes() {
+        return this.likes;
+    }
+
+    public void setLikes( Like [] likes ) {
+        this.likes = likes;
     }
 
 }

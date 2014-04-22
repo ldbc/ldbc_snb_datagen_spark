@@ -1,18 +1,7 @@
-select top 20 c_creatorid as id, p_firstname, p_lastname, c_creationdate, cast (c_commentid as varchar), c_content
-from
- (
-  select c_creatorid, c_creationdate, c_commentid, c_content
-  from comment, post
-  where
-        c_replyofpost = ps_postid and
-        ps_creatorid = @Person@
-  union
-  select c1.c_creatorid, c1.c_creationdate, c1.c_commentid, c1.c_content
-  from comment c1, comment c2
-  where
-        c1.c_replyofcomment = c2.c_commentid and
-        c2.c_creatorid = @Person@
- ) tmp, person
-where 
-      p_personid = c_creatorid
-order by c_creationdate desc, 3
+select top 20 p1.ps_creatorid as id, p_firstname, p_lastname, p1.ps_creationdate, cast (p1.ps_postid as varchar), p1.ps_content
+from post p1, post p2, person
+where
+      p1.ps_replyof = p2.ps_postid and
+      p2.ps_creatorid = @Person@ and
+      p_personid = p1.ps_creatorid
+order by p1.ps_creationdate desc, 3

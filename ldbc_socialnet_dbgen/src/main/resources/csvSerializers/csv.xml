@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<entity name="PERSON" >
+	<file name="person">
+        <field>id</field>
+        <field>firstName</field>
+        <field>lastName</field>
+        <field>gender</field>
+        <field>birthDay</field>
+        <field>creationDate</field>
+        <field>ip</field>
+        <field>browser</field>
+	</file>
+</entity>
+
+<entity name="FRIENDSHIP" >
+</entity>
+
+<entity name="LIKE" >
+    <file name="person_likes_post">
+        <field>id</field>
+        <field>title</field>
+        <field>creationDate</field>
+    </file>
+</entity>
+
+<entity name="FORUM" >
+    <file name="post">
+        <field>id</field>
+        <field>title</field>
+        <field>creationDate</field>
+    </file>
+</entity>
+
+<entity name="COMMENT" >
+    <file name="comment">
+        <field>id</field>
+        <field>creationDate</field>
+        <field>ip</field>
+        <field>browser</field>
+        <field>content</field>
+        <field>length</field>
+    </file>
+</entity>
+
+<entity name="POST" >
+    <file name="post">
+        <field>id</field>
+        <field>image</field>
+        <field>creationDate</field>
+        <field>ip</field>
+        <field>browser</field>
+        <field>language</field>
+        <field>content</field>
+        <field>length</field>
+    </file>
+</entity>
+
+<entity name="PHOTO" >
+</entity>
+
+<entity name="MEMBERSHIP" >
+</entity>
+
+<entity name="TAG" >
+<file name="tag">
+    <field>id</field>
+    <field>name</field>
+    <field>url</field>
+</file>
+</entity>
+
+<entity name="TAGCLASS" >
+    <file name="tagClass">
+        <field>id</field>
+        <field>name</field>
+        <field>url</field>
+    </file>
+</entity>
+
+<entity name="PLACE">
+    <file name="place">
+        <field>id</field>
+        <field>name</field>
+        <field>url</field>
+        <field>type</field>
+    </file>
+</entity>
+
+<entity name="ORGANIZATION" >
+    <file name="organization">
+        <field>id</field>
+        <field>type</field>
+        <field>name</field>
+        <field>url</field>
+    </file>
+</entity>
+
+<entity name="WORKAT" >
+</entity>
+
+<entity name="STUDYAT" >
+</entity>
+

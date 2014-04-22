@@ -1,102 +1,429 @@
 
 
-	Query 1 of run 0 has been executed in 0.059000 seconds.
+	Query 13 of run 0 has been executed in 0.018000 seconds.
 
 	Query string:
 
-select ?person ?last ?bday ?since ?gen ?browser ?locationIP #Q1
-    ((select group_concat (?email, ", ")
-        where {
-            ?person snvoc:email ?email
-        }
-        group by ?person)) as ?email
-    ((select group_concat (?lng, ", ")
-        where {
-            ?person snvoc:speaks ?lng
-        }
-        group by ?person)) as ?lng
-    ?based
-    ((select group_concat ( bif:concat (?o_name, " ", ?year, " ", ?o_country), ", ")
-        where {
-	    ?person snvoc:studyAt ?w .
-	    ?w snvoc:classYear ?year .
-            ?w snvoc:hasOrganisation ?org .
-            ?org snvoc:isLocatedIn ?o_countryURI .
-	    ?o_countryURI foaf:name ?o_country .
-            ?org foaf:name ?o_name
-        }
-        group by ?person)) as ?studyAt
-    ((select group_concat ( bif:concat (?o_name, " ", ?year, " ", ?o_country), ", ")
-        where {
-	    ?person snvoc:workAt ?w .
-	    ?w snvoc:workFrom ?year .
-            ?w snvoc:hasOrganisation ?org .
-            ?org snvoc:isLocatedIn ?o_countryURI .
-	    ?o_countryURI foaf:name ?o_country .
-            ?org foaf:name ?o_name
-        }
-        group by ?person)) as ?workAt
+select count(*)
+where
+  {
     {
-        ?person a snvoc:Person .
-        ?person snvoc:firstName "Meera" .
-        ?person snvoc:isLocatedIn ?basedURI .
-	?basedURI foaf:name ?based .
-        ?person snvoc:birthday ?bday .
-        ?person snvoc:creationDate ?since . 
-        ?person snvoc:gender ?gen .
-        ?person snvoc:lastName ?last .
-	?person snvoc:locationIP ?locationIP .
-	?person snvoc:browserUsed ?browser .
+      select ?s ?o
+      where
+        {
+          ?s snvoc:knows ?o1.
+          ?o1 snvoc:hasPerson ?o .
+        }
     }
-    order by ?last ?person
-    limit 10
+    option ( transitive,
+             t_distinct,
+             t_in(?s),
+             t_out(?o),
+             t_shortest_only,
+             t_direction 3,
+             t_step ('path_id') as ?path_no) .
+    filter ( ?s = sn:pers911434 ).
+    filter ( ?o = sn:pers480635 ).
+    filter (?path_no = 0).
+  }
 
 
-	Query results (10 results): 
-{"queryname":1,
+	Query results (1 results): 
+{"queryname":13,
  "nrun":1,
- "header":["person", "last", "bday", "since", "gen", "browser", "locationIP", "email", "lng", "based", "studyAt", "workAt"],
- "params":["Meera"],
+ "header":["callret-0"],
+ "params":["sn:pers911434", "sn:pers480635"],
  "results":[
-  ["http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers17723", "Khan", "1981-02-12", "2012-01-16T06:16:15Z", "female", "Safari", "1.38.0.11", "Meera17723@gmail.com, Meera17723@yahoo.com", "en, as, ta", "Nabapally", "Christ_University 2002 Bangalore"],
-  ["http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers17749", "Khan", "1982-09-12", "2012-05-13T06:03:11Z", "female", "Opera", "1.38.0.11", "Meera17749@gmail.com, Meera17749@zoho.com", "en, ur, hi", "Sundar_Nagar", "JetLite 1971 India, Kalinga_Airlines 1970 India"],
-  ["http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers17756", "Khan", "1985-05-29", "2012-10-01T01:30:47Z", "female", "Firefox", "1.38.0.11", "Meera17756@gmail.com, Meera17756@gmx.com, Meera17756@zoho.com", "en, ur, mr", "Saravanampatti", "Christ_University 2008 Bangalore", "Air_India_Cargo 2019 India, JetLite 2019 India, Jet_Konnect 2017 India, MDLR_Airlines 2018 India, Pawan_Hans 2019 India"],
-  ["http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers17761", "Khan", "1989-05-11", "2011-07-07T02:41:44Z", "female", "Chrome", "1.38.0.11", "en, ta, bn", "Mysore", "New_Horizon_College_of_Engineering 2012 Bangalore", "JetLite 2018 India, Jet_Konnect 2019 India, Kingfisher_Red 2014 India, Pawan_Hans 2018 India"],
-  ["http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers17774", "Khan", "1984-11-01", "2010-08-03T09:20:13Z", "female", "Chrome", "1.38.0.11", "Meera17774@gmail.com, Meera17774@gmx.com", "en, ta, or", "Bikaner", "Sir_M._Visvesvaraya_Institute_of_Technology 2008 Bangalore", "Air_India_Cargo 2018 India, JetLite 2015 India"],
-  ["http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers17813", "Khan", "1985-09-22", "2011-05-29T02:39:55Z", "female", "Internet Explorer", "1.38.0.11", "en, te, ml", "Kuttikkattoor", "Aurela 1971 Lithuania"],
-  ["http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers17826", "Khan", "1981-11-15", "2010-10-16T04:22:11Z", "female", "Internet Explorer", "1.38.0.11", "Meera17826@krovatka.net, Meera17826@rambler.ru, Meera17826@yahoo.com", "en, te, or", "Kadapa", "Ecumenical_Christian_Centre 2001 Bangalore", "MDLR_Airlines 2009 India"],
-  ["http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers18003", "Khan", "1989-02-10", "2012-06-22T09:55:38Z", "female", "Firefox", "1.38.0.11", "Meera18003@gmx.com", "en, gu, or", "Ravulapalem", "Ecumenical_Christian_Centre 2013 Bangalore", "Air_India_Express 2020 India, IndiGo 2023 India, JetLite 2022 India, Jet_Airways 2021 India, Kingfisher_Red 2021 India"],
-  ["http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers18061", "Khan", "1987-03-31", "2011-12-25T04:38:17Z", "female", "Internet Explorer", "1.38.0.11", "en, as, ta", "Birati", "Himalayan_Aviation 1971 India, JetLite 1970 India"],
-  ["http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers18174", "Khan", "1980-07-16", "2011-07-06T09:37:24Z", "female", "Firefox", "1.38.0.11", "Meera18174@gmail.com", "en, ur, hi", "Vadamanvandal", "National_Institute_of_Business_Management 2001 Colombo", "Blue_Dart_Aviation 2011 India, TajAir 2006 India, Felix_Airways 2006 Abd Rabbuh Mansur Al-Hadi cabinet, Felix_Airways 2006 Yemen"],
+  ["0"],
+ ],
+
+__________________________________________________________________________________
+
+
+	Query 13 of run 1 has been executed in 0.005000 seconds.
+
+	Query string:
+
+select count(*)
+where
+  {
+    {
+      select ?s ?o
+      where
+        {
+          ?s snvoc:knows ?o1.
+          ?o1 snvoc:hasPerson ?o .
+        }
+    }
+    option ( transitive,
+             t_distinct,
+             t_in(?s),
+             t_out(?o),
+             t_shortest_only,
+             t_direction 3,
+             t_step ('path_id') as ?path_no) .
+    filter ( ?s = sn:pers339556 ).
+    filter ( ?o = sn:pers160888 ).
+    filter (?path_no = 0).
+  }
+
+
+	Query results (1 results): 
+{"queryname":13,
+ "nrun":2,
+ "header":["callret-0"],
+ "params":["sn:pers339556", "sn:pers160888"],
+ "results":[
+  ["0"],
+ ],
+
+__________________________________________________________________________________
+
+
+	Query 13 of run 2 has been executed in 0.004000 seconds.
+
+	Query string:
+
+select count(*)
+where
+  {
+    {
+      select ?s ?o
+      where
+        {
+          ?s snvoc:knows ?o1.
+          ?o1 snvoc:hasPerson ?o .
+        }
+    }
+    option ( transitive,
+             t_distinct,
+             t_in(?s),
+             t_out(?o),
+             t_shortest_only,
+             t_direction 3,
+             t_step ('path_id') as ?path_no) .
+    filter ( ?s = sn:pers861271 ).
+    filter ( ?o = sn:pers736215 ).
+    filter (?path_no = 0).
+  }
+
+
+	Query results (1 results): 
+{"queryname":13,
+ "nrun":3,
+ "header":["callret-0"],
+ "params":["sn:pers861271", "sn:pers736215"],
+ "results":[
+  ["0"],
+ ],
+
+__________________________________________________________________________________
+
+
+	Query 13 of run 3 has been executed in 0.004000 seconds.
+
+	Query string:
+
+select count(*)
+where
+  {
+    {
+      select ?s ?o
+      where
+        {
+          ?s snvoc:knows ?o1.
+          ?o1 snvoc:hasPerson ?o .
+        }
+    }
+    option ( transitive,
+             t_distinct,
+             t_in(?s),
+             t_out(?o),
+             t_shortest_only,
+             t_direction 3,
+             t_step ('path_id') as ?path_no) .
+    filter ( ?s = sn:pers61727 ).
+    filter ( ?o = sn:pers194155 ).
+    filter (?path_no = 0).
+  }
+
+
+	Query results (1 results): 
+{"queryname":13,
+ "nrun":4,
+ "header":["callret-0"],
+ "params":["sn:pers61727", "sn:pers194155"],
+ "results":[
+  ["0"],
+ ],
+
+__________________________________________________________________________________
+
+
+	Query 13 of run 4 has been executed in 0.004000 seconds.
+
+	Query string:
+
+select count(*)
+where
+  {
+    {
+      select ?s ?o
+      where
+        {
+          ?s snvoc:knows ?o1.
+          ?o1 snvoc:hasPerson ?o .
+        }
+    }
+    option ( transitive,
+             t_distinct,
+             t_in(?s),
+             t_out(?o),
+             t_shortest_only,
+             t_direction 3,
+             t_step ('path_id') as ?path_no) .
+    filter ( ?s = sn:pers731151 ).
+    filter ( ?o = sn:pers122800 ).
+    filter (?path_no = 0).
+  }
+
+
+	Query results (1 results): 
+{"queryname":13,
+ "nrun":5,
+ "header":["callret-0"],
+ "params":["sn:pers731151", "sn:pers122800"],
+ "results":[
+  ["0"],
+ ],
+
+__________________________________________________________________________________
+
+
+	Query 13 of run 5 has been executed in 0.033000 seconds.
+
+	Query string:
+
+select count(*)
+where
+  {
+    {
+      select ?s ?o
+      where
+        {
+          ?s snvoc:knows ?o1.
+          ?o1 snvoc:hasPerson ?o .
+        }
+    }
+    option ( transitive,
+             t_distinct,
+             t_in(?s),
+             t_out(?o),
+             t_shortest_only,
+             t_direction 3,
+             t_step ('path_id') as ?path_no) .
+    filter ( ?s = sn:pers547 ).
+    filter ( ?o = sn:pers691636 ).
+    filter (?path_no = 0).
+  }
+
+
+	Query results (1 results): 
+{"queryname":13,
+ "nrun":6,
+ "header":["callret-0"],
+ "params":["sn:pers547", "sn:pers691636"],
+ "results":[
+  ["0"],
+ ],
+
+__________________________________________________________________________________
+
+
+	Query 13 of run 6 has been executed in 0.005000 seconds.
+
+	Query string:
+
+select count(*)
+where
+  {
+    {
+      select ?s ?o
+      where
+        {
+          ?s snvoc:knows ?o1.
+          ?o1 snvoc:hasPerson ?o .
+        }
+    }
+    option ( transitive,
+             t_distinct,
+             t_in(?s),
+             t_out(?o),
+             t_shortest_only,
+             t_direction 3,
+             t_step ('path_id') as ?path_no) .
+    filter ( ?s = sn:pers868592 ).
+    filter ( ?o = sn:pers317074 ).
+    filter (?path_no = 0).
+  }
+
+
+	Query results (1 results): 
+{"queryname":13,
+ "nrun":7,
+ "header":["callret-0"],
+ "params":["sn:pers868592", "sn:pers317074"],
+ "results":[
+  ["0"],
+ ],
+
+__________________________________________________________________________________
+
+
+	Query 13 of run 7 has been executed in 0.004000 seconds.
+
+	Query string:
+
+select count(*)
+where
+  {
+    {
+      select ?s ?o
+      where
+        {
+          ?s snvoc:knows ?o1.
+          ?o1 snvoc:hasPerson ?o .
+        }
+    }
+    option ( transitive,
+             t_distinct,
+             t_in(?s),
+             t_out(?o),
+             t_shortest_only,
+             t_direction 3,
+             t_step ('path_id') as ?path_no) .
+    filter ( ?s = sn:pers225956 ).
+    filter ( ?o = sn:pers91487 ).
+    filter (?path_no = 0).
+  }
+
+
+	Query results (1 results): 
+{"queryname":13,
+ "nrun":8,
+ "header":["callret-0"],
+ "params":["sn:pers225956", "sn:pers91487"],
+ "results":[
+  ["0"],
+ ],
+
+__________________________________________________________________________________
+
+
+	Query 13 of run 8 has been executed in 0.004000 seconds.
+
+	Query string:
+
+select count(*)
+where
+  {
+    {
+      select ?s ?o
+      where
+        {
+          ?s snvoc:knows ?o1.
+          ?o1 snvoc:hasPerson ?o .
+        }
+    }
+    option ( transitive,
+             t_distinct,
+             t_in(?s),
+             t_out(?o),
+             t_shortest_only,
+             t_direction 3,
+             t_step ('path_id') as ?path_no) .
+    filter ( ?s = sn:pers909533 ).
+    filter ( ?o = sn:pers549043 ).
+    filter (?path_no = 0).
+  }
+
+
+	Query results (1 results): 
+{"queryname":13,
+ "nrun":9,
+ "header":["callret-0"],
+ "params":["sn:pers909533", "sn:pers549043"],
+ "results":[
+  ["0"],
+ ],
+
+__________________________________________________________________________________
+
+
+	Query 13 of run 9 has been executed in 0.004000 seconds.
+
+	Query string:
+
+select count(*)
+where
+  {
+    {
+      select ?s ?o
+      where
+        {
+          ?s snvoc:knows ?o1.
+          ?o1 snvoc:hasPerson ?o .
+        }
+    }
+    option ( transitive,
+             t_distinct,
+             t_in(?s),
+             t_out(?o),
+             t_shortest_only,
+             t_direction 3,
+             t_step ('path_id') as ?path_no) .
+    filter ( ?s = sn:pers512244 ).
+    filter ( ?o = sn:pers323754 ).
+    filter (?path_no = 0).
+  }
+
+
+	Query results (1 results): 
+{"queryname":13,
+ "nrun":10,
+ "header":["callret-0"],
+ "params":["sn:pers512244", "sn:pers323754"],
+ "results":[
+  ["0"],
  ],
 
 __________________________________________________________________________________
 
 Version:                Openlink BIBM Test Driver 0.7.7
-Start date:             Thu Nov 14 13:06:39 CET 2013
+Start date:             Thu Apr 17 14:38:21 CEST 2014
 Scale factor:           1.0
-Explore Endpoint:       http://localhost:8607/sparql
-Update Endpoint:        http://localhost:8607/sparql
-Use case:               /home/sib/ldbc_socialnet_bm/ldbc_socialnet_qgen/sib/int
+Explore Endpoint:       http://localhost:8610/sparql
+Update Endpoint:        http://localhost:8610/sparql
+Use case:               /home/ldbc/ldbc_socialnet_bm/ldbc_socialnet_qgen/sib/int
 Number of warmup runs:  0
 Seed:                   808080
-Number of query mix runs (without warmups): 1 times
-min/max Querymix runtime:	0.0590s / 0.0590s
-Elapsed runtime:        0.090 seconds
-QMpH:                   39914.105 query mixes per hour
-CQET:                   0.059 seconds average runtime of query mix
-CQET (geom.):           0.059 seconds geometric mean runtime of query mix
-AQET (geom.):           0.059 seconds geometric mean runtime of query
-TPC-H Throughput:       39914.105 qph*scale
-TPC-H Power:            61016.949 qph*scale (geom)
+Number of query mix runs (without warmups): 10 times
+min/max Querymix runtime:	0.0040s / 0.0330s
+Elapsed runtime:        0.136 seconds
+QMpH:                   263927.632 query mixes per hour
+CQET:                   0.009 seconds average runtime of query mix
+CQET (geom.):           0.006 seconds geometric mean runtime of query mix
+AQET (geom.):           0.006 seconds geometric mean runtime of query
+TPC-H Throughput:       263927.632 qph*scale
+TPC-H Power:            599644.508 qph*scale (geom)
 
-Metrics for Query:      1
-Count:                  1 times executed in whole run
+Metrics for Query:      13
+Count:                  10 times executed in whole run
 Time share              100.000% of total execution time
-AQET:                   0.059000 seconds (arithmetic mean)
-AQET(geom.):            0.059000 seconds (geometric mean)
-QPS:                    16.949 Queries per second
-minQET/maxQET:          0.059000s / 0.059000s
-Average result count:   10.000
-min/max result count:   10 / 10
+AQET:                   0.008500 seconds (arithmetic mean)
+AQET(geom.):            0.006004 seconds (geometric mean)
+QPS:                    117.647 Queries per second
+minQET/maxQET:          0.004000s / 0.033000s
+Average result count:   1.000
+min/max result count:   1 / 1
 Number of timeouts:     0

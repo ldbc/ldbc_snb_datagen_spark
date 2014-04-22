@@ -37,6 +37,7 @@
 package ldbc.socialnet.dbgen.objects;
 
 public class GroupMemberShip {
+    long    groupId;
 	long	userId;
 	long 	joinDate;
 	IP      ip;
@@ -46,6 +47,13 @@ public class GroupMemberShip {
 	boolean isFrequentChange;
 	boolean isHaveSmartPhone;
 
+    public long getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId( long groupId ) {
+       this.groupId = groupId;
+    }
 
 	public long getUserId() {
 		return userId;

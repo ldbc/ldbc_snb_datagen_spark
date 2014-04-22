@@ -107,7 +107,7 @@ public class TagTextDictionary {
 
     public String generateText(Random randomTextSize, TreeSet<Integer> tags, int textSize ) {
         String returnString = "";
-        int textSizePerTag = textSize / tags.size();
+        int textSizePerTag = (int)Math.ceil(textSize / (double)tags.size());
         while( returnString.length() < textSize ) {
             Iterator<Integer> it = tags.iterator();
             while (it.hasNext() && returnString.length() < textSize) {
@@ -134,7 +134,11 @@ public class TagTextDictionary {
                     returnString+=finalString;
                 }
                 if (!returnString.endsWith(".")) {
-                    returnString = returnString.substring(0,returnString.length() - 1) + ".";
+                    if( returnString.length() == 1 ) {
+                        returnString = ".";
+                    } else {
+                        returnString = returnString.substring(0,returnString.length() - 1) + ".";
+                    }
                 }
                 if (returnString.length() < textSize-1) {
                     returnString += " ";

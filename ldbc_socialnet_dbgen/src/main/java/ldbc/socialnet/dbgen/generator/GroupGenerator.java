@@ -110,6 +110,7 @@ public class GroupGenerator {
 	        if (randMemberProb < memberProb) {
 	            GroupMemberShip memberShip = createGroupMember(randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX),friends[i].getFriendAcc(),
 	                    group.getCreatedDate(), friends[i]);
+                memberShip.setGroupId(group.getGroupId());
 	            group.addMember(memberShip);
 	        }
 	    }
@@ -126,7 +127,6 @@ public class GroupGenerator {
 		memberShip.setFrequentChange(friend.isFrequentChange());
 		memberShip.setHaveSmartPhone(friend.isHaveSmartPhone());
         memberShip.setLargePoster(friend.isLargePoster());
-		
 		return memberShip;
 	}
 	
