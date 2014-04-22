@@ -2,10 +2,7 @@ package ldbc.socialnet.dbgen.objects;
 
 import org.apache.hadoop.io.Writable;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-import java.io.Serializable;
+import java.io.*;
 
 public class UpdateEvent implements Serializable, Writable {
 
@@ -24,6 +21,42 @@ public class UpdateEvent implements Serializable, Writable {
     public long    date;
     public String eventData;
     public UpdateEventType type;
+
+    public static void writeEvent( OutputStream os, UpdateEvent event ) {
+        try{
+            StringBuffer string = new StringBuffer();
+            string.append(Long.toString(event.date));
+            string.append("|");
+            string.append(event.type.toString());
+            string.append("|");
+            string.append(event.eventData);
+            string.append("|");
+            string.append("\n");
+            //fileOutputStream.write(string.toString().getBytes("UTF8"));
+            os.write(string.toString().getBytes("UTF8"));
+        } catch(IOException e){
+            System.err.println(e.getMessage());
+            System.exit(-1);
+        }
+    }
+
+    public static void writeEventKeyValue( OutputStream os, UpdateEvent event ) {
+        try{
+            StringBuffer string = new StringBuffer();
+            string.append(Long.toString(event.date));
+            string.append("|");
+            string.append(event.type.toString());
+            string.append("|");
+            string.append(event.eventData);
+            string.append("|");
+            string.append("\n");
+            //fileOutputStream.write(string.toString().getBytes("UTF8"));
+            os.write(string.toString().getBytes("UTF8"));
+        } catch(IOException e){
+            System.err.println(e.getMessage());
+            System.exit(-1);
+        }
+    }
 
     public UpdateEvent( long date, UpdateEventType type, String eventData) {
         this.date = date;

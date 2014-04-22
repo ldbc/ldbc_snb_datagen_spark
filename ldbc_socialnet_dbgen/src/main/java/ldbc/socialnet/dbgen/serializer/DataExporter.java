@@ -89,9 +89,9 @@ public class DataExporter {
         this.reducerId = reducerId;
         this.dateThreshold = dateThreshold;
         if( format == DataFormat.CSV ) {
-            staticSerializer = new CSVOriginal(directory,reducerId,tagDic,browsers,companyDic,universityDic,ipDic,locationDic,languageDic,0,dateThreshold,exportText,compressed);
+            staticSerializer = new CSVOriginal(directory,reducerId,tagDic,browsers,companyDic,universityDic,ipDic,locationDic,languageDic,exportText,compressed);
         } else if( format == DataFormat.CSV_MERGE_FOREIGN ) {
-            staticSerializer = new CSVMergeForeign(directory,reducerId,tagDic,browsers,companyDic,universityDic,ipDic,locationDic,languageDic,0,dateThreshold,exportText,compressed);
+            staticSerializer = new CSVMergeForeign(directory,reducerId,tagDic,browsers,companyDic,universityDic,ipDic,locationDic,languageDic,exportText,compressed);
         } else if( format == DataFormat.TURTLE ) {
             staticSerializer = new Turtle(directory,reducerId,1,true,tagDic,browsers,companyDic,universityDic,ipDic,locationDic,languageDic,exportText,compressed);
         } else if( format == DataFormat.N3 ) {
@@ -99,7 +99,7 @@ public class DataExporter {
         } else if( format == DataFormat.NONE) {
             staticSerializer = new EmptySerializer();
         }
-        updateStreamSerializer = new UpdateEventSerializer(directory,"updateStreams_"+reducerId+".csv",exportText, compressed,tagDic,browsers,languageDic,ipDic, statistics);
+        updateStreamSerializer = new UpdateEventSerializer(directory,"temp_updateStream_"+reducerId+".csv",exportText, compressed,tagDic,browsers,languageDic,ipDic, statistics);
         exportCommonEntities();
     }
 
@@ -297,7 +297,7 @@ public class DataExporter {
         } else {
             updateStreamSerializer.serialize(post);
         }
-        exportLikes(post,0);
+        exportLikes(post);
     }
 
     public void export(Photo photo){
@@ -307,23 +307,19 @@ public class DataExporter {
         } else {
             updateStreamSerializer.serialize(photo);
         }
-        exportLikes(photo,2);
+        exportLikes(photo);
     }
 
-    private void exportLikes ( Message message, int type ) {
-        long likeUsers[] = message.getInterestedUserAccs();
-        long likeTimes[] = message.getInterestedUserAccsTimestamp();
-        int numLikes = likeUsers.length;
-        for( int i = 0; i < numLikes; ++i ) {
-            Like like = new Like();
-            like.date = likeTimes[i];
-            like.user = likeUsers[i];
-            like.messageId = message.getMessageId();
-            like.type = type;
-            if( like.date <= dateThreshold ) {
-                staticSerializer.serialize(like);
-            } else {
-                updateStreamSerializer.serialize(like);
+    private void exportLikes ( Message message ) {
+        Like likes[] = message.getLikes();
+        if( likes != null ) {
+            int numLikes = likes.length;
+            for( int i = 0; i < numLikes; ++i ) {
+                if( likes[i].date <= dateThreshold ) {
+                    staticSerializer.serialize(likes[i]);
+                } else {
+                    updateStreamSerializer.serialize(likes[i]);
+                }
             }
         }
     }
@@ -335,7 +331,7 @@ public class DataExporter {
         } else {
             updateStreamSerializer.serialize(comment);
         }
-        exportLikes(comment,1);
+        exportLikes(comment);
     }
 
     public void export(Group group) {

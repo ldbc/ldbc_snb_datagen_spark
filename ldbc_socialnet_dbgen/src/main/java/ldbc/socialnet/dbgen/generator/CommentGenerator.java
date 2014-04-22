@@ -62,6 +62,7 @@ public class CommentGenerator {
     private boolean generateText;          /**< @brief To generate the text of comments.*/
     private int maxNumberOfLikes;
     private long deltaTime;                 /**< @brief The minimum time to span between post creation and its reply.*/
+    private PowerDistGenerator likesGenerator;
 
     private String[] shortComments = {"ok", "good", "great", "cool", "thx", "fine", "LOL", "roflol", "no way!", "I see", "right", "yes", "no", "duh", "thanks", "maybe"};
 	
@@ -90,82 +91,59 @@ public class CommentGenerator {
         this.generateText = generateText;
         this.maxNumberOfLikes = maxNumberOfLikes;
         this.deltaTime = deltaTime;
+        this.likesGenerator = new PowerDistGenerator(1,maxNumberOfLikes,0.4);
 	}
 	
 	public void initialize() {
 	}
 
-    /** @brief Gets an array of likes for a user.
-     *  @param[in] user The user.
-     *  @return The array of generated likes.*/
-    private long[] generateLikeFriends( Random randomNumLikes, ReducedUserProfile user, int numberOfLikes) {
-        Friend[] friendList = user.getFriendList();
-        int numFriends = user.getNumFriendsAdded();
-        long[] friends;
-        if (numberOfLikes >= numFriends){
-            friends = new long[numFriends];
-            for (int i = 0; i < numFriends; i++) {
-                friends[i] = friendList[i].getFriendAcc();
-            }
-        } else {
-            friends = new long[numberOfLikes];
-            int startIdx = randomNumLikes.nextInt(numFriends - numberOfLikes);
-            for (int i = 0; i < numberOfLikes ; i++) {
-                friends[i] = friendList[i+startIdx].getFriendAcc();
-            }
-        }
-        return friends;
-    }
-
-    /** @brief Gets an array of likes for a group .
-     *  @param[in] group The group.
-     *  @param[in] numOfLikes The number of likes we want to generate
-     *  @return The array of generated likes.*/
-    private long[] generateLikeFriends(Random randomNumLikes, Group group, int numOfLikes){
-        GroupMemberShip groupMembers[] = group.getMemberShips();
-
-        int numAddedMember = group.getNumMemberAdded();
-        long friends[];
-        if (numOfLikes >= numAddedMember){
-            friends = new long[numAddedMember];
-            for (int j = 0; j < numAddedMember; j++){
-                friends[j] = groupMembers[j].getUserId();
-            }
-        } else{
-            friends = new long[numOfLikes];
-            int startIdx = randomNumLikes.nextInt(numAddedMember - numOfLikes);
-            for (int j = 0; j < numOfLikes; j++){
-                friends[j] = groupMembers[j+startIdx].getUserId();
-            }
-        }
-        return friends;
-    }
-
     /** @brief Assigns a set of likes to a post created by a user.
      *  @param[in] user The user that created the post.*/
     private void setLikes( Random randomNumLikes, Random randomDate, Message message, ReducedUserProfile user ) {
-        int numberOfLikes = randomNumLikes.nextInt(maxNumberOfLikes);
-        long[] likes = generateLikeFriends(randomNumLikes,user, numberOfLikes);
-        message.setInterestedUserAccs(likes);
-        long[] likeTimestamp = new long[likes.length];
-        for (int i = 0; i < likes.length; i++) {
-            likeTimestamp[i] = (long)(randomDate.nextDouble()*DateGenerator.SEVEN_DAYS+message.getCreationDate()+deltaTime);
+        int numFriends = user.getNumFriendsAdded();
+        int numLikes = likesGenerator.getValue(randomNumLikes);
+        numLikes = numLikes >= numFriends ?  numFriends : numLikes;
+        Like[] likes = new Like[numLikes];
+        Friend[] friendList = user.getFriendList();
+        int startIndex = 0;
+        if( numLikes < numFriends ) {
+            startIndex = randomNumLikes.nextInt(numFriends - numLikes);
         }
-        message.setInterestedUserAccsTimestamp(likeTimestamp);
+        for (int i = 0; i < numLikes; i++) {
+            likes[i] = new Like();
+            likes[i].user = friendList[startIndex+i].getFriendAcc();
+            likes[i].messageId = message.getMessageId();
+            long minDate = message.getCreationDate() > friendList[startIndex+i].getCreatedTime() ? message.getCreationDate() : friendList[startIndex+i].getCreatedTime();
+            likes[i].date = dateGen.randomLikeDate(randomDate,minDate+deltaTime);
+            likes[i].type = 1;
+        }
+        message.setLikes(likes);
     }
 
     /** @brief Assigns a set of likes to a post created by a user.
      *  @param[in] group The group where the post was created.*/
     private void setLikes( Random randomNumLikes, Random randomDate, Message message, Group group ) {
-        int numberOfLikes = randomNumLikes.nextInt(maxNumberOfLikes);
-        long[] likes = generateLikeFriends(randomNumLikes, group, numberOfLikes);
-        message.setInterestedUserAccs(likes);
-        long[] likeTimestamp = new long[likes.length];
-        for (int i = 0; i < likes.length; i++) {
-            likeTimestamp[i] = (long)(randomDate.nextDouble()*DateGenerator.SEVEN_DAYS+message.getCreationDate()+deltaTime);
+        int numMembers = group.getNumMemberAdded();
+        int numLikes = likesGenerator.getValue(randomNumLikes);
+        numLikes = numLikes >= numMembers ?  numMembers : numLikes;
+        Like[] likes = new Like[numLikes];
+        GroupMemberShip groupMembers[] = group.getMemberShips();
+        int startIndex = 0;
+        if( numLikes < numMembers ) {
+            startIndex = randomNumLikes.nextInt(numMembers - numLikes);
         }
-        message.setInterestedUserAccsTimestamp(likeTimestamp);
+        for (int i = 0; i < numLikes; i++) {
+            likes[i] = new Like();
+            likes[i].user = groupMembers[startIndex+i].getUserId();
+            likes[i].messageId = message.getMessageId();
+            long minDate = message.getCreationDate() > groupMembers[startIndex+i].getJoinDate() ? message.getCreationDate() : groupMembers[startIndex+i].getJoinDate();
+            likes[i].date = dateGen.randomLikeDate(randomDate,minDate+deltaTime);
+            likes[i].type = 1;
+        }
+        message.setLikes(likes);
     }
+
+
 
     public Comment createComment(RandomGeneratorFarm randomFarm, long commentId, Post post, Message replyTo, ReducedUserProfile user,
                                  UserAgentDictionary userAgentDic, IPAddressDictionary ipAddDic,
@@ -188,6 +166,7 @@ public class CommentGenerator {
         TreeSet<Integer> tags = new TreeSet<Integer>();
         String content = "";
         int textSize;
+        boolean isShort = false;
         if( randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT).nextDouble() > 0.6666) {
             if( user.isLargePoster() && randomFarm.get(RandomGeneratorFarm.Aspect.LARGE_TEXT).nextDouble() > (1.0f-largeCommentRatio) ) {
                 textSize = tagTextDic.getRandomLargeTextSize(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), minLargeSizeOfComment, maxLargeSizeOfComment);
@@ -218,6 +197,7 @@ public class CommentGenerator {
                 }
             }
         } else {
+            isShort = true;
             int index = randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE).nextInt(shortComments.length);
             textSize = shortComments[index].length();
             if( generateText ) {
@@ -237,7 +217,9 @@ public class CommentGenerator {
                                        browserDic.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER),friend.getBrowserIdx()),
                                        post.getMessageId(),
                                        replyTo.getMessageId());
-        setLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), randomFarm.get(RandomGeneratorFarm.Aspect.DATE),comment, user);
+        if( !isShort && randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
+            setLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), randomFarm.get(RandomGeneratorFarm.Aspect.DATE),comment, user);
+        }
         return comment;
     }
     
@@ -262,6 +244,7 @@ public class CommentGenerator {
         TreeSet<Integer> tags = new TreeSet<Integer>();
         String content = "";
         int textSize;
+        boolean isShort = false;
         if( randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT).nextDouble() > 0.6666) {
             if( membership.isLargePoster() && randomFarm.get(RandomGeneratorFarm.Aspect.LARGE_TEXT).nextDouble() > (1.0f-largeCommentRatio) ) {
                 textSize = tagTextDic.getRandomLargeTextSize(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), minLargeSizeOfComment, maxLargeSizeOfComment);
@@ -293,6 +276,7 @@ public class CommentGenerator {
                 }
             }
         } else {
+            isShort = true;
             int index = randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE).nextInt(shortComments.length);
             textSize = shortComments[index].length();
             if( generateText ) {
@@ -314,7 +298,9 @@ public class CommentGenerator {
                 post.getMessageId(),
                 replyTo.getMessageId());
 
-        setLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), randomFarm.get(RandomGeneratorFarm.Aspect.DATE), comment, group);
+        if( !isShort && randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
+            setLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), randomFarm.get(RandomGeneratorFarm.Aspect.DATE), comment, group);
+        }
         return comment;
     }
 }

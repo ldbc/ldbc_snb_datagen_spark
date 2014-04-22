@@ -60,7 +60,8 @@ public class UniformPostGenerator extends PostGenerator {
     private int maxNumMembers;                  /**< @brief The maximum number of members of a group.*/
     private long deltaTime;                     /**< @brief The delta time used to guarantee a minimum time between post creation and user creation.*/
 
-	public UniformPostGenerator( TagTextDictionary tagTextDic, 
+	public UniformPostGenerator(DateGenerator dateGen,
+                                TagTextDictionary tagTextDic,
                           UserAgentDictionary userAgentDic,
                           IPAddressDictionary ipAddressDic,
                           BrowserDictionary browserDic,
@@ -73,13 +74,12 @@ public class UniformPostGenerator extends PostGenerator {
                           int maxNumberOfLikes,
                           boolean exportText,
                           long deltaTime,
-                          DateGenerator dateGen,
                           int maxNumPostPerMonth,
                           int maxNumFriends,
                           int maxNumGroupPostPerMonth,
                           int maxNumMembers
                           ) {
-        super(tagTextDic, userAgentDic, ipAddressDic, browserDic, minSizeOfPost, maxSizeOfPost, reducedTextRatio, minLargeSizeOfPost,
+        super(dateGen,tagTextDic, userAgentDic, ipAddressDic, browserDic, minSizeOfPost, maxSizeOfPost, reducedTextRatio, minLargeSizeOfPost,
               maxLargeSizeOfPost, largePostRatio, maxNumberOfLikes,exportText, deltaTime);
         this.dateGen = dateGen;
         this.maxNumPostPerMonth = maxNumPostPerMonth;

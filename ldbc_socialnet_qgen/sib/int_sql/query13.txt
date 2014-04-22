@@ -1,0 +1,8 @@
+select count(*)
+from
+  (select transitive t_in (1) t_out (2) t_distinct t_shortest_only t_direction 3
+          k_person1id as p1, k_person2id as p2, t_step ('path_id') as path_no from knows) kt
+where
+  p1 = @Person1@ and
+  p2 = @Person2@ and
+  path_no = 0

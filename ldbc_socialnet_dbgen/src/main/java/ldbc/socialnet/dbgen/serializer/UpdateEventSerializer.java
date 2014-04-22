@@ -48,6 +48,10 @@ import ldbc.socialnet.dbgen.vocabulary.SN;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.Text;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -64,7 +68,7 @@ import java.util.zip.GZIPOutputStream;
 public class UpdateEventSerializer implements Serializer{
 
     private OutputStream fileOutputStream;
-    private FSDataOutputStream hdfsOutput;
+    private SequenceFile.Writer hdfsWriter;
     private ArrayList<Object> data;
     private ArrayList<Object> list;
     private UpdateEvent currentEvent;
@@ -78,6 +82,7 @@ public class UpdateEventSerializer implements Serializer{
     private long minDate;
     private long maxDate;
     private Gson gson;
+    private long numEvents = 0;
 
     public UpdateEventSerializer( String outputDir, String outputFileName,boolean exportText, boolean compress, TagDictionary tagDic, BrowserDictionary browserDic, LanguageDictionary languageDic, IPAddressDictionary ipDic, Statistics statistics) {
         gson = new GsonBuilder().create();
@@ -95,12 +100,15 @@ public class UpdateEventSerializer implements Serializer{
         try{
             Configuration conf = new Configuration();
             FileSystem fs = FileSystem.get(conf);
-            if( compress ) {
+            /*if( compress ) {
                 this.fileOutputStream = new GZIPOutputStream(new FileOutputStream(outputDir + "/" + outputFileName +".gz"));
             } else {
                 this.fileOutputStream = new FileOutputStream(outputDir + "/" + outputFileName );
             }
             hdfsOutput = new FSDataOutputStream(this.fileOutputStream, new FileSystem.Statistics(null));
+            */
+            Path outFile = new Path(outputDir + "/" + outputFileName);
+            hdfsWriter = new SequenceFile.Writer(fs, conf,outFile, LongWritable.class,Text.class);
         } catch(IOException e){
             System.err.println(e.getMessage());
             System.exit(-1);
@@ -193,7 +201,8 @@ public class UpdateEventSerializer implements Serializer{
         statistics.eventParams.add(params);
     }
 
-    private void writeEvent( UpdateEvent event ) {
+
+    public void writeKeyValue( UpdateEvent event ) {
         try{
             StringBuffer string = new StringBuffer();
             string.append(Long.toString(event.date));
@@ -204,7 +213,7 @@ public class UpdateEventSerializer implements Serializer{
             string.append("|");
             string.append("\n");
             //fileOutputStream.write(string.toString().getBytes("UTF8"));
-            hdfsOutput.write(string.toString().getBytes("UTF8"));
+            hdfsWriter.append(new LongWritable(event.date),new Text(string.toString().getBytes("UTF8")));
         } catch(IOException e){
             System.err.println(e.getMessage());
             System.exit(-1);
@@ -221,8 +230,9 @@ public class UpdateEventSerializer implements Serializer{
     }
 
     private void endEvent() {
+        numEvents++;
         currentEvent.eventData = gson.toJson(data);
-        writeEvent(currentEvent);
+        writeKeyValue(currentEvent);
     }
 
     private void beginList() {
@@ -243,12 +253,10 @@ public class UpdateEventSerializer implements Serializer{
         statistics.maxUpdateStream.add(maxDate);
         date.setTimeInMillis(maxDate);
         statistics.maxUpdateStream.add(DateGenerator.formatDateDetail(date));
+        System.out.println("Number of update events serialized "+numEvents);
 
         try {
-            fileOutputStream.flush();
-            hdfsOutput.flush();
-            fileOutputStream.close();
-            hdfsOutput.close();
+            hdfsWriter.close();
         } catch(IOException e){
             System.err.println(e.getMessage());
             System.exit(-1);
