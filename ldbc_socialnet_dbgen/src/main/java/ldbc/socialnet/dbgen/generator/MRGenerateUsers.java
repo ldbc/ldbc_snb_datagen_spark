@@ -385,7 +385,7 @@ public class MRGenerateUsers{
             }
 
             int numOfCell = numObject / friendGenerator.getCellSize();
-            friendGenerator.generateUserActivity(outputFileName, numOfCell);
+            friendGenerator.generateUserActivity(outputFileName, numOfCell, context);
 		}
 		
 		@Override

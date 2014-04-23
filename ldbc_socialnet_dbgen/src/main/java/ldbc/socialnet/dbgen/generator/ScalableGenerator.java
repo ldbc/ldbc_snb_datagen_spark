@@ -753,9 +753,11 @@ public class ScalableGenerator{
      * @param inputFile The hadoop file with the user serialization (data and friends)
      * @param numCell The number of cells the generator will parse.
      */
-    public void generateUserActivity(String inputFile, int numCell) {
-        generatePostandPhoto(inputFile, numCell);
-        generateAllGroup(inputFile, numCell);
+    public void generateUserActivity(String inputFile, int numCell, Reducer<MapReduceKey, ReducedUserProfile,MapReduceKey, ReducedUserProfile>.Context context) {
+        context.setStatus("Generating post and photo");
+        generatePostandPhoto(inputFile, numCell,context);
+        context.setStatus("Generating the rest of groups");
+        generateAllGroup(inputFile, numCell,context);
     }
 
     public void openSerializer() {
@@ -776,7 +778,8 @@ public class ScalableGenerator{
      * @param inputFile The hadoop file with the user serialization (data and friends)
      * @param numCells The number of cells the generator will parse.
      */
-    public void generatePostandPhoto(String inputFile, int numCells) {
+    public void generatePostandPhoto(String inputFile, int numCells, Reducer<MapReduceKey, ReducedUserProfile,MapReduceKey, ReducedUserProfile>.Context context) {
+        int numProcessed = 0;
         reducedUserProfilesCell = new ReducedUserProfile[cellSize];
         StorageManager storeManager = new StorageManager(cellSize, windowSize);
         storeManager.initDeserialization(sibOutputDir + inputFile);
@@ -794,6 +797,8 @@ public class ScalableGenerator{
                 generatePosts(reducedUserProfilesCell[j], extraInfo);
                 //generateFlashmobPosts(reducedUserProfilesCell[j], extraInfo);
                 generatePhoto(reducedUserProfilesCell[j], extraInfo);
+                numProcessed++;
+                if( numProcessed % 100 == 0) context.setStatus("Generated post and photo for "+numProcessed+" users");
             }
         }
         storeManager.endDeserialization();
@@ -807,11 +812,14 @@ public class ScalableGenerator{
      * @param inputFile The user information serialization file from previous jobs
      * @param numCell The number of cells to process
      */
-    public void generateAllGroup(String inputFile, int numCell) {
+    public void generateAllGroup(String inputFile, int numCell, Reducer<MapReduceKey, ReducedUserProfile,MapReduceKey, ReducedUserProfile>.Context context) {
+        int numProcessed = 0;
         groupStoreManager = new StorageManager(cellSize, windowSize);
         groupStoreManager.initDeserialization(sibOutputDir + inputFile);
         for (int i = 0; i < numCell; i++) {
             generateGroups(4, i, numCell);
+            numProcessed++;
+            if( numProcessed % 100 == 0 ) context.setStatus("Generated groups for "+numProcessed+" cells");
         }
         groupStoreManager.endDeserialization();
         System.out.println("Done generating user groups and groups' posts");
