@@ -1201,17 +1201,9 @@ public class ScalableGenerator{
         while ((group.getNumMemberAdded() < numGroupMember) && (numLoop < windowSize)) {
             randLevelProb = randomFarm.get(RandomGeneratorFarm.Aspect.FRIEND_LEVEL).nextDouble();
             // Select the appropriate friend level
-            if (randLevelProb < levelProbs[0]) { // ==> level 1
-                // Find a friendIdx
+            if (randLevelProb < levelProbs[0] && user.getNumFriendsAdded() > 0 ) { // ==> level 1
                 int friendIdx = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX).nextInt(user.getNumFriendsAdded());
-                // Note: Use user.getNumFriendsAdded(), do not use
-                // firstLevelFriends.length
-                // because we allocate a array for friendLists, but do not
-                // guarantee that
-                // all the element in this array contain values
-
                 long potentialMemberAcc = firstLevelFriends[friendIdx].getFriendAcc();
-
                 randMemberProb = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP).nextDouble();
                 if (randMemberProb < joinProbs[0]) {
                     // Check whether this user has been added and then add to the group
