@@ -845,7 +845,7 @@ public class ScalableGenerator{
                 Friend firstLevelFriends[] = reducedUserProfiles[curIdxInWindow].getFriendList();
                 Vector<Friend> secondLevelFriends = new Vector<Friend>();
                 //TODO: Include friends of friends a.k.a second level friends?
-                int numGroup = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_GROUP).nextInt(maxNumGroupCreatedPerUser);
+                int numGroup = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_GROUP).nextInt(maxNumGroupCreatedPerUser)+1;
                 for (int j = 0; j < numGroup; j++) {
                     createGroupForUser(reducedUserProfiles[curIdxInWindow],
                             firstLevelFriends, secondLevelFriends);
@@ -1092,7 +1092,7 @@ public class ScalableGenerator{
             }
             dataExporter.export(post);
             // Generate comments
-            int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments);
+            int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments+1);
             ArrayList<Message> replyCandidates = new ArrayList<Message>();
             replyCandidates.add(post);
             for (int l = 0; l < numComment; l++) {
@@ -1137,7 +1137,7 @@ public class ScalableGenerator{
             dataExporter.export(post);
 
             // Generate comments
-            int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments);
+            int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments+1);
             ArrayList<Message> replyCandidates = new ArrayList<Message>();
             replyCandidates.add(post);
             for (int l = 0; l < numComment; l++) {
@@ -1159,28 +1159,31 @@ public class ScalableGenerator{
     public void generatePhoto(ReducedUserProfile user, UserExtraInfo extraInfo){
         // Generate photo Album and photos
         int numOfmonths = (int) dateTimeGenerator.numberOfMonths(user);
-        int numPhotoAlbums = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_PHOTO_ALBUM).nextInt(maxNumPhotoAlbumsPerMonth);
+        int numPhotoAlbums = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_PHOTO_ALBUM).nextInt(maxNumPhotoAlbumsPerMonth+1);
         if (numOfmonths != 0) {
             numPhotoAlbums = numOfmonths * numPhotoAlbums;
         }
 
         for (int m = 0; m < numPhotoAlbums; m++) {
             Group album = groupGenerator.createAlbum(randomFarm, groupId, user, extraInfo, m, joinProbs[0]);
-            groupId++;
-            dataExporter.export(album);
-
-            // Generate photos for this album
-            int numPhotos = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_PHOTO).nextInt(maxNumPhotoPerAlbums);
-            for (int l = 0; l < numPhotos; l++) {
-                Photo photo = photoGenerator.generatePhoto(user, album, l, postId);
-                postId++;
-                photo.setUserAgent(userAgentDictionary.getUserAgentName(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT_SENT),user.isHaveSmartPhone(), user.getAgentIdx()));
-                photo.setBrowserIdx(browserDictonry.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), user.getBrowserIdx()));
-                photo.setIpAddress(ipAddDictionary.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER), user.getIpAddress(),
-                        user.isFrequentChange(), photo.getCreationDate(), photo.getLocationId()));
-                String countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(photo.getIpAddress())));
-                stats.countries.add(countryName);
-                dataExporter.export(photo);
+            if( album != null ) {
+                groupId++;
+                dataExporter.export(album);
+                // Generate photos for this album
+                int numPhotos = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_PHOTO).nextInt(maxNumPhotoPerAlbums+1);
+                for (int l = 0; l < numPhotos; l++) {
+                    Photo photo = photoGenerator.generatePhoto(user, album, l, postId);
+                    if( photo != null ) {
+                        postId++;
+                        photo.setUserAgent(userAgentDictionary.getUserAgentName(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT_SENT),user.isHaveSmartPhone(), user.getAgentIdx()));
+                        photo.setBrowserIdx(browserDictonry.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), user.getBrowserIdx()));
+                        photo.setIpAddress(ipAddDictionary.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER), user.getIpAddress(),
+                                user.isFrequentChange(), photo.getCreationDate(), photo.getLocationId()));
+                        String countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(photo.getIpAddress())));
+                        stats.countries.add(countryName);
+                        dataExporter.export(photo);
+                    }
+                }
             }
         }
     }
@@ -1191,47 +1194,67 @@ public class ScalableGenerator{
         double randMemberProb;
 
         Group group = groupGenerator.createGroup(randomFarm,groupId,user);
-        groupId++;
-        TreeSet<Long> memberIds = new TreeSet<Long>();
+        if( group != null ) {
+            groupId++;
+            TreeSet<Long> memberIds = new TreeSet<Long>();
 
-        int numGroupMember = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_USERS_PER_GROUP).nextInt(maxNumMemberGroup);
-        group.initAllMemberships(numGroupMember);
+            int numGroupMember = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_USERS_PER_GROUP).nextInt(maxNumMemberGroup);
+            group.initAllMemberships(numGroupMember);
 
-        int numLoop = 0;
-        while ((group.getNumMemberAdded() < numGroupMember) && (numLoop < windowSize)) {
-            randLevelProb = randomFarm.get(RandomGeneratorFarm.Aspect.FRIEND_LEVEL).nextDouble();
-            // Select the appropriate friend level
-            if (randLevelProb < levelProbs[0] && user.getNumFriendsAdded() > 0 ) { // ==> level 1
-                int friendIdx = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX).nextInt(user.getNumFriendsAdded());
-                long potentialMemberAcc = firstLevelFriends[friendIdx].getFriendAcc();
-                randMemberProb = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP).nextDouble();
-                if (randMemberProb < joinProbs[0]) {
-                    // Check whether this user has been added and then add to the group
-                    if (!memberIds.contains(potentialMemberAcc)) {
-                        memberIds.add(potentialMemberAcc);
-                        // Assume the earliest membership date is the friendship created date
-                        GroupMemberShip memberShip = groupGenerator.createGroupMember(randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX),
-                                potentialMemberAcc, group.getCreatedDate(),
-                                firstLevelFriends[friendIdx]);
-                        if( memberShip != null ) {
-                            memberShip.setGroupId(group.getGroupId());
-                            group.addMember(memberShip);
-                        }
-                    }
-                }
-            } else if (randLevelProb < levelProbs[1]) { // ==> level 2
-                if (secondLevelFriends.size() != 0) {
-                    int friendIdx = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX).nextInt(secondLevelFriends.size());
-                    long potentialMemberAcc = secondLevelFriends.get(friendIdx).getFriendAcc();
+            int numLoop = 0;
+            while ((group.getNumMemberAdded() < numGroupMember) && (numLoop < windowSize)) {
+                randLevelProb = randomFarm.get(RandomGeneratorFarm.Aspect.FRIEND_LEVEL).nextDouble();
+                // Select the appropriate friend level
+                if (randLevelProb < levelProbs[0] && user.getNumFriendsAdded() > 0 ) { // ==> level 1
+                    int friendIdx = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX).nextInt(user.getNumFriendsAdded());
+                    long potentialMemberAcc = firstLevelFriends[friendIdx].getFriendAcc();
                     randMemberProb = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP).nextDouble();
-                    if (randMemberProb < joinProbs[1]) {
+                    if (randMemberProb < joinProbs[0]) {
                         // Check whether this user has been added and then add to the group
                         if (!memberIds.contains(potentialMemberAcc)) {
                             memberIds.add(potentialMemberAcc);
                             // Assume the earliest membership date is the friendship created date
                             GroupMemberShip memberShip = groupGenerator.createGroupMember(randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX),
                                     potentialMemberAcc, group.getCreatedDate(),
-                                    secondLevelFriends.get(friendIdx));
+                                    firstLevelFriends[friendIdx]);
+                            if( memberShip != null ) {
+                                memberShip.setGroupId(group.getGroupId());
+                                group.addMember(memberShip);
+                            }
+                        }
+                    }
+                } else if (randLevelProb < levelProbs[1]) { // ==> level 2
+                    if (secondLevelFriends.size() != 0) {
+                        int friendIdx = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX).nextInt(secondLevelFriends.size());
+                        long potentialMemberAcc = secondLevelFriends.get(friendIdx).getFriendAcc();
+                        randMemberProb = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP).nextDouble();
+                        if (randMemberProb < joinProbs[1]) {
+                            // Check whether this user has been added and then add to the group
+                            if (!memberIds.contains(potentialMemberAcc)) {
+                                memberIds.add(potentialMemberAcc);
+                                // Assume the earliest membership date is the friendship created date
+                                GroupMemberShip memberShip = groupGenerator.createGroupMember(randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX),
+                                        potentialMemberAcc, group.getCreatedDate(),
+                                        secondLevelFriends.get(friendIdx));
+                                if( memberShip != null ) {
+                                    memberShip.setGroupId(group.getGroupId());
+                                    group.addMember(memberShip);
+                                }
+                            }
+                        }
+                    }
+                } else { // ==> random users
+                    // Select a user from window
+                    int friendIdx = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX).nextInt(Math.min(numUserProfilesRead,windowSize));
+                    long potentialMemberAcc = reducedUserProfiles[friendIdx].getAccountId();
+                    randMemberProb = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP).nextDouble();
+                    if (randMemberProb < joinProbs[2]) {
+                        // Check whether this user has been added and then add to the group
+                        if (!memberIds.contains(potentialMemberAcc)) {
+                            memberIds.add(potentialMemberAcc);
+                            GroupMemberShip memberShip = groupGenerator.createGroupMember(randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX),
+                                    potentialMemberAcc, group.getCreatedDate(),
+                                    reducedUserProfiles[friendIdx]);
                             if( memberShip != null ) {
                                 memberShip.setGroupId(group.getGroupId());
                                 group.addMember(memberShip);
@@ -1239,31 +1262,13 @@ public class ScalableGenerator{
                         }
                     }
                 }
-            } else { // ==> random users
-                // Select a user from window
-                int friendIdx = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX).nextInt(Math.min(numUserProfilesRead,windowSize));
-                long potentialMemberAcc = reducedUserProfiles[friendIdx].getAccountId();
-                randMemberProb = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP).nextDouble();
-                if (randMemberProb < joinProbs[2]) {
-                    // Check whether this user has been added and then add to the group
-                    if (!memberIds.contains(potentialMemberAcc)) {
-                        memberIds.add(potentialMemberAcc);
-                        GroupMemberShip memberShip = groupGenerator.createGroupMember(randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX),
-                                potentialMemberAcc, group.getCreatedDate(),
-                                reducedUserProfiles[friendIdx]);
-                        if( memberShip != null ) {
-                            memberShip.setGroupId(group.getGroupId());
-                            group.addMember(memberShip);
-                        }
-                    }
-                }
+                numLoop++;
             }
-            numLoop++;
-        }
 
-        dataExporter.export(group);
-        generatePostForGroup(group);
-        //generateFlashmobPostForGroup(group);
+            dataExporter.export(group);
+            generatePostForGroup(group);
+            //generateFlashmobPostForGroup(group);
+        }
     }
 
     public void generatePostForGroup(Group group) {
@@ -1276,7 +1281,7 @@ public class ScalableGenerator{
             stats.countries.add(countryName);
             dataExporter.export(groupPost);
 
-            int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments);
+            int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments+1);
             ArrayList<Message> replyCandidates = new ArrayList<Message>();
             replyCandidates.add(groupPost);
             for (int j = 0; j < numComment; j++) {
@@ -1305,7 +1310,7 @@ public class ScalableGenerator{
             stats.countries.add(countryName);
             dataExporter.export(groupPost);
 
-            int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments);
+            int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments+1);
             ArrayList<Message> replyCandidates = new ArrayList<Message>();
             replyCandidates.add(groupPost);
             for (int j = 0; j < numComment; j++) {

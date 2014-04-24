@@ -519,18 +519,16 @@ public class UpdateEventSerializer implements Serializer{
         data.add(ipDic.getLocation(comment.getIpAddress()));
         if (comment.getReplyOf() == comment.getPostId()) {
             data.add(Long.parseLong(SN.formId(comment.getPostId())));
-            String empty = "";
-            data.add(empty);
+            data.add(new Long(-1));
         } else {
-            String empty = "";
-            data.add(empty);
+            data.add(new Long(-1));
             data.add(Long.parseLong(SN.formId(comment.getReplyOf())));
         }
         beginList();
         Iterator<Integer> it = comment.getTags().iterator();
         while (it.hasNext()) {
             Integer tagId = it.next();
-            data.add(tagId);
+            list.add(tagId);
         }
         endList();
         endEvent();

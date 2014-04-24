@@ -125,9 +125,9 @@ public class UniformPostGenerator extends PostGenerator {
         int numOfmonths = (int) dateGen.numberOfMonths(user);
         int numberPost;
         if (numOfmonths == 0) {
-            numberPost = randomNumPost.nextInt(maxNumPostPerMonth);
+            numberPost = randomNumPost.nextInt(maxNumPostPerMonth+1);
         } else {
-            numberPost = randomNumPost.nextInt(maxNumPostPerMonth * numOfmonths);
+            numberPost = randomNumPost.nextInt(maxNumPostPerMonth * numOfmonths+1);
         }
         numberPost = (numberPost * user.getNumFriendsAdded()) / maxNumFriends;
         return numberPost;
@@ -138,9 +138,9 @@ public class UniformPostGenerator extends PostGenerator {
       int numOfmonths = (int) dateGen.numberOfMonths(group.getCreatedDate());
       int numberPost;
       if (numOfmonths == 0) {
-        numberPost = randomNumPost.nextInt(maxNumGroupPostPerMonth);
+        numberPost = randomNumPost.nextInt(maxNumGroupPostPerMonth+1);
       } else {
-        numberPost = randomNumPost.nextInt(maxNumGroupPostPerMonth * numOfmonths);
+        numberPost = randomNumPost.nextInt(maxNumGroupPostPerMonth * numOfmonths+1);
       }
       numberPost = (numberPost * group.getNumMemberAdded()) / maxNumMembers;
       return numberPost;

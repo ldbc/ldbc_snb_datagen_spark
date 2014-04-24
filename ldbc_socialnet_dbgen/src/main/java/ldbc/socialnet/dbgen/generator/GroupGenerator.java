@@ -66,11 +66,13 @@ public class GroupGenerator {
 	}
 
 	public Group createGroup(RandomGeneratorFarm randomFarm, long groupId, ReducedUserProfile user){
-		Group group = new Group(); 
+        long date = dateGenerator.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), user.getCreationDate() + deltaTime);
+        if( date > dateGenerator.getEndDateTime() )  return null;
+		Group group = new Group();
 
 		group.setGroupId(groupId);
 		group.setModeratorId(user.getAccountId());
-		group.setCreatedDate(dateGenerator.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), user.getCreationDate() + deltaTime));
+		group.setCreatedDate(date);
 
 		//Use the user location for group locationIdx
 		group.setLocationIdx(user.getLocationId());
@@ -98,7 +100,7 @@ public class GroupGenerator {
 	
 	public Group createAlbum(RandomGeneratorFarm randomFarm, long groupId, ReducedUserProfile user, UserExtraInfo extraInfo, int numAlbum, double memberProb) {
 	    Group group = createGroup(randomFarm, groupId,user);
-	    group.setCreatedDate(dateGenerator.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), user.getCreationDate() + deltaTime));
+        if( group == null ) return null;
 	    Vector<Integer> countries = locationDic.getCountries();
 	    int randomCountry = randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY).nextInt(countries.size());
 	    group.setLocationIdx(countries.get(randomCountry));
