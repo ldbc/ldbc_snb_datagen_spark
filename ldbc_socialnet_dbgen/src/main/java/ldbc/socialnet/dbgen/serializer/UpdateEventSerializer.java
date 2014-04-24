@@ -85,7 +85,7 @@ public class UpdateEventSerializer implements Serializer{
     private long numEvents = 0;
 
     public UpdateEventSerializer( String outputDir, String outputFileName,boolean exportText, boolean compress, TagDictionary tagDic, BrowserDictionary browserDic, LanguageDictionary languageDic, IPAddressDictionary ipDic, Statistics statistics) {
-        gson = new GsonBuilder().create();
+        gson = new GsonBuilder().disableHtmlEscaping().create();
         this.data = new ArrayList<Object>();
         this.currentEvent = new UpdateEvent(-1, UpdateEvent.UpdateEventType.NO_EVENT,new String(""));
         this.date = new GregorianCalendar();
@@ -213,7 +213,7 @@ public class UpdateEventSerializer implements Serializer{
             string.append("|");
             string.append("\n");
             //fileOutputStream.write(string.toString().getBytes("UTF8"));
-            hdfsWriter.append(new LongWritable(event.date),new Text(string.toString().getBytes("UTF8")));
+            hdfsWriter.append(new LongWritable(event.date),new Text(string.toString()));
         } catch(IOException e){
             System.err.println(e.getMessage());
             System.exit(-1);
