@@ -115,7 +115,7 @@
 114	211	Percy_Grainger	Grainger, Percy
 115	59	Nicole_Bradtke	Nicole Bradtke
 116	24	Steve_Waugh	Waugh, Stephen Rodger
-117	211	Michael_Doohan	Michael "Mick" Doohan
+117	211	Michael_Doohan	Michael Mick Doohan
 118	148	Joseph_Lyons	Joseph Lyons
 119	82	Peter_Singer	Peter Albert David Singer
 120	349	John_Forrest	Sir John Forrest
@@ -135,7 +135,7 @@
 134	59	Ashley_Fisher	Ashley Fisher
 135	24	Brett_Lee	Lee, Brett
 136	59	Darren_Cahill	Darren Cahill
-137	211	Banjo_Paterson	Andrew Barton "Banjo" Paterson
+137	211	Banjo_Paterson	Andrew Barton Banjo Paterson
 138	57	Adolf_Hitler	Adolf Hitler
 139	211	Wolfgang_Amadeus_Mozart	Wolfgang Amadeus Mozart
 140	349	Arnold_Schwarzenegger	Arnold Schwarzenegger
@@ -340,7 +340,7 @@
 339	211	Jack_Warner	Jack Warner
 340	115	Bruce_Cockburn	Bruce Cockburn
 341	349	Dalton_McGuinty	Dalton McGuinty
-342	349	Max_Aitken,_Lord_Beaverbrook	W.M. "Max" Aitken
+342	349	Max_Aitken,_Lord_Beaverbrook	W.M. Max Aitken
 343	115	Maynard_Ferguson	Maynard Ferguson
 344	96	Lorne_Michaels	Lorne Michaels
 345	349	Jack_Layton	Layton, John Gilbert
@@ -1778,7 +1778,7 @@
 1777	211	Federico_García_Lorca	Federico García Lorca
 1778	193	Lawrence_of_Rome	Saint Lawrence
 1779	59	Juan_Carlos_Ferrero	Juan Carlos Ferrero
-1780	59	Anabel_Medina_Garrigues	Ana Isabel "Anabel" Medina Garrigues
+1780	59	Anabel_Medina_Garrigues	Ana Isabel Anabel Medina Garrigues
 1781	59	Feliciano_López	Feliciano López
 1782	59	Fernando_Verdasco	Fernando Verdasco
 1783	336	Catherine_of_Aragon	Katherine of Aragon
@@ -2327,7 +2327,7 @@
 2326	349	Richard_Brinsley_Sheridan	Richard Brinsley Butler Sheridan
 2327	279	William_John_Swainson	William John Swainson
 2328	115	Robin_Gibb	Robin Gibb
-2329	279	Harold_Scott_MacDonald_Coxeter	H. S. M. "Donald" Coxeter
+2329	279	Harold_Scott_MacDonald_Coxeter	H. S. M. Donald Coxeter
 2330	211	Ken_Loach	Ken Loach
 2331	349	Alec_Douglas-Home	The Lord Home of the Hirsel
 2332	211	George_Stephenson	George Stephenson
@@ -2907,7 +2907,7 @@
 2906	88	Allen_Ginsberg	Allen Ginsberg
 2907	115	Tony_Bennett	Tony Bennett
 2908	97	Jack_Kirby	Kirby, Jack
-2909	115	"Weird_Al"_Yankovic	"Weird Al" Yankovic
+2909	115	Weird_Al_Yankovic	Weird Al Yankovic
 2910	115	Oscar_Hammerstein_II	Oscar Hammerstein II
 2911	115	Merle_Haggard	Merle Haggard
 2912	115	LL_Cool_J	LL Cool J
@@ -3089,7 +3089,7 @@
 3088	349	Ron_Paul	Paul, Ron
 3089	211	Dennis_Hopper	Dennis Hopper
 3090	211	Dwayne_Johnson	The Rock
-3091	3	Stonewall_Jackson	Thomas Jonathan "Stonewall" Jackson
+3091	3	Stonewall_Jackson	Thomas Jonathan Stonewall Jackson
 3092	115	Gene_Autry	Gene Autry
 3093	88	Edgar_Rice_Burroughs	Edgar Rice Burroughs
 3094	88	Robert_E._Howard	Robert E. Howard
@@ -3173,7 +3173,7 @@
 3172	115	John_Lee_Hooker	John Lee Hooker
 3173	115	Jim_Morrison	Jim Morrison
 3174	115	KRS-One	KRS-One
-3175	211	Stone_Cold_Steve_Austin	"Stone Cold" Steve Austin
+3175	211	Stone_Cold_Steve_Austin	Stone Cold Steve Austin
 3176	211	Orson_Scott_Card	Orson Scott Card
 3177	115	Lionel_Hampton	Lionel Hampton
 3178	115	Hank_Williams,_Jr.	Hank Williams, Jr.
@@ -3224,7 +3224,7 @@
 3223	88	Ursula_K._Le_Guin	Ursula Kroeber Le Guin
 3224	82	John_Dewey	John Dewey
 3225	279	Caspar_René_Gregory	Caspar René Gregory
-3226	354	Magic_Johnson	Earvin "Magic" Johnson
+3226	354	Magic_Johnson	Earvin Magic Johnson
 3227	310	Roger_Clemens	Roger Clemens
 3228	115	Vanessa_L._Williams	Vanessa Williams
 3229	211	Amelia_Earhart	Amelia Earhart
@@ -3889,10 +3889,10 @@
 3888	88	Edith_Wharton	Edith Wharton
 3889	349	John_Boehner	John Boehner
 3890	96	Garrison_Keillor	Garrison Keillor
-3891	167	Davy_Crockett	David "Davy" Crockett
+3891	167	Davy_Crockett	David Davy Crockett
 3892	211	Robert_Moses	Robert Moses
 3893	211	Tommy_Hilfiger	Tommy Hilfiger
-3894	141	Bill_Elliott	William Clyde "Bill" Elliott
+3894	141	Bill_Elliott	William Clyde Bill Elliott
 3895	211	Christopher_Daniels	Christopher Daniels
 3896	88	Dan_Brown	Dan Brown
 3897	211	Henry_Winkler	Winkler, Henry
@@ -4387,7 +4387,7 @@
 4386	115	GZA	GZA
 4387	37	Michael_Andretti	Michael Mario Andretti
 4388	349	Edmund_Muskie	Muskie, Edmund
-4389	141	Terry_Labonte	Terrance Lee "Terry" Labonte
+4389	141	Terry_Labonte	Terrance Lee Terry Labonte
 4390	115	Blake_Shelton	Blake Shelton
 4391	349	Charlie_Crist	Crist, Charlie
 4392	211	Anna_Nicole_Smith	Anna Nicole Smith
@@ -4461,7 +4461,7 @@
 4460	211	Jake_Roberts	Jake Roberts
 4461	115	Fletcher_Henderson	Fletcher Henderson
 4462	349	Alben_W._Barkley	Barkley, Alben W.
-4463	3	Kit_Carson	Christopher Houston "Kit" Carson
+4463	3	Kit_Carson	Christopher Houston Kit Carson
 4464	141	Ken_Schrader	Kenneth Schrader
 4465	88	James_Thurber	Thurber, James Grover
 4466	59	Eric_Butorac	Eric Butorac
@@ -4644,7 +4644,7 @@
 4643	211	Julie_Harris	Harris, Julie
 4644	310	Harmon_Killebrew	Harmon Killebrew
 4645	211	Robert_Patrick	Patrick, Robert
-4646	219	Bill_Nelson	Clarence William "Bill" Nelson
+4646	219	Bill_Nelson	Clarence William Bill Nelson
 4647	59	Robert_Seguso	Robert Seguso
 4648	211	John_Krasinski	Krasinski, John
 4649	115	B._J._Thomas	B. J. Thomas
@@ -4803,7 +4803,7 @@
 4802	211	Shemp_Howard	Shemp Howard
 4803	88	Joe_Haldeman	Joe Haldeman
 4804	72	Roy_Jones,_Jr.	Roy Jones, Jr.
-4805	115	Lisa_Lopes	Lisa "Left Eye" Lopes
+4805	115	Lisa_Lopes	Lisa Left Eye Lopes
 4806	250	Keith_Haring	Keith Haring
 4807	211	Jeffrey_Tambor	Tambor, Jeffrey
 4808	211	Mervyn_LeRoy	Mervyn LeRoy
@@ -4868,7 +4868,7 @@
 4867	96	Dawn_French	Dawn French
 4868	94	Ian_Rush	Ian Rush
 4869	112	Matthew_Stevens	Matthew Stevens
-4870	115	Robert_John_"Mutt"_Lange	Robert John "Mutt" Lange
+4870	115	Robert_John_Mutt_Lange	Robert John Mutt Lange
 4871	342	Paperback_Writer	Paperback Writer
 4872	342	Last_Christmas	Last Christmas
 4873	182	Who_Are_You	Who Are You
@@ -4890,7 +4890,7 @@
 4889	182	Orange_Ave.	Orange Ave.
 4890	342	World_in_Union	World in Union
 4891	342	Hot_in_the_City	Hot in the City
-4892	180	List_of_"Weird_Al"_Yankovic_polka_medleys	Polkas on 45
+4892	180	List_of_Weird_Al_Yankovic_polka_medleys	Polkas on 45
 4893	182	Lost_in_the_Sound_of_Separation	Lost in the Sound of Separation
 4894	342	I_Luv_Your_Girl	I Luv Your Girl
 4895	342	Ready_for_the_Floor	Ready for the Floor
@@ -4936,7 +4936,7 @@
 4935	182	Shaolin_vs._Wu-Tang	Shaolin vs. Wu-Tang
 4936	342	Two_Tribes	Two Tribes
 4937	182	The_Downward_Spiral	The Downward Spiral
-4938	342	Rocket_88	Rocket "88"
+4938	342	Rocket_88	Rocket 88
 4939	182	Showtunes	Showtunes
 4940	182	Make_Yourself	Make Yourself
 4941	182	40oz._to_Freedom	40oz. to Freedom
@@ -5218,7 +5218,7 @@
 5217	182	Universal_Mind_Control	Universal Mind Control
 5218	342	Destination_Calabria	Destination Calabria
 5219	182	The_Sickness	The Sickness
-5220	182	First_Two_7"s_on_a_12"	First Two 7"s on a 12"
+5220	182	First_Two_7s_on_a_12	First Two 7s on a 12
 5221	342	Given_to_Fly	Given to Fly
 5222	342	Novocaine_for_the_Soul	Novocaine for the Soul
 5223	342	Funky_Cold_Medina	Funky Cold Medina
@@ -5843,7 +5843,7 @@
 5842	182	Lifes_Rich_Pageant	Lifes Rich Pageant
 5843	342	Never_Before	Never Before
 5844	182	Pies_Descalzos	Pies Descalzos
-5845	342	Puss/Oh,_the_Guilt	Puss"/"Oh, the Guilt
+5845	342	Puss_Oh,_the_Guilt	Puss Oh, the Guilt
 5846	342	Satellite_of_Love	Satellite of Love
 5847	342	The_Dark_of_the_Matinée	The Dark of the Matinée
 5848	191	Tiger_Woods	Tiger Woods
@@ -5911,7 +5911,7 @@
 5910	342	Three_Lions	Three Lions
 5911	342	Tubthumping	Tubthumping
 5912	182	Cendres_de_Lune	Cendres de Lune
-5913	342	Fools_Gold/What_the_World_Is_Waiting_For	Fools Gold"/"What the World Is Waiting For
+5913	342	Fools_Gold_What_the_World_Is_Waiting_For	Fools Gold What the World Is Waiting For
 5914	182	Hip_Hop_Is_Dead	Hip Hop Is Dead
 5915	182	The_Dream_of_the_Blue_Turtles	The Dream of the Blue Turtles
 5916	342	Time_in_a_Bottle	Time in a Bottle
@@ -6201,7 +6201,7 @@
 6200	182	Low-Life	Low-Life
 6201	182	Here_for_the_Party	Here for the Party
 6202	182	And_Then...	And Then...
-6203	182	"Weird_Al"_Yankovic_in_3-D	"Weird Al" Yankovic in 3-D
+6203	182	Weird_Al_Yankovic_in_3-D	Weird Al Yankovic in 3-D
 6204	182	Hope_Is_Important	Hope Is Important
 6205	182	Melody_A.M.	Melody A.M.
 6206	182	Moon_Safari	Moon Safari
@@ -6380,7 +6380,7 @@
 6379	182	Sound_of_White_Noise	Sound of White Noise
 6380	342	The_Little_Drummer_Boy	The Little Drummer Boy
 6381	182	Volume_8:_The_Threat_Is_Real	Volume 8: The Threat Is Real
-6382	342	99_Luftballons	"99 Red Balloons
+6382	342	99_Luftballons	99 Red Balloons
 6383	59	Andre_Agassi	Andre Agassi
 6384	182	Give_My_Regards_to_Broad_Street	Give My Regards to Broad Street
 6385	0	14th_Dalai_Lama	Tenzin
@@ -6489,7 +6489,7 @@
 6488	182	Kicking_Against_the_Pricks	Kicking Against the Pricks
 6489	182	Good_Vibrations:_Thirty_Years_of_The_Beach_Boys	Good Vibrations:
 6490	182	Raymond_v._Raymond	Raymond v. Raymond
-6491	342	Scream/Childhood	Scream"/"Childhood
+6491	342	Scream_Childhood	Scream Childhood
 6492	182	Substance_1987	Substance
 6493	342	Brand_New_Cadillac	Brand New Cadillac
 6494	182	Music_of_Cowboy_Bebop	Cowboy Bebop
@@ -6755,7 +6755,7 @@
 6754	182	Virtual_XI	Virtual XI
 6755	342	Young_Forever	Young Forever
 6756	182	...Baby_One_More_Time	...Baby One More Time
-6757	342	A_Little_Less_Sixteen_Candles,_a_Little_More_"Touch_Me"	A Little Less Sixteen Candles, a Little More "Touch Me"
+6757	342	A_Little_Less_Sixteen_Candles,_a_Little_More_Touch_Me	A Little Less Sixteen Candles, a Little More Touch Me
 6758	182	Awesome_as_Fuck	Awesome as Fuck
 6759	182	Menlove_Ave.	Menlove Ave.
 6760	182	Metal_Health	Metal Health
@@ -6802,7 +6802,7 @@
 6801	182	Stadium_Arcadium	Stadium Arcadium
 6802	182	Tha_Carter_IV	Tha Carter IV
 6803	342	When_Love_Takes_Over	When Love Takes Over
-6804	182	The_Bootleg_Series_Vol._4:_Bob_Dylan_Live_1966,_The_"Royal_Albert_Hall"_Concert	Live 1966: The "Royal Albert Hall" Concert
+6804	182	The_Bootleg_Series_Vol._4:_Bob_Dylan_Live_1966,_The_Royal_Albert_Hall_Concert	Live 1966: The Royal Albert Hall Concert
 6805	342	Penny_Lane	Penny Lane
 6806	182	Tattoo_You	Tattoo You
 6807	180	Tomorrow_Never_Knows	Tomorrow Never Knows
@@ -7250,7 +7250,7 @@
 7249	182	Hooked_on_Classics	Hooked on Classics
 7250	182	Live_at_The_Olympia	Live at The Olympia
 7251	182	The_Way_We_Walk,_Volume_One:_The_Shorts	The Way We Walk, Volume One: The Shorts
-7252	342	All_I_Have_to_Do_Is_Dream	"All I Have to Do Is Dream"
+7252	342	All_I_Have_to_Do_Is_Dream	All I Have to Do Is Dream
 7253	342	Fun,_Fun,_Fun	Fun, Fun, Fun
 7254	182	In_Pieces	In Pieces
 7255	342	Long_Tall_Sally	Long Tall Sally
@@ -7703,7 +7703,7 @@
 7702	182	Happy_Nation	Happy Nation
 7703	182	Keep_It_Like_a_Secret	Keep It Like a Secret
 7704	342	Symphony_of_Destruction	Symphony of Destruction
-7705	342	Star_69_/_Weapon_of_Choice	Star 69" / "Weapon of Choice
+7705	342	Star_69_Weapon_of_Choice	Star 69 Weapon of Choice
 7706	182	Transfiguration_of_Vincent	Transfiguration of Vincent
 7707	182	Whitney:_The_Greatest_Hits	Whitney: The Greatest Hits
 7708	342	Wonderful_Christmastime	Wonderful Christmastime
@@ -9822,7 +9822,7 @@
 9821	342	All_That_I_Got_Is_You	All That I Got Is You
 9822	342	Real_Good_Man	Real Good Man
 9823	342	Sexual_Eruption	Sexual Eruption
-9824	342	Not_in_Love	Not in Love" / "No Es Amor
+9824	342	Not_in_Love	Not in Love No Es Amor
 9825	182	Wisin_&_Yandel_Presentan:_La_Mente_Maestra	Wisin & Yandel Presentan: La Mente Maestra
 9826	342	Forever_Is_Over	Forever Is Over
 9827	342	Glad_You_Came	Glad You Came
@@ -9964,7 +9964,7 @@
 9963	342	I_Can_Love_You_Like_That	I Can Love You Like That
 9964	342	Like_We_Never_Loved_at_All	Like We Never Loved At All
 9965	182	Love_on_the_Inside	Love on the Inside
-9966	182	"V"_Is_for_Vagina	"V" Is for Vagina
+9966	182	V_Is_for_Vagina	V Is for Vagina
 9967	342	Shake_Ya_Ass	Shake Ya Ass
 9968	342	Shoot_the_Dog	Shoot the Dog
 9969	342	When_You_Look_Me_in_the_Eyes	When You Look Me in the Eyes
@@ -10044,7 +10044,7 @@
 10043	182	Dr._Dre_Presents_the_Aftermath	Dr. Dre Presents...The Aftermath
 10044	342	H•A•M	H•A•M
 10045	342	Relax,_Take_It_Easy	Relax, Take It Easy
-10046	342	Sakura_Drops/Letters	Sakura Drops/Letters"
+10046	342	Sakura_Drops_Letters	Sakura Drops Letters
 10047	182	The_Rebirth	The Rebirth
 10048	342	Batman_Theme	Batman Theme
 10049	182	Superbad:_The_Return_of_Boosie_Bad_Azz	Superbad: the Return of Boosie Bad Azz
@@ -10089,7 +10089,7 @@
 10088	182	Universal_Migrator_Part_1:_The_Dream_Sequencer	The Dream Sequencer
 10089	182	Back_on_My_B.S.	Back on My B.S.
 10090	342	Everybody_Needs_Somebody_to_Love	Everybody Needs Somebody to Love
-10091	342	John_the_Revelator_/_Lilian	John the Revelator"/"Lilian
+10091	342	John_the_Revelator_Lilian	John the Revelator Lilian
 10092	182	Rise_Above:_24_Black_Flag_Songs_to_Benefit_the_West_Memphis_Three	Rise Above
 10093	182	Universal_Migrator_Part_2:_Flight_of_the_Migrator	Flight of the Migrator
 10094	182	Right_About_Now:_The_Official_Sucka_Free_Mix_CD	Right About Now: The Official Sucka Free Mix CD
@@ -10171,7 +10171,7 @@
 10170	182	Live_at_Reading	Live at Reading
 10171	182	Sorry_for_Party_Rocking	Sorry for Party Rocking
 10172	182	The_Black_and_White_Album	The Black and White Album
-10173	342	"The_Take_Over,_the_Breaks_Over"	"The Take Over, the Breaks Over"
+10173	342	The_Take_Over,_the_Breaks_Over	The Take Over, the Breaks Over
 10174	182	Love._Angel._Music._Baby.	Love. Angel. Music. Baby.
 10175	182	The_High_End_of_Low	The High End of Low
 10176	342	Anybody_Seen_My_Baby?	Anybody Seen My Baby?
@@ -10218,7 +10218,7 @@
 10217	182	Maladroit	Maladroit
 10218	62	Republika_Srpska	Republika Srpska
 10219	182	Virgin_Killer	Virgin Killer
-10220	62	Kingdom_of_Hawaii	"Royalists"
+10220	62	Kingdom_of_Hawaii	Royalists
 10221	182	Brooklyn_Funk_Essentials	Watcha Playin
 10222	211	Judi_Dench	Dame Judi Dench
 10223	62	Kingdom_of_the_Two_Sicilies	Kingdom of the Two Sicilies
@@ -10243,7 +10243,7 @@
 10242	342	The_Creeps	The Creeps
 10243	182	Velocifero	Velocifero
 10244	182	1919_Eternal	1919 Eternal
-10245	342	HIStory/Ghosts	HIStory"/"Ghosts
+10245	342	HIStory_Ghosts	HIStory Ghosts
 10246	182	We_Were_Dead_Before_the_Ship_Even_Sank	We Were Dead Before the Ship Even Sank
 10247	182	Deeper_Than_Rap	Deeper Than Rap
 10248	182	Hats_Off_to_the_Buskers	Hats Off to the Buskers
@@ -10377,7 +10377,7 @@
 10376	182	Enrique_Iglesias:_95/08_Éxitos	Enrique Iglesias: 95/08 Éxitos
 10377	182	Consolers_of_the_Lonely	Consolers of the Lonely
 10378	342	Paloma_Blanca	Paloma Blanca
-10379	182	Heisei_Fūzoku	"Heisei Fūzoku"
+10379	182	Heisei_Fūzoku	Heisei Fūzoku
 10380	342	Düm_Tek_Tek	Düm Tek Tek
 10381	182	El_Patrón	El Patrón
 10382	182	Caress_of_Steel	Caress of Steel
@@ -10479,7 +10479,7 @@
 10478	182	Quest_for_Fire:_Firestarter,_Vol._1	Quest for Fire: Firestarter, Vol. 1
 10479	182	Burn_the_Priest	Burn the Priest
 10480	342	Uh_Huh	Uh Huh
-10481	342	The_Cover_of_the_Rolling_Stone	The Cover of "Rolling Stone"
+10481	342	The_Cover_of_the_Rolling_Stone	The Cover of Rolling Stone
 10482	182	Good_Morning_Revival	Good Morning Revival
 10483	182	Strength_&_Loyalty	Strength & Loyalty
 10484	182	Under_the_Blacklight	Under the Blacklight
@@ -10494,12 +10494,12 @@
 10493	342	Eternity/The_Road_to_Mandalay	Eternity/The Road to Mandalay
 10494	182	Extreme_Behavior	Extreme Behavior
 10495	342	Piece_of_My_Heart	Piece of My Heart
-10496	342	Ghetto_Musick_/_Prototype	Ghetto Musick" / "Prototype
+10496	342	Ghetto_Musick_Prototype	Ghetto Musick Prototype
 10497	342	Please,_Please,_Please	Please, Please, Please
 10498	182	Reba:_Duets	Reba: Duets
 10499	182	Amar_es_Combatir	Amar es Combatir
 10500	182	Tribute_to_the_Gods	Tribute to the Gods
-10501	342	A_Roller_Skating_Jam_Named_"Saturdays"	A Roller Skating Jam Named "Saturdays"
+10501	342	A_Roller_Skating_Jam_Named_Saturdays	A Roller Skating Jam Named Saturdays
 10502	342	Sugar_Baby_Love	Sugar Baby Love
 10503	182	El_Sello_De_Los_Tiempos	El Sello de los Tiempos
 10504	342	Beautiful_World/Kiss_&_Cry	Beautiful World/Kiss & Cry
@@ -12154,7 +12154,7 @@
 12153	342	More_Than_I_Can_Say	More Than I Can Say
 12154	342	Je_te_rends_ton_amour	Je te rends ton amour
 12155	182	Third_Rock_from_the_Sun	Third Rock from the Sun
-12156	342	Fragile_Tension_/_Hole_to_Feed	Fragile Tension"/"Hole To Feed
+12156	342	Fragile_Tension_Hole_to_Feed	Fragile Tension Hole To Feed
 12157	62	Democratic_Kampuchea	Democratic Kampuchea
 12158	62	Vladimir-Suzdal	Vladimir-Suzdal
 12159	62	Organisation_internationale_de_la_Francophonie	Organisation internationale de la Francophonie
@@ -12809,7 +12809,7 @@
 12808	342	Under_My_Wheels	Under My Wheels
 12809	342	Waiting_in_Vain	Waiting in Vain
 12810	182	Vesyolye_Ulybki	Vesyolye Ulybki / Весёлые Улыбки
-12811	182	"V"_Is_for_Viagra._The_Remixes	"V" Is for Viagra. The Remixes
+12811	182	V_Is_for_Viagra._The_Remixes	V Is for Viagra. The Remixes
 12812	342	No_One_Else_on_Earth	No One Else on Earth
 12813	342	Song_Sung_Blue	Song Sung Blue
 12814	182	Disney_Channel_Holiday	Disney Channel Holiday
@@ -12920,7 +12920,7 @@
 12919	182	Street_Hassle	Street Hassle
 12920	342	My_Apocalypse	My Apocalypse
 12921	182	The_Soft_Parade	The Soft Parade
-12922	182	Music_from_"The_Elder"	Music from "The Elder"
+12922	182	Music_from_The_Elder	Music from The Elder
 12923	182	The_Cosmos_Rocks	The Cosmos Rocks
 12924	342	Locomotive_Breath	Locomotive Breath
 12925	182	Blue_for_You	Blue for You
@@ -13007,7 +13007,7 @@
 13006	182	Goats_Head_Soup	Goats Head Soup
 13007	182	Peel_Slowly_and_See	Peel Slowly and See
 13008	182	Rocka_Rolla	Rocka Rolla
-13009	342	People_Need_Love	People Need Love" / "Merry-Go-Round (En Karusell)"
+13009	342	People_Need_Love	People Need Love Merry-Go-Round (En Karusell)
 13010	182	After_the_Gold_Rush	After the Gold Rush
 13011	182	Lace_and_Whiskey	Lace and Whiskey
 13012	182	Heavy_Horses	Heavy Horses
@@ -13021,7 +13021,7 @@
 13020	182	Wake_of_the_Flood	Wake of the Flood
 13021	182	Natty_Dread	Natty Dread
 13022	182	Rastaman_Vibration	Rastaman Vibration
-13023	182	Carl_and_the_Passions_–_"So_Tough"	Carl and the Passions – "So Tough"
+13023	182	Carl_and_the_Passions_–_So_Tough	Carl and the Passions – So Tough
 13024	182	In_a_Silent_Way	In a Silent Way
 13025	182	Briefcase_Full_of_Blues	Briefcase Full of Blues
 13026	182	Imaginations_from_the_Other_Side	Imaginations from the Other Side
@@ -13467,7 +13467,7 @@
 13466	182	Trio_II	Trio II
 13467	182	Blackwater_Park	Blackwater Park
 13468	342	Fortune_Faded	Fortune Faded
-13469	342	Blasphemous_Rumours_/_Somebody	Blasphemous Rumours"/"Somebody
+13469	342	Blasphemous_Rumours_Somebody	Blasphemous Rumours Somebody
 13470	342	A_Celebration	A Celebration
 13471	182	Romanza	Romanza
 13472	342	Sunsets	Sunsets
@@ -13823,7 +13823,7 @@
 13822	342	Positively_4th_Street	Positively 4th Street
 13823	342	All_Nightmare_Long	All Nightmare Long
 13824	180	One_Too_Many_Mornings	One Too Many Mornings
-13825	342	My_Arms_Keep_Missing_You	When I Fall in Love"/"My Arms Keep Missing You
+13825	342	My_Arms_Keep_Missing_You	When I Fall in Love My Arms Keep Missing You
 13826	342	It_Would_Take_a_Strong_Strong_Man	It Would Take a Strong Strong Man
 13827	342	Mr._Spaceman	Mr. Spaceman
 13828	0	Cornelis_Johannes_van_Houten	Houten, Cornelis Johannes Van
@@ -14703,7 +14703,7 @@
 14702	233	Oj,_oj,_oj,_så_glad_jeg_skal_bli	Oj, oj, oj, så glad jeg skal bli
 14703	182	Fantasía_Pop	Fantasía Pop
 14704	182	Glee:_The_Music_Presents_the_Warblers	Glee: The Music Presents the Warblers
-14705	342	The_Fallen_/_L._Wells	The Fallen" / "L. Wells
+14705	342	The_Fallen_L._Wells	The Fallen L. Wells
 14706	342	Push_It_to_the_Limit	Push It to the Limit
 14707	182	Down_in_Albion	Down in Albion
 14708	182	Sing-A-Longs_and_Lullabies_for_the_Film_Curious_George	Sing-A-Longs and Lullabies for the film Curious George
@@ -14823,7 +14823,7 @@
 14822	182	Ella_Fitzgerald_Sings_the_Harold_Arlen_Songbook	Ella Fitzgerald Sings the Harold Arlen Songbook
 14823	182	PXR5	PXR5
 14824	182	Little_Sparrow	Little Sparrow
-14825	180	Mule_Skinner_Blues	Blue Yodel #8" /
+14825	180	Mule_Skinner_Blues	Blue Yodel
 14826	342	You_Decorated_My_Life	You Decorated My Life
 14827	342	Where_the_Lost_Ones_Go	Where the Lost Ones Go
 14828	342	Need_Your_Love_So_Bad	Need Your Love So Bad
@@ -15016,7 +15016,7 @@
 15015	180	Highway_Chile	Highway Chile
 15016	342	Techno_Cumbia	Techno Cumbia
 15017	342	Manboy	Manboy
-15018	182	Shōso_Strip	"Shōso Strip"
+15018	182	Shōso_Strip	Shōso Strip
 15019	233	Se_på_mig	Se på mig
 15020	342	Nightswimming	Nightswimming
 15021	182	Tea_&_Sympathy	Tea & Sympathy
@@ -15251,12 +15251,12 @@
 15250	182	Both_Sides_of_the_Gun	Both Sides of the Gun
 15251	233	Make_My_Day	Make My Day
 15252	342	Another_Town,_Another_Train	Another Town, Another Train
-15253	180	Mary_Hamilton	Mary Hamilton"
+15253	180	Mary_Hamilton	Mary Hamilton
 15254	182	Disneymania_2	Disneymania 2
 15255	182	On_ne_change_pas	On ne change pas
 15256	342	The_Dangling_Conversation	The Dangling Conversation
 15257	342	Let_Me_Let_Go	Let Me Let Go
-15258	342	You_Have_Been_Loved	You Have Been Loved" / "The Strangest Thing '97
+15258	342	You_Have_Been_Loved	You Have Been Loved The Strangest Thing '97
 15259	342	Make_a_Move_on_Me	Make A Move On Me
 15260	342	Tears_of_Sorrow	Tears of Sorrow
 15261	182	Dear_Agony	Dear Agony
@@ -15309,7 +15309,7 @@
 15308	342	Wishing_You_Were_Here	Wishing You Were Here
 15309	182	Work_Song	Work Song
 15310	342	Along_Comes_Mary	Along Comes Mary
-15311	182	Ella_Fitzgerald_Sings_Songs_from_"Let_No_Man_Write_My_Epitaph"	Ella Fitzgerald Sings Songs from "Let No Man Write My Epitaph"
+15311	182	Ella_Fitzgerald_Sings_Songs_from_Let_No_Man_Write_My_Epitaph	Ella Fitzgerald Sings Songs from Let No Man Write My Epitaph
 15312	342	Gett_Off	Gett Off
 15313	182	Ella_Fitzgerald_Sings_the_Jerome_Kern_Songbook	Ella Fitzgerald Sings the Jerome Kern Songbook
 15314	182	Blue_Light,_Red_Light	Blue Light, Red Light
@@ -15348,7 +15348,7 @@
 15347	182	The_Hit_Factory:_The_Best_of_Stock_Aitken_Waterman	The Hit Factory: The Best of Stock Aitken Waterman
 15348	182	The_Paul_McCartney_Collection	The Paul McCartney Collection
 15349	182	Van_Morrison:_The_Concert	Van Morrison: The Concert
-15350	342	Theme_from_"S.W.A.T."	Theme from "S.W.A.T."
+15350	342	Theme_from_S.W.A.T.	Theme from S.W.A.T.
 15351	182	T.E.V.I.N.	T.E.V.I.N.
 15352	182	I_Am_a_Photograph	I Am a Photograph
 15353	182	Bleu_Noir	Bleu Noir
@@ -15400,7 +15400,7 @@
 15399	182	CiRcuS	CircuS
 15400	342	Flame_Trees	Flame Trees
 15401	180	Black_Tears	Black Tears
-15402	342	The_Metre/Waiting_for_the_Sun	The Metre"
+15402	342	The_Metre_Waiting_for_the_Sun	The Metre
 15403	180	Who_Knows_Where_the_Time_Goes?	Who Knows Where the Time Goes?
 15404	182	A_Drug_Problem_That_Never_Existed	A Drug Problem That Never Existed
 15405	182	Superfuzz_Bigmuff	Superfuzz Bigmuff
@@ -15771,9 +15771,9 @@
 15770	342	Carry_Me_in_Your_Dreams	Carry Me in Your Dreams
 15771	182	A_Son_de_Guerra	A Son de Guerra
 15772	182	Room_for_Abuse	Room For Abuse
-15773	342	Solo_Quédate_En_Silencio	Sólo Quédate En Silencio"
-15774	342	Este_corazón	Este Corazón"
-15775	342	Bésame_sin_miedo	Bésame Sin Miedo"
+15773	342	Solo_Quédate_En_Silencio	Sólo Quédate En Silencio
+15774	342	Este_corazón	Este Corazón
+15775	342	Bésame_sin_miedo	Bésame Sin Miedo
 15776	182	Halo_2_Original_Soundtrack	Volumes One and Two
 15777	182	The_Hits_&_Beyond	The Hits & Beyond
 15778	342	Days/Green	Days/Green
@@ -15784,10 +15784,10 @@
 15783	182	The_Singles:_1996–2006	The Singles: 1996–2006
 15784	182	Nu_ABO	Nu ABO
 15785	233	Zemrën_e_lamë_peng	Zemrën e lamë peng
-15786	342	Aún_hay_algo	Aún Hay Algo"
+15786	342	Aún_hay_algo	Aún Hay Algo
 15787	233	Zjarr_e_ftohtë	Zjarr e ftohtë
 15788	342	Te_Extraño,_Te_Olvido,_Te_Amo	Te Extraño, Te Olvido, Te Amo
-15789	342	Nuestro_amor	Nuestro Amor"/ "Nosso Amor
+15789	342	Nuestro_amor	Nuestro Amor Nosso Amor
 15790	182	In_My_Memory	In My Memory
 15791	233	The_Image_of_You	The Image of You
 15792	342	Be_Near_Me	Be Near Me
@@ -15882,7 +15882,7 @@
 15881	182	Does_Fort_Worth_Ever_Cross_Your_Mind	Does Fort Worth Ever Cross Your Mind
 15882	342	On_the_Other_Hand	On the Other Hand
 15883	342	It_Sure_Is_Monday	It Sure Is Monday
-15884	342	The_Little_Girl	"The Little Girl"
+15884	342	The_Little_Girl	The Little Girl
 15885	342	My_Elusive_Dreams	My Elusive Dreams
 15886	342	Heavenly_Bodies	Heavenly Bodies
 15887	182	It_Just_Comes_Natural	It Just Comes Natural
@@ -15912,7 +15912,7 @@
 15911	182	Under_the_Western_Freeway	Under the Western Freeway
 15912	182	WOW_Hits_2004	WOW Hits 2004
 15913	182	WOW_Hits_2007	WOW Hits 2007
-15914	182	7"_of_the_Month_Club	7" of the Month Club
+15914	182	7_of_the_Month_Club	7 of the Month Club
 15915	182	God_He_Reigns	God He Reigns
 15916	182	WOW_Number_1s	WOW Number 1s
 15917	182	Yesyears	Yesyears
@@ -15923,7 +15923,7 @@
 15922	342	No_Debes_Jugar	No Debes Jugar
 15923	342	Siempre_hace_frio	Siempre Hace Frio
 15924	182	A_Song_Is_a_City	A Song Is a City
-15925	342	Song_for_Shelter_/_Ya_Mama	Song for Shelter" / "Ya Mama
+15925	342	Song_for_Shelter_Ya_Mama	Song for Shelter Ya Mama
 15926	342	La_Carcacha	La Carcacha
 15927	182	The_Mirror_Conspiracy	The Mirror Conspiracy
 15928	342	No_Quiero_Saber	No Quiero Saber
@@ -15963,7 +15963,7 @@
 15962	182	Voices:_WWE_The_Music,_Vol._9	Voices: WWE The Music, Vol. 9
 15963	182	WWF_The_Music,_Vol._3	WWF The Music, Volume 3
 15964	182	Welcome_to_Diverse_City	Welcome to Diverse City
-15965	182	Ich_töte_mich...	"...Ich töte mich..."
+15965	182	Ich_töte_mich...	...Ich töte mich...
 15966	182	Split_the_Difference	Split the Difference
 15967	342	Sans_logique	Sans logique
 15968	62	Hokuzan	Hokuzan
@@ -16006,7 +16006,7 @@
 16005	342	Violently_Happy	Violently Happy
 16006	62	Limmu-Ennarea	Limmu-Ennarea
 16007	182	Saint-Germain-des-Prés_Café	Saint Germain des Prés Café, Volume 1
-16008	182	Featuring_"Birds"	Featuring "Birds"
+16008	182	Featuring_Birds	Featuring Birds
 16009	182	This_War_Is_Ours	This War Is Ours
 16010	182	Señales	Señales
 16011	182	Erreway_presenta_su_caja_recopilatoria	Erreway presenta su caja recopilatoria
@@ -16032,7 +16032,7 @@
 16031	182	List_of_Final_Fantasy_compilation_albums	Final Fantasy 1987–1994
 16032	182	Los_Sueños_de_un_Hígado	Los Sueños de un Hígado
 16033	182	This_Is_Next_Year:_A_Brooklyn-Based_Compilation	This Is Next Year: A Brooklyn-Based Compilation
-16034	342	Glitter/Fated	Glitter" / "Fated
+16034	342	Glitter_Fated	Glitter Fated
 16035	182	Ayu-mi-x_6:_Silver	Ayu-mi-x 6: Silver
 16036	182	Sharpen_Your_Teeth	Sharpen Your Teeth
 16037	180	Caramelldansen	Caramelldansen
@@ -16069,7 +16069,7 @@
 16068	342	Dyka_Enerhija	Дика енергія Wild Energy
 16069	182	Endzeit_Bunkertracks	Endzeit Bunkertracks: Act I
 16070	182	Borrón_y_Cuenta_Nueva	Borrón y Cuenta Nueva
-16071	342	Voodoo_People_/_Out_of_Space	Voodoo People" / "Out of Space
+16071	342	Voodoo_People_Out_of_Space	Voodoo People Out of Space
 16072	182	Domestica	Domestica
 16073	182	Field_Studies	Field Studies
 16074	182	The_New_Transistor_Heroes	The New Transistor Heroes
