@@ -39,23 +39,10 @@ package ldbc.socialnet.dbgen.objects;
 import java.util.TreeSet;
 
 public class Photo extends Message {
-    long photoId; 
-    String image;
-    long albumId; 
-    int locationIdx; 
-    long creatorId;		// Id of user's account
+    int locationIdx;
     String locationName;
     double latt; 
-    double longt; 
-    long takenTime; 
-    TreeSet<Integer> tags;
-    long[] interestedUserAccs;
-    long[] interestedUserAccsTimestamp;
-
-    IP ipAddress; 
-    String userAgent;				// Send from where e.g., iPhone, Samsung, HTC
-
-    byte 	browserIdx;
+    double longt;
 
     /**
      * < @brief The timestamps when the interested users where actually interested.
@@ -81,24 +68,17 @@ public class Photo extends Message {
                  IP ipAddress,
                  String userAgent,
                  byte browserIdx,
-                 int locationIdx,
+                 int locationId,
                  String locationName,
                  double latt,
                  double longt
                  ) {
-        super(messageId, content, textSize, creationDate, authorId, groupId, tags, ipAddress, userAgent, browserIdx);
-        this.locationIdx = locationIdx;
+        super(messageId, content, textSize, creationDate, authorId, groupId, tags, ipAddress, userAgent, browserIdx, locationId);
         this.locationName = locationName;
         this.latt = latt;
         this.longt = longt;
     }
 
-    public int getLocationId() {
-        return locationIdx;
-    }
-    public void setLocationId(int locationIdx) {
-        this.locationIdx = locationIdx;
-    }
     public double getLatt() {
         return latt;
     }

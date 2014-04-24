@@ -50,6 +50,7 @@ abstract public class Message {
     private IP ipAddress;                       /**< @brief The ip from where the post was created.*/
     private String userAgent;				    /**< @brief The media used to send the post.*/
     private byte browserIdx;					/**< @brief The id of the browser used to send the post.*/
+    private int locationId;                     /**< @brief The location id from where the message has been sent.*/
 
 
     private Like likes[] = null;
@@ -65,7 +66,8 @@ abstract public class Message {
                    TreeSet<Integer> tags,
                    IP ipAddress,
                    String userAgent,
-                   byte browserIdx) {
+                   byte browserIdx,
+                   int locationId) {
 
         this.messageId = messageId;
         this.content = content;
@@ -77,6 +79,7 @@ abstract public class Message {
         this.ipAddress = ipAddress;
         this.userAgent = userAgent;
         this.browserIdx = browserIdx;
+        this.locationId = locationId;
     }
 
 
@@ -134,26 +137,18 @@ abstract public class Message {
     public void setBrowserIdx(byte browserId) {
         this.browserIdx = browserId;
     }
-   /*
-      public long[] getInterestedUserAccs() {
-        return this.interestedUserAccs;
-    }
-    public void setInterestedUserAccs(long[] interestedUserAccs) {
-        this.interestedUserAccs = interestedUserAccs;
-    }
-    public long[] getInterestedUserAccsTimestamp() {
-        return this.interestedUserAccsTimestamp;
-    }
-    public void setInterestedUserAccsTimestamp(long[] timestamps) {
-        this.interestedUserAccsTimestamp = timestamps;
-    }
-    */
     public Like[] getLikes() {
         return this.likes;
     }
-
     public void setLikes( Like [] likes ) {
+
         this.likes = likes;
+    }
+    public int getLocationId() {
+        return locationId;
+    }
+    public void setLocationId(int locationId) {
+        this.locationId = locationId;
     }
 
 }

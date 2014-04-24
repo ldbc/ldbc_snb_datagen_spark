@@ -732,10 +732,21 @@ public class ScalableGenerator{
         /// IMPORTANT: ratioLargeText is divided 0.083333, the probability 
         /// that SetUserLargePoster returns true.
         System.out.println("Building Comment Generator");
-        commentGenerator = new CommentGenerator(tagDictionary,tagTextDictionary, topicTagDictionary, dateTimeGenerator,
-                minCommentSize, maxCommentSize,
-                minLargeCommentSize, maxLargeCommentSize, ratioLargeComment/0.0833333, maxNumLikes,exportText,deltaTime
-        );
+        commentGenerator = new CommentGenerator( tagDictionary,
+                                                 tagTextDictionary,
+                                                 topicTagDictionary,
+                                                 dateTimeGenerator,
+                                                 browserDictonry,
+                                                 ipAddDictionary,
+                                                 userAgentDictionary,
+                                                 minCommentSize,
+                                                 maxCommentSize,
+                                                 minLargeCommentSize,
+                                                 maxLargeCommentSize,
+                                                 ratioLargeComment/0.0833333,
+                                                 maxNumLikes,exportText,
+                                                 deltaTime
+                                                );
         commentGenerator.initialize();
 
         System.out.println("Building Facebook-like social degree generator");
@@ -1097,8 +1108,7 @@ public class ScalableGenerator{
             replyCandidates.add(post);
             for (int l = 0; l < numComment; l++) {
                 int replyIndex = randomFarm.get(RandomGeneratorFarm.Aspect.REPLY_TO).nextInt(replyCandidates.size());
-                Comment comment = commentGenerator.createComment(randomFarm, postId, post, replyCandidates.get(replyIndex),user,
-                        userAgentDictionary, ipAddDictionary, browserDictonry);
+                Comment comment = commentGenerator.createComment(randomFarm, postId, post, replyCandidates.get(replyIndex),user);
                 if ( comment!=null ) {
                     countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(comment.getIpAddress())));
                     stats.countries.add(countryName);
@@ -1142,8 +1152,7 @@ public class ScalableGenerator{
             replyCandidates.add(post);
             for (int l = 0; l < numComment; l++) {
                 int replyIndex = randomFarm.get(RandomGeneratorFarm.Aspect.REPLY_TO).nextInt(replyCandidates.size());
-                Comment comment = commentGenerator.createComment(randomFarm, postId, post, replyCandidates.get(replyIndex),user,
-                        userAgentDictionary, ipAddDictionary, browserDictonry);
+                Comment comment = commentGenerator.createComment(randomFarm, postId, post, replyCandidates.get(replyIndex),user);
                 //              if (comment.getAuthorId() != -1) {
                 if ( comment!=null ) {
                     countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(comment.getIpAddress())));
@@ -1286,10 +1295,8 @@ public class ScalableGenerator{
             replyCandidates.add(groupPost);
             for (int j = 0; j < numComment; j++) {
                 int replyIndex = randomFarm.get(RandomGeneratorFarm.Aspect.REPLY_TO).nextInt(replyCandidates.size());
-                Comment comment = commentGenerator.createComment(randomFarm, postId, groupPost, replyCandidates.get(replyIndex), group,
-                        userAgentDictionary, ipAddDictionary, browserDictonry);
-                //				if (comment.getAuthorId() != -1) { // In case the comment is not reated because of the friendship's createddate
-                if ( comment!=null ) { // In case the comment is not reated because of the friendship's createddate
+                Comment comment = commentGenerator.createComment(randomFarm, postId, groupPost, replyCandidates.get(replyIndex), group);
+                if ( comment!=null ) {
                     countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(comment.getIpAddress())));
                     stats.countries.add(countryName);
                     dataExporter.export(comment);
@@ -1315,8 +1322,7 @@ public class ScalableGenerator{
             replyCandidates.add(groupPost);
             for (int j = 0; j < numComment; j++) {
                 int replyIndex = randomFarm.get(RandomGeneratorFarm.Aspect.REPLY_TO).nextInt(replyCandidates.size());
-                Comment comment = commentGenerator.createComment(randomFarm, postId, groupPost, replyCandidates.get(replyIndex), group,
-                        userAgentDictionary, ipAddDictionary, browserDictonry);
+                Comment comment = commentGenerator.createComment(randomFarm, postId, groupPost, replyCandidates.get(replyIndex), group);
                 if ( comment!=null ) { // In case the comment is not reated because of the friendship's createddate
                     countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(comment.getIpAddress())));
                     stats.countries.add(countryName);

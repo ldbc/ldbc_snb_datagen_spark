@@ -217,6 +217,7 @@ abstract public class PostGenerator {
                   ipAddressDic.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER),user.getIpAddress(), user.isFrequentChange(), postInfo.date),
                   userAgentDic.getUserAgentName(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT), user.isHaveSmartPhone(), user.getAgentIdx()),
                   browserDic.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), user.getBrowserIdx()),
+                  user.getCityId(),
                 extraInfo.getLanguages().get(languageIndex));
                 startPostId++;
 
@@ -269,6 +270,7 @@ abstract public class PostGenerator {
                   ipAddressDic.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER),memberShip.getIP(), memberShip.isFrequentChange(), postInfo.date),
                   userAgentDic.getUserAgentName(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT), memberShip.isHaveSmartPhone(), memberShip.getAgentIdx()),
                   browserDic.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), memberShip.getBrowserIdx()),
+                  -1,
                   -1);
                 startPostId++;
 

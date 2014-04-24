@@ -84,4 +84,10 @@ public class IP {
 	           ((ip >>> BYTE3_SHIFT_POSITION) & BYTE_MASK) + "." + 
 	           (ip & BYTE_MASK);
 	}
+
+    @Override
+    public boolean equals(Object obj) {
+        IP a = (IP)obj;
+        return this.ip == a.ip && this.mask == a.mask;
+    }
 }

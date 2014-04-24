@@ -313,7 +313,7 @@ public class UpdateEventSerializer implements Serializer{
         String dateString = DateGenerator.formatDate(date);
         data.add(dateString);
         date.setTimeInMillis(info.user.getCreationDate());
-        dateString = DateGenerator.formatDate(date);
+        dateString = DateGenerator.formatDateDetail(date);
         data.add(dateString);
         if (info.user.getIpAddress() != null) {
             data.add(info.user.getIpAddress().toString());

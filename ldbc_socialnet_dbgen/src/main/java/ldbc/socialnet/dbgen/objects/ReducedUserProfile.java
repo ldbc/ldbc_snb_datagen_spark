@@ -80,7 +80,6 @@ public class ReducedUserProfile implements Serializable, Writable{
 	int 				locationId;
 	int                 cityIdx;
 	long 				forumWallId;
-//	int 				forumStatusId;
 	TreeSet<Integer> 	setOfTags;
 	
 	short				popularPlaceIds[]; 
@@ -468,25 +467,8 @@ public class ReducedUserProfile implements Serializable, Writable{
 	}	
 	
 	
-	public short getLastInterestFriendIdx(){
-		return (short)(numPassFriendsAdded[1] - 1);
-	}
-	public short getStartInterestFriendIdx(){
-		return (short)(numPassFriendsAdded[0]);
-	}
-	public short getLastLocationFriendIdx(){
-		return (short)(numPassFriendsAdded[0] - 1);
-	}
-	
 	public short getNumFriendsAdded() {
 		return numFriendsAdded;
-	}
-	
-	public void resetUser(){
-		accountId = -1;
-		numFriends = 0; 
-		numFriendsAdded = 0;
-		 
 	}
 	
 	public void addNewFriend(Friend friend) {
@@ -515,10 +497,6 @@ public class ReducedUserProfile implements Serializable, Writable{
 		return friendList;
 	}
 
-	public void setFriendList(Friend[] friendList) {
-		this.friendList = friendList;
-	}
-	
 	public short getNumFriends(int pass) {
 		return numPassFriends[pass];
 	}
