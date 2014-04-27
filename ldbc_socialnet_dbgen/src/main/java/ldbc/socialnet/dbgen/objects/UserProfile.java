@@ -147,10 +147,6 @@ public class UserProfile implements Serializable {
 		return (byte)(popularPlaceIds.length);
 	}
     
-	/*public void setNumPopularPlace(byte numPopularPlace) {
-		this.numPopularPlace = numPopularPlace;
-	}
-    */
 	public IP getIpAddress() {
 		return ipAddress;
 	}

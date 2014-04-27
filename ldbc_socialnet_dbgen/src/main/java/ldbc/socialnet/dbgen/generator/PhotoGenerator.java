@@ -120,7 +120,9 @@ public class PhotoGenerator {
 //            }
 //        }
 
-        Photo photo = new Photo(photoId,"photo"+photoId+".jpg",0,album.getCreatedDate()+deltaTime+1000*(idxInAlbum+1),album.getModeratorId(),album.getGroupId(),tags,null,new String(""),(byte)-1,locationId,locationName,latt,longt);
+        long date = album.getCreatedDate()+deltaTime+1000*(idxInAlbum+1);
+        if( date > dateGenerator.getEndDateTime() )  return null;
+        Photo photo = new Photo(photoId,"photo"+photoId+".jpg",0,date,album.getModeratorId(),album.getGroupId(),tags,null,new String(""),(byte)-1,locationId,locationName,latt,longt);
         if( randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
             setLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE),randomFarm.get(RandomGeneratorFarm.Aspect.DATE),photo,album);
         }
@@ -140,12 +142,16 @@ public class PhotoGenerator {
             startIndex = randomNumLikes.nextInt(numMembers - numLikes);
         }
         for (int i = 0; i < numLikes; i++) {
-            likes[i] = new Like();
-            likes[i].user = groupMembers[startIndex+i].getUserId();
-            likes[i].messageId = message.getMessageId();
+            likes[i] = null;
             long minDate = message.getCreationDate() > groupMembers[startIndex+i].getJoinDate() ? message.getCreationDate() : groupMembers[startIndex+i].getJoinDate();
-            likes[i].date = (long)(randomDate.nextDouble()*DateGenerator.SEVEN_DAYS+minDate+deltaTime);
-            likes[i].type = 2;
+            long date = Math.max(dateGenerator.randomSevenDays(randomDate),deltaTime) + minDate;
+            if( date <= dateGenerator.getEndDateTime() ) {
+                likes[i] = new Like();
+                likes[i].user = groupMembers[startIndex + i].getUserId();
+                likes[i].messageId = message.getMessageId();
+                likes[i].date = date;
+                likes[i].type = 2;
+            }
         }
         message.setLikes(likes);
     }

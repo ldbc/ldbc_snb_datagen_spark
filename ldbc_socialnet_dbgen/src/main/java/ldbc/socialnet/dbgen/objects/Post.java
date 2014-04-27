@@ -52,9 +52,10 @@ public class Post extends  Message {
                  IP ipAddress,
                  String userAgent,
                  byte browserIdx,
+                 int locationId,
                  int language
                 ) {
-        super(postId, content, textSize, creationDate, authorId, groupId, tags, ipAddress, userAgent, browserIdx );
+        super(postId, content, textSize, creationDate, authorId, groupId, tags, ipAddress, userAgent, browserIdx,locationId );
         this.language = language;
     }
     public int getLanguage() {

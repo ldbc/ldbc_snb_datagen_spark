@@ -85,18 +85,6 @@ public class DateGenerator {
 	/*
 	 * Date between from and to
 	 */
-	public GregorianCalendar randomDate( Random random )
-	{
-		long date = (long)(random.nextDouble()*(to-from)+from);
-		GregorianCalendar gc = new GregorianCalendar();
-		gc.setTime(new Date(date));
-		
-		return gc;
-	}
-	
-	/*
-	 * Date between from and to
-	 */
 	public Long randomDateInMillis( Random random )
 	{
 		long date = (long)(random.nextDouble()*(to-from)+from);
@@ -228,11 +216,7 @@ public class DateGenerator {
 		long randomSpanMilis =  (long) (random.nextDouble()* (THIRTY_DAYS));
 		return (from + randomSpanMilis);
 	}
-	public long randomFriendRequestedDate(Random random, UserProfile user1, UserProfile user2){
-		long fromDate = Math.max(user1.getCreationDate(), user2.getCreationDate());
-		return randomThirtyDaysSpan(random, fromDate);
-	}
-	
+
 	public long randomFriendRequestedDate(Random random, ReducedUserProfile user1, ReducedUserProfile user2){
 		long fromDate = Math.max(user1.getCreationDate(), user2.getCreationDate());
 		return randomThirtyDaysSpan(random,fromDate);
@@ -258,36 +242,55 @@ public class DateGenerator {
 		return (to - fromDate)/THIRTY_DAYS;
 	}
 	
-	public long randomPhotoAlbumCreatedDate(Random random, ReducedUserProfile user){
+	/*public long randomPhotoAlbumCreatedDate(Random random, ReducedUserProfile user){
 		return  (long)(random.nextDouble()*(to-(user.getCreationDate()+deltaTime))+user.getCreationDate()+deltaTime);
 	}
+	*/
 
-	public long randomGroupCreatedDate(Random random, ReducedUserProfile user){
+	/*public long randomGroupCreatedDate(Random random, ReducedUserProfile user){
 		return  (long)(random.nextDouble()*(to-(user.getCreationDate()+deltaTime))+user.getCreationDate()+deltaTime);
 	}
+	*/
 
-	public long randomGroupMemberJoinDate(Random random, long groupCreateDate, long userCreatedDate){
+/*	public long randomGroupMemberJoinDate(Random random, long groupCreateDate, long userCreatedDate){
 		long earliestJoinDate = Math.max(groupCreateDate, userCreatedDate);
 	    return  (long)(random.nextDouble()*(to - earliestJoinDate) + earliestJoinDate);
 	}
+	*/
+
+    public long randomDate( Random random, long minDate ) {
+        return  (long)(random.nextDouble()*(to-minDate)+minDate);
+    }
 	
-	public long randomPostCreatedDate(Random random, long minDate){
+	/*public long randomPostCreatedDate(Random random, long minDate){
 		return (long)(random.nextDouble()*(to-minDate)+minDate);
-	}
+	}*/
+
+    /*public long randomLikeDate(Random random, long minDate) {
+        return (long)(random.nextDouble()*DateGenerator.SEVEN_DAYS+minDate+deltaTime);
+    }
+    */
+
+    public long randomSevenDays(Random random ) {
+        return (long)(random.nextDouble()*DateGenerator.SEVEN_DAYS);
+    }
 	
-	public long powerlawPostCreatedDate(Random random, UserProfile user){
+/*	public long powerlawPostCreatedDate(Random random, UserProfile user){
 		return (long)(powerDist.getDouble(random)*(to-user.getCreationDate())+user.getCreationDate());
 	}
+	*/
 	
-	public long randomCommentCreatedDate(Random random, long lastCommentCreatedDate){
+	/*public long randomCommentCreatedDate(Random random, long lastCommentCreatedDate){
 		return (long)(random.nextDouble()*(to-lastCommentCreatedDate)+lastCommentCreatedDate);
 	}
-	
-	//Assume that this powerlaw generate powerlaw value between 0 - 1 
+	*/
+
+	/*//Assume that this powerlaw generate powerlaw value between 0 - 1
 	public long powerlawCommentCreatDate( Random random, long lastCommentCreatedDate){
 		return (long)(powerDist.getDouble(random) *(to-lastCommentCreatedDate)+lastCommentCreatedDate);
 	}
-	
+	*/
+
 	public long powerlawCommDateDay(Random random, long lastCommentCreatedDate){
 		return (long)(powerDist.getDouble(random) * ONE_DAY+lastCommentCreatedDate);
 	}
@@ -341,8 +344,11 @@ public class DateGenerator {
 	public long getStartDateTime(){
 		return from;
 	}
-	public long getCurrentDateTime(){
-		return to; 
+	public long getEndDateTime() {
+		return to;
 	}
+    public long getMaxDateTime() {
+        return to + SEVEN_DAYS + deltaTime;
+    }
 }
 

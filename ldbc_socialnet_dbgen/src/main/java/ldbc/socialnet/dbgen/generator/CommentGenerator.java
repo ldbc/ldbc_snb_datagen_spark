@@ -53,6 +53,9 @@ public class CommentGenerator {
     private TagTextDictionary tagTextDic; /**< @brief The TagTextDictionary used to obtain the texts posts/comments.**/
     private TagMatrix tagMatrix;
     private DateGenerator dateGen;
+    private BrowserDictionary browserDic;
+    private IPAddressDictionary ipAddDic;
+    private UserAgentDictionary userAgentDic;
 
     private int minSizeOfComment;          /**< @brief The minimum size of a comment.*/
     private int maxSizeOfComment;          /**< @brief The maximum size of a comment.*/       
@@ -70,6 +73,9 @@ public class CommentGenerator {
                              TagTextDictionary tagTextDic,
                              TagMatrix tagMatrix,
                              DateGenerator dateGen,
+                             BrowserDictionary browserDic,
+                             IPAddressDictionary ipAddDic,
+                             UserAgentDictionary userAgentDic,
                              int minSizeOfComment, 
                              int maxSizeOfComment, 
                              int minLargeSizeOfComment,
@@ -92,6 +98,9 @@ public class CommentGenerator {
         this.maxNumberOfLikes = maxNumberOfLikes;
         this.deltaTime = deltaTime;
         this.likesGenerator = new PowerDistGenerator(1,maxNumberOfLikes,0.4);
+        this.browserDic = browserDic;
+        this.ipAddDic = ipAddDic;
+        this.userAgentDic = userAgentDic;
 	}
 	
 	public void initialize() {
@@ -110,12 +119,16 @@ public class CommentGenerator {
             startIndex = randomNumLikes.nextInt(numFriends - numLikes);
         }
         for (int i = 0; i < numLikes; i++) {
-            likes[i] = new Like();
-            likes[i].user = friendList[startIndex+i].getFriendAcc();
-            likes[i].messageId = message.getMessageId();
+            likes[i] = null;
             long minDate = message.getCreationDate() > friendList[startIndex+i].getCreatedTime() ? message.getCreationDate() : friendList[startIndex+i].getCreatedTime();
-            likes[i].date = (long)(randomDate.nextDouble()*DateGenerator.SEVEN_DAYS+minDate+deltaTime);
-            likes[i].type = 1;
+            long date = Math.max(dateGen.randomSevenDays(randomDate),deltaTime) + minDate;
+            if( date <= dateGen.getEndDateTime() ) {
+                likes[i] = new Like();
+                likes[i].user = friendList[startIndex + i].getFriendAcc();
+                likes[i].messageId = message.getMessageId();
+                likes[i].date = date;
+                likes[i].type = 1;
+            }
         }
         message.setLikes(likes);
     }
@@ -133,21 +146,23 @@ public class CommentGenerator {
             startIndex = randomNumLikes.nextInt(numMembers - numLikes);
         }
         for (int i = 0; i < numLikes; i++) {
-            likes[i] = new Like();
-            likes[i].user = groupMembers[startIndex+i].getUserId();
-            likes[i].messageId = message.getMessageId();
+            likes[i] = null;
             long minDate = message.getCreationDate() > groupMembers[startIndex+i].getJoinDate() ? message.getCreationDate() : groupMembers[startIndex+i].getJoinDate();
-            likes[i].date = (long)(randomDate.nextDouble()*DateGenerator.SEVEN_DAYS+minDate+deltaTime);
-            likes[i].type = 1;
+            long date = Math.max(dateGen.randomSevenDays(randomDate),deltaTime) + minDate;
+            if( date <= dateGen.getEndDateTime() ) {
+                likes[i] = new Like();
+                likes[i].user = groupMembers[startIndex + i].getUserId();
+                likes[i].messageId = message.getMessageId();
+                likes[i].date = date;
+                likes[i].type = 1;
+            }
         }
         message.setLikes(likes);
     }
 
 
 
-    public Comment createComment(RandomGeneratorFarm randomFarm, long commentId, Post post, Message replyTo, ReducedUserProfile user,
-                                 UserAgentDictionary userAgentDic, IPAddressDictionary ipAddDic,
-                                 BrowserDictionary browserDic) {
+    public Comment createComment(RandomGeneratorFarm randomFarm, long commentId, Post post, Message replyTo, ReducedUserProfile user) {
 
         ArrayList<Integer> validIds = new ArrayList<Integer>();
         Friend[] friends = user.getFriendList();
@@ -205,6 +220,13 @@ public class CommentGenerator {
             }
         }
         long creationDate = dateGen.powerlawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),replyTo.getCreationDate()+deltaTime);
+        if( creationDate > dateGen.getEndDateTime() ) return null;
+       /* IP commentIP = ipAddDic.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER),friend.getSourceIp(), friend.isFrequentChange(), creationDate);
+        int commentLocation = user.getCityId();
+        if( !commentIP.equals(user.getIpAddress()) ) {
+            commentLocation = locationDic.getRandomCity(randomFarm.get(RandomGeneratorFarm.Aspect.CITY),ipAddDic.getLocation(commentIP));
+        }
+        */
         Comment comment = new Comment( commentId,
                                        content,
                                        textSize,
@@ -215,6 +237,7 @@ public class CommentGenerator {
                                        ipAddDic.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER),friend.getSourceIp(), friend.isFrequentChange(), creationDate),
                                        userAgentDic.getUserAgentName(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT),friend.isHaveSmartPhone(), friend.getAgentIdx()),
                                        browserDic.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER),friend.getBrowserIdx()),
+                                       user.getCityId(),
                                        post.getMessageId(),
                                        replyTo.getMessageId());
         if( !isShort && randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
@@ -223,9 +246,7 @@ public class CommentGenerator {
         return comment;
     }
     
-    public Comment createComment(RandomGeneratorFarm randomFarm, long commentId, Post post, Message replyTo , Group group,
-            UserAgentDictionary userAgentDic, IPAddressDictionary ipAddDic,
-            BrowserDictionary browserDic) {
+    public Comment createComment(RandomGeneratorFarm randomFarm, long commentId, Post post, Message replyTo , Group group) {
 
         ArrayList<Integer> validIds = new ArrayList<Integer>();
         GroupMemberShip[] memberShips = group.getMemberShips();
@@ -285,6 +306,7 @@ public class CommentGenerator {
         }
 
         long creationDate = dateGen.powerlawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),replyTo.getCreationDate()+deltaTime);
+        if( creationDate > dateGen.getEndDateTime() ) return null;
         Comment comment = new Comment( commentId,
                 content,
                 textSize,
@@ -295,6 +317,7 @@ public class CommentGenerator {
                 ipAddDic.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER), membership.getIP(), membership.isFrequentChange(), creationDate),
                 userAgentDic.getUserAgentName(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT),membership.isHaveSmartPhone(), membership.getAgentIdx()),
                 browserDic.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER),membership.getBrowserIdx()),
+                -1,
                 post.getMessageId(),
                 replyTo.getMessageId());
 

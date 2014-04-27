@@ -81,8 +81,10 @@ abstract public class PostGenerator {
     private boolean generateText;          /**< @brief To generate text for post and comment.*/
     private long deltaTime;                /**< @brief Delta time.*/
     private PowerDistGenerator likesGenerator;
+    protected DateGenerator dateGen;
 
-	public PostGenerator( TagTextDictionary tagTextDic, 
+	public PostGenerator( DateGenerator dateGen,
+                          TagTextDictionary tagTextDic,
                           UserAgentDictionary userAgentDic,
                           IPAddressDictionary ipAddressDic,
                           BrowserDictionary browserDic,
@@ -96,7 +98,7 @@ abstract public class PostGenerator {
                           boolean generateText,
                           long deltaTime
                           ){
-
+        this.dateGen = dateGen;
         this.tagTextDic = tagTextDic;
         this.userAgentDic = userAgentDic;
         this.ipAddressDic = ipAddressDic;
@@ -133,12 +135,16 @@ abstract public class PostGenerator {
             startIndex = randomNumLikes.nextInt(numFriends - numLikes);
         }
         for (int i = 0; i < numLikes; i++) {
-            likes[i] = new Like();
-            likes[i].user = friendList[startIndex+i].getFriendAcc();
-            likes[i].messageId = message.getMessageId();
-            long minDate = message.getCreationDate() > friendList[startIndex+i].getCreatedTime() ? message.getCreationDate() : friendList[startIndex+i].getCreatedTime();
-            likes[i].date = (long)(randomDate.nextDouble()*DateGenerator.SEVEN_DAYS+minDate+deltaTime);
-            likes[i].type = 0;
+            likes[i] = null;
+            long minDate = message.getCreationDate() > friendList[startIndex + i].getCreatedTime() ? message.getCreationDate() : friendList[startIndex + i].getCreatedTime();
+            long date = Math.max(dateGen.randomSevenDays(randomDate), deltaTime) + minDate;
+            if( date <= dateGen.getEndDateTime() ) {
+                likes[i] = new Like();
+                likes[i].user = friendList[startIndex + i].getFriendAcc();
+                likes[i].messageId = message.getMessageId();
+                likes[i].date = date;
+                likes[i].type = 0;
+            }
         }
         message.setLikes(likes);
     }
@@ -156,12 +162,16 @@ abstract public class PostGenerator {
             startIndex = randomNumLikes.nextInt(numMembers - numLikes);
         }
         for (int i = 0; i < numLikes; i++) {
-            likes[i] = new Like();
-            likes[i].user = groupMembers[startIndex+i].getUserId();
-            likes[i].messageId = message.getMessageId();
-            long minDate = message.getCreationDate() > groupMembers[startIndex+i].getJoinDate() ? message.getCreationDate() : groupMembers[startIndex+i].getJoinDate();
-            likes[i].date = (long)(randomDate.nextDouble()*DateGenerator.SEVEN_DAYS+minDate+deltaTime);
-            likes[i].type = 0;
+            likes[i] = null;
+            long minDate = message.getCreationDate() > groupMembers[startIndex + i].getJoinDate() ? message.getCreationDate() : groupMembers[startIndex + i].getJoinDate();
+            long date = Math.max(dateGen.randomSevenDays(randomDate), deltaTime) + minDate;
+            if( date <= dateGen.getEndDateTime() ) {
+                likes[i] = new Like();
+                likes[i].user = groupMembers[startIndex + i].getUserId();
+                likes[i].messageId = message.getMessageId();
+                likes[i].date = date;
+                likes[i].type = 0;
+            }
         }
         message.setLikes(likes);
     }
@@ -207,6 +217,7 @@ abstract public class PostGenerator {
                   ipAddressDic.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER),user.getIpAddress(), user.isFrequentChange(), postInfo.date),
                   userAgentDic.getUserAgentName(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT), user.isHaveSmartPhone(), user.getAgentIdx()),
                   browserDic.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), user.getBrowserIdx()),
+                  user.getCityId(),
                 extraInfo.getLanguages().get(languageIndex));
                 startPostId++;
 
@@ -259,6 +270,7 @@ abstract public class PostGenerator {
                   ipAddressDic.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER),memberShip.getIP(), memberShip.isFrequentChange(), postInfo.date),
                   userAgentDic.getUserAgentName(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT), memberShip.isHaveSmartPhone(), memberShip.getAgentIdx()),
                   browserDic.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), memberShip.getBrowserIdx()),
+                  -1,
                   -1);
                 startPostId++;
 

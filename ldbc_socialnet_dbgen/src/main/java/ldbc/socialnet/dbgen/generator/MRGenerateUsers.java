@@ -348,6 +348,7 @@ public class MRGenerateUsers{
 			friendGenerator.numMaps = numReducer; 
 			String[] inputParams = new String[0]; 
 			friendGenerator.init(numReducer, attempTaskId);
+            friendGenerator.openSerializer();
             totalObjects = 0;
 		}
 		
@@ -384,12 +385,12 @@ public class MRGenerateUsers{
             }
 
             int numOfCell = numObject / friendGenerator.getCellSize();
-            friendGenerator.generateUserActivity(outputFileName, numOfCell);
+            friendGenerator.generateUserActivity(outputFileName, numOfCell, context);
 		}
 		
 		@Override
 		protected void cleanup(Context context){
-            friendGenerator.closeFileWriting();
+            friendGenerator.closeSerializer();
             System.out.println("Number of users serialized by reducer "+attempTaskId+": "+totalObjects);
 		}
 	}
@@ -530,7 +531,7 @@ public class MRGenerateUsers{
  //       job4.setGroupingComparatorClass(UpdateEventGroupKeyComparator.class);
 
         for( int i =0; i < numMachines; ++i ) {
-            FileInputFormat.setInputPaths(job4, new Path(args[4] + "/temp_updateStream_"+i+".csv"));
+            FileInputFormat.addInputPath(job4, new Path(args[4] + "/temp_updateStream_"+i+".csv"));
         }
         FileOutputFormat.setOutputPath(job4, new Path(args[1] + "end") );
 

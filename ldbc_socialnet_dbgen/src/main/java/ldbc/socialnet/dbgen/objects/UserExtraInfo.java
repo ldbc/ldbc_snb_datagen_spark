@@ -43,12 +43,10 @@ import java.util.Vector;
 
 public class UserExtraInfo {
 	String 				gender;
-	//long 				dateOfBirth;
 	TreeSet<String>     email;
 	Vector<Integer>    languages; 
 	int                nativeLanguage;
-	//String 				sourceIp; 			// Source IP address
-	String 				firstName; 
+	String 				firstName;
 	String 				lastName; 
 	int                 locationId;
 	String 				location;

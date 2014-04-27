@@ -89,9 +89,9 @@ public class DataExporter {
         this.reducerId = reducerId;
         this.dateThreshold = dateThreshold;
         if( format == DataFormat.CSV ) {
-            staticSerializer = new CSVOriginal(directory,reducerId,tagDic,browsers,companyDic,universityDic,ipDic,locationDic,languageDic,0,dateThreshold,exportText,compressed);
+            staticSerializer = new CSVOriginal(directory,reducerId,tagDic,browsers,companyDic,universityDic,ipDic,locationDic,languageDic,exportText,compressed);
         } else if( format == DataFormat.CSV_MERGE_FOREIGN ) {
-            staticSerializer = new CSVMergeForeign(directory,reducerId,tagDic,browsers,companyDic,universityDic,ipDic,locationDic,languageDic,0,dateThreshold,exportText,compressed);
+            staticSerializer = new CSVMergeForeign(directory,reducerId,tagDic,browsers,companyDic,universityDic,ipDic,locationDic,languageDic,exportText,compressed);
         } else if( format == DataFormat.TURTLE ) {
             staticSerializer = new Turtle(directory,reducerId,1,true,tagDic,browsers,companyDic,universityDic,ipDic,locationDic,languageDic,exportText,compressed);
         } else if( format == DataFormat.N3 ) {
@@ -315,10 +315,12 @@ public class DataExporter {
         if( likes != null ) {
             int numLikes = likes.length;
             for( int i = 0; i < numLikes; ++i ) {
-                if( likes[i].date <= dateThreshold ) {
-                    staticSerializer.serialize(likes[i]);
-                } else {
-                    updateStreamSerializer.serialize(likes[i]);
+                if( likes[i] != null ) {
+                    if (likes[i].date <= dateThreshold) {
+                        staticSerializer.serialize(likes[i]);
+                    } else {
+                        updateStreamSerializer.serialize(likes[i]);
+                    }
                 }
             }
         }

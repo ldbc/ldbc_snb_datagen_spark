@@ -60,7 +60,8 @@ public class UniformPostGenerator extends PostGenerator {
     private int maxNumMembers;                  /**< @brief The maximum number of members of a group.*/
     private long deltaTime;                     /**< @brief The delta time used to guarantee a minimum time between post creation and user creation.*/
 
-	public UniformPostGenerator( TagTextDictionary tagTextDic, 
+	public UniformPostGenerator(DateGenerator dateGen,
+                                TagTextDictionary tagTextDic,
                           UserAgentDictionary userAgentDic,
                           IPAddressDictionary ipAddressDic,
                           BrowserDictionary browserDic,
@@ -73,13 +74,12 @@ public class UniformPostGenerator extends PostGenerator {
                           int maxNumberOfLikes,
                           boolean exportText,
                           long deltaTime,
-                          DateGenerator dateGen,
                           int maxNumPostPerMonth,
                           int maxNumFriends,
                           int maxNumGroupPostPerMonth,
                           int maxNumMembers
                           ) {
-        super(tagTextDic, userAgentDic, ipAddressDic, browserDic, minSizeOfPost, maxSizeOfPost, reducedTextRatio, minLargeSizeOfPost,
+        super(dateGen,tagTextDic, userAgentDic, ipAddressDic, browserDic, minSizeOfPost, maxSizeOfPost, reducedTextRatio, minLargeSizeOfPost,
               maxLargeSizeOfPost, largePostRatio, maxNumberOfLikes,exportText, deltaTime);
         this.dateGen = dateGen;
         this.maxNumPostPerMonth = maxNumPostPerMonth;
@@ -104,7 +104,8 @@ public class UniformPostGenerator extends PostGenerator {
                 }
             }
         }
-        postInfo.date = dateGen.randomPostCreatedDate(randomDate,user.getCreationDate()+deltaTime);
+        postInfo.date = dateGen.randomDate(randomDate,user.getCreationDate()+deltaTime);
+        if( postInfo.date > dateGen.getEndDateTime() ) return null;
         return postInfo;
     }
 
@@ -114,7 +115,8 @@ public class UniformPostGenerator extends PostGenerator {
         for (int i = 0; i < group.getTags().length; i++) {
             postInfo.tags.add(group.getTags()[i]);
         }
-        postInfo.date = dateGen.randomPostCreatedDate(randomDate,membership.getJoinDate()+deltaTime);
+        postInfo.date = dateGen.randomDate(randomDate,membership.getJoinDate()+deltaTime);
+        if( postInfo.date > dateGen.getEndDateTime() ) return null;
         return postInfo;
     }
 
@@ -123,9 +125,9 @@ public class UniformPostGenerator extends PostGenerator {
         int numOfmonths = (int) dateGen.numberOfMonths(user);
         int numberPost;
         if (numOfmonths == 0) {
-            numberPost = randomNumPost.nextInt(maxNumPostPerMonth);
+            numberPost = randomNumPost.nextInt(maxNumPostPerMonth+1);
         } else {
-            numberPost = randomNumPost.nextInt(maxNumPostPerMonth * numOfmonths);
+            numberPost = randomNumPost.nextInt(maxNumPostPerMonth * numOfmonths+1);
         }
         numberPost = (numberPost * user.getNumFriendsAdded()) / maxNumFriends;
         return numberPost;
@@ -136,9 +138,9 @@ public class UniformPostGenerator extends PostGenerator {
       int numOfmonths = (int) dateGen.numberOfMonths(group.getCreatedDate());
       int numberPost;
       if (numOfmonths == 0) {
-        numberPost = randomNumPost.nextInt(maxNumGroupPostPerMonth);
+        numberPost = randomNumPost.nextInt(maxNumGroupPostPerMonth+1);
       } else {
-        numberPost = randomNumPost.nextInt(maxNumGroupPostPerMonth * numOfmonths);
+        numberPost = randomNumPost.nextInt(maxNumGroupPostPerMonth * numOfmonths+1);
       }
       numberPost = (numberPost * group.getNumMemberAdded()) / maxNumMembers;
       return numberPost;
