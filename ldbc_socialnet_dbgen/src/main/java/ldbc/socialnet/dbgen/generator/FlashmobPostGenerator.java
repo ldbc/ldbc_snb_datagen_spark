@@ -75,9 +75,9 @@ public class FlashmobPostGenerator extends PostGenerator {
 
 
     /** This fields are used in order to reduce the number of computations needed and hence improve the performance. **/
-    private FlashmobTag[] userFlashmobTags = null;    
+    private FlashmobTag[] userFlashmobTags = null;
     private FlashmobTag[] groupFlashmobTags = null;
-//    private int postPerLevelScaleFactor = 0;
+    //    private int postPerLevelScaleFactor = 0;
     private int         maxNumFlashmobPostPerMonth;
     private int         maxNumGroupFlashmobPostPerMonth;
     private int         maxNumFriends;
@@ -86,27 +86,27 @@ public class FlashmobPostGenerator extends PostGenerator {
 
     public FlashmobPostGenerator( DateGenerator dateGen,
                                   TagTextDictionary tagTextDic,
-            UserAgentDictionary userAgentDic,
-            IPAddressDictionary ipAddressDic,
-            BrowserDictionary browserDic,
-            int minSizeOfPost, 
-            int maxSizeOfPost, 
-            double reducedTextRatio,
-            int minLargeSizeOfPost, 
-            int maxLargeSizeOfPost, 
-            double largePostRatio,
-            int maxNumberOfLikes,
-            boolean exportText,
-            long deltaTime,
-            FlashmobTagDictionary flashmobTagDictionary,
-            TagMatrix tagMatrix,
-            int maxNumFlashmobPostPerMonth,
-            int maxNumGroupFlashmobPostPerMonth,
-            int maxNumFriends,
-            int maxNumMembers,
-            int maxNumTagPerFlashmobPost,
-            String flashmobDistFile
-            ) {
+                                  UserAgentDictionary userAgentDic,
+                                  IPAddressDictionary ipAddressDic,
+                                  BrowserDictionary browserDic,
+                                  int minSizeOfPost,
+                                  int maxSizeOfPost,
+                                  double reducedTextRatio,
+                                  int minLargeSizeOfPost,
+                                  int maxLargeSizeOfPost,
+                                  double largePostRatio,
+                                  int maxNumberOfLikes,
+                                  boolean exportText,
+                                  long deltaTime,
+                                  FlashmobTagDictionary flashmobTagDictionary,
+                                  TagMatrix tagMatrix,
+                                  int maxNumFlashmobPostPerMonth,
+                                  int maxNumGroupFlashmobPostPerMonth,
+                                  int maxNumFriends,
+                                  int maxNumMembers,
+                                  int maxNumTagPerFlashmobPost,
+                                  String flashmobDistFile
+    ) {
         super(dateGen,tagTextDic, userAgentDic, ipAddressDic, browserDic, minSizeOfPost, maxSizeOfPost, reducedTextRatio, minLargeSizeOfPost,
                 maxLargeSizeOfPost, largePostRatio, maxNumberOfLikes,exportText,deltaTime);
         this.dateGen = dateGen;
@@ -141,7 +141,7 @@ public class FlashmobPostGenerator extends PostGenerator {
             if (tags[midPoint].prob > prob ){
                 upperBound = midPoint;
             } else{
-                lowerBound = midPoint; 
+                lowerBound = midPoint;
             }
             midPoint = (upperBound + lowerBound)  / 2;
         }
@@ -159,7 +159,7 @@ public class FlashmobPostGenerator extends PostGenerator {
             if (tags[midPoint].date > fromDate ){
                 upperBound = midPoint;
             } else{
-                lowerBound = midPoint; 
+                lowerBound = midPoint;
             }
             midPoint = (upperBound + lowerBound)  / 2;
         }
@@ -168,99 +168,102 @@ public class FlashmobPostGenerator extends PostGenerator {
     }
 
     @Override
-        protected PostInfo generatePostInfo( Random randomTag, Random randomDate, ReducedUserProfile user ) {
-            PostInfo postInfo = new PostInfo();
-            int index = selectRandomTag( randomTag, userFlashmobTags, 0 );
-            FlashmobTag flashmobTag = userFlashmobTags[index];
-            if( flashmobTag.date < user.getCreationDate() )  return null;
-            postInfo.tags.add(flashmobTag.tag);
-            postInfo.tags.addAll(tagMatrix.getSetofTags(randomTag,randomTag,flashmobTag.tag, maxNumTagPerFlashmobPost - 1));
-            double prob = dateDistribution.nextDouble(randomDate);
-            postInfo.date = flashmobTag.date - flashmobSpan/2 + (long)( prob * flashmobSpan); 
-            return postInfo;
-        }
+    protected PostInfo generatePostInfo( Random randomTag, Random randomDate, ReducedUserProfile user ) {
+        if( userFlashmobTags.length == 0 ) return null;
+        PostInfo postInfo = new PostInfo();
+        int index = selectRandomTag( randomTag, userFlashmobTags, 0 );
+        FlashmobTag flashmobTag = userFlashmobTags[index];
+        if( flashmobTag.date < user.getCreationDate() )  return null;
+        postInfo.tags.add(flashmobTag.tag);
+        postInfo.tags.addAll(tagMatrix.getSetofTags(randomTag,randomTag,flashmobTag.tag, maxNumTagPerFlashmobPost - 1));
+        double prob = dateDistribution.nextDouble(randomDate);
+        postInfo.date = flashmobTag.date - flashmobSpan/2 + (long)( prob * flashmobSpan);
+        return postInfo;
+    }
 
     @Override
-        protected PostInfo generatePostInfo( Random randomTag, Random randomDate, Group group, GroupMemberShip membership ) {
-            PostInfo postInfo = new PostInfo();
-            int index = searchEarliest(groupFlashmobTags,membership);
-            if( index < 0 ) return null;
-            index = selectRandomTag( randomTag, groupFlashmobTags,index);
-            FlashmobTag flashmobTag =  groupFlashmobTags[index];
-            postInfo.tags.add(flashmobTag.tag);
-            postInfo.tags.addAll(tagMatrix.getSetofTags(randomTag,randomTag,flashmobTag.tag, maxNumTagPerFlashmobPost - 1));
-            double prob = dateDistribution.nextDouble(randomDate);
-            postInfo.date = flashmobTag.date - flashmobSpan/2 + (long)(prob * flashmobSpan); 
-            return postInfo;
-        }
+    protected PostInfo generatePostInfo( Random randomTag, Random randomDate, Group group, GroupMemberShip membership ) {
+        if( groupFlashmobTags.length == 0 ) return null;
+        PostInfo postInfo = new PostInfo();
+        int index = searchEarliest(groupFlashmobTags,membership);
+        if( index < 0 ) return null;
+        index = selectRandomTag( randomTag, groupFlashmobTags,index);
+        FlashmobTag flashmobTag =  groupFlashmobTags[index];
+        postInfo.tags.add(flashmobTag.tag);
+        postInfo.tags.addAll(tagMatrix.getSetofTags(randomTag,randomTag,flashmobTag.tag, maxNumTagPerFlashmobPost - 1));
+        double prob = dateDistribution.nextDouble(randomDate);
+        postInfo.date = flashmobTag.date - flashmobSpan/2 + (long)(prob * flashmobSpan);
+        return postInfo;
+    }
 
     @Override
-        protected int generateNumOfPost(Random randomNumPost, ReducedUserProfile user) {
-            Vector<FlashmobTag> temp = flashmobTagDictionary.generateFlashmobTags( user.getSetOfTags(), user.getCreationDate());
-            userFlashmobTags = new FlashmobTag[temp.size()];
-            int index = 0;
-            int sumLevels = 0;
-            Iterator<FlashmobTag> it = temp.iterator();
-            while(it.hasNext()) {
-                FlashmobTag flashmobTag = new FlashmobTag();
-                it.next().copyTo(flashmobTag);
-                userFlashmobTags[index] = flashmobTag; 
-                sumLevels+=flashmobTag.level;
-                ++index; 
-            }
-            Arrays.sort(userFlashmobTags);
-            int size = userFlashmobTags.length;
-            double currentProb = 0.0;
-            for( int i = 0; i < size; ++i ) {
-                userFlashmobTags[i].prob = currentProb;
-                currentProb += (double)(userFlashmobTags[i].level) / (double)(sumLevels);
-            }
-            int numOfmonths = (int) dateGen.numberOfMonths(user);
-            int numberPost;
-            if (numOfmonths == 0) {
-                numberPost = randomNumPost.nextInt(maxNumFlashmobPostPerMonth);
-            } else {
-                numberPost = randomNumPost.nextInt(maxNumFlashmobPostPerMonth * numOfmonths);
-            }
-            numberPost = (numberPost * user.getNumFriendsAdded()) / maxNumFriends;
-            return numberPost;
+    protected int generateNumOfPost(Random randomNumPost, ReducedUserProfile user) {
+        Vector<FlashmobTag> temp = flashmobTagDictionary.generateFlashmobTags( user.getSetOfTags(), user.getCreationDate());
+        userFlashmobTags = new FlashmobTag[temp.size()];
+        int index = 0;
+        int sumLevels = 0;
+        Iterator<FlashmobTag> it = temp.iterator();
+        while(it.hasNext()) {
+            FlashmobTag flashmobTag = new FlashmobTag();
+            it.next().copyTo(flashmobTag);
+            userFlashmobTags[index] = flashmobTag;
+            sumLevels+=flashmobTag.level;
+            ++index;
         }
+        Arrays.sort(userFlashmobTags);
+        int size = userFlashmobTags.length;
+        double currentProb = 0.0;
+        for( int i = 0; i < size; ++i ) {
+            userFlashmobTags[i].prob = currentProb;
+            currentProb += (double)(userFlashmobTags[i].level) / (double)(sumLevels);
+        }
+
+        int numOfmonths = (int) dateGen.numberOfMonths(user);
+        int numberPost;
+        if (numOfmonths == 0) {
+            numberPost = randomNumPost.nextInt(maxNumFlashmobPostPerMonth+1);
+        } else {
+            numberPost = randomNumPost.nextInt(maxNumFlashmobPostPerMonth * numOfmonths+1);
+        }
+        numberPost = (numberPost * user.getNumFriendsAdded()) / maxNumFriends;
+        return numberPost;
+    }
 
     @Override
-        protected int generateNumOfPost(Random randomNumPost, Group group) {
-            Integer[] groupTags = group.getTags();
-            TreeSet<Integer> tags = new TreeSet<Integer>(); 
-            for( int i = 0; i < groupTags.length; ++i ) {
-                tags.add(groupTags[i]);
-            }
-            Vector<FlashmobTag> temp = flashmobTagDictionary.generateFlashmobTags( tags, group.getCreatedDate() );
-            groupFlashmobTags = new FlashmobTag[temp.size()];
-            Iterator<FlashmobTag> it = temp.iterator();
-            int index = 0;
-            int sumLevels = 0;
-            while(it.hasNext()) {
-                FlashmobTag flashmobTag = new FlashmobTag();
-                it.next().copyTo(flashmobTag);
-                groupFlashmobTags[index] = flashmobTag; 
-                sumLevels+=flashmobTag.level;
-                ++index; 
-            }
-            Arrays.sort(groupFlashmobTags);
-            int size = groupFlashmobTags.length;
-            double currentProb = 0.0;
-            for( int i = 0; i < size; ++i ) {
-                groupFlashmobTags[i].prob = currentProb;
-                currentProb += (double)(groupFlashmobTags[i].level) / (double)(sumLevels);
-            }
-
-            int numOfmonths = (int) dateGen.numberOfMonths(group.getCreatedDate());
-            int numberPost;
-            if (numOfmonths == 0) {
-                numberPost = randomNumPost.nextInt(maxNumGroupFlashmobPostPerMonth);
-            } else {
-                numberPost = randomNumPost.nextInt(maxNumGroupFlashmobPostPerMonth * numOfmonths);
-            }
-            numberPost = (numberPost * group.getNumMemberAdded()) / maxNumMembers;
-            return numberPost;
+    protected int generateNumOfPost(Random randomNumPost, Group group) {
+        Integer[] groupTags = group.getTags();
+        TreeSet<Integer> tags = new TreeSet<Integer>();
+        for( int i = 0; i < groupTags.length; ++i ) {
+            tags.add(groupTags[i]);
         }
+        Vector<FlashmobTag> temp = flashmobTagDictionary.generateFlashmobTags( tags, group.getCreatedDate() );
+        groupFlashmobTags = new FlashmobTag[temp.size()];
+        Iterator<FlashmobTag> it = temp.iterator();
+        int index = 0;
+        int sumLevels = 0;
+        while(it.hasNext()) {
+            FlashmobTag flashmobTag = new FlashmobTag();
+            it.next().copyTo(flashmobTag);
+            groupFlashmobTags[index] = flashmobTag;
+            sumLevels+=flashmobTag.level;
+            ++index;
+        }
+        Arrays.sort(groupFlashmobTags);
+        int size = groupFlashmobTags.length;
+        double currentProb = 0.0;
+        for( int i = 0; i < size; ++i ) {
+            groupFlashmobTags[i].prob = currentProb;
+            currentProb += (double)(groupFlashmobTags[i].level) / (double)(sumLevels);
+        }
+
+        int numOfmonths = (int) dateGen.numberOfMonths(group.getCreatedDate());
+        int numberPost;
+        if (numOfmonths == 0) {
+            numberPost = randomNumPost.nextInt(maxNumGroupFlashmobPostPerMonth+1);
+        } else {
+            numberPost = randomNumPost.nextInt(maxNumGroupFlashmobPostPerMonth * numOfmonths+1);
+        }
+        numberPost = (numberPost * group.getNumMemberAdded()) / maxNumMembers;
+        return numberPost;
+    }
 }
