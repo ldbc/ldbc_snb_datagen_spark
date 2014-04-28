@@ -806,7 +806,7 @@ public class ScalableGenerator{
                 userInfo.extraInfo = extraInfo;
                 dataExporter.export(userInfo);
                 generatePosts(reducedUserProfilesCell[j], extraInfo);
-                //generateFlashmobPosts(reducedUserProfilesCell[j], extraInfo);
+                generateFlashmobPosts(reducedUserProfilesCell[j], extraInfo);
                 generatePhoto(reducedUserProfilesCell[j], extraInfo);
                 numProcessed++;
                 if( numProcessed % 100 == 0) context.setStatus("Generated post and photo for "+numProcessed+" users");
@@ -1276,7 +1276,7 @@ public class ScalableGenerator{
 
             dataExporter.export(group);
             generatePostForGroup(group);
-            //generateFlashmobPostForGroup(group);
+            generateFlashmobPostForGroup(group);
         }
     }
 
