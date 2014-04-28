@@ -61,10 +61,10 @@ public class StorageManager {
 			ReducedUserProfile userProfiles[]) {
 		try {
 			for (int i = 0; i < cellSize; i++) {
-				if (userProfiles[startIdex + i] != null){
+/*				if (userProfiles[startIdex + i] != null){
 					userProfiles[startIdex + i].clear();				
 					userProfiles[startIdex + i] = null;
-				}
+				}*/
 				userProfiles[startIdex + i] = (ReducedUserProfile) ois.readObject();
 				numberDeSerializedObject++;
 			}
@@ -77,10 +77,11 @@ public class StorageManager {
 	public void deserializeOneCellUserProfile(ReducedUserProfile userProfilesCell[]) {
 		try {
 			for (int i = 0; i < cellSize; i++) {
-				if (userProfilesCell[i] != null){
+/*				if (userProfilesCell[i] != null){
 					userProfilesCell[i].clear();
 					userProfilesCell[i] = null;
 				}
+				*/
 				ReducedUserProfile user = (ReducedUserProfile) ois.readObject();
 				userProfilesCell[i] = user;
 				numberDeSerializedObject++;

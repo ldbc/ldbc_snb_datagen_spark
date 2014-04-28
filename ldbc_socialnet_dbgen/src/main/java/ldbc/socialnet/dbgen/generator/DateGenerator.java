@@ -43,7 +43,6 @@ import java.util.GregorianCalendar;
 import java.util.Random;
 
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
-import ldbc.socialnet.dbgen.objects.UserProfile;
 import umontreal.iro.lecuyer.probdist.PowerDist;
 
 

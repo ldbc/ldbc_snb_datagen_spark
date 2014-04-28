@@ -45,7 +45,6 @@ public class UserExtraInfo {
 	String 				gender;
 	TreeSet<String>     email;
 	Vector<Integer>    languages; 
-	int                nativeLanguage;
 	String 				firstName;
 	String 				lastName; 
 	int                 locationId;
@@ -54,32 +53,18 @@ public class UserExtraInfo {
 	double				longt;
 	long 				university = -1;
 	HashMap<Long, Long> companies;
-
-	long               classYear; 				// When graduate from the institute		
-	
+	long               classYear; 				// When graduate from the institute
 	RelationshipStatus 	status;
-	long					specialFriendIdx; 	
-	
-	
+
 	public UserExtraInfo() {
 	    email = new TreeSet<String>();
 	    companies = new HashMap<Long, Long>();
 	}
-	
 	public long getClassYear() {
 		return classYear;
 	}
 	public void setClassYear(long classYear) {
 		this.classYear = classYear;
-	}
-	RelationshipStatus 		relationshipStatus;		
-	
-	
-	public RelationshipStatus getRelationshipStatus() {
-		return relationshipStatus;
-	}
-	public void setRelationshipStatus(RelationshipStatus relationshipStatus) {
-		this.relationshipStatus = relationshipStatus;
 	}
 	public String getGender() {
 		return gender;
@@ -99,13 +84,6 @@ public class UserExtraInfo {
     public void setLanguages(Vector<Integer> languages) {
         this.languages = languages;
     }
-    public Integer getNativeLanguage() {
-        return nativeLanguage;
-    }
-    public void setNativeLanguage(Integer nativeLanguage) {
-        this.nativeLanguage = nativeLanguage;
-    }
-
 	public String getFirstName() {
 		return firstName;
 	}
@@ -133,11 +111,9 @@ public class UserExtraInfo {
 	public long getUniversity() {
 		return university;
 	}
-
 	public void setUniversity( long university ) {
 		this.university = university;
 	}
-
 	public Set<Long> getCompanies() {
 		return companies.keySet();
 	}
@@ -146,19 +122,6 @@ public class UserExtraInfo {
 	}
 	public long getWorkFrom(long company) {
 		return companies.get(company);
-	}
-	
-	public RelationshipStatus getStatus() {
-		return status;
-	}
-	public void setStatus(RelationshipStatus status) {
-		this.status = status;
-	}
-	public long getSpecialFriendIdx() {
-		return specialFriendIdx;
-	}
-	public void setSpecialFriendIdx(long specialFriendIdx) {
-		this.specialFriendIdx = specialFriendIdx;
 	}
 	public double getLatt() {
 		return latt;
