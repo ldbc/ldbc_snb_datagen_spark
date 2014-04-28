@@ -54,11 +54,12 @@ public class Comment extends Message {
                  IP ipAddress,
                  String userAgent,
                  byte browserIdx,
+                 int locationId,
                  long postId,
                  long replyOf
     ) {
 
-        super(commentId, content, textSize, creationDate, authorId, groupId, tags, ipAddress, userAgent, browserIdx);
+        super(commentId, content, textSize, creationDate, authorId, groupId, tags, ipAddress, userAgent, browserIdx, locationId);
         this.postId = postId;
         this.replyOf = replyOf;
 	}

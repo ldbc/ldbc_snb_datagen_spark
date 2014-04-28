@@ -46,12 +46,7 @@ import ldbc.socialnet.dbgen.dictionary.TagTextDictionary;
 import ldbc.socialnet.dbgen.dictionary.UserAgentDictionary;
 import ldbc.socialnet.dbgen.dictionary.IPAddressDictionary;
 import ldbc.socialnet.dbgen.dictionary.BrowserDictionary;
-import ldbc.socialnet.dbgen.objects.Friend;
-import ldbc.socialnet.dbgen.objects.Group;
-import ldbc.socialnet.dbgen.objects.GroupMemberShip;
-import ldbc.socialnet.dbgen.objects.Post;
-import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
-import ldbc.socialnet.dbgen.objects.UserExtraInfo;
+import ldbc.socialnet.dbgen.objects.*;
 import ldbc.socialnet.dbgen.util.RandomGeneratorFarm;
 
 
@@ -84,10 +79,12 @@ abstract public class PostGenerator {
     private double reducedTextRatio;       /**< @brief The ratio of reduced texts.*/
     private double largePostRatio;         /**< @brief The ratio of large posts.*/
     private boolean generateText;          /**< @brief To generate text for post and comment.*/
-
     private long deltaTime;                /**< @brief Delta time.*/
+    private PowerDistGenerator likesGenerator;
+    protected DateGenerator dateGen;
 
-	public PostGenerator( TagTextDictionary tagTextDic, 
+	public PostGenerator( DateGenerator dateGen,
+                          TagTextDictionary tagTextDic,
                           UserAgentDictionary userAgentDic,
                           IPAddressDictionary ipAddressDic,
                           BrowserDictionary browserDic,
@@ -101,7 +98,7 @@ abstract public class PostGenerator {
                           boolean generateText,
                           long deltaTime
                           ){
-
+        this.dateGen = dateGen;
         this.tagTextDic = tagTextDic;
         this.userAgentDic = userAgentDic;
         this.ipAddressDic = ipAddressDic;
@@ -118,85 +115,65 @@ abstract public class PostGenerator {
         this.maxNumberOfLikes = maxNumberOfLikes;
         this.generateText = generateText;
         this.deltaTime = deltaTime;
+        this.likesGenerator = new PowerDistGenerator(1,maxNumberOfLikes,0.4);
 	}
 	
     /** @brief Initializes the post generator.*/
 	public void initialize() {
 	}
 	
-
-    /** @brief Gets an array of likes for a user.
-     *  @param[in] user The user.
-     *  @return The array of generated likes.*/
-	private long[] generateLikeFriends( Random randomNumLikes, ReducedUserProfile user, int numberOfLikes) {
-	    Friend[] friendList = user.getFriendList();
-	    int numFriends = user.getNumFriendsAdded();
-	    long[] friends;
-        if (numberOfLikes >= numFriends){
-            friends = new long[numFriends];
-            for (int i = 0; i < numFriends; i++) {
-                friends[i] = friendList[i].getFriendAcc();
-            }
-        } else {
-            friends = new long[numberOfLikes];
-            int startIdx = randomNumLikes.nextInt(numFriends - numberOfLikes);
-            for (int i = 0; i < numberOfLikes ; i++) {
-                friends[i] = friendList[i+startIdx].getFriendAcc();
+    /** @brief Assigns a set of likes to a post created by a user.
+     *  @param[in] user The user that created the post.*/
+    private void setLikes( Random randomNumLikes, Random randomDate, Message message, ReducedUserProfile user ) {
+        int numFriends = user.getNumFriendsAdded();
+        int numLikes = likesGenerator.getValue(randomNumLikes);
+        numLikes = numLikes >= numFriends ?  numFriends : numLikes;
+        Like[] likes = new Like[numLikes];
+        Friend[] friendList = user.getFriendList();
+        int startIndex = 0;
+        if( numLikes < numFriends ) {
+            startIndex = randomNumLikes.nextInt(numFriends - numLikes);
+        }
+        for (int i = 0; i < numLikes; i++) {
+            likes[i] = null;
+            long minDate = message.getCreationDate() > friendList[startIndex + i].getCreatedTime() ? message.getCreationDate() : friendList[startIndex + i].getCreatedTime();
+            long date = Math.max(dateGen.randomSevenDays(randomDate), deltaTime) + minDate;
+            if( date <= dateGen.getEndDateTime() ) {
+                likes[i] = new Like();
+                likes[i].user = friendList[startIndex + i].getFriendAcc();
+                likes[i].messageId = message.getMessageId();
+                likes[i].date = date;
+                likes[i].type = 0;
             }
         }
-        return friends;
-	}
-	
-    /** @brief Gets an array of likes for a group .
-     *  @param[in] group The group.
-     *  @param[in] numOfLikes The number of likes we want to generate
-     *  @return The array of generated likes.*/
-	private long[] generateLikeFriends(Random randomNumLikes, Group group, int numOfLikes){
+        message.setLikes(likes);
+    }
+
+    /** @brief Assigns a set of likes to a post created by a user.
+     *  @param[in] group The group where the post was created.*/
+    private void setLikes( Random randomNumLikes, Random randomDate, Message message, Group group ) {
+        int numMembers = group.getNumMemberAdded();
+        int numLikes = likesGenerator.getValue(randomNumLikes);
+        numLikes = numLikes >= numMembers ?  numMembers : numLikes;
+        Like[] likes = new Like[numLikes];
         GroupMemberShip groupMembers[] = group.getMemberShips();
-
-        int numAddedMember = group.getNumMemberAdded();
-        long friends[];
-        if (numOfLikes >= numAddedMember){
-            friends = new long[numAddedMember];
-            for (int j = 0; j < numAddedMember; j++){
-                friends[j] = groupMembers[j].getUserId();
+        int startIndex = 0;
+        if( numLikes < numMembers ) {
+            startIndex = randomNumLikes.nextInt(numMembers - numLikes);
+        }
+        for (int i = 0; i < numLikes; i++) {
+            likes[i] = null;
+            long minDate = message.getCreationDate() > groupMembers[startIndex + i].getJoinDate() ? message.getCreationDate() : groupMembers[startIndex + i].getJoinDate();
+            long date = Math.max(dateGen.randomSevenDays(randomDate), deltaTime) + minDate;
+            if( date <= dateGen.getEndDateTime() ) {
+                likes[i] = new Like();
+                likes[i].user = groupMembers[startIndex + i].getUserId();
+                likes[i].messageId = message.getMessageId();
+                likes[i].date = date;
+                likes[i].type = 0;
             }
-        } else{
-            friends = new long[numOfLikes];
-            int startIdx = randomNumLikes.nextInt(numAddedMember - numOfLikes);
-            for (int j = 0; j < numOfLikes; j++){
-                friends[j] = groupMembers[j+startIdx].getUserId();
-            }           
         }
-        return friends; 
-    }
-	
-    /** @brief Assigns a set of likes to a post created by a user.
-     *  @param[in] post The post to which we want to assign the likes.
-     *  @param[in] user The user that created the post.*/ 
-    private void setLikes( Random randomNumLikes, Random randomDate, Post post, ReducedUserProfile user ) {
-        int numberOfLikes = randomNumLikes.nextInt(maxNumberOfLikes);
-        long[] likes = generateLikeFriends(randomNumLikes,user, numberOfLikes);
-        post.setInterestedUserAccs(likes);
-        long[] likeTimestamp = new long[likes.length];
-        for (int i = 0; i < likes.length; i++) {
-            likeTimestamp[i] = (long)(randomDate.nextDouble()*DateGenerator.SEVEN_DAYS+post.getCreationDate()+deltaTime);
-        }
-        post.setInterestedUserAccsTimestamp(likeTimestamp);
-    }
-
-    /** @brief Assigns a set of likes to a post created by a user.
-     *  @param[in] post The post to which we want to assign the likes.
-     *  @param[in] group The group where the post was created.*/ 
-    private void setLikes( Random randomNumLikes, Random randomDate, Post post, Group group ) {
-        int numberOfLikes = randomNumLikes.nextInt(maxNumberOfLikes);
-        long[] likes = generateLikeFriends(randomNumLikes, group, numberOfLikes);
-        post.setInterestedUserAccs(likes);
-        long[] likeTimestamp = new long[likes.length];
-        for (int i = 0; i < likes.length; i++) {
-            likeTimestamp[i] = (long)(randomDate.nextDouble()*DateGenerator.SEVEN_DAYS+post.getCreationDate()+deltaTime);
-        }
-        post.setInterestedUserAccsTimestamp(likeTimestamp);
+        message.setLikes(likes);
     }
 
 
@@ -240,11 +217,14 @@ abstract public class PostGenerator {
                   ipAddressDic.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER),user.getIpAddress(), user.isFrequentChange(), postInfo.date),
                   userAgentDic.getUserAgentName(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT), user.isHaveSmartPhone(), user.getAgentIdx()),
                   browserDic.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), user.getBrowserIdx()),
+                  user.getCityId(),
                 extraInfo.getLanguages().get(languageIndex));
                 startPostId++;
 
             // Create post likes.
-                setLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), randomFarm.get(RandomGeneratorFarm.Aspect.DATE),post, user);
+                if( randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
+                    setLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), randomFarm.get(RandomGeneratorFarm.Aspect.DATE),post, user);
+                }
                 result.add(post);
             }
         }
@@ -290,11 +270,14 @@ abstract public class PostGenerator {
                   ipAddressDic.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER),memberShip.getIP(), memberShip.isFrequentChange(), postInfo.date),
                   userAgentDic.getUserAgentName(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT), memberShip.isHaveSmartPhone(), memberShip.getAgentIdx()),
                   browserDic.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), memberShip.getBrowserIdx()),
+                  -1,
                   -1);
                 startPostId++;
 
                 // Create the post likes
-                setLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), randomFarm.get(RandomGeneratorFarm.Aspect.DATE), post, group);
+                if( randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
+                    setLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), randomFarm.get(RandomGeneratorFarm.Aspect.DATE), post, group);
+                }
                 result.add(post);
             } 
         }

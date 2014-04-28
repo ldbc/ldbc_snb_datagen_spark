@@ -345,7 +345,7 @@ public class LocationDictionary {
 	 * Gets a country id based on population.
 	 * This method is assumed to be called in an ascending order of user ID.
 	 */
-	public int getLocation(int userId) {
+	public int getLocationForUser(int userId) {
 	    if (userId >= locationDistribution.get(curLocationIdx)) {
 	        curLocationIdx++;
 	    }
@@ -356,7 +356,7 @@ public class LocationDictionary {
     public void advanceToUser(int user) {
         curLocationIdx=0;
         for(int i = 0; i < user-1; ++i){
-            getLocation(i);
+            getLocationForUser(i);
         } 
     }
 	
@@ -394,4 +394,8 @@ public class LocationDictionary {
 	public int getLocationIdFromZOrder(int zOrderId) {
 		return sortLocation[zOrderId].id;
 	}
+
+    public Location getLocation( int id ) {
+        return locations.get(id);
+    }
 }

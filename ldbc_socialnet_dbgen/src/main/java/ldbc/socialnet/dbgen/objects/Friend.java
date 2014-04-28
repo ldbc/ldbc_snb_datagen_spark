@@ -43,7 +43,8 @@ import java.io.Serializable;
 
 public class Friend implements Serializable{
     private static final long serialVersionUID = 3657773293974543890L;
-	long friendAcc; 
+    long from;
+	long to;
 	long createdTime;			//approved Time 
 	long requestTime;			 
 	long declinedTime; 
@@ -62,8 +63,9 @@ public class Friend implements Serializable{
 	boolean 			isLargePoster;			// True if friend is a large poster.
 	
 	
-	public Friend(long friendAcc, long _requestedTime, long _declinedTime, long _createdTime, byte passidx, byte initiator, boolean isLargePoster){
-		this.friendAcc = friendAcc;
+	public Friend(long from, long to, long _requestedTime, long _declinedTime, long _createdTime, byte passidx, byte initiator, boolean isLargePoster){
+        this.from = from;
+		this.to = to;
 		this.requestTime = _requestedTime;
 		this.declinedTime = _declinedTime;
 		this.createdTime = _createdTime; 
@@ -74,7 +76,8 @@ public class Friend implements Serializable{
 	public Friend(){}
 	
 	public void readFields(DataInput arg0) throws IOException{
-		friendAcc = arg0.readLong();
+        from = arg0.readLong();
+		to = arg0.readLong();
 		createdTime = arg0.readLong();
 		requestTime = arg0.readLong();
 		declinedTime = arg0.readLong(); 
@@ -91,7 +94,8 @@ public class Friend implements Serializable{
 		this.isLargePoster = arg0.readBoolean();
 	}
 	public void write(DataOutput arg0) throws IOException {
-		arg0.writeLong(friendAcc);
+		arg0.writeLong(from);
+        arg0.writeLong(to);
 		arg0.writeLong(createdTime);
 		arg0.writeLong(requestTime);
 		arg0.writeLong(declinedTime);
@@ -107,30 +111,39 @@ public class Friend implements Serializable{
 		arg0.writeBoolean(isLargePoster);
 	}
 
-	public Friend(ReducedUserProfile user, long _requestedTime, long _declinedTime, long _createdTime, 
+	public Friend(ReducedUserProfile from, ReducedUserProfile to, long _requestedTime, long _declinedTime, long _createdTime,
 	        byte passidx, byte initiator){
-	    this.friendAcc = user.getAccountId();
+	    this.from = from.getAccountId();
+        this.to = to.getAccountId();
 	    this.requestTime = _requestedTime;
 	    this.declinedTime = _declinedTime;
 	    this.createdTime = _createdTime; 
 	    this.passIdx = passidx; 
 	    this.initiator = initiator;
 
-	    this.isHaveSmartPhone = user.isHaveSmartPhone;
-	    this.agentIdx = user.getAgentIdx();
-	    this.browserIdx = user.getBrowserIdx();
-	    this.isFrequentChange = user.isFrequentChange; 
-	    this.setSourceIp(user.getIpAddress());
-	    this.isLargePoster = user.isLargePoster();
+	    this.isHaveSmartPhone = to.isHaveSmartPhone;
+	    this.agentIdx = to.getAgentIdx();
+	    this.browserIdx = to.getBrowserIdx();
+	    this.isFrequentChange = to.isFrequentChange;
+	    this.setSourceIp(to.getIpAddress());
+	    this.isLargePoster = to.isLargePoster();
 	}	
 	
 	
 	public long getFriendAcc() {
-		return friendAcc;
+		return to;
 	}
 	public void setFriendAcc(long friendAcc) {
-		this.friendAcc = friendAcc;
+		this.to = friendAcc;
 	}
+
+    public long getUserAcc() {
+        return from;
+    }
+
+    public void setUserAcc(long from) {
+        this.from = from;
+    }
 	public long getCreatedTime() {
 		return createdTime;
 	}

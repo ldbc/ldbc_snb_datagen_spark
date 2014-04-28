@@ -43,20 +43,17 @@ import java.util.Vector;
 
 public class UserExtraInfo {
 	String 				gender;
-	//long 				dateOfBirth;
 	TreeSet<String>     email;
 	Vector<Integer>    languages; 
 	int                nativeLanguage;
-	//String 				sourceIp; 			// Source IP address
-	String 				firstName; 
+	String 				firstName;
 	String 				lastName; 
 	int                 locationId;
 	String 				location;
 	double				latt; 
-	double				longt; 
-	String 				organization; 
-	String 				institution;
-	HashMap<String, Long> companies;
+	double				longt;
+	long 				university = -1;
+	HashMap<Long, Long> companies;
 
 	long               classYear; 				// When graduate from the institute		
 	
@@ -66,7 +63,7 @@ public class UserExtraInfo {
 	
 	public UserExtraInfo() {
 	    email = new TreeSet<String>();
-	    companies = new HashMap<String, Long>();
+	    companies = new HashMap<Long, Long>();
 	}
 	
 	public long getClassYear() {
@@ -133,21 +130,21 @@ public class UserExtraInfo {
 	public void setLocation(String location) {
 		this.location = location;
 	}
-	public String getUniversity() {
-		return organization;
+	public long getUniversity() {
+		return university;
 	}
 
-	public void setUniversity(String organization) {
-		this.organization = organization;
+	public void setUniversity( long university ) {
+		this.university = university;
 	}
 
-	public Set<String> getCompanies() {
+	public Set<Long> getCompanies() {
 		return companies.keySet();
 	}
-	public void addCompany(String company, long workFrom) {
+	public void addCompany(long company, long workFrom) {
 		this.companies.put(company, workFrom);
 	}
-	public long getWorkFrom(String company) {
+	public long getWorkFrom(long company) {
 		return companies.get(company);
 	}
 	

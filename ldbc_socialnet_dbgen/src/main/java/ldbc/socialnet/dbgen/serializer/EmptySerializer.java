@@ -36,12 +36,7 @@
  */
 package ldbc.socialnet.dbgen.serializer;
 
-import ldbc.socialnet.dbgen.objects.Comment;
-import ldbc.socialnet.dbgen.objects.Group;
-import ldbc.socialnet.dbgen.objects.Photo;
-import ldbc.socialnet.dbgen.objects.Post;
-import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
-import ldbc.socialnet.dbgen.objects.UserExtraInfo;
+import ldbc.socialnet.dbgen.objects.*;
 
 /**
  * The empty serializer does nothing. 
@@ -56,21 +51,76 @@ public class EmptySerializer implements Serializer {
 	public Long unitsGenerated() {
 		return 0L;
 	}
-	
-	public void gatherData(ReducedUserProfile profile, UserExtraInfo extraInfo){
-	}
 
-	public void gatherData(Post post){
-	}
+    @Override
+    public void serialize(UserInfo info) {
 
-	public void gatherData(Comment comment){
-	}
+    }
 
-	public void gatherData(Photo photo){
-	}
-	
-	public void gatherData(Group group) {
-	}
+    @Override
+    public void serialize(Friend friend) {
+
+    }
+
+    @Override
+    public void serialize(Post post) {
+
+    }
+
+    @Override
+    public void serialize(Like like) {
+
+    }
+
+    @Override
+    public void serialize(Photo photo) {
+
+    }
+
+    @Override
+    public void serialize(Comment comment) {
+
+    }
+
+    @Override
+    public void serialize(Group group) {
+
+    }
+
+    @Override
+    public void serialize(GroupMemberShip membership) {
+
+    }
+
+    @Override
+    public void serialize(WorkAt workAt) {
+
+    }
+
+    @Override
+    public void serialize(StudyAt studyAt) {
+
+    }
+
+    @Override
+    public void serialize(Organization organization) {
+
+    }
+
+    @Override
+    public void serialize(Tag tag) {
+
+    }
+
+    @Override
+    public void serialize(Location location) {
+
+    }
+
+    @Override
+    public void serialize(TagClass tagClass) {
+
+    }
 
 	public void close() {
 	}

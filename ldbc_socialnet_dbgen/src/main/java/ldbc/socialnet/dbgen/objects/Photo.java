@@ -38,88 +38,47 @@ package ldbc.socialnet.dbgen.objects;
 
 import java.util.TreeSet;
 
-public class Photo {
-    long photoId; 
-    String image;
-    long albumId; 
-    int locationIdx; 
-    long creatorId;		// Id of user's account
+public class Photo extends Message {
+    int locationIdx;
     String locationName;
     double latt; 
-    double longt; 
-    long takenTime; 
-    TreeSet<Integer> tags;
-    long[] interestedUserAccs;
-    long[] interestedUserAccsTimestamp;
+    double longt;
 
-    IP ipAddress; 
-    String userAgent;				// Send from where e.g., iPhone, Samsung, HTC
-
-    byte 	browserIdx; 
-
-    public long getCreatorId() {
-        return creatorId;
-    }
-    public void setCreatorId(long creatorId) {
-        this.creatorId = creatorId;
-    }
-    public byte getBrowserIdx() {
-        return browserIdx;
-    }
-    public void setBrowserIdx(byte browserIdx) {
-        this.browserIdx = browserIdx;
-    }
-    public IP getIpAddress() {
-        return ipAddress;
-    }
-    public void setIpAddress(IP ipAddress) {
-        this.ipAddress = ipAddress;
-    }
-    public String getUserAgent() {
-        return userAgent;
-    }
-    public void setUserAgent(String userAgent) {
-        this.userAgent = userAgent;
-    }
-    public long getPhotoId() {
-        return photoId;
-    }
-    public void setPhotoId(long photoId) {
-        this.photoId = photoId;
+    /**
+     * < @brief The timestamps when the interested users where actually interested.
+     *
+     * @param messageId
+     * @param content
+     * @param textSize
+     * @param creationDate
+     * @param authorId
+     * @param groupId
+     * @param tags
+     * @param ipAddress
+     * @param userAgent
+     * @param browserIdx
+     */
+    public Photo(long messageId,
+                 String content,
+                 int textSize,
+                 long creationDate,
+                 long authorId,
+                 long groupId,
+                 TreeSet<Integer> tags,
+                 IP ipAddress,
+                 String userAgent,
+                 byte browserIdx,
+                 int locationId,
+                 String locationName,
+                 double latt,
+                 double longt
+                 ) {
+        super(messageId, content, textSize, creationDate, authorId, groupId, tags, ipAddress, userAgent, browserIdx, locationId);
+        this.locationName = locationName;
+        this.latt = latt;
+        this.longt = longt;
     }
 
-    public void setImage(String image) {
-        this.image = image;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public long getAlbumId() {
-        return albumId;
-    }
-    public void setAlbumId(long albumId) {
-        this.albumId = albumId;
-    }
-    public int getLocationId() {
-        return locationIdx;
-    }
-    public void setLocationId(int locationIdx) {
-        this.locationIdx = locationIdx;
-    }
-    public long getTakenTime() {
-        return takenTime;
-    }
-    public void setTakenTime(long takenTime) {
-        this.takenTime = takenTime;
-    }
-    public TreeSet<Integer>  getTags() {
-        return tags;
-    }
-    public void setTags(TreeSet<Integer> tags) {
-        this.tags = tags;
-    }
     public double getLatt() {
         return latt;
     }
@@ -137,17 +96,5 @@ public class Photo {
     }
     public void setLocationName(String locationName) {
         this.locationName = locationName;
-    }
-    public long[] getInterestedUserAccs() {
-        return interestedUserAccs;
-    }
-    public void setInterestedUserAccs(long[] interestedUserAccs) {
-        this.interestedUserAccs = interestedUserAccs;
-    }	
-    public long[] getInterestedUserAccsTimestamp() {
-        return interestedUserAccsTimestamp;
-    }
-    public void setInterestedUserAccsTimestamp(long[] timestamps) {
-        this.interestedUserAccsTimestamp = timestamps;
     }
 }

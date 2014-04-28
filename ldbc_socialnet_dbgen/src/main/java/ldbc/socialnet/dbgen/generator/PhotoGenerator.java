@@ -41,11 +41,8 @@ import java.util.Random;
 
 import ldbc.socialnet.dbgen.dictionary.LocationDictionary;
 import ldbc.socialnet.dbgen.dictionary.PopularPlacesDictionary;
-import ldbc.socialnet.dbgen.objects.Group;
-import ldbc.socialnet.dbgen.objects.GroupMemberShip;
-import ldbc.socialnet.dbgen.objects.Photo;
-import ldbc.socialnet.dbgen.objects.PopularPlace;
-import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
+import ldbc.socialnet.dbgen.objects.*;
+import ldbc.socialnet.dbgen.util.RandomGeneratorFarm;
 
 
 public class PhotoGenerator {
@@ -53,72 +50,62 @@ public class PhotoGenerator {
 	DateGenerator		dateGenerator;
 	LocationDictionary locationDic;
 	PopularPlacesDictionary dicPopularPlaces; 
-	Random 				rand;
-	Random				randLikes;
 
-	Random				randPopularPlaces;
-	Random				randPopularPlacesId; 
-	double				probPopularPlaces;			
-	
-	public PhotoGenerator(DateGenerator _dateGen, LocationDictionary locationDic, 
+	double				probPopularPlaces;
+    long              deltaTime;
+    private RandomGeneratorFarm randomFarm;
+    private PowerDistGenerator likesGenerator;
+
+    public PhotoGenerator(DateGenerator _dateGen, LocationDictionary locationDic,
 						long _seed, PopularPlacesDictionary _dicPopularPlaces,
-						double _probPopularPlaces){
+						double _probPopularPlaces, int maxNumberOfLikes, long deltaTime, RandomGeneratorFarm randomFarm){
 		this.dateGenerator = _dateGen; 
 		this.locationDic = locationDic; 
-		rand = new Random(_seed);
-		randLikes = new Random(_seed);
-		this.dicPopularPlaces = _dicPopularPlaces; 
-		this.randPopularPlaces = new Random(_seed);
-		this.randPopularPlacesId = new Random(_seed);
+		this.dicPopularPlaces = _dicPopularPlaces;
 		this.probPopularPlaces = _probPopularPlaces;
+        this.deltaTime = deltaTime;
+        this.randomFarm = randomFarm;
+        this.likesGenerator = new PowerDistGenerator(1,maxNumberOfLikes,0.4);
 	}
 	
 	public Photo generatePhoto(ReducedUserProfile user, Group album, 
-								int idxInAlbum, int maxNumLikes, long photoId){
-		Photo photo = new Photo();
-		
-		photo.setAlbumId(album.getGroupId());
-		photo.setCreatorId(album.getModeratorId());
+								int idxInAlbum, long photoId){
+
 		int locationId = album.getLocationIdx();
+        double latt = 0;
+        double longt = 0;
+        String locationName = "";
 		byte numPopularPlace = user.getNumPopularPlace();
-		
-		photo.setLocationId(locationId);
 		if (numPopularPlace == 0){
-			photo.setLocationName(locationDic.getLocationName(locationId));
-			photo.setLatt(locationDic.getLatt(locationId));
-			photo.setLongt(locationDic.getLongt(locationId));
+			locationName = locationDic.getLocationName(locationId);
+			latt = locationDic.getLatt(locationId);
+			longt = locationDic.getLongt(locationId);
 		} else{
 			int popularPlaceId;
 			PopularPlace popularPlace;
-			if (randPopularPlaces.nextDouble() < probPopularPlaces){
+			if (randomFarm.get(RandomGeneratorFarm.Aspect.POPULAR).nextDouble() < probPopularPlaces){
 				//Generate photo information from user's popular place
-				int popularIndex = randPopularPlacesId.nextInt(numPopularPlace);
+				int popularIndex = randomFarm.get(RandomGeneratorFarm.Aspect.POPULAR).nextInt(numPopularPlace);
 				popularPlaceId = user.getPopularId(popularIndex);
 				popularPlace = dicPopularPlaces.getPopularPlace(user.getLocationId(),popularPlaceId);
-				photo.setLocationName(popularPlace.getName());
-				photo.setLatt(popularPlace.getLatt());
-				photo.setLongt(popularPlace.getLongt());
+				locationName = popularPlace.getName();
+				latt = popularPlace.getLatt();
+				longt = popularPlace.getLongt();
 			} else{
 				// Randomly select one places from Album location idx
-				popularPlaceId = dicPopularPlaces.getPopularPlace(rand,locationId);
+				popularPlaceId = dicPopularPlaces.getPopularPlace(randomFarm.get(RandomGeneratorFarm.Aspect.POPULAR),locationId);
 				if (popularPlaceId != -1){
 					popularPlace = dicPopularPlaces.getPopularPlace(locationId, popularPlaceId);
-					photo.setLocationName(popularPlace.getName());
-					photo.setLatt(popularPlace.getLatt());
-					photo.setLongt(popularPlace.getLongt());
+					locationName = popularPlace.getName();
+					latt = popularPlace.getLatt();
+					longt = popularPlace.getLongt();
 				} else{
-					photo.setLocationName(locationDic.getLocationName(locationId));
-					photo.setLatt(locationDic.getLatt(locationId));
-					photo.setLongt(locationDic.getLongt(locationId));
+					locationName = locationDic.getLocationName(locationId);
+					latt = locationDic.getLatt(locationId);
+					longt = locationDic.getLongt(locationId);
 				}
 			}
 		}
-		
-		photo.setPhotoId(photoId);
-		photo.setImage("photo" + photo.getPhotoId() + ".jpg");
-		
-		//Assume that the photo are created one by one after 1 second from the creation of the album
-		photo.setTakenTime(album.getCreatedDate() + 1000*(idxInAlbum+1));	
 		
 		TreeSet<Integer> tags = new TreeSet<Integer>();
 //        Iterator<Integer> it = user.getSetOfTags().iterator();
@@ -132,36 +119,40 @@ public class PhotoGenerator {
 //                }
 //            }
 //        }
-        photo.setTags(tags);
-		
-		int numberOfLikes = randLikes.nextInt(maxNumLikes);
-		long[] likes = getFriendsLiked(album, numberOfLikes);
-		photo.setInterestedUserAccs(likes);
-        long[] likeTimestamp = new long[likes.length];
-        for (int i = 0; i < likes.length; i++) {
-            likeTimestamp[i] = (long)(rand.nextDouble()*DateGenerator.SEVEN_DAYS+photo.getTakenTime());
+
+        long date = album.getCreatedDate()+deltaTime+1000*(idxInAlbum+1);
+        if( date > dateGenerator.getEndDateTime() )  return null;
+        Photo photo = new Photo(photoId,"photo"+photoId+".jpg",0,date,album.getModeratorId(),album.getGroupId(),tags,null,new String(""),(byte)-1,locationId,locationName,latt,longt);
+        if( randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
+            setLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE),randomFarm.get(RandomGeneratorFarm.Aspect.DATE),photo,album);
         }
-        photo.setInterestedUserAccsTimestamp(likeTimestamp);
-		
-		return photo; 
+		return photo;
 	}
-	
-	public long[] getFriendsLiked(Group album, int numOfLikes){
-		GroupMemberShip fullMembers[] = album.getMemberShips();
-		
-		long friends[];
-		if (numOfLikes >= album.getNumMemberAdded()){
-			friends = new long[album.getNumMemberAdded()];
-			for (int j = 0; j < album.getNumMemberAdded(); j++){
-				friends[j] = fullMembers[j].getUserId();
-			}
-		} else{
-			friends = new long[numOfLikes];
-			int startIdx = randLikes.nextInt(album.getNumMemberAdded() - numOfLikes);
-			for (int j = 0; j < numOfLikes; j++){
-				friends[j] = fullMembers[j+startIdx].getUserId();
-			}			
-		}
-		return friends;
-	}
+
+    /** @brief Assigns a set of likes to a post created by a user.
+     *  @param[in] group The group where the post was created.*/
+    private void setLikes( Random randomNumLikes, Random randomDate, Message message, Group group) {
+        int numMembers = group.getNumMemberAdded();
+        int numLikes = likesGenerator.getValue(randomNumLikes);
+        numLikes = numLikes >= numMembers ?  numMembers : numLikes;
+        Like[] likes = new Like[numLikes];
+        GroupMemberShip groupMembers[] = group.getMemberShips();
+        int startIndex = 0;
+        if( numLikes < numMembers ) {
+            startIndex = randomNumLikes.nextInt(numMembers - numLikes);
+        }
+        for (int i = 0; i < numLikes; i++) {
+            likes[i] = null;
+            long minDate = message.getCreationDate() > groupMembers[startIndex+i].getJoinDate() ? message.getCreationDate() : groupMembers[startIndex+i].getJoinDate();
+            long date = Math.max(dateGenerator.randomSevenDays(randomDate),deltaTime) + minDate;
+            if( date <= dateGenerator.getEndDateTime() ) {
+                likes[i] = new Like();
+                likes[i].user = groupMembers[startIndex + i].getUserId();
+                likes[i].messageId = message.getMessageId();
+                likes[i].date = date;
+                likes[i].type = 2;
+            }
+        }
+        message.setLikes(likes);
+    }
 }

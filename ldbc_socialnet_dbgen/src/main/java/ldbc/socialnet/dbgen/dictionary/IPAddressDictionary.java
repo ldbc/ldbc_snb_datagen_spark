@@ -45,6 +45,7 @@ import java.util.Vector;
 
 import ldbc.socialnet.dbgen.generator.DateGenerator;
 import ldbc.socialnet.dbgen.objects.IP;
+import ldbc.socialnet.dbgen.objects.Location;
 
 
 public class IPAddressDictionary {
@@ -134,6 +135,9 @@ public class IPAddressDictionary {
 	}
 	
 	public IP getRandomIPFromLocation(Random random, int locationIdx) {
+        while(locationDic.getType(locationIdx) != "country") {
+            locationIdx = locationDic.belongsTo(locationIdx);
+        }
 		Vector<IP> countryIPs = ipsByCountry.get(locationIdx);
 		int idx = random.nextInt(countryIPs.size());
 		

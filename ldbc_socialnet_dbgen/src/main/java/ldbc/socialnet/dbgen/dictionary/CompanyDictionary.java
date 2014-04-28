@@ -41,10 +41,7 @@ import ldbc.socialnet.dbgen.util.RandomGeneratorFarm;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Random;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * This class reads the file containing the names and countries for the companies used in the ldbc socialnet generation and 
@@ -55,9 +52,10 @@ public class CompanyDictionary {
     private static final String SEPARATOR = "  ";
     
 	String fileName;
-	
-	HashMap<String, Integer> companyLocation;
-	HashMap<Integer, Vector<String>> companiesByLocations;
+
+    TreeMap<Long, String>   companyName;
+	TreeMap<Long, Integer> companyLocation;
+	TreeMap<Integer, Vector<Long>> companiesByLocations;
 	LocationDictionary locationDic;
 	
     double probUnCorrelatedCompany;
@@ -81,10 +79,11 @@ public class CompanyDictionary {
      * Initializes the dictionary extracting the data from the file.
      */
 	public void init() {
-	    companyLocation = new HashMap<String, Integer>();
-	    companiesByLocations = new HashMap<Integer, Vector<String>>();
+        companyName = new TreeMap<Long,String>();
+	    companyLocation = new TreeMap<Long, Integer>();
+	    companiesByLocations = new TreeMap<Integer, Vector<Long>>();
 	    for (Integer id : locationDic.getCountries()){
-	        companiesByLocations.put(id, new Vector<String>());
+	        companiesByLocations.put(id, new Vector<Long>());
 	    }
 	    try {
             BufferedReader dictionary = new BufferedReader(
@@ -92,15 +91,16 @@ public class CompanyDictionary {
             String line;  
             int previousId = -2;
             int currentId = -1; 
-            int totalNumCompanies = 0;
+            long totalNumCompanies = 0;
             while ((line = dictionary.readLine()) != null) {
                 String data[] = line.split(SEPARATOR);
                 String locationName = data[0];
                 String companyName  = data[1].trim();
                 if (locationDic.getCountryId(locationName) != LocationDictionary.INVALID_LOCATION) {
                     currentId  = locationDic.getCountryId(locationName);
-                    companiesByLocations.get(currentId).add(companyName);
-                    companyLocation.put(companyName, currentId);
+                    companiesByLocations.get(currentId).add(totalNumCompanies);
+                    companyLocation.put(totalNumCompanies, currentId);
+                    this.companyName.put(totalNumCompanies, companyName);
                     totalNumCompanies++;
                 }
             }
@@ -115,7 +115,7 @@ public class CompanyDictionary {
 	/**
 	 * Gets the company country id.
 	 */
-	public int getCountry(String company) {
+	public int getCountry(Long company) {
 	    return companyLocation.get(company);
 	}
 	
@@ -124,7 +124,7 @@ public class CompanyDictionary {
 	 * a random one will be selected.
 	 * @param countryId: A country id.
 	 */
-	public String getRandomCompany(RandomGeneratorFarm randomFarm, int countryId) {
+	public long getRandomCompany(RandomGeneratorFarm randomFarm, int countryId) {
 		int locId = countryId;
 		Vector<Integer> countries = locationDic.getCountries();
 		if (randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_COMPANY).nextDouble() <= probUnCorrelatedCompany) {
@@ -138,8 +138,15 @@ public class CompanyDictionary {
 		return companiesByLocations.get(locId).get(randomCompanyIdx);
 	}
 
-
-    public Set<String> getCompanies() {
+    public Set<Long> getCompanies() {
         return companyLocation.keySet();
+    }
+
+    public int getNumCompanies() {
+        return companyName.size();
+    }
+
+    public String getCompanyName( long id ) {
+        return companyName.get(id);
     }
 }
