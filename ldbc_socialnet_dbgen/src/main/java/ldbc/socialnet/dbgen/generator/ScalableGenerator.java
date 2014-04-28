@@ -721,8 +721,8 @@ public class ScalableGenerator{
                 flashmobTagDictionary,
                 topicTagDictionary,
                 maxNumFlashmobPostPerMonth,
-                maxNumFriends,
                 maxNumGroupFlashmobPostPerMonth,
+                maxNumFriends,
                 maxNumMemberGroup,
                 maxNumTagPerFlashmobPost,
                 flashmobDistFile
@@ -765,8 +765,8 @@ public class ScalableGenerator{
      * @param numCell The number of cells the generator will parse.
      */
     public void generateUserActivity(String inputFile, int numCell, Reducer<MapReduceKey, ReducedUserProfile,MapReduceKey, ReducedUserProfile>.Context context) {
-        context.setStatus("Generating post and photo");
-        generatePostandPhoto(inputFile, numCell,context);
+        context.setStatus("Generating posts and photos");
+        generatePostsAndPhotos(inputFile, numCell,context);
         context.setStatus("Generating the rest of groups");
         generateAllGroup(inputFile, numCell,context);
     }
@@ -789,7 +789,7 @@ public class ScalableGenerator{
      * @param inputFile The hadoop file with the user serialization (data and friends)
      * @param numCells The number of cells the generator will parse.
      */
-    public void generatePostandPhoto(String inputFile, int numCells, Reducer<MapReduceKey, ReducedUserProfile,MapReduceKey, ReducedUserProfile>.Context context) {
+    public void generatePostsAndPhotos(String inputFile, int numCells, Reducer<MapReduceKey, ReducedUserProfile,MapReduceKey, ReducedUserProfile>.Context context) {
         int numProcessed = 0;
         reducedUserProfilesCell = new ReducedUserProfile[cellSize];
         StorageManager storeManager = new StorageManager(cellSize, windowSize);
@@ -805,9 +805,9 @@ public class ScalableGenerator{
                 userInfo.user = reducedUserProfilesCell[j];
                 userInfo.extraInfo = extraInfo;
                 dataExporter.export(userInfo);
-                generatePosts(reducedUserProfilesCell[j], extraInfo);
-                generateFlashmobPosts(reducedUserProfilesCell[j], extraInfo);
-                generatePhoto(reducedUserProfilesCell[j], extraInfo);
+                generatePosts(uniformPostGenerator,reducedUserProfilesCell[j], extraInfo);
+                generatePosts(flashmobPostGenerator,reducedUserProfilesCell[j], extraInfo);
+                generatePhotos(reducedUserProfilesCell[j], extraInfo);
                 numProcessed++;
                 if( numProcessed % 100 == 0) context.setStatus("Generated post and photo for "+numProcessed+" users");
             }
@@ -1077,9 +1077,8 @@ public class ScalableGenerator{
         exactOutput = exactOutput + cellSize;
     }
 
-    public void generatePosts(ReducedUserProfile user, UserExtraInfo extraInfo){
-        // Generate location-related posts
-        Vector<Post> createdPosts = uniformPostGenerator.createPosts( randomFarm, user, extraInfo, postId );
+    public void generatePosts(PostGenerator postGenerator, ReducedUserProfile user, UserExtraInfo extraInfo){
+        Vector<Post> createdPosts = postGenerator.createPosts( randomFarm, user, extraInfo, postId );
         postId+=createdPosts.size();
         Iterator<Post> it = createdPosts.iterator();
         while(it.hasNext()) {
@@ -1120,52 +1119,7 @@ public class ScalableGenerator{
         }
     }
 
-    public void generateFlashmobPosts(ReducedUserProfile user, UserExtraInfo extraInfo){
-        // Generate location-related posts
-        Vector<Post> createdPosts = flashmobPostGenerator.createPosts( randomFarm, user, extraInfo, postId );
-        postId += createdPosts.size();
-        Iterator<Post> it = createdPosts.iterator();
-        while(it.hasNext()){
-            Post post = it.next();
-            String countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(post.getIpAddress())));
-            stats.countries.add(countryName);
-
-            GregorianCalendar date = new GregorianCalendar();
-            date.setTimeInMillis(post.getCreationDate());
-            String strCreationDate = DateGenerator.formatYear(date);
-            if (stats.maxPostCreationDate == null) {
-                stats.maxPostCreationDate = strCreationDate;
-                stats.minPostCreationDate = strCreationDate;
-            } else {
-                if (stats.maxPostCreationDate.compareTo(strCreationDate) < 0) {
-                    stats.maxPostCreationDate = strCreationDate;
-                }
-                if (stats.minPostCreationDate.compareTo(strCreationDate) > 0) {
-                    stats.minPostCreationDate = strCreationDate;
-                }
-            }
-            dataExporter.export(post);
-
-            // Generate comments
-            int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments+1);
-            ArrayList<Message> replyCandidates = new ArrayList<Message>();
-            replyCandidates.add(post);
-            for (int l = 0; l < numComment; l++) {
-                int replyIndex = randomFarm.get(RandomGeneratorFarm.Aspect.REPLY_TO).nextInt(replyCandidates.size());
-                Comment comment = commentGenerator.createComment(randomFarm, postId, post, replyCandidates.get(replyIndex),user);
-                //              if (comment.getAuthorId() != -1) {
-                if ( comment!=null ) {
-                    countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(comment.getIpAddress())));
-                    stats.countries.add(countryName);
-                    dataExporter.export(comment);
-                    if( comment.getTextSize() > 10 ) replyCandidates.add(comment);
-                    postId++;
-                }
-            }
-        }
-    }
-
-    public void generatePhoto(ReducedUserProfile user, UserExtraInfo extraInfo){
+    public void generatePhotos(ReducedUserProfile user, UserExtraInfo extraInfo){
         // Generate photo Album and photos
         int numOfmonths = (int) dateTimeGenerator.numberOfMonths(user);
         int numPhotoAlbums = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_PHOTO_ALBUM).nextInt(maxNumPhotoAlbumsPerMonth+1);
@@ -1275,13 +1229,13 @@ public class ScalableGenerator{
             }
 
             dataExporter.export(group);
-            generatePostForGroup(group);
-            generateFlashmobPostForGroup(group);
+            generatePostForGroup(uniformPostGenerator,group);
+            generatePostForGroup(flashmobPostGenerator,group);
         }
     }
 
-    public void generatePostForGroup(Group group) {
-        Vector<Post> createdPosts =  uniformPostGenerator.createPosts( randomFarm, group, postId);
+    public void generatePostForGroup(PostGenerator postGenerator, Group group) {
+        Vector<Post> createdPosts =  postGenerator.createPosts( randomFarm, group, postId);
         postId+=createdPosts.size();
         Iterator<Post> it = createdPosts.iterator();
         while(it.hasNext()) {
@@ -1307,36 +1261,7 @@ public class ScalableGenerator{
         }
     }
 
-    public void generateFlashmobPostForGroup(Group group) {
-        Vector<Post> createdPosts = flashmobPostGenerator.createPosts( randomFarm, group, postId);
-        postId+=createdPosts.size();
-        Iterator<Post> it = createdPosts.iterator();
-        while(it.hasNext() ) {
-            Post groupPost = it.next();
-            String countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(groupPost.getIpAddress())));
-            stats.countries.add(countryName);
-            dataExporter.export(groupPost);
-
-            int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments+1);
-            ArrayList<Message> replyCandidates = new ArrayList<Message>();
-            replyCandidates.add(groupPost);
-            for (int j = 0; j < numComment; j++) {
-                int replyIndex = randomFarm.get(RandomGeneratorFarm.Aspect.REPLY_TO).nextInt(replyCandidates.size());
-                Comment comment = commentGenerator.createComment(randomFarm, postId, groupPost, replyCandidates.get(replyIndex), group);
-                if ( comment!=null ) { // In case the comment is not reated because of the friendship's createddate
-                    countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(comment.getIpAddress())));
-                    stats.countries.add(countryName);
-                    dataExporter.export(comment);
-                    if( comment.getTextSize() > 10 ) replyCandidates.add(comment);
-                    postId++;
-                }
-            }
-        }
-    }
-
-
     public UserProfile generateGeneralInformation(int accountId) {
-
         // User Creation
         long creationDate = dateTimeGenerator.randomDateInMillis( randomFarm.get(RandomGeneratorFarm.Aspect.DATE) );
         int locationId = locationDictionary.getLocationForUser(accountId);

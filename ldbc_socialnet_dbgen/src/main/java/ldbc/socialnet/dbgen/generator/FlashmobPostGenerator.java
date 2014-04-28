@@ -37,11 +37,7 @@
 
 package ldbc.socialnet.dbgen.generator;
 
-import java.util.TreeSet;
-import java.util.Iterator;
-import java.util.Random;
-import java.util.Vector;
-import java.util.Arrays;
+import java.util.*;
 
 import ldbc.socialnet.dbgen.generator.DateGenerator;
 import ldbc.socialnet.dbgen.generator.ScalableGenerator;
@@ -118,6 +114,7 @@ public class FlashmobPostGenerator extends PostGenerator {
         this.flashmobSpan = 72 * hoursToMillis;
         this.maxNumFlashmobPostPerMonth = maxNumFlashmobPostPerMonth;
         this.maxNumGroupFlashmobPostPerMonth = maxNumGroupFlashmobPostPerMonth;
+        this.maxNumTagPerFlashmobPost = maxNumTagPerFlashmobPost;
         this.maxNumFriends = maxNumFriends;
         this.maxNumMembers = maxNumMembers;
     }
@@ -175,9 +172,17 @@ public class FlashmobPostGenerator extends PostGenerator {
         FlashmobTag flashmobTag = userFlashmobTags[index];
         if( flashmobTag.date < user.getCreationDate() )  return null;
         postInfo.tags.add(flashmobTag.tag);
-        postInfo.tags.addAll(tagMatrix.getSetofTags(randomTag,randomTag,flashmobTag.tag, maxNumTagPerFlashmobPost - 1));
+        Set<Integer> extraTags = tagMatrix.getSetofTags(randomTag,randomTag,flashmobTag.tag, maxNumTagPerFlashmobPost - 1);
+        Iterator<Integer> it = extraTags.iterator();
+        while (it.hasNext()) {
+            Integer value = it.next();
+            if(randomTag.nextDouble() < 0.05) {
+                postInfo.tags.add(value);
+            }
+        }
         double prob = dateDistribution.nextDouble(randomDate);
         postInfo.date = flashmobTag.date - flashmobSpan/2 + (long)( prob * flashmobSpan);
+        if( postInfo.date > dateGen.getEndDateTime() ) return null;
         return postInfo;
     }
 
@@ -190,9 +195,18 @@ public class FlashmobPostGenerator extends PostGenerator {
         index = selectRandomTag( randomTag, groupFlashmobTags,index);
         FlashmobTag flashmobTag =  groupFlashmobTags[index];
         postInfo.tags.add(flashmobTag.tag);
-        postInfo.tags.addAll(tagMatrix.getSetofTags(randomTag,randomTag,flashmobTag.tag, maxNumTagPerFlashmobPost - 1));
+        Set<Integer> extraTags = tagMatrix.getSetofTags(randomTag,randomTag,flashmobTag.tag, maxNumTagPerFlashmobPost - 1);
+        Iterator<Integer> it = extraTags.iterator();
+        while (it.hasNext()) {
+            Integer value = it.next();
+            if(randomTag.nextDouble() < 0.05) {
+                postInfo.tags.add(value);
+            }
+        }
+        //postInfo.tags.addAll(tagMatrix.getSetofTags(randomTag,randomTag,flashmobTag.tag, maxNumTagPerFlashmobPost - 1));
         double prob = dateDistribution.nextDouble(randomDate);
         postInfo.date = flashmobTag.date - flashmobSpan/2 + (long)(prob * flashmobSpan);
+        if( postInfo.date > dateGen.getEndDateTime() ) return null;
         return postInfo;
     }
 
@@ -219,7 +233,7 @@ public class FlashmobPostGenerator extends PostGenerator {
         }
 
         int numOfmonths = (int) dateGen.numberOfMonths(user);
-        int numberPost;
+        int numberPost = 0;
         if (numOfmonths == 0) {
             numberPost = randomNumPost.nextInt(maxNumFlashmobPostPerMonth+1);
         } else {
@@ -257,7 +271,7 @@ public class FlashmobPostGenerator extends PostGenerator {
         }
 
         int numOfmonths = (int) dateGen.numberOfMonths(group.getCreatedDate());
-        int numberPost;
+        int numberPost = 0;
         if (numOfmonths == 0) {
             numberPost = randomNumPost.nextInt(maxNumGroupFlashmobPostPerMonth+1);
         } else {
