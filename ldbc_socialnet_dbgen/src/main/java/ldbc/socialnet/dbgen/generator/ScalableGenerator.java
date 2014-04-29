@@ -36,10 +36,7 @@
  */
 package ldbc.socialnet.dbgen.generator;
 
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
 import java.text.Normalizer;
 import java.lang.Math;
@@ -65,6 +62,9 @@ import ldbc.socialnet.dbgen.vocabulary.SN;
 import ldbc.socialnet.dbgen.util.MapReduceKey;
 import ldbc.socialnet.dbgen.util.RandomGeneratorFarm;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.mapreduce.Reducer;
 
@@ -735,6 +735,7 @@ public class ScalableGenerator{
 
     public void generateUserActivity( ReducedUserProfile userProfile, Reducer<MapReduceKey, ReducedUserProfile,MapReduceKey, ReducedUserProfile>.Context context) {
         int index = numUserProfilesRead%windowSize;
+        numUserProfilesRead++;
         reducedUserProfiles[index] = userProfile;
         UserExtraInfo extraInfo = new UserExtraInfo();
         reducedUserProfiles[index].setForumWallId(groupId);
@@ -745,10 +746,9 @@ public class ScalableGenerator{
         userInfo.extraInfo = extraInfo;
         dataExporter.export(userInfo);
         generatePosts(uniformPostGenerator,reducedUserProfiles[index], extraInfo);
-        generatePosts(flashmobPostGenerator,reducedUserProfiles[index], extraInfo);
+        generatePosts(flashmobPostGenerator, reducedUserProfiles[index], extraInfo);
         generatePhotos(reducedUserProfiles[index], extraInfo);
         generateUserGroups(reducedUserProfiles[index], extraInfo);
-        numUserProfilesRead++;
         if( numUserProfilesRead % 100 == 0) context.setStatus("Generated post and photo for "+numUserProfilesRead+" users");
     }
 
@@ -1379,12 +1379,14 @@ public class ScalableGenerator{
 
     private void writeStatistics() {
         Gson gson = new GsonBuilder().setExclusionStrategies(stats.getExclusion()).disableHtmlEscaping().create();
-        FileWriter writer;
+        Configuration conf = new Configuration();
         try {
+            FileSystem fs = FileSystem.get(conf);
             stats.makeCountryPairs(locationDictionary);
             stats.deltaTime = deltaTime;
-            writer = new FileWriter(sibOutputDir + "m" + machineId + STATS_FILE);
-            writer.append(gson.toJson(stats));
+            OutputStream writer = fs.create(new Path(sibOutputDir + "m" + machineId + STATS_FILE));
+            //writer = new FileWriter(sibOutputDir + "m" + machineId + STATS_FILE);
+            writer.write(gson.toJson(stats).getBytes("UTF8"));
             writer.flush();
             writer.close();
         } catch (IOException e) {
