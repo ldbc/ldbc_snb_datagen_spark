@@ -553,7 +553,6 @@ public class CSVOriginal implements Serializer {
             ToCSV(arguments,Files.FORUM_HASTAG_TAG.ordinal());
         }
 
-
     }
 
     @Override
@@ -680,8 +679,6 @@ public class CSVOriginal implements Serializer {
             e.printStackTrace();
         }
     }
-	
-
 
 
 	/**

@@ -432,10 +432,9 @@ public class ScalableGenerator{
         this.numFiles = numMaps;
         this.machineId = mapId;
         loadParamsFromFile();
-        mrWriter = new MRWriter(cellSize, windowSize, sibOutputDir);
-
         randomFarm = new RandomGeneratorFarm();
         windowSize = cellSize * numberOfCellPerWindow;                          // We compute the size of the window.
+        mrWriter = new MRWriter(cellSize, windowSize, sibOutputDir);
         resetWindow();
         randomPowerLaw    = new PowerDistGenerator(minNumFriends,     maxNumFriends + 1,     alpha);
         randomTagPowerLaw = new PowerDistGenerator(minNumTagsPerUser, maxNumTagsPerUser + 1, alpha);

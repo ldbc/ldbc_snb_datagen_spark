@@ -62,7 +62,6 @@ public class MRWriter {
 
 	public void writeReducedUserProfiles(int from, int to, int pass,
                                          ReducedUserProfile userProfiles[], Reducer.Context context) {
-
         try {
             to = to % windowSize;
             for (int i = from; i != to; i = (i+1)%windowSize) {
