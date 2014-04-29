@@ -110,7 +110,6 @@ public class MRGenerateUsers{
         public void reduce(LongWritable key, Iterable<Text> valueSet,
                            Context context) throws IOException, InterruptedException{
             for( Text event : valueSet ) {
-//                out.writeBytes(event.toString());
                 out.write(event.toString().getBytes("UTF8"));
                 numEvents++;
             }
@@ -142,82 +141,74 @@ public class MRGenerateUsers{
 			homeDir = conf.get("sibHomeDir").toString();
 			outputDir = conf.get("sibOutputDir").toString();
 			numMappers = Integer.parseInt(conf.get("numberMappers"));
-
-			// Read the fileid from mapreduce input file
 			fileIdx = Integer.parseInt(value.toString());
 			System.out.println("Generating user at mapper " + fileIdx);
-
 			ScalableGenerator generator;
 			generator = new ScalableGenerator(fileIdx, outputDir, homeDir);
 			System.out.println("Successfully init Generator object");
-
-			generator.numMaps = numMappers;
-			String[] inputParams = new String[0];
 			generator.init(numMappers, fileIdx);
-
-			//Generate all the users
 			int pass = 0;
-			int numCorrelations = 3;
-
-			// Generate user information
 			generator.mrGenerateUserInfo(pass, context, fileIdx);
+		}
+		
+	}
 
-//			System.out.println("Total friendship number from " + fileIdx + " : " + generator.friendshipNum);
-		}
-		
-	}
-	
-	public static class UniversityReducer extends Reducer<MapReduceKey, ReducedUserProfile, MapReduceKey, ReducedUserProfile>{
-		
-		public static ScalableGenerator friendGenerator; 
-		private String outputDir; 
-		private String homeDir; 
-		private int numReducer;
-		private int attempTaskId; 
-		
-		@Override
-		protected void setup(Context context){
-			Configuration conf = context.getConfiguration();
-			homeDir = conf.get("sibHomeDir").toString();
-			outputDir = conf.get("sibOutputDir").toString();
-			numReducer = Integer.parseInt(conf.get("numberMappers"));
-			
-			String strTaskId = context.getTaskAttemptID().getTaskID().toString();
-			attempTaskId = Integer.parseInt(strTaskId.substring(strTaskId.length() - 3));
-			System.out.println("Task Id from setup: " + attempTaskId);
-			
-			friendGenerator = new ScalableGenerator(attempTaskId, outputDir, homeDir);
-			
-			friendGenerator.numMaps = numReducer; 
-			String[] inputParams = new String[0]; 
-			friendGenerator.init(numReducer, 0);
-			
-			System.out.println("Cell size = " + friendGenerator.getCellSize());
-		}
-		
-		@Override
-		public void reduce(MapReduceKey key, Iterable<ReducedUserProfile> valueSet, 
-				Context context) throws IOException, InterruptedException{	
-                friendGenerator.resetState(key.block);
-                int counter = 0;
-                System.out.println("Start University group: "+key.block);
-				for (ReducedUserProfile user:valueSet){
-   //                 System.out.println(user.getAccountId());
-					friendGenerator.pushUserProfile(user, 0, context, true, null);
-                    counter++;
-				}
-			    friendGenerator.pushAllRemainingUser(0, context, true, null);
-                System.out.println("End group with size: "+counter);
-		}
-		@Override
-		protected void cleanup(Context context){
-			System.out.println("Summary for reducer" + attempTaskId);
-			System.out.println("Number of user profile read " + friendGenerator.totalNumUserProfilesRead);
-			System.out.println("Number of exact user profile out " + friendGenerator.exactOutput);
-			System.out.println("Number of exact friend added " + friendGenerator.friendshipNum);
-		}
-	}
-	
+    public static class ForwardMapper extends  Mapper <MapReduceKey, ReducedUserProfile, MapReduceKey, ReducedUserProfile> {
+        @Override
+        public void map(MapReduceKey key, ReducedUserProfile value,
+                        Context context)
+                throws IOException, InterruptedException {
+            context.write(key, value);
+        }
+    }
+
+    public static class DimensionReducer extends Reducer<MapReduceKey, ReducedUserProfile, MapReduceKey, ReducedUserProfile>{
+
+        public static ScalableGenerator friendGenerator;
+        private String outputDir;
+        private String homeDir;
+        private int numReducer;
+        private int attempTaskId;
+        private int dimension;
+        private int pass;
+
+        @Override
+        protected void setup(Context context){
+            Configuration conf = context.getConfiguration();
+            homeDir = conf.get("sibHomeDir").toString();
+            outputDir = conf.get("sibOutputDir").toString();
+            numReducer = Integer.parseInt(conf.get("numberMappers"));
+            dimension = Integer.parseInt(conf.get("dimension"));
+            pass = Integer.parseInt(conf.get("pass"));
+
+            String strTaskId = context.getTaskAttemptID().getTaskID().toString();
+            attempTaskId = Integer.parseInt(strTaskId.substring(strTaskId.length() - 3));
+            friendGenerator = new ScalableGenerator(attempTaskId, outputDir, homeDir);
+            friendGenerator.init(numReducer, attempTaskId);
+        }
+
+        @Override
+        public void reduce(MapReduceKey key, Iterable<ReducedUserProfile> valueSet,
+                           Context context) throws IOException, InterruptedException{
+            friendGenerator.resetState(key.block);
+            int counter = 0;
+            System.out.println("Start University group: "+key.block);
+            for (ReducedUserProfile user:valueSet){
+                //                 System.out.println(user.getAccountId());
+                friendGenerator.pushUserProfile(user, pass, dimension, context);
+                counter++;
+            }
+            friendGenerator.pushAllRemainingUser(pass, dimension, context);
+            System.out.println("End group with size: "+counter);
+        }
+        @Override
+        protected void cleanup(Context context){
+            System.out.println("Summary for reducer" + attempTaskId);
+            System.out.println("Number of user profile read " + friendGenerator.totalNumUserProfilesRead);
+            System.out.println("Number of exact user profile out " + friendGenerator.exactOutput);
+            System.out.println("Number of exact friend added " + friendGenerator.friendshipNum);
+        }
+    }
 
     public static class RankMapper extends  Mapper <MapReduceKey, ReducedUserProfile, MapReduceKey, ReducedUserProfile> {
         @Override
@@ -247,154 +238,48 @@ public class MRGenerateUsers{
         }
     }
 
-	public static class InterestMapper extends  Mapper <MapReduceKey, ReducedUserProfile, MapReduceKey, ReducedUserProfile> {
-		@Override
-		public void map(MapReduceKey key, ReducedUserProfile value, 
-				Context context)
-				throws IOException, InterruptedException {
-			context.write(key, value);
-		}
-	}
-	
-	public static class InterestReducer extends Reducer<MapReduceKey, ReducedUserProfile, MapReduceKey, ReducedUserProfile>{
-		
-		public static ScalableGenerator friendGenerator; 
-		private String outputDir; 
-		private String homeDir; 
-		private int numReducer;
-		private int attempTaskId; 
-		
-		@Override
-		protected void setup(Context context){
-			Configuration conf = context.getConfiguration();
-			homeDir = conf.get("sibHomeDir").toString();
-			outputDir = conf.get("sibOutputDir").toString();
-			numReducer = Integer.parseInt(conf.get("numberMappers"));
-			
-			String strTaskId = context.getTaskAttemptID().getTaskID().toString();
-			attempTaskId = Integer.parseInt(strTaskId.substring(strTaskId.length() - 3));
-			System.out.println("Task Id from setup: " + attempTaskId);
-			
-			friendGenerator = new ScalableGenerator(attempTaskId, outputDir, homeDir);
-			
-			friendGenerator.numMaps = numReducer; 
-			String[] inputParams = new String[0]; 
-			friendGenerator.init(numReducer, 0);
-			
-			System.out.println("Cell size = " + friendGenerator.getCellSize());
-		}
-		
-		@Override
-		public void reduce(MapReduceKey key, Iterable<ReducedUserProfile> valueSet, 
-				Context context) throws IOException, InterruptedException{
-                int counter = 0;
-                friendGenerator.resetState(key.block);
-                //System.out.println("Start Interest group: "+key.block);
-				for (ReducedUserProfile user:valueSet){
-					friendGenerator.pushUserProfile(user, 1, context, true, null);
-                    counter++;
-				}
-                friendGenerator.pushAllRemainingUser(1, context, true, null);
-               // System.out.println("End group with size: "+counter);
-		}
-		@Override
-		protected void cleanup(Context context){
-			System.out.println("Summary for reducer " + attempTaskId);
-			System.out.println("Number of user profile read " + friendGenerator.totalNumUserProfilesRead);
-			System.out.println("Number of exact user profile out " + friendGenerator.exactOutput);
-			System.out.println("Number of exact friend added " + friendGenerator.friendshipNum);
-		}
-	}
-	
-	public static class RandomMapper extends  Mapper <MapReduceKey, ReducedUserProfile, MapReduceKey, ReducedUserProfile> {
-		
-		@Override
-		public void map(MapReduceKey key, ReducedUserProfile value, 
-				Context context)
-				throws IOException, InterruptedException {
-			context.write(key, value);
-		}
-	}
+    public static class UserActivityReducer extends Reducer <MapReduceKey, ReducedUserProfile, MapReduceKey, ReducedUserProfile>{
 
-	public static class RandomReducer extends Reducer <MapReduceKey, ReducedUserProfile, MapReduceKey, ReducedUserProfile>{
+        public static ScalableGenerator friendGenerator;
+        private String outputDir;
+        private String homeDir;
+        private int numReducer;
+        private int attempTaskId;
+        private int	totalObjects;
 
-		public static ScalableGenerator friendGenerator; 
-		private String outputDir; 
-		private String homeDir; 
-		private int numReducer;
-		private int attempTaskId;
-		
-		private	String	outputFileName;
-		
-		private FileOutputStream fos;
-		private ObjectOutputStream oos; 
-		private int	totalObjects;
-		
-		@Override
-		protected void setup(Context context){
-			Configuration conf = context.getConfiguration();
-			homeDir = conf.get("sibHomeDir").toString();
-			outputDir = conf.get("sibOutputDir").toString();
-			numReducer = Integer.parseInt(conf.get("numberMappers"));
-			
-			String strTaskId = context.getTaskAttemptID().getTaskID().toString();
-			attempTaskId = Integer.parseInt(strTaskId.substring(strTaskId.length() - 3));
-			System.out.println("Task Id from setup: " + attempTaskId);
-			
-			outputFileName =  "_userProf_" + attempTaskId;
-			
+        @Override
+        protected void setup(Context context){
+            Configuration conf = context.getConfiguration();
+            homeDir = conf.get("sibHomeDir").toString();
+            outputDir = conf.get("sibOutputDir").toString();
+            numReducer = Integer.parseInt(conf.get("numberMappers"));
 
-			friendGenerator = new ScalableGenerator(attempTaskId, outputDir, homeDir);
-			friendGenerator.numMaps = numReducer; 
-			String[] inputParams = new String[0]; 
-			friendGenerator.init(numReducer, attempTaskId);
+            String strTaskId = context.getTaskAttemptID().getTaskID().toString();
+            attempTaskId = Integer.parseInt(strTaskId.substring(strTaskId.length() - 3));
+            friendGenerator = new ScalableGenerator(attempTaskId, outputDir, homeDir);
+            friendGenerator.init(numReducer, attempTaskId);
             friendGenerator.openSerializer();
             totalObjects = 0;
-		}
-		
-		@Override
-		public void reduce(MapReduceKey key, Iterable<ReducedUserProfile> valueSet, 
-			Context context) throws IOException, InterruptedException{
+        }
 
-            int numObject = 0;
-            // We open the file were data will be written.
-            try {
-                fos = new FileOutputStream(outputDir + outputFileName);
-                oos = new ObjectOutputStream(fos);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            int counter = 0;
-//            System.out.println("Start Random group: "+key.block);
+        @Override
+        public void reduce(MapReduceKey key, Iterable<ReducedUserProfile> valueSet,
+                           Context context) throws IOException, InterruptedException{
+
             friendGenerator.resetState(key.block);
-			for (ReducedUserProfile user:valueSet){
-				friendGenerator.pushUserProfile(user, 2, context, false, oos);
-				numObject++;
+            for (ReducedUserProfile user:valueSet){
+                friendGenerator.generateUserActivity(user, context);
                 totalObjects++;
-                counter++;
-			}
- //           System.out.println("End group with size: "+counter);
-			friendGenerator.pushAllRemainingUser(2, context, false, oos);
-
-            try {
-                oos.close();
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+        }
 
-            int numOfCell = numObject / friendGenerator.getCellSize();
-            friendGenerator.generateUserActivity(outputFileName, numOfCell, context);
-		}
-		
-		@Override
-		protected void cleanup(Context context){
+        @Override
+        protected void cleanup(Context context){
             friendGenerator.closeSerializer();
             System.out.println("Number of users serialized by reducer "+attempTaskId+": "+totalObjects);
-		}
-	}
-	
+        }
+    }
+
 	public int runGenerateJob(String[] args) throws Exception {
 		Configuration conf = new Configuration();
 		
@@ -404,8 +289,10 @@ public class MRGenerateUsers{
 		conf.set("sibHomeDir", args[3]);
 		conf.set("sibOutputDir", args[4]);
 
-        /// --------------- First job ----------------
+        /// --------------- First job Generating users and friendships----------------
 
+        conf.set("pass",Integer.toString(0));
+        conf.set("dimension",Integer.toString(1));
 		Job job = new Job(conf,"SIB Generate Users & 1st Dimension");
 		job.setMapOutputKeyClass(MapReduceKey.class);
 		job.setMapOutputValueClass(ReducedUserProfile.class);
@@ -413,7 +300,7 @@ public class MRGenerateUsers{
 		job.setOutputValueClass(ReducedUserProfile.class);
 		job.setJarByClass(GenerateUsersMapper.class);
 		job.setMapperClass(GenerateUsersMapper.class);
-		job.setReducerClass(UniversityReducer.class);
+		job.setReducerClass(DimensionReducer.class);
 		job.setNumReduceTasks(numMachines);
 		job.setInputFormatClass(NLineInputFormat.class);
 		conf.setInt("mapred.line.input.format.linespermap", 1);	
@@ -443,16 +330,18 @@ public class MRGenerateUsers{
         FileInputFormat.setInputPaths(jobSorting, new Path(args[1]));
         FileOutputFormat.setOutputPath(jobSorting, new Path(args[1]+"Sorting"));
 
-	    /// --------------- Second job ----------------
-	    
+	    /// --------------- Second job Generating Friendships  ----------------
+
+        conf.set("pass",Integer.toString(1));
+        conf.set("dimension",Integer.toString(2));
 		Job job2 = new Job(conf,"SIB Generate Friendship - Interest");
 		job2.setMapOutputKeyClass(MapReduceKey.class);
 		job2.setMapOutputValueClass(ReducedUserProfile.class);
 		job2.setOutputKeyClass(MapReduceKey.class);
 		job2.setOutputValueClass(ReducedUserProfile.class);
-		job2.setJarByClass(InterestMapper.class);
-		job2.setMapperClass(InterestMapper.class);
-		job2.setReducerClass(InterestReducer.class);
+		job2.setJarByClass(ForwardMapper.class);
+		job2.setMapperClass(ForwardMapper.class);
+		job2.setReducerClass(DimensionReducer.class);
 		job2.setNumReduceTasks(numMachines);
 		job2.setInputFormatClass(SequenceFileInputFormat.class);
 		job2.setOutputFormatClass(SequenceFileOutputFormat.class);
@@ -482,23 +371,19 @@ public class MRGenerateUsers{
         FileOutputFormat.setOutputPath(jobSorting2, new Path(args[1]+"Sorting2"));
 
 	    
-	    /// --------------- Third job ----------------
-	    
+	    /// --------------- Third job Generating Friendships----------------
+
+        conf.set("pass",Integer.toString(2));
+        conf.set("dimension",Integer.toString(2));
 		Job job3 = new Job(conf,"SIB Generate Friendship - Random");
-		
 		job3.setMapOutputKeyClass(MapReduceKey.class);
 		job3.setMapOutputValueClass(ReducedUserProfile.class);
 		job3.setOutputKeyClass(MapReduceKey.class);
 		job3.setOutputValueClass(ReducedUserProfile.class);
-
-
-		job3.setJarByClass(RandomMapper.class);
-		
-		job3.setMapperClass(RandomMapper.class);
-
-		job3.setReducerClass(RandomReducer.class);
+		job3.setJarByClass(ForwardMapper.class);
+		job3.setMapperClass(ForwardMapper.class);
+		job3.setReducerClass(DimensionReducer.class);
 		job3.setNumReduceTasks(numMachines);
-		
 		job3.setInputFormatClass(SequenceFileInputFormat.class);
 		job3.setOutputFormatClass(SequenceFileOutputFormat.class);
         job3.setPartitionerClass(MapReduceKeyPartitioner.class);
@@ -506,34 +391,68 @@ public class MRGenerateUsers{
         job3.setGroupingComparatorClass(MapReduceKeyGroupKeyComparator.class);
 		
 	    FileInputFormat.setInputPaths(job3, new Path(args[1] + "Sorting2"));
-	    FileOutputFormat.setOutputPath(job3, new Path(args[1] + "UpdateStreams") );
+	    FileOutputFormat.setOutputPath(job3, new Path(args[1] + "3") );
 
-        /// --------------- Fourth job: Sort update streams ----------------
+        /// --------------- Sorting phase 3--------------
 
-        conf.setInt("mapred.line.input.format.linespermap", 1000000);
-        Job job4 = new Job(conf,"Soring update streams");
+        Job jobSorting3 = new Job(conf,"Sorting phase 3 to create blocks");
+        jobSorting3.setMapOutputKeyClass(MapReduceKey.class);
+        jobSorting3.setMapOutputValueClass(ReducedUserProfile.class);
+        jobSorting3.setOutputKeyClass(MapReduceKey.class);
+        jobSorting3.setOutputValueClass(ReducedUserProfile.class);
+        jobSorting3.setJarByClass(RankMapper.class);
+        jobSorting3.setMapperClass(RankMapper.class);
+        jobSorting3.setReducerClass(RankReducer.class);
+        jobSorting3.setNumReduceTasks(1);
+        jobSorting3.setInputFormatClass(SequenceFileInputFormat.class);
+        jobSorting3.setOutputFormatClass(SequenceFileOutputFormat.class);
+        jobSorting3.setPartitionerClass(MapReduceKeyPartitioner.class);
+        jobSorting3.setSortComparatorClass(MapReduceKeyComparator.class);
+        jobSorting3.setGroupingComparatorClass(MapReduceKeyGroupKeyComparator.class);
+        FileInputFormat.setInputPaths(jobSorting3, new Path(args[1]+"3"));
+        FileOutputFormat.setOutputPath(jobSorting3, new Path(args[1]+"Sorting3"));
 
+        /// --------------- Fourth job: Serialize static network ----------------
 
-        job4.setMapOutputKeyClass(LongWritable.class);
-        job4.setMapOutputValueClass(Text.class);
-        job4.setOutputKeyClass(LongWritable.class);
-        job4.setOutputValueClass(Text.class);
-
-        job4.setJarByClass(UpdateEventMapper.class);
-        job4.setMapperClass(UpdateEventMapper.class);
-        job4.setReducerClass(UpdateEventReducer.class);
+        Job job4 = new Job(conf,"Generate user activity");
+        job4.setMapOutputKeyClass(MapReduceKey.class);
+        job4.setMapOutputValueClass(ReducedUserProfile.class);
+        job4.setOutputKeyClass(MapReduceKey.class);
+        job4.setOutputValueClass(ReducedUserProfile.class);
+        job4.setJarByClass(ForwardMapper.class);
+        job4.setMapperClass(ForwardMapper.class);
+        job4.setReducerClass(UserActivityReducer.class);
         job4.setNumReduceTasks(numMachines);
-
         job4.setInputFormatClass(SequenceFileInputFormat.class);
         job4.setOutputFormatClass(SequenceFileOutputFormat.class);
-        job4.setPartitionerClass(UpdateEventPartitioner.class);
-//        job4.setSortComparatorClass(UpdateEventComparator.class);
- //       job4.setGroupingComparatorClass(UpdateEventGroupKeyComparator.class);
+        job4.setPartitionerClass(MapReduceKeyPartitioner.class);
+        job4.setSortComparatorClass(MapReduceKeyComparator.class);
+        job4.setGroupingComparatorClass(MapReduceKeyGroupKeyComparator.class);
+
+        FileInputFormat.setInputPaths(job4, new Path(args[1] + "Sorting3"));
+        FileOutputFormat.setOutputPath(job4, new Path(args[1] + "4") );
+
+
+        /// --------------- Fifth job: Sort update streams ----------------
+
+        conf.setInt("mapred.line.input.format.linespermap", 1000000);
+        Job job5 = new Job(conf,"Soring update streams");
+        job5.setMapOutputKeyClass(LongWritable.class);
+        job5.setMapOutputValueClass(Text.class);
+        job5.setOutputKeyClass(LongWritable.class);
+        job5.setOutputValueClass(Text.class);
+        job5.setJarByClass(UpdateEventMapper.class);
+        job5.setMapperClass(UpdateEventMapper.class);
+        job5.setReducerClass(UpdateEventReducer.class);
+        job5.setNumReduceTasks(numMachines);
+        job5.setInputFormatClass(SequenceFileInputFormat.class);
+        job5.setOutputFormatClass(SequenceFileOutputFormat.class);
+        job5.setPartitionerClass(UpdateEventPartitioner.class);
 
         for( int i =0; i < numMachines; ++i ) {
-            FileInputFormat.addInputPath(job4, new Path(args[4] + "/temp_updateStream_"+i+".csv"));
+            FileInputFormat.addInputPath(job5, new Path(args[4] + "/temp_updateStream_"+i+".csv"));
         }
-        FileOutputFormat.setOutputPath(job4, new Path(args[1] + "end") );
+        FileOutputFormat.setOutputPath(job5, new Path(args[1] + "end") );
 
 
 
@@ -549,9 +468,13 @@ public class MRGenerateUsers{
 
         int resSorting2 = jobSorting2.waitForCompletion(true) ? 0 : 1;
 
-	    int resUpdateStreamsh= job3.waitForCompletion(true) ? 0 : 1;
+	    int res3= job3.waitForCompletion(true) ? 0 : 1;
 
-        int sortUpdateStreams= job4.waitForCompletion(true) ? 0 : 1;
+        int resSorting3 = jobSorting3.waitForCompletion(true) ? 0 : 1;
+
+        int resUpdateStreams = job4.waitForCompletion(true) ? 0 : 1;
+
+        int sortUpdateStreams= job5.waitForCompletion(true) ? 0 : 1;
 
         FileSystem fs = FileSystem.get(conf);
         for( int i =0; i < numMachines; ++i ) {
