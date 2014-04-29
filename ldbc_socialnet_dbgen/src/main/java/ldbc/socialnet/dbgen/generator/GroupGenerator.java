@@ -145,7 +145,7 @@ public class GroupGenerator {
         memberShip.setJoinDate(date);
         memberShip.setIP(user.getIpAddress());
         memberShip.setBrowserIdx(user.getBrowserIdx());
-        memberShip.setAgentIdx(user.getAgentIdx());
+        memberShip.setAgentIdx(user.getAgentId());
         memberShip.setFrequentChange(user.isFrequentChange());
         memberShip.setHaveSmartPhone(user.isHaveSmartPhone());
         memberShip.setLargePoster(user.isLargePoster());

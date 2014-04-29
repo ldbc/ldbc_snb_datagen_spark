@@ -122,7 +122,7 @@ public class Friend implements Serializable{
 	    this.initiator = initiator;
 
 	    this.isHaveSmartPhone = to.isHaveSmartPhone;
-	    this.agentIdx = to.getAgentIdx();
+	    this.agentIdx = to.getAgentId();
 	    this.browserIdx = to.getBrowserIdx();
 	    this.isFrequentChange = to.isFrequentChange;
 	    this.setSourceIp(to.getIpAddress());

@@ -60,27 +60,13 @@ public class MRWriter {
 		
 	}
 
-    public void writeReducedUserProfiles(int from, int to, int pass,
-                                         ReducedUserProfile userProfiles[], ObjectOutputStream oos)  {
-        try {
-            to = to % windowSize;
-            for (int i = from; i != to; i = (i + 1) % windowSize) {
-                oos.writeObject(userProfiles[i]);
-                numberSerializedObject++;
-            }
-        }
-        catch (IOException i) {
-            i.printStackTrace();
-        }
-    }
-	
 	public void writeReducedUserProfiles(int from, int to, int pass,
                                          ReducedUserProfile userProfiles[], Reducer.Context context) {
 
         try {
             to = to % windowSize;
             for (int i = from; i != to; i = (i+1)%windowSize) {
-                int key = userProfiles[i].getDicElementId(pass+1);
+                int key = userProfiles[i].getDicElementId(pass);
                 int block = 0;
                 long id = userProfiles[i].getAccountId();
                 MapReduceKey mpk = new MapReduceKey(block,key,id);
