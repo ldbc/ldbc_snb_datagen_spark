@@ -13,8 +13,8 @@ ldbc_socialnet_dbgen is GPLv3 licensed, to see detailed information about this l
 
 ## Requirements
 
-This software is build using Apache hadoop version 1.0.3 and we not guarantee compatibility with newer releases.
-You can download hadoop 1.0.3 from [here](http://archive.apache.org/dist/hadoop/core/hadoop-1.0.3/). To Configure your hadoop machine or cluster, please visit [here](http://hadoop.apache.org/docs/stable/index.html).
+This software is build using Apache hadoop version 1.2.1 and we not guarantee compatibility with newer releases.
+You can download hadoop 1.2.1 from [here](http://archive.apache.org/dist/hadoop/core/hadoop-1.2.1/). To Configure your hadoop machine or cluster, please visit [here](http://hadoop.apache.org/docs/stable/index.html).
 
 
 ## Compilation
