@@ -115,7 +115,7 @@ abstract public class PostGenerator {
         this.maxNumberOfLikes = maxNumberOfLikes;
         this.generateText = generateText;
         this.deltaTime = deltaTime;
-        this.likesGenerator = new PowerDistGenerator(1,maxNumberOfLikes,0.4);
+        this.likesGenerator = new PowerDistGenerator(1,maxNumberOfLikes,0.07);
 	}
 	
     /** @brief Initializes the post generator.*/

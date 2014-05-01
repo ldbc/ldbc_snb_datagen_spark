@@ -65,7 +65,7 @@ public class PhotoGenerator {
 		this.probPopularPlaces = _probPopularPlaces;
         this.deltaTime = deltaTime;
         this.randomFarm = randomFarm;
-        this.likesGenerator = new PowerDistGenerator(1,maxNumberOfLikes,0.4);
+        this.likesGenerator = new PowerDistGenerator(1,maxNumberOfLikes,0.07);
 	}
 	
 	public Photo generatePhoto(ReducedUserProfile user, Group album, 

@@ -97,7 +97,7 @@ public class CommentGenerator {
         this.generateText = generateText;
         this.maxNumberOfLikes = maxNumberOfLikes;
         this.deltaTime = deltaTime;
-        this.likesGenerator = new PowerDistGenerator(1,maxNumberOfLikes,0.4);
+        this.likesGenerator = new PowerDistGenerator(1,maxNumberOfLikes,0.07);
         this.browserDic = browserDic;
         this.ipAddDic = ipAddDic;
         this.userAgentDic = userAgentDic;
