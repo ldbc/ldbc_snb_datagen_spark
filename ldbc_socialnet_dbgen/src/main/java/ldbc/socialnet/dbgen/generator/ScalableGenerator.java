@@ -696,7 +696,7 @@ public class ScalableGenerator{
         try {
             //read the user param file
             Properties properties = new Properties();
-            properties.load(new InputStreamReader(new FileInputStream(sibHomeDir + PARAMETERS_FILE), "UTF-8"));
+            properties.load(new InputStreamReader(new FileInputStream(sibHomeDir + "/"+PARAMETERS_FILE), "UTF-8"));
             for (int i = 0; i < publicCheckParameters.length; i++) {
                 if (properties.getProperty(publicCheckParameters[i]) == null) {
                     throw new IllegalStateException("Missing " + publicCheckParameters[i] + " parameter");
@@ -738,7 +738,7 @@ public class ScalableGenerator{
         numUserProfilesRead++;
         reducedUserProfiles[index] = userProfile;
         UserExtraInfo extraInfo = new UserExtraInfo();
-        reducedUserProfiles[index].setForumWallId(groupId);
+        reducedUserProfiles[index].setForumWallId(SN.composeId(groupId, reducedUserProfiles[index].getCreationDate()));
         groupId++;
         setInfoFromUserProfile(reducedUserProfiles[index], extraInfo);
         UserInfo userInfo = new UserInfo();
@@ -1116,22 +1116,29 @@ public class ScalableGenerator{
         }
     }
 
+    private long composeUserId( long id, long date, long spid ) {
+        long spidMask = ~(0xFFFFFFFFFFFFFFFFL << 7);
+        long idMask = ~(0xFFFFFFFFFFFFFFFFL << 33);
+        long dateMask = ~(0xFFFFFFFFFFFFFFFFL << 20);
+        return (((date >> 20) & dateMask) << 40) | ((id & idMask) << 7) | (spid & spidMask);
+    }
+
     private ReducedUserProfile generateGeneralInformation(int accountId) {
         // User Creation
         long creationDate = dateTimeGenerator.randomDateInMillis( randomFarm.get(RandomGeneratorFarm.Aspect.DATE) );
         int locationId = locationDictionary.getLocationForUser(accountId);
         ReducedUserProfile userProf = new ReducedUserProfile();
-        userProf.setAccountId(accountId);
         userProf.setCreationDate(creationDate);
-        userProf.setGender((randomFarm.get(RandomGeneratorFarm.Aspect.GENDER).nextDouble() > 0.5) ? (byte)1 : (byte)0);
+        userProf.setGender((randomFarm.get(RandomGeneratorFarm.Aspect.GENDER).nextDouble() > 0.5) ? (byte) 1 : (byte) 0);
         userProf.setBirthDay(dateTimeGenerator.getBirthDay(randomFarm.get(RandomGeneratorFarm.Aspect.BIRTH_DAY), creationDate));
         userProf.setBrowserId(browserDictonry.getRandomBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER)));
         userProf.setLocationId(locationId);
-        userProf.setCityId(locationDictionary.getRandomCity(randomFarm.get(RandomGeneratorFarm.Aspect.CITY),locationId));
-        userProf.setIpAddress(ipAddDictionary.getRandomIPFromLocation(randomFarm.get(RandomGeneratorFarm.Aspect.IP),locationId));
+        userProf.setCityId(locationDictionary.getRandomCity(randomFarm.get(RandomGeneratorFarm.Aspect.CITY), locationId));
+        userProf.setIpAddress(ipAddDictionary.getRandomIPFromLocation(randomFarm.get(RandomGeneratorFarm.Aspect.IP), locationId));
         userProf.setNumFriends(fbDegreeGenerator.getSocialDegree());
         userProf.setSdpId(fbDegreeGenerator.getIDByPercentile());  	//Generate Id from its percentile in the social degree distribution
         userProf.setNumDimensions(NUM_FRIENDSHIP_HADOOP_JOBS);
+        userProf.setAccountId(composeUserId(accountId, creationDate, userProf.getSdpId()));
 
         // Setting the number of friends and friends per pass
         short totalFriendSet = 0;
@@ -1384,7 +1391,7 @@ public class ScalableGenerator{
             FileSystem fs = FileSystem.get(conf);
             stats.makeCountryPairs(locationDictionary);
             stats.deltaTime = deltaTime;
-            OutputStream writer = fs.create(new Path(sibOutputDir + "m" + machineId + STATS_FILE));
+            OutputStream writer = fs.create(new Path(sibOutputDir+"/"+ "m" + machineId + STATS_FILE));
             //writer = new FileWriter(sibOutputDir + "m" + machineId + STATS_FILE);
             writer.write(gson.toJson(stats).getBytes("UTF8"));
             writer.flush();
@@ -1395,5 +1402,6 @@ public class ScalableGenerator{
             e.printStackTrace();
         }
     }
+
 }
 

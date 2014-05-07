@@ -43,6 +43,7 @@ import ldbc.socialnet.dbgen.dictionary.LocationDictionary;
 import ldbc.socialnet.dbgen.dictionary.PopularPlacesDictionary;
 import ldbc.socialnet.dbgen.objects.*;
 import ldbc.socialnet.dbgen.util.RandomGeneratorFarm;
+import ldbc.socialnet.dbgen.vocabulary.SN;
 
 
 public class PhotoGenerator {
@@ -122,7 +123,7 @@ public class PhotoGenerator {
 
         long date = album.getCreatedDate()+deltaTime+1000*(idxInAlbum+1);
         if( date > dateGenerator.getEndDateTime() )  return null;
-        Photo photo = new Photo(photoId,"photo"+photoId+".jpg",0,date,album.getModeratorId(),album.getGroupId(),tags,null,new String(""),(byte)-1,locationId,locationName,latt,longt);
+        Photo photo = new Photo(SN.composeId(photoId,date),"photo"+SN.composeId(photoId,date)+".jpg",0,date,album.getModeratorId(),album.getGroupId(),tags,null,new String(""),(byte)-1,locationId,locationName,latt,longt);
         if( randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
             setLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE),randomFarm.get(RandomGeneratorFarm.Aspect.DATE),photo,album);
         }
