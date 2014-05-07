@@ -29,7 +29,8 @@ public class Statistics {
 
         public boolean shouldSkipField(FieldAttributes f) {
 
-            return (f.getDeclaringClass() == CountryPair.class && f.getName().equals("population"));
+//            return (f.getDeclaringClass() == CountryPair.class && f.getName().equals("population"));
+            return false;
         }
 
     }
@@ -63,8 +64,9 @@ public class Statistics {
     public long deltaTime;
     public ArrayList<Object> minUpdateStream;
     public ArrayList<Object> maxUpdateStream;
-    private ArrayList<String[]> countryPairs;
-    
+    public ArrayList<String[]> countryPairs;
+    public ArrayList<String[]> countryIds;
+
     public Statistics() {
         minPersonId = Long.MAX_VALUE;
         maxPersonId = Long.MIN_VALUE;
@@ -74,6 +76,7 @@ public class Statistics {
         countries = new TreeSet<String>();
         flashmobTags = null; 
         countryPairs = new ArrayList<String[]>();
+        countryIds = new ArrayList<String[]>();
         eventParams = new ArrayList<ArrayList<String>>();
         minUpdateStream = new ArrayList<Object>();
         maxUpdateStream = new ArrayList<Object>();
@@ -87,7 +90,7 @@ public class Statistics {
      */
     public void makeCountryPairs(LocationDictionary dicLocation) {
         HashMap<Integer, ArrayList<Integer>> closeCountries = new HashMap<Integer, ArrayList<Integer>>();
-        for (String s : countries) {
+        for( String s : countries ) {
             Integer id = dicLocation.getCountryId(s);
             Integer continent = dicLocation.belongsTo(id);
             if (!closeCountries.containsKey(continent)) {
@@ -95,7 +98,7 @@ public class Statistics {
             }
             closeCountries.get(continent).add(id);
         }
-        
+
         ArrayList<CountryPair> toSort = new ArrayList<CountryPair>();
         for (ArrayList<Integer> relatedCountries : closeCountries.values()) {
             for (int i = 0; i < relatedCountries.size(); i++) {
@@ -103,7 +106,7 @@ public class Statistics {
                     CountryPair pair = new CountryPair();
                     pair.countries[0] = dicLocation.getLocationName(relatedCountries.get(i));
                     pair.countries[1] = dicLocation.getLocationName(relatedCountries.get(j));
-                    pair.population = dicLocation.getPopulation(relatedCountries.get(i)) 
+                    pair.population = dicLocation.getPopulation(relatedCountries.get(i))
                             + dicLocation.getPopulation(relatedCountries.get(j));
                     toSort.add(pair);
                 }
@@ -113,6 +116,14 @@ public class Statistics {
         for (CountryPair p : toSort) {
             countryPairs.add(p.countries);
         }
+
+        for( String s : countries ) {
+            String out[] = new String[2];
+            out[0] = s;
+            out[1] = Integer.toString(dicLocation.getCountryId(s));
+            countryIds.add(out);
+        }
+        
     }
     
     /**

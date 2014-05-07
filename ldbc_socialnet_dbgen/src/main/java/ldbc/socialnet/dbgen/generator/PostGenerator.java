@@ -48,6 +48,7 @@ import ldbc.socialnet.dbgen.dictionary.IPAddressDictionary;
 import ldbc.socialnet.dbgen.dictionary.BrowserDictionary;
 import ldbc.socialnet.dbgen.objects.*;
 import ldbc.socialnet.dbgen.util.RandomGeneratorFarm;
+import ldbc.socialnet.dbgen.vocabulary.SN;
 
 
 abstract public class PostGenerator {
@@ -207,7 +208,7 @@ abstract public class PostGenerator {
                 }
 
                 Integer languageIndex = randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE).nextInt(extraInfo.getLanguages().size());
-                Post post = new Post( startPostId,
+                Post post = new Post( SN.composeId(startPostId,postInfo.date),
                   content,
                   textSize,
                   postInfo.date,
@@ -260,7 +261,7 @@ abstract public class PostGenerator {
                         System.exit(-1);
                     }
                 }
-                Post post = new Post( startPostId,
+                Post post = new Post(SN.composeId(startPostId,postInfo.date),
                   content,
                   textSize,
                   postInfo.date,

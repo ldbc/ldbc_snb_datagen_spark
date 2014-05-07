@@ -43,7 +43,6 @@ import java.util.GregorianCalendar;
 import java.util.Random;
 
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
-import umontreal.iro.lecuyer.probdist.PowerDist;
 
 
 public class DateGenerator {
@@ -241,55 +240,14 @@ public class DateGenerator {
 		return (to - fromDate)/THIRTY_DAYS;
 	}
 	
-	/*public long randomPhotoAlbumCreatedDate(Random random, ReducedUserProfile user){
-		return  (long)(random.nextDouble()*(to-(user.getCreationDate()+deltaTime))+user.getCreationDate()+deltaTime);
-	}
-	*/
-
-	/*public long randomGroupCreatedDate(Random random, ReducedUserProfile user){
-		return  (long)(random.nextDouble()*(to-(user.getCreationDate()+deltaTime))+user.getCreationDate()+deltaTime);
-	}
-	*/
-
-/*	public long randomGroupMemberJoinDate(Random random, long groupCreateDate, long userCreatedDate){
-		long earliestJoinDate = Math.max(groupCreateDate, userCreatedDate);
-	    return  (long)(random.nextDouble()*(to - earliestJoinDate) + earliestJoinDate);
-	}
-	*/
-
     public long randomDate( Random random, long minDate ) {
         return  (long)(random.nextDouble()*(to-minDate)+minDate);
     }
 	
-	/*public long randomPostCreatedDate(Random random, long minDate){
-		return (long)(random.nextDouble()*(to-minDate)+minDate);
-	}*/
-
-    /*public long randomLikeDate(Random random, long minDate) {
-        return (long)(random.nextDouble()*DateGenerator.SEVEN_DAYS+minDate+deltaTime);
-    }
-    */
-
     public long randomSevenDays(Random random ) {
         return (long)(random.nextDouble()*DateGenerator.SEVEN_DAYS);
     }
 	
-/*	public long powerlawPostCreatedDate(Random random, UserProfile user){
-		return (long)(powerDist.getDouble(random)*(to-user.getCreationDate())+user.getCreationDate());
-	}
-	*/
-	
-	/*public long randomCommentCreatedDate(Random random, long lastCommentCreatedDate){
-		return (long)(random.nextDouble()*(to-lastCommentCreatedDate)+lastCommentCreatedDate);
-	}
-	*/
-
-	/*//Assume that this powerlaw generate powerlaw value between 0 - 1
-	public long powerlawCommentCreatDate( Random random, long lastCommentCreatedDate){
-		return (long)(powerDist.getDouble(random) *(to-lastCommentCreatedDate)+lastCommentCreatedDate);
-	}
-	*/
-
 	public long powerlawCommDateDay(Random random, long lastCommentCreatedDate){
 		return (long)(powerDist.getDouble(random) * ONE_DAY+lastCommentCreatedDate);
 	}

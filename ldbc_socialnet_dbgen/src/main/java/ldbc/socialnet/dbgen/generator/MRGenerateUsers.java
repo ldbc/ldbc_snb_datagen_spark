@@ -70,6 +70,11 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 
 public class MRGenerateUsers{
 
+    static String hadoopDir;
+    static String outputDir;
+    static int    numThreads;
+    static String dbgenDir;
+
 
     public static class UpdateEventMapper extends Mapper <LongWritable, Text, LongWritable, Text> {
 
@@ -140,7 +145,7 @@ public class MRGenerateUsers{
 			Configuration conf = context.getConfiguration();
 			homeDir = conf.get("sibHomeDir").toString();
 			outputDir = conf.get("sibOutputDir").toString();
-			numMappers = Integer.parseInt(conf.get("numberMappers"));
+			numMappers = Integer.parseInt(conf.get("numMappers"));
 			fileIdx = Integer.parseInt(value.toString());
 			System.out.println("Generating user at mapper " + fileIdx);
 			ScalableGenerator generator;
@@ -177,7 +182,7 @@ public class MRGenerateUsers{
             Configuration conf = context.getConfiguration();
             homeDir = conf.get("sibHomeDir").toString();
             outputDir = conf.get("sibOutputDir").toString();
-            numReducer = Integer.parseInt(conf.get("numberMappers"));
+            numReducer = Integer.parseInt(conf.get("numMappers"));
             dimension = Integer.parseInt(conf.get("dimension"));
             pass = Integer.parseInt(conf.get("pass"));
 
@@ -252,7 +257,7 @@ public class MRGenerateUsers{
             Configuration conf = context.getConfiguration();
             homeDir = conf.get("sibHomeDir").toString();
             outputDir = conf.get("sibOutputDir").toString();
-            numReducer = Integer.parseInt(conf.get("numberMappers"));
+            numReducer = Integer.parseInt(conf.get("numMappers"));
 
             String strTaskId = context.getTaskAttemptID().getTaskID().toString();
             attempTaskId = Integer.parseInt(strTaskId.substring(strTaskId.length() - 3));
@@ -283,11 +288,10 @@ public class MRGenerateUsers{
 	public int runGenerateJob(String[] args) throws Exception {
 		Configuration conf = new Configuration();
 		
-		int numMachines = Integer.parseInt(args[2]);
-		// Set parameter 
-		conf.set("numberMappers", args[2]);
-		conf.set("sibHomeDir", args[3]);
-		conf.set("sibOutputDir", args[4]);
+		// Set parameter
+		conf.set("numMappers", Integer.toString(numThreads));
+		conf.set("sibHomeDir", dbgenDir);
+		conf.set("sibOutputDir", outputDir );
 
         /// --------------- First job Generating users and friendships----------------
 
@@ -301,15 +305,15 @@ public class MRGenerateUsers{
 		job.setJarByClass(GenerateUsersMapper.class);
 		job.setMapperClass(GenerateUsersMapper.class);
 		job.setReducerClass(DimensionReducer.class);
-		job.setNumReduceTasks(numMachines);
+		job.setNumReduceTasks(numThreads);
 		job.setInputFormatClass(NLineInputFormat.class);
 		conf.setInt("mapred.line.input.format.linespermap", 1);	
 		job.setOutputFormatClass(SequenceFileOutputFormat.class);
         job.setPartitionerClass(MapReduceKeyPartitioner.class);
         job.setSortComparatorClass(MapReduceKeyComparator.class);
         job.setGroupingComparatorClass(MapReduceKeyGroupKeyComparator.class);
-	    FileInputFormat.setInputPaths(job, new Path(args[0]));
-	    FileOutputFormat.setOutputPath(job, new Path(args[1]));
+	    FileInputFormat.setInputPaths(job, new Path(hadoopDir)+"/mrInputFile");
+	    FileOutputFormat.setOutputPath(job, new Path(hadoopDir+"/sib"));
 
         /// --------------- Sorting phase --------------
 
@@ -327,8 +331,8 @@ public class MRGenerateUsers{
         jobSorting.setPartitionerClass(MapReduceKeyPartitioner.class);
         jobSorting.setSortComparatorClass(MapReduceKeyComparator.class);
         jobSorting.setGroupingComparatorClass(MapReduceKeyGroupKeyComparator.class);
-        FileInputFormat.setInputPaths(jobSorting, new Path(args[1]));
-        FileOutputFormat.setOutputPath(jobSorting, new Path(args[1]+"Sorting"));
+        FileInputFormat.setInputPaths(jobSorting, new Path(hadoopDir+"/sib"));
+        FileOutputFormat.setOutputPath(jobSorting, new Path(hadoopDir+"/sibSorting"));
 
 	    /// --------------- Second job Generating Friendships  ----------------
 
@@ -342,14 +346,14 @@ public class MRGenerateUsers{
 		job2.setJarByClass(ForwardMapper.class);
 		job2.setMapperClass(ForwardMapper.class);
 		job2.setReducerClass(DimensionReducer.class);
-		job2.setNumReduceTasks(numMachines);
+		job2.setNumReduceTasks(numThreads);
 		job2.setInputFormatClass(SequenceFileInputFormat.class);
 		job2.setOutputFormatClass(SequenceFileOutputFormat.class);
         job2.setPartitionerClass(MapReduceKeyPartitioner.class);
         job2.setSortComparatorClass(MapReduceKeyComparator.class);
         job2.setGroupingComparatorClass(MapReduceKeyGroupKeyComparator.class);
-	    FileInputFormat.setInputPaths(job2, new Path(args[1]+"Sorting"));
-	    FileOutputFormat.setOutputPath(job2, new Path(args[1] + "2") );
+	    FileInputFormat.setInputPaths(job2, new Path(hadoopDir+"/sibSorting"));
+	    FileOutputFormat.setOutputPath(job2, new Path(hadoopDir + "/sib2") );
 
         /// --------------- Sorting phase 2--------------
 
@@ -367,8 +371,8 @@ public class MRGenerateUsers{
         jobSorting2.setPartitionerClass(MapReduceKeyPartitioner.class);
         jobSorting2.setSortComparatorClass(MapReduceKeyComparator.class);
         jobSorting2.setGroupingComparatorClass(MapReduceKeyGroupKeyComparator.class);
-        FileInputFormat.setInputPaths(jobSorting2, new Path(args[1]+"2"));
-        FileOutputFormat.setOutputPath(jobSorting2, new Path(args[1]+"Sorting2"));
+        FileInputFormat.setInputPaths(jobSorting2, new Path(hadoopDir+"/sib2"));
+        FileOutputFormat.setOutputPath(jobSorting2, new Path(hadoopDir+"/sibSorting2"));
 
 	    
 	    /// --------------- Third job Generating Friendships----------------
@@ -383,15 +387,15 @@ public class MRGenerateUsers{
 		job3.setJarByClass(ForwardMapper.class);
 		job3.setMapperClass(ForwardMapper.class);
 		job3.setReducerClass(DimensionReducer.class);
-		job3.setNumReduceTasks(numMachines);
+		job3.setNumReduceTasks(numThreads);
 		job3.setInputFormatClass(SequenceFileInputFormat.class);
 		job3.setOutputFormatClass(SequenceFileOutputFormat.class);
         job3.setPartitionerClass(MapReduceKeyPartitioner.class);
         job3.setSortComparatorClass(MapReduceKeyComparator.class);
         job3.setGroupingComparatorClass(MapReduceKeyGroupKeyComparator.class);
 		
-	    FileInputFormat.setInputPaths(job3, new Path(args[1] + "Sorting2"));
-	    FileOutputFormat.setOutputPath(job3, new Path(args[1] + "3") );
+	    FileInputFormat.setInputPaths(job3, new Path(hadoopDir + "/sibSorting2"));
+	    FileOutputFormat.setOutputPath(job3, new Path(hadoopDir + "/sib3") );
 
         /// --------------- Sorting phase 3--------------
 
@@ -409,8 +413,8 @@ public class MRGenerateUsers{
         jobSorting3.setPartitionerClass(MapReduceKeyPartitioner.class);
         jobSorting3.setSortComparatorClass(MapReduceKeyComparator.class);
         jobSorting3.setGroupingComparatorClass(MapReduceKeyGroupKeyComparator.class);
-        FileInputFormat.setInputPaths(jobSorting3, new Path(args[1]+"3"));
-        FileOutputFormat.setOutputPath(jobSorting3, new Path(args[1]+"Sorting3"));
+        FileInputFormat.setInputPaths(jobSorting3, new Path(hadoopDir+"/sib3"));
+        FileOutputFormat.setOutputPath(jobSorting3, new Path(hadoopDir+"/sibSorting3"));
 
         /// --------------- Fourth job: Serialize static network ----------------
 
@@ -422,15 +426,15 @@ public class MRGenerateUsers{
         job4.setJarByClass(ForwardMapper.class);
         job4.setMapperClass(ForwardMapper.class);
         job4.setReducerClass(UserActivityReducer.class);
-        job4.setNumReduceTasks(numMachines);
+        job4.setNumReduceTasks(numThreads);
         job4.setInputFormatClass(SequenceFileInputFormat.class);
         job4.setOutputFormatClass(SequenceFileOutputFormat.class);
         job4.setPartitionerClass(MapReduceKeyPartitioner.class);
         job4.setSortComparatorClass(MapReduceKeyComparator.class);
         job4.setGroupingComparatorClass(MapReduceKeyGroupKeyComparator.class);
 
-        FileInputFormat.setInputPaths(job4, new Path(args[1] + "Sorting3"));
-        FileOutputFormat.setOutputPath(job4, new Path(args[1] + "4") );
+        FileInputFormat.setInputPaths(job4, new Path(hadoopDir + "/sibSorting3"));
+        FileOutputFormat.setOutputPath(job4, new Path(hadoopDir + "/sib4") );
 
 
         /// --------------- Fifth job: Sort update streams ----------------
@@ -444,15 +448,15 @@ public class MRGenerateUsers{
         job5.setJarByClass(UpdateEventMapper.class);
         job5.setMapperClass(UpdateEventMapper.class);
         job5.setReducerClass(UpdateEventReducer.class);
-        job5.setNumReduceTasks(numMachines);
+        job5.setNumReduceTasks(numThreads);
         job5.setInputFormatClass(SequenceFileInputFormat.class);
         job5.setOutputFormatClass(SequenceFileOutputFormat.class);
         job5.setPartitionerClass(UpdateEventPartitioner.class);
 
-        for( int i =0; i < numMachines; ++i ) {
-            FileInputFormat.addInputPath(job5, new Path(args[4] + "/temp_updateStream_"+i+".csv"));
+        for( int i =0; i < numThreads; ++i ) {
+            FileInputFormat.addInputPath(job5, new Path(outputDir + "/temp_updateStream_"+i+".csv"));
         }
-        FileOutputFormat.setOutputPath(job5, new Path(args[1] + "end") );
+        FileOutputFormat.setOutputPath(job5, new Path(hadoopDir + "/sibEnd") );
 
 
 
@@ -477,8 +481,8 @@ public class MRGenerateUsers{
         int sortUpdateStreams= job5.waitForCompletion(true) ? 0 : 1;
 
         FileSystem fs = FileSystem.get(conf);
-        for( int i =0; i < numMachines; ++i ) {
-            fs.delete(new Path(args[4] + "/temp_updateStream_"+i+".csv"),false);
+        for( int i =0; i < numThreads; ++i ) {
+            fs.delete(new Path(outputDir + "/temp_updateStream_"+i+".csv"),false);
         }
 
 	    long end = System.currentTimeMillis();
@@ -489,24 +493,24 @@ public class MRGenerateUsers{
 
 	public static void main(String[] args)  throws Exception{
 
-		int numMapers;
+        hadoopDir = args[0];
+        dbgenDir = args[2];
+        outputDir = args[3];
+        numThreads = Integer.parseInt(args[1]);
+
+        System.out.println("Hadoop tmp file: "+hadoopDir);
+        System.out.println("Number of threads: "+numThreads);
+        System.out.println("DBGEN working dir: "+dbgenDir);
+        System.out.println("Data output dir: "+outputDir);
+        // Deleting exisging files
+
+        FileSystem dfs = FileSystem.get(new Configuration());
+        dfs.delete(new Path(hadoopDir), true);
+        dfs.delete(new Path(outputDir), true);
+
 		// Create input text file in HDFS
-		numMapers = Integer.parseInt(args[2]);
-
-		String mapperInputFile = "mrInputFile.txt";
-
-		FileSystem dfs = FileSystem.get(new Configuration());
-
-		writeToOutputFile(mapperInputFile, numMapers);
-
-		Path src = new Path(mapperInputFile);
-
-		Path dst = new Path(dfs.getWorkingDirectory()+"/input/sib/");
-
-		System.out.println("DFS Working directory is " + dfs.getWorkingDirectory());
-
-		dfs.copyFromLocalFile(src, dst);
-
+		writeToOutputFile("mrInputFile", numThreads);
+		dfs.copyFromLocalFile(new Path("mrInputFile"),new Path(hadoopDir+"/mrInputFile") );
 		MRGenerateUsers mrGenerator = new MRGenerateUsers();
 		mrGenerator.runGenerateJob(args);
 
@@ -519,7 +523,6 @@ public class MRGenerateUsers{
 			output = new BufferedWriter(new FileWriter(file));
 			for (int i = 0; i < numMaps; i++)
 				output.write(i + "\n");
-
 			output.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

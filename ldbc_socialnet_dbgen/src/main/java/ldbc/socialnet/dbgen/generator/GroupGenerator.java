@@ -49,6 +49,7 @@ import ldbc.socialnet.dbgen.objects.GroupMemberShip;
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
 import ldbc.socialnet.dbgen.objects.UserExtraInfo;
 import ldbc.socialnet.dbgen.util.RandomGeneratorFarm;
+import ldbc.socialnet.dbgen.vocabulary.SN;
 
 
 public class GroupGenerator {
@@ -70,7 +71,7 @@ public class GroupGenerator {
         if( date > dateGenerator.getEndDateTime() )  return null;
 		Group group = new Group();
 
-		group.setGroupId(groupId);
+		group.setGroupId(SN.composeId(groupId,date));
 		group.setModeratorId(user.getAccountId());
 		group.setCreatedDate(date);
 

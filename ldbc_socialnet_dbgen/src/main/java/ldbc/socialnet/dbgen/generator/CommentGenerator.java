@@ -45,6 +45,7 @@ import java.util.Iterator;
 import ldbc.socialnet.dbgen.dictionary.*;
 import ldbc.socialnet.dbgen.objects.*;
 import ldbc.socialnet.dbgen.util.RandomGeneratorFarm;
+import ldbc.socialnet.dbgen.vocabulary.SN;
 
 
 public class CommentGenerator {
@@ -227,7 +228,7 @@ public class CommentGenerator {
             commentLocation = locationDic.getRandomCity(randomFarm.get(RandomGeneratorFarm.Aspect.CITY),ipAddDic.getLocation(commentIP));
         }
         */
-        Comment comment = new Comment( commentId,
+        Comment comment = new Comment( SN.composeId(commentId,creationDate),
                                        content,
                                        textSize,
                                        creationDate,
@@ -307,7 +308,7 @@ public class CommentGenerator {
 
         long creationDate = dateGen.powerlawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),replyTo.getCreationDate()+deltaTime);
         if( creationDate > dateGen.getEndDateTime() ) return null;
-        Comment comment = new Comment( commentId,
+        Comment comment = new Comment(SN.composeId(commentId,creationDate),
                 content,
                 textSize,
                 creationDate,

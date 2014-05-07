@@ -63,6 +63,7 @@ public class SN{
 	    }*/
         SN.numBits = (int)Math.ceil(Math.log10(numMachines) / Math.log10(2));
         SN.machineId = machineId;
+        if( numBits > 14 ) System.out.print("WARNING: Possible id overlapp");
 	}
 	
 	/**
@@ -90,71 +91,80 @@ public class SN{
      * Gets the person entity prefix.
      */
 	public static String getPersonURI(long id) {
-        return PREFIX+"pers"+id;
+        return PREFIX+"pers"+String.format("%020l", id);
     }
 	
 	/**
      * Gets the forum entity prefix.
      */
 	public static String getForumURI(long id) {
-        return PREFIX+"forum"+id + "" + machineId;
+        return PREFIX+"forum"+String.format("%020l",_formId(id));
     }
 	
 	/**
      * Gets the post entity prefix.
      */
 	public static String getPostURI(long id) {
-        return PREFIX+"post"+id + "" + machineId;
+        return PREFIX+"post"+String.format("%020l",_formId(id));
     }
 	
 	/**
      * Gets the comment entity prefix.
      */
 	public static String getCommentURI(long id) {
-        return PREFIX+"comm"+id + "" + machineId;
+        return PREFIX+"comm"+String.format("%020l",_formId(id));
     }
 	
 	/**
      * Gets the membership relation prefix.
      */
 	public static String getMembershipURI(long id) {
-        return BLANK_NODE+"mbs"+id + "" + machineId;
+        return BLANK_NODE+"mbs"+String.format("%020l",_formId(id));
     }
 	
 	/**
      * Gets the like relation prefix.
      */
 	public static String getLikeURI(long id) {
-        return BLANK_NODE+"like"+id + "" + machineId;
+        return BLANK_NODE+"like"+String.format("%020l",_formId(id));
     }
 	
 	/**
      * Gets the studyAt relation prefix.
      */
 	public static String getStudyAtURI(long id) {
-        return BLANK_NODE+"study"+id + "" + machineId;
+        return BLANK_NODE+"study"+String.format("%020l",_formId(id));
     }
 	
 	/**
      * Gets the workAt relation prefix.
      */
 	public static String getWorkAtURI(long id) {
-        return BLANK_NODE+"work"+id + "" + machineId;
+        return BLANK_NODE+"work"+String.format("%020l",_formId(id));
     }
 
     public static String getKnowsURI(long id) {
-        return BLANK_NODE+"knows"+id + "" + machineId;
+        return BLANK_NODE+"knows"+String.format("%020l",_formId(id));
     }
 
 	/**
      * Gets the true id having in consideration the machine.
      */
 	public static String formId(long id) {
+        return Long.toString(_formId(id));
+	}
+
+    public static Long _formId(long id) {
         long lowMask = 0x0FFFFF;                                // This mask is used to get the lowest 20 bits.
         long lowerPart = ( lowMask & id );
         long machinePart = machineId << 20 ;
-        long upperPart = (id >> 20) << 20 + numBits;
-        long finalId =  upperPart | machinePart | lowerPart ;
-        return Long.toString(finalId);
-	}
+        long upperPart = (id >> 20) << (20 + numBits);
+        return  upperPart | machinePart | lowerPart ;
+    }
+
+    public static long composeId( long id, long date ) {
+        long idMask = ~(0xFFFFFFFFFFFFFFFFL << 33);
+        long dateMask = ~(0xFFFFFFFFFFFFFFFFL << 20);
+        return (((date >> 20) & dateMask) << 33) | ((id & idMask)) ;
+    }
 }
