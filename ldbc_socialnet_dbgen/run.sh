@@ -1,5 +1,5 @@
 #!/bin/bash
-export HADOOP_HOME=/home/user/hadoop-1.0.3 #change to your hadoop folder
+export HADOOP_HOME=/home/user/hadoop-1.2.1 #change to your hadoop folder
 export LDBC_SOCIALNET_DBGEN_HOME=/home/user/ldbc_socialnet_bm/ldbc_socialnet_dbgen #change to your ldbc_socialnet_dbgen folder 
 export NUM_MACHINES=1
 
@@ -7,7 +7,7 @@ export SOCIALNET_DIR=/home/user/datasetFolder #change to the folder where the ge
 export OUTPUT_DIR=$SOCIALNET_DIR/output
 export SIB_INPUT_DIR=input/sib
 export SIB_OUTPUT_DIR=$OUTPUT_DIR/sib
-export DATA_OUTPUT_DIR=$SOCIALNET_DIR/outputDir/ #FIX: this trailing "/" should not be necessary
+export DATA_OUTPUT_DIR=$SOCIALNET_DIR/outputDir
 
 rm -rf $OUTPUT_DIR
 rm -rf $DATA_OUTPUT_DIR
