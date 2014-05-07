@@ -49,6 +49,10 @@ import ldbc.socialnet.dbgen.objects.*;
 import ldbc.socialnet.dbgen.vocabulary.DBP;
 import ldbc.socialnet.dbgen.vocabulary.DBPOWL;
 import ldbc.socialnet.dbgen.vocabulary.SN;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 
 /**
  * CSV Merge Foreign serializer.
@@ -202,14 +206,16 @@ public class CSVMergeForeign implements Serializer {
 		
 
         try{
+            Configuration conf = new Configuration();
+            FileSystem fs = FileSystem.get(conf);
             fileOutputStream = new OutputStream[Files.NUM_FILES.ordinal()];
             if( compressed ) {
                 for (int i = 0; i < Files.NUM_FILES.ordinal(); i++) {
-                    this.fileOutputStream[i] = new GZIPOutputStream(new FileOutputStream(file +"/"+fileNames[i] +"_"+reducerID+".csv.gz"));
+                    this.fileOutputStream[i] = new GZIPOutputStream(fs.create(new Path(file +"/"+fileNames[i] +"_"+reducerID+".csv.gz")));
                 }
             } else {
                 for (int i = 0; i < Files.NUM_FILES.ordinal(); i++) {
-                    this.fileOutputStream[i] = new FileOutputStream(file +"/"+fileNames[i] +"_"+reducerID+".csv");
+                    this.fileOutputStream[i] = fs.create(new Path(file +"/"+fileNames[i] +"_"+reducerID+".csv"));
                 }
             }
 
