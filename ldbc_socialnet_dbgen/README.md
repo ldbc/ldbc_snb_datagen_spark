@@ -12,7 +12,7 @@ ldbc_socialnet_dbgen is GPLv3 licensed, to see detailed information about this l
 
 * Releases
 * **[Configuration](https://github.com/ldbc/ldbc_socialnet_bm/wiki/Configuration)**
-* Compilation and Execution
+* **[Compilation and Execution](https://github.com/ldbc/ldbc_socialnet_bm/wiki/Compilation_Execution)**
 * Output
 
 ## Configuration
