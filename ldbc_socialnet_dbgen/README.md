@@ -10,14 +10,18 @@ The LDBC Social Network Dataset Generator (SNDG) is the responsible of providing
 ldbc_socialnet_dbgen is part of the LDBC project (http://www.ldbc.eu/).
 ldbc_socialnet_dbgen is GPLv3 licensed, to see detailed information about this license read the LICENSE.txt.
 
+* Releases
+* **[Configuration](https://github.com/ldbc/ldbc_socialnet_bm/wiki/Configuration)**
+* Compilation and Execution
+* Output
 
-## Requirements
+## Configuration
 
 This software is build using Apache hadoop version 1.2.1 and we not guarantee compatibility with newer releases.
 You can download hadoop 1.2.1 from [here](http://archive.apache.org/dist/hadoop/core/hadoop-1.2.1/). To Configure your hadoop machine or cluster, please visit [here](http://hadoop.apache.org/docs/stable/index.html).
 
 
-## Compilation
+## Compilation and Execution
 
 The compilation uses [Apache Maven](http://maven.apache.org) to automatically detect and download the necessary dependencies. Make sure you are in your ldbc_socialnet_bm/ldbc_socialnet_dbgen/ project folder.
 To generate the jar containing all the dependencies, type
