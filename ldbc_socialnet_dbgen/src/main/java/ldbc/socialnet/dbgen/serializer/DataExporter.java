@@ -65,6 +65,7 @@ public class DataExporter {
     private CompanyDictionary companyDic = null;
     private UniversityDictionary universityDic = null;
     private TagDictionary tagDic = null;
+    private TreeSet<Integer> exportedClasses;
     private int reducerId = 0;
 
     public DataExporter( DataFormat format,
@@ -88,6 +89,7 @@ public class DataExporter {
         this.tagDic = tagDic;
         this.reducerId = reducerId;
         this.dateThreshold = dateThreshold;
+        this.exportedClasses = new TreeSet<Integer>();
         if( format == DataFormat.CSV ) {
             staticSerializer = new CSVOriginal(directory,reducerId,tagDic,browsers,companyDic,universityDic,ipDic,locationDic,languageDic,exportText,compressed);
         } else if( format == DataFormat.CSV_MERGE_FOREIGN ) {
@@ -142,7 +144,6 @@ public class DataExporter {
 
     public void exportTagHierarchy(Tag tag) {
         int classId = tag.tagClass;
-        TreeSet<Integer> exportedClasses = new TreeSet<Integer>();
         while (classId != -1 && !exportedClasses.contains(classId)) {
             exportedClasses.add(classId);
             TagClass tagClass = new TagClass();
