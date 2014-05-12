@@ -657,7 +657,7 @@ public class CSVOriginal implements Serializer {
         ToCSV(arguments, Files.TAGCLASS.ordinal());
 
         if (tagClass.parent != -1) {
-            arguments.add(tagClass.toString());
+            arguments.add(Integer.toString(tagClass.id));
             arguments.add(Integer.toString(tagClass.parent));
             ToCSV(arguments, Files.TAGCLASS_IS_SUBCLASS_OF_TAGCLASS.ordinal());
         }
