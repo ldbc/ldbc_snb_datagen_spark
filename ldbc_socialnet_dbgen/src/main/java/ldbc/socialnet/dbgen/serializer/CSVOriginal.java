@@ -630,18 +630,14 @@ public class CSVOriginal implements Serializer {
         arguments.add(location.getName());
         arguments.add(DBP.getUrl(location.getName()));
         arguments.add(location.getType());
-
         ToCSV(arguments, Files.PLACE.ordinal());
 
-        arguments.add(Integer.toString(location.getId()));
         if (location.getType() == Location.CITY ||
                 location.getType() == Location.COUNTRY) {
+            arguments.add(Integer.toString(location.getId()));
             arguments.add(Integer.toString(locationDic.belongsTo(location.getId())));
-        } else {
-            String empty = "";
-            arguments.add(empty);
+            ToCSV(arguments, Files.PLACE_PART_OF_PLACE.ordinal());
         }
-        ToCSV(arguments, Files.PLACE_PART_OF_PLACE.ordinal());
     }
 
     @Override
