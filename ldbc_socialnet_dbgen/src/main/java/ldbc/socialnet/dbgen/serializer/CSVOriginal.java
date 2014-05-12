@@ -343,6 +343,7 @@ public class CSVOriginal implements Serializer {
         }
     }
 
+
     @Override
     public void serialize(Friend friend) {
         Vector<String> arguments = new Vector<String>();
@@ -602,8 +603,11 @@ public class CSVOriginal implements Serializer {
         arguments.add(ScalableGenerator.OrganisationType.company.toString());
         arguments.add(organization.name);
         arguments.add(DBP.getUrl(organization.name));
-        arguments.add(Integer.toString(organization.location));
         ToCSV(arguments, Files.ORGANISATION.ordinal());
+
+        arguments.add(Long.toString(organization.id));
+        arguments.add(Integer.toString(organization.location));
+        ToCSV(arguments, Files.ORGANISATION_BASED_NEAR_PLACE.ordinal());
     }
 
     @Override
@@ -627,14 +631,17 @@ public class CSVOriginal implements Serializer {
         arguments.add(DBP.getUrl(location.getName()));
         arguments.add(location.getType());
 
+        ToCSV(arguments, Files.PLACE.ordinal());
+
+        arguments.add(Integer.toString(location.getId()));
         if (location.getType() == Location.CITY ||
                 location.getType() == Location.COUNTRY) {
-                arguments.add(Integer.toString(locationDic.belongsTo(location.getId())));
+            arguments.add(Integer.toString(locationDic.belongsTo(location.getId())));
         } else {
             String empty = "";
             arguments.add(empty);
         }
-        ToCSV(arguments, Files.PLACE.ordinal());
+        ToCSV(arguments, Files.PLACE_PART_OF_PLACE.ordinal());
     }
 
     @Override
