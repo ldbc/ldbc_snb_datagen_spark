@@ -168,7 +168,7 @@ public class CommentGenerator {
         ArrayList<Integer> validIds = new ArrayList<Integer>();
         Friend[] friends = user.getFriendList();
         for (int i = 0; i <user.getNumFriendsAdded(); i++) {
-            if ((friends[i].getCreatedTime()+deltaTime <= post.getCreationDate()) || (friends[i].getCreatedTime() == -1)){
+            if ((friends[i].getCreatedTime()+deltaTime <= replyTo.getCreationDate()) || (friends[i].getCreatedTime() == -1)){
                 validIds.add(i);
             }
         }
@@ -252,7 +252,7 @@ public class CommentGenerator {
         ArrayList<Integer> validIds = new ArrayList<Integer>();
         GroupMemberShip[] memberShips = group.getMemberShips();
         for (int i = 0; i <group.getNumMemberAdded(); i++) {
-            if (memberShips[i].getJoinDate()+deltaTime <= post.getCreationDate()){
+            if (memberShips[i].getJoinDate()+deltaTime <= replyTo.getCreationDate()){
                 validIds.add(i);
             }
         }

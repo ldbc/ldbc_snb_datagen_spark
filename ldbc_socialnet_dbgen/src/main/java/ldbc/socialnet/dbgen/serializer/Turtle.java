@@ -153,12 +153,12 @@ public class Turtle implements Serializer {
                 dataFileWriter = new OutputStream[nrOfOutputFiles];
                 staticdbpFileWriter = new OutputStream[nrOfOutputFiles];
                 if(nrOfOutputFiles==1) {
-                    this.dataFileWriter[0] = new GZIPOutputStream( fs.create( new Path(file + "/"+reducerId+"_ldbc_socialnet_"+extension+".gz")));
+                    this.dataFileWriter[0] = new GZIPOutputStream( fs.create( new Path(file + "/"+reducerId+"_ldbc_socialnet"+extension+".gz")));
                     this.staticdbpFileWriter[0] = new GZIPOutputStream( fs.create( new Path(file+"/"+reducerId+"_ldbc_socialnet_"+STATIC_DBP_DATA_FILE + extension+".gz")));
                 } else {
                     for(int i=1;i<=nrOfOutputFiles;i++) {
-                        this.dataFileWriter[i-1] = new GZIPOutputStream( fs.create( new Path(file + "/"+reducerId+"_ldbc_socialnet_"+String.format(formatString, i) + extension+".gz")));
-                        this.staticdbpFileWriter[i-1] = new GZIPOutputStream( fs.create( new Path(file+"/"+reducerId+"_ldbc_socialnet_"+"_"+STATIC_DBP_DATA_FILE + String.format(formatString, i) + extension+".gz")));
+                        this.dataFileWriter[i-1] = new GZIPOutputStream( fs.create( new Path(file + "/"+reducerId+"_ldbc_socialnet"+String.format(formatString, i) + extension+".gz")));
+                        this.staticdbpFileWriter[i-1] = new GZIPOutputStream( fs.create( new Path(file+"/"+reducerId+"_ldbc_socialnet_"+STATIC_DBP_DATA_FILE + String.format(formatString, i) + extension+".gz")));
                     }
                 }
             } else {
@@ -166,11 +166,11 @@ public class Turtle implements Serializer {
                 staticdbpFileWriter = new OutputStream[nrOfOutputFiles];
 
                 if(nrOfOutputFiles==1) {
-                    this.dataFileWriter[0] = fs.create( new Path(file +"/"+reducerId+"_ldbc_socialnet_"+extension));
+                    this.dataFileWriter[0] = fs.create( new Path(file +"/"+reducerId+"_ldbc_socialnet"+extension));
                     this.staticdbpFileWriter[0] = fs.create( new Path(file+"/"+reducerId+"_ldbc_socialnet_"+STATIC_DBP_DATA_FILE + extension));
                 } else {
                     for(int i=1;i<=nrOfOutputFiles;i++) {
-                        this.dataFileWriter[i-1] = fs.create( new Path(file +"/"+reducerId+"_ldbc_socialnet_"+ String.format(formatString, i) + extension));
+                        this.dataFileWriter[i-1] = fs.create( new Path(file +"/"+reducerId+"_ldbc_socialnet"+ String.format(formatString, i) + extension));
                         this.staticdbpFileWriter[i-1] = fs.create( new Path(file+"/"+reducerId+"_ldbc_socialnet_"+STATIC_DBP_DATA_FILE + String.format(formatString, i) + extension));
                     }
                 }
