@@ -46,7 +46,9 @@ public class SN{
 	public static final String NAMESPACE = "http://www.ldbc.eu/ldbc_socialnet/1.0/data/";
 	public static final String PREFIX = "sn:";
 	public static final String BLANK_NODE = "_:";
-	
+    public static long minDate = 0;
+    public static long maxDate = 0;
+
 	/**
 	 * Sets the machine id.
 	 * Used as a suffix in some SN entities' tp create unique IDs in parallel generation.
@@ -163,8 +165,9 @@ public class SN{
     }
 
     public static long composeId( long id, long date ) {
+        long bucket = (long)(256*(date - minDate) / (double)maxDate);
         long idMask = ~(0xFFFFFFFFFFFFFFFFL << 33);
-        long dateMask = ~(0xFFFFFFFFFFFFFFFFL << 20);
-        return (((date >> 20) & dateMask) << 33) | ((id & idMask)) ;
+//        long dateMask = ~(0xFFFFFFFFFFFFFFFFL << 20);
+        return ( bucket << 33) | (id & idMask) ;
     }
 }

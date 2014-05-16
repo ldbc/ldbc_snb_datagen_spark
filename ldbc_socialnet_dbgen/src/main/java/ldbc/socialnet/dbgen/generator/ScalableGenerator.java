@@ -446,6 +446,8 @@ public class ScalableGenerator{
         dateTimeGenerator = new DateGenerator( new GregorianCalendar(startYear, startMonth, startDate),
                 new GregorianCalendar(endYear, endMonth, endDate), alpha, deltaTime);
         dateThreshold = dateTimeGenerator.getMaxDateTime() - (long)((dateTimeGenerator.getMaxDateTime() - dateTimeGenerator.getStartDateTime())*(updatePortion));
+        SN.minDate = dateTimeGenerator.getStartDateTime();
+        SN.maxDate = dateTimeGenerator.getMaxDateTime();
 
         System.out.println("Building location dictionary ");
         locationDictionary = new LocationDictionary(numTotalUser, countryDictionaryFile, cityDictionaryFile);
@@ -1119,8 +1121,10 @@ public class ScalableGenerator{
     private long composeUserId( long id, long date, long spid ) {
         long spidMask = ~(0xFFFFFFFFFFFFFFFFL << 7);
         long idMask = ~(0xFFFFFFFFFFFFFFFFL << 33);
-        long dateMask = ~(0xFFFFFFFFFFFFFFFFL << 20);
-        return (((date >> 20) & dateMask) << 40) | ((id & idMask) << 7) | (spid & spidMask);
+//        long dateMask = ~(0xFFFFFFFFFFFFFFFFL << 20);
+        //return (((date >> 20) & dateMask) << 40) | ((id & idMask) << 7) | (spid & spidMask);
+        long bucket = (long)(256*(date - SN.minDate) / (double)SN.maxDate);
+        return (  bucket << 40) | ((id & idMask) << 7) | (spid & spidMask);
     }
 
     private ReducedUserProfile generateGeneralInformation(int accountId) {
