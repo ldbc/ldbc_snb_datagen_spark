@@ -58,6 +58,7 @@ import ldbc.socialnet.dbgen.dictionary.UserAgentDictionary;
 import ldbc.socialnet.dbgen.objects.*;
 import ldbc.socialnet.dbgen.serializer.*;
 import ldbc.socialnet.dbgen.storage.StorageManager;
+import ldbc.socialnet.dbgen.util.ScaleFactor;
 import ldbc.socialnet.dbgen.vocabulary.SN;
 import ldbc.socialnet.dbgen.util.MapReduceKey;
 import ldbc.socialnet.dbgen.util.RandomGeneratorFarm;
@@ -70,6 +71,13 @@ import org.apache.hadoop.mapreduce.Reducer;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 
 public class ScalableGenerator{
@@ -104,6 +112,7 @@ public class ScalableGenerator{
     private static final String  IPZONE_DIRECTORY     = "/ipaddrByCountries";
     private static final String  CSV_DIRECTORY        = "/csvSerializers";
     private static final String  PARAMETERS_FILE      = "params.ini";
+    private static final String  SCALE_FACTORS_FILE   = "scale_factors.xml";
     private static final String  STATS_FILE           = "testdata.json";
     private static final String  RDF_OUTPUT_FILE      = "ldbc_socialnet_dbg";
 
@@ -213,9 +222,7 @@ public class ScalableGenerator{
             FLASHMOB_TAG_DIST_EXP, DELTA_TIME, UPDATE_PORTION};
 
     //final user parameters
-    private final String NUM_USERS          = "numtotalUser";
-    private final String START_YEAR         = "startYear";
-    private final String NUM_YEARS          = "numYears";
+    private final String SCALE_FACTOR       = "scaleFactor";
     private final String SERIALIZER_TYPE    = "serializerType";
     private final String EXPORT_TEXT        = "exportText";
     private final String ENABLE_COMPRESSION = "enableCompression";
@@ -224,7 +231,7 @@ public class ScalableGenerator{
      * This array provides a quick way to check if any of the required parameters is missing and throw the appropriate
      * exception in the method loadParamsFromFile()
      */
-    private final String[] publicCheckParameters = {NUM_USERS, START_YEAR, NUM_YEARS, SERIALIZER_TYPE, EXPORT_TEXT, ENABLE_COMPRESSION};
+    private final String[] publicCheckParameters = {SCALE_FACTOR,SERIALIZER_TYPE, ENABLE_COMPRESSION};
 
     // Gender string representation, both representations vector/standalone so the string is coherent.
     private final String MALE   = "male";
@@ -396,10 +403,10 @@ public class ScalableGenerator{
     public boolean exportText = true;
     public boolean enableCompression = true;
 
-
     RandomGeneratorFarm randomFarm;
     public static final int blockSize = 10000;
 
+    TreeMap<Integer, ScaleFactor> scaleFactors;
 
     /**
      * Creates the ScalableGenerator
@@ -696,7 +703,36 @@ public class ScalableGenerator{
         }
 
         try {
-            //read the user param file
+            scaleFactors = new TreeMap<Integer,ScaleFactor>();
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(getClass().getResourceAsStream("/"+SCALE_FACTORS_FILE));
+            doc.getDocumentElement().normalize();
+
+            System.out.println("Reading scale factors..");
+            NodeList nodes = doc.getElementsByTagName("scale_factor");
+            for (int i = 0; i < nodes.getLength(); i++) {
+                Node node = nodes.item(i);
+                if (node.getNodeType() == Node.ELEMENT_NODE) {
+                    Element element = (Element) node;
+                    Integer num = Integer.parseInt(element.getAttribute("number"));
+                    ScaleFactor scaleFactor = new ScaleFactor();
+                    NodeList files = element.getElementsByTagName("num_persons");
+                    scaleFactor.numPersons = Integer.parseInt(files.item(0).getTextContent());
+                    files = element.getElementsByTagName("start_year");
+                    scaleFactor.startYear = Integer.parseInt(files.item(0).getTextContent());
+                    files = element.getElementsByTagName("num_years");
+                    scaleFactor.numYears = Integer.parseInt(files.item(0).getTextContent());
+                    scaleFactors.put(num,scaleFactor);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            System.exit(-1);
+        }
+
+        try {
+            System.out.println("Reading parameters file ...");
             Properties properties = new Properties();
             properties.load(new InputStreamReader(new FileInputStream(sibHomeDir + "/"+PARAMETERS_FILE), "UTF-8"));
             for (int i = 0; i < publicCheckParameters.length; i++) {
@@ -705,13 +741,19 @@ public class ScalableGenerator{
                 }
             }
 
-            int numYears;
-            numTotalUser = Integer.parseInt(properties.getProperty(NUM_USERS));
-            startYear = Integer.parseInt(properties.getProperty(START_YEAR));
-            numYears = Integer.parseInt(properties.getProperty(NUM_YEARS));
+            int scaleFactorId = Integer.parseInt(properties.getProperty(SCALE_FACTOR));
+            ScaleFactor scaleFactor = scaleFactors.get(scaleFactorId);
+            System.out.println("Executin with scale factor "+scaleFactorId);
+            System.out.println(" ... Num Persons "+scaleFactor.numPersons);
+            System.out.println(" ... Start Year "+scaleFactor.startYear);
+            System.out.println(" ... Num Years "+scaleFactor.numYears);
+            numTotalUser = scaleFactor.numPersons;
+            startYear = scaleFactor.startYear;
+            int numYears = scaleFactor.numYears;
             endYear = startYear + numYears;
             serializerType = properties.getProperty(SERIALIZER_TYPE);
-            exportText = Boolean.parseBoolean(properties.getProperty(EXPORT_TEXT));
+//            exportText = Boolean.parseBoolean(properties.getProperty(EXPORT_TEXT));
+            exportText = true;
             enableCompression = Boolean.parseBoolean(properties.getProperty(ENABLE_COMPRESSION));
             if (!serializerType.equals("ttl") && !serializerType.equals("n3") &&
                     !serializerType.equals("csv") && !serializerType.equals("none") && !serializerType.equals("csv_merge_foreign")) {

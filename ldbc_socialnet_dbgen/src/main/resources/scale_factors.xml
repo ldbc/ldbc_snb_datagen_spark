@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<scale_factors>
+<scale_factor number="1" >
+    <num_persons>10000</num_persons>
+    <start_year>2010</start_year>
+    <num_years>3</num_years>
+</scale_factor>
+
+<scale_factor number="10" >
+    <num_persons>100000</num_persons>
+    <start_year>2010</start_year>
+    <num_years>3</num_years>
+</scale_factor>
+
+<scale_factor number="100" >
+    <num_persons>1000000</num_persons>
+    <start_year>2010</start_year>
+    <num_years>3</num_years>
+</scale_factor>
+</scale_factors>
