@@ -226,12 +226,15 @@ public class ScalableGenerator{
     private final String SERIALIZER_TYPE    = "serializerType";
     private final String EXPORT_TEXT        = "exportText";
     private final String ENABLE_COMPRESSION = "enableCompression";
+    private final String NUM_PERSONS        = "numPersons";
+    private final String NUM_YEARS          = "numYears";
+    private final String START_YEAR         = "startYear";
 
     /**
      * This array provides a quick way to check if any of the required parameters is missing and throw the appropriate
      * exception in the method loadParamsFromFile()
      */
-    private final String[] publicCheckParameters = {SCALE_FACTOR,SERIALIZER_TYPE, ENABLE_COMPRESSION};
+    private final String[] publicCheckParameters = {SERIALIZER_TYPE, ENABLE_COMPRESSION};
 
     // Gender string representation, both representations vector/standalone so the string is coherent.
     private final String MALE   = "male";
@@ -741,16 +744,31 @@ public class ScalableGenerator{
                 }
             }
 
-            int scaleFactorId = Integer.parseInt(properties.getProperty(SCALE_FACTOR));
-            ScaleFactor scaleFactor = scaleFactors.get(scaleFactorId);
-            System.out.println("Executin with scale factor "+scaleFactorId);
-            System.out.println(" ... Num Persons "+scaleFactor.numPersons);
-            System.out.println(" ... Start Year "+scaleFactor.startYear);
-            System.out.println(" ... Num Years "+scaleFactor.numYears);
-            numTotalUser = scaleFactor.numPersons;
-            startYear = scaleFactor.startYear;
-            int numYears = scaleFactor.numYears;
-            endYear = startYear + numYears;
+            boolean scaleFactorSet = properties.getProperty(SCALE_FACTOR) != null;
+            boolean numPersonsSet = properties.getProperty(NUM_PERSONS) != null;
+            boolean numYearsSet = properties.getProperty(NUM_YEARS) != null;
+            boolean startYearSet = properties.getProperty(START_YEAR) != null;
+
+            if(scaleFactorSet) {
+                int scaleFactorId = Integer.parseInt(properties.getProperty(SCALE_FACTOR));
+                ScaleFactor scaleFactor = scaleFactors.get(scaleFactorId);
+                System.out.println("Executin with scale factor " + scaleFactorId);
+                System.out.println(" ... Num Persons " + scaleFactor.numPersons);
+                System.out.println(" ... Start Year " + scaleFactor.startYear);
+                System.out.println(" ... Num Years " + scaleFactor.numYears);
+                numTotalUser = scaleFactor.numPersons;
+                startYear = scaleFactor.startYear;
+                int numYears = scaleFactor.numYears;
+                endYear = startYear + numYears;
+            } else if( numPersonsSet && numYearsSet && startYearSet ) {
+                numTotalUser = Integer.parseInt(properties.getProperty(NUM_PERSONS));
+                startYear = Integer.parseInt(properties.getProperty(START_YEAR));
+                int numYears = Integer.parseInt(properties.getProperty(NUM_YEARS));
+                endYear = startYear + numYears;
+            } else {
+                throw new IllegalStateException("Missing parameters. Please specify scale factor or num persons, start year and num years");
+            }
+
             serializerType = properties.getProperty(SERIALIZER_TYPE);
 //            exportText = Boolean.parseBoolean(properties.getProperty(EXPORT_TEXT));
             exportText = true;
