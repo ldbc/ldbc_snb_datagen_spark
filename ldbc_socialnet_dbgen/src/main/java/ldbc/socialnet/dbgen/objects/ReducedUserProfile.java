@@ -89,7 +89,38 @@ public class ReducedUserProfile implements Serializable, Writable{
 
 	// For posting
 	boolean 			isLargePoster;
+	
+	static public class Counts {
+		public int numberOfPosts;
+		public int[] numberOfPostsPerMonth;
+		public int numberOfLikes;
+		public int numberOfGroups;
+		public int numberOfWorkPlaces;
+		public int numberOfTagsOfPosts;
+		public int numberOfFriends;
+		
+		public Counts(Counts other){
+			this.numberOfPosts = other.numberOfPosts;
+			this.numberOfPostsPerMonth = other.numberOfPostsPerMonth;
+			this.numberOfLikes = other.numberOfLikes;
+			this.numberOfGroups = other.numberOfGroups;
+			this.numberOfWorkPlaces = other.numberOfWorkPlaces;
+			this.numberOfTagsOfPosts = other.numberOfTagsOfPosts;
+			this.numberOfFriends = other.numberOfFriends;
+		}
+		public Counts(){
+			this.numberOfPosts = 0;
+			this.numberOfPostsPerMonth = new int[36+1];
+			this.numberOfLikes = 0;
+			this.numberOfGroups = 0;
+			this.numberOfWorkPlaces = 0;
+			this.numberOfTagsOfPosts = 0;
+			this.numberOfFriends = 0;
+		}
+	}
 
+	Counts stats;
+	
 	public void clear(){
 		Arrays.fill(friendList,null);
 		friendList = null;
@@ -101,6 +132,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 		setOfTags.clear();
 		setOfTags = null;
 		popularPlaceIds = null; 
+		stats = null;
 	}
 	
 	private void readObject(java.io.ObjectInputStream stream)
@@ -167,6 +199,14 @@ public class ReducedUserProfile implements Serializable, Writable{
 			gender = stream.readByte();
 			birthDay = stream.readLong();
 			isLargePoster = stream.readBoolean();
+			
+			stats = new Counts();
+			stats.numberOfPosts = stream.readInt();
+			stats.numberOfLikes = stream.readInt();
+			stats.numberOfGroups = stream.readInt();
+			stats.numberOfWorkPlaces = stream.readInt();
+			stats.numberOfTagsOfPosts = stream.readInt();
+			stats.numberOfFriends = stream.readInt();
 	 }
 	
 	private void writeObject(java.io.ObjectOutputStream stream)
@@ -226,6 +266,13 @@ public class ReducedUserProfile implements Serializable, Writable{
 			stream.writeByte(gender);
 			stream.writeLong(birthDay);
 			stream.writeBoolean(isLargePoster);
+			
+			stream.writeInt(stats.numberOfPosts);
+			stream.writeInt(stats.numberOfLikes);
+			stream.writeInt(stats.numberOfGroups);
+			stream.writeInt(stats.numberOfWorkPlaces);
+			stream.writeInt(stats.numberOfTagsOfPosts);
+			stream.writeInt(stats.numberOfFriends);
 	 }
 	
 	public void readFields(DataInput arg0) throws IOException {
@@ -290,6 +337,14 @@ public class ReducedUserProfile implements Serializable, Writable{
 		gender = arg0.readByte();
 		birthDay = arg0.readLong();
 		isLargePoster = arg0.readBoolean();
+		
+		stats = new Counts();
+		stats.numberOfPosts = arg0.readInt();
+		stats.numberOfLikes = arg0.readInt();
+		stats.numberOfGroups = arg0.readInt();
+		stats.numberOfWorkPlaces = arg0.readInt();
+		stats.numberOfTagsOfPosts = arg0.readInt();		
+		stats.numberOfFriends = arg0.readInt();
 	}
 	
 	public void copyFields(ReducedUserProfile user){
@@ -320,6 +375,8 @@ public class ReducedUserProfile implements Serializable, Writable{
 		gender = user.gender;
 		birthDay = user.birthDay;
 		isLargePoster = user.isLargePoster;
+		stats = user.stats;
+		stats.numberOfWorkPlaces = user.stats.numberOfWorkPlaces;
 	}
 	
 	public void write(DataOutput arg0) throws IOException {
@@ -380,10 +437,17 @@ public class ReducedUserProfile implements Serializable, Writable{
 		arg0.writeByte(gender);
 		arg0.writeLong(birthDay);
 		arg0.writeBoolean(isLargePoster);
+		
+		arg0.writeInt(stats.numberOfPosts);
+		arg0.writeInt(stats.numberOfLikes);
+		arg0.writeInt(stats.numberOfGroups);
+		arg0.writeInt(stats.numberOfWorkPlaces);
+		arg0.writeInt(stats.numberOfTagsOfPosts);		
+		arg0.writeInt(stats.numberOfFriends);
 	}
 
 	public ReducedUserProfile(){
-		
+		stats = new Counts();
 	}
 	
 /*	public ReducedUserProfile(UserProfile user, int numCorrDimensions){
@@ -612,7 +676,46 @@ public class ReducedUserProfile implements Serializable, Writable{
 	public void setLargePoster(boolean isLargePoster) {
 		this.isLargePoster = isLargePoster;
 	}
-
+	
+	public int getNumOfPosts(){
+		return stats.numberOfPosts;
+	}
+	
+	public int getNumOfLikes(){
+		return stats.numberOfLikes;
+	}
+	
+	public int getNumOfGroups(){
+		return stats.numberOfGroups;
+	}
+	
+	public int getNumOfWorkPlaces(){
+		return stats.numberOfWorkPlaces;
+	}
+	
+	public int getNumOfTagsOfPosts(){
+		return stats.numberOfTagsOfPosts;
+	}
+	
+	public void addNumOfPosts(int num){
+		stats.numberOfPosts += num;
+	}
+	
+	public void addNumOfGroups(int num){
+		stats.numberOfGroups += num;
+	}
+	
+	public void addNumOfWorkPlaces(int num){
+		stats.numberOfWorkPlaces += num;
+	}
+	
+	public void addNumOfTagsOfPosts(int num){
+		stats.numberOfTagsOfPosts += num;
+	}
+	
+	public void addNumOfLikesToPosts(int num){
+		stats.numberOfLikes += num;
+	}
     public void setMainTag( int mainTag ) {
         this.mainTag = mainTag;
         dicElementIds[1] = this.mainTag;

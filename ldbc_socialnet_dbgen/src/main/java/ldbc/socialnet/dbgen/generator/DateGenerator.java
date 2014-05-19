@@ -201,6 +201,13 @@ public class DateGenerator {
 		return dateString + "T00:00:00";
 	}
 	
+	public static int getNumberOfMonths(GregorianCalendar c, int startMonth, int startYear){
+		int month = c.get(Calendar.MONTH)+1;
+		int year = c.get(Calendar.YEAR);
+		
+		return (year-startYear)*12 + month-startMonth;
+	}
+
 	public Long randomDateInMillis(Random random, Long from, Long to)
 	{
 		long date = (long)(random.nextDouble()*(to-from)+from);

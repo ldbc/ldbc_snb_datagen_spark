@@ -185,10 +185,12 @@ abstract public class PostGenerator {
     public Vector<Post> createPosts(RandomGeneratorFarm randomFarm, ReducedUserProfile user, UserExtraInfo extraInfo, long startPostId ){
         Vector<Post> result = new Vector<Post>();
         int numPosts = generateNumOfPost(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_POST), user);
+        user.addNumOfPosts(numPosts); // bookkeeping for parameter generation
         for( int i = 0; i < numPosts; ++i ) {
             //Generate the post info.
             PostInfo postInfo = generatePostInfo(randomFarm.get(RandomGeneratorFarm.Aspect.TAG), randomFarm.get(RandomGeneratorFarm.Aspect.DATE), user);
             if( postInfo != null ) {
+                user.addNumOfTagsOfPosts(postInfo.tags.size()); // bookkeeping for parameter generation
                 // Create the content of the post from its tags.
                 String content = "";
                 int textSize;
@@ -225,6 +227,7 @@ abstract public class PostGenerator {
             // Create post likes.
                 if( randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
                     setLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), randomFarm.get(RandomGeneratorFarm.Aspect.DATE),post, user);
+                    user.addNumOfLikesToPosts(post.getLikes().length); // bookkeeping for parameter generation
                 }
                 result.add(post);
             }
