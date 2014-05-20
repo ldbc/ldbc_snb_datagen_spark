@@ -115,6 +115,7 @@ public class ScalableGenerator{
     private static final String  SCALE_FACTORS_FILE   = "scale_factors.xml";
     private static final String  STATS_FILE           = "testdata.json";
     private static final String  RDF_OUTPUT_FILE      = "ldbc_socialnet_dbg";
+    private static final String  PARAM_COUNT_FILE     = "factors.txt";
 
     // Dictionaries dataset files
     private static final String   browserDictonryFile       = DICTIONARY_DIRECTORY + "browsersDic.txt";
@@ -243,7 +244,10 @@ public class ScalableGenerator{
 
     //Stat container
     private Statistics stats;
-
+    
+    // bookkeeping for parameter generation
+    private HashMap<Long, ReducedUserProfile.Counts> factorTable;
+    
     // For blocking
     private static final int  reducerShift[] = { 26, 8, 1 };
 
@@ -441,6 +445,7 @@ public class ScalableGenerator{
     public void init(int numMaps, int mapId){
         this.numFiles = numMaps;
         this.machineId = mapId;
+        this.factorTable = new HashMap<Long, ReducedUserProfile.Counts>();
         loadParamsFromFile();
         randomFarm = new RandomGeneratorFarm();
         windowSize = cellSize * numberOfCellPerWindow;                          // We compute the size of the window.
@@ -790,6 +795,7 @@ public class ScalableGenerator{
     public void closeSerializer() {
         dataExporter.close();
         writeStatistics();
+        writeFactorTable();
         System.out.println("Number of generated triples " + dataExporter.unitsGenerated());
         System.out.println("Number of popular users " + numPopularUser);
         System.out.println("Writing the data for test driver ");
@@ -812,6 +818,8 @@ public class ScalableGenerator{
         generatePhotos(reducedUserProfiles[index], extraInfo);
         generateUserGroups(reducedUserProfiles[index], extraInfo);
         if( numUserProfilesRead % 100 == 0) context.setStatus("Generated post and photo for "+numUserProfilesRead+" users");
+        factorTable.get(userProfile.getAccountId()).numberOfFriends = userProfile.getFriendIds().size();
+        factorTable.get(userProfile.getAccountId()).numberOfWorkPlaces = userProfile.getNumOfWorkPlaces();
     }
 
     private void generateUserGroups(ReducedUserProfile userProfile, UserExtraInfo extraInfo ) {
@@ -997,15 +1005,33 @@ public class ScalableGenerator{
     private void generatePosts(PostGenerator postGenerator, ReducedUserProfile user, UserExtraInfo extraInfo){
         Vector<Post> createdPosts = postGenerator.createPosts( randomFarm, user, extraInfo, postId );
         postId+=createdPosts.size();
+        if (!factorTable.containsKey(user.getAccountId()))
+        	factorTable.put(user.getAccountId(), new ReducedUserProfile.Counts());
+        factorTable.get(user.getAccountId()).numberOfPosts += createdPosts.size();
+
         Iterator<Post> it = createdPosts.iterator();
+        GregorianCalendar c = new GregorianCalendar();
+        
         while(it.hasNext()) {
+        	
             Post post = it.next();
+            if (post.getLikes() != null){
+            	factorTable.get(user.getAccountId()).numberOfLikes += post.getLikes().length;
+            }
+            if (post.getTags() != null) {
+            	factorTable.get(user.getAccountId()).numberOfTagsOfPosts += post.getTags().size();
+            }
+            c.setTimeInMillis(post.getCreationDate());
+            int bucket = DateGenerator.getNumberOfMonths(c, startMonth, startYear);
+            factorTable.get(user.getAccountId()).numberOfPostsPerMonth[bucket]++;
+            
             String countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(post.getIpAddress())));
             stats.countries.add(countryName);
 
             GregorianCalendar date = new GregorianCalendar();
             date.setTimeInMillis(post.getCreationDate());
             String strCreationDate = DateGenerator.formatYear(date);
+            
             if (stats.maxPostCreationDate == null) {
                 stats.maxPostCreationDate = strCreationDate;
                 stats.minPostCreationDate = strCreationDate;
@@ -1026,6 +1052,21 @@ public class ScalableGenerator{
                 int replyIndex = randomFarm.get(RandomGeneratorFarm.Aspect.REPLY_TO).nextInt(replyCandidates.size());
                 Comment comment = commentGenerator.createComment(randomFarm, postId, post, replyCandidates.get(replyIndex),user);
                 if ( comment!=null ) {
+                    if (!factorTable.containsKey(comment.getAuthorId())) {
+                    	factorTable.put(comment.getAuthorId(), new ReducedUserProfile.Counts());
+                    }
+                	factorTable.get(comment.getAuthorId()).numberOfPosts++;
+                	
+                    c.setTimeInMillis(comment.getCreationDate());
+                    bucket = DateGenerator.getNumberOfMonths(c, startMonth, startYear);
+                    factorTable.get(comment.getAuthorId()).numberOfPostsPerMonth[bucket]++;
+
+                	if (comment.getLikes() != null) {
+                		factorTable.get(comment.getAuthorId()).numberOfLikes += comment.getLikes().length;
+                	}
+                	if (comment.getTags() != null) {
+                		factorTable.get(comment.getAuthorId()).numberOfTagsOfPosts += comment.getTags().size();
+                	}
                     countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(comment.getIpAddress())));
                     stats.countries.add(countryName);
                     dataExporter.export(comment);
@@ -1043,14 +1084,28 @@ public class ScalableGenerator{
         if (numOfmonths != 0) {
             numPhotoAlbums = numOfmonths * numPhotoAlbums;
         }
+        GregorianCalendar c = new GregorianCalendar();
 
         for (int m = 0; m < numPhotoAlbums; m++) {
             Group album = groupGenerator.createAlbum(randomFarm, groupId, user, extraInfo, m, joinProbs[0]);
             if( album != null ) {
                 groupId++;
                 dataExporter.export(album);
+                GroupMemberShip memberships[] = album.getMemberShips();
+                int numMembers = album.getNumMemberAdded();
+                for( int i = 0; i < numMembers; ++i ) {
+            		if (!factorTable.containsKey(memberships[i].getUserId()))
+            			factorTable.put(memberships[i].getUserId(), new ReducedUserProfile.Counts());
+            		factorTable.get(memberships[i].getUserId()).numberOfGroups++;
+            		System.out.println("Adding user "+memberships[i].getUserId()+" to an album "+album.getGroupId());
+                }
+
                 // Generate photos for this album
                 int numPhotos = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_PHOTO).nextInt(maxNumPhotoPerAlbums+1);
+                if (!factorTable.containsKey(user.getAccountId()))
+                	factorTable.put(user.getAccountId(), new ReducedUserProfile.Counts());
+                factorTable.get(user.getAccountId()).numberOfPosts += numPhotos;
+                
                 for (int l = 0; l < numPhotos; l++) {
                     Photo photo = photoGenerator.generatePhoto(user, album, l, postId);
                     if( photo != null ) {
@@ -1062,6 +1117,20 @@ public class ScalableGenerator{
                         String countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(photo.getIpAddress())));
                         stats.countries.add(countryName);
                         dataExporter.export(photo);
+                        
+                        c.setTimeInMillis(photo.getCreationDate());
+                        int bucket = DateGenerator.getNumberOfMonths(c, startMonth, startYear);
+
+                        factorTable.get(photo.getAuthorId()).numberOfPostsPerMonth[bucket]++;
+
+                    	if (photo.getLikes() != null) {
+                    		Like[] likesPhoto = photo.getLikes();
+                        	factorTable.get(photo.getAuthorId()).numberOfLikes += photo.getLikes().length;
+                    	}
+                    	if (photo.getTags() != null) {
+                    		factorTable.get(photo.getAuthorId()).numberOfTagsOfPosts += photo.getTags().size();
+                    	}
+
                     }
                 }
             }
@@ -1146,6 +1215,15 @@ public class ScalableGenerator{
             }
 
             dataExporter.export(group);
+            GroupMemberShip memberships[] = group.getMemberShips();
+            int numMembers = group.getNumMemberAdded();
+            if (memberships != null)
+            for( int i = 0; i < numMembers; ++i ) {
+        		if (!factorTable.containsKey(memberships[i].getUserId()))
+        			factorTable.put(memberships[i].getUserId(), new ReducedUserProfile.Counts());
+        		factorTable.get(memberships[i].getUserId()).numberOfGroups++;
+            }
+            
             generatePostForGroup(uniformPostGenerator,group);
             generatePostForGroup(flashmobPostGenerator,group);
         }
@@ -1155,8 +1233,27 @@ public class ScalableGenerator{
         Vector<Post> createdPosts =  postGenerator.createPosts( randomFarm, group, postId);
         postId+=createdPosts.size();
         Iterator<Post> it = createdPosts.iterator();
+        GregorianCalendar c = new GregorianCalendar();
+
         while(it.hasNext()) {
             Post groupPost = it.next();
+            if (!factorTable.containsKey(groupPost.getAuthorId())){	
+            	factorTable.put(groupPost.getAuthorId(), new ReducedUserProfile.Counts());
+            }
+            factorTable.get(groupPost.getAuthorId()).numberOfPosts++;
+            
+            c.setTimeInMillis(groupPost.getCreationDate());
+            int bucket = DateGenerator.getNumberOfMonths(c, startMonth, startYear);
+
+            factorTable.get(groupPost.getAuthorId()).numberOfPostsPerMonth[bucket]++;
+
+            if (groupPost.getLikes() != null){
+            	factorTable.get(groupPost.getAuthorId()).numberOfLikes += groupPost.getLikes().length;
+            }
+            if (groupPost.getTags() != null) {
+            	factorTable.get(groupPost.getAuthorId()).numberOfTagsOfPosts += groupPost.getTags().size();
+            }
+
             String countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(groupPost.getIpAddress())));
             stats.countries.add(countryName);
             dataExporter.export(groupPost);
@@ -1172,6 +1269,24 @@ public class ScalableGenerator{
                     stats.countries.add(countryName);
                     dataExporter.export(comment);
                     if( comment.getTextSize() > 10 ) replyCandidates.add(comment);
+                    
+                    if (!factorTable.containsKey(comment.getAuthorId())) {
+                    	factorTable.put(comment.getAuthorId(), new ReducedUserProfile.Counts());
+                    }
+                	factorTable.get(comment.getAuthorId()).numberOfPosts++;
+                	
+                    c.setTimeInMillis(comment.getCreationDate());
+                    bucket = DateGenerator.getNumberOfMonths(c, startMonth, startYear);
+
+                    factorTable.get(comment.getAuthorId()).numberOfPostsPerMonth[bucket]++;
+
+                	if (comment.getLikes() != null) {
+                		factorTable.get(comment.getAuthorId()).numberOfLikes += comment.getLikes().length;
+                	}
+                	if (comment.getTags() != null) {
+                		factorTable.get(comment.getAuthorId()).numberOfTagsOfPosts += comment.getTags().size();
+                	}
+
                     postId++;
                 }
             }
@@ -1326,6 +1441,7 @@ public class ScalableGenerator{
                 }
                 long company = companiesDictionary.getRandomCompany(randomFarm, user.getLocationId());
                 userExtraInfo.addCompany(company, workFrom);
+                user.addNumOfWorkPlaces(1);
                 String countryName = locationDictionary.getLocationName(companiesDictionary.getCountry(company));
                 stats.countries.add(countryName);
 
@@ -1381,6 +1497,7 @@ public class ScalableGenerator{
     }
 
     private void createFriendShip(ReducedUserProfile user1, ReducedUserProfile user2, byte pass) {
+
         long requestedTime = dateTimeGenerator.randomFriendRequestedDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),user1, user2);
         byte initiator = (byte) randomFarm.get(RandomGeneratorFarm.Aspect.INITIATOR).nextInt(2);
         long createdTime = -1;
@@ -1400,7 +1517,6 @@ public class ScalableGenerator{
                     createdTime, pass, initiator));
             user1.addNewFriend(new Friend(user1, user2, requestedTime, declinedTime,
                     createdTime, pass, initiator));
-
             friendshipNum++;
         }
     }
@@ -1448,6 +1564,43 @@ public class ScalableGenerator{
                 unversityDictionary,ipAddDictionary,locationDictionary,languageDictionary, configFile, stats);
     }
 
+    private void writeFactorTable(){
+        Configuration conf = new Configuration();
+        try {            
+        	FileSystem fs = FileSystem.get(conf);
+            OutputStream writer = fs.create(new Path(sibOutputDir+"/"+ "m" + machineId + PARAM_COUNT_FILE));
+            for (Map.Entry<Long, ReducedUserProfile.Counts> c: factorTable.entrySet()){
+            	ReducedUserProfile.Counts count = c.getValue();
+            	// correct the group counts
+            	count.numberOfGroups += count.numberOfFriends;
+            	StringBuffer strbuf = new StringBuffer();
+            	strbuf.append(c.getKey()); strbuf.append(",");
+            	strbuf.append(count.numberOfFriends); 		strbuf.append(",");
+            	strbuf.append(count.numberOfPosts); 		strbuf.append(",");
+            	strbuf.append(count.numberOfLikes); 		strbuf.append(",");
+            	strbuf.append(count.numberOfTagsOfPosts); 	strbuf.append(",");
+            	strbuf.append(count.numberOfGroups); 		strbuf.append(",");
+            	strbuf.append(count.numberOfWorkPlaces); 	strbuf.append(",");
+
+            	//writer.write(new String(count.numberOfFriends + " "+count.numberOfPosts+ " "+count.numberOfLikes+" "+count.numberOfTagsOfPosts+ " "+count.numberOfGroups+" "+count.numberOfWorkPlaces+"\n").getBytes());
+            	int numBuckets = count.numberOfPostsPerMonth.length;
+            	strbuf.append(count.numberOfPostsPerMonth[0]);
+            	for (int i = 1; i < numBuckets; i++){
+            		strbuf.append(",");
+            		strbuf.append(count.numberOfPostsPerMonth[i]);
+            	}
+            	strbuf.append("\n");
+            	writer.write(strbuf.toString().getBytes());
+            }
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            System.err.println("Unable to write parameter counts");
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
     private void writeStatistics() {
         Gson gson = new GsonBuilder().setExclusionStrategies(stats.getExclusion()).disableHtmlEscaping().create();
         Configuration conf = new Configuration();
