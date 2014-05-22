@@ -66,7 +66,8 @@ public class SNVOC{
     public static final String workFrom        =  PREFIX+"workFrom";
     public static final String hasOrganisation =  PREFIX+"hasOrganisation";
     public static final String hasPost         =  PREFIX+"hasPost";
-    
+    public static final String hasComment         =  PREFIX+"hasComment";
+
     //Forum
     public static final String Forum        =  PREFIX+"Forum";
     public static final String title        =  PREFIX+"title";

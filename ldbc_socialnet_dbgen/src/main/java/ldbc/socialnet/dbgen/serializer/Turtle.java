@@ -333,12 +333,17 @@ public class Turtle implements Serializer {
     public void serialize(Like like) {
 
         StringBuffer result = new StringBuffer(2500);
-        String prefix = SN.getPostURI(like.messageId);
         String likePrefix = SN.getLikeURI(likeId);
         createTripleSPO(result, SN.getPersonURI(like.user),
                 SNVOC.like, likePrefix);
 
-        AddTriple(result, true, false, likePrefix, SNVOC.hasPost, prefix);
+        if( like.type == 0 || like.type == 2 ) {
+            String prefix = SN.getPostURI(like.messageId);
+            AddTriple(result, true, false, likePrefix, SNVOC.hasPost, prefix);
+        } else {
+            String prefix = SN.getCommentURI(like.messageId);
+            AddTriple(result, true, false, likePrefix, SNVOC.hasComment, prefix);
+        }
         date.setTimeInMillis(like.date);
         String dateString = DateGenerator.formatDateDetail(date);
         AddTriple(result, false, true, likePrefix, SNVOC.creationDate,
