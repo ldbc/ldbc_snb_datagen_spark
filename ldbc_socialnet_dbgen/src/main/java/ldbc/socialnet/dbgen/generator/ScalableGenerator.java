@@ -1023,7 +1023,9 @@ public class ScalableGenerator{
             }
             c.setTimeInMillis(post.getCreationDate());
             int bucket = DateGenerator.getNumberOfMonths(c, startMonth, startYear);
-            factorTable.get(user.getAccountId()).numberOfPostsPerMonth[bucket]++;
+            if (bucket < factorTable.get(user.getAccountId()).numberOfPostsPerMonth.length){
+            	factorTable.get(user.getAccountId()).numberOfPostsPerMonth[bucket]++;
+            }
             
             String countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(post.getIpAddress())));
             stats.countries.add(countryName);
@@ -1059,7 +1061,9 @@ public class ScalableGenerator{
                 	
                     c.setTimeInMillis(comment.getCreationDate());
                     bucket = DateGenerator.getNumberOfMonths(c, startMonth, startYear);
-                    factorTable.get(comment.getAuthorId()).numberOfPostsPerMonth[bucket]++;
+                    if (bucket < factorTable.get(comment.getAuthorId()).numberOfPostsPerMonth.length){
+                    	factorTable.get(comment.getAuthorId()).numberOfPostsPerMonth[bucket]++;
+                    }
 
                 	if (comment.getLikes() != null) {
                 		factorTable.get(comment.getAuthorId()).numberOfLikes += comment.getLikes().length;
@@ -1120,8 +1124,9 @@ public class ScalableGenerator{
                         
                         c.setTimeInMillis(photo.getCreationDate());
                         int bucket = DateGenerator.getNumberOfMonths(c, startMonth, startYear);
-
-                        factorTable.get(photo.getAuthorId()).numberOfPostsPerMonth[bucket]++;
+                        if (bucket < factorTable.get(photo.getAuthorId()).numberOfPostsPerMonth.length){
+                        	factorTable.get(photo.getAuthorId()).numberOfPostsPerMonth[bucket]++;
+                        }
 
                     	if (photo.getLikes() != null) {
                     		Like[] likesPhoto = photo.getLikes();
@@ -1244,8 +1249,9 @@ public class ScalableGenerator{
             
             c.setTimeInMillis(groupPost.getCreationDate());
             int bucket = DateGenerator.getNumberOfMonths(c, startMonth, startYear);
-
-            factorTable.get(groupPost.getAuthorId()).numberOfPostsPerMonth[bucket]++;
+            if (bucket < factorTable.get(groupPost.getAuthorId()).numberOfPostsPerMonth.length){
+            	factorTable.get(groupPost.getAuthorId()).numberOfPostsPerMonth[bucket]++;
+            }
 
             if (groupPost.getLikes() != null){
             	factorTable.get(groupPost.getAuthorId()).numberOfLikes += groupPost.getLikes().length;
@@ -1277,8 +1283,9 @@ public class ScalableGenerator{
                 	
                     c.setTimeInMillis(comment.getCreationDate());
                     bucket = DateGenerator.getNumberOfMonths(c, startMonth, startYear);
-
-                    factorTable.get(comment.getAuthorId()).numberOfPostsPerMonth[bucket]++;
+                    if (bucket < factorTable.get(comment.getAuthorId()).numberOfPostsPerMonth.length){
+                    	factorTable.get(comment.getAuthorId()).numberOfPostsPerMonth[bucket]++;
+                    }
 
                 	if (comment.getLikes() != null) {
                 		factorTable.get(comment.getAuthorId()).numberOfLikes += comment.getLikes().length;
@@ -1538,7 +1545,6 @@ public class ScalableGenerator{
     }
 
     private DataExporter getSerializer(String type, String outputFileName) {
-        //SN.setMachineNumber(machineId, numFiles);
         String t = type.toLowerCase();
         DataExporter.DataFormat format;
         String configFile = new String("");
