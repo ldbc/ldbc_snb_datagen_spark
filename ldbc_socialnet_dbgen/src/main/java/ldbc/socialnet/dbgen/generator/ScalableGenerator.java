@@ -247,6 +247,9 @@ public class ScalableGenerator{
     
     // bookkeeping for parameter generation
     private HashMap<Long, ReducedUserProfile.Counts> factorTable;
+    private HashMap<Integer, Integer> postsPerCountry;
+    private HashMap<Integer, Integer> tagClassCount;
+    private HashMap<String, Integer> firstNameCount;
     
     // For blocking
     private static final int  reducerShift[] = { 26, 8, 1 };
@@ -427,7 +430,10 @@ public class ScalableGenerator{
         this.sibOutputDir = sibOutputDir;
         this.sibHomeDir = sibHomeDir;
         this.stats = new Statistics();
-
+        this.postsPerCountry = new HashMap<Integer, Integer>();
+        this.tagClassCount = new HashMap<Integer, Integer>();
+        this.firstNameCount = new HashMap<String, Integer>();
+        
         System.out.println("Map Reduce File Idx is: " + mapreduceFileIdx);
         if (mapreduceFileIdx != -1){
             outUserProfile = "mr" + mapreduceFileIdx + "_" + outUserProfileName;
@@ -527,7 +533,6 @@ public class ScalableGenerator{
         userAgentDictionary.init();
 
         // Building generators.
-
         System.out.println("Building photo generator");
         photoGenerator = new PhotoGenerator(dateTimeGenerator,
                 locationDictionary, 0, popularDictionary, probPopularPlaces, maxNumLikes, deltaTime, randomFarm);
@@ -813,6 +818,8 @@ public class ScalableGenerator{
         userInfo.user = reducedUserProfiles[index];
         userInfo.extraInfo = extraInfo;
         dataExporter.export(userInfo);
+        int nameCount = firstNameCount.containsKey(extraInfo.getFirstName())? firstNameCount.get(extraInfo.getFirstName()):0;
+        firstNameCount.put(extraInfo.getFirstName(), nameCount+1);
         generatePosts(uniformPostGenerator,reducedUserProfiles[index], extraInfo);
         generatePosts(flashmobPostGenerator, reducedUserProfiles[index], extraInfo);
         generatePhotos(reducedUserProfiles[index], extraInfo);
@@ -1020,6 +1027,11 @@ public class ScalableGenerator{
             }
             if (post.getTags() != null) {
             	factorTable.get(user.getAccountId()).numberOfTagsOfPosts += post.getTags().size();
+            	for (Integer t: post.getTags()){
+            		Integer tagClass = tagDictionary.getTagClass(t);
+                	Integer tagCount = tagClassCount.containsKey(tagClass) ? tagClassCount.get(tagClass) : 0;
+                	tagClassCount.put(tagClass, tagCount+1);
+            	}
             }
             c.setTimeInMillis(post.getCreationDate());
             int bucket = DateGenerator.getNumberOfMonths(c, startMonth, startYear);
@@ -1027,8 +1039,12 @@ public class ScalableGenerator{
             	factorTable.get(user.getAccountId()).numberOfPostsPerMonth[bucket]++;
             }
             
-            String countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(post.getIpAddress())));
+            int locationID = ipAddDictionary.getLocation(post.getIpAddress());
+            String countryName = locationDictionary.getLocationName(locationID);
             stats.countries.add(countryName);
+                       
+            int postCount = postsPerCountry.containsKey(locationID) ? postsPerCountry.get(locationID) : 0;
+            postsPerCountry.put(locationID, postCount+1);
 
             GregorianCalendar date = new GregorianCalendar();
             date.setTimeInMillis(post.getCreationDate());
@@ -1070,8 +1086,16 @@ public class ScalableGenerator{
                 	}
                 	if (comment.getTags() != null) {
                 		factorTable.get(comment.getAuthorId()).numberOfTagsOfPosts += comment.getTags().size();
+                    	for (Integer t: comment.getTags()){
+                    		Integer tagClass = tagDictionary.getTagClass(t);
+                        	Integer tagCount = tagClassCount.containsKey(tagClass) ? tagClassCount.get(tagClass) : 0;
+                        	tagClassCount.put(tagClass, tagCount+1);
+                    	}
                 	}
-                    countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(comment.getIpAddress())));
+                	locationID = ipAddDictionary.getLocation(comment.getIpAddress());
+                	countryName = locationDictionary.getLocationName(locationID);
+                	postCount = postsPerCountry.containsKey(locationID) ? postsPerCountry.get(locationID) : 0;
+                	postsPerCountry.put(locationID, postCount+1);
                     stats.countries.add(countryName);
                     dataExporter.export(comment);
                     if( comment.getTextSize() > 10 ) replyCandidates.add(comment);
@@ -1118,7 +1142,10 @@ public class ScalableGenerator{
                         photo.setBrowserIdx(browserDictonry.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), user.getBrowserIdx()));
                         photo.setIpAddress(ipAddDictionary.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER), user.getIpAddress(),
                                 user.isFrequentChange(), photo.getCreationDate(), photo.getLocationId()));
-                        String countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(photo.getIpAddress())));
+                        int locationID = ipAddDictionary.getLocation(photo.getIpAddress());
+                        String countryName = locationDictionary.getLocationName(locationID);
+                        int postCount = postsPerCountry.containsKey(locationID) ? postsPerCountry.get(locationID) : 0;
+                        postsPerCountry.put(locationID, postCount+1);
                         stats.countries.add(countryName);
                         dataExporter.export(photo);
                         
@@ -1134,6 +1161,11 @@ public class ScalableGenerator{
                     	}
                     	if (photo.getTags() != null) {
                     		factorTable.get(photo.getAuthorId()).numberOfTagsOfPosts += photo.getTags().size();
+                        	for (Integer t: photo.getTags()){
+                        		Integer tagClass = tagDictionary.getTagClass(t);
+                            	Integer tagCount = tagClassCount.containsKey(tagClass) ? tagClassCount.get(tagClass) : 0;
+                            	tagClassCount.put(tagClass, tagCount+1);
+                        	}
                     	}
 
                     }
@@ -1258,9 +1290,17 @@ public class ScalableGenerator{
             }
             if (groupPost.getTags() != null) {
             	factorTable.get(groupPost.getAuthorId()).numberOfTagsOfPosts += groupPost.getTags().size();
+            	for (Integer t: groupPost.getTags()){
+            		Integer tagClass = tagDictionary.getTagClass(t);
+                	Integer tagCount = tagClassCount.containsKey(tagClass) ? tagClassCount.get(tagClass) : 0;
+                	tagClassCount.put(tagClass, tagCount+1);
+            	}
             }
 
-            String countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(groupPost.getIpAddress())));
+            int locationID = ipAddDictionary.getLocation(groupPost.getIpAddress());
+            String countryName = locationDictionary.getLocationName(locationID);
+            int postCount = postsPerCountry.containsKey(locationID) ? postsPerCountry.get(locationID) : 0;
+            postsPerCountry.put(locationID, postCount+1);
             stats.countries.add(countryName);
             dataExporter.export(groupPost);
 
@@ -1271,7 +1311,10 @@ public class ScalableGenerator{
                 int replyIndex = randomFarm.get(RandomGeneratorFarm.Aspect.REPLY_TO).nextInt(replyCandidates.size());
                 Comment comment = commentGenerator.createComment(randomFarm, postId, groupPost, replyCandidates.get(replyIndex), group);
                 if ( comment!=null ) {
-                    countryName = locationDictionary.getLocationName((ipAddDictionary.getLocation(comment.getIpAddress())));
+                	locationID = ipAddDictionary.getLocation(comment.getIpAddress());
+                	countryName = locationDictionary.getLocationName(locationID);
+                	postCount = postsPerCountry.containsKey(locationID) ? postsPerCountry.get(locationID) : 0;
+                	postsPerCountry.put(locationID, postCount+1);
                     stats.countries.add(countryName);
                     dataExporter.export(comment);
                     if( comment.getTextSize() > 10 ) replyCandidates.add(comment);
@@ -1292,6 +1335,11 @@ public class ScalableGenerator{
                 	}
                 	if (comment.getTags() != null) {
                 		factorTable.get(comment.getAuthorId()).numberOfTagsOfPosts += comment.getTags().size();
+                    	for (Integer t: comment.getTags()){
+                    		Integer tagClass = tagDictionary.getTagClass(t);
+                        	Integer tagCount = tagClassCount.containsKey(tagClass) ? tagClassCount.get(tagClass) : 0;
+                        	tagClassCount.put(tagClass, tagCount+1);
+                    	}
                 	}
 
                     postId++;
@@ -1575,6 +1623,9 @@ public class ScalableGenerator{
         try {            
         	FileSystem fs = FileSystem.get(conf);
             OutputStream writer = fs.create(new Path(sibOutputDir+"/"+ "m" + machineId + PARAM_COUNT_FILE));
+            writer.write(Integer.toString(factorTable.size()).getBytes());
+            writer.write("\n".getBytes());
+
             for (Map.Entry<Long, ReducedUserProfile.Counts> c: factorTable.entrySet()){
             	ReducedUserProfile.Counts count = c.getValue();
             	// correct the group counts
@@ -1588,7 +1639,6 @@ public class ScalableGenerator{
             	strbuf.append(count.numberOfGroups); 		strbuf.append(",");
             	strbuf.append(count.numberOfWorkPlaces); 	strbuf.append(",");
 
-            	//writer.write(new String(count.numberOfFriends + " "+count.numberOfPosts+ " "+count.numberOfLikes+" "+count.numberOfTagsOfPosts+ " "+count.numberOfGroups+" "+count.numberOfWorkPlaces+"\n").getBytes());
             	int numBuckets = count.numberOfPostsPerMonth.length;
             	strbuf.append(count.numberOfPostsPerMonth[0]);
             	for (int i = 1; i < numBuckets; i++){
@@ -1598,6 +1648,40 @@ public class ScalableGenerator{
             	strbuf.append("\n");
             	writer.write(strbuf.toString().getBytes());
             }
+            writer.write(Integer.toString(postsPerCountry.size()).getBytes());
+            writer.write("\n".getBytes());
+            for (Map.Entry<Integer, Integer> c: postsPerCountry.entrySet()){
+            	StringBuffer strbuf = new StringBuffer();
+            	strbuf.append(locationDictionary.getLocationName(c.getKey()));
+            	strbuf.append(",");
+            	strbuf.append(c.getValue());
+            	strbuf.append("\n");
+            	writer.write(strbuf.toString().getBytes());
+            }
+            
+            writer.write(Integer.toString(tagClassCount.size()).getBytes());
+            writer.write("\n".getBytes());
+            for (Map.Entry<Integer, Integer> c: tagClassCount.entrySet()){
+            	StringBuffer strbuf = new StringBuffer();
+            	strbuf.append(tagDictionary.getClassName(c.getKey()));
+            	strbuf.append(",");
+            	strbuf.append(tagDictionary.getClassName(c.getKey()));
+            	strbuf.append(",");
+            	strbuf.append(c.getValue());
+            	strbuf.append("\n");
+            	writer.write(strbuf.toString().getBytes());
+            }
+            writer.write(Integer.toString(firstNameCount.size()).getBytes());
+            writer.write("\n".getBytes());
+            for (Map.Entry<String, Integer> c: firstNameCount.entrySet()){
+            	StringBuffer strbuf = new StringBuffer();
+            	strbuf.append(c.getKey());
+            	strbuf.append(",");
+            	strbuf.append(c.getValue());
+            	strbuf.append("\n");
+            	writer.write(strbuf.toString().getBytes());
+            }
+
             writer.flush();
             writer.close();
         } catch (IOException e) {
