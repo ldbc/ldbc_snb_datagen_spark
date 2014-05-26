@@ -1125,7 +1125,7 @@ public class ScalableGenerator{
             		if (!factorTable.containsKey(memberships[i].getUserId()))
             			factorTable.put(memberships[i].getUserId(), new ReducedUserProfile.Counts());
             		factorTable.get(memberships[i].getUserId()).numberOfGroups++;
-            		System.out.println("Adding user "+memberships[i].getUserId()+" to an album "+album.getGroupId());
+//            		System.out.println("Adding user "+memberships[i].getUserId()+" to an album "+album.getGroupId());
                 }
 
                 // Generate photos for this album

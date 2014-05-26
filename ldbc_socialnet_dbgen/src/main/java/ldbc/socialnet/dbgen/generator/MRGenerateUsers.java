@@ -275,7 +275,7 @@ public class MRGenerateUsers{
             friendGenerator.resetState(key.block);
             for (ReducedUserProfile user: valueSet){
                 friendGenerator.generateUserActivity(user, context);
-            	System.out.println("Number of work places: " + user.getNumOfWorkPlaces());
+//            	System.out.println("Number of work places: " + user.getNumOfWorkPlaces());
                 totalObjects++;
             }
         }
