@@ -44,6 +44,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Writer;
+import java.util.TreeSet;
 
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
 import ldbc.socialnet.dbgen.objects.UpdateEvent;
@@ -272,8 +273,9 @@ public class MRGenerateUsers{
                            Context context) throws IOException, InterruptedException{
 
             friendGenerator.resetState(key.block);
-            for (ReducedUserProfile user:valueSet){
+            for (ReducedUserProfile user: valueSet){
                 friendGenerator.generateUserActivity(user, context);
+//            	System.out.println("Number of work places: " + user.getNumOfWorkPlaces());
                 totalObjects++;
             }
         }
@@ -285,6 +287,54 @@ public class MRGenerateUsers{
         }
     }
 
+    public static class FriendListOutputReducer extends Reducer<MapReduceKey, ReducedUserProfile, MapReduceKey, ReducedUserProfile> {
+        FSDataOutputStream out;
+        private int numUsers;
+        @Override
+        protected void setup(Context context){
+            Configuration conf = new Configuration();
+            numUsers = 0;
+            try {
+                FileSystem fs = FileSystem.get(conf);
+                String strTaskId = context.getTaskAttemptID().getTaskID().toString();
+                int attempTaskId = Integer.parseInt(strTaskId.substring(strTaskId.length() - 3));
+                Path outFile = new Path(context.getConfiguration().get("sibOutputDir")+"/m0friendList"+attempTaskId+".csv");
+                out = fs.create(outFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void reduce(MapReduceKey key, Iterable<ReducedUserProfile> valueSet,
+                           Context context) throws IOException, InterruptedException{
+            for (ReducedUserProfile user:valueSet){
+            	numUsers++;
+            	StringBuffer strbuf = new StringBuffer();
+            	strbuf.append(user.getAccountId());
+            	TreeSet<Long>  ids = user.getFriendIds();
+            	for (Long id: ids){
+            		strbuf.append(",");
+            		strbuf.append(id);
+            	}
+            	strbuf.append("\n");
+            	out.write(strbuf.toString().getBytes());
+            }
+        }
+        @Override
+        protected void cleanup(Context context){
+            try {
+                System.out.println("Number of user friends lists reduced "+numUsers);
+                out.flush();
+                out.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    	
+    }
+    
 	public int runGenerateJob(String[] args) throws Exception {
 		Configuration conf = new Configuration();
 		
@@ -436,6 +486,7 @@ public class MRGenerateUsers{
         FileInputFormat.setInputPaths(job4, new Path(hadoopDir + "/sibSorting3"));
         FileOutputFormat.setOutputPath(job4, new Path(hadoopDir + "/sib4") );
 
+        
 
         /// --------------- Fifth job: Sort update streams ----------------
 
@@ -452,6 +503,24 @@ public class MRGenerateUsers{
         job5.setInputFormatClass(SequenceFileInputFormat.class);
         job5.setOutputFormatClass(SequenceFileOutputFormat.class);
         job5.setPartitionerClass(UpdateEventPartitioner.class);
+
+        /// --------------- Sixth job: Materialize the friends lists ----------------
+        Job job6 = new Job(conf,"Dump the friends lists");
+        job6.setMapOutputKeyClass(MapReduceKey.class);
+        job6.setMapOutputValueClass(ReducedUserProfile.class);
+        job6.setOutputKeyClass(MapReduceKey.class);
+        job6.setOutputValueClass(ReducedUserProfile.class);
+        job6.setJarByClass(ForwardMapper.class);
+        job6.setMapperClass(ForwardMapper.class);
+        job6.setReducerClass(FriendListOutputReducer.class);
+        job6.setNumReduceTasks(numThreads);
+        job6.setInputFormatClass(SequenceFileInputFormat.class);
+        job6.setOutputFormatClass(SequenceFileOutputFormat.class);
+        job6.setPartitionerClass(MapReduceKeyPartitioner.class);
+        job6.setSortComparatorClass(MapReduceKeyComparator.class);
+        job6.setGroupingComparatorClass(MapReduceKeyGroupKeyComparator.class);
+        FileInputFormat.setInputPaths(job6, new Path(hadoopDir + "/sibSorting3"));
+        FileOutputFormat.setOutputPath(job6, new Path(hadoopDir + "/job6") );
 
         for( int i =0; i < numThreads; ++i ) {
             FileInputFormat.addInputPath(job5, new Path(outputDir + "/temp_updateStream_"+i+".csv"));
@@ -477,8 +546,10 @@ public class MRGenerateUsers{
         int resSorting3 = jobSorting3.waitForCompletion(true) ? 0 : 1;
 
         int resUpdateStreams = job4.waitForCompletion(true) ? 0 : 1;
-
+        
         int sortUpdateStreams= job5.waitForCompletion(true) ? 0 : 1;
+
+        int resMaterializeFriends = job6.waitForCompletion(true) ? 0 : 1;
 
         FileSystem fs = FileSystem.get(conf);
         for( int i =0; i < numThreads; ++i ) {

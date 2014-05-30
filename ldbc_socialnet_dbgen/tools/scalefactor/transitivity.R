@@ -1,0 +1,19 @@
+library(data.table)
+library(igraph)
+ 
+message("Loading files")
+dflist <- lapply(commandArgs(trailingOnly = TRUE), fread, sep="|", header=T, select=1:2)
+df <- rbindlist(dflist)
+setnames(df, 1:2, c("src", "dst"))
+
+message("Creating graph object")
+# this is a hack to create the graph faster than graph.data.frame
+# see http://smallstats.blogspot.nl/2012/12/loading-huge-graphs-with-igraph-and-r.html
+vertex.attrs <- list(name = unique(c(df$src, df$dst)))
+edges <- rbind(match(df$src, vertex.attrs$name), match(df$dst,vertex.attrs$name))
+G <- graph.empty(n = 0, directed = T)
+G <- add.vertices(G, length(vertex.attrs$name), attr = vertex.attrs)
+G <- add.edges(G, edges)
+
+message("Calculating transitivity")
+message("Graph transitivity: ", round(transitivity(G), 4))

@@ -162,7 +162,6 @@ public class CommentGenerator {
     }
 
 
-
     public Comment createComment(RandomGeneratorFarm randomFarm, long commentId, Post post, Message replyTo, ReducedUserProfile user) {
 
         ArrayList<Integer> validIds = new ArrayList<Integer>();
@@ -177,7 +176,7 @@ public class CommentGenerator {
         }
 
         int friendIdx = randomFarm.get(RandomGeneratorFarm.Aspect.FRIEND).nextInt(validIds.size());
-        Friend friend = user.getFriendList()[friendIdx];
+        Friend friend = user.getFriendList()[validIds.get(friendIdx)];
 
         TreeSet<Integer> tags = new TreeSet<Integer>();
         String content = "";
@@ -261,7 +260,7 @@ public class CommentGenerator {
         }
 
         int memberIdx = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX).nextInt(validIds.size());
-        GroupMemberShip membership = group.getMemberShips()[memberIdx];
+        GroupMemberShip membership = group.getMemberShips()[validIds.get(memberIdx)];
 
         TreeSet<Integer> tags = new TreeSet<Integer>();
         String content = "";

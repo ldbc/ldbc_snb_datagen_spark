@@ -29,6 +29,13 @@
         <start_year>2010</start_year>
         <num_years>3</num_years>
     </scale_factor>
+
+    <scale_factor number="300" >
+        <num_persons>1211000</num_persons>
+        <start_year>2010</start_year>
+        <num_years>3</num_years>
+    </scale_factor>
+
     <scale_factor number="1000" >
         <num_persons>3329000</num_persons>
         <start_year>2010</start_year>
