@@ -21,3 +21,25 @@ cp $LDBC_SOCIALNET_DBGEN_HOME/target/ldbc_socialnet_dbgen.jar $LDBC_SOCIALNET_DB
 rm $LDBC_SOCIALNET_DBGEN_HOME/target/ldbc_socialnet_dbgen.jar
 
 $HADOOP_HOME/bin/hadoop jar $LDBC_SOCIALNET_DBGEN_HOME/ldbc_socialnet_dbgen.jar $HADOOP_TMP_DIR $NUM_MACHINES $LDBC_SOCIALNET_DBGEN_HOME $DATA_OUTPUT_DIR
+
+
+#parameter generation
+PARAM_GENERATION=1
+
+if [ $PARAM_GENERATION -eq 1 ]
+then
+	if [ -f m0factors.txt ]
+	then
+		rm m0factors.txt
+	fi
+	if [ -f m0friendList0.csv ]
+	then
+		rm m0friendList0.csv
+	fi
+	$HADOOP_HOME/bin/hadoop fs -copyToLocal $DATA_OUTPUT_DIR/m0factors.txt .
+	$HADOOP_HOME/bin/hadoop fs -copyToLocal $DATA_OUTPUT_DIR/m0friendList* .
+	mkdir -p output	
+	python paramgenerator/generateparams.py m0factors.txt m0friendList0.csv output/
+	rm -f m0factors.txt
+	rm -f m0friendList0.csv
+fi
