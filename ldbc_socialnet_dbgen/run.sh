@@ -1,8 +1,8 @@
 #!/bin/bash
-HADOOP_HOME=/home/user/hadoop-1.2.1 #change to your hadoop folder
-LDBC_SOCIALNET_DBGEN_HOME=/home/user/ldbc_socialnet_bm/ldbc_socialnet_dbgen #change to your ldbc_socialnet_dbgen folder 
+HADOOP_HOME=/home/gubichev/software/hadoop-1.2.1 #change to your hadoop folder
+LDBC_SOCIALNET_DBGEN_HOME=/home/gubichev/software/ldbc_socialnet_bm/ldbc_socialnet_dbgen #change to your ldbc_socialnet_dbgen folder 
 NUM_MACHINES=1 #the number of threads to use.
-OUTPUT_DIR=/home/user #change to the folder where the generated data should be written
+OUTPUT_DIR=/user/gubichev/output #change to the folder where the generated data should be written
 
 export HADOOP_HOME
 export LDBC_SOCIALNET_DBGEN_HOME
