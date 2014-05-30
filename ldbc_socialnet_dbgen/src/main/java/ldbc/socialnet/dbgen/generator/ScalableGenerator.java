@@ -251,7 +251,6 @@ public class ScalableGenerator{
     private HashMap<Integer, Integer> tagClassCount;
     private HashMap<String, Integer> firstNameCount;
     private HashMap<Integer, Integer> tagNameCount;
-
     // For blocking
     private static final int  reducerShift[] = { 26, 8, 1 };
 
@@ -435,7 +434,6 @@ public class ScalableGenerator{
         this.tagClassCount = new HashMap<Integer, Integer>();
         this.firstNameCount = new HashMap<String, Integer>();
         this.tagNameCount = new HashMap<Integer, Integer>();
-
         System.out.println("Map Reduce File Idx is: " + mapreduceFileIdx);
         if (mapreduceFileIdx != -1){
             outUserProfile = "mr" + mapreduceFileIdx + "_" + outUserProfileName;
@@ -1131,7 +1129,7 @@ public class ScalableGenerator{
             		if (!factorTable.containsKey(memberships[i].getUserId()))
             			factorTable.put(memberships[i].getUserId(), new ReducedUserProfile.Counts());
             		factorTable.get(memberships[i].getUserId()).numberOfGroups++;
-            		System.out.println("Adding user "+memberships[i].getUserId()+" to an album "+album.getGroupId());
+//            		System.out.println("Adding user "+memberships[i].getUserId()+" to an album "+album.getGroupId());
                 }
 
                 // Generate photos for this album
@@ -1682,7 +1680,6 @@ public class ScalableGenerator{
             	strbuf.append("\n");
             	writer.write(strbuf.toString().getBytes());
             }
-
             writer.write(Integer.toString(tagNameCount.size()).getBytes());
             writer.write("\n".getBytes());
             for (Map.Entry<Integer, Integer> c: tagNameCount.entrySet()){
