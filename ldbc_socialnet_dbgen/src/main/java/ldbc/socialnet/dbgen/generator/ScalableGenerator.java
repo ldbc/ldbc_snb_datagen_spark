@@ -1703,7 +1703,12 @@ public class ScalableGenerator{
             	strbuf.append("\n");
             	writer.write(strbuf.toString().getBytes());
             }
-
+	    StringBuffer strbuf = new StringBuffer();
+	    strbuf.append(startMonth);	strbuf.append("\n");
+	    strbuf.append(startYear);   strbuf.append("\n");
+	    strbuf.append(stats.minWorkFrom); strbuf.append("\n");
+	    strbuf.append(stats.maxWorkFrom); strbuf.append("\n");
+            writer.write(strbuf.toString().getBytes());
             writer.flush();
             writer.close();
         } catch (IOException e) {
