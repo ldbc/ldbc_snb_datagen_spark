@@ -38,8 +38,8 @@ then
 	fi
 	$HADOOP_HOME/bin/hadoop fs -copyToLocal $DATA_OUTPUT_DIR/m0factors.txt .
 	$HADOOP_HOME/bin/hadoop fs -copyToLocal $DATA_OUTPUT_DIR/m0friendList* .
-	mkdir -p output	
-	python paramgenerator/generateparams.py m0factors.txt m0friendList0.csv output/
+	mkdir -p substitution_parameters	
+	python paramgenerator/generateparams.py m0factors.txt m0friendList0.csv substitution_parameters/
 	rm -f m0factors.txt
 	rm -f m0friendList0.csv
 fi
