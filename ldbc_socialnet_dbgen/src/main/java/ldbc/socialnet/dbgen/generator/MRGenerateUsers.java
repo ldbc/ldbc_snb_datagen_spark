@@ -331,7 +331,7 @@ public class MRGenerateUsers{
 
 
         /// --------------- First job Generating users and friendships----------------
-        conf.set("mapred.task.profile","true");
+//        conf.set("mapred.task.profile","true");
         conf.set("pass",Integer.toString(0));
         conf.set("dimension",Integer.toString(1));
 		Job job = new Job(conf,"SIB Generate Users & 1st Dimension");
