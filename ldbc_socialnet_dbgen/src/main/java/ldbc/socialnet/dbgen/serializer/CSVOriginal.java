@@ -237,7 +237,7 @@ public class CSVOriginal implements Serializer {
         universities = new HashMap<String,Integer>();
 		serializedLanguages = new Vector<Integer>();
 		printedTagClasses = new HashMap<Integer, Integer>();
-		
+
 
 		try{
             Configuration conf = new Configuration();
