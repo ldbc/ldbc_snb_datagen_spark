@@ -36,15 +36,9 @@
  */
 package ldbc.socialnet.dbgen.generator;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.Writer;
+import java.io.*;
 import java.util.TreeSet;
+import java.util.zip.GZIPOutputStream;
 
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
 import ldbc.socialnet.dbgen.objects.UpdateEvent;
@@ -57,6 +51,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Partitioner;
@@ -70,12 +65,6 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 
 
 public class MRGenerateUsers{
-
-    static String hadoopDir;
-    static String outputDir;
-    static int    numThreads;
-    static String dbgenDir;
-
 
     public static class UpdateEventMapper extends Mapper <LongWritable, Text, LongWritable, Text> {
 
@@ -96,17 +85,22 @@ public class MRGenerateUsers{
 
     public static class UpdateEventReducer extends Reducer<LongWritable, Text, LongWritable, Text>{
 
-        FSDataOutputStream out;
+        OutputStream out;
         private int numEvents = 0;
         @Override
         protected void setup(Context context){
-            Configuration conf = new Configuration();
+            Configuration conf = context.getConfiguration();
             try {
                 FileSystem fs = FileSystem.get(conf);
                 String strTaskId = context.getTaskAttemptID().getTaskID().toString();
                 int attempTaskId = Integer.parseInt(strTaskId.substring(strTaskId.length() - 3));
-                Path outFile = new Path(context.getConfiguration().get("sibOutputDir")+"/updateStream_"+attempTaskId+".csv");
-                out = fs.create(outFile);
+                if( Boolean.parseBoolean(conf.get("compressed")) == true ) {
+                    Path outFile = new Path(context.getConfiguration().get("outputDir")+"/social_network/updateStream_"+attempTaskId+".csv.gz");
+                    out = new GZIPOutputStream( fs.create(outFile));
+                } else {
+                    Path outFile = new Path(context.getConfiguration().get("outputDir")+"/social_network/updateStream_"+attempTaskId+".csv");
+                    out = fs.create(outFile);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -120,6 +114,7 @@ public class MRGenerateUsers{
                 numEvents++;
             }
         }
+
         @Override
         protected void cleanup(Context context){
             try {
@@ -144,17 +139,14 @@ public class MRGenerateUsers{
 				throws IOException, InterruptedException {
 
 			Configuration conf = context.getConfiguration();
-			homeDir = conf.get("sibHomeDir").toString();
-			outputDir = conf.get("sibOutputDir").toString();
-			numMappers = Integer.parseInt(conf.get("numMappers"));
 			fileIdx = Integer.parseInt(value.toString());
 			System.out.println("Generating user at mapper " + fileIdx);
 			ScalableGenerator generator;
-			generator = new ScalableGenerator(fileIdx, outputDir, homeDir);
+			generator = new ScalableGenerator(fileIdx, conf);
 			System.out.println("Successfully init Generator object");
-			generator.init(numMappers, fileIdx);
+			generator.init();
 			int pass = 0;
-			generator.mrGenerateUserInfo(pass, context, fileIdx);
+			generator.mrGenerateUserInfo(pass, context);
 		}
 		
 	}
@@ -181,16 +173,14 @@ public class MRGenerateUsers{
         @Override
         protected void setup(Context context){
             Configuration conf = context.getConfiguration();
-            homeDir = conf.get("sibHomeDir").toString();
-            outputDir = conf.get("sibOutputDir").toString();
-            numReducer = Integer.parseInt(conf.get("numMappers"));
+            numReducer = Integer.parseInt(conf.get("numThreads"));
             dimension = Integer.parseInt(conf.get("dimension"));
             pass = Integer.parseInt(conf.get("pass"));
 
             String strTaskId = context.getTaskAttemptID().getTaskID().toString();
             attempTaskId = Integer.parseInt(strTaskId.substring(strTaskId.length() - 3));
-            friendGenerator = new ScalableGenerator(attempTaskId, outputDir, homeDir);
-            friendGenerator.init(numReducer, attempTaskId);
+            friendGenerator = new ScalableGenerator(attempTaskId, conf);
+            friendGenerator.init();
         }
 
         @Override
@@ -256,14 +246,12 @@ public class MRGenerateUsers{
         @Override
         protected void setup(Context context){
             Configuration conf = context.getConfiguration();
-            homeDir = conf.get("sibHomeDir").toString();
-            outputDir = conf.get("sibOutputDir").toString();
-            numReducer = Integer.parseInt(conf.get("numMappers"));
+            numReducer = Integer.parseInt(conf.get("numThreads"));
 
             String strTaskId = context.getTaskAttemptID().getTaskID().toString();
             attempTaskId = Integer.parseInt(strTaskId.substring(strTaskId.length() - 3));
-            friendGenerator = new ScalableGenerator(attempTaskId, outputDir, homeDir);
-            friendGenerator.init(numReducer, attempTaskId);
+            friendGenerator = new ScalableGenerator(attempTaskId, conf);
+            friendGenerator.init();
             friendGenerator.openSerializer();
             totalObjects = 0;
         }
@@ -292,13 +280,13 @@ public class MRGenerateUsers{
         private int numUsers;
         @Override
         protected void setup(Context context){
-            Configuration conf = new Configuration();
+            Configuration conf = context.getConfiguration();
             numUsers = 0;
             try {
                 FileSystem fs = FileSystem.get(conf);
                 String strTaskId = context.getTaskAttemptID().getTaskID().toString();
                 int attempTaskId = Integer.parseInt(strTaskId.substring(strTaskId.length() - 3));
-                Path outFile = new Path(context.getConfiguration().get("sibOutputDir")+"/m0friendList"+attempTaskId+".csv");
+                Path outFile = new Path(context.getConfiguration().get("outputDir")+"/social_network/m0friendList"+attempTaskId+".csv");
                 out = fs.create(outFile);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -335,17 +323,15 @@ public class MRGenerateUsers{
     	
     }
     
-	public int runGenerateJob(String[] args) throws Exception {
-		Configuration conf = new Configuration();
+	public int runGenerateJob(Configuration conf) throws Exception {
         FileSystem fs = FileSystem.get(conf);
+        String hadoopDir = new String(conf.get("outputDir")+"/hadoop");
+        String socialNetDir = new String(conf.get("outputDir")+"/social_network");
+        int numThreads = Integer.parseInt(conf.get("numThreads"));
 
-		// Set parameter
-		conf.set("numMappers", Integer.toString(numThreads));
-		conf.set("sibHomeDir", dbgenDir);
-		conf.set("sibOutputDir", outputDir );
 
         /// --------------- First job Generating users and friendships----------------
-
+        conf.set("mapred.task.profile","true");
         conf.set("pass",Integer.toString(0));
         conf.set("dimension",Integer.toString(1));
 		Job job = new Job(conf,"SIB Generate Users & 1st Dimension");
@@ -506,7 +492,7 @@ public class MRGenerateUsers{
         job5.setPartitionerClass(UpdateEventPartitioner.class);
 
         for( int i =0; i < numThreads; ++i ) {
-            FileInputFormat.addInputPath(job5, new Path(outputDir + "/temp_updateStream_"+i+".csv"));
+            FileInputFormat.addInputPath(job5, new Path(socialNetDir + "/temp_updateStream_"+i+".csv"));
         }
         FileOutputFormat.setOutputPath(job5, new Path(hadoopDir + "/sibEnd") );
 
@@ -564,53 +550,50 @@ public class MRGenerateUsers{
         System.out.println("Starting: Sorting update streams");
         int sortUpdateStreams= job5.waitForCompletion(true) ? 0 : 1;
 
+        for( int i =0; i < numThreads; ++i ) {
+            fs.delete(new Path(socialNetDir + "/temp_updateStream_"+i+".csv"),false);
+        }
+
         System.out.println("Starting: Materialize friends for substitution parameters");
         int resMaterializeFriends = job6.waitForCompletion(true) ? 0 : 1;
         fs.delete(new Path(hadoopDir + "/sibSorting3"),true);
 
-        for( int i =0; i < numThreads; ++i ) {
-            fs.delete(new Path(outputDir + "/temp_updateStream_"+i+".csv"),false);
-        }
 
 
 	    long end = System.currentTimeMillis();
 	    System.out.println(((end - start) / 1000)
 	                    + " total seconds");
+        fs.copyToLocalFile(new Path(socialNetDir + "/m0factors.txt"), new Path("./"));
+        for( int i = 0; i < numThreads; ++i ) {
+            fs.copyToLocalFile(new Path(socialNetDir + "/m0friendList"+i+".csv"), new Path("./"));
+        }
 	    return res;
 	}
 
 	public static void main(String[] args)  throws Exception{
 
-        hadoopDir = args[0];
-        dbgenDir = args[2];
-        outputDir = args[3];
-        numThreads = Integer.parseInt(args[1]);
+        Configuration conf = ConfigParser.GetConfig(args[0]);
+        ConfigParser.PringConfig(conf);
 
-        System.out.println("Hadoop tmp file: "+hadoopDir);
-        System.out.println("Number of threads: "+numThreads);
-        System.out.println("DBGEN working dir: "+dbgenDir);
-        System.out.println("Data output dir: "+outputDir);
+
         // Deleting exisging files
-
-        FileSystem dfs = FileSystem.get(new Configuration());
-        dfs.delete(new Path(hadoopDir), true);
-        dfs.delete(new Path(outputDir), true);
+        FileSystem dfs = FileSystem.get(conf);
+        dfs.delete(new Path(conf.get("outputDir")+"/hadoop"), true);
+        dfs.delete(new Path(conf.get("outputDir")+"/social_network"), true);
 
 		// Create input text file in HDFS
-		writeToOutputFile("mrInputFile", numThreads);
-		dfs.copyFromLocalFile(new Path("mrInputFile"),new Path(hadoopDir+"/mrInputFile") );
+		writeToOutputFile(conf.get("outputDir") + "/hadoop/mrInputFile", Integer.parseInt(conf.get("numThreads")), conf);
 		MRGenerateUsers mrGenerator = new MRGenerateUsers();
-		mrGenerator.runGenerateJob(args);
+		mrGenerator.runGenerateJob(conf);
 
 	}
 
-	public static void writeToOutputFile(String filename, int numMaps){
-	 	Writer output = null;
-	 	File file = new File(filename);
-	 	try {
-			output = new BufferedWriter(new FileWriter(file));
+	public static void writeToOutputFile(String filename, int numMaps, Configuration conf){
+        try {
+            FileSystem dfs = FileSystem.get(conf);
+			OutputStream output = dfs.create(new Path(filename));
 			for (int i = 0; i < numMaps; i++)
-				output.write(i + "\n");
+                output.write((new String(i + "\n").getBytes()));
 			output.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
