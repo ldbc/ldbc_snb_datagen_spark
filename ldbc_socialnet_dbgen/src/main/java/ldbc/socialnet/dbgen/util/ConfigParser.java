@@ -33,7 +33,7 @@ public class ConfigParser {
             CheckOption(conf, "numPersons", properties);
             CheckOption(conf, "numYears", properties);
             CheckOption(conf,"startYear",properties);
-            if( conf.get("mapred.job.tracker")=="local" || conf.get("dfs.replication") == null ) {
+            if(conf.get("mapred.job.tracker") == null ) {
                 System.out.println("Running in standalone mode. Setting numThreads to 1");
                 conf.set("numThreads","1");
             }
