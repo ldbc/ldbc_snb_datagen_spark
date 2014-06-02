@@ -572,6 +572,7 @@ public class MRGenerateUsers{
             fs.delete(new Path(outputDir + "/temp_updateStream_"+i+".csv"),false);
         }
 
+
 	    long end = System.currentTimeMillis();
 	    System.out.println(((end - start) / 1000)
 	                    + " total seconds");
