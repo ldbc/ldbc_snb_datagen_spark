@@ -334,6 +334,7 @@ public class MRGenerateUsers{
         String hadoopDir = new String(conf.get("outputDir")+"/hadoop");
         String socialNetDir = new String(conf.get("outputDir")+"/social_network");
         int numThreads = Integer.parseInt(conf.get("numThreads"));
+	System.out.println("NUMBER OF THREADS "+numThreads);
 
 
         /// --------------- First job Generating users and friendships----------------
