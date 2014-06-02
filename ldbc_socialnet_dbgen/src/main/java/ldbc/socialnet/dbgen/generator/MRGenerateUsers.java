@@ -163,9 +163,6 @@ public class MRGenerateUsers{
     public static class DimensionReducer extends Reducer<MapReduceKey, ReducedUserProfile, MapReduceKey, ReducedUserProfile>{
 
         public static ScalableGenerator friendGenerator;
-        private String outputDir;
-        private String homeDir;
-        private int numReducer;
         private int attempTaskId;
         private int dimension;
         private int pass;
@@ -173,7 +170,6 @@ public class MRGenerateUsers{
         @Override
         protected void setup(Context context){
             Configuration conf = context.getConfiguration();
-            numReducer = Integer.parseInt(conf.get("numThreads"));
             dimension = Integer.parseInt(conf.get("dimension"));
             pass = Integer.parseInt(conf.get("pass"));
 
@@ -237,17 +233,12 @@ public class MRGenerateUsers{
     public static class UserActivityReducer extends Reducer <MapReduceKey, ReducedUserProfile, MapReduceKey, ReducedUserProfile>{
 
         public static ScalableGenerator friendGenerator;
-        private String outputDir;
-        private String homeDir;
-        private int numReducer;
         private int attempTaskId;
         private int	totalObjects;
 
         @Override
         protected void setup(Context context){
             Configuration conf = context.getConfiguration();
-            numReducer = Integer.parseInt(conf.get("numThreads"));
-
             String strTaskId = context.getTaskAttemptID().getTaskID().toString();
             attempTaskId = Integer.parseInt(strTaskId.substring(strTaskId.length() - 3));
             friendGenerator = new ScalableGenerator(attempTaskId, conf);

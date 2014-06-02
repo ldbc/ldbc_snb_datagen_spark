@@ -924,7 +924,6 @@ public class ScalableGenerator{
         }
     }
 
-
     private void mr2SlideFriendShipWindow(int pass, int cellPos, Reducer.Context context, ReducedUserProfile[] _cellReduceUserProfiles,
                                          int outputDimension){
 
@@ -1593,7 +1592,7 @@ public class ScalableGenerator{
             System.exit(-1);
             return null;
         }
-        return new DataExporter(format,sibOutputDir,threadId,dateThreshold,
+        return new DataExporter(format,sibOutputDir, threadId, dateThreshold,
                 exportText,enableCompression,tagDictionary,browserDictonry,companiesDictionary,
                 unversityDictionary,ipAddDictionary,locationDictionary,languageDictionary, configFile, stats);
     }
