@@ -1,12 +1,10 @@
 import sys
 import getopt
 import math
-#import numpy as np
 import random
 from readfactors import FactorCount
 from operator import itemgetter
 import itertools
-#import loadfactors
 
 LAST_MONTHS = 3 # number of months that we consider for date parameters in the filters of a form timestamp <= Date0
 
@@ -37,9 +35,15 @@ def findTimeParameters(persons, factors, procedure, timestampSelection):
 
 def getMedian(data, sort_key, getEntireTuple = False):
 	if len(data) == 0:
+		if getEntireTuple:
+			return MonthYearCount(0,0,0)
 		return 0
+
 	if len(data) == 1:
-		return data[0]
+		if getEntireTuple:
+			return data[0]
+		return data[0].count
+
 	srtd = sorted(data,key=sort_key)
 	mid = len(data)/2
 
@@ -47,6 +51,7 @@ def getMedian(data, sort_key, getEntireTuple = False):
 		if getEntireTuple:
 			return srtd[mid]
 		return (sort_key(srtd[mid-1]) + sort_key(srtd[mid])) / 2.0
+
 	if getEntireTuple:
 		return srtd[mid]
 	return sort_key(srtd[mid])
@@ -54,7 +59,6 @@ def getMedian(data, sort_key, getEntireTuple = False):
 
 def MonthYearToDate(myc, day):
 	return "%d-%d-%d"%(myc.year, myc.month, day)
-
 
 
 def getTimeParamsWithMedian(factors, (medianFirstMonth, medianLastMonth, median)):
