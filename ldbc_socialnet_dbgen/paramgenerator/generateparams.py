@@ -42,7 +42,7 @@ class JSONSerializer:
 		output.close()
 
 def handlePersonParam(person):
-	return {"PersonID": person, "PersonURL":(PERSON_PREFIX+str(person))}
+	return {"PersonID": person, "PersonURI":(PERSON_PREFIX+str(person))}
 
 def handleTimeParam(timeParam):
 	res={"Date0": "%d-%d-%d"%(timeParam.year, timeParam.month, timeParam.day)}
