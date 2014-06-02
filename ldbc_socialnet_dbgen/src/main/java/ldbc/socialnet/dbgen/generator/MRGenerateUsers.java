@@ -552,6 +552,7 @@ public class MRGenerateUsers{
 
         printProgress("Starting: Generating person activity");
         int resUpdateStreams = job4.waitForCompletion(true) ? 0 : 1;
+        fs.delete(new Path(hadoopDir + "/sib4"),true);
 
         printProgress("Starting: Sorting update streams");
         int sortUpdateStreams= job5.waitForCompletion(true) ? 0 : 1;
@@ -559,6 +560,7 @@ public class MRGenerateUsers{
         for( int i =0; i < numThreads; ++i ) {
             fs.delete(new Path(socialNetDir + "/temp_updateStream_"+i+".csv"),false);
         }
+        fs.delete(new Path(hadoopDir + "/sibEnd"),true);
 
         printProgress("Starting: Materialize friends for substitution parameters");
         int resMaterializeFriends = job6.waitForCompletion(true) ? 0 : 1;

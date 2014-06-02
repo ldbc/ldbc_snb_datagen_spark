@@ -260,8 +260,6 @@ public class ScalableGenerator{
     int 					numberOfCellPerWindow;
     int	 					numTotalUser;
     int 					windowSize;
-    int						machineId;
-    int                     numFiles;
 
     ReducedUserProfile  	reducedUserProfiles[];
     ReducedUserProfile 		reducedUserProfilesCell[];
@@ -1595,7 +1593,7 @@ public class ScalableGenerator{
             System.exit(-1);
             return null;
         }
-        return new DataExporter(format,sibOutputDir,this.machineId,dateThreshold,
+        return new DataExporter(format,sibOutputDir,threadId,dateThreshold,
                 exportText,enableCompression,tagDictionary,browserDictonry,companiesDictionary,
                 unversityDictionary,ipAddDictionary,locationDictionary,languageDictionary, configFile, stats);
     }
@@ -1604,7 +1602,7 @@ public class ScalableGenerator{
         Configuration conf = new Configuration();
         try {            
         	FileSystem fs = FileSystem.get(conf);
-            OutputStream writer = fs.create(new Path(sibOutputDir+"/"+ "m" + machineId + PARAM_COUNT_FILE));
+            OutputStream writer = fs.create(new Path(sibOutputDir+"/"+ "m" + threadId + PARAM_COUNT_FILE));
             writer.write(Integer.toString(factorTable.size()).getBytes());
             writer.write("\n".getBytes());
 
@@ -1698,8 +1696,7 @@ public class ScalableGenerator{
             FileSystem fs = FileSystem.get(conf);
             stats.makeCountryPairs(locationDictionary);
             stats.deltaTime = deltaTime;
-            OutputStream writer = fs.create(new Path(sibOutputDir+"/"+ "m" + machineId + STATS_FILE));
-            //writer = new FileWriter(sibOutputDir + "m" + machineId + STATS_FILE);
+            OutputStream writer = fs.create(new Path(sibOutputDir+"/"+ "m" + threadId + STATS_FILE));
             writer.write(gson.toJson(stats).getBytes("UTF8"));
             writer.flush();
             writer.close();
