@@ -322,6 +322,12 @@ public class MRGenerateUsers{
 
     	
     }
+
+    private void printProgress( String message ) {
+        System.out.println("************************************************");
+        System.out.println("* "+message+" *");
+        System.out.println("************************************************");
+    }
     
 	public int runGenerateJob(Configuration conf) throws Exception {
         FileSystem fs = FileSystem.get(conf);
@@ -521,40 +527,40 @@ public class MRGenerateUsers{
 
 	    long start = System.currentTimeMillis();
 
-        System.out.println("Starting: Person generation and friendship generation 1");
+        printProgress("Starting: Person generation and friendship generation 1");
 	    int res = job.waitForCompletion(true) ? 0 : 1;
 
-        System.out.println("Starting: Sorting by first dimension");
+        printProgress("Starting: Sorting by first dimension");
         int resSorting = jobSorting.waitForCompletion(true) ? 0 : 1;
         fs.delete(new Path(hadoopDir + "/sib"),true);
 
-        System.out.println("Starting: Friendship generation 2.");
+        printProgress("Starting: Friendship generation 2.");
 	    int res2 = job2.waitForCompletion(true) ? 0 : 1;
         fs.delete(new Path(hadoopDir + "/sibSorting"),true);
 
-        System.out.println("Starting: Sorting by second dimension");
+        printProgress("Starting: Sorting by second dimension");
         int resSorting2 = jobSorting2.waitForCompletion(true) ? 0 : 1;
         fs.delete(new Path(hadoopDir + "/sib2"),true);
 
-        System.out.println("Starting: Friendship generation 3.");
+        printProgress("Starting: Friendship generation 3.");
 	    int res3= job3.waitForCompletion(true) ? 0 : 1;
         fs.delete(new Path(hadoopDir + "/sibSorting2"),true);
 
-        System.out.println("Starting: Sorting by third dimension");
+        printProgress("Starting: Sorting by third dimension");
         int resSorting3 = jobSorting3.waitForCompletion(true) ? 0 : 1;
         fs.delete(new Path(hadoopDir + "/sib3"),true);
 
-        System.out.println("Starting: Generating person activity");
+        printProgress("Starting: Generating person activity");
         int resUpdateStreams = job4.waitForCompletion(true) ? 0 : 1;
 
-        System.out.println("Starting: Sorting update streams");
+        printProgress("Starting: Sorting update streams");
         int sortUpdateStreams= job5.waitForCompletion(true) ? 0 : 1;
 
         for( int i =0; i < numThreads; ++i ) {
             fs.delete(new Path(socialNetDir + "/temp_updateStream_"+i+".csv"),false);
         }
 
-        System.out.println("Starting: Materialize friends for substitution parameters");
+        printProgress("Starting: Materialize friends for substitution parameters");
         int resMaterializeFriends = job6.waitForCompletion(true) ? 0 : 1;
         fs.delete(new Path(hadoopDir + "/sibSorting3"),true);
 
