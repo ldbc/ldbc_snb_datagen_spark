@@ -10,4 +10,4 @@ df <- rbindlist(dflist)
 #setNames(df, c("Post", "Person"))
 
 d2 <- df[,length(Post.id),by=Person.id]
-message("Min: ",min(d2$V1),", Max: ", max(d2$V1), " Mean: ", mean(d2$V1), " Median: ", median(d2$V1))
+message("STATISTICS: Posts/User || Min: ",min(d2$V1),", Max: ", max(d2$V1), " Mean: ", mean(d2$V1), " Median: ", median(d2$V1))
