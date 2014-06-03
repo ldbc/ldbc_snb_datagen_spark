@@ -163,9 +163,6 @@ public class MRGenerateUsers{
     public static class DimensionReducer extends Reducer<MapReduceKey, ReducedUserProfile, MapReduceKey, ReducedUserProfile>{
 
         public static ScalableGenerator friendGenerator;
-        private String outputDir;
-        private String homeDir;
-        private int numReducer;
         private int attempTaskId;
         private int dimension;
         private int pass;
@@ -173,7 +170,6 @@ public class MRGenerateUsers{
         @Override
         protected void setup(Context context){
             Configuration conf = context.getConfiguration();
-            numReducer = Integer.parseInt(conf.get("numThreads"));
             dimension = Integer.parseInt(conf.get("dimension"));
             pass = Integer.parseInt(conf.get("pass"));
 
@@ -237,17 +233,12 @@ public class MRGenerateUsers{
     public static class UserActivityReducer extends Reducer <MapReduceKey, ReducedUserProfile, MapReduceKey, ReducedUserProfile>{
 
         public static ScalableGenerator friendGenerator;
-        private String outputDir;
-        private String homeDir;
-        private int numReducer;
         private int attempTaskId;
         private int	totalObjects;
 
         @Override
         protected void setup(Context context){
             Configuration conf = context.getConfiguration();
-            numReducer = Integer.parseInt(conf.get("numThreads"));
-
             String strTaskId = context.getTaskAttemptID().getTaskID().toString();
             attempTaskId = Integer.parseInt(strTaskId.substring(strTaskId.length() - 3));
             friendGenerator = new ScalableGenerator(attempTaskId, conf);
@@ -552,6 +543,7 @@ public class MRGenerateUsers{
 
         printProgress("Starting: Generating person activity");
         int resUpdateStreams = job4.waitForCompletion(true) ? 0 : 1;
+        fs.delete(new Path(hadoopDir + "/sib4"),true);
 
         printProgress("Starting: Sorting update streams");
         int sortUpdateStreams= job5.waitForCompletion(true) ? 0 : 1;
@@ -559,6 +551,7 @@ public class MRGenerateUsers{
         for( int i =0; i < numThreads; ++i ) {
             fs.delete(new Path(socialNetDir + "/temp_updateStream_"+i+".csv"),false);
         }
+        fs.delete(new Path(hadoopDir + "/sibEnd"),true);
 
         printProgress("Starting: Materialize friends for substitution parameters");
         int resMaterializeFriends = job6.waitForCompletion(true) ? 0 : 1;
