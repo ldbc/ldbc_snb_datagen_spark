@@ -89,6 +89,7 @@ public class ScalableGenerator{
     }
 
 
+    Configuration  conf = null;
     public long postId  = 0;                             /**< @brief The post and comment identifier counter.*/
     public long groupId = 0;
 
@@ -224,7 +225,7 @@ public class ScalableGenerator{
 
     //final user parameters
     private final String SCALE_FACTOR       = "scaleFactor";
-    private final String SERIALIZER_TYPE    = "serializerType";
+    private final String SERIALIZER         = "serializer";
     private final String EXPORT_TEXT        = "exportText";
     private final String ENABLE_COMPRESSION = "enableCompression";
     private final String NUM_PERSONS        = "numPersons";
@@ -235,7 +236,7 @@ public class ScalableGenerator{
      * This array provides a quick way to check if any of the required parameters is missing and throw the appropriate
      * exception in the method loadParamsFromFile()
      */
-    private final String[] publicCheckParameters = {SERIALIZER_TYPE, ENABLE_COMPRESSION};
+    private final String[] publicCheckParameters = {SERIALIZER, ENABLE_COMPRESSION};
 
     // Gender string representation, both representations vector/standalone so the string is coherent.
     private final String MALE   = "male";
@@ -259,8 +260,6 @@ public class ScalableGenerator{
     int 					numberOfCellPerWindow;
     int	 					numTotalUser;
     int 					windowSize;
-    int						machineId;
-    int                     numFiles;
 
     ReducedUserProfile  	reducedUserProfiles[];
     ReducedUserProfile 		reducedUserProfilesCell[];
@@ -362,9 +361,9 @@ public class ScalableGenerator{
     String 			serializerType;
     String 			outUserProfileName = "userProf.ser";
     String 			outUserProfile;
-    int				mapreduceFileIdx;
+    int				threadId;
+    int				numThreads;
     String 			sibOutputDir;
-    String 			sibHomeDir;
 
     // For user's extra info
     double	       missingRatio;
@@ -419,38 +418,27 @@ public class ScalableGenerator{
     TreeMap<Integer, ScaleFactor> scaleFactors;
 
     /**
-     * Creates the ScalableGenerator
-     *
-     * @param mapreduceFileId The file id used to pass data for successive hadoop jobs.
-     * @param sibOutputDir The output directory
-     * @param sibHomeDir The ldbc_socialnet_dbgen base directory.
-     */
-    public ScalableGenerator(int mapreduceFileId, String sibOutputDir, String sibHomeDir){
-        this.mapreduceFileIdx = mapreduceFileId;
-        this.sibOutputDir = sibOutputDir;
-        this.sibHomeDir = sibHomeDir;
+     * Creates the ScalableGenerator*/
+    public ScalableGenerator(int threadId, Configuration conf ){
+        this.conf = conf;
+        this.sibOutputDir = this.conf.get("outputDir")+"/social_network";
+        this.numThreads = Integer.parseInt(this.conf.get("numThreads"));
+        this.threadId = threadId;
         this.stats = new Statistics();
         this.postsPerCountry = new HashMap<Integer, Integer>();
         this.tagClassCount = new HashMap<Integer, Integer>();
         this.firstNameCount = new HashMap<String, Integer>();
         this.tagNameCount = new HashMap<Integer, Integer>();
-        System.out.println("Map Reduce File Idx is: " + mapreduceFileIdx);
-        if (mapreduceFileIdx != -1){
-            outUserProfile = "mr" + mapreduceFileIdx + "_" + outUserProfileName;
+        if (threadId != -1){
+            outUserProfile = "mr" + threadId + "_" + outUserProfileName;
         }
-        System.out.println("Current directory in ScaleGenerator is " + sibHomeDir);
     }
 
     /**
      * Initializes the generator reading the private parameter file, the user parameter file
      * and initialize all the internal variables.
-     *
-     * @param numMaps: How many hadoop reduces are performing the job.
-     * @param mapId: The hadoop reduce id.
      */
-    public void init(int numMaps, int mapId){
-        this.numFiles = numMaps;
-        this.machineId = mapId;
+    public void init(){
         this.factorTable = new HashMap<Long, ReducedUserProfile.Counts>();
         loadParamsFromFile();
         randomFarm = new RandomGeneratorFarm();
@@ -466,6 +454,7 @@ public class ScalableGenerator{
 
         dateTimeGenerator = new DateGenerator( new GregorianCalendar(startYear, startMonth, startDate),
                 new GregorianCalendar(endYear, endMonth, endDate), alpha, deltaTime);
+        if(!Boolean.parseBoolean(conf.get("updateStreams"))) updatePortion = 0.0;
         dateThreshold = dateTimeGenerator.getMaxDateTime() - (long)((dateTimeGenerator.getMaxDateTime() - dateTimeGenerator.getStartDateTime())*(updatePortion));
         SN.minDate = dateTimeGenerator.getStartDateTime();
         SN.maxDate = dateTimeGenerator.getMaxDateTime();
@@ -745,22 +734,14 @@ public class ScalableGenerator{
         }
 
         try {
-            System.out.println("Reading parameters file ...");
-            Properties properties = new Properties();
-            properties.load(new InputStreamReader(new FileInputStream(sibHomeDir + "/"+PARAMETERS_FILE), "UTF-8"));
-            for (int i = 0; i < publicCheckParameters.length; i++) {
-                if (properties.getProperty(publicCheckParameters[i]) == null) {
-                    throw new IllegalStateException("Missing " + publicCheckParameters[i] + " parameter");
-                }
-            }
 
-            boolean scaleFactorSet = properties.getProperty(SCALE_FACTOR) != null;
-            boolean numPersonsSet = properties.getProperty(NUM_PERSONS) != null;
-            boolean numYearsSet = properties.getProperty(NUM_YEARS) != null;
-            boolean startYearSet = properties.getProperty(START_YEAR) != null;
-
-            if(scaleFactorSet) {
-                int scaleFactorId = Integer.parseInt(properties.getProperty(SCALE_FACTOR));
+            if( conf.get(NUM_PERSONS) != null && conf.get(NUM_YEARS) != null && conf.get(START_YEAR) != null) {
+                numTotalUser = Integer.parseInt(conf.get(NUM_PERSONS));
+                startYear = Integer.parseInt(conf.get(START_YEAR));
+                int numYears = Integer.parseInt(conf.get(NUM_YEARS));
+                endYear = startYear + numYears;
+            } else {
+                int scaleFactorId = Integer.parseInt(conf.get(SCALE_FACTOR));
                 ScaleFactor scaleFactor = scaleFactors.get(scaleFactorId);
                 System.out.println("Executin with scale factor " + scaleFactorId);
                 System.out.println(" ... Num Persons " + scaleFactor.numPersons);
@@ -770,19 +751,11 @@ public class ScalableGenerator{
                 startYear = scaleFactor.startYear;
                 int numYears = scaleFactor.numYears;
                 endYear = startYear + numYears;
-            } else if( numPersonsSet && numYearsSet && startYearSet ) {
-                numTotalUser = Integer.parseInt(properties.getProperty(NUM_PERSONS));
-                startYear = Integer.parseInt(properties.getProperty(START_YEAR));
-                int numYears = Integer.parseInt(properties.getProperty(NUM_YEARS));
-                endYear = startYear + numYears;
-            } else {
-                throw new IllegalStateException("Missing parameters. Please specify scale factor or num persons, start year and num years");
             }
 
-            serializerType = properties.getProperty(SERIALIZER_TYPE);
-//            exportText = Boolean.parseBoolean(properties.getProperty(EXPORT_TEXT));
+            serializerType = conf.get(SERIALIZER);
             exportText = true;
-            enableCompression = Boolean.parseBoolean(properties.getProperty(ENABLE_COMPRESSION));
+            enableCompression = Boolean.parseBoolean(conf.get("compressed"));
             if (!serializerType.equals("ttl") && !serializerType.equals("n3") &&
                     !serializerType.equals("csv") && !serializerType.equals("none") && !serializerType.equals("csv_merge_foreign")) {
                 throw new IllegalStateException("serializerType must be ttl, n3, csv, csv_merge_foreign");
@@ -907,9 +880,8 @@ public class ScalableGenerator{
      *
      * @param pass The pass identifying the current pass.
      * @param context The map-reduce context.
-     * @param mapIdx The index of the current map, used to determine how many users to generate.
      */
-    public void mrGenerateUserInfo(int pass, Context context, int mapIdx){
+    public void mrGenerateUserInfo(int pass, Context context){
 
         if (numTotalUser % cellSize != 0) {
             System.err.println("Number of users should be a multiple of the cellsize");
@@ -918,8 +890,8 @@ public class ScalableGenerator{
 
         // Here we determine the blocks in the "block space" that this mapper is responsible for.
         int numBlocks = (int) (Math.ceil(numTotalUser / (double)blockSize));
-        int initBlock = (int) (Math.ceil((numBlocks / (double)numFiles) * mapIdx ));
-        int endBlock  = (int) (Math.ceil((numBlocks / (double)numFiles) * (mapIdx+1)));
+        int initBlock = (int) (Math.ceil((numBlocks / (double)numThreads) * threadId ));
+        int endBlock  = (int) (Math.ceil((numBlocks / (double)numThreads) * (threadId+1)));
 
         int numUsersToGenerate = 0;
         for( int i = initBlock; i < endBlock;++i) {
@@ -952,7 +924,6 @@ public class ScalableGenerator{
             reducedUserProfiles[curIdxInWindow] = _cellReduceUserProfiles[i];
         }
     }
-
 
     private void mr2SlideFriendShipWindow(int pass, int cellPos, Reducer.Context context, ReducedUserProfile[] _cellReduceUserProfiles,
                                          int outputDimension){
@@ -1622,7 +1593,7 @@ public class ScalableGenerator{
             System.exit(-1);
             return null;
         }
-        return new DataExporter(format,sibOutputDir,this.machineId,dateThreshold,
+        return new DataExporter(format,sibOutputDir, threadId, dateThreshold,
                 exportText,enableCompression,tagDictionary,browserDictonry,companiesDictionary,
                 unversityDictionary,ipAddDictionary,locationDictionary,languageDictionary, configFile, stats);
     }
@@ -1631,7 +1602,7 @@ public class ScalableGenerator{
         Configuration conf = new Configuration();
         try {            
         	FileSystem fs = FileSystem.get(conf);
-            OutputStream writer = fs.create(new Path(sibOutputDir+"/"+ "m" + machineId + PARAM_COUNT_FILE));
+            OutputStream writer = fs.create(new Path(sibOutputDir+"/"+ "m" + threadId + PARAM_COUNT_FILE));
             writer.write(Integer.toString(factorTable.size()).getBytes());
             writer.write("\n".getBytes());
 
@@ -1725,8 +1696,7 @@ public class ScalableGenerator{
             FileSystem fs = FileSystem.get(conf);
             stats.makeCountryPairs(locationDictionary);
             stats.deltaTime = deltaTime;
-            OutputStream writer = fs.create(new Path(sibOutputDir+"/"+ "m" + machineId + STATS_FILE));
-            //writer = new FileWriter(sibOutputDir + "m" + machineId + STATS_FILE);
+            OutputStream writer = fs.create(new Path(sibOutputDir+"/"+ "m" + threadId + STATS_FILE));
             writer.write(gson.toJson(stats).getBytes("UTF8"));
             writer.flush();
             writer.close();

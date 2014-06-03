@@ -5,7 +5,6 @@ import random
 import json
 from timeparameters import *
 
-
 PERSON_PREFIX = "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers"
 
 def findNameParameters(names, amount = 100):
@@ -42,7 +41,7 @@ class JSONSerializer:
 		output.close()
 
 def handlePersonParam(person):
-	return {"PersonID": person, "PersonURL":(PERSON_PREFIX+str(person))}
+	return {"PersonID": person, "PersonURI":(PERSON_PREFIX+str(person))}
 
 def handleTimeParam(timeParam):
 	res={"Date0": "%d-%d-%d"%(timeParam.year, timeParam.month, timeParam.day)}
@@ -69,7 +68,7 @@ def handleFirstNameParam(firstName):
 	return {"Name":firstName.decode("utf-8")}
 
 def handlePairPersonParam((person1, person2)):
-	return {"Person1":person1, "Person2":person2}
+	return {"Person1ID":person1, "Person2ID":person2, "Person2URI":(PERSON_PREFIX+str(person2)), "Person1URI":(PERSON_PREFIX+str(person1))}
 
 def handleWorkYearParam(timeParam):
 	return {"Date0":timeParam}
