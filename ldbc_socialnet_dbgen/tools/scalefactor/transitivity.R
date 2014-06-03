@@ -16,4 +16,6 @@ G <- add.vertices(G, length(vertex.attrs$name), attr = vertex.attrs)
 G <- add.edges(G, edges)
 
 message("Calculating transitivity")
-message("STATISTICS: Graph transitivity (clustering coefficient): ", round(transitivity(G), 4))
+#message("STATISTICS: Graph transitivity (clustering coefficient): ", round(transitivity(G), 4))
+
+message("\\hline   Clustering Coef. &   \\multicolumn{4}{|c|}{",round(transitivity(G), 4),"} \\\\")

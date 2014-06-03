@@ -454,6 +454,7 @@ public class ScalableGenerator{
 
         dateTimeGenerator = new DateGenerator( new GregorianCalendar(startYear, startMonth, startDate),
                 new GregorianCalendar(endYear, endMonth, endDate), alpha, deltaTime);
+        if(!Boolean.parseBoolean(conf.get("updateStreams"))) updatePortion = 0.0;
         dateThreshold = dateTimeGenerator.getMaxDateTime() - (long)((dateTimeGenerator.getMaxDateTime() - dateTimeGenerator.getStartDateTime())*(updatePortion));
         SN.minDate = dateTimeGenerator.getStartDateTime();
         SN.maxDate = dateTimeGenerator.getMaxDateTime();
