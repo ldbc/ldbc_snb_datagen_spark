@@ -4,7 +4,7 @@ RCOMMAND=R
 #install.packages("data.table")
 
 SCALEFACTOR=1
-DATAOUTPUTDIR=/scratch/duc/ldbc/ldbc_socialnet_bm/ldbc_socialnet_dbgen/datasetFolder/s$SCALEFACTOR/social_network
+DATAOUTPUTDIR=/export/scratch2/duc/work/LDBC/ldbc_socialnet_bm/ldbc_socialnet_dbgen/datasetFolder/s$SCALEFACTOR
 
 echo "\\hline    \\multicolumn{5}{|c|}{SF = $SCALEFACTOR }  \\\\"
 echo "Network cluster coefficient"							       
