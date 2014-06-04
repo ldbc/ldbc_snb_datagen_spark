@@ -1,5 +1,6 @@
 library(data.table)
 library(igraph)
+suppressMessages(require(bit64,quietly=TRUE,warn.conflicts=FALSE))
  
 message("Loading files")
 dflist <- lapply(commandArgs(trailingOnly = TRUE), fread, sep="|", header=T, select=1:2)
