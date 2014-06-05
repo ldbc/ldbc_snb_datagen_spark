@@ -60,7 +60,7 @@ public class Statistics {
     public TreeSet<String> countries;
     public TreeSet<String> tagClasses;
     public FlashmobTag[] flashmobTags;
-    public ArrayList<ArrayList<String>> eventParams;
+//    public ArrayList<ArrayList<String>> eventParams;
     public long deltaTime;
     public ArrayList<Object> minUpdateStream;
     public ArrayList<Object> maxUpdateStream;
@@ -77,7 +77,7 @@ public class Statistics {
         flashmobTags = null; 
         countryPairs = new ArrayList<String[]>();
         countryIds = new ArrayList<String[]>();
-        eventParams = new ArrayList<ArrayList<String>>();
+ //       eventParams = new ArrayList<ArrayList<String>>();
         minUpdateStream = new ArrayList<Object>();
         maxUpdateStream = new ArrayList<Object>();
     }
