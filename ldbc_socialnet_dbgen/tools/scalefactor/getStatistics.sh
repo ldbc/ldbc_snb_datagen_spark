@@ -8,7 +8,7 @@ DATAOUTPUTDIR=/export/scratch2/duc/work/LDBC/ldbc_socialnet_bm/ldbc_socialnet_db
 
 echo "\\hline    \\multicolumn{5}{|c|}{SF = $SCALEFACTOR }  \\\\"
 echo "Network cluster coefficient"							       
-R --slave -f transitivity.R --args $DATAOUTPUTDIR/person_knows_person_*.csv 
+$RCOMMAND --slave -f transitivity.R --args $DATAOUTPUTDIR/person_knows_person_*.csv 
 
 echo "\\hline & Min & Max & Mean & Median   \\\\"
 
