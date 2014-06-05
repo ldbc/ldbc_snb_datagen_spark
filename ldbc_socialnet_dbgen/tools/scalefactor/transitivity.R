@@ -1,5 +1,6 @@
 library(data.table)
 library(igraph)
+suppressMessages(require(bit64,quietly=TRUE,warn.conflicts=FALSE))
  
 message("Loading files")
 dflist <- lapply(commandArgs(trailingOnly = TRUE), fread, sep="|", header=T, select=1:2)
@@ -16,4 +17,6 @@ G <- add.vertices(G, length(vertex.attrs$name), attr = vertex.attrs)
 G <- add.edges(G, edges)
 
 message("Calculating transitivity")
-message("STATISTICS: Graph transitivity (clustering coefficient): ", round(transitivity(G), 4))
+#message("STATISTICS: Graph transitivity (clustering coefficient): ", round(transitivity(G), 4))
+
+message("\\hline   Clustering Coef. &   \\multicolumn{4}{|c|}{",round(transitivity(G), 4),"} \\\\")

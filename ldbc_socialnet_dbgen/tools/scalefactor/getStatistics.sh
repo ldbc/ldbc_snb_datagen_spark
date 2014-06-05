@@ -1,9 +1,16 @@
-#RCOMMAND=/usr/bin/R
-RCOMMAND=R
+RCOMMAND=/home/aprat/R-3.1.0/bin/R
+
 #May need to install additional package such as data.table, igraph, bit64
 #install.packages("data.table")
 
-DATAOUTPUTDIR=/scratch/duc/ldbc/ldbc_socialnet_bm/ldbc_socialnet_dbgen/datasetFolder/s1/social_network
+SCALEFACTOR=1
+DATAOUTPUTDIR=/data/aprat/datasets/LDBC/$SCALEFACTOR.static/social_network
+
+echo "\\hline    \\multicolumn{5}{|c|}{SF = $SCALEFACTOR }  \\\\"
+echo "Network cluster coefficient"							       
+$RCOMMAND --slave -f transitivity.R --args $DATAOUTPUTDIR/person_knows_person_*.csv 
+
+echo "\\hline & Min & Max & Mean & Median   \\\\"
 
 echo "Number of comments per users"
 $RCOMMAND --slave -f minmaxmean_comment.R --args $DATAOUTPUTDIR/comment_hasCreator_person_*.csv 
@@ -17,5 +24,4 @@ $RCOMMAND --slave -f minmaxmean_friendships.R --args $DATAOUTPUTDIR/person_knows
 echo "Number of likes per users"
 $RCOMMAND --slave -f minmaxmean_likes.R --args $DATAOUTPUTDIR/*likes*.csv 
 
-echo "Network cluster coefficient"							       
-R --slave -f transitivity.R --args $DATAOUTPUTDIR/person_knows_person_*.csv 
+

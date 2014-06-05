@@ -324,6 +324,7 @@ public class MRGenerateUsers{
         String hadoopDir = new String(conf.get("outputDir")+"/hadoop");
         String socialNetDir = new String(conf.get("outputDir")+"/social_network");
         int numThreads = Integer.parseInt(conf.get("numThreads"));
+	System.out.println("NUMBER OF THREADS "+numThreads);
 
 
         /// --------------- First job Generating users and friendships----------------
@@ -553,6 +554,7 @@ public class MRGenerateUsers{
         printProgress("Starting: Materialize friends for substitution parameters");
         int resMaterializeFriends = job6.waitForCompletion(true) ? 0 : 1;
         fs.delete(new Path(hadoopDir + "/sibSorting3"),true);
+
 
 
 	    long end = System.currentTimeMillis();
