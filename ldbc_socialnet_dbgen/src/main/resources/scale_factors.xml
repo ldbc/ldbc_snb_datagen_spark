@@ -13,31 +13,31 @@
     </scale_factor>
 
     <scale_factor number="10" >
-        <num_persons>73000</num_persons>
+        <num_persons>74000</num_persons>
         <start_year>2010</start_year>
         <num_years>3</num_years>
     </scale_factor>
 
     <scale_factor number="30" >
-        <num_persons>182000</num_persons>
+        <num_persons>185000</num_persons>
         <start_year>2010</start_year>
         <num_years>3</num_years>
     </scale_factor>
 
     <scale_factor number="100" >
-        <num_persons>490000</num_persons>
+        <num_persons>504000</num_persons>
         <start_year>2010</start_year>
         <num_years>3</num_years>
     </scale_factor>
 
     <scale_factor number="300" >
-        <num_persons>1211000</num_persons>
+        <num_persons>1260000</num_persons>
         <start_year>2010</start_year>
         <num_years>3</num_years>
     </scale_factor>
 
     <scale_factor number="1000" >
-        <num_persons>3329000</num_persons>
+        <num_persons>3508000</num_persons>
         <start_year>2010</start_year>
         <num_years>3</num_years>
     </scale_factor>
