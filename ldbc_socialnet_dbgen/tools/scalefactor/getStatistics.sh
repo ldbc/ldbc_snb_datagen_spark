@@ -1,5 +1,5 @@
-#RCOMMAND=/usr/bin/R
 RCOMMAND=R
+
 #May need to install additional package such as data.table, igraph, bit64
 #install.packages("data.table")
 

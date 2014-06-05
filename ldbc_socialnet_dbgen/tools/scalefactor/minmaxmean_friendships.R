@@ -1,5 +1,7 @@
 library(data.table)
 library(igraph)
+suppressMessages(require(bit64,quietly=TRUE,warn.conflicts=FALSE))
+ 
 #library(RSvgDevice)
 library(plotrix)
 require(bit64)

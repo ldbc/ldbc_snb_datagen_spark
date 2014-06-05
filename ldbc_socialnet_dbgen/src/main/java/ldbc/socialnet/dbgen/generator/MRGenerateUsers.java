@@ -254,7 +254,6 @@ public class MRGenerateUsers{
             friendGenerator.resetState(key.block);
             for (ReducedUserProfile user: valueSet){
                 friendGenerator.generateUserActivity(user, context);
-//            	System.out.println("Number of work places: " + user.getNumOfWorkPlaces());
                 totalObjects++;
             }
         }
@@ -325,10 +324,10 @@ public class MRGenerateUsers{
         String hadoopDir = new String(conf.get("outputDir")+"/hadoop");
         String socialNetDir = new String(conf.get("outputDir")+"/social_network");
         int numThreads = Integer.parseInt(conf.get("numThreads"));
+	System.out.println("NUMBER OF THREADS "+numThreads);
 
 
         /// --------------- First job Generating users and friendships----------------
-//        conf.set("mapred.task.profile","true");
         conf.set("pass",Integer.toString(0));
         conf.set("dimension",Integer.toString(1));
 		Job job = new Job(conf,"SIB Generate Users & 1st Dimension");
@@ -473,7 +472,6 @@ public class MRGenerateUsers{
         
 
         /// --------------- Fifth job: Sort update streams ----------------
-
         conf.setInt("mapred.line.input.format.linespermap", 1000000);
         Job job5 = new Job(conf,"Soring update streams");
         job5.setMapOutputKeyClass(LongWritable.class);
@@ -556,6 +554,7 @@ public class MRGenerateUsers{
         printProgress("Starting: Materialize friends for substitution parameters");
         int resMaterializeFriends = job6.waitForCompletion(true) ? 0 : 1;
         fs.delete(new Path(hadoopDir + "/sibSorting3"),true);
+
 
 
 	    long end = System.currentTimeMillis();
