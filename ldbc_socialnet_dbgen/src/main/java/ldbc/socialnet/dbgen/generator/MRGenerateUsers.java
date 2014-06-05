@@ -125,7 +125,7 @@ public class MRGenerateUsers{
         protected void cleanup(Context context){
             try {
                 System.out.println("Number of events reduced "+numEvents);
-                String propertiesStr = new String("gctdeltaduration:"+context.getConfiguration().get("deltaTime")+"\nminwriteeventstarttime:"+min+"\nmaxwriteeventstarttime:"+max);
+                String propertiesStr = new String("gctdeltaduration:"+context.getConfiguration().get("deltaTime")+"\nmin_write_event_start_time:"+min+"\nmax_write_event_start_time:"+max);
                 properties.write(propertiesStr.getBytes("UTF8"));
                 properties.flush();
                 properties.close();
