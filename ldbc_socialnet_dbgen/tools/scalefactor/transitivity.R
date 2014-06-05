@@ -5,7 +5,7 @@ require(bit64)
 suppressMessages(require(bit64,quietly=TRUE,warn.conflicts=FALSE))
  
 message("Loading files")
-dflist <- lapply(commandArgs(trailingOnly = TRUE), fread, sep="|", header=T, select=1:2)
+dflist <- lapply(commandArgs(trailingOnly = TRUE), fread, sep="|", header=T, select=1:2, colClasses="integer64")
 df <- rbindlist(dflist)
 setnames(df, 1:2, c("src", "dst"))
 
