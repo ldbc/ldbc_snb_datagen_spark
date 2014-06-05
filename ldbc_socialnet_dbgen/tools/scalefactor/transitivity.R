@@ -1,5 +1,7 @@
 library(data.table)
 library(igraph)
+require(bit64)	
+
 suppressMessages(require(bit64,quietly=TRUE,warn.conflicts=FALSE))
  
 message("Loading files")

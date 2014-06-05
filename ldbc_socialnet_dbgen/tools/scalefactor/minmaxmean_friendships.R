@@ -4,19 +4,23 @@ suppressMessages(require(bit64,quietly=TRUE,warn.conflicts=FALSE))
  
 #library(RSvgDevice)
 library(plotrix)
+require(bit64)
+#require(int64)	
 
 message("Loading files")
 dflist <- lapply(commandArgs(trailingOnly = TRUE), fread, sep="|", header=T, select=1:2)
 df <- rbindlist(dflist)
 
 message("Set column names")
-#names(df)=c("Post", "Person")
 setNames(df, c("Person1", "Person2"))
 
-d2 <- df[,length(Person2),by=Person1]
-#message("STATISTICS: Friendships/User || Min: ",min(d2$V1),", Max: ", max(d2$V1), " Mean: ", mean(d2$V1), " Median: ", median(d2$V1))
+library(plyr)
+d2 <- ddply(df, "Person1", summarize, P2Count = length(Person2))
+d3 <- as.numeric(d2$P2Count)
+message("\\hline  \\#friends/user  &", min(d3) ,  " &  ", max(d3),  " & ", round(mean(d3)) , " & ", round(median(d3)), " \\\\")
 
-message("\\hline  \\#friends/user  &", min(d2$V1),  " &  ", max(d2$V1),  " & ", round(mean(d2$V1)) , " & ", round(median(d2$V1)), " \\\\")
+#d2 <- df[,length(Person2),by=Person1]
+#message("\\hline  \\#friends/user  &", min(d2$V1) ,  " &  ", max(d2$V1),  " & ", round(mean(d2$V1)) , " & ", round(median(d2$V1)), " \\\\")
 
 
 #devSVG(file = "numFriendsDensity.svg")
@@ -27,5 +31,5 @@ message("\\hline  \\#friends/user  &", min(d2$V1),  " &  ", max(d2$V1),  " & ", 
 
 message("Plot cummulative distribution of #friends/users")
 pdf("numFriendsCumm.pdf")
-plot(ecdf(d2$V1),main="Cummulative distribution #friends per user", xlab="Number of friends", ylab="Percentage number of users")	
+plot(ecdf(d3),main="Cummulative distribution #friends per user", xlab="Number of friends", ylab="Percentage number of users")	
 dev.off()

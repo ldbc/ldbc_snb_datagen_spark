@@ -1,10 +1,10 @@
-RCOMMAND=/home/aprat/R-3.1.0/bin/R
+RCOMMAND=R
 
 #May need to install additional package such as data.table, igraph, bit64
 #install.packages("data.table")
 
 SCALEFACTOR=1
-DATAOUTPUTDIR=/data/aprat/datasets/LDBC/$SCALEFACTOR.static/social_network
+DATAOUTPUTDIR=/export/scratch2/duc/work/LDBC/ldbc_socialnet_bm/ldbc_socialnet_dbgen/datasetFolder/s$SCALEFACTOR
 
 echo "\\hline    \\multicolumn{5}{|c|}{SF = $SCALEFACTOR }  \\\\"
 echo "Network cluster coefficient"							       
