@@ -202,7 +202,6 @@ public class ScalableGenerator{
     private final String FLASHMOB_TAG_MIN_LEVEL                 = "flashmobTagMinLevel";
     private final String FLASHMOB_TAG_MAX_LEVEL                 = "flashmobTagMaxLevel";
     private final String FLASHMOB_TAG_DIST_EXP                  = "flashmobTagDistExp";
-    private final String DELTA_TIME                             = "deltaTime";
     private final String UPDATE_PORTION                         = "updatePortion";
 
     /**
@@ -221,7 +220,7 @@ public class ScalableGenerator{
             COMPANY_UNCORRELATED_RATIO, UNIVERSITY_UNCORRELATED_RATIO, BEST_UNIVERSTY_RATIO, MAX_POPULAR_PLACES,
             POPULAR_PLACE_RATIO, TAG_UNCORRELATED_COUNTRY, FLASHMOB_TAGS_PER_MONTH,
             PROB_INTEREST_FLASHMOB_TAG, PROB_RANDOM_PER_LEVEL,MAX_NUM_FLASHMOB_POST_PER_MONTH, MAX_NUM_GROUP_FLASHMOB_POST_PER_MONTH, MAX_NUM_TAG_PER_FLASHMOB_POST, FLASHMOB_TAG_MIN_LEVEL, FLASHMOB_TAG_MAX_LEVEL,
-            FLASHMOB_TAG_DIST_EXP, DELTA_TIME, UPDATE_PORTION};
+            FLASHMOB_TAG_DIST_EXP, UPDATE_PORTION};
 
     //final user parameters
     private final String SCALE_FACTOR       = "scaleFactor";
@@ -424,6 +423,7 @@ public class ScalableGenerator{
         this.sibOutputDir = this.conf.get("outputDir")+"/social_network";
         this.numThreads = Integer.parseInt(this.conf.get("numThreads"));
         this.threadId = threadId;
+        this.deltaTime = Integer.parseInt(this.conf.get("deltaTime"));
         this.stats = new Statistics();
         this.postsPerCountry = new HashMap<Integer, Integer>();
         this.tagClassCount = new HashMap<Integer, Integer>();
@@ -696,7 +696,6 @@ public class ScalableGenerator{
             flashmobTagMinLevel = Double.parseDouble(properties.getProperty(FLASHMOB_TAG_MIN_LEVEL));
             flashmobTagMaxLevel = Double.parseDouble(properties.getProperty(FLASHMOB_TAG_MAX_LEVEL));
             flashmobTagDistExp = Double.parseDouble(properties.getProperty(FLASHMOB_TAG_DIST_EXP));
-            deltaTime = Long.parseLong(properties.getProperty(DELTA_TIME));
             updatePortion = Double.parseDouble(properties.getProperty(UPDATE_PORTION));
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -793,6 +792,7 @@ public class ScalableGenerator{
         dataExporter.export(userInfo);
         int nameCount = firstNameCount.containsKey(extraInfo.getFirstName())? firstNameCount.get(extraInfo.getFirstName()):0;
         firstNameCount.put(extraInfo.getFirstName(), nameCount+1);
+        long init = System.currentTimeMillis();
         generatePosts(uniformPostGenerator,reducedUserProfiles[index], extraInfo);
         generatePosts(flashmobPostGenerator, reducedUserProfiles[index], extraInfo);
         generatePhotos(reducedUserProfiles[index], extraInfo);
@@ -991,7 +991,6 @@ public class ScalableGenerator{
         GregorianCalendar c = new GregorianCalendar();
         
         while(it.hasNext()) {
-        	
             Post post = it.next();
             if (post.getLikes() != null){
             	factorTable.get(user.getAccountId()).numberOfLikes += post.getLikes().length;

@@ -86,7 +86,10 @@ public class MRGenerateUsers{
     public static class UpdateEventReducer extends Reducer<LongWritable, Text, LongWritable, Text>{
 
         OutputStream out;
+        OutputStream properties;
         private int numEvents = 0;
+        private long min = Long.MAX_VALUE;
+        private long max = Long.MIN_VALUE;
         @Override
         protected void setup(Context context){
             Configuration conf = context.getConfiguration();
@@ -101,6 +104,7 @@ public class MRGenerateUsers{
                     Path outFile = new Path(context.getConfiguration().get("outputDir")+"/social_network/updateStream_"+attempTaskId+".csv");
                     out = fs.create(outFile);
                 }
+                properties = fs.create(new Path(context.getConfiguration().get("outputDir")+"/social_network/updateStream_"+attempTaskId+".properties"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -110,6 +114,8 @@ public class MRGenerateUsers{
         public void reduce(LongWritable key, Iterable<Text> valueSet,
                            Context context) throws IOException, InterruptedException{
             for( Text event : valueSet ) {
+                min = min > key.get() ? key.get() : min;
+                max = max < key.get() ? key.get() : max;
                 out.write(event.toString().getBytes("UTF8"));
                 numEvents++;
             }
@@ -119,6 +125,10 @@ public class MRGenerateUsers{
         protected void cleanup(Context context){
             try {
                 System.out.println("Number of events reduced "+numEvents);
+                String propertiesStr = new String("gctdeltaduration:"+context.getConfiguration().get("deltaTime")+"\nmin_write_event_start_time:"+min+"\nmax_write_event_start_time:"+max);
+                properties.write(propertiesStr.getBytes("UTF8"));
+                properties.flush();
+                properties.close();
                 out.flush();
                 out.close();
             } catch (IOException e) {
@@ -481,7 +491,7 @@ public class MRGenerateUsers{
         job5.setJarByClass(UpdateEventMapper.class);
         job5.setMapperClass(UpdateEventMapper.class);
         job5.setReducerClass(UpdateEventReducer.class);
-        job5.setNumReduceTasks(numThreads);
+        job5.setNumReduceTasks(1);
         job5.setInputFormatClass(SequenceFileInputFormat.class);
         job5.setOutputFormatClass(SequenceFileOutputFormat.class);
         job5.setPartitionerClass(UpdateEventPartitioner.class);

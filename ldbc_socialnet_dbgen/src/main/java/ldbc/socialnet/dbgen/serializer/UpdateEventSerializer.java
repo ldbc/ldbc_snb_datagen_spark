@@ -130,21 +130,21 @@ public class UpdateEventSerializer implements Serializer{
         params.add("Tags");
         params.add("SudyAt");
         params.add("WorkAt");
-        statistics.eventParams.add(params);
+//        statistics.eventParams.add(params);
 
         params = new ArrayList<String>();
         params.add(UpdateEvent.UpdateEventType.ADD_LIKE_POST.toString());
         params.add("UserId");
         params.add("PostId");
         params.add("CreationDate");
-        statistics.eventParams.add(params);
+//        statistics.eventParams.add(params);
 
         params = new ArrayList<String>();
         params.add(UpdateEvent.UpdateEventType.ADD_LIKE_COMMENT.toString());
         params.add("UserId");
         params.add("CommentId");
         params.add("CreationDate");
-        statistics.eventParams.add(params);
+//        statistics.eventParams.add(params);
 
         params = new ArrayList<String>();
         params.add(UpdateEvent.UpdateEventType.ADD_FORUM.toString());
@@ -153,14 +153,14 @@ public class UpdateEventSerializer implements Serializer{
         params.add("CreationDate");
         params.add("ModeratorId");
         params.add("Tags");
-        statistics.eventParams.add(params);
+//        statistics.eventParams.add(params);
 
         params = new ArrayList<String>();
         params.add(UpdateEvent.UpdateEventType.ADD_FORUM_MEMBERSHIP.toString());
         params.add("ForumId");
         params.add("UserId");
         params.add("CreationDate");
-        statistics.eventParams.add(params);
+//        statistics.eventParams.add(params);
 
         params = new ArrayList<String>();
         params.add(UpdateEvent.UpdateEventType.ADD_POST.toString());
@@ -176,7 +176,7 @@ public class UpdateEventSerializer implements Serializer{
         params.add("ForumId");
         params.add("Location");
         params.add("Tags");
-        statistics.eventParams.add(params);
+//        statistics.eventParams.add(params);
 
         params = new ArrayList<String>();
         params.add(UpdateEvent.UpdateEventType.ADD_COMMENT.toString());
@@ -191,14 +191,14 @@ public class UpdateEventSerializer implements Serializer{
         params.add("ReplyOfPost");
         params.add("ReplyOfComment");
         params.add("Tags");
-        statistics.eventParams.add(params);
+//        statistics.eventParams.add(params);
 
         params = new ArrayList<String>();
         params.add(UpdateEvent.UpdateEventType.ADD_FRIENDSHIP.toString());
         params.add("UserId");
         params.add("UserId");
         params.add("CreationDate");
-        statistics.eventParams.add(params);
+//        statistics.eventParams.add(params);
     }
 
 

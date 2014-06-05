@@ -19,6 +19,7 @@ public class ConfigParser {
         conf.set("compressed",Boolean.toString(false));
         conf.set("updateStreams",Boolean.toString(true));
         conf.set("outputDir","./");
+        conf.set("deltaTime","10000");
 
         try {
             //First read the internal params.ini
