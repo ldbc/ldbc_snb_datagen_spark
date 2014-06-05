@@ -254,7 +254,6 @@ public class MRGenerateUsers{
             friendGenerator.resetState(key.block);
             for (ReducedUserProfile user: valueSet){
                 friendGenerator.generateUserActivity(user, context);
-//            	System.out.println("Number of work places: " + user.getNumOfWorkPlaces());
                 totalObjects++;
             }
         }
@@ -328,7 +327,6 @@ public class MRGenerateUsers{
 
 
         /// --------------- First job Generating users and friendships----------------
-//        conf.set("mapred.task.profile","true");
         conf.set("pass",Integer.toString(0));
         conf.set("dimension",Integer.toString(1));
 		Job job = new Job(conf,"SIB Generate Users & 1st Dimension");
@@ -473,7 +471,6 @@ public class MRGenerateUsers{
         
 
         /// --------------- Fifth job: Sort update streams ----------------
-
         conf.setInt("mapred.line.input.format.linespermap", 1000000);
         Job job5 = new Job(conf,"Soring update streams");
         job5.setMapOutputKeyClass(LongWritable.class);
