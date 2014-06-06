@@ -21,6 +21,6 @@ d2 <- df[,length(Post.id),by=Person.id]
 message("\\hline  \\#posts/user  &", min(d2$V1),  " &  ", max(d2$V1),  " & ", round(mean(d2$V1)) , " & ", round(median(d2$V1)), " \\\\")
 
 message("Plot histogram #post/users")
-pdf("numPostsUserHist.pdf")
+pdf("numPostsUserHistSCALEFACTOR.pdf")
 hist(d2$V1,main="Histogram #posts per user", xlab="Number of posts", ylab="Number of users")	
 dev.off()

@@ -18,6 +18,6 @@ d2 <- df[,length(Comment.id),by=Person.id]
 message("\\hline  \\#comments/user  &", min(d2$V1),  " &  ", max(d2$V1),  " & ", round(mean(d2$V1)) , " & ", round(median(d2$V1)), " \\\\")
 
 message("Plot histogram #comment/users")
-pdf("numCommentsUserHist.pdf")
+pdf("numCommentsUserHistSCALEFACTOR.pdf")
 hist(d2$V1,main="Histogram #comments per user", xlab="Number of comments", ylab="Number of users")	
 dev.off()

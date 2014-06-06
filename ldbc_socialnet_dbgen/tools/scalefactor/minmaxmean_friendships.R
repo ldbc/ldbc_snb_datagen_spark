@@ -37,6 +37,6 @@ message("\\hline  \\#friends/user  &", min(d2$V1) ,  " &  ", max(d2$V1),  " & ",
 #devSVG(file = "numFriendsCumm.svg")	
 
 message("Plot cummulative distribution of #friends/users")
-pdf("numFriendsCumm.pdf")
+pdf("numFriendsCummSCALEFACTOR.pdf")
 plot(ecdf(d2$V1),main="Cummulative distribution #friends per user", xlab="Number of friends", ylab="Percentage number of users")	
 dev.off()
