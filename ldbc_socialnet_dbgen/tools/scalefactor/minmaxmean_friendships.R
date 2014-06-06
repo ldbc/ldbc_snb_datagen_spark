@@ -38,5 +38,5 @@ message("\\hline  \\#friends/user  &", min(d2$V1) ,  " &  ", max(d2$V1),  " & ",
 
 message("Plot cummulative distribution of #friends/users")
 pdf("numFriendsCummSCALEFACTOR.pdf")
-plot(ecdf(d2$V1),main="Cummulative distribution #friends per user", xlab="Number of friends", ylab="Percentage number of users")	
+plot(ecdf(d2$V1),main="Cummulative distribution #friends per user", xlab="Number of friends", ylab="Percentage number of users", log="x", xlim=c(0.8, max(d2$V1) + 20))	
 dev.off()
