@@ -25,7 +25,7 @@
     </scale_factor>
 
     <scale_factor number="100" >
-        <num_persons>503000</num_persons>
+        <num_persons>499000</num_persons>
         <start_year>2010</start_year>
         <num_years>3</num_years>
     </scale_factor>
@@ -37,7 +37,7 @@
     </scale_factor>
 
     <scale_factor number="1000" >
-        <num_persons>3529000</num_persons>
+        <num_persons>3600000</num_persons>
         <start_year>2010</start_year>
         <num_years>3</num_years>
     </scale_factor>
