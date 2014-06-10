@@ -1,9 +1,11 @@
 #!/bin/bash
 
+ECHO=/bin/echo
+
 if [ $# -ne 1 ]
 then
-   echo "Arguments not correctly supplied"
-   echo "Usage: sh testDatasets <dataset_dir>"
+   $ECHO "Arguments not correctly supplied"
+   $ECHO "Usage: sh testDatasets <dataset_dir>"
    exit
 fi
 
@@ -17,12 +19,13 @@ TOTAL_BYTES=0
 TOTAL_ENTITIES=0
 TOTAL_RELATIONS=0
 
-echo "\\\begin{table}"
-echo "\\\begin{tabular} {| l | c | c |}"
-echo "\\hline"
-echo "\\\textbf{Entity} & \\\textbf{Num Entities} & \\\textbf{Bytes} \\\\\\"
-echo "\\hline"
-echo "\\hline"
+$ECHO "\begin{table}[H]"
+$ECHO "\centering"
+$ECHO "\begin{tabular} {| l | c | c |}"
+$ECHO "\hline"
+$ECHO "\textbf{Entity} & \textbf{Num Entities} & \textbf{Bytes} \\\\"
+$ECHO "\hline"
+$ECHO "\hline"
 
 for file in $ENTITIES
 do
@@ -31,22 +34,22 @@ do
     for aux_file in `ls $DIR/${file}_?.csv`
     do
         DATA=$(wc $aux_file | awk {'print $1 " " $3'})
-        AUX_NUM_LINES=$(echo $DATA | cut -f1 -d' ') 
-        AUX_NUM_BYTES=$(echo $DATA | cut -f2 -d' ') 
-        NUM_LINES=$( echo $NUM_LINES + $AUX_NUM_LINES | bc)
-        NUM_BYTES=$( echo $NUM_BYTES + $AUX_NUM_BYTES | bc)
+        AUX_NUM_LINES=$($ECHO $DATA | cut -f1 -d' ') 
+        AUX_NUM_BYTES=$($ECHO $DATA | cut -f2 -d' ') 
+        NUM_LINES=$( $ECHO $NUM_LINES + $AUX_NUM_LINES - 1| bc)
+        NUM_BYTES=$( $ECHO $NUM_BYTES + $AUX_NUM_BYTES | bc)
     done
-    TOTAL_BYTES=$( echo $TOTAL_BYTES + $NUM_BYTES | bc)
-    TOTAL_ENTITIES=$( echo $TOTAL_ENTITIES + $NUM_LINES | bc)
-    LINE=$(echo "$file & $NUM_LINES & $NUM_BYTES" | sed -r 's/_/\\_/g')
-   echo "$LINE \\\\\\"
-   echo "\\hline"
+    TOTAL_BYTES=$( $ECHO $TOTAL_BYTES + $NUM_BYTES | bc)
+    TOTAL_ENTITIES=$( $ECHO $TOTAL_ENTITIES + $NUM_LINES | bc)
+    LINE=$($ECHO "$file & $NUM_LINES & $NUM_BYTES" | sed -r 's/_/\\_/g')
+   $ECHO "$LINE \\\\"
+   $ECHO "\hline"
 done
 
-echo "\\hline"
-echo "\\\textbf{Relation} & \\\textbf{Num Relations} & \\\textbf{Bytes} \\\\\\"
-echo "\\hline"
-echo "\\hline"
+$ECHO "\hline"
+$ECHO "\textbf{Relation} & \textbf{Num Relations} & \textbf{Bytes} \\\\"
+$ECHO "\hline"
+$ECHO "\hline"
 for file in $RELATIONS
 do
    NUM_LINES=0 
@@ -55,22 +58,22 @@ do
     for aux_file in $AUX_FILES
     do
         DATA=$(wc $aux_file | awk {'print $1 " " $3'})
-        AUX_NUM_LINES=$(echo $DATA | cut -f1 -d' ') 
-        AUX_NUM_BYTES=$(echo $DATA | cut -f2 -d' ') 
-        NUM_LINES=$( echo $NUM_LINES + $AUX_NUM_LINES | bc)
-        NUM_BYTES=$( echo $NUM_BYTES + $AUX_NUM_BYTES | bc)
+        AUX_NUM_LINES=$($ECHO $DATA | cut -f1 -d' ') 
+        AUX_NUM_BYTES=$($ECHO $DATA | cut -f2 -d' ') 
+        NUM_LINES=$( $ECHO $NUM_LINES + $AUX_NUM_LINES - 1| bc)
+        NUM_BYTES=$( $ECHO $NUM_BYTES + $AUX_NUM_BYTES | bc)
     done
-   TOTAL_BYTES=$( echo $TOTAL_BYTES + $NUM_BYTES | bc)
-   TOTAL_RELATIONS=$( echo $TOTAL_RELATIONS + $NUM_LINES | bc)
-    LINE=$(echo "$file & $NUM_LINES & $NUM_BYTES" | sed -r 's/_/\\_/g')
-   echo "$LINE \\\\\\"
-   echo "\\hline"
+   TOTAL_BYTES=$( $ECHO $TOTAL_BYTES + $NUM_BYTES | bc)
+   TOTAL_RELATIONS=$( $ECHO $TOTAL_RELATIONS + $NUM_LINES | bc)
+    LINE=$($ECHO "$file & $NUM_LINES & $NUM_BYTES" | sed -r 's/_/\\_/g')
+   $ECHO "$LINE \\\\"
+   $ECHO "\\hline"
 done
 
-echo "\\hline"
-echo "\\\textbf{Property Files} & \\\textbf{Num Properties} & \\\textbf{Bytes} \\\\\\"
-echo "\\hline"
-echo "\\hline"
+$ECHO "\hline"
+$ECHO "\textbf{Property Files} & \textbf{Num Properties} & \textbf{Bytes} \\\\"
+$ECHO "\hline"
+$ECHO "\hline"
 for file in $REST
 do
    NUM_LINES=0 
@@ -79,24 +82,24 @@ do
     for aux_file in $AUX_FILES
     do
         DATA=$(wc $aux_file | awk {'print $1 " " $3'})
-        AUX_NUM_LINES=$(echo $DATA | cut -f1 -d' ') 
-        AUX_NUM_BYTES=$(echo $DATA | cut -f2 -d' ') 
-        NUM_LINES=$( echo $NUM_LINES + $AUX_NUM_LINES | bc)
-        NUM_BYTES=$( echo $NUM_BYTES + $AUX_NUM_BYTES | bc)
+        AUX_NUM_LINES=$($ECHO $DATA | cut -f1 -d' ') 
+        AUX_NUM_BYTES=$($ECHO $DATA | cut -f2 -d' ') 
+        NUM_LINES=$( $ECHO $NUM_LINES + $AUX_NUM_LINES - 1| bc)
+        NUM_BYTES=$( $ECHO $NUM_BYTES + $AUX_NUM_BYTES | bc)
     done
-   TOTAL_BYTES=$( echo $TOTAL_BYTES + $NUM_BYTES | bc)
-    LINE=$(echo "$file & $NUM_LINES & $NUM_BYTES" | sed -r 's/_/\\_/g')
-   echo "$LINE \\\\\\"
-   echo "\\hline"
+   TOTAL_BYTES=$( $ECHO $TOTAL_BYTES + $NUM_BYTES | bc)
+    LINE=$($ECHO "$file & $NUM_LINES & $NUM_BYTES" | sed -r 's/_/\\_/g')
+   $ECHO "$LINE \\\\"
+   $ECHO "\hline"
 done
 
-echo "\\hline"
-echo "\\\textbf{Total Entities} & \\\textbf{Total Relations} & \\\textbf{Total Bytes} \\\\\\"
-echo "\\hline"
-echo "\\hline"
+$ECHO "\hline"
+$ECHO "\textbf{Total Entities} & \textbf{Total Relations} & \textbf{Total Bytes} \\\\"
+$ECHO "\hline"
+$ECHO "\hline"
 
-echo " $TOTAL_ENTITIES & $TOTAL_RELATIONS & $TOTAL_BYTES \\\\\\"
-echo "\\hline"
+$ECHO " $TOTAL_ENTITIES & $TOTAL_RELATIONS & $TOTAL_BYTES \\\\"
+$ECHO "\hline"
 
-echo "\\end{tabular}"
-echo "\\end{table}"
+$ECHO "\end{tabular}"
+$ECHO "\end{table}"
