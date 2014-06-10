@@ -8,10 +8,9 @@ then
 fi
 
 #FILES="comment forum_containerOf_post person_email_emailaddress  person_studyAt_organisation post_isLocatedIn_place comment_hasCreator_person forum_hasMember_person           person_hasInterest_tag person_workAt_organisation tag comment_hasTag_tag forum_hasModerator_person person_isLocatedIn_place place tagclass comment_isLocatedIn_place forum_hasTag_tag person_knows_person place_isPartOf_place tagclass_isSubclassOf_tagclass comment_replyOf_comment organisation person_likes_comment post tag_hasType_tagclass comment_replyOf_post organisation_isLocatedIn_place person_likes_post post_hasCreator_person forum person person_speaks_language post_hasTag_tag"
-ENTITIES="comment tag place tagclass organisation post forum person"
-RELATIONS="forum_containerOf_post person_studyAt_organisation post_isLocatedIn_place comment_hasCreator_person forum_hasMember_person  person_hasInterest_tag person_workAt_organisation comment_hasTag_tag forum_hasModerator_person person_isLocatedIn_place comment_isLocatedIn_place forum_hasTag_tag person_knows_person place_isPartOf_place tagclass_isSubclassOf_tagclass comment_replyOf_comment person_likes_comment post tag_hasType_tagclass comment_replyOf_post organisation_isLocatedIn_place person_likes_post post_hasCreator_person  post_hasTag_tag"
-REST="person_speaks_language person_email_emailaddress"
-FILES="person forum"
+ENTITIES="comment forum organisation person place post tag tagclass"
+RELATIONS="comment_hasCreator_person comment_hasTag_tag comment_isLocatedIn_place comment_replyOf_comment comment_replyOf_post forum_containerOf_post forum_hasMember_person forum_hasModerator_person forum_hasTag_tag organisation_isLocatedIn_place person_isLocatedIn_place person_hasInterest_tag person_knows_person person_likes_comment person_likes_post person_studyAt_organisation person_workAt_organisation place_isPartOf_place    post_hasCreator_person post_hasTag_tag post_isLocatedIn_place tag_hasType_tagclass tagclass_isSubclassOf_tagclass"
+REST="person_email_emailaddress person_speaks_language"
 
 DIR=$1
 TOTAL_BYTES=0
@@ -20,7 +19,6 @@ TOTAL_RELATIONS=0
 
 echo "\\\begin{table}"
 echo "\\\begin{tabular} {| l | c | c |}"
-echo "\\hline"
 echo "\\hline"
 echo "\\\textbf{Entity} & \\\textbf{Num Entities} & \\\textbf{Bytes} \\\\\\"
 echo "\\hline"
@@ -92,10 +90,13 @@ do
    echo "\\hline"
 done
 
+echo "\\hline"
+echo "\\\textbf{Total Entities} & \\\textbf{Total Relations} & \\\textbf{Total Bytes} \\\\\\"
+echo "\\hline"
+echo "\\hline"
 
-#echo "Num Bytes: $TOTAL_BYTES"
-#echo "Num Entities: $TOTAL_ENTITIES"
-#echo "Num Relations: $TOTAL_RELATIONS"
+echo " $TOTAL_ENTITIES & $TOTAL_RELATIONS & $TOTAL_BYTES \\\\\\"
+echo "\\hline"
 
 echo "\\end{tabular}"
 echo "\\end{table}"
