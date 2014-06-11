@@ -6,6 +6,7 @@ import json
 from timeparameters import *
 
 PERSON_PREFIX = "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers"
+COUNTRY_PREFIX = "http://dbpedia.org/resource/"
 
 def findNameParameters(names, amount = 100):
 	srtd = sorted(names,key=lambda x: -x[1])
@@ -41,7 +42,7 @@ class JSONSerializer:
 		output.close()
 
 def handlePersonParam(person):
-	return {"PersonID": person, "PersonURI":(PERSON_PREFIX+str(person))}
+	return {"PersonID": person, "PersonURI":(PERSON_PREFIX+str("%020d"%person))}
 
 def handleTimeParam(timeParam):
 	res={"Date0": "%d-%d-%d"%(timeParam.year, timeParam.month, timeParam.day)}
@@ -50,10 +51,10 @@ def handleTimeParam(timeParam):
 	return res
 
 def handlePairCountryParam((Country1, Country2)):
-	return {"Country1":Country1, "Country2":Country2}
+	return {"Country1":Country1, "Country2":Country2, "Country1URI":(COUNTRY_PREFIX + Country1), "Country2URI":(COUNTRY_PREFIX + Country2)}
 
 def handleCountryParam(Country):
-	return {"Country":Country}
+	return {"Country":Country, "CountryURI": (COUNTRY_PREFIX + Country)}
 
 def handleTagParam(tag):
 	return {"Tag": tag.encode("utf-8")}
@@ -130,7 +131,7 @@ def main(argv=None):
 	print "find parameter bindings for Tags"
 	selectedTagParams = {}
 	for i in [6]:
-		selectedTagParams[i] = discoverparams.generate(tagFactors)
+		selectedTagParams[i] = discoverparams.generate(tagFactors, portion=0.1)
 		# make sure there are as many tag paramters as person parameters
 		oldlen = len(selectedTagParams[i])
 		newlen = len(selectedPersonParams[i])
@@ -139,7 +140,7 @@ def main(argv=None):
 	# generate tag type parameters for Query 12
 	selectedTagTypeParams = {}
 	for i in [12]:
-		selectedTagTypeParams[i] = discoverparams.generate(tagClassFactors)
+		selectedTagTypeParams[i] = discoverparams.generate(tagClassFactors, portion=0.1)
 		# make sure there are as many tag paramters as person parameters
 		oldlen = len(selectedTagTypeParams[i])
 		newlen = len(selectedPersonParams[i])
@@ -154,7 +155,7 @@ def main(argv=None):
 		2: (selectedPersonParams[2], "f", getTimeParamsBeforeMedian),
 		3: (selectedPersonParams[3], "ff", getTimeParamsWithMedian),
 		4: (selectedPersonParams[4], "f", getTimeParamsWithMedian),
-		5: (selectedPersonParams[5], "ff", getTimeParamsAfterMedian),
+		5: (selectedPersonParams[5], "ffg", getTimeParamsAfterMedian),
 		9: (selectedPersonParams[9], "ff", getTimeParamsBeforeMedian)
 		#11: (selectedPersonParams[11], "w", getTimeParamsBeforeMedian) # friends of friends work
 	}

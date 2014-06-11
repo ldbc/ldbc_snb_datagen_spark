@@ -38,6 +38,7 @@
 package ldbc.socialnet.dbgen.serializer;
 
 import ldbc.socialnet.dbgen.dictionary.*;
+import ldbc.socialnet.dbgen.generator.DateGenerator;
 import ldbc.socialnet.dbgen.generator.ScalableGenerator;
 import ldbc.socialnet.dbgen.objects.*;
 import ldbc.socialnet.dbgen.serializer.CSVSerializer.CSVSerializer;
@@ -66,7 +67,10 @@ public class DataExporter {
     private UniversityDictionary universityDic = null;
     private TagDictionary tagDic = null;
     private TreeSet<Integer> exportedClasses;
+    private HashMap<Long, ReducedUserProfile.Counts> factorTable;
+    private int startMonth, startYear;
     private int reducerId = 0;
+    GregorianCalendar c;
 
     public DataExporter( DataFormat format,
                          String directory,
@@ -82,6 +86,8 @@ public class DataExporter {
                          LocationDictionary locationDic,
                          LanguageDictionary languageDic,
                          String configFile,
+                         HashMap<Long, ReducedUserProfile.Counts> factorTable,
+                         int startMonth, int startYear,
                          Statistics statistics) {
         this.locationDic = locationDic;
         this.companyDic = companyDic;
@@ -90,6 +96,10 @@ public class DataExporter {
         this.reducerId = reducerId;
         this.dateThreshold = dateThreshold;
         this.exportedClasses = new TreeSet<Integer>();
+        this.factorTable = factorTable;
+        this.startMonth = startMonth;
+        this.startYear = startYear;
+        this.c = new GregorianCalendar();
         if( format == DataFormat.CSV ) {
             staticSerializer = new CSVOriginal(directory,reducerId,tagDic,browsers,companyDic,universityDic,ipDic,locationDic,languageDic,exportText,compressed);
         } else if( format == DataFormat.CSV_MERGE_FOREIGN ) {
@@ -236,6 +246,9 @@ public class DataExporter {
             workAt.year = userInfo.extraInfo.getWorkFrom(companyId);
             if( creationDate <= dateThreshold ) {
                 staticSerializer.serialize(workAt);
+        		if (!factorTable.containsKey(userInfo.user.getAccountId()))
+        			factorTable.put(userInfo.user.getAccountId(), new ReducedUserProfile.Counts());
+                factorTable.get(userInfo.user.getAccountId()).numberOfWorkPlaces++;
             } else {
                 updateStreamSerializer.serialize(workAt);
             }
@@ -247,6 +260,9 @@ public class DataExporter {
             if (friends[i] != null && friends[i].getCreatedTime() != -1) {
                 if( friends[i].getCreatedTime() <= dateThreshold ) {
                     staticSerializer.serialize(friends[i]);
+            		if (!factorTable.containsKey(userInfo.user.getAccountId()))
+            			factorTable.put(userInfo.user.getAccountId(), new ReducedUserProfile.Counts());
+                    factorTable.get(userInfo.user.getAccountId()).numberOfFriends++;
                 } else {
                     updateStreamSerializer.serialize(friends[i]);
                 }
@@ -274,7 +290,8 @@ public class DataExporter {
         } else {
             updateStreamSerializer.serialize(group);
         }
-
+        
+        GregorianCalendar c = new GregorianCalendar();
         for (int i = 0; i < friends.length; i ++){
             if (friends[i] != null && friends[i].getCreatedTime() != -1){
                 GroupMemberShip membership = new GroupMemberShip();
@@ -283,6 +300,15 @@ public class DataExporter {
                 membership.setUserId(friends[i].getFriendAcc());
                 if( membership.getJoinDate() <= dateThreshold ) {
                     staticSerializer.serialize(membership);
+            		if (!factorTable.containsKey(membership.getUserId()))
+            			factorTable.put(membership.getUserId(), new ReducedUserProfile.Counts());
+            		factorTable.get(membership.getUserId()).numberOfGroups++;
+            		c.setTimeInMillis(membership.getJoinDate());
+            		int bucket = DateGenerator.getNumberOfMonths(c, startMonth, startYear);
+            		if (bucket < factorTable.get(membership.getUserId()).numberOfGroupsPerMonth.length){
+            			factorTable.get(membership.getUserId()).numberOfGroupsPerMonth[bucket]++;
+            		}
+
                 } else {
                     updateStreamSerializer.serialize(membership);
                 }
@@ -294,6 +320,22 @@ public class DataExporter {
     public void export(Post post) {
         long date =  post.getCreationDate();
         if( date <= dateThreshold ) {
+        	long user = post.getAuthorId();
+            if (!factorTable.containsKey(user)){	
+            	factorTable.put(user, new ReducedUserProfile.Counts());
+            }
+            factorTable.get(user).numberOfPosts++;
+            c.setTimeInMillis(date);
+            int bucket = DateGenerator.getNumberOfMonths(c, startMonth, startYear);
+            if (bucket < factorTable.get(user).numberOfPostsPerMonth.length){
+            	factorTable.get(user).numberOfPostsPerMonth[bucket]++;
+            }
+            if (post.getLikes() != null){
+            	factorTable.get(user).numberOfLikes += post.getLikes().length;
+            }
+            if (post.getTags() != null){
+            	factorTable.get(user).numberOfTagsOfPosts += post.getTags().size();
+            }
             staticSerializer.serialize(post);
         } else {
             updateStreamSerializer.serialize(post);
@@ -304,6 +346,22 @@ public class DataExporter {
     public void export(Photo photo){
         long date =  photo.getCreationDate();
         if( date <= dateThreshold ) {
+        	long user = photo.getAuthorId();
+            if (!factorTable.containsKey(user)){	
+            	factorTable.put(user, new ReducedUserProfile.Counts());
+            }
+            factorTable.get(user).numberOfPosts++;
+            c.setTimeInMillis(date);
+            int bucket = DateGenerator.getNumberOfMonths(c, startMonth, startYear);
+            if (bucket < factorTable.get(photo.getAuthorId()).numberOfPostsPerMonth.length){
+            	factorTable.get(user).numberOfPostsPerMonth[bucket]++;
+            }
+        	if (photo.getLikes() != null) {
+            	factorTable.get(user).numberOfLikes += photo.getLikes().length;
+        	}
+        	if (photo.getTags() != null) {
+        		factorTable.get(user).numberOfTagsOfPosts += photo.getTags().size();
+        	}
             staticSerializer.serialize(photo);
         } else {
             updateStreamSerializer.serialize(photo);
@@ -330,6 +388,22 @@ public class DataExporter {
     public void export(Comment comment) {
         long date =  comment.getCreationDate();
         if( date <= dateThreshold ) {
+            long user = comment.getAuthorId();
+            if (!factorTable.containsKey(user)) {
+            	factorTable.put(user, new ReducedUserProfile.Counts());
+            }
+        	factorTable.get(user).numberOfPosts++;
+            c.setTimeInMillis(comment.getCreationDate());
+            int bucket = DateGenerator.getNumberOfMonths(c, startMonth, startYear);
+            if (bucket < factorTable.get(user).numberOfPostsPerMonth.length){
+            	factorTable.get(user).numberOfPostsPerMonth[bucket]++;
+            }
+        	if (comment.getLikes() != null) {
+        		factorTable.get(user).numberOfLikes += comment.getLikes().length;
+        	}
+        	if (comment.getTags() != null) {
+        		factorTable.get(user).numberOfTagsOfPosts += comment.getTags().size();
+        	}
             staticSerializer.serialize(comment);
         } else {
             updateStreamSerializer.serialize(comment);
@@ -346,9 +420,19 @@ public class DataExporter {
         }
 
         GroupMemberShip memberships[] = group.getMemberShips();
+        GregorianCalendar c = new GregorianCalendar();
         int numMembers = group.getNumMemberAdded();
         for( int i = 0; i < numMembers; ++i ) {
             if( memberships[i].getJoinDate() <= dateThreshold ) {
+        		if (!factorTable.containsKey(memberships[i].getUserId()))
+        			factorTable.put(memberships[i].getUserId(), new ReducedUserProfile.Counts());
+        		factorTable.get(memberships[i].getUserId()).numberOfGroups++;
+        		c.setTimeInMillis(memberships[i].getJoinDate());
+        		int bucket = DateGenerator.getNumberOfMonths(c, startMonth, startYear);
+        		if (bucket < factorTable.get(memberships[i].getUserId()).numberOfGroupsPerMonth.length){
+        			factorTable.get(memberships[i].getUserId()).numberOfGroupsPerMonth[bucket]++;
+        		}
+
                 staticSerializer.serialize(memberships[i]);
             } else {
                 updateStreamSerializer.serialize(memberships[i]);

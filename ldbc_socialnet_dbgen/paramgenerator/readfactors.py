@@ -62,6 +62,7 @@ def load(inputFileName, inputFriendsFileName):
 			results.setValue(person, "pt", int(line[4]))
 			results.setValue(person, "g", int(line[5]))
 			results.setValue(person, "w", int(line[6]))
+			results.setValue(person, "pr", int(line[7]))
 
 		countryCount = int(f.readline())
 
@@ -140,13 +141,13 @@ def getFactorsForQuery(queryId, factors):
 
 	queryFactorDict = {
 		1: getColumns(factors, ["f", "ff"]),
-		2: getColumns(factors, ["f", "fp"]),
+		2: getColumns(factors, [ "f", "fp"]),
 		3: getColumns(factors, ["ff", "ffp"]),
-		4: getColumns(factors, ["f", "fp", "fpt"]),
+		4: getColumns(factors, ["fp", "f",  "fpt"]),
 		5: getColumns(factors, ["ff", "ffg"]),	
-		6: getColumns(factors, ["ff", "ffp", "ffpt"]),
+		6: getColumns(factors, ["f","ff", "ffp", "ffpt"]),
 		7: getColumns(factors, ["p", "pl"]),
-		8: getColumns(factors, ["p"]), ### add "pr"
+		8: getColumns(factors, ["p", "pr"]), ### add "pr"
 		9: getColumns(factors, ["ff", "ffp"]),
 		10: getColumns(factors, ["ff", "ffp", "ffpt"]),
 		11: getColumns(factors, ["ff", "ffw"]),

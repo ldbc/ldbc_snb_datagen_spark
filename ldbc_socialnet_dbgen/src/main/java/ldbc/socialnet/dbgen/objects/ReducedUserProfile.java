@@ -93,11 +93,13 @@ public class ReducedUserProfile implements Serializable, Writable{
 	static public class Counts {
 		public int numberOfPosts;
 		public int[] numberOfPostsPerMonth;
+		public int[] numberOfGroupsPerMonth;
 		public int numberOfLikes;
 		public int numberOfGroups;
 		public int numberOfWorkPlaces;
 		public int numberOfTagsOfPosts;
 		public int numberOfFriends;
+		public int numberOfPostReplies;
 		
 		public Counts(Counts other){
 			this.numberOfPosts = other.numberOfPosts;
@@ -111,6 +113,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 		public Counts(){
 			this.numberOfPosts = 0;
 			this.numberOfPostsPerMonth = new int[36+1];
+			this.numberOfGroupsPerMonth = new int[36+1];
 			this.numberOfLikes = 0;
 			this.numberOfGroups = 0;
 			this.numberOfWorkPlaces = 0;

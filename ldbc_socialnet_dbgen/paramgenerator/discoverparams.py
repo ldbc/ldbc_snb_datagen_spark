@@ -6,7 +6,10 @@ import random
 from operator import itemgetter
 
 # amount of parameters to be mined (as a percentage to the domain size, i.e. total number of persons)
-SHARE = 0.1
+SHARE = 0.01
+
+def allclose(a, b, rtol=1e-05, atol=1e-08):
+	return abs(a - b) <= (atol + rtol * abs(b))
 
 def readFactors(f):
 	res = []
@@ -81,7 +84,7 @@ def findWindows(factors, param, amount, bounds):
 	first = allWindows[0]
 	iter = 0
 
-	while allWindows[iter].stddev == first.stddev:
+	while iter < len(allWindows) and allWindows[iter].stddev == first.stddev:
 		res.append(allWindows[iter])
 		iter+=1
 	#print "windows with the minimal std.dev: ",len(res)
@@ -97,7 +100,7 @@ def mergeWindows(windows):
 	constucted = cur
 
 	while iter < len(windows):
-		while iter < len(windows) and windows[iter].start == cur.start+1 and np.allclose(windows[iter].avg, cur.avg):
+		while iter < len(windows) and windows[iter].start == cur.start+1 and allclose(windows[iter].avg, cur.avg):
 			cur = windows[iter]
 			constucted.end=cur.end
 			constucted.size+=1

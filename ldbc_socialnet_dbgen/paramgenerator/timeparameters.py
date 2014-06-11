@@ -146,34 +146,48 @@ def computeTimeMedians(factors, lastmonthcount = LAST_MONTHS):
 def readTimeParams(persons, inputFactorFile, inputFriendFile):
 
 	postCounts = {}
-	offset = 7
+	groupCounts = {}
+	offset = 8
+	monthcount = 12*3 + 1
 
 	with open(inputFactorFile, 'r') as f:
 		personCount = int(f.readline())
 		for i in range(personCount):
 			line = f.readline().split(",")
 			person = int(line[0])
-			postCounts[person] = map(int,line[offset:])
+			postCounts[person] = map(int,line[offset:offset+monthcount])
+			groupCounts[person] = map(int, line[offset+monthcount:])
 
 	friendsPostsCounts = {}
+	fGroupCount = {}
 	with open(inputFriendFile, 'r') as f:
 		for line in f:
 			people = map(int, line.split(","))
 			person = people[0]
-			friendsPostsCounts[person] = [0]*len(postCounts[person])
+			friendsPostsCounts[person] = [0]*monthcount
 			for friend in people[1:]:
 				friendsPostsCounts[person] = [x+y for x,y in zip(friendsPostsCounts[person], postCounts[friend])]
 
+			fGroupCount[person] = [0]*monthcount
+			for friend in people[1:]:
+				fGroupCount[person] = [x+y for x,y in zip(fGroupCount[person], groupCounts[friend])]
+
+
 	ffPostCounts = {}
+	ffGroupCount = {}
 	with open(inputFriendFile, 'r') as f:
 		for line in f:
 			people = map(int, line.split(","))
 			person = people[0]
-			ffPostCounts[person] = [0]*len(postCounts[person])
+			ffPostCounts[person] = [0]*monthcount
 			for friend in people[1:]:
 				ffPostCounts[person] = [x+y for x,y in zip(ffPostCounts[person],friendsPostsCounts[friend])]
 
-	return (friendsPostsCounts, ffPostCounts)
+			ffGroupCount[person] = [0]*monthcount
+			for friend in people[1:]:
+				ffGroupCount[person] = [x+y for x,y in zip(ffGroupCount[person],fGroupCount[friend])]
+
+	return (friendsPostsCounts, ffPostCounts, ffGroupCount)
 
 
 
@@ -184,11 +198,12 @@ def findTimeParams(input, inputFactorFile, inputFriendFile, startYear):
 	for queryId in input:
 		persons += input[queryId][0]
 
-	(fPostCount, ffPostCount) = readTimeParams(set(persons),inputFactorFile, inputFriendFile)
+	(fPostCount, ffPostCount, ffGroupCount) = readTimeParams(set(persons),inputFactorFile, inputFriendFile)
 
 	mapParam = {
 		"f" : fPostCount,
-		"ff": ffPostCount
+		"ff": ffPostCount,
+		"ffg": ffGroupCount
 	}
 
 	output = {}
