@@ -146,7 +146,7 @@ def getFactorsForQuery(queryId, factors):
 		4: getColumns(factors, ["fp", "f",  "fpt"]),
 		5: getColumns(factors, ["ff", "ffg"]),	
 		6: getColumns(factors, ["f","ff", "ffp", "ffpt"]),
-		7: getColumns(factors, ["p", "pl"]),
+		7: getColumns(factors, ["pl","p"]),
 		8: getColumns(factors, ["p", "pr"]), ### add "pr"
 		9: getColumns(factors, ["ff", "ffp"]),
 		10: getColumns(factors, ["ff", "ffp", "ffpt"]),
