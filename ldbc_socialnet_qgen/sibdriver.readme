@@ -1,2 +1,0 @@
-# an example of invocation of the sibdriver
-./sibdriver -t 300000 -idir td_data -uqp query -uc sib/int -mt 16 -runs 16 http://localhost:8607/sparql

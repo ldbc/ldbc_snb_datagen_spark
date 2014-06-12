@@ -1,4 +1,0 @@
-QueryType=Select
-
-Person=PersonID
-Tag=TagSQLURI

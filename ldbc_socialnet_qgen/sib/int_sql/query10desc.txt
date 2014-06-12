@@ -1,7 +1,0 @@
-QueryType=Select
-
-PersonURIString=fof
-
-Person=PersonID
-HS0=HoroscopeSign_0
-HS1=HoroscopeSign_1

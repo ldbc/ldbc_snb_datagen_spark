@@ -1,1 +1,0 @@
-select concat(min(ps_creationdate), '\n', max(ps_creationdate)) from post;

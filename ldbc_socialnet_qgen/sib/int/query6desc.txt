@@ -1,4 +1,0 @@
-QueryType=Select
-
-Person=PersonURI
-Tag=TagURI

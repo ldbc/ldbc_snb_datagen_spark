@@ -1,1 +1,0 @@
-select max(p_personid) from person;

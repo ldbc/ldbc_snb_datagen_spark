@@ -1,7 +1,0 @@
-select top 20 p1.ps_creatorid as id, p_firstname, p_lastname, p1.ps_creationdate, cast (p1.ps_postid as varchar), p1.ps_content
-from post p1, post p2, person
-where
-      p1.ps_replyof = p2.ps_postid and
-      p2.ps_creatorid = @Person@ and
-      p_personid = p1.ps_creatorid
-order by p1.ps_creationdate desc, 3

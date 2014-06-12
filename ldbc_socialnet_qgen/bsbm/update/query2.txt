@@ -1,3 +1,0 @@
-define sql:big-data-const 0
-DELETE { %Offer% ?p ?o }  WHERE
-{ %Offer% ?p ?o }

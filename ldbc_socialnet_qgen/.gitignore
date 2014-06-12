@@ -1,9 +1,0 @@
-benchmark_result.*.xml
-*.log
-*.nt
-*.classpath
-*.project
-*~
-*.qual
-bin/
-td_data/

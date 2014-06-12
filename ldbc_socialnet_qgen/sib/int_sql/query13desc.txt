@@ -1,6 +1,0 @@
-QueryType=Select
-
-PersonURIString=id
-
-Person1=PersonID
-Person2=PersonID
