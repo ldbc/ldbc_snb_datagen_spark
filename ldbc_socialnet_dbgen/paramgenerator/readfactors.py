@@ -28,6 +28,9 @@ class Factors:
 	def addNewParam(self, p):
 		self.values[p] = FactorCount()
 
+	def existParam(self, p):
+		return p in self.values
+
 	def setValue(self, person, factor, value):
 		self.values[person].setValue(factor, value)
 
@@ -38,93 +41,110 @@ class Factors:
 		self.values[person].addValue(factor, value)
 
 
-def load(inputFileName, inputFriendsFileName):
+def load(factorFiles, friendFiles):
 	print "loading input for parameter generation"
 	results = Factors()
 	countries = Factors()
-	tagClasses = []
-	tags = []
-	names = []
+
+
+	tagClasses = {}
+	tags = {}
+	names = {}
 	timestamp = [0,0,0,0]
 
-	with codecs.open(inputFileName, "r", "utf-8") as f:
-		line = f.readline()
-
-		personCount = int(line)
-
-		for i in range(personCount):
-			line = f.readline().split(",")
-			person = int(line[0])
-			results.addNewParam(person)
-			results.setValue(person, "f", int(line[1]))
-			results.setValue(person, "p", int(line[2]))
-			results.setValue(person, "pl", int(line[3]))
-			results.setValue(person, "pt", int(line[4]))
-			results.setValue(person, "g", int(line[5]))
-			results.setValue(person, "w", int(line[6]))
-			results.setValue(person, "pr", int(line[7]))
-
-		countryCount = int(f.readline())
-
-		for i in range(countryCount):
-			line = f.readline().split(",")
-			country = line[0]
-			countries.addNewParam(country)
-			countries.setValue(country, "p", int(line[1]))
-
-		tagCount = int(f.readline())
-
-		for i in range(tagCount):
-			line = f.readline().split(",")
-			tag = line[0]
-			tagClasses.append([tag, int(line[2])])
-			
-		tagCount = int(f.readline())
-		for i in range(tagCount):
+	for inputFileName in factorFiles:
+		with codecs.open(inputFileName, "r", "utf-8") as f:
 			line = f.readline()
-			count = line[1+line.rfind(","):]
-			name = line[:line.rfind(",")]
-			tags.append([name, int(count)])
+			personCount = int(line)
+			for i in range(personCount):
+				line = f.readline().split(",")
+				person = int(line[0])
+				if not results.existParam(person):
+					results.addNewParam(person)
+				results.addValue(person, "f", int(line[1]))
+				results.addValue(person, "p", int(line[2]))
+				results.addValue(person, "pl", int(line[3]))
+				results.addValue(person, "pt", int(line[4]))
+				results.addValue(person, "g", int(line[5]))
+				results.addValue(person, "w", int(line[6]))
+				results.addValue(person, "pr", int(line[7]))
 
-		nameCount = int(f.readline())
+			countryCount = int(f.readline())
+			for i in range(countryCount):
+				line = f.readline().split(",")
+				country = line[0]
+				if not countries.existParam(country):
+					countries.addNewParam(country)
+				countries.addValue(country, "p", int(line[1]))
 
-		for i in range(nameCount):
-			line = f.readline().split(",")
-			nameFactor = [line[0]]
-			nameFactor.append(int(line[1]))
-			names.append(nameFactor)
+			tagCount = int(f.readline())
+			for i in range(tagCount):
+				line = f.readline().split(",")
+				tag = line[0]
+				if not tag in tagClasses:
+					tagClasses[tag] = 0
+				tagClasses[tag] += int(line[2])
 
-		for i in range(4):
-			timestamp[i]  = int(f.readline())
+			tagCount = int(f.readline())
+			for i in range(tagCount):
+				line = f.readline()
+				count = line[1+line.rfind(","):]
+				name = line[:line.rfind(",")]
+				if not name in tags:
+					tags[name] = 0
+				tags[name] += int(count)
 
-	loadFriends(inputFriendsFileName, results)
+			nameCount = int(f.readline())
+			for i in range(nameCount):
+				line = f.readline().split(",")
+				name = line[0]
+				if not name in names:
+					names[name] = 0
+				names[name] += int(line[1])
 
-	return (results, countries, tags, tagClasses, names, timestamp)
+			for i in range(4):
+				t = f.readline().rstrip()
+				if timestamp[i] == 0 and t != 'null':
+					timestamp[i] = int(t)
 
-def loadFriends(inputFriendsFileName, factors):
+	loadFriends(friendFiles, results)
+
+	return (results, countries, tags.items(), tagClasses.items(), names.items(), timestamp)
+
+def loadFriends(friendFiles, factors):
 
 	# scan the friends list and sum up the counts related to friends (number of posts of friends etc)
-	with open(inputFriendsFileName, 'r') as f:
-		for line in f:
-			people = map(int, line.split(","))
-			person = people[0]
-			for friend in people[1:]:
-				factors.addValue(person, "ff", factors.getValue(friend, "f"))
-				factors.addValue(person, "fp", factors.getValue(friend, "p"))
-				factors.addValue(person, "fpt", factors.getValue(friend, "pt"))
-				factors.addValue(person, "fw", factors.getValue(friend, "w"))
-				factors.addValue(person, "fg", factors.getValue(friend, "g"))
+	for inputFriendsFileName in friendFiles:
+		with open(inputFriendsFileName, 'r') as f:
+			for line in f:
+				people = map(int, line.split(","))
+				person = people[0]
+				if not factors.existParam(person):
+					continue
+				for friend in people[1:]:
+					if not factors.existParam(friend):
+						continue
+					factors.addValue(person, "ff", factors.getValue(friend, "f"))
+					factors.addValue(person, "fp", factors.getValue(friend, "p"))
+					factors.addValue(person, "fpt", factors.getValue(friend, "pt"))
+					factors.addValue(person, "fw", factors.getValue(friend, "w"))
+					factors.addValue(person, "fg", factors.getValue(friend, "g"))
 
 	# second scan for friends-of-friends counts (groups of friends of friends)
-	with open(inputFriendsFileName, 'r') as f:
-		for line in f:
-			people = map(int, line.split(","))
-			person = people[0]
-			for friend in people[1:]:
-				factors.addValue(person, "ffg", factors.getValue(friend, "fg"))
-				factors.addValue(person, "ffw", factors.getValue(friend, "fw"))
-				factors.addValue(person, "ffp", factors.getValue(friend, "fp"))
-				factors.addValue(person, "ffpt", factors.getValue(friend, "fpt"))
+	for inputFriendsFileName in friendFiles:
+		with open(inputFriendsFileName, 'r') as f:
+			for line in f:
+				people = map(int, line.split(","))
+				person = people[0]
+				if not factors.existParam(person):
+					continue
+				for friend in people[1:]:
+					if not factors.existParam(friend):
+						continue
+					factors.addValue(person, "ffg", factors.getValue(friend, "fg"))
+					factors.addValue(person, "ffw", factors.getValue(friend, "fw"))
+					factors.addValue(person, "ffp", factors.getValue(friend, "fp"))
+					factors.addValue(person, "ffpt", factors.getValue(friend, "fpt"))
 
 def getColumns(factors, columnNames):
 	res = []
@@ -146,11 +166,11 @@ def getFactorsForQuery(queryId, factors):
 		4: getColumns(factors, ["fp", "f",  "fpt"]),
 		5: getColumns(factors, ["ff", "ffg"]),	
 		6: getColumns(factors, ["f","ff", "ffp", "ffpt"]),
-		7: getColumns(factors, ["pl","p"]),
+		7: getColumns(factors, ["pl", "p"]),
 		8: getColumns(factors, ["p", "pr"]), ### add "pr"
-		9: getColumns(factors, ["ff", "ffp"]),
-		10: getColumns(factors, ["ff", "ffp", "ffpt"]),
-		11: getColumns(factors, ["ff", "ffw"]),
+		9: getColumns(factors, ["f", "ffp", "ff"]),
+		10: getColumns(factors, ["f","ff", "ffp", "ffpt"]),
+		11: getColumns(factors, ["f","ff", "ffw"]),
 		12: getColumns(factors, ["f", "fp"]), ### add "fpr"
 		13: getColumns(factors, ["ff"]),
 		14: getColumns(factors, ["ff"])
