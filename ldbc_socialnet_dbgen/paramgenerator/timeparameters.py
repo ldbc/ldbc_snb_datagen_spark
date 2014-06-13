@@ -143,62 +143,80 @@ def computeTimeMedians(factors, lastmonthcount = LAST_MONTHS):
 	
 	return (medianFirstMonth, medianLastMonth, median)	
 
-def readTimeParams(persons, inputFactorFile, inputFriendFile):
+def readTimeParams(persons, factorFiles, friendFiles):
 
 	postCounts = {}
 	groupCounts = {}
 	offset = 8
 	monthcount = 12*3 + 1
 
-	with open(inputFactorFile, 'r') as f:
-		personCount = int(f.readline())
-		for i in range(personCount):
-			line = f.readline().split(",")
-			person = int(line[0])
-			postCounts[person] = map(int,line[offset:offset+monthcount])
-			groupCounts[person] = map(int, line[offset+monthcount:])
+	for inputFactorFile in factorFiles:
+		with open(inputFactorFile, 'r') as f:
+			personCount = int(f.readline())
+			for i in range(personCount):
+				line = f.readline().split(",")
+				person = int(line[0])
+				localPostCounts = map(int,line[offset:offset+monthcount])
+				localGroupCounts = map(int, line[offset+monthcount:])
+				if not person in postCounts:
+					postCounts[person] = localPostCounts
+				else:
+					postCounts[person] =  [sum(x) for x in zip(postCounts[person], localPostCounts)]
+
+				if not person in groupCounts:
+					groupCounts[person] = localGroupCounts
+				else:
+					groupCounts[person] = [sum(x) for x in zip(groupCounts[person], localGroupCounts)]
 
 	friendsPostsCounts = {}
 	fGroupCount = {}
-	with open(inputFriendFile, 'r') as f:
-		for line in f:
-			people = map(int, line.split(","))
-			person = people[0]
-			friendsPostsCounts[person] = [0]*monthcount
-			for friend in people[1:]:
-				friendsPostsCounts[person] = [x+y for x,y in zip(friendsPostsCounts[person], postCounts[friend])]
-
-			fGroupCount[person] = [0]*monthcount
-			for friend in people[1:]:
-				fGroupCount[person] = [x+y for x,y in zip(fGroupCount[person], groupCounts[friend])]
+	for inputFriendFile in friendFiles:
+		with open(inputFriendFile, 'r') as f:
+			for line in f:
+				people = map(int, line.split(","))
+				person = people[0]
+				friendsPostsCounts[person] = [0]*monthcount
+				for friend in people[1:]:
+					if not friend in postCounts:
+						continue
+					friendsPostsCounts[person] = [x+y for x,y in zip(friendsPostsCounts[person], postCounts[friend])]				
+				fGroupCount[person] = [0]*monthcount
+				for friend in people[1:]:
+					if not friend in groupCounts:
+						continue
+					fGroupCount[person] = [x+y for x,y in zip(fGroupCount[person], groupCounts[friend])]
 
 
 	ffPostCounts = {}
 	ffGroupCount = {}
-	with open(inputFriendFile, 'r') as f:
-		for line in f:
-			people = map(int, line.split(","))
-			person = people[0]
-			ffPostCounts[person] = [0]*monthcount
-			for friend in people[1:]:
-				ffPostCounts[person] = [x+y for x,y in zip(ffPostCounts[person],friendsPostsCounts[friend])]
-
-			ffGroupCount[person] = [0]*monthcount
-			for friend in people[1:]:
-				ffGroupCount[person] = [x+y for x,y in zip(ffGroupCount[person],fGroupCount[friend])]
+	for inputFriendFile in friendFiles:
+		with open(inputFriendFile, 'r') as f:
+			for line in f:
+				people = map(int, line.split(","))
+				person = people[0]
+				ffPostCounts[person] = [0]*monthcount
+				for friend in people[1:]:
+					if not friend in friendsPostsCounts:
+						continue
+					ffPostCounts[person] = [x+y for x,y in zip(ffPostCounts[person],friendsPostsCounts[friend])]
+				ffGroupCount[person] = [0]*monthcount
+				for friend in people[1:]:
+					if not friend in fGroupCount:
+						continue
+					ffGroupCount[person] = [x+y for x,y in zip(ffGroupCount[person],fGroupCount[friend])]
 
 	return (friendsPostsCounts, ffPostCounts, ffGroupCount)
 
 
 
-def findTimeParams(input, inputFactorFile, inputFriendFile, startYear):
+def findTimeParams(input, factorFiles, friendFiles, startYear):
 	fPostCount = {}
 	ffPostCount = {}
 	persons = []
 	for queryId in input:
 		persons += input[queryId][0]
 
-	(fPostCount, ffPostCount, ffGroupCount) = readTimeParams(set(persons),inputFactorFile, inputFriendFile)
+	(fPostCount, ffPostCount, ffGroupCount) = readTimeParams(set(persons),factorFiles, friendFiles)
 
 	mapParam = {
 		"f" : fPostCount,

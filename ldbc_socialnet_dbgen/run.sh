@@ -18,8 +18,8 @@ PARAM_GENERATION=1
 
 if [ $PARAM_GENERATION -eq 1 ]
 then
-	mkdir -p substitution_parameters	
-	python paramgenerator/generateparams.py m0factors.txt m0friendList0.csv substitution_parameters/
+	mkdir -p substitution_parameters
+	python paramgenerator/generateparams.py $LDBC_SOCIALNET_DBGEN_HOME substitution_parameters/
   	rm -f m0factors.txt
 	rm -f m0friendList*
 fi

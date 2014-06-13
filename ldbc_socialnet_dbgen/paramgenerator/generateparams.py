@@ -3,6 +3,7 @@ import discoverparams
 import readfactors
 import random
 import json
+import os
 from timeparameters import *
 
 PERSON_PREFIX = "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers"
@@ -78,13 +79,23 @@ def main(argv=None):
 	if argv is None:
 		argv = sys.argv
 
-	if len(argv)< 4:
-		print "arguments: <m0factors.txt> <m0friendsList.txt> <output>"
+	if len(argv)< 3:
+		print "arguments: <input dir> <output>"
 		return 1
 
-	outdir = argv[3]+"/"
+	indir = argv[1]+"/"
+	factorFiles=[]
+	friendsFiles = []
+	outdir = argv[2]+"/"
+
+	for file in os.listdir(indir):
+		if file.endswith("factors.txt"):
+			factorFiles.append(indir+file)
+		if file.startswith("m0friendList"):
+			friendsFiles.append(indir+file)
+
 	# read precomputed counts from files	
-	(personFactors, countryFactors, tagFactors, tagClassFactors, nameFactors, ts) = readfactors.load(argv[1], argv[2])
+	(personFactors, countryFactors, tagFactors, tagClassFactors, nameFactors, ts) = readfactors.load(factorFiles, friendsFiles)
 
 	# find person parameters
 	print "find parameter bindings for Persons"
@@ -161,7 +172,7 @@ def main(argv=None):
 	}
 
 	print "find parameter bindings for Timestamps"
-	selectedTimeParams = findTimeParams(timeSelectionInput, argv[1], argv[2], ts[1])
+	selectedTimeParams = findTimeParams(timeSelectionInput, factorFiles, friendsFiles, ts[1])
 	# Query 11 takes WorksFrom timestamp
 	selectedTimeParams[11] = [random.randint(ts[2], ts[3]) for j in range(len(selectedPersonParams[11]))]
 
