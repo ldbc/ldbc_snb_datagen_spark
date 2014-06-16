@@ -1,5 +1,5 @@
 
-![LDBC_LOGO](https://raw.github.com/wiki/ldbc/ldbc_socialnet_bm/images/schema.png)
+![LDBC_LOGO](https://raw.github.com/wiki/ldbc/ldbc_socialnet_bm/images/ldbc-logo.png)
 LDBC-SNB DataGenerator
 ----------------------
 
