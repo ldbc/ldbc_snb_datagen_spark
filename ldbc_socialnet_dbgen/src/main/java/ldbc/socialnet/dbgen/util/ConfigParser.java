@@ -17,7 +17,7 @@ public class ConfigParser {
         conf.set("numThreads",Integer.toString(1));
         conf.set("serializer","csv");
         conf.set("compressed",Boolean.toString(false));
-        conf.set("updateStreams",Boolean.toString(true));
+        conf.set("updateStreams",Boolean.toString(false));
         conf.set("outputDir","./");
         conf.set("deltaTime","10000");
 
