@@ -10,8 +10,8 @@ The LDBC-SNB DataGenerator (DGEN) is the responsible of providing the data sets 
 * In **[Data Output](https://github.com/ldbc/ldbc_socialnet_bm/wiki/Data-Output)**, a description of the contents and the format of the files produced by the generator.
 
 
-ldbc_socialnet_dbgen is part of the LDBC project (http://www.ldbc.eu/).
-ldbc_socialnet_dbgen is GPLv3 licensed, to see detailed information about this license read the LICENSE.txt.
+ldbc_snb_datagen is part of the LDBC project (http://www.ldbc.eu/).
+ldbc_snb_datagen is GPLv3 licensed, to see detailed information about this license read the LICENSE.txt.
 
 * Releases
 * **[Configuration](https://github.com/ldbc/ldbc_socialnet_bm/wiki/Configuration)**
