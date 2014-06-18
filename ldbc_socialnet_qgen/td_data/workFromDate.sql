@@ -1,1 +1,0 @@
-select concat(min(pc_workfrom), '\n', max(pc_workfrom)) from person_company;

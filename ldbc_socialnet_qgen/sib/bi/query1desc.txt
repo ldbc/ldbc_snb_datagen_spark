@@ -1,3 +1,0 @@
-QueryType=Select
-
-Date0=CreationPostDate_90_100

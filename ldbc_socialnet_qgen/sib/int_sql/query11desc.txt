@@ -1,7 +1,0 @@
-QueryType=Select
-
-PersonURIString=fr
-
-Person=PersonID
-Country=CountrySQLURI
-Date0=WorkFromDate_0_100

@@ -1,1 +1,0 @@
-select distinct(p_firstname) from person;

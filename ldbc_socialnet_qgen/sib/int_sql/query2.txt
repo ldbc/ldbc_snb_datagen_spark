@@ -1,9 +1,0 @@
-select top 20 p_personid as personid, p_firstname as firstname, p_lastname as lastname,
-  	 cast (ps_postid as varchar) as id, ps_content || ps_imagefile as content, ps_creationdate as creationdate
-from person, post, knows
-where
-	p_personid = ps_creatorid and
-	ps_creationdate <= stringdate('@Date0@') and
-	k_person1id = @Person@ and
-	k_person2id = p_personid
-order by creationdate desc, id

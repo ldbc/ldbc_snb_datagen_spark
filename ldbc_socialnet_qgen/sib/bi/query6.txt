@@ -1,8 +1,0 @@
-select 
-where {
-    ?f snvoc:containerOf ?post .
-    ?post snvoc:creationDate ?dt .
-    ?post snvoc:hasTag ?tag . 
-    ?tag a <%TagType%> .
-}
-group by ((bif:hour (?dt)))

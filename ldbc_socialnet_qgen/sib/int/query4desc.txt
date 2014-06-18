@@ -1,5 +1,0 @@
-QueryType=Select
-
-Person=PersonURI
-Date0=CreationPostDate_0_95
-Duration=TotalDaysOfCreationPost_2_4
