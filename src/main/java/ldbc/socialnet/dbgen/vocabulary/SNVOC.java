@@ -43,7 +43,9 @@ public class SNVOC{
     
 	public static final String NAMESPACE = "http://www.ldbc.eu/ldbc_socialnet/1.0/vocabulary/";
 	public static final String PREFIX = "snvoc:";
-	
+
+
+
 	//person
     public static final String Person          =  PREFIX+"Person";
     public static final String creationDate    =  PREFIX+"creationDate";
@@ -66,7 +68,7 @@ public class SNVOC{
     public static final String workFrom        =  PREFIX+"workFrom";
     public static final String hasOrganisation =  PREFIX+"hasOrganisation";
     public static final String hasPost         =  PREFIX+"hasPost";
-    public static final String hasComment         =  PREFIX+"hasComment";
+    public static final String hasComment      =  PREFIX+"hasComment";
 
     //Forum
     public static final String Forum        =  PREFIX+"Forum";
@@ -90,6 +92,8 @@ public class SNVOC{
     public static final String length      =  PREFIX+"length"; 
     
     //Others
+    public static final String id           = PREFIX+"id";
+    public static final String Name           = PREFIX+"Name";
     public static final String Organisation =  PREFIX+"Organisation";
     public static final String Tag          =  PREFIX+"Tag";
     public static final String TagClass     =  PREFIX+"TagClass";

@@ -208,6 +208,9 @@ public class Turtle implements Serializer {
         String prefix = SN.getPersonURI(info.user.getAccountId());
         AddTriple(result, true, false, prefix, RDF.type, SNVOC.Person);
 
+        AddTriple(result, false, false, prefix, SNVOC.id,
+                createLiteral(Long.toString(info.user.getAccountId())));
+
         AddTriple(result, false, false, prefix, SNVOC.firstName,
                 createLiteral(info.extraInfo.getFirstName()));
 
@@ -289,6 +292,10 @@ public class Turtle implements Serializer {
         String prefix = SN.getPostURI(post.getMessageId());
 
         AddTriple(result, true, false, prefix, RDF.type, SNVOC.Post);
+
+        AddTriple(result, false, false, prefix, SNVOC.id,
+                createLiteral(SN.formId(post.getMessageId())));
+
         AddTriple(result, false, false, prefix, SNVOC.creationDate,
                 createDataTypeLiteral(dateString, XSD.DateTime));
         if (post.getIpAddress() != null) {
@@ -360,6 +367,10 @@ public class Turtle implements Serializer {
 
         String prefix = SN.getPostURI(photo.getMessageId());
         AddTriple(result, true, false, prefix, RDF.type, SNVOC.Post);
+
+        AddTriple(result, false, false, prefix, SNVOC.id,
+                createLiteral(SN.formId(photo.getMessageId())));
+
         AddTriple(result, false, false, prefix, SNVOC.hasImage, createLiteral(photo.getContent()));
         date.setTimeInMillis(photo.getCreationDate());
         String dateString = DateGenerator.formatDateDetail(date);
@@ -398,6 +409,10 @@ public class Turtle implements Serializer {
         String dateString = DateGenerator.formatDateDetail(date);
 
         AddTriple(result, true, false, prefix, RDF.type, SNVOC.Comment);
+
+        AddTriple(result, false, false, prefix, SNVOC.id,
+                createLiteral(SN.formId(comment.getMessageId())));
+
         AddTriple(result, false, false, prefix, SNVOC.creationDate, createDataTypeLiteral(dateString, XSD.DateTime));
         if (comment.getIpAddress() != null) {
             AddTriple(result, false, false, prefix, SNVOC.ipaddress,
@@ -442,6 +457,10 @@ public class Turtle implements Serializer {
 
         String forumPrefix = SN.getForumURI(group.getGroupId());
         AddTriple(result, true, false, forumPrefix, RDF.type, SNVOC.Forum);
+
+        AddTriple(result, false, false, forumPrefix, SNVOC.id,
+                createLiteral(SN.formId(group.getGroupId())));
+
         AddTriple(result, false, false, forumPrefix, SNVOC.title, createLiteral(group.getGroupName()));
         AddTriple(result, false, true, forumPrefix, SNVOC.creationDate,
                 createDataTypeLiteral(dateString, XSD.DateTime));
@@ -511,6 +530,7 @@ public class Turtle implements Serializer {
         StringBuffer result = new StringBuffer(19000);
         writeDBPData(DBP.fullPrefixed(organization.name), RDF.type, DBPOWL.Organisation);
         writeDBPData(DBP.fullPrefixed(organization.name), FOAF.Name, createLiteral(organization.name));
+        writeDBPData(DBP.fullPrefixed(organization.name), SNVOC.id, createLiteral(Long.toString(organization.id)));
         createTripleSPO(result, DBP.fullPrefixed(organization.name),
                 SNVOC.locatedIn, DBP.fullPrefixed(locationDic.getLocationName(organization.location)));
         toWriter(result.toString());
@@ -520,6 +540,7 @@ public class Turtle implements Serializer {
     public void serialize(Tag tag) {
         StringBuffer result = new StringBuffer(350);
         writeDBPData(DBP.fullPrefixed(tag.name), FOAF.Name, createLiteral(tag.name));
+        writeDBPData(DBP.fullPrefixed(tag.name), SNVOC.id, createLiteral(Long.toString(tag.id)));
         Integer tagClass = tag.tagClass;
         writeDBPData(DBP.fullPrefixed(tag.name), RDF.type, DBPOWL.prefixed(tagDic.getClassName(tagClass)));
     }
@@ -539,6 +560,7 @@ public class Turtle implements Serializer {
         writeDBPData(DBP.fullPrefixed(name), RDF.type, DBPOWL.Place);
         writeDBPData(DBP.fullPrefixed(name), RDF.type, type);
         writeDBPData(DBP.fullPrefixed(name), FOAF.Name, createLiteral(name));
+        writeDBPData(DBP.fullPrefixed(name), SNVOC.id, createLiteral(Long.toString(location.getId())));
         if (location.getType() != Location.CONTINENT) {
             String countryName = locationDic.getLocationName(locationDic.belongsTo(location.getId()));
             createTripleSPO(result, DBP.fullPrefixed(name), SNVOC.isPartOf, DBP.fullPrefixed(countryName));

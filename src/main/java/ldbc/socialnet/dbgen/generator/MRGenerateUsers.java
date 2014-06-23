@@ -570,8 +570,8 @@ public class MRGenerateUsers{
 	    long end = System.currentTimeMillis();
 	    System.out.println(((end - start) / 1000)
 	                    + " total seconds");
-        fs.copyToLocalFile(new Path(socialNetDir + "/m0factors.txt"), new Path("./"));
         for( int i = 0; i < numThreads; ++i ) {
+            fs.copyToLocalFile(new Path(socialNetDir + "/m"+i+"factors.txt"), new Path("./"));
             fs.copyToLocalFile(new Path(socialNetDir + "/m0friendList"+i+".csv"), new Path("./"));
         }
 	    return res;
