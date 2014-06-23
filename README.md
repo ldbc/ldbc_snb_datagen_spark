@@ -13,7 +13,7 @@ The LDBC-SNB Data Generator (DATAGEN) is the responsible of providing the data s
 ldbc_snb_datagen is part of the LDBC project (http://www.ldbc.eu/).
 ldbc_snb_datagen is GPLv3 licensed, to see detailed information about this license read the LICENSE.txt.
 
-* **[Releases](https://github.com/ldbc/ldbc_snb_datagen/releases)
+* **[Releases](https://github.com/ldbc/ldbc_snb_datagen/releases)**
 * **[Configuration](https://github.com/ldbc/ldbc_socialnet_bm/wiki/Configuration)**
 * **[Compilation and Execution](https://github.com/ldbc/ldbc_socialnet_bm/wiki/Compilation_Execution)**
 * **[Output](https://github.com/ldbc/ldbc_socialnet_bm/wiki/Data-Output)**
