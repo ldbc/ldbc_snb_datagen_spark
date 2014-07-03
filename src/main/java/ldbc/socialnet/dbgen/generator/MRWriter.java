@@ -65,8 +65,7 @@ public class MRWriter {
         try {
             to = to % windowSize;
             for (int i = from; i != to; i = (i+1)%windowSize) {
-                //int key = userProfiles[i].getDicElementId(pass);
-                int key[] = userProfiles[i].getDicElementIds();
+                int key = userProfiles[i].getDicElementId(pass);
                 int block = 0;
                 long id = userProfiles[i].getAccountId();
                 MapReduceKey mpk = new MapReduceKey(block,key,id);

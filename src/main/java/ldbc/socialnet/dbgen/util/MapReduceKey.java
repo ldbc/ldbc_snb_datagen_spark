@@ -49,37 +49,29 @@ import java.util.Iterator;
 
 public class MapReduceKey implements WritableComparable<MapReduceKey> {
     public int block;       
-    public int key[];
+    public int key;
     public long id;
 
     public MapReduceKey( ) {
-        this.key = new int[3];
     }
 
-    public MapReduceKey( int block, int key[], long id) {
+    public MapReduceKey( int block, int key, long id) {
         this.block = block;
-        this.key = new int[3];
-        this.key[0] = key[0];
-        this.key[1] = key[1];
-        this.key[2] = key[2];
+        this.key = key;
         this.id = id;
     }
 
     @Override
     public void write(DataOutput out) throws IOException {
         out.writeInt(block);
-        out.writeInt(key[0]);
-        out.writeInt(key[1]);
-        out.writeInt(key[2]);
+        out.writeInt(key);
         out.writeLong(id);
     }
 
     @Override
     public void readFields(DataInput in) throws IOException {
         block = in.readInt();
-        key[0] = in.readInt();
-        key[1] = in.readInt();
-        key[2] = in.readInt();
+        key = in.readInt();
         id = in.readLong();
     }
 
