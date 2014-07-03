@@ -56,11 +56,13 @@ public class MapReduceKeyComparator extends WritableComparator {
         int block1 = readInt(b1, s1);
         int block2 = readInt(b2, s2);
         if( block1 != block2 ) return block1 - block2;
-        int key1 = readInt(b1,s1+4);
-        int key2 = readInt(b2,s2+4);
-        if( key1 != key2) return key1 - key2;
-        long id1 = readLong(b1,s1+8);
-        long id2 = readLong(b2,s2+8);
+        int key1[] = {readInt(b1,s1+4), readInt(b1,s1+8), readInt(b1,s1+12)};
+        int key2[] = {readInt(b2,s2+4), readInt(b2,s2+8), readInt(b2,s2+12)};
+        if( key1[0] != key2[0]) return key1[0] - key2[0];
+        if( key1[1] != key2[1]) return key1[1] - key2[1];
+        if( key1[2] != key2[2]) return key1[2] - key2[2];
+        long id1 = readLong(b1,s1+16);
+        long id2 = readLong(b2,s2+16);
         return (int)(id1 - id2);
     }
 }

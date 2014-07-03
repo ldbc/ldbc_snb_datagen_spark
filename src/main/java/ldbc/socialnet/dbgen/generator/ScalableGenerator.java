@@ -901,11 +901,7 @@ public class ScalableGenerator{
                 ReducedUserProfile reduceUserProf = generateGeneralInformation(j);
                 ++numUsersToGenerate;
                 try {
-                    int block =  0;                                                                  // The mapreduce group this university will be assigned.
-                    int key = reduceUserProf.getDicElementId(pass);                                  // The key used to sort within the block.
-                    long id = reduceUserProf.getAccountId();                                         // The id used to sort within the key, to guarantee determinism.
-                    MapReduceKey mpk = new MapReduceKey( block, key, id );
-                    context.write(mpk, reduceUserProf);
+                    context.write(generateKey(pass,reduceUserProf), reduceUserProf);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
@@ -914,6 +910,17 @@ public class ScalableGenerator{
             }
         }
         System.out.println("Number of generated users: "+numUsersToGenerate);
+    }
+    private MapReduceKey generateKey( int pass, ReducedUserProfile user ) {
+        int block =  0;                                                                  // The mapreduce group this university will be assigned.
+        int key[] = new int[3];
+         = reduceUserProf.getDicElementIds();                                  // The key used to sort within the block.
+        for( int i = 0; i < NUM_FRIENDSHIP_HADOOP_JOBS;++i) {
+            key[]
+        }
+        long id = reduceUserProf.getAccountId();                                         // The id used to sort within the key, to guarantee determinism.
+        MapReduceKey mpk = new MapReduceKey( block, key, id );
+        return mpk;
     }
 
     private void generateCellOfUsers2(int newStartIndex, ReducedUserProfile[] _cellReduceUserProfiles){
