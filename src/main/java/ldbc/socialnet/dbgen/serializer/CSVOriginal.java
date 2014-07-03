@@ -331,7 +331,7 @@ public class CSVOriginal implements Serializer {
         }
 
         arguments.add(Long.toString(info.user.getAccountId()));
-        arguments.add(Integer.toString(info.user.getLocationId()));
+        arguments.add(Integer.toString(info.extraInfo.getLocationId()));
         ToCSV(arguments, Files.PERSON_LOCATED_IN_PLACE.ordinal());
 
         Iterator<Integer> itInteger = info.user.getSetOfTags().iterator();
