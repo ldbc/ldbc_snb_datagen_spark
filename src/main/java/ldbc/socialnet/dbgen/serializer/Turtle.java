@@ -530,9 +530,10 @@ public class Turtle implements Serializer {
         StringBuffer result = new StringBuffer(19000);
         writeDBPData(DBP.fullPrefixed(organization.name), RDF.type, DBPOWL.Organisation);
         writeDBPData(DBP.fullPrefixed(organization.name), FOAF.Name, createLiteral(organization.name));
-        writeDBPData(DBP.fullPrefixed(organization.name), SNVOC.id, createLiteral(Long.toString(organization.id)));
         createTripleSPO(result, DBP.fullPrefixed(organization.name),
                 SNVOC.locatedIn, DBP.fullPrefixed(locationDic.getLocationName(organization.location)));
+        createTripleSPO(result, DBP.fullPrefixed(organization.name),
+                SNVOC.id, createLiteral(Long.toString(organization.id)));
         toWriter(result.toString());
     }
 
@@ -540,9 +541,10 @@ public class Turtle implements Serializer {
     public void serialize(Tag tag) {
         StringBuffer result = new StringBuffer(350);
         writeDBPData(DBP.fullPrefixed(tag.name), FOAF.Name, createLiteral(tag.name));
-        writeDBPData(DBP.fullPrefixed(tag.name), SNVOC.id, createLiteral(Long.toString(tag.id)));
         Integer tagClass = tag.tagClass;
         writeDBPData(DBP.fullPrefixed(tag.name), RDF.type, DBPOWL.prefixed(tagDic.getClassName(tagClass)));
+        createTripleSPO(result, DBP.fullPrefixed(tag.name), SNVOC.id, createLiteral(Long.toString(tag.id)));
+        toWriter(result.toString());
     }
 
     @Override
@@ -560,7 +562,7 @@ public class Turtle implements Serializer {
         writeDBPData(DBP.fullPrefixed(name), RDF.type, DBPOWL.Place);
         writeDBPData(DBP.fullPrefixed(name), RDF.type, type);
         writeDBPData(DBP.fullPrefixed(name), FOAF.Name, createLiteral(name));
-        writeDBPData(DBP.fullPrefixed(name), SNVOC.id, createLiteral(Long.toString(location.getId())));
+        createTripleSPO(result, DBP.fullPrefixed(name), SNVOC.id, createLiteral(Long.toString(location.getId())));
         if (location.getType() != Location.CONTINENT) {
             String countryName = locationDic.getLocationName(locationDic.belongsTo(location.getId()));
             createTripleSPO(result, DBP.fullPrefixed(name), SNVOC.isPartOf, DBP.fullPrefixed(countryName));
@@ -575,10 +577,12 @@ public class Turtle implements Serializer {
         if (tagClass.name.equals("Thing")) {
             writeDBPData("<http://www.w3.org/2002/07/owl#Thing>", RDFS.label, createLiteral(tagDic.getClassLabel(tagClass.id)));
             createTripleSPO(result, "<http://www.w3.org/2002/07/owl#Thing>", RDF.type, SNVOC.TagClass);
+            createTripleSPO(result, "<http://www.w3.org/2002/07/owl#Thing>", SNVOC.id, Long.toString(tagClass.id));
             toWriter(result.toString());
         } else {
             writeDBPData(DBPOWL.prefixed(tagDic.getClassName(tagClass.id)), RDFS.label, createLiteral(tagDic.getClassLabel(tagClass.id)));
             createTripleSPO(result, DBP.fullPrefixed(tagDic.getClassName(tagClass.id)), RDF.type, SNVOC.TagClass);
+            createTripleSPO(result, DBP.fullPrefixed(tagDic.getClassName(tagClass.id)), SNVOC.id, Long.toString(tagClass.id));
             toWriter(result.toString());
         }
         Integer parent = tagDic.getClassParent(tagClass.id);
@@ -638,7 +642,7 @@ public class Turtle implements Serializer {
         createPrefixLine(result, FOAF.PREFIX, FOAF.NAMESPACE);
         createPrefixLine(result, DBP.PREFIX, DBP.NAMESPACE);
         createPrefixLine(result, DBPOWL.PREFIX, DBPOWL.NAMESPACE);
-        createPrefixLine(result, SNVOC.PREFIX, SNVOC.NAMESPACE);
+//        createPrefixLine(result, SNVOC.PREFIX, SNVOC.NAMESPACE);
         return result.toString();
     }
 	
