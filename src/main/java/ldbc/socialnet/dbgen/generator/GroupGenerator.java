@@ -76,9 +76,9 @@ public class GroupGenerator {
 		group.setCreatedDate(date);
 
 		//Use the user location for group locationIdx
-		group.setLocationIdx(user.getLocationId());
+		group.setLocationIdx(user.getCountryId());
 				
-		TreeSet<Integer> tagSet = user.getSetOfTags();
+		TreeSet<Integer> tagSet = user.getInterests();
 		Iterator<Integer> iter = tagSet.iterator();
         int idx = randomFarm.get(RandomGeneratorFarm.Aspect.GROUP_INTEREST).nextInt(tagSet.size());
         for (int i = 0; i < idx; i++){
@@ -107,8 +107,8 @@ public class GroupGenerator {
 	    group.setLocationIdx(countries.get(randomCountry));
 	    group.setGroupName("Album " + numAlbum + " of " + extraInfo.getFirstName() + " " + extraInfo.getLastName());
 	    Friend[] friends = user.getFriendList();
-	    group.initAllMemberships(user.getNumFriendsAdded());
-	    for (int i = 0; i < user.getNumFriendsAdded(); i++) {
+	    group.initAllMemberships(user.getNumFriends());
+	    for (int i = 0; i < user.getNumFriends(); i++) {
 	        double randMemberProb = randomFarm.get(RandomGeneratorFarm.Aspect.ALBUM_MEMBERSHIP).nextDouble();
 	        if (randMemberProb < memberProb) {
 	            GroupMemberShip memberShip = createGroupMember(randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX),friends[i].getFriendAcc(),
@@ -145,7 +145,7 @@ public class GroupGenerator {
         memberShip.setUserId(userId);
         memberShip.setJoinDate(date);
         memberShip.setIP(user.getIpAddress());
-        memberShip.setBrowserIdx(user.getBrowserIdx());
+        memberShip.setBrowserIdx(user.getBrowserId());
         memberShip.setAgentIdx(user.getAgentId());
         memberShip.setFrequentChange(user.isFrequentChange());
         memberShip.setHaveSmartPhone(user.isHaveSmartPhone());

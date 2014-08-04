@@ -54,7 +54,7 @@ public class UserExtraInfo {
 	long 				university = -1;
 	HashMap<Long, Long> companies;
 	long               classYear; 				// When graduate from the institute
-	RelationshipStatus 	status;
+
 
 	public UserExtraInfo() {
 	    email = new TreeSet<String>();

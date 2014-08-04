@@ -273,8 +273,8 @@ public class CSVMergeForeign implements Serializer {
             String empty = "";
             arguments.add(empty);
         }
-        if (info.user.getBrowserIdx() >= 0) {
-            arguments.add(browserDic.getName(info.user.getBrowserIdx()));
+        if (info.user.getBrowserId() >= 0) {
+            arguments.add(browserDic.getName(info.user.getBrowserId()));
         } else {
             String empty = "";
             arguments.add(empty);
@@ -298,7 +298,7 @@ public class CSVMergeForeign implements Serializer {
         }
 
 
-        Iterator<Integer> itInteger = info.user.getSetOfTags().iterator();
+        Iterator<Integer> itInteger = info.user.getInterests().iterator();
         while (itInteger.hasNext()){
             Integer interestIdx = itInteger.next();
             arguments.add(Long.toString(info.user.getAccountId()));

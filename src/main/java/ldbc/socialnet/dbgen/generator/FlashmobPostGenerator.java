@@ -212,7 +212,7 @@ public class FlashmobPostGenerator extends PostGenerator {
 
     @Override
     protected int generateNumOfPost(Random randomNumPost, ReducedUserProfile user) {
-        Vector<FlashmobTag> temp = flashmobTagDictionary.generateFlashmobTags( user.getSetOfTags(), user.getCreationDate());
+        Vector<FlashmobTag> temp = flashmobTagDictionary.generateFlashmobTags( user.getInterests(), user.getCreationDate());
         userFlashmobTags = new FlashmobTag[temp.size()];
         int index = 0;
         int sumLevels = 0;
@@ -239,7 +239,7 @@ public class FlashmobPostGenerator extends PostGenerator {
         } else {
             numberPost = randomNumPost.nextInt(maxNumFlashmobPostPerMonth * numOfmonths+1);
         }
-        numberPost = (numberPost * user.getNumFriendsAdded()) / maxNumFriends;
+        numberPost = (numberPost * user.getNumFriends()) / maxNumFriends;
         return numberPost;
     }
 

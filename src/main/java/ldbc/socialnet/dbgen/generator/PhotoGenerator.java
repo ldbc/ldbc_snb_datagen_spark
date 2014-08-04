@@ -88,7 +88,7 @@ public class PhotoGenerator {
 				//Generate photo information from user's popular place
 				int popularIndex = randomFarm.get(RandomGeneratorFarm.Aspect.POPULAR).nextInt(numPopularPlace);
 				popularPlaceId = user.getPopularId(popularIndex);
-				popularPlace = dicPopularPlaces.getPopularPlace(user.getLocationId(),popularPlaceId);
+				popularPlace = dicPopularPlaces.getPopularPlace(user.getCountryId(),popularPlaceId);
 				locationName = popularPlace.getName();
 				latt = popularPlace.getLatt();
 				longt = popularPlace.getLongt();

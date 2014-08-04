@@ -126,7 +126,7 @@ abstract public class PostGenerator {
     /** @brief Assigns a set of likes to a post created by a user.
      *  @param[in] user The user that created the post.*/
     private void setLikes( Random randomNumLikes, Random randomDate, Message message, ReducedUserProfile user ) {
-        int numFriends = user.getNumFriendsAdded();
+        int numFriends = user.getNumFriends();
         int numLikes = likesGenerator.getValue(randomNumLikes);
         numLikes = numLikes >= numFriends ?  numFriends : numLikes;
         Like[] likes = new Like[numLikes];
@@ -219,8 +219,8 @@ abstract public class PostGenerator {
                   postInfo.tags,
                   ipAddressDic.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER),user.getIpAddress(), user.isFrequentChange(), postInfo.date),
                   userAgentDic.getUserAgentName(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT), user.isHaveSmartPhone(), user.getAgentId()),
-                  browserDic.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), user.getBrowserIdx()),
-                  user.getCityId(),
+                  browserDic.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), user.getBrowserId()),
+                  user.getCityIndex(),
                 extraInfo.getLanguages().get(languageIndex));
                 startPostId++;
 

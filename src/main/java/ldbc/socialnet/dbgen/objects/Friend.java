@@ -121,10 +121,10 @@ public class Friend implements Serializable{
 	    this.passIdx = passidx; 
 	    this.initiator = initiator;
 
-	    this.isHaveSmartPhone = to.isHaveSmartPhone;
+	    this.isHaveSmartPhone = to.isHaveSmartPhone();
 	    this.agentIdx = to.getAgentId();
-	    this.browserIdx = to.getBrowserIdx();
-	    this.isFrequentChange = to.isFrequentChange;
+	    this.browserIdx = to.getBrowserId();
+	    this.isFrequentChange = to.isFrequentChange();
 	    this.setSourceIp(to.getIpAddress());
 	    this.isLargePoster = to.isLargePoster();
 	}	

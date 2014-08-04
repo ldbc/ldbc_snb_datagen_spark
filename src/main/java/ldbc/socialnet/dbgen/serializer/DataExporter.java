@@ -276,8 +276,8 @@ public class DataExporter {
         group.setGroupId(userInfo.user.getForumWallId());
         group.setModeratorId(userInfo.user.getAccountId());
 
-        Iterator<Integer> itTags = userInfo.user.getSetOfTags().iterator();
-        Integer tags[] = new Integer[userInfo.user.getSetOfTags().size()];
+        Iterator<Integer> itTags = userInfo.user.getInterests().iterator();
+        Integer tags[] = new Integer[userInfo.user.getInterests().size()];
         int index = 0;
         while (itTags.hasNext()){
             tags[index] = itTags.next();

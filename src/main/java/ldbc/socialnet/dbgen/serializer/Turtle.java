@@ -232,9 +232,9 @@ public class Turtle implements Serializer {
         if (info.user.getIpAddress() != null) {
             AddTriple(result, false, false, prefix, SNVOC.ipaddress,
                     createLiteral(info.user.getIpAddress().toString()));
-            if (info.user.getBrowserIdx() >= 0) {
+            if (info.user.getBrowserId() >= 0) {
                 AddTriple(result, false, false, prefix, SNVOC.browser,
-                        createLiteral(browserDic.getName(info.user.getBrowserIdx())));
+                        createLiteral(browserDic.getName(info.user.getBrowserId())));
             }
         }
 
@@ -259,7 +259,7 @@ public class Turtle implements Serializer {
             createTripleSPO(result, prefix, SNVOC.email, createLiteral(email));
         }
 
-        Iterator<Integer> itInteger = info.user.getSetOfTags().iterator();
+        Iterator<Integer> itInteger = info.user.getInterests().iterator();
         while (itInteger.hasNext()) {
             Integer interestIdx = itInteger.next();
             String interest = tagDic.getName(interestIdx);

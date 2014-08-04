@@ -307,8 +307,8 @@ public class CSVOriginal implements Serializer {
             String empty = "";
             arguments.add(empty);
         }
-        if (info.user.getBrowserIdx() >= 0) {
-            arguments.add(browserDic.getName(info.user.getBrowserIdx()));
+        if (info.user.getBrowserId() >= 0) {
+            arguments.add(browserDic.getName(info.user.getBrowserId()));
         } else {
             String empty = "";
             arguments.add(empty);
@@ -334,7 +334,7 @@ public class CSVOriginal implements Serializer {
         arguments.add(Integer.toString(info.extraInfo.getLocationId()));
         ToCSV(arguments, Files.PERSON_LOCATED_IN_PLACE.ordinal());
 
-        Iterator<Integer> itInteger = info.user.getSetOfTags().iterator();
+        Iterator<Integer> itInteger = info.user.getInterests().iterator();
         while (itInteger.hasNext()){
             Integer interestIdx = itInteger.next();
             arguments.add(Long.toString(info.user.getAccountId()));

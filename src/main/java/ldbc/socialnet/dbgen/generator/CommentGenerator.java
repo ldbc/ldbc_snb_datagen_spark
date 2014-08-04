@@ -110,7 +110,7 @@ public class CommentGenerator {
     /** @brief Assigns a set of likes to a post created by a user.
      *  @param[in] user The user that created the post.*/
     private void setLikes( Random randomNumLikes, Random randomDate, Message message, ReducedUserProfile user ) {
-        int numFriends = user.getNumFriendsAdded();
+        int numFriends = user.getNumFriends();
         int numLikes = likesGenerator.getValue(randomNumLikes);
         numLikes = numLikes >= numFriends ?  numFriends : numLikes;
         Like[] likes = new Like[numLikes];
@@ -166,7 +166,7 @@ public class CommentGenerator {
 
         ArrayList<Integer> validIds = new ArrayList<Integer>();
         Friend[] friends = user.getFriendList();
-        for (int i = 0; i <user.getNumFriendsAdded(); i++) {
+        for (int i = 0; i <user.getNumFriends(); i++) {
             if ((friends[i].getCreatedTime()+deltaTime <= replyTo.getCreationDate()) || (friends[i].getCreatedTime() == -1)){
                 validIds.add(i);
             }
@@ -237,7 +237,7 @@ public class CommentGenerator {
                                        ipAddDic.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER),friend.getSourceIp(), friend.isFrequentChange(), creationDate),
                                        userAgentDic.getUserAgentName(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT),friend.isHaveSmartPhone(), friend.getAgentIdx()),
                                        browserDic.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER),friend.getBrowserIdx()),
-                                       user.getCityId(),
+                                       user.getCityIndex(),
                                        post.getMessageId(),
                                        replyTo.getMessageId());
         if( !isShort && randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {

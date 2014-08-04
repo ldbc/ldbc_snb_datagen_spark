@@ -321,8 +321,8 @@ public class UpdateEventSerializer implements Serializer{
             String empty = "";
             data.add(empty);
         }
-        if (info.user.getBrowserIdx() >= 0) {
-            data.add(browserDic.getName(info.user.getBrowserIdx()));
+        if (info.user.getBrowserId() >= 0) {
+            data.add(browserDic.getName(info.user.getBrowserId()));
         } else {
             String empty = "";
             data.add(empty);
@@ -343,7 +343,7 @@ public class UpdateEventSerializer implements Serializer{
         endList();
 
         beginList();
-        Iterator<Integer> itInteger = info.user.getSetOfTags().iterator();
+        Iterator<Integer> itInteger = info.user.getInterests().iterator();
         while (itInteger.hasNext()){
             Integer interestIdx = itInteger.next();
             list.add(interestIdx);

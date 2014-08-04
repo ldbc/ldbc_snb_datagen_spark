@@ -93,7 +93,7 @@ public class UniformPostGenerator extends PostGenerator {
     protected PostInfo generatePostInfo( Random randomTag, Random randomDate, ReducedUserProfile user ) {
         PostInfo postInfo = new PostInfo();
         postInfo.tags = new TreeSet<Integer>();
-        Iterator<Integer> it = user.getSetOfTags().iterator();
+        Iterator<Integer> it = user.getInterests().iterator();
         while (it.hasNext()) {
             Integer value = it.next();
             if (postInfo.tags.isEmpty()) {
@@ -129,7 +129,7 @@ public class UniformPostGenerator extends PostGenerator {
         } else {
             numberPost = randomNumPost.nextInt(maxNumPostPerMonth * numOfmonths+1);
         }
-        numberPost = (numberPost * user.getNumFriendsAdded()) / maxNumFriends;
+        numberPost = (numberPost * user.getNumFriends()) / maxNumFriends;
         return numberPost;
     }
 

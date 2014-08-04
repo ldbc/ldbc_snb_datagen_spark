@@ -76,8 +76,8 @@ public class PersonResolver  implements EntityFieldResolver<UserInfo> {
         }
 
         if( string.equals("browser") ) {
-            if (userInfo.user.getBrowserIdx() >= 0) {
-                ret.add(browserDic.getName(userInfo.user.getBrowserIdx()));
+            if (userInfo.user.getBrowserId() >= 0) {
+                ret.add(browserDic.getName(userInfo.user.getBrowserId()));
             } else {
                 String empty = "";
                 ret.add(empty);
@@ -109,7 +109,7 @@ public class PersonResolver  implements EntityFieldResolver<UserInfo> {
 
 
         if( string.equals("tag") ) {
-            Iterator<Integer> itInteger = userInfo.user.getSetOfTags().iterator();
+            Iterator<Integer> itInteger = userInfo.user.getInterests().iterator();
             while (itInteger.hasNext()){
                 Integer interestIdx = itInteger.next();
                 ret.add(Integer.toString(interestIdx));
