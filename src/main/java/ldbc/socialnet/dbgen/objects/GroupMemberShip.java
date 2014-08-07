@@ -41,8 +41,8 @@ public class GroupMemberShip {
 	long	userId;
 	long 	joinDate;
 	IP      ip;
-	byte    browserIdx;
-	byte    agentIdx;
+	int    browserIdx;
+	int    agentIdx;
     boolean isLargePoster = false;       //This is used for creating large posts.
 	boolean isFrequentChange;
 	boolean isHaveSmartPhone;
@@ -62,19 +62,19 @@ public class GroupMemberShip {
 		this.userId = userId;
 	}
 	
-	public byte getAgentIdx() {
+	public int getAgentIdx() {
         return agentIdx;
     }
 
-    public void setAgentIdx(byte agentIdx) {
+    public void setAgentIdx(int agentIdx) {
         this.agentIdx = agentIdx;
     }
 	
-	public byte getBrowserIdx() {
+	public int getBrowserIdx() {
         return browserIdx;
     }
 
-    public void setBrowserIdx(byte browserIdx) {
+    public void setBrowserIdx(int browserIdx) {
         this.browserIdx = browserIdx;
     }
 	

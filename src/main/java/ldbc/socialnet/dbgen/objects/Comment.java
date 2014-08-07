@@ -53,7 +53,7 @@ public class Comment extends Message {
                  TreeSet<Integer> tags,
                  IP ipAddress,
                  String userAgent,
-                 byte browserIdx,
+                 int browserIdx,
                  int locationId,
                  long postId,
                  long replyOf

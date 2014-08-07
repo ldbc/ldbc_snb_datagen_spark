@@ -39,8 +39,8 @@ package ldbc.socialnet.dbgen.dictionary;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Random;
-import java.util.Vector;
 
 /**
  * This class reads the file containing the names and distributions for the browsers used in the ldbc socialnet generation and 
@@ -49,83 +49,77 @@ import java.util.Vector;
 public class BrowserDictionary {
 	
     private static final String SEPARATOR = "  ";
-    
-    Vector<String>      vBrowser;
-	Vector<Double>  	vBrowserCummulative; 
+    private ArrayList<String>   browsers;               /**< @brief The browsers in the dictionary.**/
+	private ArrayList<Double>  	cumulativeDistribution; /**< @brief The cumulative distribution of each browser.*/
+	private double probAnotherBrowser = 0.0f;                   /**< @brief The probability that a user uses another browser than its initial one.*/
 
-	String fileName;
-	
-	double probAnotherBrowser;
 	/**
-	 * Creator.
-	 * 
-	 * @param fileName: The file which contains the browser data.
-	 * @param probAnotherBrowser: Probability of the user using another browser.
+	 * @brief   Constructor.
+	 * @param   probAnotherBrowser: Probability of the user using another browser.
 	 */
-	public BrowserDictionary(String fileName, double probAnotherBrowser){
-		this.fileName = fileName;
+	public BrowserDictionary(double probAnotherBrowser){
 		this.probAnotherBrowser = probAnotherBrowser;
+        this.browsers = new ArrayList<String>();
+        this.cumulativeDistribution = new ArrayList<Double>();
 	}
 	
 	/**
-	 * Initializes the dictionary extracting the data from the file.
+	 * @brief   Initializes the dictionary extracting the data from the file.
+     *
 	 */
-	public void init(){
+	public void load( String fileName ){
 		try {
 		    BufferedReader dictionary = new BufferedReader(
 		            new InputStreamReader(getClass( ).getResourceAsStream(fileName), "UTF-8"));
-			vBrowser = new Vector<String>();
-			vBrowserCummulative = new Vector<Double>();
-			
-			String line; 
+			String line;
 			double cummulativeDist = 0.0;
-
 			while ((line = dictionary.readLine()) != null){
 			    String data[] = line.split(SEPARATOR);
 			    String browser = data[0];
 			    cummulativeDist += Double.parseDouble(data[1]);
-			    vBrowser.add(browser);
-			    vBrowserCummulative.add(cummulativeDist);
+			    browsers.add(browser);
+			    cumulativeDistribution.add(cummulativeDist);
 			}			
 			dictionary.close();
-			System.out.println("Done ... " + vBrowser.size() + " browsers were extracted");
-			
+			System.out.println("Done ... " + browsers.size() + " browsers loaded");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
 	/**
-	 * Gets the browser name.
+	 * @brief   Gets the browser name.
+     * @param   id The id of the browser to get its name.
 	 */
-	public String getName(byte id) {
-        return vBrowser.get(id);
+	public String getName(int id) {
+        return browsers.get(id);
     }
 	
 	/**
-	 * Gets a random browser id.
+	 * @brief   Gets a random browser id.
+     * @brief   random The random number generator to use.
 	 */
-	public byte getRandomBrowserId(Random random) {
+	public int getRandomBrowserId(Random random) {
 	    double prob = random.nextDouble();
 		int minIdx = 0;
-		int maxIdx = (prob < vBrowserCummulative.get(minIdx)) ? minIdx : vBrowserCummulative.size() - 1;
+		int maxIdx = (byte)((prob < cumulativeDistribution.get(minIdx)) ? minIdx : cumulativeDistribution.size() - 1);
+        // Binary search
 		while ((maxIdx - minIdx) > 1) {
-			
 		    int middlePoint = minIdx + (maxIdx - minIdx) / 2;
-			if (prob > vBrowserCummulative.get(middlePoint)) {
+			if (prob > cumulativeDistribution.get(middlePoint)) {
 				minIdx = middlePoint;
 			} else {
 				maxIdx = middlePoint;
 			}
 		}
-		return (byte)maxIdx;
+		return maxIdx;
 	}
 
 	/**
-	 * Gets the post browser. There is a chance of being different from the user preferred browser
-	 * @param userBrowserId: The user preferred browser.
+	 * @brief   Gets the post browser. There is a chance of being different from the user preferred browser
+	 * @param   userBrowserId: The user preferred browser.
 	 */
-	public byte getPostBrowserId(Random randomDiffBrowser, Random randomBrowser, byte userBrowserId){
+	public int getPostBrowserId(Random randomDiffBrowser, Random randomBrowser, int userBrowserId){
 		double prob = randomDiffBrowser.nextDouble();
 		return (prob < probAnotherBrowser) ? getRandomBrowserId(randomBrowser) : userBrowserId;
 	}

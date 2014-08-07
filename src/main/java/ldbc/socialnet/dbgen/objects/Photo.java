@@ -39,7 +39,6 @@ package ldbc.socialnet.dbgen.objects;
 import java.util.TreeSet;
 
 public class Photo extends Message {
-    int locationIdx;
     String locationName;
     double latt; 
     double longt;
@@ -67,7 +66,7 @@ public class Photo extends Message {
                  TreeSet<Integer> tags,
                  IP ipAddress,
                  String userAgent,
-                 byte browserIdx,
+                 int browserIdx,
                  int locationId,
                  String locationName,
                  double latt,

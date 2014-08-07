@@ -36,15 +36,15 @@
  */
 package ldbc.socialnet.dbgen.objects;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.TreeSet;
 import java.util.Set;
-import java.util.Vector;
+import java.util.TreeSet;
 
 public class UserExtraInfo {
 	String 				gender;
-	TreeSet<String>     email;
-	Vector<Integer>    languages; 
+	TreeSet<String> email;
+	ArrayList<Integer> languages;
 	String 				firstName;
 	String 				lastName; 
 	int                 locationId;
@@ -78,10 +78,10 @@ public class UserExtraInfo {
 	public void addEmail(String email) {
 		this.email.add(email);
 	}
-	public Vector<Integer> getLanguages() {
+	public ArrayList<Integer> getLanguages() {
         return languages;
     }
-    public void setLanguages(Vector<Integer> languages) {
+    public void setLanguages(ArrayList<Integer> languages) {
         this.languages = languages;
     }
 	public String getFirstName() {

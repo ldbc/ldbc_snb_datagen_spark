@@ -57,7 +57,6 @@ import ldbc.socialnet.dbgen.dictionary.TagTextDictionary;
 import ldbc.socialnet.dbgen.dictionary.UserAgentDictionary;
 import ldbc.socialnet.dbgen.objects.*;
 import ldbc.socialnet.dbgen.serializer.*;
-import ldbc.socialnet.dbgen.storage.StorageManager;
 import ldbc.socialnet.dbgen.util.ScaleFactor;
 import ldbc.socialnet.dbgen.vocabulary.SN;
 import ldbc.socialnet.dbgen.util.MapReduceKey;
@@ -123,21 +122,21 @@ public class ScalableGenerator{
     private static final String   browserDictonryFile       = DICTIONARY_DIRECTORY + "browsersDic.txt";
     private static final String   companiesDictionaryFile   = DICTIONARY_DIRECTORY + "companiesByCountry.txt";
     private static final String   countryAbbrMappingFile    = DICTIONARY_DIRECTORY + "countryAbbrMapping.txt";
-    private static final String   tagDictionaryFile         = DICTIONARY_DIRECTORY + "dicCelebritiesByCountry.txt";
+    private static final String   popularTagByCountryFile   = DICTIONARY_DIRECTORY + "popularTagByCountry.txt";
     private static final String   countryDictionaryFile     = DICTIONARY_DIRECTORY + "dicLocations.txt";
-    private static final String   tagNamesFile              = DICTIONARY_DIRECTORY + "dicTopic.txt";
+    private static final String   tagsFile                  = DICTIONARY_DIRECTORY + "tags.txt";
     private static final String   emailDictionaryFile       = DICTIONARY_DIRECTORY + "email.txt";
     private static final String   nameDictionaryFile        = DICTIONARY_DIRECTORY + "givennameByCountryBirthPlace.txt.freq.full";
-    private static final String   universityDictionaryFile  = DICTIONARY_DIRECTORY + "institutesCityByCountry.txt";
+    private static final String   universityDictionaryFile  = DICTIONARY_DIRECTORY + "universities.txt";
     private static final String   cityDictionaryFile        = DICTIONARY_DIRECTORY + "citiesByCountry.txt";
     private static final String   languageDictionaryFile    = DICTIONARY_DIRECTORY + "languagesByCountry.txt";
     private static final String   popularDictionaryFile     = DICTIONARY_DIRECTORY + "popularPlacesByCountry.txt";
     private static final String   agentFile                 = DICTIONARY_DIRECTORY + "smartPhonesProviders.txt";
     private static final String   surnamDictionaryFile      = DICTIONARY_DIRECTORY + "surnameByCountryBirthPlace.txt.freq.sort";
     private static final String   tagClassFile              = DICTIONARY_DIRECTORY + "tagClasses.txt";
-    private static final String   tagHierarchyFile          = DICTIONARY_DIRECTORY + "tagHierarchy.txt";
+    private static final String   tagClassHierarchyFile     = DICTIONARY_DIRECTORY + "tagClassHierarchy.txt";
     private static final String   tagTextFile               = DICTIONARY_DIRECTORY + "tagText.txt";
-    private static final String   tagTopicDictionaryFile    = DICTIONARY_DIRECTORY + "topicMatrixId.txt";
+    private static final String   tagMatrixFile             = DICTIONARY_DIRECTORY + "tagMatrix.txt";
     private static final String   flashmobDistFile          = DICTIONARY_DIRECTORY + "flashmobDist.txt";
     private static final String   fbSocialDegreeFile	    = DICTIONARY_DIRECTORY + "facebookBucket100.dat";
 
@@ -232,12 +231,6 @@ public class ScalableGenerator{
     private final String NUM_YEARS          = "numYears";
     private final String START_YEAR         = "startYear";
 
-    /**
-     * This array provides a quick way to check if any of the required parameters is missing and throw the appropriate
-     * exception in the method loadParamsFromFile()
-     */
-    private final String[] publicCheckParameters = {SERIALIZER, ENABLE_COMPRESSION};
-
     // Gender string representation, both representations vector/standalone so the string is coherent.
     private final String MALE   = "male";
     private final String FEMALE = "female";
@@ -252,8 +245,6 @@ public class ScalableGenerator{
     private HashMap<Integer, Integer> tagClassCount;
     private HashMap<String, Integer> firstNameCount;
     private HashMap<Integer, Integer> tagNameCount;
-    // For blocking
-    private static final int  reducerShift[] = { 26, 8, 1 };
 
     // For sliding window
     int 					cellSize; // Number of user in one cell
@@ -262,7 +253,6 @@ public class ScalableGenerator{
     int 					windowSize;
 
     ReducedUserProfile  	reducedUserProfiles[];
-    ReducedUserProfile 		reducedUserProfilesCell[];
 
     // For friendship generation
     int 				friendshipNum;
@@ -270,8 +260,6 @@ public class ScalableGenerator{
     int 				maxNumFriends;
     double 				friendRejectRatio;
     double 				friendReApproveRatio;
-
-    StorageManager		groupStoreManager;
 
     MRWriter			mrWriter;
 
@@ -301,7 +289,7 @@ public class ScalableGenerator{
     FBSocialDegreeGenerator	fbDegreeGenerator;
     FlashmobTagDictionary   flashmobTagDictionary;
     TagTextDictionary       tagTextDictionary;
-    TagMatrix	 			topicTagDictionary;
+    TagMatrix	 			tagMatrix;
     NamesDictionary 		namesDictionary;
     UniversityDictionary    unversityDictionary;
     CompanyDictionary       companiesDictionary;
@@ -461,66 +449,61 @@ public class ScalableGenerator{
         SN.maxDate = dateTimeGenerator.getMaxDateTime();
 
         System.out.println("Building location dictionary ");
-        locationDictionary = new LocationDictionary(numTotalUser, countryDictionaryFile, cityDictionaryFile);
-        locationDictionary.init();
+        locationDictionary = new LocationDictionary(numTotalUser);
+        locationDictionary.load(cityDictionaryFile, countryDictionaryFile);
 
         System.out.println("Building language dictionary ");
-        languageDictionary = new LanguageDictionary(languageDictionaryFile, locationDictionary,
+        languageDictionary = new LanguageDictionary(locationDictionary,
                 probEnglish, probSecondLang);
-        languageDictionary.init();
+        languageDictionary.load(languageDictionaryFile);
 
         System.out.println("Building Tag dictionary ");
-        tagDictionary = new TagDictionary(tagNamesFile, tagDictionaryFile, tagClassFile, tagHierarchyFile,
-                locationDictionary.getCountries().size(), tagCountryCorrProb);
-        tagDictionary.initialize();
+        tagDictionary = new TagDictionary(locationDictionary.getCountries().size(), tagCountryCorrProb);
+        tagDictionary.load(tagsFile, popularTagByCountryFile, tagClassFile, tagClassHierarchyFile);
 
         System.out.println("Building Tag-text dictionary ");
-        tagTextDictionary = new TagTextDictionary(tagTextFile, dateTimeGenerator, tagDictionary,
-                ratioReduceText);
-        tagTextDictionary.initialize();
+        tagTextDictionary = new TagTextDictionary( tagDictionary, ratioReduceText);
+        tagTextDictionary.load(tagTextFile);
 
         System.out.println("Building Tag Matrix dictionary ");
-        topicTagDictionary = new TagMatrix(tagTopicDictionaryFile, tagDictionary.getNumCelebrity());
-        topicTagDictionary.initMatrix();
+        tagMatrix = new TagMatrix(tagDictionary.getNumPopularTags());
+        tagMatrix.load(tagMatrixFile);
 
         System.out.println("Building IP addresses dictionary ");
-        ipAddDictionary = new IPAddressDictionary(countryAbbrMappingFile,
-                IPZONE_DIRECTORY, locationDictionary, probDiffIPinTravelSeason, probDiffIPnotTravelSeason,
+        ipAddDictionary = new IPAddressDictionary( locationDictionary, probDiffIPinTravelSeason, probDiffIPnotTravelSeason,
                 probDiffIPforTraveller);
-        ipAddDictionary.initialize();
+        ipAddDictionary.load(countryAbbrMappingFile, IPZONE_DIRECTORY);
 
         System.out.println("Building Names dictionary");
-        namesDictionary = new NamesDictionary(surnamDictionaryFile, nameDictionaryFile,
+        namesDictionary = new NamesDictionary(
                 locationDictionary);
-        namesDictionary.init();
+        namesDictionary.load(surnamDictionaryFile, nameDictionaryFile);
 
         System.out.println("Building email dictionary");
-        emailDictionary = new EmailDictionary(emailDictionaryFile);
-        emailDictionary.init();
+        emailDictionary = new EmailDictionary();
+        emailDictionary.load(emailDictionaryFile);
 
         System.out.println("Building browser dictionary");
-        browserDictonry = new BrowserDictionary(browserDictonryFile, probAnotherBrowser);
-        browserDictonry.init();
+        browserDictonry = new BrowserDictionary(probAnotherBrowser);
+        browserDictonry.load(browserDictonryFile);
 
 
         System.out.println("Building companies dictionary");
-        companiesDictionary = new CompanyDictionary(companiesDictionaryFile,locationDictionary,
-                probUnCorrelatedCompany);
-        companiesDictionary.init();
+        companiesDictionary = new CompanyDictionary(locationDictionary, probUnCorrelatedCompany);
+        companiesDictionary.load(companiesDictionaryFile);
 
         System.out.println("Building university dictionary");
-        unversityDictionary = new UniversityDictionary(universityDictionaryFile, locationDictionary,
+        unversityDictionary = new UniversityDictionary(locationDictionary,
                 probUnCorrelatedOrganization, probTopUniv, companiesDictionary.getNumCompanies());
-        unversityDictionary.init();
+        unversityDictionary.load(universityDictionaryFile);
 
         System.out.println("Building popular places dictionary");
-        popularDictionary = new PopularPlacesDictionary(popularDictionaryFile,
-                locationDictionary);
-        popularDictionary.init();
+        popularDictionary = new PopularPlacesDictionary(locationDictionary);
+        popularDictionary.load(popularDictionaryFile);
 
         System.out.println("Building user agents dictionary");
-        userAgentDictionary = new UserAgentDictionary(agentFile, probSentFromAgent);
-        userAgentDictionary.init();
+        userAgentDictionary = new UserAgentDictionary(probSentFromAgent);
+        userAgentDictionary.load(agentFile);
 
         // Building generators.
         System.out.println("Building photo generator");
@@ -565,8 +548,7 @@ public class ScalableGenerator{
                 probRandomPerLevel,
                 flashmobTagMinLevel,
                 flashmobTagMaxLevel,
-                flashmobTagDistExp,
-                0
+                flashmobTagDistExp
         );
         flashmobTagDictionary.initialize();
 
@@ -589,7 +571,7 @@ public class ScalableGenerator{
                 exportText,
                 deltaTime,
                 flashmobTagDictionary,
-                topicTagDictionary,
+                tagMatrix,
                 maxNumFlashmobPostPerMonth,
                 maxNumGroupFlashmobPostPerMonth,
                 maxNumFriends,
@@ -604,7 +586,7 @@ public class ScalableGenerator{
         System.out.println("Building Comment Generator");
         commentGenerator = new CommentGenerator( tagDictionary,
                 tagTextDictionary,
-                topicTagDictionary,
+                tagMatrix,
                 dateTimeGenerator,
                 browserDictonry,
                 ipAddDictionary,
@@ -824,18 +806,16 @@ public class ScalableGenerator{
         ReducedUserProfile userObject = new ReducedUserProfile();
         userObject.copyFields(reduceUser);
         totalNumUserProfilesRead++;
-        if (numUserProfilesRead < windowSize) {                             // Push the user into the window if there is enought space. 
+        if (numUserProfilesRead < windowSize) {                             // Push the user into the window if there is enought space.
             reducedUserProfiles[numUserProfilesRead] = userObject;
             numUserProfilesRead++;
-        } else {                                                            // If the window is full, push the user into the backup cell. 
+        } else {                                                            // If the window is full, push the user into the backup cell.
             cellReducedUserProfiles[numUserForNewCell] = userObject;
             numUserForNewCell++;
             if (numUserForNewCell == cellSize) {                            // Once the backup cell is full, create friendships and slide the window.
-                mr2SlideFriendShipWindow( pass,
-                        mrCurCellPost,
-                        context,
-                        cellReducedUserProfiles,
-                        outputDimension);
+                slideCellsFriendShip(pass, mrCurCellPost, numberOfCellPerWindow, context, outputDimension);
+                int startIndex =  (mrCurCellPost % numberOfCellPerWindow) * cellSize;
+                generateCellOfUsers2(startIndex, cellReducedUserProfiles);
                 mrCurCellPost++;
                 numUserForNewCell = 0;
             }
@@ -843,17 +823,48 @@ public class ScalableGenerator{
     }
 
     public void pushAllRemainingUser(int pass, int outputDimension, Reducer<MapReduceKey, ReducedUserProfile,MapReduceKey, ReducedUserProfile>.Context context){
-
         // For each remianing cell in the window, we create the edges.
         for (int numLeftCell = Math.min(numberOfCellPerWindow, numUserProfilesRead/cellSize); numLeftCell > 0; --numLeftCell, ++mrCurCellPost) {
-            mr2SlideLastCellsFriendShip(pass, mrCurCellPost, numLeftCell, context, outputDimension);
+            slideCellsFriendShip(pass, mrCurCellPost, numLeftCell, context, outputDimension);
         }
-
         // We write to the context the users that might have been left into not fully filled cell.
-            mrWriter.writeReducedUserProfiles(0, numUserForNewCell, outputDimension, cellReducedUserProfiles, context);
+        mrWriter.writeReducedUserProfiles(0, numUserForNewCell, outputDimension, cellReducedUserProfiles, context);
         exactOutput+=numUserForNewCell;
     }
 
+    private void slideCellsFriendShip(int pass, int cellPos,    int numleftCell, Reducer.Context context, int outputDimension) {
+        int startIndex = (cellPos % numberOfCellPerWindow) * cellSize;
+        for (int i = 0; i < cellSize; i++) {
+            int curIdxInWindow = startIndex + i;
+            // From this user, check all the user in the window to create friendship
+            for (int j = i + 1; (j < (numleftCell * cellSize ) )
+                    && reducedUserProfiles[curIdxInWindow].getNumFriends()
+                    < reducedUserProfiles[curIdxInWindow].getCorMaxNumFriends(pass);
+                 j++) {
+                int checkFriendIdx = (curIdxInWindow + j) % windowSize;
+                testAndSetFriend(reducedUserProfiles,curIdxInWindow, checkFriendIdx, pass, limitProCorrelated);
+            }
+        }
+        updateLastPassFriendAdded(startIndex, startIndex + cellSize, pass);
+        mrWriter.writeReducedUserProfiles(startIndex, startIndex + cellSize, outputDimension, reducedUserProfiles, context);
+        exactOutput = exactOutput + cellSize;
+    }
+
+    boolean testAndSetFriend( ReducedUserProfile [] users, int userAidx, int userBidx, int pass, double baseProb) {
+        //     numTries++;
+        ReducedUserProfile userA = users[userAidx];
+        ReducedUserProfile userB = users[userBidx];
+        if ( !(userA.getNumFriends() == userA.getCorMaxNumFriends(pass) || userB.getNumFriends() == userB.getCorMaxNumFriends(pass) ||
+                userA.isExistFriend(userB.getAccountId()))) {
+            double randProb = randomFarm.get(RandomGeneratorFarm.Aspect.UNIFORM).nextDouble();
+            double prob = getFriendCreatePro( userAidx, userBidx, pass);
+            if ((randProb < prob) || (randProb < baseProb)) {
+                createFriendShip(userA, userB, (byte) pass);
+                return true;
+            }
+        }
+        return false;
+    }
 
     public void resetState(int seed) {
         blockId = seed;
@@ -869,17 +880,17 @@ public class ScalableGenerator{
     }
 
 
-    /**
-     * Generates the users. The user generation process is divided in blocks of size four times the
-     * size of the window. At the beginning of each block, the seeds of the random number generators
-     * are reset. This is for the sake of determinism, so independently of the mapper that receives a
-     * block, the seeds are set deterministically, and therefore, we make this generation phase 
-     * deterministic. This implies that the different mappers have to process blocks of full size,
-     * that is, a block have to be fully processed by a mapper.
-     *
-     * @param pass The pass identifying the current pass.
-     * @param context The map-reduce context.
-     */
+        /**
+         * Generates the users. The user generation process is divided in blocks of size four times the
+         * size of the window. At the beginning of each block, the seeds of the random number generators
+         * are reset. This is for the sake of determinism, so independently of the mapper that receives a
+         * block, the seeds are set deterministically, and therefore, we make this generation phase
+         * deterministic. This implies that the different mappers have to process blocks of full size,
+         * that is, a block have to be fully processed by a mapper.
+         *
+         * @param pass The pass identifying the current pass.
+         * @param context The map-reduce context.
+         */
     public void mrGenerateUserInfo(int pass, Context context){
 
         if (numTotalUser % cellSize != 0) {
@@ -924,60 +935,6 @@ public class ScalableGenerator{
         }
     }
 
-    private void mr2SlideFriendShipWindow(int pass, int cellPos, Reducer.Context context, ReducedUserProfile[] _cellReduceUserProfiles,
-                                         int outputDimension){
-
-        int cellPosInWindow = (cellPos) % numberOfCellPerWindow;
-        int startIndex = cellPosInWindow * cellSize;
-        for (int i = 0; i < cellSize; i++) {
-            int curIdxInWindow = startIndex + i;
-            for (int j = i + 1; (j < windowSize - 1) &&
-                    reducedUserProfiles[curIdxInWindow].getNumFriends() < reducedUserProfiles[curIdxInWindow].getCorMaxNumFriends(pass);
-                 j++) {
-                int checkFriendIdx = (curIdxInWindow + j) % windowSize;
-                if ( !(reducedUserProfiles[checkFriendIdx].getNumFriends() == reducedUserProfiles[checkFriendIdx].getCorMaxNumFriends(pass) ||
-                        reducedUserProfiles[curIdxInWindow].isExistFriend(reducedUserProfiles[checkFriendIdx].getAccountId()))) {
-                    double randProb = randomFarm.get(RandomGeneratorFarm.Aspect.UNIFORM).nextDouble();
-                    double prob = getFriendCreatePro(curIdxInWindow, checkFriendIdx, pass);
-                    if ((randProb < prob) || (randProb < limitProCorrelated)) {
-                        createFriendShip(reducedUserProfiles[curIdxInWindow], reducedUserProfiles[checkFriendIdx], (byte) pass);
-                    }
-                }
-            }
-        }
-        updateLastPassFriendAdded(startIndex, startIndex + cellSize, pass);
-        mrWriter.writeReducedUserProfiles(startIndex, startIndex + cellSize, outputDimension, reducedUserProfiles, context);
-        generateCellOfUsers2(startIndex, _cellReduceUserProfiles);
-        exactOutput = exactOutput + cellSize;
-    }
-
-    private void mr2SlideLastCellsFriendShip(int pass, int cellPos,	int numleftCell, Reducer.Context context, int outputDimension) {
-
-        int startIndex = (cellPos % numberOfCellPerWindow) * cellSize;
-        for (int i = 0; i < cellSize; i++) {
-            int curIdxInWindow = startIndex + i;
-            // From this user, check all the user in the window to create friendship
-            for (int j = i + 1; (j < numleftCell * cellSize )
-                    && reducedUserProfiles[curIdxInWindow].getNumFriends()
-                    < reducedUserProfiles[curIdxInWindow].getCorMaxNumFriends(pass);
-                 j++) {
-                int checkFriendIdx = (curIdxInWindow + j) % windowSize;
-                if ( !(reducedUserProfiles[checkFriendIdx].getNumFriends() ==
-                        reducedUserProfiles[checkFriendIdx].getCorMaxNumFriends(pass) ||
-                        reducedUserProfiles[curIdxInWindow].isExistFriend(reducedUserProfiles[checkFriendIdx].getAccountId()))) {
-                    double randProb = randomFarm.get(RandomGeneratorFarm.Aspect.UNIFORM).nextDouble();
-                    double prob = getFriendCreatePro(curIdxInWindow, checkFriendIdx, pass);
-                    if ((randProb < prob) || (randProb < limitProCorrelated)) {
-                        createFriendShip(reducedUserProfiles[curIdxInWindow], reducedUserProfiles[checkFriendIdx],
-                                (byte) pass);
-                    }
-                }
-            }
-        }
-        updateLastPassFriendAdded(startIndex, startIndex + cellSize, pass);
-        mrWriter.writeReducedUserProfiles(startIndex, startIndex + cellSize, outputDimension, reducedUserProfiles, context);
-        exactOutput = exactOutput + cellSize;
-    }
 
     private void generatePosts(PostGenerator postGenerator, ReducedUserProfile user, UserExtraInfo extraInfo){
         Vector<Post> createdPosts = postGenerator.createPosts( randomFarm, user, extraInfo, postId );
@@ -1260,14 +1217,14 @@ public class ScalableGenerator{
     private ReducedUserProfile generateGeneralInformation(int accountId) {
         // User Creation
         long creationDate = dateTimeGenerator.randomDateInMillis( randomFarm.get(RandomGeneratorFarm.Aspect.DATE) );
-        int countryId = locationDictionary.getLocationForUser(accountId);
+        int countryId = locationDictionary.getCountryForUser(randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY));
         ReducedUserProfile userProf = new ReducedUserProfile();
         userProf.setCreationDate(creationDate);
         userProf.setGender((randomFarm.get(RandomGeneratorFarm.Aspect.GENDER).nextDouble() > 0.5) ? (byte) 1 : (byte) 0);
         userProf.setBirthDay(dateTimeGenerator.getBirthDay(randomFarm.get(RandomGeneratorFarm.Aspect.BIRTH_DAY), creationDate));
         userProf.setBrowserId(browserDictonry.getRandomBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER)));
         userProf.setCountryId(countryId);
-        userProf.setCityIndex(locationDictionary.getRandomCity(randomFarm.get(RandomGeneratorFarm.Aspect.CITY), countryId));
+        userProf.setCityId(locationDictionary.getRandomCity(randomFarm.get(RandomGeneratorFarm.Aspect.CITY), countryId));
         userProf.setIpAddress(ipAddDictionary.getRandomIPFromLocation(randomFarm.get(RandomGeneratorFarm.Aspect.IP), countryId));
         userProf.setMaxNumFriends(fbDegreeGenerator.getSocialDegree());
         userProf.setNumCorDimensions(NUM_FRIENDSHIP_HADOOP_JOBS);
@@ -1285,7 +1242,7 @@ public class ScalableGenerator{
         int userMainTag = tagDictionary.getaTagByCountry(randomFarm.get(RandomGeneratorFarm.Aspect.TAG_OTHER_COUNTRY), randomFarm.get(RandomGeneratorFarm.Aspect.TAG),userProf.getCountryId());
         userProf.setMainTag(userMainTag);
         short numTags = ((short) randomTagPowerLaw.getValue(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_TAG)));
-        userProf.setInterests(topicTagDictionary.getSetofTags(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), randomFarm.get(RandomGeneratorFarm.Aspect.TAG_OTHER_COUNTRY), userMainTag, numTags));
+        userProf.setInterests(tagMatrix.getSetofTags(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), randomFarm.get(RandomGeneratorFarm.Aspect.TAG_OTHER_COUNTRY), userMainTag, numTags));
 
 
         userProf.setUniversityLocationId(unversityDictionary.getRandomUniversity(randomFarm, userProf.getCountryId()));
@@ -1335,7 +1292,7 @@ public class ScalableGenerator{
     private void setInfoFromUserProfile(ReducedUserProfile user,
                                        UserExtraInfo userExtraInfo) {
 
-        int locationId = (user.getCityIndex() != -1) ? user.getCityIndex() : user.getCountryId();
+        int locationId = (user.getCityId() != -1) ? user.getCityId() : user.getCountryId();
         userExtraInfo.setLocationId(locationId);
         userExtraInfo.setLocation(locationDictionary.getLocationName(locationId));
         double distance = randomFarm.get(RandomGeneratorFarm.Aspect.EXACT_LONG_LAT).nextDouble() * 2;
@@ -1352,8 +1309,8 @@ public class ScalableGenerator{
             userExtraInfo.setGender(gender[1]); // female
         }
 
-        userExtraInfo.setFirstName(namesDictionary.getRandomGivenName(randomFarm.get(RandomGeneratorFarm.Aspect.NAME),
-                user.getCountryId(),isMale, dateTimeGenerator.getBirthYear(user.getBirthDay())));
+        userExtraInfo.setFirstName(namesDictionary.getRandomName(randomFarm.get(RandomGeneratorFarm.Aspect.NAME),
+                user.getCountryId(), isMale, dateTimeGenerator.getBirthYear(user.getBirthDay())));
         userExtraInfo.setLastName(namesDictionary.getRandomSurname(randomFarm.get(RandomGeneratorFarm.Aspect.SURNAME),user.getCountryId()));
 
         // email is created by using the user's first name + userId
@@ -1415,7 +1372,7 @@ public class ScalableGenerator{
                 }
             }
         }
-        Vector<Integer> userLanguages = languageDictionary.getLanguages(randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE),user.getCountryId());
+        ArrayList<Integer> userLanguages = languageDictionary.getLanguages(randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE),user.getCountryId());
         int internationalLang = languageDictionary.getInternationlLanguage(randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE));
         if (internationalLang != -1 && userLanguages.indexOf(internationalLang) == -1) {
             userLanguages.add(internationalLang);

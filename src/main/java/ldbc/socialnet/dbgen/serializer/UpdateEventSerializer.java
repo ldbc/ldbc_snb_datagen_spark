@@ -329,9 +329,9 @@ public class UpdateEventSerializer implements Serializer{
         }
         data.add(info.extraInfo.getLocationId());
         ArrayList<Object> languages = new ArrayList<Object>();
-        Vector<Integer> userLang = info.extraInfo.getLanguages();
+        ArrayList<Integer> userLang = info.extraInfo.getLanguages();
         for (int i = 0; i < languages.size(); i++) {
-            languages.add(languageDic.getLanguagesName(userLang.get(i)));
+            languages.add(languageDic.getLanguageName(userLang.get(i)));
         }
         data.add(languages);
 
@@ -412,7 +412,7 @@ public class UpdateEventSerializer implements Serializer{
             data.add(empty);
         }
         if (post.getLanguage() != -1) {
-            data.add(languageDic.getLanguagesName(post.getLanguage()));
+            data.add(languageDic.getLanguageName(post.getLanguage()));
         } else {
             data.add(empty);
         }

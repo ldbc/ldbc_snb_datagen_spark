@@ -54,8 +54,8 @@ public class Friend implements Serializable{
 	
 	//For user's agent information
 	boolean				isHaveSmartPhone; 		// Use for providing the user agent information
-	byte 				agentIdx; 				// Index of user agent in the dictionary, e.g., 0 for iPhone, 1 for HTC
-	byte				browserIdx;				// Index of web browser, e.g., 0 for Internet Explorer
+	int 				agentIdx; 				// Index of user agent in the dictionary, e.g., 0 for iPhone, 1 for HTC
+	int				browserIdx;				// Index of web browser, e.g., 0 for Internet Explorer
 	
 	boolean 			isFrequentChange;		
 	IP	 				sourceIp; 				// Source IP address of the friend
@@ -85,8 +85,8 @@ public class Friend implements Serializable{
 		initiator = arg0.readByte(); 
 		
 		isHaveSmartPhone = arg0.readBoolean();
-		agentIdx = arg0.readByte();
-		browserIdx = arg0.readByte(); 
+		agentIdx = arg0.readInt();
+		browserIdx = arg0.readInt();
 		isFrequentChange = arg0.readBoolean();
 		int ip = arg0.readInt();
 		int mask = arg0.readInt();
@@ -103,8 +103,8 @@ public class Friend implements Serializable{
 		arg0.writeByte(initiator);
 		
 		arg0.writeBoolean(isHaveSmartPhone);
-		arg0.writeByte(agentIdx);
-		arg0.writeByte(browserIdx); 
+		arg0.writeInt(agentIdx);
+		arg0.writeInt(browserIdx);
 		arg0.writeBoolean(isFrequentChange);
 		arg0.writeInt(sourceIp.getIp());
 		arg0.writeInt(sourceIp.getMask());
@@ -190,19 +190,19 @@ public class Friend implements Serializable{
 		this.isHaveSmartPhone = isHaveSmartPhone;
 	}
 
-	public byte getAgentIdx() {
+	public int getAgentIdx() {
 		return agentIdx;
 	}
 
-	public void setAgentIdx(byte agentIdx) {
+	public void setAgentIdx(int agentIdx) {
 		this.agentIdx = agentIdx;
 	}
 
-	public byte getBrowserIdx() {
+	public int getBrowserIdx() {
 		return browserIdx;
 	}
 
-	public void setBrowserIdx(byte browserIdx) {
+	public void setBrowserIdx(int browserIdx) {
 		this.browserIdx = browserIdx;
 	}
 

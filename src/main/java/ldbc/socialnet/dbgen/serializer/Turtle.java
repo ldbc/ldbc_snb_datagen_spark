@@ -246,10 +246,10 @@ public class Turtle implements Serializer {
         createTripleSPO(result, prefix, SNVOC.locatedIn, DBP.fullPrefixed(locationDic.getLocationName(info.extraInfo.getLocationId())));
 
 
-        Vector<Integer> languages = info.extraInfo.getLanguages();
+        ArrayList<Integer> languages = info.extraInfo.getLanguages();
         for (int i = 0; i < languages.size(); i++) {
             createTripleSPO(result, prefix, SNVOC.speaks,
-                    createLiteral(languageDic.getLanguagesName(languages.get(i))));
+                    createLiteral(languageDic.getLanguageName(languages.get(i))));
         }
 
 
@@ -315,7 +315,7 @@ public class Turtle implements Serializer {
 
         if (post.getLanguage() != -1) {
             createTripleSPO(result, prefix, SNVOC.language,
-                    createLiteral(languageDic.getLanguagesName(post.getLanguage())));
+                    createLiteral(languageDic.getLanguageName(post.getLanguage())));
         }
 
         if (post.getIpAddress() != null) {

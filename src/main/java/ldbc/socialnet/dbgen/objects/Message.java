@@ -49,7 +49,7 @@ abstract public class Message {
     private TreeSet<Integer> tags;              /**< @brief The set of tags related to the post.*/
     private IP ipAddress;                       /**< @brief The ip from where the post was created.*/
     private String userAgent;				    /**< @brief The media used to send the post.*/
-    private byte browserIdx;					/**< @brief The id of the browser used to send the post.*/
+    private int browserIdx;					/**< @brief The id of the browser used to send the post.*/
     private int locationId;                     /**< @brief The location id from where the message has been sent.*/
 
 
@@ -66,7 +66,7 @@ abstract public class Message {
                    TreeSet<Integer> tags,
                    IP ipAddress,
                    String userAgent,
-                   byte browserIdx,
+                   int browserIdx,
                    int locationId) {
 
         this.messageId = messageId;
@@ -131,10 +131,10 @@ abstract public class Message {
     public void setIpAddress(IP ipAddress) {
         this.ipAddress = ipAddress;
     }
-    public byte getBrowserIdx() {
+    public int getBrowserIdx() {
         return this.browserIdx;
     }
-    public void setBrowserIdx(byte browserId) {
+    public void setBrowserIdx(int browserId) {
         this.browserIdx = browserId;
     }
     public Like[] getLikes() {

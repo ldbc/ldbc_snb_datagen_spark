@@ -41,34 +41,33 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Random;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import ldbc.socialnet.dbgen.objects.PopularPlace;
 
 
 public class PopularPlacesDictionary {
     
-    String dicFileName;
+    private LocationDictionary                          locationDictionary;         /**< @brief The location dictionary. **/
+	private HashMap<Integer, ArrayList<PopularPlace>>   popularPlacesByCountry;   /**< @brief The popular places by country .**/
 
-    LocationDictionary locationDic;
-	HashMap<Integer, Vector<PopularPlace>> popularPlacesByLocations;
-	
-	public PopularPlacesDictionary(String dicFileName, LocationDictionary locationDic){
-		this.dicFileName = dicFileName; 
-		this.locationDic = locationDic; 
+    /**
+     * @brief   Constructor
+     * @param   locationDic The location dictionary.
+     */
+	public PopularPlacesDictionary(LocationDictionary locationDic){
+		this.locationDictionary = locationDic;
+        this.popularPlacesByCountry = new HashMap<Integer, ArrayList<PopularPlace>>();
+        for (Integer id : locationDictionary.getCountries()) {
+            this.popularPlacesByCountry.put(id, new ArrayList<PopularPlace>());
+        }
 	}
-	
-	public void init(){
 
-	    popularPlacesByLocations = new HashMap<Integer, Vector<PopularPlace>>();
-	    for (Integer id : locationDic.getCountries()) {
-	        popularPlacesByLocations.put(id, new Vector<PopularPlace>());
-	    }
-
-	    extractPopularPlaces();
-	}
-	
-	public void extractPopularPlaces(){
+    /**
+     * @brief   Loads a popular places file.
+     * @param   fileName The popular places file name.
+     */
+	public void load( String fileName ){
 		String line; 
 		String locationName;
 		String lastLocationName = "";
@@ -78,7 +77,7 @@ public class PopularPlacesDictionary {
 		String label;
 		try {
 		    BufferedReader dicPopularPlace = new BufferedReader(
-		            new InputStreamReader(getClass().getResourceAsStream(dicFileName), "UTF-8"));
+		            new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));
 		    
 			while ((line = dicPopularPlace.readLine()) != null) {
 			    double latt;
@@ -86,20 +85,20 @@ public class PopularPlacesDictionary {
 				String infos[] = line.split("  ");
 				locationName = infos[0];
 				if (locationName.compareTo(lastLocationName) != 0) {
-					if (locationDic.getCountryId(locationName) != LocationDictionary.INVALID_LOCATION) {
+					if (locationDictionary.getCountryId(locationName) != LocationDictionary.INVALID_LOCATION) {
 						lastLocationName = locationName;
-						curLocationId = locationDic.getCountryId(locationName); 
+						curLocationId = locationDictionary.getCountryId(locationName);
 						label = infos[2];
 						latt = Double.parseDouble(infos[3]);
 						longt = Double.parseDouble(infos[4]);
-						popularPlacesByLocations.get(curLocationId).add(new PopularPlace(label, latt, longt));
+						popularPlacesByCountry.get(curLocationId).add(new PopularPlace(label, latt, longt));
 						totalNumPopularPlaces++;
 					}
 				} else {
 					label = infos[2];
 					latt = Double.parseDouble(infos[3]);
 					longt = Double.parseDouble(infos[4]);
-					popularPlacesByLocations.get(curLocationId).add(new PopularPlace(label, latt, longt));
+					popularPlacesByCountry.get(curLocationId).add(new PopularPlace(label, latt, longt));
 					totalNumPopularPlaces++;
 				}
 			}
@@ -109,16 +108,27 @@ public class PopularPlacesDictionary {
 			e.printStackTrace();
 		}
 	}
-	
-	public short getPopularPlace(Random random, int locationidx) {
-		if (popularPlacesByLocations.get(locationidx).size() == 0) {
+
+    /**
+     * @brief   Gets the popular places of a country.
+     * @param   random The random number generator.
+     * @param   countryId the locationid
+     * @return  The popular place identifier.
+     */
+	public short getPopularPlace(Random random, int countryId) {
+		if (popularPlacesByCountry.get(countryId).size() == 0) {
 		    return -1;
 		}
-		
-		return (short) random.nextInt(popularPlacesByLocations.get(locationidx).size());
+		return (short) random.nextInt(popularPlacesByCountry.get(countryId).size());
 	}
-	
-	public PopularPlace getPopularPlace(int locationIdx, int placeId){
-		return popularPlacesByLocations.get(locationIdx).get(placeId);
+
+    /**
+     * @brief   Gets a popular place.
+     * @param   countryId   the id of the country.
+     * @param   placeId The popular place id.
+     * @return  The popular place.
+     */
+	public PopularPlace getPopularPlace(int countryId, int placeId){
+		return popularPlacesByCountry.get(countryId).get(placeId);
 	}
 }

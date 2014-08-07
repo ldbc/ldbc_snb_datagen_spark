@@ -39,25 +39,30 @@ package ldbc.socialnet.dbgen.dictionary;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.Random;
 
 
 public class UserAgentDictionary {
     
-	String fileName;
-	
-	Vector<String> userAgents;
-	double probSentFromAgent; 
-	
-	public UserAgentDictionary(String fileName, double probSentFromAgent){
-		this.fileName = fileName; 
+	private ArrayList<String>   userAgents;             /**< @brief The set of all user agents.*/
+    private	double              probSentFromAgent;      /**< @brief The probability to used a different agent.*/
+
+    /**
+     * @brief   Constructor
+     * @param probSentFromAgent The probability to use a different agent.
+     */
+	public UserAgentDictionary(double probSentFromAgent){
 		this.probSentFromAgent = probSentFromAgent;
 	}
-	
-	public void init(){
+
+    /**
+     * @brief   Loads an agent dictionary file.
+     * @param   fileName The agent dictionary file name.
+     */
+	public void load( String fileName ){
 		try {
-		    userAgents = new Vector<String>();
+		    userAgents = new ArrayList<String>();
 			BufferedReader agentFile = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));
 			String line; 
 			while ((line = agentFile.readLine()) != null) {
@@ -69,12 +74,24 @@ public class UserAgentDictionary {
 			e.printStackTrace();
 		}
 	}
-	
-	public String getUserAgentName(Random randomSent, boolean hasSmathPhone, byte agentId){
+
+    /**
+     * @brief   Get a user agen name.
+     * @param   randomSent The random number generator.
+     * @param   hasSmathPhone Tells if we want an smartphone.
+     * @param   agentId The user agent id.
+     * @return  The user agent name.
+     */
+	public String getUserAgentName(Random randomSent, boolean hasSmathPhone, int agentId){
 		return (hasSmathPhone && (randomSent.nextDouble() > probSentFromAgent)) ? userAgents.get(agentId) : "";
 	}
-	
-	public byte getRandomUserAgentIdx(Random random){
-		return (byte)random.nextInt(userAgents.size());
+
+    /**
+     * @brief   Gets a random user agent.
+     * @param   random The random number generator used.
+     * @return  The user agent id.
+     */
+	public int getRandomUserAgentIdx(Random random){
+		return random.nextInt(userAgents.size());
 	}	
 }

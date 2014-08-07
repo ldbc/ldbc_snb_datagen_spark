@@ -51,7 +51,7 @@ public class Post extends  Message {
                  TreeSet<Integer> tags,
                  IP ipAddress,
                  String userAgent,
-                 byte browserIdx,
+                 int browserIdx,
                  int locationId,
                  int language
                 ) {

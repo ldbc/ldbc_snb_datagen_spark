@@ -38,43 +38,46 @@ package ldbc.socialnet.dbgen.dictionary;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Random;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 public class TagMatrix {
     
     private static final String SEPARATOR = " ";
+
+    private ArrayList<ArrayList<Integer>> relatedTags;      /**< @brief An array of related tags per tag.*/
+    private ArrayList<ArrayList<Double>> cumulative;        /**< @brief The cumulative distribution to pick a tag.*/
+    private TreeMap<Integer,ArrayList<Integer>> auxMatrix;  /**< @brief Left because it works, but I think this is reduntant.*/
+    private ArrayList<Integer> tagList;                     /**< @brief The list of tags.*/
     
-    String dicFileName;
-    
-    ArrayList<ArrayList<Double>> vecCumulative;
-    ArrayList<ArrayList<Integer>> vecTopicID;
-    TreeMap<Integer,ArrayList<Integer>>  auxMatrix;
-    ArrayList<Integer> tagList;
-    
-    public TagMatrix(String dicFileName, int numCelebrities){
-        this.dicFileName = dicFileName;
-        vecCumulative = new ArrayList<ArrayList<Double>>(numCelebrities);
-        vecTopicID    = new ArrayList<ArrayList<Integer>>(numCelebrities);
-        for (int i =  0; i < numCelebrities; i++){
-            vecCumulative.add(new ArrayList<Double>());
-            vecTopicID.add(new ArrayList<Integer>());
+    public TagMatrix(int numPopularTags){
+        cumulative = new ArrayList<ArrayList<Double>>(numPopularTags);
+        relatedTags    = new ArrayList<ArrayList<Integer>>(numPopularTags);
+        for (int i =  0; i < numPopularTags; i++){
+            cumulative.add(new ArrayList<Double>());
+            relatedTags.add(new ArrayList<Integer>());
         }
         auxMatrix = new TreeMap<Integer,ArrayList<Integer>>();
         tagList = new ArrayList<Integer>();
     }
-    
-    public void initMatrix() {
+
+    /**
+     * @brief Loads the tag matrix from a file.
+     * @param tagMatrixFileName The tag matrix file name.
+     */
+    public void load( String tagMatrixFileName ) {
         try {
-            BufferedReader dictionary = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(dicFileName), "UTF-8"));
+            BufferedReader dictionary = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(tagMatrixFileName), "UTF-8"));
             String line;
             while ((line = dictionary.readLine()) != null) {
                 String data[] = line.split(SEPARATOR);
                 int celebrityId = Integer.parseInt(data[0]);
                 int topicId = Integer.parseInt(data[1]);
                 double cumuluative = Double.parseDouble(data[2]);
-                
-                vecCumulative.get(celebrityId).add(cumuluative);
-                vecTopicID.get(celebrityId).add(topicId);
+                cumulative.get(celebrityId).add(cumuluative);
+                relatedTags.get(celebrityId).add(topicId);
                 Insert(celebrityId,topicId);
             }
             dictionary.close();
@@ -83,6 +86,11 @@ public class TagMatrix {
         }
     }
 
+    /**
+     * @brief   Inserts a tag matrix position into the dictionary.
+     * @param   tag1 The first tag id.
+     * @param   tag2 The second tag id.
+     */
     private void Insert(Integer tag1, Integer tag2) {
         ArrayList<Integer> vect = auxMatrix.get(tag1);
         if( vect == null ) {
@@ -101,7 +109,13 @@ public class TagMatrix {
         vect.add(tag1);
     }
 
-    public Integer getRandomRelated( Random randomTopic, Random randomTag, int tag) {
+    /**
+     * @brief   Gets a random related tag.
+     * @param   randomTag The random tag number generator.
+     * @param   tag The tag identifier.
+     * @return  The related tag identifier.
+     */
+    public Integer getRandomRelated( Random randomTag, int tag) {
         ArrayList<Integer> vect = auxMatrix.get(tag);
         if( vect != null ) {
             int index = randomTag.nextInt(vect.size());
@@ -110,34 +124,41 @@ public class TagMatrix {
             return tagList.get(randomTag.nextInt(tagList.size()));
         }
     }
-    
-    // Combine the main tag and related tags
-    public TreeSet<Integer> getSetofTags(Random randomTopic, Random randomTag, int celebrityId, int numTags){
+
+    /**
+     * @brief   Get a set of related tags.
+     * @param   randomTopic The random number generator used to select aditional popular tags
+     * @param   randomTag The random number generator used to select related tags.
+     * @param   popularTagId The popular tag identifier.
+     * @param   numTags The number of related tags to retrieve.
+     * @return  The set of related tags.
+     */
+    public TreeSet<Integer> getSetofTags(Random randomTopic, Random randomTag, int popularTagId, int numTags){
         TreeSet<Integer> resultTags = new TreeSet<Integer>();
-        resultTags.add(celebrityId);
+        resultTags.add(popularTagId);
         while (resultTags.size() < numTags) {
             int tagId; 
-            tagId = celebrityId; 
+            tagId = popularTagId;
             
-            while (vecTopicID.get(tagId).size() == 0) {
-                tagId = randomTopic.nextInt(vecTopicID.size());
+            while (relatedTags.get(tagId).size() == 0) {
+                tagId = randomTopic.nextInt(relatedTags.size());
             }
 
             // Doing binary search for finding the tag
             double randomDis = randomTag.nextDouble();
             int lowerBound = 0;
-            int upperBound = vecTopicID.get(tagId).size();
+            int upperBound = relatedTags.get(tagId).size();
             int midPoint = (upperBound + lowerBound)  / 2;
 
             while (upperBound > (lowerBound+1)){
-                if (vecCumulative.get(tagId).get(midPoint) > randomDis ){
+                if (cumulative.get(tagId).get(midPoint) > randomDis ){
                     upperBound = midPoint;
                 } else{
                     lowerBound = midPoint; 
                 }
                 midPoint = (upperBound + lowerBound)  / 2;
             }
-            resultTags.add(vecTopicID.get(tagId).get(midPoint));
+            resultTags.add(relatedTags.get(tagId).get(midPoint));
         }
         return resultTags;    
     }

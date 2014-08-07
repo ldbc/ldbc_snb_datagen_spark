@@ -39,9 +39,10 @@ package ldbc.socialnet.dbgen.dictionary;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Vector;
 import java.util.Random;
+import java.util.Vector;
 
 
 public class LanguageDictionary {
@@ -49,41 +50,46 @@ public class LanguageDictionary {
     private static final String SEPARATOR = "  "; 
     private static final String ISO_ENGLISH_CODE = "en"; 
     
-    Vector<String> languages;
-    HashMap<Integer, Vector<Integer>> officalLanguagesFromCountries;
-    HashMap<Integer, Vector<Integer>> languagesFromCountries;
-	
-    LocationDictionary locationDic;
-	String dicFile;
-	double probEnglish;
-	double probSecondLang;
-	
-	public LanguageDictionary(String dicFile,  LocationDictionary locationDic, 
+    private ArrayList<String>                       languages;                      /**< @brief The array of languages. **/
+    private HashMap<Integer, ArrayList<Integer>>    officalLanguagesByCountry;      /**< @brief The official languages by country. **/
+    private HashMap<Integer, ArrayList<Integer>>    languagesByCountry;             /**< @brief The languages by country. **/
+    private LocationDictionary                      locationDictionary;             /**< @brief The location dictionary. **/
+	private double                                  probEnglish;                    /**< @brief The probability to speak english. **/
+	private double                                  probSecondLang;                 /**< @brief The probability of speaking a second language. **/
+
+    /**
+     * @brief   Constructor
+     * @param   locationDic The location dictionary.
+     * @param   probEnglish The probability of speaking english.
+     * @param   probSecondLang The probability of speaking a second language.
+     */
+	public LanguageDictionary( LocationDictionary locationDic,
 	        double probEnglish, double probSecondLang){
-        this.dicFile = dicFile; 
-        this.locationDic = locationDic;
+        this.locationDictionary = locationDic;
         this.probEnglish = probEnglish;
         this.probSecondLang = probSecondLang;
+        this.languages = new ArrayList<String>();
+        this.officalLanguagesByCountry = new HashMap<Integer, ArrayList<Integer>>();
+        this.languagesByCountry = new HashMap<Integer, ArrayList<Integer>>();
     }
-	
-	public void init(){
+
+    /**
+     * @brief   Loads a dictionary file.
+     * @param   fileName  The name of the dictionary file.
+     */
+	public void load( String fileName ){
 		try {
-		    languages = new Vector<String>();
-		    officalLanguagesFromCountries = new HashMap<Integer, Vector<Integer>>();
-		    languagesFromCountries = new HashMap<Integer, Vector<Integer>>();
-		    for (Integer id : locationDic.getCountries()) {
-		        officalLanguagesFromCountries.put(id, new Vector<Integer>());
-		        languagesFromCountries.put(id, new Vector<Integer>());
+		    for (Integer id : locationDictionary.getCountries()) {
+		        officalLanguagesByCountry.put(id, new ArrayList<Integer>());
+		        languagesByCountry.put(id, new ArrayList<Integer>());
 		    }
-
-		    BufferedReader dictionary = new BufferedReader(new InputStreamReader(getClass( ).getResourceAsStream(dicFile), "UTF-8"));
-
+		    BufferedReader dictionary = new BufferedReader(new InputStreamReader(getClass( ).getResourceAsStream(fileName), "UTF-8"));
 		    String line;
 		    while ((line = dictionary.readLine()) != null) {
 		        String data[] = line.split(SEPARATOR);
-		        if (locationDic.getCountryId(data[0]) != LocationDictionary.INVALID_LOCATION) {
+		        if (locationDictionary.getCountryId(data[0]) != LocationDictionary.INVALID_LOCATION) {
 		            for (int i = 1; i < data.length; i++) {
-		                Integer countryId = locationDic.getCountryId(data[0]);
+		                Integer countryId = locationDictionary.getCountryId(data[0]);
 		                String languageData[] = data[i].split(" ");
 		                Integer id = languages.indexOf(languageData[0]);
 		                if (id == -1) {
@@ -91,46 +97,61 @@ public class LanguageDictionary {
 		                    languages.add(languageData[0]);
 		                }
 		                if (languageData.length == 3) {
-		                    officalLanguagesFromCountries.get(countryId).add(id);
+		                    officalLanguagesByCountry.get(countryId).add(id);
 		                }
-		                languagesFromCountries.get(countryId).add(id);
+		                languagesByCountry.get(countryId).add(id);
 		            }
 		        }
 		    }
 		    dictionary.close();
-			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
-	public String getLanguagesName(int languageId) {
+
+    /**
+     * @brief   Gets the name of the language.
+     * @param   languageId The language identifier.
+     * @return  The name of the language.
+     */
+	public String getLanguageName(int languageId) {
         if (languageId < 0 || languageId >= languages.size()) {
             System.err.println("Trying to acces the invalid language with id="+languageId);
             return "";
         }
         return languages.get(languageId);
     }
-	
-	public Vector<Integer> getLanguages(Random random, int locationId) {
-	    Vector<Integer> langSet = new Vector<Integer>();
-	    if (officalLanguagesFromCountries.get(locationId).size() != 0) {
-	        int id = random.nextInt(officalLanguagesFromCountries.get(locationId).size());
-	        langSet.add(officalLanguagesFromCountries.get(locationId).get(id));
+
+    /**
+     * @breif   Gets a set of random languages from a country.
+     * @param   random Random number generator.
+     * @param   country The country to retrieve the languages from.
+     * @return  The set of randomly choosen languages.
+     */
+	public ArrayList<Integer> getLanguages(Random random, int country) {
+	    ArrayList<Integer> langSet = new ArrayList<Integer>();
+	    if (officalLanguagesByCountry.get(country).size() != 0) {
+	        int id = random.nextInt(officalLanguagesByCountry.get(country).size());
+	        langSet.add(officalLanguagesByCountry.get(country).get(id));
 	    } else {
-	        int id = random.nextInt(languagesFromCountries.get(locationId).size());
-            langSet.add(languagesFromCountries.get(locationId).get(id));
+	        int id = random.nextInt(languagesByCountry.get(country).size());
+            langSet.add(languagesByCountry.get(country).get(id));
 	    }
 	    if (random.nextDouble() < probSecondLang) {
-	        int id = random.nextInt(languagesFromCountries.get(locationId).size());
-	        if (langSet.indexOf(languagesFromCountries.get(locationId).get(id)) == -1) {
-	            langSet.add(languagesFromCountries.get(locationId).get(id));
+	        int id = random.nextInt(languagesByCountry.get(country).size());
+	        if (langSet.indexOf(languagesByCountry.get(country).get(id)) == -1) {
+	            langSet.add(languagesByCountry.get(country).get(id));
 	        }
 	    }
 	    return langSet;
 	}
-	
-	public Integer getInternationlLanguage(Random random) {
+
+    /**
+     * @brief   Gets a random language.
+     * @param   random
+     * @return  The language.
+     */
+	public int getInternationlLanguage(Random random) {
 	    Integer languageId = -1;
         if (random.nextDouble() < probEnglish) {
             languageId = languages.indexOf(ISO_ENGLISH_CODE);

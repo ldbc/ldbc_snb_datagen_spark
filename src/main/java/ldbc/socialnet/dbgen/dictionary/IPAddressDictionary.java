@@ -39,54 +39,47 @@ package ldbc.socialnet.dbgen.dictionary;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.Vector;
-
 import ldbc.socialnet.dbgen.generator.DateGenerator;
 import ldbc.socialnet.dbgen.objects.IP;
-import ldbc.socialnet.dbgen.objects.Location;
 
 
 public class IPAddressDictionary {
     
-    private static final String SEPARATOR_COUNTRY = "   ";
-    private static final String SEPARATOR_IP = "[.]";
-    private static final String SEPARATOR_MASK = "/";
-    private static final int MAX_IP_COUNTRY = 100;
-    
-    
-    
-	HashMap<Integer, Vector<IP>> ipsByCountry;
-	HashMap<Integer, Integer> ipCountry;
+    private static final String                 SEPARATOR_COUNTRY = "   ";
+    private static final String                 SEPARATOR_IP = "[.]";
+    private static final String                 SEPARATOR_MASK = "/";
+    private static final int                    MAX_IP_COUNTRY = 100;
+	private HashMap<Integer, ArrayList<IP>>     ipsByCountry;               /**< @brief The ips by country. **/
+	private HashMap<Integer, Integer>           ipCountry;                  /**< @brief The country of ips. **/
+	private LocationDictionary                  locationDictionary;         /**< @brief The location dictionary. **/
+	private double                              probDiffIPinTravelSeason;
+    private double                              probDiffIPnotTravelSeason;
+    private double                              probDiffIPforTraveller;
 	
-	LocationDictionary locationDic;
-	
-	String 	mappingFileName;
-	String 	baseIPdir;
-	
-	double probDiffIPinTravelSeason;
-    double probDiffIPnotTravelSeason;
-    double probDiffIPforTraveller;
-	
-	public IPAddressDictionary(String _mappingFileName, String _baseIPdir, LocationDictionary locationDic, 
+	public IPAddressDictionary( LocationDictionary locationDic,
 								double _probDiffIPinTravelSeason, 
 								double _probDiffIPnotTravelSeason, double _probDiffIPforTraveller){
-		this.mappingFileName = _mappingFileName;
-		this.baseIPdir = _baseIPdir;
-		
-		this.locationDic = locationDic;
-		ipCountry = new HashMap<Integer, Integer>();
-		ipsByCountry = new HashMap<Integer, Vector<IP>>();
-		
-		probDiffIPinTravelSeason = _probDiffIPinTravelSeason; 
-		probDiffIPnotTravelSeason = _probDiffIPnotTravelSeason;
-		probDiffIPforTraveller = _probDiffIPforTraveller;
+
+		this.locationDictionary = locationDic;
+		this.ipCountry = new HashMap<Integer, Integer>();
+		this.ipsByCountry = new HashMap<Integer, ArrayList<IP>>();
+		this.probDiffIPinTravelSeason = _probDiffIPinTravelSeason;
+		this.probDiffIPnotTravelSeason = _probDiffIPnotTravelSeason;
+		this.probDiffIPforTraveller = _probDiffIPforTraveller;
 	}
-	
-	public void initialize() {
+
+    /**
+     * @breif Loads dictionary.
+     * @param mappingFileName   The abbreviations per country.
+     * @param baseIPdir         The base directory where ip files are found.
+     */
+	public void load( String mappingFileName, String baseIPdir ) {
 	    String line;
-	    HashMap<String, String> countryAbbreMap = new HashMap<String, String>();
+        HashMap <String, String> countryAbbreMap = new HashMap<String, String>();
 	    try {
 	        BufferedReader mappingFile = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(mappingFileName), "UTF-8"));
 	        while ((line = mappingFile.readLine()) != null){
@@ -97,12 +90,12 @@ public class IPAddressDictionary {
 	        }
 	        mappingFile.close();
 
-	        Vector<Integer> countries = locationDic.getCountries();
+	        ArrayList<Integer> countries = locationDictionary.getCountries();
 	        for (int i = 0; i < countries.size(); i ++) {
-	            ipsByCountry.put(countries.get(i), new Vector<IP>());
+	            ipsByCountry.put(countries.get(i), new ArrayList<IP>());
 
 	            //Get the name of file
-	            String fileName = countryAbbreMap.get(locationDic.getLocationName(countries.get(i)));
+	            String fileName = countryAbbreMap.get(locationDictionary.getLocationName(countries.get(i)));
 	            fileName = baseIPdir + "/" + fileName + ".zone";
 	            BufferedReader ipZoneFile = new BufferedReader(new InputStreamReader(getClass( ).getResourceAsStream(fileName), "UTF-8"));
 
@@ -135,10 +128,10 @@ public class IPAddressDictionary {
 	}
 	
 	public IP getRandomIPFromLocation(Random random, int locationIdx) {
-        while(locationDic.getType(locationIdx) != "country") {
-            locationIdx = locationDic.belongsTo(locationIdx);
+        while(locationDictionary.getType(locationIdx) != "country") {
+            locationIdx = locationDictionary.belongsTo(locationIdx);
         }
-		Vector<IP> countryIPs = ipsByCountry.get(locationIdx);
+		ArrayList<IP> countryIPs = ipsByCountry.get(locationIdx);
 		int idx = random.nextInt(countryIPs.size());
 		
 		IP networkIp = countryIPs.get(idx);
@@ -157,7 +150,7 @@ public class IPAddressDictionary {
 	}
 	
 	public IP getRandomIP(Random random) {
-	    Vector<Integer> countries = locationDic.getCountries();
+	    ArrayList<Integer> countries = locationDictionary.getCountries();
         int randomLocationIdx = random.nextInt(countries.size());
 		return getRandomIPFromLocation(random, randomLocationIdx);
 	}

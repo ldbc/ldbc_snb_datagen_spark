@@ -36,10 +36,7 @@
  */
 package ldbc.socialnet.dbgen.generator;
 
-import java.util.TreeSet;
-import java.util.Iterator;
-import java.util.Random;
-import java.util.Vector;
+import java.util.*;
 
 import ldbc.socialnet.dbgen.dictionary.LocationDictionary;
 import ldbc.socialnet.dbgen.dictionary.TagDictionary;
@@ -102,7 +99,7 @@ public class GroupGenerator {
 	public Group createAlbum(RandomGeneratorFarm randomFarm, long groupId, ReducedUserProfile user, UserExtraInfo extraInfo, int numAlbum, double memberProb) {
 	    Group group = createGroup(randomFarm, groupId,user);
         if( group == null ) return null;
-	    Vector<Integer> countries = locationDic.getCountries();
+	    ArrayList<Integer> countries = locationDic.getCountries();
 	    int randomCountry = randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY).nextInt(countries.size());
 	    group.setLocationIdx(countries.get(randomCountry));
 	    group.setGroupName("Album " + numAlbum + " of " + extraInfo.getFirstName() + " " + extraInfo.getLastName());

@@ -41,7 +41,9 @@ import ldbc.socialnet.dbgen.util.RandomGeneratorFarm;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * This class reads the file containing the names and countries for the companies used in the ldbc socialnet generation and 
@@ -50,56 +52,48 @@ import java.util.*;
 public class CompanyDictionary {
     
     private static final String SEPARATOR = "  ";
-    
-	String fileName;
-
-    TreeMap<Long, String>   companyName;
-	TreeMap<Long, Integer> companyLocation;
-	TreeMap<Integer, Vector<Long>> companiesByLocations;
-	LocationDictionary locationDic;
-	
-    double probUnCorrelatedCompany;
+    private TreeMap<Long, String> companyName;                /**< @brief A map containing the name of each company.**/
+	private TreeMap<Long, Integer>              companyCountry;             /**< @brief A map containing the location of each company. **/
+	private TreeMap<Integer, ArrayList<Long>>   companiesByCountry;         /**< @brief A map containing the companies of each country. **/
+	private LocationDictionary                  locationDictionary;         /**< @brief The location dictionary.**/
+    private double                              probUnCorrelatedCompany;    /**< @brief The probability of working in a uncorrelated company.**/
 	
     /**
-     * Constructor.
-     * 
-     * @param fileName: The file with the company data.
-     * @param locationDic: The location dictionary.
-     * @param probUnCorrelatedCompany: Probability of selecting a country unrelated company.
+     * @brief   Constructor.
+     * @param   probUnCorrelatedCompany: Probability of selecting a country unrelated company.
      */
-	public CompanyDictionary(String fileName, LocationDictionary locationDic, 
+	public CompanyDictionary(LocationDictionary locationDictionary,
 	         double probUnCorrelatedCompany) {
 	    
-		this.fileName = fileName;
-		this.locationDic = locationDic;
+		this.locationDictionary = locationDictionary;
 		this.probUnCorrelatedCompany = probUnCorrelatedCompany;
+        this.companyName = new TreeMap<Long,String>();
+        this.companyCountry = new TreeMap<Long, Integer>();
+        this.companiesByCountry = new TreeMap<Integer, ArrayList<Long>>();
+        for (Integer id : locationDictionary.getCountries()){
+            this.companiesByCountry.put(id, new ArrayList<Long>());
+        }
 	}
 
 	/**
-     * Initializes the dictionary extracting the data from the file.
+     * @brief   Loads the company dictionary file.
+     * @param   fileName The file to load.
      */
-	public void init() {
-        companyName = new TreeMap<Long,String>();
-	    companyLocation = new TreeMap<Long, Integer>();
-	    companiesByLocations = new TreeMap<Integer, Vector<Long>>();
-	    for (Integer id : locationDic.getCountries()){
-	        companiesByLocations.put(id, new Vector<Long>());
-	    }
+	public void load( String fileName ) {
 	    try {
             BufferedReader dictionary = new BufferedReader(
                     new InputStreamReader(getClass( ).getResourceAsStream(fileName), "UTF-8"));
             String line;  
-            int previousId = -2;
-            int currentId = -1; 
+            int currentId = -1;
             long totalNumCompanies = 0;
             while ((line = dictionary.readLine()) != null) {
                 String data[] = line.split(SEPARATOR);
                 String locationName = data[0];
                 String companyName  = data[1].trim();
-                if (locationDic.getCountryId(locationName) != LocationDictionary.INVALID_LOCATION) {
-                    currentId  = locationDic.getCountryId(locationName);
-                    companiesByLocations.get(currentId).add(totalNumCompanies);
-                    companyLocation.put(totalNumCompanies, currentId);
+                if (locationDictionary.getCountryId(locationName) != LocationDictionary.INVALID_LOCATION) {
+                    currentId  = locationDictionary.getCountryId(locationName);
+                    companiesByCountry.get(currentId).add(totalNumCompanies);
+                    companyCountry.put(totalNumCompanies, currentId);
                     this.companyName.put(totalNumCompanies, companyName);
                     totalNumCompanies++;
                 }
@@ -113,39 +107,57 @@ public class CompanyDictionary {
 	}
 
 	/**
-	 * Gets the company country id.
+	 * @brief   Gets the company country id.
+     * @param   company The company identifier.
+     * @return  The id of the country.
 	 */
 	public int getCountry(Long company) {
-	    return companyLocation.get(company);
+	    return companyCountry.get(company);
 	}
 	
 	/**
-	 * Gets a random company of the input country. In case the given country doesn't any company
-	 * a random one will be selected.
-	 * @param countryId: A country id.
+	 * @brief   Gets a random company of the input country. In case the given country doesn't any company
+	 *          a random one will be selected.
+     * @param   randomFarm The random farm used to get random numbers.
+	 * @param   countryId: A country id.
+     * @return  The id of the company.
 	 */
 	public long getRandomCompany(RandomGeneratorFarm randomFarm, int countryId) {
 		int locId = countryId;
-		Vector<Integer> countries = locationDic.getCountries();
+		ArrayList<Integer> countries = locationDictionary.getCountries();
 		if (randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_COMPANY).nextDouble() <= probUnCorrelatedCompany) {
 		    locId = countries.get(randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_COMPANY_LOCATION).nextInt(countries.size()));
 		}
 		// In case the country doesn't have any company select another country.
-		while (companiesByLocations.get(locId).size() == 0){
+		while (companiesByCountry.get(locId).size() == 0){
 		    locId = countries.get(randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_COMPANY_LOCATION).nextInt(countries.size()));
         }
-		int randomCompanyIdx = randomFarm.get(RandomGeneratorFarm.Aspect.COMPANY).nextInt(companiesByLocations.get(locId).size());
-		return companiesByLocations.get(locId).get(randomCompanyIdx);
+		int randomCompanyIdx = randomFarm.get(RandomGeneratorFarm.Aspect.COMPANY).nextInt(companiesByCountry.get(locId).size());
+		return companiesByCountry.get(locId).get(randomCompanyIdx);
 	}
 
+
+    /**
+     * @brief   Gets the set of of companies in the dictionary.
+     * @return  The set of companies.
+     */
     public Set<Long> getCompanies() {
-        return companyLocation.keySet();
+        return companyCountry.keySet();
     }
 
+    /**
+     * @brief   Gets the number of companies in the dictionary.
+     * @return  The number of companies.
+     */
     public int getNumCompanies() {
         return companyName.size();
     }
 
+    /**
+     * @brief   Gets the name of a company.
+     * @param   id The company's id.
+     * @return  The name of the company.
+     */
     public String getCompanyName( long id ) {
         return companyName.get(id);
     }

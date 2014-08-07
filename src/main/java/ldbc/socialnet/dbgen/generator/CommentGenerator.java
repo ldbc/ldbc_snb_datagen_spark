@@ -201,7 +201,7 @@ public class CommentGenerator {
 
             for( int i = 0; i < (int)Math.ceil(replyTo.getTags().size() / 2.0); ++i) {
                 int randomTag = currentTags.get(randomFarm.get(RandomGeneratorFarm.Aspect.TAG).nextInt(currentTags.size()));
-                tags.add(tagMatrix.getRandomRelated(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), randomFarm.get(RandomGeneratorFarm.Aspect.TAG),randomTag));
+                tags.add(tagMatrix.getRandomRelated(randomFarm.get(RandomGeneratorFarm.Aspect.TAG),randomTag));
             }
 
             if( generateText ) {
@@ -237,7 +237,7 @@ public class CommentGenerator {
                                        ipAddDic.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER),friend.getSourceIp(), friend.isFrequentChange(), creationDate),
                                        userAgentDic.getUserAgentName(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT),friend.isHaveSmartPhone(), friend.getAgentIdx()),
                                        browserDic.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER),friend.getBrowserIdx()),
-                                       user.getCityIndex(),
+                                       user.getCityId(),
                                        post.getMessageId(),
                                        replyTo.getMessageId());
         if( !isShort && randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
@@ -279,14 +279,14 @@ public class CommentGenerator {
                 Integer tag = it.next();
                 if( randomFarm.get(RandomGeneratorFarm.Aspect.TAG).nextDouble() > 0.5) {
                     tags.add(tag);
-                    tags.add(tagMatrix.getRandomRelated(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), randomFarm.get(RandomGeneratorFarm.Aspect.TAG),tag));
+                    tags.add(tagMatrix.getRandomRelated( randomFarm.get(RandomGeneratorFarm.Aspect.TAG),tag));
                 }
                 currentTags.add(tag);
             }
 
             for( int i = 0; i < (int)Math.ceil(replyTo.getTags().size() / 2.0); ++i) {
                 int randomTag = currentTags.get(randomFarm.get(RandomGeneratorFarm.Aspect.TAG).nextInt(currentTags.size()));
-                tags.add(tagMatrix.getRandomRelated(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), randomFarm.get(RandomGeneratorFarm.Aspect.TAG),randomTag));
+                tags.add(tagMatrix.getRandomRelated( randomFarm.get(RandomGeneratorFarm.Aspect.TAG),randomTag));
             }
 
             if( generateText ) {

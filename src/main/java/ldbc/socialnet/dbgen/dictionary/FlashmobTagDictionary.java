@@ -36,33 +36,23 @@
  */
 package ldbc.socialnet.dbgen.dictionary;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Random;
-import java.util.Vector;
-import java.util.TreeSet;
-import java.util.Arrays;
-import java.util.Iterator;
-import ldbc.socialnet.dbgen.dictionary.TagDictionary;
 import ldbc.socialnet.dbgen.generator.DateGenerator;
 import ldbc.socialnet.dbgen.generator.PowerDistGenerator;
 import ldbc.socialnet.dbgen.objects.FlashmobTag;
 
+import java.util.*;
+
 public class FlashmobTagDictionary {
 
-    private static final String SEPARATOR = "\t";
-    
-    DateGenerator dateGen;                              /**< @brief The date generator used to generate dates.*/
-	PowerDistGenerator levelGenerator;                  /**< @brief The powerlaw distribution generator used to generate the levels.*/
-	Random random;                                      /**< @brief A uniform random genereator.*/
-	TagDictionary tagDictionary;                        /**< @brief The tag dictionary used to create the flashmob tags.*/
-	HashMap<Integer,Vector<FlashmobTag> > flashmobTags; /**< @brief A map of identifiers of tags to flashmob tag instances.*/
-	FlashmobTag[] flashmobTagCumDist;                   /**< @brief The cumulative distribution of flashmob tags sorted by date.*/
-	double flashmobTagsPerMonth;                        /**< @brief The number of flashmob tags per month.*/
-	double probInterestFlashmobTag;                     /**< @brief The probability to take an interest flashmob tag.*/
-    double probRandomPerLevel;                          /**< @brief The probability per level to take a flashmob tag.*/
+    private DateGenerator                           dateGen;                    /**< @brief The date generator used to generate dates.*/
+	private PowerDistGenerator                      levelGenerator;             /**< @brief The powerlaw distribution generator used to generate the levels.*/
+	private Random random;                     /**< @brief A uniform random genereator.*/
+	private TagDictionary                           tagDictionary;              /**< @brief The tag dictionary used to create the flashmob tags.*/
+	private HashMap<Integer,ArrayList<FlashmobTag>> flashmobTags;               /**< @brief A map of identifiers of tags to flashmob tag instances.*/
+	private FlashmobTag[]                           flashmobTagCumDist;         /**< @brief The cumulative distribution of flashmob tags sorted by date.*/
+	private double                                  flashmobTagsPerMonth;       /**< @brief The number of flashmob tags per month.*/
+	private double                                  probInterestFlashmobTag;    /**< @brief The probability to take an interest flashmob tag.*/
+    private double                                  probRandomPerLevel;         /**< @brief The probability per level to take a flashmob tag.*/
 
 	public FlashmobTagDictionary( TagDictionary tagDictionary, 
 								  DateGenerator dateGen,
@@ -71,14 +61,13 @@ public class FlashmobTagDictionary {
 								  double probRandomPerLevel,
 								  double flashmobTagMinLevel,
 								  double flashmobTagMaxLevel,
-								  double flashmobTagDistExp,
-								  long seed ) {
+								  double flashmobTagDistExp) {
 
 		this.tagDictionary = tagDictionary;	    
 		this.dateGen = dateGen;
 		this.levelGenerator  = new PowerDistGenerator(flashmobTagMinLevel, flashmobTagMaxLevel, flashmobTagDistExp); 
-		this.random = new Random(seed);
-		this.flashmobTags = new HashMap<Integer,Vector<FlashmobTag> >();
+		this.random = new Random(0);
+		this.flashmobTags = new HashMap<Integer,ArrayList<FlashmobTag> >();
 		this.flashmobTagsPerMonth = flashmobTagsPerMonth;
 		this.probInterestFlashmobTag = probInterestFlashmobTag;
         this.probRandomPerLevel = probRandomPerLevel;
@@ -91,9 +80,9 @@ public class FlashmobTagDictionary {
     	flashmobTagCumDist = new FlashmobTag[numFlashmobTags];
     	double sumLevels = 0;
     	for( int i = 0; i < numFlashmobTags; ++i ){
-    		Vector<FlashmobTag> instances = flashmobTags.get(tags[i]);
+    		ArrayList<FlashmobTag> instances = flashmobTags.get(tags[i]);
     		if( instances == null ) {
-    			instances = new Vector<FlashmobTag>();	
+    			instances = new ArrayList<FlashmobTag>();
     			flashmobTags.put(tags[i],instances);
     		}
    			FlashmobTag flashmobTag = new FlashmobTag();
@@ -143,12 +132,12 @@ public class FlashmobTagDictionary {
      *  @param[in] interests The set of interests.
      *  @param[in] fromDate The date from which to consider the flashmob tags.
      *  @return A vector containing the selected flashmob tags.*/
-	public Vector<FlashmobTag> generateFlashmobTags( TreeSet<Integer> interests, long fromDate ) {
-		Vector<FlashmobTag> result = new Vector<FlashmobTag>();
+	public ArrayList<FlashmobTag> generateFlashmobTags( TreeSet<Integer> interests, long fromDate ) {
+		ArrayList<FlashmobTag> result = new ArrayList<FlashmobTag>();
 		Iterator<Integer> it = interests.iterator();
 		while(it.hasNext()) {
 			Integer tag = it.next();
-			Vector<FlashmobTag> instances = flashmobTags.get(tag);
+			ArrayList<FlashmobTag> instances = flashmobTags.get(tag);
 			if( instances != null ) {
 				Iterator<FlashmobTag> it2 = instances.iterator();
 				while( it2.hasNext()){
@@ -161,7 +150,6 @@ public class FlashmobTagDictionary {
 				}
 			}
 		}
-		int numberOfMonths = (int)(dateGen.numberOfMonths(fromDate));	
 		int earliestIndex = searchEarliestIndex(fromDate);
 		for( int i = earliestIndex; i < flashmobTagCumDist.length; ++i ) {
 				if(selectFlashmobTag(i)) {

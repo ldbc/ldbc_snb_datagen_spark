@@ -41,7 +41,6 @@ import ldbc.socialnet.dbgen.dictionary.*;
 import ldbc.socialnet.dbgen.generator.DateGenerator;
 import ldbc.socialnet.dbgen.generator.ScalableGenerator;
 import ldbc.socialnet.dbgen.objects.*;
-import ldbc.socialnet.dbgen.serializer.CSVSerializer.CSVSerializer;
 
 import java.util.*;
 
@@ -194,7 +193,7 @@ public class DataExporter {
             university.id = it.next();
             university.type = ScalableGenerator.OrganisationType.university;
             university.name = universityDic.getUniversityName(university.id);
-            university.location = universityDic.getUniversityLocation(university.id);
+            university.location = universityDic.getUniversityCity(university.id);
             staticSerializer.serialize(university);
         }
     }

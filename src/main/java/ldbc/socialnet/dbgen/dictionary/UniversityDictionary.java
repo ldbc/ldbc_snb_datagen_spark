@@ -39,69 +39,76 @@ package ldbc.socialnet.dbgen.dictionary;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.TreeMap;
 
 import ldbc.socialnet.dbgen.util.RandomGeneratorFarm;
 
 public class UniversityDictionary {
     
     private static final String SEPARATOR = "  ";
-    
-    String dicFileName; 
+    private TreeMap<Long,String>                universityName;             /**< @brief The university names. */
+	private TreeMap<Long, Integer>              universityCity;             /**< @brief The university city. */
+	private TreeMap<Integer, ArrayList<Long>>   universitiesByCountry;      /**< @brief The universities by country .*/
+	private double                              probTopUniv;                /**< @brief The probability to get a top university.*/
+	private double                              probUncorrelatedUniversity; /**< @brief The probability to get an uncorrelated university.*/
+	private LocationDictionary                  locationDic;                /**< @brief The location dictionary.*/
+    private long                                startIndex = 0;             /**< @brief The first index to assign to university ids. */
 
-    TreeMap<Long,String> universityName;
-	TreeMap<Long, Integer> universityToLocation;
-	TreeMap<Integer, Vector<Long>> universitiesByLocation;
-	
-	double probTopUniv; 
-	double probUncorrelatedUniversity;
-	LocationDictionary locationDic;
-    long startIndex = 0;
-
-	public UniversityDictionary(String dicFileName, LocationDictionary locationDic, 
+    /**
+     * @brief   Constructor
+     * @param   locationDic The location dictionary.
+     * @param   probUncorrelatedUniversity The probability to select an uncorrelated university.
+     * @param   probTopUni The probability of choosing a top university.
+     * @param   startIndex The first index to assign as id.
+     */
+	public UniversityDictionary( LocationDictionary locationDic,
 									 double probUncorrelatedUniversity, 
 									 double probTopUni, int startIndex){
-		this.dicFileName = dicFileName;
 		this.probTopUniv = probTopUni;
 		this.locationDic = locationDic;
 		this.probUncorrelatedUniversity = probUncorrelatedUniversity;
         this.startIndex = startIndex;
+        this.universityName = new TreeMap<Long,String>();
+        this.universityCity = new TreeMap<Long, Integer>();
+        this.universitiesByCountry = new TreeMap<Integer, ArrayList<Long>>();
+        for (Integer id : locationDic.getCountries()){
+            universitiesByCountry.put(id, new ArrayList<Long>());
+        }
 	}
-	
-	public void init(){
-        universityName = new TreeMap<Long,String>();
-	    universityToLocation = new TreeMap<Long, Integer>();
-	    universitiesByLocation = new TreeMap<Integer, Vector<Long>>();
-	    for (Integer id : locationDic.getCountries()){
-	        universitiesByLocation.put(id, new Vector<Long>());
-	    }
-	    extractUniversityNames();
+
+    /**
+     * @brief   Get the location of the university.
+     * @param   university The university id.
+     * @return  The university city.
+     */
+	public int getUniversityCity( long university ) {
+	    return universityCity.get(university);
 	}
-	
-	public int getUniversityLocation( long university ) {
-	    return universityToLocation.get(university);
-	}
-	
-	public void extractUniversityNames() {
+
+    /**
+     * @brief   Loads a universities file.
+     * @param   fileName The universities file name.
+     */
+	public void load( String fileName ) {
 		try {
 		    BufferedReader dicAllInstitutes = new BufferedReader(
-		            new InputStreamReader(getClass( ).getResourceAsStream(dicFileName), "UTF-8"));
+                    new InputStreamReader(getClass( ).getResourceAsStream(fileName), "UTF-8"));
 		    
 		    String line;
-		    int curLocationId = -1; 
-		    String lastLocationName = "";
             long totalNumUniversities = startIndex;
 			while ((line = dicAllInstitutes.readLine()) != null){
 				String data[] = line.split(SEPARATOR);
-				String locationName = data[0];
+				String countryName = data[0];
                 String cityName = data[2];
-                if (locationDic.getCountryId(locationName) != LocationDictionary.INVALID_LOCATION &&
+                if (locationDic.getCountryId(countryName) != LocationDictionary.INVALID_LOCATION &&
                         locationDic.getCityId(cityName) != LocationDictionary.INVALID_LOCATION ) {
-                    curLocationId = locationDic.getCountryId(locationName);
+                    int countryId = locationDic.getCountryId(countryName);
                     String universityName = data[1].trim();
-                    universitiesByLocation.get(curLocationId).add(totalNumUniversities);
+                    universitiesByCountry.get(countryId).add(totalNumUniversities);
                     Integer cityId = locationDic.getCityId(cityName);
-                    universityToLocation.put(totalNumUniversities, cityId);
+                    universityCity.put(totalNumUniversities, cityId);
                     this.universityName.put(totalNumUniversities,universityName);
                     totalNumUniversities++;
                 }
@@ -112,44 +119,62 @@ public class UniversityDictionary {
 			e.printStackTrace();
 		}
 	}
-	
-	// 90% of people go to top-10 universities
-	// 10% go to remaining universities
-	public int getRandomUniversity(RandomGeneratorFarm randomFarm, int locationId) {
+
+    /**
+     * @brief   Gets a random university.
+     * @param   randomFarm The random number generator farm.
+     * @param   countryId The country id.
+     * @return  The university id.
+     */
+	public int getRandomUniversity(RandomGeneratorFarm randomFarm, int countryId) {
 
         double prob = randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_UNIVERSITY).nextDouble();
-		Vector<Integer> countries = locationDic.getCountries();
+		ArrayList<Integer> countries = locationDic.getCountries();
 		if (randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_UNIVERSITY).nextDouble() <= probUncorrelatedUniversity) {
-		    locationId = countries.get(randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_UNIVERSITY_LOCATION).nextInt(countries.size()));
+		    countryId = countries.get(randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_UNIVERSITY_LOCATION).nextInt(countries.size()));
 		}
 		
-		while (universitiesByLocation.get(locationId).size() == 0) {
-            locationId = countries.get(randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_UNIVERSITY_LOCATION).nextInt(countries.size()));
+		while (universitiesByCountry.get(countryId).size() == 0) {
+            countryId = countries.get(randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_UNIVERSITY_LOCATION).nextInt(countries.size()));
         }
 		
-		int range = universitiesByLocation.get(locationId).size();
+		int range = universitiesByCountry.get(countryId).size();
 		if (prob > probUncorrelatedUniversity && randomFarm.get(RandomGeneratorFarm.Aspect.TOP_UNIVERSITY).nextDouble() < probTopUniv) {
-				range = Math.min(universitiesByLocation.get(locationId).size(), 10);
+				range = Math.min(universitiesByCountry.get(countryId).size(), 10);
 		}
 		
 		int randomUniversityIdx = randomFarm.get(RandomGeneratorFarm.Aspect.UNIVERSITY).nextInt(range);
-		int zOrderLocation = locationDic.getZorderID(locationId);
+		int zOrderLocation = locationDic.getZorderID(countryId);
         int universityLocation = (zOrderLocation << 24) | (randomUniversityIdx << 12);
 		return universityLocation;
 	}
-	
+
+    /**
+     * @brief   Get the university from an encoded location.
+     * @param   universityLocation The encoded location.
+     * @return  The university id.
+     */
 	public long getUniversityFromLocation(int universityLocation) {
 		int zOrderLocationId = universityLocation >> 24;
 		int universityId = (universityLocation >> 12) & 0x0FFF;
 		int locationId = locationDic.getLocationIdFromZOrder(zOrderLocationId);
-		return universitiesByLocation.get(locationId).get(universityId);
+		return universitiesByCountry.get(locationId).get(universityId);
 	}
 
+    /**
+     * @brief   Gets the name of a university
+     * @param   university The university id.
+     * @return  The name of the university.
+     */
     public String getUniversityName( long university ) {
         return universityName.get(university);
     }
 
+    /**
+     * @brief   Gets all the university ids.
+     * @return  The set of unviersity ids.
+     */
     public Set<Long> getUniversities() {
-        return universityToLocation.keySet();
+        return universityCity.keySet();
     }
 }

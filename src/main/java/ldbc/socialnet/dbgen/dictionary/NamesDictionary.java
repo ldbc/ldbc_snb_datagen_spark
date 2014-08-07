@@ -39,6 +39,7 @@ package ldbc.socialnet.dbgen.dictionary;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.Vector;
@@ -51,55 +52,55 @@ public class NamesDictionary {
      * Geometric probability used
      */
     private static final double GEOMETRIC_RATIO = 0.2;
-    
     private static final int topN = 30;
-	
-	String surnameFile;
-	String givennameFile;
+	private LocationDictionary                              locationDictionary;     /**< @brief The location dictioanry. **/
+	private HashMap<Integer, ArrayList<String>>             surnamesByCountry;      /**< @brief The surnames by country. **/
+	private ArrayList<HashMap<Integer, ArrayList<String>>>  maleNamesByCountry;     /**< @brief The male names by country per year. **/
+    private	ArrayList<HashMap<Integer, ArrayList<String>>>  femaleNamesByCountry;   /**< @brief The female names by country per year. **/
+	private GeometricDist                                   geoDist;                /**< @brief The geometric distribution. **/
 
-	LocationDictionary locationDic;
-	
-	HashMap<Integer, Vector<String>> surNamesByLocations;
-	Vector<HashMap<Integer, Vector<String>>> givenNamesByLocationsMale;    // Year / Location / Names		
-	Vector<HashMap<Integer, Vector<String>>> givenNamesByLocationsFemale;
-	
-	GeometricDist geoDist;
-	
-	public NamesDictionary(String surnameFile, String givennameFile, 
-						LocationDictionary locationDic) {
-		this.locationDic = locationDic;
-		this.surnameFile = surnameFile; 
-		this.givennameFile = givennameFile; 
-		geoDist = new GeometricDist(GEOMETRIC_RATIO);
+    /**
+     * @brief   Constructor
+     * @param   locationDic The location dictionary.
+     */
+	public NamesDictionary( LocationDictionary locationDic ) {
+		this.locationDictionary = locationDic;
+		this.geoDist = new GeometricDist(GEOMETRIC_RATIO);
+        this.surnamesByCountry = new HashMap<Integer, ArrayList<String>>();
+        for (Integer id : locationDic.getCountries()) {
+            surnamesByCountry.put(id, new ArrayList<String>());
+        }
+        int birthYearPeriod = 2;
+        maleNamesByCountry = new ArrayList<HashMap<Integer, ArrayList<String>>>(birthYearPeriod);
+        femaleNamesByCountry = new ArrayList<HashMap<Integer, ArrayList<String>>>(birthYearPeriod);
+        for (int i = 0; i < birthYearPeriod; i++){
+            maleNamesByCountry.add(new HashMap<Integer, ArrayList<String>>());
+            femaleNamesByCountry.add(new HashMap<Integer, ArrayList<String>>());
+            for (Integer id : locationDic.getCountries()) {
+                maleNamesByCountry.get(maleNamesByCountry.size()-1).put(id, new ArrayList<String>());
+                femaleNamesByCountry.get(femaleNamesByCountry.size()-1).put(id, new ArrayList<String>());
+            }
+        }
 	}
-	
-	public void init() {
-	    surNamesByLocations = new HashMap<Integer, Vector<String>>();
-	    for (Integer id : locationDic.getCountries()) {
-	        surNamesByLocations.put(id, new Vector<String>());
-	    }
 
-	    //assume that there is only 2 periods of birthyears
-	    int birthYearPeriod = 2; 
-	    givenNamesByLocationsMale = new Vector<HashMap<Integer, Vector<String>>>(birthYearPeriod);
-	    givenNamesByLocationsFemale = new Vector<HashMap<Integer, Vector<String>>>(birthYearPeriod);
-	    for (int i = 0; i < birthYearPeriod; i++){
-	        givenNamesByLocationsMale.add(new HashMap<Integer, Vector<String>>());
-	        givenNamesByLocationsFemale.add(new HashMap<Integer, Vector<String>>());
-	        for (Integer id : locationDic.getCountries()) {
-	            givenNamesByLocationsMale.lastElement().put(id, new Vector<String>());
-	            givenNamesByLocationsFemale.lastElement().put(id, new Vector<String>());
-	        }
-	    }
-
-	    extractSurNames();
-	    extractGivenNames();
+    /**
+     * @brief   Loads the dictionary.
+     * @param   surnamesFileName The surnames file name.
+     * @param   namesFileName The names file name.
+     */
+	public void load( String surnamesFileName, String namesFileName ) {
+	    extractSurnames( surnamesFileName );
+	    extractNames( namesFileName );
 	}
-	
-	public void extractSurNames() {
+
+    /**
+     * @brief   Loads the surnames.
+     * @param   fileName The surnames file name.
+     */
+	public void extractSurnames( String fileName ) {
 		try {
 		    BufferedReader surnameDictionary  = new BufferedReader(
-		            new InputStreamReader(getClass( ).getResourceAsStream(surnameFile), "UTF-8"));
+		            new InputStreamReader(getClass( ).getResourceAsStream( fileName ), "UTF-8"));
 		    
 		    String line;
 		    int curLocationId = -1; 
@@ -109,15 +110,15 @@ public class NamesDictionary {
 			    String infos[] = line.split(",");
 			    String locationName = infos[1];
 				if (locationName.compareTo(lastLocationName) != 0) { 	// New location
-					if (locationDic.getCountryId(locationName) != LocationDictionary.INVALID_LOCATION) { // Check whether it exists
-						curLocationId = locationDic.getCountryId(locationName);
+					if ( locationDictionary.getCountryId(locationName) != LocationDictionary.INVALID_LOCATION ) { // Check whether it exists
+						curLocationId = locationDictionary.getCountryId(locationName);
 						String surName = infos[2].trim();
-						surNamesByLocations.get(curLocationId).add(surName);
+						surnamesByCountry.get(curLocationId).add(surName);
 						totalSurNames++;
 					}
 				} else {
 				    String surName = infos[2].trim();
-					surNamesByLocations.get(curLocationId).add(surName);
+					surnamesByCountry.get(curLocationId).add(surName);
 					totalSurNames++;
 				}
 			}
@@ -127,11 +128,15 @@ public class NamesDictionary {
 			e.printStackTrace();
 		}
 	}
-	
-	public void extractGivenNames() {
+
+    /**
+     * @brief Loads the names.
+     * @param fileName  The names file names.
+     */
+	public void extractNames( String fileName ) {
 		try {
 		    BufferedReader givennameDictionary  = new BufferedReader(
-		            new InputStreamReader(getClass( ).getResourceAsStream(givennameFile), "UTF-8"));
+		            new InputStreamReader(getClass( ).getResourceAsStream( fileName ), "UTF-8"));
 		    
 		    String line;
 		    int curLocationId = -1; 
@@ -144,22 +149,22 @@ public class NamesDictionary {
 				int birthYearPeriod = Integer.parseInt(infos[3]);
 				
 				if (locationName.compareTo(lastLocationName) != 0) { 	// New location
-					if (locationDic.getCountryId(locationName) != LocationDictionary.INVALID_LOCATION){		// Check whether it exists
-						curLocationId = locationDic.getCountryId(locationName);
+					if ( locationDictionary.getCountryId(locationName) != LocationDictionary.INVALID_LOCATION ){		// Check whether it exists
+						curLocationId = locationDictionary.getCountryId(locationName);
 						String givenName = infos[1].trim();
 						if (gender == 0) {
-							givenNamesByLocationsMale.get(birthYearPeriod).get(curLocationId).add(givenName);
+							maleNamesByCountry.get(birthYearPeriod).get(curLocationId).add(givenName);
 						} else {
-							givenNamesByLocationsFemale.get(birthYearPeriod).get(curLocationId).add(givenName);
+							femaleNamesByCountry.get(birthYearPeriod).get(curLocationId).add(givenName);
 						}
 						totalGivenNames++;
 					}
 				} else {
 				    String givenName = infos[1].trim();
 					if (gender == 0) {
-						givenNamesByLocationsMale.get(birthYearPeriod).get(curLocationId).add(givenName);
+						maleNamesByCountry.get(birthYearPeriod).get(curLocationId).add(givenName);
 					} else {
-						givenNamesByLocationsFemale.get(birthYearPeriod).get(curLocationId).add(givenName);
+						femaleNamesByCountry.get(birthYearPeriod).get(curLocationId).add(givenName);
 					}
 					totalGivenNames++;
 				}
@@ -173,10 +178,13 @@ public class NamesDictionary {
 	
 	
 	/*
-	 * If the number of names is smaller than the computed rank
-	 * uniformly get a name from all names
-	 * Else, from 0 to (limitRank - 1) will be distributed according to 
-	 * geometric distribution, out of this scope will be distribution
+	 * @brief   If the number of names is smaller than the computed rank
+	 *          uniformly get a name from all names
+	 *          Else, from 0 to (limitRank - 1) will be distributed according to
+	 *          geometric distribution, out of this scope will be distribution
+	 * @param   random The random number generator.
+	 * @param   numNames The  number of names to be considered in top.
+	 * @return  The name identifier.
 	 */
 	private int getGeoDistRandomIdx(Random random, int numNames){
 		int nameIdx = -1; 
@@ -198,25 +206,37 @@ public class NamesDictionary {
 		}
 		return nameIdx;
 	}
-	
-	public String getRandomSurname(Random random,int locationId) {
-		int surNameIdx = getGeoDistRandomIdx(random,surNamesByLocations.get(locationId).size());
-		return surNamesByLocations.get(locationId).get(surNameIdx);
+
+    /**
+     * @brief   Get a random surname.
+     * @param   random  The random number generator.
+     * @param   countryId The country id
+     * @return  The surname identifier.
+     */
+	public String getRandomSurname(Random random,int countryId) {
+		int surNameIdx = getGeoDistRandomIdx(random, surnamesByCountry.get(countryId).size());
+		return surnamesByCountry.get(countryId).get(surNameIdx);
 	}
-	
-	public String getRandomGivenName(Random random, int locationId, boolean isMale, int birthYear){
+
+    /**
+     * @brief   Gets a random name.
+     * @param   random The random number generator.
+     * @param   countryId The country id
+     * @param   isMale True if want a male name.
+     * @param   birthYear The birthyear.
+     * @return  The name identifier.
+     */
+	public String getRandomName(Random random, int countryId, boolean isMale, int birthYear){
 		String name = "";
 		int period = (birthYear < 1985) ? 0 : 1;
-		Vector<HashMap<Integer, Vector<String>>> target = (isMale) ? givenNamesByLocationsMale : givenNamesByLocationsFemale;
-		
+		ArrayList<HashMap<Integer, ArrayList<String>>> target = (isMale) ? maleNamesByCountry : femaleNamesByCountry;
 		// Note that, only vector of names for the first period contains list of names not in topN
-		int nameId = getGeoDistRandomIdx(random, target.get(0).get(locationId).size());
+		int nameId = getGeoDistRandomIdx(random, target.get(0).get(countryId).size());
 		if (nameId >= topN) {
-		    name = target.get(0).get(locationId).get(nameId);
+		    name = target.get(0).get(countryId).get(nameId);
 		} else {
-		    name = target.get(period).get(locationId).get(nameId);
+		    name = target.get(period).get(countryId).get(nameId);
 		}
-		
 		return name;
 	}
 }

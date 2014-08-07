@@ -42,118 +42,137 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.Set;
-import java.util.Vector;
+import java.util.ArrayList;
 
 
 public class TagDictionary {
 	
     private static final String SEPARATOR = "\t";
-    
-    int numCelebrity;
-    double tagCountryCorrProb;
-    
-    String dicFileName;
-    String dicTopic;
-    String tagClassFile;
-    String tagHierarchyFile;
-    
-	Vector<Vector<Integer>> tagsByCountry;
-	Vector<Vector<Double>> tagCummulativeDist; 
-	
-	HashMap<Integer, String>  className;
-	HashMap<Integer, String>  classLabel;
-	HashMap<Integer, Integer> classHierarchy;
-	HashMap<Integer, Integer> tagClass;
-	HashMap<Integer, String>  tagNames;
-	HashMap<Integer, String>  tagDescription;  // a.k.a foaf:Names
-	
-	public TagDictionary(String dicTopic, String _dicFileName, String tagClassFile, String tagHierarchyFile, 
-	        int numLocations, double tagCountryCorrProb) {
+    private int                 numPopularTags;                     /**< @brief The number of popular tags. **/
+    private double              tagCountryCorrProb;                 /**< @brief The probability to choose another country when asking for a tag. */
+
+	private ArrayList<ArrayList<Integer>>   tagsByCountry;          /**< @brief The tags by country map.*/
+	private ArrayList<ArrayList<Double>>    tagCummulativeDist;     /**< @brief The tags by country cumulative distribution.*/
+	private HashMap<Integer, String>        tagClassName;           /**< @brief The tag class names. */
+	private HashMap<Integer, String>        tagClassLabel;          /**< @brief The tag class labels. */
+	private HashMap<Integer, Integer>       tagClassHierarchy;      /**< @brief The tag class hierarchy. */
+	private HashMap<Integer, Integer>       tagTagClass;            /**< @brief The tag tag classes. */
+	private HashMap<Integer, String>        tagNames;               /**< @brief the tag names.*/
+    private HashMap<Integer, String>        tagDescription;         /**< @brief the tag descriptions.*/
+
+    /**
+     * @brief   Constructor
+     * @param   numCountries The number of countries.
+     * @param   tagCountryCorrProb The probability to choose a tag from another country.
+     */
+	public TagDictionary( int numCountries, double tagCountryCorrProb) {
 	    
-		this.dicFileName = _dicFileName;
-		this.dicTopic = dicTopic;
-		this.tagClassFile = tagClassFile;
-		this.tagHierarchyFile = tagHierarchyFile;
 		this.tagCountryCorrProb = tagCountryCorrProb;
-		
-		tagCummulativeDist = new Vector<Vector<Double>>(numLocations);
-		tagsByCountry = new Vector<Vector<Integer>>(numLocations);
-		tagNames = new HashMap<Integer, String>();
-		tagClass = new HashMap<Integer, Integer>();
-		tagDescription = new HashMap<Integer, String>();
-		className = new HashMap<Integer, String>();
-	    classLabel = new HashMap<Integer, String>();
-	    classHierarchy = new HashMap<Integer, Integer>();
-		
-		for (int i =  0; i < numLocations; i++){
-			tagCummulativeDist.add(new Vector<Double>());
-			tagsByCountry.add(new Vector<Integer>());
+		this.tagCummulativeDist = new ArrayList<ArrayList<Double>>(numCountries);
+		this.tagsByCountry = new ArrayList<ArrayList<Integer>>(numCountries);
+		this.tagNames = new HashMap<Integer, String>();
+		this.tagTagClass = new HashMap<Integer, Integer>();
+		this.tagDescription = new HashMap<Integer, String>();
+		this.tagClassName = new HashMap<Integer, String>();
+	    this.tagClassLabel = new HashMap<Integer, String>();
+        this.tagClassHierarchy = new HashMap<Integer, Integer>();
+		for (int i =  0; i < numCountries; i++){
+			tagCummulativeDist.add(new ArrayList<Double>());
+			tagsByCountry.add(new ArrayList<Integer>());
 		}
-		
-		numCelebrity = 0;
+		this.numPopularTags = 0;
 	}
-	
+
+    /**
+     * @brief   Gets the name of a tag.
+     * @param   id The tag identifier.
+     * @return  The name of the tag.
+     */
 	public String getName(int id) {
 	    return tagNames.get(id);
 	}
-	
-	public String getDescription(int id) {
-        return tagDescription.get(id);
-    }
-	
+
+
+    /**
+     * @brief   Gets the class of a tag.
+     * @param   id The tag identifier.
+     * @return  The tag's class identifier.
+     */
 	public Integer getTagClass(int id) {
-        return tagClass.get(id);
-    }
-	
-	public String getClassName(int id) {
-        return className.get(id);
-    }
-	
-	public String getClassLabel(int id) {
-        return classLabel.get(id);
-    }
-	
-	public Integer getClassParent(int id) {
-	    if (!classHierarchy.containsKey(id)) {
-	        return -1;
-	    }
-        return classHierarchy.get(id);
+        return tagTagClass.get(id);
     }
 
-	public void initialize() {
+    /**
+     * @brief   Gets the name of a tag class.
+     * @param   id The tag class identifier.
+     * @return  The tag class's name.
+     */
+	public String getClassName(int id) {
+        return tagClassName.get(id);
+    }
+
+    /**
+     * @brief   Gets the label of a tag class.
+     * @param   id The tag class identifier.
+     * @return  The label of the tag class.
+     */
+	public String getClassLabel(int id) {
+        return tagClassLabel.get(id);
+    }
+
+    /**
+     * @brief   Gets the tag class parent.
+     * @param   id The id of the tag class.
+     * @return  The parent tag class id.
+     */
+	public Integer getClassParent(int id) {
+	    if (!tagClassHierarchy.containsKey(id)) {
+	        return -1;
+	    }
+        return tagClassHierarchy.get(id);
+    }
+
+    /**
+     * @brief   Loads the tag dictionary from files.
+     * @param   tagsFileName  The tags file name.
+     * @param   popularTagByCountryFileName The popular tags by country file name.
+     * @param   tagClassFileName The tag classes file name.
+     * @param   tagClassHierarchyFileName The tag hierarchy file name.
+     */
+	public void load( String tagsFileName, String popularTagByCountryFileName, String tagClassFileName, String tagClassHierarchyFileName  ) {
 		try {
-		    BufferedReader dictionary = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(tagClassFile), "UTF-8"));
+		    BufferedReader dictionary = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(tagClassFileName), "UTF-8"));
             
 		    String line;
 		    while ((line = dictionary.readLine()) != null){
                 String data[] = line.split(SEPARATOR);
                 Integer classId = Integer.valueOf(data[0]);
-                className.put(classId, data[1]);
-                classLabel.put(classId, data[2]);
+                tagClassName.put(classId, data[1]);
+                tagClassLabel.put(classId, data[2]);
             }
             
             dictionary.close();
-		    dictionary = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(tagHierarchyFile), "UTF-8"));
+		    dictionary = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(tagClassHierarchyFileName), "UTF-8"));
             while ((line = dictionary.readLine()) != null){
                 String infos[] = line.split(SEPARATOR);
                 Integer classId = Integer.valueOf(infos[0]);
                 Integer parentId = Integer.valueOf(infos[1]);
-                classHierarchy.put(classId, parentId);
+                tagClassHierarchy.put(classId, parentId);
             }
 		    
             dictionary.close();
-		    dictionary = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(dicTopic), "UTF-8"));
+		    dictionary = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(tagsFileName), "UTF-8"));
 		    while ((line = dictionary.readLine()) != null){
 		        String infos[] = line.split(SEPARATOR);
 		        int tagId = Integer.valueOf(infos[0]);
 		        Integer classId = Integer.valueOf(infos[1]);
-		        tagClass.put(tagId, classId);
+		        tagTagClass.put(tagId, classId);
 		        tagNames.put(tagId, infos[2]);
 		        tagDescription.put(tagId, infos[3]);
 		    }
 		    
 		    dictionary.close();
-			dictionary = new BufferedReader(new InputStreamReader(getClass( ).getResourceAsStream(dicFileName), "UTF-8"));
+			dictionary = new BufferedReader(new InputStreamReader(getClass( ).getResourceAsStream(popularTagByCountryFileName), "UTF-8"));
 			while ((line = dictionary.readLine()) != null){
 				String infos[] = line.split(" ");
 				int countryId = Integer.parseInt(infos[0]);
@@ -162,8 +181,8 @@ public class TagDictionary {
 				
 				tagCummulativeDist.get(countryId).add(cummulative);
 				tagsByCountry.get(countryId).add(tagId);
-				if (tagId + 1 > numCelebrity) {
-				    numCelebrity = tagId + 1;
+				if (tagId + 1 > numPopularTags) {
+				    numPopularTags = tagId + 1;
 				}
 			}
 			
@@ -173,10 +192,14 @@ public class TagDictionary {
 		}
 	}
 
-	public int getaTagByCountry(Random randomTagOtherCountry, Random randomTagCountryProb, int _countryId){
-		int countryId; 
-		countryId = _countryId; 
-			
+    /**
+     * @brief   Gets a random tag by country.
+     * @param   randomTagOtherCountry The random number generator for choosing another country.
+     * @param   randomTagCountryProb The random number generator for choosing a country.
+     * @param   countryId The country id.
+     * @return  The random tag id.
+     */
+	public int getaTagByCountry(Random randomTagOtherCountry, Random randomTagCountryProb, int countryId){
 		if (tagsByCountry.get(countryId).size() == 0 || randomTagOtherCountry.nextDouble() > tagCountryCorrProb) {
 			do {
 				countryId = randomTagOtherCountry.nextInt(tagsByCountry.size());
@@ -198,17 +221,27 @@ public class TagDictionary {
 		}
 		
 		return tagsByCountry.get(countryId).get(curIdx); 
-	} 
-
-	public int getNumCelebrity() {
-		return numCelebrity;
 	}
 
+    /**
+     * @brief   Gets the number of popular tags.
+     * @return  The number of popular tags.
+     */
+	public int getNumPopularTags() {
+		return numPopularTags;
+	}
+
+    /**
+     * @brief   Gets a number of random tags.
+     * @param   random The random number generator.
+     * @param   num The number of tags to retrieve.
+     * @return  The array of random tags.
+     */
 	public Integer[] getRandomTags( Random random, int num ) {
 		Integer[] result = new Integer[num];
 		for( int i = 0; i < num; ) {
 			int randomCountry = random.nextInt(tagsByCountry.size());
-			Vector<Integer> tags = tagsByCountry.get(randomCountry);
+			ArrayList<Integer> tags = tagsByCountry.get(randomCountry);
 			if( tags.size() > 0 ){ 
 				result[i] = tags.get(random.nextInt(tags.size()));
 				++i;
@@ -217,6 +250,10 @@ public class TagDictionary {
 		return result;
 	}
 
+    /**
+     * @brief Gets all the tag names.
+     * @return The set of tag's names.
+     */
     public Set<Integer> getTags() {
         return tagNames.keySet();
     }

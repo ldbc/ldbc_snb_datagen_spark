@@ -54,6 +54,7 @@ import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.hsqldb.lib.ArrayUtil;
 
 /**
  * CSV serializer.
@@ -315,10 +316,10 @@ public class CSVOriginal implements Serializer {
         }
         ToCSV(arguments, Files.PERSON.ordinal());
 
-        Vector<Integer> languages = info.extraInfo.getLanguages();
+        ArrayList<Integer> languages = info.extraInfo.getLanguages();
         for (int i = 0; i < languages.size(); i++) {
             arguments.add(Long.toString(info.user.getAccountId()));
-            arguments.add(languageDic.getLanguagesName(languages.get(i)));
+            arguments.add(languageDic.getLanguageName(languages.get(i)));
             ToCSV(arguments, Files.PERSON_SPEAKS_LANGUAGE.ordinal());
         }
 
@@ -378,7 +379,7 @@ public class CSVOriginal implements Serializer {
             arguments.add(empty);
         }
         if (post.getLanguage() != -1) {
-            arguments.add(languageDic.getLanguagesName(post.getLanguage()));
+            arguments.add(languageDic.getLanguageName(post.getLanguage()));
         } else {
             arguments.add(empty);
         }
@@ -600,7 +601,8 @@ public class CSVOriginal implements Serializer {
     public void serialize(Organization organization) {
         Vector<String> arguments = new Vector<String>();
         arguments.add(Long.toString(organization.id));
-        arguments.add(ScalableGenerator.OrganisationType.company.toString());
+//        arguments.add(ScalableGenerator.OrganisationType.company.toString());
+        arguments.add(organization.type.toString());
         arguments.add(organization.name);
         arguments.add(DBP.getUrl(organization.name));
         ToCSV(arguments, Files.ORGANISATION.ordinal());

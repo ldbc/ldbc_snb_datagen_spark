@@ -38,45 +38,30 @@ package ldbc.socialnet.dbgen.dictionary;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeSet;
 import java.util.Iterator;
 import java.util.Random;
 
-import ldbc.socialnet.dbgen.generator.DateGenerator;
-import ldbc.socialnet.dbgen.generator.ScalableGenerator;
-import ldbc.socialnet.dbgen.objects.Comment;
-import ldbc.socialnet.dbgen.objects.Friend;
-import ldbc.socialnet.dbgen.objects.Group;
-import ldbc.socialnet.dbgen.objects.GroupMemberShip;
-import ldbc.socialnet.dbgen.objects.Post;
-import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
-
-
 public class TagTextDictionary {
     private static final String SEPARATOR = "  ";
-    
-    String dicFileName;
-    DateGenerator dateGen;
-    
-    TagDictionary tagDic;
-	HashMap<Integer, String> tagText;
+    private TagDictionary               tagDic;             /**< @brief The tag dictionary. **/
+    private	HashMap<Integer, String>    tagText;            /**< @brief The tag text. **/
+    private double                      reducedTextRatio;   /**< @brief The probability to retrieve an small text. */
 	
-    double reducedTextRatio;
-	
-	public TagTextDictionary(String dicFileName, DateGenerator dateGen, TagDictionary tagDic, 
-	        double reduceTextRatio){
-		this.dicFileName = dicFileName;
+	public TagTextDictionary( TagDictionary tagDic, double reducedTextRatio){
 		this.tagText = new HashMap<Integer, String>();
-		this.dateGen = dateGen;
 		this.tagDic = tagDic;
 		this.reducedTextRatio = reducedTextRatio;
 	}
-	
-	public void initialize() {
+
+    /**
+     * @brief   Loads the dictionary.
+     * @param   fileName The tag text dictionary file name.
+     */
+	public void load( String fileName ) {
 	    try {
-	        BufferedReader dictionary = new BufferedReader(new InputStreamReader(getClass( ).getResourceAsStream(dicFileName), "UTF-8"));
+	        BufferedReader dictionary = new BufferedReader(new InputStreamReader(getClass( ).getResourceAsStream(fileName), "UTF-8"));
 	        String line;
 	        while ((line = dictionary.readLine()) != null){
 	            String[] data = line.split(SEPARATOR);
@@ -88,23 +73,49 @@ public class TagTextDictionary {
 	        e.printStackTrace();
 	    }
 	}
-	
+
+    /**
+     * @brief   Gets the text associated with the tag.
+     * @param   id The tag identifier.
+     * @return  The tag's text.
+     */
 	public String getTagText(int id) {
 	    return tagText.get(id);
 	}
 
+    /**
+     * @brief   Gets a random tag text size.
+     * @param randomTextSize The random number generator to generate the text's size.
+     * @param randomReducedText The random number generator to generate a small text size.
+     * @param minSize The minimum size to generate.
+     * @param maxSize The maximum size to generate.
+     * @return
+     */
     public int getRandomTextSize(Random randomTextSize, Random randomReducedText, int minSize, int maxSize ) {
-
         if (randomReducedText.nextDouble() > reducedTextRatio){
             return randomTextSize.nextInt(maxSize - minSize) + minSize;
         }
         return randomTextSize.nextInt((maxSize >> 1) - minSize) + minSize;
     }
 
+    /**
+     * @brief   Gets a random large text size.
+     * @param randomTextSize The random number generator to generate the size.
+     * @param minSize   The minimun text size.
+     * @param maxSize   The maximum text size.
+     * @return
+     */
     public int getRandomLargeTextSize( Random randomTextSize, int minSize, int maxSize ) {
         return randomTextSize.nextInt(maxSize - minSize) + minSize;
     }
 
+    /**
+     * @brief   Generates a text given a set of tags.
+     * @param   randomTextSize The random number generator to generate the amount of text devoted to each tag.
+     * @param   tags The set of tags to generate the text from.
+     * @param   textSize The final text size.
+     * @return  The final text.
+     */
     public String generateText(Random randomTextSize, TreeSet<Integer> tags, int textSize ) {
         String returnString = "";
         int textSizePerTag = (int)Math.ceil(textSize / (double)tags.size());
@@ -119,7 +130,6 @@ public class TagTextDictionary {
                 } else {
                     int startingPos = randomTextSize.nextInt(content.length() - thisTagTextSize);
                     String finalString = content.substring(startingPos, startingPos + thisTagTextSize);
-//                    String finalString = content.substring(0, thisTagTextSize );
                     String tagName = tagDic.getName(tag).replace("_", " ");
                     tagName = tagName.replace("\"", "\\\"");
                     String prefix = "About " +tagName+ ", ";

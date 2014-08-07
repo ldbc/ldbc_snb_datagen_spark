@@ -39,40 +39,36 @@ package ldbc.socialnet.dbgen.dictionary;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Random;
-import java.util.Vector;
 
 
 /**
- * This class reads the file containing the email domain and its popularity used in the ldbc socialnet generation and 
+ * This class reads the file containing the email domain and its popularity and
  * provides access methods to get such data.
  */
 public class EmailDictionary {
     
     private static final String SEPARATOR = " "; 
-    Vector<String> emails;
-	Vector<Double> topEmailCummulative;
-	String fileName;
+    private ArrayList<String> emails;
+	private ArrayList<Double> cumulativeDistribution;
 	/**
-     * Constructor.
-     * 
-     * @param fileName: The file with the email data.
-     * @param seed: Seed for the random selector.
+     * @brief Constructor.
      */
-	public EmailDictionary(String fileName) {
-		this.fileName = fileName;
+	public EmailDictionary() {
 	}
 	
 	/**
-	 * Initializes the dictionary with the file data.
+	 * @brief   Loads the dictionary file.
+     * @param   fileName The dictionary file name to load.
 	 */
-	public void init(){
+	public void load( String fileName ){
 		try {
 		    BufferedReader emailDictionary = new BufferedReader(
 		            new InputStreamReader(getClass( ).getResourceAsStream(fileName), "UTF-8"));
 		    
-		    emails = new Vector<String>();
-		    topEmailCummulative = new Vector<Double>();
+		    emails = new ArrayList<String>();
+		    cumulativeDistribution = new ArrayList<Double>();
 
 		    String line;
 			double cummulativeDist = 0.0;
@@ -81,7 +77,7 @@ public class EmailDictionary {
                 emails.add(data[0]);
                 if (data.length == 2) {
 			        cummulativeDist += Double.parseDouble(data[1]);
-			        topEmailCummulative.add(cummulativeDist);
+			        cumulativeDistribution.add(cummulativeDist);
 			    }
 			}
 			emailDictionary.close();
@@ -97,18 +93,18 @@ public class EmailDictionary {
 	 */
 	public String getRandomEmail(Random randomTop, Random randomEmail){
 		int minIdx = 0;
-		int maxIdx = topEmailCummulative.size() - 1;
+		int maxIdx = cumulativeDistribution.size() - 1;
 		double prob = randomTop.nextDouble();
-		if (prob > topEmailCummulative.get(maxIdx)){
-		    int Idx = randomEmail.nextInt(emails.size() - topEmailCummulative.size()) + topEmailCummulative.size();
+		if (prob > cumulativeDistribution.get(maxIdx)){
+		    int Idx = randomEmail.nextInt(emails.size() - cumulativeDistribution.size()) + cumulativeDistribution.size();
 		    return emails.get(Idx);
-		} else if (prob < topEmailCummulative.get(minIdx)){
+		} else if (prob < cumulativeDistribution.get(minIdx)){
 		    return emails.get(minIdx);
 		}
 		
 		while ((maxIdx - minIdx) > 1){
 		    int middlePoint = minIdx + (maxIdx - minIdx) / 2;
-			if (prob > topEmailCummulative.get(middlePoint)){
+			if (prob > cumulativeDistribution.get(middlePoint)){
 				minIdx =  middlePoint;
 			} else {
 				maxIdx =  middlePoint;

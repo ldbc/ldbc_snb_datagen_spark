@@ -64,8 +64,8 @@ public class ReducedUserProfile implements Serializable, Writable{
 
 	/** For user's agent information **/
 	private boolean				isHaveSmartPhone; 		/**< @brief Used to know whether the user has a smartphone or not.**/
-	private byte 				agentId; 				/**< @brief Index of user agent in the dictionary, e.g., 0 for iPhone, 1 for HTC **/
-	private byte				browserId;				/**< @brief Index of web browser, e.g., 0 for Internet Explorer **/
+	private int 				agentId; 				/**< @brief Index of user agent in the dictionary, e.g., 0 for iPhone, 1 for HTC **/
+	private int				browserId;				/**< @brief Index of web browser, e.g., 0 for Internet Explorer **/
 	
 	/** For IP address **/
 	private boolean 			isFrequentChange;		/**< @brief About 1% of users frequently change their location.**/
@@ -74,7 +74,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 	
 	/** Store redundant info **/
 	private int 				countryId;              /**< @brief The home country of the user.**/
-	private int                 cityIndex;              /**< @brief The city index of the country of the user the user lives in. **/
+	private int                 cityId;                 /**< @brief The city identifier of the country of the user the user lives in. **/
 	private long 				wallId;                 /**< @brief The id of the group represeting the wall of the user.**/
 	private TreeSet<Integer> 	interests;              /**< @brief The set of interests of the user.**/
     private int                 mainInterest;           /**< @brief The main user interest.*/
@@ -172,8 +172,8 @@ public class ReducedUserProfile implements Serializable, Writable{
 			}
 			
 			isHaveSmartPhone = stream.readBoolean();
-			agentId = stream.readByte();
-			browserId = stream.readByte();
+			agentId = stream.readInt();
+			browserId = stream.readInt();
 			isFrequentChange = stream.readBoolean();
 
 			int ip = stream.readInt();
@@ -181,7 +181,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 	        ipAddress = new IP(ip, mask); 
 			
 			countryId = stream.readInt();
-			cityIndex = stream.readInt();
+			cityId = stream.readInt();
 			wallId = stream.readLong();
 			//forumStatusId = stream.readInt();
 			
@@ -242,15 +242,15 @@ public class ReducedUserProfile implements Serializable, Writable{
 			}
 			
 			stream.writeBoolean(isHaveSmartPhone);
-			stream.writeByte(agentId);
-			stream.writeByte(browserId);
+			stream.writeInt(agentId);
+			stream.writeInt(browserId);
 			stream.writeBoolean(isFrequentChange);
 			
 			stream.writeInt(ipAddress.getIp());
 			stream.writeInt(ipAddress.getMask());
 
 			stream.writeInt(countryId);
-			stream.writeInt(cityIndex);
+			stream.writeInt(cityId);
 			stream.writeLong(wallId);
 
 			stream.writeByte((byte)interests.size());
@@ -311,8 +311,8 @@ public class ReducedUserProfile implements Serializable, Writable{
 		}
 		
 		isHaveSmartPhone = arg0.readBoolean();
-		agentId = arg0.readByte();
-		browserId = arg0.readByte();
+		agentId = arg0.readInt();
+		browserId = arg0.readInt();
 		isFrequentChange = arg0.readBoolean();
 
 		int ip = arg0.readInt();
@@ -320,7 +320,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 		ipAddress = new IP(ip, mask); 
 		
 		countryId = arg0.readInt();
-		cityIndex = arg0.readInt();
+		cityId = arg0.readInt();
 		wallId = arg0.readLong();
 		//forumStatusId = arg0.readInt();
 		
@@ -368,7 +368,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 		isFrequentChange = user.isFrequentChange;
 		ipAddress = user.ipAddress;
 		countryId = user.countryId;
-		cityIndex = user.cityIndex;
+		cityId = user.cityId;
 		wallId = user.wallId;
 		interests = user.interests;
         mainInterest = user.mainInterest;
@@ -411,8 +411,8 @@ public class ReducedUserProfile implements Serializable, Writable{
 		}
 		
 		arg0.writeBoolean(isHaveSmartPhone);
-		arg0.writeByte(agentId);
-		arg0.writeByte(browserId);
+		arg0.writeInt(agentId);
+		arg0.writeInt(browserId);
 		arg0.writeBoolean(isFrequentChange);
 
 		arg0.writeInt(ipAddress.getIp());
@@ -420,7 +420,7 @@ public class ReducedUserProfile implements Serializable, Writable{
 		
 		
 		arg0.writeInt(countryId);
-		arg0.writeInt(cityIndex);
+		arg0.writeInt(cityId);
 		arg0.writeLong(wallId);
 
 		arg0.writeByte((byte)interests.size());
@@ -533,16 +533,16 @@ public class ReducedUserProfile implements Serializable, Writable{
 	public void setHaveSmartPhone(boolean isHaveSmartPhone) {
 		this.isHaveSmartPhone = isHaveSmartPhone;
 	}
-	public byte getAgentId() {
+	public int getAgentId() {
 		return agentId;
 	}
-	public void setAgentId(byte agentId) {
+	public void setAgentId(int agentId) {
 		this.agentId = agentId;
 	}
-	public byte getBrowserId() {
+	public int getBrowserId() {
 		return browserId;
 	}
-	public void setBrowserId(byte browserId) {
+	public void setBrowserId(int browserId) {
 		this.browserId = browserId;
 	}
 	public boolean isFrequentChange() {
@@ -564,11 +564,11 @@ public class ReducedUserProfile implements Serializable, Writable{
 	public void setCountryId(int countryId ) {
 		this.countryId = countryId;
 	}
-	public int getCityIndex() {
-        return cityIndex;
+	public int getCityId() {
+        return cityId;
     }
-    public void setCityIndex(int cityIndex) {
-        this.cityIndex = cityIndex;
+    public void setCityId(int cityId) {
+        this.cityId = cityId;
     }
 	public long getForumWallId() {
 		return wallId;
