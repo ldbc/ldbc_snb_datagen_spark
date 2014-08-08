@@ -40,21 +40,18 @@ import java.io.*;
 import java.util.TreeSet;
 import java.util.zip.GZIPOutputStream;
 
+import ldbc.socialnet.dbgen.hadoop.*;
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
-import ldbc.socialnet.dbgen.objects.UpdateEvent;
 import ldbc.socialnet.dbgen.util.*;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.NLineInputFormat;

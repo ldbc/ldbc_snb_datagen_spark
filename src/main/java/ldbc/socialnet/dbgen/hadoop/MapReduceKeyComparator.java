@@ -34,21 +34,26 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package ldbc.socialnet.dbgen.util;
+package ldbc.socialnet.dbgen.hadoop;
 
 
-import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.WritableComparator;
 
-public class UpdateEventComparator extends WritableComparator {
-    protected UpdateEventComparator() {
-            super(LongWritable.class);
+public class MapReduceKeyComparator extends WritableComparator {
+    protected MapReduceKeyComparator() {
+            super(MapReduceKey.class);
     }
 
     @Override
     public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2){
-        long block1 = readLong(b1, s1);
-        long block2 = readLong(b2, s2);
-        return (int)(block1 - block2);
+        int block1 = readInt(b1, s1);
+        int block2 = readInt(b2, s2);
+        if( block1 != block2 ) return block1 - block2;
+        int key1 = readInt(b1,s1+4);
+        int key2 = readInt(b2,s2+4);
+        if( key1 != key2) return key1 - key2;
+        long id1 = readLong(b1,s1+8);
+        long id2 = readLong(b2,s2+8);
+        return (int)(id1 - id2);
     }
 }

@@ -34,49 +34,21 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package ldbc.socialnet.dbgen.util;
+package ldbc.socialnet.dbgen.hadoop;
 
 
-import org.apache.hadoop.io.WritableComparable;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.DataOutput;
-import java.io.DataInput;
-import java.util.Random;
-import java.util.ArrayList;
-import java.util.Iterator;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.WritableComparator;
 
-public class MapReduceKey implements WritableComparable<MapReduceKey> {
-    public int block;       
-    public int key;
-    public long id;
-
-    public MapReduceKey( ) {
-    }
-
-    public MapReduceKey( int block, int key, long id) {
-        this.block = block;
-        this.key = key;
-        this.id = id;
+public class UpdateEventComparator extends WritableComparator {
+    protected UpdateEventComparator() {
+            super(LongWritable.class);
     }
 
     @Override
-    public void write(DataOutput out) throws IOException {
-        out.writeInt(block);
-        out.writeInt(key);
-        out.writeLong(id);
-    }
-
-    @Override
-    public void readFields(DataInput in) throws IOException {
-        block = in.readInt();
-        key = in.readInt();
-        id = in.readLong();
-    }
-
-    @Override
-    public int compareTo( MapReduceKey mpk) {
-        return block - mpk.block; 
+    public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2){
+        long block1 = readLong(b1, s1);
+        long block2 = readLong(b2, s2);
+        return (int)(block1 - block2);
     }
 }

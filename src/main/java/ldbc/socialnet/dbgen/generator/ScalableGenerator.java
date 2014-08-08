@@ -59,7 +59,7 @@ import ldbc.socialnet.dbgen.objects.*;
 import ldbc.socialnet.dbgen.serializer.*;
 import ldbc.socialnet.dbgen.util.ScaleFactor;
 import ldbc.socialnet.dbgen.vocabulary.SN;
-import ldbc.socialnet.dbgen.util.MapReduceKey;
+import ldbc.socialnet.dbgen.hadoop.MapReduceKey;
 import ldbc.socialnet.dbgen.util.RandomGeneratorFarm;
 
 import org.apache.hadoop.conf.Configuration;

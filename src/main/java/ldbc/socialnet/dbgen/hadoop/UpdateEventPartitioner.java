@@ -35,20 +35,23 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package ldbc.socialnet.dbgen.util;
+package ldbc.socialnet.dbgen.hadoop;
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
+import ldbc.socialnet.dbgen.objects.UpdateEvent;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Partitioner;
 
 
-public class MapReduceKeyPartitioner extends Partitioner<MapReduceKey, ReducedUserProfile> {
+public class UpdateEventPartitioner extends Partitioner<LongWritable, Text> {
 
-    public MapReduceKeyPartitioner(){
+    public UpdateEventPartitioner(){
         super();
 
     }
     @Override
-    public int getPartition(MapReduceKey key, ReducedUserProfile value,
+    public int getPartition(LongWritable key, Text value,
                             int numReduceTasks) {
-        return key.block % numReduceTasks;
+        return (int) (key.get() % numReduceTasks);
     }
 }

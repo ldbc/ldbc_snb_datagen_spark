@@ -37,12 +37,10 @@
 package ldbc.socialnet.dbgen.generator;
 
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
-import ldbc.socialnet.dbgen.util.MapReduceKey;
+import ldbc.socialnet.dbgen.hadoop.MapReduceKey;
 
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.Reducer;
 
 

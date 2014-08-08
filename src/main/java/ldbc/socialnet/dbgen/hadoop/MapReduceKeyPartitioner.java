@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * ldbc_socialnet_dbgen is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ldbc_socialnet_dbgen.  If not, see <http://www.gnu.org/licenses/>.
  *
@@ -34,27 +34,21 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package ldbc.socialnet.dbgen.util;
+
+package ldbc.socialnet.dbgen.hadoop;
+import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
+import org.apache.hadoop.mapreduce.Partitioner;
 
 
-import org.apache.hadoop.io.WritableComparator;
-import ldbc.socialnet.dbgen.util.MapReduceKey;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Random;
-import java.util.ArrayList;
-import java.util.Iterator;
+public class MapReduceKeyPartitioner extends Partitioner<MapReduceKey, ReducedUserProfile> {
 
-public class MapReduceKeyGroupKeyComparator extends WritableComparator {
-    protected MapReduceKeyGroupKeyComparator() {
-            super(MapReduceKey.class);
+    public MapReduceKeyPartitioner(){
+        super();
+
     }
-
     @Override
-    public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2){
-        int block1 = readInt(b1, s1);
-        int block2 = readInt(b2, s2);
-        return block1 - block2;
+    public int getPartition(MapReduceKey key, ReducedUserProfile value,
+                            int numReduceTasks) {
+        return key.block % numReduceTasks;
     }
 }
