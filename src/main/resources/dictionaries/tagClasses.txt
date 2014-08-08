@@ -116,7 +116,7 @@
 115	MusicalArtist	musical artist
 116	PoliticalParty	political party
 117	Database	Database
-118	EthnicGroup	ethnic group
+118	EthnicGroup	ethnic forum
 119	BaseballTeam	baseball team
 120	Holiday	holiday
 121	Insect	insect

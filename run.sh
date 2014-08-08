@@ -8,10 +8,10 @@ export LDBC_SOCIALNET_DBGEN_HOME
 mvn clean
 mvn assembly:assembly
 
-cp $LDBC_SOCIALNET_DBGEN_HOME/target/ldbc_socialnet_dbgen.jar $LDBC_SOCIALNET_DBGEN_HOME/
-rm $LDBC_SOCIALNET_DBGEN_HOME/target/ldbc_socialnet_dbgen.jar
+cp $LDBC_SOCIALNET_DBGEN_HOME/target/ldbc_snb_datagen.jar $LDBC_SOCIALNET_DBGEN_HOME/
+rm $LDBC_SOCIALNET_DBGEN_HOME/target/ldbc_snb_datagen.jar
 
-$HADOOP_HOME/bin/hadoop  jar $LDBC_SOCIALNET_DBGEN_HOME/ldbc_socialnet_dbgen.jar $LDBC_SOCIALNET_DBGEN_HOME/params.ini 
+$HADOOP_HOME/bin/hadoop  jar $LDBC_SOCIALNET_DBGEN_HOME/ldbc_snb_datagen.jar $LDBC_SOCIALNET_DBGEN_HOME/params.ini 
 
 #parameter generation
 PARAM_GENERATION=1
