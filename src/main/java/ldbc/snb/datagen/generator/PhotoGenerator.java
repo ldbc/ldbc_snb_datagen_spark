@@ -54,23 +54,21 @@ public class PhotoGenerator {
 
     double probPopularPlaces;
     long deltaTime;
-    private RandomGeneratorFarm randomFarm;
     private PowerDistGenerator likesGenerator;
 
     public PhotoGenerator(DateGenerator _dateGen, PlaceDictionary locationDic,
                           long _seed, PopularPlacesDictionary _dicPopularPlaces,
-                          double _probPopularPlaces, int maxNumberOfLikes, long deltaTime, RandomGeneratorFarm randomFarm) {
+                          double _probPopularPlaces, int maxNumberOfLikes, long deltaTime) {
         this.dateGenerator = _dateGen;
         this.locationDic = locationDic;
         this.dicPopularPlaces = _dicPopularPlaces;
         this.probPopularPlaces = _probPopularPlaces;
         this.deltaTime = deltaTime;
-        this.randomFarm = randomFarm;
         this.likesGenerator = new PowerDistGenerator(1, maxNumberOfLikes, 0.07);
     }
 
     public Photo generatePhoto(ReducedUserProfile user, Forum album,
-                               int idxInAlbum, long photoId) {
+                               int idxInAlbum, long photoId, RandomGeneratorFarm randomFarm ) {
 
         int locationId = album.getLocationIdx();
         double latt = 0;

@@ -59,6 +59,7 @@ import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -77,7 +78,6 @@ public class ScalableGenerator {
     }
 
 
-    Configuration conf = null;
     public long postId = 0;
     /**
      * < @brief The post and comment identifier counter.
@@ -153,74 +153,74 @@ public class ScalableGenerator {
     private static final String fbSocialDegreeFile = DICTIONARY_DIRECTORY + "facebookBucket100.dat";
 
     //private parameters
-    private final String CELL_SIZE = "cellSize";
-    private final String NUM_CELL_WINDOW = "numberOfCellPerWindow";
-    private final String MIN_FRIENDS = "minNumFriends";
-    private final String MAX_FRIENDS = "maxNumFriends";
-    private final String FRIEND_REJECT = "friendRejectRatio";
-    private final String FRIEND_REACCEPT = "friendReApproveRatio";
-    private final String USER_MIN_TAGS = "minNumTagsPerUser";
-    private final String USER_MAX_TAGS = "maxNumTagsPerUser";
-    private final String USER_MAX_POST_MONTH = "maxNumPostPerMonth";
-    private final String MAX_COMMENT_POST = "maxNumComments";
-    private final String LIMIT_CORRELATED = "limitProCorrelated";
-    private final String BASE_CORRELATED = "baseProbCorrelated";
-    private final String MAX_EMAIL = "maxEmails";
-    private final String MAX_COMPANIES = "maxCompanies";
-    private final String ENGLISH_RATIO = "probEnglish";
-    private final String SECOND_LANGUAGE_RATIO = "probSecondLang";
-    private final String OTHER_BROWSER_RATIO = "probAnotherBrowser";
-    private final String MIN_TEXT_SIZE = "minTextSize";
-    private final String MAX_TEXT_SIZE = "maxTextSize";
-    private final String MIN_COMMENT_SIZE = "minCommentSize";
-    private final String MAX_COMMENT_SIZE = "maxCommentSize";
-    private final String REDUCE_TEXT_RATIO = "ratioReduceText";
+    static private final String CELL_SIZE = "cellSize";
+    static private final String NUM_CELL_WINDOW = "numberOfCellPerWindow";
+    static private final String MIN_FRIENDS = "minNumFriends";
+    static private final String MAX_FRIENDS = "maxNumFriends";
+    static private final String FRIEND_REJECT = "friendRejectRatio";
+    static private final String FRIEND_REACCEPT = "friendReApproveRatio";
+    static private final String USER_MIN_TAGS = "minNumTagsPerUser";
+    static private final String USER_MAX_TAGS = "maxNumTagsPerUser";
+    static private final String USER_MAX_POST_MONTH = "maxNumPostPerMonth";
+    static private final String MAX_COMMENT_POST = "maxNumComments";
+    static private final String LIMIT_CORRELATED = "limitProCorrelated";
+    static private final String BASE_CORRELATED = "baseProbCorrelated";
+    static private final String MAX_EMAIL = "maxEmails";
+    static private final String MAX_COMPANIES = "maxCompanies";
+    static private final String ENGLISH_RATIO = "probEnglish";
+    static private final String SECOND_LANGUAGE_RATIO = "probSecondLang";
+    static private final String OTHER_BROWSER_RATIO = "probAnotherBrowser";
+    static private final String MIN_TEXT_SIZE = "minTextSize";
+    static private final String MAX_TEXT_SIZE = "maxTextSize";
+    static private final String MIN_COMMENT_SIZE = "minCommentSize";
+    static private final String MAX_COMMENT_SIZE = "maxCommentSize";
+    static private final String REDUCE_TEXT_RATIO = "ratioReduceText";
 
 
-    private final String MIN_LARGE_POST_SIZE = "minLargePostSize";
-    private final String MAX_LARGE_POST_SIZE = "maxLargePostSize";
-    private final String MIN_LARGE_COMMENT_SIZE = "minLargeCommentSize";
-    private final String MAX_LARGE_COMMENT_SIZE = "maxLargeCommentSize";
-    private final String LARGE_POST_RATIO = "ratioLargePost";
-    private final String LARGE_COMMENT_RATIO = "ratioLargeComment";
+    static private final String MIN_LARGE_POST_SIZE = "minLargePostSize";
+    static private final String MAX_LARGE_POST_SIZE = "maxLargePostSize";
+    static private final String MIN_LARGE_COMMENT_SIZE = "minLargeCommentSize";
+    static private final String MAX_LARGE_COMMENT_SIZE = "maxLargeCommentSize";
+    static private final String LARGE_POST_RATIO = "ratioLargePost";
+    static private final String LARGE_COMMENT_RATIO = "ratioLargeComment";
 
-    private final String MAX_PHOTOALBUM = "maxNumPhotoAlbumsPerMonth";
-    private final String MAX_PHOTO_PER_ALBUM = "maxNumPhotoPerAlbums";
-    private final String USER_MAX_GROUP = "maxNumGroupCreatedPerUser";
-    private final String MAX_GROUP_MEMBERS = "maxNumMemberGroup";
-    private final String GROUP_MODERATOR_RATIO = "groupModeratorProb";
-    private final String GROUP_MAX_POST_MONTH = "maxNumGroupPostPerMonth";
-    private final String MISSING_RATIO = "missingRatio";
-    private final String STATUS_MISSING_RATIO = "missingStatusRatio";
-    private final String STATUS_SINGLE_RATIO = "probSingleStatus";
-    private final String SMARTHPHONE_RATIO = "probHavingSmartPhone";
-    private final String AGENT_SENT_RATIO = "probSentFromAgent";
-    private final String DIFFERENT_IP_IN_TRAVEL_RATIO = "probDiffIPinTravelSeason";
-    private final String DIFFERENT_IP_NOT_TRAVEL_RATIO = "probDiffIPnotTravelSeason";
-    private final String DIFFERENT_IP_TRAVELLER_RATIO = "probDiffIPforTraveller";
-    private final String COMPANY_UNCORRELATED_RATIO = "probUnCorrelatedCompany";
-    private final String UNIVERSITY_UNCORRELATED_RATIO = "probUnCorrelatedOrganization";
-    private final String BEST_UNIVERSTY_RATIO = "probTopUniv";
-    private final String MAX_POPULAR_PLACES = "maxNumPopularPlaces";
-    private final String POPULAR_PLACE_RATIO = "probPopularPlaces";
-    private final String TAG_UNCORRELATED_COUNTRY = "tagCountryCorrProb";
+    static private final String MAX_PHOTOALBUM = "maxNumPhotoAlbumsPerMonth";
+    static private final String MAX_PHOTO_PER_ALBUM = "maxNumPhotoPerAlbums";
+    static private final String USER_MAX_GROUP = "maxNumGroupCreatedPerUser";
+    static private final String MAX_GROUP_MEMBERS = "maxNumMemberGroup";
+    static private final String GROUP_MODERATOR_RATIO = "groupModeratorProb";
+    static private final String GROUP_MAX_POST_MONTH = "maxNumGroupPostPerMonth";
+    static private final String MISSING_RATIO = "missingRatio";
+    static private final String STATUS_MISSING_RATIO = "missingStatusRatio";
+    static private final String STATUS_SINGLE_RATIO = "probSingleStatus";
+    static private final String SMARTHPHONE_RATIO = "probHavingSmartPhone";
+    static private final String AGENT_SENT_RATIO = "probSentFromAgent";
+    static private final String DIFFERENT_IP_IN_TRAVEL_RATIO = "probDiffIPinTravelSeason";
+    static private final String DIFFERENT_IP_NOT_TRAVEL_RATIO = "probDiffIPnotTravelSeason";
+    static private final String DIFFERENT_IP_TRAVELLER_RATIO = "probDiffIPforTraveller";
+    static private final String COMPANY_UNCORRELATED_RATIO = "probUnCorrelatedCompany";
+    static private final String UNIVERSITY_UNCORRELATED_RATIO = "probUnCorrelatedOrganization";
+    static private final String BEST_UNIVERSTY_RATIO = "probTopUniv";
+    static private final String MAX_POPULAR_PLACES = "maxNumPopularPlaces";
+    static private final String POPULAR_PLACE_RATIO = "probPopularPlaces";
+    static private final String TAG_UNCORRELATED_COUNTRY = "tagCountryCorrProb";
 
-    private final String FLASHMOB_TAGS_PER_MONTH = "flashmobTagsPerMonth";
-    private final String PROB_INTEREST_FLASHMOB_TAG = "probInterestFlashmobTag";
-    private final String PROB_RANDOM_PER_LEVEL = "probRandomPerLevel";
-    private final String MAX_NUM_FLASHMOB_POST_PER_MONTH = "maxNumFlashmobPostPerMonth";
-    private final String MAX_NUM_GROUP_FLASHMOB_POST_PER_MONTH = "maxNumGroupFlashmobPostPerMonth";
-    private final String MAX_NUM_TAG_PER_FLASHMOB_POST = "maxNumTagPerFlashmobPost";
-    private final String FLASHMOB_TAG_MIN_LEVEL = "flashmobTagMinLevel";
-    private final String FLASHMOB_TAG_MAX_LEVEL = "flashmobTagMaxLevel";
-    private final String FLASHMOB_TAG_DIST_EXP = "flashmobTagDistExp";
-    private final String UPDATE_PORTION = "updatePortion";
+    static private final String FLASHMOB_TAGS_PER_MONTH = "flashmobTagsPerMonth";
+    static private final String PROB_INTEREST_FLASHMOB_TAG = "probInterestFlashmobTag";
+    static private final String PROB_RANDOM_PER_LEVEL = "probRandomPerLevel";
+    static private final String MAX_NUM_FLASHMOB_POST_PER_MONTH = "maxNumFlashmobPostPerMonth";
+    static private final String MAX_NUM_GROUP_FLASHMOB_POST_PER_MONTH = "maxNumGroupFlashmobPostPerMonth";
+    static private final String MAX_NUM_TAG_PER_FLASHMOB_POST = "maxNumTagPerFlashmobPost";
+    static private final String FLASHMOB_TAG_MIN_LEVEL = "flashmobTagMinLevel";
+    static private final String FLASHMOB_TAG_MAX_LEVEL = "flashmobTagMaxLevel";
+    static private final String FLASHMOB_TAG_DIST_EXP = "flashmobTagDistExp";
+    static private final String UPDATE_PORTION = "updatePortion";
 
     /**
      * This array provides a quick way to check if any of the required parameters is missing and throw the appropriate
      * exception in the method loadParamsFromFile()
      */
-    private final String[] checkParameters = {CELL_SIZE, NUM_CELL_WINDOW, MIN_FRIENDS, MAX_FRIENDS, FRIEND_REJECT,
+    static private final String[] checkParameters = {CELL_SIZE, NUM_CELL_WINDOW, MIN_FRIENDS, MAX_FRIENDS, FRIEND_REJECT,
             FRIEND_REACCEPT, USER_MIN_TAGS, USER_MAX_TAGS, USER_MAX_POST_MONTH, MAX_COMMENT_POST, LIMIT_CORRELATED,
             BASE_CORRELATED, MAX_EMAIL, MAX_COMPANIES, ENGLISH_RATIO, SECOND_LANGUAGE_RATIO, OTHER_BROWSER_RATIO,
             MIN_TEXT_SIZE, MAX_TEXT_SIZE, MIN_COMMENT_SIZE, MAX_COMMENT_SIZE, REDUCE_TEXT_RATIO,
@@ -234,14 +234,16 @@ public class ScalableGenerator {
             PROB_INTEREST_FLASHMOB_TAG, PROB_RANDOM_PER_LEVEL, MAX_NUM_FLASHMOB_POST_PER_MONTH, MAX_NUM_GROUP_FLASHMOB_POST_PER_MONTH, MAX_NUM_TAG_PER_FLASHMOB_POST, FLASHMOB_TAG_MIN_LEVEL, FLASHMOB_TAG_MAX_LEVEL,
             FLASHMOB_TAG_DIST_EXP, UPDATE_PORTION};
 
+    private static Configuration conf = null;
+
     //final user parameters
-    private final String SCALE_FACTOR = "scaleFactor";
-    private final String SERIALIZER = "serializer";
-    private final String EXPORT_TEXT = "exportText";
-    private final String ENABLE_COMPRESSION = "enableCompression";
-    private final String NUM_PERSONS = "numPersons";
-    private final String NUM_YEARS = "numYears";
-    private final String START_YEAR = "startYear";
+    static private final String SCALE_FACTOR = "scaleFactor";
+    static private final String SERIALIZER = "serializer";
+    static private final String EXPORT_TEXT = "exportText";
+    static private final String ENABLE_COMPRESSION = "enableCompression";
+    static private final String NUM_PERSONS = "numPersons";
+    static private final String NUM_YEARS = "numYears";
+    static private final String START_YEAR = "startYear";
 
     // Gender string representation, both representations vector/standalone so the string is coherent.
     private final String MALE = "male";
@@ -259,146 +261,146 @@ public class ScalableGenerator {
     private HashMap<Integer, Integer> tagNameCount;
 
     // For sliding window
-    int cellSize; // Number of user in one cell
-    int numberOfCellPerWindow;
-    int numTotalUser;
-    int windowSize;
+    static private int cellSize; // Number of user in one cell
+    static private int numberOfCellPerWindow;
+    static private int numTotalUser;
+    static private int windowSize;
 
     ReducedUserProfile reducedUserProfiles[];
 
     // For friendship generation
-    public int friendshipNum = 0;
-    int minNumFriends;
-    int maxNumFriends;
-    double friendRejectRatio;
-    double friendReApproveRatio;
+    static private int minNumFriends;
+    static private int maxNumFriends;
+    static private double friendRejectRatio;
+    static private double friendReApproveRatio;
 
     MRWriter mrWriter;
 
-    double baseProbCorrelated;
-    double limitProCorrelated;
+    static private double baseProbCorrelated;
+    static private double limitProCorrelated;
 
     // For each user
-    int minNumTagsPerUser;
-    int maxNumTagsPerUser;
-    int maxNumPostPerMonth;
-    int maxNumComments;
+    static private int minNumTagsPerUser;
+    static private int maxNumTagsPerUser;
+    static private int maxNumPostPerMonth;
+    static private int maxNumComments;
 
     // Random values generators
-    PowerDistGenerator randomPowerLaw;
     PowerDistGenerator randomTagPowerLaw;
 
-    DateGenerator dateTimeGenerator;
-    int startYear;
-    int endYear;
+    static private DateGenerator dateTimeGenerator;
+    static private int startYear;
+    static private int endYear;
 
     // Dictionary classes
-    PlaceDictionary placeDictionary;
-    LanguageDictionary languageDictionary;
-    TagDictionary tagDictionary;
+    static private PlaceDictionary placeDictionary;
+    static private LanguageDictionary languageDictionary;
+    static private TagDictionary tagDictionary;
 
     //For facebook-like social degree distribution
-    FBSocialDegreeGenerator fbDegreeGenerator;
-    FlashmobTagDictionary flashmobTagDictionary;
-    TagTextDictionary tagTextDictionary;
-    TagMatrix tagMatrix;
-    NamesDictionary namesDictionary;
-    UniversityDictionary unversityDictionary;
-    CompanyDictionary companiesDictionary;
-    UserAgentDictionary userAgentDictionary;
-    EmailDictionary emailDictionary;
-    BrowserDictionary browserDictonry;
-    PopularPlacesDictionary popularDictionary;
-    IPAddressDictionary ipAddDictionary;
+    static private FBSocialDegreeGenerator fbDegreeGenerator;
+    static private FlashmobTagDictionary flashmobTagDictionary;
+    static private TagTextDictionary tagTextDictionary;
+    static private TagMatrix tagMatrix;
+    static private NamesDictionary namesDictionary;
+    static private UniversityDictionary unversityDictionary;
+    static private CompanyDictionary companiesDictionary;
+    static private UserAgentDictionary userAgentDictionary;
+    static private EmailDictionary emailDictionary;
+    static private BrowserDictionary browserDictonry;
+    static private PopularPlacesDictionary popularDictionary;
+    static private IPAddressDictionary ipAddDictionary;
 
-    int maxNumPopularPlaces;
-    double tagCountryCorrProb;
-    double probUnCorrelatedOrganization;
-    double probTopUniv; // 90% users go to top university
-    double probUnCorrelatedCompany;
-    double probPopularPlaces;        //probability of taking a photo at popular place
+    static private int maxNumPopularPlaces;
+    static private double tagCountryCorrProb;
+    static private double probUnCorrelatedOrganization;
+    static private double probTopUniv; // 90% users go to top university
+    static private double probUnCorrelatedCompany;
+    static private double probPopularPlaces;        //probability of taking a photo at popular place
 
     // For generating texts of posts and comments
-    int maxEmails;
-    int maxCompanies;
-    double probEnglish;
-    double probSecondLang;
+    static private int maxEmails;
+    static private int maxCompanies;
+    static private double probEnglish;
+    static private double probSecondLang;
 
-    int minTextSize;
-    int maxTextSize;
-    int minCommentSize;
-    int maxCommentSize;
-    double ratioReduceText; // 80% text has size less than 1/2 max size
+    static private int minTextSize;
+    static private int maxTextSize;
+    static private int minCommentSize;
+    static private int maxCommentSize;
+    static private double ratioReduceText; // 80% text has size less than 1/2 max size
 
     // This parameters configure the amount of large posts are created 
-    int minLargePostSize;
-    int maxLargePostSize;
-    int minLargeCommentSize;
-    int maxLargeCommentSize;
-    double ratioLargePost;
-    double ratioLargeComment;
+    static private int minLargePostSize;
+    static private int maxLargePostSize;
+    static private int minLargeCommentSize;
+    static private int maxLargeCommentSize;
+    static private double ratioLargePost;
+    static private double ratioLargeComment;
 
     // For photo generator
-    PhotoGenerator photoGenerator;
-    int maxNumPhotoAlbumsPerMonth;
-    int maxNumPhotoPerAlbums;
+    static private PhotoGenerator photoGenerator;
+    static private int maxNumPhotoAlbumsPerMonth;
+    static private int maxNumPhotoPerAlbums;
 
     // For generating groups
-    ForumGenerator forumGenerator;
-    int maxNumGroupCreatedPerUser;
-    int maxNumMemberGroup;
-    double groupModeratorProb;
+    static private ForumGenerator forumGenerator;
+    static private int maxNumGroupCreatedPerUser;
+    static private int maxNumMemberGroup;
+    static private double groupModeratorProb;
 
     // For group posts
-    UniformPostGenerator uniformPostGenerator;
-    FlashmobPostGenerator flashmobPostGenerator;
-    CommentGenerator commentGenerator;
-    int maxNumGroupPostPerMonth;
+    static private UniformPostGenerator uniformPostGenerator;
+    static private FlashmobPostGenerator flashmobPostGenerator;
+    static private CommentGenerator commentGenerator;
+    static private int maxNumGroupPostPerMonth;
+
+    // For user's extra info
+    static private double missingRatio;
+    static private double missingStatusRatio;
+    static private double probSingleStatus; // Status "Single" has more probability than others'
+
+
+    static private double probAnotherBrowser;
+    static private double probHavingSmartPhone;
+    static private double probSentFromAgent;
+
+    // The probability that normal user posts from different location
+    static private double probDiffIPinTravelSeason; // in travel season
+    static private double probDiffIPnotTravelSeason; // not in travel season
+
+    // The probability that travellers post from different location
+    static private double probDiffIPforTraveller;
+
+    static private int flashmobTagsPerMonth = 0;
+    static private double probInterestFlashmobTag = 0.0;
+    static private double probRandomPerLevel = 0.0;
+    static private int maxNumFlashmobPostPerMonth = 0;
+    static private int maxNumGroupFlashmobPostPerMonth = 0;
+    static private int maxNumTagPerFlashmobPost = 0;
+    static private double flashmobTagMinLevel = 0.0f;
+    static private double flashmobTagMaxLevel = 0.0f;
+    static private double flashmobTagDistExp = 0.0f;
+
+    static private long deltaTime = 0;
+    static private long dateThreshold = 0;
+    static private double updatePortion = 0.0;
+
+    static private boolean exportText = true;
+    static private boolean enableCompression = true;
+    static public final int blockSize = 10000;
+    static private TreeMap<Integer, ScaleFactor> scaleFactors;
 
 
     // For serialize to RDF format
     DataExporter dataExporter = null;
-    String serializerType;
+    static private String serializerType;
     String outUserProfileName = "userProf.ser";
     String outUserProfile;
     int threadId;
     int numThreads;
     String sibOutputDir;
 
-    // For user's extra info
-    double missingRatio;
-    double missingStatusRatio;
-    double probSingleStatus; // Status "Single" has more probability than others'
-
-
-    double probAnotherBrowser;
-    double probHavingSmartPhone;
-    double probSentFromAgent;
-
-    // The probability that normal user posts from different location
-    double probDiffIPinTravelSeason; // in travel season
-    double probDiffIPnotTravelSeason; // not in travel season
-
-    // The probability that travellers post from different location
-    double probDiffIPforTraveller;
-
-    // Writing data for test driver
-    int thresholdPopularUser = 40;
-    int numPopularUser = 0;
-
-    int flashmobTagsPerMonth = 0;
-    double probInterestFlashmobTag = 0.0;
-    double probRandomPerLevel = 0.0;
-    int maxNumFlashmobPostPerMonth = 0;
-    int maxNumGroupFlashmobPostPerMonth = 0;
-    int maxNumTagPerFlashmobPost = 0;
-    double flashmobTagMinLevel = 0.0f;
-    double flashmobTagMaxLevel = 0.0f;
-    double flashmobTagDistExp = 0.0f;
-
-    long deltaTime = 0;
-    long dateThreshold = 0;
-    double updatePortion = 0.0;
 
     // Data accessed from the hadoop jobs
     private ReducedUserProfile[] cellReducedUserProfiles;
@@ -408,20 +410,13 @@ public class ScalableGenerator {
     private int mrCurCellPost = 0;
     public static int blockId = 0;
     public int exactOutput = 0;
-
-    public boolean exportText = true;
-    public boolean enableCompression = true;
-
-    RandomGeneratorFarm randomFarm;
-    public static final int blockSize = 10000;
-
-    TreeMap<Integer, ScaleFactor> scaleFactors;
+    private RandomGeneratorFarm randomFarm;
+    public int friendshipNum = 0;
 
     /**
      * Creates the ScalableGenerator
      */
     public ScalableGenerator(int threadId, Configuration conf) {
-        this.conf = conf;
         this.sibOutputDir = this.conf.get("outputDir") + "/social_network";
         this.numThreads = Integer.parseInt(this.conf.get("numThreads"));
         this.threadId = threadId;
@@ -434,25 +429,28 @@ public class ScalableGenerator {
         if (threadId != -1) {
             outUserProfile = "mr" + threadId + "_" + outUserProfileName;
         }
+        this.factorTable = new HashMap<Long, ReducedUserProfile.Counts>();
+
+        this.randomFarm = new RandomGeneratorFarm();
+        this.windowSize = cellSize * numberOfCellPerWindow;                          // We compute the size of the window.
+        this.mrWriter = new MRWriter(cellSize, windowSize, sibOutputDir);
+        this.resetWindow();
+        this.randomTagPowerLaw = new PowerDistGenerator(minNumTagsPerUser, maxNumTagsPerUser + 1, alpha);
+
+        // Initializing window memory
+        this.reducedUserProfiles = new ReducedUserProfile[windowSize];
+        this.cellReducedUserProfiles = new ReducedUserProfile[cellSize];
+
+        stats.flashmobTags = flashmobTagDictionary.getFlashmobTags();
     }
 
     /**
      * Initializes the generator reading the private parameter file, the user parameter file
      * and initialize all the internal variables.
      */
-    public void init() {
-        this.factorTable = new HashMap<Long, ReducedUserProfile.Counts>();
+    static public void init( Configuration conf ) {
+        ScalableGenerator.conf = conf;
         loadParamsFromFile();
-        randomFarm = new RandomGeneratorFarm();
-        windowSize = cellSize * numberOfCellPerWindow;                          // We compute the size of the window.
-        mrWriter = new MRWriter(cellSize, windowSize, sibOutputDir);
-        resetWindow();
-        randomPowerLaw = new PowerDistGenerator(minNumFriends, maxNumFriends + 1, alpha);
-        randomTagPowerLaw = new PowerDistGenerator(minNumTagsPerUser, maxNumTagsPerUser + 1, alpha);
-
-        // Initializing window memory
-        reducedUserProfiles = new ReducedUserProfile[windowSize];
-        cellReducedUserProfiles = new ReducedUserProfile[cellSize];
 
         dateTimeGenerator = new DateGenerator(new GregorianCalendar(startYear, startMonth, startDate),
                 new GregorianCalendar(endYear, endMonth, endDate), alpha, deltaTime);
@@ -521,7 +519,7 @@ public class ScalableGenerator {
         // Building generators.
         System.out.println("Building photo generator");
         photoGenerator = new PhotoGenerator(dateTimeGenerator,
-                placeDictionary, 0, popularDictionary, probPopularPlaces, maxNumLikes, deltaTime, randomFarm);
+                placeDictionary, 0, popularDictionary, probPopularPlaces, maxNumLikes, deltaTime);
 
         System.out.println("Building Forum generator");
         forumGenerator = new ForumGenerator(dateTimeGenerator, placeDictionary,
@@ -564,7 +562,6 @@ public class ScalableGenerator {
         );
         flashmobTagDictionary.initialize();
 
-        stats.flashmobTags = flashmobTagDictionary.getFlashmobTags();
 
         /// IMPORTANT: ratioLargeText is divided 0.083333, the probability
         /// that SetUserLargePoster returns true.
@@ -622,11 +619,12 @@ public class ScalableGenerator {
     /**
      * Reads and loads the private parameter file and the user parameter file.
      */
-    private void loadParamsFromFile() {
+    static private void loadParamsFromFile() {
         try {
+            System.out.println("Loading parameters");
             //First read the internal params.ini
             Properties properties = new Properties();
-            properties.load(new InputStreamReader(getClass().getResourceAsStream("/" + PARAMETERS_FILE), "UTF-8"));
+            properties.load(new InputStreamReader(ScalableGenerator.class.getResourceAsStream("/" + PARAMETERS_FILE), "UTF-8"));
             for (int i = 0; i < checkParameters.length; i++) {
                 if (properties.getProperty(checkParameters[i]) == null) {
                     throw new IllegalStateException("Missing " + checkParameters[i] + " parameter");
@@ -637,7 +635,6 @@ public class ScalableGenerator {
             numberOfCellPerWindow = Integer.parseInt(properties.getProperty(NUM_CELL_WINDOW));
             minNumFriends = Integer.parseInt(properties.getProperty(MIN_FRIENDS));
             maxNumFriends = Integer.parseInt(properties.getProperty(MAX_FRIENDS));
-            thresholdPopularUser = (int) (maxNumFriends * 0.9);
             friendRejectRatio = Double.parseDouble(properties.getProperty(FRIEND_REJECT));
             friendReApproveRatio = Double.parseDouble(properties.getProperty(FRIEND_REACCEPT));
             minNumTagsPerUser = Integer.parseInt(properties.getProperty(USER_MIN_TAGS));
@@ -702,7 +699,7 @@ public class ScalableGenerator {
             scaleFactors = new TreeMap<Integer, ScaleFactor>();
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(getClass().getResourceAsStream("/" + SCALE_FACTORS_FILE));
+            Document doc = dBuilder.parse(ScalableGenerator.class.getResourceAsStream("/" + SCALE_FACTORS_FILE));
             doc.getDocumentElement().normalize();
 
             System.out.println("Reading scale factors..");
@@ -722,7 +719,9 @@ public class ScalableGenerator {
                     scaleFactors.put(num, scaleFactor);
                 }
             }
+            System.out.println("Number of scale factors read "+scaleFactors.size());
         } catch (Exception e) {
+            System.out.println("Error reading scale factors");
             System.err.println(e.getMessage());
             System.exit(-1);
         }
@@ -737,7 +736,7 @@ public class ScalableGenerator {
             } else {
                 int scaleFactorId = Integer.parseInt(conf.get(SCALE_FACTOR));
                 ScaleFactor scaleFactor = scaleFactors.get(scaleFactorId);
-                System.out.println("Executin with scale factor " + scaleFactorId);
+                System.out.println("Executing with scale factor " + scaleFactorId);
                 System.out.println(" ... Num Persons " + scaleFactor.numPersons);
                 System.out.println(" ... Start Year " + scaleFactor.startYear);
                 System.out.println(" ... Num Years " + scaleFactor.numYears);
@@ -758,6 +757,7 @@ public class ScalableGenerator {
             System.err.println(e.getMessage());
             System.exit(-1);
         }
+        System.out.println("Finished loading parameters");
     }
 
     public void openSerializer() {
@@ -769,7 +769,6 @@ public class ScalableGenerator {
         writeStatistics();
         writeFactorTable();
         System.out.println("Number of generated triples " + dataExporter.unitsGenerated());
-        System.out.println("Number of popular users " + numPopularUser);
         System.out.println("Writing the data for test driver ");
     }
 
@@ -1043,7 +1042,7 @@ public class ScalableGenerator {
                 int numPhotos = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_PHOTO).nextInt(maxNumPhotoPerAlbums + 1);
 
                 for (int l = 0; l < numPhotos; l++) {
-                    Photo photo = photoGenerator.generatePhoto(user, album, l, postId);
+                    Photo photo = photoGenerator.generatePhoto(user, album, l, postId, randomFarm);
                     if (photo != null) {
                         postId++;
                         photo.setUserAgent(userAgentDictionary.getUserAgentName(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT_SENT), user.isHaveSmartPhone(), user.getAgentId()));
@@ -1486,7 +1485,7 @@ public class ScalableGenerator {
                 unversityDictionary, ipAddDictionary, placeDictionary, languageDictionary, configFile, factorTable, startMonth, startYear, stats);
     }
 
-    private void writeFactorTable() {
+    private void writeFactorTable( ) {
         Configuration conf = new Configuration();
         try {
             FileSystem fs = FileSystem.get(conf);

@@ -23,7 +23,7 @@ public class UserActivityReducer extends Reducer<MapReduceKey, ReducedUserProfil
         String strTaskId = context.getTaskAttemptID().getTaskID().toString();
         attempTaskId = Integer.parseInt(strTaskId.substring(strTaskId.length() - 3));
         friendGenerator = new ScalableGenerator(attempTaskId, conf);
-        friendGenerator.init();
+        //friendGenerator.init();
         friendGenerator.openSerializer();
         totalObjects = 0;
     }

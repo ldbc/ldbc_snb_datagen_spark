@@ -29,7 +29,6 @@ public class GenerateUsersMapper extends Mapper<LongWritable, Text, MapReduceKey
         ScalableGenerator generator;
         generator = new ScalableGenerator(fileIdx, conf);
         System.out.println("Successfully init Generator object");
-        generator.init();
         int pass = 0;
         generator.mrGenerateUserInfo(pass, context);
     }

@@ -26,7 +26,7 @@ public class DimensionReducer extends Reducer<MapReduceKey, ReducedUserProfile, 
         String strTaskId = context.getTaskAttemptID().getTaskID().toString();
         attempTaskId = Integer.parseInt(strTaskId.substring(strTaskId.length() - 3));
         friendGenerator = new ScalableGenerator(attempTaskId, conf);
-        friendGenerator.init();
+//        friendGenerator.init();
     }
 
     @Override
