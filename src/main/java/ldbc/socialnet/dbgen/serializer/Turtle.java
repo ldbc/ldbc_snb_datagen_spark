@@ -49,6 +49,7 @@ import java.util.zip.GZIPOutputStream;
 
 import ldbc.socialnet.dbgen.dictionary.*;
 import ldbc.socialnet.dbgen.generator.DateGenerator;
+import ldbc.socialnet.dbgen.generator.ScalableGenerator;
 import ldbc.socialnet.dbgen.objects.*;
 import ldbc.socialnet.dbgen.vocabulary.DBP;
 import ldbc.socialnet.dbgen.vocabulary.DBPOWL;
@@ -528,7 +529,11 @@ public class Turtle implements Serializer {
     public void serialize(Organization organization) {
 
         StringBuffer result = new StringBuffer(19000);
-        writeDBPData(DBP.fullPrefixed(organization.name), RDF.type, DBPOWL.Organisation);
+        if( organization.type == ScalableGenerator.OrganisationType.company ) {
+            writeDBPData(DBP.fullPrefixed(organization.name), RDF.type, DBPOWL.Company);
+        } else {
+            writeDBPData(DBP.fullPrefixed(organization.name), RDF.type, DBPOWL.University);
+        }
         writeDBPData(DBP.fullPrefixed(organization.name), FOAF.Name, createLiteral(organization.name));
         createTripleSPO(result, DBP.fullPrefixed(organization.name),
                 SNVOC.locatedIn, DBP.fullPrefixed(locationDic.getLocationName(organization.location)));

@@ -49,6 +49,8 @@ public class DBPOWL {
     public static final String Country         = PREFIX+"Country";
     public static final String Continent       = PREFIX+"Continent";
     public static final String Organisation    = PREFIX+"Organisation";
+    public static final String University      = PREFIX+"University";
+    public static final String Company         = PREFIX+"Company";
     public static final String partOf          = PREFIX+"isPartOf";
 	
 	/**

@@ -600,7 +600,7 @@ public class CSVOriginal implements Serializer {
     public void serialize(Organization organization) {
         Vector<String> arguments = new Vector<String>();
         arguments.add(Long.toString(organization.id));
-        arguments.add(ScalableGenerator.OrganisationType.company.toString());
+        arguments.add(organization.type.toString());
         arguments.add(organization.name);
         arguments.add(DBP.getUrl(organization.name));
         ToCSV(arguments, Files.ORGANISATION.ordinal());
