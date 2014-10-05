@@ -4,3 +4,7 @@
 *.jar
 *.war
 *.ear
+
+# IntelliJ stuff
+.idea
+ldbc_socialnet_dbgen.iml

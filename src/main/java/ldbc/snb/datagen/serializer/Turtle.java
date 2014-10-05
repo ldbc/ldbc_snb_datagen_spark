@@ -38,6 +38,7 @@ package ldbc.snb.datagen.serializer;
 
 import ldbc.snb.datagen.dictionary.*;
 import ldbc.snb.datagen.generator.DateGenerator;
+import ldbc.snb.datagen.generator.ScalableGenerator;
 import ldbc.snb.datagen.objects.*;
 import ldbc.snb.datagen.vocabulary.*;
 import org.apache.hadoop.conf.Configuration;
@@ -517,7 +518,11 @@ public class Turtle implements Serializer {
     public void serialize(Organization organization) {
 
         StringBuffer result = new StringBuffer(19000);
-        writeDBPData(DBP.fullPrefixed(organization.name), RDF.type, DBPOWL.Organisation);
+        if( organization.type == ScalableGenerator.OrganisationType.company ) {
+            writeDBPData(DBP.fullPrefixed(organization.name), RDF.type, DBPOWL.Company);
+        } else {
+            writeDBPData(DBP.fullPrefixed(organization.name), RDF.type, DBPOWL.University);
+        }
         writeDBPData(DBP.fullPrefixed(organization.name), FOAF.Name, createLiteral(organization.name));
         createTripleSPO(result, DBP.fullPrefixed(organization.name),
                 SNVOC.locatedIn, DBP.fullPrefixed(locationDic.getPlaceName(organization.location)));
