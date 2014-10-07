@@ -45,9 +45,13 @@ import ldbc.snb.datagen.generator.ScalableGenerator;
  */
 public class Organization {
 
+    public enum OrganisationType {
+        university,
+        company
+    }
 
     public long id;
     public String name;
-    public ScalableGenerator.OrganisationType type;
+    public OrganisationType type;
     public int location;
 }

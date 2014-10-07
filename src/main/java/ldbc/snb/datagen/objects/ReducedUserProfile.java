@@ -719,7 +719,6 @@ public class ReducedUserProfile implements Serializable, Writable {
         date.setTimeInMillis(birthDay);
         int birthYear = date.get(GregorianCalendar.YEAR);
         int organizationDimension = (int) (universityLocationId | (birthYear << 1) | gender);
-        corIds[0] = organizationDimension;
     }
 
     public byte getGender() {
@@ -788,10 +787,8 @@ public class ReducedUserProfile implements Serializable, Writable {
 
     public void setMainTag(int mainInterest) {
         this.mainInterest = mainInterest;
-        corIds[1] = this.mainInterest;
     }
 
     public void setRandomId(int randomId) {
-        corIds[2] = randomId;
     }
 }

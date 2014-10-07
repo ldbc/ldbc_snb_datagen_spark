@@ -11,7 +11,7 @@ import java.util.Properties;
  */
 public class ConfigParser {
 
-    public static Configuration GetConfig(String paramsFile) {
+    public static Configuration initialize() {
         Configuration conf = new Configuration();
         conf.set("scaleFactor", Integer.toString(1));
         conf.set("numThreads", Integer.toString(1));
@@ -20,20 +20,23 @@ public class ConfigParser {
         conf.set("updateStreams", Boolean.toString(false));
         conf.set("outputDir", "./");
         conf.set("deltaTime", "10000");
+        return conf;
+    }
 
+    public static Configuration readConfig(Configuration conf, String paramsFile) {
         try {
             //First read the internal params.ini
             Properties properties = new Properties();
             properties.load(new InputStreamReader(new FileInputStream(paramsFile), "UTF-8"));
-            CheckOption(conf, "scaleFactor", properties);
-            CheckOption(conf, "numThreads", properties);
-            CheckOption(conf, "serializer", properties);
-            CheckOption(conf, "compressed", properties);
-            CheckOption(conf, "updateStreams", properties);
-            CheckOption(conf, "outputDir", properties);
-            CheckOption(conf, "numPersons", properties);
-            CheckOption(conf, "numYears", properties);
-            CheckOption(conf, "startYear", properties);
+            checkOption(conf, "scaleFactor", properties);
+            checkOption(conf, "numThreads", properties);
+            checkOption(conf, "serializer", properties);
+            checkOption(conf, "compressed", properties);
+            checkOption(conf, "updateStreams", properties);
+            checkOption(conf, "outputDir", properties);
+            checkOption(conf, "numPersons", properties);
+            checkOption(conf, "numYears", properties);
+            checkOption(conf, "startYear", properties);
             if (conf.get("fs.default.name").compareTo("file:///") == 0) {
                 System.out.println("Running in standalone mode. Setting numThreads to 1");
                 conf.set("numThreads", "1");
@@ -46,14 +49,14 @@ public class ConfigParser {
         return conf;
     }
 
-    private static void CheckOption(Configuration conf, String option, Properties properties) {
+    private static void checkOption(Configuration conf, String option, Properties properties) {
         String value = properties.getProperty(option);
         if (value != null) {
             conf.set(option, value);
         }
     }
 
-    public static void PringConfig(Configuration conf) {
+    public static void printConfig(Configuration conf) {
         System.out.println("********* Configuration *********");
         if (conf.get("numPersons") != null && conf.get("numYears") != null && conf.get("startYear") != null) {
             System.out.println("numPersons: " + conf.get("numPersons"));

@@ -36,6 +36,7 @@
  */
 package ldbc.snb.datagen.generator;
 
+import ldbc.snb.datagen.hadoop.HadoopPersonGenerator;
 import ldbc.snb.datagen.util.ConfigParser;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -54,19 +55,19 @@ public class LDBCDatagen {
     }
 
     public int runGenerateJob(Configuration conf) throws Exception {
-        FileSystem fs = FileSystem.get(conf);
+/*        FileSystem fs = FileSystem.get(conf);
         String hadoopDir = new String(conf.get("outputDir") + "/hadoop");
         String socialNetDir = new String(conf.get("outputDir") + "/social_network");
         int numThreads = Integer.parseInt(conf.get("numThreads"));
         System.out.println("NUMBER OF THREADS " + numThreads);
+        */
 
         long start = System.currentTimeMillis();
-        ScalableGenerator.init( conf );
+        printProgress("Starting: Person generation");
+        HadoopPersonGenerator personGenerator = new HadoopPersonGenerator( conf );
+        personGenerator.run("users");
 
-        printProgress("Starting: Person generation and friendship generation 1");
-        PersonGenerator personGenerator = new PersonGenerator();
-        personGenerator.run(conf);
-
+/*
         printProgress("Starting: Friendship generation 2");
         FriendshipGenerator friendGenerator = new FriendshipGenerator();
         friendGenerator.run(conf,hadoopDir + "/sib",hadoopDir + "/sib2",1,2);
@@ -85,20 +86,22 @@ public class LDBCDatagen {
         UpdateStreamSorter updateStreamSorter = new UpdateStreamSorter();
         updateStreamSorter.run( conf );
 
-        long end = System.currentTimeMillis();
-        System.out.println(((end - start) / 1000)
-                + " total seconds");
         for (int i = 0; i < numThreads; ++i) {
             fs.copyToLocalFile(new Path(socialNetDir + "/m" + i + "factors.txt"), new Path("./"));
             fs.copyToLocalFile(new Path(socialNetDir + "/m0friendList" + i + ".csv"), new Path("./"));
         }
+        */
+        long end = System.currentTimeMillis();
+        System.out.println(((end - start) / 1000)
+                + " total seconds");
         return 0;
     }
 
     public static void main(String[] args) throws Exception {
 
-        Configuration conf = ConfigParser.GetConfig(args[0]);
-        ConfigParser.PringConfig(conf);
+        Configuration conf = ConfigParser.initialize();
+        ConfigParser.readConfig(conf,args[0]);
+        ConfigParser.printConfig(conf);
 
         // Deleting exisging files
         FileSystem dfs = FileSystem.get(conf);
@@ -106,13 +109,13 @@ public class LDBCDatagen {
         dfs.delete(new Path(conf.get("outputDir") + "/social_network"), true);
 
         // Create input text file in HDFS
-        writeToOutputFile(conf.get("outputDir") + "/hadoop/mrInputFile", Integer.parseInt(conf.get("numThreads")), conf);
+//        writeToOutputFile(conf.get("outputDir") + "/hadoop/mrInputFile", Integer.parseInt(conf.get("numThreads")), conf);
         LDBCDatagen datagen = new LDBCDatagen();
         datagen.runGenerateJob(conf);
 
     }
 
-    public static void writeToOutputFile(String filename, int numMaps, Configuration conf) {
+ /*   public static void writeToOutputFile(String filename, int numMaps, Configuration conf) {
         try {
             FileSystem dfs = FileSystem.get(conf);
             OutputStream output = dfs.create(new Path(filename));
@@ -124,4 +127,5 @@ public class LDBCDatagen {
             e.printStackTrace();
         }
     }
+    */
 }

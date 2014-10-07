@@ -1,5 +1,6 @@
 package ldbc.snb.datagen.hadoop;
 
+import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.generator.ScalableGenerator;
 import ldbc.snb.datagen.objects.ReducedUserProfile;
 import org.apache.hadoop.conf.Configuration;
@@ -14,9 +15,6 @@ import java.io.IOException;
  */
 public class GenerateUsersMapper extends Mapper<LongWritable, Text, MapReduceKey, ReducedUserProfile> {
 
-    private String outputDir;
-    private String homeDir;
-    private int numMappers;
     private int fileIdx;
 
     @Override
@@ -27,7 +25,10 @@ public class GenerateUsersMapper extends Mapper<LongWritable, Text, MapReduceKey
         fileIdx = Integer.parseInt(value.toString());
         System.out.println("Generating user at mapper " + fileIdx);
         ScalableGenerator generator;
-        generator = new ScalableGenerator(fileIdx, conf);
+        DatagenParams params = new DatagenParams();
+        params.readConf(conf);
+        params.readParameters("/params.ini");
+        generator = new ScalableGenerator(fileIdx, params);
         System.out.println("Successfully init Generator object");
         int pass = 0;
         generator.mrGenerateUserInfo(pass, context);

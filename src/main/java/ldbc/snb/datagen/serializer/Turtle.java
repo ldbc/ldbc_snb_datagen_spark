@@ -518,7 +518,7 @@ public class Turtle implements Serializer {
     public void serialize(Organization organization) {
 
         StringBuffer result = new StringBuffer(19000);
-        if( organization.type == ScalableGenerator.OrganisationType.company ) {
+        if( organization.type == Organization.OrganisationType.company ) {
             writeDBPData(DBP.fullPrefixed(organization.name), RDF.type, DBPOWL.Company);
         } else {
             writeDBPData(DBP.fullPrefixed(organization.name), RDF.type, DBPOWL.University);

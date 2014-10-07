@@ -180,7 +180,7 @@ public class DataExporter {
         while (it.hasNext()) {
             Organization company = new Organization();
             company.id = it.next();
-            company.type = ScalableGenerator.OrganisationType.company;
+            company.type = Organization.OrganisationType.company;
             company.name = companyDic.getCompanyName(company.id);
             company.location = companyDic.getCountry(company.id);
             staticSerializer.serialize(company);
@@ -191,7 +191,7 @@ public class DataExporter {
         while (it.hasNext()) {
             Organization university = new Organization();
             university.id = it.next();
-            university.type = ScalableGenerator.OrganisationType.university;
+            university.type = Organization.OrganisationType.university;
             university.name = universityDic.getUniversityName(university.id);
             university.location = universityDic.getUniversityCity(university.id);
             staticSerializer.serialize(university);

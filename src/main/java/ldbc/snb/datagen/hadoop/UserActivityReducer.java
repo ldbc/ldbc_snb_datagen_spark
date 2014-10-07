@@ -1,5 +1,6 @@
 package ldbc.snb.datagen.hadoop;
 
+import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.generator.ScalableGenerator;
 import ldbc.snb.datagen.objects.ReducedUserProfile;
 import org.apache.hadoop.conf.Configuration;
@@ -22,8 +23,10 @@ public class UserActivityReducer extends Reducer<MapReduceKey, ReducedUserProfil
         Configuration conf = context.getConfiguration();
         String strTaskId = context.getTaskAttemptID().getTaskID().toString();
         attempTaskId = Integer.parseInt(strTaskId.substring(strTaskId.length() - 3));
-        friendGenerator = new ScalableGenerator(attempTaskId, conf);
-        //friendGenerator.init();
+        DatagenParams params = new DatagenParams();
+        params.readConf(conf);
+        params.readParameters("/params.ini");
+        friendGenerator = new ScalableGenerator(attempTaskId, params);
         friendGenerator.openSerializer();
         totalObjects = 0;
     }

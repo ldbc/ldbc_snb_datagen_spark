@@ -84,6 +84,8 @@ public class FBSocialDegreeGenerator {
         }
         this.fbDataFile = fbDataFile;
         this.buckets = new Bucket[BUCKET_NUM];
+        loadFBBuckets();
+        rebuildBucketRange();
     }
 
     public void resetState(long seed) {
