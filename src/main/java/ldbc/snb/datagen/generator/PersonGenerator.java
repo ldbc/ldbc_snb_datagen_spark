@@ -1,7 +1,7 @@
 package ldbc.snb.datagen.generator;
 
 import ldbc.snb.datagen.dictionary.*;
-import ldbc.snb.datagen.objects.ReducedUserProfile;
+import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
 
@@ -89,6 +89,13 @@ public class PersonGenerator {
         userAgentDictionary.load(DatagenParams.agentFile);
     }
 
+    /** Composes a user id from its sequential id, its creation date and the percentile.
+     *
+     * @param id    The sequential id.
+     * @param date  The date the person was created.
+     * @param spid  The percentile id
+     * @return A new composed id.
+     */
     private long composeUserId(long id, long date, long spid) {
         long spidMask = ~(0xFFFFFFFFFFFFFFFFL << 7);
         long idMask = ~(0xFFFFFFFFFFFFFFFFL << 33);
@@ -96,66 +103,47 @@ public class PersonGenerator {
         return (bucket << 40) | ((id & idMask) << 7) | (spid & spidMask);
     }
 
-    private boolean isUserALargePoster(ReducedUserProfile user) {
-        if (dateTimeGenerator.getBirthMonth(user.getBirthDay()) == GregorianCalendar.JANUARY) {
+    /** Tells if a person is a large poster or not.
+     *
+     * @param user The person to check.
+     * @return True if the person is a large poster. False otherwise.
+     */
+    private boolean isUserALargePoster(Person user) {
+        if (dateTimeGenerator.getBirthMonth(user.birthDay) == GregorianCalendar.JANUARY) {
             return true;
         }
         return false;
     }
 
-    private ReducedUserProfile generateUser() {
+    private Person generateUser() {
 
         long creationDate = dateTimeGenerator.randomDateInMillis(randomFarm.get(RandomGeneratorFarm.Aspect.DATE));
         int countryId = placeDictionary.getCountryForUser(randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY));
-        ReducedUserProfile userProf = new ReducedUserProfile();
-        userProf.setCreationDate(creationDate);
-        userProf.setGender((randomFarm.get(RandomGeneratorFarm.Aspect.GENDER).nextDouble() > 0.5) ? (byte) 1 : (byte) 0);
-        userProf.setBirthDay(dateTimeGenerator.getBirthDay(randomFarm.get(RandomGeneratorFarm.Aspect.BIRTH_DAY), creationDate));
-        userProf.setBrowserId(browserDictionary.getRandomBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER)));
-        userProf.setCountryId(countryId);
-        userProf.setCityId(placeDictionary.getRandomCity(randomFarm.get(RandomGeneratorFarm.Aspect.CITY), countryId));
-        userProf.setIpAddress(ipAddressDictionary.getRandomIPFromLocation(randomFarm.get(RandomGeneratorFarm.Aspect.IP), countryId));
-        userProf.setMaxNumFriends(fbDegreeGenerator.getSocialDegree());
-        userProf.setAccountId(composeUserId(nextId++, creationDate, fbDegreeGenerator.getIDByPercentile()));
-
-        // Setting tags
-        int userMainTag = tagDictionary.getaTagByCountry(randomFarm.get(RandomGeneratorFarm.Aspect.TAG_OTHER_COUNTRY), randomFarm.get(RandomGeneratorFarm.Aspect.TAG), userProf.getCountryId());
-        userProf.setMainTag(userMainTag);
+        Person person = new Person();
+        person.creationDate = creationDate;
+        person.gender = ((randomFarm.get(RandomGeneratorFarm.Aspect.GENDER).nextDouble() > 0.5) ? (byte) 1 : (byte) 0);
+        person.birthDay = (dateTimeGenerator.getBirthDay(randomFarm.get(RandomGeneratorFarm.Aspect.BIRTH_DAY), creationDate));
+        person.browserId = (browserDictionary.getRandomBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER)));
+        person.countryId = countryId;
+        person.cityId = (placeDictionary.getRandomCity(randomFarm.get(RandomGeneratorFarm.Aspect.CITY), countryId));
+        person.ipAddress = (ipAddressDictionary.getRandomIPFromLocation(randomFarm.get(RandomGeneratorFarm.Aspect.IP), countryId));
+        person.maxNumFriends = (fbDegreeGenerator.getSocialDegree());
+        person.accountId = (composeUserId(nextId++, creationDate, fbDegreeGenerator.getIDByPercentile()));
+        person.mainInterest = tagDictionary.getaTagByCountry(randomFarm.get(RandomGeneratorFarm.Aspect.TAG_OTHER_COUNTRY), randomFarm.get(RandomGeneratorFarm.Aspect.TAG), person.countryId);
         short numTags = ((short) randomTagPowerLaw.getValue(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_TAG)));
-        userProf.setInterests(tagMatrix.getSetofTags(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), randomFarm.get(RandomGeneratorFarm.Aspect.TAG_OTHER_COUNTRY), userMainTag, numTags));
-
-
-        userProf.setUniversityLocationId(universityDictionary.getRandomUniversity(randomFarm, userProf.getCountryId()));
-
-        // Set whether the user has a smartphone or not.
-        userProf.setHaveSmartPhone(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT).nextDouble() > DatagenParams.probHavingSmartPhone);
-        if (userProf.isHaveSmartPhone()) {
-            userProf.setAgentId(userAgentDictionary.getRandomUserAgentIdx(randomFarm.get(RandomGeneratorFarm.Aspect.USER_AGENT)));
-        }
+        person.interests = tagMatrix.getSetofTags(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), randomFarm.get(RandomGeneratorFarm.Aspect.TAG_OTHER_COUNTRY), person.mainInterest, numTags);
+        person.universityLocationId = universityDictionary.getRandomUniversity(randomFarm, person.countryId);
 
         // Compute the popular places the user uses to visit.
         byte numPopularPlaces = (byte) randomFarm.get(RandomGeneratorFarm.Aspect.NUM_POPULAR).nextInt(DatagenParams.maxNumPopularPlaces + 1);
         ArrayList<Short> auxPopularPlaces = new ArrayList<Short>();
         for (int i = 0; i < numPopularPlaces; i++) {
-            short aux = popularDictionary.getPopularPlace(randomFarm.get(RandomGeneratorFarm.Aspect.POPULAR), userProf.getCountryId());
+            short aux = popularDictionary.getPopularPlace(randomFarm.get(RandomGeneratorFarm.Aspect.POPULAR), person.countryId);
             if (aux != -1) {
                 auxPopularPlaces.add(aux);
             }
         }
-
-        // Setting popular places
-        short popularPlaces[] = new short[auxPopularPlaces.size()];
-        Iterator<Short> it = auxPopularPlaces.iterator();
-        int i = 0;
-        while (it.hasNext()) {
-            popularPlaces[i] = it.next();
-            ++i;
-        }
-        userProf.setPopularPlaceIds(popularPlaces);
-
-        // Set whether the user is a large poster or not.
-        userProf.setLargePoster(isUserALargePoster(userProf));
-        return userProf;
+        return person;
     }
 
     private void resetState(int blockId){
@@ -163,13 +151,13 @@ public class PersonGenerator {
         randomFarm.resetRandomGenerators((long) blockId);
     }
 
-    public ReducedUserProfile[] generateUserBlock( int blockId ) {
+    public Person[] generateUserBlock( int blockId ) {
         resetState(blockId);
-        ReducedUserProfile[] block = null;
+        Person[] block;
         if( this.nextId + DatagenParams.blockSize < DatagenParams.numPersons ) {
-            block = new ReducedUserProfile[DatagenParams.blockSize];
+            block = new Person[DatagenParams.blockSize];
         } else {
-            block = new ReducedUserProfile[DatagenParams.numPersons - this.nextId];
+            block = new Person[DatagenParams.numPersons - this.nextId];
         }
         int size = block.length;
         for (int j =0; j < size; ++j) {

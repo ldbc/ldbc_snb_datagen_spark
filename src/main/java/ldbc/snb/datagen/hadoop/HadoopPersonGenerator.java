@@ -3,6 +3,7 @@ package ldbc.snb.datagen.hadoop;
 import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.generator.PersonGenerator;
 import ldbc.snb.datagen.hadoop.*;
+import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.objects.ReducedUserProfile;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -25,7 +26,7 @@ import java.io.OutputStream;
  */
 public class HadoopPersonGenerator  {
 
-    public static class HadoopPersonGeneratorMapper  extends Mapper<LongWritable, Text, LongWritable, ReducedUserProfile> {
+    public static class HadoopPersonGeneratorMapper  extends Mapper<LongWritable, Text, LongWritable, Person> {
 
         @Override
         public void map(LongWritable key, Text value, Context context)
@@ -48,10 +49,10 @@ public class HadoopPersonGenerator  {
 
             PersonGenerator personGenerator = new PersonGenerator();
             for (int i = initBlock; i < endBlock; ++i) {
-                ReducedUserProfile [] block = personGenerator.generateUserBlock(i);
+                Person[] block = personGenerator.generateUserBlock(i);
                 int size = block.length;
                 for( int j = 0; j < size; ++j ) {
-                    LongWritable outputKey = new LongWritable(block[j].getAccountId());
+                    LongWritable outputKey = new LongWritable(block[j].accountId);
                     try {
                         context.write(outputKey, block[j]);
                     } catch( IOException ioE ) {
@@ -65,10 +66,10 @@ public class HadoopPersonGenerator  {
     }
 
 
-    public static class HadoopPersonGeneratorReducer  extends Reducer<LongWritable, ReducedUserProfile, LongWritable, ReducedUserProfile> {
+    public static class HadoopPersonGeneratorReducer  extends Reducer<LongWritable, Person, LongWritable, Person> {
 
         @Override
-        public void reduce(LongWritable key, Iterable<ReducedUserProfile> valueSet,
+        public void reduce(LongWritable key, Iterable<Person> valueSet,
                            Context context) throws IOException, InterruptedException {
 
                 for ( ReducedUserProfile user : valueSet ) {
