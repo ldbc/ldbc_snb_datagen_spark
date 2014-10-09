@@ -37,10 +37,8 @@
 package ldbc.socialnet.dbgen.generator;
 
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Random;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
 
@@ -97,7 +95,7 @@ public class DateGenerator {
 	 */
 	public static String formatDate(GregorianCalendar c)
 	{
-		int day = c.get(Calendar.DAY_OF_MONTH);
+		/*int day = c.get(Calendar.DAY_OF_MONTH);
 		int month = c.get(Calendar.MONTH)+1;		// +1 because month can be 0
 		int year = c.get(Calendar.YEAR);
 		
@@ -111,6 +109,11 @@ public class DateGenerator {
 			prefixMonth = "0";
 		
 		return year+"-"+prefixMonth+month+"-"+prefixDay+day;
+		*/
+
+        c.setTimeZone(TimeZone.getTimeZone("GMT"));
+        SimpleDateFormat gmtDateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+        return gmtDateFormatter.format(c.getTime());
 	}
 	
 	public static String formatYear(GregorianCalendar c)
@@ -124,7 +127,7 @@ public class DateGenerator {
 	 */
 	public static String formatDateDetail(GregorianCalendar c)
 	{
-		int day = c.get(Calendar.DAY_OF_MONTH);
+	/*	int day = c.get(Calendar.DAY_OF_MONTH);
 		int month = c.get(Calendar.MONTH)+1;
 		int year = c.get(Calendar.YEAR);
 		
@@ -155,6 +158,10 @@ public class DateGenerator {
 		
 		return year+"-"+prefixMonth+month+"-"+prefixDay+day +"T"
 			   +prefixHour+hour+":"+prefixMinute+minute+":"+prefixSecond+second+"Z";
+			   */
+        c.setTimeZone(TimeZone.getTimeZone("GMT"));
+        SimpleDateFormat gmtDateFormatter = new SimpleDateFormat("yyyy-MM-ddHH:mm:ssZ");
+        return gmtDateFormatter.format(c.getTime());
 	}
 
 	/*
