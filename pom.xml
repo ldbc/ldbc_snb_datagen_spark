@@ -6,7 +6,7 @@
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>ldbc.socialnet.dbgen</groupId>
-  <artifactId>ldbc_socialnet_dbgen</artifactId>
+  <artifactId>ldbc_snb_datagen</artifactId>
   <version>0.1</version>
   <build>
     <plugins>
@@ -22,7 +22,7 @@
               <mainClass>ldbc.socialnet.dbgen.generator.MRGenerateUsers</mainClass>
             </manifest>
           </archive>
-          <finalName>ldbc_socialnet_dbgen</finalName>
+          <finalName>ldbc_snb_datagen</finalName>
           <appendAssemblyId>false</appendAssemblyId>
         </configuration>
       </plugin>
