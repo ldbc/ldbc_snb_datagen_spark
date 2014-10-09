@@ -6,6 +6,7 @@ FACTORS = ["f", "ff", "fp", "fpt", "ffg", "p", "pl", "pt", "pr", "g", "w", "ffw"
 
 FACTOR_MAP = {value: key for (key, value) in enumerate(FACTORS)}
 
+
 class FactorCount:
 	def __init__(self):
 		self.values = [0]*len(FACTORS)
@@ -90,6 +91,11 @@ def load(factorFiles, friendFiles):
 				line = f.readline()
 				count = line[1+line.rfind(","):]
 				name = line[:line.rfind(",")]
+				try:
+					name.decode('ascii')
+				except UnicodeEncodeError:
+					continue
+				
 				if not name in tags:
 					tags[name] = 0
 				tags[name] += int(count)
@@ -167,7 +173,7 @@ def getFactorsForQuery(queryId, factors):
 		5: getColumns(factors, ["ff", "ffg"]),	
 		6: getColumns(factors, ["f","ff", "ffp", "ffpt"]),
 		7: getColumns(factors, ["pl", "p"]),
-		8: getColumns(factors, ["p", "pr"]), ### add "pr"
+		8: getColumns(factors, ["pr","p"]), ### add "pr"
 		9: getColumns(factors, ["f", "ffp", "ff"]),
 		10: getColumns(factors, ["f","ff", "ffp", "ffpt"]),
 		11: getColumns(factors, ["f","ff", "ffw"]),
