@@ -161,7 +161,8 @@ public class DateGenerator {
 			   +prefixHour+hour+":"+prefixMinute+minute+":"+prefixSecond+second+"Z";
 			   */
         c.setTimeZone(TimeZone.getTimeZone("GMT"));
-        SimpleDateFormat gmtDateFormatter = new SimpleDateFormat("yyyy-MM-ddHH:mm:ssZ");
+        //SimpleDateFormat gmtDateFormatter = new SimpleDateFormat("yyyy-MM-ddHH:mm:ssZ");
+        SimpleDateFormat gmtDateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         gmtDateFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
         return gmtDateFormatter.format(c.getTime());
 	}
