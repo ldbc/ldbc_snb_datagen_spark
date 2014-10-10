@@ -104,7 +104,9 @@ public class MRGenerateUsers{
                     Path outFile = new Path(context.getConfiguration().get("outputDir")+"/social_network/updateStream_"+attempTaskId+".csv");
                     out = fs.create(outFile);
                 }
-                properties = fs.create(new Path(context.getConfiguration().get("outputDir")+"/social_network/updateStream_"+attempTaskId+".properties"));
+                if (conf.getBoolean("updateStreams",false)) {
+                    properties = fs.create(new Path(context.getConfiguration().get("outputDir")+"/social_network/updateStream_"+attempTaskId+".properties"));
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -125,10 +127,13 @@ public class MRGenerateUsers{
         protected void cleanup(Context context){
             try {
                 System.out.println("Number of events reduced "+numEvents);
-                String propertiesStr = new String("gctdeltaduration:"+context.getConfiguration().get("deltaTime")+"\nmin_write_event_start_time:"+min+"\nmax_write_event_start_time:"+max+"\nupdate_interleave:"+(max-min)/numEvents);
-                properties.write(propertiesStr.getBytes("UTF8"));
-                properties.flush();
-                properties.close();
+                if (numEvents > 0) {
+                    long updateDistance = (max-min)/numEvents;
+                    String propertiesStr = new String("gctdeltaduration:"+context.getConfiguration().get("deltaTime")+"\nmin_write_event_start_time:"+min+"\nmax_write_event_start_time:"+max+"\nupdate_interleave:"+updateDistance);
+                    properties.write(propertiesStr.getBytes("UTF8"));
+                    properties.flush();
+                    properties.close();
+                }
                 out.flush();
                 out.close();
             } catch (IOException e) {
