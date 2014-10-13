@@ -15,10 +15,10 @@ export LDBC_SNB_DATAGEN_HOME
 mvn clean
 mvn assembly:assembly
 
-cp $LDBC_SNB_DATAGEN_HOME/target/ldbc_socialnet_dbgen.jar $LDBC_SNB_DATAGEN_HOME/
-rm $LDBC_SNB_DATAGEN_HOME/target/ldbc_socialnet_dbgen.jar
+cp $LDBC_SNB_DATAGEN_HOME/target/ldbc_snb_datagen.jar $LDBC_SNB_DATAGEN_HOME/
+rm $LDBC_SNB_DATAGEN_HOME/target/ldbc_snb_datagen.jar
 
-$HADOOP_HOME/bin/hadoop  jar $LDBC_SNB_DATAGEN_HOME/ldbc_socialnet_dbgen.jar $LDBC_SNB_DATAGEN_HOME/params.ini
+$HADOOP_HOME/bin/hadoop  jar $LDBC_SNB_DATAGEN_HOME/ldbc_snb_datagen.jar $LDBC_SNB_DATAGEN_HOME/params.ini
 
 #parameter generation
 PARAM_GENERATION=1
