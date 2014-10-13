@@ -799,6 +799,7 @@ public class ScalableGenerator{
         generatePhotos(reducedUserProfiles[index], extraInfo);
         generateUserGroups(reducedUserProfiles[index], extraInfo);
         if( numUserProfilesRead % 100 == 0) context.setStatus("Generated post and photo for "+numUserProfilesRead+" users");
+        dataExporter.changePartition();
     }
 
     private void generateUserGroups(ReducedUserProfile userProfile, UserExtraInfo extraInfo ) {
@@ -1514,7 +1515,7 @@ public class ScalableGenerator{
             return null;
         }
         return new DataExporter(format,sibOutputDir, threadId, dateThreshold,
-                exportText,enableCompression,tagDictionary,browserDictonry,companiesDictionary,
+                exportText,enableCompression,conf.getInt("numUpdatePartitions",1),tagDictionary,browserDictonry,companiesDictionary,
                 unversityDictionary,ipAddDictionary,locationDictionary,languageDictionary, configFile, factorTable, startMonth, startYear, stats);
     }
 

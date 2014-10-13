@@ -97,14 +97,16 @@ public class MRGenerateUsers{
                 FileSystem fs = FileSystem.get(conf);
                 String strTaskId = context.getTaskAttemptID().getTaskID().toString();
                 int attempTaskId = Integer.parseInt(strTaskId.substring(strTaskId.length() - 3));
+                int partitionId = conf.getInt("partitionId",0);
+                String streamType = conf.get("streamType");
                 if( Boolean.parseBoolean(conf.get("compressed")) == true ) {
-                    Path outFile = new Path(context.getConfiguration().get("outputDir")+"/social_network/updateStream_"+attempTaskId+".csv.gz");
+                    Path outFile = new Path(context.getConfiguration().get("outputDir")+"/social_network/updateStream_"+attempTaskId+"_"+partitionId+"_"+streamType+".csv.gz");
                     out = new GZIPOutputStream( fs.create(outFile));
                 } else {
-                    Path outFile = new Path(context.getConfiguration().get("outputDir")+"/social_network/updateStream_"+attempTaskId+".csv");
+                    Path outFile = new Path(context.getConfiguration().get("outputDir")+"/social_network/updateStream_"+attempTaskId+"_"+partitionId+"_"+streamType+".csv");
                     out = fs.create(outFile);
                 }
-                properties = fs.create(new Path(context.getConfiguration().get("outputDir")+"/social_network/updateStream_"+attempTaskId+".properties"));
+                properties = fs.create(new Path(context.getConfiguration().get("outputDir")+"/social_network/updateStream_"+attempTaskId+"_"+partitionId+"_"+streamType+".properties"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -481,25 +483,6 @@ public class MRGenerateUsers{
 
         
 
-        /// --------------- Fifth job: Sort update streams ----------------
-        conf.setInt("mapred.line.input.format.linespermap", 1000000);
-        Job job5 = new Job(conf,"Soring update streams");
-        job5.setMapOutputKeyClass(LongWritable.class);
-        job5.setMapOutputValueClass(Text.class);
-        job5.setOutputKeyClass(LongWritable.class);
-        job5.setOutputValueClass(Text.class);
-        job5.setJarByClass(UpdateEventMapper.class);
-        job5.setMapperClass(UpdateEventMapper.class);
-        job5.setReducerClass(UpdateEventReducer.class);
-        job5.setNumReduceTasks(1);
-        job5.setInputFormatClass(SequenceFileInputFormat.class);
-        job5.setOutputFormatClass(SequenceFileOutputFormat.class);
-        job5.setPartitionerClass(UpdateEventPartitioner.class);
-
-        for( int i =0; i < numThreads; ++i ) {
-            FileInputFormat.addInputPath(job5, new Path(socialNetDir + "/temp_updateStream_"+i+".csv"));
-        }
-        FileOutputFormat.setOutputPath(job5, new Path(hadoopDir + "/sibEnd") );
 
         /// --------------- Sixth job: Materialize the friends lists ----------------
         Job job6 = new Job(conf,"Dump the friends lists");
@@ -520,10 +503,7 @@ public class MRGenerateUsers{
         FileOutputFormat.setOutputPath(job6, new Path(hadoopDir + "/job6") );
 
 
-
-
 	    /// --------- Execute Jobs ------
-
 	    long start = System.currentTimeMillis();
 
         printProgress("Starting: Person generation and friendship generation 1");
@@ -553,13 +533,55 @@ public class MRGenerateUsers{
         int resUpdateStreams = job4.waitForCompletion(true) ? 0 : 1;
         fs.delete(new Path(hadoopDir + "/sib4"),true);
 
-        printProgress("Starting: Sorting update streams");
-        int sortUpdateStreams= job5.waitForCompletion(true) ? 0 : 1;
-
         for( int i =0; i < numThreads; ++i ) {
-            fs.delete(new Path(socialNetDir + "/temp_updateStream_"+i+".csv"),false);
+            int numPartitions = conf.getInt("numUpdatePartitions", 1);
+            for( int j = 0; j < numPartitions; ++j ) {
+                /// --------------- Fifth job: Sort update streams ----------------
+                conf.setInt("mapred.line.input.format.linespermap", 1000000);
+                conf.setInt("partitionId",j);
+                conf.set("streamType","forum");
+                Job jobForum = new Job(conf, "Soring update streams "+j+" of reducer "+i);
+                jobForum.setMapOutputKeyClass(LongWritable.class);
+                jobForum.setMapOutputValueClass(Text.class);
+                jobForum.setOutputKeyClass(LongWritable.class);
+                jobForum.setOutputValueClass(Text.class);
+                jobForum.setJarByClass(UpdateEventMapper.class);
+                jobForum.setMapperClass(UpdateEventMapper.class);
+                jobForum.setReducerClass(UpdateEventReducer.class);
+                jobForum.setNumReduceTasks(1);
+                jobForum.setInputFormatClass(SequenceFileInputFormat.class);
+                jobForum.setOutputFormatClass(SequenceFileOutputFormat.class);
+                jobForum.setPartitionerClass(UpdateEventPartitioner.class);
+                FileInputFormat.addInputPath(jobForum, new Path(socialNetDir + "/temp_updateStream_" + i+"_"+j+"_forum"));
+                FileOutputFormat.setOutputPath(jobForum, new Path(hadoopDir + "/sibEnd"));
+                printProgress("Starting: Sorting update streams");
+                jobForum.waitForCompletion(true);
+                fs.delete(new Path(socialNetDir + "/temp_updateStream_" + i+"_"+j+"_forum"), false);
+                fs.delete(new Path(hadoopDir + "/sibEnd"), true);
+
+                conf.setInt("mapred.line.input.format.linespermap", 1000000);
+                conf.setInt("partitionId",j);
+                conf.set("streamType","person");
+                Job jobPerson = new Job(conf, "Soring update streams "+j+" of reducer "+i);
+                jobPerson.setMapOutputKeyClass(LongWritable.class);
+                jobPerson.setMapOutputValueClass(Text.class);
+                jobPerson.setOutputKeyClass(LongWritable.class);
+                jobPerson.setOutputValueClass(Text.class);
+                jobPerson.setJarByClass(UpdateEventMapper.class);
+                jobPerson.setMapperClass(UpdateEventMapper.class);
+                jobPerson.setReducerClass(UpdateEventReducer.class);
+                jobPerson.setNumReduceTasks(1);
+                jobPerson.setInputFormatClass(SequenceFileInputFormat.class);
+                jobPerson.setOutputFormatClass(SequenceFileOutputFormat.class);
+                jobPerson.setPartitionerClass(UpdateEventPartitioner.class);
+                FileInputFormat.addInputPath(jobPerson, new Path(socialNetDir + "/temp_updateStream_" + i+"_"+j+"_person"));
+                FileOutputFormat.setOutputPath(jobPerson, new Path(hadoopDir + "/sibEnd"));
+                printProgress("Starting: Sorting update streams");
+                jobPerson.waitForCompletion(true);
+                fs.delete(new Path(socialNetDir + "/temp_updateStream_" + i+"_"+j+"_person"), false);
+                fs.delete(new Path(hadoopDir + "/sibEnd"), true);
+            }
         }
-        fs.delete(new Path(hadoopDir + "/sibEnd"),true);
 
         printProgress("Starting: Materialize friends for substitution parameters");
         int resMaterializeFriends = job6.waitForCompletion(true) ? 0 : 1;

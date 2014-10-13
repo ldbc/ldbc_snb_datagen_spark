@@ -20,6 +20,7 @@ public class ConfigParser {
         conf.set("updateStreams",Boolean.toString(false));
         conf.set("outputDir","./");
         conf.set("deltaTime","10000");
+        conf.set("numUpdatePartitions","1");
 
         try {
             //First read the internal params.ini
@@ -34,6 +35,7 @@ public class ConfigParser {
             CheckOption(conf, "numPersons", properties);
             CheckOption(conf, "numYears", properties);
             CheckOption(conf,"startYear",properties);
+            CheckOption(conf,"numUpdatePartitions",properties);
             if(conf.get("fs.default.name").compareTo("file:///") == 0 ) {
                 System.out.println("Running in standalone mode. Setting numThreads to 1");
                 conf.set("numThreads","1");
@@ -67,6 +69,7 @@ public class ConfigParser {
         System.out.println("compressed: "+conf.get("compressed"));
         System.out.println("updateStreams: "+conf.get("updateStreams"));
         System.out.println("outputDir: "+conf.get("outputDir"));
+        System.out.println("numUpdatePartitions: "+conf.get("numUpdatePartitions"));
         System.out.println("*********************************");
     }
 }
