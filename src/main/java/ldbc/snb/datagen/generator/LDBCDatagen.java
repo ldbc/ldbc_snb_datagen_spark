@@ -36,11 +36,14 @@
  */
 package ldbc.snb.datagen.generator;
 
+import ldbc.snb.datagen.hadoop.HadoopFileSorter;
 import ldbc.snb.datagen.hadoop.HadoopPersonGenerator;
+import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.util.ConfigParser;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.LongWritable;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -62,10 +65,18 @@ public class LDBCDatagen {
         System.out.println("NUMBER OF THREADS " + numThreads);
         */
 
+        String hadoopDir = new String( conf.get("outputDir") + "/hadoop" );
+        String personsFileName = hadoopDir + "/users";
+
         long start = System.currentTimeMillis();
         printProgress("Starting: Person generation");
         HadoopPersonGenerator personGenerator = new HadoopPersonGenerator( conf );
-        personGenerator.run("users");
+        personGenerator.run(personsFileName);
+
+        printProgress("Sorting Persons by Key");
+        String sortedPersonsFileName = hadoopDir + "/sorted_users";
+        HadoopFileSorter hadoopFileSorter = new HadoopFileSorter( conf, LongWritable.class, Person.class );
+        hadoopFileSorter.run(personsFileName,sortedPersonsFileName);
 
 /*
         printProgress("Starting: Friendship generation 2");

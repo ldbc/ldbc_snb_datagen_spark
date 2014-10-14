@@ -2,9 +2,7 @@ package ldbc.snb.datagen.hadoop;
 
 import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.generator.PersonGenerator;
-import ldbc.snb.datagen.hadoop.*;
 import ldbc.snb.datagen.objects.Person;
-import ldbc.snb.datagen.objects.ReducedUserProfile;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -82,7 +80,7 @@ public class HadoopPersonGenerator  {
     private Configuration conf = null;
 
     public HadoopPersonGenerator( Configuration conf ) {
-        this.conf = conf;
+        this.conf  = new Configuration(conf);
     }
 
     private static void writeToOutputFile(String filename, int numMaps, Configuration conf) {
@@ -107,6 +105,7 @@ public class HadoopPersonGenerator  {
         writeToOutputFile(tempFile, Integer.parseInt(conf.get("numThreads")), conf);
 
         int numThreads = Integer.parseInt(conf.get("numThreads"));
+        conf.setInt("mapred.line.input.format.linespermap", 1);
         Job job = new Job(conf, "SIB Generate Users & 1st Dimension");
         job.setMapOutputKeyClass(LongWritable.class);
         job.setMapOutputValueClass(Person.class);
@@ -117,13 +116,12 @@ public class HadoopPersonGenerator  {
         job.setReducerClass(HadoopPersonGeneratorReducer.class);
         job.setNumReduceTasks(numThreads);
         job.setInputFormatClass(NLineInputFormat.class);
-        conf.setInt("mapred.line.input.format.linespermap", 1);
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
         //job.setPartitionerClass(MapReduceKeyPartitioner.class);
         //job.setSortComparatorClass(MapReduceKeyComparator.class);
         //job.setGroupingComparatorClass(MapReduceKeyGroupKeyComparator.class);
         FileInputFormat.setInputPaths(job, new Path(tempFile));
-        FileOutputFormat.setOutputPath(job, new Path(hadoopDir +"/"+ outputFileName));
+        FileOutputFormat.setOutputPath(job, new Path(outputFileName));
         job.waitForCompletion(true);
     }
 }
