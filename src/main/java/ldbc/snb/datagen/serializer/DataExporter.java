@@ -71,23 +71,24 @@ public class DataExporter {
     private int reducerId = 0;
     GregorianCalendar c;
 
-    public DataExporter(DataFormat format,
-                        String directory,
-                        int reducerId,
-                        long dateThreshold,
-                        boolean exportText,
-                        boolean compressed,
-                        TagDictionary tagDic,
-                        BrowserDictionary browsers,
-                        CompanyDictionary companyDic,
-                        UniversityDictionary universityDic,
-                        IPAddressDictionary ipDic,
-                        PlaceDictionary locationDic,
-                        LanguageDictionary languageDic,
-                        String configFile,
-                        HashMap<Long, ReducedUserProfile.Counts> factorTable,
-                        int startMonth, int startYear,
-                        Statistics statistics) {
+    public DataExporter( DataFormat format,
+                         String directory,
+                         int reducerId,
+                         long dateThreshold,
+                         boolean exportText,
+                         boolean compressed,
+                         int numPartitions,
+                         TagDictionary tagDic,
+                         BrowserDictionary browsers,
+                         CompanyDictionary companyDic,
+                         UniversityDictionary universityDic,
+                         IPAddressDictionary ipDic,
+                         PlaceDictionary locationDic,
+                         LanguageDictionary languageDic,
+                         String configFile,
+                         HashMap<Long, ReducedUserProfile.Counts> factorTable,
+                         int startMonth, int startYear,
+                         Statistics statistics) {
         this.locationDic = locationDic;
         this.companyDic = companyDic;
         this.universityDic = universityDic;
@@ -110,8 +111,12 @@ public class DataExporter {
         } else if (format == DataFormat.NONE) {
             staticSerializer = new EmptySerializer();
         }
-        updateStreamSerializer = new UpdateEventSerializer(directory, "temp_updateStream_" + reducerId + ".csv", exportText, compressed, tagDic, browsers, languageDic, ipDic, statistics);
+        updateStreamSerializer = new UpdateEventSerializer(directory,"temp_updateStream_"+reducerId,exportText, numPartitions,tagDic,browsers,languageDic,ipDic, statistics);
         exportCommonEntities();
+    }
+
+    public void changePartition(){
+        updateStreamSerializer.changePartition();
     }
 
     public void close() {

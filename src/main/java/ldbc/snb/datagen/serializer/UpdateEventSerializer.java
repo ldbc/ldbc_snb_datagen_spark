@@ -63,8 +63,8 @@ import java.util.Iterator;
  */
 public class UpdateEventSerializer implements Serializer {
 
-    private OutputStream fileOutputStream;
-    private SequenceFile.Writer hdfsWriter;
+    private SequenceFile.Writer forumStreamWriter[];
+    private SequenceFile.Writer personStreamWriter[];
     private ArrayList<Object> data;
     private ArrayList<Object> list;
     private UpdateEvent currentEvent;
@@ -79,8 +79,18 @@ public class UpdateEventSerializer implements Serializer {
     private long maxDate;
     private Gson gson;
     private long numEvents = 0;
+    private int numPartitions = 1;
+    private int nextPartition = 0;
 
-    public UpdateEventSerializer(String outputDir, String outputFileName, boolean exportText, boolean compress, TagDictionary tagDic, BrowserDictionary browserDic, LanguageDictionary languageDic, IPAddressDictionary ipDic, Statistics statistics) {
+    public UpdateEventSerializer( String outputDir,
+                                  String outputFileName,
+                                  boolean exportText,
+                                  int numPartitions,
+                                  TagDictionary tagDic,
+                                  BrowserDictionary browserDic,
+                                  LanguageDictionary languageDic,
+                                  IPAddressDictionary ipDic,
+                                  Statistics statistics) {
         gson = new GsonBuilder().disableHtmlEscaping().create();
         this.data = new ArrayList<Object>();
         this.currentEvent = new UpdateEvent(-1, UpdateEvent.UpdateEventType.NO_EVENT, new String(""));
@@ -89,23 +99,23 @@ public class UpdateEventSerializer implements Serializer {
         this.languageDic = languageDic;
         this.ipDic = ipDic;
         this.exportText = exportText;
+        this.numPartitions = numPartitions;
         this.tagDic = tagDic;
         this.statistics = statistics;
         this.minDate = Long.MAX_VALUE;
         this.maxDate = Long.MIN_VALUE;
-        try {
+        try{
+            this.forumStreamWriter = new SequenceFile.Writer[this.numPartitions];
+            this.personStreamWriter = new SequenceFile.Writer[this.numPartitions];
             Configuration conf = new Configuration();
             FileSystem fs = FileSystem.get(conf);
-            /*if( compress ) {
-                this.fileOutputStream = new GZIPOutputStream(new FileOutputStream(outputDir + "/" + outputFileName +".gz"));
-            } else {
-                this.fileOutputStream = new FileOutputStream(outputDir + "/" + outputFileName );
+            for( int i = 0; i < numPartitions; ++i ) {
+                Path outFile = new Path(outputDir + "/" + outputFileName+"_"+i+"_forum");
+                forumStreamWriter[i] = new SequenceFile.Writer(fs, conf, outFile, LongWritable.class, Text.class);
+                outFile = new Path(outputDir + "/" + outputFileName+"_"+i+"_person");
+                personStreamWriter[i] = new SequenceFile.Writer(fs, conf, outFile, LongWritable.class, Text.class);
             }
-            hdfsOutput = new FSDataOutputStream(this.fileOutputStream, new FileSystem.Statistics(null));
-            */
-            Path outFile = new Path(outputDir + "/" + outputFileName);
-            hdfsWriter = new SequenceFile.Writer(fs, conf, outFile, LongWritable.class, Text.class);
-        } catch (IOException e) {
+        } catch(IOException e){
             System.err.println(e.getMessage());
             System.exit(-1);
         }
@@ -197,9 +207,12 @@ public class UpdateEventSerializer implements Serializer {
 //        statistics.eventParams.add(params);
     }
 
+    public void changePartition() {
+        nextPartition = (++nextPartition) % numPartitions;
+    }
 
-    public void writeKeyValue(UpdateEvent event) {
-        try {
+    public void writeKeyValue( UpdateEvent event, Stream s ) {
+        try{
             StringBuffer string = new StringBuffer();
             string.append(Long.toString(event.date));
             string.append("|");
@@ -208,9 +221,15 @@ public class UpdateEventSerializer implements Serializer {
             string.append(event.eventData);
             string.append("|");
             string.append("\n");
-            //fileOutputStream.write(string.toString().getBytes("UTF8"));
-            hdfsWriter.append(new LongWritable(event.date), new Text(string.toString()));
-        } catch (IOException e) {
+            switch (s) {
+                case FORUM_STREAM:
+                    forumStreamWriter[nextPartition].append(new LongWritable(event.date),new Text(string.toString()));
+                    break;
+                case PERSON_STREAM:
+                    personStreamWriter[nextPartition].append(new LongWritable(event.date),new Text(string.toString()));
+                    break;
+            }
+        } catch(IOException e){
             System.err.println(e.getMessage());
             System.exit(-1);
         }
@@ -225,10 +244,15 @@ public class UpdateEventSerializer implements Serializer {
         data.clear();
     }
 
-    private void endEvent() {
+    enum Stream {
+        FORUM_STREAM,
+        PERSON_STREAM
+    }
+
+    private void endEvent( Stream s ) {
         numEvents++;
         currentEvent.eventData = gson.toJson(data);
-        writeKeyValue(currentEvent);
+        writeKeyValue(currentEvent, s);
     }
 
     private void beginList() {
@@ -252,8 +276,11 @@ public class UpdateEventSerializer implements Serializer {
         System.out.println("Number of update events serialized " + numEvents);
 
         try {
-            hdfsWriter.close();
-        } catch (IOException e) {
+            for( int i = 0; i < numPartitions; ++i ) {
+                forumStreamWriter[i].close();
+                personStreamWriter[i].close();
+            }
+        } catch(IOException e){
             System.err.println(e.getMessage());
             System.exit(-1);
         }
@@ -373,7 +400,7 @@ public class UpdateEventSerializer implements Serializer {
             list.add(workAtData);
         }
         endList();
-        endEvent();
+        endEvent(Stream.PERSON_STREAM);
     }
 
     @Override
@@ -384,7 +411,7 @@ public class UpdateEventSerializer implements Serializer {
             data.add(friend.getFriendAcc());
             date.setTimeInMillis(friend.getCreatedTime());
             data.add(DateGenerator.formatDateDetail(date));
-            endEvent();
+            endEvent(Stream.PERSON_STREAM);
         }
     }
 
@@ -429,7 +456,7 @@ public class UpdateEventSerializer implements Serializer {
             list.add(tagId);
         }
         endList();
-        endEvent();
+        endEvent(Stream.FORUM_STREAM);
     }
 
     @Override
@@ -444,7 +471,7 @@ public class UpdateEventSerializer implements Serializer {
         data.add(like.user);
         data.add(Long.parseLong(SN.formId(like.messageId)));
         data.add(dateString);
-        endEvent();
+        endEvent(Stream.FORUM_STREAM);
     }
 
     @Override
@@ -481,7 +508,7 @@ public class UpdateEventSerializer implements Serializer {
             list.add(tagId);
         }
         endList();
-        endEvent();
+        endEvent(Stream.FORUM_STREAM);
     }
 
     @Override
@@ -526,7 +553,7 @@ public class UpdateEventSerializer implements Serializer {
             list.add(tagId);
         }
         endList();
-        endEvent();
+        endEvent(Stream.FORUM_STREAM);
     }
 
     @Override
@@ -546,7 +573,7 @@ public class UpdateEventSerializer implements Serializer {
             list.add(groupTags[i]);
         }
         endList();
-        endEvent();
+        endEvent(Stream.FORUM_STREAM);
     }
 
     @Override
@@ -557,7 +584,7 @@ public class UpdateEventSerializer implements Serializer {
         data.add(Long.parseLong(SN.formId(membership.getForumId())));
         data.add(membership.getUserId());
         data.add(dateString);
-        endEvent();
+        endEvent(Stream.FORUM_STREAM);
     }
 
     @Override

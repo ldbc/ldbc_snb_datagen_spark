@@ -4,14 +4,20 @@ import readfactors
 import random
 import json
 import os
+import codecs
 from timeparameters import *
 
 PERSON_PREFIX = "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers"
 COUNTRY_PREFIX = "http://dbpedia.org/resource/"
+SEED = 1
 
 def findNameParameters(names, amount = 100):
 	srtd = sorted(names,key=lambda x: -x[1])
-	return map(lambda x:x[0], srtd[:amount-1])
+	res = []
+	for t in srtd:
+		if t[1] > 100 and t[1] < 150:
+			res.append(t[0])
+	return res
 
 class JSONSerializer:
 	def __init__(self):
@@ -26,7 +32,7 @@ class JSONSerializer:
 		self.inputs.append(inputParams)
 
 	def writeJSON(self):
-		output = open(self.outputFile, "w")
+		output = codecs.open(self.outputFile, "w", encoding="utf-8")
 
 		if len(self.inputs) == 0:
 			return
@@ -38,7 +44,8 @@ class JSONSerializer:
 				handler = self.handlers[j]
 				data = self.inputs[j][i]
 				jsonDict.update(handler(data))
-			output.write(json.dumps(jsonDict)+"\n")
+			output.write(json.dumps(jsonDict, ensure_ascii=False))
+			output.write("\n")
 
 		output.close()
 
@@ -58,7 +65,7 @@ def handleCountryParam(Country):
 	return {"Country":Country, "CountryURI": (COUNTRY_PREFIX + Country)}
 
 def handleTagParam(tag):
-	return {"Tag": tag.encode("utf-8")}
+	return {"Tag": tag}
 
 def handleTagTypeParam(tagType):
 	return {"TagType": tagType}
@@ -67,7 +74,7 @@ def handleHSParam((HS0, HS1)):
 	return {"HS0":HS0, "HS1":HS1}
 
 def handleFirstNameParam(firstName):
-	return {"Name":firstName.decode("utf-8")}
+	return {"Name":firstName}
 
 def handlePairPersonParam((person1, person2)):
 	return {"Person1ID":person1, "Person2ID":person2, "Person2URI":(PERSON_PREFIX+str(person2)), "Person1URI":(PERSON_PREFIX+str(person1))}
@@ -87,7 +94,8 @@ def main(argv=None):
 	factorFiles=[]
 	friendsFiles = []
 	outdir = argv[2]+"/"
-
+	random.seed(SEED)
+	
 	for file in os.listdir(indir):
 		if file.endswith("factors.txt"):
 			factorFiles.append(indir+file)
