@@ -95,6 +95,12 @@ public class HadoopPersonGenerator  {
         }
     }
 
+    /** Generates a Person hadoop sequence file containing key-value paiers
+     * where the key is the person id and the value is the person itself.
+     *
+     * @param outputFileName The name of the file to store the persons.
+     * @throws Exception
+     */
     public void run( String outputFileName ) throws Exception {
 
         String hadoopDir = new String( conf.get("outputDir") + "/hadoop" );

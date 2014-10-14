@@ -15,20 +15,31 @@ import java.io.Serializable;
 /**
  * Created by aprat on 10/14/14.
  */
-public class HadoopFileSorter{
-    Configuration conf;
-    Class<?> K;
-    Class<?> V;
+public class HadoopFileSorter {
+    private Configuration conf;
+    private Class<?> K;
+    private Class<?> V;
 
+    /**
+     *
+     * @param conf The configuration object.
+     * @param K The Key class of the hadoop sequence file.
+     * @param V The Value class of the hadoop sequence file.
+     */
     public HadoopFileSorter( Configuration conf, Class<?> K, Class<?> V) {
         this.conf  = new Configuration(conf);
         this.K = K;
         this.V = V;
     }
 
+    /** Sorts a hadoop sequence file
+     *
+     * @param inputFileName The name of the file to sort.
+     * @param outputFileName The name of the sorted file.
+     * @throws Exception
+     */
     public void run( String inputFileName, String outputFileName ) throws Exception {
-        String hadoopDir = new String( conf.get("outputDir") + "/hadoop" );
-        int numThreads = Integer.parseInt(conf.get("numThreads"));
+        int numThreads = conf.getInt("numThreads",1);
         Job job = new Job(conf, "Sorting "+inputFileName);
 
         FileInputFormat.setInputPaths(job, new Path(inputFileName));

@@ -1,17 +1,13 @@
 package ldbc.snb.datagen.generator;
 
 import ldbc.snb.datagen.dictionary.*;
-import ldbc.snb.datagen.objects.Friend;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
 
-import java.io.IOException;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
-import java.util.Iterator;
-import java.util.TreeSet;
 
 /**
  * Created by aprat on 10/7/14.
@@ -230,6 +226,12 @@ public class PersonGenerator {
         randomFarm.resetRandomGenerators((long) blockId);
     }
 
+    /** Generates a block of persons
+     *
+     * @param seed The seed to feed the pseudo-random number generators.
+     * @param blockSize The size of the block of persons to generate.
+     * @return
+     */
     public Person[] generateUserBlock( int seed, int blockSize ) {
         resetState(seed);
         Person[] block;
