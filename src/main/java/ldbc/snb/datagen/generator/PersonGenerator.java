@@ -1,14 +1,17 @@
 package ldbc.snb.datagen.generator;
 
 import ldbc.snb.datagen.dictionary.*;
+import ldbc.snb.datagen.objects.Friend;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
 
 import java.io.IOException;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
+import java.util.TreeSet;
 
 /**
  * Created by aprat on 10/7/14.
@@ -16,10 +19,13 @@ import java.util.Iterator;
 public class PersonGenerator {
 
     private BrowserDictionary browserDictionary         = null;
-    private CompanyDictionary companiesDictionary     = null;
+    private CompanyDictionary companiesDictionary       = null;
     private DateGenerator dateTimeGenerator             = null;
+    private EmailDictionary emailDictionary             = null;
     private FBSocialDegreeGenerator fbDegreeGenerator   = null;
     private IPAddressDictionary ipAddressDictionary     = null;
+    private LanguageDictionary languageDictionary       = null;
+    private NamesDictionary namesDictionary             = null;
     private PlaceDictionary placeDictionary             = null;
     private PopularPlacesDictionary popularDictionary   = null;
     private PowerDistGenerator randomTagPowerLaw        = null;
@@ -43,6 +49,9 @@ public class PersonGenerator {
                                                DatagenParams.alpha,
                                                DatagenParams.deltaTime);
 
+        emailDictionary = new EmailDictionary();
+        emailDictionary.load(DatagenParams.emailDictionaryFile);
+
         fbDegreeGenerator = new FBSocialDegreeGenerator(DatagenParams.numPersons,
                                                         DatagenParams.fbSocialDegreeFile,
                                                         0);
@@ -56,6 +65,15 @@ public class PersonGenerator {
                                                         DatagenParams.probDiffIPforTraveller);
         ipAddressDictionary.load(DatagenParams.countryAbbrMappingFile,
                                  DatagenParams.IPZONE_DIRECTORY);
+
+
+        languageDictionary = new LanguageDictionary(placeDictionary,
+                                                    DatagenParams.probEnglish,
+                                                    DatagenParams.probSecondLang);
+        languageDictionary.load(DatagenParams.languageDictionaryFile);
+
+        namesDictionary = new NamesDictionary(placeDictionary);
+        namesDictionary.load(DatagenParams.surnamDictionaryFile, DatagenParams.nameDictionaryFile);
 
         popularDictionary = new PopularPlacesDictionary(placeDictionary);
         popularDictionary.load(DatagenParams.popularDictionaryFile);
@@ -143,6 +161,67 @@ public class PersonGenerator {
                 auxPopularPlaces.add(aux);
             }
         }
+
+        person.firstName = namesDictionary.getRandomName(randomFarm.get(RandomGeneratorFarm.Aspect.NAME),
+                                                         person.countryId,
+                                                         person.gender == 1,
+                                                         dateTimeGenerator.getBirthYear(person.birthDay));
+        person.lastName = namesDictionary.getRandomSurname(randomFarm.get(RandomGeneratorFarm.Aspect.SURNAME), person.countryId);
+
+        int numEmails = randomFarm.get(RandomGeneratorFarm.Aspect.EXTRA_INFO).nextInt(DatagenParams.maxEmails) + 1;
+        double prob = randomFarm.get(RandomGeneratorFarm.Aspect.EXTRA_INFO).nextDouble();
+        if (prob >= DatagenParams.missingRatio) {
+            String base = person.firstName;
+            base = Normalizer.normalize(base, Normalizer.Form.NFD);
+            base = base.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+            base = base.replaceAll(" ", ".");
+            base = base.replaceAll("[.]+", ".");
+            for (int i = 0; i < numEmails; i++) {
+                String email = base + "" + person.accountId + "@" +
+                               emailDictionary.getRandomEmail(randomFarm.get(RandomGeneratorFarm.Aspect.TOP_EMAIL),
+                                                              randomFarm.get(RandomGeneratorFarm.Aspect.EMAIL));
+                person.emails.add(email);
+            }
+        }
+
+        // Set class year
+        prob = randomFarm.get(RandomGeneratorFarm.Aspect.EXTRA_INFO).nextDouble();
+        if ((prob < DatagenParams.missingRatio) || person.universityLocationId == -1) {
+            person.classYear = -1;
+        } else {
+            person.classYear = dateTimeGenerator.getClassYear(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),
+                                                              person.creationDate,
+                                                              person.birthDay);
+        }
+
+        // Set company and workFrom
+        int numCompanies = randomFarm.get(RandomGeneratorFarm.Aspect.EXTRA_INFO).nextInt(DatagenParams.maxCompanies) + 1;
+        prob = randomFarm.get(RandomGeneratorFarm.Aspect.EXTRA_INFO).nextDouble();
+        if (prob >= DatagenParams.missingRatio) {
+            for (int i = 0; i < numCompanies; i++) {
+                long workFrom;
+                if (person.classYear != -1) {
+                    workFrom = dateTimeGenerator.getWorkFromYear(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),
+                                                                 person.creationDate,
+                                                                 person.birthDay);
+                } else {
+                    workFrom = dateTimeGenerator.getWorkFromYear(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),
+                                                                 person.classYear);
+                }
+                long company = companiesDictionary.getRandomCompany(randomFarm, person.countryId);
+                person.companies.put(company, workFrom);
+                String countryName = placeDictionary.getPlaceName(companiesDictionary.getCountry(company));
+            }
+        }
+
+        ArrayList<Integer> userLanguages = languageDictionary.getLanguages(randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE),
+                                                                           person.countryId);
+        int internationalLang = languageDictionary.getInternationlLanguage(randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE));
+        if (internationalLang != -1 && userLanguages.indexOf(internationalLang) == -1) {
+            userLanguages.add(internationalLang);
+        }
+        person.languages.addAll(userLanguages);
+
         return person;
     }
 
@@ -151,16 +230,11 @@ public class PersonGenerator {
         randomFarm.resetRandomGenerators((long) blockId);
     }
 
-    public Person[] generateUserBlock( int blockId ) {
-        resetState(blockId);
+    public Person[] generateUserBlock( int seed, int blockSize ) {
+        resetState(seed);
         Person[] block;
-        if( this.nextId + DatagenParams.blockSize < DatagenParams.numPersons ) {
-            block = new Person[DatagenParams.blockSize];
-        } else {
-            block = new Person[DatagenParams.numPersons - this.nextId];
-        }
-        int size = block.length;
-        for (int j =0; j < size; ++j) {
+        block = new Person[blockSize];
+        for (int j =0; j < blockSize; ++j) {
             block[j] = generateUser();
         }
         return block;

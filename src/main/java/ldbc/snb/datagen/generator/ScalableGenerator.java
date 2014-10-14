@@ -1154,7 +1154,7 @@ public class ScalableGenerator {
             return null;
         }
         return new DataExporter(format, params.outputDir, threadId, dateThreshold,
-                exportText, enableCompression, tagDictionary, browserDictonry, companiesDictionary,
+                exportText, enableCompression, 1, tagDictionary, browserDictonry, companiesDictionary,
                 unversityDictionary, ipAddDictionary, placeDictionary, languageDictionary, configFile, factorTable, startMonth, startYear, stats);
     }
 

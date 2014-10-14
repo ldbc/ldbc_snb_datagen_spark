@@ -49,14 +49,15 @@ public class HadoopPersonGenerator  {
 
             PersonGenerator personGenerator = new PersonGenerator();
             for (int i = initBlock; i < endBlock; ++i) {
-                Person[] block = personGenerator.generateUserBlock(i);
+                Person[] block = personGenerator.generateUserBlock(i,DatagenParams.blockSize);
                 int size = block.length;
-                for( int j = 0; j < size; ++j ) {
+                for( int j = 0; j < size && DatagenParams.blockSize*i + j < DatagenParams.numPersons ; ++j ) {
                     LongWritable outputKey = new LongWritable(block[j].accountId);
                     try {
                         context.write(outputKey, block[j]);
                     } catch( IOException ioE ) {
                         System.err.println("Input/Output Exception when writing to context.");
+                        System.err.println(ioE.getMessage());
                     } catch( InterruptedException iE ) {
                         System.err.println("Interrupted Exception when writing to context.");
                     }
@@ -72,8 +73,8 @@ public class HadoopPersonGenerator  {
         public void reduce(LongWritable key, Iterable<Person> valueSet,
                            Context context) throws IOException, InterruptedException {
 
-                for ( ReducedUserProfile user : valueSet ) {
-                    context.write(key, user);
+                for ( Person person : valueSet ) {
+                    context.write(key, person);
                 }
         }
     }
@@ -108,9 +109,9 @@ public class HadoopPersonGenerator  {
         int numThreads = Integer.parseInt(conf.get("numThreads"));
         Job job = new Job(conf, "SIB Generate Users & 1st Dimension");
         job.setMapOutputKeyClass(LongWritable.class);
-        job.setMapOutputValueClass(ReducedUserProfile.class);
+        job.setMapOutputValueClass(Person.class);
         job.setOutputKeyClass(LongWritable.class);
-        job.setOutputValueClass(ReducedUserProfile.class);
+        job.setOutputValueClass(Person.class);
         job.setJarByClass(HadoopPersonGeneratorMapper.class);
         job.setMapperClass(HadoopPersonGeneratorMapper.class);
         job.setReducerClass(HadoopPersonGeneratorReducer.class);

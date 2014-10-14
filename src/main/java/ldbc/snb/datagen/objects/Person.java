@@ -16,9 +16,7 @@ public class Person implements Serializable, Writable {
     public long accountId;
     public long creationDate;
     public short maxNumFriends;
-    public short numFriends;
-    public Friend friendList[];
-    public TreeSet<Long> friendIds;
+    public TreeSet<Friend> friends;
     public int agentId;
     public int browserId;
     public IP ipAddress;
@@ -39,23 +37,24 @@ public class Person implements Serializable, Writable {
     public HashMap<Long, Long> companies;
     public long classYear;
 
+    public Person(){
+        friends = new TreeSet<Friend>();
+        emails = new TreeSet<String>();
+        interests = new TreeSet<Integer>();
+        languages = new ArrayList<Integer>();
+        companies = new HashMap<Long, Long>();
+    }
     private void readObject(java.io.ObjectInputStream stream)
             throws IOException, ClassNotFoundException {
 
         accountId = stream.readLong();
         creationDate = stream.readLong();
         maxNumFriends = stream.readShort();
-        numFriends = stream.readShort();
-        friendList = new Friend[maxNumFriends];
-        friendIds = new TreeSet<Long>();
+        int numFriends = stream.readShort();
         for (int i = 0; i < numFriends; i++) {
             Friend fr = new Friend();
             fr.readFields(stream);
-            friendList[i] = fr;
-        }
-        int size = stream.readInt();
-        for (int i = 0; i < size; i++) {
-            friendIds.add(stream.readLong());
+            friends.add(fr);
         }
 
         agentId = stream.readInt();
@@ -107,16 +106,10 @@ public class Person implements Serializable, Writable {
         stream.writeLong(accountId);
         stream.writeLong(creationDate);
         stream.writeShort(maxNumFriends);
-        stream.writeShort(numFriends);
+        stream.writeShort(friends.size());
 
-        for (int i = 0; i < numFriends; i++) {
-            friendList[i].write(stream);
-        }
-        //Read the size of Treeset first
-        stream.writeInt(friendIds.size());
-        Iterator<Long> it = friendIds.iterator();
-        while (it.hasNext()) {
-            stream.writeLong(it.next());
+        for( Friend f : friends ){
+            f.write(stream);
         }
 
         stream.writeInt(agentId);
@@ -163,18 +156,12 @@ public class Person implements Serializable, Writable {
         accountId = arg0.readLong();
         creationDate = arg0.readLong();
         maxNumFriends = arg0.readShort();
-        numFriends = arg0.readShort();
-        friendList = new Friend[maxNumFriends];
-        friendIds = new TreeSet<Long>();
+        int numFriends = arg0.readShort();
+        friends = new TreeSet<Friend>();
         for (int i = 0; i < numFriends; i++) {
             Friend fr = new Friend();
             fr.readFields(arg0);
-            friendList[i] = fr;
-        }
-        //Read the size of Treeset first
-        int size = arg0.readInt();
-        for (int i = 0; i < size; i++) {
-            friendIds.add(arg0.readLong());
+            friends.add(fr);
         }
 
         agentId = arg0.readInt();
@@ -224,9 +211,8 @@ public class Person implements Serializable, Writable {
         accountId = person.accountId;
         creationDate = person.creationDate;
         maxNumFriends = person.maxNumFriends;
-        numFriends = person.numFriends;
-        friendList = person.friendList;
-        friendIds = person.friendIds;
+        friends.clear();
+        friends.addAll(person.friends);
         agentId = person.agentId;
         browserId = person.browserId;
         ipAddress = person.ipAddress;
@@ -255,16 +241,10 @@ public class Person implements Serializable, Writable {
         arg0.writeLong(accountId);
         arg0.writeLong(creationDate);
         arg0.writeShort(maxNumFriends);
-        arg0.writeShort(numFriends);
+        arg0.writeShort(friends.size());
 
-        for (int i = 0; i < numFriends; i++) {
-            friendList[i].write(arg0);
-        }
-        //Read the size of Treeset first
-        arg0.writeInt(friendIds.size());
-        Iterator<Long> it = friendIds.iterator();
-        while (it.hasNext()) {
-            arg0.writeLong(it.next());
+        for( Friend f : friends ) {
+            f.write(arg0);
         }
 
         arg0.writeInt(agentId);
