@@ -14,9 +14,23 @@ SEED = 1
 def findNameParameters(names, amount = 100):
 	srtd = sorted(names,key=lambda x: -x[1])
 	res = []
+	hist = {}
 	for t in srtd:
-		if t[1] > 100 and t[1] < 150:
-			res.append(t[0])
+		if t[1] not in hist:
+			hist[t[1]] = []
+		hist[t[1]].append(t[0])
+	counts = sorted([i for i in hist.iterkeys()])
+
+	mid = len(counts)/2
+	i = mid
+	while counts[i] - counts[mid] < 0.1 * counts[mid]:
+		res.extend([name for name in hist[counts[i]]])
+		i += 1
+	i = mid - 1
+	while  counts[mid] - counts[i] < 0.1 * counts[mid]:
+		res.extend([name for name in hist[counts[i]]])
+		i -= 1
+
 	return res
 
 class JSONSerializer:
