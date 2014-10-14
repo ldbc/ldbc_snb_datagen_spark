@@ -37,6 +37,7 @@
 package ldbc.socialnet.dbgen.generator;
 
 import java.io.*;
+import java.util.Properties;
 import java.util.TreeSet;
 import java.util.zip.GZIPOutputStream;
 
@@ -131,7 +132,11 @@ public class MRGenerateUsers{
                 System.out.println("Number of events reduced "+numEvents);
                 if (numEvents > 0) {
                     long updateDistance = (max-min)/numEvents;
-                    String propertiesStr = new String("gctdeltaduration:"+context.getConfiguration().get("deltaTime")+"\nmin_write_event_start_time:"+min+"\nmax_write_event_start_time:"+max+"\nupdate_interleave:"+updateDistance);
+                    String propertiesStr = new String("gctdeltaduration:"+context.getConfiguration().get("deltaTime")+
+                                                      "\nmin_write_event_start_time:"+min+
+                                                      "\nmax_write_event_start_time:"+max+
+                                                      "\nupdate_interleave:"+updateDistance+
+                                                      "\nnum_events:"+numEvents);
                     properties.write(propertiesStr.getBytes("UTF8"));
                     properties.flush();
                     properties.close();
@@ -538,6 +543,10 @@ public class MRGenerateUsers{
         int resUpdateStreams = job4.waitForCompletion(true) ? 0 : 1;
         fs.delete(new Path(hadoopDir + "/sib4"),true);
 
+        int numEvents = 0;
+        long min = Long.MAX_VALUE;
+        long max = Long.MIN_VALUE;
+
         for( int i =0; i < numThreads; ++i ) {
             int numPartitions = conf.getInt("numUpdatePartitions", 1);
             for( int j = 0; j < numPartitions; ++j ) {
@@ -585,13 +594,45 @@ public class MRGenerateUsers{
                 jobPerson.waitForCompletion(true);
                 fs.delete(new Path(socialNetDir + "/temp_updateStream_" + i+"_"+j+"_person"), false);
                 fs.delete(new Path(hadoopDir + "/sibEnd"), true);
+
+                if(conf.getBoolean("updateStreams",false)) {
+                    Properties properties = new Properties();
+                    properties.load(fs.open(new Path(conf.get("outputDir") + "/social_network/updateStream_" + i + "_" + j + "_person.properties")));
+                    Long auxMin = Long.parseLong(properties.getProperty("min_write_event_start_time"));
+                    min = auxMin < min ? auxMin : min;
+                    Long auxMax = Long.parseLong(properties.getProperty("max_write_event_start_time"));
+                    max = auxMax > max ? auxMax : max;
+                    numEvents += Long.parseLong(properties.getProperty("num_events"));
+
+                    properties.load(fs.open(new Path(conf.get("outputDir") + "/social_network/updateStream_" + i + "_" + j + "_forum.properties")));
+
+                    auxMin = Long.parseLong(properties.getProperty("min_write_event_start_time"));
+                    min = auxMin < min ? auxMin : min;
+                    auxMax = Long.parseLong(properties.getProperty("max_write_event_start_time"));
+                    max = auxMax > max ? auxMax : max;
+                    numEvents += Long.parseLong(properties.getProperty("num_events"));
+
+                    fs.delete(new Path(conf.get("outputDir") + "/social_network/updateStream_" + i + "_" + j + "_person.properties"),true);
+                    fs.delete(new Path(conf.get("outputDir") + "/social_network/updateStream_" + i + "_" + j + "_forum.properties"),true);
+                }
             }
         }
+
+        if(conf.getBoolean("updateStreams",false)) {
+            OutputStream output = fs.create(new Path(conf.get("outputDir") + "/social_network/updateStream.properties"));
+            output.write(new String("gctdeltaduration:"+conf.get("deltaTime")+"\n").getBytes());
+            output.write(new String("min_write_event_start_time:"+min+"\n").getBytes());
+            output.write(new String("max_write_event_start_time:"+max+"\n").getBytes());
+            output.write(new String("update_interleave:"+(max-min)/numEvents+"\n").getBytes());
+            output.write(new String("num_events:"+numEvents).getBytes());
+            output.close();
+        }
+
+
 
         printProgress("Starting: Materialize friends for substitution parameters");
         int resMaterializeFriends = job6.waitForCompletion(true) ? 0 : 1;
         fs.delete(new Path(hadoopDir + "/sibSorting3"),true);
-
 
 
 	    long end = System.currentTimeMillis();
