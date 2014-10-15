@@ -51,10 +51,13 @@ public class HadoopFileSorter {
         job.setOutputValueClass(V);
         job.setNumReduceTasks(numThreads);
 
+
+        job.setJarByClass(V);
         job.setInputFormatClass(SequenceFileInputFormat.class);
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
         InputSampler.Sampler sampler = new InputSampler.RandomSampler(0.1, 1000);
+        TotalOrderPartitioner.setPartitionFile(job.getConfiguration(),new Path(inputFileName+"_partition.lst"));
         InputSampler.writePartitionFile(job, sampler);
         job.setPartitionerClass(TotalOrderPartitioner.class);
         job.waitForCompletion(true);

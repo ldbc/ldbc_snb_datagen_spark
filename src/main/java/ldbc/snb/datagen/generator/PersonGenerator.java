@@ -31,6 +31,8 @@ public class PersonGenerator {
     private UniversityDictionary universityDictionary   = null;
     private UserAgentDictionary userAgentDictionary     = null;
     private int nextId                                  = 0;
+    private long minDate                                = 0;
+    private long maxDate                                = 0;
 
     public PersonGenerator() {
         browserDictionary = new BrowserDictionary(DatagenParams.probAnotherBrowser);
@@ -44,6 +46,7 @@ public class PersonGenerator {
                                                                      DatagenParams.endDate),
                                                DatagenParams.alpha,
                                                DatagenParams.deltaTime);
+
 
         emailDictionary = new EmailDictionary();
         emailDictionary.load(DatagenParams.emailDictionaryFile);
@@ -113,7 +116,7 @@ public class PersonGenerator {
     private long composeUserId(long id, long date, long spid) {
         long spidMask = ~(0xFFFFFFFFFFFFFFFFL << 7);
         long idMask = ~(0xFFFFFFFFFFFFFFFFL << 33);
-        long bucket = (long) (256 * (date - SN.minDate) / (double) SN.maxDate);
+        long bucket = (long) (256 * (date - dateTimeGenerator.getStartDateTime()) / (double) dateTimeGenerator.getMaxDateTime());
         return (bucket << 40) | ((id & idMask) << 7) | (spid & spidMask);
     }
 

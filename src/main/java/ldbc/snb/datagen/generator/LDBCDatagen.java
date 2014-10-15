@@ -38,6 +38,7 @@ package ldbc.snb.datagen.generator;
 
 import ldbc.snb.datagen.hadoop.HadoopFileSorter;
 import ldbc.snb.datagen.hadoop.HadoopPersonGenerator;
+import ldbc.snb.datagen.hadoop.HadoopPersonSerializer;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.util.ConfigParser;
 import org.apache.hadoop.conf.Configuration;
@@ -78,6 +79,10 @@ public class LDBCDatagen {
         HadoopFileSorter hadoopFileSorter = new HadoopFileSorter( conf, LongWritable.class, Person.class );
         hadoopFileSorter.run(personsFileName,sortedPersonsFileName);
 
+        printProgress("Serializing persons");
+        HadoopPersonSerializer serializer = new HadoopPersonSerializer(conf);
+        serializer.run(sortedPersonsFileName);
+
 /*
         printProgress("Starting: Friendship generation 2");
         FriendshipGenerator friendGenerator = new FriendshipGenerator();
@@ -102,6 +107,7 @@ public class LDBCDatagen {
             fs.copyToLocalFile(new Path(socialNetDir + "/m0friendList" + i + ".csv"), new Path("./"));
         }
         */
+
         long end = System.currentTimeMillis();
         System.out.println(((end - start) / 1000)
                 + " total seconds");

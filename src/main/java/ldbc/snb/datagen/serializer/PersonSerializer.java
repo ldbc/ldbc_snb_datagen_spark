@@ -38,7 +38,16 @@
 package ldbc.snb.datagen.serializer;
 
 import ldbc.snb.datagen.objects.Person;
+import ldbc.snb.datagen.objects.StudyAt;
+import ldbc.snb.datagen.objects.WorkAt;
 
 public interface PersonSerializer {
-    public void serializer( Person p );
+
+    public void close();
+
+    public void serialize(Person p);
+
+    public void serialize(StudyAt studyAt);
+
+    public void serialize(WorkAt workAt);
 }
