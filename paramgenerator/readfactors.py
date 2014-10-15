@@ -104,6 +104,11 @@ def load(factorFiles, friendFiles):
 			for i in range(nameCount):
 				line = f.readline().split(",")
 				name = line[0]
+				try:
+					name.decode('ascii')
+				except UnicodeEncodeError:
+					continue
+
 				if not name in names:
 					names[name] = 0
 				names[name] += int(line[1])
