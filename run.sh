@@ -1,6 +1,7 @@
 #!/bin/bash
 DEFAULT_HADOOP_HOME=/home/user/hadoop-1.2.1 #change to your hadoop folder
 DEFAULT_LDBC_SNB_DATAGEN_HOME=/home/user/ldbc_snb_datagen #change to your ldbc_socialnet_dbgen folder
+PARAM_GENERATION=1 #param generation
 
 # allow overriding configuration from outside via environment variables
 # i.e. you can do
@@ -20,8 +21,6 @@ rm $LDBC_SNB_DATAGEN_HOME/target/ldbc_snb_datagen.jar
 
 $HADOOP_HOME/bin/hadoop  jar $LDBC_SNB_DATAGEN_HOME/ldbc_snb_datagen.jar $LDBC_SNB_DATAGEN_HOME/params.ini
 
-#parameter generation
-PARAM_GENERATION=1
 
 if [ $PARAM_GENERATION -eq 1 ]
 then

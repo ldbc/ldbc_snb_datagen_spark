@@ -8,3 +8,11 @@
 # IntelliJ stuff
 .idea
 ldbc_socialnet_dbgen.iml
+
+#other stuff
+target/
+.m0factors.txt.crc
+.m0friendList0.csv.crc
+paramgenerator/.pyc
+substitution_parameters/
+target/
