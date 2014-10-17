@@ -167,17 +167,6 @@ public class DateGenerator {
         return gmtDateFormatter.format(c.getTime());
 	}
 
-	/*
-	 * format the date
-	 */
-	public static String formatDate(Long date)
-	{
-		GregorianCalendar c = new GregorianCalendar();
-		c.setTimeInMillis(date);
-		
-		return formatDate(c);
-	}
-	
 	public static boolean isTravelSeason(long date){
 		GregorianCalendar c = new GregorianCalendar();
 		c.setTimeInMillis(date);
