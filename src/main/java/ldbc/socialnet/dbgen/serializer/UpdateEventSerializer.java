@@ -69,8 +69,9 @@ public class UpdateEventSerializer implements Serializer{
 
     private SequenceFile.Writer forumStreamWriter[];
     private SequenceFile.Writer personStreamWriter[];
-    private ArrayList<Object> data;
-    private ArrayList<Object> list;
+    private ArrayList<String> data;
+    private ArrayList<String> list;
+    private ArrayList<String> tuple;
     private UpdateEvent currentEvent;
     private GregorianCalendar date;
     private BrowserDictionary browserDic;
@@ -81,10 +82,10 @@ public class UpdateEventSerializer implements Serializer{
     private Statistics statistics;
     private long minDate;
     private long maxDate;
-    private Gson gson;
     private long numEvents = 0;
     private int numPartitions = 1;
     private int nextPartition = 0;
+    private StringBuffer stringBuffer;
 
     public UpdateEventSerializer( String outputDir,
                                   String outputFileName,
@@ -95,8 +96,10 @@ public class UpdateEventSerializer implements Serializer{
                                   LanguageDictionary languageDic,
                                   IPAddressDictionary ipDic,
                                   Statistics statistics) {
-        gson = new GsonBuilder().disableHtmlEscaping().create();
-        this.data = new ArrayList<Object>();
+        this.stringBuffer = new StringBuffer(512);
+        this.data = new ArrayList<String>();
+        this.list = new ArrayList<String>();
+        this.tuple = new ArrayList<String>();
         this.currentEvent = new UpdateEvent(-1, UpdateEvent.UpdateEventType.NO_EVENT,new String(""));
         this.date = new GregorianCalendar();
         this.browserDic = browserDic;
@@ -220,10 +223,9 @@ public class UpdateEventSerializer implements Serializer{
             StringBuffer string = new StringBuffer();
             string.append(Long.toString(event.date));
             string.append("|");
-            string.append(event.type.toString());
+            string.append(Integer.toString(event.type.ordinal()+1));
             string.append("|");
             string.append(event.eventData);
-            string.append("|");
             string.append("\n");
             switch (s) {
                 case FORUM_STREAM:
@@ -253,19 +255,28 @@ public class UpdateEventSerializer implements Serializer{
         PERSON_STREAM
     }
 
+    private String formatStringArray(ArrayList<String> array, String separator) {
+        if( array.size() == 0 ) return "";
+        stringBuffer.setLength(0);
+        for( String s : array) {
+            stringBuffer.append(s);
+            stringBuffer.append(separator);
+        }
+        return stringBuffer.substring(0,stringBuffer.length()-1);
+    }
+
     private void endEvent( Stream s ) {
         numEvents++;
-        currentEvent.eventData = gson.toJson(data);
+        currentEvent.eventData = formatStringArray(data,"|");
         writeKeyValue(currentEvent, s);
     }
 
     private void beginList() {
-        list = new ArrayList<Object>();
         list.clear();
     }
 
     private void endList() {
-        data.add(list);
+        data.add(formatStringArray(list,";"));
     }
 
 
@@ -332,7 +343,7 @@ public class UpdateEventSerializer implements Serializer{
     public void serialize(UserInfo info) {
 
         beginEvent(info.user.getCreationDate(), UpdateEvent.UpdateEventType.ADD_PERSON);
-        data.add(info.user.getAccountId());
+        data.add(Long.toString(info.user.getAccountId()));
         data.add(info.extraInfo.getFirstName());
         data.add(info.extraInfo.getLastName());
         data.add(info.extraInfo.getGender());
@@ -354,13 +365,13 @@ public class UpdateEventSerializer implements Serializer{
             String empty = "";
             data.add(empty);
         }
-        data.add(info.extraInfo.getLocationId());
-        ArrayList<Object> languages = new ArrayList<Object>();
+        data.add(Integer.toString(info.extraInfo.getLocationId()));
+        ArrayList<String> languages = new ArrayList<String>();
         Vector<Integer> userLang = info.extraInfo.getLanguages();
         for (int i = 0; i < languages.size(); i++) {
             languages.add(languageDic.getLanguagesName(userLang.get(i)));
         }
-        data.add(languages);
+        data.add(formatStringArray(languages,";"));
 
         beginList();
         Iterator<String> itString = info.extraInfo.getEmail().iterator();
@@ -373,7 +384,7 @@ public class UpdateEventSerializer implements Serializer{
         Iterator<Integer> itInteger = info.user.getSetOfTags().iterator();
         while (itInteger.hasNext()){
             Integer interestIdx = itInteger.next();
-            list.add(interestIdx);
+            list.add(Integer.toString(interestIdx));
         }
         endList();
 
@@ -382,12 +393,12 @@ public class UpdateEventSerializer implements Serializer{
         long universityId = info.extraInfo.getUniversity();
         if ( universityId != -1){
             if (info.extraInfo.getClassYear() != -1 ) {
-                ArrayList<Object> studyAtData = new ArrayList<Object>();
+                ArrayList<String> studyAtData = new ArrayList<String>();
                 date.setTimeInMillis(info.extraInfo.getClassYear());
                 dateString = DateGenerator.formatYear(date);
-                studyAtData.add(universityId);
-                studyAtData.add(Integer.parseInt(dateString));
-                list.add(studyAtData);
+                studyAtData.add(Long.toString(universityId));
+                studyAtData.add(dateString);
+                list.add(formatStringArray(studyAtData,","));
             }
         }
         endList();
@@ -397,11 +408,11 @@ public class UpdateEventSerializer implements Serializer{
         while (it.hasNext()) {
             long companyId = it.next();
             date.setTimeInMillis(info.extraInfo.getWorkFrom(companyId));
-            ArrayList<Object> workAtData = new ArrayList<Object>();
+            ArrayList<String> workAtData = new ArrayList<String>();
             dateString = DateGenerator.formatYear(date);
-            workAtData.add(companyId);
-            workAtData.add(Integer.parseInt(dateString));
-            list.add(workAtData);
+            workAtData.add(Long.toString(companyId));
+            workAtData.add(dateString);
+            list.add(formatStringArray(workAtData,","));
         }
         endList();
         endEvent(Stream.PERSON_STREAM);
@@ -411,8 +422,8 @@ public class UpdateEventSerializer implements Serializer{
     public void serialize(Friend friend) {
         if (friend != null && friend.getCreatedTime() != -1){
             beginEvent(friend.getCreatedTime(), UpdateEvent.UpdateEventType.ADD_FRIENDSHIP);
-            data.add(friend.getUserAcc());
-            data.add(friend.getFriendAcc());
+            data.add(Long.toString(friend.getUserAcc()));
+            data.add(Long.toString(friend.getFriendAcc()));
             date.setTimeInMillis(friend.getCreatedTime());
             data.add(DateGenerator.formatDateDetail(date));
             endEvent(Stream.PERSON_STREAM);
@@ -423,7 +434,7 @@ public class UpdateEventSerializer implements Serializer{
     public void serialize(Post post) {
         beginEvent(post.getCreationDate(), UpdateEvent.UpdateEventType.ADD_POST);
         String empty = "";
-        data.add(Long.parseLong(SN.formId(post.getMessageId())));
+        data.add(SN.formId(post.getMessageId()));
         data.add(empty);
         date.setTimeInMillis(post.getCreationDate());
         String dateString = DateGenerator.formatDateDetail(date);
@@ -448,16 +459,16 @@ public class UpdateEventSerializer implements Serializer{
         } else {
             data.add(empty);
         }
-        data.add(post.getTextSize());
-        data.add(post.getAuthorId());
-        data.add(Long.parseLong(SN.formId(post.getGroupId())));
-        data.add(ipDic.getLocation(post.getIpAddress()));
+        data.add(Long.toString(post.getTextSize()));
+        data.add(Long.toString(post.getAuthorId()));
+        data.add(SN.formId(post.getGroupId()));
+        data.add(Long.toString(ipDic.getLocation(post.getIpAddress())));
 
         beginList();
         Iterator<Integer> it = post.getTags().iterator();
         while (it.hasNext()) {
             Integer tagId = it.next();
-            list.add(tagId);
+            list.add(Integer.toString(tagId));
         }
         endList();
         endEvent(Stream.FORUM_STREAM);
@@ -472,8 +483,8 @@ public class UpdateEventSerializer implements Serializer{
         }
         date.setTimeInMillis(like.date);
         String dateString = DateGenerator.formatDateDetail(date);
-        data.add(like.user);
-        data.add(Long.parseLong(SN.formId(like.messageId)));
+        data.add(Long.toString(like.user));
+        data.add(SN.formId(like.messageId));
         data.add(dateString);
         endEvent(Stream.FORUM_STREAM);
     }
@@ -483,7 +494,7 @@ public class UpdateEventSerializer implements Serializer{
 
         beginEvent(photo.getCreationDate(), UpdateEvent.UpdateEventType.ADD_POST);
         String empty = "";
-        data.add(Long.parseLong(SN.formId(photo.getMessageId())));
+        data.add(SN.formId(photo.getMessageId()));
         data.add(photo.getContent());
         date.setTimeInMillis(photo.getCreationDate());
         String dateString = DateGenerator.formatDateDetail(date);
@@ -500,16 +511,16 @@ public class UpdateEventSerializer implements Serializer{
         }
         data.add(empty);
         data.add(empty);
-        data.add(0);
-        data.add(photo.getAuthorId());
-        data.add(Long.parseLong(SN.formId(photo.getGroupId())));
-        data.add(ipDic.getLocation(photo.getIpAddress()));
+        data.add("0");
+        data.add(Long.toString(photo.getAuthorId()));
+        data.add(SN.formId(photo.getGroupId()));
+        data.add(Long.toString(ipDic.getLocation(photo.getIpAddress())));
 
         beginList();
         Iterator<Integer> it = photo.getTags().iterator();
         while (it.hasNext()) {
             Integer tagId = it.next();
-            list.add(tagId);
+            list.add(Integer.toString(tagId));
         }
         endList();
         endEvent(Stream.FORUM_STREAM);
@@ -521,7 +532,7 @@ public class UpdateEventSerializer implements Serializer{
         beginEvent(comment.getCreationDate(), UpdateEvent.UpdateEventType.ADD_COMMENT);
         date.setTimeInMillis(comment.getCreationDate());
         String dateString = DateGenerator.formatDateDetail(date);
-        data.add(Long.parseLong(SN.formId(comment.getMessageId())));
+        data.add(SN.formId(comment.getMessageId()));
         data.add(dateString);
         if (comment.getIpAddress() != null) {
             data.add(comment.getIpAddress().toString());
@@ -541,21 +552,21 @@ public class UpdateEventSerializer implements Serializer{
         else {
             data.add("");
         }
-        data.add(comment.getTextSize());
-        data.add(comment.getAuthorId());
-        data.add(ipDic.getLocation(comment.getIpAddress()));
+        data.add(Integer.toString(comment.getTextSize()));
+        data.add(Long.toString(comment.getAuthorId()));
+        data.add(Long.toString(ipDic.getLocation(comment.getIpAddress())));
         if (comment.getReplyOf() == comment.getPostId()) {
-            data.add(Long.parseLong(SN.formId(comment.getPostId())));
-            data.add(new Long(-1));
+            data.add(SN.formId(comment.getPostId()));
+            data.add("-1");
         } else {
-            data.add(new Long(-1));
-            data.add(Long.parseLong(SN.formId(comment.getReplyOf())));
+            data.add("-1");
+            data.add(SN.formId(comment.getReplyOf()));
         }
         beginList();
         Iterator<Integer> it = comment.getTags().iterator();
         while (it.hasNext()) {
             Integer tagId = it.next();
-            list.add(tagId);
+            list.add(Integer.toString(tagId));
         }
         endList();
         endEvent(Stream.FORUM_STREAM);
@@ -567,15 +578,15 @@ public class UpdateEventSerializer implements Serializer{
         date.setTimeInMillis(group.getCreatedDate());
         String dateString = DateGenerator.formatDateDetail(date);
 
-        data.add(Long.parseLong(SN.formId(group.getGroupId())));
+        data.add(SN.formId(group.getGroupId()));
         data.add(group.getGroupName());
         data.add(dateString);
-        data.add(group.getModeratorId());
+        data.add(Long.toString(group.getModeratorId()));
 
         beginList();
         Integer groupTags[] = group.getTags();
         for (int i = 0; i < groupTags.length; i ++) {
-            list.add(groupTags[i]);
+            list.add(Integer.toString(groupTags[i]));
         }
         endList();
         endEvent(Stream.FORUM_STREAM);
@@ -586,8 +597,8 @@ public class UpdateEventSerializer implements Serializer{
         beginEvent(membership.getJoinDate(), UpdateEvent.UpdateEventType.ADD_FORUM_MEMBERSHIP);
         date.setTimeInMillis(membership.getJoinDate());
         String dateString = DateGenerator.formatDateDetail(date);
-        data.add(Long.parseLong(SN.formId(membership.getGroupId())));
-        data.add(membership.getUserId());
+        data.add(SN.formId(membership.getGroupId()));
+        data.add(Long.toString(membership.getUserId()));
         data.add(dateString);
         endEvent(Stream.FORUM_STREAM);
     }

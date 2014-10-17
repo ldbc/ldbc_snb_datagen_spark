@@ -64,10 +64,9 @@ public class UpdateEvent implements Serializable, Writable {
             StringBuffer string = new StringBuffer();
             string.append(Long.toString(event.date));
             string.append("|");
-            string.append(event.type.toString());
+            string.append(Integer.toString(event.type.ordinal()+1));
             string.append("|");
             string.append(event.eventData);
-            string.append("|");
             string.append("\n");
             //fileOutputStream.write(string.toString().getBytes("UTF8"));
             os.write(string.toString().getBytes("UTF8"));
@@ -85,7 +84,6 @@ public class UpdateEvent implements Serializable, Writable {
             string.append(event.type.toString());
             string.append("|");
             string.append(event.eventData);
-            string.append("|");
             string.append("\n");
             //fileOutputStream.write(string.toString().getBytes("UTF8"));
             os.write(string.toString().getBytes("UTF8"));
