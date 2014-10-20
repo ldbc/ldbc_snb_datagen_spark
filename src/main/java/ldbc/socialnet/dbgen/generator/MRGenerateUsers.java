@@ -620,7 +620,7 @@ public class MRGenerateUsers{
 
         if(conf.getBoolean("updateStreams",false)) {
             OutputStream output = fs.create(new Path(conf.get("outputDir") + "/social_network/updateStream.properties"));
-            output.write(new String("ldbc.snb.interactive.gctdeltaduration:"+conf.get("deltaTime")+"\n").getBytes());
+            output.write(new String("ldbc.snb.interactive.gct_delta_duration:"+conf.get("deltaTime")+"\n").getBytes());
             output.write(new String("ldbc.snb.interactive.min_write_event_start_time:"+min+"\n").getBytes());
             output.write(new String("ldbc.snb.interactive.max_write_event_start_time:"+max+"\n").getBytes());
             output.write(new String("ldbc.snb.interactive.update_interleave:"+(max-min)/numEvents+"\n").getBytes());

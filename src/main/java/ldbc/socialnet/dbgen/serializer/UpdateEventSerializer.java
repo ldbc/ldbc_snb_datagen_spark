@@ -394,7 +394,7 @@ public class UpdateEventSerializer implements Serializer{
                 ArrayList<String> studyAtData = new ArrayList<String>();
                 date.setTimeInMillis(info.extraInfo.getClassYear());
                 studyAtData.add(Long.toString(universityId));
-                studyAtData.add(Long.toString(date.getTime().getTime()));
+                studyAtData.add(DateGenerator.formatYear(date));
                 list.add(formatStringArray(studyAtData,","));
             }
         }
@@ -407,7 +407,7 @@ public class UpdateEventSerializer implements Serializer{
             date.setTimeInMillis(info.extraInfo.getWorkFrom(companyId));
             ArrayList<String> workAtData = new ArrayList<String>();
             workAtData.add(Long.toString(companyId));
-            workAtData.add(Long.toString(date.getTime().getTime()));
+            workAtData.add(DateGenerator.formatYear(date));
             list.add(formatStringArray(workAtData,","));
         }
         endList();
