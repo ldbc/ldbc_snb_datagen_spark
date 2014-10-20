@@ -5,7 +5,9 @@ import random
 import json
 import os
 import codecs
+from datetime import date
 from timeparameters import *
+from calendar import timegm
 
 PERSON_PREFIX = "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers"
 COUNTRY_PREFIX = "http://dbpedia.org/resource/"
@@ -33,7 +35,7 @@ def findNameParameters(names, amount = 100):
 
 	return res
 
-class JSONSerializer:
+class CSVSerializer:
 	def __init__(self):
 		self.handlers = []
 		self.inputs = []
@@ -41,66 +43,86 @@ class JSONSerializer:
 	def setOutputFile(self, outputFile):
 		self.outputFile=outputFile
 
-	def registerHandler(self, handler, inputParams):
+	def registerHandler(self, handler, inputParams, header):
+		handler.header = header
 		self.handlers.append(handler)
 		self.inputs.append(inputParams)
 
-	def writeJSON(self):
+	def writeCSV(self):
 		output = codecs.open(self.outputFile, "w", encoding="utf-8")
 
 		if len(self.inputs) == 0:
 			return
 
+		headers = [self.handlers[j].header for j in range(len(self.handlers))]
+		output.write("|".join(headers))
+		output.write("\n")
+
 		for i in range(len(self.inputs[0])):
-			# compile a single JSON object from multiple handlers
-			jsonDict = {}
+			# compile a single CSV line from multiple handlers
+			csvLine = []
 			for j in range(len(self.handlers)):
 				handler = self.handlers[j]
 				data = self.inputs[j][i]
-				jsonDict.update(handler(data))
-			output.write(json.dumps(jsonDict, ensure_ascii=False))
-			output.write("\n")
+				csvLine.append(handler(data))
 
+			output.write("|".join(csvLine))
+			output.write("\n")
 		output.close()
 
 def handlePersonParam(person):
-	return {"PersonID": person, "PersonURI":(PERSON_PREFIX+str("%020d"%person))}
+	return str(person)
+	#return {"PersonID": person, "PersonURI":(PERSON_PREFIX+str("%020d"%person))}
 
 def handleTimeParam(timeParam):
-	res={"Date0": "%d-%d-%d"%(timeParam.year, timeParam.month, timeParam.day)}
-	if timeParam.duration is not None:
-		res["Duration"] = timeParam.duration
+	#print timeParam.year
+	res =  str(timegm(date(year=timeParam.year, month=timeParam.month, day=timeParam.day).timetuple()))
 	return res
 
+def handleTimeDurationParam(timeParam):
+	#print timeParam.year
+	res =  str(timegm(date(year=timeParam.year, month=timeParam.month, day=timeParam.day).timetuple()))
+	res += "|"+str(timeParam.duration)
+	return res
+
+
 def handlePairCountryParam((Country1, Country2)):
-	return {"Country1":Country1, "Country2":Country2, "Country1URI":(COUNTRY_PREFIX + Country1), "Country2URI":(COUNTRY_PREFIX + Country2)}
+	return Country1+"|"+Country2
+	#return {"Country1":Country1, "Country2":Country2, "Country1URI":(COUNTRY_PREFIX + Country1), "Country2URI":(COUNTRY_PREFIX + Country2)}
 
 def handleCountryParam(Country):
-	return {"Country":Country, "CountryURI": (COUNTRY_PREFIX + Country)}
+	return Country
+	#return {"Country":Country, "CountryURI": (COUNTRY_PREFIX + Country)}
 
 def handleTagParam(tag):
-	return {"Tag": tag}
+	return tag
+	#return {"Tag": tag}
 
 def handleTagTypeParam(tagType):
-	return {"TagType": tagType}
+	return tagType
+	#return {"TagType": tagType}
 
 def handleHSParam((HS0, HS1)):
-	return {"HS0":HS0, "HS1":HS1}
+	return str(HS0)+"|"+str(HS1)
+	#return {"HS0":HS0, "HS1":HS1}
 
 def handleFirstNameParam(firstName):
-	return {"Name":firstName}
+	return firstName
+	#return {"Name":firstName}
 
 def handlePairPersonParam((person1, person2)):
-	return {"Person1ID":person1, "Person2ID":person2, "Person2URI":(PERSON_PREFIX+str(person2)), "Person1URI":(PERSON_PREFIX+str(person1))}
+	return str(person1)+"|"+str(person2)
+	#return {"Person1ID":person1, "Person2ID":person2, "Person2URI":(PERSON_PREFIX+str(person2)), "Person1URI":(PERSON_PREFIX+str(person1))}
 
 def handleWorkYearParam(timeParam):
-	return {"Date0":timeParam}
+	return str(timeParam)
+	#return {"Date0":timeParam}
 
 def main(argv=None):
 	if argv is None:
 		argv = sys.argv
 
-	if len(argv)< 3:
+	if len(argv) < 3:
 		print "arguments: <input dir> <output>"
 		return 1
 
@@ -220,30 +242,33 @@ def main(argv=None):
 	jsonWriters = {}
 	# all the queries have Person as parameter
 	for i in range(1,15):
-		jsonWriter = JSONSerializer()
+		jsonWriter = CSVSerializer()
 		jsonWriter.setOutputFile(outdir+"query_%d_param.txt"%(i))
 		if i != 13 and i != 14: # these three queries take two Persons as parameters
-			jsonWriter.registerHandler(handlePersonParam, selectedPersonParams[i])
+			jsonWriter.registerHandler(handlePersonParam, selectedPersonParams[i], "Person")
 		jsonWriters[i] = jsonWriter
 
 	# add output for Time parameter
 	for i in timeSelectionInput:
-		jsonWriters[i].registerHandler(handleTimeParam, selectedTimeParams[i])
+		if i==3 or i==4:
+			jsonWriters[i].registerHandler(handleTimeDurationParam, selectedTimeParams[i], "Date0|Duration")
+		else:
+			jsonWriters[i].registerHandler(handleTimeParam, selectedTimeParams[i], "Date0")
 
 	# other, query-specific parameters
-	jsonWriters[1].registerHandler(handleFirstNameParam, nameParams)
-	jsonWriters[3].registerHandler(handlePairCountryParam, zip(selectedCountryParams[3],secondCountry))
-	jsonWriters[6].registerHandler(handleTagParam, selectedTagParams[6])
-	jsonWriters[10].registerHandler(handleHSParam, HS)
-	jsonWriters[11].registerHandler(handleCountryParam, selectedCountryParams[11])
-	jsonWriters[11].registerHandler(handleWorkYearParam, selectedTimeParams[11])
-	jsonWriters[12].registerHandler(handleTagTypeParam, selectedTagTypeParams[12])
-	jsonWriters[13].registerHandler(handlePairPersonParam, zip(selectedPersonParams[13], secondPerson[13]))
-	jsonWriters[14].registerHandler(handlePairPersonParam, zip(selectedPersonParams[14], secondPerson[14]))
+	jsonWriters[1].registerHandler(handleFirstNameParam, nameParams, "Name")
+	jsonWriters[3].registerHandler(handlePairCountryParam, zip(selectedCountryParams[3],secondCountry),"Country1|Country2")
+	jsonWriters[6].registerHandler(handleTagParam, selectedTagParams[6],"Tag")
+	jsonWriters[10].registerHandler(handleHSParam, HS, "HS0|HS1")
+	jsonWriters[11].registerHandler(handleCountryParam, selectedCountryParams[11],"Country")
+	jsonWriters[11].registerHandler(handleWorkYearParam, selectedTimeParams[11],"Date0")
+	jsonWriters[12].registerHandler(handleTagTypeParam, selectedTagTypeParams[12],"TagType")
+	jsonWriters[13].registerHandler(handlePairPersonParam, zip(selectedPersonParams[13], secondPerson[13]),"Person1|Person2")
+	jsonWriters[14].registerHandler(handlePairPersonParam, zip(selectedPersonParams[14], secondPerson[14]),"Person1|Person2")
 
 
 	for j in jsonWriters:
-		jsonWriters[j].writeJSON()
+		jsonWriters[j].writeCSV()
 	
 if __name__ == "__main__":
 	sys.exit(main())

@@ -7,6 +7,7 @@ from operator import itemgetter
 import itertools
 
 LAST_MONTHS = 3 # number of months that we consider for date parameters in the filters of a form timestamp <= Date0
+START_YEAR = 2010 # default value that gets over-written from the data generator output
 
 class MonthYearCount:
 	def __init__(self, month, year, count):
@@ -68,7 +69,7 @@ def getTimeParamsWithMedian(factors, (medianFirstMonth, medianLastMonth, median)
 		input = sorted(values,key=lambda myc: (myc.year, myc.month))
 		currentMedian = getMedian(values,lambda myc: myc.count, True)
 		if int(median) == 0 or int(currentMedian.count) == 0:
-			res.append(TimeParameter(0,0,1,0))
+			res.append(TimeParameter(START_YEAR,1,1,0))
 			continue
 		if currentMedian.count > median:
 			duration = int(28*currentMedian.count/median)
@@ -210,6 +211,7 @@ def readTimeParams(persons, factorFiles, friendFiles):
 
 
 def findTimeParams(input, factorFiles, friendFiles, startYear):
+	START_YEAR = startYear
 	fPostCount = {}
 	ffPostCount = {}
 	persons = []
