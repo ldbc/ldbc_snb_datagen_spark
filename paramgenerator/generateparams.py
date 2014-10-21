@@ -238,37 +238,37 @@ def main(argv=None):
 		newlen = len(selectedPersonParams[2])
 		nameParams.extend([nameParams[random.randint(0, oldlen-1)] for j in range(newlen-oldlen)])
 
-	# serialize all the parameters as JSON
-	jsonWriters = {}
+	# serialize all the parameters as CSV
+	csvWriters = {}
 	# all the queries have Person as parameter
 	for i in range(1,15):
-		jsonWriter = CSVSerializer()
-		jsonWriter.setOutputFile(outdir+"query_%d_param.txt"%(i))
+		csvWriter = CSVSerializer()
+		csvWriter.setOutputFile(outdir+"query_%d_param.txt"%(i))
 		if i != 13 and i != 14: # these three queries take two Persons as parameters
-			jsonWriter.registerHandler(handlePersonParam, selectedPersonParams[i], "Person")
-		jsonWriters[i] = jsonWriter
+			csvWriter.registerHandler(handlePersonParam, selectedPersonParams[i], "Person")
+		csvWriters[i] = csvWriter
 
 	# add output for Time parameter
 	for i in timeSelectionInput:
 		if i==3 or i==4:
-			jsonWriters[i].registerHandler(handleTimeDurationParam, selectedTimeParams[i], "Date0|Duration")
+			csvWriters[i].registerHandler(handleTimeDurationParam, selectedTimeParams[i], "Date0|Duration")
 		else:
-			jsonWriters[i].registerHandler(handleTimeParam, selectedTimeParams[i], "Date0")
+			csvWriters[i].registerHandler(handleTimeParam, selectedTimeParams[i], "Date0")
 
 	# other, query-specific parameters
-	jsonWriters[1].registerHandler(handleFirstNameParam, nameParams, "Name")
-	jsonWriters[3].registerHandler(handlePairCountryParam, zip(selectedCountryParams[3],secondCountry),"Country1|Country2")
-	jsonWriters[6].registerHandler(handleTagParam, selectedTagParams[6],"Tag")
-	jsonWriters[10].registerHandler(handleHSParam, HS, "HS0|HS1")
-	jsonWriters[11].registerHandler(handleCountryParam, selectedCountryParams[11],"Country")
-	jsonWriters[11].registerHandler(handleWorkYearParam, selectedTimeParams[11],"Date0")
-	jsonWriters[12].registerHandler(handleTagTypeParam, selectedTagTypeParams[12],"TagType")
-	jsonWriters[13].registerHandler(handlePairPersonParam, zip(selectedPersonParams[13], secondPerson[13]),"Person1|Person2")
-	jsonWriters[14].registerHandler(handlePairPersonParam, zip(selectedPersonParams[14], secondPerson[14]),"Person1|Person2")
+	csvWriters[1].registerHandler(handleFirstNameParam, nameParams, "Name")
+	csvWriters[3].registerHandler(handlePairCountryParam, zip(selectedCountryParams[3],secondCountry),"Country1|Country2")
+	csvWriters[6].registerHandler(handleTagParam, selectedTagParams[6],"Tag")
+	csvWriters[10].registerHandler(handleHSParam, HS, "HS0|HS1")
+	csvWriters[11].registerHandler(handleCountryParam, selectedCountryParams[11],"Country")
+	csvWriters[11].registerHandler(handleWorkYearParam, selectedTimeParams[11],"Date0")
+	csvWriters[12].registerHandler(handleTagTypeParam, selectedTagTypeParams[12],"TagType")
+	csvWriters[13].registerHandler(handlePairPersonParam, zip(selectedPersonParams[13], secondPerson[13]),"Person1|Person2")
+	csvWriters[14].registerHandler(handlePairPersonParam, zip(selectedPersonParams[14], secondPerson[14]),"Person1|Person2")
 
 
-	for j in jsonWriters:
-		jsonWriters[j].writeCSV()
+	for j in csvWriters:
+		csvWriters[j].writeCSV()
 	
 if __name__ == "__main__":
 	sys.exit(main())
