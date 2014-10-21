@@ -103,7 +103,7 @@ def handleTagTypeParam(tagType):
 	#return {"TagType": tagType}
 
 def handleHSParam((HS0, HS1)):
-	return str(HS0)+"|"+str(HS1)
+	return str(HS0)
 	#return {"HS0":HS0, "HS1":HS1}
 
 def handleFirstNameParam(firstName):
@@ -259,9 +259,9 @@ def main(argv=None):
 	csvWriters[1].registerHandler(handleFirstNameParam, nameParams, "Name")
 	csvWriters[3].registerHandler(handlePairCountryParam, zip(selectedCountryParams[3],secondCountry),"Country1|Country2")
 	csvWriters[6].registerHandler(handleTagParam, selectedTagParams[6],"Tag")
-	csvWriters[10].registerHandler(handleHSParam, HS, "HS0|HS1")
+	csvWriters[10].registerHandler(handleHSParam, HS, "HS0")
 	csvWriters[11].registerHandler(handleCountryParam, selectedCountryParams[11],"Country")
-	csvWriters[11].registerHandler(handleWorkYearParam, selectedTimeParams[11],"Date0")
+	csvWriters[11].registerHandler(handleWorkYearParam, selectedTimeParams[11],"Year")
 	csvWriters[12].registerHandler(handleTagTypeParam, selectedTagTypeParams[12],"TagType")
 	csvWriters[13].registerHandler(handlePairPersonParam, zip(selectedPersonParams[13], secondPerson[13]),"Person1|Person2")
 	csvWriters[14].registerHandler(handlePairPersonParam, zip(selectedPersonParams[14], secondPerson[14]),"Person1|Person2")
