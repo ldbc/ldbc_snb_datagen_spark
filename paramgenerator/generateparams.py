@@ -82,7 +82,8 @@ def handleTimeParam(timeParam):
 
 def handleTimeDurationParam(timeParam):
 	#print timeParam.year
-	res =  str(timegm(date(year=timeParam.year, month=timeParam.month, day=timeParam.day).timetuple()))
+	res =  str(timegm(date(year=int(timeParam.year), 
+		month=int(timeParam.month), day=int(timeParam.day)).timetuple())*1000)
 	res += "|"+str(timeParam.duration)
 	return res
 
