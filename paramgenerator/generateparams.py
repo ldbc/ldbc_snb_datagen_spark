@@ -76,7 +76,8 @@ def handlePersonParam(person):
 
 def handleTimeParam(timeParam):
 	#print timeParam.year
-	res =  str(timegm(date(year=timeParam.year, month=timeParam.month, day=timeParam.day).timetuple()))
+	res =  str(timegm(date(year=int(timeParam.year), 
+		month=int(timeParam.month), day=int(timeParam.day)).timetuple()))
 	return res
 
 def handleTimeDurationParam(timeParam):
