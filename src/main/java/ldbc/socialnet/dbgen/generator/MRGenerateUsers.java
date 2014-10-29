@@ -547,101 +547,101 @@ public class MRGenerateUsers{
         long min = Long.MAX_VALUE;
         long max = Long.MIN_VALUE;
 
-        for( int i =0; i < numThreads; ++i ) {
-            int numPartitions = conf.getInt("numUpdatePartitions", 1);
-            for( int j = 0; j < numPartitions; ++j ) {
-                /// --------------- Fifth job: Sort update streams ----------------
-                conf.setInt("mapred.line.input.format.linespermap", 1000000);
-                conf.setInt("partitionId",j);
-                conf.set("streamType","forum");
-                Job jobForum = new Job(conf, "Soring update streams "+j+" of reducer "+i);
-                jobForum.setMapOutputKeyClass(LongWritable.class);
-                jobForum.setMapOutputValueClass(Text.class);
-                jobForum.setOutputKeyClass(LongWritable.class);
-                jobForum.setOutputValueClass(Text.class);
-                jobForum.setJarByClass(UpdateEventMapper.class);
-                jobForum.setMapperClass(UpdateEventMapper.class);
-                jobForum.setReducerClass(UpdateEventReducer.class);
-                jobForum.setNumReduceTasks(1);
-                jobForum.setInputFormatClass(SequenceFileInputFormat.class);
-                jobForum.setOutputFormatClass(SequenceFileOutputFormat.class);
-                jobForum.setPartitionerClass(UpdateEventPartitioner.class);
-                FileInputFormat.addInputPath(jobForum, new Path(socialNetDir + "/temp_updateStream_" + i+"_"+j+"_forum"));
-                FileOutputFormat.setOutputPath(jobForum, new Path(hadoopDir + "/sibEnd"));
-                printProgress("Starting: Sorting update streams");
-                jobForum.waitForCompletion(true);
-                fs.delete(new Path(socialNetDir + "/temp_updateStream_" + i+"_"+j+"_forum"), false);
-                fs.delete(new Path(hadoopDir + "/sibEnd"), true);
-
-                conf.setInt("mapred.line.input.format.linespermap", 1000000);
-                conf.setInt("partitionId",j);
-                conf.set("streamType","person");
-                Job jobPerson = new Job(conf, "Soring update streams "+j+" of reducer "+i);
-                jobPerson.setMapOutputKeyClass(LongWritable.class);
-                jobPerson.setMapOutputValueClass(Text.class);
-                jobPerson.setOutputKeyClass(LongWritable.class);
-                jobPerson.setOutputValueClass(Text.class);
-                jobPerson.setJarByClass(UpdateEventMapper.class);
-                jobPerson.setMapperClass(UpdateEventMapper.class);
-                jobPerson.setReducerClass(UpdateEventReducer.class);
-                jobPerson.setNumReduceTasks(1);
-                jobPerson.setInputFormatClass(SequenceFileInputFormat.class);
-                jobPerson.setOutputFormatClass(SequenceFileOutputFormat.class);
-                jobPerson.setPartitionerClass(UpdateEventPartitioner.class);
-                FileInputFormat.addInputPath(jobPerson, new Path(socialNetDir + "/temp_updateStream_" + i+"_"+j+"_person"));
-                FileOutputFormat.setOutputPath(jobPerson, new Path(hadoopDir + "/sibEnd"));
-                printProgress("Starting: Sorting update streams");
-                jobPerson.waitForCompletion(true);
-                fs.delete(new Path(socialNetDir + "/temp_updateStream_" + i+"_"+j+"_person"), false);
-                fs.delete(new Path(hadoopDir + "/sibEnd"), true);
-
-                if(conf.getBoolean("updateStreams",false)) {
-                    Properties properties = new Properties();
-                    properties.load(fs.open(new Path(conf.get("outputDir") + "/social_network/updateStream_" + i + "_" + j + "_person.properties")));
-                    Long auxMin = Long.parseLong(properties.getProperty("min_write_event_start_time"));
-                    min = auxMin < min ? auxMin : min;
-                    Long auxMax = Long.parseLong(properties.getProperty("max_write_event_start_time"));
-                    max = auxMax > max ? auxMax : max;
-                    numEvents += Long.parseLong(properties.getProperty("num_events"));
-
-                    properties.load(fs.open(new Path(conf.get("outputDir") + "/social_network/updateStream_" + i + "_" + j + "_forum.properties")));
-
-                    auxMin = Long.parseLong(properties.getProperty("min_write_event_start_time"));
-                    min = auxMin < min ? auxMin : min;
-                    auxMax = Long.parseLong(properties.getProperty("max_write_event_start_time"));
-                    max = auxMax > max ? auxMax : max;
-                    numEvents += Long.parseLong(properties.getProperty("num_events"));
-
-                    fs.delete(new Path(conf.get("outputDir") + "/social_network/updateStream_" + i + "_" + j + "_person.properties"),true);
-                    fs.delete(new Path(conf.get("outputDir") + "/social_network/updateStream_" + i + "_" + j + "_forum.properties"),true);
-                }
-            }
-        }
-
-        if(conf.getBoolean("updateStreams",false)) {
-            OutputStream output = fs.create(new Path(conf.get("outputDir") + "/social_network/updateStream.properties"));
-            output.write(new String("ldbc.snb.interactive.gct_delta_duration:"+conf.get("deltaTime")+"\n").getBytes());
-            output.write(new String("ldbc.snb.interactive.min_write_event_start_time:"+min+"\n").getBytes());
-            output.write(new String("ldbc.snb.interactive.max_write_event_start_time:"+max+"\n").getBytes());
-            output.write(new String("ldbc.snb.interactive.update_interleave:"+(max-min)/numEvents+"\n").getBytes());
-            output.write(new String("ldbc.snb.interactive.num_events:"+numEvents).getBytes());
-            output.close();
-        }
-
-
-
-        printProgress("Starting: Materialize friends for substitution parameters");
-        int resMaterializeFriends = job6.waitForCompletion(true) ? 0 : 1;
-        fs.delete(new Path(hadoopDir + "/sibSorting3"),true);
+//        for( int i =0; i < numThreads; ++i ) {
+//            int numPartitions = conf.getInt("numUpdatePartitions", 1);
+//            for( int j = 0; j < numPartitions; ++j ) {
+//                /// --------------- Fifth job: Sort update streams ----------------
+//                conf.setInt("mapred.line.input.format.linespermap", 1000000);
+//                conf.setInt("partitionId",j);
+//                conf.set("streamType","forum");
+//                Job jobForum = new Job(conf, "Soring update streams "+j+" of reducer "+i);
+//                jobForum.setMapOutputKeyClass(LongWritable.class);
+//                jobForum.setMapOutputValueClass(Text.class);
+//                jobForum.setOutputKeyClass(LongWritable.class);
+//                jobForum.setOutputValueClass(Text.class);
+//                jobForum.setJarByClass(UpdateEventMapper.class);
+//                jobForum.setMapperClass(UpdateEventMapper.class);
+//                jobForum.setReducerClass(UpdateEventReducer.class);
+//                jobForum.setNumReduceTasks(1);
+//                jobForum.setInputFormatClass(SequenceFileInputFormat.class);
+//                jobForum.setOutputFormatClass(SequenceFileOutputFormat.class);
+//                jobForum.setPartitionerClass(UpdateEventPartitioner.class);
+//                FileInputFormat.addInputPath(jobForum, new Path(socialNetDir + "/temp_updateStream_" + i+"_"+j+"_forum"));
+//                FileOutputFormat.setOutputPath(jobForum, new Path(hadoopDir + "/sibEnd"));
+//                printProgress("Starting: Sorting update streams");
+//                jobForum.waitForCompletion(true);
+//                fs.delete(new Path(socialNetDir + "/temp_updateStream_" + i+"_"+j+"_forum"), false);
+//                fs.delete(new Path(hadoopDir + "/sibEnd"), true);
+//
+//                conf.setInt("mapred.line.input.format.linespermap", 1000000);
+//                conf.setInt("partitionId",j);
+//                conf.set("streamType","person");
+//                Job jobPerson = new Job(conf, "Soring update streams "+j+" of reducer "+i);
+//                jobPerson.setMapOutputKeyClass(LongWritable.class);
+//                jobPerson.setMapOutputValueClass(Text.class);
+//                jobPerson.setOutputKeyClass(LongWritable.class);
+//                jobPerson.setOutputValueClass(Text.class);
+//                jobPerson.setJarByClass(UpdateEventMapper.class);
+//                jobPerson.setMapperClass(UpdateEventMapper.class);
+//                jobPerson.setReducerClass(UpdateEventReducer.class);
+//                jobPerson.setNumReduceTasks(1);
+//                jobPerson.setInputFormatClass(SequenceFileInputFormat.class);
+//                jobPerson.setOutputFormatClass(SequenceFileOutputFormat.class);
+//                jobPerson.setPartitionerClass(UpdateEventPartitioner.class);
+//                FileInputFormat.addInputPath(jobPerson, new Path(socialNetDir + "/temp_updateStream_" + i+"_"+j+"_person"));
+//                FileOutputFormat.setOutputPath(jobPerson, new Path(hadoopDir + "/sibEnd"));
+//                printProgress("Starting: Sorting update streams");
+//                jobPerson.waitForCompletion(true);
+//                fs.delete(new Path(socialNetDir + "/temp_updateStream_" + i+"_"+j+"_person"), false);
+//                fs.delete(new Path(hadoopDir + "/sibEnd"), true);
+//
+//                if(conf.getBoolean("updateStreams",false)) {
+//                    Properties properties = new Properties();
+//                    properties.load(fs.open(new Path(conf.get("outputDir") + "/social_network/updateStream_" + i + "_" + j + "_person.properties")));
+//                    Long auxMin = Long.parseLong(properties.getProperty("min_write_event_start_time"));
+//                    min = auxMin < min ? auxMin : min;
+//                    Long auxMax = Long.parseLong(properties.getProperty("max_write_event_start_time"));
+//                    max = auxMax > max ? auxMax : max;
+//                    numEvents += Long.parseLong(properties.getProperty("num_events"));
+//
+//                    properties.load(fs.open(new Path(conf.get("outputDir") + "/social_network/updateStream_" + i + "_" + j + "_forum.properties")));
+//
+//                    auxMin = Long.parseLong(properties.getProperty("min_write_event_start_time"));
+//                    min = auxMin < min ? auxMin : min;
+//                    auxMax = Long.parseLong(properties.getProperty("max_write_event_start_time"));
+//                    max = auxMax > max ? auxMax : max;
+//                    numEvents += Long.parseLong(properties.getProperty("num_events"));
+//
+//                    fs.delete(new Path(conf.get("outputDir") + "/social_network/updateStream_" + i + "_" + j + "_person.properties"),true);
+//                    fs.delete(new Path(conf.get("outputDir") + "/social_network/updateStream_" + i + "_" + j + "_forum.properties"),true);
+//                }
+//            }
+//        }
+//
+//        if(conf.getBoolean("updateStreams",false)) {
+//            OutputStream output = fs.create(new Path(conf.get("outputDir") + "/social_network/updateStream.properties"));
+//            output.write(new String("ldbc.snb.interactive.gct_delta_duration:"+conf.get("deltaTime")+"\n").getBytes());
+//            output.write(new String("ldbc.snb.interactive.min_write_event_start_time:"+min+"\n").getBytes());
+//            output.write(new String("ldbc.snb.interactive.max_write_event_start_time:"+max+"\n").getBytes());
+//            output.write(new String("ldbc.snb.interactive.update_interleave:"+(max-min)/numEvents+"\n").getBytes());
+//            output.write(new String("ldbc.snb.interactive.num_events:"+numEvents).getBytes());
+//            output.close();
+//        }
+//
+//
+//
+//        printProgress("Starting: Materialize friends for substitution parameters");
+//        int resMaterializeFriends = job6.waitForCompletion(true) ? 0 : 1;
+//        fs.delete(new Path(hadoopDir + "/sibSorting3"),true);
 
 
 	    long end = System.currentTimeMillis();
 	    System.out.println(((end - start) / 1000)
 	                    + " total seconds");
-        for( int i = 0; i < numThreads; ++i ) {
-            fs.copyToLocalFile(new Path(socialNetDir + "/m"+i+"factors.txt"), new Path("./"));
-            fs.copyToLocalFile(new Path(socialNetDir + "/m0friendList"+i+".csv"), new Path("./"));
-        }
+//        for( int i = 0; i < numThreads; ++i ) {
+//            fs.copyToLocalFile(new Path(socialNetDir + "/m"+i+"factors.txt"), new Path("./"));
+//            fs.copyToLocalFile(new Path(socialNetDir + "/m0friendList"+i+".csv"), new Path("./"));
+//        }
 	    return res;
 	}
 
