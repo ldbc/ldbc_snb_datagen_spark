@@ -794,10 +794,12 @@ public class ScalableGenerator{
         int nameCount = firstNameCount.containsKey(extraInfo.getFirstName())? firstNameCount.get(extraInfo.getFirstName()):0;
         firstNameCount.put(extraInfo.getFirstName(), nameCount+1);
         long init = System.currentTimeMillis();
-        //generatePosts(uniformPostGenerator,reducedUserProfiles[index], extraInfo);
-        //generatePosts(flashmobPostGenerator, reducedUserProfiles[index], extraInfo);
-        //generatePhotos(reducedUserProfiles[index], extraInfo);
-        //generateUserGroups(reducedUserProfiles[index], extraInfo);
+        if(conf.getBoolean("activity",true)) {
+            generatePosts(uniformPostGenerator, reducedUserProfiles[index], extraInfo);
+            generatePosts(flashmobPostGenerator, reducedUserProfiles[index], extraInfo);
+            generatePhotos(reducedUserProfiles[index], extraInfo);
+            generateUserGroups(reducedUserProfiles[index], extraInfo);
+        }
         if( numUserProfilesRead % 100 == 0) context.setStatus("Generated post and photo for "+numUserProfilesRead+" users");
         dataExporter.changePartition();
     }

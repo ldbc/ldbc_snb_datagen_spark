@@ -18,6 +18,7 @@ public class ConfigParser {
         conf.set("serializer","csv");
         conf.set("compressed",Boolean.toString(false));
         conf.set("updateStreams",Boolean.toString(false));
+        conf.set("activity",Boolean.toString(true));
         conf.set("outputDir","./");
         conf.set("deltaTime","10000");
         conf.set("numUpdatePartitions","1");
@@ -36,6 +37,7 @@ public class ConfigParser {
             CheckOption(conf, "numYears", properties);
             CheckOption(conf,"startYear",properties);
             CheckOption(conf,"numUpdatePartitions",properties);
+            CheckOption(conf,"activity",properties);
             if(conf.get("fs.default.name").compareTo("file:///") == 0 ) {
                 System.out.println("Running in standalone mode. Setting numThreads to 1");
                 conf.set("numThreads","1");
