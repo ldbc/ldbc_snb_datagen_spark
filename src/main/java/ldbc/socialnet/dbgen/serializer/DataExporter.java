@@ -70,6 +70,7 @@ public class DataExporter {
     private HashMap<Long, ReducedUserProfile.Counts> factorTable;
     private int startMonth, startYear;
     private int reducerId = 0;
+    private long deltaTime = 0;
     GregorianCalendar c;
 
     public DataExporter( DataFormat format,
@@ -79,6 +80,7 @@ public class DataExporter {
                          boolean exportText,
                          boolean compressed,
                          int numPartitions,
+                         long deltaTime,
                          TagDictionary tagDic,
                          BrowserDictionary browsers,
                          CompanyDictionary companyDic,
@@ -90,6 +92,7 @@ public class DataExporter {
                          HashMap<Long, ReducedUserProfile.Counts> factorTable,
                          int startMonth, int startYear,
                          Statistics statistics) {
+        this.deltaTime = deltaTime;
         this.locationDic = locationDic;
         this.companyDic = companyDic;
         this.universityDic = universityDic;
@@ -276,7 +279,7 @@ public class DataExporter {
 
         Group group = new Group();
         //The forums of the user
-        group.setCreatedDate(userInfo.user.getCreationDate());
+        group.setCreatedDate(userInfo.user.getCreationDate()+deltaTime);
         group.setGroupName("Wall of " + userInfo.extraInfo.getFirstName() + " " + userInfo.extraInfo.getLastName());
         group.setGroupId(userInfo.user.getForumWallId());
         group.setModeratorId(userInfo.user.getAccountId());
@@ -301,7 +304,7 @@ public class DataExporter {
             if (friends[i] != null && friends[i].getCreatedTime() != -1){
                 GroupMemberShip membership = new GroupMemberShip();
                 membership.setGroupId(group.getGroupId());
-                membership.setJoinDate(friends[i].getCreatedTime());
+                membership.setJoinDate(friends[i].getCreatedTime()+deltaTime);
                 membership.setUserId(friends[i].getFriendAcc());
                 if( membership.getJoinDate() <= dateThreshold ) {
                     staticSerializer.serialize(membership);

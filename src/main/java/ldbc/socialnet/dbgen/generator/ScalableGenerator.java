@@ -1517,7 +1517,7 @@ public class ScalableGenerator{
             return null;
         }
         return new DataExporter(format,sibOutputDir, threadId, dateThreshold,
-                exportText,enableCompression,conf.getInt("numUpdatePartitions",1),tagDictionary,browserDictonry,companiesDictionary,
+                exportText,enableCompression,conf.getInt("numUpdatePartitions",1),deltaTime,tagDictionary,browserDictonry,companiesDictionary,
                 unversityDictionary,ipAddDictionary,locationDictionary,languageDictionary, configFile, factorTable, startMonth, startYear, stats);
     }
 
