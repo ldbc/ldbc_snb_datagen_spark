@@ -81,6 +81,7 @@ public class DataExporter {
                          boolean compressed,
                          int numPartitions,
                          long deltaTime,
+                         boolean activity,
                          TagDictionary tagDic,
                          BrowserDictionary browsers,
                          CompanyDictionary companyDic,
@@ -105,7 +106,7 @@ public class DataExporter {
         this.startYear = startYear;
         this.c = new GregorianCalendar();
         if( format == DataFormat.CSV ) {
-            staticSerializer = new CSVOriginal(directory,reducerId,tagDic,browsers,companyDic,universityDic,ipDic,locationDic,languageDic,exportText,compressed);
+            staticSerializer = new CSVOriginal(directory,reducerId,tagDic,browsers,companyDic,universityDic,ipDic,locationDic,languageDic,exportText,compressed,activity);
         } else if( format == DataFormat.CSV_MERGE_FOREIGN ) {
             staticSerializer = new CSVMergeForeign(directory,reducerId,tagDic,browsers,companyDic,universityDic,ipDic,locationDic,languageDic,exportText,compressed);
         } else if( format == DataFormat.TURTLE ) {

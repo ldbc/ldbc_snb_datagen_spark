@@ -78,6 +78,7 @@ public class CSVOriginal implements Serializer {
     private TagDictionary tagDic;
     private IPAddressDictionary ipDic;
     private boolean exportText;
+    private boolean activity = true;
 
     /**
      * Used to avoid serialize more than once the same data.
@@ -220,7 +221,7 @@ public class CSVOriginal implements Serializer {
 	public CSVOriginal(String file, int reducerID,
             TagDictionary tagDic, BrowserDictionary browsers, 
             CompanyDictionary companyDic, UniversityDictionary universityDictionary,
-            IPAddressDictionary ipDic, LocationDictionary locationDic, LanguageDictionary languageDic, boolean exportText, boolean compressed) {
+            IPAddressDictionary ipDic, LocationDictionary locationDic, LanguageDictionary languageDic, boolean exportText, boolean compressed, boolean activity) {
 
         this.tagDic = tagDic;
         this.browserDic = browsers;
@@ -230,6 +231,7 @@ public class CSVOriginal implements Serializer {
         this.universityDic = universityDictionary;
         this.ipDic = ipDic;
         this.exportText = exportText;
+        this.activity = activity;
         csvRows = 0l;
         date = new GregorianCalendar();
 		locations = new Vector<Integer>();
@@ -350,8 +352,10 @@ public class CSVOriginal implements Serializer {
         if (friend != null && friend.getCreatedTime() != -1){
             arguments.add(Long.toString(friend.getUserAcc()));
             arguments.add(Long.toString(friend.getFriendAcc()));
-            date.setTimeInMillis(friend.getCreatedTime());
-            arguments.add(DateGenerator.formatDateDetail(date));
+            if(activity) {
+                date.setTimeInMillis(friend.getCreatedTime());
+                arguments.add(DateGenerator.formatDateDetail(date));
+            }
             ToCSV(arguments,Files.PERSON_KNOWS_PERSON.ordinal());
         }
     }
