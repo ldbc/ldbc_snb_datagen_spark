@@ -41,12 +41,23 @@ class Factors:
 	def addValue(self, person, factor, value):
 		self.values[person].addValue(factor, value)
 
+class NameParameter:
+	def __init__(self, persons=[]):
+		self.values={}
+		for p in persons:
+			self.values[p] = ""
+	
+	def setValue(self, person, value):
+		self.values[person] = value
+
+	def getValue(self, person):
+		return self.values[person]
 
 def load(factorFiles, friendFiles):
 	print "loading input for parameter generation"
 	results = Factors()
 	countries = Factors()
-
+	givenNames = NameParameter()
 
 	tagClasses = {}
 	tags = {}
@@ -62,13 +73,14 @@ def load(factorFiles, friendFiles):
 				person = int(line[0])
 				if not results.existParam(person):
 					results.addNewParam(person)
-				results.addValue(person, "f", int(line[1]))
-				results.addValue(person, "p", int(line[2]))
-				results.addValue(person, "pl", int(line[3]))
-				results.addValue(person, "pt", int(line[4]))
-				results.addValue(person, "g", int(line[5]))
-				results.addValue(person, "w", int(line[6]))
-				results.addValue(person, "pr", int(line[7]))
+				givenNames.setValue(person, line[1])
+				results.addValue(person, "f", int(line[2]))
+				results.addValue(person, "p", int(line[3]))
+				results.addValue(person, "pl", int(line[4]))
+				results.addValue(person, "pt", int(line[5]))
+				results.addValue(person, "g", int(line[6]))
+				results.addValue(person, "w", int(line[7]))
+				results.addValue(person, "pr", int(line[8]))
 
 			countryCount = int(f.readline())
 			for i in range(countryCount):
@@ -120,7 +132,7 @@ def load(factorFiles, friendFiles):
 
 	loadFriends(friendFiles, results)
 
-	return (results, countries, tags.items(), tagClasses.items(), names.items(), timestamp)
+	return (results, countries, tags.items(), tagClasses.items(), names.items(), givenNames,timestamp)
 
 def loadFriends(friendFiles, factors):
 

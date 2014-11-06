@@ -252,6 +252,7 @@ public class ScalableGenerator{
     private HashMap<Integer, Integer> tagClassCount;
     private HashMap<String, Integer> firstNameCount;
     private HashMap<Integer, Integer> tagNameCount;
+    private HashMap<Long, String> medianFirstName;
     // For blocking
     private static final int  reducerShift[] = { 26, 8, 1 };
 
@@ -429,6 +430,7 @@ public class ScalableGenerator{
         this.postsPerCountry = new HashMap<Integer, Integer>();
         this.tagClassCount = new HashMap<Integer, Integer>();
         this.firstNameCount = new HashMap<String, Integer>();
+        this.medianFirstName = new HashMap<Long, String>();
         this.tagNameCount = new HashMap<Integer, Integer>();
         if (threadId != -1){
             outUserProfile = "mr" + threadId + "_" + outUserProfileName;
@@ -793,6 +795,9 @@ public class ScalableGenerator{
         dataExporter.export(userInfo);
         int nameCount = firstNameCount.containsKey(extraInfo.getFirstName())? firstNameCount.get(extraInfo.getFirstName()):0;
         firstNameCount.put(extraInfo.getFirstName(), nameCount+1);
+        String medianName = namesDictionary.getMedianGivenName(userProfile.getLocationId(),
+                userProfile.getGender()==1, dateTimeGenerator.getBirthYear(userProfile.getBirthDay()));
+        medianFirstName.put(userProfile.getAccountId(), medianName);
         long init = System.currentTimeMillis();
         if(conf.getBoolean("activity",true)) {
             Group wall = generateWall(userInfo);
@@ -1570,7 +1575,9 @@ public class ScalableGenerator{
             	// correct the group counts
             	//count.numberOfGroups += count.numberOfFriends;
             	StringBuffer strbuf = new StringBuffer();
-            	strbuf.append(c.getKey()); strbuf.append(",");
+		strbuf.append(c.getKey()); strbuf.append(",");
+		String name = medianFirstName.get(c.getKey());
+		strbuf.append(name); strbuf.append(",");
             	strbuf.append(count.numberOfFriends); 		strbuf.append(",");
             	strbuf.append(count.numberOfPosts); 		strbuf.append(",");
             	strbuf.append(count.numberOfLikes); 		strbuf.append(",");

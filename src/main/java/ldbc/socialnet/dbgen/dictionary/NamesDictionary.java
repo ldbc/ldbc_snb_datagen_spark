@@ -219,5 +219,17 @@ public class NamesDictionary {
 		
 		return name;
 	}
+
+    /**
+     *  return a given name which is the median of topN for a given location/gender/year
+     *  we use it for parameter generation
+     */
+    public String getMedianGivenName(int locationId, boolean isMale, int birthYear){
+        int period = 0;
+        Vector<HashMap<Integer, Vector<String>>> target = (isMale) ? givenNamesByLocationsMale : givenNamesByLocationsFemale;
+        int size = target.get(period).get(locationId).size();
+        String name = target.get(period).get(locationId).get(size/2);
+        return name;
+    }
 }
 

@@ -32,8 +32,9 @@ def findNameParameters(names, amount = 100):
 	while  counts[mid] - counts[i] < 0.1 * counts[mid]:
 		res.extend([name for name in hist[counts[i]]])
 		i -= 1
-
 	return res
+
+
 
 class CSVSerializer:
 	def __init__(self):
@@ -141,7 +142,7 @@ def main(argv=None):
 			friendsFiles.append(indir+file)
 
 	# read precomputed counts from files	
-	(personFactors, countryFactors, tagFactors, tagClassFactors, nameFactors, ts) = readfactors.load(factorFiles, friendsFiles)
+	(personFactors, countryFactors, tagFactors, tagClassFactors, nameFactors, givenNames,  ts) = readfactors.load(factorFiles, friendsFiles)
 
 	# find person parameters
 	print "find parameter bindings for Persons"
@@ -233,12 +234,17 @@ def main(argv=None):
 		HS.append((HS0, HS1))
 
 	# Query 1 takes first name as a parameter
-	nameParams =  findNameParameters(nameFactors)# discoverparams.generate(nameFactors)
-	# if there are fewer first names than person parameters, repeat some of the names
-	if len(nameParams) < len(selectedPersonParams[2]):
-		oldlen = len(nameParams)
-		newlen = len(selectedPersonParams[2])
-		nameParams.extend([nameParams[random.randint(0, oldlen-1)] for j in range(newlen-oldlen)])
+	#nameParams =  findNameParameters(nameFactors)# discoverparams.generate(nameFactors)
+	## if there are fewer first names than person parameters, repeat some of the names
+	#if len(nameParams) < len(selectedPersonParams[2]):
+	#	oldlen = len(nameParams)
+	#	newlen = len(selectedPersonParams[2])
+	#	nameParams.extend([nameParams[random.randint(0, oldlen-1)] for j in range(newlen-oldlen)])
+	nameParams = []
+	for person in selectedPersonParams[1]:
+		nameParams.append(givenNames.getValue(person))
+
+	print nameParams
 
 	# serialize all the parameters as CSV
 	csvWriters = {}
