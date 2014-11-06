@@ -999,6 +999,18 @@ public class ScalableGenerator{
             index++;
         }
         group.setTags(tags);
+        Friend[] friends = userInfo.user.getFriendList();
+        group.initAllMemberships(friends.length);
+        for (int i = 0; i < friends.length; i ++){
+            if (friends[i] != null && friends[i].getCreatedTime() != -1){
+                GroupMemberShip membership = new GroupMemberShip();
+                membership.setGroupId(group.getGroupId());
+                membership.setJoinDate(friends[i].getCreatedTime()+deltaTime);
+                membership.setUserId(friends[i].getFriendAcc());
+                membership.userCreationDate = userInfo.user.getCreationDate();
+                group.addMember(membership);
+            }
+        }
         dataExporter.export(group,userInfo.user.getCreationDate());
         return group;
     }
@@ -1042,7 +1054,7 @@ public class ScalableGenerator{
                     stats.minPostCreationDate = strCreationDate;
                 }
             }
-            dataExporter.export(post,group.getCreatedDate());
+            dataExporter.export(post,post.getAuthorCreationDate());
             // Generate comments
             int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments+1);
             ArrayList<Message> replyCandidates = new ArrayList<Message>();
@@ -1072,7 +1084,7 @@ public class ScalableGenerator{
                 	postCount = postsPerCountry.containsKey(locationID) ? postsPerCountry.get(locationID) : 0;
                 	postsPerCountry.put(locationID, postCount+1);
                     stats.countries.add(countryName);
-                    dataExporter.export(comment,post.getCreationDate());
+                    dataExporter.export(comment,comment.getAuthorCreationDate());
                     if( comment.getTextSize() > 10 ) replyCandidates.add(comment);
                     postId++;
                 }
@@ -1110,7 +1122,7 @@ public class ScalableGenerator{
                         int postCount = postsPerCountry.containsKey(locationID) ? postsPerCountry.get(locationID) : 0;
                         postsPerCountry.put(locationID, postCount+1);
                         stats.countries.add(countryName);
-                        dataExporter.export(photo,album.getCreatedDate());
+                        dataExporter.export(photo,photo.getAuthorCreationDate());
                         
                     	if (photo.getTags() != null) {
                         	for (Integer t: photo.getTags()){
@@ -1158,6 +1170,7 @@ public class ScalableGenerator{
                                     potentialMemberAcc, group.getCreatedDate(),
                                     firstLevelFriends[friendIdx]);
                             if( memberShip != null ) {
+                                memberShip.userCreationDate = firstLevelFriends[friendIdx].fromCreationDate;
                                 memberShip.setGroupId(group.getGroupId());
                                 group.addMember(memberShip);
                             }
@@ -1177,6 +1190,7 @@ public class ScalableGenerator{
                                         potentialMemberAcc, group.getCreatedDate(),
                                         secondLevelFriends.get(friendIdx));
                                 if( memberShip != null ) {
+                                    memberShip.userCreationDate = secondLevelFriends.get(friendIdx).fromCreationDate;
                                     memberShip.setGroupId(group.getGroupId());
                                     group.addMember(memberShip);
                                 }
@@ -1196,6 +1210,7 @@ public class ScalableGenerator{
                                     potentialMemberAcc, group.getCreatedDate(),
                                     reducedUserProfiles[friendIdx]);
                             if( memberShip != null ) {
+                                memberShip.userCreationDate = reducedUserProfiles[friendIdx].getCreationDate();
                                 memberShip.setGroupId(group.getGroupId());
                                 group.addMember(memberShip);
                             }
@@ -1233,7 +1248,7 @@ public class ScalableGenerator{
             int postCount = postsPerCountry.containsKey(locationID) ? postsPerCountry.get(locationID) : 0;
             postsPerCountry.put(locationID, postCount+1);
             stats.countries.add(countryName);
-            dataExporter.export(groupPost,group.getCreatedDate());
+            dataExporter.export(groupPost,groupPost.getAuthorCreationDate());
 
             int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments+1);
             ArrayList<Message> replyCandidates = new ArrayList<Message>();
@@ -1253,7 +1268,7 @@ public class ScalableGenerator{
                 	postCount = postsPerCountry.containsKey(locationID) ? postsPerCountry.get(locationID) : 0;
                 	postsPerCountry.put(locationID, postCount+1);
                     stats.countries.add(countryName);
-                    dataExporter.export(comment,groupPost.getCreationDate());
+                    dataExporter.export(comment,comment.getAuthorCreationDate());
                     if( comment.getTextSize() > 10 ) replyCandidates.add(comment);
                                     	
                 	if (comment.getTags() != null) {

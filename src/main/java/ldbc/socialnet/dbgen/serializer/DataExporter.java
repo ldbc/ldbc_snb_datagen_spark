@@ -305,7 +305,7 @@ public class DataExporter {
             updateStreamSerializer.setCurrentDependantDate(dependantDate);
             updateStreamSerializer.serialize(post);
         }
-        exportLikes(post, post.getCreationDate());
+        exportLikes(post);
     }
 
     public void export(Photo photo, long dependantDate){
@@ -332,10 +332,10 @@ public class DataExporter {
             updateStreamSerializer.setCurrentDependantDate(dependantDate);
             updateStreamSerializer.serialize(photo);
         }
-        exportLikes(photo,photo.getCreationDate());
+        exportLikes(photo);
     }
 
-    private void exportLikes ( Message message, long dependantDate ) {
+    private void exportLikes ( Message message ) {
         Like likes[] = message.getLikes();
         if( likes != null ) {
             int numLikes = likes.length;
@@ -344,7 +344,7 @@ public class DataExporter {
                     if (likes[i].date <= dateThreshold) {
                         staticSerializer.serialize(likes[i]);
                     } else {
-                        updateStreamSerializer.setCurrentDependantDate(dependantDate);
+                        updateStreamSerializer.setCurrentDependantDate(likes[i].userCreationDate);
                         updateStreamSerializer.serialize(likes[i]);
                     }
                 }
@@ -376,7 +376,7 @@ public class DataExporter {
             updateStreamSerializer.setCurrentDependantDate(dependantDate);
             updateStreamSerializer.serialize(comment);
         }
-        exportLikes(comment, comment.getCreationDate());
+        exportLikes(comment);
     }
 
     public void export(Group group, long dependantDate) {
@@ -404,7 +404,7 @@ public class DataExporter {
 
                 staticSerializer.serialize(memberships[i]);
             } else {
-                updateStreamSerializer.setCurrentDependantDate(dependantDate);
+                updateStreamSerializer.setCurrentDependantDate(memberships[i].userCreationDate);
                 updateStreamSerializer.serialize(memberships[i]);
             }
         }

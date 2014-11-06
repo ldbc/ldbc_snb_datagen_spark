@@ -63,6 +63,7 @@ public class Photo extends Message {
                  int textSize,
                  long creationDate,
                  long authorId,
+                 long authorCreationDate,
                  long groupId,
                  TreeSet<Integer> tags,
                  IP ipAddress,
@@ -73,7 +74,7 @@ public class Photo extends Message {
                  double latt,
                  double longt
                  ) {
-        super(messageId, content, textSize, creationDate, authorId, groupId, tags, ipAddress, userAgent, browserIdx, locationId);
+        super(messageId, content, textSize, creationDate, authorId,authorCreationDate, groupId, tags, ipAddress, userAgent, browserIdx, locationId);
         this.locationName = locationName;
         this.latt = latt;
         this.longt = longt;

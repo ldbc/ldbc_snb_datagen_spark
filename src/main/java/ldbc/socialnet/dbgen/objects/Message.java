@@ -45,6 +45,7 @@ abstract public class Message {
     private int    textSize;                    /**< @brief The size of the content. Required in order to be able to generate posts without text but with size.*/
     private long creationDate;                   /**< @brief The creation date of the post.*/
     private long authorId;                       /**< @brief The author identifier of the post.*/
+    private long authorCreationDate;            /**< @brief The creation date of the author.*/
     private long groupId;                        /**< @brief The group identifier where the post belongs to.*/
     private TreeSet<Integer> tags;              /**< @brief The set of tags related to the post.*/
     private IP ipAddress;                       /**< @brief The ip from where the post was created.*/
@@ -62,6 +63,7 @@ abstract public class Message {
                    int textSize,
                    long creationDate,
                    long authorId,
+                   long authorCreationDate,
                    long groupId,
                    TreeSet<Integer> tags,
                    IP ipAddress,
@@ -74,6 +76,7 @@ abstract public class Message {
         this.textSize = textSize;
         this.creationDate = creationDate;
         this.authorId = authorId;
+        this.authorCreationDate = authorCreationDate;
         this.groupId = groupId;
         this.tags = tags;
         this.ipAddress = ipAddress;
@@ -109,6 +112,9 @@ abstract public class Message {
     }
     public long getAuthorId() {
         return this.authorId;
+    }
+    public long getAuthorCreationDate() {
+        return this.authorCreationDate;
     }
     public void setAuthorId(long authorId) {
         this.authorId = authorId;

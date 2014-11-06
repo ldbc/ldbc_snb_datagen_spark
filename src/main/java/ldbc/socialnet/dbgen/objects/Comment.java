@@ -49,6 +49,7 @@ public class Comment extends Message {
                  int textSize,
                  long creationDate,
                  long authorId,
+                 long authorCreationDate,
                  long groupId,
                  TreeSet<Integer> tags,
                  IP ipAddress,
@@ -59,7 +60,7 @@ public class Comment extends Message {
                  long replyOf
     ) {
 
-        super(commentId, content, textSize, creationDate, authorId, groupId, tags, ipAddress, userAgent, browserIdx, locationId);
+        super(commentId, content, textSize, creationDate, authorId, authorCreationDate, groupId, tags, ipAddress, userAgent, browserIdx, locationId);
         this.postId = postId;
         this.replyOf = replyOf;
 	}

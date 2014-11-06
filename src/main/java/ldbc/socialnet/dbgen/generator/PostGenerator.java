@@ -142,6 +142,7 @@ abstract public class PostGenerator {
             if( date <= dateGen.getEndDateTime() ) {
                 likes[i] = new Like();
                 likes[i].user = friendList[startIndex + i].getFriendAcc();
+                likes[i].userCreationDate = friendList[startIndex+i].fromCreationDate;
                 likes[i].messageId = message.getMessageId();
                 likes[i].date = date;
                 likes[i].type = 0;
@@ -169,6 +170,7 @@ abstract public class PostGenerator {
             if( date <= dateGen.getEndDateTime() ) {
                 likes[i] = new Like();
                 likes[i].user = groupMembers[startIndex + i].getUserId();
+                likes[i].userCreationDate = groupMembers[startIndex+i].userCreationDate;
                 likes[i].messageId = message.getMessageId();
                 likes[i].date = date;
                 likes[i].type = 0;
@@ -215,6 +217,7 @@ abstract public class PostGenerator {
                   textSize,
                   postInfo.date,
                   user.getAccountId(),
+                  user.getCreationDate(),
                   user.getForumWallId(),
                   postInfo.tags,
                   ipAddressDic.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER),user.getIpAddress(), user.isFrequentChange(), postInfo.date),
@@ -269,6 +272,7 @@ abstract public class PostGenerator {
                   textSize,
                   postInfo.date,
                   memberShip.getUserId(),
+                  memberShip.userCreationDate,
                   group.getGroupId(),
                   postInfo.tags,
                   ipAddressDic.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER),memberShip.getIP(), memberShip.isFrequentChange(), postInfo.date),

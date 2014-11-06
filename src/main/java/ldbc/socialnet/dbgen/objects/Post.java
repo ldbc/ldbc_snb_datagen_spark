@@ -46,7 +46,8 @@ public class Post extends  Message {
                  String content,
                  int textSize,
                  long creationDate,
-                 long authorId, 
+                 long authorId,
+                 long authorCreationDate,
                  long groupId,
                  TreeSet<Integer> tags,
                  IP ipAddress,
@@ -55,7 +56,7 @@ public class Post extends  Message {
                  int locationId,
                  int language
                 ) {
-        super(postId, content, textSize, creationDate, authorId, groupId, tags, ipAddress, userAgent, browserIdx,locationId );
+        super(postId, content, textSize, creationDate, authorId, authorCreationDate, groupId, tags, ipAddress, userAgent, browserIdx,locationId );
         this.language = language;
     }
     public int getLanguage() {

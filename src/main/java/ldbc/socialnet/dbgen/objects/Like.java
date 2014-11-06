@@ -43,6 +43,7 @@ package ldbc.socialnet.dbgen.objects;
 public class Like {
 
     public long user;
+    public long userCreationDate;
     public long messageId;
     public long date;
     public int type;

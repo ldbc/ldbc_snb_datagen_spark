@@ -40,6 +40,7 @@ public class GroupMemberShip {
     long    groupId;
 	long	userId;
 	long 	joinDate;
+    public long    userCreationDate;
 	IP      ip;
 	byte    browserIdx;
 	byte    agentIdx;

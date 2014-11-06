@@ -126,6 +126,7 @@ public class CommentGenerator {
             if( date <= dateGen.getEndDateTime() ) {
                 likes[i] = new Like();
                 likes[i].user = friendList[startIndex + i].getFriendAcc();
+                likes[i].userCreationDate = friendList[startIndex+i].fromCreationDate;
                 likes[i].messageId = message.getMessageId();
                 likes[i].date = date;
                 likes[i].type = 1;
@@ -153,6 +154,7 @@ public class CommentGenerator {
             if( date <= dateGen.getEndDateTime() ) {
                 likes[i] = new Like();
                 likes[i].user = groupMembers[startIndex + i].getUserId();
+                likes[i].userCreationDate = groupMembers[startIndex+i].userCreationDate;
                 likes[i].messageId = message.getMessageId();
                 likes[i].date = date;
                 likes[i].type = 1;
@@ -232,6 +234,7 @@ public class CommentGenerator {
                                        textSize,
                                        creationDate,
                                        friend.getFriendAcc(),
+                                       friend.fromCreationDate,
                                        post.getGroupId(),
                                        tags,
                                        ipAddDic.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER),friend.getSourceIp(), friend.isFrequentChange(), creationDate),
@@ -312,6 +315,7 @@ public class CommentGenerator {
                 textSize,
                 creationDate,
                 membership.getUserId(),
+                membership.userCreationDate,
                 post.getGroupId(),
                 tags,
                 ipAddDic.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER), membership.getIP(), membership.isFrequentChange(), creationDate),

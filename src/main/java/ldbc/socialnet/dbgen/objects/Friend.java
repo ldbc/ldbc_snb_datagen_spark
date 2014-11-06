@@ -46,6 +46,7 @@ public class Friend implements Serializable{
     long from;
 	long to;
     public long dependantDate;
+    public long fromCreationDate;
 	long createdTime;			//approved Time 
 	long requestTime;			 
 	long declinedTime; 
@@ -80,6 +81,7 @@ public class Friend implements Serializable{
         from = arg0.readLong();
 		to = arg0.readLong();
         dependantDate = arg0.readLong();
+        fromCreationDate = arg0.readLong();
 		createdTime = arg0.readLong();
 		requestTime = arg0.readLong();
 		declinedTime = arg0.readLong(); 
@@ -99,6 +101,7 @@ public class Friend implements Serializable{
 		arg0.writeLong(from);
         arg0.writeLong(to);
         arg0.writeLong(dependantDate);
+        arg0.writeLong(fromCreationDate);
 		arg0.writeLong(createdTime);
 		arg0.writeLong(requestTime);
 		arg0.writeLong(declinedTime);
@@ -119,6 +122,7 @@ public class Friend implements Serializable{
 	    this.from = from.getAccountId();
         this.to = to.getAccountId();
         this.dependantDate = Math.max(from.getCreationDate(), to.getCreationDate());
+        this.fromCreationDate = from.getCreationDate();
 	    this.requestTime = _requestedTime;
 	    this.declinedTime = _declinedTime;
 	    this.createdTime = _createdTime; 
