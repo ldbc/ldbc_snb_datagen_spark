@@ -45,7 +45,7 @@ class NameParameter:
 	def __init__(self, persons=[]):
 		self.values={}
 		for p in persons:
-			self.values[p] = ""
+			self.values[p] = 0
 	
 	def setValue(self, person, value):
 		self.values[person] = value
@@ -73,7 +73,8 @@ def load(factorFiles, friendFiles):
 				person = int(line[0])
 				if not results.existParam(person):
 					results.addNewParam(person)
-				givenNames.setValue(person, line[1])
+				name = line[1]
+				givenNames.setValue(person, name)
 				results.addValue(person, "f", int(line[2]))
 				results.addValue(person, "p", int(line[3]))
 				results.addValue(person, "pl", int(line[4]))
@@ -103,11 +104,6 @@ def load(factorFiles, friendFiles):
 				line = f.readline()
 				count = line[1+line.rfind(","):]
 				name = line[:line.rfind(",")]
-				try:
-					name.decode('ascii')
-				except UnicodeEncodeError:
-					continue
-				
 				if not name in tags:
 					tags[name] = 0
 				tags[name] += int(count)
@@ -116,11 +112,6 @@ def load(factorFiles, friendFiles):
 			for i in range(nameCount):
 				line = f.readline().split(",")
 				name = line[0]
-				try:
-					name.decode('ascii')
-				except UnicodeEncodeError:
-					continue
-
 				if not name in names:
 					names[name] = 0
 				names[name] += int(line[1])

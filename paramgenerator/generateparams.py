@@ -50,7 +50,7 @@ class CSVSerializer:
 		self.inputs.append(inputParams)
 
 	def writeCSV(self):
-		output = codecs.open(self.outputFile, "w", encoding="utf-8")
+		output = codecs.open( self.outputFile, "w",encoding="utf-8")
 
 		if len(self.inputs) == 0:
 			return
@@ -66,8 +66,7 @@ class CSVSerializer:
 				handler = self.handlers[j]
 				data = self.inputs[j][i]
 				csvLine.append(handler(data))
-
-			output.write("|".join(csvLine))
+			output.write('|'.join([s for s in csvLine]))
 			output.write("\n")
 		output.close()
 
@@ -76,6 +75,7 @@ def handlePersonParam(person):
 	#return {"PersonID": person, "PersonURI":(PERSON_PREFIX+str("%020d"%person))}
 
 def handleTimeParam(timeParam):
+	#print timeParam.year
 	#print timeParam.year
 	res =  str(timegm(date(year=int(timeParam.year), 
 		month=int(timeParam.month), day=int(timeParam.day)).timetuple())*1000)
@@ -242,9 +242,8 @@ def main(argv=None):
 	#	nameParams.extend([nameParams[random.randint(0, oldlen-1)] for j in range(newlen-oldlen)])
 	nameParams = []
 	for person in selectedPersonParams[1]:
-		nameParams.append(givenNames.getValue(person))
-
-	print nameParams
+		n = givenNames.getValue(person)
+		nameParams.append(n)
 
 	# serialize all the parameters as CSV
 	csvWriters = {}

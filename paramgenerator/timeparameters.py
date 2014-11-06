@@ -1,7 +1,6 @@
 import sys
 import getopt
 import math
-import random
 from readfactors import FactorCount
 from operator import itemgetter
 import itertools
@@ -68,7 +67,7 @@ def getTimeParamsWithMedian(factors, (medianFirstMonth, medianLastMonth, median)
 	for values in factors:
 		input = sorted(values,key=lambda myc: (myc.year, myc.month))
 		currentMedian = getMedian(values,lambda myc: myc.count, True)
-		if int(median) == 0 or int(currentMedian.count) == 0:
+		if int(median) == 0 or int(currentMedian.count) == 0 or int(currentMedian.year) == 0:
 			res.append(TimeParameter(START_YEAR,1,1,0))
 			continue
 		if currentMedian.count > median:
