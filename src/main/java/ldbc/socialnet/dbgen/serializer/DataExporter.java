@@ -228,6 +228,7 @@ public class DataExporter {
        if( creationDate <= dateThreshold ) {
             staticSerializer.serialize(userInfo);
        } else {
+           updateStreamSerializer.setCurrentDependantDate(0);
            updateStreamSerializer.serialize(userInfo);
        }
 
@@ -273,60 +274,14 @@ public class DataExporter {
             			factorTable.put(userInfo.user.getAccountId(), new ReducedUserProfile.Counts());
                     factorTable.get(userInfo.user.getAccountId()).numberOfFriends++;
                 } else {
+                    updateStreamSerializer.setCurrentDependantDate(friends[i].dependantDate);
                     updateStreamSerializer.serialize(friends[i]);
                 }
             }
         }
-
-        Group group = new Group();
-        //The forums of the user
-        group.setCreatedDate(userInfo.user.getCreationDate()+deltaTime);
-        group.setGroupName("Wall of " + userInfo.extraInfo.getFirstName() + " " + userInfo.extraInfo.getLastName());
-        group.setGroupId(userInfo.user.getForumWallId());
-        group.setModeratorId(userInfo.user.getAccountId());
-
-        Iterator<Integer> itTags = userInfo.user.getSetOfTags().iterator();
-        Integer tags[] = new Integer[userInfo.user.getSetOfTags().size()];
-        int index = 0;
-        while (itTags.hasNext()){
-            tags[index] = itTags.next();
-            index++;
-        }
-        group.setTags(tags);
-
-        if( group.getCreatedDate() <= dateThreshold ) {
-            staticSerializer.serialize(group);
-        } else {
-            updateStreamSerializer.serialize(group);
-        }
-        
-        GregorianCalendar c = new GregorianCalendar();
-        for (int i = 0; i < friends.length; i ++){
-            if (friends[i] != null && friends[i].getCreatedTime() != -1){
-                GroupMemberShip membership = new GroupMemberShip();
-                membership.setGroupId(group.getGroupId());
-                membership.setJoinDate(friends[i].getCreatedTime()+deltaTime);
-                membership.setUserId(friends[i].getFriendAcc());
-                if( membership.getJoinDate() <= dateThreshold ) {
-                    staticSerializer.serialize(membership);
-            		if (!factorTable.containsKey(membership.getUserId()))
-            			factorTable.put(membership.getUserId(), new ReducedUserProfile.Counts());
-            		factorTable.get(membership.getUserId()).numberOfGroups++;
-            		c.setTimeInMillis(membership.getJoinDate());
-            		int bucket = DateGenerator.getNumberOfMonths(c, startMonth, startYear);
-            		if (bucket < factorTable.get(membership.getUserId()).numberOfGroupsPerMonth.length){
-            			factorTable.get(membership.getUserId()).numberOfGroupsPerMonth[bucket]++;
-            		}
-
-                } else {
-                    updateStreamSerializer.serialize(membership);
-                }
-            }
-        }
-
     }
 
-    public void export(Post post) {
+    public void export(Post post, long dependantDate) {
         long date =  post.getCreationDate();
         if( date <= dateThreshold ) {
         	long user = post.getAuthorId();
@@ -347,12 +302,13 @@ public class DataExporter {
             }
             staticSerializer.serialize(post);
         } else {
+            updateStreamSerializer.setCurrentDependantDate(dependantDate);
             updateStreamSerializer.serialize(post);
         }
-        exportLikes(post);
+        exportLikes(post, post.getCreationDate());
     }
 
-    public void export(Photo photo){
+    public void export(Photo photo, long dependantDate){
         long date =  photo.getCreationDate();
         if( date <= dateThreshold ) {
         	long user = photo.getAuthorId();
@@ -373,12 +329,13 @@ public class DataExporter {
         	}
             staticSerializer.serialize(photo);
         } else {
+            updateStreamSerializer.setCurrentDependantDate(dependantDate);
             updateStreamSerializer.serialize(photo);
         }
-        exportLikes(photo);
+        exportLikes(photo,photo.getCreationDate());
     }
 
-    private void exportLikes ( Message message ) {
+    private void exportLikes ( Message message, long dependantDate ) {
         Like likes[] = message.getLikes();
         if( likes != null ) {
             int numLikes = likes.length;
@@ -387,6 +344,7 @@ public class DataExporter {
                     if (likes[i].date <= dateThreshold) {
                         staticSerializer.serialize(likes[i]);
                     } else {
+                        updateStreamSerializer.setCurrentDependantDate(dependantDate);
                         updateStreamSerializer.serialize(likes[i]);
                     }
                 }
@@ -394,7 +352,7 @@ public class DataExporter {
         }
     }
 
-    public void export(Comment comment) {
+    public void export(Comment comment, long dependantDate) {
         long date =  comment.getCreationDate();
         if( date <= dateThreshold ) {
             long user = comment.getAuthorId();
@@ -415,16 +373,18 @@ public class DataExporter {
         	}
             staticSerializer.serialize(comment);
         } else {
+            updateStreamSerializer.setCurrentDependantDate(dependantDate);
             updateStreamSerializer.serialize(comment);
         }
-        exportLikes(comment);
+        exportLikes(comment, comment.getCreationDate());
     }
 
-    public void export(Group group) {
+    public void export(Group group, long dependantDate) {
         long date =  group.getCreatedDate();
         if( date <= dateThreshold ) {
             staticSerializer.serialize(group);
         } else {
+            updateStreamSerializer.setCurrentDependantDate(dependantDate);
             updateStreamSerializer.serialize(group);
         }
 
@@ -444,6 +404,7 @@ public class DataExporter {
 
                 staticSerializer.serialize(memberships[i]);
             } else {
+                updateStreamSerializer.setCurrentDependantDate(dependantDate);
                 updateStreamSerializer.serialize(memberships[i]);
             }
         }

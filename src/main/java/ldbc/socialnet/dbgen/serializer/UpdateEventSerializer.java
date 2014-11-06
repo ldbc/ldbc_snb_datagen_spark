@@ -86,6 +86,7 @@ public class UpdateEventSerializer implements Serializer{
     private int numPartitions = 1;
     private int nextPartition = 0;
     private StringBuffer stringBuffer;
+    private long currentDependantDate = 0;
 
     public UpdateEventSerializer( String outputDir,
                                   String outputFileName,
@@ -100,7 +101,7 @@ public class UpdateEventSerializer implements Serializer{
         this.data = new ArrayList<String>();
         this.list = new ArrayList<String>();
         this.tuple = new ArrayList<String>();
-        this.currentEvent = new UpdateEvent(-1, UpdateEvent.UpdateEventType.NO_EVENT,new String(""));
+        this.currentEvent = new UpdateEvent(-1,-1, UpdateEvent.UpdateEventType.NO_EVENT,new String(""));
         this.date = new GregorianCalendar();
         this.browserDic = browserDic;
         this.languageDic = languageDic;
@@ -223,6 +224,8 @@ public class UpdateEventSerializer implements Serializer{
             StringBuffer string = new StringBuffer();
             string.append(Long.toString(event.date));
             string.append("|");
+            string.append(Long.toString(event.dependantDate));
+            string.append("|");
             string.append(Integer.toString(event.type.ordinal()+1));
             string.append("|");
             string.append(event.eventData);
@@ -245,6 +248,7 @@ public class UpdateEventSerializer implements Serializer{
         if( date < minDate ) minDate = date;
         if( date > maxDate ) maxDate = date;
         currentEvent.date = date;
+        currentEvent.dependantDate = currentDependantDate;
         currentEvent.type = type;
         currentEvent.eventData = null;
         data.clear();
@@ -619,5 +623,9 @@ public class UpdateEventSerializer implements Serializer{
     @Override
     public void serialize(TagClass tagClass) {
 
+    }
+
+    public void setCurrentDependantDate( long dependantDate) {
+        currentDependantDate = dependantDate;
     }
 }

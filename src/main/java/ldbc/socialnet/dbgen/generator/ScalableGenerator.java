@@ -795,8 +795,9 @@ public class ScalableGenerator{
         firstNameCount.put(extraInfo.getFirstName(), nameCount+1);
         long init = System.currentTimeMillis();
         if(conf.getBoolean("activity",true)) {
-            generatePosts(uniformPostGenerator, reducedUserProfiles[index], extraInfo);
-            generatePosts(flashmobPostGenerator, reducedUserProfiles[index], extraInfo);
+            Group wall = generateWall(userInfo);
+            generatePosts(uniformPostGenerator, reducedUserProfiles[index], extraInfo, wall);
+            generatePosts(flashmobPostGenerator, reducedUserProfiles[index], extraInfo, wall);
             generatePhotos(reducedUserProfiles[index], extraInfo);
             generateUserGroups(reducedUserProfiles[index], extraInfo);
         }
@@ -982,7 +983,27 @@ public class ScalableGenerator{
         exactOutput = exactOutput + cellSize;
     }
 
-    private void generatePosts(PostGenerator postGenerator, ReducedUserProfile user, UserExtraInfo extraInfo){
+
+    private Group generateWall(UserInfo userInfo) {
+        Group group = new Group();
+        group.setCreatedDate(userInfo.user.getCreationDate()+deltaTime);
+        group.setGroupName("Wall of " + userInfo.extraInfo.getFirstName() + " " + userInfo.extraInfo.getLastName());
+        group.setGroupId(userInfo.user.getForumWallId());
+        group.setModeratorId(userInfo.user.getAccountId());
+
+        Iterator<Integer> itTags = userInfo.user.getSetOfTags().iterator();
+        Integer tags[] = new Integer[userInfo.user.getSetOfTags().size()];
+        int index = 0;
+        while (itTags.hasNext()){
+            tags[index] = itTags.next();
+            index++;
+        }
+        group.setTags(tags);
+        dataExporter.export(group,userInfo.user.getCreationDate());
+        return group;
+    }
+
+    private void generatePosts(PostGenerator postGenerator, ReducedUserProfile user, UserExtraInfo extraInfo, Group group){
         Vector<Post> createdPosts = postGenerator.createPosts( randomFarm, user, extraInfo, postId );
         postId+=createdPosts.size();
         Iterator<Post> it = createdPosts.iterator();
@@ -1021,7 +1042,7 @@ public class ScalableGenerator{
                     stats.minPostCreationDate = strCreationDate;
                 }
             }
-            dataExporter.export(post);
+            dataExporter.export(post,group.getCreatedDate());
             // Generate comments
             int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments+1);
             ArrayList<Message> replyCandidates = new ArrayList<Message>();
@@ -1051,7 +1072,7 @@ public class ScalableGenerator{
                 	postCount = postsPerCountry.containsKey(locationID) ? postsPerCountry.get(locationID) : 0;
                 	postsPerCountry.put(locationID, postCount+1);
                     stats.countries.add(countryName);
-                    dataExporter.export(comment);
+                    dataExporter.export(comment,post.getCreationDate());
                     if( comment.getTextSize() > 10 ) replyCandidates.add(comment);
                     postId++;
                 }
@@ -1071,7 +1092,7 @@ public class ScalableGenerator{
             Group album = groupGenerator.createAlbum(randomFarm, groupId, user, extraInfo, m, joinProbs[0]);
             if( album != null ) {
                 groupId++;
-                dataExporter.export(album);
+                dataExporter.export(album,user.getCreationDate());
 
                 // Generate photos for this album
                 int numPhotos = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_PHOTO).nextInt(maxNumPhotoPerAlbums+1);
@@ -1089,7 +1110,7 @@ public class ScalableGenerator{
                         int postCount = postsPerCountry.containsKey(locationID) ? postsPerCountry.get(locationID) : 0;
                         postsPerCountry.put(locationID, postCount+1);
                         stats.countries.add(countryName);
-                        dataExporter.export(photo);
+                        dataExporter.export(photo,album.getCreatedDate());
                         
                     	if (photo.getTags() != null) {
                         	for (Integer t: photo.getTags()){
@@ -1184,7 +1205,7 @@ public class ScalableGenerator{
                 numLoop++;
             }
 
-            dataExporter.export(group);            
+            dataExporter.export(group,user.getCreationDate());
             generatePostForGroup(uniformPostGenerator,group);
             generatePostForGroup(flashmobPostGenerator,group);
         }
@@ -1212,7 +1233,7 @@ public class ScalableGenerator{
             int postCount = postsPerCountry.containsKey(locationID) ? postsPerCountry.get(locationID) : 0;
             postsPerCountry.put(locationID, postCount+1);
             stats.countries.add(countryName);
-            dataExporter.export(groupPost);
+            dataExporter.export(groupPost,group.getCreatedDate());
 
             int numComment = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(maxNumComments+1);
             ArrayList<Message> replyCandidates = new ArrayList<Message>();
@@ -1232,7 +1253,7 @@ public class ScalableGenerator{
                 	postCount = postsPerCountry.containsKey(locationID) ? postsPerCountry.get(locationID) : 0;
                 	postsPerCountry.put(locationID, postCount+1);
                     stats.countries.add(countryName);
-                    dataExporter.export(comment);
+                    dataExporter.export(comment,groupPost.getCreationDate());
                     if( comment.getTextSize() > 10 ) replyCandidates.add(comment);
                                     	
                 	if (comment.getTags() != null) {

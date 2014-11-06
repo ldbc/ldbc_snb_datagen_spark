@@ -542,7 +542,6 @@ public class CSVOriginal implements Serializer {
 
     @Override
     public void serialize(Group group) {
-
         Vector<String> arguments = new Vector<String>();
 
         date.setTimeInMillis(group.getCreatedDate());
@@ -563,7 +562,6 @@ public class CSVOriginal implements Serializer {
             arguments.add(Integer.toString(groupTags[i]));
             ToCSV(arguments,Files.FORUM_HASTAG_TAG.ordinal());
         }
-
     }
 
     @Override
