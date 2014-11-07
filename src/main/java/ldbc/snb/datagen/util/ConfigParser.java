@@ -41,6 +41,8 @@ public class ConfigParser {
                 System.out.println("Running in standalone mode. Setting numThreads to 1");
                 conf.set("numThreads", "1");
             }
+            conf.set("hadoopDir",conf.get("outputDir")+"/hadoop");
+            conf.set("socialNetworkDir",conf.get("outputDir")+"/social_network");
         } catch (Exception e) {
             System.err.println(e.getMessage());
             e.printStackTrace();

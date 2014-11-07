@@ -36,6 +36,7 @@
  */
 package ldbc.snb.datagen.generator;
 
+import ldbc.snb.datagen.hadoop.HadoopFileRanker;
 import ldbc.snb.datagen.hadoop.HadoopFileSorter;
 import ldbc.snb.datagen.hadoop.HadoopPersonGenerator;
 import ldbc.snb.datagen.hadoop.HadoopPersonSerializer;
@@ -46,10 +47,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
-
 public class LDBCDatagen {
 
     private void printProgress(String message) {
@@ -59,54 +56,22 @@ public class LDBCDatagen {
     }
 
     public int runGenerateJob(Configuration conf) throws Exception {
-/*        FileSystem fs = FileSystem.get(conf);
-        String hadoopDir = new String(conf.get("outputDir") + "/hadoop");
-        String socialNetDir = new String(conf.get("outputDir") + "/social_network");
-        int numThreads = Integer.parseInt(conf.get("numThreads"));
-        System.out.println("NUMBER OF THREADS " + numThreads);
-        */
 
-        String hadoopDir = new String( conf.get("outputDir") + "/hadoop" );
-        String personsFileName = hadoopDir + "/users";
+        String personsFileName = conf.get("hadoopDir") + "/users";
 
         long start = System.currentTimeMillis();
         printProgress("Starting: Person generation");
         HadoopPersonGenerator personGenerator = new HadoopPersonGenerator( conf );
         personGenerator.run(personsFileName);
 
-        printProgress("Sorting Persons by Key");
-        String sortedPersonsFileName = hadoopDir + "/sorted_users";
-        HadoopFileSorter hadoopFileSorter = new HadoopFileSorter( conf, LongWritable.class, Person.class );
-        hadoopFileSorter.run(personsFileName,sortedPersonsFileName);
+        printProgress("Ranking Persons by Key");
+        String sortedPersonsFileName = conf.get("hadoopDir") + "/sorted_users";
+        HadoopFileRanker hadoopFileRanker = new HadoopFileRanker( conf, LongWritable.class, Person.class );
+        hadoopFileRanker.run(personsFileName,sortedPersonsFileName);
 
         printProgress("Serializing persons");
         HadoopPersonSerializer serializer = new HadoopPersonSerializer(conf);
         serializer.run(sortedPersonsFileName);
-
-/*
-        printProgress("Starting: Friendship generation 2");
-        FriendshipGenerator friendGenerator = new FriendshipGenerator();
-        friendGenerator.run(conf,hadoopDir + "/sib",hadoopDir + "/sib2",1,2);
-        fs.delete(new Path(hadoopDir + "/sib"), true);
-
-        printProgress("Starting: Friendship generation 3");
-        friendGenerator.run(conf,hadoopDir + "/sib2",hadoopDir + "/sib3",2,2);
-        fs.delete(new Path(hadoopDir + "/sib2"), true);
-
-        printProgress("Starting: Generating person activity");
-        ActivityGenerator activityGenerator = new ActivityGenerator();
-        activityGenerator.run(conf, hadoopDir + "/sib3","");
-        fs.delete(new Path(hadoopDir + "/sib3"), true);
-
-        printProgress("Starting: Sorting update streams");
-        UpdateStreamSorter updateStreamSorter = new UpdateStreamSorter();
-        updateStreamSorter.run( conf );
-
-        for (int i = 0; i < numThreads; ++i) {
-            fs.copyToLocalFile(new Path(socialNetDir + "/m" + i + "factors.txt"), new Path("./"));
-            fs.copyToLocalFile(new Path(socialNetDir + "/m0friendList" + i + ".csv"), new Path("./"));
-        }
-        */
 
         long end = System.currentTimeMillis();
         System.out.println(((end - start) / 1000)
@@ -122,27 +87,11 @@ public class LDBCDatagen {
 
         // Deleting exisging files
         FileSystem dfs = FileSystem.get(conf);
-        dfs.delete(new Path(conf.get("outputDir") + "/hadoop"), true);
-        dfs.delete(new Path(conf.get("outputDir") + "/social_network"), true);
+        dfs.delete(new Path(conf.get("hadoopDir")), true);
+        dfs.delete(new Path(conf.get("socialNetworkDir")), true);
 
         // Create input text file in HDFS
-//        writeToOutputFile(conf.get("outputDir") + "/hadoop/mrInputFile", Integer.parseInt(conf.get("numThreads")), conf);
         LDBCDatagen datagen = new LDBCDatagen();
         datagen.runGenerateJob(conf);
-
     }
-
- /*   public static void writeToOutputFile(String filename, int numMaps, Configuration conf) {
-        try {
-            FileSystem dfs = FileSystem.get(conf);
-            OutputStream output = dfs.create(new Path(filename));
-            for (int i = 0; i < numMaps; i++)
-                output.write((new String(i + "\n").getBytes()));
-            output.close();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
-    */
 }

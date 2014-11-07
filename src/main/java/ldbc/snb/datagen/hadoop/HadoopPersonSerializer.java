@@ -30,13 +30,14 @@ public class HadoopPersonSerializer {
         protected void setup(Context context) {
             Configuration conf = context.getConfiguration();
             String strTaskId = context.getTaskAttemptID().getTaskID().toString();
-            mapId = Integer.parseInt(strTaskId.substring(strTaskId.length() - 3));
+            DatagenParams.readConf(conf);
+            DatagenParams.readParameters("params.ini");
         }
 
         @Override
         public void map(LongWritable key, Person value, Mapper.Context context)
                 throws IOException, InterruptedException {
-            context.write(new LongWritable(mapId),value);
+            context.write(new LongWritable(key.get()/DatagenParams.blockSize),value);
         }
     }
 
@@ -88,10 +89,8 @@ public class HadoopPersonSerializer {
 
     public void run( String inputFileName ) throws Exception {
 
-        conf.setInt("mapreduce.input.fileinputformat.split.minsize", DatagenParams.blockSize);
-        conf.setInt("mapreduce.input.fileinputformat.split.maxsize", DatagenParams.blockSize);
         int numThreads = Integer.parseInt(conf.get("numThreads"));
-        Job job = new Job(conf, "SIB Generate Users & 1st Dimension");
+        Job job = new Job(conf, "Person Serializer");
         job.setMapOutputKeyClass(LongWritable.class);
         job.setMapOutputValueClass(Person.class);
         job.setOutputKeyClass(LongWritable.class);

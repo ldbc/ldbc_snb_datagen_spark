@@ -145,7 +145,8 @@ public class PersonGenerator {
         person.cityId = (placeDictionary.getRandomCity(randomFarm.get(RandomGeneratorFarm.Aspect.CITY), countryId));
         person.ipAddress = (ipAddressDictionary.getRandomIPFromLocation(randomFarm.get(RandomGeneratorFarm.Aspect.IP), countryId));
         person.maxNumFriends = (fbDegreeGenerator.getSocialDegree());
-        person.accountId = (composeUserId(nextId++, creationDate, fbDegreeGenerator.getIDByPercentile()));
+        //person.accountId = (composeUserId(nextId++, creationDate, fbDegreeGenerator.getIDByPercentile()));
+        person.accountId = nextId++;
         person.mainInterest = tagDictionary.getaTagByCountry(randomFarm.get(RandomGeneratorFarm.Aspect.TAG_OTHER_COUNTRY), randomFarm.get(RandomGeneratorFarm.Aspect.TAG), person.countryId);
         short numTags = ((short) randomTagPowerLaw.getValue(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_TAG)));
         person.interests = tagMatrix.getSetofTags(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), randomFarm.get(RandomGeneratorFarm.Aspect.TAG_OTHER_COUNTRY), person.mainInterest, numTags);
@@ -237,6 +238,7 @@ public class PersonGenerator {
      */
     public Person[] generateUserBlock( int seed, int blockSize ) {
         resetState(seed);
+        nextId=seed*blockSize;
         Person[] block;
         block = new Person[blockSize];
         for (int j =0; j < blockSize; ++j) {
