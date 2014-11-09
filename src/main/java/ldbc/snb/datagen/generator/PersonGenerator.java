@@ -31,8 +31,6 @@ public class PersonGenerator {
     private UniversityDictionary universityDictionary   = null;
     private UserAgentDictionary userAgentDictionary     = null;
     private int nextId                                  = 0;
-    private long minDate                                = 0;
-    private long maxDate                                = 0;
 
     public PersonGenerator() {
         browserDictionary = new BrowserDictionary(DatagenParams.probAnotherBrowser);
@@ -145,8 +143,8 @@ public class PersonGenerator {
         person.cityId = (placeDictionary.getRandomCity(randomFarm.get(RandomGeneratorFarm.Aspect.CITY), countryId));
         person.ipAddress = (ipAddressDictionary.getRandomIPFromLocation(randomFarm.get(RandomGeneratorFarm.Aspect.IP), countryId));
         person.maxNumFriends = (fbDegreeGenerator.getSocialDegree());
-        //person.accountId = (composeUserId(nextId++, creationDate, fbDegreeGenerator.getIDByPercentile()));
-        person.accountId = nextId++;
+        person.accountId = (composeUserId(nextId++, creationDate, fbDegreeGenerator.getIDByPercentile()));
+        //person.accountId = nextId++;
         person.mainInterest = tagDictionary.getaTagByCountry(randomFarm.get(RandomGeneratorFarm.Aspect.TAG_OTHER_COUNTRY), randomFarm.get(RandomGeneratorFarm.Aspect.TAG), person.countryId);
         short numTags = ((short) randomTagPowerLaw.getValue(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_TAG)));
         person.interests = tagMatrix.getSetofTags(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), randomFarm.get(RandomGeneratorFarm.Aspect.TAG_OTHER_COUNTRY), person.mainInterest, numTags);

@@ -3,12 +3,14 @@ package ldbc.snb.datagen.hadoop;
 import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.objects.ReducedUserProfile;
-import ldbc.snb.datagen.serializer.NewDataExporter;
+import ldbc.snb.datagen.serializer.DataExporter;
 import ldbc.snb.datagen.serializer.snb.SNBPersonSerializer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.WritableComparator;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Partitioner;
@@ -18,6 +20,8 @@ import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 
 /**
@@ -25,39 +29,38 @@ import java.io.IOException;
  */
 public class HadoopPersonSerializer {
 
-    public static class HadoopPersonSerializerMapper  extends Mapper<LongWritable, Person, LongWritable, Person> {
+    public static class HadoopPersonSerializerMapper  extends Mapper<LongWritable, Person, ComposedKey, Person> {
         int mapId;
         protected void setup(Context context) {
             Configuration conf = context.getConfiguration();
-            String strTaskId = context.getTaskAttemptID().getTaskID().toString();
             DatagenParams.readConf(conf);
-            DatagenParams.readParameters("params.ini");
+            DatagenParams.readParameters("/params.ini");
+            mapId = context.getTaskAttemptID().getId();
         }
 
         @Override
         public void map(LongWritable key, Person value, Mapper.Context context)
                 throws IOException, InterruptedException {
-            context.write(new LongWritable(key.get()/DatagenParams.blockSize),value);
+            context.write(new ComposedKey(key.get()/DatagenParams.blockSize,key.get()),value);
         }
     }
 
-    public static class HadoopPersonSerializerReducer  extends Reducer<LongWritable, Person, LongWritable, Person> {
+    public static class HadoopPersonSerializerReducer  extends Reducer<ComposedKey, Person, LongWritable, Person> {
         private int reducerId;
         private SNBPersonSerializer personSerializer;
-        private NewDataExporter dataExporter;
+        private DataExporter dataExporter;
         protected void setup(Context context) {
             Configuration conf = context.getConfiguration();
-            String strTaskId = context.getTaskAttemptID().getTaskID().toString();
-            reducerId = Integer.parseInt(strTaskId.substring(strTaskId.length() - 3));
+            reducerId = context.getTaskAttemptID().getTaskID().getId();
             personSerializer = new SNBPersonSerializer(conf.get("outputDir")+"/social_network",
                                                        Integer.toString(reducerId),
                                                        conf.getInt("numPartitions",1),
                                                        conf.getBoolean("compressed",false));
-            dataExporter = new NewDataExporter(personSerializer);
+            dataExporter = new DataExporter(personSerializer);
         }
 
         @Override
-        public void reduce(LongWritable key, Iterable<Person> valueSet,Context context)
+        public void reduce(ComposedKey key, Iterable<Person> valueSet,Context context)
                 throws IOException, InterruptedException {
             for( Person p : valueSet ) {
                 dataExporter.export(p);
@@ -69,15 +72,16 @@ public class HadoopPersonSerializer {
         }
     }
 
-    public static class HadoopPersonSerializerPartitioner extends Partitioner<LongWritable, Person> {
+    public static class HadoopPersonSerializerPartitioner extends Partitioner<ComposedKey, Person> {
 
         public HadoopPersonSerializerPartitioner() {
             super();
 
         }
+
         @Override
-        public int getPartition(LongWritable key, Person person, int numReduceTasks) {
-            return (int)(key.get() % numReduceTasks);
+        public int getPartition(ComposedKey key, Person person, int numReduceTasks) {
+            return (int)(key.block % numReduceTasks);
         }
     }
 
@@ -91,7 +95,7 @@ public class HadoopPersonSerializer {
 
         int numThreads = Integer.parseInt(conf.get("numThreads"));
         Job job = new Job(conf, "Person Serializer");
-        job.setMapOutputKeyClass(LongWritable.class);
+        job.setMapOutputKeyClass(ComposedKey.class);
         job.setMapOutputValueClass(Person.class);
         job.setOutputKeyClass(LongWritable.class);
         job.setOutputValueClass(Person.class);
@@ -101,9 +105,11 @@ public class HadoopPersonSerializer {
         job.setNumReduceTasks(numThreads);
         job.setInputFormatClass(SequenceFileInputFormat.class);
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
+
+        job.setSortComparatorClass(ComposedKeyComparator.class);
+//        job.setGroupingComparatorClass(ComposedKeyGroupKeyComparator.class);
         job.setPartitionerClass(HadoopPersonSerializerPartitioner.class);
-        //job.setSortComparatorClass(MapReduceKeyComparator.class);
-        //job.setGroupingComparatorClass(MapReduceKeyGroupKeyComparator.class);
+
         FileInputFormat.setInputPaths(job, new Path(inputFileName));
         FileOutputFormat.setOutputPath(job, new Path(conf.get("outputDir")+"/hadoop/aux"));
         job.waitForCompletion(true);

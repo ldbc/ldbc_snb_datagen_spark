@@ -243,7 +243,7 @@ public class DatagenParams {
             scaleFactors = new TreeMap<Integer, ScaleFactor>();
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(ScalableGenerator.class.getResourceAsStream("/" + SCALE_FACTORS_FILE));
+            Document doc = dBuilder.parse(LDBCDatagen.class.getResourceAsStream("/" + SCALE_FACTORS_FILE));
             doc.getDocumentElement().normalize();
 
             System.out.println("Reading scale factors..");
@@ -309,7 +309,7 @@ public class DatagenParams {
     public static void readParameters( String fileName ) {
         try {
             Properties properties = new Properties();
-            properties.load(new InputStreamReader(ScalableGenerator.class.getResourceAsStream(fileName), "UTF-8"));
+            properties.load(new InputStreamReader(LDBCDatagen.class.getResourceAsStream(fileName), "UTF-8"));
             ParameterNames values[] = ParameterNames.values();
             for( int i = 0; i < values.length; ++i ) {
                 if (properties.getProperty(values[i].toString()) == null) {

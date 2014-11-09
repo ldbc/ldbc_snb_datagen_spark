@@ -66,12 +66,17 @@ public class LDBCDatagen {
 
         printProgress("Ranking Persons by Key");
         String sortedPersonsFileName = conf.get("hadoopDir") + "/sorted_users";
+
+//        HadoopFileSorter hadoopFileSorter = new HadoopFileSorter( conf, LongWritable.class, Person.class );
+ //       hadoopFileSorter.run(personsFileName,sortedPersonsFileName);
+
+        String rankedPersonsFileName = conf.get("hadoopDir") + "/ranked_users";
         HadoopFileRanker hadoopFileRanker = new HadoopFileRanker( conf, LongWritable.class, Person.class );
-        hadoopFileRanker.run(personsFileName,sortedPersonsFileName);
+        hadoopFileRanker.run(personsFileName,rankedPersonsFileName);
 
         printProgress("Serializing persons");
         HadoopPersonSerializer serializer = new HadoopPersonSerializer(conf);
-        serializer.run(sortedPersonsFileName);
+        serializer.run(rankedPersonsFileName);
 
         long end = System.currentTimeMillis();
         System.out.println(((end - start) / 1000)

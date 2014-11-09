@@ -4,8 +4,9 @@ import ldbc.snb.datagen.objects.Person;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.WritableComparator;
 import org.apache.hadoop.mapreduce.*;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
@@ -16,9 +17,6 @@ import org.apache.hadoop.mapreduce.lib.partition.TotalOrderPartitioner;
 
 import java.io.*;
 
-/**
- * Created by aprat on 11/7/14.
- */
 public class HadoopFileRanker {
     private Configuration conf;
     private Class<?> K;
@@ -36,13 +34,15 @@ public class HadoopFileRanker {
         this.V = V;
     }
 
-    public static class HadoopFileRankerSortReducer<K, V, T extends IntWritable>  extends Reducer<K, V, IntWritable, V> {
+    public static class HadoopFileRankerSortReducer<K, V, T extends ComposedKey>  extends Reducer<K, V, ComposedKey, V> {
 
         private int reducerId;
         private long counter = 0;
+        private int i = 0;
+
         @Override
         public void setup( Context context )  {
-            reducerId = context.getTaskAttemptID().getId();
+            reducerId = context.getTaskAttemptID().getTaskID().getId();
         }
 
         @Override
@@ -50,7 +50,7 @@ public class HadoopFileRanker {
                            Context context) throws IOException, InterruptedException {
 
             for( V v : valueSet ) {
-                context.write(new IntWritable(reducerId), v);
+                context.write(new ComposedKey(reducerId, i++), v);
                 counter++;
             }
         }
@@ -59,8 +59,8 @@ public class HadoopFileRanker {
             Configuration conf = context.getConfiguration();
             try {
                 FileSystem fs = FileSystem.get(conf);
-                OutputStream output = fs.create(new Path(conf.get("hadoopDir")+"/rank_"+reducerId));
-                output.write((new String(Long.toString(counter)).getBytes()));
+                DataOutputStream output = fs.create(new Path(conf.get("hadoopDir")+"/rank_"+reducerId));
+                output.writeLong(counter);
                 output.close();
             } catch(IOException e) {
                 System.err.println(e.getMessage());
@@ -68,7 +68,7 @@ public class HadoopFileRanker {
         }
     }
 
-    public static class HadoopFileRankerPartitioner<V> extends Partitioner<IntWritable, V> {
+    public static class HadoopFileRankerPartitioner<V> extends Partitioner<ComposedKey, V> {
 
         public HadoopFileRankerPartitioner() {
             super();
@@ -76,49 +76,52 @@ public class HadoopFileRanker {
         }
 
         @Override
-        public int getPartition(IntWritable key, V value,
+        public int getPartition(ComposedKey key, V value,
                                 int numReduceTasks) {
-            return key.get();
+            return (int)(key.block % numReduceTasks);
         }
     }
 
-    public static class HadoopFileRankerFinalReducer<K, V, T extends LongWritable>  extends Reducer<K, V, LongWritable, V> {
+    public static class HadoopFileRankerFinalReducer<ComposedKey, V, T extends LongWritable>  extends Reducer<ComposedKey, V, LongWritable, V> {
 
         private int reducerId;
         private int numReduceTasks;
         private long counters[];
+        private int i = 0;
 
         @Override
-        public void setup( Context context )  {
+        public void setup( Context context ) {
             Configuration conf = context.getConfiguration();
-            reducerId = context.getTaskAttemptID().getId();
+            reducerId = context.getTaskAttemptID().getTaskID().getId();
             numReduceTasks = context.getNumReduceTasks();
             counters = new long[numReduceTasks];
             DatagenParams.readConf(conf);
             DatagenParams.readParameters("/params.ini");
             try{
-                counters[0] = 0;
                 FileSystem fs = FileSystem.get(conf);
-                for(int i = 0; i < numReduceTasks-1;++i ) {
+                for(int i = 0; i < (numReduceTasks-1); ++i ) {
                     DataInputStream inputFile = fs.open(new Path(conf.get("hadoopDir")+"/rank_"+i));
                     counters[i+1] = inputFile.readLong();
+                    inputFile.close();
                 }
             } catch(IOException e) {
                 System.err.println(e.getMessage());
             }
 
+            counters[0] = 0;
             for(int i = 1; i < numReduceTasks;++i ) {
                 counters[i] += counters[i-1];
             }
         }
 
         @Override
-        public void reduce(K key, Iterable<V> valueSet,
+        public void reduce(ComposedKey key, Iterable<V> valueSet,
                            Context context) throws IOException, InterruptedException {
 
-            int i = 0;
             for( V v : valueSet ) {
-                context.write(new LongWritable(counters[reducerId]+(i++)), v);
+                long rank = counters[reducerId] + i;
+                        context.write(new LongWritable(rank), v);
+                i++;
             }
         }
     }
@@ -139,7 +142,7 @@ public class HadoopFileRanker {
 
         jobSort.setMapOutputKeyClass(K);
         jobSort.setMapOutputValueClass(V);
-        jobSort.setOutputKeyClass(IntWritable.class);
+        jobSort.setOutputKeyClass(ComposedKey.class);
         jobSort.setOutputValueClass(V);
         jobSort.setNumReduceTasks(numThreads);
         jobSort.setReducerClass(HadoopFileRankerSortReducer.class);
@@ -156,10 +159,11 @@ public class HadoopFileRanker {
         FileInputFormat.setInputPaths(jobRank, new Path(conf.get("hadoopDir")+"/rankIntermediate"));
         FileOutputFormat.setOutputPath(jobRank, new Path(outputFileName));
 
-        jobRank.setMapOutputKeyClass(IntWritable.class);
+        jobRank.setMapOutputKeyClass(ComposedKey.class);
         jobRank.setMapOutputValueClass(V);
         jobRank.setOutputKeyClass(LongWritable.class);
         jobRank.setOutputValueClass(V);
+        jobRank.setSortComparatorClass(ComposedKeyComparator.class);
         jobRank.setNumReduceTasks(numThreads);
         jobRank.setReducerClass(HadoopFileRankerFinalReducer.class);
         jobRank.setJarByClass(V);
@@ -170,7 +174,7 @@ public class HadoopFileRanker {
 
         try{
             FileSystem fs = FileSystem.get(conf);
-            for(int i = 0; i < numThreads-1;++i ) {
+            for(int i = 0; i < numThreads;++i ) {
                 fs.delete(new Path(conf.get("hadoopDir")+"/rank_"+i),true);
             }
             fs.delete(new Path(conf.get("hadoopDir")+"/rankIntermediate"),true);

@@ -38,11 +38,6 @@
 
 package ldbc.snb.datagen.objects;
 
-import ldbc.snb.datagen.generator.ScalableGenerator;
-
-/**
- * Created by aprat on 4/14/14.
- */
 public class Organization {
 
     public enum OrganisationType {
