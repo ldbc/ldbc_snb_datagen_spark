@@ -1,12 +1,10 @@
 package ldbc.snb.datagen.hadoop;
+
 import ldbc.snb.datagen.generator.DatagenParams;
-import ldbc.snb.datagen.objects.Person;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.WritableComparable;
-import org.apache.hadoop.io.WritableComparator;
 import org.apache.hadoop.mapreduce.*;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
@@ -36,9 +34,8 @@ public class HadoopFileRanker {
 
     public static class HadoopFileRankerSortReducer<K, V, T extends ComposedKey>  extends Reducer<K, V, ComposedKey, V> {
 
-        private int reducerId;
-        private long counter = 0;
-        private int i = 0;
+        private int reducerId;          /** The id of the reducer.**/
+        private long counter = 0;       /** Counter of the number of elements received by this reducer.*/
 
         @Override
         public void setup( Context context )  {
@@ -50,11 +47,11 @@ public class HadoopFileRanker {
                            Context context) throws IOException, InterruptedException {
 
             for( V v : valueSet ) {
-                context.write(new ComposedKey(reducerId, i++), v);
-                counter++;
+                context.write(new ComposedKey(reducerId, counter++), v);
             }
         }
 
+        @Override
         public void cleanup(Context context) {
             Configuration conf = context.getConfiguration();
             try {
@@ -84,10 +81,10 @@ public class HadoopFileRanker {
 
     public static class HadoopFileRankerFinalReducer<ComposedKey, V, T extends LongWritable>  extends Reducer<ComposedKey, V, LongWritable, V> {
 
-        private int reducerId;
-        private int numReduceTasks;
-        private long counters[];
-        private int i = 0;
+        private int reducerId;          /** The id of the reducer. **/
+        private int numReduceTasks;     /** The number of reducer tasks.**/
+        private long counters[];        /** The number of elements processed by each reducer in the previous step.**/
+        private int i = 0;              /** The number of elements read by this reducer.**/
 
         @Override
         public void setup( Context context ) {
@@ -135,6 +132,8 @@ public class HadoopFileRanker {
      */
     public void run( String inputFileName, String outputFileName ) throws Exception {
         int numThreads = conf.getInt("numThreads",1);
+
+        /** First Job to sort the key-value pairs and to count the number of elements processed by each reducer.**/
         Job jobSort = new Job(conf, "Sorting "+inputFileName);
 
         FileInputFormat.setInputPaths(jobSort, new Path(inputFileName));
@@ -155,6 +154,7 @@ public class HadoopFileRanker {
         jobSort.setPartitionerClass(TotalOrderPartitioner.class);
         jobSort.waitForCompletion(true);
 
+        /** Second Job to assign the rank to each element.**/
         Job jobRank = new Job(conf, "Sorting "+inputFileName);
         FileInputFormat.setInputPaths(jobRank, new Path(conf.get("hadoopDir")+"/rankIntermediate"));
         FileOutputFormat.setOutputPath(jobRank, new Path(outputFileName));

@@ -2,15 +2,11 @@ package ldbc.snb.datagen.hadoop;
 
 import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.objects.Person;
-import ldbc.snb.datagen.objects.ReducedUserProfile;
 import ldbc.snb.datagen.serializer.DataExporter;
 import ldbc.snb.datagen.serializer.snb.SNBPersonSerializer;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.WritableComparable;
-import org.apache.hadoop.io.WritableComparator;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Partitioner;
@@ -46,9 +42,11 @@ public class HadoopPersonSerializer {
     }
 
     public static class HadoopPersonSerializerReducer  extends Reducer<ComposedKey, Person, LongWritable, Person> {
-        private int reducerId;
-        private SNBPersonSerializer personSerializer;
-        private DataExporter dataExporter;
+
+        private int reducerId;                          /** The id of the reducer.**/
+        private SNBPersonSerializer personSerializer;   /** The person serializer **/
+        private DataExporter dataExporter;              /** The data exporter.**/
+
         protected void setup(Context context) {
             Configuration conf = context.getConfiguration();
             reducerId = context.getTaskAttemptID().getTaskID().getId();
@@ -107,7 +105,6 @@ public class HadoopPersonSerializer {
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
         job.setSortComparatorClass(ComposedKeyComparator.class);
-//        job.setGroupingComparatorClass(ComposedKeyGroupKeyComparator.class);
         job.setPartitionerClass(HadoopPersonSerializerPartitioner.class);
 
         FileInputFormat.setInputPaths(job, new Path(inputFileName));
