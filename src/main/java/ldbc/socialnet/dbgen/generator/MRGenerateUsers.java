@@ -46,6 +46,7 @@ import ldbc.socialnet.dbgen.objects.UpdateEvent;
 import ldbc.socialnet.dbgen.util.*;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -600,7 +601,8 @@ public class MRGenerateUsers{
 
                 if(conf.getBoolean("updateStreams",false)) {
                     Properties properties = new Properties();
-                    properties.load(fs.open(new Path(conf.get("outputDir") + "/social_network/updateStream_" + i + "_" + j + "_person.properties")));
+                    FSDataInputStream file = fs.open(new Path(conf.get("outputDir") + "/social_network/updateStream_" + i + "_" + j + "_person.properties"));
+                    properties.load(file);
                     if( properties.getProperty("min_write_event_start_time") != null ) {
                         Long auxMin = Long.parseLong(properties.getProperty("min_write_event_start_time"));
                         min = auxMin < min ? auxMin : min;
@@ -617,7 +619,7 @@ public class MRGenerateUsers{
                         max = auxMax > max ? auxMax : max;
                         numEvents += Long.parseLong(properties.getProperty("num_events"));
                     }
-
+                    file.close();
                     fs.delete(new Path(conf.get("outputDir") + "/social_network/updateStream_" + i + "_" + j + "_person.properties"),true);
                     fs.delete(new Path(conf.get("outputDir") + "/social_network/updateStream_" + i + "_" + j + "_forum.properties"),true);
                 }
