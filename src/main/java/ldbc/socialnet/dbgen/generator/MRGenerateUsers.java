@@ -610,9 +610,10 @@ public class MRGenerateUsers{
                         max = auxMax > max ? auxMax : max;
                         numEvents += Long.parseLong(properties.getProperty("num_events"));
                     }
-
+                    file.close();
+                    file = fs.open(new Path(conf.get("outputDir") + "/social_network/updateStream_" + i + "_" + j + "_forum.properties"));
+                    properties.load(file);
                     if( properties.getProperty("min_write_event_start_time") != null ) {
-                        properties.load(fs.open(new Path(conf.get("outputDir") + "/social_network/updateStream_" + i + "_" + j + "_forum.properties")));
                         Long auxMin = Long.parseLong(properties.getProperty("min_write_event_start_time"));
                         min = auxMin < min ? auxMin : min;
                         Long auxMax = Long.parseLong(properties.getProperty("max_write_event_start_time"));
