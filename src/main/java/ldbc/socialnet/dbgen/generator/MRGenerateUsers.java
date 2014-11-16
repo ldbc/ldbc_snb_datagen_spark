@@ -98,17 +98,18 @@ public class MRGenerateUsers{
                 FileSystem fs = FileSystem.get(conf);
                 String strTaskId = context.getTaskAttemptID().getTaskID().toString();
                 int attempTaskId = Integer.parseInt(strTaskId.substring(strTaskId.length() - 3));
+                int reducerId = conf.getInt("reducerId",0);
                 int partitionId = conf.getInt("partitionId",0);
                 String streamType = conf.get("streamType");
                 if( Boolean.parseBoolean(conf.get("compressed")) == true ) {
-                    Path outFile = new Path(context.getConfiguration().get("outputDir")+"/social_network/updateStream_"+attempTaskId+"_"+partitionId+"_"+streamType+".csv.gz");
+                    Path outFile = new Path(context.getConfiguration().get("outputDir")+"/social_network/updateStream_"+reducerId+"_"+partitionId+"_"+streamType+".csv.gz");
                     out = new GZIPOutputStream( fs.create(outFile));
                 } else {
-                    Path outFile = new Path(context.getConfiguration().get("outputDir")+"/social_network/updateStream_"+attempTaskId+"_"+partitionId+"_"+streamType+".csv");
+                    Path outFile = new Path(context.getConfiguration().get("outputDir")+"/social_network/updateStream_"+reducerId+"_"+partitionId+"_"+streamType+".csv");
                     out = fs.create(outFile);
                 }
                 if (conf.getBoolean("updateStreams",false)) {
-                    properties = fs.create(new Path(context.getConfiguration().get("outputDir")+"/social_network/updateStream_"+attempTaskId+"_"+partitionId+"_"+streamType+".properties"));
+                    properties = fs.create(new Path(context.getConfiguration().get("outputDir")+"/social_network/updateStream_"+reducerId+"_"+partitionId+"_"+streamType+".properties"));
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -552,6 +553,7 @@ public class MRGenerateUsers{
             for( int j = 0; j < numPartitions; ++j ) {
                 /// --------------- Fifth job: Sort update streams ----------------
                 conf.setInt("mapred.line.input.format.linespermap", 1000000);
+                conf.setInt("reducerId",i);
                 conf.setInt("partitionId",j);
                 conf.set("streamType","forum");
                 Job jobForum = new Job(conf, "Soring update streams "+j+" of reducer "+i);
@@ -574,6 +576,7 @@ public class MRGenerateUsers{
                 fs.delete(new Path(hadoopDir + "/sibEnd"), true);
 
                 conf.setInt("mapred.line.input.format.linespermap", 1000000);
+                conf.setInt("reducerId",i);
                 conf.setInt("partitionId",j);
                 conf.set("streamType","person");
                 Job jobPerson = new Job(conf, "Soring update streams "+j+" of reducer "+i);
