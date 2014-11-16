@@ -601,19 +601,22 @@ public class MRGenerateUsers{
                 if(conf.getBoolean("updateStreams",false)) {
                     Properties properties = new Properties();
                     properties.load(fs.open(new Path(conf.get("outputDir") + "/social_network/updateStream_" + i + "_" + j + "_person.properties")));
-                    Long auxMin = Long.parseLong(properties.getProperty("min_write_event_start_time"));
-                    min = auxMin < min ? auxMin : min;
-                    Long auxMax = Long.parseLong(properties.getProperty("max_write_event_start_time"));
-                    max = auxMax > max ? auxMax : max;
-                    numEvents += Long.parseLong(properties.getProperty("num_events"));
+                    if( properties.getProperty("min_write_event_start_time") != null ) {
+                        Long auxMin = Long.parseLong(properties.getProperty("min_write_event_start_time"));
+                        min = auxMin < min ? auxMin : min;
+                        Long auxMax = Long.parseLong(properties.getProperty("max_write_event_start_time"));
+                        max = auxMax > max ? auxMax : max;
+                        numEvents += Long.parseLong(properties.getProperty("num_events"));
+                    }
 
-                    properties.load(fs.open(new Path(conf.get("outputDir") + "/social_network/updateStream_" + i + "_" + j + "_forum.properties")));
-
-                    auxMin = Long.parseLong(properties.getProperty("min_write_event_start_time"));
-                    min = auxMin < min ? auxMin : min;
-                    auxMax = Long.parseLong(properties.getProperty("max_write_event_start_time"));
-                    max = auxMax > max ? auxMax : max;
-                    numEvents += Long.parseLong(properties.getProperty("num_events"));
+                    if( properties.getProperty("min_write_event_start_time") != null ) {
+                        properties.load(fs.open(new Path(conf.get("outputDir") + "/social_network/updateStream_" + i + "_" + j + "_forum.properties")));
+                        Long auxMin = Long.parseLong(properties.getProperty("min_write_event_start_time"));
+                        min = auxMin < min ? auxMin : min;
+                        Long auxMax = Long.parseLong(properties.getProperty("max_write_event_start_time"));
+                        max = auxMax > max ? auxMax : max;
+                        numEvents += Long.parseLong(properties.getProperty("num_events"));
+                    }
 
                     fs.delete(new Path(conf.get("outputDir") + "/social_network/updateStream_" + i + "_" + j + "_person.properties"),true);
                     fs.delete(new Path(conf.get("outputDir") + "/social_network/updateStream_" + i + "_" + j + "_forum.properties"),true);
