@@ -217,13 +217,13 @@ public class PlaceDictionary {
      */
     public int getRandomCity(Random random, int countryId) {
         if (!citiesByCountry.containsKey(countryId)) {
-            System.err.println("Invalid countryId");
+            System.out.println("Invalid countryId");
             return INVALID_LOCATION;
         }
         if (citiesByCountry.get(countryId).size() == 0) {
             Place placeId = places.get(countryId);
             String countryName = placeId.getName();
-            System.err.println("Country with no known cities: " + countryName);
+            System.out.println("Country with no known cities: " + countryName);
             return INVALID_LOCATION;
         }
 
@@ -279,7 +279,6 @@ public class PlaceDictionary {
                 }
             }
             dictionary.close();
-            System.out.println("Done ... " + cities + " cities were extracted");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -316,7 +315,6 @@ public class PlaceDictionary {
                 citiesByCountry.put(place.getId(), new ArrayList<Integer>());
             }
             dictionary.close();
-            System.out.println("Done ... " + countries.size() + " countries were extracted");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -358,7 +356,6 @@ public class PlaceDictionary {
                 isPartOf.put(countryId, continentId);
             }
             dictionary.close();
-            System.out.println("Done ... " + treatedContinents.size() + " continents were extracted");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -399,8 +396,6 @@ public class PlaceDictionary {
         }
 
         Arrays.sort(sortedPlace);
-        System.out.println("Sorted countries according to their z-value");
-
         for (int i = 0; i < sortedPlace.length; i++) {
             places.get(sortedPlace[i].id).setzId(i);
         }

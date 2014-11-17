@@ -72,7 +72,6 @@ public class UserAgentDictionary {
                 userAgents.add(line.trim());
             }
             agentFile.close();
-            System.out.println("Done ... " + userAgents.size() + " agents have been extracted ");
         } catch (IOException e) {
             e.printStackTrace();
         }

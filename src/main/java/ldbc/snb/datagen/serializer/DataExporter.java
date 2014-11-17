@@ -4,7 +4,7 @@ import ldbc.snb.datagen.dictionary.CompanyDictionary;
 import ldbc.snb.datagen.dictionary.PlaceDictionary;
 import ldbc.snb.datagen.dictionary.UniversityDictionary;
 import ldbc.snb.datagen.generator.DatagenParams;
-import ldbc.snb.datagen.objects.Friend;
+import ldbc.snb.datagen.objects.Knows;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.objects.StudyAt;
 import ldbc.snb.datagen.objects.WorkAt;
@@ -41,6 +41,9 @@ public class DataExporter {
     public void export(Person person) {
 
         personSerializer.serialize(person);
+        for( Knows k : person.knows) {
+            personSerializer.serialize(k);
+        }
 
         long universityId = universityDictionary.getUniversityFromLocation(person.universityLocationId);
         if (universityId != -1) {

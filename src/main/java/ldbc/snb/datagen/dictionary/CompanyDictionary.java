@@ -111,8 +111,6 @@ public class CompanyDictionary {
                 }
             }
             dictionary.close();
-            System.out.println("Done ... " + totalNumCompanies + " companies were extracted");
-
         } catch (IOException e) {
             e.printStackTrace();
         }

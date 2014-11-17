@@ -106,7 +106,6 @@ public class PopularPlacesDictionary {
                 }
             }
             dicPopularPlace.close();
-            System.out.println("Done ... " + totalNumPopularPlaces + " popular places were extracted");
         } catch (IOException e) {
             e.printStackTrace();
         }

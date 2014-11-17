@@ -130,7 +130,6 @@ public class FlashmobTagDictionary {
             flashmobTagCumDist[i].prob = currentProb;
             currentProb += (double) (flashmobTagCumDist[i].level) / (double) (sumLevels);
         }
-        System.out.println("Number of flashmob tags generated: " + numFlashmobTags);
     }
 
     /**

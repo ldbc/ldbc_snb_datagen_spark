@@ -82,8 +82,6 @@ public class EmailDictionary {
                 }
             }
             emailDictionary.close();
-            System.out.println("Done ... " + emails.size() + " email domains were extracted");
-
         } catch (IOException e) {
             e.printStackTrace();
         }

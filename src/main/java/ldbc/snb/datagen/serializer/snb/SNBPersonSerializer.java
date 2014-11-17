@@ -43,6 +43,7 @@ import ldbc.snb.datagen.dictionary.LanguageDictionary;
 import ldbc.snb.datagen.dictionary.PlaceDictionary;
 import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.generator.DateGenerator;
+import ldbc.snb.datagen.objects.Knows;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.objects.StudyAt;
 import ldbc.snb.datagen.objects.WorkAt;
@@ -67,7 +68,8 @@ public class SNBPersonSerializer implements PersonSerializer {
         PERSON_LOCATED_IN_PLACE ("person_isLocatedIn_place"),
         PERSON_HAS_INTEREST_TAG ("person_hasInterest_tag"),
         PERSON_WORK_AT ("person_workAt_organization"),
-        PERSON_STUDY_AT ("person_studyAt_organization");
+        PERSON_STUDY_AT ("person_studyAt_organization"),
+        PERSON_KNOWS_PERSON("person_knows_person");
 
         private final String name;
 
@@ -186,5 +188,16 @@ public class SNBPersonSerializer implements PersonSerializer {
         arguments.add(Long.toString(workAt.company));
         arguments.add(dateString);
         writers[FileNames.PERSON_WORK_AT.ordinal()].writeEntry(arguments);
+    }
+
+    public void serialize(Knows knows) {
+        ArrayList<String> arguments = new ArrayList<String>();
+        GregorianCalendar date = new GregorianCalendar();
+        date.setTimeInMillis(knows.creationDate);
+        String dateString = DateGenerator.formatDateDetail(date);
+        arguments.add(Long.toString(knows.from));
+        arguments.add(Long.toString(knows.to));
+        arguments.add(dateString);
+        writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeEntry(arguments);
     }
 }

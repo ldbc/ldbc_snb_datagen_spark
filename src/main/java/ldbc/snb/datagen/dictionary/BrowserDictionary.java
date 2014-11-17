@@ -86,7 +86,6 @@ public class BrowserDictionary {
                 cumulativeDistribution.add(cummulativeDist);
             }
             dictionary.close();
-            System.out.println("Done ... " + browsers.size() + " browsers loaded");
         } catch (IOException e) {
             e.printStackTrace();
         }

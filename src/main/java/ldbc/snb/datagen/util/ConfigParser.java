@@ -37,7 +37,7 @@ public class ConfigParser {
             checkOption(conf, "numPersons", properties);
             checkOption(conf, "numYears", properties);
             checkOption(conf, "startYear", properties);
-            if (conf.get("fs.default.name").compareTo("file:///") == 0) {
+            if (conf.get("fs.defaultFS").compareTo("file:///") == 0) {
                 System.out.println("Running in standalone mode. Setting numThreads to 1");
                 conf.set("numThreads", "1");
             }

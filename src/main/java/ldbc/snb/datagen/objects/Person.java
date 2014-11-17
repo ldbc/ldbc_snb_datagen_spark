@@ -15,8 +15,8 @@ public class Person implements Serializable, Writable {
 
     public long accountId;
     public long creationDate;
-    public short maxNumFriends;
-    public TreeSet<Friend> friends;
+    public short maxNumKnows;
+    public TreeSet<Knows> knows;
     public int agentId;
     public int browserId;
     public IP ipAddress;
@@ -29,6 +29,7 @@ public class Person implements Serializable, Writable {
     public byte gender;
     public long birthDay;
     public boolean isLargePoster;
+    public long randomId;
 
     public TreeSet<String> emails;
     public ArrayList<Integer> languages;
@@ -38,23 +39,25 @@ public class Person implements Serializable, Writable {
     public long classYear;
 
     public Person(){
-        friends = new TreeSet<Friend>();
+        knows = new TreeSet<Knows>();
         emails = new TreeSet<String>();
         interests = new TreeSet<Integer>();
         languages = new ArrayList<Integer>();
         companies = new HashMap<Long, Long>();
     }
+
+
     private void readObject(java.io.ObjectInputStream stream)
             throws IOException, ClassNotFoundException {
 
         accountId = stream.readLong();
         creationDate = stream.readLong();
-        maxNumFriends = stream.readShort();
+        maxNumKnows = stream.readShort();
         int numFriends = stream.readShort();
         for (int i = 0; i < numFriends; i++) {
-            Friend fr = new Friend();
+            Knows fr = new Knows();
             fr.readFields(stream);
-            friends.add(fr);
+            knows.add(fr);
         }
 
         agentId = stream.readInt();
@@ -79,6 +82,7 @@ public class Person implements Serializable, Writable {
         gender = stream.readByte();
         birthDay = stream.readLong();
         isLargePoster = stream.readBoolean();
+        randomId = stream.readLong();
 
         int numEmails = stream.readInt();
         emails = new TreeSet<String>();
@@ -105,10 +109,10 @@ public class Person implements Serializable, Writable {
 
         stream.writeLong(accountId);
         stream.writeLong(creationDate);
-        stream.writeShort(maxNumFriends);
-        stream.writeShort(friends.size());
+        stream.writeShort(maxNumKnows);
+        stream.writeShort(knows.size());
 
-        for( Friend f : friends ){
+        for( Knows f : knows ){
             f.write(stream);
         }
 
@@ -133,6 +137,7 @@ public class Person implements Serializable, Writable {
         stream.writeByte(gender);
         stream.writeLong(birthDay);
         stream.writeBoolean(isLargePoster);
+        stream.writeLong(randomId);
 
         stream.writeInt(emails.size());
         for( String s : emails ) {
@@ -155,13 +160,13 @@ public class Person implements Serializable, Writable {
     public void readFields(DataInput arg0) throws IOException {
         accountId = arg0.readLong();
         creationDate = arg0.readLong();
-        maxNumFriends = arg0.readShort();
+        maxNumKnows = arg0.readShort();
         int numFriends = arg0.readShort();
-        friends = new TreeSet<Friend>();
+        knows = new TreeSet<Knows>();
         for (int i = 0; i < numFriends; i++) {
-            Friend fr = new Friend();
+            Knows fr = new Knows();
             fr.readFields(arg0);
-            friends.add(fr);
+            knows.add(fr);
         }
 
         agentId = arg0.readInt();
@@ -186,6 +191,7 @@ public class Person implements Serializable, Writable {
         gender = arg0.readByte();
         birthDay = arg0.readLong();
         isLargePoster = arg0.readBoolean();
+        randomId = arg0.readLong();
 
         int numEmails = arg0.readInt();
         emails = new TreeSet<String>();
@@ -207,43 +213,13 @@ public class Person implements Serializable, Writable {
         classYear = arg0.readLong();
     }
 
-    public void copyFields(Person person) {
-        accountId = person.accountId;
-        creationDate = person.creationDate;
-        maxNumFriends = person.maxNumFriends;
-        friends.clear();
-        friends.addAll(person.friends);
-        agentId = person.agentId;
-        browserId = person.browserId;
-        ipAddress = person.ipAddress;
-        countryId = person.countryId;
-        cityId = person.cityId;
-        wallId = person.wallId;
-        interests = person.interests;
-        mainInterest = person.mainInterest;
-        universityLocationId = person.universityLocationId;
-        gender = person.gender;
-        birthDay = person.birthDay;
-        isLargePoster = person.isLargePoster;
-
-        emails.clear();
-        emails.addAll(person.emails);
-        languages.clear();
-        languages.addAll(person.languages);
-        firstName = person.firstName;
-        lastName = person.lastName;
-        companies.clear();
-        companies.putAll(companies);
-        classYear = person.classYear;
-    }
-
     public void write(DataOutput arg0) throws IOException {
         arg0.writeLong(accountId);
         arg0.writeLong(creationDate);
-        arg0.writeShort(maxNumFriends);
-        arg0.writeShort(friends.size());
+        arg0.writeShort(maxNumKnows);
+        arg0.writeShort(knows.size());
 
-        for( Friend f : friends ) {
+        for( Knows f : knows ) {
             f.write(arg0);
         }
 
@@ -266,6 +242,7 @@ public class Person implements Serializable, Writable {
         arg0.writeByte(gender);
         arg0.writeLong(birthDay);
         arg0.writeBoolean(isLargePoster);
+        arg0.writeLong(randomId);
 
         arg0.writeInt(emails.size());
         for( String s : emails ) {

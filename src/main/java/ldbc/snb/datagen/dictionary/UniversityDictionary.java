@@ -132,7 +132,6 @@ public class UniversityDictionary {
                 }
             }
             dicAllInstitutes.close();
-            System.out.println("Done ... " + totalNumUniversities + " universities were extracted");
         } catch (IOException e) {
             e.printStackTrace();
         }

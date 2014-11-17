@@ -37,6 +37,7 @@
 
 package ldbc.snb.datagen.serializer;
 
+import ldbc.snb.datagen.objects.Knows;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.objects.StudyAt;
 import ldbc.snb.datagen.objects.WorkAt;
@@ -50,4 +51,6 @@ public interface PersonSerializer {
     public void serialize(StudyAt studyAt);
 
     public void serialize(WorkAt workAt);
+
+    public void serialize(Knows knows);
 }

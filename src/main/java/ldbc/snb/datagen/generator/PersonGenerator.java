@@ -142,13 +142,14 @@ public class PersonGenerator {
         person.countryId = countryId;
         person.cityId = (placeDictionary.getRandomCity(randomFarm.get(RandomGeneratorFarm.Aspect.CITY), countryId));
         person.ipAddress = (ipAddressDictionary.getRandomIPFromLocation(randomFarm.get(RandomGeneratorFarm.Aspect.IP), countryId));
-        person.maxNumFriends = (fbDegreeGenerator.getSocialDegree());
+        person.maxNumKnows = (fbDegreeGenerator.getSocialDegree());
         person.accountId = (composeUserId(nextId++, creationDate, fbDegreeGenerator.getIDByPercentile()));
         //person.accountId = nextId++;
         person.mainInterest = tagDictionary.getaTagByCountry(randomFarm.get(RandomGeneratorFarm.Aspect.TAG_OTHER_COUNTRY), randomFarm.get(RandomGeneratorFarm.Aspect.TAG), person.countryId);
         short numTags = ((short) randomTagPowerLaw.getValue(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_TAG)));
         person.interests = tagMatrix.getSetofTags(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), randomFarm.get(RandomGeneratorFarm.Aspect.TAG_OTHER_COUNTRY), person.mainInterest, numTags);
         person.universityLocationId = universityDictionary.getRandomUniversity(randomFarm, person.countryId);
+        person.randomId = randomFarm.get(RandomGeneratorFarm.Aspect.RANDOM).nextLong() % 100;
 
         // Compute the popular places the user uses to visit.
         byte numPopularPlaces = (byte) randomFarm.get(RandomGeneratorFarm.Aspect.NUM_POPULAR).nextInt(DatagenParams.maxNumPopularPlaces + 1);

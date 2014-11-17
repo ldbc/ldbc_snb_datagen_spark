@@ -130,7 +130,7 @@ public class LanguageDictionary {
      */
     public String getLanguageName(int languageId) {
         if (languageId < 0 || languageId >= languages.size()) {
-            System.err.println("Trying to acces the invalid language with id=" + languageId);
+            System.out.println("Trying to acces the invalid language with id=" + languageId);
             return "";
         }
         return languages.get(languageId);

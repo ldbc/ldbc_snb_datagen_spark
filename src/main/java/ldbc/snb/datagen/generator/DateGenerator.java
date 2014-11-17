@@ -37,7 +37,7 @@
 package ldbc.snb.datagen.generator;
 
 
-import ldbc.snb.datagen.objects.ReducedUserProfile;
+import ldbc.snb.datagen.objects.Person;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -214,28 +214,14 @@ public class DateGenerator {
         return (from + randomSpanMilis);
     }
 
-    public long randomFriendRequestedDate(Random random, ReducedUserProfile user1, ReducedUserProfile user2) {
-        long fromDate = Math.max(user1.getCreationDate(), user2.getCreationDate());
-        return randomThirtyDaysSpan(random, fromDate);
-    }
-
-    public long randomFriendApprovedDate(Random random, long requestedDate) {
-        long randomSpanMilis = (long) (random.nextDouble() * (SEVEN_DAYS));
-        return (requestedDate + randomSpanMilis);
-    }
-
-    public long randomFriendDeclinedDate(Random random, long requestedDate) {
-        long randomSpanMilis = (long) (random.nextDouble() * (SEVEN_DAYS));
-        return (requestedDate + randomSpanMilis);
-    }
-
-    public long randomFriendReapprovedDate(Random random, long declined) {
+    public long randomKnowsCreationDate( Random random, Person personA, Person personB ) {
+        long fromDate = Math.max(personA.creationDate, personB.creationDate);
         long randomSpanMilis = (long) (random.nextDouble() * (THIRTY_DAYS));
-        return (declined + randomSpanMilis);
+        return (fromDate + randomSpanMilis);
     }
 
-    public long numberOfMonths(ReducedUserProfile user) {
-        return (to - user.getCreationDate()) / THIRTY_DAYS;
+    public long numberOfMonths(Person user) {
+        return (to - user.creationDate) / THIRTY_DAYS;
     }
 
     public long numberOfMonths(long fromDate) {
