@@ -70,7 +70,7 @@ public class LDBCDatagen {
         knowsGenerator.run(personsFileName1,personsFileName2);
         fs.delete(new Path(personsFileName1), true);
 
-        printProgress("Creating main interest correlated edges");
+/*        printProgress("Creating main interest correlated edges");
         knowsGenerator = new HadoopKnowsGenerator(conf,"ldbc.snb.datagen.hadoop.InterestKeySetter", 0.90f);
         knowsGenerator.run(personsFileName2,personsFileName1);
         fs.delete(new Path(personsFileName2), true);
@@ -79,6 +79,7 @@ public class LDBCDatagen {
         knowsGenerator = new HadoopKnowsGenerator(conf,"ldbc.snb.datagen.hadoop.RandomKeySetter", 1.0f);
         knowsGenerator.run(personsFileName1,personsFileName2);
         fs.delete(new Path(personsFileName1), true);
+        */
 
         printProgress("Serializing persons");
         HadoopPersonSerializer serializer = new HadoopPersonSerializer(conf);
