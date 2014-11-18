@@ -27,20 +27,20 @@ public class KnowsGenerator {
         this.randomFarm = new RandomGeneratorFarm();
     }
 
-    public void generateKnows( ArrayList<Person> persons, int seed )  {
+    public void generateKnows( ArrayList<Person> persons, int seed, float upperBound )  {
         randomFarm.resetRandomGenerators(seed);
         for( int i = 0; i < persons.size(); ++i ) {
            for( int j = i +1; j < persons.size(); ++j  ) {
-                if( know(persons.get(i), persons.get(j), j - i)) {
+                if( know(persons.get(i), persons.get(j), j - i, upperBound)) {
                    createKnow(persons.get(i), persons.get(j));
                 }
            }
         }
     }
 
-    boolean know( Person personA, Person personB, int dist ) {
-        if(personA.knows.size() == personA.maxNumKnows ||
-           personB.knows.size() == personB.maxNumKnows ) return false;
+    boolean know( Person personA, Person personB, int dist, float upperBound ) {
+        if(personA.knows.size() == personA.maxNumKnows*upperBound ||
+           personB.knows.size() == personB.maxNumKnows*upperBound ) return false;
         double randProb = randomFarm.get(RandomGeneratorFarm.Aspect.UNIFORM).nextDouble();
         double prob = Math.pow(DatagenParams.baseProbCorrelated, dist);
         if ((randProb < prob) || (randProb < DatagenParams.limitProCorrelated)) {

@@ -55,50 +55,34 @@ public class LDBCDatagen {
 
     public int runGenerateJob(Configuration conf) throws Exception {
 
-        String personsFileName = conf.get("hadoopDir") + "/users";
+        String personsFileName1 = conf.get("hadoopDir") + "/persons1";
+        String personsFileName2 = conf.get("hadoopDir") + "/persons2";
         FileSystem fs = FileSystem.get(conf);
 
         long start = System.currentTimeMillis();
         printProgress("Starting: Person generation");
         HadoopPersonGenerator personGenerator = new HadoopPersonGenerator( conf );
-        personGenerator.run(personsFileName);
+        personGenerator.run(personsFileName1);
 
-
-        printProgress("Changing Persons key to University location");
-        String universityPersonsFileName = conf.get("hadoopDir") + "/university_users";
-        HadoopFileKeyChanger keyChanger = new HadoopFileKeyChanger(conf, LongWritable.class,Person.class,"ldbc.snb.datagen.hadoop.UniversityKeySetter");
-        keyChanger.run(personsFileName,universityPersonsFileName);
-        fs.delete(new Path(personsFileName),true);
-
-        printProgress("Ranking Persons by Key");
-        String rankedPersonsFileName = conf.get("hadoopDir") + "/ranked_users";
-        HadoopFileRanker hadoopFileRanker = new HadoopFileRanker( conf, LongWritable.class, Person.class );
-        hadoopFileRanker.run(universityPersonsFileName,rankedPersonsFileName);
-        fs.delete(new Path(universityPersonsFileName), true);
 
         printProgress("Creating university location correlated edges");
-        HadoopKnowsGenerator knowsGenerator = new HadoopKnowsGenerator(conf);
-        knowsGenerator.run(rankedPersonsFileName,personsFileName);
-        fs.delete(new Path(rankedPersonsFileName), true);
+        HadoopKnowsGenerator knowsGenerator = new HadoopKnowsGenerator(conf,"ldbc.snb.datagen.hadoop.UniversityKeySetter", 0.45f);
+        knowsGenerator.run(personsFileName1,personsFileName2);
+        fs.delete(new Path(personsFileName1), true);
 
+        printProgress("Creating main interest correlated edges");
+        knowsGenerator = new HadoopKnowsGenerator(conf,"ldbc.snb.datagen.hadoop.InterestKeySetter", 0.90f);
+        knowsGenerator.run(personsFileName2,personsFileName1);
+        fs.delete(new Path(personsFileName2), true);
 
-/*        printProgress("Changing Persons key to Main interest");
-        String interestPersonFileName = conf.get("hadoopDir") + "/interest_users";
-        keyChanger = new HadoopFileKeyChanger(conf, LongWritable.class,Person.class,"ldbc.snb.datagen.hadoop.InterestKeySetter");
-        keyChanger.run(universityPersonsFileName,interestPersonFileName);
-        fs.delete(new Path(universityPersonsFileName),true);
-
-        printProgress("Changing Persons key to Random id");
-        String randomPersonFileName = conf.get("hadoopDir") + "/random_users";
-        keyChanger = new HadoopFileKeyChanger(conf, LongWritable.class,Person.class,"ldbc.snb.datagen.hadoop.RandomKeySetter");
-        keyChanger.run(interestPersonFileName,randomPersonFileName);
-        fs.delete(new Path(interestPersonFileName),true);
-        */
-
+        printProgress("Creating random correlated edges");
+        knowsGenerator = new HadoopKnowsGenerator(conf,"ldbc.snb.datagen.hadoop.RandomKeySetter", 1.0f);
+        knowsGenerator.run(personsFileName1,personsFileName2);
+        fs.delete(new Path(personsFileName1), true);
 
         printProgress("Serializing persons");
         HadoopPersonSerializer serializer = new HadoopPersonSerializer(conf);
-        serializer.run(personsFileName);
+        serializer.run(personsFileName2);
 
         long end = System.currentTimeMillis();
         System.out.println(((end - start) / 1000)

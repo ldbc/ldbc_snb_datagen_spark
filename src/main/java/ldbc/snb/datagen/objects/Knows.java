@@ -50,6 +50,12 @@ public class Knows implements Serializable, Comparable<Knows> {
     public Knows() {
     }
 
+    public Knows(Knows k) {
+        this.from = k.from;
+        this.to = k.to;
+        this.creationDate = k.creationDate;
+    }
+
     public Knows(Person from, Person to, long creationDate ){
         this.from = from.accountId;
         this.to = to.accountId;

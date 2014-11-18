@@ -39,11 +39,60 @@ public class Person implements Serializable, Writable {
     public long classYear;
 
     public Person(){
-        knows = new TreeSet<Knows>();
-        emails = new TreeSet<String>();
-        interests = new TreeSet<Integer>();
-        languages = new ArrayList<Integer>();
-        companies = new HashMap<Long, Long>();
+        this.knows = new TreeSet<Knows>();
+        this.emails = new TreeSet<String>();
+        this.interests = new TreeSet<Integer>();
+        this.languages = new ArrayList<Integer>();
+        this.companies = new HashMap<Long, Long>();
+    }
+
+    public Person( Person p ) {
+        this.knows = new TreeSet<Knows>();
+        this.emails = new TreeSet<String>();
+        this.interests = new TreeSet<Integer>();
+        this.languages = new ArrayList<Integer>();
+        this.companies = new HashMap<Long, Long>();
+
+        this.accountId = p.accountId;
+        this.creationDate = p.creationDate;
+        this.maxNumKnows = p.maxNumKnows;
+        for( Knows k : p.knows ) {
+            this.knows.add(new Knows(k));
+        }
+
+        this.agentId = p.agentId;
+        this.browserId = p.browserId;
+        this.ipAddress = new IP(p.ipAddress);
+
+        this.countryId = p.countryId;
+        this.cityId = p.cityId;
+        this.wallId = p.wallId;
+        for( Integer t : p.interests.descendingSet()) {
+            this.interests.add(t);
+        }
+        this.mainInterest = p.mainInterest;
+
+        this.universityLocationId = p.universityLocationId;
+        this.gender = p.gender;
+        this.birthDay = p.birthDay;
+        this.isLargePoster = p.isLargePoster;
+        this.randomId = p.randomId;
+
+        for( String s : p.emails.descendingSet()) {
+            this.emails.add(new String(s));
+        }
+
+        for( Integer i : p.languages) {
+            this.languages.add(i);
+        }
+
+        this.firstName = new String(p.firstName);
+        this.lastName = new String(p.lastName);
+        for( Map.Entry<Long,Long> c : companies.entrySet()) {
+            this.companies.put(c.getKey(),c.getValue());
+        }
+        this.classYear = p.classYear;
+
     }
 
 

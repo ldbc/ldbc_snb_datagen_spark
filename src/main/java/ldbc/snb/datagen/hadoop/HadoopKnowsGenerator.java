@@ -4,6 +4,7 @@ import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.generator.KnowsGenerator;
 import ldbc.snb.datagen.objects.Person;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Job;
@@ -25,9 +26,11 @@ public class HadoopKnowsGenerator {
     public static class HadoopKnowsGeneratorReducer  extends Reducer<ComposedKey, Person, LongWritable, Person> {
 
         private KnowsGenerator knowsGenerator;   /** The person serializer **/
+        private Configuration conf;
 
         protected void setup(Context context) {
             this.knowsGenerator = new KnowsGenerator();
+            this.conf = context.getConfiguration();
         }
 
         @Override
@@ -35,9 +38,9 @@ public class HadoopKnowsGenerator {
                 throws IOException, InterruptedException {
             ArrayList<Person> persons = new ArrayList<Person>();
             for( Person p : valueSet ) {
-                persons.add(p);
+                persons.add(new Person(p));
             }
-            this.knowsGenerator.generateKnows(persons, (int)key.block);
+            this.knowsGenerator.generateKnows(persons, (int)key.block, conf.getFloat("upperBound", 0.1f));
             for( Person p : persons ) {
                 context.write(new LongWritable(key.key), p);
             }
@@ -45,13 +48,32 @@ public class HadoopKnowsGenerator {
     }
 
     private Configuration conf;
+    private double upperBound;
+    private String keySetterName;
 
-    public HadoopKnowsGenerator( Configuration conf ) {
+
+    public HadoopKnowsGenerator( Configuration conf, String keySetterName, float upperBound ) {
         this.conf = new Configuration(conf);
+        this.upperBound = upperBound;
+        this.keySetterName = keySetterName;
     }
 
     public void run( String inputFileName, String outputFileName ) throws Exception {
 
+
+        FileSystem fs = FileSystem.get(conf);
+
+        String keyChangedFileName = conf.get("hadoopDir") + "/key_changed";
+        HadoopFileKeyChanger keyChanger = new HadoopFileKeyChanger(conf, LongWritable.class,Person.class,keySetterName);
+        keyChanger.run(inputFileName,keyChangedFileName);
+
+
+        String rankedFileName = conf.get("hadoopDir") + "/ranked";
+        HadoopFileRanker hadoopFileRanker = new HadoopFileRanker( conf, LongWritable.class, Person.class );
+        hadoopFileRanker.run(keyChangedFileName,rankedFileName);
+        fs.delete(new Path(keyChangedFileName), true);
+
+        conf.set("upperBound",Double.toString(upperBound));
         int numThreads = Integer.parseInt(conf.get("numThreads"));
         Job job = new Job(conf, "Knows generator");
         job.setMapOutputKeyClass(ComposedKey.class);
@@ -69,8 +91,9 @@ public class HadoopKnowsGenerator {
         job.setGroupingComparatorClass(ComposedKeyGroupComparator.class);
         job.setPartitionerClass(HadoopBlockPartitioner.class);
 
-        FileInputFormat.setInputPaths(job, new Path(inputFileName));
+        FileInputFormat.setInputPaths(job, new Path(rankedFileName));
         FileOutputFormat.setOutputPath(job, new Path(outputFileName));
         job.waitForCompletion(true);
+        fs.delete(new Path(rankedFileName), true);
     }
 }

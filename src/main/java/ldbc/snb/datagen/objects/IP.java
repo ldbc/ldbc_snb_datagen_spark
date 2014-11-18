@@ -62,6 +62,11 @@ public class IP {
         }
     }
 
+    public IP(IP i) {
+        this.ip = i.ip;
+        this.mask = i.mask;
+    }
+
     public IP(int ip, int mask) {
         this.ip = ip;
         this.mask = mask;

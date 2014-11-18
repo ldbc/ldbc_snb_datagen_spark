@@ -39,10 +39,8 @@ package ldbc.snb.datagen.generator;
 
 import ldbc.snb.datagen.objects.Person;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Random;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 
 public class DateGenerator {
@@ -94,25 +92,14 @@ public class DateGenerator {
      * format the date
      */
     public static String formatDate(GregorianCalendar c) {
-        int day = c.get(Calendar.DAY_OF_MONTH);
-        int month = c.get(Calendar.MONTH) + 1;        // +1 because month can be 0
-        int year = c.get(Calendar.YEAR);
-
-        String prefixDay = "";
-        String prefixMonth = "";
-
-        if (day < 10)
-            prefixDay = "0";
-
-        if (month < 10)
-            prefixMonth = "0";
-
-        return year + "-" + prefixMonth + month + "-" + prefixDay + day;
+        c.setTimeZone(TimeZone.getTimeZone("GMT"));
+        SimpleDateFormat gmtDateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+        gmtDateFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return gmtDateFormatter.format(c.getTime());
     }
 
     public static String formatYear(GregorianCalendar c) {
         int year = c.get(Calendar.YEAR);
-
         return year + "";
     }
 
@@ -120,37 +107,10 @@ public class DateGenerator {
      * format the date with hours and minutes
      */
     public static String formatDateDetail(GregorianCalendar c) {
-        int day = c.get(Calendar.DAY_OF_MONTH);
-        int month = c.get(Calendar.MONTH) + 1;
-        int year = c.get(Calendar.YEAR);
-
-        int hour = c.get(Calendar.HOUR_OF_DAY);
-        int minute = c.get(Calendar.MINUTE);
-        int second = c.get(Calendar.SECOND);
-
-        String prefixDay = "";
-        String prefixMonth = "";
-        String prefixHour = "";
-        String prefixMinute = "";
-        String prefixSecond = "";
-
-        if (day < 10)
-            prefixDay = "0";
-
-        if (month < 10)
-            prefixMonth = "0";
-
-        if (hour < 10)
-            prefixHour = "0";
-
-        if (minute < 10)
-            prefixMinute = "0";
-
-        if (second < 10)
-            prefixSecond = "0";
-
-        return year + "-" + prefixMonth + month + "-" + prefixDay + day + "T"
-                + prefixHour + hour + ":" + prefixMinute + minute + ":" + prefixSecond + second + "Z";
+        c.setTimeZone(TimeZone.getTimeZone("GMT"));
+        SimpleDateFormat gmtDateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        gmtDateFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return gmtDateFormatter.format(c.getTime());
     }
 
     /*
