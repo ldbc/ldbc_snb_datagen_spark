@@ -39,8 +39,8 @@ public class KnowsGenerator {
     }
 
     boolean know( Person personA, Person personB, int dist, float upperBound ) {
-        if(personA.knows.size() == personA.maxNumKnows*upperBound ||
-           personB.knows.size() == personB.maxNumKnows*upperBound ) return false;
+        if((float)(personA.knows.size()) >= (float)(personA.maxNumKnows)*upperBound ||
+           personB.knows.size() >= (float)(personB.maxNumKnows)*upperBound ) return false;
         double randProb = randomFarm.get(RandomGeneratorFarm.Aspect.UNIFORM).nextDouble();
         double prob = Math.pow(DatagenParams.baseProbCorrelated, dist);
         if ((randProb < prob) || (randProb < DatagenParams.limitProCorrelated)) {
