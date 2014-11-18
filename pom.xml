@@ -5,7 +5,7 @@
 
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>ldbc.socialnet.dbgen</groupId>
+  <groupId>ldbc.snb.datagen</groupId>
   <artifactId>ldbc_snb_datagen</artifactId>
   <version>0.1</version>
   <build>
@@ -19,7 +19,7 @@
           </descriptorRefs>
           <archive>
             <manifest>
-              <mainClass>ldbc.socialnet.dbgen.generator.MRGenerateUsers</mainClass>
+              <mainClass>ldbc.snb.datagen.generator.LDBCDatagen</mainClass>
             </manifest>
           </archive>
           <finalName>ldbc_snb_datagen</finalName>
@@ -54,8 +54,8 @@
     </dependency>
     <dependency>
       <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-tools</artifactId>
-      <version>1.2.1</version>
+      <artifactId>hadoop-client</artifactId>
+      <version>2.5.1</version>
       </dependency>
     <dependency>
       <groupId>ca.umontreal.iro</groupId>
@@ -67,5 +67,20 @@
       <artifactId>gson</artifactId>
       <version>2.2.4</version>
     </dependency>
+      <dependency>
+          <groupId>org.codehaus.groovy</groupId>
+          <artifactId>groovy</artifactId>
+          <version>2.1.6</version>
+      </dependency>
+      <dependency>
+          <groupId>org.codehaus.groovy</groupId>
+          <artifactId>groovy-templates</artifactId>
+          <version>2.1.6</version>
+      </dependency>
+      <dependency>
+          <groupId>org.codehaus.groovy</groupId>
+          <artifactId>groovy-jsr223</artifactId>
+          <version>2.1.6</version>
+      </dependency>
   </dependencies>
 </project>
