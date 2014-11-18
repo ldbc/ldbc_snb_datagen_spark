@@ -54,8 +54,8 @@
     </dependency>
     <dependency>
       <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-tools</artifactId>
-      <version>1.2.1</version>
+      <artifactId>hadoop-client</artifactId>
+      <version>2.5.1</version>
       </dependency>
     <dependency>
       <groupId>ca.umontreal.iro</groupId>
