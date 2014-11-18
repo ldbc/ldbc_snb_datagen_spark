@@ -29,10 +29,10 @@ public class HadoopKnowsGenerator {
         private Configuration conf;
 
         protected void setup(Context context) {
-            DatagenParams.readConf(conf);
-            DatagenParams.readParameters("/params.ini");
             this.knowsGenerator = new KnowsGenerator();
             this.conf = context.getConfiguration();
+            DatagenParams.readConf(conf);
+            DatagenParams.readParameters("/params.ini");
         }
 
         @Override
