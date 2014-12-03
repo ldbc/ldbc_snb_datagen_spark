@@ -426,7 +426,8 @@ public class UpdateEventSerializer implements Serializer{
             data.add(Long.toString(friend.getFriendAcc()));
             date.setTimeInMillis(friend.getCreatedTime());
             data.add(Long.toString(date.getTime().getTime()));
-            endEvent(Stream.PERSON_STREAM);
+            //endEvent(Stream.PERSON_STREAM);
+            endEvent(Stream.FORUM_STREAM);
         }
     }
 
