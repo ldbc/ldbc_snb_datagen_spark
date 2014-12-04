@@ -58,6 +58,7 @@ import ldbc.socialnet.dbgen.dictionary.UserAgentDictionary;
 import ldbc.socialnet.dbgen.objects.*;
 import ldbc.socialnet.dbgen.serializer.*;
 import ldbc.socialnet.dbgen.storage.StorageManager;
+import ldbc.socialnet.dbgen.util.ComposedKey;
 import ldbc.socialnet.dbgen.util.ScaleFactor;
 import ldbc.socialnet.dbgen.vocabulary.SN;
 import ldbc.socialnet.dbgen.util.MapReduceKey;
@@ -66,6 +67,7 @@ import ldbc.socialnet.dbgen.util.RandomGeneratorFarm;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.mapreduce.Reducer;
 
@@ -781,7 +783,7 @@ public class ScalableGenerator{
         System.out.println("Writing the data for test driver ");
     }
 
-    public void generateUserActivity( ReducedUserProfile userProfile, Reducer<MapReduceKey, ReducedUserProfile,MapReduceKey, ReducedUserProfile>.Context context) {
+    public void generateUserActivity( ReducedUserProfile userProfile, Reducer<ComposedKey, ReducedUserProfile,LongWritable, ReducedUserProfile>.Context context) {
         int index = numUserProfilesRead%windowSize;
         numUserProfilesRead++;
         reducedUserProfiles[index] = userProfile;
@@ -829,7 +831,7 @@ public class ScalableGenerator{
         mrCurCellPost = 0;
     }
 
-    public void pushUserProfile(ReducedUserProfile reduceUser, int pass, int outputDimension, Reducer<MapReduceKey, ReducedUserProfile,MapReduceKey, ReducedUserProfile>.Context context){
+    public void pushUserProfile(ReducedUserProfile reduceUser, int pass, int outputDimension, Reducer<ComposedKey, ReducedUserProfile,LongWritable, ReducedUserProfile>.Context context){
         ReducedUserProfile userObject = new ReducedUserProfile();
         userObject.copyFields(reduceUser);
         totalNumUserProfilesRead++;
@@ -851,7 +853,7 @@ public class ScalableGenerator{
         }
     }
 
-    public void pushAllRemainingUser(int pass, int outputDimension, Reducer<MapReduceKey, ReducedUserProfile,MapReduceKey, ReducedUserProfile>.Context context){
+    public void pushAllRemainingUser(int pass, int outputDimension, Reducer<ComposedKey, ReducedUserProfile,LongWritable, ReducedUserProfile>.Context context){
 
         // For each remianing cell in the window, we create the edges.
         for (int numLeftCell = Math.min(numberOfCellPerWindow, numUserProfilesRead/cellSize); numLeftCell > 0; --numLeftCell, ++mrCurCellPost) {
@@ -910,11 +912,7 @@ public class ScalableGenerator{
                 ReducedUserProfile reduceUserProf = generateGeneralInformation(j);
                 ++numUsersToGenerate;
                 try {
-                    int block =  0;                                                                  // The mapreduce group this university will be assigned.
-                    int key = reduceUserProf.getDicElementId(pass);                                  // The key used to sort within the block.
-                    long id = reduceUserProf.getAccountId();                                         // The id used to sort within the key, to guarantee determinism.
-                    MapReduceKey mpk = new MapReduceKey( block, key, id );
-                    context.write(mpk, reduceUserProf);
+                    context.write(new LongWritable(reduceUserProf.getDicElementId(pass)), reduceUserProf);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
