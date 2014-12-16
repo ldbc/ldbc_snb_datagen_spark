@@ -14,6 +14,7 @@ import java.io.IOException;
     public class ComposedKey implements WritableComparable<ComposedKey> {
         public long block;
         public long key;
+        public long id;
 
         public ComposedKey( ) {
         }
@@ -23,21 +24,24 @@ import java.io.IOException;
             this.key = cK.key;
         }
 
-        public ComposedKey( long block, long key) {
+        public ComposedKey( long block, long key, long id) {
             this.block = block;
             this.key = key;
+            this.id = id;
         }
 
         @Override
         public void write(DataOutput out) throws IOException {
             out.writeLong(block);
             out.writeLong(key);
+            out.writeLong(id);
         }
 
         @Override
         public void readFields(DataInput in) throws IOException {
             block = in.readLong();
             key = in.readLong();
+            id = in.readLong();
         }
 
         @Override

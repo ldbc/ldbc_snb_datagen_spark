@@ -147,7 +147,7 @@ public class MRGenerateUsers{
         }
     }
 
-	public static class GenerateUsersMapper extends Mapper <LongWritable, Text, LongWritable, ReducedUserProfile> {
+	public static class GenerateUsersMapper extends Mapper <LongWritable, Text, TupleKey, ReducedUserProfile> {
 			
 		private int fileIdx;
 
@@ -168,21 +168,20 @@ public class MRGenerateUsers{
 		
 	}
 
-    public static class DimensionReducer extends Reducer<ComposedKey, ReducedUserProfile, LongWritable, ReducedUserProfile>{
+    public static class DimensionReducer extends Reducer<ComposedKey, ReducedUserProfile, TupleKey, ReducedUserProfile>{
 
         public static ScalableGenerator friendGenerator;
         private int attempTaskId;
         private int dimension;
         private int pass;
+        private int numCalls = 0;
 
         @Override
         protected void setup(Context context){
             Configuration conf = context.getConfiguration();
             dimension = Integer.parseInt(conf.get("dimension"));
             pass = Integer.parseInt(conf.get("pass"));
-
-            String strTaskId = context.getTaskAttemptID().getTaskID().toString();
-            attempTaskId = Integer.parseInt(strTaskId.substring(strTaskId.length() - 3));
+            attempTaskId = context.getTaskAttemptID().getTaskID().getId();
             friendGenerator = new ScalableGenerator(attempTaskId, conf);
             friendGenerator.init();
         }
@@ -190,11 +189,11 @@ public class MRGenerateUsers{
         @Override
         public void reduce(ComposedKey key, Iterable<ReducedUserProfile> valueSet,
                            Context context) throws IOException, InterruptedException{
+            numCalls++;
             friendGenerator.resetState((int)key.block);
             int counter = 0;
             System.out.println("Start University group: "+key.block);
             for (ReducedUserProfile user:valueSet){
-                //                 System.out.println(user.getAccountId());
                 friendGenerator.pushUserProfile(user, pass, dimension, context);
                 counter++;
             }
@@ -207,6 +206,7 @@ public class MRGenerateUsers{
             System.out.println("Number of user profile read " + friendGenerator.totalNumUserProfilesRead);
             System.out.println("Number of exact user profile out " + friendGenerator.exactOutput);
             System.out.println("Number of exact friend added " + friendGenerator.friendshipNum);
+            System.out.println("Number of reducer calls "+numCalls);
         }
     }
 
@@ -220,7 +220,7 @@ public class MRGenerateUsers{
         protected void setup(Context context){
             Configuration conf = context.getConfiguration();
             String strTaskId = context.getTaskAttemptID().getTaskID().toString();
-            attempTaskId = Integer.parseInt(strTaskId.substring(strTaskId.length() - 3));
+            attempTaskId = context.getTaskAttemptID().getTaskID().getId();
             friendGenerator = new ScalableGenerator(attempTaskId, conf);
             friendGenerator.init();
             friendGenerator.openSerializer();
@@ -313,9 +313,9 @@ public class MRGenerateUsers{
         printProgress("Starting: Person generation");
         conf.set("pass",Integer.toString(0));
 		Job job = new Job(conf,"SIB Generate Users & 1st Dimension");
-		job.setMapOutputKeyClass(LongWritable.class);
+		job.setMapOutputKeyClass(TupleKey.class);
 		job.setMapOutputValueClass(ReducedUserProfile.class);
-		job.setOutputKeyClass(LongWritable.class);
+		job.setOutputKeyClass(TupleKey.class);
 		job.setOutputValueClass(ReducedUserProfile.class);
 		job.setJarByClass(GenerateUsersMapper.class);
 		job.setMapperClass(GenerateUsersMapper.class);
@@ -329,7 +329,7 @@ public class MRGenerateUsers{
 
         /// --------------- Sorting by first dimension  ----------------
         printProgress("Starting: Sorting by first dimension");
-        HadoopFileRanker fileRanker = new HadoopFileRanker(conf,LongWritable.class,ReducedUserProfile.class);
+        HadoopFileRanker fileRanker = new HadoopFileRanker(conf,TupleKey.class,ReducedUserProfile.class);
         fileRanker.run(hadoopDir+"/sib",hadoopDir+"/sibSorting");
         fs.delete(new Path(hadoopDir + "/sib"),true);
 
@@ -340,7 +340,7 @@ public class MRGenerateUsers{
         job = new Job(conf,"SIB Generate Friendship - Interest");
         job.setMapOutputKeyClass(ComposedKey.class);
         job.setMapOutputValueClass(ReducedUserProfile.class);
-        job.setOutputKeyClass(LongWritable.class);
+        job.setOutputKeyClass(TupleKey.class);
         job.setOutputValueClass(ReducedUserProfile.class);
         job.setJarByClass(HadoopBlockMapper.class);
         job.setMapperClass(HadoopBlockMapper.class);
@@ -359,7 +359,7 @@ public class MRGenerateUsers{
 
         /// --------------- Sorting phase 2  ----------------
         printProgress("Starting: Sorting by second dimension");
-        fileRanker = new HadoopFileRanker(conf,LongWritable.class,ReducedUserProfile.class);
+        fileRanker = new HadoopFileRanker(conf,TupleKey.class,ReducedUserProfile.class);
         fileRanker.run(hadoopDir+"/sib2",hadoopDir+"/sibSorting2");
         fs.delete(new Path(hadoopDir + "/sib2"),true);
 
@@ -370,7 +370,7 @@ public class MRGenerateUsers{
 		job = new Job(conf,"SIB Generate Friendship - Interest");
         job.setMapOutputKeyClass(ComposedKey.class);
 		job.setMapOutputValueClass(ReducedUserProfile.class);
-        job.setOutputKeyClass(LongWritable.class);
+        job.setOutputKeyClass(TupleKey.class);
 		job.setOutputValueClass(ReducedUserProfile.class);
 		job.setJarByClass(HadoopBlockMapper.class);
         job.setMapperClass(HadoopBlockMapper.class);
@@ -388,7 +388,7 @@ public class MRGenerateUsers{
 
         /// --------------- Sorting phase 3--------------
         printProgress("Starting: Sorting by third dimension");
-        fileRanker = new HadoopFileRanker(conf,LongWritable.class,ReducedUserProfile.class);
+        fileRanker = new HadoopFileRanker(conf,TupleKey.class,ReducedUserProfile.class);
         fileRanker.run(hadoopDir+"/sib3",hadoopDir+"/sibSorting3");
         fs.delete(new Path(hadoopDir + "/sib3"),true);
 
@@ -399,7 +399,7 @@ public class MRGenerateUsers{
 		job = new Job(conf,"SIB Generate Friendship - Random");
         job.setMapOutputKeyClass(ComposedKey.class);
 		job.setMapOutputValueClass(ReducedUserProfile.class);
-        job.setOutputKeyClass(LongWritable.class);
+        job.setOutputKeyClass(TupleKey.class);
 		job.setOutputValueClass(ReducedUserProfile.class);
 		job.setJarByClass(HadoopBlockMapper.class);
 		job.setMapperClass(HadoopBlockMapper.class);
@@ -418,7 +418,7 @@ public class MRGenerateUsers{
         /// --------------- Sorting phase 3--------------
 
         printProgress("Starting: Sorting by third dimension (for activity generation)");
-        fileRanker = new HadoopFileRanker(conf,LongWritable.class,ReducedUserProfile.class);
+        fileRanker = new HadoopFileRanker(conf,TupleKey.class,ReducedUserProfile.class);
         fileRanker.run(hadoopDir+"/sib4",hadoopDir+"/sibSorting4");
         fs.delete(new Path(hadoopDir + "/sib4"),true);
 
@@ -429,7 +429,7 @@ public class MRGenerateUsers{
         job = new Job(conf,"Generate user activity");
         job.setMapOutputKeyClass(ComposedKey.class);
         job.setMapOutputValueClass(ReducedUserProfile.class);
-        job.setOutputKeyClass(LongWritable.class);
+        job.setOutputKeyClass(TupleKey.class);
         job.setOutputValueClass(ReducedUserProfile.class);
         job.setJarByClass(HadoopBlockMapper.class);
         job.setMapperClass(HadoopBlockMapper.class);
@@ -543,7 +543,7 @@ public class MRGenerateUsers{
         Job job6 = new Job(conf,"Dump the friends lists");
         job6.setMapOutputKeyClass(ComposedKey.class);
         job6.setMapOutputValueClass(ReducedUserProfile.class);
-        job6.setOutputKeyClass(LongWritable.class);
+        job6.setOutputKeyClass(ComposedKey.class);
         job6.setOutputValueClass(ReducedUserProfile.class);
         job6.setJarByClass(HadoopBlockMapper.class);
         job6.setMapperClass(HadoopBlockMapper.class);

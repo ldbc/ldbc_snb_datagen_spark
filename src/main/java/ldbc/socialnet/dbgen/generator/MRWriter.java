@@ -40,8 +40,10 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 
 import ldbc.socialnet.dbgen.objects.ReducedUserProfile;
+import ldbc.socialnet.dbgen.util.ComposedKey;
 import ldbc.socialnet.dbgen.util.MapReduceKey;
 
+import ldbc.socialnet.dbgen.util.TupleKey;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -66,12 +68,7 @@ public class MRWriter {
         try {
             to = to % windowSize;
             for (int i = from; i != to; i = (i+1)%windowSize) {
-             /*   int key = userProfiles[i].getDicElementId(pass);
-                int block = 0;
-                long id = userProfiles[i].getAccountId();
-                MapReduceKey mpk = new MapReduceKey(block,key,id);
-                context.write(mpk, userProfiles[i]);*/
-                context.write(new LongWritable(userProfiles[i].getDicElementId(pass)), userProfiles[i]);
+                context.write(new TupleKey(userProfiles[i].getDicElementId(pass),userProfiles[i].getAccountId()), userProfiles[i]);
                 numberSerializedObject++;
             }
         }

@@ -60,8 +60,8 @@ import ldbc.socialnet.dbgen.serializer.*;
 import ldbc.socialnet.dbgen.storage.StorageManager;
 import ldbc.socialnet.dbgen.util.ComposedKey;
 import ldbc.socialnet.dbgen.util.ScaleFactor;
+import ldbc.socialnet.dbgen.util.TupleKey;
 import ldbc.socialnet.dbgen.vocabulary.SN;
-import ldbc.socialnet.dbgen.util.MapReduceKey;
 import ldbc.socialnet.dbgen.util.RandomGeneratorFarm;
 
 import org.apache.hadoop.conf.Configuration;
@@ -800,7 +800,6 @@ public class ScalableGenerator{
         String medianName = namesDictionary.getMedianGivenName(userProfile.getLocationId(),
                 userProfile.getGender()==1, dateTimeGenerator.getBirthYear(userProfile.getBirthDay()));
         medianFirstName.put(userProfile.getAccountId(), medianName);
-        long init = System.currentTimeMillis();
         if(conf.getBoolean("activity",true)) {
             Group wall = generateWall(userInfo);
             generatePosts(uniformPostGenerator, reducedUserProfiles[index], extraInfo, wall);
@@ -831,7 +830,7 @@ public class ScalableGenerator{
         mrCurCellPost = 0;
     }
 
-    public void pushUserProfile(ReducedUserProfile reduceUser, int pass, int outputDimension, Reducer<ComposedKey, ReducedUserProfile,LongWritable, ReducedUserProfile>.Context context){
+    public void pushUserProfile(ReducedUserProfile reduceUser, int pass, int outputDimension, Reducer<ComposedKey, ReducedUserProfile,TupleKey, ReducedUserProfile>.Context context){
         ReducedUserProfile userObject = new ReducedUserProfile();
         userObject.copyFields(reduceUser);
         totalNumUserProfilesRead++;
@@ -853,7 +852,7 @@ public class ScalableGenerator{
         }
     }
 
-    public void pushAllRemainingUser(int pass, int outputDimension, Reducer<ComposedKey, ReducedUserProfile,LongWritable, ReducedUserProfile>.Context context){
+    public void pushAllRemainingUser(int pass, int outputDimension, Reducer<ComposedKey, ReducedUserProfile,TupleKey, ReducedUserProfile>.Context context){
 
         // For each remianing cell in the window, we create the edges.
         for (int numLeftCell = Math.min(numberOfCellPerWindow, numUserProfilesRead/cellSize); numLeftCell > 0; --numLeftCell, ++mrCurCellPost) {
@@ -861,66 +860,8 @@ public class ScalableGenerator{
         }
 
         // We write to the context the users that might have been left into not fully filled cell.
-            mrWriter.writeReducedUserProfiles(0, numUserForNewCell, outputDimension, cellReducedUserProfiles, context);
+        mrWriter.writeReducedUserProfiles(0, numUserForNewCell, outputDimension, cellReducedUserProfiles, context);
         exactOutput+=numUserForNewCell;
-    }
-
-
-    public void resetState(int seed) {
-        blockId = seed;
-        postId = 0;
-        groupId = 0;
-        SN.setMachineNumber(blockId, (int)Math.ceil(numTotalUser / (double) (blockSize)) );
-        fbDegreeGenerator.resetState(seed);
-        resetWindow();
-        randomFarm.resetRandomGenerators((long)seed);
-        if( dataExporter != null ) {
-            dataExporter.resetState(seed);
-        }
-    }
-
-
-    /**
-     * Generates the users. The user generation process is divided in blocks of size four times the
-     * size of the window. At the beginning of each block, the seeds of the random number generators
-     * are reset. This is for the sake of determinism, so independently of the mapper that receives a
-     * block, the seeds are set deterministically, and therefore, we make this generation phase 
-     * deterministic. This implies that the different mappers have to process blocks of full size,
-     * that is, a block have to be fully processed by a mapper.
-     *
-     * @param pass The pass identifying the current pass.
-     * @param context The map-reduce context.
-     */
-    public void mrGenerateUserInfo(int pass, Context context){
-
-        if (numTotalUser % cellSize != 0) {
-            System.err.println("Number of users should be a multiple of the cellsize");
-            System.exit(-1);
-        }
-
-        // Here we determine the blocks in the "block space" that this mapper is responsible for.
-        int numBlocks = (int) (Math.ceil(numTotalUser / (double)blockSize));
-        int initBlock = (int) (Math.ceil((numBlocks / (double)numThreads) * threadId ));
-        int endBlock  = (int) (Math.ceil((numBlocks / (double)numThreads) * (threadId+1)));
-
-        int numUsersToGenerate = 0;
-        for( int i = initBlock; i < endBlock;++i) {
-            // Setting the state for the block
-            resetState(i);
-            locationDictionary.advanceToUser(i*blockSize);      // We location dictionary has to be advanced to the specific point.
-            for (int j = i*blockSize; j < (i+1)*blockSize && j < numTotalUser; ++j) {
-                ReducedUserProfile reduceUserProf = generateGeneralInformation(j);
-                ++numUsersToGenerate;
-                try {
-                    context.write(new LongWritable(reduceUserProf.getDicElementId(pass)), reduceUserProf);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        System.out.println("Number of generated users: "+numUsersToGenerate);
     }
 
     private void generateCellOfUsers2(int newStartIndex, ReducedUserProfile[] _cellReduceUserProfiles){
@@ -932,7 +873,7 @@ public class ScalableGenerator{
     }
 
     private void mr2SlideFriendShipWindow(int pass, int cellPos, Reducer.Context context, ReducedUserProfile[] _cellReduceUserProfiles,
-                                         int outputDimension){
+                                          int outputDimension){
 
         int cellPosInWindow = (cellPos) % numberOfCellPerWindow;
         int startIndex = cellPosInWindow * cellSize;
@@ -984,6 +925,66 @@ public class ScalableGenerator{
         updateLastPassFriendAdded(startIndex, startIndex + cellSize, pass);
         mrWriter.writeReducedUserProfiles(startIndex, startIndex + cellSize, outputDimension, reducedUserProfiles, context);
         exactOutput = exactOutput + cellSize;
+    }
+
+
+
+    public void resetState(int seed) {
+        blockId = seed;
+        randomFarm.resetRandomGenerators((long)blockId);
+        postId = 0;
+        groupId = 0;
+        SN.setMachineNumber(blockId, (int)Math.ceil(numTotalUser / (double) (blockSize)) );
+        fbDegreeGenerator.resetState(blockId);
+        resetWindow();
+        if( dataExporter != null ) {
+            dataExporter.resetState(seed);
+        }
+    }
+
+
+    /**
+     * Generates the users. The user generation process is divided in blocks of size four times the
+     * size of the window. At the beginning of each block, the seeds of the random number generators
+     * are reset. This is for the sake of determinism, so independently of the mapper that receives a
+     * block, the seeds are set deterministically, and therefore, we make this generation phase 
+     * deterministic. This implies that the different mappers have to process blocks of full size,
+     * that is, a block have to be fully processed by a mapper.
+     *
+     * @param pass The pass identifying the current pass.
+     * @param context The map-reduce context.
+     */
+    public void mrGenerateUserInfo(int pass, Context context){
+
+        if (numTotalUser % cellSize != 0) {
+            System.err.println("Number of users should be a multiple of the cellsize");
+            System.exit(-1);
+        }
+
+        // Here we determine the blocks in the "block space" that this mapper is responsible for.
+        int numBlocks = (int) (Math.ceil(numTotalUser / (double)blockSize));
+        int initBlock = (int) (Math.ceil((numBlocks / (double)numThreads) * threadId ));
+        int endBlock  = (int) (Math.ceil((numBlocks / (double)numThreads) * (threadId+1)));
+
+        int numUsersToGenerate = 0;
+        for( int i = initBlock; i < endBlock;++i) {
+            // Setting the state for the block
+            resetState(i);
+            locationDictionary.advanceToUser(i*blockSize);      // We location dictionary has to be advanced to the specific point.
+            for (int j = i*blockSize; j < (i+1)*blockSize && j < numTotalUser; ++j) {
+                ReducedUserProfile reduceUserProf = generateGeneralInformation(j);
+                ++numUsersToGenerate;
+                try {
+                    //context.write(new LongWritable(reduceUserProf.getDicElementId(pass)), reduceUserProf);
+                    context.write(new TupleKey(reduceUserProf.getDicElementId(pass),reduceUserProf.getAccountId()), reduceUserProf);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        System.out.println("Number of generated users: "+numUsersToGenerate);
     }
 
 

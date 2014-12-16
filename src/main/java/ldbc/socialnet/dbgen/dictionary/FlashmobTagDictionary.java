@@ -135,15 +135,15 @@ public class FlashmobTagDictionary {
     /** @brief Makes a decision of selecting or not a flashmob tag.
      *  @param[in] index The index of the flashmob tag to select.
      *  @return true if the flashmob tag is selected. false otherwise.*/
-    private boolean selectFlashmobTag( int index ) {
-            return random.nextDouble() > (1-probRandomPerLevel*flashmobTagCumDist[index].level);
+    private boolean selectFlashmobTag(Random rand,  int index ) {
+            return rand.nextDouble() > (1-probRandomPerLevel*flashmobTagCumDist[index].level);
     }
 
     /** @brief Given a set of interests and a date, generates a set of flashmob tags.
      *  @param[in] interests The set of interests.
      *  @param[in] fromDate The date from which to consider the flashmob tags.
      *  @return A vector containing the selected flashmob tags.*/
-	public Vector<FlashmobTag> generateFlashmobTags( TreeSet<Integer> interests, long fromDate ) {
+	public Vector<FlashmobTag> generateFlashmobTags( Random rand, TreeSet<Integer> interests, long fromDate ) {
 		Vector<FlashmobTag> result = new Vector<FlashmobTag>();
 		Iterator<Integer> it = interests.iterator();
 		while(it.hasNext()) {
@@ -154,7 +154,7 @@ public class FlashmobTagDictionary {
 				while( it2.hasNext()){
 					FlashmobTag instance = it2.next();
 					if( instance.date >= fromDate ) {
-						if(random.nextDouble() > 1 - probInterestFlashmobTag){
+						if(rand.nextDouble() > 1 - probInterestFlashmobTag){
                             result.add(instance);
 						}
 					} 
@@ -164,7 +164,7 @@ public class FlashmobTagDictionary {
 		int numberOfMonths = (int)(dateGen.numberOfMonths(fromDate));	
 		int earliestIndex = searchEarliestIndex(fromDate);
 		for( int i = earliestIndex; i < flashmobTagCumDist.length; ++i ) {
-				if(selectFlashmobTag(i)) {
+				if(selectFlashmobTag(rand, i)) {
                     result.add(flashmobTagCumDist[i]); 
                 }
 		}

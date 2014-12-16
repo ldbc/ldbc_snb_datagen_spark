@@ -22,6 +22,6 @@ public class HadoopBlockMapper extends Mapper<LongWritable, ReducedUserProfile, 
     @Override
     public void map(LongWritable key, ReducedUserProfile value, Mapper.Context context)
             throws IOException, InterruptedException {
-        context.write(new ComposedKey(key.get() / 10000, key.get()), value);
+        context.write(new ComposedKey(key.get() / 10000, key.get(),value.getAccountId()), value);
     }
 }

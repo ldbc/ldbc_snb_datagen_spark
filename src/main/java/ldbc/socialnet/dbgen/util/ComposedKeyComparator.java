@@ -21,6 +21,8 @@ public class ComposedKeyComparator extends WritableComparator {
         if (keyA.block > keyB.block) return 1;
         if (keyA.key < keyB.key) return -1;
         if (keyA.key > keyB.key) return 1;
+        if (keyA.id < keyB.id) return -1;
+        if (keyA.id > keyB.id) return 1;
         return 0;
     }
 }

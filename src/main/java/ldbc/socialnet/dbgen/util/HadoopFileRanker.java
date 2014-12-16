@@ -47,7 +47,7 @@ public class HadoopFileRanker {
                            Context context) throws IOException, InterruptedException {
 
             for( V v : valueSet ) {
-                context.write(new ComposedKey(reducerId, counter++), v);
+                context.write(new ComposedKey(reducerId, counter++,0), v);
             }
         }
 
@@ -116,6 +116,7 @@ public class HadoopFileRanker {
             for( V v : valueSet ) {
                 long rank = counters[reducerId] + i;
                         context.write(new LongWritable(rank), v);
+                System.out.println(reducerId+" "+rank);
                 i++;
             }
         }
