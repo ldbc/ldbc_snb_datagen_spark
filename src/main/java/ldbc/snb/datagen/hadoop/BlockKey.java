@@ -10,37 +10,38 @@ import java.io.IOException;
  * Created by aprat on 11/9/14.
  */
 
-    public class ComposedKey implements WritableComparable<ComposedKey> {
+    public class BlockKey implements WritableComparable<BlockKey> {
         public long block;
-        public long key;
+        public TupleKey tk;
 
-        public ComposedKey( ) {
+        public BlockKey( ) {
+            tk = new TupleKey();
         }
 
-        public ComposedKey(ComposedKey cK) {
-            this.block = cK.block;
-            this.key = cK.key;
+        public BlockKey(BlockKey bK) {
+            this.block = bK.block;
+            this.tk = new TupleKey(bK.tk);
         }
 
-        public ComposedKey( long block, long key) {
+        public BlockKey( long block, TupleKey tk) {
             this.block = block;
-            this.key = key;
+            this.tk = tk;
         }
 
         @Override
         public void write(DataOutput out) throws IOException {
             out.writeLong(block);
-            out.writeLong(key);
+            tk.write(out);
         }
 
         @Override
         public void readFields(DataInput in) throws IOException {
             block = in.readLong();
-            key = in.readLong();
+            tk.readFields(in);
         }
 
         @Override
-        public int compareTo( ComposedKey mpk) {
+        public int compareTo( BlockKey mpk) {
             if (block < mpk.block) return -1;
             if (block > mpk.block) return 1;
             return 0;

@@ -11,7 +11,7 @@ import java.io.IOException;
 /**
  * Created by aprat on 11/17/14.
  */
-public class HadoopBlockMapper extends Mapper<LongWritable, Person, ComposedKey, Person> {
+public class HadoopBlockMapper extends Mapper<LongWritable, Person, BlockKey, Person> {
     int mapId;
 
     @Override
@@ -25,6 +25,6 @@ public class HadoopBlockMapper extends Mapper<LongWritable, Person, ComposedKey,
     @Override
     public void map(LongWritable key, Person value, Mapper.Context context)
             throws IOException, InterruptedException {
-        context.write(new ComposedKey(key.get() / DatagenParams.blockSize, key.get()), value);
+        context.write(new BlockKey(key.get() / DatagenParams.blockSize, new TupleKey(key.get(),value.accountId)), value);
     }
 }

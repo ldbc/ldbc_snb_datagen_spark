@@ -32,7 +32,7 @@ public class HadoopFileRanker {
         this.V = V;
     }
 
-    public static class HadoopFileRankerSortReducer<K, V, T extends ComposedKey>  extends Reducer<K, V, ComposedKey, V> {
+    public static class HadoopFileRankerSortReducer<K, V, T extends BlockKey>  extends Reducer<K, V, BlockKey, V> {
 
         private int reducerId;          /** The id of the reducer.**/
         private long counter = 0;       /** Counter of the number of elements received by this reducer.*/
@@ -47,7 +47,7 @@ public class HadoopFileRanker {
                            Context context) throws IOException, InterruptedException {
 
             for( V v : valueSet ) {
-                context.write(new ComposedKey(reducerId, counter++), v);
+                context.write(new BlockKey(reducerId, new TupleKey(counter++,0)), v);
             }
         }
 
@@ -65,7 +65,7 @@ public class HadoopFileRanker {
         }
     }
 
-    public static class HadoopFileRankerPartitioner<V> extends Partitioner<ComposedKey, V> {
+    public static class HadoopFileRankerPartitioner<V> extends Partitioner<BlockKey, V> {
 
         public HadoopFileRankerPartitioner() {
             super();
@@ -73,13 +73,13 @@ public class HadoopFileRanker {
         }
 
         @Override
-        public int getPartition(ComposedKey key, V value,
+        public int getPartition(BlockKey key, V value,
                                 int numReduceTasks) {
             return (int)(key.block % numReduceTasks);
         }
     }
 
-    public static class HadoopFileRankerFinalReducer<ComposedKey, V, T extends LongWritable>  extends Reducer<ComposedKey, V, LongWritable, V> {
+    public static class HadoopFileRankerFinalReducer<BlockKey, V, T extends LongWritable>  extends Reducer<BlockKey, V, LongWritable, V> {
 
         private int reducerId;          /** The id of the reducer. **/
         private int numReduceTasks;     /** The number of reducer tasks.**/
@@ -112,7 +112,7 @@ public class HadoopFileRanker {
         }
 
         @Override
-        public void reduce(ComposedKey key, Iterable<V> valueSet,
+        public void reduce(BlockKey key, Iterable<V> valueSet,
                            Context context) throws IOException, InterruptedException {
 
             for( V v : valueSet ) {
@@ -141,7 +141,7 @@ public class HadoopFileRanker {
 
         jobSort.setMapOutputKeyClass(K);
         jobSort.setMapOutputValueClass(V);
-        jobSort.setOutputKeyClass(ComposedKey.class);
+        jobSort.setOutputKeyClass(BlockKey.class);
         jobSort.setOutputValueClass(V);
         jobSort.setNumReduceTasks(numThreads);
         jobSort.setReducerClass(HadoopFileRankerSortReducer.class);
@@ -159,11 +159,11 @@ public class HadoopFileRanker {
         FileInputFormat.setInputPaths(jobRank, new Path(conf.get("hadoopDir")+"/rankIntermediate"));
         FileOutputFormat.setOutputPath(jobRank, new Path(outputFileName));
 
-        jobRank.setMapOutputKeyClass(ComposedKey.class);
+        jobRank.setMapOutputKeyClass(BlockKey.class);
         jobRank.setMapOutputValueClass(V);
         jobRank.setOutputKeyClass(LongWritable.class);
         jobRank.setOutputValueClass(V);
-        jobRank.setSortComparatorClass(ComposedKeyComparator.class);
+        jobRank.setSortComparatorClass(BlockKeyComparator.class);
         jobRank.setNumReduceTasks(numThreads);
         jobRank.setReducerClass(HadoopFileRankerFinalReducer.class);
         jobRank.setJarByClass(V);

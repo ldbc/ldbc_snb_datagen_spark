@@ -23,7 +23,7 @@ import java.util.ArrayList;
  */
 public class HadoopKnowsGenerator {
 
-    public static class HadoopKnowsGeneratorReducer  extends Reducer<ComposedKey, Person, LongWritable, Person> {
+    public static class HadoopKnowsGeneratorReducer  extends Reducer<BlockKey, Person, LongWritable, Person> {
 
         private KnowsGenerator knowsGenerator;   /** The person serializer **/
         private Configuration conf;
@@ -36,7 +36,7 @@ public class HadoopKnowsGenerator {
         }
 
         @Override
-        public void reduce(ComposedKey key, Iterable<Person> valueSet,Context context)
+        public void reduce(BlockKey key, Iterable<Person> valueSet,Context context)
                 throws IOException, InterruptedException {
             ArrayList<Person> persons = new ArrayList<Person>();
             for( Person p : valueSet ) {
@@ -44,7 +44,7 @@ public class HadoopKnowsGenerator {
             }
             this.knowsGenerator.generateKnows(persons, (int)key.block, conf.getFloat("upperBound", 0.1f));
             for( Person p : persons ) {
-                context.write(new LongWritable(key.key), p);
+                context.write(new LongWritable(p.accountId), p);
             }
         }
     }
@@ -55,7 +55,7 @@ public class HadoopKnowsGenerator {
 
 
     public HadoopKnowsGenerator( Configuration conf, String keySetterName, float upperBound ) {
-        this.conf = new Configuration(conf);
+        this.conf = conf;
         this.upperBound = upperBound;
         this.keySetterName = keySetterName;
     }
@@ -78,7 +78,7 @@ public class HadoopKnowsGenerator {
         conf.set("upperBound",Double.toString(upperBound));
         int numThreads = Integer.parseInt(conf.get("numThreads"));
         Job job = new Job(conf, "Knows generator");
-        job.setMapOutputKeyClass(ComposedKey.class);
+        job.setMapOutputKeyClass(BlockKey.class);
         job.setMapOutputValueClass(Person.class);
         job.setOutputKeyClass(LongWritable.class);
         job.setOutputValueClass(Person.class);
@@ -89,8 +89,8 @@ public class HadoopKnowsGenerator {
         job.setInputFormatClass(SequenceFileInputFormat.class);
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
-        job.setSortComparatorClass(ComposedKeyComparator.class);
-        job.setGroupingComparatorClass(ComposedKeyGroupComparator.class);
+        job.setSortComparatorClass(BlockKeyComparator.class);
+        job.setGroupingComparatorClass(BlockKeyGroupComparator.class);
         job.setPartitionerClass(HadoopBlockPartitioner.class);
 
         FileInputFormat.setInputPaths(job, new Path(rankedFileName));

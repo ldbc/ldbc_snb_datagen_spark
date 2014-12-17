@@ -25,7 +25,7 @@ import java.io.IOException;
  */
 public class HadoopPersonSerializer {
 
-    public static class HadoopPersonSerializerReducer  extends Reducer<ComposedKey, Person, LongWritable, Person> {
+    public static class HadoopPersonSerializerReducer  extends Reducer<BlockKey, Person, LongWritable, Person> {
 
         private int reducerId;                          /** The id of the reducer.**/
         private SNBPersonSerializer personSerializer;   /** The person serializer **/
@@ -42,7 +42,7 @@ public class HadoopPersonSerializer {
         }
 
         @Override
-        public void reduce(ComposedKey key, Iterable<Person> valueSet,Context context)
+        public void reduce(BlockKey key, Iterable<Person> valueSet,Context context)
                 throws IOException, InterruptedException {
             for( Person p : valueSet ) {
                 dataExporter.export(p);
@@ -65,7 +65,7 @@ public class HadoopPersonSerializer {
 
         int numThreads = Integer.parseInt(conf.get("numThreads"));
         Job job = new Job(conf, "Person Serializer");
-        job.setMapOutputKeyClass(ComposedKey.class);
+        job.setMapOutputKeyClass(BlockKey.class);
         job.setMapOutputValueClass(Person.class);
         job.setOutputKeyClass(LongWritable.class);
         job.setOutputValueClass(Person.class);
@@ -76,7 +76,7 @@ public class HadoopPersonSerializer {
         job.setInputFormatClass(SequenceFileInputFormat.class);
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
-        job.setSortComparatorClass(ComposedKeyComparator.class);
+        job.setSortComparatorClass(BlockKeyComparator.class);
         job.setPartitionerClass(HadoopBlockPartitioner.class);
 
         FileInputFormat.setInputPaths(job, new Path(inputFileName));

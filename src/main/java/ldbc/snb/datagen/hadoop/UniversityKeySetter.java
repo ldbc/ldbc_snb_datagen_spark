@@ -5,10 +5,10 @@ import ldbc.snb.datagen.objects.Person;
 /**
  * Created by aprat on 11/17/14.
  */
-public class UniversityKeySetter implements HadoopFileKeyChanger.KeySetter {
+public class UniversityKeySetter implements HadoopFileKeyChanger.KeySetter<TupleKey> {
 
-    public long getKey(Object object ) {
+    public TupleKey getKey(Object object ) {
         Person person = (Person)object;
-        return person.universityLocationId;
+        return new TupleKey(person.universityLocationId, person.accountId);
     }
 }

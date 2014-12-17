@@ -17,8 +17,8 @@ import java.io.IOException;
  */
 public class HadoopFileKeyChanger {
 
-    public interface KeySetter {
-       public long getKey(Object object);
+    public interface KeySetter<K> {
+       public K getKey(Object object);
     }
 
     private String keySetterName;
@@ -33,8 +33,8 @@ public class HadoopFileKeyChanger {
         this.V = V;
     }
 
-    public static class HadoopFileKeyChangerReducer<K, V>  extends Reducer<K, V, LongWritable, V> {
-        KeySetter keySetter;
+    public static class HadoopFileKeyChangerReducer<K, V>  extends Reducer<K, V, TupleKey, V> {
+        KeySetter<TupleKey> keySetter;
         @Override
         public void setup( Context context ) {
             try {
@@ -53,7 +53,7 @@ public class HadoopFileKeyChanger {
         public void reduce(K key, Iterable<V> valueSet,
                            Context context) throws IOException, InterruptedException {
             for( V v : valueSet ) {
-                context.write(new LongWritable(keySetter.getKey(v)), v);
+                context.write(keySetter.getKey(v), v);
             }
         }
     }
@@ -61,6 +61,7 @@ public class HadoopFileKeyChanger {
     public void run( String inputFileName, String outputFileName ) throws Exception {
 
         int numThreads = conf.getInt("numThreads",1);
+        System.out.println("***************"+numThreads);
         conf.set("keySetterClassName", keySetterName);
 
         /** First Job to sort the key-value pairs and to count the number of elements processed by each reducer.**/
