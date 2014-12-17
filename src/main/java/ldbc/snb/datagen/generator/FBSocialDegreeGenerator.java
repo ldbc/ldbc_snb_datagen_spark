@@ -157,9 +157,10 @@ public class FBSocialDegreeGenerator {
 
     //Assign new ID to user based on the percentile that he/she belongs to
     public int getIDByPercentile() {
-        int id = percenttileIDCounter[percentileIdx] * 100 + percentileIdx;
+/*        int id = percenttileIDCounter[percentileIdx] * 100 + percentileIdx;
         percenttileIDCounter[percentileIdx]++;
-        return id;
+        return id;*/
+        return this.percentileIdx;
     }
 
     public void printNewBucketRange(String filename) {
