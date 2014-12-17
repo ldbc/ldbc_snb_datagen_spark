@@ -88,7 +88,7 @@ public class Person implements Serializable, Writable {
 
         this.firstName = new String(p.firstName);
         this.lastName = new String(p.lastName);
-        for( Map.Entry<Long,Long> c : companies.entrySet()) {
+        for( Map.Entry<Long,Long> c : p.companies.entrySet()) {
             this.companies.put(c.getKey(),c.getValue());
         }
         this.classYear = p.classYear;

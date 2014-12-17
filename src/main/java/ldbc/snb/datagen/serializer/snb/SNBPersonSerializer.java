@@ -49,6 +49,7 @@ import ldbc.snb.datagen.objects.StudyAt;
 import ldbc.snb.datagen.objects.WorkAt;
 import ldbc.snb.datagen.serializer.HDFSCSVWriter;
 import ldbc.snb.datagen.serializer.PersonSerializer;
+import org.apache.hadoop.conf.Configuration;
 
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
@@ -98,6 +99,10 @@ public class SNBPersonSerializer implements PersonSerializer {
                 DatagenParams.probEnglish,
                 DatagenParams.probSecondLang);
         languageDictionary.load(DatagenParams.languageDictionaryFile);
+    }
+
+    public void initialize(Configuration conf) {
+
     }
 
     @Override

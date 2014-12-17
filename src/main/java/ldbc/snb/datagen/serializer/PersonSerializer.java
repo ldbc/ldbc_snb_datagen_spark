@@ -41,8 +41,11 @@ import ldbc.snb.datagen.objects.Knows;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.objects.StudyAt;
 import ldbc.snb.datagen.objects.WorkAt;
+import org.apache.hadoop.conf.Configuration;
 
 public interface PersonSerializer {
+
+    public void initialize(Configuration conf);
 
     public void close();
 
