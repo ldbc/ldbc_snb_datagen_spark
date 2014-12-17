@@ -1,24 +1,18 @@
 package ldbc.snb.datagen.hadoop;
 
-import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.serializer.DataExporter;
 import ldbc.snb.datagen.serializer.PersonSerializer;
-import ldbc.snb.datagen.serializer.snb.SNBPersonSerializer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 
-import java.io.DataInput;
-import java.io.DataOutput;
 import java.io.IOException;
 
 /**

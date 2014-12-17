@@ -15,7 +15,7 @@ public class ConfigParser {
         Configuration conf = new Configuration();
         conf.set("scaleFactor", Integer.toString(1));
         conf.set("numThreads", Integer.toString(1));
-        conf.set("serializer", "ldbc.snb.datagen.SNBPersonSerializer");
+        conf.set("serializer", "ldbc.snb.datagen.serializer.snb.interactive.CSVPersonSerializer");
         conf.set("compressed", Boolean.toString(false));
         conf.set("updateStreams", Boolean.toString(false));
         conf.set("outputDir", "./");
@@ -25,19 +25,8 @@ public class ConfigParser {
 
     public static Configuration readConfig(Configuration conf, String paramsFile) {
         try {
-            //First read the internal params.ini
             Properties properties = new Properties();
             properties.load(new InputStreamReader(new FileInputStream(paramsFile), "UTF-8"));
-/*            checkOption(conf, "scaleFactor", properties);
-            checkOption(conf, "numThreads", properties);
-            checkOption(conf, "serializer", properties);
-            checkOption(conf, "compressed", properties);
-            checkOption(conf, "updateStreams", properties);
-            checkOption(conf, "outputDir", properties);
-            checkOption(conf, "numPersons", properties);
-            checkOption(conf, "numYears", properties);
-            checkOption(conf, "startYear", properties);
-            */
             for( String s : properties.stringPropertyNames()) {
                 conf.set(s,properties.getProperty(s));
             }
