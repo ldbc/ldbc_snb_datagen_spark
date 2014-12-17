@@ -45,7 +45,7 @@ import org.apache.hadoop.conf.Configuration;
 
 public interface PersonSerializer {
 
-    public void initialize(Configuration conf);
+    public void initialize(Configuration conf, int reducerId);
 
     public void close();
 
