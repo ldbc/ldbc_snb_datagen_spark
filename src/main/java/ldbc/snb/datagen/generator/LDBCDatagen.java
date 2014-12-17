@@ -84,6 +84,10 @@ public class LDBCDatagen {
         HadoopPersonSerializer serializer = new HadoopPersonSerializer(conf);
         serializer.run(personsFileName2);
 
+        printProgress("Serializing invariant schema ");
+        HadoopInvariantSerializer invariantSerializer = new HadoopInvariantSerializer(conf);
+        invariantSerializer.run();
+
         long end = System.currentTimeMillis();
         System.out.println(((end - start) / 1000)
                 + " total seconds");

@@ -1,7 +1,7 @@
 package ldbc.snb.datagen.hadoop;
 
 import ldbc.snb.datagen.objects.Person;
-import ldbc.snb.datagen.serializer.DataExporter;
+import ldbc.snb.datagen.serializer.PersonDataExporter;
 import ldbc.snb.datagen.serializer.PersonSerializer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -24,25 +24,25 @@ public class HadoopPersonSerializer {
 
         private int reducerId;                          /** The id of the reducer.**/
         private PersonSerializer personSerializer;   /** The person serializer **/
-        private DataExporter dataExporter;              /** The data exporter.**/
+        private PersonDataExporter personDataExporter;              /** The data exporter.**/
 
         protected void setup(Context context) {
             Configuration conf = context.getConfiguration();
             reducerId = context.getTaskAttemptID().getTaskID().getId();
             try {
-                personSerializer = (PersonSerializer) Class.forName(conf.get("serializer")).newInstance();
+                personSerializer = (PersonSerializer) Class.forName(conf.get("personSerializer")).newInstance();
                 personSerializer.initialize(conf,reducerId);
             } catch( Exception e ) {
                 System.err.println(e.getMessage());
             }
-            dataExporter = new DataExporter(personSerializer);
+            personDataExporter = new PersonDataExporter(personSerializer);
         }
 
         @Override
         public void reduce(BlockKey key, Iterable<Person> valueSet,Context context)
                 throws IOException, InterruptedException {
             for( Person p : valueSet ) {
-                dataExporter.export(p);
+                personDataExporter.export(p);
             }
 
         }

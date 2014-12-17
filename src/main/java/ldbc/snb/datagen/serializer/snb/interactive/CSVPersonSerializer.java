@@ -82,7 +82,7 @@ public class CSVPersonSerializer implements PersonSerializer {
         }
     }
 
-    public CSVPersonSerializer(String outputDir, String suffix, int numPartitions, boolean compressed) {
+    public CSVPersonSerializer() {
     }
 
     public void initialize(Configuration conf, int reducerId) {
