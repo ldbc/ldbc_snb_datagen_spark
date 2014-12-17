@@ -72,7 +72,7 @@ public class HadoopFileKeyChanger {
 
         job.setMapOutputKeyClass(K);
         job.setMapOutputValueClass(V);
-        job.setOutputKeyClass(LongWritable.class);
+        job.setOutputKeyClass(TupleKey.class);
         job.setOutputValueClass(V);
         job.setNumReduceTasks(numThreads);
         job.setReducerClass(HadoopFileKeyChangerReducer.class);
