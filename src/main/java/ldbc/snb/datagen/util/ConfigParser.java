@@ -15,7 +15,7 @@ public class ConfigParser {
         Configuration conf = new Configuration();
         conf.set("scaleFactor", Integer.toString(1));
         conf.set("numThreads", Integer.toString(1));
-        conf.set("serializer", "csv");
+        conf.set("serializer", "ldbc.snb.datagen.SNBPersonSerializer");
         conf.set("compressed", Boolean.toString(false));
         conf.set("updateStreams", Boolean.toString(false));
         conf.set("outputDir", "./");
@@ -28,7 +28,7 @@ public class ConfigParser {
             //First read the internal params.ini
             Properties properties = new Properties();
             properties.load(new InputStreamReader(new FileInputStream(paramsFile), "UTF-8"));
-            checkOption(conf, "scaleFactor", properties);
+/*            checkOption(conf, "scaleFactor", properties);
             checkOption(conf, "numThreads", properties);
             checkOption(conf, "serializer", properties);
             checkOption(conf, "compressed", properties);
@@ -37,6 +37,10 @@ public class ConfigParser {
             checkOption(conf, "numPersons", properties);
             checkOption(conf, "numYears", properties);
             checkOption(conf, "startYear", properties);
+            */
+            for( String s : properties.stringPropertyNames()) {
+                conf.set(s,properties.getProperty(s));
+            }
             if (conf.get("fs.defaultFS").compareTo("file:///") == 0) {
                 System.out.println("Running in standalone mode. Setting numThreads to 1");
                 conf.set("numThreads", "1");
