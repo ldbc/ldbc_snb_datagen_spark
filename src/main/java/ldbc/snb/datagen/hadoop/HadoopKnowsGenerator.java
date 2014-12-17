@@ -71,7 +71,7 @@ public class HadoopKnowsGenerator {
 
 
         String rankedFileName = conf.get("hadoopDir") + "/ranked";
-        HadoopFileRanker hadoopFileRanker = new HadoopFileRanker( conf, LongWritable.class, Person.class );
+        HadoopFileRanker hadoopFileRanker = new HadoopFileRanker( conf, TupleKey.class, Person.class );
         hadoopFileRanker.run(keyChangedFileName,rankedFileName);
         fs.delete(new Path(keyChangedFileName), true);
 
