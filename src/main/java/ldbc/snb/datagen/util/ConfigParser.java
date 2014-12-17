@@ -15,7 +15,8 @@ public class ConfigParser {
         Configuration conf = new Configuration();
         conf.set("scaleFactor", Integer.toString(1));
         conf.set("numThreads", Integer.toString(1));
-        conf.set("serializer", "ldbc.snb.datagen.serializer.snb.interactive.CSVPersonSerializer");
+        conf.set("personSerializer", "ldbc.snb.datagen.serializer.snb.interactive.CSVPersonSerializer");
+        conf.set("invariantSerializer", "ldbc.snb.datagen.serializer.snb.interactive.CSVInvariantSerializer");
         conf.set("compressed", Boolean.toString(false));
         conf.set("updateStreams", Boolean.toString(false));
         conf.set("outputDir", "./");
