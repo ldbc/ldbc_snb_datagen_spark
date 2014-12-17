@@ -3,6 +3,7 @@ package ldbc.snb.datagen.hadoop;
 import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.serializer.DataExporter;
+import ldbc.snb.datagen.serializer.PersonSerializer;
 import ldbc.snb.datagen.serializer.snb.SNBPersonSerializer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -28,16 +29,18 @@ public class HadoopPersonSerializer {
     public static class HadoopPersonSerializerReducer  extends Reducer<BlockKey, Person, LongWritable, Person> {
 
         private int reducerId;                          /** The id of the reducer.**/
-        private SNBPersonSerializer personSerializer;   /** The person serializer **/
+        private PersonSerializer personSerializer;   /** The person serializer **/
         private DataExporter dataExporter;              /** The data exporter.**/
 
         protected void setup(Context context) {
             Configuration conf = context.getConfiguration();
             reducerId = context.getTaskAttemptID().getTaskID().getId();
-            personSerializer = new SNBPersonSerializer(conf.get("outputDir")+"/social_network",
-                                                       Integer.toString(reducerId),
-                                                       conf.getInt("numPartitions",1),
-                                                       conf.getBoolean("compressed",false));
+            try {
+                personSerializer = (PersonSerializer) Class.forName(conf.get("serializer")).newInstance();
+                personSerializer.initialize(conf,reducerId);
+            } catch( Exception e ) {
+                System.err.println(e.getMessage());
+            }
             dataExporter = new DataExporter(personSerializer);
         }
 

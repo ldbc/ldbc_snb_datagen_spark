@@ -83,10 +83,13 @@ public class SNBPersonSerializer implements PersonSerializer {
     }
 
     public SNBPersonSerializer( String outputDir, String suffix, int numPartitions, boolean compressed) {
+    }
+
+    public void initialize(Configuration conf, int reducerId) {
         int numFiles = FileNames.values().length;
         writers = new HDFSCSVWriter[numFiles];
         for( int i = 0; i < numFiles; ++i) {
-            writers[i] = new HDFSCSVWriter(outputDir,FileNames.values()[i].toString()+"_"+suffix,numPartitions,compressed,"|");
+            writers[i] = new HDFSCSVWriter(conf.get("outputDir")+"/social_network",FileNames.values()[i].toString()+"_"+reducerId,conf.getInt("numPartitions",1),conf.getBoolean("compressed",false),"|");
         }
 
         browserDictionary = new BrowserDictionary(DatagenParams.probAnotherBrowser);
@@ -99,9 +102,6 @@ public class SNBPersonSerializer implements PersonSerializer {
                 DatagenParams.probEnglish,
                 DatagenParams.probSecondLang);
         languageDictionary.load(DatagenParams.languageDictionaryFile);
-    }
-
-    public void initialize(Configuration conf) {
 
     }
 
