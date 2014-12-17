@@ -201,7 +201,7 @@ public class Person implements Serializable, Writable {
         stream.writeInt(companies.size());
         for( Map.Entry<Long,Long> e : companies.entrySet()) {
             stream.writeLong(e.getKey());
-            stream.writeLong(e.getKey());
+            stream.writeLong(e.getValue());
         }
         stream.writeLong(classYear);
     }
@@ -306,7 +306,7 @@ public class Person implements Serializable, Writable {
         arg0.writeInt(companies.size());
         for( Map.Entry<Long,Long> e : companies.entrySet()) {
             arg0.writeLong(e.getKey());
-            arg0.writeLong(e.getKey());
+            arg0.writeLong(e.getValue());
         }
         arg0.writeLong(classYear);
     }
