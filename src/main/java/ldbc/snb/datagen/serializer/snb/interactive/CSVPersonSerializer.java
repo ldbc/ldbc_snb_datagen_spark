@@ -36,7 +36,7 @@
  */
 
 
-package ldbc.snb.datagen.serializer.snb;
+package ldbc.snb.datagen.serializer.snb.snb.interactive;
 
 import ldbc.snb.datagen.dictionary.BrowserDictionary;
 import ldbc.snb.datagen.dictionary.LanguageDictionary;
@@ -55,7 +55,7 @@ import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 
-public class SNBPersonSerializer implements PersonSerializer {
+public class CSVPersonSerializer implements PersonSerializer {
 
     private HDFSCSVWriter [] writers;
     private BrowserDictionary browserDictionary;
@@ -82,7 +82,7 @@ public class SNBPersonSerializer implements PersonSerializer {
         }
     }
 
-    public SNBPersonSerializer( String outputDir, String suffix, int numPartitions, boolean compressed) {
+    public CSVPersonSerializer() {
     }
 
     public void initialize(Configuration conf, int reducerId) {

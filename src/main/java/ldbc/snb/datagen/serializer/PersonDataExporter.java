@@ -2,27 +2,32 @@ package ldbc.snb.datagen.serializer;
 
 import ldbc.snb.datagen.dictionary.CompanyDictionary;
 import ldbc.snb.datagen.dictionary.PlaceDictionary;
+import ldbc.snb.datagen.dictionary.TagDictionary;
 import ldbc.snb.datagen.dictionary.UniversityDictionary;
 import ldbc.snb.datagen.generator.DatagenParams;
-import ldbc.snb.datagen.objects.Knows;
-import ldbc.snb.datagen.objects.Person;
-import ldbc.snb.datagen.objects.StudyAt;
-import ldbc.snb.datagen.objects.WorkAt;
+import ldbc.snb.datagen.objects.*;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Created by aprat on 10/15/14.
  */
-public class DataExporter {
+public class PersonDataExporter {
 
     private PersonSerializer personSerializer;
     private UniversityDictionary universityDictionary;
     private PlaceDictionary placeDictionary;
     private CompanyDictionary companyDictionary;
+    private TagDictionary tagDictionary;
+    private TreeSet<Integer> exportedClasses;
 
-    public DataExporter( PersonSerializer personSerializer) {
+    public PersonDataExporter( PersonSerializer personSerializer) {
         this.personSerializer = personSerializer;
+
+        exportedClasses = new TreeSet<Integer>();
 
         placeDictionary = new PlaceDictionary(DatagenParams.numPersons);
         placeDictionary.load(DatagenParams.cityDictionaryFile, DatagenParams.countryDictionaryFile);
@@ -35,6 +40,13 @@ public class DataExporter {
                 DatagenParams.probTopUniv,
                 companyDictionary.getNumCompanies());
         universityDictionary.load(DatagenParams.universityDictionaryFile);
+
+        tagDictionary = new TagDictionary(  placeDictionary.getCountries().size(),
+                DatagenParams.tagCountryCorrProb);
+        tagDictionary.load( DatagenParams.tagsFile,
+                DatagenParams.popularTagByCountryFile,
+                DatagenParams.tagClassFile,
+                DatagenParams.tagClassHierarchyFile);
     }
 
 
