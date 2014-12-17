@@ -233,7 +233,6 @@ public class DatagenParams {
     public static boolean updateStreams                    = false;
     public static boolean exportText                       = true;
     public static boolean compressed                       = false;
-    public static String serializerType                    = "csv";
 
     private static TreeMap<Integer, ScaleFactor> scaleFactors;
     private static final String SCALE_FACTORS_FILE      =  "scale_factors.xml";
@@ -289,17 +288,12 @@ public class DatagenParams {
                 endYear = startYear + numYears;
             }
 
-            serializerType = conf.get("serializer","csv");
             exportText = true;
             compressed = conf.getBoolean("compressed",false);
             numThreads = conf.getInt("numThreads",1);
             updateStreams = conf.getBoolean("updateStreams",false);
             deltaTime = conf.getInt("deltaTime",10000);
             outputDir = conf.get("outputDir","./");
-            if (!serializerType.equals("ttl") && !serializerType.equals("n3") &&
-                    !serializerType.equals("csv") && !serializerType.equals("none") && !serializerType.equals("csv_merge_foreign")) {
-                throw new IllegalStateException("serializerType must be ttl, n3, csv, csv_merge_foreign");
-            }
         } catch (Exception e) {
             System.err.println(e.getMessage());
             System.exit(-1);
