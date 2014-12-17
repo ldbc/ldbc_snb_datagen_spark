@@ -36,7 +36,7 @@
  */
 
 
-package ldbc.snb.datagen.serializer.snb.snb.interactive;
+package ldbc.snb.datagen.serializer.snb.interactive;
 
 import ldbc.snb.datagen.dictionary.BrowserDictionary;
 import ldbc.snb.datagen.dictionary.LanguageDictionary;

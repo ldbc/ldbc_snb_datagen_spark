@@ -22,12 +22,9 @@ public class PersonDataExporter {
     private PlaceDictionary placeDictionary;
     private CompanyDictionary companyDictionary;
     private TagDictionary tagDictionary;
-    private TreeSet<Integer> exportedClasses;
 
     public PersonDataExporter( PersonSerializer personSerializer) {
         this.personSerializer = personSerializer;
-
-        exportedClasses = new TreeSet<Integer>();
 
         placeDictionary = new PlaceDictionary(DatagenParams.numPersons);
         placeDictionary.load(DatagenParams.cityDictionaryFile, DatagenParams.countryDictionaryFile);
