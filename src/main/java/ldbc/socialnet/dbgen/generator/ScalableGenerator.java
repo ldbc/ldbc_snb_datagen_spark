@@ -1011,7 +1011,13 @@ public class ScalableGenerator{
                 membership.setGroupId(group.getGroupId());
                 membership.setJoinDate(friends[i].getCreatedTime()+deltaTime);
                 membership.setUserId(friends[i].getFriendAcc());
-                membership.userCreationDate = userInfo.user.getCreationDate();
+                membership.setIP(friends[i].getSourceIp());
+                membership.userCreationDate = friends[i].toCreationDate;
+                membership.setBrowserIdx(friends[i].getBrowserIdx());
+                membership.setAgentIdx(friends[i].getAgentIdx());
+                membership.setFrequentChange(friends[i].isFrequentChange());
+                membership.setHaveSmartPhone(friends[i].isHaveSmartPhone());
+                membership.setLargePoster(friends[i].isLargePoster());
                 group.addMember(membership);
             }
         }
@@ -1020,7 +1026,8 @@ public class ScalableGenerator{
     }
 
     private void generatePosts(PostGenerator postGenerator, ReducedUserProfile user, UserExtraInfo extraInfo, Group group){
-        Vector<Post> createdPosts = postGenerator.createPosts( randomFarm, user, extraInfo, postId );
+        //Vector<Post> createdPosts = postGenerator.createPosts( randomFarm, user, extraInfo, postId );
+        Vector<Post> createdPosts = postGenerator.createPosts(randomFarm,group,postId);
         postId+=createdPosts.size();
         Iterator<Post> it = createdPosts.iterator();
         

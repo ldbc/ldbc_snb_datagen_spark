@@ -47,6 +47,7 @@ public class Friend implements Serializable{
 	long to;
     public long dependantDate;
     public long fromCreationDate;
+    public long toCreationDate;
 	long createdTime;			//approved Time 
 	long requestTime;			 
 	long declinedTime; 
@@ -65,7 +66,7 @@ public class Friend implements Serializable{
 	boolean 			isLargePoster;			// True if friend is a large poster.
 	
 	
-	public Friend(long from, long to, long _requestedTime, long _declinedTime, long _createdTime, byte passidx, byte initiator, boolean isLargePoster){
+/*	public Friend(long from, long to, long _requestedTime, long _declinedTime, long _createdTime, byte passidx, byte initiator, boolean isLargePoster){
         this.from = from;
 		this.to = to;
 		this.requestTime = _requestedTime;
@@ -75,6 +76,7 @@ public class Friend implements Serializable{
 		this.initiator = initiator;
 		this.isLargePoster = isLargePoster;
 	}
+	*/
 	public Friend(){}
 	
 	public void readFields(DataInput arg0) throws IOException{
@@ -82,6 +84,7 @@ public class Friend implements Serializable{
 		to = arg0.readLong();
         dependantDate = arg0.readLong();
         fromCreationDate = arg0.readLong();
+        toCreationDate = arg0.readLong();
 		createdTime = arg0.readLong();
 		requestTime = arg0.readLong();
 		declinedTime = arg0.readLong(); 
@@ -102,6 +105,7 @@ public class Friend implements Serializable{
         arg0.writeLong(to);
         arg0.writeLong(dependantDate);
         arg0.writeLong(fromCreationDate);
+        arg0.writeLong(toCreationDate);
 		arg0.writeLong(createdTime);
 		arg0.writeLong(requestTime);
 		arg0.writeLong(declinedTime);
@@ -123,6 +127,7 @@ public class Friend implements Serializable{
         this.to = to.getAccountId();
         this.dependantDate = Math.max(from.getCreationDate(), to.getCreationDate());
         this.fromCreationDate = from.getCreationDate();
+        this.toCreationDate = to.getCreationDate();
 	    this.requestTime = _requestedTime;
 	    this.declinedTime = _declinedTime;
 	    this.createdTime = _createdTime; 

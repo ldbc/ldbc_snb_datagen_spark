@@ -178,7 +178,6 @@ public class DataExporter {
         Set<Integer> locations = locationDic.getLocations();
         Iterator<Integer> it = locations.iterator();
         while(it.hasNext()) {
-//            printLocationHierarchy(it.next());
             Location location = locationDic.getLocation(it.next());
             staticSerializer.serialize(location);
         }
