@@ -1026,8 +1026,8 @@ public class ScalableGenerator{
     }
 
     private void generatePosts(PostGenerator postGenerator, ReducedUserProfile user, UserExtraInfo extraInfo, Group group){
-        //Vector<Post> createdPosts = postGenerator.createPosts( randomFarm, user, extraInfo, postId );
-        Vector<Post> createdPosts = postGenerator.createPosts(randomFarm,group,postId);
+        Vector<Post> createdPosts = postGenerator.createPosts( randomFarm, user, extraInfo, postId );
+        //Vector<Post> createdPosts = postGenerator.createPosts(randomFarm,group,postId);
         postId+=createdPosts.size();
         Iterator<Post> it = createdPosts.iterator();
         
