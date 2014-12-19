@@ -4,6 +4,7 @@ import org.apache.hadoop.conf.Configuration;
 
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -13,14 +14,15 @@ public class ConfigParser {
 
     public static Configuration initialize() {
         Configuration conf = new Configuration();
-        conf.set("scaleFactor", Integer.toString(1));
-        conf.set("numThreads", Integer.toString(1));
-        conf.set("personSerializer", "ldbc.snb.datagen.serializer.snb.interactive.CSVPersonSerializer");
-        conf.set("invariantSerializer", "ldbc.snb.datagen.serializer.snb.interactive.CSVInvariantSerializer");
-        conf.set("compressed", Boolean.toString(false));
-        conf.set("updateStreams", Boolean.toString(false));
-        conf.set("outputDir", "./");
-        conf.set("deltaTime", "10000");
+        conf.set("ldbc.snb.datagen.scaleFactor", Integer.toString(1));
+        conf.set("ldbc.snb.datagen.numThreads", Integer.toString(1));
+        conf.set("ldbc.snb.datagen.serializer.personSerializer", "ldbc.snb.datagen.serializer.snb.interactive.CSVPersonSerializer");
+        conf.set("ldbc.snb.datagen.serializer.invariantSerializer", "ldbc.snb.datagen.serializer.snb.interactive.CSVInvariantSerializer");
+        conf.set("ldbc.snb.datagen.serializer.compressed", Boolean.toString(false));
+        conf.set("ldbc.snb.datagen.serializer.updateStreams", Boolean.toString(false));
+        conf.set("ldbc.snb.datagen.serializer.outputDir", "./");
+        conf.set("ldbc.snb.datagen.deltaTime", "10000");
+        conf.set("ldbc.snb.datagen.exportText",Boolean.toString(true));
         return conf;
     }
 
@@ -35,8 +37,6 @@ public class ConfigParser {
                 System.out.println("Running in standalone mode. Setting numThreads to 1");
                 conf.set("numThreads", "1");
             }
-            conf.set("hadoopDir",conf.get("outputDir")+"/hadoop");
-            conf.set("socialNetworkDir",conf.get("outputDir")+"/social_network");
         } catch (Exception e) {
             System.err.println(e.getMessage());
             e.printStackTrace();
@@ -54,18 +54,10 @@ public class ConfigParser {
 
     public static void printConfig(Configuration conf) {
         System.out.println("********* Configuration *********");
-        if (conf.get("numPersons") != null && conf.get("numYears") != null && conf.get("startYear") != null) {
-            System.out.println("numPersons: " + conf.get("numPersons"));
-            System.out.println("numYears: " + conf.get("numYears"));
-            System.out.println("startYear: " + conf.get("startYear"));
-        } else {
-            System.out.println("scaleFactor: " + conf.get("scaleFactor"));
+        Map<String,String> map = conf.getValByRegex("^(ldbc.snb.datagen).*$");
+        for( Map.Entry<String,String> e : map.entrySet() ) {
+            System.out.println(e.getKey()+ " "+e.getValue());
         }
-        System.out.println("numThreads: " + conf.get("numThreads"));
-        System.out.println("serializer: " + conf.get("serializer"));
-        System.out.println("compressed: " + conf.get("compressed"));
-        System.out.println("updateStreams: " + conf.get("updateStreams"));
-        System.out.println("outputDir: " + conf.get("outputDir"));
         System.out.println("*********************************");
     }
 }

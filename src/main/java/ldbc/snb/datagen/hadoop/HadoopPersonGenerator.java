@@ -34,7 +34,6 @@ public class HadoopPersonGenerator  {
             int threadId = Integer.parseInt(value.toString());
             System.out.println("Generating user at mapper " + threadId);
             DatagenParams.readConf(conf);
-            DatagenParams.readParameters("/params.ini");
             if (DatagenParams.numPersons % DatagenParams.cellSize != 0) {
                 System.err.println("Number of users should be a multiple of the cellsize");
                 System.exit(-1);
@@ -103,14 +102,14 @@ public class HadoopPersonGenerator  {
      */
     public void run( String outputFileName ) throws Exception {
 
-        String hadoopDir = new String( conf.get("outputDir") + "/hadoop" );
+        String hadoopDir = new String( conf.get("ldbc.snb.datagen.serializer.hadoopDir"));
         String tempFile = hadoopDir+"/mrInputFile";
 
         FileSystem dfs = FileSystem.get(conf);
         dfs.delete(new Path(tempFile), true);
-        writeToOutputFile(tempFile, Integer.parseInt(conf.get("numThreads")), conf);
+        writeToOutputFile(tempFile, Integer.parseInt(conf.get("ldbc.snb.datagen.numThreads")), conf);
 
-        int numThreads = Integer.parseInt(conf.get("numThreads"));
+        int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.numThreads"));
         conf.setInt("mapred.line.input.format.linespermap", 1);
         Job job = new Job(conf, "SIB Generate Users & 1st Dimension");
         job.setMapOutputKeyClass(LongWritable.class);

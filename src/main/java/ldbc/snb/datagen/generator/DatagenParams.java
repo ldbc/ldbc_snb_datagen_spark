@@ -47,8 +47,6 @@ import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.InputStreamReader;
-import java.util.Properties;
 import java.util.TreeMap;
 
 public class DatagenParams {
@@ -84,66 +82,66 @@ public class DatagenParams {
 
     //private parameters
     private enum ParameterNames {
-        AGENT_SENT_RATIO ("probSentFromAgent"),
-        BASE_CORRELATED ("baseProbCorrelated"),
-        BEST_UNIVERSTY_RATIO ("probTopUniv"),
-        BLOCK_SIZE ("blockSize"),
-        CELL_SIZE ("cellSize"),
-        COMPANY_UNCORRELATED_RATIO ("probUnCorrelatedCompany"),
-        DIFFERENT_IP_IN_TRAVEL_RATIO ("probDiffIPinTravelSeason"),
-        DIFFERENT_IP_NOT_TRAVEL_RATIO ("probDiffIPnotTravelSeason"),
-        DIFFERENT_IP_TRAVELLER_RATIO ("probDiffIPforTraveller"),
-        ENGLISH_RATIO ("probEnglish"),
-        FLASHMOB_TAGS_PER_MONTH ("flashmobTagsPerMonth"),
-        FLASHMOB_TAG_DIST_EXP ("flashmobTagDistExp"),
-        FLASHMOB_TAG_MAX_LEVEL ("flashmobTagMaxLevel"),
-        FLASHMOB_TAG_MIN_LEVEL ("flashmobTagMinLevel"),
-        FRIEND_REACCEPT ("friendReApproveRatio"),
-        FRIEND_REJECT ("friendRejectRatio"),
-        GROUP_MAX_POST_MONTH ("maxNumGroupPostPerMonth"),
-        GROUP_MODERATOR_RATIO ("groupModeratorProb"),
-        LARGE_COMMENT_RATIO ("ratioLargeComment"),
-        LARGE_POST_RATIO ("ratioLargePost"),
-        LIMIT_CORRELATED ("limitProCorrelated"),
-        MAX_COMMENT_POST ("maxNumComments"),
-        MAX_COMMENT_SIZE ("maxCommentSize"),
-        MAX_COMPANIES ("maxCompanies"),
-        MAX_EMAIL ("maxEmails"),
-        MAX_FRIENDS ("maxNumFriends"),
-        MAX_GROUP_MEMBERS ("maxNumMemberGroup"),
-        MAX_LARGE_COMMENT_SIZE ("maxLargeCommentSize"),
-        MAX_LARGE_POST_SIZE ("maxLargePostSize"),
-        MAX_NUM_FLASHMOB_POST_PER_MONTH ("maxNumFlashmobPostPerMonth"),
-        MAX_NUM_GROUP_FLASHMOB_POST_PER_MONTH ("maxNumGroupFlashmobPostPerMonth"),
-        MAX_NUM_TAG_PER_FLASHMOB_POST ("maxNumTagPerFlashmobPost"),
-        MAX_PHOTOALBUM ("maxNumPhotoAlbumsPerMonth"),
-        MAX_PHOTO_PER_ALBUM ("maxNumPhotoPerAlbums"),
-        MAX_POPULAR_PLACES ("maxNumPopularPlaces"),
-        MAX_TEXT_SIZE ("maxTextSize"),
-        MIN_COMMENT_SIZE ("minCommentSize"),
-        MIN_FRIENDS ("minNumFriends"),
-        MIN_LARGE_COMMENT_SIZE ("minLargeCommentSize"),
-        MIN_LARGE_POST_SIZE ("minLargePostSize"),
-        MIN_TEXT_SIZE ("minTextSize"),
-        MISSING_RATIO ("missingRatio"),
-        NUM_CELL_WINDOW ("numberOfCellPerWindow"),
-        OTHER_BROWSER_RATIO ("probAnotherBrowser"),
-        POPULAR_PLACE_RATIO ("probPopularPlaces"),
-        PROB_INTEREST_FLASHMOB_TAG ("probInterestFlashmobTag"),
-        PROB_RANDOM_PER_LEVEL ("probRandomPerLevel"),
-        REDUCE_TEXT_RATIO ("ratioReduceText"),
-        SECOND_LANGUAGE_RATIO ("probSecondLang"),
-        SMARTHPHONE_RATIO ("probHavingSmartPhone"),
-        STATUS_MISSING_RATIO ("missingStatusRatio"),
-        STATUS_SINGLE_RATIO ("probSingleStatus"),
-        TAG_UNCORRELATED_COUNTRY ("tagCountryCorrProb"),
-        UNIVERSITY_UNCORRELATED_RATIO ("probUnCorrelatedOrganization"),
-        MAX_NUM_LIKE ("maxNumLike"),
-        UPDATE_PORTION ("updatePortion"),
-        USER_MAX_GROUP ("maxNumGroupCreatedPerUser"),
-        USER_MAX_POST_MONTH ("maxNumPostPerMonth"),
-        USER_MAX_TAGS ("maxNumTagsPerUser"),
-        USER_MIN_TAGS ("minNumTagsPerUser");
+        AGENT_SENT_RATIO ("ldbc.snb.datagen.probSentFromAgent"),
+        BASE_CORRELATED ("ldbc.snb.datagen.baseProbCorrelated"),
+        BEST_UNIVERSTY_RATIO ("ldbc.snb.datagen.probTopUniv"),
+        BLOCK_SIZE ("ldbc.snb.datagen.blockSize"),
+        CELL_SIZE ("ldbc.snb.datagen.cellSize"),
+        COMPANY_UNCORRELATED_RATIO ("ldbc.snb.datagen.probUnCorrelatedCompany"),
+        DIFFERENT_IP_IN_TRAVEL_RATIO ("ldbc.snb.datagen.probDiffIPinTravelSeason"),
+        DIFFERENT_IP_NOT_TRAVEL_RATIO ("ldbc.snb.datagen.probDiffIPnotTravelSeason"),
+        DIFFERENT_IP_TRAVELLER_RATIO ("ldbc.snb.datagen.probDiffIPforTraveller"),
+        ENGLISH_RATIO ("ldbc.snb.datagen.probEnglish"),
+        FLASHMOB_TAGS_PER_MONTH ("ldbc.snb.datagen.flashmobTagsPerMonth"),
+        FLASHMOB_TAG_DIST_EXP ("ldbc.snb.datagen.flashmobTagDistExp"),
+        FLASHMOB_TAG_MAX_LEVEL ("ldbc.snb.datagen.flashmobTagMaxLevel"),
+        FLASHMOB_TAG_MIN_LEVEL ("ldbc.snb.datagen.flashmobTagMinLevel"),
+        FRIEND_REACCEPT ("ldbc.snb.datagen.friendReApproveRatio"),
+        FRIEND_REJECT ("ldbc.snb.datagen.friendRejectRatio"),
+        GROUP_MAX_POST_MONTH ("ldbc.snb.datagen.maxNumGroupPostPerMonth"),
+        GROUP_MODERATOR_RATIO ("ldbc.snb.datagen.groupModeratorProb"),
+        LARGE_COMMENT_RATIO ("ldbc.snb.datagen.ratioLargeComment"),
+        LARGE_POST_RATIO ("ldbc.snb.datagen.ratioLargePost"),
+        LIMIT_CORRELATED ("ldbc.snb.datagen.limitProCorrelated"),
+        MAX_COMMENT_POST ("ldbc.snb.datagen.maxNumComments"),
+        MAX_COMMENT_SIZE ("ldbc.snb.datagen.maxCommentSize"),
+        MAX_COMPANIES ("ldbc.snb.datagen.maxCompanies"),
+        MAX_EMAIL ("ldbc.snb.datagen.maxEmails"),
+        MAX_FRIENDS ("ldbc.snb.datagen.maxNumFriends"),
+        MAX_GROUP_MEMBERS ("ldbc.snb.datagen.maxNumMemberGroup"),
+        MAX_LARGE_COMMENT_SIZE ("ldbc.snb.datagen.maxLargeCommentSize"),
+        MAX_LARGE_POST_SIZE ("ldbc.snb.datagen.maxLargePostSize"),
+        MAX_NUM_FLASHMOB_POST_PER_MONTH ("ldbc.snb.datagen.maxNumFlashmobPostPerMonth"),
+        MAX_NUM_GROUP_FLASHMOB_POST_PER_MONTH ("ldbc.snb.datagen.maxNumGroupFlashmobPostPerMonth"),
+        MAX_NUM_TAG_PER_FLASHMOB_POST ("ldbc.snb.datagen.maxNumTagPerFlashmobPost"),
+        MAX_PHOTOALBUM ("ldbc.snb.datagen.maxNumPhotoAlbumsPerMonth"),
+        MAX_PHOTO_PER_ALBUM ("ldbc.snb.datagen.maxNumPhotoPerAlbums"),
+        MAX_POPULAR_PLACES ("ldbc.snb.datagen.maxNumPopularPlaces"),
+        MAX_TEXT_SIZE ("ldbc.snb.datagen.maxTextSize"),
+        MIN_COMMENT_SIZE ("ldbc.snb.datagen.minCommentSize"),
+        MIN_FRIENDS ("ldbc.snb.datagen.minNumFriends"),
+        MIN_LARGE_COMMENT_SIZE ("ldbc.snb.datagen.minLargeCommentSize"),
+        MIN_LARGE_POST_SIZE ("ldbc.snb.datagen.minLargePostSize"),
+        MIN_TEXT_SIZE ("ldbc.snb.datagen.minTextSize"),
+        MISSING_RATIO ("ldbc.snb.datagen.missingRatio"),
+        NUM_CELL_WINDOW ("ldbc.snb.datagen.numberOfCellPerWindow"),
+        OTHER_BROWSER_RATIO ("ldbc.snb.datagen.probAnotherBrowser"),
+        POPULAR_PLACE_RATIO ("ldbc.snb.datagen.probPopularPlaces"),
+        PROB_INTEREST_FLASHMOB_TAG ("ldbc.snb.datagen.probInterestFlashmobTag"),
+        PROB_RANDOM_PER_LEVEL ("ldbc.snb.datagen.probRandomPerLevel"),
+        REDUCE_TEXT_RATIO ("ldbc.snb.datagen.ratioReduceText"),
+        SECOND_LANGUAGE_RATIO ("ldbc.snb.datagen.probSecondLang"),
+        SMARTHPHONE_RATIO ("ldbc.snb.datagen.probHavingSmartPhone"),
+        STATUS_MISSING_RATIO ("ldbc.snb.datagen.missingStatusRatio"),
+        STATUS_SINGLE_RATIO ("ldbc.snb.datagen.probSingleStatus"),
+        TAG_UNCORRELATED_COUNTRY ("ldbc.snb.datagen.tagCountryCorrProb"),
+        UNIVERSITY_UNCORRELATED_RATIO ("ldbc.snb.datagen.probUnCorrelatedOrganization"),
+        MAX_NUM_LIKE ("ldbc.snb.datagen.maxNumLike"),
+        UPDATE_PORTION ("ldbc.snb.datagen.serializer.updatePortion"),
+        USER_MAX_GROUP ("ldbc.snb.datagen.maxNumGroupCreatedPerUser"),
+        USER_MAX_POST_MONTH ("ldbc.snb.datagen.maxNumPostPerMonth"),
+        USER_MAX_TAGS ("ldbc.snb.datagen.maxNumTagsPerUser"),
+        USER_MIN_TAGS ("ldbc.snb.datagen.minNumTagsPerUser");
 
         private final String name;
 
@@ -224,6 +222,8 @@ public class DatagenParams {
 
 
     public static String outputDir                         = "./";
+    public static String hadoopDir                         = "./";
+    public static String socialNetworkDir                  = "./";
     public static int    numThreads                        = 1;
     public static int    deltaTime                         = 10000;
     public static int    numPersons                        = 10000;
@@ -239,6 +239,74 @@ public class DatagenParams {
 
     public static void readConf( Configuration conf ) {
         try {
+
+            ParameterNames values[] = ParameterNames.values();
+            for( int i = 0; i < values.length; ++i ) {
+                if (conf.get(values[i].toString()) == null) {
+                    throw new IllegalStateException("Missing " + values[i].toString() + " parameter");
+                }
+            }
+
+            cellSize                        = Short.parseShort(conf.get(ParameterNames.CELL_SIZE.toString()));
+            numberOfCellPerWindow           = Integer.parseInt(conf.get(ParameterNames.NUM_CELL_WINDOW.toString()));
+            minNumFriends                   = Integer.parseInt(conf.get(ParameterNames.MIN_FRIENDS.toString()));
+            maxNumFriends                   = Integer.parseInt(conf.get(ParameterNames.MAX_FRIENDS.toString()));
+            friendRejectRatio               = Double.parseDouble(conf.get(ParameterNames.FRIEND_REJECT.toString()));
+            friendReApproveRatio            = Double.parseDouble(conf.get(ParameterNames.FRIEND_REACCEPT.toString()));
+            minNumTagsPerUser               = Integer.parseInt(conf.get(ParameterNames.USER_MIN_TAGS.toString()));
+            maxNumTagsPerUser               = Integer.parseInt(conf.get(ParameterNames.USER_MAX_TAGS.toString()));
+            maxNumPostPerMonth              = Integer.parseInt(conf.get(ParameterNames.USER_MAX_POST_MONTH.toString()));
+            maxNumComments                  = Integer.parseInt(conf.get(ParameterNames.MAX_COMMENT_POST.toString()));
+            limitProCorrelated              = Double.parseDouble(conf.get(ParameterNames.LIMIT_CORRELATED.toString()));
+            baseProbCorrelated              = Double.parseDouble(conf.get(ParameterNames.BASE_CORRELATED.toString()));
+            maxEmails                       = Integer.parseInt(conf.get(ParameterNames.MAX_EMAIL.toString()));
+            maxCompanies                    = Integer.parseInt(conf.get(ParameterNames.MAX_EMAIL.toString()));
+            probEnglish                     = Double.parseDouble(conf.get(ParameterNames.MAX_EMAIL.toString()));
+            probSecondLang                  = Double.parseDouble(conf.get(ParameterNames.MAX_EMAIL.toString()));
+            probAnotherBrowser              = Double.parseDouble(conf.get(ParameterNames.OTHER_BROWSER_RATIO.toString()));
+            minTextSize                     = Integer.parseInt(conf.get(ParameterNames.MIN_TEXT_SIZE.toString()));
+            maxTextSize                     = Integer.parseInt(conf.get(ParameterNames.MAX_TEXT_SIZE.toString()));
+            minCommentSize                  = Integer.parseInt(conf.get(ParameterNames.MIN_COMMENT_SIZE.toString()));
+            maxCommentSize                  = Integer.parseInt(conf.get(ParameterNames.MAX_COMMENT_SIZE.toString()));
+            ratioReduceText                 = Double.parseDouble(conf.get(ParameterNames.REDUCE_TEXT_RATIO.toString()));
+            minLargePostSize                = Integer.parseInt(conf.get(ParameterNames.MIN_LARGE_POST_SIZE.toString()));
+            maxLargePostSize                = Integer.parseInt(conf.get(ParameterNames.MAX_LARGE_POST_SIZE.toString()));
+            minLargeCommentSize             = Integer.parseInt(conf.get(ParameterNames.MIN_LARGE_COMMENT_SIZE.toString()));
+            maxLargeCommentSize             = Integer.parseInt(conf.get(ParameterNames.MAX_LARGE_COMMENT_SIZE.toString()));
+            ratioLargePost                  = Double.parseDouble(conf.get(ParameterNames.LARGE_POST_RATIO.toString()));
+            ratioLargeComment               = Double.parseDouble(conf.get(ParameterNames.LARGE_COMMENT_RATIO.toString()));
+            maxNumLike                      = Integer.parseInt(conf.get(ParameterNames.MAX_NUM_LIKE.toString()));
+            maxNumPhotoAlbumsPerMonth       = Integer.parseInt(conf.get(ParameterNames.MAX_PHOTOALBUM.toString()));
+            maxNumPhotoPerAlbums            = Integer.parseInt(conf.get(ParameterNames.MAX_PHOTO_PER_ALBUM.toString()));
+            maxNumGroupCreatedPerUser       = Integer.parseInt(conf.get(ParameterNames.USER_MAX_GROUP.toString()));
+            maxNumMemberGroup               = Integer.parseInt(conf.get(ParameterNames.MAX_GROUP_MEMBERS.toString()));
+            groupModeratorProb              = Double.parseDouble(conf.get(ParameterNames.GROUP_MODERATOR_RATIO.toString()));
+            maxNumGroupPostPerMonth         = Integer.parseInt(conf.get(ParameterNames.GROUP_MAX_POST_MONTH.toString()));
+            missingRatio                    = Double.parseDouble(conf.get(ParameterNames.MISSING_RATIO.toString()));
+            missingStatusRatio              = Double.parseDouble(conf.get(ParameterNames.STATUS_MISSING_RATIO.toString()));
+            probSingleStatus                = Double.parseDouble(conf.get(ParameterNames.STATUS_SINGLE_RATIO.toString()));
+            probHavingSmartPhone            = Double.parseDouble(conf.get(ParameterNames.SMARTHPHONE_RATIO.toString()));
+            probSentFromAgent               = Double.parseDouble(conf.get(ParameterNames.AGENT_SENT_RATIO.toString()));
+            probDiffIPinTravelSeason        = Double.parseDouble(conf.get(ParameterNames.DIFFERENT_IP_IN_TRAVEL_RATIO.toString()));
+            probDiffIPnotTravelSeason       = Double.parseDouble(conf.get(ParameterNames.DIFFERENT_IP_NOT_TRAVEL_RATIO.toString()));
+            probDiffIPforTraveller          = Double.parseDouble(conf.get(ParameterNames.DIFFERENT_IP_TRAVELLER_RATIO.toString()));
+            probUnCorrelatedCompany         = Double.parseDouble(conf.get(ParameterNames.COMPANY_UNCORRELATED_RATIO.toString()));
+            probUnCorrelatedOrganization    = Double.parseDouble(conf.get(ParameterNames.UNIVERSITY_UNCORRELATED_RATIO.toString()));
+            probTopUniv                     = Double.parseDouble(conf.get(ParameterNames.BEST_UNIVERSTY_RATIO.toString()));
+            maxNumPopularPlaces             = Integer.parseInt(conf.get(ParameterNames.MAX_POPULAR_PLACES.toString()));
+            probPopularPlaces               = Double.parseDouble(conf.get(ParameterNames.POPULAR_PLACE_RATIO.toString()));
+            tagCountryCorrProb              = Double.parseDouble(conf.get(ParameterNames.TAG_UNCORRELATED_COUNTRY.toString()));
+            flashmobTagsPerMonth            = Integer.parseInt(conf.get(ParameterNames.FLASHMOB_TAGS_PER_MONTH.toString()));
+            probInterestFlashmobTag         = Double.parseDouble(conf.get(ParameterNames.PROB_INTEREST_FLASHMOB_TAG.toString()));
+            probRandomPerLevel              = Double.parseDouble(conf.get(ParameterNames.PROB_RANDOM_PER_LEVEL.toString()));
+            maxNumFlashmobPostPerMonth      = Integer.parseInt(conf.get(ParameterNames.MAX_NUM_FLASHMOB_POST_PER_MONTH.toString()));
+            maxNumGroupFlashmobPostPerMonth = Integer.parseInt(conf.get(ParameterNames.MAX_NUM_GROUP_FLASHMOB_POST_PER_MONTH.toString()));
+            maxNumTagPerFlashmobPost        = Integer.parseInt(conf.get(ParameterNames.MAX_NUM_TAG_PER_FLASHMOB_POST.toString()));
+            flashmobTagMinLevel             = Double.parseDouble(conf.get(ParameterNames.FLASHMOB_TAG_MIN_LEVEL.toString()));
+            flashmobTagMaxLevel             = Double.parseDouble(conf.get(ParameterNames.FLASHMOB_TAG_MAX_LEVEL.toString()));
+            flashmobTagDistExp              = Double.parseDouble(conf.get(ParameterNames.FLASHMOB_TAG_DIST_EXP.toString()));
+            updatePortion                   = Double.parseDouble(conf.get(ParameterNames.UPDATE_PORTION.toString()));
+            blockSize                       = Integer.parseInt(conf.get(ParameterNames.BLOCK_SIZE.toString()));
             scaleFactors = new TreeMap<Integer, ScaleFactor>();
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -270,13 +338,13 @@ public class DatagenParams {
         }
 
         try {
-            if (conf.get("numPersons") != null && conf.get("numYears") != null && conf.get("startYear") != null) {
-                numPersons = Integer.parseInt(conf.get("numPersons"));
-                startYear = Integer.parseInt(conf.get("startYear"));
-                numYears = Integer.parseInt(conf.get("numYears"));
+            if (conf.get("ldbc.snb.datagen.numPersons") != null && conf.get("ldbc.snb.datagen.numYears") != null && conf.get("ldbc.snb.datagen.startYear") != null) {
+                numPersons = Integer.parseInt(conf.get("ldbc.snb.datagen.numPersons"));
+                startYear = Integer.parseInt(conf.get("ldbc.snb.datagen.startYear"));
+                numYears = Integer.parseInt(conf.get("ldbc.snb.datagen.numYears"));
                 endYear = startYear + numYears;
             } else {
-                int scaleFactorId = Integer.parseInt(conf.get("scaleFactor"));
+                int scaleFactorId = Integer.parseInt(conf.get("ldbc.snb.datagen.scaleFactor"));
                 ScaleFactor scaleFactor = scaleFactors.get(scaleFactorId);
                 System.out.println("Executing with scale factor " + scaleFactorId);
                 System.out.println(" ... Num Persons " + scaleFactor.numPersons);
@@ -289,94 +357,16 @@ public class DatagenParams {
             }
 
             exportText = true;
-            compressed = conf.getBoolean("compressed",false);
-            numThreads = conf.getInt("numThreads",1);
-            updateStreams = conf.getBoolean("updateStreams",false);
-            deltaTime = conf.getInt("deltaTime",10000);
-            outputDir = conf.get("outputDir","./");
+            compressed = conf.getBoolean("ldbc.snb.datagen.serializer.compressed",false);
+            numThreads = conf.getInt("ldbc.snb.datagen.numThreads",1);
+            updateStreams = conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams",false);
+            deltaTime = conf.getInt("ldbc.snb.datagen.deltaTime",10000);
+            outputDir = conf.get("ldbc.snb.datagen.serializer.outputDir","./");
+            hadoopDir = conf.get("ldbc.snb.datagen.serializer.hadoopDir","./");
+            socialNetworkDir = conf.get("ldbc.snb.datagen.serializer.socialNetworkDir","./");
         } catch (Exception e) {
             System.err.println(e.getMessage());
             System.exit(-1);
         }
     }
-
-    public static void readParameters( String fileName ) {
-        try {
-            Properties properties = new Properties();
-            properties.load(new InputStreamReader(LDBCDatagen.class.getResourceAsStream(fileName), "UTF-8"));
-            ParameterNames values[] = ParameterNames.values();
-            for( int i = 0; i < values.length; ++i ) {
-                if (properties.getProperty(values[i].toString()) == null) {
-                    throw new IllegalStateException("Missing " + values[i].toString() + " parameter");
-                }
-            }
-
-            cellSize                        = Short.parseShort(properties.getProperty(ParameterNames.CELL_SIZE.toString()));
-            numberOfCellPerWindow           = Integer.parseInt(properties.getProperty(ParameterNames.NUM_CELL_WINDOW.toString()));
-            minNumFriends                   = Integer.parseInt(properties.getProperty(ParameterNames.MIN_FRIENDS.toString()));
-            maxNumFriends                   = Integer.parseInt(properties.getProperty(ParameterNames.MAX_FRIENDS.toString()));
-            friendRejectRatio               = Double.parseDouble(properties.getProperty(ParameterNames.FRIEND_REJECT.toString()));
-            friendReApproveRatio            = Double.parseDouble(properties.getProperty(ParameterNames.FRIEND_REACCEPT.toString()));
-            minNumTagsPerUser               = Integer.parseInt(properties.getProperty(ParameterNames.USER_MIN_TAGS.toString()));
-            maxNumTagsPerUser               = Integer.parseInt(properties.getProperty(ParameterNames.USER_MAX_TAGS.toString()));
-            maxNumPostPerMonth              = Integer.parseInt(properties.getProperty(ParameterNames.USER_MAX_POST_MONTH.toString()));
-            maxNumComments                  = Integer.parseInt(properties.getProperty(ParameterNames.MAX_COMMENT_POST.toString()));
-            limitProCorrelated              = Double.parseDouble(properties.getProperty(ParameterNames.LIMIT_CORRELATED.toString()));
-            baseProbCorrelated              = Double.parseDouble(properties.getProperty(ParameterNames.BASE_CORRELATED.toString()));
-            maxEmails                       = Integer.parseInt(properties.getProperty(ParameterNames.MAX_EMAIL.toString()));
-            maxCompanies                    = Integer.parseInt(properties.getProperty(ParameterNames.MAX_EMAIL.toString()));
-            probEnglish                     = Double.parseDouble(properties.getProperty(ParameterNames.MAX_EMAIL.toString()));
-            probSecondLang                  = Double.parseDouble(properties.getProperty(ParameterNames.MAX_EMAIL.toString()));
-            probAnotherBrowser              = Double.parseDouble(properties.getProperty(ParameterNames.OTHER_BROWSER_RATIO.toString()));
-            minTextSize                     = Integer.parseInt(properties.getProperty(ParameterNames.MIN_TEXT_SIZE.toString()));
-            maxTextSize                     = Integer.parseInt(properties.getProperty(ParameterNames.MAX_TEXT_SIZE.toString()));
-            minCommentSize                  = Integer.parseInt(properties.getProperty(ParameterNames.MIN_COMMENT_SIZE.toString()));
-            maxCommentSize                  = Integer.parseInt(properties.getProperty(ParameterNames.MAX_COMMENT_SIZE.toString()));
-            ratioReduceText                 = Double.parseDouble(properties.getProperty(ParameterNames.REDUCE_TEXT_RATIO.toString()));
-            minLargePostSize                = Integer.parseInt(properties.getProperty(ParameterNames.MIN_LARGE_POST_SIZE.toString()));
-            maxLargePostSize                = Integer.parseInt(properties.getProperty(ParameterNames.MAX_LARGE_POST_SIZE.toString()));
-            minLargeCommentSize             = Integer.parseInt(properties.getProperty(ParameterNames.MIN_LARGE_COMMENT_SIZE.toString()));
-            maxLargeCommentSize             = Integer.parseInt(properties.getProperty(ParameterNames.MAX_LARGE_COMMENT_SIZE.toString()));
-            ratioLargePost                  = Double.parseDouble(properties.getProperty(ParameterNames.LARGE_POST_RATIO.toString()));
-            ratioLargeComment               = Double.parseDouble(properties.getProperty(ParameterNames.LARGE_COMMENT_RATIO.toString()));
-            maxNumLike                      = Integer.parseInt(properties.getProperty(ParameterNames.MAX_NUM_LIKE.toString()));
-            maxNumPhotoAlbumsPerMonth       = Integer.parseInt(properties.getProperty(ParameterNames.MAX_PHOTOALBUM.toString()));
-            maxNumPhotoPerAlbums            = Integer.parseInt(properties.getProperty(ParameterNames.MAX_PHOTO_PER_ALBUM.toString()));
-            maxNumGroupCreatedPerUser       = Integer.parseInt(properties.getProperty(ParameterNames.USER_MAX_GROUP.toString()));
-            maxNumMemberGroup               = Integer.parseInt(properties.getProperty(ParameterNames.MAX_GROUP_MEMBERS.toString()));
-            groupModeratorProb              = Double.parseDouble(properties.getProperty(ParameterNames.GROUP_MODERATOR_RATIO.toString()));
-            maxNumGroupPostPerMonth         = Integer.parseInt(properties.getProperty(ParameterNames.GROUP_MAX_POST_MONTH.toString()));
-            missingRatio                    = Double.parseDouble(properties.getProperty(ParameterNames.MISSING_RATIO.toString()));
-            missingStatusRatio              = Double.parseDouble(properties.getProperty(ParameterNames.STATUS_MISSING_RATIO.toString()));
-            probSingleStatus                = Double.parseDouble(properties.getProperty(ParameterNames.STATUS_SINGLE_RATIO.toString()));
-            probHavingSmartPhone            = Double.parseDouble(properties.getProperty(ParameterNames.SMARTHPHONE_RATIO.toString()));
-            probSentFromAgent               = Double.parseDouble(properties.getProperty(ParameterNames.AGENT_SENT_RATIO.toString()));
-            probDiffIPinTravelSeason        = Double.parseDouble(properties.getProperty(ParameterNames.DIFFERENT_IP_IN_TRAVEL_RATIO.toString()));
-            probDiffIPnotTravelSeason       = Double.parseDouble(properties.getProperty(ParameterNames.DIFFERENT_IP_NOT_TRAVEL_RATIO.toString()));
-            probDiffIPforTraveller          = Double.parseDouble(properties.getProperty(ParameterNames.DIFFERENT_IP_TRAVELLER_RATIO.toString()));
-            probUnCorrelatedCompany         = Double.parseDouble(properties.getProperty(ParameterNames.COMPANY_UNCORRELATED_RATIO.toString()));
-            probUnCorrelatedOrganization    = Double.parseDouble(properties.getProperty(ParameterNames.UNIVERSITY_UNCORRELATED_RATIO.toString()));
-            probTopUniv                     = Double.parseDouble(properties.getProperty(ParameterNames.BEST_UNIVERSTY_RATIO.toString()));
-            maxNumPopularPlaces             = Integer.parseInt(properties.getProperty(ParameterNames.MAX_POPULAR_PLACES.toString()));
-            probPopularPlaces               = Double.parseDouble(properties.getProperty(ParameterNames.POPULAR_PLACE_RATIO.toString()));
-            tagCountryCorrProb              = Double.parseDouble(properties.getProperty(ParameterNames.TAG_UNCORRELATED_COUNTRY.toString()));
-            flashmobTagsPerMonth            = Integer.parseInt(properties.getProperty(ParameterNames.FLASHMOB_TAGS_PER_MONTH.toString()));
-            probInterestFlashmobTag         = Double.parseDouble(properties.getProperty(ParameterNames.PROB_INTEREST_FLASHMOB_TAG.toString()));
-            probRandomPerLevel              = Double.parseDouble(properties.getProperty(ParameterNames.PROB_RANDOM_PER_LEVEL.toString()));
-            maxNumFlashmobPostPerMonth      = Integer.parseInt(properties.getProperty(ParameterNames.MAX_NUM_FLASHMOB_POST_PER_MONTH.toString()));
-            maxNumGroupFlashmobPostPerMonth = Integer.parseInt(properties.getProperty(ParameterNames.MAX_NUM_GROUP_FLASHMOB_POST_PER_MONTH.toString()));
-            maxNumTagPerFlashmobPost        = Integer.parseInt(properties.getProperty(ParameterNames.MAX_NUM_TAG_PER_FLASHMOB_POST.toString()));
-            flashmobTagMinLevel             = Double.parseDouble(properties.getProperty(ParameterNames.FLASHMOB_TAG_MIN_LEVEL.toString()));
-            flashmobTagMaxLevel             = Double.parseDouble(properties.getProperty(ParameterNames.FLASHMOB_TAG_MAX_LEVEL.toString()));
-            flashmobTagDistExp              = Double.parseDouble(properties.getProperty(ParameterNames.FLASHMOB_TAG_DIST_EXP.toString()));
-            updatePortion                   = Double.parseDouble(properties.getProperty(ParameterNames.UPDATE_PORTION.toString()));
-            blockSize                       = Integer.parseInt(properties.getProperty(ParameterNames.BLOCK_SIZE.toString()));
-
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-            e.printStackTrace();
-            System.exit(-1);
-        }
-    }
-
 }

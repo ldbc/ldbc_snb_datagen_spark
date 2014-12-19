@@ -30,7 +30,7 @@ public class HadoopPersonSerializer {
             Configuration conf = context.getConfiguration();
             reducerId = context.getTaskAttemptID().getTaskID().getId();
             try {
-                personSerializer = (PersonSerializer) Class.forName(conf.get("personSerializer")).newInstance();
+                personSerializer = (PersonSerializer) Class.forName(conf.get("ldbc.snb.datagen.serializer.personSerializer")).newInstance();
                 personSerializer.initialize(conf,reducerId);
             } catch( Exception e ) {
                 System.err.println(e.getMessage());
@@ -60,7 +60,7 @@ public class HadoopPersonSerializer {
 
     public void run( String inputFileName ) throws Exception {
 
-        int numThreads = Integer.parseInt(conf.get("numThreads"));
+        int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.numThreads"));
         Job job = new Job(conf, "Person Serializer");
         job.setMapOutputKeyClass(BlockKey.class);
         job.setMapOutputValueClass(Person.class);
@@ -77,7 +77,7 @@ public class HadoopPersonSerializer {
         job.setPartitionerClass(HadoopBlockPartitioner.class);
 
         FileInputFormat.setInputPaths(job, new Path(inputFileName));
-        FileOutputFormat.setOutputPath(job, new Path(conf.get("outputDir")+"/hadoop/aux"));
+        FileOutputFormat.setOutputPath(job, new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")+"/aux"));
         job.waitForCompletion(true);
     }
 }
