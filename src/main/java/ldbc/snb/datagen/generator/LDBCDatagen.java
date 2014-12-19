@@ -55,8 +55,8 @@ public class LDBCDatagen {
 
     public int runGenerateJob(Configuration conf) throws Exception {
 
-        String personsFileName1 = conf.get("hadoopDir") + "/persons1";
-        String personsFileName2 = conf.get("hadoopDir") + "/persons2";
+        String personsFileName1 = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/persons1";
+        String personsFileName2 = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/persons2";
         FileSystem fs = FileSystem.get(conf);
 
         long start = System.currentTimeMillis();
@@ -98,12 +98,15 @@ public class LDBCDatagen {
 
         Configuration conf = ConfigParser.initialize();
         ConfigParser.readConfig(conf,args[0]);
+        ConfigParser.readConfig(conf,"./src/main/resources/params.ini");
+        conf.set("ldbc.snb.datagen.serializer.hadoopDir",conf.get("ldbc.snb.datagen.serializer.outputDir")+"/hadoop");
+        conf.set("ldbc.snb.datagen.serializer.socialNetworkDir",conf.get("ldbc.snb.datagen.serializer.outputDir")+"/social_network");
         ConfigParser.printConfig(conf);
 
         // Deleting exisging files
         FileSystem dfs = FileSystem.get(conf);
-        dfs.delete(new Path(conf.get("hadoopDir")), true);
-        dfs.delete(new Path(conf.get("socialNetworkDir")), true);
+        dfs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")), true);
+        dfs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir")), true);
 
         // Create input text file in HDFS
         LDBCDatagen datagen = new LDBCDatagen();

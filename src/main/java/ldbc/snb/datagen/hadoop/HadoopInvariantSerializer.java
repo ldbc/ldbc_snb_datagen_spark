@@ -23,7 +23,7 @@ public class HadoopInvariantSerializer {
 
     public void run() throws Exception {
         try {
-            invariantSerializer = (InvariantSerializer) Class.forName(conf.get("invariantSerializer")).newInstance();
+            invariantSerializer = (InvariantSerializer) Class.forName(conf.get("ldbc.snb.datagen.serializer.invariantSerializer")).newInstance();
             invariantSerializer.initialize(conf,0);
         } catch( Exception e ) {
             System.err.println(e.getMessage());

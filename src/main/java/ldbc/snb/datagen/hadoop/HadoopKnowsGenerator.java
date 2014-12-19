@@ -32,7 +32,6 @@ public class HadoopKnowsGenerator {
             this.knowsGenerator = new KnowsGenerator();
             this.conf = context.getConfiguration();
             DatagenParams.readConf(conf);
-            DatagenParams.readParameters("/params.ini");
         }
 
         @Override
@@ -65,18 +64,18 @@ public class HadoopKnowsGenerator {
 
         FileSystem fs = FileSystem.get(conf);
 
-        String keyChangedFileName = conf.get("hadoopDir") + "/key_changed";
+        String keyChangedFileName = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/key_changed";
         HadoopFileKeyChanger keyChanger = new HadoopFileKeyChanger(conf, LongWritable.class,Person.class,keySetterName);
         keyChanger.run(inputFileName,keyChangedFileName);
 
 
-        String rankedFileName = conf.get("hadoopDir") + "/ranked";
+        String rankedFileName = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/ranked";
         HadoopFileRanker hadoopFileRanker = new HadoopFileRanker( conf, TupleKey.class, Person.class );
         hadoopFileRanker.run(keyChangedFileName,rankedFileName);
         fs.delete(new Path(keyChangedFileName), true);
 
         conf.set("upperBound",Double.toString(upperBound));
-        int numThreads = Integer.parseInt(conf.get("numThreads"));
+        int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.serializer.numThreads"));
         Job job = new Job(conf, "Knows generator");
         job.setMapOutputKeyClass(BlockKey.class);
         job.setMapOutputValueClass(Person.class);

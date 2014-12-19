@@ -18,7 +18,6 @@ public class HadoopBlockMapper extends Mapper<LongWritable, Person, BlockKey, Pe
     public void setup(Mapper.Context context) {
         Configuration conf = context.getConfiguration();
         DatagenParams.readConf(conf);
-        DatagenParams.readParameters("/params.ini");
         mapId = context.getTaskAttemptID().getId();
     }
 
