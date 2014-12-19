@@ -75,7 +75,7 @@ public class HadoopKnowsGenerator {
         fs.delete(new Path(keyChangedFileName), true);
 
         conf.set("upperBound",Double.toString(upperBound));
-        int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.serializer.numThreads"));
+        int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.numThreads"));
         Job job = new Job(conf, "Knows generator");
         job.setMapOutputKeyClass(BlockKey.class);
         job.setMapOutputValueClass(Person.class);
