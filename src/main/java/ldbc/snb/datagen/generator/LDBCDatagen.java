@@ -97,8 +97,8 @@ public class LDBCDatagen {
     public static void main(String[] args) throws Exception {
 
         Configuration conf = ConfigParser.initialize();
-        ConfigParser.readConfig(conf,args[0]);
         ConfigParser.readConfig(conf,"./src/main/resources/params.ini");
+        ConfigParser.readConfig(conf,args[0]);
         conf.set("ldbc.snb.datagen.serializer.hadoopDir",conf.get("ldbc.snb.datagen.serializer.outputDir")+"/hadoop");
         conf.set("ldbc.snb.datagen.serializer.socialNetworkDir",conf.get("ldbc.snb.datagen.serializer.outputDir")+"/social_network");
         ConfigParser.printConfig(conf);
