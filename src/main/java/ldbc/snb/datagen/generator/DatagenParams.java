@@ -356,7 +356,7 @@ public class DatagenParams {
                 endYear = startYear + numYears;
             }
 
-            exportText = true;
+            exportText = conf.getBoolean("ldbc.snb.datagen.exportText",true);
             compressed = conf.getBoolean("ldbc.snb.datagen.serializer.compressed",false);
             numThreads = conf.getInt("ldbc.snb.datagen.numThreads",1);
             updateStreams = conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams",false);
