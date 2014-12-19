@@ -56,7 +56,7 @@ public class HadoopFileRanker {
             Configuration conf = context.getConfiguration();
             try {
                 FileSystem fs = FileSystem.get(conf);
-                DataOutputStream output = fs.create(new Path(conf.get("hadoopDir")+"/rank_"+reducerId));
+                DataOutputStream output = fs.create(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")+"/rank_"+reducerId));
                 output.writeLong(counter);
                 output.close();
             } catch(IOException e) {
