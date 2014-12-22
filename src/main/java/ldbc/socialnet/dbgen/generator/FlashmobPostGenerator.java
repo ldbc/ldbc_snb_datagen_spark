@@ -132,7 +132,6 @@ public class FlashmobPostGenerator extends PostGenerator {
         int upperBound = tags.length - 1;
         int lowerBound = index;
         double prob = randomFlashmobTag.nextDouble() * (tags[upperBound].prob - tags[lowerBound].prob) + tags[lowerBound].prob;
-        //System.out.println(tags[upperBound].prob+" "+tags[lowerBound].prob+" "+prob);
         int midPoint = (upperBound + lowerBound)  / 2;
         while (upperBound > (lowerBound+1)){
             if (tags[midPoint].prob > prob ){

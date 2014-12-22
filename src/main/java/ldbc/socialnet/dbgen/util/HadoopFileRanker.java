@@ -116,7 +116,6 @@ public class HadoopFileRanker {
             for( V v : valueSet ) {
                 long rank = counters[reducerId] + i;
                         context.write(new LongWritable(rank), v);
-                System.out.println(reducerId+" "+rank);
                 i++;
             }
         }
