@@ -54,13 +54,13 @@ import org.apache.hadoop.conf.Configuration;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
+import ldbc.snb.datagen.dictionary.Dictionaries;
 
-public class CSVPersonSerializer implements PersonSerializer {
+public class CSVPersonSerializer extends PersonSerializer {
 
     private HDFSCSVWriter [] writers;
-    private BrowserDictionary browserDictionary;
-    private PlaceDictionary placeDictionary;
-    private LanguageDictionary languageDictionary;
+    private BrowserDictionary browserDictionary_;
+    private LanguageDictionary languageDictionary_;
 
     private enum FileNames {
         PERSON ("person"),
@@ -92,17 +92,11 @@ public class CSVPersonSerializer implements PersonSerializer {
             writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"),FileNames.values()[i].toString()+"_"+reducerId,conf.getInt("ldbc.snb.datagen.numPartitions",1),conf.getBoolean("ldbc.snb.datagen.serializer.compressed",false),"|");
         }
 
-        browserDictionary = new BrowserDictionary(DatagenParams.probAnotherBrowser);
-        browserDictionary.load(DatagenParams.browserDictonryFile);
+        browserDictionary_ = new BrowserDictionary(DatagenParams.probAnotherBrowser);
 
-        placeDictionary = new PlaceDictionary(DatagenParams.numPersons);
-        placeDictionary.load(DatagenParams.cityDictionaryFile, DatagenParams.countryDictionaryFile);
-
-        languageDictionary = new LanguageDictionary(placeDictionary,
+        languageDictionary_ = new LanguageDictionary(placeDictionary_,
                 DatagenParams.probEnglish,
                 DatagenParams.probSecondLang);
-        languageDictionary.load(DatagenParams.languageDictionaryFile);
-
     }
 
     @Override
@@ -114,69 +108,64 @@ public class CSVPersonSerializer implements PersonSerializer {
     }
 
     @Override
-    public void serialize(Person p) {
+    protected void serialize(Person p) {
 
         ArrayList<String> arguments = new ArrayList<String>();
 
-        arguments.add(Long.toString(p.accountId));
-        arguments.add(p.firstName);
-        arguments.add(p.lastName);
-        if(p.gender == 1) {
+        arguments.add(Long.toString(p.accountId()));
+        arguments.add(p.firstName());
+        arguments.add(p.lastName());
+        if(p.gender() == 1) {
             arguments.add("male");
         } else {
             arguments.add("female");
         }
 
-        GregorianCalendar date = new GregorianCalendar();
-        date.setTimeInMillis(p.birthDay);
-        String dateString = DateGenerator.formatDate(date);
+        String dateString = Dictionaries.dates.formatDate(p.birthDay());
         arguments.add(dateString);
 
-        date.setTimeInMillis(p.creationDate);
-        dateString = DateGenerator.formatDateDetail(date);
+        dateString = Dictionaries.dates.formatDateDetail(p.creationDate());
         arguments.add(dateString);
-        arguments.add(p.ipAddress.toString());
-        arguments.add(browserDictionary.getName(p.browserId));
+        arguments.add(p.ipAddress().toString());
+        arguments.add(browserDictionary_.getName(p.browserId()));
         writers[FileNames.PERSON.ordinal()].writeEntry(arguments);
 
-        ArrayList<Integer> languages = p.languages;
+        ArrayList<Integer> languages = p.languages();
         for (int i = 0; i < languages.size(); i++) {
             arguments.clear();
-            arguments.add(Long.toString(p.accountId));
-            arguments.add(languageDictionary.getLanguageName(languages.get(i)));
+            arguments.add(Long.toString(p.accountId()));
+            arguments.add(languageDictionary_.getLanguageName(languages.get(i)));
             writers[FileNames.PERSON_SPEAKS_LANGUAGE.ordinal()].writeEntry(arguments);
         }
 
-        Iterator<String> itString = p.emails.iterator();
+        Iterator<String> itString = p.emails().iterator();
         while (itString.hasNext()) {
             arguments.clear();
             String email = itString.next();
-            arguments.add(Long.toString(p.accountId));
+            arguments.add(Long.toString(p.accountId()));
             arguments.add(email);
             writers[FileNames.PERSON_HAS_EMAIL.ordinal()].writeEntry(arguments);
         }
 
         arguments.clear();
-        arguments.add(Long.toString(p.accountId));
-        arguments.add(Integer.toString(p.cityId));
+        arguments.add(Long.toString(p.accountId()));
+        arguments.add(Integer.toString(p.cityId()));
         writers[FileNames.PERSON_LOCATED_IN_PLACE.ordinal()].writeEntry(arguments);
 
-        Iterator<Integer> itInteger = p.interests.iterator();
+        Iterator<Integer> itInteger = p.interests().iterator();
         while (itInteger.hasNext()) {
             arguments.clear();
             Integer interestIdx = itInteger.next();
-            arguments.add(Long.toString(p.accountId));
+            arguments.add(Long.toString(p.accountId()));
             arguments.add(Integer.toString(interestIdx));
             writers[FileNames.PERSON_HAS_INTEREST_TAG.ordinal()].writeEntry(arguments);
         }
     }
 
     @Override
-    public void serialize(StudyAt studyAt) {
+    protected void serialize(StudyAt studyAt) {
         ArrayList<String> arguments = new ArrayList<String>();
-        GregorianCalendar date = new GregorianCalendar();
-        date.setTimeInMillis(studyAt.year);
-        String dateString = DateGenerator.formatYear(date);
+        String dateString = Dictionaries.dates.formatYear(studyAt.year);
         arguments.add(Long.toString(studyAt.user));
         arguments.add(Long.toString(studyAt.university));
         arguments.add(dateString);
@@ -184,24 +173,20 @@ public class CSVPersonSerializer implements PersonSerializer {
     }
 
     @Override
-    public void serialize(WorkAt workAt) {
+    protected void serialize(WorkAt workAt) {
         ArrayList<String> arguments = new ArrayList<String>();
-        GregorianCalendar date = new GregorianCalendar();
-        date.setTimeInMillis(workAt.year);
-        String dateString = DateGenerator.formatYear(date);
+        String dateString = Dictionaries.dates.formatYear(workAt.year);
         arguments.add(Long.toString(workAt.user));
         arguments.add(Long.toString(workAt.company));
         arguments.add(dateString);
         writers[FileNames.PERSON_WORK_AT.ordinal()].writeEntry(arguments);
     }
 
-    public void serialize(Knows knows) {
+    protected void serialize(Knows knows) {
         ArrayList<String> arguments = new ArrayList<String>();
-        GregorianCalendar date = new GregorianCalendar();
-        date.setTimeInMillis(knows.creationDate);
-        String dateString = DateGenerator.formatDateDetail(date);
-        arguments.add(Long.toString(knows.from));
-        arguments.add(Long.toString(knows.to));
+        String dateString = Dictionaries.dates.formatDateDetail(knows.creationDate());
+        arguments.add(Long.toString(knows.from().creationDate()));
+        arguments.add(Long.toString(knows.to().creationDate()));
         arguments.add(dateString);
         writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeEntry(arguments);
     }

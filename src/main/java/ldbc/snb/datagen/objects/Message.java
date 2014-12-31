@@ -40,168 +40,107 @@ import java.util.TreeSet;
 
 abstract public class Message {
 
-    private long messageId;
-    /**
-     * < @brief The post identifier.
-     */
-    private String content;
-    /**
-     * < @brief The string containing the content of the post.
-     */
-    private int textSize;
-    /**
-     * < @brief The size of the content. Required in order to be able to generate posts without text but with size.
-     */
-    private long creationDate;
-    /**
-     * < @brief The creation date of the post.
-     */
-    private long authorId;
-    /**
-     * < @brief The author identifier of the post.
-     */
-    private long groupId;
-    /**
-     * < @brief The group identifier where the post belongs to.
-     */
-    private TreeSet<Integer> tags;
-    /**
-     * < @brief The set of tags related to the post.
-     */
-    private IP ipAddress;
-    /**
-     * < @brief The ip from where the post was created.
-     */
-    private String userAgent;
-    /**
-     * < @brief The media used to send the post.
-     */
-    private int browserIdx;
-    /**
-     * < @brief The id of the browser used to send the post.
-     */
-    private int locationId;
-    /**
-     * < @brief The location id from where the message has been sent.
-     */
-
-    private Like likes[] = null;
-//    private long interestedUserAccs[];		    /**< @brief The list of users who are interested in the post*/
-//   private long interestedUserAccsTimestamp[]; /**< @brief The timestamps when the interested users where actually interested.*/
+    private long messageId_;
+    private long creationDate_;
+    private long authorId_;
+    private long forumId_;
+    private String content_;
+    private TreeSet<Integer> tags_;
+    private IP ipAddress_;
+    private int browserId_;
+    private int locationId_;
 
     public Message(long messageId,
-                   String content,
-                   int textSize,
                    long creationDate,
                    long authorId,
-                   long groupId,
+                   long forumId,
+                   String content,
                    TreeSet<Integer> tags,
                    IP ipAddress,
-                   String userAgent,
-                   int browserIdx,
+                   int browserId,
                    int locationId) {
 
-        this.messageId = messageId;
-        this.content = content;
-        this.textSize = textSize;
-        this.creationDate = creationDate;
-        this.authorId = authorId;
-        this.groupId = groupId;
-        this.tags = tags;
-        this.ipAddress = ipAddress;
-        this.userAgent = userAgent;
-        this.browserIdx = browserIdx;
-        this.locationId = locationId;
+        messageId_ = messageId;
+        creationDate_ = creationDate;
+        authorId_ = authorId;
+        forumId_ = forumId;
+        content_ = content;
+        tags_ = new TreeSet<Integer>(tags);
+	ipAddress_ = new IP(ipAddress);
+        browserId_ = browserId;
+        locationId_ = locationId;
     }
 
-
-    public TreeSet<Integer> getTags() {
-        return this.tags;
+    public long messageId() {
+	    return messageId_;
     }
 
-    public void setTags(TreeSet<Integer> tags) {
-        this.tags = tags;
+    public void messageId(long id ) {
+	    messageId_ = id;
     }
 
-    public int getTextSize() {
-        return textSize;
+    public long creationDate () {
+	    return creationDate_;
     }
 
-    public long getMessageId() {
-        return this.messageId;
+    public void creationDate ( long date ) {
+	    creationDate_ = date;
     }
 
-    public String getContent() {
-        return this.content;
+    public long authorId () {
+	    return authorId_;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void authorId (long id ) {
+	    authorId_ = id ;
     }
 
-    public long getCreationDate() {
-        return this.creationDate;
+    public long forumId() {
+	    return forumId_;
+    }
+	    
+    public void forumId(long id) {
+	    forumId_ = id;
     }
 
-    public void setCreationDate(long creationDate) {
-        this.creationDate = creationDate;
+    public String content()  {
+	    return content_;
     }
 
-    public long getAuthorId() {
-        return this.authorId;
+    public void content( String s)  {
+	    content_ = new String(s);
     }
 
-    public void setAuthorId(long authorId) {
-        this.authorId = authorId;
+    public TreeSet<Integer> tags() {
+	    return tags_;
     }
 
-    public long getGroupId() {
-        return this.groupId;
+    public void tags( TreeSet<Integer> tags )  {
+	    tags_.clear();
+	    tags_.addAll(tags);
     }
 
-    public void setGroupId(long groupId) {
-        this.groupId = groupId;
+    public IP ipAddress() {
+	    return ipAddress_;
     }
 
-    public String getUserAgent() {
-        return this.userAgent;
+    public void ipAddress( IP ip ) {
+	    ipAddress_.copy(ip);
     }
 
-    public void setUserAgent(String userAgent) {
-        this.userAgent = userAgent;
+    public int browserId () {
+	    return browserId_;
     }
 
-    public IP getIpAddress() {
-        return this.ipAddress;
+    public void browserId ( int browser ) {
+	    browserId_ = browser;
     }
 
-    public void setIpAddress(IP ipAddress) {
-        this.ipAddress = ipAddress;
+    public int locationId() {
+	    return locationId_;
     }
 
-    public int getBrowserIdx() {
-        return this.browserIdx;
+    public void locationId ( int l ) {
+	    locationId_ = l;
     }
-
-    public void setBrowserIdx(int browserId) {
-        this.browserIdx = browserId;
-    }
-
-    public Like[] getLikes() {
-        return this.likes;
-    }
-
-    public void setLikes(Like[] likes) {
-
-        this.likes = likes;
-    }
-
-    public int getLocationId() {
-        return locationId;
-    }
-
-    public void setLocationId(int locationId) {
-        this.locationId = locationId;
-    }
-
 }

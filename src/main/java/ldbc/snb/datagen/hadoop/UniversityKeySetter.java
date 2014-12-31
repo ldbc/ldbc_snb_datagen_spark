@@ -9,6 +9,6 @@ public class UniversityKeySetter implements HadoopFileKeyChanger.KeySetter<Tuple
 
     public TupleKey getKey(Object object ) {
         Person person = (Person)object;
-        return new TupleKey(person.universityLocationId, person.accountId);
+        return new TupleKey(person.universityLocationId(), person.accountId());
     }
 }

@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Random;
+import ldbc.snb.datagen.generator.DatagenParams;
 
 
 public class UserAgentDictionary {
@@ -57,13 +58,14 @@ public class UserAgentDictionary {
      */
     public UserAgentDictionary(double probSentFromAgent) {
         this.probSentFromAgent = probSentFromAgent;
+	load(DatagenParams.agentFile);
     }
 
     /**
      * @param fileName The agent dictionary file name.
      * @brief Loads an agent dictionary file.
      */
-    public void load(String fileName) {
+    private void load(String fileName) {
         try {
             userAgents = new ArrayList<String>();
             BufferedReader agentFile = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));

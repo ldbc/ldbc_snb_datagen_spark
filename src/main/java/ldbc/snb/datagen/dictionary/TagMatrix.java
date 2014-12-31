@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import ldbc.snb.datagen.generator.DatagenParams;
 
 public class TagMatrix {
 
@@ -74,13 +75,14 @@ public class TagMatrix {
         }
         auxMatrix = new TreeMap<Integer, ArrayList<Integer>>();
         tagList = new ArrayList<Integer>();
+	load(DatagenParams.tagMatrixFile);
     }
 
     /**
      * @param tagMatrixFileName The tag matrix file name.
      * @brief Loads the tag matrix from a file.
      */
-    public void load(String tagMatrixFileName) {
+    private void load(String tagMatrixFileName) {
         try {
             BufferedReader dictionary = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(tagMatrixFileName), "UTF-8"));
             String line;

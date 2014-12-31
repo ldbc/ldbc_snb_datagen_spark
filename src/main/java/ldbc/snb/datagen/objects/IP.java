@@ -36,7 +36,13 @@
  */
 package ldbc.snb.datagen.objects;
 
-public class IP {
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+
+import org.apache.hadoop.io.Writable;
+
+public class IP implements Writable {
 
     public static final int BYTE_MASK = 0xFF;
     public static final int BYTE_SIZE = 8;
@@ -49,6 +55,10 @@ public class IP {
 
     int ip;
     int mask;
+
+    public IP () {
+
+    }
 
     public IP(int byte1, int byte2, int byte3, int byte4, int networkMask) {
         ip = ((byte1 & BYTE_MASK) << BYTE1_SHIFT_POSITION) |
@@ -96,4 +106,20 @@ public class IP {
         IP a = (IP) obj;
         return this.ip == a.ip && this.mask == a.mask;
     }
+
+    public void copy( IP ip ) {
+	    this.ip = ip.ip;
+	    this.mask = ip.mask;
+    }
+
+    public void readFields(DataInput arg0) throws IOException {
+       	ip = arg0.readInt(); 
+        mask = arg0.readInt();
+    }
+
+    public void write(DataOutput arg0) throws IOException {
+        arg0.writeInt(ip);
+        arg0.writeInt(mask);
+    }
+
 }

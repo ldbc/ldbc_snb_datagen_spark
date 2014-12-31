@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Random;
+import ldbc.snb.datagen.generator.DatagenParams;
 
 /**
  * This class reads the file containing the names and distributions for the browsers used in the ldbc socialnet generation and
@@ -67,12 +68,13 @@ public class BrowserDictionary {
         this.probAnotherBrowser = probAnotherBrowser;
         this.browsers = new ArrayList<String>();
         this.cumulativeDistribution = new ArrayList<Double>();
+	load(DatagenParams.browserDictonryFile);
     }
 
     /**
      * @brief Initializes the dictionary extracting the data from the file.
      */
-    public void load(String fileName) {
+    private void load(String fileName) {
         try {
             BufferedReader dictionary = new BufferedReader(
                     new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));

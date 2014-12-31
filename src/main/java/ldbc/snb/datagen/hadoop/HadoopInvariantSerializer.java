@@ -1,6 +1,5 @@
 package ldbc.snb.datagen.hadoop;
 
-import ldbc.snb.datagen.serializer.InvariantDataExporter;
 import ldbc.snb.datagen.serializer.InvariantSerializer;
 import org.apache.hadoop.conf.Configuration;
 
@@ -11,9 +10,7 @@ import java.io.IOException;
  */
 public class HadoopInvariantSerializer {
 
-    private InvariantSerializer invariantSerializer;
-    private InvariantDataExporter invariantDataExporter;              /** The data exporter.**/
-
+    private InvariantSerializer invariantSerializer_;
 
     private Configuration conf;
 
@@ -23,15 +20,14 @@ public class HadoopInvariantSerializer {
 
     public void run() throws Exception {
         try {
-            invariantSerializer = (InvariantSerializer) Class.forName(conf.get("ldbc.snb.datagen.serializer.invariantSerializer")).newInstance();
-            invariantSerializer.initialize(conf,0);
+            invariantSerializer_ = (InvariantSerializer) Class.forName(conf.get("ldbc.snb.datagen.serializer.invariantSerializer")).newInstance();
+            invariantSerializer_.initialize(conf,0);
         } catch( Exception e ) {
             System.err.println(e.getMessage());
         }
-        invariantDataExporter = new InvariantDataExporter(invariantSerializer);
-        invariantDataExporter.exportTags();
-        invariantDataExporter.exportOrganizations();
-        invariantDataExporter.exportPlaces();
-        invariantSerializer.close();
+        invariantSerializer_.exportTags();
+        invariantSerializer_.exportOrganizations();
+        invariantSerializer_.exportPlaces();
+        invariantSerializer_.close();
     }
 }

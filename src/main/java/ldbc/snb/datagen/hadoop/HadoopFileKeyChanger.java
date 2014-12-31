@@ -65,7 +65,7 @@ public class HadoopFileKeyChanger {
         conf.set("keySetterClassName", keySetterName);
 
         /** First Job to sort the key-value pairs and to count the number of elements processed by each reducer.**/
-        Job job = new Job(conf, "Sorting "+inputFileName);
+	Job job = Job.getInstance(conf, "Sorting "+inputFileName);
 
         FileInputFormat.setInputPaths(job, new Path(inputFileName));
         FileOutputFormat.setOutputPath(job, new Path(outputFileName));

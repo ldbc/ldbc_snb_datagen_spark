@@ -5,309 +5,474 @@ import org.apache.hadoop.io.Writable;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.*;
 
 /**
  * Created by aprat on 10/8/14.
  */
-public class Person implements Serializable, Writable {
+public class Person implements Writable {
 
-    public long accountId;
-    public long creationDate;
-    public short maxNumKnows;
-    public TreeSet<Knows> knows;
-    public int agentId;
-    public int browserId;
-    public IP ipAddress;
-    public int countryId;
-    public int cityId;
-    public long wallId;
-    public TreeSet<Integer> interests;
-    public int mainInterest;
-    public int universityLocationId;
-    public byte gender;
-    public long birthDay;
-    public boolean isLargePoster;
-    public long randomId;
+	public static class PersonSummary implements Writable {
+		private long accountId_;
+		private long creationDate_;
+		private int browserId_;
+		private IP ipAddress_;
+		private boolean isLargePoster_;
+		private int cityId_;
 
-    public TreeSet<String> emails;
-    public ArrayList<Integer> languages;
-    public String firstName;
-    public String lastName;
-    public HashMap<Long, Long> companies;
-    public long classYear;
+		public PersonSummary( ) {
+			ipAddress_ = new IP();
+		}
 
-    public Person(){
-        this.knows = new TreeSet<Knows>();
-        this.emails = new TreeSet<String>();
-        this.interests = new TreeSet<Integer>();
-        this.languages = new ArrayList<Integer>();
-        this.companies = new HashMap<Long, Long>();
-    }
+		public PersonSummary( Person p ) {
+			accountId_ = p.accountId();
+			creationDate_ = p.creationDate();
+			browserId_ = p.browserId();
+			ipAddress_ = new IP(p.ipAddress());
+			isLargePoster_ = p.isLargePoster();
+			cityId_ = p.cityId();
+		}
 
-    public Person( Person p ) {
-        this.knows = new TreeSet<Knows>();
-        this.emails = new TreeSet<String>();
-        this.interests = new TreeSet<Integer>();
-        this.languages = new ArrayList<Integer>();
-        this.companies = new HashMap<Long, Long>();
+		public PersonSummary( PersonSummary p ) {
+			accountId_ = p.accountId();
+			creationDate_ = p.creationDate();
+			browserId_ = p.browserId();
+			ipAddress_ = new IP(p.ipAddress());
+			isLargePoster_ = p.isLargePoster();
+			cityId_ = p.cityId();
+		}
 
-        this.accountId = p.accountId;
-        this.creationDate = p.creationDate;
-        this.maxNumKnows = p.maxNumKnows;
-        for( Knows k : p.knows ) {
-            this.knows.add(new Knows(k));
-        }
+		void copy( PersonSummary p ) {
+			accountId_ = p.accountId();
+			creationDate_ = p.creationDate();
+			browserId_ = p.browserId();
+			ipAddress_= new IP(p.ipAddress());
+			isLargePoster_ = p.isLargePoster();
+			cityId_ = p.cityId();
+		}
 
-        this.agentId = p.agentId;
-        this.browserId = p.browserId;
-        this.ipAddress = new IP(p.ipAddress);
+		public long accountId() {
+			return accountId_;
+		}
 
-        this.countryId = p.countryId;
-        this.cityId = p.cityId;
-        this.wallId = p.wallId;
-        for( Integer t : p.interests.descendingSet()) {
-            this.interests.add(t);
-        }
-        this.mainInterest = p.mainInterest;
+		public void accountId( long id) {
+			accountId_ = id;
+		}
 
-        this.universityLocationId = p.universityLocationId;
-        this.gender = p.gender;
-        this.birthDay = p.birthDay;
-        this.isLargePoster = p.isLargePoster;
-        this.randomId = p.randomId;
+		public long creationDate () {
+			return creationDate_;
+		}
 
-        for( String s : p.emails.descendingSet()) {
-            this.emails.add(new String(s));
-        }
+		public void creationDate ( long creationDate) {
+			creationDate_ = creationDate;
+		}
 
-        for( Integer i : p.languages) {
-            this.languages.add(i);
-        }
+		public  int browserId() {
+			return browserId_;
+		}
 
-        this.firstName = new String(p.firstName);
-        this.lastName = new String(p.lastName);
-        for( Map.Entry<Long,Long> c : p.companies.entrySet()) {
-            this.companies.put(c.getKey(),c.getValue());
-        }
-        this.classYear = p.classYear;
+		public  void browserId( int browserId ) {
+			browserId_ = browserId;
+		}
 
-    }
+		public  IP ipAddress() {
+			return ipAddress_;
+		}
 
+		public  void ipAddress( IP ipAddress) {
+			ipAddress_ = ipAddress;
+		}
 
-    private void readObject(java.io.ObjectInputStream stream)
-            throws IOException, ClassNotFoundException {
+		public  boolean isLargePoster() {
+			return isLargePoster_;
+		}
+		public  void isLargePoster( boolean largePoster ) {
+			isLargePoster_ = largePoster;
+		}
 
-        accountId = stream.readLong();
-        creationDate = stream.readLong();
-        maxNumKnows = stream.readShort();
-        int numFriends = stream.readShort();
-        for (int i = 0; i < numFriends; i++) {
-            Knows fr = new Knows();
-            fr.readFields(stream);
-            knows.add(fr);
-        }
+		public int cityId() {
+			return cityId_;
+		}
 
-        agentId = stream.readInt();
-        browserId = stream.readInt();
+		public void cityId(int id ) {
+			cityId_ = id;
+		}
 
-        int ip = stream.readInt();
-        int mask = stream.readInt();
-        ipAddress = new IP(ip, mask);
+		public void readFields(DataInput arg0) throws IOException {
+			accountId_ = arg0.readLong();
+			creationDate_ = arg0.readLong();
+			browserId_ = arg0.readInt();
+			ipAddress_.readFields(arg0);
+			isLargePoster_ = arg0.readBoolean();
+			cityId_ = arg0.readInt();
+		}
+		public void write(DataOutput arg0) throws IOException {
+			arg0.writeLong(accountId_);
+			arg0.writeLong(creationDate_);
+			arg0.writeInt(browserId_);
+			ipAddress_.write(arg0);
+			arg0.writeBoolean(isLargePoster_);
+			arg0.writeInt(cityId_);
+		}
+	}
 
-        countryId = stream.readInt();
-        cityId = stream.readInt();
-        wallId = stream.readLong();
+	private long accountId_;
+	private long creationDate_;
+	private short maxNumKnows_;
+	private TreeSet<Knows> knows_;
+	private int browserId_;
+	private IP ipAddress_;
+	private int countryId_;
+	private int cityId_;
+	private long wallId_;
+	private TreeSet<Integer> interests_;
+	private int mainInterest_;
+	private int universityLocationId_;
+	private byte gender_;
+	private long birthDay_;
+	private boolean isLargePoster_;
+	private long randomId_;
 
-        byte numOfTags = stream.readByte();
-        interests = new TreeSet<Integer>();
-        for (byte i = 0; i < numOfTags; i++) {
-            interests.add(stream.readInt());
-        }
-        mainInterest = stream.readInt();
+	private TreeSet<String> emails_;
+	private ArrayList<Integer> languages_;
+	private String firstName_;
+	private String lastName_;
+	private HashMap<Long, Long> companies_;
+	private long classYear_;
 
-        universityLocationId = stream.readInt();
-        gender = stream.readByte();
-        birthDay = stream.readLong();
-        isLargePoster = stream.readBoolean();
-        randomId = stream.readLong();
+	public Person(){
+		knows_ = new TreeSet<Knows>();
+		emails_ = new TreeSet<String>();
+		interests_ = new TreeSet<Integer>();
+		languages_ = new ArrayList<Integer>();
+		companies_ = new HashMap<Long, Long>();
+		ipAddress_ = new IP();
+	}
 
-        int numEmails = stream.readInt();
-        emails = new TreeSet<String>();
-        for( int i = 0; i < numEmails; ++i ) {
-            emails.add(stream.readUTF());
-        }
-        int numLanguages = stream.readInt();
-        languages = new ArrayList<Integer>();
-        for( int i = 0; i < numLanguages; ++i ) {
-            languages.add(stream.readInt());
-        }
-        firstName = stream.readUTF();
-        lastName = stream.readUTF();
-        int numCompanies = stream.readInt();
-        companies = new HashMap<Long,Long>();
-        for( int i = 0; i < numCompanies; ++i) {
-            companies.put(stream.readLong(),stream.readLong());
-        }
-        classYear = stream.readLong();
-    }
+	public Person( Person p ) {
+		knows_ = new TreeSet<Knows>();
+		emails_ = new TreeSet<String>();
+		interests_ = new TreeSet<Integer>();
+		languages_ = new ArrayList<Integer>();
+		companies_ = new HashMap<Long, Long>();
 
-    private void writeObject(java.io.ObjectOutputStream stream)
-            throws IOException {
+		accountId_ = p.accountId();
+		creationDate_ = p.creationDate();
+		maxNumKnows_ = p.maxNumKnows();
+		for( Knows k : p.knows() ) {
+			knows_.add(new Knows(k));
+		}
 
-        stream.writeLong(accountId);
-        stream.writeLong(creationDate);
-        stream.writeShort(maxNumKnows);
-        stream.writeShort(knows.size());
+		browserId_ = p.browserId();
+		ipAddress_ = new IP(p.ipAddress());
 
-        for( Knows f : knows ){
-            f.write(stream);
-        }
+		countryId_ = p.countryId();
+		cityId_ = p.cityId();
+		wallId_ = p.wallId();
+		for( Integer t : p.interests().descendingSet()) {
+			interests_.add(t);
+		}
+		mainInterest_ = p.mainInterest();
 
-        stream.writeInt(agentId);
-        stream.writeInt(browserId);
+		universityLocationId_ = p.universityLocationId();
+		gender_ = p.gender();
+		birthDay_ = p.birthDay();
+		isLargePoster_ = p.isLargePoster();
+		randomId_ = p.randomId();
 
-        stream.writeInt(ipAddress.getIp());
-        stream.writeInt(ipAddress.getMask());
+		for( String s : p.emails().descendingSet()) {
+			emails_.add(new String(s));
+		}
 
-        stream.writeInt(countryId);
-        stream.writeInt(cityId);
-        stream.writeLong(wallId);
+		for( Integer i : p.languages()) {
+			languages_.add(i);
+		}
 
-        stream.writeByte((byte) interests.size());
-        Iterator<Integer> iter2 = interests.iterator();
-        while (iter2.hasNext()) {
-            stream.writeInt(iter2.next());
-        }
-        stream.writeInt(mainInterest);
+		firstName_ = new String(p.firstName());
+		lastName_ = new String(p.lastName());
+		for( Map.Entry<Long,Long> c : p.companies().entrySet()) {
+			companies_.put(c.getKey(),c.getValue());
+		}
+		classYear_ = p.classYear();
 
-        stream.writeInt(universityLocationId);
-        stream.writeByte(gender);
-        stream.writeLong(birthDay);
-        stream.writeBoolean(isLargePoster);
-        stream.writeLong(randomId);
+	}
 
-        stream.writeInt(emails.size());
-        for( String s : emails ) {
-            stream.writeUTF(s);
-        }
-        stream.writeInt(languages.size());
-        for( Integer l : languages ) {
-            stream.writeInt(l);
-        }
-        stream.writeUTF(firstName);
-        stream.writeUTF(lastName);
-        stream.writeInt(companies.size());
-        for( Map.Entry<Long,Long> e : companies.entrySet()) {
-            stream.writeLong(e.getKey());
-            stream.writeLong(e.getValue());
-        }
-        stream.writeLong(classYear);
-    }
+	public long accountId() {
+		return accountId_;
+	}
 
-    public void readFields(DataInput arg0) throws IOException {
-        accountId = arg0.readLong();
-        creationDate = arg0.readLong();
-        maxNumKnows = arg0.readShort();
-        int numFriends = arg0.readShort();
-        knows = new TreeSet<Knows>();
-        for (int i = 0; i < numFriends; i++) {
-            Knows fr = new Knows();
-            fr.readFields(arg0);
-            knows.add(fr);
-        }
+	public void accountId( long id) {
+		accountId_ = id;
+	}
 
-        agentId = arg0.readInt();
-        browserId = arg0.readInt();
+	public long creationDate () {
+		return creationDate_;
+	}
 
-        int ip = arg0.readInt();
-        int mask = arg0.readInt();
-        ipAddress = new IP(ip, mask);
+	public void creationDate ( long creationDate) {
+		creationDate_ = creationDate;
+	}
 
-        countryId = arg0.readInt();
-        cityId = arg0.readInt();
-        wallId = arg0.readLong();
+	public short maxNumKnows( ) {
+		return maxNumKnows_;
+	}
 
-        byte numTags = arg0.readByte();
-        interests = new TreeSet<Integer>();
-        for (byte i = 0; i < numTags; i++) {
-            interests.add(arg0.readInt());
-        }
-        mainInterest = arg0.readInt();
+	public void maxNumKnows( short maxKnows ) {
+		maxNumKnows_ = maxKnows;
 
-        universityLocationId = arg0.readInt();
-        gender = arg0.readByte();
-        birthDay = arg0.readLong();
-        isLargePoster = arg0.readBoolean();
-        randomId = arg0.readLong();
+	}
 
-        int numEmails = arg0.readInt();
-        emails = new TreeSet<String>();
-        for( int i = 0; i < numEmails; ++i ) {
-            emails.add(arg0.readUTF());
-        }
-        int numLanguages = arg0.readInt();
-        languages = new ArrayList<Integer>();
-        for( int i = 0; i < numLanguages; ++i ) {
-            languages.add(arg0.readInt());
-        }
-        firstName = arg0.readUTF();
-        lastName = arg0.readUTF();
-        int numCompanies = arg0.readInt();
-        companies = new HashMap<Long,Long>();
-        for( int i = 0; i < numCompanies; ++i) {
-            companies.put(arg0.readLong(),arg0.readLong());
-        }
-        classYear = arg0.readLong();
-    }
+	public TreeSet<Knows> knows() {
+		return knows_;
+	}
 
-    public void write(DataOutput arg0) throws IOException {
-        arg0.writeLong(accountId);
-        arg0.writeLong(creationDate);
-        arg0.writeShort(maxNumKnows);
-        arg0.writeShort(knows.size());
+	public void knows( TreeSet<Knows> knows ) {
+		knows_.clear();
+		knows_.addAll(knows);
+	}
 
-        for( Knows f : knows ) {
-            f.write(arg0);
-        }
+	public  int browserId() {
+		return browserId_;
+	}
 
-        arg0.writeInt(agentId);
-        arg0.writeInt(browserId);
-        arg0.writeInt(ipAddress.getIp());
-        arg0.writeInt(ipAddress.getMask());
+	public  void browserId( int browserId ) {
+		browserId_ = browserId;
+	}
 
-        arg0.writeInt(countryId);
-        arg0.writeInt(cityId);
-        arg0.writeLong(wallId);
+	public  IP ipAddress() {
+		return ipAddress_;
+	}
 
-        arg0.writeByte((byte) interests.size());
-        Iterator<Integer> iter2 = interests.iterator();
-        while (iter2.hasNext()) {
-            arg0.writeInt(iter2.next());
-        }
-        arg0.writeInt(mainInterest);
-        arg0.writeInt(universityLocationId);
-        arg0.writeByte(gender);
-        arg0.writeLong(birthDay);
-        arg0.writeBoolean(isLargePoster);
-        arg0.writeLong(randomId);
+	public  void ipAddress( IP ipAddress) {
+		ipAddress_.copy(ipAddress);
+	}
 
-        arg0.writeInt(emails.size());
-        for( String s : emails ) {
-            arg0.writeUTF(s);
-        }
-        arg0.writeInt(languages.size());
-        for( Integer l : languages ) {
-            arg0.writeInt(l);
-        }
-        arg0.writeUTF(firstName);
-        arg0.writeUTF(lastName);
-        arg0.writeInt(companies.size());
-        for( Map.Entry<Long,Long> e : companies.entrySet()) {
-            arg0.writeLong(e.getKey());
-            arg0.writeLong(e.getValue());
-        }
-        arg0.writeLong(classYear);
-    }
+	public  int countryId() {
+		return countryId_;
+	}
+
+	public  void countryId( int countryId ) {
+		countryId_ = countryId;
+	}
+
+	public  int cityId() {
+		return cityId_;
+	}
+
+	public  void cityId( int cityId ) {
+		cityId_ = cityId;
+	}
+
+	public  long wallId() {
+		return wallId_;
+	}
+
+	public  void wallId( long wallId ) {
+		wallId_ = wallId;
+	}
+
+	public  TreeSet<Integer> interests() {
+		return interests_;
+	}
+
+	public  void interests ( TreeSet<Integer> interests ) {
+		interests_.clear();
+		interests_.addAll(interests);
+	}
+
+	public  int mainInterest () {
+		return mainInterest_;
+	}
+
+	public  void mainInterest( int interest ) {
+		mainInterest_ = interest;
+	}
+
+	public  int universityLocationId () {
+		return universityLocationId_;
+	}
+
+	public  void universityLocationId( int location ) {
+		universityLocationId_ = location;
+	}
+
+	public  byte gender()  {
+		return gender_;
+	}
+
+	public  void gender( byte gender ) {
+		gender_ = gender;
+	}
+
+	public  long birthDay () {
+		return birthDay_;
+	}
+
+	public  void birthDay( long birthDay ) {
+		birthDay_ = birthDay;
+	}
+
+	public  boolean isLargePoster() {
+		return isLargePoster_;
+	}
+	public  void isLargePoster( boolean largePoster ) {
+		isLargePoster_ = largePoster;
+	}
+
+	public  long randomId() {
+		return randomId_;
+	}
+	public  void randomId( long randomId ) {
+		randomId_ = randomId;
+	}
+
+	public  TreeSet<String> emails() {
+		return emails_;
+	}
+
+	public  void emails ( TreeSet<String> emails ) {
+		emails.clear();
+		emails_.addAll(emails);
+	}
+
+	public  ArrayList<Integer> languages() {
+		return languages_;
+	}
+
+	public  void languages( ArrayList<Integer> languages) {
+		languages_.clear();
+		languages_.addAll(languages);
+	}
+
+	public  String firstName ( ) {
+		return firstName_;
+	}
+
+	public  void firstName ( String firstName ) {
+		firstName_ = firstName;
+	}
+
+	public  String lastName() {
+		return lastName_;
+	}
+	public  void lastName ( String lastName ) {
+		lastName_ = new String(lastName);
+	}
+
+	public  HashMap<Long, Long> companies () {
+		return companies_;
+	}
+
+	public  void companies ( HashMap<Long, Long> companies ) {
+		companies.clear();
+		companies_.putAll(companies);
+	}
+
+	public  long classYear () {
+		return classYear_;
+	}
+	public  void classYear ( long classYear ) {
+		classYear_ = classYear;
+	}
+
+	public void readFields(DataInput arg0) throws IOException {
+		accountId_ = arg0.readLong();
+		creationDate_ = arg0.readLong();
+		maxNumKnows_ = arg0.readShort();
+		int numFriends = arg0.readShort();
+		knows_ = new TreeSet<Knows>();
+		for (int i = 0; i < numFriends; i++) {
+			Knows fr = new Knows();
+			fr.readFields(arg0);
+			knows_.add(fr);
+		}
+
+		browserId_ = arg0.readInt();
+
+		ipAddress_.readFields(arg0);
+
+		countryId_ = arg0.readInt();
+		cityId_ = arg0.readInt();
+		wallId_ = arg0.readLong();
+
+		byte numTags = arg0.readByte();
+		interests_ = new TreeSet<Integer>();
+		for (byte i = 0; i < numTags; i++) {
+			interests_.add(arg0.readInt());
+		}
+		mainInterest_ = arg0.readInt();
+
+		universityLocationId_ = arg0.readInt();
+		gender_ = arg0.readByte();
+		birthDay_ = arg0.readLong();
+		isLargePoster_ = arg0.readBoolean();
+		randomId_ = arg0.readLong();
+
+		int numEmails = arg0.readInt();
+		emails_ = new TreeSet<String>();
+		for( int i = 0; i < numEmails; ++i ) {
+			emails_.add(arg0.readUTF());
+		}
+		int numLanguages = arg0.readInt();
+		languages_ = new ArrayList<Integer>();
+		for( int i = 0; i < numLanguages; ++i ) {
+			languages_.add(arg0.readInt());
+		}
+		firstName_ = arg0.readUTF();
+		lastName_ = arg0.readUTF();
+		int numCompanies = arg0.readInt();
+		companies_ = new HashMap<Long,Long>();
+		for( int i = 0; i < numCompanies; ++i) {
+			companies_.put(arg0.readLong(),arg0.readLong());
+		}
+		classYear_ = arg0.readLong();
+	}
+
+	public void write(DataOutput arg0) throws IOException {
+		arg0.writeLong(accountId_);
+		arg0.writeLong(creationDate_);
+		arg0.writeShort(maxNumKnows_);
+		arg0.writeShort(knows_.size());
+
+		for( Knows f : knows_ ) {
+			f.write(arg0);
+		}
+
+		arg0.writeInt(browserId_);
+		ipAddress_.write(arg0);
+
+		arg0.writeInt(countryId_);
+		arg0.writeInt(cityId_);
+		arg0.writeLong(wallId_);
+
+		arg0.writeByte((byte) interests_.size());
+		Iterator<Integer> iter2 = interests_.iterator();
+		while (iter2.hasNext()) {
+			arg0.writeInt(iter2.next());
+		}
+		arg0.writeInt(mainInterest_);
+		arg0.writeInt(universityLocationId_);
+		arg0.writeByte(gender_);
+		arg0.writeLong(birthDay_);
+		arg0.writeBoolean(isLargePoster_);
+		arg0.writeLong(randomId_);
+
+		arg0.writeInt(emails_.size());
+		for( String s : emails_ ) {
+			arg0.writeUTF(s);
+		}
+		arg0.writeInt(languages_.size());
+		for( Integer l : languages_ ) {
+			arg0.writeInt(l);
+		}
+		arg0.writeUTF(firstName_);
+		arg0.writeUTF(lastName_);
+		arg0.writeInt(companies_.size());
+		for( Map.Entry<Long,Long> e : companies_.entrySet()) {
+			arg0.writeLong(e.getKey());
+			arg0.writeLong(e.getValue());
+		}
+		arg0.writeLong(classYear_);
+	}
+
 }

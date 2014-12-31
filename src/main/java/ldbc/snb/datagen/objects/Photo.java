@@ -39,67 +39,41 @@ package ldbc.snb.datagen.objects;
 import java.util.TreeSet;
 
 public class Photo extends Message {
-    String locationName;
-    double latt;
-    double longt;
 
-    /**
-     * < @brief The timestamps when the interested users where actually interested.
-     *
-     * @param messageId
-     * @param content
-     * @param textSize
-     * @param creationDate
-     * @param authorId
-     * @param groupId
-     * @param tags
-     * @param ipAddress
-     * @param userAgent
-     * @param browserIdx
-     */
+    private double latt_;
+    private double longt_;
+
     public Photo(long messageId,
-                 String content,
-                 int textSize,
                  long creationDate,
                  long authorId,
-                 long authorCreationDate,
-                 long groupId,
-                 TreeSet<Integer> tags,
+                 long forumId,
+                 String content,
+		 TreeSet<Integer> tags,
                  IP ipAddress,
-                 String userAgent,
-                 int browserIdx,
+                 int browserId,
                  int locationId,
-                 String locationName,
                  double latt,
                  double longt
     ) {
-        super(messageId, content, textSize, creationDate, authorId, groupId, tags, ipAddress, userAgent, browserIdx, locationId);
-        this.locationName = locationName;
-        this.latt = latt;
-        this.longt = longt;
+        super(messageId, creationDate, authorId, forumId, content, tags, ipAddress, browserId, locationId);
+        latt_ = latt;
+        longt_ = longt;
     }
 
-    public double getLatt() {
-        return latt;
+    public double latt() {
+	    return latt_;
     }
 
-    public void setLatt(double latt) {
-        this.latt = latt;
+    public void latt( double l ) {
+	    latt_ = l;
     }
 
-    public double getLongt() {
-        return longt;
+    public double longt(){
+	    return longt_;
     }
 
-    public void setLongt(double longt) {
-        this.longt = longt;
+    public void longt( double l ) {
+	    longt_ = l;
     }
 
-    public String getLocationName() {
-        return locationName;
-    }
-
-    public void setLocationName(String locationName) {
-        this.locationName = locationName;
-    }
 }

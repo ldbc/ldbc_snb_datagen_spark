@@ -41,49 +41,41 @@ import java.util.TreeSet;
 
 public class Comment extends Message {
 
-    private long postId;
-    /**
-     * < @brief The post identifier of the replied post.*
-     */
-    private long replyOf;
-
-    /**
-     * < @brief The id of the parent post/comment of this comment.*
-     */
+    private long postId_;
+    private long replyOf_;
 
     public Comment(long commentId,
-                   String content,
-                   int textSize,
                    long creationDate,
                    long authorId,
-                   long groupId,
+                   long forumId,
+                   String content,
                    TreeSet<Integer> tags,
                    IP ipAddress,
-                   String userAgent,
-                   int browserIdx,
+                   int browserId,
                    int locationId,
                    long postId,
                    long replyOf
     ) {
 
-        super(commentId, content, textSize, creationDate, authorId, groupId, tags, ipAddress, userAgent, browserIdx, locationId);
-        this.postId = postId;
-        this.replyOf = replyOf;
+        super(commentId, creationDate, authorId, forumId, content, tags, ipAddress, browserId, locationId);
+        postId_ = postId;
+        replyOf_ = replyOf;
     }
 
-    public long getReplyOf() {
-        return replyOf;
+    public long postId() {
+	    return postId_;
     }
 
-    public void setReplyOf(long replyOf) {
-        this.replyOf = replyOf;
+    public void postId( long id ) {
+	   postId_ = id; 
     }
 
-    public long getPostId() {
-        return postId;
+    public long replyOf() {
+	    return replyOf_;
     }
 
-    public void setPostId(long postId) {
-        this.postId = postId;
+    public void replyOf( long id ) {
+	    replyOf_ = id;
     }
+
 }

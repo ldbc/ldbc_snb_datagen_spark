@@ -37,85 +37,38 @@
 package ldbc.snb.datagen.objects;
 
 public class ForumMembership {
-    long forumId;
-    long userId;
-    long joinDate;
-    IP ip;
-    int browserIdx;
-    int agentIdx;
-    boolean isLargePoster = false;       //This is used for creating large posts.
-    boolean isFrequentChange;
-    boolean isHaveSmartPhone;
+    private long forumId_;
+    private long creationDate_;
+    private Person.PersonSummary person_;
 
-    public long getForumId() {
-        return forumId;
+    public ForumMembership( long forumId, long creationDate, Person.PersonSummary p ) {
+	    forumId_ = forumId;
+	    creationDate_ = creationDate;
+	    person_ = new Person.PersonSummary(p);
     }
 
-    public void setForumId(long forumId) {
-        this.forumId = forumId;
+    public long forumId() {
+	    return forumId_;
     }
 
-    public long getUserId() {
-        return userId;
+    public void forumId( long forumId ) {
+	    forumId = forumId;
     }
 
-    public void setUserId(long userId) {
-        this.userId = userId;
+    public long creationDate() {
+	    return creationDate_;
     }
 
-    public int getAgentIdx() {
-        return agentIdx;
+    public void creationDate( long creationDate ) {
+	    creationDate_ = creationDate;
     }
 
-    public void setAgentIdx(int agentIdx) {
-        this.agentIdx = agentIdx;
+    public Person.PersonSummary person() {
+	    return person_;
     }
 
-    public int getBrowserIdx() {
-        return browserIdx;
+    public void person(Person.PersonSummary p ) {
+	    person_ = p;
     }
 
-    public void setBrowserIdx(int browserIdx) {
-        this.browserIdx = browserIdx;
-    }
-
-    public IP getIP() {
-        return ip;
-    }
-
-    public void setIP(IP ip) {
-        this.ip = ip;
-    }
-
-    public boolean isFrequentChange() {
-        return isFrequentChange;
-    }
-
-    public void setFrequentChange(boolean isFrequentChange) {
-        this.isFrequentChange = isFrequentChange;
-    }
-
-    public boolean isHaveSmartPhone() {
-        return isHaveSmartPhone;
-    }
-
-    public void setHaveSmartPhone(boolean isHaveSmartPhone) {
-        this.isHaveSmartPhone = isHaveSmartPhone;
-    }
-
-    public long getJoinDate() {
-        return joinDate;
-    }
-
-    public void setJoinDate(long joinDate) {
-        this.joinDate = joinDate;
-    }
-
-    public boolean isLargePoster() {
-        return this.isLargePoster;
-    }
-
-    public void setLargePoster(boolean isLargePoster) {
-        this.isLargePoster = isLargePoster;
-    }
 }

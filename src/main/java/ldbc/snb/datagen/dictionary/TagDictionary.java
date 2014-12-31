@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.Set;
+import ldbc.snb.datagen.generator.DatagenParams;
 
 
 public class TagDictionary {
@@ -108,6 +109,11 @@ public class TagDictionary {
             tagsByCountry.add(new ArrayList<Integer>());
         }
         this.numPopularTags = 0;
+
+        load( DatagenParams.tagsFile,
+                            DatagenParams.popularTagByCountryFile,
+                            DatagenParams.tagClassFile,
+                            DatagenParams.tagClassHierarchyFile);
     }
 
     /**
@@ -166,7 +172,7 @@ public class TagDictionary {
      * @param tagClassHierarchyFileName   The tag hierarchy file name.
      * @brief Loads the tag dictionary from files.
      */
-    public void load(String tagsFileName, String popularTagByCountryFileName, String tagClassFileName, String tagClassHierarchyFileName) {
+    private void load(String tagsFileName, String popularTagByCountryFileName, String tagClassFileName, String tagClassHierarchyFileName) {
         try {
             BufferedReader dictionary = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(tagClassFileName), "UTF-8"));
 

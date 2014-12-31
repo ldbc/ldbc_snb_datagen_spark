@@ -45,6 +45,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
+import ldbc.snb.datagen.generator.DatagenParams;
 
 
 public class IPAddressDictionary {
@@ -67,18 +68,17 @@ public class IPAddressDictionary {
      */
     private double probDiffIPinTravelSeason;
     private double probDiffIPnotTravelSeason;
-    private double probDiffIPforTraveller;
 
     public IPAddressDictionary(PlaceDictionary locationDic,
                                double _probDiffIPinTravelSeason,
-                               double _probDiffIPnotTravelSeason, double _probDiffIPforTraveller) {
+                               double _probDiffIPnotTravelSeason) {
 
         this.placeDictionary = locationDic;
         this.ipCountry = new HashMap<Integer, Integer>();
         this.ipsByCountry = new HashMap<Integer, ArrayList<IP>>();
         this.probDiffIPinTravelSeason = _probDiffIPinTravelSeason;
         this.probDiffIPnotTravelSeason = _probDiffIPnotTravelSeason;
-        this.probDiffIPforTraveller = _probDiffIPforTraveller;
+	load(DatagenParams.countryAbbrMappingFile,DatagenParams.IPZONE_DIRECTORY);
     }
 
     /**
@@ -86,7 +86,7 @@ public class IPAddressDictionary {
      * @param baseIPdir       The base directory where ip files are found.
      * @breif Loads dictionary.
      */
-    public void load(String mappingFileName, String baseIPdir) {
+    private void load(String mappingFileName, String baseIPdir) {
         String line;
         HashMap<String, String> countryAbbreMap = new HashMap<String, String>();
         try {
@@ -164,23 +164,22 @@ public class IPAddressDictionary {
         return getRandomIPFromLocation(random, randomLocationIdx);
     }
 
-    private boolean changeUsualIp(Random randomDiffIP, Random randomDiffIPForTravelers, boolean isFrequentChange, long date) {
+    private boolean changeUsualIp(Random randomDiffIP, Random randomDiffIPForTravelers, long date) {
         double diffIpProb = randomDiffIP.nextDouble();
         double diffIpForTravelersProb = randomDiffIPForTravelers.nextDouble();
         boolean isTravelSeason = DateGenerator.isTravelSeason(date);
-        if ((isFrequentChange && diffIpProb < probDiffIPforTraveller) ||
-                (!isFrequentChange && ((isTravelSeason && diffIpForTravelersProb < probDiffIPinTravelSeason) ||
-                        (!isTravelSeason && diffIpForTravelersProb < probDiffIPnotTravelSeason)))) {
+                if ((isTravelSeason && diffIpForTravelersProb < probDiffIPinTravelSeason) ||
+                        (!isTravelSeason && diffIpForTravelersProb < probDiffIPnotTravelSeason)) {
             return true;
         }
         return false;
     }
 
-    public IP getIP(Random randomIP, Random randomDiffIP, Random randomDiffIPForTravelers, IP ip, boolean isFrequentChange, long date) {
-        return (changeUsualIp(randomDiffIP, randomDiffIPForTravelers, isFrequentChange, date)) ? new IP(ip.getIp(), ip.getMask()) : getRandomIP(randomIP);
+    public IP getIP(Random randomIP, Random randomDiffIP, Random randomDiffIPForTravelers, IP ip, long date) {
+        return (changeUsualIp(randomDiffIP, randomDiffIPForTravelers, date)) ? new IP(ip.getIp(), ip.getMask()) : getRandomIP(randomIP);
     }
 
-    public IP getIP(Random randomIP, Random randomDiffIP, Random randomDiffIPForTravelers, IP ip, boolean isFrequentChange, long date, int countryId) {
-        return (changeUsualIp(randomDiffIP, randomDiffIPForTravelers, isFrequentChange, date)) ? new IP(ip.getIp(), ip.getMask()) : getRandomIPFromLocation(randomIP, countryId);
+    public IP getIP(Random randomIP, Random randomDiffIP, Random randomDiffIPForTravelers, IP ip, long date, int countryId) {
+        return (changeUsualIp(randomDiffIP, randomDiffIPForTravelers, date)) ? new IP(ip.getIp(), ip.getMask()) : getRandomIPFromLocation(randomIP, countryId);
     }
 }

@@ -100,63 +100,56 @@ public class SN {
      * Gets the forum entity prefix.
      */
     public static String getForumURI(long id) {
-        return PREFIX + "forum" + String.format("%020d", _formId(id));
+        return PREFIX + "forum" + String.format("%020d", formId(id));
     }
 
     /**
      * Gets the post entity prefix.
      */
     public static String getPostURI(long id) {
-        return PREFIX + "post" + String.format("%020d", _formId(id));
+        return PREFIX + "post" + String.format("%020d", formId(id));
     }
 
     /**
      * Gets the comment entity prefix.
      */
     public static String getCommentURI(long id) {
-        return PREFIX + "comm" + String.format("%020d", _formId(id));
+        return PREFIX + "comm" + String.format("%020d", formId(id));
     }
 
     /**
      * Gets the membership relation prefix.
      */
     public static String getMembershipURI(long id) {
-        return BLANK_NODE + "mbs" + String.format("%020d", _formId(id));
+        return BLANK_NODE + "mbs" + String.format("%020d", formId(id));
     }
 
     /**
      * Gets the like relation prefix.
      */
     public static String getLikeURI(long id) {
-        return BLANK_NODE + "like" + String.format("%020d", _formId(id));
+        return BLANK_NODE + "like" + String.format("%020d", formId(id));
     }
 
     /**
      * Gets the studyAt relation prefix.
      */
     public static String getStudyAtURI(long id) {
-        return BLANK_NODE + "study" + String.format("%020d", _formId(id));
+        return BLANK_NODE + "study" + String.format("%020d", formId(id));
     }
 
     /**
      * Gets the workAt relation prefix.
      */
     public static String getWorkAtURI(long id) {
-        return BLANK_NODE + "work" + String.format("%020d", _formId(id));
+        return BLANK_NODE + "work" + String.format("%020d", formId(id));
     }
 
     public static String getKnowsURI(long id) {
-        return BLANK_NODE + "knows" + String.format("%020d", _formId(id));
+        return BLANK_NODE + "knows" + String.format("%020d", formId(id));
     }
 
-    /**
-     * Gets the true id having in consideration the machine.
-     */
-    public static String formId(long id) {
-        return Long.toString(_formId(id));
-    }
-
-    public static Long _formId(long id) {
+    public static Long formId(long id) {
         long lowMask = 0x0FFFFF;                                // This mask is used to get the lowest 20 bits.
         long lowerPart = (lowMask & id);
         long machinePart = machineId << 20;

@@ -14,6 +14,7 @@ import org.apache.hadoop.mapreduce.lib.partition.InputSampler;
 import org.apache.hadoop.mapreduce.lib.partition.TotalOrderPartitioner;
 
 import java.io.*;
+import ldbc.snb.datagen.generator.LDBCDatagen;
 
 public class HadoopFileRanker {
     private Configuration conf;
@@ -92,7 +93,7 @@ public class HadoopFileRanker {
             reducerId = context.getTaskAttemptID().getTaskID().getId();
             numReduceTasks = context.getNumReduceTasks();
             counters = new long[numReduceTasks];
-            DatagenParams.readConf(conf);
+	    LDBCDatagen.init(conf);
             try{
                 FileSystem fs = FileSystem.get(conf);
                 for(int i = 0; i < (numReduceTasks-1); ++i ) {
@@ -133,7 +134,7 @@ public class HadoopFileRanker {
         int numThreads = conf.getInt("ldbc.snb.datagen.numThreads",1);
 
         /** First Job to sort the key-value pairs and to count the number of elements processed by each reducer.**/
-        Job jobSort = new Job(conf, "Sorting "+inputFileName);
+        Job jobSort = Job.getInstance(conf, "Sorting "+inputFileName);
 
         FileInputFormat.setInputPaths(jobSort, new Path(inputFileName));
         FileOutputFormat.setOutputPath(jobSort, new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")+"/rankIntermediate"));
@@ -154,7 +155,7 @@ public class HadoopFileRanker {
         jobSort.waitForCompletion(true);
 
         /** Second Job to assign the rank to each element.**/
-        Job jobRank = new Job(conf, "Sorting "+inputFileName);
+        Job jobRank = Job.getInstance(conf, "Sorting "+inputFileName);
         FileInputFormat.setInputPaths(jobRank, new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")+"/rankIntermediate"));
         FileOutputFormat.setOutputPath(jobRank, new Path(outputFileName));
 

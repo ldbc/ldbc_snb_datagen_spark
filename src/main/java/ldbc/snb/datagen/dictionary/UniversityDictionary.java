@@ -44,6 +44,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.TreeMap;
+import ldbc.snb.datagen.generator.DatagenParams;
 
 public class UniversityDictionary {
 
@@ -94,6 +95,7 @@ public class UniversityDictionary {
         for (Integer id : locationDic.getCountries()) {
             universitiesByCountry.put(id, new ArrayList<Long>());
         }
+	load(DatagenParams.universityDictionaryFile);
     }
 
     /**
@@ -109,7 +111,7 @@ public class UniversityDictionary {
      * @param fileName The universities file name.
      * @brief Loads a universities file.
      */
-    public void load(String fileName) {
+    private void load(String fileName) {
         try {
             BufferedReader dicAllInstitutes = new BufferedReader(
                     new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));

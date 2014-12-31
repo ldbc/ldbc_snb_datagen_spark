@@ -36,47 +36,78 @@
  */
 package ldbc.snb.datagen.objects;
 
+import ldbc.snb.datagen.objects.IP;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.io.Serializable;
 
-public class Knows implements Serializable, Comparable<Knows> {
-    public long from;
-    public long to;
-    public long creationDate;
+import org.apache.hadoop.io.Writable;
 
 
-    public Knows() {
-    }
+
+public class Knows implements Writable, Comparable<Knows> {
+
+	Person.PersonSummary from_ = null;
+	Person.PersonSummary to_= null;
+	long creationDate_;
+
+	public Knows() {
+		from_ = new Person.PersonSummary();
+		to_ = new Person.PersonSummary();
+	}
 
     public Knows(Knows k) {
-        this.from = k.from;
-        this.to = k.to;
-        this.creationDate = k.creationDate;
+	    from_ = new Person.PersonSummary(k.from());
+	    to_ = new Person.PersonSummary(k.to());
+	    creationDate_ = k.creationDate();
     }
 
     public Knows(Person from, Person to, long creationDate ){
-        this.from = from.accountId;
-        this.to = to.accountId;
-        this.creationDate = creationDate;
+	    from_ = new Person.PersonSummary(from);
+	    to_ = new Person.PersonSummary(to);
+	    creationDate_ = creationDate;
     }
 
+    public Person.PersonSummary from() {
+	    return from_;
+    }
+
+    public void from( Person.PersonSummary from ) {
+	    from_.copy(from);
+    }
+
+    public Person.PersonSummary to ( ) {
+	    return to_;
+    }
+
+    public void to( Person.PersonSummary to ) {
+	    to_.copy(to);
+    }
+
+    public long creationDate() {
+	    return creationDate_;
+    }
+
+    public void creationDate ( long creationDate ) {
+	    creationDate_ = creationDate;
+    }
+
+
     public void readFields(DataInput arg0) throws IOException {
-        this.from = arg0.readLong();
-        this.to = arg0.readLong();
-        this.creationDate = arg0.readLong();
+        from_.readFields(arg0);
+        to_.readFields(arg0);
+        creationDate_ = arg0.readLong();
     }
 
     public void write(DataOutput arg0) throws IOException {
-        arg0.writeLong(this.from);
-        arg0.writeLong(this.to);
-        arg0.writeLong(this.creationDate);
+	    from_.write(arg0);
+	    to_.write(arg0);
+	    arg0.writeLong(creationDate_);
     }
 
     public int compareTo(Knows k) {
-        long res = this.from - k.from;
-        if(res==0)  res = this.to - k.to;
+        long res = from_.creationDate() - k.from().creationDate();
+        if(res==0)  res = to_.creationDate() - k.to().creationDate();
         return (int)res;
     }
 }

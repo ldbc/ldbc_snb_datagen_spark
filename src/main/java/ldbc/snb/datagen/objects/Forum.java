@@ -35,108 +35,97 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package ldbc.snb.datagen.objects;
+import java.util.ArrayList;
 
 public class Forum {
-    long forumId;
-    long moderatorId;        //creator Id
-    long createdDate;
-//    int forumWallId;
 
-    //int forumStatusId;
+    private long id_;
+    private Person.PersonSummary moderator_;        
+    private long creationDate_;
+    private String title_;
+    private ArrayList<Integer> tags_;
+    private int placeId_;            
+    private int language_;
+    private ArrayList<ForumMembership> memberships_;
 
-    String groupName;
 
-    Integer[] tags;
-
-    int locationIdx;            // Each group is for one location which is the creator's location
-
-    ForumMembership memberShips[];
-    int numMemberAdded = 0;
-
-    public void initAllMemberships(int numMembers) {
-        memberShips = new ForumMembership[numMembers];
+    public Forum( long id, long creationDate, Person.PersonSummary moderator, String title, int placeId, int language  ) {
+	    memberships_ = new ArrayList<ForumMembership>();
+	    tags_ = new ArrayList<Integer>();
+	    id_ = id;
+	    creationDate_ = creationDate;
+	    title_ = new String(title);
+	    placeId_ = placeId;
+	    moderator_ = new Person.PersonSummary(moderator);
+	    language_ = language;
     }
 
     public void addMember(ForumMembership member) {
-        memberShips[numMemberAdded] = member;
-        numMemberAdded++;
+	    memberships_.add(member);
     }
 
-    public long getForumId() {
-        return forumId;
+    public long id() {
+        return id_;
     }
 
-    public void setForumId(long forumId) {
-        this.forumId = forumId;
+    public void id(long id) {
+	    id_ = id;
     }
 
-    public long getModeratorId() {
-        return moderatorId;
+    public Person.PersonSummary moderator() {
+        return moderator_;
     }
 
-    public void setModeratorId(long moderatorId) {
-        this.moderatorId = moderatorId;
+    public void moderatorId( Person.PersonSummary moderator) {
+        moderator_.copy(moderator);
     }
 
-    public long getCreatedDate() {
-        return createdDate;
+    public long creationDate() {
+        return creationDate_;
     }
 
-    public void setCreatedDate(long createdDate) {
-        this.createdDate = createdDate;
+    public void creationDate(long creationDate) {
+        creationDate_ = creationDate;
     }
 
-    public Integer[] getTags() {
-        return tags;
+    public ArrayList<Integer> tags() {
+        return tags_;
     }
 
-    public void setTags(Integer[] tags) {
-        this.tags = tags;
+    public void tags(ArrayList<Integer> tags) {
+	    tags_.clear();
+	    tags_.addAll(tags);
     }
 
-    public String getForumName() {
-        return groupName;
+    public String title() {
+        return title_;
     }
 
-    public void setForumName(String groupName) {
-        this.groupName = groupName;
+    public void title(String title) {
+        title = new String(title);
     }
 
-    public ForumMembership[] getMemberShips() {
-        return memberShips;
+    public ArrayList<ForumMembership> memberships() {
+        return memberships_;
     }
 
-    public void setMemberShips(ForumMembership[] memberShips) {
-        this.memberShips = memberShips;
+    public void membeships(ArrayList<ForumMembership> memberShips) {
+        memberships_ = memberShips;
     }
 
-    /*	public int getForumWallId() {
-            return forumWallId;
-        }
-        public void setForumWallId(int forumWallId) {
-            this.forumWallId = forumWallId;
-        }
-        */
-    /*public int getForumStatusId() {
-		return forumStatusId;
-	}
-	public void setForumStatusId(int forumStatusId) {
-		this.forumStatusId = forumStatusId;
-	}
-	*/
-    public int getNumMemberAdded() {
-        return numMemberAdded;
+    public int place() {
+        return placeId_;
     }
 
-    public void setNumMemberAdded(int numMemberAdded) {
-        this.numMemberAdded = numMemberAdded;
+    public void place(int placeId) {
+        placeId_ = placeId;
+    }
+    
+    public int language() {
+	    return language_;
     }
 
-    public int getLocationIdx() {
-        return locationIdx;
-    }
-
-    public void setLocationIdx(int locationIdx) {
-        this.locationIdx = locationIdx;
+    public void language( int l ) {
+	    language_ = l;
     }
 }

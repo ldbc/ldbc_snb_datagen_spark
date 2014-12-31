@@ -44,6 +44,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
+import ldbc.snb.datagen.generator.DatagenParams;
 
 
 public class PopularPlacesDictionary {
@@ -64,13 +65,14 @@ public class PopularPlacesDictionary {
         for (Integer id : placeDictionary.getCountries()) {
             this.popularPlacesByCountry.put(id, new ArrayList<PopularPlace>());
         }
+	load(DatagenParams.popularDictionaryFile);
     }
 
     /**
      * @param fileName The popular places file name.
      * @brief Loads a popular places file.
      */
-    public void load(String fileName) {
+    private void load(String fileName) {
         String line;
         String locationName;
         String lastLocationName = "";

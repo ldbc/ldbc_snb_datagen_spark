@@ -17,6 +17,7 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import ldbc.snb.datagen.generator.LDBCDatagen;
 
 /**
  * Created by aprat on 11/17/14.
@@ -31,7 +32,7 @@ public class HadoopKnowsGenerator {
         protected void setup(Context context) {
             this.knowsGenerator = new KnowsGenerator();
             this.conf = context.getConfiguration();
-            DatagenParams.readConf(conf);
+	    LDBCDatagen.init(conf);
         }
 
         @Override
@@ -43,7 +44,7 @@ public class HadoopKnowsGenerator {
             }
             this.knowsGenerator.generateKnows(persons, (int)key.block, conf.getFloat("upperBound", 0.1f));
             for( Person p : persons ) {
-                context.write(new LongWritable(p.accountId), p);
+                context.write(new LongWritable(p.accountId()), p);
             }
         }
     }
@@ -76,7 +77,7 @@ public class HadoopKnowsGenerator {
 
         conf.set("upperBound",Double.toString(upperBound));
         int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.numThreads"));
-        Job job = new Job(conf, "Knows generator");
+        Job job = Job.getInstance(conf, "Knows generator");
         job.setMapOutputKeyClass(BlockKey.class);
         job.setMapOutputValueClass(Person.class);
         job.setOutputKeyClass(LongWritable.class);
