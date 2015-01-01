@@ -119,6 +119,19 @@ public class ForumGenerator {
 				person.cityId(),
 				language
 				);
+
+		Iterator<Integer> iter = person.interests().iterator();
+		int idx = randomFarm.get(RandomGeneratorFarm.Aspect.FORUM_INTEREST).nextInt(person.interests().size());
+		for (int i = 0; i < idx; i++){
+			iter.next();
+		}
+		int interestId = iter.next().intValue();
+		ArrayList<Integer> interest = new ArrayList<Integer>();
+		interest.add(interestId);
+		forum.tags(interest);
+
+
+
 		ArrayList<Integer> countries = Dictionaries.places.getCountries();
 		int randomCountry = randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY).nextInt(countries.size());
 		forum.place(countries.get(randomCountry));
@@ -129,7 +142,7 @@ public class ForumGenerator {
 			if (prob < 0.7) {
 				Random random = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX);
 				date = Dictionaries.dates.randomDate(random,Math.max(forum.creationDate(), k.creationDate()+DatagenParams.deltaTime));
-				if( date > Dictionaries.dates.getEndDateTime() ) {
+				if( date < Dictionaries.dates.getEndDateTime() ) {
 					forum.addMember(new ForumMembership(forum.id(), date, k.to()));
 				}
 			}

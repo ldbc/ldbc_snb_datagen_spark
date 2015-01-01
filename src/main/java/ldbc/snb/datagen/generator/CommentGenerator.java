@@ -64,7 +64,7 @@ public class CommentGenerator {
 					Integer tag = it.next();
 					if( randomFarm.get(RandomGeneratorFarm.Aspect.TAG).nextDouble() > 0.5) {
 						tags.add(tag);
-						tags.add(Dictionaries.tagMatrix.getRandomRelated(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), tag));
+				//		tags.add(Dictionaries.tagMatrix.getRandomRelated(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), tag));
 					}
 					currentTags.add(tag);
 				}

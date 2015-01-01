@@ -71,8 +71,10 @@ public class PersonActivityGenerator {
 			personActivitySerializer_.export(p);
 			// generate likes to post
 			ArrayList<Like> postLikes = likeGenerator_.generateLikes(randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE), wall, p, Like.LikeType.POST);
-			for( Like l : postLikes ) {
-				personActivitySerializer_.export(l);
+			if( randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
+				for( Like l : postLikes ) {
+					personActivitySerializer_.export(l);
+				}
 			}
 			// generate comments
 			int numComments = randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(DatagenParams.maxNumComments+1);
@@ -107,9 +109,11 @@ public class PersonActivityGenerator {
 				for( Post p : groupPosts ) {
 					personActivitySerializer_.export(p);
 					// generate likes to post
-					ArrayList<Like> postLikes = likeGenerator_.generateLikes(randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE), group, p, Like.LikeType.POST);
-					for( Like l : postLikes ) {
-						personActivitySerializer_.export(l);
+					if( randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
+						ArrayList<Like> postLikes = likeGenerator_.generateLikes(randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE), group, p, Like.LikeType.POST);
+						for( Like l : postLikes ) {
+							personActivitySerializer_.export(l);
+						}
 					}
 					// generate comments
 					int numComments = randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(DatagenParams.maxNumComments+1);
