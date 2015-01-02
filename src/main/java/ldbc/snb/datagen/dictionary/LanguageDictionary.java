@@ -42,6 +42,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
+import ldbc.snb.datagen.generator.DatagenParams;
 
 
 public class LanguageDictionary {
@@ -85,13 +86,14 @@ public class LanguageDictionary {
         this.languages = new ArrayList<String>();
         this.officalLanguagesByCountry = new HashMap<Integer, ArrayList<Integer>>();
         this.languagesByCountry = new HashMap<Integer, ArrayList<Integer>>();
+	load(DatagenParams.languageDictionaryFile);
     }
 
     /**
      * @param fileName The name of the dictionary file.
      * @brief Loads a dictionary file.
      */
-    public void load(String fileName) {
+    private void load(String fileName) {
         try {
             for (Integer id : placeDictionary.getCountries()) {
                 officalLanguagesByCountry.put(id, new ArrayList<Integer>());

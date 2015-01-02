@@ -9,6 +9,6 @@ public class InterestKeySetter implements HadoopFileKeyChanger.KeySetter<TupleKe
 
     public TupleKey getKey(Object object ) {
         Person person = (Person)object;
-        return new TupleKey(person.mainInterest,person.accountId);
+        return new TupleKey(person.mainInterest(),person.accountId());
     }
 }

@@ -40,34 +40,33 @@ import java.util.TreeSet;
 
 public class Post extends Message {
 
-    private int language;
+    private int language_;
 
     /**
      * < @brief The language used in the post.
      */
 
     public Post(long postId,
-                String content,
-                int textSize,
                 long creationDate,
                 long authorId,
-                long groupId,
+                long forumId,
+                String content,
                 TreeSet<Integer> tags,
                 IP ipAddress,
-                String userAgent,
-                int browserIdx,
+                int browserId,
                 int locationId,
                 int language
     ) {
-        super(postId, content, textSize, creationDate, authorId, groupId, tags, ipAddress, userAgent, browserIdx, locationId);
-        this.language = language;
+        super(postId, creationDate, authorId, forumId, content, tags, ipAddress, browserId, locationId);
+        language_ = language;
     }
 
-    public int getLanguage() {
-        return this.language;
+    public int language() {
+	    return language_;
     }
 
-    public void setLanguage(int language) {
-        this.language = language;
+    public void language( int l ) {
+	    language_ = l ;
     }
+
 }

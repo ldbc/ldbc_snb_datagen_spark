@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Random;
+import ldbc.snb.datagen.generator.DatagenParams;
 
 
 /**
@@ -57,13 +58,14 @@ public class EmailDictionary {
      * @brief Constructor.
      */
     public EmailDictionary() {
+	    load(DatagenParams.emailDictionaryFile);
     }
 
     /**
      * @param fileName The dictionary file name to load.
      * @brief Loads the dictionary file.
      */
-    public void load(String fileName) {
+    private void load(String fileName) {
         try {
             BufferedReader emailDictionary = new BufferedReader(
                     new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));

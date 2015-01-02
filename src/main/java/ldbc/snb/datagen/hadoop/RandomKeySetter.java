@@ -9,7 +9,7 @@ public class RandomKeySetter implements HadoopFileKeyChanger.KeySetter<TupleKey>
 
     public TupleKey getKey(Object object ) {
         Person person = (Person)object;
-        return new TupleKey(person.randomId,person.accountId);
+        return new TupleKey(person.randomId(),person.accountId());
     }
 }
 

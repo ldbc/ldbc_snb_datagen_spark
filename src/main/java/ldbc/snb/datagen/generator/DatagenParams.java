@@ -82,7 +82,6 @@ public class DatagenParams {
 
     //private parameters
     private enum ParameterNames {
-        AGENT_SENT_RATIO ("ldbc.snb.datagen.probSentFromAgent"),
         BASE_CORRELATED ("ldbc.snb.datagen.baseProbCorrelated"),
         BEST_UNIVERSTY_RATIO ("ldbc.snb.datagen.probTopUniv"),
         BLOCK_SIZE ("ldbc.snb.datagen.blockSize"),
@@ -90,7 +89,6 @@ public class DatagenParams {
         COMPANY_UNCORRELATED_RATIO ("ldbc.snb.datagen.probUnCorrelatedCompany"),
         DIFFERENT_IP_IN_TRAVEL_RATIO ("ldbc.snb.datagen.probDiffIPinTravelSeason"),
         DIFFERENT_IP_NOT_TRAVEL_RATIO ("ldbc.snb.datagen.probDiffIPnotTravelSeason"),
-        DIFFERENT_IP_TRAVELLER_RATIO ("ldbc.snb.datagen.probDiffIPforTraveller"),
         ENGLISH_RATIO ("ldbc.snb.datagen.probEnglish"),
         FLASHMOB_TAGS_PER_MONTH ("ldbc.snb.datagen.flashmobTagsPerMonth"),
         FLASHMOB_TAG_DIST_EXP ("ldbc.snb.datagen.flashmobTagDistExp"),
@@ -131,7 +129,6 @@ public class DatagenParams {
         PROB_RANDOM_PER_LEVEL ("ldbc.snb.datagen.probRandomPerLevel"),
         REDUCE_TEXT_RATIO ("ldbc.snb.datagen.ratioReduceText"),
         SECOND_LANGUAGE_RATIO ("ldbc.snb.datagen.probSecondLang"),
-        SMARTHPHONE_RATIO ("ldbc.snb.datagen.probHavingSmartPhone"),
         STATUS_MISSING_RATIO ("ldbc.snb.datagen.missingStatusRatio"),
         STATUS_SINGLE_RATIO ("ldbc.snb.datagen.probSingleStatus"),
         TAG_UNCORRELATED_COUNTRY ("ldbc.snb.datagen.tagCountryCorrProb"),
@@ -164,16 +161,13 @@ public class DatagenParams {
     public static double missingRatio                      = 0.0;
     public static double missingStatusRatio                = 0.0;
     public static double probAnotherBrowser                = 0.0;
-    public static double probDiffIPforTraveller            = 0.0;
     public static double probDiffIPinTravelSeason          = 0.0; // in travel season
     public static double probDiffIPnotTravelSeason         = 0.0; // not in travel season
     public static double probEnglish                       = 0.0;
-    public static double probHavingSmartPhone              = 0.0;
     public static double probInterestFlashmobTag           = 0.0;
     public static double probPopularPlaces                 = 0.0; //probability of taking a photo at popular place
     public static double probRandomPerLevel                = 0.0;
     public static double probSecondLang                    = 0.0;
-    public static double probSentFromAgent                 = 0.0;
     public static double probSingleStatus                  = 0.0; // Status "Single" has more probability than others'
     public static double probTopUniv                       = 0.0; // 90% users go to top university
     public static double probUnCorrelatedCompany           = 0.0;
@@ -285,11 +279,8 @@ public class DatagenParams {
             missingRatio                    = Double.parseDouble(conf.get(ParameterNames.MISSING_RATIO.toString()));
             missingStatusRatio              = Double.parseDouble(conf.get(ParameterNames.STATUS_MISSING_RATIO.toString()));
             probSingleStatus                = Double.parseDouble(conf.get(ParameterNames.STATUS_SINGLE_RATIO.toString()));
-            probHavingSmartPhone            = Double.parseDouble(conf.get(ParameterNames.SMARTHPHONE_RATIO.toString()));
-            probSentFromAgent               = Double.parseDouble(conf.get(ParameterNames.AGENT_SENT_RATIO.toString()));
             probDiffIPinTravelSeason        = Double.parseDouble(conf.get(ParameterNames.DIFFERENT_IP_IN_TRAVEL_RATIO.toString()));
             probDiffIPnotTravelSeason       = Double.parseDouble(conf.get(ParameterNames.DIFFERENT_IP_NOT_TRAVEL_RATIO.toString()));
-            probDiffIPforTraveller          = Double.parseDouble(conf.get(ParameterNames.DIFFERENT_IP_TRAVELLER_RATIO.toString()));
             probUnCorrelatedCompany         = Double.parseDouble(conf.get(ParameterNames.COMPANY_UNCORRELATED_RATIO.toString()));
             probUnCorrelatedOrganization    = Double.parseDouble(conf.get(ParameterNames.UNIVERSITY_UNCORRELATED_RATIO.toString()));
             probTopUniv                     = Double.parseDouble(conf.get(ParameterNames.BEST_UNIVERSTY_RATIO.toString()));

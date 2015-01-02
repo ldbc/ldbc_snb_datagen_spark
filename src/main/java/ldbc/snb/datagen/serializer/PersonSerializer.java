@@ -1,59 +1,79 @@
-/*
- * Copyright (c) 2013 LDBC
- * Linked Data Benchmark Council (http://ldbc.eu)
- *
- * This file is part of ldbc_socialnet_dbgen.
- *
- * ldbc_socialnet_dbgen is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * ldbc_socialnet_dbgen is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with ldbc_socialnet_dbgen.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright (C) 2011 OpenLink Software <bdsmt@openlinksw.com>
- * All Rights Reserved.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation;  only Version 2 of the License dated
- * June 1991.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
-
 package ldbc.snb.datagen.serializer;
 
-import ldbc.snb.datagen.objects.Knows;
-import ldbc.snb.datagen.objects.Person;
-import ldbc.snb.datagen.objects.StudyAt;
-import ldbc.snb.datagen.objects.WorkAt;
+import ldbc.snb.datagen.dictionary.CompanyDictionary;
+import ldbc.snb.datagen.dictionary.PlaceDictionary;
+import ldbc.snb.datagen.dictionary.TagDictionary;
+import ldbc.snb.datagen.dictionary.UniversityDictionary;
+import ldbc.snb.datagen.generator.DatagenParams;
+import ldbc.snb.datagen.objects.*;
+
+import java.util.Iterator;
 import org.apache.hadoop.conf.Configuration;
 
-public interface PersonSerializer {
+/**
+ * Created by aprat on 10/15/14.
+ */
+abstract public class PersonSerializer {
 
-    public void initialize(Configuration conf, int reducerId);
+    protected UniversityDictionary universityDictionary_;
+    protected PlaceDictionary placeDictionary_;
+    protected CompanyDictionary companyDictionary_;
+    protected TagDictionary tagDictionary_;
 
-    public void close();
+    public PersonSerializer( ) {
 
-    public void serialize(Person p);
+        placeDictionary_ = new PlaceDictionary(DatagenParams.numPersons);
 
-    public void serialize(StudyAt studyAt);
+        companyDictionary_ = new CompanyDictionary(placeDictionary_, DatagenParams.probUnCorrelatedCompany);
 
-    public void serialize(WorkAt workAt);
+        universityDictionary_ = new UniversityDictionary(placeDictionary_,
+                DatagenParams.probUnCorrelatedOrganization,
+                DatagenParams.probTopUniv,
+                companyDictionary_.getNumCompanies());
 
-    public void serialize(Knows knows);
+        tagDictionary_ = new TagDictionary(  placeDictionary_.getCountries().size(),
+                DatagenParams.tagCountryCorrProb);
+    }
+
+
+    public void export(Person person) {
+
+        serialize(person);
+        for( Knows k : person.knows()) {
+            serialize(k);
+        }
+
+        long universityId = universityDictionary_.getUniversityFromLocation(person.universityLocationId());
+        if (universityId != -1) {
+            if (person.classYear() != -1) {
+                StudyAt studyAt = new StudyAt();
+                studyAt.year = person.classYear();
+                studyAt.user = person.accountId();
+                studyAt.university = universityId;
+                serialize(studyAt);
+            }
+        }
+
+        Iterator<Long> it = person.companies().keySet().iterator();
+        while (it.hasNext()) {
+            long companyId = it.next();
+            WorkAt workAt = new WorkAt();
+            workAt.company = companyId;
+            workAt.user = person.accountId();
+            workAt.year = person.companies().get(companyId);
+            serialize(workAt);
+        }
+    }
+
+    abstract public void initialize(Configuration conf, int reducerId);
+
+    abstract public void close();
+
+    abstract protected void serialize(Person p);
+
+    abstract protected void serialize(StudyAt studyAt);
+
+    abstract protected void serialize(WorkAt workAt);
+
+    abstract protected void serialize(Knows knows);
 }

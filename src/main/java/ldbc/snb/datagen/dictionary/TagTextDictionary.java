@@ -42,6 +42,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.TreeSet;
+import ldbc.snb.datagen.generator.DatagenParams;
 
 public class TagTextDictionary {
     private static final String SEPARATOR = "  ";
@@ -63,13 +64,14 @@ public class TagTextDictionary {
         this.tagText = new HashMap<Integer, String>();
         this.tagDic = tagDic;
         this.reducedTextRatio = reducedTextRatio;
+	load(DatagenParams.tagTextFile);
     }
 
     /**
      * @param fileName The tag text dictionary file name.
      * @brief Loads the dictionary.
      */
-    public void load(String fileName) {
+    private void load(String fileName) {
         try {
             BufferedReader dictionary = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));
             String line;

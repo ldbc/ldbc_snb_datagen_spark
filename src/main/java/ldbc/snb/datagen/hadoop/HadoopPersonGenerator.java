@@ -18,6 +18,7 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import ldbc.snb.datagen.generator.LDBCDatagen;
 
 /**
  * Created by aprat on 8/8/14.
@@ -33,7 +34,7 @@ public class HadoopPersonGenerator  {
             Configuration conf = context.getConfiguration();
             int threadId = Integer.parseInt(value.toString());
             System.out.println("Generating user at mapper " + threadId);
-            DatagenParams.readConf(conf);
+	    LDBCDatagen.init(conf);
             if (DatagenParams.numPersons % DatagenParams.cellSize != 0) {
                 System.err.println("Number of users should be a multiple of the cellsize");
                 System.exit(-1);
@@ -49,7 +50,7 @@ public class HadoopPersonGenerator  {
                 Person[] block = personGenerator.generateUserBlock(i,DatagenParams.blockSize);
                 int size = block.length;
                 for( int j = 0; j < size && DatagenParams.blockSize*i + j < DatagenParams.numPersons ; ++j ) {
-                    LongWritable outputKey = new LongWritable(block[j].accountId);
+                    LongWritable outputKey = new LongWritable(block[j].accountId());
                     try {
                         context.write(outputKey, block[j]);
                     } catch( IOException ioE ) {
@@ -111,7 +112,7 @@ public class HadoopPersonGenerator  {
 
         int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.numThreads"));
         conf.setInt("mapred.line.input.format.linespermap", 1);
-        Job job = new Job(conf, "SIB Generate Users & 1st Dimension");
+        Job job = Job.getInstance(conf, "SIB Generate Users & 1st Dimension");
         job.setMapOutputKeyClass(LongWritable.class);
         job.setMapOutputValueClass(Person.class);
         job.setOutputKeyClass(LongWritable.class);
@@ -122,9 +123,6 @@ public class HadoopPersonGenerator  {
         job.setNumReduceTasks(numThreads);
         job.setInputFormatClass(NLineInputFormat.class);
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
-        //job.setPartitionerClass(MapReduceKeyPartitioner.class);
-        //job.setSortComparatorClass(MapReduceKeyComparator.class);
-        //job.setGroupingComparatorClass(MapReduceKeyGroupKeyComparator.class);
         FileInputFormat.setInputPaths(job, new Path(tempFile));
         FileOutputFormat.setOutputPath(job, new Path(outputFileName));
         job.waitForCompletion(true);

@@ -44,6 +44,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.TreeMap;
+import ldbc.snb.datagen.generator.DatagenParams;
 
 /**
  * This class reads the file containing the names and countries for the companies used in the ldbc socialnet generation and
@@ -85,13 +86,14 @@ public class CompanyDictionary {
         for (Integer id : placeDictionary.getCountries()) {
             this.companiesByCountry.put(id, new ArrayList<Long>());
         }
+	load(DatagenParams.companiesDictionaryFile);
     }
 
     /**
      * @param fileName The file to load.
      * @brief Loads the company dictionary file.
      */
-    public void load(String fileName) {
+    private void load(String fileName) {
         try {
             BufferedReader dictionary = new BufferedReader(
                     new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));

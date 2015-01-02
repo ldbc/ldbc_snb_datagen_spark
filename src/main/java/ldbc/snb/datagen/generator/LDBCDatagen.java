@@ -36,16 +36,23 @@
  */
 package ldbc.snb.datagen.generator;
 
+import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.hadoop.*;
-import ldbc.snb.datagen.objects.Knows;
-import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.util.ConfigParser;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.LongWritable;
 
 public class LDBCDatagen {
+
+	static boolean initialized = false;
+	public static synchronized void init (Configuration conf) {
+		if(!initialized) {
+			DatagenParams.readConf(conf);
+			Dictionaries.loadDictionaries();
+			initialized = true;
+		}
+	}
 
     private void printProgress(String message) {
         System.out.println("************************************************");
@@ -83,6 +90,10 @@ public class LDBCDatagen {
         printProgress("Serializing persons");
         HadoopPersonSerializer serializer = new HadoopPersonSerializer(conf);
         serializer.run(personsFileName2);
+
+        printProgress("Generating and serializing person activity");
+        HadoopPersonActivityGenerator activityGenerator = new HadoopPersonActivityGenerator(conf);
+        activityGenerator.run(personsFileName2);
 
         printProgress("Serializing invariant schema ");
         HadoopInvariantSerializer invariantSerializer = new HadoopInvariantSerializer(conf);

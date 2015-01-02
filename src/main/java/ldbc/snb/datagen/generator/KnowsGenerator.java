@@ -30,7 +30,7 @@ public class KnowsGenerator {
     public void generateKnows( ArrayList<Person> persons, int seed, float upperBound )  {
         randomFarm.resetRandomGenerators(seed);
         for( int i = 0; i < persons.size(); ++i ) {
-           for( int j = i +1; j < persons.size(); ++j  ) {
+           for( int j = i+1; j < persons.size(); ++j  ) {
                 if( know(persons.get(i), persons.get(j), j - i, upperBound)) {
                    createKnow(persons.get(i), persons.get(j));
                 }
@@ -39,8 +39,8 @@ public class KnowsGenerator {
     }
 
     boolean know( Person personA, Person personB, int dist, float upperBound ) {
-        if((float)(personA.knows.size()) >= (float)(personA.maxNumKnows)*upperBound ||
-           personB.knows.size() >= (float)(personB.maxNumKnows)*upperBound ) return false;
+        if((float)(personA.knows().size()) >= (float)(personA.maxNumKnows())*upperBound ||
+           personB.knows().size() >= (float)(personB.maxNumKnows())*upperBound ) return false;
         double randProb = randomFarm.get(RandomGeneratorFarm.Aspect.UNIFORM).nextDouble();
         double prob = Math.pow(DatagenParams.baseProbCorrelated, dist);
         if ((randProb < prob) || (randProb < DatagenParams.limitProCorrelated)) {
@@ -54,11 +54,11 @@ public class KnowsGenerator {
                 randomFarm.get(RandomGeneratorFarm.Aspect.DATE),
                 personA,
                 personB);
-        creationDate = creationDate - personA.creationDate >= DatagenParams.deltaTime ? creationDate : creationDate + (DatagenParams.deltaTime - (creationDate - personA.creationDate));
-        creationDate = creationDate - personB.creationDate >= DatagenParams.deltaTime ? creationDate : creationDate + (DatagenParams.deltaTime - (creationDate - personB.creationDate));
+        creationDate = creationDate - personA.creationDate() >= DatagenParams.deltaTime ? creationDate : creationDate + (DatagenParams.deltaTime - (creationDate - personA.creationDate()));
+        creationDate = creationDate - personB.creationDate() >= DatagenParams.deltaTime ? creationDate : creationDate + (DatagenParams.deltaTime - (creationDate - personB.creationDate()));
         if( creationDate <= dateGenerator.getEndDateTime() ) {
-            personB.knows.add(new Knows(personB, personA, creationDate));
-            personA.knows.add(new Knows(personA, personB, creationDate));
+            personB.knows().add(new Knows(personB, personA, creationDate));
+            personA.knows().add(new Knows(personA, personB, creationDate));
         }
     }
 }

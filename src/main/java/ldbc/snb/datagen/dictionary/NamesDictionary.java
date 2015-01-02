@@ -44,6 +44,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
+import ldbc.snb.datagen.generator.DatagenParams;
 
 public class NamesDictionary {
 
@@ -92,6 +93,7 @@ public class NamesDictionary {
                 femaleNamesByCountry.get(femaleNamesByCountry.size() - 1).put(id, new ArrayList<String>());
             }
         }
+	load(DatagenParams.surnamDictionaryFile,DatagenParams.nameDictionaryFile);
     }
 
     /**
@@ -99,7 +101,7 @@ public class NamesDictionary {
      * @param namesFileName    The names file name.
      * @brief Loads the dictionary.
      */
-    public void load(String surnamesFileName, String namesFileName) {
+    private void load(String surnamesFileName, String namesFileName) {
         extractSurnames(surnamesFileName);
         extractNames(namesFileName);
     }
@@ -108,7 +110,7 @@ public class NamesDictionary {
      * @param fileName The surnames file name.
      * @brief Loads the surnames.
      */
-    public void extractSurnames(String fileName) {
+    private void extractSurnames(String fileName) {
         try {
             BufferedReader surnameDictionary = new BufferedReader(
                     new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));
@@ -143,7 +145,7 @@ public class NamesDictionary {
      * @param fileName The names file names.
      * @brief Loads the names.
      */
-    public void extractNames(String fileName) {
+    private void extractNames(String fileName) {
         try {
             BufferedReader givennameDictionary = new BufferedReader(
                     new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));

@@ -19,7 +19,7 @@ import java.util.ArrayList;
 /**
  * Created by aprat on 12/17/14.
  */
-public class CSVInvariantSerializer implements InvariantSerializer {
+public class CSVInvariantSerializer extends InvariantSerializer {
 
     private HDFSCSVWriter[] writers;
     private BrowserDictionary browserDictionary;
@@ -54,15 +54,12 @@ public class CSVInvariantSerializer implements InvariantSerializer {
         }
 
         browserDictionary = new BrowserDictionary(DatagenParams.probAnotherBrowser);
-        browserDictionary.load(DatagenParams.browserDictonryFile);
 
         placeDictionary = new PlaceDictionary(DatagenParams.numPersons);
-        placeDictionary.load(DatagenParams.cityDictionaryFile, DatagenParams.countryDictionaryFile);
 
         languageDictionary = new LanguageDictionary(placeDictionary,
                 DatagenParams.probEnglish,
                 DatagenParams.probSecondLang);
-        languageDictionary.load(DatagenParams.languageDictionaryFile);
 
     }
 
@@ -73,7 +70,7 @@ public class CSVInvariantSerializer implements InvariantSerializer {
         }
     }
 
-    public void serialize(Place place) {
+    protected void serialize(Place place) {
         ArrayList<String> arguments = new ArrayList<String>();
         arguments.add(Integer.toString(place.getId()));
         arguments.add(place.getName());
@@ -90,7 +87,7 @@ public class CSVInvariantSerializer implements InvariantSerializer {
         }
     }
 
-    public void serialize(Organization organization) {
+    protected void serialize(Organization organization) {
         ArrayList<String> arguments = new ArrayList<String>();
         arguments.add(Long.toString(organization.id));
         arguments.add(organization.type.toString());
@@ -104,7 +101,7 @@ public class CSVInvariantSerializer implements InvariantSerializer {
         writers[FileNames.ORGANIZATION_IS_LOCATED_IN_PLACE.ordinal()].writeEntry(arguments);
     }
 
-    public void serialize(TagClass tagClass) {
+    protected void serialize(TagClass tagClass) {
         ArrayList<String> arguments = new ArrayList<String>();
         arguments.add(Integer.toString(tagClass.id));
         arguments.add(tagClass.name);
@@ -123,7 +120,7 @@ public class CSVInvariantSerializer implements InvariantSerializer {
         }
     }
 
-    public void serialize(Tag tag) {
+    protected void serialize(Tag tag) {
         ArrayList<String> arguments = new ArrayList<String>();
         arguments.add(Integer.toString(tag.id));
         arguments.add(tag.name);

@@ -43,6 +43,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
+import ldbc.snb.datagen.generator.DatagenParams;
 
 /**
  * This class reads the files containing the country data and city data used in the ldbc socialnet generation and
@@ -110,6 +111,7 @@ public class PlaceDictionary {
         this.isPartOf = new HashMap<Integer, Integer>();
         this.countries = new ArrayList<Integer>();
         this.citiesByCountry = new HashMap<Integer, ArrayList<Integer>>();
+	load(DatagenParams.cityDictionaryFile, DatagenParams.countryDictionaryFile);
     }
 
     /**
@@ -236,7 +238,7 @@ public class PlaceDictionary {
      * @param countriesFileName The countries file name.
      * @brief Loads the dictionary files.
      */
-    public void load(String citiesFileName, String countriesFileName) {
+    private void load(String citiesFileName, String countriesFileName) {
 
         readCountries(countriesFileName);
         orderByZ();
