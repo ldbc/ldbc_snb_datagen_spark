@@ -19,6 +19,7 @@ public class ConfigParser {
         conf.set("ldbc.snb.datagen.serializer.personSerializer", "ldbc.snb.datagen.serializer.snb.interactive.CSVPersonSerializer");
         conf.set("ldbc.snb.datagen.serializer.invariantSerializer", "ldbc.snb.datagen.serializer.snb.interactive.CSVInvariantSerializer");
         conf.set("ldbc.snb.datagen.serializer.personActivitySerializer", "ldbc.snb.datagen.serializer.snb.interactive.CSVPersonActivitySerializer");
+        conf.set("ldbc.snb.datagen.serializer.degreeDistribution", "ldbc.snb.datagen.generator.distribution.FacebookDegreeDistribution");
         conf.set("ldbc.snb.datagen.serializer.compressed", Boolean.toString(false));
         conf.set("ldbc.snb.datagen.serializer.updateStreams", Boolean.toString(false));
         conf.set("ldbc.snb.datagen.serializer.outputDir", "./");
