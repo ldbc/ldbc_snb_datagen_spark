@@ -60,7 +60,7 @@ public class HadoopFileKeyChanger {
 
     public void run( String inputFileName, String outputFileName ) throws Exception {
 
-        int numThreads = conf.getInt("ldbc.snb.datagen.numThreads",1);
+        int numThreads = conf.getInt("ldbc.snb.datagen.generator.numThreads",1);
         System.out.println("***************"+numThreads);
         conf.set("keySetterClassName", keySetterName);
 

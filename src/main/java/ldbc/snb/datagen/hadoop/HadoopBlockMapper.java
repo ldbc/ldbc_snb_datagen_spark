@@ -20,7 +20,7 @@ public class HadoopBlockMapper extends Mapper<LongWritable, Person, BlockKey, Pe
     public void setup(Mapper.Context context) {
         Configuration conf = context.getConfiguration();
         mapId = context.getTaskAttemptID().getId();
-	blockSize = conf.getInt("ldbc.snb.datagen.blockSize", 10000);
+	blockSize = conf.getInt("ldbc.snb.datagen.generator.blockSize", 10000);
     }
 
     @Override
