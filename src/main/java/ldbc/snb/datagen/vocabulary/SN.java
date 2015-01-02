@@ -156,7 +156,6 @@ public class SN {
     public static long composeId(long id, long date) {
         long bucket = (long) (256 * (date - minDate) / (double) maxDate);
         long idMask = ~(0xFFFFFFFFFFFFFFFFL << 33);
-//        long dateMask = ~(0xFFFFFFFFFFFFFFFFL << 20);
         return (bucket << 33) | (id & idMask);
     }
 }
