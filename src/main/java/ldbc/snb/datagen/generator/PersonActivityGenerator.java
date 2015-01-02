@@ -14,6 +14,7 @@ import ldbc.snb.datagen.objects.Post;
 import ldbc.snb.datagen.serializer.PersonActivitySerializer;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
+import org.apache.hadoop.mapreduce.Reducer.Context;
 
 public class PersonActivityGenerator {
 	
@@ -51,15 +52,20 @@ public class PersonActivityGenerator {
 	}
 	
 	private void generateActivity( Person person, ArrayList<Person> block ) {
-		
+		generateWall(person, block);
+		generateGroups(person, block);
+		generateAlbums(person, block);
+	}
+
+	private void generateWall( Person person, ArrayList<Person> block ) {
 		// generate wall
 		Forum wall = forumGenerator_.createWall(randomFarm_, forumId++, person);
 		personActivitySerializer_.export(wall);
+		
+		// generate wall posts
 		ForumMembership personMembership = new ForumMembership(wall.id(),
 			wall.creationDate()+DatagenParams.deltaTime,  new Person.PersonSummary(person)
 		);
-		
-		// generate wall posts
 		ArrayList<ForumMembership> fakeMembers = new ArrayList<ForumMembership>();
 		fakeMembers.add(personMembership);
 		ArrayList<Post> wallPosts = uniformPostGenerator_.createPosts(randomFarm_, wall, fakeMembers , numPostsPerGroup(randomFarm_, wall, DatagenParams.maxNumPostPerMonth, DatagenParams.maxNumFriends), messageId);
@@ -93,7 +99,10 @@ public class PersonActivityGenerator {
 				}
 			}
 		}
-		
+
+	}
+
+	private void generateGroups( Person person, ArrayList<Person> block ) {
 		// generate user created groups
 		double moderatorProb = randomFarm_.get(RandomGeneratorFarm.Aspect.FORUM_MODERATOR).nextDouble();
 		if (moderatorProb <= DatagenParams.groupModeratorProb) {
@@ -103,7 +112,7 @@ public class PersonActivityGenerator {
 				personActivitySerializer_.export(group);
 				// generate uniform posts/comments
 				ArrayList<Post> groupPosts = uniformPostGenerator_.createPosts(randomFarm_, group, group.memberships(), numPostsPerGroup(randomFarm_, group, DatagenParams.maxNumGroupPostPerMonth, DatagenParams.maxNumMemberGroup), messageId);
-				aux = messageId+groupPosts.size();
+				long aux = messageId+groupPosts.size();
 				groupPosts.addAll(flashmobPostGenerator_.createPosts(randomFarm_, group, group.memberships(), numPostsPerGroup(randomFarm_, group, DatagenParams.maxNumGroupFlashmobPostPerMonth, DatagenParams.maxNumMemberGroup),aux));
 				messageId += groupPosts.size();
 				for( Post p : groupPosts ) {
@@ -133,6 +142,10 @@ public class PersonActivityGenerator {
 				}
 			}
 		}
+
+	}
+
+	private void generateAlbums(Person person, ArrayList<Person> block ) {
 		// generate albums
 		int numOfmonths = (int) dateTimeGenerator_.numberOfMonths(person);
 		int numPhotoAlbums = randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_PHOTO_ALBUM).nextInt(DatagenParams.maxNumPhotoAlbumsPerMonth+1);
@@ -142,6 +155,11 @@ public class PersonActivityGenerator {
 		for (int i = 0; i < numPhotoAlbums; i++) {
 			Forum album = forumGenerator_.createAlbum(randomFarm_, forumId++, person, i);
 			personActivitySerializer_.export(album);
+			ForumMembership personMembership = new ForumMembership(album.id(),
+				album.creationDate()+DatagenParams.deltaTime,  new Person.PersonSummary(person)
+			);
+			ArrayList<ForumMembership> fakeMembers = new ArrayList<ForumMembership>();
+			fakeMembers.add(personMembership);
 			int numPhotos = randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_PHOTO).nextInt(DatagenParams.maxNumPhotoPerAlbums+1);
 			ArrayList<Photo> photos = photoGenerator_.createPhotos(randomFarm_, album, fakeMembers, numPhotos, messageId);
 			messageId+=photos.size();
@@ -171,13 +189,18 @@ public class PersonActivityGenerator {
 		return (numberPost * forum.memberships().size()) / maxMembersPerForum;
 	}
 	
-	public void generateActivityForBlock( int seed, ArrayList<Person> block ) {
+	public void generateActivityForBlock( int seed, ArrayList<Person> block, Context context ) {
 		randomFarm_.resetRandomGenerators(seed);
 		forumId = 0;
 		messageId = 0;
 		SN.machineId = seed;
+		int counter = 0;
 		for( Person p : block ) {
 			generateActivity(p, block);
+			if( counter % 100 == 0 ) {
+				context.setStatus("Generating person activity "+counter);
+			}
+			counter++;
 		}
 	}
 }
