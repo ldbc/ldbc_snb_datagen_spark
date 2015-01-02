@@ -2,7 +2,6 @@
 package ldbc.snb.datagen.generator;
 
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 import java.util.Random;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.objects.Comment;

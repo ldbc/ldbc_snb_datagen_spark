@@ -40,7 +40,6 @@ public class HadoopPersonActivityGenerator {
             Configuration conf = context.getConfiguration();
             reducerId = context.getTaskAttemptID().getTaskID().getId();
 	    LDBCDatagen.init(conf);
-	    SN.machineId = reducerId;
             try {
                 personActivitySerializer_ = (PersonActivitySerializer) Class.forName(conf.get("ldbc.snb.datagen.serializer.personActivitySerializer")).newInstance();
 		personActivitySerializer_.initialize(conf,reducerId);
