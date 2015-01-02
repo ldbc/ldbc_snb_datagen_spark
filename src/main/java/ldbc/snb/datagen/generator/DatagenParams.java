@@ -82,63 +82,63 @@ public class DatagenParams {
 
     //private parameters
     private enum ParameterNames {
-        BASE_CORRELATED ("ldbc.snb.datagen.baseProbCorrelated"),
-        BEST_UNIVERSTY_RATIO ("ldbc.snb.datagen.probTopUniv"),
-        BLOCK_SIZE ("ldbc.snb.datagen.blockSize"),
-        CELL_SIZE ("ldbc.snb.datagen.cellSize"),
-        COMPANY_UNCORRELATED_RATIO ("ldbc.snb.datagen.probUnCorrelatedCompany"),
-        DIFFERENT_IP_IN_TRAVEL_RATIO ("ldbc.snb.datagen.probDiffIPinTravelSeason"),
-        DIFFERENT_IP_NOT_TRAVEL_RATIO ("ldbc.snb.datagen.probDiffIPnotTravelSeason"),
-        ENGLISH_RATIO ("ldbc.snb.datagen.probEnglish"),
-        FLASHMOB_TAGS_PER_MONTH ("ldbc.snb.datagen.flashmobTagsPerMonth"),
-        FLASHMOB_TAG_DIST_EXP ("ldbc.snb.datagen.flashmobTagDistExp"),
-        FLASHMOB_TAG_MAX_LEVEL ("ldbc.snb.datagen.flashmobTagMaxLevel"),
-        FLASHMOB_TAG_MIN_LEVEL ("ldbc.snb.datagen.flashmobTagMinLevel"),
-        FRIEND_REACCEPT ("ldbc.snb.datagen.friendReApproveRatio"),
-        FRIEND_REJECT ("ldbc.snb.datagen.friendRejectRatio"),
-        GROUP_MAX_POST_MONTH ("ldbc.snb.datagen.maxNumGroupPostPerMonth"),
-        GROUP_MODERATOR_RATIO ("ldbc.snb.datagen.groupModeratorProb"),
-        LARGE_COMMENT_RATIO ("ldbc.snb.datagen.ratioLargeComment"),
-        LARGE_POST_RATIO ("ldbc.snb.datagen.ratioLargePost"),
-        LIMIT_CORRELATED ("ldbc.snb.datagen.limitProCorrelated"),
-        MAX_COMMENT_POST ("ldbc.snb.datagen.maxNumComments"),
-        MAX_COMMENT_SIZE ("ldbc.snb.datagen.maxCommentSize"),
-        MAX_COMPANIES ("ldbc.snb.datagen.maxCompanies"),
-        MAX_EMAIL ("ldbc.snb.datagen.maxEmails"),
-        MAX_FRIENDS ("ldbc.snb.datagen.maxNumFriends"),
-        MAX_GROUP_MEMBERS ("ldbc.snb.datagen.maxNumMemberGroup"),
-        MAX_LARGE_COMMENT_SIZE ("ldbc.snb.datagen.maxLargeCommentSize"),
-        MAX_LARGE_POST_SIZE ("ldbc.snb.datagen.maxLargePostSize"),
-        MAX_NUM_FLASHMOB_POST_PER_MONTH ("ldbc.snb.datagen.maxNumFlashmobPostPerMonth"),
-        MAX_NUM_GROUP_FLASHMOB_POST_PER_MONTH ("ldbc.snb.datagen.maxNumGroupFlashmobPostPerMonth"),
-        MAX_NUM_TAG_PER_FLASHMOB_POST ("ldbc.snb.datagen.maxNumTagPerFlashmobPost"),
-        MAX_PHOTOALBUM ("ldbc.snb.datagen.maxNumPhotoAlbumsPerMonth"),
-        MAX_PHOTO_PER_ALBUM ("ldbc.snb.datagen.maxNumPhotoPerAlbums"),
-        MAX_POPULAR_PLACES ("ldbc.snb.datagen.maxNumPopularPlaces"),
-        MAX_TEXT_SIZE ("ldbc.snb.datagen.maxTextSize"),
-        MIN_COMMENT_SIZE ("ldbc.snb.datagen.minCommentSize"),
-        MIN_FRIENDS ("ldbc.snb.datagen.minNumFriends"),
-        MIN_LARGE_COMMENT_SIZE ("ldbc.snb.datagen.minLargeCommentSize"),
-        MIN_LARGE_POST_SIZE ("ldbc.snb.datagen.minLargePostSize"),
-        MIN_TEXT_SIZE ("ldbc.snb.datagen.minTextSize"),
-        MISSING_RATIO ("ldbc.snb.datagen.missingRatio"),
-        NUM_CELL_WINDOW ("ldbc.snb.datagen.numberOfCellPerWindow"),
-        OTHER_BROWSER_RATIO ("ldbc.snb.datagen.probAnotherBrowser"),
-        POPULAR_PLACE_RATIO ("ldbc.snb.datagen.probPopularPlaces"),
-        PROB_INTEREST_FLASHMOB_TAG ("ldbc.snb.datagen.probInterestFlashmobTag"),
-        PROB_RANDOM_PER_LEVEL ("ldbc.snb.datagen.probRandomPerLevel"),
-        REDUCE_TEXT_RATIO ("ldbc.snb.datagen.ratioReduceText"),
-        SECOND_LANGUAGE_RATIO ("ldbc.snb.datagen.probSecondLang"),
-        STATUS_MISSING_RATIO ("ldbc.snb.datagen.missingStatusRatio"),
-        STATUS_SINGLE_RATIO ("ldbc.snb.datagen.probSingleStatus"),
-        TAG_UNCORRELATED_COUNTRY ("ldbc.snb.datagen.tagCountryCorrProb"),
-        UNIVERSITY_UNCORRELATED_RATIO ("ldbc.snb.datagen.probUnCorrelatedOrganization"),
-        MAX_NUM_LIKE ("ldbc.snb.datagen.maxNumLike"),
+        BASE_CORRELATED ("ldbc.snb.datagen.generator.baseProbCorrelated"),
+        BEST_UNIVERSTY_RATIO ("ldbc.snb.datagen.generator.probTopUniv"),
+        BLOCK_SIZE ("ldbc.snb.datagen.generator.blockSize"),
+        CELL_SIZE ("ldbc.snb.datagen.generator.cellSize"),
+        COMPANY_UNCORRELATED_RATIO ("ldbc.snb.datagen.generator.probUnCorrelatedCompany"),
+        DIFFERENT_IP_IN_TRAVEL_RATIO ("ldbc.snb.datagen.generator.probDiffIPinTravelSeason"),
+        DIFFERENT_IP_NOT_TRAVEL_RATIO ("ldbc.snb.datagen.generator.probDiffIPnotTravelSeason"),
+        ENGLISH_RATIO ("ldbc.snb.datagen.generator.probEnglish"),
+        FLASHMOB_TAGS_PER_MONTH ("ldbc.snb.datagen.generator.flashmobTagsPerMonth"),
+        FLASHMOB_TAG_DIST_EXP ("ldbc.snb.datagen.generator.flashmobTagDistExp"),
+        FLASHMOB_TAG_MAX_LEVEL ("ldbc.snb.datagen.generator.flashmobTagMaxLevel"),
+        FLASHMOB_TAG_MIN_LEVEL ("ldbc.snb.datagen.generator.flashmobTagMinLevel"),
+        FRIEND_REACCEPT ("ldbc.snb.datagen.generator.friendReApproveRatio"),
+        FRIEND_REJECT ("ldbc.snb.datagen.generator.friendRejectRatio"),
+        GROUP_MAX_POST_MONTH ("ldbc.snb.datagen.generator.maxNumGroupPostPerMonth"),
+        GROUP_MODERATOR_RATIO ("ldbc.snb.datagen.generator.groupModeratorProb"),
+        LARGE_COMMENT_RATIO ("ldbc.snb.datagen.generator.ratioLargeComment"),
+        LARGE_POST_RATIO ("ldbc.snb.datagen.generator.ratioLargePost"),
+        LIMIT_CORRELATED ("ldbc.snb.datagen.generator.limitProCorrelated"),
+        MAX_COMMENT_POST ("ldbc.snb.datagen.generator.maxNumComments"),
+        MAX_COMMENT_SIZE ("ldbc.snb.datagen.generator.maxCommentSize"),
+        MAX_COMPANIES ("ldbc.snb.datagen.generator.maxCompanies"),
+        MAX_EMAIL ("ldbc.snb.datagen.generator.maxEmails"),
+        MAX_FRIENDS ("ldbc.snb.datagen.generator.maxNumFriends"),
+        MAX_GROUP_MEMBERS ("ldbc.snb.datagen.generator.maxNumMemberGroup"),
+        MAX_LARGE_COMMENT_SIZE ("ldbc.snb.datagen.generator.maxLargeCommentSize"),
+        MAX_LARGE_POST_SIZE ("ldbc.snb.datagen.generator.maxLargePostSize"),
+        MAX_NUM_FLASHMOB_POST_PER_MONTH ("ldbc.snb.datagen.generator.maxNumFlashmobPostPerMonth"),
+        MAX_NUM_GROUP_FLASHMOB_POST_PER_MONTH ("ldbc.snb.datagen.generator.maxNumGroupFlashmobPostPerMonth"),
+        MAX_NUM_TAG_PER_FLASHMOB_POST ("ldbc.snb.datagen.generator.maxNumTagPerFlashmobPost"),
+        MAX_PHOTOALBUM ("ldbc.snb.datagen.generator.maxNumPhotoAlbumsPerMonth"),
+        MAX_PHOTO_PER_ALBUM ("ldbc.snb.datagen.generator.maxNumPhotoPerAlbums"),
+        MAX_POPULAR_PLACES ("ldbc.snb.datagen.generator.maxNumPopularPlaces"),
+        MAX_TEXT_SIZE ("ldbc.snb.datagen.generator.maxTextSize"),
+        MIN_COMMENT_SIZE ("ldbc.snb.datagen.generator.minCommentSize"),
+        MIN_FRIENDS ("ldbc.snb.datagen.generator.minNumFriends"),
+        MIN_LARGE_COMMENT_SIZE ("ldbc.snb.datagen.generator.minLargeCommentSize"),
+        MIN_LARGE_POST_SIZE ("ldbc.snb.datagen.generator.minLargePostSize"),
+        MIN_TEXT_SIZE ("ldbc.snb.datagen.generator.minTextSize"),
+        MISSING_RATIO ("ldbc.snb.datagen.generator.missingRatio"),
+        NUM_CELL_WINDOW ("ldbc.snb.datagen.generator.numberOfCellPerWindow"),
+        OTHER_BROWSER_RATIO ("ldbc.snb.datagen.generator.probAnotherBrowser"),
+        POPULAR_PLACE_RATIO ("ldbc.snb.datagen.generator.probPopularPlaces"),
+        PROB_INTEREST_FLASHMOB_TAG ("ldbc.snb.datagen.generator.probInterestFlashmobTag"),
+        PROB_RANDOM_PER_LEVEL ("ldbc.snb.datagen.generator.probRandomPerLevel"),
+        REDUCE_TEXT_RATIO ("ldbc.snb.datagen.generator.ratioReduceText"),
+        SECOND_LANGUAGE_RATIO ("ldbc.snb.datagen.generator.probSecondLang"),
+        STATUS_MISSING_RATIO ("ldbc.snb.datagen.generator.missingStatusRatio"),
+        STATUS_SINGLE_RATIO ("ldbc.snb.datagen.generator.probSingleStatus"),
+        TAG_UNCORRELATED_COUNTRY ("ldbc.snb.datagen.generator.tagCountryCorrProb"),
+        UNIVERSITY_UNCORRELATED_RATIO ("ldbc.snb.datagen.generator.probUnCorrelatedOrganization"),
+        MAX_NUM_LIKE ("ldbc.snb.datagen.generator.maxNumLike"),
         UPDATE_PORTION ("ldbc.snb.datagen.serializer.updatePortion"),
-        USER_MAX_GROUP ("ldbc.snb.datagen.maxNumGroupCreatedPerUser"),
-        USER_MAX_POST_MONTH ("ldbc.snb.datagen.maxNumPostPerMonth"),
-        USER_MAX_TAGS ("ldbc.snb.datagen.maxNumTagsPerUser"),
-        USER_MIN_TAGS ("ldbc.snb.datagen.minNumTagsPerUser");
+        USER_MAX_GROUP ("ldbc.snb.datagen.generator.maxNumGroupCreatedPerUser"),
+        USER_MAX_POST_MONTH ("ldbc.snb.datagen.generator.maxNumPostPerMonth"),
+        USER_MAX_TAGS ("ldbc.snb.datagen.generator.maxNumTagsPerUser"),
+        USER_MIN_TAGS ("ldbc.snb.datagen.generator.minNumTagsPerUser");
 
         private final String name;
 
@@ -329,13 +329,13 @@ public class DatagenParams {
         }
 
         try {
-            if (conf.get("ldbc.snb.datagen.numPersons") != null && conf.get("ldbc.snb.datagen.numYears") != null && conf.get("ldbc.snb.datagen.startYear") != null) {
-                numPersons = Integer.parseInt(conf.get("ldbc.snb.datagen.numPersons"));
-                startYear = Integer.parseInt(conf.get("ldbc.snb.datagen.startYear"));
-                numYears = Integer.parseInt(conf.get("ldbc.snb.datagen.numYears"));
+            if (conf.get("ldbc.snb.datagen.generator.numPersons") != null && conf.get("ldbc.snb.datagen.generator.numYears") != null && conf.get("ldbc.snb.datagen.generator.startYear") != null) {
+                numPersons = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numPersons"));
+                startYear = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.startYear"));
+                numYears = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numYears"));
                 endYear = startYear + numYears;
             } else {
-                int scaleFactorId = Integer.parseInt(conf.get("ldbc.snb.datagen.scaleFactor"));
+                int scaleFactorId = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.scaleFactor"));
                 ScaleFactor scaleFactor = scaleFactors.get(scaleFactorId);
                 System.out.println("Executing with scale factor " + scaleFactorId);
                 System.out.println(" ... Num Persons " + scaleFactor.numPersons);
@@ -347,11 +347,10 @@ public class DatagenParams {
                 endYear = startYear + numYears;
             }
 
-            exportText = conf.getBoolean("ldbc.snb.datagen.exportText",true);
             compressed = conf.getBoolean("ldbc.snb.datagen.serializer.compressed",false);
-            numThreads = conf.getInt("ldbc.snb.datagen.numThreads",1);
+            numThreads = conf.getInt("ldbc.snb.datagen.generator.numThreads",1);
             updateStreams = conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams",false);
-            deltaTime = conf.getInt("ldbc.snb.datagen.deltaTime",10000);
+            deltaTime = conf.getInt("ldbc.snb.datagen.generator.deltaTime",10000);
             outputDir = conf.get("ldbc.snb.datagen.serializer.outputDir","./");
             hadoopDir = conf.get("ldbc.snb.datagen.serializer.hadoopDir","./");
             socialNetworkDir = conf.get("ldbc.snb.datagen.serializer.socialNetworkDir","./");

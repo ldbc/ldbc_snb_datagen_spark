@@ -45,7 +45,7 @@ public class HadoopPersonGenerator  {
             int initBlock   = (int) (Math.ceil((numBlocks / (double) DatagenParams.numThreads) * threadId));
             int endBlock    = (int) (Math.ceil((numBlocks / (double) DatagenParams.numThreads) * (threadId + 1)));
 
-            PersonGenerator personGenerator = new PersonGenerator(conf.get("ldbc.snb.datagen.generator.degreeDistribution"));
+            PersonGenerator personGenerator = new PersonGenerator(conf.get("ldbc.snb.datagen.generator.distribution.degreeDistribution"));
             for (int i = initBlock; i < endBlock; ++i) {
                 Person[] block = personGenerator.generateUserBlock(i,DatagenParams.blockSize);
                 int size = block.length;
@@ -108,9 +108,9 @@ public class HadoopPersonGenerator  {
 
         FileSystem dfs = FileSystem.get(conf);
         dfs.delete(new Path(tempFile), true);
-        writeToOutputFile(tempFile, Integer.parseInt(conf.get("ldbc.snb.datagen.numThreads")), conf);
+        writeToOutputFile(tempFile, Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads")), conf);
 
-        int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.numThreads"));
+        int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads"));
         conf.setInt("mapred.line.input.format.linespermap", 1);
         Job job = Job.getInstance(conf, "SIB Generate Users & 1st Dimension");
         job.setMapOutputKeyClass(LongWritable.class);

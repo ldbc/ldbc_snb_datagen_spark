@@ -69,7 +69,7 @@ public class HadoopPersonSerializer {
 		hadoopFileRanker.run(keyChangedFileName,rankedFileName);
 		fs.delete(new Path(keyChangedFileName), true);
 		
-		int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.numThreads"));
+		int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads"));
 		Job job = Job.getInstance(conf, "Person Serializer");
 		job.setMapOutputKeyClass(BlockKey.class);
 		job.setMapOutputValueClass(Person.class);

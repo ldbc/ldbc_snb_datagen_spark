@@ -131,7 +131,7 @@ public class HadoopFileRanker {
      * @throws Exception
      */
     public void run( String inputFileName, String outputFileName ) throws Exception {
-        int numThreads = conf.getInt("ldbc.snb.datagen.numThreads",1);
+        int numThreads = conf.getInt("ldbc.snb.datagen.generator.numThreads",1);
 
         /** First Job to sort the key-value pairs and to count the number of elements processed by each reducer.**/
         Job jobSort = Job.getInstance(conf, "Sorting "+inputFileName);
