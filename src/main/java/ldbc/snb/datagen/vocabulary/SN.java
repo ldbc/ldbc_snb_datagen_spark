@@ -36,6 +36,9 @@
  */
 package ldbc.snb.datagen.vocabulary;
 
+import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.generator.DatagenParams;
+
 /**
  * LDBC social network data namespace used in the serialization process.
  */
@@ -46,25 +49,18 @@ public class SN {
     public static final String NAMESPACE = "http://www.ldbc.eu/ldbc_socialnet/1.0/data/";
     public static final String PREFIX = "sn:";
     public static final String BLANK_NODE = "_:";
-    public static long minDate = 0;
-    public static long maxDate = 0;
+    private static long minDate;
+    private static long maxDate;
 
     /**
      * Sets the machine id.
      * Used as a suffix in some SN entities' tp create unique IDs in parallel generation.
      */
-    public static void setMachineNumber(int machineId, int numMachines) {
-/*	    int digits = 0;
-        do {
-	        numMachines /= 10;
-            digits++;
-	    } while (numMachines != 0);
-	    SN.machineId = String.valueOf(machineId);
-	    for (int i = SN.machineId.length(); i < digits; i++) {
-	        SN.machineId = '0' + SN.machineId;
-	    }*/
-        SN.numBits = (int) Math.ceil(Math.log10(numMachines) / Math.log10(2));
-        SN.machineId = machineId;
+
+    public static void initialize() {
+	minDate = Dictionaries.dates.getStartDateTime();
+	maxDate = Dictionaries.dates.getMaxDateTime();
+        numBits = (int) Math.ceil(Math.log10(DatagenParams.numThreads) / Math.log10(2));
         if (numBits > 14) System.out.print("WARNING: Possible id overlapp");
     }
 

@@ -39,6 +39,7 @@ package ldbc.snb.datagen.generator;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.hadoop.*;
 import ldbc.snb.datagen.util.ConfigParser;
+import ldbc.snb.datagen.vocabulary.SN;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -50,6 +51,7 @@ public class LDBCDatagen {
 		if(!initialized) {
 			DatagenParams.readConf(conf);
 			Dictionaries.loadDictionaries();
+			SN.initialize();
 			initialized = true;
 		}
 	}
@@ -68,40 +70,63 @@ public class LDBCDatagen {
 
         long start = System.currentTimeMillis();
         printProgress("Starting: Person generation");
+        long startPerson = System.currentTimeMillis();
         HadoopPersonGenerator personGenerator = new HadoopPersonGenerator( conf );
         personGenerator.run(personsFileName1);
+        long endPerson = System.currentTimeMillis();
 
 
         printProgress("Creating university location correlated edges");
+        long startUniversity = System.currentTimeMillis();
         HadoopKnowsGenerator knowsGenerator = new HadoopKnowsGenerator(conf,"ldbc.snb.datagen.hadoop.UniversityKeySetter", 0.45f);
         knowsGenerator.run(personsFileName1,personsFileName2);
         fs.delete(new Path(personsFileName1), true);
+        long endUniversity = System.currentTimeMillis();
 
         printProgress("Creating main interest correlated edges");
+        long startInterest= System.currentTimeMillis();
         knowsGenerator = new HadoopKnowsGenerator(conf,"ldbc.snb.datagen.hadoop.InterestKeySetter", 0.90f);
         knowsGenerator.run(personsFileName2,personsFileName1);
         fs.delete(new Path(personsFileName2), true);
+        long endInterest = System.currentTimeMillis();
 
         printProgress("Creating random correlated edges");
+        long startRandom= System.currentTimeMillis();
         knowsGenerator = new HadoopKnowsGenerator(conf,"ldbc.snb.datagen.hadoop.RandomKeySetter", 1.0f);
         knowsGenerator.run(personsFileName1,personsFileName2);
         fs.delete(new Path(personsFileName1), true);
+        long endRandom= System.currentTimeMillis();
 
         printProgress("Serializing persons");
+        long startPersonSerializing= System.currentTimeMillis();
         HadoopPersonSerializer serializer = new HadoopPersonSerializer(conf);
         serializer.run(personsFileName2);
+        long endPersonSerializing= System.currentTimeMillis();
 
         printProgress("Generating and serializing person activity");
+        long startPersonActivity= System.currentTimeMillis();
         HadoopPersonActivityGenerator activityGenerator = new HadoopPersonActivityGenerator(conf);
         activityGenerator.run(personsFileName2);
+        long endPersonActivity= System.currentTimeMillis();
 
         printProgress("Serializing invariant schema ");
+        long startInvariantSerializing= System.currentTimeMillis();
         HadoopInvariantSerializer invariantSerializer = new HadoopInvariantSerializer(conf);
         invariantSerializer.run();
+        long endInvariantSerializing= System.currentTimeMillis();
 
         long end = System.currentTimeMillis();
+
         System.out.println(((end - start) / 1000)
                 + " total seconds");
+        System.out.println("Person generation time: "+((endPerson - startPerson) / 1000));
+        System.out.println("University correlated edge generation time: "+((endUniversity - startUniversity) / 1000));
+        System.out.println("Interest correlated edge generation time: "+((endInterest - startInterest) / 1000));
+        System.out.println("Random correlated edge generation time: "+((endRandom - startRandom) / 1000));
+        System.out.println("Person serialization time: "+((endPersonSerializing - startPersonSerializing) / 1000));
+        System.out.println("Person activity generation and serialization time: "+((endPersonActivity - startPersonActivity) / 1000));
+        System.out.println("Invariant schema serialization time: "+((endInvariantSerializing - startInvariantSerializing) / 1000));
+        System.out.println("Total Execution time: "+((end - start) / 1000));
         return 0;
     }
 
