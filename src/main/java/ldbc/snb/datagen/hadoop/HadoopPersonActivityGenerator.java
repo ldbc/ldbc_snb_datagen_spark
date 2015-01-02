@@ -12,6 +12,7 @@ import ldbc.snb.datagen.generator.LDBCDatagen;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.generator.PersonActivityGenerator;
 import ldbc.snb.datagen.serializer.PersonActivitySerializer;
+import ldbc.snb.datagen.vocabulary.SN;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -39,6 +40,7 @@ public class HadoopPersonActivityGenerator {
             Configuration conf = context.getConfiguration();
             reducerId = context.getTaskAttemptID().getTaskID().getId();
 	    LDBCDatagen.init(conf);
+	    SN.machineId = reducerId;
             try {
                 personActivitySerializer_ = (PersonActivitySerializer) Class.forName(conf.get("ldbc.snb.datagen.serializer.personActivitySerializer")).newInstance();
 		personActivitySerializer_.initialize(conf,reducerId);

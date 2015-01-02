@@ -103,10 +103,12 @@ public class LDBCDatagen {
         serializer.run(personsFileName2);
         long endPersonSerializing= System.currentTimeMillis();
 
-        printProgress("Generating and serializing person activity");
         long startPersonActivity= System.currentTimeMillis();
-        HadoopPersonActivityGenerator activityGenerator = new HadoopPersonActivityGenerator(conf);
-        activityGenerator.run(personsFileName2);
+	if(conf.getBoolean("ldbc.snb.dagaten.activity", true)) {
+		printProgress("Generating and serializing person activity");
+		HadoopPersonActivityGenerator activityGenerator = new HadoopPersonActivityGenerator(conf);
+		activityGenerator.run(personsFileName2);
+	}
         long endPersonActivity= System.currentTimeMillis();
 
         printProgress("Serializing invariant schema ");

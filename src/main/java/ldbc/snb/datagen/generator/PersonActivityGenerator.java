@@ -4,6 +4,7 @@ package ldbc.snb.datagen.generator;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.Random;
+import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.objects.Comment;
 import ldbc.snb.datagen.objects.Forum;
 import ldbc.snb.datagen.objects.ForumMembership;
@@ -23,7 +24,6 @@ public class PersonActivityGenerator {
 	private UniformPostGenerator uniformPostGenerator_ = null;
 	private FlashmobPostGenerator flashmobPostGenerator_ = null;
 	private PhotoGenerator photoGenerator_ = null;
-	private DateGenerator dateTimeGenerator_ = null;
 	private CommentGenerator commentGenerator_ = null;
 	private LikeGenerator likeGenerator_ = null;
 	private PersonActivitySerializer personActivitySerializer_ = null;
@@ -40,15 +40,6 @@ public class PersonActivityGenerator {
 		photoGenerator_ = new PhotoGenerator();
 		commentGenerator_ = new CommentGenerator();
 		likeGenerator_ = new LikeGenerator();
-		
-		dateTimeGenerator_ = new DateGenerator( new GregorianCalendar(DatagenParams.startYear,
-			DatagenParams.startMonth,
-			DatagenParams.startDate),
-			new GregorianCalendar(DatagenParams.endYear,
-				DatagenParams.endMonth,
-				DatagenParams.endDate),
-			DatagenParams.alpha,
-			DatagenParams.deltaTime);
 	}
 	
 	private void generateActivity( Person person, ArrayList<Person> block ) {
@@ -147,7 +138,7 @@ public class PersonActivityGenerator {
 
 	private void generateAlbums(Person person, ArrayList<Person> block ) {
 		// generate albums
-		int numOfmonths = (int) dateTimeGenerator_.numberOfMonths(person);
+		int numOfmonths = (int) Dictionaries.dates.numberOfMonths(person);
 		int numPhotoAlbums = randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_PHOTO_ALBUM).nextInt(DatagenParams.maxNumPhotoAlbumsPerMonth+1);
 		if (numOfmonths != 0) {
 			numPhotoAlbums = numOfmonths * numPhotoAlbums;
@@ -179,7 +170,7 @@ public class PersonActivityGenerator {
 	
 	private int numPostsPerGroup( RandomGeneratorFarm randomFarm, Forum forum, int maxPostsPerMonth, int maxMembersPerForum ) {
 		Random random = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_POST);
-		int numOfmonths = (int) dateTimeGenerator_.numberOfMonths(forum.creationDate());
+		int numOfmonths = (int) Dictionaries.dates.numberOfMonths(forum.creationDate());
 		int numberPost = 0;
 		if (numOfmonths == 0) {
 			numberPost = random.nextInt(maxPostsPerMonth+1);
