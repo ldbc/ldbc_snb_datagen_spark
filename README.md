@@ -3,11 +3,7 @@
 LDBC-SNB Data Generator
 ----------------------
 
-The LDBC-SNB Data Generator (DATAGEN) is the responsible of providing the data sets used by all the LDBC benchmarks. This data generator is designed to produce directed labeled graphs that mimic the characteristics of those graphs of real data. A detailed description of the generator can be found in the following pages:
-
-* In **[Data Schema](https://github.com/ArnauPrat/ldbc_snb_datagen/wiki/Data-Schema)**, a description of the schema of the data produced by the generator.
-* In **[Data Generation Process](https://github.com/ArnauPrat/ldbc_snb_datagen/wiki/Data-Generation)**, information about the generation process of the data.
-* In **[Data Output](https://github.com/ArnauPrat/ldbc_snb_datagen/wiki/Data-Output)**, a description of the contents and the format of the files produced by the generator.
+The LDBC-SNB Data Generator (DATAGEN) is the responsible of providing the data sets used by all the LDBC benchmarks. This data generator is designed to produce directed labeled graphs that mimic the characteristics of those graphs of real data. A detailed description of the schema produced by datagen, as well as the format of the output files, can be found in the latest version of official [LDBC SNB especification document](https://github.com/ldbc/ldbc_snb_docs)
 
 
 ldbc_snb_datagen is part of the LDBC project (http://www.ldbc.eu/).
