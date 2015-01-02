@@ -118,7 +118,7 @@ public class Person implements Writable {
 
 	private long accountId_;
 	private long creationDate_;
-	private short maxNumKnows_;
+	private long maxNumKnows_;
 	private TreeSet<Knows> knows_;
 	private int browserId_;
 	private IP ipAddress_;
@@ -213,11 +213,11 @@ public class Person implements Writable {
 		creationDate_ = creationDate;
 	}
 
-	public short maxNumKnows( ) {
+	public long maxNumKnows( ) {
 		return maxNumKnows_;
 	}
 
-	public void maxNumKnows( short maxKnows ) {
+	public void maxNumKnows( long maxKnows ) {
 		maxNumKnows_ = maxKnows;
 
 	}
@@ -378,7 +378,7 @@ public class Person implements Writable {
 	public void readFields(DataInput arg0) throws IOException {
 		accountId_ = arg0.readLong();
 		creationDate_ = arg0.readLong();
-		maxNumKnows_ = arg0.readShort();
+		maxNumKnows_ = arg0.readLong();
 		int numFriends = arg0.readShort();
 		knows_ = new TreeSet<Knows>();
 		for (int i = 0; i < numFriends; i++) {
@@ -431,7 +431,7 @@ public class Person implements Writable {
 	public void write(DataOutput arg0) throws IOException {
 		arg0.writeLong(accountId_);
 		arg0.writeLong(creationDate_);
-		arg0.writeShort(maxNumKnows_);
+		arg0.writeLong(maxNumKnows_);
 		arg0.writeShort(knows_.size());
 
 		for( Knows f : knows_ ) {

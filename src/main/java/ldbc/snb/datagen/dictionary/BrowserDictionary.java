@@ -51,15 +51,8 @@ public class BrowserDictionary {
 
     private static final String SEPARATOR = "  ";
     private ArrayList<String> browsers;
-    /**
-     * < @brief The browsers in the dictionary.*
-     */
     private ArrayList<Double> cumulativeDistribution;
-    /**
-     * < @brief The cumulative distribution of each browser.
-     */
-    private double probAnotherBrowser = 0.0f;                   /**< @brief The probability that a user uses another browser than its initial one.*/
-
+    private double probAnotherBrowser = 0.0f;                   
     /**
      * @param probAnotherBrowser: Probability of the user using another browser.
      * @brief Constructor.

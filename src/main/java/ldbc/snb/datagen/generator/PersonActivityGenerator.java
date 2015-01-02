@@ -198,7 +198,7 @@ public class PersonActivityGenerator {
 		for( Person p : block ) {
 			generateActivity(p, block);
 			if( counter % 100 == 0 ) {
-				context.setStatus("Generating person activity "+counter);
+				context.setStatus("Generating activity of person "+counter+" of block"+seed);
 			}
 			counter++;
 		}

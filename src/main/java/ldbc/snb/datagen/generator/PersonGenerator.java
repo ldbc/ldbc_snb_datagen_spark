@@ -8,29 +8,36 @@ import ldbc.snb.datagen.vocabulary.SN;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import ldbc.snb.datagen.generator.distribution.DegreeDistribution;
 
 /**
  * Created by aprat on 10/7/14.
  */
 public class PersonGenerator {
 
-    private FBSocialDegreeGenerator fbDegreeGenerator   = null;
+    private DegreeDistribution degreeDistribution_   = null;
     private PowerDistGenerator randomTagPowerLaw        = null;
     private RandomGeneratorFarm randomFarm              = null;
     private int nextId                                  = 0;
 
-    public PersonGenerator() {
-        fbDegreeGenerator = new FBSocialDegreeGenerator(DatagenParams.numPersons,
-                                                        DatagenParams.fbSocialDegreeFile,
-                                                        0);
+    public PersonGenerator( String degreeDistribution ) {
+	    try{
+		    degreeDistribution_ = (DegreeDistribution) Class.forName(degreeDistribution).newInstance();
+	    } catch(ClassNotFoundException e) {
+		    System.out.print(e.getMessage());
+            } catch(IllegalAccessException e) {
+                System.out.print(e.getMessage());
+            } catch(InstantiationException e) {
+                System.out.print(e.getMessage());
+            }
 
-        randomTagPowerLaw = new PowerDistGenerator( DatagenParams.minNumTagsPerUser,
-                                                    DatagenParams.maxNumTagsPerUser + 1,
-                                                    DatagenParams.alpha);
-
-        randomFarm = new RandomGeneratorFarm();
+	    degreeDistribution_.initialize();
+	    randomTagPowerLaw = new PowerDistGenerator( DatagenParams.minNumTagsPerUser,
+		    DatagenParams.maxNumTagsPerUser + 1,
+		    DatagenParams.alpha);
+	    randomFarm = new RandomGeneratorFarm();
     }
-
+    
     /** Composes a user id from its sequential id, its creation date and the percentile.
      *
      * @param id    The sequential id.
@@ -38,11 +45,10 @@ public class PersonGenerator {
      * @param spid  The percentile id
      * @return A new composed id.
      */
-    private long composeUserId(long id, long date, long spid) {
-        long spidMask = ~(0xFFFFFFFFFFFFFFFFL << 7);
-        long idMask = ~(0xFFFFFFFFFFFFFFFFL << 33);
+    private long composeUserId(long id, long date) {
+        long idMask = ~(0xFFFFFFFFFFFFFFFFL << 40);
         long bucket = (long) (256 * (date - Dictionaries.dates.getStartDateTime()) / (double) Dictionaries.dates.getMaxDateTime());
-        return (bucket << 40) | ((id & idMask) << 7) | (spid & spidMask);
+        return (bucket << 40) | ((id & idMask));
     }
 
     /** Tells if a person is a large poster or not.
@@ -69,8 +75,8 @@ public class PersonGenerator {
         person.countryId(countryId);
         person.cityId(Dictionaries.places.getRandomCity(randomFarm.get(RandomGeneratorFarm.Aspect.CITY), countryId));
         person.ipAddress(Dictionaries.ips.getRandomIPFromLocation(randomFarm.get(RandomGeneratorFarm.Aspect.IP), countryId));
-        person.maxNumKnows(fbDegreeGenerator.getSocialDegree());
-        person.accountId(composeUserId(nextId++, creationDate, fbDegreeGenerator.getIDByPercentile()));
+        person.maxNumKnows(degreeDistribution_.nextDegree());
+        person.accountId(composeUserId(nextId++, creationDate));
         person.mainInterest(Dictionaries.tags.getaTagByCountry(randomFarm.get(RandomGeneratorFarm.Aspect.TAG_OTHER_COUNTRY), randomFarm.get(RandomGeneratorFarm.Aspect.TAG), person.countryId()));
         short numTags = ((short) randomTagPowerLaw.getValue(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_TAG)));
         person.interests(Dictionaries.tagMatrix.getSetofTags(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), randomFarm.get(RandomGeneratorFarm.Aspect.TAG_OTHER_COUNTRY), person.mainInterest(), numTags));
@@ -151,7 +157,7 @@ public class PersonGenerator {
     }
 
     private void resetState(int blockId){
-        fbDegreeGenerator.resetState(blockId);
+        degreeDistribution_.reset(blockId);
         randomFarm.resetRandomGenerators((long) blockId);
     }
 
