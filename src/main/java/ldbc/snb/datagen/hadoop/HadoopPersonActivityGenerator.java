@@ -57,8 +57,7 @@ public class HadoopPersonActivityGenerator {
 		for( Person p : valueSet ) {
 			persons.add(new Person(p));
 		}
-		context.setStatus("Generating person activity for block "+key.block+" of size "+persons.size());
-		personActivityGenerator_.generateActivityForBlock((int)key.block, persons);
+		personActivityGenerator_.generateActivityForBlock((int)key.block, persons, context );
 		
         }
         protected void cleanup(Context context){
