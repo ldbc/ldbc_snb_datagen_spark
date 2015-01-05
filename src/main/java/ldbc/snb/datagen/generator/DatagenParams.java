@@ -227,6 +227,7 @@ public class DatagenParams {
     public static boolean updateStreams                    = false;
     public static boolean exportText                       = true;
     public static boolean compressed                       = false;
+    public static int	numPartitions			   = 1;
 
     private static TreeMap<Integer, ScaleFactor> scaleFactors;
     private static final String SCALE_FACTORS_FILE      =  "scale_factors.xml";
@@ -350,6 +351,7 @@ public class DatagenParams {
             compressed = conf.getBoolean("ldbc.snb.datagen.serializer.compressed",false);
             numThreads = conf.getInt("ldbc.snb.datagen.generator.numThreads",1);
             updateStreams = conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams",false);
+            updateStreams = conf.getBoolean("ldbc.snb.datagen.serializer.numPartitions",false);
             deltaTime = conf.getInt("ldbc.snb.datagen.generator.deltaTime",10000);
             outputDir = conf.get("ldbc.snb.datagen.serializer.outputDir");
             hadoopDir = outputDir+"/hadoop";
