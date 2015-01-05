@@ -7,10 +7,12 @@ package ldbc.snb.datagen.hadoop;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.generator.LDBCDatagen;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.generator.PersonActivityGenerator;
+import ldbc.snb.datagen.objects.Knows;
 import ldbc.snb.datagen.serializer.PersonActivitySerializer;
 import ldbc.snb.datagen.serializer.UpdateEventSerializer;
 import ldbc.snb.datagen.vocabulary.SN;
@@ -45,8 +47,7 @@ public class HadoopPersonActivityGenerator {
             try {
                 personActivitySerializer_ = (PersonActivitySerializer) Class.forName(conf.get("ldbc.snb.datagen.serializer.personActivitySerializer")).newInstance();
 		personActivitySerializer_.initialize(conf,reducerId);
-		updateSerializer_ = new UpdateEventSerializer(conf, reducerId);
-
+		updateSerializer_ = new UpdateEventSerializer(conf, DatagenParams.hadoopDir+"/temp_updateStream_forum_"+reducerId, DatagenParams.numPartitions);
 		personActivityGenerator_ = new PersonActivityGenerator(personActivitySerializer_, updateSerializer_);
 
             } catch( Exception e ) {
@@ -60,8 +61,15 @@ public class HadoopPersonActivityGenerator {
 		ArrayList<Person> persons = new ArrayList<Person>();
 		for( Person p : valueSet ) {
 			persons.add(new Person(p));
+			
+			for( Knows k : p.knows() ) {
+				if( k.creationDate() > Dictionaries.dates.getUpdateThreshold() && DatagenParams.updateStreams ) {
+					updateSerializer_.export(k);
+				}
+			}
 		}
 		personActivityGenerator_.generateActivityForBlock((int)key.block, persons, context );
+
 		
         }
         protected void cleanup(Context context){

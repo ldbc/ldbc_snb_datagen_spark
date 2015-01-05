@@ -122,20 +122,20 @@ public class LDBCDatagen {
 		for( int j = 0; j < numPartitions; ++j ) {
 			if(conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
 				HadoopFileSorter updateStreamSorter = new HadoopFileSorter(conf,LongWritable.class,Text.class);
-				updateStreamSorter.run(DatagenParams.hadoopDir+"/temp_updateStream_"+i+"_"+j+"_person", DatagenParams.hadoopDir+"/updateStream_"+i+"_"+j+"_person");
-				updateStreamSorter.run(DatagenParams.hadoopDir+"/temp_updateStream_"+i+"_"+j+"_forum", DatagenParams.hadoopDir+"/updateStream_"+i+"_"+j+"_forum");
+				updateStreamSorter.run(DatagenParams.hadoopDir+"/temp_updateStream_person_"+i+"_"+j, DatagenParams.hadoopDir+"/updateStream_person_"+i+"_"+j);
+				updateStreamSorter.run(DatagenParams.hadoopDir+"/temp_updateStream_forum_"+i+"_"+j, DatagenParams.hadoopDir+"/updateStream_forum_"+i+"_"+j);
 			}
 
-			fs.delete(new Path(DatagenParams.hadoopDir+"/temp_updateStream_"+i+"_"+j+"_person"), true);
-			fs.delete(new Path(DatagenParams.hadoopDir+"/temp_updateStream_"+i+"_"+j+"_forum"), true);
+			fs.delete(new Path(DatagenParams.hadoopDir+"/temp_updateStream_person_"+i+"_"+j), true);
+			fs.delete(new Path(DatagenParams.hadoopDir+"/temp_updateStream_forum_"+i+"_"+j), true);
 			
 			if(conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
 				HadoopUpdateStreamSerializer updateSerializer = new HadoopUpdateStreamSerializer(conf);
-				updateSerializer.run(DatagenParams.hadoopDir+"/updateStream_"+i+"_"+j+"_person", i, j, "person");
-				updateSerializer.run(DatagenParams.hadoopDir+"/updateStream_"+i+"_"+j+"_forum", i, j, "forum");
+				updateSerializer.run(DatagenParams.hadoopDir+"/updateStream_person_"+i+"_"+j, i, j, "person");
+				updateSerializer.run(DatagenParams.hadoopDir+"/updateStream_forum_"+i+"_"+j, i, j, "forum");
 				
-				fs.delete(new Path(DatagenParams.hadoopDir+"/updateStream_"+i+"_"+j+"_person"), true);
-				fs.delete(new Path(DatagenParams.hadoopDir+"/updateStream_"+i+"_"+j+"_forum"), true);
+				fs.delete(new Path(DatagenParams.hadoopDir+"/updateStream_person_"+i+"_"+j), true);
+				fs.delete(new Path(DatagenParams.hadoopDir+"/updateStream_forum_"+i+"_"+j), true);
 			}
 		}
 	}

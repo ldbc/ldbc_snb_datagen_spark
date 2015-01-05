@@ -45,7 +45,7 @@ public class HadoopUpdateStreamSerializer {
 					Path outFile = new Path(context.getConfiguration().get("ldbc.snb.datagen.serializer.socialNetworkDir")+"/updateStream_"+reducerId+"_"+partitionId+"_"+streamType+".csv.gz");
 					out = new GZIPOutputStream( fs.create(outFile));
 				} else {
-					Path outFile = new Path(context.getConfiguration().get("outputDir")+"/social_network/updateStream_"+reducerId+"_"+partitionId+"_"+streamType+".csv");
+					Path outFile = new Path(context.getConfiguration().get("ldbc.snb.datagen.serializer.socialNetworkDir")+"/updateStream_"+reducerId+"_"+partitionId+"_"+streamType+".csv");
 					out = fs.create(outFile);
                 }
 			} catch( Exception e ) {
