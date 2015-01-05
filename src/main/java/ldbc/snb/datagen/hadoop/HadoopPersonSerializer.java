@@ -13,6 +13,10 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 
 import java.io.IOException;
+import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.generator.DatagenParams;
+import ldbc.snb.datagen.objects.Knows;
+import ldbc.snb.datagen.serializer.UpdateEventSerializer;
 import org.apache.hadoop.fs.FileSystem;
 
 /**
@@ -24,6 +28,7 @@ public class HadoopPersonSerializer {
 		
 		private int reducerId;                          /** The id of the reducer.**/
 		private PersonSerializer personSerializer_;   /** The person serializer **/
+		private UpdateEventSerializer updateSerializer_;   
 		
 		protected void setup(Context context) {
 			Configuration conf = context.getConfiguration();
@@ -31,6 +36,7 @@ public class HadoopPersonSerializer {
 			try {
 				personSerializer_ = (PersonSerializer) Class.forName(conf.get("ldbc.snb.datagen.serializer.personSerializer")).newInstance();
 				personSerializer_.initialize(conf,reducerId);
+				updateSerializer_ = new UpdateEventSerializer( conf, reducerId);
 			} catch( Exception e ) {
 				System.err.println(e.getMessage());
 			}
@@ -40,12 +46,25 @@ public class HadoopPersonSerializer {
 		public void reduce(BlockKey key, Iterable<Person> valueSet,Context context)
 			throws IOException, InterruptedException {
 			for( Person p : valueSet ) {
-				personSerializer_.export(p);
+				if(p.creationDate()< Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
+					personSerializer_.export(p);
+				} else {
+					updateSerializer_.export(p);
+				}
+
+				for( Knows k : p.knows() ) {
+					if( k.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
+						personSerializer_.export(k);
+					} else {
+						updateSerializer_.export(k);
+					}
+				}
 			}
 			
 		}
 		protected void cleanup(Context context){
 			personSerializer_.close();
+			updateSerializer_.close();
 		}
 	}
 	

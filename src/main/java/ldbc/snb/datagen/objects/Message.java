@@ -37,12 +37,13 @@
 package ldbc.snb.datagen.objects;
 
 import java.util.TreeSet;
+import ldbc.snb.datagen.objects.Person.PersonSummary;
 
 abstract public class Message {
 
     private long messageId_;
     private long creationDate_;
-    private long authorId_;
+    private PersonSummary author_;
     private long forumId_;
     private String content_;
     private TreeSet<Integer> tags_;
@@ -52,7 +53,7 @@ abstract public class Message {
 
     public Message(long messageId,
                    long creationDate,
-                   long authorId,
+                   PersonSummary author,
                    long forumId,
                    String content,
                    TreeSet<Integer> tags,
@@ -62,7 +63,7 @@ abstract public class Message {
 
         messageId_ = messageId;
         creationDate_ = creationDate;
-        authorId_ = authorId;
+        author_ = new PersonSummary(author);
         forumId_ = forumId;
         content_ = content;
         tags_ = new TreeSet<Integer>(tags);
@@ -87,12 +88,12 @@ abstract public class Message {
 	    creationDate_ = date;
     }
 
-    public long authorId () {
-	    return authorId_;
+    public PersonSummary author () {
+	    return author_;
     }
 
-    public void authorId (long id ) {
-	    authorId_ = id ;
+    public void authorId ( PersonSummary person ) {
+	    author_.copy(person) ;
     }
 
     public long forumId() {

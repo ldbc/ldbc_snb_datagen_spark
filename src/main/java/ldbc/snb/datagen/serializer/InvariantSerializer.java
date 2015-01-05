@@ -13,6 +13,7 @@ import ldbc.snb.datagen.objects.TagClass;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
+import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.objects.Person;
 import org.apache.hadoop.conf.Configuration;
 
@@ -21,27 +22,11 @@ import org.apache.hadoop.conf.Configuration;
  */
 abstract public class InvariantSerializer {
 
-    protected UniversityDictionary universityDictionary_;
-    protected PlaceDictionary placeDictionary_;
-    protected CompanyDictionary companyDictionary_;
-    protected TagDictionary tagDictionary_;
     protected TreeSet<Integer> exportedClasses_;
 
     public InvariantSerializer() {
 
         exportedClasses_ = new TreeSet<Integer>();
-
-        placeDictionary_ = new PlaceDictionary(DatagenParams.numPersons);
-
-        companyDictionary_ = new CompanyDictionary(placeDictionary_, DatagenParams.probUnCorrelatedCompany);
-
-        universityDictionary_ = new UniversityDictionary(placeDictionary_,
-                DatagenParams.probUnCorrelatedOrganization,
-                DatagenParams.probTopUniv,
-                companyDictionary_.getNumCompanies());
-
-        tagDictionary_ = new TagDictionary(  placeDictionary_.getCountries().size(),
-                DatagenParams.tagCountryCorrProb);
     }
 
 
@@ -52,55 +37,55 @@ abstract public class InvariantSerializer {
             exportedClasses_.add(classId);
             TagClass tagClass = new TagClass();
             tagClass.id = classId;
-            tagClass.name = tagDictionary_.getClassName(classId);
-            tagClass.parent = tagDictionary_.getClassParent(tagClass.id);
+            tagClass.name = Dictionaries.tags.getClassName(classId);
+            tagClass.parent = Dictionaries.tags.getClassParent(tagClass.id);
             serialize(tagClass);
             classId = tagClass.parent;
         }
     }
 
     public void exportPlaces() {
-        Set<Integer> locations = placeDictionary_.getPlaces();
+        Set<Integer> locations = Dictionaries.places.getPlaces();
         Iterator<Integer> it = locations.iterator();
         while(it.hasNext()) {
-            Place place = placeDictionary_.getLocation(it.next());
+            Place place = Dictionaries.places.getLocation(it.next());
             serialize(place);
         }
     }
 
     public void exportOrganizations() {
-        Set<Long> companies = companyDictionary_.getCompanies();
+        Set<Long> companies = Dictionaries.companies.getCompanies();
         Iterator<Long> it = companies.iterator();
         while(it.hasNext()) {
             Organization company = new Organization();
             company.id = it.next();
             company.type = Organization.OrganisationType.company;
-            company.name = companyDictionary_.getCompanyName(company.id);
-            company.location = companyDictionary_.getCountry(company.id);
+            company.name = Dictionaries.companies.getCompanyName(company.id);
+            company.location = Dictionaries.companies.getCountry(company.id);
             serialize(company);
         }
 
-        Set<Long> universities = universityDictionary_.getUniversities();
+        Set<Long> universities = Dictionaries.universities.getUniversities();
         it = universities.iterator();
         while(it.hasNext()) {
             Organization university = new Organization();
             university.id = it.next();
             university.type = Organization.OrganisationType.university;
-            university.name = universityDictionary_.getUniversityName(university.id);
-            university.location = universityDictionary_.getUniversityCity(university.id);
+            university.name = Dictionaries.universities.getUniversityName(university.id);
+            university.location = Dictionaries.universities.getUniversityCity(university.id);
 	    serialize(university);
         }
     }
 
     public void exportTags() {
-        Set<Integer>  tags = tagDictionary_.getTags();
+        Set<Integer>  tags = Dictionaries.tags.getTags();
         Iterator<Integer> it = tags.iterator();
         while(it.hasNext()) {
             Tag tag = new Tag();
             tag.id = it.next();
-            tag.name = tagDictionary_.getName(tag.id);
+            tag.name = Dictionaries.tags.getName(tag.id);
             tag.name.replace("\"", "\\\"");
-            tag.tagClass = tagDictionary_.getTagClass(tag.id);
+            tag.tagClass = Dictionaries.tags.getTagClass(tag.id);
             serialize(tag);
             exportTagHierarchy(tag);
         }

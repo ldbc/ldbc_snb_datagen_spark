@@ -12,6 +12,7 @@ import ldbc.snb.datagen.generator.LDBCDatagen;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.generator.PersonActivityGenerator;
 import ldbc.snb.datagen.serializer.PersonActivitySerializer;
+import ldbc.snb.datagen.serializer.UpdateEventSerializer;
 import ldbc.snb.datagen.vocabulary.SN;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -35,6 +36,7 @@ public class HadoopPersonActivityGenerator {
         private int reducerId;                          /** The id of the reducer.**/
 	private PersonActivitySerializer personActivitySerializer_;
 	private PersonActivityGenerator personActivityGenerator_;
+	private UpdateEventSerializer updateSerializer_;
 
         protected void setup(Context context) {
             Configuration conf = context.getConfiguration();
@@ -43,8 +45,9 @@ public class HadoopPersonActivityGenerator {
             try {
                 personActivitySerializer_ = (PersonActivitySerializer) Class.forName(conf.get("ldbc.snb.datagen.serializer.personActivitySerializer")).newInstance();
 		personActivitySerializer_.initialize(conf,reducerId);
+		updateSerializer_ = new UpdateEventSerializer(conf, reducerId);
 
-		personActivityGenerator_ = new PersonActivityGenerator(personActivitySerializer_);
+		personActivityGenerator_ = new PersonActivityGenerator(personActivitySerializer_, updateSerializer_);
 
             } catch( Exception e ) {
                 System.err.println(e.getMessage());
@@ -63,6 +66,7 @@ public class HadoopPersonActivityGenerator {
         }
         protected void cleanup(Context context){
 		personActivitySerializer_.close();
+		updateSerializer_.close();
         }
     }
 

@@ -7,11 +7,13 @@ import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.objects.Comment;
 import ldbc.snb.datagen.objects.Forum;
 import ldbc.snb.datagen.objects.ForumMembership;
+import ldbc.snb.datagen.objects.Knows;
 import ldbc.snb.datagen.objects.Like;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.objects.Photo;
 import ldbc.snb.datagen.objects.Post;
 import ldbc.snb.datagen.serializer.PersonActivitySerializer;
+import ldbc.snb.datagen.serializer.UpdateEventSerializer;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
 import org.apache.hadoop.mapreduce.Reducer.Context;
@@ -26,11 +28,13 @@ public class PersonActivityGenerator {
 	private CommentGenerator commentGenerator_ = null;
 	private LikeGenerator likeGenerator_ = null;
 	private PersonActivitySerializer personActivitySerializer_ = null;
+	private UpdateEventSerializer updateSerializer_ = null;
 	private long forumId = 0;
 	private long messageId = 0;
 	
-	public PersonActivityGenerator( PersonActivitySerializer serializer ) {
+	public PersonActivityGenerator( PersonActivitySerializer serializer, UpdateEventSerializer updateSerializer ) {
 		personActivitySerializer_ = serializer;
+		updateSerializer_ = updateSerializer;
 		randomFarm_ = new RandomGeneratorFarm();
 		// load generators
 		forumGenerator_ = new ForumGenerator();
@@ -50,7 +54,10 @@ public class PersonActivityGenerator {
 	private void generateWall( Person person, ArrayList<Person> block ) {
 		// generate wall
 		Forum wall = forumGenerator_.createWall(randomFarm_, forumId++, person);
-		personActivitySerializer_.export(wall);
+		export(wall);
+		for( ForumMembership fm : wall.memberships()) {
+			export(fm);
+		}
 		
 		// generate wall posts
 		ForumMembership personMembership = new ForumMembership(wall.id(),
@@ -64,12 +71,12 @@ public class PersonActivityGenerator {
 		messageId+=wallPosts.size();
 		
 		for( Post p : wallPosts ) {
-			personActivitySerializer_.export(p);
+			export(p);
 			// generate likes to post
 			ArrayList<Like> postLikes = likeGenerator_.generateLikes(randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE), wall, p, Like.LikeType.POST);
 			if( randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
 				for( Like l : postLikes ) {
-					personActivitySerializer_.export(l);
+					export(l);
 				}
 			}
 			// generate comments
@@ -77,13 +84,13 @@ public class PersonActivityGenerator {
 			ArrayList<Comment> comments = commentGenerator_.createComments(randomFarm_, wall, p, numComments, messageId);
 			messageId+=comments.size();
 			for( Comment c : comments ) {
-				personActivitySerializer_.export(c);
+				export(c);
 				// generate likes to comments
 				if( c.content().length() > 10 && randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
 					ArrayList<Like> commentLikes = likeGenerator_.generateLikes(randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE), wall, c, Like.LikeType.COMMENT);
 					
 					for( Like l : commentLikes ) {
-						personActivitySerializer_.export(l);
+						export(l);
 					}
 					
 				}
@@ -99,19 +106,24 @@ public class PersonActivityGenerator {
 			int numGroup = randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_FORUM).nextInt(DatagenParams.maxNumGroupCreatedPerUser)+1;
 			for (int j = 0; j < numGroup; j++) {
 				Forum group = forumGenerator_.createGroup(randomFarm_, forumId++, person, block);
-				personActivitySerializer_.export(group);
+				export(group);
+
+				for( ForumMembership fm : group.memberships()) {
+					export(fm);
+				}
+
 				// generate uniform posts/comments
 				ArrayList<Post> groupPosts = uniformPostGenerator_.createPosts(randomFarm_, group, group.memberships(), numPostsPerGroup(randomFarm_, group, DatagenParams.maxNumGroupPostPerMonth, DatagenParams.maxNumMemberGroup), messageId);
 				long aux = messageId+groupPosts.size();
 				groupPosts.addAll(flashmobPostGenerator_.createPosts(randomFarm_, group, group.memberships(), numPostsPerGroup(randomFarm_, group, DatagenParams.maxNumGroupFlashmobPostPerMonth, DatagenParams.maxNumMemberGroup),aux));
 				messageId += groupPosts.size();
 				for( Post p : groupPosts ) {
-					personActivitySerializer_.export(p);
+					export(p);
 					// generate likes to post
 					if( randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
 						ArrayList<Like> postLikes = likeGenerator_.generateLikes(randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE), group, p, Like.LikeType.POST);
 						for( Like l : postLikes ) {
-							personActivitySerializer_.export(l);
+							export(l);
 						}
 					}
 					// generate comments
@@ -119,13 +131,13 @@ public class PersonActivityGenerator {
 					ArrayList<Comment> comments = commentGenerator_.createComments(randomFarm_, group, p, numComments, messageId);
 					messageId+=comments.size();
 					for( Comment c : comments ) {
-						personActivitySerializer_.export(c);
+						export(c);
 						// generate likes to comments
 						if( c.content().length() > 10 && randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
 							ArrayList<Like> commentLikes = likeGenerator_.generateLikes(randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE), group, p, Like.LikeType.POST);
 							
 							for( Like l : commentLikes ) {
-								personActivitySerializer_.export(l);
+								export(l);
 							}
 						}
 					}
@@ -144,7 +156,12 @@ public class PersonActivityGenerator {
 		}
 		for (int i = 0; i < numPhotoAlbums; i++) {
 			Forum album = forumGenerator_.createAlbum(randomFarm_, forumId++, person, i);
-			personActivitySerializer_.export(album);
+			export(album);
+
+			for( ForumMembership fm : album.memberships()) {
+				export(fm);
+			}
+
 			ForumMembership personMembership = new ForumMembership(album.id(),
 				album.creationDate()+DatagenParams.deltaTime,  new Person.PersonSummary(person)
 			);
@@ -154,12 +171,12 @@ public class PersonActivityGenerator {
 			ArrayList<Photo> photos = photoGenerator_.createPhotos(randomFarm_, album, fakeMembers, numPhotos, messageId);
 			messageId+=photos.size();
 			for( Photo p : photos ) {
-				personActivitySerializer_.export(p);
+				export(p);
 				// generate likes
 				if( randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
 					ArrayList<Like> photoLikes = likeGenerator_.generateLikes(randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE), album, p, Like.LikeType.PHOTO);
 					for( Like l : photoLikes ) {
-						personActivitySerializer_.export(l);
+						export(l);
 					}
 				}
 			}
@@ -191,6 +208,55 @@ public class PersonActivityGenerator {
 				context.setStatus("Generating activity of person "+counter+" of block"+seed);
 			}
 			counter++;
+		}
+	}
+
+	private void export(Forum forum) {
+		if(forum.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
+			personActivitySerializer_.export(forum);
+		} else {
+			updateSerializer_.export(forum);
+		}
+	}
+
+	private void export(Post post) {
+		if(post.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
+			personActivitySerializer_.export(post);
+		} else {
+			updateSerializer_.export(post);
+		}
+	}
+
+	private void export(Comment comment) {
+		if(comment.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
+			personActivitySerializer_.export(comment);
+		} else {
+			updateSerializer_.export(comment);
+		}
+	}
+
+	private void export(Photo photo) {
+		if(photo.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
+			personActivitySerializer_.export(photo);
+		} else {
+			updateSerializer_.export(photo);
+		}
+	}
+
+	private void export(ForumMembership member) {
+		if(member.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
+			personActivitySerializer_.export(member);
+		} else {
+			updateSerializer_.export(member);
+		}
+	}
+
+	private void export(Like like) {
+
+		if(like.date < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
+			personActivitySerializer_.export(like);
+		} else {
+			updateSerializer_.export(like);
 		}
 	}
 }

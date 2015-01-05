@@ -45,6 +45,7 @@ public class LikeGenerator {
 			if( date <= Dictionaries.dates.getEndDateTime() ) {
 				Like like = new Like();
 				like.user = membership.person().accountId();
+				like.userCreationDate = membership.person().creationDate();
 				like.messageId = message.messageId();
 				like.date = date;
 				like.type = type;
@@ -53,5 +54,4 @@ public class LikeGenerator {
 		}
 		return likes;
 	}
-	
 }

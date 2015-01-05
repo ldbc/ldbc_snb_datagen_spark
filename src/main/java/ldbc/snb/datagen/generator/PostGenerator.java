@@ -106,7 +106,7 @@ abstract public class PostGenerator {
 					
 					Post post = new Post( SN.formId(SN.composeId(postId,postInfo.date)),
 						postInfo.date,
-						member.person().accountId(),
+						member.person(),
 						forum.id(),
 						content,
 						postInfo.tags,

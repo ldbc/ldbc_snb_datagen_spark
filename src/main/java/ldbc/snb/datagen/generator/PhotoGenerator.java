@@ -83,7 +83,7 @@ public class PhotoGenerator {
 			long date = album.creationDate()+DatagenParams.deltaTime+1000*(i+1);
 			if( date <= Dictionaries.dates.getEndDateTime() ) {
 				long id = SN.formId(SN.composeId(nextId++,date));
-				Photo photo = new Photo(id,date,album.moderator().accountId(), album.id(), "photo"+id+".jpg",tags,album.moderator().ipAddress(),album.moderator().browserId(),locationId,latt,longt);
+				Photo photo = new Photo(id,date,album.moderator(), album.id(), "photo"+id+".jpg",tags,album.moderator().ipAddress(),album.moderator().browserId(),locationId,latt,longt);
 				photos.add(photo);
 			}
 		}
