@@ -88,16 +88,10 @@ public class HadoopUpdateStreamSerializer {
 		job.setMapOutputValueClass(Text.class);
 		job.setOutputKeyClass(LongWritable.class);
 		job.setOutputValueClass(Text.class);
-		job.setJarByClass(HadoopBlockMapper.class);
-		job.setMapperClass(HadoopBlockMapper.class);
 		job.setReducerClass(HadoopUpdateStreamSerializerReducer.class);
 		job.setNumReduceTasks(1);
 		job.setInputFormatClass(SequenceFileInputFormat.class);
 		job.setOutputFormatClass(SequenceFileOutputFormat.class);
-		
-		job.setSortComparatorClass(BlockKeyComparator.class);
-		job.setGroupingComparatorClass(BlockKeyGroupComparator.class);
-		job.setPartitionerClass(HadoopBlockPartitioner.class);
 		
 		FileInputFormat.setInputPaths(job, new Path(inputFileName));
 		FileOutputFormat.setOutputPath(job, new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")+"/aux"));
