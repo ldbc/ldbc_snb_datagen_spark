@@ -117,15 +117,16 @@ public class UpdateEventSerializer {
 				Path outFile = new Path(fileNamePrefix_+"_"+i);
 				streamWriter_[i] = SequenceFile.createWriter(fc, conf, outFile, LongWritable.class, Text.class, CompressionType.NONE, new DefaultCodec(),new SequenceFile.Metadata(), EnumSet.of(CreateFlag.CREATE), Options.CreateOpts.checksumParam(Options.ChecksumOpt.createDisabled()));
 				FileSystem fs = FileSystem.get(conf);
-				Path propertiesFile = new Path(DatagenParams.socialNetworkDir+"/updateStream.properties");
+				Path propertiesFile = new Path(fileNamePrefix+".properties");
 				if(fs.exists(propertiesFile)){
-					FSDataInputStream file = fs.open(new Path(DatagenParams.socialNetworkDir + "/updateStream.properties"));
+					FSDataInputStream file = fs.open(propertiesFile);
 					Properties properties = new Properties();
 					properties.load(file);
 					stats_.minDate_ = Long.parseLong(properties.getProperty("ldbc.snb.interactive.min_write_event_start_time"));
 					stats_.maxDate_ = Long.parseLong(properties.getProperty("ldbc.snb.interactive.max_write_event_start_time"));
 					stats_.count_ = Long.parseLong(properties.getProperty("ldbc.snb.interactive.num_events"));
 					file.close();
+                    fs.delete(propertiesFile,true);
 				}
 			}
 		} catch(IOException e){
@@ -180,6 +181,7 @@ public class UpdateEventSerializer {
 	private void endEvent() {
 		currentEvent_.eventData = formatStringArray(data_,"|");
 		writeKeyValue(currentEvent_);
+        changePartition();
 	}
 	
 	private void beginList() {
@@ -199,7 +201,7 @@ public class UpdateEventSerializer {
 			}
 			
 			if(DatagenParams.updateStreams) {
-				OutputStream output = fs.create(new Path(DatagenParams.socialNetworkDir + "/updateStream.properties"),true);
+				OutputStream output = fs.create(new Path(fileNamePrefix_+".properties"),true);
 				output.write(new String("ldbc.snb.interactive.gct_delta_duration:" + DatagenParams.deltaTime + "\n").getBytes());
 				output.write(new String("ldbc.snb.interactive.min_write_event_start_time:" + stats_.minDate_ + "\n").getBytes());
 				output.write(new String("ldbc.snb.interactive.max_write_event_start_time:" + stats_.maxDate_ + "\n").getBytes());

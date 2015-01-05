@@ -36,11 +36,14 @@
  */
 package ldbc.snb.datagen.generator;
 
+import java.io.OutputStream;
+import java.util.Properties;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.hadoop.*;
 import ldbc.snb.datagen.util.ConfigParser;
 import ldbc.snb.datagen.vocabulary.SN;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -126,19 +129,62 @@ public class LDBCDatagen {
 				updateStreamSorter.run(DatagenParams.hadoopDir+"/temp_updateStream_forum_"+i+"_"+j, DatagenParams.hadoopDir+"/updateStream_forum_"+i+"_"+j);
 			}
 
-			//fs.delete(new Path(DatagenParams.hadoopDir+"/temp_updateStream_person_"+i+"_"+j), true);
-			//fs.delete(new Path(DatagenParams.hadoopDir+"/temp_updateStream_forum_"+i+"_"+j), true);
+			fs.delete(new Path(DatagenParams.hadoopDir+"/temp_updateStream_person_"+i+"_"+j), true);
+			fs.delete(new Path(DatagenParams.hadoopDir+"/temp_updateStream_forum_"+i+"_"+j), true);
 			
 			if(conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
 				HadoopUpdateStreamSerializer updateSerializer = new HadoopUpdateStreamSerializer(conf);
 				updateSerializer.run(DatagenParams.hadoopDir+"/updateStream_person_"+i+"_"+j, i, j, "person");
 				updateSerializer.run(DatagenParams.hadoopDir+"/updateStream_forum_"+i+"_"+j, i, j, "forum");
 				
-			//	fs.delete(new Path(DatagenParams.hadoopDir+"/updateStream_person_"+i+"_"+j), true);
-			//	fs.delete(new Path(DatagenParams.hadoopDir+"/updateStream_forum_"+i+"_"+j), true);
+				fs.delete(new Path(DatagenParams.hadoopDir+"/updateStream_person_"+i+"_"+j), true);
+				fs.delete(new Path(DatagenParams.hadoopDir+"/updateStream_forum_"+i+"_"+j), true);
 			}
 		}
 	}
+
+    if(conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
+        long minDate = Long.MAX_VALUE;
+        long maxDate = Long.MIN_VALUE;
+        long count = 0;
+        for( int i = 0; i < DatagenParams.numThreads; ++i) {
+            Path propertiesFile = new Path(DatagenParams.hadoopDir+"/temp_updateStream_person_"+i+".properties");
+            FSDataInputStream file = fs.open(propertiesFile);
+            Properties properties = new Properties();
+            properties.load(file);
+            long aux;
+            aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.min_write_event_start_time"));
+            minDate = aux < minDate ? aux : minDate;
+            aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.max_write_event_start_time"));
+            maxDate = aux > maxDate ? aux : maxDate;
+            aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.num_events"));
+            count += aux;
+            file.close();
+            fs.delete(propertiesFile,true);
+
+            propertiesFile = new Path(DatagenParams.hadoopDir+"/temp_updateStream_forum_"+i+".properties");
+            file = fs.open(propertiesFile);
+            properties = new Properties();
+            properties.load(file);
+            aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.min_write_event_start_time"));
+            minDate = aux < minDate ? aux : minDate;
+            aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.max_write_event_start_time"));
+            maxDate = aux > maxDate ? aux : maxDate;
+            aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.num_events"));
+            count += aux;
+            file.close();
+            fs.delete(propertiesFile,true);
+        }
+
+        OutputStream output = fs.create(new Path(DatagenParams.socialNetworkDir+"/updateStream"+".properties"),true);
+        output.write(new String("ldbc.snb.interactive.gct_delta_duration:" + DatagenParams.deltaTime + "\n").getBytes());
+        output.write(new String("ldbc.snb.interactive.min_write_event_start_time:" + minDate + "\n").getBytes());
+        output.write(new String("ldbc.snb.interactive.max_write_event_start_time:" + maxDate + "\n").getBytes());
+        output.write(new String("ldbc.snb.interactive.update_interleave:" + (maxDate - minDate) / count + "\n").getBytes());
+        output.write(new String("ldbc.snb.interactive.num_events:" + count).getBytes());
+        output.close();
+    }
+
     long endSortingUpdateStreams= System.currentTimeMillis();
 
         printProgress("Serializing invariant schema ");
