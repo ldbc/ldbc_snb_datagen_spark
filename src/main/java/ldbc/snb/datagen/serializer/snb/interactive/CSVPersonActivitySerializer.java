@@ -124,7 +124,7 @@ public class CSVPersonActivitySerializer extends PersonActivitySerializer {
 		arguments.clear();
 		
 		arguments.add(Long.toString(post.messageId()));
-		arguments.add(Long.toString(post.authorId()));
+		arguments.add(Long.toString(post.author().accountId()));
 		writers[FileNames.POST_HASCREATOR_PERSON.ordinal()].writeEntry(arguments);
 		arguments.clear();
 		
@@ -169,7 +169,7 @@ public class CSVPersonActivitySerializer extends PersonActivitySerializer {
 		arguments.clear();
 		
 		arguments.add(Long.toString(comment.messageId()));
-		arguments.add(Long.toString(comment.authorId()));
+		arguments.add(Long.toString(comment.author().accountId()));
 		writers[FileNames.COMMENT_HASCREATOR_PERSON.ordinal()].writeEntry(arguments);
 		arguments.clear();
 		
@@ -201,7 +201,7 @@ public class CSVPersonActivitySerializer extends PersonActivitySerializer {
 		arguments.clear();
 		
 		arguments.add(Long.toString(photo.messageId()));
-		arguments.add(Long.toString(photo.authorId()));
+		arguments.add(Long.toString(photo.author().accountId()));
 		writers[FileNames.POST_HASCREATOR_PERSON.ordinal()].writeEntry(arguments);
 		arguments.clear();
 		

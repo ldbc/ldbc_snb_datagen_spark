@@ -89,7 +89,7 @@ public class CommentGenerator {
 			if( creationDate <= Dictionaries.dates.getEndDateTime() ) {
 				Comment comment = new Comment(SN.formId(SN.composeId(nextId++,creationDate)),
 					creationDate,
-					member.person().accountId(),
+					member.person(),
 					forum.id(),
 					content,
 					tags,

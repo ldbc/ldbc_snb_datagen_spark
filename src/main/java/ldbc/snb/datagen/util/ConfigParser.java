@@ -23,6 +23,8 @@ public class ConfigParser {
         conf.set("ldbc.snb.datagen.serializer.compressed", Boolean.toString(false));
         conf.set("ldbc.snb.datagen.serializer.updateStreams", Boolean.toString(false));
         conf.set("ldbc.snb.datagen.serializer.outputDir", "./");
+        conf.set("ldbc.snb.datagen.serializer.socialNetworkDir", "./social_network");
+        conf.set("ldbc.snb.datagen.serializer.socialNetworkDir", "./social_network");
         conf.set("ldbc.snb.datagen.generator.deltaTime", "10000");
         return conf;
     }

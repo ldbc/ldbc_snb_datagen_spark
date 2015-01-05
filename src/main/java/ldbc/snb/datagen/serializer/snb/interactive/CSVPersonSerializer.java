@@ -59,8 +59,6 @@ import ldbc.snb.datagen.dictionary.Dictionaries;
 public class CSVPersonSerializer extends PersonSerializer {
 
     private HDFSCSVWriter [] writers;
-    private BrowserDictionary browserDictionary_;
-    private LanguageDictionary languageDictionary_;
 
     private enum FileNames {
         PERSON ("person"),
@@ -91,12 +89,6 @@ public class CSVPersonSerializer extends PersonSerializer {
         for( int i = 0; i < numFiles; ++i) {
             writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"),FileNames.values()[i].toString()+"_"+reducerId,conf.getInt("ldbc.snb.datagen.numPartitions",1),conf.getBoolean("ldbc.snb.datagen.serializer.compressed",false),"|");
         }
-
-        browserDictionary_ = new BrowserDictionary(DatagenParams.probAnotherBrowser);
-
-        languageDictionary_ = new LanguageDictionary(placeDictionary_,
-                DatagenParams.probEnglish,
-                DatagenParams.probSecondLang);
     }
 
     @Override
@@ -127,14 +119,14 @@ public class CSVPersonSerializer extends PersonSerializer {
         dateString = Dictionaries.dates.formatDateDetail(p.creationDate());
         arguments.add(dateString);
         arguments.add(p.ipAddress().toString());
-        arguments.add(browserDictionary_.getName(p.browserId()));
+        arguments.add(Dictionaries.browsers.getName(p.browserId()));
         writers[FileNames.PERSON.ordinal()].writeEntry(arguments);
 
         ArrayList<Integer> languages = p.languages();
         for (int i = 0; i < languages.size(); i++) {
             arguments.clear();
             arguments.add(Long.toString(p.accountId()));
-            arguments.add(languageDictionary_.getLanguageName(languages.get(i)));
+            arguments.add(Dictionaries.languages.getLanguageName(languages.get(i)));
             writers[FileNames.PERSON_SPEAKS_LANGUAGE.ordinal()].writeEntry(arguments);
         }
 

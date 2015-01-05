@@ -76,7 +76,7 @@ public class Forum {
         return moderator_;
     }
 
-    public void moderatorId( Person.PersonSummary moderator) {
+    public void moderator( Person.PersonSummary moderator) {
         moderator_.copy(moderator);
     }
 

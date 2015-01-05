@@ -43,6 +43,8 @@ import ldbc.snb.datagen.vocabulary.SN;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
 
 public class LDBCDatagen {
 
@@ -104,12 +106,40 @@ public class LDBCDatagen {
         long endPersonSerializing= System.currentTimeMillis();
 
         long startPersonActivity= System.currentTimeMillis();
-	if(conf.getBoolean("ldbc.snb.dagaten.activity", true)) {
+	if(conf.getBoolean("ldbc.snb.dagaten.generator.activity", true)) {
 		printProgress("Generating and serializing person activity");
 		HadoopPersonActivityGenerator activityGenerator = new HadoopPersonActivityGenerator(conf);
 		activityGenerator.run(personsFileName2);
 	}
         long endPersonActivity= System.currentTimeMillis();
+
+	long startSortingUpdateStreams= System.currentTimeMillis();
+	if(conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
+		printProgress("Sorting update streams ");
+	}
+	for( int i = 0; i < DatagenParams.numThreads; ++i) {
+		int numPartitions = conf.getInt("ldbc.snb.datagen.serializer.numPartitions", 1);
+		for( int j = 0; j < numPartitions; ++j ) {
+			if(conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
+				HadoopFileSorter updateStreamSorter = new HadoopFileSorter(conf,LongWritable.class,Text.class);
+				updateStreamSorter.run(DatagenParams.hadoopDir+"/temp_updateStream_"+i+"_"+j+"_person", DatagenParams.hadoopDir+"/updateStream_"+i+"_"+j+"_person");
+				updateStreamSorter.run(DatagenParams.hadoopDir+"/temp_updateStream_"+i+"_"+j+"_forum", DatagenParams.hadoopDir+"/updateStream_"+i+"_"+j+"_forum");
+			}
+
+			fs.delete(new Path(DatagenParams.hadoopDir+"/temp_updateStream_"+i+"_"+j+"_person"), true);
+			fs.delete(new Path(DatagenParams.hadoopDir+"/temp_updateStream_"+i+"_"+j+"_forum"), true);
+			
+			if(conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
+				HadoopUpdateStreamSerializer updateSerializer = new HadoopUpdateStreamSerializer(conf);
+				updateSerializer.run(DatagenParams.hadoopDir+"/updateStream_"+i+"_"+j+"_person", i, j, "person");
+				updateSerializer.run(DatagenParams.hadoopDir+"/updateStream_"+i+"_"+j+"_forum", i, j, "forum");
+				
+				fs.delete(new Path(DatagenParams.hadoopDir+"/updateStream_"+i+"_"+j+"_person"), true);
+				fs.delete(new Path(DatagenParams.hadoopDir+"/updateStream_"+i+"_"+j+"_forum"), true);
+			}
+		}
+	}
+    long endSortingUpdateStreams= System.currentTimeMillis();
 
         printProgress("Serializing invariant schema ");
         long startInvariantSerializing= System.currentTimeMillis();
@@ -117,7 +147,11 @@ public class LDBCDatagen {
         invariantSerializer.run();
         long endInvariantSerializing= System.currentTimeMillis();
 
+
+
         long end = System.currentTimeMillis();
+
+	
 
         System.out.println(((end - start) / 1000)
                 + " total seconds");
@@ -148,6 +182,7 @@ public class LDBCDatagen {
 
         // Create input text file in HDFS
         LDBCDatagen datagen = new LDBCDatagen();
+	LDBCDatagen.init(conf);
         datagen.runGenerateJob(conf);
     }
 }

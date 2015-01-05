@@ -351,9 +351,9 @@ public class DatagenParams {
             numThreads = conf.getInt("ldbc.snb.datagen.generator.numThreads",1);
             updateStreams = conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams",false);
             deltaTime = conf.getInt("ldbc.snb.datagen.generator.deltaTime",10000);
-            outputDir = conf.get("ldbc.snb.datagen.serializer.outputDir","./");
-            hadoopDir = conf.get("ldbc.snb.datagen.serializer.hadoopDir","./");
-            socialNetworkDir = conf.get("ldbc.snb.datagen.serializer.socialNetworkDir","./");
+            outputDir = conf.get("ldbc.snb.datagen.serializer.outputDir");
+            hadoopDir = outputDir+"/hadoop";
+            socialNetworkDir = outputDir+"social_network";
         } catch (Exception e) {
             System.err.println(e.getMessage());
             System.exit(-1);

@@ -38,6 +38,7 @@ package ldbc.snb.datagen.objects;
 
 
 import java.util.TreeSet;
+import ldbc.snb.datagen.objects.Person.PersonSummary;
 
 public class Comment extends Message {
 
@@ -46,7 +47,7 @@ public class Comment extends Message {
 
     public Comment(long commentId,
                    long creationDate,
-                   long authorId,
+                   PersonSummary author,
                    long forumId,
                    String content,
                    TreeSet<Integer> tags,
@@ -57,7 +58,7 @@ public class Comment extends Message {
                    long replyOf
     ) {
 
-        super(commentId, creationDate, authorId, forumId, content, tags, ipAddress, browserId, locationId);
+        super(commentId, creationDate, author, forumId, content, tags, ipAddress, browserId, locationId);
         postId_ = postId;
         replyOf_ = replyOf;
     }

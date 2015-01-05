@@ -43,30 +43,20 @@ import java.util.ArrayList;
 import java.util.Random;
 import ldbc.snb.datagen.generator.DatagenParams;
 
-/**
- * This class reads the file containing the names and distributions for the browsers used in the ldbc socialnet generation and
- * provides access methods to get such data.
- */
 public class BrowserDictionary {
 
-    private static final String SEPARATOR = "  ";
-    private ArrayList<String> browsers;
-    private ArrayList<Double> cumulativeDistribution;
-    private double probAnotherBrowser = 0.0f;                   
-    /**
-     * @param probAnotherBrowser: Probability of the user using another browser.
-     * @brief Constructor.
-     */
+    private static final String SEPARATOR_ = "  ";
+    private ArrayList<String> browsers_;
+    private ArrayList<Double> cumulativeDistribution_;
+    private double probAnotherBrowser_ = 0.0f;                   
+
     public BrowserDictionary(double probAnotherBrowser) {
-        this.probAnotherBrowser = probAnotherBrowser;
-        this.browsers = new ArrayList<String>();
-        this.cumulativeDistribution = new ArrayList<Double>();
+        probAnotherBrowser_ = probAnotherBrowser;
+        browsers_ = new ArrayList<String>();
+        cumulativeDistribution_ = new ArrayList<Double>();
 	load(DatagenParams.browserDictonryFile);
     }
 
-    /**
-     * @brief Initializes the dictionary extracting the data from the file.
-     */
     private void load(String fileName) {
         try {
             BufferedReader dictionary = new BufferedReader(
@@ -74,11 +64,11 @@ public class BrowserDictionary {
             String line;
             double cummulativeDist = 0.0;
             while ((line = dictionary.readLine()) != null) {
-                String data[] = line.split(SEPARATOR);
+                String data[] = line.split(SEPARATOR_);
                 String browser = data[0];
                 cummulativeDist += Double.parseDouble(data[1]);
-                browsers.add(browser);
-                cumulativeDistribution.add(cummulativeDist);
+                browsers_.add(browser);
+                cumulativeDistribution_.add(cummulativeDist);
             }
             dictionary.close();
         } catch (IOException e) {
@@ -86,26 +76,18 @@ public class BrowserDictionary {
         }
     }
 
-    /**
-     * @param id The id of the browser to get its name.
-     * @brief Gets the browser name.
-     */
     public String getName(int id) {
-        return browsers.get(id);
+        return browsers_.get(id);
     }
 
-    /**
-     * @brief Gets a random browser id.
-     * @brief random The random number generator to use.
-     */
     public int getRandomBrowserId(Random random) {
         double prob = random.nextDouble();
         int minIdx = 0;
-        int maxIdx = (byte) ((prob < cumulativeDistribution.get(minIdx)) ? minIdx : cumulativeDistribution.size() - 1);
+        int maxIdx = (byte) ((prob < cumulativeDistribution_.get(minIdx)) ? minIdx : cumulativeDistribution_.size() - 1);
         // Binary search
         while ((maxIdx - minIdx) > 1) {
             int middlePoint = minIdx + (maxIdx - minIdx) / 2;
-            if (prob > cumulativeDistribution.get(middlePoint)) {
+            if (prob > cumulativeDistribution_.get(middlePoint)) {
                 minIdx = middlePoint;
             } else {
                 maxIdx = middlePoint;
@@ -114,12 +96,8 @@ public class BrowserDictionary {
         return maxIdx;
     }
 
-    /**
-     * @param userBrowserId: The user preferred browser.
-     * @brief Gets the post browser. There is a chance of being different from the user preferred browser
-     */
     public int getPostBrowserId(Random randomDiffBrowser, Random randomBrowser, int userBrowserId) {
         double prob = randomDiffBrowser.nextDouble();
-        return (prob < probAnotherBrowser) ? getRandomBrowserId(randomBrowser) : userBrowserId;
+        return (prob < probAnotherBrowser_) ? getRandomBrowserId(randomBrowser) : userBrowserId;
     }
 }

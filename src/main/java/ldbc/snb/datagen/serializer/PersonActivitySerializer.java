@@ -24,30 +24,16 @@ import org.apache.hadoop.conf.Configuration;
  */
 abstract public class PersonActivitySerializer {
 
-protected UniversityDictionary universityDictionary_;
-protected PlaceDictionary placeDictionary_;
-protected CompanyDictionary companyDictionary_;
-protected TagDictionary tagDictionary_;
 
 public PersonActivitySerializer() {
-	placeDictionary_ = new PlaceDictionary(DatagenParams.numPersons);
-
-        companyDictionary_ = new CompanyDictionary(placeDictionary_, DatagenParams.probUnCorrelatedCompany);
-
-        universityDictionary_ = new UniversityDictionary(placeDictionary_,
-                DatagenParams.probUnCorrelatedOrganization,
-                DatagenParams.probTopUniv,
-                companyDictionary_.getNumCompanies());
-
-        tagDictionary_ = new TagDictionary(  placeDictionary_.getCountries().size(),
-                DatagenParams.tagCountryCorrProb);
 }
 
 public void export( Forum forum ) {
 	serialize(forum);
-	for(ForumMembership fm : forum.memberships()) {
-		serialize(fm);
-	}
+}
+
+public void export( ForumMembership forumMembership ) {
+		serialize(forumMembership);
 }
 
 public void export( Post post ) {

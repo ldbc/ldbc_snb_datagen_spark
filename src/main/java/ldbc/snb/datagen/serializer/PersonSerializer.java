@@ -8,6 +8,7 @@ import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.objects.*;
 
 import java.util.Iterator;
+import ldbc.snb.datagen.dictionary.Dictionaries;
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -15,35 +16,16 @@ import org.apache.hadoop.conf.Configuration;
  */
 abstract public class PersonSerializer {
 
-    protected UniversityDictionary universityDictionary_;
-    protected PlaceDictionary placeDictionary_;
-    protected CompanyDictionary companyDictionary_;
-    protected TagDictionary tagDictionary_;
-
-    public PersonSerializer( ) {
-
-        placeDictionary_ = new PlaceDictionary(DatagenParams.numPersons);
-
-        companyDictionary_ = new CompanyDictionary(placeDictionary_, DatagenParams.probUnCorrelatedCompany);
-
-        universityDictionary_ = new UniversityDictionary(placeDictionary_,
-                DatagenParams.probUnCorrelatedOrganization,
-                DatagenParams.probTopUniv,
-                companyDictionary_.getNumCompanies());
-
-        tagDictionary_ = new TagDictionary(  placeDictionary_.getCountries().size(),
-                DatagenParams.tagCountryCorrProb);
+    public PersonSerializer() {
+	    
     }
 
 
     public void export(Person person) {
 
         serialize(person);
-        for( Knows k : person.knows()) {
-            serialize(k);
-        }
 
-        long universityId = universityDictionary_.getUniversityFromLocation(person.universityLocationId());
+        long universityId = Dictionaries.universities.getUniversityFromLocation(person.universityLocationId());
         if (universityId != -1) {
             if (person.classYear() != -1) {
                 StudyAt studyAt = new StudyAt();
@@ -63,6 +45,10 @@ abstract public class PersonSerializer {
             workAt.year = person.companies().get(companyId);
             serialize(workAt);
         }
+    }
+
+    public void export(Knows k ) {
+	    serialize(k);
     }
 
     abstract public void initialize(Configuration conf, int reducerId);
