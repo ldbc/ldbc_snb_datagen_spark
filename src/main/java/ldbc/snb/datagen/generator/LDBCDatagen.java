@@ -126,16 +126,16 @@ public class LDBCDatagen {
 				updateStreamSorter.run(DatagenParams.hadoopDir+"/temp_updateStream_forum_"+i+"_"+j, DatagenParams.hadoopDir+"/updateStream_forum_"+i+"_"+j);
 			}
 
-			fs.delete(new Path(DatagenParams.hadoopDir+"/temp_updateStream_person_"+i+"_"+j), true);
-			fs.delete(new Path(DatagenParams.hadoopDir+"/temp_updateStream_forum_"+i+"_"+j), true);
+			//fs.delete(new Path(DatagenParams.hadoopDir+"/temp_updateStream_person_"+i+"_"+j), true);
+			//fs.delete(new Path(DatagenParams.hadoopDir+"/temp_updateStream_forum_"+i+"_"+j), true);
 			
 			if(conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
 				HadoopUpdateStreamSerializer updateSerializer = new HadoopUpdateStreamSerializer(conf);
 				updateSerializer.run(DatagenParams.hadoopDir+"/updateStream_person_"+i+"_"+j, i, j, "person");
 				updateSerializer.run(DatagenParams.hadoopDir+"/updateStream_forum_"+i+"_"+j, i, j, "forum");
 				
-				fs.delete(new Path(DatagenParams.hadoopDir+"/updateStream_person_"+i+"_"+j), true);
-				fs.delete(new Path(DatagenParams.hadoopDir+"/updateStream_forum_"+i+"_"+j), true);
+			//	fs.delete(new Path(DatagenParams.hadoopDir+"/updateStream_person_"+i+"_"+j), true);
+			//	fs.delete(new Path(DatagenParams.hadoopDir+"/updateStream_forum_"+i+"_"+j), true);
 			}
 		}
 	}
