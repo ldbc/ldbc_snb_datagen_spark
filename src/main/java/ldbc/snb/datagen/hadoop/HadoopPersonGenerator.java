@@ -29,38 +29,38 @@ public class HadoopPersonGenerator  {
 
         @Override
         public void map(LongWritable key, Text value, Context context)
-                throws IOException, InterruptedException {
+        throws IOException, InterruptedException {
 
-            Configuration conf = context.getConfiguration();
-            int threadId = Integer.parseInt(value.toString());
-            System.out.println("Generating user at mapper " + threadId);
-	    LDBCDatagen.init(conf);
-            if (DatagenParams.numPersons % DatagenParams.cellSize != 0) {
-                System.err.println("Number of users should be a multiple of the cellsize");
-                System.exit(-1);
-            }
+        Configuration conf = context.getConfiguration();
+        int threadId = Integer.parseInt(value.toString());
+        System.out.println("Generating user at mapper " + threadId);
+        LDBCDatagen.init(conf);
+        if (DatagenParams.numPersons % DatagenParams.cellSize != 0) {
+            System.err.println("Number of users should be a multiple of the cellsize");
+            System.exit(-1);
+        }
 
-            // Here we determine the blocks in the "block space" that this mapper is responsible for.
-            int numBlocks   = (int) (Math.ceil(DatagenParams.numPersons / (double) DatagenParams.blockSize));
-            int initBlock   = (int) (Math.ceil((numBlocks / (double) DatagenParams.numThreads) * threadId));
-            int endBlock    = (int) (Math.ceil((numBlocks / (double) DatagenParams.numThreads) * (threadId + 1)));
+        // Here we determine the blocks in the "block space" that this mapper is responsible for.
+        int numBlocks   = (int) (Math.ceil(DatagenParams.numPersons / (double) DatagenParams.blockSize));
+        int initBlock   = (int) (Math.ceil((numBlocks / (double) DatagenParams.numThreads) * threadId));
+        int endBlock    = (int) (Math.ceil((numBlocks / (double) DatagenParams.numThreads) * (threadId + 1)));
 
-            PersonGenerator personGenerator = new PersonGenerator(conf.get("ldbc.snb.datagen.generator.distribution.degreeDistribution"));
-            for (int i = initBlock; i < endBlock; ++i) {
-                Person[] block = personGenerator.generateUserBlock(i,DatagenParams.blockSize);
-                int size = block.length;
-                for( int j = 0; j < size && DatagenParams.blockSize*i + j < DatagenParams.numPersons ; ++j ) {
-                    LongWritable outputKey = new LongWritable(block[j].accountId());
-                    try {
-                        context.write(outputKey, block[j]);
-                    } catch( IOException ioE ) {
-                        System.err.println("Input/Output Exception when writing to context.");
-                        System.err.println(ioE.getMessage());
-                    } catch( InterruptedException iE ) {
-                        System.err.println("Interrupted Exception when writing to context.");
-                    }
+        PersonGenerator personGenerator = new PersonGenerator(conf.get("ldbc.snb.datagen.generator.distribution.degreeDistribution"));
+        for (int i = initBlock; i < endBlock; ++i) {
+            Person[] block = personGenerator.generateUserBlock(i,DatagenParams.blockSize);
+            int size = block.length;
+            for( int j = 0; j < size && DatagenParams.blockSize*i + j < DatagenParams.numPersons ; ++j ) {
+                LongWritable outputKey = new LongWritable(block[j].accountId());
+                try {
+                    context.write(outputKey, block[j]);
+                } catch( IOException ioE ) {
+                    System.err.println("Input/Output Exception when writing to context.");
+                    System.err.println(ioE.getMessage());
+                } catch( InterruptedException iE ) {
+                    System.err.println("Interrupted Exception when writing to context.");
                 }
             }
+        }
         }
     }
 
@@ -69,11 +69,10 @@ public class HadoopPersonGenerator  {
 
         @Override
         public void reduce(LongWritable key, Iterable<Person> valueSet,
-                           Context context) throws IOException, InterruptedException {
-
-                for ( Person person : valueSet ) {
-                    context.write(key, person);
-                }
+                Context context) throws IOException, InterruptedException {
+            for ( Person person : valueSet ) {
+                context.write(key, person);
+            }
         }
     }
 
