@@ -40,7 +40,7 @@ public class ConfigParser {
             if (conf.get("fs.defaultFS").compareTo("file:///") == 0) {
                 System.out.println("Running in standalone mode. Setting numThreads to 1");
                 conf.set("ldbc.snb.datagen.generator.numThreads", "1");
-            } else {
+            } /*else {
 		    int maxThreads = Math.max(conf.getInt("mapreduce.tasktracker.map.tasks.maximum",1), conf.getInt("mapreduce.tasktracker.reduce.tasks.maximum",1));
 		    int numThreads = conf.getInt("ldbc.snb.datagen.generator.numThreads", 1 );
                 if ( maxThreads  <  numThreads ) {
@@ -49,6 +49,7 @@ public class ConfigParser {
 			conf.setInt("ldbc.snb.datagen.generator.numThreads", maxThreads);
 		} 
             }
+		    */
         } catch (Exception e) {
             System.err.println(e.getMessage());
             e.printStackTrace();
