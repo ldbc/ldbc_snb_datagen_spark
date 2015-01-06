@@ -110,7 +110,7 @@ public class HadoopPersonGenerator  {
         writeToOutputFile(tempFile, Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads")), conf);
 
         int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads"));
-        conf.setInt("mapred.line.input.format.linespermap", 1);
+        conf.setInt("mapreduce.input.lineinputformat.linespermap", 1);
         Job job = Job.getInstance(conf, "SIB Generate Users & 1st Dimension");
         job.setMapOutputKeyClass(LongWritable.class);
         job.setMapOutputValueClass(Person.class);
