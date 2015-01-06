@@ -41,10 +41,13 @@ public class ConfigParser {
                 System.out.println("Running in standalone mode. Setting numThreads to 1");
                 conf.set("ldbc.snb.datagen.generator.numThreads", "1");
             } else {
-                if ( conf.getInt("mapreduce.tasktracker.map.tasks.maximum",1) < conf.getInt("ldbc.snb.datagen.generator.numThreads",1) ||
-                        conf.getInt("mapreduce.tasktracker.reduce.tasks.maximum",1) < conf.getInt("ldbc.snb.datagen.generator.numThreads", 1 )) {
-                    conf.set("ldbc.snb.datagen.generator.numThreads", "1");
-                        }
+		    int maxThreads = Math.max(conf.getInt("mapreduce.tasktracker.map.tasks.maximum",1), conf.getInt("mapreduce.tasktracker.reduce.tasks.maximum",1));
+		    int numThreads = conf.getInt("ldbc.snb.datagen.generator.numThreads", 1 );
+                if ( maxThreads  <  numThreads ) {
+			System.out.println("ldbc.snb.datagen.generator.numThreads changed to "+maxThreads);
+			System.out.println("Increase the values of mapreduce.tasktracker.map.tasks.maximum and mapreduce.tasktracker.reduce.tasks.maximum "+maxThreads);
+			conf.setInt("ldbc.snb.datagen.generator.numThreads", maxThreads);
+		} 
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());
