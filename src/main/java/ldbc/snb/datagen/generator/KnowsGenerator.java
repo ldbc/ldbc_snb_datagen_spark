@@ -30,7 +30,7 @@ public class KnowsGenerator {
     public void generateKnows( ArrayList<Person> persons, int seed, float upperBound )  {
         randomFarm.resetRandomGenerators(seed);
         for( int i = 0; i < persons.size(); ++i ) {
-           for( int j = i+1; j < persons.size(); ++j  ) {
+           for( int j = i+1; (j < (i + 1000)) && (j < persons.size()); ++j  ) {
                 if( know(persons.get(i), persons.get(j), j - i, upperBound)) {
                    createKnow(persons.get(i), persons.get(j));
                 }

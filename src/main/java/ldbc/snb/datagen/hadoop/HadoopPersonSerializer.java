@@ -1,5 +1,6 @@
 package ldbc.snb.datagen.hadoop;
 
+import ldbc.snb.datagen.generator.LDBCDatagen;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.serializer.PersonSerializer;
 import org.apache.hadoop.conf.Configuration;
@@ -33,6 +34,7 @@ public class HadoopPersonSerializer {
 		protected void setup(Context context) {
 			Configuration conf = context.getConfiguration();
 			reducerId = context.getTaskAttemptID().getTaskID().getId();
+            LDBCDatagen.init(conf);
 			try {
 				personSerializer_ = (PersonSerializer) Class.forName(conf.get("ldbc.snb.datagen.serializer.personSerializer")).newInstance();
 				personSerializer_.initialize(conf,reducerId);
