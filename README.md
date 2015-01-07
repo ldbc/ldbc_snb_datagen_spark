@@ -11,6 +11,6 @@ ldbc_snb_datagen is GPLv3 licensed, to see detailed information about this licen
 
 * **[Releases](https://github.com/ldbc-dev/ldbc_snb_datagen_0.2/releases)**
 * **[Configuration](https://github.com/ldbc-dev/ldbc_snb_datagen_0.2/wiki/Configuration)**
-* **[Compilation and Execution](https://github.com/ArnauPrat/ldbc_snb_datagen/wiki/Compilation_Execution)**
-* **[Output](https://github.com/ArnauPrat/ldbc_snb_datagen/wiki/Data-Output)**
-* **[Troubleshooting](https://github.com/ArnauPrat/ldbc_snb_datagen/wiki/Throubleshooting)**
+* **[Compilation and Execution](https://github.com/ldbc-dev/ldbc_snb_datagen_0.2/wiki/Compilation_Execution)**
+* **[Output](https://github.com/ldbc-dev/ldbc_snb_datagen_0.2/wiki/Data-Output)**
+* **[Troubleshooting](https://github.com/ldbc-dev/ldbc_snb_datagen_0.2/wiki/Throubleshooting)**
