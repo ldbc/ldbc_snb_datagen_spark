@@ -57,20 +57,18 @@ public class HadoopPersonActivityGenerator {
 
         @Override
         public void reduce(BlockKey key, Iterable<Person> valueSet,Context context)
-        throws IOException, InterruptedException {
-        ArrayList<Person> persons = new ArrayList<Person>();
-        for( Person p : valueSet ) {
-            persons.add(new Person(p));
+                throws IOException, InterruptedException {
+            ArrayList<Person> persons = new ArrayList<Person>();
+            for( Person p : valueSet ) {
+                persons.add(new Person(p));
 
-            for( Knows k : p.knows() ) {
-                if( k.creationDate() > Dictionaries.dates.getUpdateThreshold() && DatagenParams.updateStreams ) {
-                    updateSerializer_.export(k);
+                for( Knows k : p.knows() ) {
+                    if( k.creationDate() > Dictionaries.dates.getUpdateThreshold() && DatagenParams.updateStreams ) {
+                        updateSerializer_.export(k);
+                    }
                 }
             }
-        }
-        personActivityGenerator_.generateActivityForBlock((int)key.block, persons, context );
-
-
+            personActivityGenerator_.generateActivityForBlock((int)key.block, persons, context );
         }
         protected void cleanup(Context context){
             personActivitySerializer_.close();
