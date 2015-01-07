@@ -10,7 +10,7 @@ ldbc_snb_datagen is part of the LDBC project (http://www.ldbc.eu/).
 ldbc_snb_datagen is GPLv3 licensed, to see detailed information about this license read the LICENSE.txt.
 
 * **[Releases](https://github.com/ArnauPrat/ldbc_snb_datagen/releases)**
-* **[Configuration](https://github.com/ArnauPrat/ldbc_snb_datagen/wiki/Configuration)**
+* **[Configuration](Configuration)**
 * **[Compilation and Execution](https://github.com/ArnauPrat/ldbc_snb_datagen/wiki/Compilation_Execution)**
 * **[Output](https://github.com/ArnauPrat/ldbc_snb_datagen/wiki/Data-Output)**
 * **[Troubleshooting](https://github.com/ArnauPrat/ldbc_snb_datagen/wiki/Throubleshooting)**
