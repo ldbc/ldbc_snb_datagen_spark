@@ -71,10 +71,6 @@ abstract public class PostGenerator {
 	}
 	
 	
-	/** @brief Creates a set of posts for a user..
-	 *  @param[in] user The user which we want to create the posts..
-	 *  @param[in] extraInfo The extra information of the user.
-	 *  @return The set of posts.*/
 	public ArrayList<Post> createPosts(RandomGeneratorFarm randomFarm, Forum forum, ArrayList<ForumMembership> memberships, long numPosts, long startId ){
 		long postId = startId;
 		ArrayList<Post> result = new ArrayList<Post>();
@@ -122,9 +118,5 @@ abstract public class PostGenerator {
 		return result;
 	}
 	
-	/** @brief Returs the tag and creation date information of a post.
-	 *  @param[in] group The group where the post belongs.
-	 *  @param[in] membership The membership information of the user that creates the post.
-	 *  @return The post info struct containing the information. null if it was not possible to generate.*/
 	protected abstract PostInfo generatePostInfo( Random randomTag, Random randomDate, Forum forum, ForumMembership membership );
 }
