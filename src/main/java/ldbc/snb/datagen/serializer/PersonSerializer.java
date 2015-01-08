@@ -1,15 +1,13 @@
 package ldbc.snb.datagen.serializer;
 
-import ldbc.snb.datagen.dictionary.CompanyDictionary;
-import ldbc.snb.datagen.dictionary.PlaceDictionary;
-import ldbc.snb.datagen.dictionary.TagDictionary;
-import ldbc.snb.datagen.dictionary.UniversityDictionary;
-import ldbc.snb.datagen.generator.DatagenParams;
-import ldbc.snb.datagen.objects.*;
+import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.objects.Knows;
+import ldbc.snb.datagen.objects.Person;
+import ldbc.snb.datagen.objects.StudyAt;
+import ldbc.snb.datagen.objects.WorkAt;
+import org.apache.hadoop.conf.Configuration;
 
 import java.util.Iterator;
-import ldbc.snb.datagen.dictionary.Dictionaries;
-import org.apache.hadoop.conf.Configuration;
 
 /**
  * Created by aprat on 10/15/14.

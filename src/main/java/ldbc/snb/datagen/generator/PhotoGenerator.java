@@ -5,23 +5,16 @@
 */
 package ldbc.snb.datagen.generator;
 
-import java.util.ArrayList;
-import java.util.GregorianCalendar;
-import java.util.TreeSet;
-import ldbc.snb.datagen.dictionary.BrowserDictionary;
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.dictionary.IPAddressDictionary;
-import ldbc.snb.datagen.dictionary.PlaceDictionary;
-import ldbc.snb.datagen.dictionary.PopularPlacesDictionary;
-import ldbc.snb.datagen.dictionary.TagDictionary;
-import ldbc.snb.datagen.dictionary.TagTextDictionary;
 import ldbc.snb.datagen.objects.Forum;
 import ldbc.snb.datagen.objects.ForumMembership;
 import ldbc.snb.datagen.objects.Photo;
 import ldbc.snb.datagen.objects.PopularPlace;
-import ldbc.snb.datagen.objects.Post;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
+
+import java.util.ArrayList;
+import java.util.TreeSet;
 
 /**
  *
@@ -60,7 +53,7 @@ public class PhotoGenerator {
 					//Generate photo information from user's popular place
 					int popularIndex = randomFarm.get(RandomGeneratorFarm.Aspect.POPULAR).nextInt(popularPlaces.size());
 					popularPlaceId = popularPlaces.get(popularIndex);
-					popularPlace = Dictionaries.popularPlaces.getPopularPlace(album.place(),popularPlaceId);
+					popularPlace = Dictionaries.popularPlaces.getPopularPlace(album.place(), popularPlaceId);
 					locationName = popularPlace.getName();
 					latt = popularPlace.getLatt();
 					longt = popularPlace.getLongt();
@@ -83,7 +76,7 @@ public class PhotoGenerator {
 			long date = album.creationDate()+DatagenParams.deltaTime+1000*(i+1);
 			if( date <= Dictionaries.dates.getEndDateTime() ) {
 				long id = SN.formId(SN.composeId(nextId++,date));
-				Photo photo = new Photo(id,date,album.moderator(), album.id(), "photo"+id+".jpg",tags,album.moderator().ipAddress(),album.moderator().browserId(),locationId,latt,longt);
+				Photo photo = new Photo(id,date,album.moderator(), album.id(), "photo"+id+".jpg",tags,album.moderator().ipAddress(),album.moderator().browserId(),latt,longt);
 				photos.add(photo);
 			}
 		}

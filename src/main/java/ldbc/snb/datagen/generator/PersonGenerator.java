@@ -1,14 +1,13 @@
 package ldbc.snb.datagen.generator;
 
-import ldbc.snb.datagen.dictionary.*;
+import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.generator.distribution.DegreeDistribution;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
-import ldbc.snb.datagen.vocabulary.SN;
 
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
-import ldbc.snb.datagen.generator.distribution.DegreeDistribution;
 
 /**
  * Created by aprat on 10/7/14.
@@ -38,13 +37,6 @@ public class PersonGenerator {
 	    randomFarm = new RandomGeneratorFarm();
     }
     
-    /** Composes a user id from its sequential id, its creation date and the percentile.
-     *
-     * @param id    The sequential id.
-     * @param date  The date the person was created.
-     * @param spid  The percentile id
-     * @return A new composed id.
-     */
     private long composeUserId(long id, long date) {
         long idMask = ~(0xFFFFFFFFFFFFFFFFL << 40);
         long bucket = (long) (256 * (date - Dictionaries.dates.getStartDateTime()) / (double) Dictionaries.dates.getMaxDateTime());
@@ -83,10 +75,10 @@ public class PersonGenerator {
         person.universityLocationId(Dictionaries.universities.getRandomUniversity(randomFarm, person.countryId()));
         person.randomId(randomFarm.get(RandomGeneratorFarm.Aspect.RANDOM).nextLong() % 100);
 
-        person.firstName(Dictionaries.names.getRandomName(randomFarm.get(RandomGeneratorFarm.Aspect.NAME),
-                                                         person.countryId(),
-                                                         person.gender() == 1,
-                                                         Dictionaries.dates.getBirthYear(person.birthDay())));
+        person.firstName(Dictionaries.names.getRandomGivenName(randomFarm.get(RandomGeneratorFarm.Aspect.NAME),
+                person.countryId(),
+                person.gender() == 1,
+                Dictionaries.dates.getBirthYear(person.birthDay())));
 
         person.lastName(Dictionaries.names.getRandomSurname(randomFarm.get(RandomGeneratorFarm.Aspect.SURNAME), person.countryId()));
 

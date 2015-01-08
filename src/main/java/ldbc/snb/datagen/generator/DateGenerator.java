@@ -145,9 +145,10 @@ public class DateGenerator {
 	}
 	*/
 
-	public int getNumberOfMonths(GregorianCalendar c, int startMonth, int startYear) {
-		int month = c.get(Calendar.MONTH) + 1;
-		int year = c.get(Calendar.YEAR);
+	public int getNumberOfMonths(long date, int startMonth, int startYear) {
+        calendar_.setTimeInMillis(date);
+		int month = calendar_.get(Calendar.MONTH) + 1;
+		int year = calendar_.get(Calendar.YEAR);
 
 		return (year - startYear) * 12 + month - startMonth;
 	}

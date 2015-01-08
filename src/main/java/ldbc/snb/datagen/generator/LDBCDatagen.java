@@ -36,8 +36,6 @@
  */
 package ldbc.snb.datagen.generator;
 
-import java.io.OutputStream;
-import java.util.Properties;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.hadoop.*;
 import ldbc.snb.datagen.util.ConfigParser;
@@ -48,6 +46,9 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+
+import java.io.OutputStream;
+import java.util.Properties;
 
 public class LDBCDatagen {
 

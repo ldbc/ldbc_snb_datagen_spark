@@ -5,17 +5,14 @@
 */
 package ldbc.snb.datagen.generator;
 
+import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.objects.*;
+import ldbc.snb.datagen.util.RandomGeneratorFarm;
+import ldbc.snb.datagen.vocabulary.SN;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.TreeSet;
-import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.objects.Comment;
-import ldbc.snb.datagen.objects.Forum;
-import ldbc.snb.datagen.objects.ForumMembership;
-import ldbc.snb.datagen.objects.Message;
-import ldbc.snb.datagen.objects.Post;
-import ldbc.snb.datagen.util.RandomGeneratorFarm;
-import ldbc.snb.datagen.vocabulary.SN;
 
 /**
  *
@@ -94,8 +91,7 @@ public class CommentGenerator {
 					content,
 					tags,
 					Dictionaries.ips.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER), member.person().ipAddress(), creationDate),
-					Dictionaries.browsers.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER),member.person().browserId()),
-					member.person().cityId(),
+					Dictionaries.browsers.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER), randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), member.person().browserId()),
 					post.messageId(),
 					replyTo.messageId());
 				result.add(comment);

@@ -1,6 +1,7 @@
 package ldbc.snb.datagen.hadoop;
 
 import ldbc.snb.datagen.generator.DatagenParams;
+import ldbc.snb.datagen.generator.LDBCDatagen;
 import ldbc.snb.datagen.generator.PersonGenerator;
 import ldbc.snb.datagen.objects.Person;
 import org.apache.hadoop.conf.Configuration;
@@ -18,7 +19,6 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import ldbc.snb.datagen.generator.LDBCDatagen;
 
 /**
  * Created by aprat on 8/8/14.

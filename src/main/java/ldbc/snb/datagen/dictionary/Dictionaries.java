@@ -5,9 +5,10 @@
  */
 package ldbc.snb.datagen.dictionary;
 
-import java.util.GregorianCalendar;
 import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.generator.DateGenerator;
+
+import java.util.GregorianCalendar;
 
 /**
  *

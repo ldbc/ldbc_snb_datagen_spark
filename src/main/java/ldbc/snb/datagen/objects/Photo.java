@@ -36,8 +36,9 @@
  */
 package ldbc.snb.datagen.objects;
 
-import java.util.TreeSet;
 import ldbc.snb.datagen.objects.Person.PersonSummary;
+
+import java.util.TreeSet;
 
 public class Photo extends Message {
 
@@ -52,11 +53,10 @@ public class Photo extends Message {
 		 TreeSet<Integer> tags,
                  IP ipAddress,
                  int browserId,
-                 int locationId,
                  double latt,
                  double longt
     ) {
-        super(messageId, creationDate, author, forumId, content, tags, ipAddress, browserId, locationId);
+        super(messageId, creationDate, author, forumId, content, tags, ipAddress, browserId);
         latt_ = latt;
         longt_ = longt;
     }

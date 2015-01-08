@@ -39,7 +39,9 @@ package ldbc.snb.datagen.objects;
 
 import org.apache.hadoop.io.Writable;
 
-import java.io.*;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 
 public class UpdateEvent implements Writable {
 

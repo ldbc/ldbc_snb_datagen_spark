@@ -37,16 +37,16 @@
 
 package ldbc.snb.datagen.generator;
 
-import java.util.TreeSet;
-import java.util.Random;
-
-import java.util.ArrayList;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.objects.Forum;
 import ldbc.snb.datagen.objects.ForumMembership;
 import ldbc.snb.datagen.objects.Post;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
+
+import java.util.ArrayList;
+import java.util.Random;
+import java.util.TreeSet;
 
 
 abstract public class PostGenerator {
@@ -106,9 +106,8 @@ abstract public class PostGenerator {
 						forum.id(),
 						content,
 						postInfo.tags,
-						Dictionaries.ips.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER),member.person().ipAddress(), postInfo.date),
-						Dictionaries.browsers.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), member.person().browserId()),
-						member.person().cityId(),
+						Dictionaries.ips.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER), member.person().ipAddress(), postInfo.date),
+						Dictionaries.browsers.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER), randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), member.person().browserId()),
 						forum.language());
 					result.add(post);
 					postId++;

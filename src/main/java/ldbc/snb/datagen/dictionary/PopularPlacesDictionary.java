@@ -36,6 +36,7 @@
  */
 package ldbc.snb.datagen.dictionary;
 
+import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.objects.PopularPlace;
 
 import java.io.BufferedReader;
@@ -44,7 +45,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
-import ldbc.snb.datagen.generator.DatagenParams;
 
 
 public class PopularPlacesDictionary {
