@@ -5,17 +5,14 @@
  */
 package ldbc.snb.datagen.hadoop;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.generator.LDBCDatagen;
-import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.generator.PersonActivityGenerator;
 import ldbc.snb.datagen.objects.Knows;
+import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.serializer.PersonActivitySerializer;
 import ldbc.snb.datagen.serializer.UpdateEventSerializer;
-import ldbc.snb.datagen.vocabulary.SN;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -26,6 +23,10 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
 
 /**
  *
@@ -39,6 +40,9 @@ public class HadoopPersonActivityGenerator {
         private PersonActivitySerializer personActivitySerializer_;
         private PersonActivityGenerator personActivityGenerator_;
         private UpdateEventSerializer updateSerializer_;
+        private OutputStream factors_;
+        private OutputStream friends_;
+        private FileSystem fs_;
 
         protected void setup(Context context) {
             Configuration conf = context.getConfiguration();
@@ -49,6 +53,10 @@ public class HadoopPersonActivityGenerator {
                 personActivitySerializer_.initialize(conf,reducerId);
                 updateSerializer_ = new UpdateEventSerializer(conf, DatagenParams.hadoopDir+"/temp_updateStream_forum_"+reducerId, DatagenParams.numPartitions);
                 personActivityGenerator_ = new PersonActivityGenerator(personActivitySerializer_, updateSerializer_);
+
+                fs_ = FileSystem.get(context.getConfiguration());
+                factors_ = fs_.create(new Path(DatagenParams.hadoopDir+"/"+ "m" + reducerId + DatagenParams.PARAM_COUNT_FILE));
+                friends_ = fs_.create(new Path(DatagenParams.hadoopDir+"/"+ "m0friendList" + reducerId +".csv"));
 
             } catch( Exception e ) {
                 System.err.println(e.getMessage());
@@ -62,15 +70,30 @@ public class HadoopPersonActivityGenerator {
             for( Person p : valueSet ) {
                 persons.add(new Person(p));
 
+                StringBuffer strbuf = new StringBuffer();
+                strbuf.append(p.accountId());
                 for( Knows k : p.knows() ) {
+                    strbuf.append(",");
+                    strbuf.append(k.to().accountId());
                     if( k.creationDate() > Dictionaries.dates.getUpdateThreshold() && DatagenParams.updateStreams ) {
                         updateSerializer_.export(k);
                     }
                 }
+                strbuf.append("\n");
+                friends_.write(strbuf.toString().getBytes("UTF8"));
             }
             personActivityGenerator_.generateActivityForBlock((int)key.block, persons, context );
         }
         protected void cleanup(Context context){
+            try {
+                personActivityGenerator_.writeFactors(factors_);
+                factors_.close();
+                friends_.close();
+                fs_.copyToLocalFile(new Path(DatagenParams.hadoopDir + "/m"+reducerId+"factors.txt"), new Path("./"));
+                fs_.copyToLocalFile(new Path(DatagenParams.hadoopDir + "/m0friendList"+reducerId+".csv"), new Path("./"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             personActivitySerializer_.close();
             updateSerializer_.close();
         }

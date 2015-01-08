@@ -1,18 +1,18 @@
 
 package ldbc.snb.datagen.generator;
 
+import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.objects.Forum;
+import ldbc.snb.datagen.objects.ForumMembership;
+import ldbc.snb.datagen.objects.Knows;
 import ldbc.snb.datagen.objects.Person;
+import ldbc.snb.datagen.util.RandomGeneratorFarm;
+import ldbc.snb.datagen.vocabulary.SN;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.TreeSet;
-import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.objects.Forum;
-import ldbc.snb.datagen.objects.ForumMembership;
-import ldbc.snb.datagen.objects.Knows;
-import ldbc.snb.datagen.util.RandomGeneratorFarm;
-import ldbc.snb.datagen.vocabulary.SN;
 
 public class ForumGenerator {
 
@@ -129,8 +129,6 @@ public class ForumGenerator {
 		ArrayList<Integer> interest = new ArrayList<Integer>();
 		interest.add(interestId);
 		forum.tags(interest);
-
-
 
 		ArrayList<Integer> countries = Dictionaries.places.getCountries();
 		int randomCountry = randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY).nextInt(countries.size());

@@ -36,13 +36,14 @@
  */
 package ldbc.snb.datagen.dictionary;
 
+import ldbc.snb.datagen.generator.DatagenParams;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import ldbc.snb.datagen.generator.DatagenParams;
 
 public class TagMatrix {
 

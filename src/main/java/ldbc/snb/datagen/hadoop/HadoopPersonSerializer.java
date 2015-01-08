@@ -1,9 +1,14 @@
 package ldbc.snb.datagen.hadoop;
 
+import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.generator.LDBCDatagen;
+import ldbc.snb.datagen.objects.Knows;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.serializer.PersonSerializer;
+import ldbc.snb.datagen.serializer.UpdateEventSerializer;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Job;
@@ -14,11 +19,6 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 
 import java.io.IOException;
-import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.generator.DatagenParams;
-import ldbc.snb.datagen.objects.Knows;
-import ldbc.snb.datagen.serializer.UpdateEventSerializer;
-import org.apache.hadoop.fs.FileSystem;
 
 /**
  * Created by aprat on 10/15/14.

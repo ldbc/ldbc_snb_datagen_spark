@@ -5,12 +5,13 @@
  */
 package ldbc.snb.datagen.generator;
 
-import java.util.Iterator;
-import java.util.Random;
-import java.util.TreeSet;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.objects.Forum;
 import ldbc.snb.datagen.objects.ForumMembership;
+
+import java.util.Iterator;
+import java.util.Random;
+import java.util.TreeSet;
 
 /**
  *

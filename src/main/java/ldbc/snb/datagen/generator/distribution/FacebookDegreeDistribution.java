@@ -37,9 +37,12 @@
 
 package ldbc.snb.datagen.generator.distribution;
 
-import java.io.*;
-import java.util.Random;
 import ldbc.snb.datagen.generator.DatagenParams;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Random;
 
 /**
  * This class generates Facebook-like social degree distribution

@@ -36,6 +36,7 @@
  */
 package ldbc.snb.datagen.dictionary;
 
+import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.objects.Place;
 import ldbc.snb.datagen.util.ZOrder;
 
@@ -43,7 +44,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
-import ldbc.snb.datagen.generator.DatagenParams;
 
 /**
  * This class reads the files containing the country data and city data used in the ldbc socialnet generation and

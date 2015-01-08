@@ -5,14 +5,15 @@
  */
 package ldbc.snb.datagen.generator;
 
-import java.util.ArrayList;
-import java.util.Random;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.objects.Forum;
 import ldbc.snb.datagen.objects.ForumMembership;
 import ldbc.snb.datagen.objects.Like;
 import ldbc.snb.datagen.objects.Like.LikeType;
 import ldbc.snb.datagen.objects.Message;
+
+import java.util.ArrayList;
+import java.util.Random;
 
 /**
  *

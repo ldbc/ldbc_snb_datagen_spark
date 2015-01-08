@@ -1,22 +1,18 @@
 
 package ldbc.snb.datagen.generator;
 
-import java.util.ArrayList;
-import java.util.Random;
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.objects.Comment;
-import ldbc.snb.datagen.objects.Forum;
-import ldbc.snb.datagen.objects.ForumMembership;
-import ldbc.snb.datagen.objects.Knows;
-import ldbc.snb.datagen.objects.Like;
-import ldbc.snb.datagen.objects.Person;
-import ldbc.snb.datagen.objects.Photo;
-import ldbc.snb.datagen.objects.Post;
+import ldbc.snb.datagen.objects.*;
 import ldbc.snb.datagen.serializer.PersonActivitySerializer;
 import ldbc.snb.datagen.serializer.UpdateEventSerializer;
+import ldbc.snb.datagen.util.FactorTable;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
 import org.apache.hadoop.mapreduce.Reducer.Context;
+
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Random;
 
 public class PersonActivityGenerator {
 	
@@ -31,6 +27,7 @@ public class PersonActivityGenerator {
 	private UpdateEventSerializer updateSerializer_ = null;
 	private long forumId = 0;
 	private long messageId = 0;
+    private FactorTable factorTable_;
 	
 	public PersonActivityGenerator( PersonActivitySerializer serializer, UpdateEventSerializer updateSerializer ) {
 		personActivitySerializer_ = serializer;
@@ -43,12 +40,16 @@ public class PersonActivityGenerator {
 		photoGenerator_ = new PhotoGenerator();
 		commentGenerator_ = new CommentGenerator();
 		likeGenerator_ = new LikeGenerator();
+        factorTable_ = new FactorTable();
 	}
 	
 	private void generateActivity( Person person, ArrayList<Person> block ) {
 		generateWall(person, block);
 		generateGroups(person, block);
 		generateAlbums(person, block);
+        if(person.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
+            factorTable_.extractFactors(person);
+        }
 	}
 
 	private void generateWall( Person person, ArrayList<Person> block ) {
@@ -92,7 +93,6 @@ public class PersonActivityGenerator {
 					for( Like l : commentLikes ) {
 						export(l);
 					}
-					
 				}
 			}
 		}
@@ -222,6 +222,7 @@ public class PersonActivityGenerator {
 	private void export(Post post) {
 		if(post.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
 			personActivitySerializer_.export(post);
+            factorTable_.extractFactors(post);
 		} else {
 			updateSerializer_.export(post);
 		}
@@ -230,6 +231,7 @@ public class PersonActivityGenerator {
 	private void export(Comment comment) {
 		if(comment.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
 			personActivitySerializer_.export(comment);
+            factorTable_.extractFactors(comment);
 		} else {
 			updateSerializer_.export(comment);
 		}
@@ -238,6 +240,7 @@ public class PersonActivityGenerator {
 	private void export(Photo photo) {
 		if(photo.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
 			personActivitySerializer_.export(photo);
+            factorTable_.extractFactors(photo);
 		} else {
 			updateSerializer_.export(photo);
 		}
@@ -246,17 +249,22 @@ public class PersonActivityGenerator {
 	private void export(ForumMembership member) {
 		if(member.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
 			personActivitySerializer_.export(member);
+            factorTable_.extractFactors(member);
 		} else {
 			updateSerializer_.export(member);
 		}
 	}
 
 	private void export(Like like) {
-
 		if(like.date < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
 			personActivitySerializer_.export(like);
+            factorTable_.extractFactors(like);
 		} else {
 			updateSerializer_.export(like);
 		}
 	}
+
+    public void writeFactors( OutputStream writer) {
+        factorTable_.write(writer);
+    }
 }

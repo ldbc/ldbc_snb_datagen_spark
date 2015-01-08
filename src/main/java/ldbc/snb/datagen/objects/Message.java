@@ -36,8 +36,10 @@
  */
 package ldbc.snb.datagen.objects;
 
-import java.util.TreeSet;
+import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.objects.Person.PersonSummary;
+
+import java.util.TreeSet;
 
 abstract public class Message {
 
@@ -49,7 +51,7 @@ abstract public class Message {
     private TreeSet<Integer> tags_;
     private IP ipAddress_;
     private int browserId_;
-    private int locationId_;
+    private int countryId_;
 
     public Message(long messageId,
                    long creationDate,
@@ -58,18 +60,17 @@ abstract public class Message {
                    String content,
                    TreeSet<Integer> tags,
                    IP ipAddress,
-                   int browserId,
-                   int locationId) {
-
+                   int browserId
+                   ) {
         messageId_ = messageId;
         creationDate_ = creationDate;
         author_ = new PersonSummary(author);
         forumId_ = forumId;
         content_ = content;
         tags_ = new TreeSet<Integer>(tags);
-	ipAddress_ = new IP(ipAddress);
+        ipAddress_ = new IP(ipAddress);
         browserId_ = browserId;
-        locationId_ = locationId;
+        countryId_ = Dictionaries.ips.getLocation(ipAddress);
     }
 
     public long messageId() {
@@ -137,11 +138,11 @@ abstract public class Message {
 	    browserId_ = browser;
     }
 
-    public int locationId() {
-	    return locationId_;
+    public int countryId() {
+	    return countryId_;
     }
 
-    public void locationId ( int l ) {
-	    locationId_ = l;
+    public void countryId ( int l ) {
+	    countryId_ = l;
     }
 }

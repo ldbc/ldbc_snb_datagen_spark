@@ -26,7 +26,7 @@ if [ $PARAM_GENERATION -eq 1 ]
 then
         export LD_LIBRARY_PATH=$LD_LIBRARY:PATH:/usr/local/python/lib/
 	mkdir -p substitution_parameters
-	/usr/local/python/bin/python paramgenerator/generateparams.py $LDBC_SNB_DATAGEN_HOME substitution_parameters/
-  	rm -f m0factors.txt
+	python paramgenerator/generateparams.py $LDBC_SNB_DATAGEN_HOME substitution_parameters/
+  	rm -f m0factors*
 	rm -f m0friendList*
 fi

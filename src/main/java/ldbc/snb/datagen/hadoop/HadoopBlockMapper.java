@@ -1,13 +1,11 @@
 package ldbc.snb.datagen.hadoop;
 
-import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.objects.Person;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
-import ldbc.snb.datagen.generator.LDBCDatagen;
 
 /**
  * Created by aprat on 11/17/14.

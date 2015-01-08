@@ -1,14 +1,13 @@
 package ldbc.snb.datagen.hadoop;
 
-import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.generator.KnowsGenerator;
+import ldbc.snb.datagen.generator.LDBCDatagen;
 import ldbc.snb.datagen.objects.Person;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
@@ -17,7 +16,6 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import ldbc.snb.datagen.generator.LDBCDatagen;
 
 /**
  * Created by aprat on 11/17/14.

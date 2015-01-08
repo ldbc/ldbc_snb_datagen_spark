@@ -5,19 +5,15 @@
  */
 package ldbc.snb.datagen.generator;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Random;
-import java.util.Set;
-import java.util.TreeSet;
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import static ldbc.snb.datagen.generator.DatagenParams.maxNumTagPerFlashmobPost;
-import ldbc.snb.datagen.generator.PostGenerator.PostInfo;
 import ldbc.snb.datagen.objects.FlashmobTag;
 import ldbc.snb.datagen.objects.Forum;
 import ldbc.snb.datagen.objects.ForumMembership;
 import ldbc.snb.datagen.util.Distribution;
+
+import java.util.*;
+
+import static ldbc.snb.datagen.generator.DatagenParams.maxNumTagPerFlashmobPost;
 
 /**
  *

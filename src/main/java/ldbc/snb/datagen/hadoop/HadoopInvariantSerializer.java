@@ -3,8 +3,6 @@ package ldbc.snb.datagen.hadoop;
 import ldbc.snb.datagen.serializer.InvariantSerializer;
 import org.apache.hadoop.conf.Configuration;
 
-import java.io.IOException;
-
 /**
  * Created by aprat on 12/17/14.
  */

@@ -36,12 +36,16 @@
 */
 package ldbc.snb.datagen.serializer;
 
+import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.generator.DatagenParams;
+import ldbc.snb.datagen.objects.*;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.*;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.SequenceFile.CompressionType;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.compress.DefaultCodec;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -49,23 +53,6 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.GregorianCalendar;
 import java.util.Properties;
-import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.generator.DatagenParams;
-import ldbc.snb.datagen.objects.Comment;
-import ldbc.snb.datagen.objects.Forum;
-import ldbc.snb.datagen.objects.ForumMembership;
-import ldbc.snb.datagen.objects.Knows;
-import ldbc.snb.datagen.objects.Like;
-import ldbc.snb.datagen.objects.Person;
-import ldbc.snb.datagen.objects.Photo;
-import ldbc.snb.datagen.objects.Post;
-import ldbc.snb.datagen.objects.UpdateEvent;
-import org.apache.hadoop.fs.CreateFlag;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FileContext;
-import org.apache.hadoop.fs.Options;
-import org.apache.hadoop.io.SequenceFile.CompressionType;
-import org.apache.hadoop.io.compress.DefaultCodec;
 
 /**
  * Created by aprat on 3/27/14.

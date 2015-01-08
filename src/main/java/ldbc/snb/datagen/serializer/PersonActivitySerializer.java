@@ -5,17 +5,7 @@
 */
 package ldbc.snb.datagen.serializer;
 
-import ldbc.snb.datagen.dictionary.CompanyDictionary;
-import ldbc.snb.datagen.dictionary.PlaceDictionary;
-import ldbc.snb.datagen.dictionary.TagDictionary;
-import ldbc.snb.datagen.dictionary.UniversityDictionary;
-import ldbc.snb.datagen.generator.DatagenParams;
-import ldbc.snb.datagen.objects.Comment;
-import ldbc.snb.datagen.objects.Forum;
-import ldbc.snb.datagen.objects.ForumMembership;
-import ldbc.snb.datagen.objects.Like;
-import ldbc.snb.datagen.objects.Photo;
-import ldbc.snb.datagen.objects.Post;
+import ldbc.snb.datagen.objects.*;
 import org.apache.hadoop.conf.Configuration;
 
 /**

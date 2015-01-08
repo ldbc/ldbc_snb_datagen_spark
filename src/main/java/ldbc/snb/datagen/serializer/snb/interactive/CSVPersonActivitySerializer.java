@@ -5,21 +5,13 @@
 */
 package ldbc.snb.datagen.serializer.snb.interactive;
 
-import java.util.ArrayList;
-import ldbc.snb.datagen.dictionary.BrowserDictionary;
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.dictionary.LanguageDictionary;
-import ldbc.snb.datagen.dictionary.PlaceDictionary;
-import ldbc.snb.datagen.generator.DatagenParams;
-import ldbc.snb.datagen.objects.Comment;
-import ldbc.snb.datagen.objects.Forum;
-import ldbc.snb.datagen.objects.ForumMembership;
-import ldbc.snb.datagen.objects.Like;
-import ldbc.snb.datagen.objects.Photo;
-import ldbc.snb.datagen.objects.Post;
+import ldbc.snb.datagen.objects.*;
 import ldbc.snb.datagen.serializer.HDFSCSVWriter;
 import ldbc.snb.datagen.serializer.PersonActivitySerializer;
 import org.apache.hadoop.conf.Configuration;
+
+import java.util.ArrayList;
 
 /**
  *
@@ -119,7 +111,7 @@ public class CSVPersonActivitySerializer extends PersonActivitySerializer {
 		arguments.clear();
 		
 		arguments.add(Long.toString(post.messageId()));
-		arguments.add(Integer.toString(Dictionaries.ips.getLocation(post.ipAddress())));
+		arguments.add(Integer.toString(post.countryId()));
 		writers[FileNames.POST_ISLOCATEDIN_PLACE.ordinal()].writeEntry(arguments);
 		arguments.clear();
 		
@@ -164,7 +156,7 @@ public class CSVPersonActivitySerializer extends PersonActivitySerializer {
 			arguments.clear();
 		}
 		arguments.add(Long.toString(comment.messageId()));
-		arguments.add(Integer.toString(Dictionaries.ips.getLocation(comment.ipAddress())));
+		arguments.add(Integer.toString(comment.countryId()));
 		writers[FileNames.COMMENT_ISLOCATEDIN_PLACE.ordinal()].writeEntry(arguments);
 		arguments.clear();
 		
@@ -196,7 +188,7 @@ public class CSVPersonActivitySerializer extends PersonActivitySerializer {
 		
 		
 		arguments.add(Long.toString(photo.messageId()));
-		arguments.add(Integer.toString(Dictionaries.ips.getLocation(photo.ipAddress())));
+		arguments.add(Integer.toString(photo.countryId()));
 		writers[FileNames.POST_ISLOCATEDIN_PLACE.ordinal()].writeEntry(arguments);
 		arguments.clear();
 		

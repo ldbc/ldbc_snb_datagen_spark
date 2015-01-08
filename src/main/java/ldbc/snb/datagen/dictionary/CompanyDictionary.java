@@ -36,6 +36,7 @@
  */
 package ldbc.snb.datagen.dictionary;
 
+import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 
 import java.io.BufferedReader;
@@ -44,7 +45,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.TreeMap;
-import ldbc.snb.datagen.generator.DatagenParams;
 
 /**
  * This class reads the file containing the names and countries for the companies used in the ldbc socialnet generation and

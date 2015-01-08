@@ -38,11 +38,7 @@
 
 package ldbc.snb.datagen.serializer.snb.interactive;
 
-import ldbc.snb.datagen.dictionary.BrowserDictionary;
-import ldbc.snb.datagen.dictionary.LanguageDictionary;
-import ldbc.snb.datagen.dictionary.PlaceDictionary;
-import ldbc.snb.datagen.generator.DatagenParams;
-import ldbc.snb.datagen.generator.DateGenerator;
+import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.objects.Knows;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.objects.StudyAt;
@@ -52,9 +48,7 @@ import ldbc.snb.datagen.serializer.PersonSerializer;
 import org.apache.hadoop.conf.Configuration;
 
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 import java.util.Iterator;
-import ldbc.snb.datagen.dictionary.Dictionaries;
 
 public class CSVPersonSerializer extends PersonSerializer {
 
