@@ -22,4 +22,6 @@ for line in file.readlines():
 		exit()
 	previous_entry = int(fields[0])
 
+print("UPDATE STREAM SEEMS CORRECT")
+
 file.close()
