@@ -205,7 +205,11 @@ public class UpdateEventSerializer {
 				output.write(new String("ldbc.snb.interactive.gct_delta_duration:" + DatagenParams.deltaTime + "\n").getBytes());
 				output.write(new String("ldbc.snb.interactive.min_write_event_start_time:" + stats_.minDate_ + "\n").getBytes());
 				output.write(new String("ldbc.snb.interactive.max_write_event_start_time:" + stats_.maxDate_ + "\n").getBytes());
-				output.write(new String("ldbc.snb.interactive.update_interleave:" + (stats_.maxDate_ - stats_.minDate_) / stats_.count_ + "\n").getBytes());
+                if( stats_.count_ != 0 )  {
+                    output.write(new String("ldbc.snb.interactive.update_interleave:" + (stats_.maxDate_ - stats_.minDate_) / stats_.count_ + "\n").getBytes());
+                } else {
+                    output.write(new String("ldbc.snb.interactive.update_interleave:" + "0" + "\n").getBytes());
+                }
 				output.write(new String("ldbc.snb.interactive.num_events:" + stats_.count_).getBytes());
 				output.close();
 			}

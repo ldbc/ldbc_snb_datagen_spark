@@ -85,6 +85,7 @@ public class HadoopUpdateStreamSerializer {
 		job.setMapOutputValueClass(Text.class);
 		job.setOutputKeyClass(LongWritable.class);
 		job.setOutputValueClass(Text.class);
+        job.setJarByClass(HadoopUpdateStreamSerializerReducer.class);
 		job.setReducerClass(HadoopUpdateStreamSerializerReducer.class);
 		job.setNumReduceTasks(1);
 		job.setInputFormatClass(SequenceFileInputFormat.class);

@@ -1,7 +1,8 @@
 #!/bin/bash
-DEFAULT_HADOOP_HOME=/home/user/hadoop-2.6.0 #change to your hadoop folder
-DEFAULT_LDBC_SNB_DATAGEN_HOME=/home/user/ldbc_snb_datagen #change to your ldbc_socialnet_dbgen folder
+DEFAULT_HADOOP_HOME=/home/aprat/programs/hadoop-2.6.0 #change to your hadoop folder
+DEFAULT_LDBC_SNB_DATAGEN_HOME=/home/aprat/projects/ldbc/ldbc_snb_datagen #change to your ldbc_socialnet_dbgen folder
 PARAM_GENERATION=0 #param generation
+JAVA_HOME=/usr/lib64/jvm/default
 
 # allow overriding configuration from outside via environment variables
 # i.e. you can do
