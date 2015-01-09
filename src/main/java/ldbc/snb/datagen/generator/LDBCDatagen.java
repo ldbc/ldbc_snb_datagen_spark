@@ -114,6 +114,11 @@ public class LDBCDatagen {
             printProgress("Generating and serializing person activity");
             HadoopPersonActivityGenerator activityGenerator = new HadoopPersonActivityGenerator(conf);
             activityGenerator.run(personsFileName2);
+
+            for( int i = 0; i< conf.getInt("ldbc.snb.datagen.generator.numThreads", 1); ++i ) {
+                fs.copyToLocalFile(false, new Path(DatagenParams.hadoopDir + "/m" + i + "factors.txt"), new Path(System.getProperty("./")));
+                fs.copyToLocalFile(false, new Path(DatagenParams.hadoopDir + "/m0friendList" + i + ".csv"), new Path(System.getProperty("./")));
+            }
         }
         long endPersonActivity= System.currentTimeMillis();
 
