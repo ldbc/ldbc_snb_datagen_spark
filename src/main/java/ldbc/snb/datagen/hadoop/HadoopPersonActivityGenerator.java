@@ -89,8 +89,8 @@ public class HadoopPersonActivityGenerator {
                 personActivityGenerator_.writeFactors(factors_);
                 factors_.close();
                 friends_.close();
-                fs_.copyToLocalFile(false, new Path(DatagenParams.hadoopDir + "/m"+reducerId+"factors.txt"), new Path("./"));
-                fs_.copyToLocalFile(false, new Path(DatagenParams.hadoopDir + "/m0friendList"+reducerId+".csv"), new Path("./"));
+                fs_.copyToLocalFile(false, new Path(DatagenParams.hadoopDir + "/m"+reducerId+"factors.txt"), new Path(System.getProperty("user.dir")));
+                fs_.copyToLocalFile(false, new Path(DatagenParams.hadoopDir + "/m0friendList"+reducerId+".csv"), new Path(System.getProperty("user.dir")));
             } catch (IOException e) {
                 e.printStackTrace();
             }
