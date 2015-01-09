@@ -90,7 +90,7 @@ public class HadoopPersonActivityGenerator {
                 factors_.close();
                 friends_.close();
                 fs_.copyToLocalFile(new Path(DatagenParams.hadoopDir + "/m"+reducerId+"factors.txt"), new Path("./"));
-                fs_.copyToLocalFile(new Path(DatagenParams.hadoopDir + "/m0friendList"+reducerId+".csv"), new Path("./"));
+               fs_.copyToLocalFile(new Path(DatagenParams.hadoopDir + "/m0friendList"+reducerId+".csv"), new Path("./"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
