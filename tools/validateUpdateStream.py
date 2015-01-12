@@ -17,7 +17,7 @@ for line in file.readlines():
 	if previous_entry > int(fields[0]):
 		print("ERROR: date is smaller than previous one")
 		exit()
-	if int(fields[1]) > int(fields[0]):
+	if (int(fields[1])+10000) > int(fields[0]):
 		print("ERROR: dependant event is later than the current one")
 		exit()
 	previous_entry = int(fields[0])
