@@ -115,9 +115,15 @@ public class LDBCDatagen {
             HadoopPersonActivityGenerator activityGenerator = new HadoopPersonActivityGenerator(conf);
             activityGenerator.run(personsFileName2);
 
-            for( int i = 0; i< conf.getInt("ldbc.snb.datagen.generator.numThreads", 1); ++i ) {
-                fs.copyToLocalFile(false, new Path(DatagenParams.hadoopDir + "/m" + i + "factors.txt"), new Path("./"));
-                fs.copyToLocalFile(false, new Path(DatagenParams.hadoopDir + "/m0friendList" + i + ".csv"), new Path("./"));
+            int numThreads = conf.getInt("ldbc.snb.datagen.generator.numThreads", 1);
+            int blockSize = conf.getInt("ldbc.snb.datagen.generator.blockSize", 10000);
+            int numBlocks = (int)Math.ceil(Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numPersons")) / (double)blockSize);
+
+            for( int i = 0; i < numThreads; ++i ) {
+                if( i < numBlocks ) {
+                    fs.copyToLocalFile(false, new Path(DatagenParams.hadoopDir + "/m" + i + "factors.txt"), new Path("./"));
+                    fs.copyToLocalFile(false, new Path(DatagenParams.hadoopDir + "/m0friendList" + i + ".csv"), new Path("./"));
+                }
             }
         }
         long endPersonActivity= System.currentTimeMillis();
