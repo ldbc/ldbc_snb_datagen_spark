@@ -115,9 +115,9 @@ public class LDBCDatagen {
             HadoopPersonActivityGenerator activityGenerator = new HadoopPersonActivityGenerator(conf);
             activityGenerator.run(personsFileName2);
 
-            int numThreads = conf.getInt("ldbc.snb.datagen.generator.numThreads", 1);
-            int blockSize = conf.getInt("ldbc.snb.datagen.generator.blockSize", 10000);
-            int numBlocks = (int)Math.ceil(Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numPersons")) / (double)blockSize);
+            int numThreads = DatagenParams.numThreads;
+            int blockSize = DatagenParams.blockSize;
+            int numBlocks = (int)Math.ceil(DatagenParams.numPersons / (double)blockSize);
 
             for( int i = 0; i < numThreads; ++i ) {
                 if( i < numBlocks ) {
