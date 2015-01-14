@@ -115,6 +115,7 @@ public class GroupGenerator {
 	                    group.getCreatedDate(), friends[i]);
                 if( memberShip != null ) {
                     memberShip.setGroupId(group.getGroupId());
+                    memberShip.userCreationDate = friends[i].toCreationDate;
                     group.addMember(memberShip);
                 }
 	        }
@@ -134,6 +135,7 @@ public class GroupGenerator {
 		memberShip.setFrequentChange(friend.isFrequentChange());
 		memberShip.setHaveSmartPhone(friend.isHaveSmartPhone());
         memberShip.setLargePoster(friend.isLargePoster());
+        memberShip.userCreationDate = friend.toCreationDate;
 		return memberShip;
 	}
 	
@@ -150,6 +152,7 @@ public class GroupGenerator {
         memberShip.setFrequentChange(user.isFrequentChange());
         memberShip.setHaveSmartPhone(user.isHaveSmartPhone());
         memberShip.setLargePoster(user.isLargePoster());
+        memberShip.userCreationDate = user.getCreationDate();
         return memberShip;
     }
 }

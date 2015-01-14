@@ -400,7 +400,6 @@ public class DataExporter {
         		if (bucket < factorTable.get(memberships[i].getUserId()).numberOfGroupsPerMonth.length){
         			factorTable.get(memberships[i].getUserId()).numberOfGroupsPerMonth[bucket]++;
         		}
-
                 staticSerializer.serialize(memberships[i]);
             } else {
                 updateStreamSerializer.setCurrentDependantDate(memberships[i].userCreationDate);

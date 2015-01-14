@@ -234,7 +234,7 @@ public class CommentGenerator {
                                        textSize,
                                        creationDate,
                                        friend.getFriendAcc(),
-                                       friend.fromCreationDate,
+                                       friend.toCreationDate,
                                        post.getGroupId(),
                                        tags,
                                        ipAddDic.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER),friend.getSourceIp(), friend.isFrequentChange(), creationDate),

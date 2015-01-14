@@ -1515,14 +1515,16 @@ public class ScalableGenerator{
                 createdTime = dateTimeGenerator.randomFriendReapprovedDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),declinedTime);
             }
         }
-        createdTime = createdTime - user1.getCreationDate() >= deltaTime ? createdTime : createdTime + (deltaTime - (createdTime - user1.getCreationDate() ));
-        createdTime = createdTime - user2.getCreationDate() >= deltaTime ? createdTime : createdTime + (deltaTime - (createdTime - user2.getCreationDate() ));
-        if( createdTime <= dateTimeGenerator.getEndDateTime() ) {
-            user2.addNewFriend(new Friend(user2, user1, requestedTime, declinedTime,
-                    createdTime, pass, initiator));
-            user1.addNewFriend(new Friend(user1, user2, requestedTime, declinedTime,
-                    createdTime, pass, initiator));
-            friendshipNum++;
+        if(createdTime != -1) {
+            createdTime = createdTime - user1.getCreationDate() >= deltaTime ? createdTime : createdTime + deltaTime;
+            createdTime = createdTime - user2.getCreationDate() >= deltaTime ? createdTime : createdTime + deltaTime;
+            if (createdTime <= dateTimeGenerator.getEndDateTime()) {
+                user2.addNewFriend(new Friend(user2, user1, requestedTime, declinedTime,
+                        createdTime, pass, initiator));
+                user1.addNewFriend(new Friend(user1, user2, requestedTime, declinedTime,
+                        createdTime, pass, initiator));
+                friendshipNum++;
+            }
         }
     }
 
@@ -1580,17 +1582,17 @@ public class ScalableGenerator{
             	ReducedUserProfile.Counts count = c.getValue();
             	// correct the group counts
             	//count.numberOfGroups += count.numberOfFriends;
-            	StringBuffer strbuf = new StringBuffer();
-		strbuf.append(c.getKey()); strbuf.append(",");
-		String name = medianFirstName.get(c.getKey());
-		strbuf.append(name); strbuf.append(",");
-            	strbuf.append(count.numberOfFriends); 		strbuf.append(",");
-            	strbuf.append(count.numberOfPosts); 		strbuf.append(",");
-            	strbuf.append(count.numberOfLikes); 		strbuf.append(",");
-            	strbuf.append(count.numberOfTagsOfPosts); 	strbuf.append(",");
-            	strbuf.append(count.numberOfGroups); 		strbuf.append(",");
-            	strbuf.append(count.numberOfWorkPlaces); 	strbuf.append(",");
-            	strbuf.append(count.numberOfPostReplies); 	strbuf.append(",");
+                StringBuffer strbuf = new StringBuffer();
+                strbuf.append(c.getKey()); strbuf.append(",");
+                String name = medianFirstName.get(c.getKey());
+                strbuf.append(name); strbuf.append(",");
+                strbuf.append(count.numberOfFriends); 		strbuf.append(",");
+                strbuf.append(count.numberOfPosts); 		strbuf.append(",");
+                strbuf.append(count.numberOfLikes); 		strbuf.append(",");
+                strbuf.append(count.numberOfTagsOfPosts); 	strbuf.append(",");
+                strbuf.append(count.numberOfGroups); 		strbuf.append(",");
+                strbuf.append(count.numberOfWorkPlaces); 	strbuf.append(",");
+                strbuf.append(count.numberOfPostReplies); 	strbuf.append(",");
 
             	int numBuckets = count.numberOfPostsPerMonth.length;
             	for (int i = 0; i < numBuckets; i++){
