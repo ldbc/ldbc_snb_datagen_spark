@@ -42,7 +42,12 @@ import ldbc.socialnet.dbgen.generator.DateGenerator;
 import ldbc.socialnet.dbgen.generator.ScalableGenerator;
 import ldbc.socialnet.dbgen.objects.*;
 import ldbc.socialnet.dbgen.serializer.CSVSerializer.CSVSerializer;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -71,6 +76,7 @@ public class DataExporter {
     private int startMonth, startYear;
     private int reducerId = 0;
     private long deltaTime = 0;
+    FSDataOutputStream out;
     GregorianCalendar c;
 
     public DataExporter( DataFormat format,
@@ -117,6 +123,14 @@ public class DataExporter {
             staticSerializer = new EmptySerializer();
         }
         updateStreamSerializer = new UpdateEventSerializer(directory,"temp_updateStream_"+reducerId,exportText, numPartitions,tagDic,browsers,languageDic,ipDic, statistics);
+
+        try {
+            FileSystem fs = FileSystem.get(new Configuration());
+            Path outFile = new Path(directory + "/m0friendList" + reducerId + ".csv");
+            out = fs.create(outFile);
+        } catch(IOException e ) {
+            System.out.println(e.getMessage());
+        }
         exportCommonEntities();
     }
 
@@ -125,6 +139,12 @@ public class DataExporter {
     }
 
     public void close() {
+        try {
+            out.flush();
+            out.close();
+        } catch ( IOException e ) {
+            System.out.println(e.getMessage());
+        }
         staticSerializer.close();
         updateStreamSerializer.close();
     }
@@ -224,6 +244,9 @@ public class DataExporter {
 
     public void export( UserInfo userInfo ) {
        long creationDate =  userInfo.user.getCreationDate();
+        if(userInfo.user.getAccountId() == 18691698848287L) {
+            System.out.println("creation date "+creationDate+" "+dateThreshold);
+        }
        if( creationDate <= dateThreshold ) {
             staticSerializer.serialize(userInfo);
        } else {
@@ -263,20 +286,37 @@ public class DataExporter {
             }
         }
 
+        StringBuffer strbuf = new StringBuffer();
+        strbuf.append(userInfo.user.getAccountId());
         Friend friends[] = userInfo.user.getFriendList();
         int numFriends = friends.length;
         for( int i = 0; i < numFriends; ++i ) {
             if (friends[i] != null && friends[i].getCreatedTime() != -1) {
                 if( friends[i].getCreatedTime() <= dateThreshold ) {
+
+                    if(userInfo.user.getAccountId() == 18691698848287L) {
+                        System.out.println("ENTRA friend creation date "+friends[i].getCreatedTime());
+                    }
                     staticSerializer.serialize(friends[i]);
             		if (!factorTable.containsKey(userInfo.user.getAccountId()))
             			factorTable.put(userInfo.user.getAccountId(), new ReducedUserProfile.Counts());
                     factorTable.get(userInfo.user.getAccountId()).numberOfFriends++;
+                    strbuf.append(",");
+                    strbuf.append(friends[i].getFriendAcc());
                 } else {
                     updateStreamSerializer.setCurrentDependantDate(friends[i].dependantDate);
                     updateStreamSerializer.serialize(friends[i]);
                 }
             }
+        }
+        strbuf.append("\n");
+
+        try {
+            if(creationDate <= dateThreshold) {
+                out.write(strbuf.toString().getBytes());
+            }
+        }catch(IOException e ) {
+            System.out.println(e.getMessage());
         }
     }
 

@@ -540,7 +540,7 @@ public class MRGenerateUsers{
         }
 
         /// --------------- Sixth job: Materialize the friends lists ----------------
-        Job job6 = new Job(conf,"Dump the friends lists");
+/*        Job job6 = new Job(conf,"Dump the friends lists");
         job6.setMapOutputKeyClass(ComposedKey.class);
         job6.setMapOutputValueClass(ReducedUserProfile.class);
         job6.setOutputKeyClass(ComposedKey.class);
@@ -561,6 +561,7 @@ public class MRGenerateUsers{
         printProgress("Starting: Materialize friends for substitution parameters");
         int resMaterializeFriends = job6.waitForCompletion(true) ? 0 : 1;
         fs.delete(new Path(hadoopDir + "/sibSorting3"),true);
+        */
 
 
 	    long end = System.currentTimeMillis();
