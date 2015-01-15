@@ -26,6 +26,6 @@ if [ $PARAM_GENERATION -eq 1 ]
 then
 	mkdir -p substitution_parameters
 	python paramgenerator/generateparams.py $LDBC_SNB_DATAGEN_HOME substitution_parameters/
-  	rm -f m0factors.txt
-	rm -f m0friendList*
+    rm -f m*factors*
+    rm -f m0friendList*
 fi
