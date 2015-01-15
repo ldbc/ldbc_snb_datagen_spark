@@ -83,6 +83,56 @@ public class CSVPersonSerializer extends PersonSerializer {
         for( int i = 0; i < numFiles; ++i) {
             writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"),FileNames.values()[i].toString()+"_"+reducerId,conf.getInt("ldbc.snb.datagen.numPartitions",1),conf.getBoolean("ldbc.snb.datagen.serializer.compressed",false),"|");
         }
+
+        ArrayList<String> arguments = new ArrayList<String>();
+        arguments.add("id");
+        arguments.add("firstName");
+        arguments.add("lastName");
+        arguments.add("gender");
+        arguments.add("birthday");
+        arguments.add("creationDate");
+        arguments.add("locationIP");
+        arguments.add("browserUsed");
+        writers[FileNames.PERSON.ordinal()].writeEntry(arguments);
+
+        arguments.clear();
+        arguments.add("Person.id");
+        arguments.add("language");
+        writers[FileNames.PERSON_SPEAKS_LANGUAGE.ordinal()].writeEntry(arguments);
+
+        arguments.clear();
+        arguments.add("Person.id");
+        arguments.add("email");
+        writers[FileNames.PERSON_HAS_EMAIL.ordinal()].writeEntry(arguments);
+
+        arguments.clear();
+        arguments.add("Person.id");
+        arguments.add("Place.id");
+        writers[FileNames.PERSON_LOCATED_IN_PLACE.ordinal()].writeEntry(arguments);
+
+        arguments.clear();
+        arguments.add("Person.id");
+        arguments.add("Tag.id");
+        writers[FileNames.PERSON_HAS_INTEREST_TAG.ordinal()].writeEntry(arguments);
+
+        arguments.clear();
+        arguments.add("Person.id");
+        arguments.add("Organisation.id");
+        arguments.add("workFrom.id");
+        writers[FileNames.PERSON_WORK_AT.ordinal()].writeEntry(arguments);
+
+        arguments.clear();
+        arguments.add("Person.id");
+        arguments.add("Organisation.id");
+        arguments.add("classYear");
+        writers[FileNames.PERSON_STUDY_AT.ordinal()].writeEntry(arguments);
+
+        arguments.clear();
+        arguments.add("Person.id");
+        arguments.add("Person.id");
+        arguments.add("creationDate");
+        writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeEntry(arguments);
+
     }
 
     @Override
