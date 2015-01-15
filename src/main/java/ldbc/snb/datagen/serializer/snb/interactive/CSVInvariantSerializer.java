@@ -1,6 +1,7 @@
 package ldbc.snb.datagen.serializer.snb.interactive;
 
 import ldbc.snb.datagen.dictionary.BrowserDictionary;
+import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.dictionary.LanguageDictionary;
 import ldbc.snb.datagen.dictionary.PlaceDictionary;
 import ldbc.snb.datagen.generator.DatagenParams;
@@ -22,9 +23,6 @@ import java.util.ArrayList;
 public class CSVInvariantSerializer extends InvariantSerializer {
 
     private HDFSCSVWriter[] writers;
-    private BrowserDictionary browserDictionary;
-    private PlaceDictionary placeDictionary;
-    private LanguageDictionary languageDictionary;
 
     private enum FileNames {
         TAG ("tag"),
@@ -121,7 +119,7 @@ public class CSVInvariantSerializer extends InvariantSerializer {
                 place.getType() == Place.COUNTRY) {
             arguments.clear();
             arguments.add(Integer.toString(place.getId()));
-            arguments.add(Integer.toString(placeDictionary.belongsTo(place.getId())));
+            arguments.add(Integer.toString(Dictionaries.places.belongsTo(place.getId())));
             writers[FileNames.PLACE_IS_PART_OF_PLACE.ordinal()].writeEntry(arguments);
         }
     }
