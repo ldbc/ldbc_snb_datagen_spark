@@ -137,15 +137,6 @@ public class CSVPersonActivitySerializer extends PersonActivitySerializer {
         writers[FileNames.COMMENT.ordinal()].writeEntry(arguments);
         arguments.clear();
 
-        arguments.add("id");
-        arguments.add("creationDate");
-        arguments.add("locationIP");
-        arguments.add("browserUsed");
-        arguments.add("content");
-        arguments.add("length");
-        writers[FileNames.COMMENT.ordinal()].writeEntry(arguments);
-        arguments.clear();
-
         arguments.add("Comment.id");
         arguments.add("Person.id");
         writers[FileNames.COMMENT_HASCREATOR_PERSON.ordinal()].writeEntry(arguments);
