@@ -13,8 +13,8 @@ LDBC_SNB_DATAGEN_HOME=${LDBC_SNB_DATAGEN_HOME:-$DEFAULT_LDBC_SNB_DATAGEN_HOME}
 export HADOOP_HOME
 export LDBC_SNB_DATAGEN_HOME
 
-#/usr/local/maven/bin/mvn clean
-/usr/local/maven/bin/mvn assembly:assembly
+mvn clean
+mvn assembly:assembly
 
 cp $LDBC_SNB_DATAGEN_HOME/target/ldbc_snb_datagen.jar $LDBC_SNB_DATAGEN_HOME/
 rm $LDBC_SNB_DATAGEN_HOME/target/ldbc_snb_datagen.jar
