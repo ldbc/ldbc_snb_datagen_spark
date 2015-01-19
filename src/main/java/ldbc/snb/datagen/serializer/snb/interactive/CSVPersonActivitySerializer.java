@@ -62,7 +62,106 @@ public class CSVPersonActivitySerializer extends PersonActivitySerializer {
 			writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"),FileNames.values()[i].toString()+"_"+reducerId,conf.getInt("ldbc.snb.datagen.numPartitions",1),conf.getBoolean("ldbc.snb.datagen.serializer.compressed",false),"|");
 		}
 		arguments = new ArrayList<String>();
-		
+
+        arguments.add("id");
+        arguments.add("title");
+        arguments.add("creationDate");
+        writers[FileNames.FORUM.ordinal()].writeEntry(arguments);
+        arguments.clear();
+
+        arguments.add("Forum.id");
+        arguments.add("Post.id");
+        writers[FileNames.FORUM_CONTAINEROF_POST.ordinal()].writeEntry(arguments);
+        arguments.clear();
+
+        arguments.add("Forum.id");
+        arguments.add("Person.id");
+        arguments.add("joinDate");
+        writers[FileNames.FORUM_HASMEMBER_PERSON.ordinal()].writeEntry(arguments);
+        arguments.clear();
+
+        arguments.add("Forum.id");
+        arguments.add("Person.id");
+        writers[FileNames.FORUM_HASMODERATOR_PERSON.ordinal()].writeEntry(arguments);
+        arguments.clear();
+
+        arguments.add("Forum.id");
+        arguments.add("Tag.id");
+        writers[FileNames.FORUM_HASTAG_TAG.ordinal()].writeEntry(arguments);
+        arguments.clear();
+
+        arguments.add("Person.id");
+        arguments.add("Post.id");
+        arguments.add("creationDate");
+        writers[FileNames.PERSON_LIKES_POST.ordinal()].writeEntry(arguments);
+        arguments.clear();
+
+        arguments.add("Person.id");
+        arguments.add("Comment.id");
+        arguments.add("creationDate");
+        writers[FileNames.PERSON_LIKES_COMMENT.ordinal()].writeEntry(arguments);
+        arguments.clear();
+
+        arguments.add("id");
+        arguments.add("imageFile");
+        arguments.add("creationDate");
+        arguments.add("locationIP");
+        arguments.add("browserUsed");
+        arguments.add("language");
+        arguments.add("content");
+        arguments.add("length");
+        writers[FileNames.POST.ordinal()].writeEntry(arguments);
+        arguments.clear();
+
+        arguments.add("Post.id");
+        arguments.add("Person.id");
+        writers[FileNames.POST_HASCREATOR_PERSON.ordinal()].writeEntry(arguments);
+        arguments.clear();
+
+        arguments.add("Post.id");
+        arguments.add("Tag.id");
+        writers[FileNames.POST_HASTAG_TAG.ordinal()].writeEntry(arguments);
+        arguments.clear();
+
+        arguments.add("Post.id");
+        arguments.add("Place.id");
+        writers[FileNames.POST_ISLOCATEDIN_PLACE.ordinal()].writeEntry(arguments);
+        arguments.clear();
+
+        arguments.add("id");
+        arguments.add("creationDate");
+        arguments.add("locationIP");
+        arguments.add("browserUsed");
+        arguments.add("content");
+        arguments.add("length");
+        writers[FileNames.COMMENT.ordinal()].writeEntry(arguments);
+        arguments.clear();
+
+        arguments.add("Comment.id");
+        arguments.add("Person.id");
+        writers[FileNames.COMMENT_HASCREATOR_PERSON.ordinal()].writeEntry(arguments);
+        arguments.clear();
+
+        arguments.add("Comment.id");
+        arguments.add("Tag.id");
+        writers[FileNames.COMMENT_HASTAG_TAG.ordinal()].writeEntry(arguments);
+        arguments.clear();
+
+        arguments.add("Comment.id");
+        arguments.add("Place.id");
+        writers[FileNames.COMMENT_ISLOCATEDIN_PLACE.ordinal()].writeEntry(arguments);
+        arguments.clear();
+
+        arguments.add("Comment.id");
+        arguments.add("Post.id");
+        writers[FileNames.COMMENT_REPLYOF_POST.ordinal()].writeEntry(arguments);
+        arguments.clear();
+
+        arguments.add("Comment.id");
+        arguments.add("Comment.id");
+        writers[FileNames.COMMENT_REPLYOF_COMMENT.ordinal()].writeEntry(arguments);
+        arguments.clear();
+
 	}
 	
 	@Override

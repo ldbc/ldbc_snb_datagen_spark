@@ -1,6 +1,7 @@
 package ldbc.snb.datagen.serializer.snb.interactive;
 
 import ldbc.snb.datagen.dictionary.BrowserDictionary;
+import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.dictionary.LanguageDictionary;
 import ldbc.snb.datagen.dictionary.PlaceDictionary;
 import ldbc.snb.datagen.generator.DatagenParams;
@@ -22,9 +23,6 @@ import java.util.ArrayList;
 public class CSVInvariantSerializer extends InvariantSerializer {
 
     private HDFSCSVWriter[] writers;
-    private BrowserDictionary browserDictionary;
-    private PlaceDictionary placeDictionary;
-    private LanguageDictionary languageDictionary;
 
     private enum FileNames {
         TAG ("tag"),
@@ -53,13 +51,52 @@ public class CSVInvariantSerializer extends InvariantSerializer {
             writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"),FileNames.values()[i].toString()+"_"+reducerId,conf.getInt("ldbc.snb.datagen.numPartitions",1),conf.getBoolean("ldbc.snb.datagen.serializer.compressed",false),"|");
         }
 
-        browserDictionary = new BrowserDictionary(DatagenParams.probAnotherBrowser);
+        ArrayList<String> arguments = new ArrayList<String>();
+        arguments.add("id");
+        arguments.add("name");
+        arguments.add("url");
+        writers[FileNames.TAG.ordinal()].writeEntry(arguments);
 
-        placeDictionary = new PlaceDictionary(DatagenParams.numPersons);
+        arguments.clear();
+        arguments.add("Tag.id");
+        arguments.add("TagClass.id");
+        writers[FileNames.TAG_HAS_TYPE_TAGCLASS.ordinal()].writeEntry(arguments);
 
-        languageDictionary = new LanguageDictionary(placeDictionary,
-                DatagenParams.probEnglish,
-                DatagenParams.probSecondLang);
+        arguments.clear();
+        arguments.add("id");
+        arguments.add("name");
+        arguments.add("url");
+        writers[FileNames.TAGCLASS.ordinal()].writeEntry(arguments);
+
+        arguments.clear();
+        arguments.add("TagClass.id");
+        arguments.add("TagClass.id");
+        writers[FileNames.TAGCLASS_IS_SUBCLASS_OF_TAGCLASS.ordinal()].writeEntry(arguments);
+
+        arguments.clear();
+        arguments.add("id");
+        arguments.add("name");
+        arguments.add("url");
+        arguments.add("type");
+        writers[FileNames.PLACE.ordinal()].writeEntry(arguments);
+
+        arguments.clear();
+        arguments.add("Place.id");
+        arguments.add("Place.id");
+        writers[FileNames.PLACE_IS_PART_OF_PLACE.ordinal()].writeEntry(arguments);
+
+        arguments.clear();
+        arguments.add("id");
+        arguments.add("name");
+        arguments.add("url");
+        arguments.add("type");
+        writers[FileNames.ORGANIZATION.ordinal()].writeEntry(arguments);
+
+        arguments.clear();
+        arguments.add("Organisation.id");
+        arguments.add("Place.id");
+        writers[FileNames.ORGANIZATION_IS_LOCATED_IN_PLACE.ordinal()].writeEntry(arguments);
+
 
     }
 
@@ -82,7 +119,7 @@ public class CSVInvariantSerializer extends InvariantSerializer {
                 place.getType() == Place.COUNTRY) {
             arguments.clear();
             arguments.add(Integer.toString(place.getId()));
-            arguments.add(Integer.toString(placeDictionary.belongsTo(place.getId())));
+            arguments.add(Integer.toString(Dictionaries.places.belongsTo(place.getId())));
             writers[FileNames.PLACE_IS_PART_OF_PLACE.ordinal()].writeEntry(arguments);
         }
     }

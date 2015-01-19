@@ -52,15 +52,15 @@ import java.util.Properties;
 
 public class LDBCDatagen {
 
-	static boolean initialized = false;
-	public static synchronized void init (Configuration conf) {
-		if(!initialized) {
-			DatagenParams.readConf(conf);
-			Dictionaries.loadDictionaries();
-			SN.initialize();
-			initialized = true;
-		}
-	}
+    static boolean initialized = false;
+    public static synchronized void init (Configuration conf) {
+        if(!initialized) {
+            DatagenParams.readConf(conf);
+            Dictionaries.loadDictionaries();
+            SN.initialize();
+            initialized = true;
+        }
+    }
 
     private void printProgress(String message) {
         System.out.println("************************************************");
@@ -110,83 +110,94 @@ public class LDBCDatagen {
         long endPersonSerializing= System.currentTimeMillis();
 
         long startPersonActivity= System.currentTimeMillis();
-	if(conf.getBoolean("ldbc.snb.dagaten.generator.activity", true)) {
-		printProgress("Generating and serializing person activity");
-		HadoopPersonActivityGenerator activityGenerator = new HadoopPersonActivityGenerator(conf);
-		activityGenerator.run(personsFileName2);
-	}
+        if(conf.getBoolean("ldbc.snb.datagen.generator.activity", true)) {
+            printProgress("Generating and serializing person activity");
+            HadoopPersonActivityGenerator activityGenerator = new HadoopPersonActivityGenerator(conf);
+            activityGenerator.run(personsFileName2);
+
+            int numThreads = DatagenParams.numThreads;
+            int blockSize = DatagenParams.blockSize;
+            int numBlocks = (int)Math.ceil(DatagenParams.numPersons / (double)blockSize);
+
+            for( int i = 0; i < numThreads; ++i ) {
+                if( i < numBlocks ) {
+                    fs.copyToLocalFile(false, new Path(DatagenParams.hadoopDir + "/m" + i + "factors.txt"), new Path("./"));
+                    fs.copyToLocalFile(false, new Path(DatagenParams.hadoopDir + "/m0friendList" + i + ".csv"), new Path("./"));
+                }
+            }
+        }
         long endPersonActivity= System.currentTimeMillis();
 
-	long startSortingUpdateStreams= System.currentTimeMillis();
-	if(conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
-		printProgress("Sorting update streams ");
-	}
-	for( int i = 0; i < DatagenParams.numThreads; ++i) {
-		int numPartitions = conf.getInt("ldbc.snb.datagen.serializer.numPartitions", 1);
-		for( int j = 0; j < numPartitions; ++j ) {
-			if(conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
-				HadoopFileSorter updateStreamSorter = new HadoopFileSorter(conf,LongWritable.class,Text.class);
-				updateStreamSorter.run(DatagenParams.hadoopDir+"/temp_updateStream_person_"+i+"_"+j, DatagenParams.hadoopDir+"/updateStream_person_"+i+"_"+j);
-				updateStreamSorter.run(DatagenParams.hadoopDir+"/temp_updateStream_forum_"+i+"_"+j, DatagenParams.hadoopDir+"/updateStream_forum_"+i+"_"+j);
-			}
-
-			fs.delete(new Path(DatagenParams.hadoopDir+"/temp_updateStream_person_"+i+"_"+j), true);
-			fs.delete(new Path(DatagenParams.hadoopDir+"/temp_updateStream_forum_"+i+"_"+j), true);
-			
-			if(conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
-				HadoopUpdateStreamSerializer updateSerializer = new HadoopUpdateStreamSerializer(conf);
-				updateSerializer.run(DatagenParams.hadoopDir+"/updateStream_person_"+i+"_"+j, i, j, "person");
-				updateSerializer.run(DatagenParams.hadoopDir+"/updateStream_forum_"+i+"_"+j, i, j, "forum");
-				
-				fs.delete(new Path(DatagenParams.hadoopDir+"/updateStream_person_"+i+"_"+j), true);
-				fs.delete(new Path(DatagenParams.hadoopDir+"/updateStream_forum_"+i+"_"+j), true);
-			}
-		}
-	}
-
-    if(conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
-        long minDate = Long.MAX_VALUE;
-        long maxDate = Long.MIN_VALUE;
-        long count = 0;
+        long startSortingUpdateStreams= System.currentTimeMillis();
+        if(conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
+            printProgress("Sorting update streams ");
+        }
         for( int i = 0; i < DatagenParams.numThreads; ++i) {
-            Path propertiesFile = new Path(DatagenParams.hadoopDir+"/temp_updateStream_person_"+i+".properties");
-            FSDataInputStream file = fs.open(propertiesFile);
-            Properties properties = new Properties();
-            properties.load(file);
-            long aux;
-            aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.min_write_event_start_time"));
-            minDate = aux < minDate ? aux : minDate;
-            aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.max_write_event_start_time"));
-            maxDate = aux > maxDate ? aux : maxDate;
-            aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.num_events"));
-            count += aux;
-            file.close();
-            fs.delete(propertiesFile,true);
+            int numPartitions = conf.getInt("ldbc.snb.datagen.serializer.numPartitions", 1);
+            for( int j = 0; j < numPartitions; ++j ) {
+                if(conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
+                    HadoopFileSorter updateStreamSorter = new HadoopFileSorter(conf,LongWritable.class,Text.class);
+                    updateStreamSorter.run(DatagenParams.hadoopDir+"/temp_updateStream_person_"+i+"_"+j, DatagenParams.hadoopDir+"/updateStream_person_"+i+"_"+j);
+                    updateStreamSorter.run(DatagenParams.hadoopDir+"/temp_updateStream_forum_"+i+"_"+j, DatagenParams.hadoopDir+"/updateStream_forum_"+i+"_"+j);
+                }
 
-            propertiesFile = new Path(DatagenParams.hadoopDir+"/temp_updateStream_forum_"+i+".properties");
-            file = fs.open(propertiesFile);
-            properties = new Properties();
-            properties.load(file);
-            aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.min_write_event_start_time"));
-            minDate = aux < minDate ? aux : minDate;
-            aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.max_write_event_start_time"));
-            maxDate = aux > maxDate ? aux : maxDate;
-            aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.num_events"));
-            count += aux;
-            file.close();
-            fs.delete(propertiesFile,true);
+                fs.delete(new Path(DatagenParams.hadoopDir+"/temp_updateStream_person_"+i+"_"+j), true);
+                fs.delete(new Path(DatagenParams.hadoopDir+"/temp_updateStream_forum_"+i+"_"+j), true);
+
+                if(conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
+                    HadoopUpdateStreamSerializer updateSerializer = new HadoopUpdateStreamSerializer(conf);
+                    updateSerializer.run(DatagenParams.hadoopDir+"/updateStream_person_"+i+"_"+j, i, j, "person");
+                    updateSerializer.run(DatagenParams.hadoopDir+"/updateStream_forum_"+i+"_"+j, i, j, "forum");
+
+                    fs.delete(new Path(DatagenParams.hadoopDir+"/updateStream_person_"+i+"_"+j), true);
+                    fs.delete(new Path(DatagenParams.hadoopDir+"/updateStream_forum_"+i+"_"+j), true);
+                }
+            }
         }
 
-        OutputStream output = fs.create(new Path(DatagenParams.socialNetworkDir+"/updateStream"+".properties"),true);
-        output.write(new String("ldbc.snb.interactive.gct_delta_duration:" + DatagenParams.deltaTime + "\n").getBytes());
-        output.write(new String("ldbc.snb.interactive.min_write_event_start_time:" + minDate + "\n").getBytes());
-        output.write(new String("ldbc.snb.interactive.max_write_event_start_time:" + maxDate + "\n").getBytes());
-        output.write(new String("ldbc.snb.interactive.update_interleave:" + (maxDate - minDate) / count + "\n").getBytes());
-        output.write(new String("ldbc.snb.interactive.num_events:" + count).getBytes());
-        output.close();
-    }
+        if(conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
+            long minDate = Long.MAX_VALUE;
+            long maxDate = Long.MIN_VALUE;
+            long count = 0;
+            for( int i = 0; i < DatagenParams.numThreads; ++i) {
+                Path propertiesFile = new Path(DatagenParams.hadoopDir+"/temp_updateStream_person_"+i+".properties");
+                FSDataInputStream file = fs.open(propertiesFile);
+                Properties properties = new Properties();
+                properties.load(file);
+                long aux;
+                aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.min_write_event_start_time"));
+                minDate = aux < minDate ? aux : minDate;
+                aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.max_write_event_start_time"));
+                maxDate = aux > maxDate ? aux : maxDate;
+                aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.num_events"));
+                count += aux;
+                file.close();
+                fs.delete(propertiesFile,true);
 
-    long endSortingUpdateStreams= System.currentTimeMillis();
+                propertiesFile = new Path(DatagenParams.hadoopDir+"/temp_updateStream_forum_"+i+".properties");
+                file = fs.open(propertiesFile);
+                properties = new Properties();
+                properties.load(file);
+                aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.min_write_event_start_time"));
+                minDate = aux < minDate ? aux : minDate;
+                aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.max_write_event_start_time"));
+                maxDate = aux > maxDate ? aux : maxDate;
+                aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.num_events"));
+                count += aux;
+                file.close();
+                fs.delete(propertiesFile,true);
+            }
+
+            OutputStream output = fs.create(new Path(DatagenParams.socialNetworkDir+"/updateStream"+".properties"),true);
+            output.write(new String("ldbc.snb.interactive.gct_delta_duration:" + DatagenParams.deltaTime + "\n").getBytes());
+            output.write(new String("ldbc.snb.interactive.min_write_event_start_time:" + minDate + "\n").getBytes());
+            output.write(new String("ldbc.snb.interactive.max_write_event_start_time:" + maxDate + "\n").getBytes());
+            output.write(new String("ldbc.snb.interactive.update_interleave:" + (maxDate - minDate) / count + "\n").getBytes());
+            output.write(new String("ldbc.snb.interactive.num_events:" + count).getBytes());
+            output.close();
+        }
+
+        long endSortingUpdateStreams= System.currentTimeMillis();
 
         printProgress("Serializing invariant schema ");
         long startInvariantSerializing= System.currentTimeMillis();
@@ -198,7 +209,7 @@ public class LDBCDatagen {
 
         long end = System.currentTimeMillis();
 
-	
+
 
         System.out.println(((end - start) / 1000)
                 + " total seconds");
@@ -208,6 +219,7 @@ public class LDBCDatagen {
         System.out.println("Random correlated edge generation time: "+((endRandom - startRandom) / 1000));
         System.out.println("Person serialization time: "+((endPersonSerializing - startPersonSerializing) / 1000));
         System.out.println("Person activity generation and serialization time: "+((endPersonActivity - startPersonActivity) / 1000));
+        System.out.println("Sorting update streams time: "+((endSortingUpdateStreams - startSortingUpdateStreams) / 1000));
         System.out.println("Invariant schema serialization time: "+((endInvariantSerializing - startInvariantSerializing) / 1000));
         System.out.println("Total Execution time: "+((end - start) / 1000));
         return 0;
@@ -229,7 +241,7 @@ public class LDBCDatagen {
 
         // Create input text file in HDFS
         LDBCDatagen datagen = new LDBCDatagen();
-	LDBCDatagen.init(conf);
+        LDBCDatagen.init(conf);
         datagen.runGenerateJob(conf);
     }
 }
