@@ -1,6 +1,6 @@
 #!/bin/bash
-DEFAULT_HADOOP_HOME=/home/aprat/hadoop-2.6.0 #change to your hadoop folder
-DEFAULT_LDBC_SNB_DATAGEN_HOME=/scratch/aprat/generador/refactor/ldbc_snb_datagen #change to your ldbc_socialnet_dbgen folder
+DEFAULT_HADOOP_HOME=/home/user/hadoop-2.6.0 #change to your hadoop folder
+DEFAULT_LDBC_SNB_DATAGEN_HOME=/home/user/ldbc_snb_datagen_0.2 #change to your ldbc_socialnet_dbgen folder
 PARAM_GENERATION=1 #param generation
 
 # allow overriding configuration from outside via environment variables
@@ -24,9 +24,8 @@ $HADOOP_HOME/bin/hadoop  jar $LDBC_SNB_DATAGEN_HOME/ldbc_snb_datagen.jar $LDBC_S
 
 if [ $PARAM_GENERATION -eq 1 ]
 then
-        export LD_LIBRARY_PATH=$LD_LIBRARY:PATH:/usr/local/python/lib/
 	mkdir -p substitution_parameters
 	python paramgenerator/generateparams.py $LDBC_SNB_DATAGEN_HOME substitution_parameters/
-  	rm -f m0factors*
+  	rm -f m*factors*
 	rm -f m0friendList*
 fi

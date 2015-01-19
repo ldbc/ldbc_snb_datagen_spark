@@ -19,6 +19,7 @@ for line in file.readlines():
 		exit()
 	if (int(fields[1])+10000) > int(fields[0]):
 		print("ERROR: dependant event is later than the current one")
+                print(line);
 		exit()
 	previous_entry = int(fields[0])
 
