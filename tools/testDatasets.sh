@@ -19,8 +19,8 @@ DIR_2=$2
 for file in $FILES
 do
    echo "CHECKING FILE $file"
-   $(sort $DIR_1/${file}_?_?.csv  > .auxFile1)
-   $(sort $DIR_2/${file}_?_?.csv  > .auxFile2)
+   $(tail -q -n +2 $DIR_1/${file}_?_?.csv  | sort > .auxFile1)
+   $(tail -q -n +2 $DIR_2/${file}_?_?.csv  | sort > .auxFile2)
 
    # computing checksums
    a=$(md5sum .auxFile1 | awk '{print $1}')
