@@ -27,5 +27,7 @@ then
 	mkdir -p substitution_parameters
 	python paramgenerator/generateparams.py $LDBC_SNB_DATAGEN_HOME substitution_parameters/
   	rm -f m*factors*
+  	rm -f .m*factors*
 	rm -f m0friendList*
+	rm -f .m0friendList*
 fi
