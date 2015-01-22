@@ -221,8 +221,8 @@ public class CSVPersonSerializer extends PersonSerializer {
     protected void serialize(Knows knows) {
         ArrayList<String> arguments = new ArrayList<String>();
         String dateString = Dictionaries.dates.formatDateDetail(knows.creationDate());
-        arguments.add(Long.toString(knows.from().creationDate()));
-        arguments.add(Long.toString(knows.to().creationDate()));
+        arguments.add(Long.toString(knows.from().accountId()));
+        arguments.add(Long.toString(knows.to().accountId()));
         arguments.add(dateString);
         writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeEntry(arguments);
     }
