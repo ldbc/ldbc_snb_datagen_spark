@@ -59,6 +59,7 @@ public class DateGenerator {
 	private long deltaTime_;
 	private long updateThreshold_;
 	private PowerDistGenerator powerDist_;
+    private SimpleDateFormat gmtDateFormatter_;
 
 	// This constructor is for the case of friendship's created date generator
 	public DateGenerator(GregorianCalendar from, GregorianCalendar to,
@@ -76,6 +77,9 @@ public class DateGenerator {
 		calendar_ = new GregorianCalendar();
 		calendar_.setTimeZone(TimeZone.getTimeZone("GMT"));
 		updateThreshold_ = getMaxDateTime() - (long)((getMaxDateTime() - getStartDateTime())*(DatagenParams.updatePortion));
+
+        gmtDateFormatter_ = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        gmtDateFormatter_.setTimeZone(TimeZone.getTimeZone("GMT"));
 	}
 
 	/*
@@ -108,9 +112,7 @@ public class DateGenerator {
 	 */
 	public String formatDateDetail(long d) {
 		calendar_.setTimeInMillis(d);
-		SimpleDateFormat gmtDateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-		gmtDateFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
-		return gmtDateFormatter.format(calendar_.getTime());
+		return gmtDateFormatter_.format(calendar_.getTime());
 	}
 
 

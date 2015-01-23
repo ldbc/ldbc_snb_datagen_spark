@@ -133,7 +133,7 @@ public class LDBCDatagen {
             printProgress("Sorting update streams ");
         }
         for( int i = 0; i < DatagenParams.numThreads; ++i) {
-            int numPartitions = conf.getInt("ldbc.snb.datagen.serializer.numPartitions", 1);
+            int numPartitions = conf.getInt("ldbc.snb.datagen.serializer.numUpdatePartitions", 1);
             for( int j = 0; j < numPartitions; ++j ) {
                 if(conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
                     HadoopFileSorter updateStreamSorter = new HadoopFileSorter(conf,LongWritable.class,Text.class);
@@ -229,7 +229,8 @@ public class LDBCDatagen {
 
         Configuration conf = ConfigParser.initialize();
         ConfigParser.readConfig(conf,"./src/main/resources/params.ini");
-        ConfigParser.readConfig(conf,args[0]);
+        //ConfigParser.readConfig(conf,args[0]);
+        ConfigParser.readConfig(conf, "./params.ini");
         conf.set("ldbc.snb.datagen.serializer.hadoopDir",conf.get("ldbc.snb.datagen.serializer.outputDir")+"/hadoop");
         conf.set("ldbc.snb.datagen.serializer.socialNetworkDir",conf.get("ldbc.snb.datagen.serializer.outputDir")+"/social_network");
         ConfigParser.printConfig(conf);

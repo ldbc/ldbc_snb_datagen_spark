@@ -51,7 +51,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.GregorianCalendar;
 import java.util.Properties;
 
 /**
@@ -68,20 +67,13 @@ public class UpdateEventSerializer {
 	private SequenceFile.Writer streamWriter_[];
 	private ArrayList<String> data_;
 	private ArrayList<String> list_;
-	private ArrayList<String> tuple_;
 	private UpdateEvent currentEvent_;
-	private GregorianCalendar date_;
-	private boolean exportText_;
-	private long minDate_;
-	private long maxDate_;
-	private long numEvents_ = 0;
 	private int numPartitions_ = 1;
 	private int nextPartition_ = 0;
 	private StringBuffer stringBuffer_;
 	private long currentDependantDate_ = 0;
 	private Configuration conf_;
 	private UpdateStreamStats  stats_;
-	private int reducerId_;
 	private String fileNamePrefix_;
 	
 	public UpdateEventSerializer(Configuration conf, String fileNamePrefix, int numPartitions ) {
@@ -89,12 +81,8 @@ public class UpdateEventSerializer {
 		stringBuffer_ = new StringBuffer(512);
 		data_ = new ArrayList<String>();
 		list_ = new ArrayList<String>();
-		tuple_ = new ArrayList<String>();
 		currentEvent_ = new UpdateEvent(-1,-1, UpdateEvent.UpdateEventType.NO_EVENT,new String(""));
-		date_ = new GregorianCalendar();
-		minDate_ = Long.MAX_VALUE;
-		maxDate_ = Long.MIN_VALUE;
-		numPartitions_ = numPartitions; 
+		numPartitions_ = numPartitions;
 		stats_ = new UpdateStreamStats();
 		fileNamePrefix_ = fileNamePrefix;
 		try{
