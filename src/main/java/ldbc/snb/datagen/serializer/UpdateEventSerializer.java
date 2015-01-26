@@ -207,7 +207,7 @@ public class UpdateEventSerializer {
 		} else {
 			data_.add("female");
 		}
-		data_.add(Dictionaries.dates.formatDate(person.birthDay()));
+		data_.add(Long.toString(person.birthDay()));
 		data_.add(Long.toString(person.creationDate()));
 		data_.add(person.ipAddress().toString());
 		data_.add(Dictionaries.browsers.getName(person.browserId()));
