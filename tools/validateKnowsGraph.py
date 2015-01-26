@@ -42,5 +42,7 @@ for filename in knows_files:
 
     file.close()
 
+print("GREAT: Knows graph is correct!")
+
 
 
