@@ -132,25 +132,36 @@ public class LDBCDatagen {
         if(conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
             printProgress("Sorting update streams ");
         }
+
+        int blockSize = DatagenParams.blockSize;
+        int numBlocks = (int)Math.ceil(DatagenParams.numPersons / (double)blockSize);
+
         for( int i = 0; i < DatagenParams.numThreads; ++i) {
             int numPartitions = conf.getInt("ldbc.snb.datagen.serializer.numUpdatePartitions", 1);
-            for( int j = 0; j < numPartitions; ++j ) {
-                if(conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
-                    HadoopFileSorter updateStreamSorter = new HadoopFileSorter(conf,LongWritable.class,Text.class);
-                    updateStreamSorter.run(DatagenParams.hadoopDir+"/temp_updateStream_person_"+i+"_"+j, DatagenParams.hadoopDir+"/updateStream_person_"+i+"_"+j);
-                    updateStreamSorter.run(DatagenParams.hadoopDir+"/temp_updateStream_forum_"+i+"_"+j, DatagenParams.hadoopDir+"/updateStream_forum_"+i+"_"+j);
+            if( i < numBlocks ) {
+                for (int j = 0; j < numPartitions; ++j) {
+                    if (conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
+                        HadoopFileSorter updateStreamSorter = new HadoopFileSorter(conf, LongWritable.class, Text.class);
+                        updateStreamSorter.run(DatagenParams.hadoopDir + "/temp_updateStream_person_" + i + "_" + j, DatagenParams.hadoopDir + "/updateStream_person_" + i + "_" + j);
+                        updateStreamSorter.run(DatagenParams.hadoopDir + "/temp_updateStream_forum_" + i + "_" + j, DatagenParams.hadoopDir + "/updateStream_forum_" + i + "_" + j);
+                    }
+
+                    fs.delete(new Path(DatagenParams.hadoopDir + "/temp_updateStream_person_" + i + "_" + j), true);
+                    fs.delete(new Path(DatagenParams.hadoopDir + "/temp_updateStream_forum_" + i + "_" + j), true);
+
+                    if (conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
+                        HadoopUpdateStreamSerializer updateSerializer = new HadoopUpdateStreamSerializer(conf);
+                        updateSerializer.run(DatagenParams.hadoopDir + "/updateStream_person_" + i + "_" + j, i, j, "person");
+                        updateSerializer.run(DatagenParams.hadoopDir + "/updateStream_forum_" + i + "_" + j, i, j, "forum");
+
+                        fs.delete(new Path(DatagenParams.hadoopDir + "/updateStream_person_" + i + "_" + j), true);
+                        fs.delete(new Path(DatagenParams.hadoopDir + "/updateStream_forum_" + i + "_" + j), true);
+                    }
                 }
-
-                fs.delete(new Path(DatagenParams.hadoopDir+"/temp_updateStream_person_"+i+"_"+j), true);
-                fs.delete(new Path(DatagenParams.hadoopDir+"/temp_updateStream_forum_"+i+"_"+j), true);
-
-                if(conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
-                    HadoopUpdateStreamSerializer updateSerializer = new HadoopUpdateStreamSerializer(conf);
-                    updateSerializer.run(DatagenParams.hadoopDir+"/updateStream_person_"+i+"_"+j, i, j, "person");
-                    updateSerializer.run(DatagenParams.hadoopDir+"/updateStream_forum_"+i+"_"+j, i, j, "forum");
-
-                    fs.delete(new Path(DatagenParams.hadoopDir+"/updateStream_person_"+i+"_"+j), true);
-                    fs.delete(new Path(DatagenParams.hadoopDir+"/updateStream_forum_"+i+"_"+j), true);
+            } else {
+                for (int j = 0; j < numPartitions; ++j) {
+                    fs.delete(new Path(DatagenParams.hadoopDir + "/temp_updateStream_person_" + i + "_" + j), true);
+                    fs.delete(new Path(DatagenParams.hadoopDir + "/temp_updateStream_forum_" + i + "_" + j), true);
                 }
             }
         }
