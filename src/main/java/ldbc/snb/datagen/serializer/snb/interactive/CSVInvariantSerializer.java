@@ -28,11 +28,11 @@ public class CSVInvariantSerializer extends InvariantSerializer {
         TAG ("tag"),
         TAG_HAS_TYPE_TAGCLASS("tag_hasType_tagclass"),
         TAGCLASS ("tagclass"),
-        TAGCLASS_IS_SUBCLASS_OF_TAGCLASS ("tagclass_isSubClassOf_tagclass"),
+        TAGCLASS_IS_SUBCLASS_OF_TAGCLASS ("tagclass_isSubclassOf_tagclass"),
         PLACE ("place"),
         PLACE_IS_PART_OF_PLACE ("place_isPartOf_place"),
-        ORGANIZATION ("organization"),
-        ORGANIZATION_IS_LOCATED_IN_PLACE ("organization_isLocatedIn_place");
+        ORGANIZATION ("organisation"),
+        ORGANIZATION_IS_LOCATED_IN_PLACE ("organisation_isLocatedIn_place");
 
         private final String name;
 

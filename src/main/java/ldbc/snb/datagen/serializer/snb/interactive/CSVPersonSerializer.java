@@ -60,8 +60,8 @@ public class CSVPersonSerializer extends PersonSerializer {
         PERSON_HAS_EMAIL ("person_email_emailaddress"),
         PERSON_LOCATED_IN_PLACE ("person_isLocatedIn_place"),
         PERSON_HAS_INTEREST_TAG ("person_hasInterest_tag"),
-        PERSON_WORK_AT ("person_workAt_organization"),
-        PERSON_STUDY_AT ("person_studyAt_organization"),
+        PERSON_WORK_AT ("person_workAt_organisation"),
+        PERSON_STUDY_AT ("person_studyAt_organisation"),
         PERSON_KNOWS_PERSON("person_knows_person");
 
         private final String name;
