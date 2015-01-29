@@ -232,11 +232,11 @@ public class UpdateEventSerializer {
 		endList();
 		
 		beginList();
-		long universityId = person.universityLocationId();
+		int universityId = person.universityLocationId();
 		if ( universityId != -1){
 			if (person.classYear() != -1 ) {
 				ArrayList<String> studyAtData = new ArrayList<String>();
-				studyAtData.add(Long.toString(universityId));
+				studyAtData.add(Long.toString(Dictionaries.universities.getUniversityFromLocation(universityId)));
 				studyAtData.add(Dictionaries.dates.formatYear(person.classYear()));
 				list_.add(formatStringArray(studyAtData,","));
 			}

@@ -67,7 +67,7 @@ abstract public class InvariantSerializer {
             university.type = Organization.OrganisationType.university;
             university.name = Dictionaries.universities.getUniversityName(university.id);
             university.location = Dictionaries.universities.getUniversityCity(university.id);
-	    serialize(university);
+            serialize(university);
         }
     }
 
