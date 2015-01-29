@@ -38,7 +38,7 @@ public class HadoopPersonSerializer {
 			try {
 				personSerializer_ = (PersonSerializer) Class.forName(conf.get("ldbc.snb.datagen.serializer.personSerializer")).newInstance();
 				personSerializer_.initialize(conf,reducerId);
-				updateSerializer_ = new UpdateEventSerializer( conf, DatagenParams.hadoopDir+"/temp_updateStream_person_"+reducerId, DatagenParams.numPartitions);
+				updateSerializer_ = new UpdateEventSerializer( conf, DatagenParams.hadoopDir+"/temp_updateStream_person_"+reducerId, DatagenParams.numUpdatePartitions);
 			} catch( Exception e ) {
 				System.err.println(e.getMessage());
 			}

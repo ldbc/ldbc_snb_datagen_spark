@@ -353,7 +353,7 @@ public class DatagenParams {
             numThreads = conf.getInt("ldbc.snb.datagen.generator.numThreads",1);
             updateStreams = conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams",false);
             numPartitions = conf.getInt("ldbc.snb.datagen.serializer.numPartitions",1);
-            numPartitions = conf.getInt("ldbc.snb.datagen.serializer.numUpdatePartitions",1);
+            numUpdatePartitions = conf.getInt("ldbc.snb.datagen.serializer.numUpdatePartitions",1);
             deltaTime = conf.getInt("ldbc.snb.datagen.generator.deltaTime",10000);
             outputDir = conf.get("ldbc.snb.datagen.serializer.outputDir");
             hadoopDir = outputDir+"/hadoop";
