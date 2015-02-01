@@ -118,7 +118,7 @@ public class CSVPersonSerializer extends PersonSerializer {
         arguments.clear();
         arguments.add("Person.id");
         arguments.add("Organisation.id");
-        arguments.add("workFrom.id");
+        arguments.add("workFrom");
         writers[FileNames.PERSON_WORK_AT.ordinal()].writeEntry(arguments);
 
         arguments.clear();
