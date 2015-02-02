@@ -16,73 +16,25 @@ import java.util.TreeSet;
  */
 abstract public class InvariantSerializer {
 
-    protected TreeSet<Integer> exportedClasses_;
-
     public InvariantSerializer() {
-
-        exportedClasses_ = new TreeSet<Integer>();
     }
 
 
 
-    private void exportTagHierarchy(Tag tag) {
-        int classId = tag.tagClass;
-        while (classId != -1 && !exportedClasses_.contains(classId)) {
-            exportedClasses_.add(classId);
-            TagClass tagClass = new TagClass();
-            tagClass.id = classId;
-            tagClass.name = Dictionaries.tags.getClassName(classId);
-            tagClass.parent = Dictionaries.tags.getClassParent(tagClass.id);
-            serialize(tagClass);
-            classId = tagClass.parent;
-        }
+    public void export(TagClass tagclass) {
+        serialize(tagclass);
     }
 
-    public void exportPlaces() {
-        Set<Integer> locations = Dictionaries.places.getPlaces();
-        Iterator<Integer> it = locations.iterator();
-        while(it.hasNext()) {
-            Place place = Dictionaries.places.getLocation(it.next());
-            serialize(place);
-        }
+    public void export(Place place) {
+        serialize(place);
     }
 
-    public void exportOrganizations() {
-        Set<Long> companies = Dictionaries.companies.getCompanies();
-        Iterator<Long> it = companies.iterator();
-        while(it.hasNext()) {
-            Organization company = new Organization();
-            company.id = it.next();
-            company.type = Organization.OrganisationType.company;
-            company.name = Dictionaries.companies.getCompanyName(company.id);
-            company.location = Dictionaries.companies.getCountry(company.id);
-            serialize(company);
-        }
-
-        Set<Long> universities = Dictionaries.universities.getUniversities();
-        it = universities.iterator();
-        while(it.hasNext()) {
-            Organization university = new Organization();
-            university.id = it.next();
-            university.type = Organization.OrganisationType.university;
-            university.name = Dictionaries.universities.getUniversityName(university.id);
-            university.location = Dictionaries.universities.getUniversityCity(university.id);
-            serialize(university);
-        }
+    public void export(Organization organization) {
+       serialize(organization);
     }
 
-    public void exportTags() {
-        Set<Integer>  tags = Dictionaries.tags.getTags();
-        Iterator<Integer> it = tags.iterator();
-        while(it.hasNext()) {
-            Tag tag = new Tag();
-            tag.id = it.next();
-            tag.name = Dictionaries.tags.getName(tag.id);
-            tag.name.replace("\"", "\\\"");
-            tag.tagClass = Dictionaries.tags.getTagClass(tag.id);
-            serialize(tag);
-            exportTagHierarchy(tag);
-        }
+    public void export(Tag tag) {
+        serialize(tag);
     }
 
     abstract public void initialize(Configuration conf, int reducerId);
