@@ -294,9 +294,6 @@ public class DataExporter {
             if (friends[i] != null && friends[i].getCreatedTime() != -1) {
                 if( friends[i].getCreatedTime() <= dateThreshold ) {
 
-                    if(userInfo.user.getAccountId() == 18691698848287L) {
-                        System.out.println("ENTRA friend creation date "+friends[i].getCreatedTime());
-                    }
                     staticSerializer.serialize(friends[i]);
             		if (!factorTable.containsKey(userInfo.user.getAccountId()))
             			factorTable.put(userInfo.user.getAccountId(), new ReducedUserProfile.Counts());
