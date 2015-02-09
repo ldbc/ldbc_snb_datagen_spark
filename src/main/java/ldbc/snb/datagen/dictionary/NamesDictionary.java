@@ -98,22 +98,14 @@ public class NamesDictionary {
 		            new InputStreamReader(getClass( ).getResourceAsStream(DatagenParams.surnamDictionaryFile), "UTF-8"));
 		    
 		    String line;
-		    int curLocationId = -1; 
 	        int totalSurNames = 0;
-		    String lastLocationName = "";
 			while ((line = surnameDictionary.readLine()) != null) {
 			    String infos[] = line.split(",");
 			    String locationName = infos[1];
-				if (locationName.compareTo(lastLocationName) != 0) { 	// New location
-					if (locationDic.getCountryId(locationName) != PlaceDictionary.INVALID_LOCATION) { // Check whether it exists
-						curLocationId = locationDic.getCountryId(locationName);
-						String surName = infos[2].trim();
-						surNamesByLocations.get(curLocationId).add(surName);
-						totalSurNames++;
-					}
-				} else {
-				    String surName = infos[2].trim();
-					surNamesByLocations.get(curLocationId).add(surName);
+				int locationId = locationDic.getCountryId(locationName);
+				if( locationId != locationDic.INVALID_LOCATION ) {
+					String surName = infos[2].trim();
+					surNamesByLocations.get(locationId).add(surName);
 					totalSurNames++;
 				}
 			}
@@ -130,32 +122,19 @@ public class NamesDictionary {
 		            new InputStreamReader(getClass( ).getResourceAsStream(DatagenParams.nameDictionaryFile), "UTF-8"));
 		    
 		    String line;
-		    int curLocationId = -1; 
 	        int totalGivenNames = 0;
-		    String lastLocationName = "";
 			while ((line = givennameDictionary.readLine()) != null){
 				String infos[] = line.split("  ");
 				String locationName = infos[0];
 				int gender = Integer.parseInt(infos[2]);
 				int birthYearPeriod = Integer.parseInt(infos[3]);
-				
-				if (locationName.compareTo(lastLocationName) != 0) { 	// New location
-					if (locationDic.getCountryId(locationName) != PlaceDictionary.INVALID_LOCATION){		// Check whether it exists
-						curLocationId = locationDic.getCountryId(locationName);
-						String givenName = infos[1].trim();
-						if (gender == 0) {
-							givenNamesByLocationsMale.get(birthYearPeriod).get(curLocationId).add(givenName);
-						} else {
-							givenNamesByLocationsFemale.get(birthYearPeriod).get(curLocationId).add(givenName);
-						}
-						totalGivenNames++;
-					}
-				} else {
-				    String givenName = infos[1].trim();
+				int locationId = locationDic.getCountryId(locationName);
+				if( locationId != locationDic.INVALID_LOCATION ) {
+					String givenName = infos[1].trim();
 					if (gender == 0) {
-						givenNamesByLocationsMale.get(birthYearPeriod).get(curLocationId).add(givenName);
+						givenNamesByLocationsMale.get(birthYearPeriod).get(locationId).add(givenName);
 					} else {
-						givenNamesByLocationsFemale.get(birthYearPeriod).get(curLocationId).add(givenName);
+						givenNamesByLocationsFemale.get(birthYearPeriod).get(locationId).add(givenName);
 					}
 					totalGivenNames++;
 				}
@@ -178,7 +157,7 @@ public class NamesDictionary {
 		int nameIdx = -1; 
 		double prob = random.nextDouble();
 		int rank = geoDist.inverseFInt(prob);
-		
+
 		if (rank < topN) {
 			if (numNames > rank) {
 				nameIdx = rank;
@@ -192,6 +171,7 @@ public class NamesDictionary {
 				nameIdx = random.nextInt(numNames);
 			}
 		}
+
 		return nameIdx;
 	}
 	

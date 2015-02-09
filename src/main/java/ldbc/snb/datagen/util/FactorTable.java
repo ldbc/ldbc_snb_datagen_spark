@@ -264,25 +264,35 @@ public class FactorTable {
                 StringBuffer strbuf = new StringBuffer();
                 strbuf.append(c.getKey()); strbuf.append(",");
                 String name = medianFirstName_.get(c.getKey());
-                strbuf.append(name); strbuf.append(",");
-                strbuf.append(count.numFriends()); 		strbuf.append(",");
-                strbuf.append(count.numPosts()); 		strbuf.append(",");
-                strbuf.append(count.numLikes()); 		strbuf.append(",");
-                strbuf.append(count.numTagsOfMessages()); 	strbuf.append(",");
-                strbuf.append(count.numForums()); 		strbuf.append(",");
-                strbuf.append(count.numWorkPlaces()); 	strbuf.append(",");
-                strbuf.append(count.numComments()); 	strbuf.append(",");
-
-                for( Long bucket : count.numMessagesPerMonth() ) {
-            		strbuf.append(bucket);
-            		strbuf.append(",");
-            	}
-                for( Long bucket : count.numForumsPerMonth() ) {
-            		strbuf.append(bucket);
+                if( name != null ) {
+                    strbuf.append(name);
                     strbuf.append(",");
-            	}
-                strbuf.setCharAt(strbuf.length()-1,'\n');
-            	writer.write(strbuf.toString().getBytes("UTF8"));
+                    strbuf.append(count.numFriends());
+                    strbuf.append(",");
+                    strbuf.append(count.numPosts());
+                    strbuf.append(",");
+                    strbuf.append(count.numLikes());
+                    strbuf.append(",");
+                    strbuf.append(count.numTagsOfMessages());
+                    strbuf.append(",");
+                    strbuf.append(count.numForums());
+                    strbuf.append(",");
+                    strbuf.append(count.numWorkPlaces());
+                    strbuf.append(",");
+                    strbuf.append(count.numComments());
+                    strbuf.append(",");
+
+                    for (Long bucket : count.numMessagesPerMonth()) {
+                        strbuf.append(bucket);
+                        strbuf.append(",");
+                    }
+                    for (Long bucket : count.numForumsPerMonth()) {
+                        strbuf.append(bucket);
+                        strbuf.append(",");
+                    }
+                    strbuf.setCharAt(strbuf.length() - 1, '\n');
+                    writer.write(strbuf.toString().getBytes("UTF8"));
+                }
             }
             writer.write(Integer.toString(postsPerCountry_.size()).getBytes("UTF8"));
             writer.write("\n".getBytes("UTF8"));
