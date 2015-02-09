@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -255,16 +256,23 @@ public class FactorTable {
 
     public void write(OutputStream writer ) {
         try {
+            Iterator<Map.Entry<Long,PersonCounts>> iter = personCounts_.entrySet().iterator();
+            while(iter.hasNext()) {
+                Map.Entry<Long,PersonCounts> entry = iter.next();
+                if (medianFirstName_.get(entry.getKey()) == null) {
+                    iter.remove();
+                }
+            }
             writer.write(Integer.toString(personCounts_.size()).getBytes("UTF8"));
             writer.write("\n".getBytes("UTF8"));
             for (Map.Entry<Long, PersonCounts> c: personCounts_.entrySet()){
             	PersonCounts count = c.getValue();
             	// correct the group counts
             	//count.numberOfGroups += count.numberOfFriends;
-                StringBuffer strbuf = new StringBuffer();
-                strbuf.append(c.getKey()); strbuf.append(",");
                 String name = medianFirstName_.get(c.getKey());
                 if( name != null ) {
+                StringBuffer strbuf = new StringBuffer();
+                strbuf.append(c.getKey()); strbuf.append(",");
                     strbuf.append(name);
                     strbuf.append(",");
                     strbuf.append(count.numFriends());
