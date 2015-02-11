@@ -52,6 +52,7 @@ public class HadoopPersonSerializer {
 					personSerializer_.export(p);
 				} else {
 					updateSerializer_.export(p);
+                    updateSerializer_.changePartition();
 				}
 
 				for( Knows k : p.knows() ) {
