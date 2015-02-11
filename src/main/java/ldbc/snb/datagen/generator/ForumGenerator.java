@@ -77,14 +77,14 @@ public class ForumGenerator {
 		int numLoop = 0;
 		while ((forum.memberships().size() < numMembers) && (numLoop < DatagenParams.blockSize)) {
 			double prob = randomFarm.get(RandomGeneratorFarm.Aspect.KNOWS_LEVEL).nextDouble();
-			if (prob < 0.35 && person.knows().size() > 0 ) {
+			if (prob < 0.3 && person.knows().size() > 0 ) {
 				int friendId = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX).nextInt(person.knows().size());
 				Knows k = friends.get(friendId);
 				if (!added.contains(k.to().accountId())) {
 					added.add(k.to().accountId());
 					Random random = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX);
 					date = Dictionaries.dates.randomDate(random,Math.max(forum.creationDate(), k.creationDate()+DatagenParams.deltaTime));
-					if( date > Dictionaries.dates.getEndDateTime() ) {
+					if( date < Dictionaries.dates.getEndDateTime() ) {
 						forum.addMember(new ForumMembership(forum.id(), date, k.to()));
 					}
 				}
@@ -97,7 +97,7 @@ public class ForumGenerator {
 						added.add(member.accountId());
 						Random random = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX);
 						date = Dictionaries.dates.randomDate(random,Math.max(forum.creationDate(), member.creationDate()+DatagenParams.deltaTime));
-						if( date > Dictionaries.dates.getEndDateTime() ) {
+						if( date < Dictionaries.dates.getEndDateTime() ) {
 							forum.addMember(new ForumMembership(forum.id(), date, new Person.PersonSummary(member)));
 						}
 					}
