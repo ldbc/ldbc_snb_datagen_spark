@@ -156,7 +156,6 @@ public class UpdateEventSerializer {
 	private void endEvent() {
 		currentEvent_.eventData = formatStringArray(data_,"|");
 		writeKeyValue(currentEvent_);
-        changePartition();
 	}
 	
 	private void beginList() {
