@@ -1,10 +1,6 @@
 package ldbc.snb.datagen.serializer.snb.interactive;
 
-import ldbc.snb.datagen.dictionary.BrowserDictionary;
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.dictionary.LanguageDictionary;
-import ldbc.snb.datagen.dictionary.PlaceDictionary;
-import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.objects.Organization;
 import ldbc.snb.datagen.objects.Place;
 import ldbc.snb.datagen.objects.Tag;
@@ -18,9 +14,9 @@ import org.apache.hadoop.conf.Configuration;
 import java.util.ArrayList;
 
 /**
- * Created by aprat on 12/17/14.
+ * Created by aprat on 17/02/15.
  */
-public class CSVInvariantSerializer extends InvariantSerializer {
+public class CSVMergeForeignInvariantSerializer extends InvariantSerializer {
 
     private HDFSCSVWriter[] writers;
 
@@ -30,8 +26,8 @@ public class CSVInvariantSerializer extends InvariantSerializer {
         TAGCLASS ("tagclass"),
         TAGCLASS_IS_SUBCLASS_OF_TAGCLASS ("tagclass_isSubclassOf_tagclass"),
         PLACE ("place"),
-        ORGANIZATION ("organisation"),
-        ORGANIZATION_IS_LOCATED_IN_PLACE ("organisation_isLocatedIn_place");
+        PLACE_IS_PART_OF_PLACE ("place_isPartOf_place"),
+        ORGANIZATION ("organisation");
 
         private final String name;
 
@@ -77,20 +73,21 @@ public class CSVInvariantSerializer extends InvariantSerializer {
         arguments.add("name");
         arguments.add("url");
         arguments.add("type");
-        arguments.add("isPartOf");
         writers[FileNames.PLACE.ordinal()].writeEntry(arguments);
+
+        arguments.clear();
+        arguments.add("Place.id");
+        arguments.add("Place.id");
+        writers[FileNames.PLACE_IS_PART_OF_PLACE.ordinal()].writeEntry(arguments);
 
         arguments.clear();
         arguments.add("id");
         arguments.add("type");
         arguments.add("name");
         arguments.add("url");
+        arguments.add("place");
         writers[FileNames.ORGANIZATION.ordinal()].writeEntry(arguments);
 
-        arguments.clear();
-        arguments.add("Organisation.id");
-        arguments.add("Place.id");
-        writers[FileNames.ORGANIZATION_IS_LOCATED_IN_PLACE.ordinal()].writeEntry(arguments);
     }
 
     public void close() {
@@ -106,14 +103,15 @@ public class CSVInvariantSerializer extends InvariantSerializer {
         arguments.add(place.getName());
         arguments.add(DBP.getUrl(place.getName()));
         arguments.add(place.getType());
+        writers[FileNames.PLACE.ordinal()].writeEntry(arguments);
 
         if (place.getType() == Place.CITY ||
                 place.getType() == Place.COUNTRY) {
+            arguments.clear();
+            arguments.add(Integer.toString(place.getId()));
             arguments.add(Integer.toString(Dictionaries.places.belongsTo(place.getId())));
-        } else {
-            arguments.add("");
+            writers[FileNames.PLACE_IS_PART_OF_PLACE.ordinal()].writeEntry(arguments);
         }
-        writers[FileNames.PLACE.ordinal()].writeEntry(arguments);
     }
 
     protected void serialize(Organization organization) {
@@ -122,12 +120,8 @@ public class CSVInvariantSerializer extends InvariantSerializer {
         arguments.add(organization.type.toString());
         arguments.add(organization.name);
         arguments.add(DBP.getUrl(organization.name));
-        writers[FileNames.ORGANIZATION.ordinal()].writeEntry(arguments);
-
-        arguments.clear();
-        arguments.add(Long.toString(organization.id));
         arguments.add(Integer.toString(organization.location));
-        writers[FileNames.ORGANIZATION_IS_LOCATED_IN_PLACE.ordinal()].writeEntry(arguments);
+        writers[FileNames.ORGANIZATION.ordinal()].writeEntry(arguments);
     }
 
     protected void serialize(TagClass tagClass) {

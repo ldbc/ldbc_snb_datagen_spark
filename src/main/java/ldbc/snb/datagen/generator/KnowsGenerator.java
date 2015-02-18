@@ -1,11 +1,11 @@
 package ldbc.snb.datagen.generator;
 
+import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.objects.Knows;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 
 /**
  * Created by aprat on 11/15/14.
@@ -13,17 +13,8 @@ import java.util.GregorianCalendar;
 public class KnowsGenerator {
 
     private RandomGeneratorFarm randomFarm;
-    private DateGenerator dateGenerator;
 
     public KnowsGenerator() {
-        this.dateGenerator = new DateGenerator( new GregorianCalendar(DatagenParams.startYear,
-                                                DatagenParams.startMonth,
-                                                DatagenParams.startDate),
-                                                new GregorianCalendar(DatagenParams.endYear,
-                                                        DatagenParams.endMonth,
-                                                        DatagenParams.endDate),
-                                                DatagenParams.alpha,
-                                                DatagenParams.deltaTime );
         this.randomFarm = new RandomGeneratorFarm();
     }
 
@@ -50,13 +41,13 @@ public class KnowsGenerator {
     }
 
     void createKnow( Person personA, Person personB ) {
-        long  creationDate = dateGenerator.randomKnowsCreationDate(
+        long  creationDate = Dictionaries.dates.randomKnowsCreationDate(
                 randomFarm.get(RandomGeneratorFarm.Aspect.DATE),
                 personA,
                 personB);
         creationDate = creationDate - personA.creationDate() >= DatagenParams.deltaTime ? creationDate : creationDate + (DatagenParams.deltaTime - (creationDate - personA.creationDate()));
         creationDate = creationDate - personB.creationDate() >= DatagenParams.deltaTime ? creationDate : creationDate + (DatagenParams.deltaTime - (creationDate - personB.creationDate()));
-        if( creationDate <= dateGenerator.getEndDateTime() ) {
+        if( creationDate <= Dictionaries.dates.getEndDateTime() ) {
             personB.knows().add(new Knows(personB, personA, creationDate));
             personA.knows().add(new Knows(personA, personB, creationDate));
         }
