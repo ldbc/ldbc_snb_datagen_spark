@@ -30,6 +30,7 @@ public class CSVInvariantSerializer extends InvariantSerializer {
         TAGCLASS ("tagclass"),
         TAGCLASS_IS_SUBCLASS_OF_TAGCLASS ("tagclass_isSubclassOf_tagclass"),
         PLACE ("place"),
+        PLACE_IS_PART_OF_PLACE ("place_isPartOf_place"),
         ORGANIZATION ("organisation"),
         ORGANIZATION_IS_LOCATED_IN_PLACE ("organisation_isLocatedIn_place");
 
@@ -91,6 +92,11 @@ public class CSVInvariantSerializer extends InvariantSerializer {
         arguments.add("Organisation.id");
         arguments.add("Place.id");
         writers[FileNames.ORGANIZATION_IS_LOCATED_IN_PLACE.ordinal()].writeEntry(arguments);
+
+        arguments.clear();
+        arguments.add("Place.id");
+        arguments.add("Place.id");
+        writers[FileNames.PLACE_IS_PART_OF_PLACE.ordinal()].writeEntry(arguments);
     }
 
     public void close() {
@@ -106,14 +112,15 @@ public class CSVInvariantSerializer extends InvariantSerializer {
         arguments.add(place.getName());
         arguments.add(DBP.getUrl(place.getName()));
         arguments.add(place.getType());
+        writers[FileNames.PLACE.ordinal()].writeEntry(arguments);
 
         if (place.getType() == Place.CITY ||
                 place.getType() == Place.COUNTRY) {
+            arguments.clear();
+            arguments.add(Integer.toString(place.getId()));
             arguments.add(Integer.toString(Dictionaries.places.belongsTo(place.getId())));
-        } else {
-            arguments.add("");
+            writers[FileNames.PLACE_IS_PART_OF_PLACE.ordinal()].writeEntry(arguments);
         }
-        writers[FileNames.PLACE.ordinal()].writeEntry(arguments);
     }
 
     protected void serialize(Organization organization) {

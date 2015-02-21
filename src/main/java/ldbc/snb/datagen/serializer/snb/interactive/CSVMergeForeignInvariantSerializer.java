@@ -26,7 +26,6 @@ public class CSVMergeForeignInvariantSerializer extends InvariantSerializer {
         TAGCLASS ("tagclass"),
         TAGCLASS_IS_SUBCLASS_OF_TAGCLASS ("tagclass_isSubclassOf_tagclass"),
         PLACE ("place"),
-        PLACE_IS_PART_OF_PLACE ("place_isPartOf_place"),
         ORGANIZATION ("organisation");
 
         private final String name;
@@ -75,10 +74,6 @@ public class CSVMergeForeignInvariantSerializer extends InvariantSerializer {
         arguments.add("type");
         writers[FileNames.PLACE.ordinal()].writeEntry(arguments);
 
-        arguments.clear();
-        arguments.add("Place.id");
-        arguments.add("Place.id");
-        writers[FileNames.PLACE_IS_PART_OF_PLACE.ordinal()].writeEntry(arguments);
 
         arguments.clear();
         arguments.add("id");
@@ -103,15 +98,16 @@ public class CSVMergeForeignInvariantSerializer extends InvariantSerializer {
         arguments.add(place.getName());
         arguments.add(DBP.getUrl(place.getName()));
         arguments.add(place.getType());
-        writers[FileNames.PLACE.ordinal()].writeEntry(arguments);
 
         if (place.getType() == Place.CITY ||
                 place.getType() == Place.COUNTRY) {
-            arguments.clear();
-            arguments.add(Integer.toString(place.getId()));
             arguments.add(Integer.toString(Dictionaries.places.belongsTo(place.getId())));
-            writers[FileNames.PLACE_IS_PART_OF_PLACE.ordinal()].writeEntry(arguments);
+        } else {
+            arguments.add("");
         }
+        writers[FileNames.PLACE.ordinal()].writeEntry(arguments);
+
+
     }
 
     protected void serialize(Organization organization) {
