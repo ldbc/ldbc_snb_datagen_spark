@@ -78,7 +78,6 @@ public class CSVInvariantSerializer extends InvariantSerializer {
         arguments.add("name");
         arguments.add("url");
         arguments.add("type");
-        arguments.add("isPartOf");
         writers[FileNames.PLACE.ordinal()].writeEntry(arguments);
 
         arguments.clear();

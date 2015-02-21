@@ -72,6 +72,7 @@ public class CSVMergeForeignInvariantSerializer extends InvariantSerializer {
         arguments.add("name");
         arguments.add("url");
         arguments.add("type");
+        arguments.add("isPartOf");
         writers[FileNames.PLACE.ordinal()].writeEntry(arguments);
 
 
