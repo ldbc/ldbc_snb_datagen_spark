@@ -118,10 +118,10 @@ public class CSVPersonSerializer extends PersonSerializer {
     protected void serialize(WorkAt workAt) {
     }
 
-    protected void serialize(Knows knows) {
+    protected void serialize(long personId, Knows knows) {
         ArrayList<String> arguments = new ArrayList<String>();
 
-        arguments.add(Long.toString(knows.from().accountId()));
+        arguments.add(Long.toString(personId));
         arguments.add(Long.toString(knows.to().accountId()));
         writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeEntry(arguments);
     }

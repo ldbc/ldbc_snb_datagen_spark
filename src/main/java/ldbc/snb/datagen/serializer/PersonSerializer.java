@@ -45,8 +45,8 @@ abstract public class PersonSerializer {
         }
     }
 
-    public void export(Knows k ) {
-	    serialize(k);
+    public void export(long personId, Knows k ) {
+	    serialize(personId, k);
     }
 
     abstract public void initialize(Configuration conf, int reducerId);
@@ -59,5 +59,5 @@ abstract public class PersonSerializer {
 
     abstract protected void serialize(WorkAt workAt);
 
-    abstract protected void serialize(Knows knows);
+    abstract protected void serialize(long personId, Knows knows);
 }

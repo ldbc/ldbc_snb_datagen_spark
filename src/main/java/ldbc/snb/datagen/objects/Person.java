@@ -18,7 +18,6 @@ public class Person implements Writable {
 		private int browserId_;
 		private IP ipAddress_;
 		private boolean isLargePoster_;
-		private int cityId_;
 
 		public PersonSummary( ) {
 			ipAddress_ = new IP();
@@ -30,7 +29,6 @@ public class Person implements Writable {
 			browserId_ = p.browserId();
 			ipAddress_ = new IP(p.ipAddress());
 			isLargePoster_ = p.isLargePoster();
-			cityId_ = p.cityId();
 		}
 
 		public PersonSummary( PersonSummary p ) {
@@ -39,7 +37,6 @@ public class Person implements Writable {
 			browserId_ = p.browserId();
 			ipAddress_ = new IP(p.ipAddress());
 			isLargePoster_ = p.isLargePoster();
-			cityId_ = p.cityId();
 		}
 
 		void copy( PersonSummary p ) {
@@ -48,7 +45,6 @@ public class Person implements Writable {
 			browserId_ = p.browserId();
 			ipAddress_= new IP(p.ipAddress());
 			isLargePoster_ = p.isLargePoster();
-			cityId_ = p.cityId();
 		}
 
 		public long accountId() {
@@ -90,21 +86,12 @@ public class Person implements Writable {
 			isLargePoster_ = largePoster;
 		}
 
-		public int cityId() {
-			return cityId_;
-		}
-
-		public void cityId(int id ) {
-			cityId_ = id;
-		}
-
 		public void readFields(DataInput arg0) throws IOException {
 			accountId_ = arg0.readLong();
 			creationDate_ = arg0.readLong();
 			browserId_ = arg0.readInt();
 			ipAddress_.readFields(arg0);
 			isLargePoster_ = arg0.readBoolean();
-			cityId_ = arg0.readInt();
 		}
 		public void write(DataOutput arg0) throws IOException {
 			arg0.writeLong(accountId_);
@@ -112,7 +99,6 @@ public class Person implements Writable {
 			arg0.writeInt(browserId_);
 			ipAddress_.write(arg0);
 			arg0.writeBoolean(isLargePoster_);
-			arg0.writeInt(cityId_);
 		}
 	}
 

@@ -46,33 +46,21 @@ import java.io.IOException;
 
 public class Knows implements Writable, Comparable<Knows> {
 
-	Person.PersonSummary from_ = null;
+    long creationDate_;
 	Person.PersonSummary to_= null;
-	long creationDate_;
 
 	public Knows() {
-		from_ = new Person.PersonSummary();
 		to_ = new Person.PersonSummary();
 	}
 
     public Knows(Knows k) {
-	    from_ = new Person.PersonSummary(k.from());
 	    to_ = new Person.PersonSummary(k.to());
 	    creationDate_ = k.creationDate();
     }
 
-    public Knows(Person from, Person to, long creationDate ){
-	    from_ = new Person.PersonSummary(from);
+    public Knows( Person to, long creationDate ){
 	    to_ = new Person.PersonSummary(to);
 	    creationDate_ = creationDate;
-    }
-
-    public Person.PersonSummary from() {
-	    return from_;
-    }
-
-    public void from( Person.PersonSummary from ) {
-	    from_.copy(from);
     }
 
     public Person.PersonSummary to ( ) {
@@ -93,20 +81,16 @@ public class Knows implements Writable, Comparable<Knows> {
 
 
     public void readFields(DataInput arg0) throws IOException {
-        from_.readFields(arg0);
         to_.readFields(arg0);
         creationDate_ = arg0.readLong();
     }
 
     public void write(DataOutput arg0) throws IOException {
-	    from_.write(arg0);
 	    to_.write(arg0);
 	    arg0.writeLong(creationDate_);
     }
 
     public int compareTo(Knows k) {
-        long res = from_.creationDate() - k.from().creationDate();
-        if(res==0)  res = to_.creationDate() - k.to().creationDate();
-        return (int)res;
+        return (int)(to_.accountId() - k.to().accountId());
     }
 }

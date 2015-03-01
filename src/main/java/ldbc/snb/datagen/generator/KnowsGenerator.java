@@ -48,8 +48,8 @@ public class KnowsGenerator {
         creationDate = creationDate - personA.creationDate() >= DatagenParams.deltaTime ? creationDate : creationDate + (DatagenParams.deltaTime - (creationDate - personA.creationDate()));
         creationDate = creationDate - personB.creationDate() >= DatagenParams.deltaTime ? creationDate : creationDate + (DatagenParams.deltaTime - (creationDate - personB.creationDate()));
         if( creationDate <= Dictionaries.dates.getEndDateTime() ) {
-            personB.knows().add(new Knows(personB, personA, creationDate));
-            personA.knows().add(new Knows(personA, personB, creationDate));
+            personB.knows().add(new Knows(personA, creationDate));
+            personA.knows().add(new Knows(personB, creationDate));
         }
     }
 }

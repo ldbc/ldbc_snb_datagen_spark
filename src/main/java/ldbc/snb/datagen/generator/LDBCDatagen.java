@@ -245,6 +245,8 @@ public class LDBCDatagen {
         conf.set("ldbc.snb.datagen.serializer.hadoopDir",conf.get("ldbc.snb.datagen.serializer.outputDir")+"/hadoop");
         conf.set("ldbc.snb.datagen.serializer.socialNetworkDir",conf.get("ldbc.snb.datagen.serializer.outputDir")+"/social_network");
         ConfigParser.printConfig(conf);
+//        conf.setBoolean("mapreduce.map.output.compress", true);
+//       conf.setBoolean("mapreduce.output.fileoutputformat.compress", false);
 
         // Deleting exisging files
         FileSystem dfs = FileSystem.get(conf);

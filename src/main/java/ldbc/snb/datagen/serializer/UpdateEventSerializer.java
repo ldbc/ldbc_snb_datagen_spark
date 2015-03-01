@@ -253,10 +253,10 @@ public class UpdateEventSerializer {
 		endEvent();
 	}
 	
-	public void export(Knows k) {
-		currentDependantDate_ = Math.max(k.from().creationDate(), k.to().creationDate());
+	public void export(Person p, Knows k) {
+		currentDependantDate_ = Math.max(p.creationDate(), k.to().creationDate());
 		beginEvent(k.creationDate(), UpdateEvent.UpdateEventType.ADD_FRIENDSHIP);
-		data_.add(Long.toString(k.from().accountId()));
+		data_.add(Long.toString(p.accountId()));
 		data_.add(Long.toString(k.to().accountId()));
 		data_.add(Long.toString(k.creationDate()));
 		endEvent();
