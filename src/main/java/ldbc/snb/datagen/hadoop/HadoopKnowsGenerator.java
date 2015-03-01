@@ -73,15 +73,21 @@ public class HadoopKnowsGenerator {
 
         String keyChangedFileName = inputFileName;
         if(preKeySetterName != null) {
+            System.out.println("Changing key of persons");
+            long start = System.currentTimeMillis();
             keyChangedFileName = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/key_changed";
             HadoopFileKeyChanger keyChanger = new HadoopFileKeyChanger(conf, TupleKey.class, Person.class, preKeySetterName);
             keyChanger.run(inputFileName, keyChangedFileName);
+            System.out.println("... Time to change keys: "+ (System.currentTimeMillis() - start)+" ms");
         }
 
+        System.out.println("Ranking persons");
+        long start = System.currentTimeMillis();
         String rankedFileName = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/ranked";
         HadoopFileRanker hadoopFileRanker = new HadoopFileRanker( conf, TupleKey.class, Person.class );
         hadoopFileRanker.run(keyChangedFileName,rankedFileName);
         fs.delete(new Path(keyChangedFileName), true);
+        System.out.println("... Time to rank persons: "+ (System.currentTimeMillis() - start)+" ms");
 
         conf.set("upperBound",Double.toString(upperBound));
         conf.set("postKeySetterName",postKeySetterName);
@@ -104,7 +110,12 @@ public class HadoopKnowsGenerator {
 
         FileInputFormat.setInputPaths(job, new Path(rankedFileName));
         FileOutputFormat.setOutputPath(job, new Path(outputFileName));
+
+        System.out.println("Generating knows relations");
+        start = System.currentTimeMillis();
         job.waitForCompletion(true);
+        System.out.println("... Time to generate knows relations: "+ (System.currentTimeMillis() - start)+" ms");
+
         fs.delete(new Path(rankedFileName), true);
     }
 }
