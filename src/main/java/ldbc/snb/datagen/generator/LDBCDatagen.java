@@ -84,21 +84,21 @@ public class LDBCDatagen {
 
         printProgress("Creating university location correlated edges");
         long startUniversity = System.currentTimeMillis();
-        HadoopKnowsGenerator knowsGenerator = new HadoopKnowsGenerator(conf,"ldbc.snb.datagen.hadoop.UniversityKeySetter", 0.45f);
+        HadoopKnowsGenerator knowsGenerator = new HadoopKnowsGenerator(conf,"ldbc.snb.datagen.hadoop.UniversityKeySetter", "ldbc.snb.datagen.hadoop.InterestKeySetter", 0.45f);
         knowsGenerator.run(personsFileName1,personsFileName2);
         fs.delete(new Path(personsFileName1), true);
         long endUniversity = System.currentTimeMillis();
 
         printProgress("Creating main interest correlated edges");
         long startInterest= System.currentTimeMillis();
-        knowsGenerator = new HadoopKnowsGenerator(conf,"ldbc.snb.datagen.hadoop.InterestKeySetter", 0.90f);
+        knowsGenerator = new HadoopKnowsGenerator(conf,null, "ldbc.snb.datagen.hadoop.RandomKeySetter", 0.90f);
         knowsGenerator.run(personsFileName2,personsFileName1);
         fs.delete(new Path(personsFileName2), true);
         long endInterest = System.currentTimeMillis();
 
         printProgress("Creating random correlated edges");
         long startRandom= System.currentTimeMillis();
-        knowsGenerator = new HadoopKnowsGenerator(conf,"ldbc.snb.datagen.hadoop.RandomKeySetter", 1.0f);
+        knowsGenerator = new HadoopKnowsGenerator(conf,null, "ldbc.snb.datagen.hadoop.RandomKeySetter", 1.0f);
         knowsGenerator.run(personsFileName1,personsFileName2);
         fs.delete(new Path(personsFileName1), true);
         long endRandom= System.currentTimeMillis();

@@ -79,16 +79,11 @@ public class HadoopPersonSerializer {
 	public void run( String inputFileName ) throws Exception {
 		
 		FileSystem fs = FileSystem.get(conf);
-		String keyChangedFileName = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/key_changed";
-		HadoopFileKeyChanger keyChanger = new HadoopFileKeyChanger(conf, LongWritable.class,Person.class,"ldbc.snb.datagen.hadoop.RandomKeySetter");
-		keyChanger.run(inputFileName,keyChangedFileName);
-		
-		
+
 		String rankedFileName = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/ranked";
 		HadoopFileRanker hadoopFileRanker = new HadoopFileRanker( conf, TupleKey.class, Person.class );
-		hadoopFileRanker.run(keyChangedFileName,rankedFileName);
-		fs.delete(new Path(keyChangedFileName), true);
-		
+        hadoopFileRanker.run(inputFileName,rankedFileName);
+
 		int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads"));
 		Job job = Job.getInstance(conf, "Person Serializer");
 		job.setMapOutputKeyClass(BlockKey.class);

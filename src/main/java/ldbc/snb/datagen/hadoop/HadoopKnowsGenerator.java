@@ -22,15 +22,21 @@ import java.util.ArrayList;
  */
 public class HadoopKnowsGenerator {
 
-    public static class HadoopKnowsGeneratorReducer  extends Reducer<BlockKey, Person, LongWritable, Person> {
+    public static class HadoopKnowsGeneratorReducer  extends Reducer<BlockKey, Person, TupleKey, Person> {
 
         private KnowsGenerator knowsGenerator;   /** The person serializer **/
         private Configuration conf;
+        private HadoopFileKeyChanger.KeySetter<TupleKey> keySetter = null;
 
         protected void setup(Context context) {
             this.knowsGenerator = new KnowsGenerator();
             this.conf = context.getConfiguration();
-	    LDBCDatagen.init(conf);
+            try {
+                this.keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(conf.get("postKeySetterName")).newInstance();
+            }catch(Exception e) {
+                System.out.println(e.getMessage());
+            }
+            LDBCDatagen.init(conf);
         }
 
         @Override
@@ -42,20 +48,22 @@ public class HadoopKnowsGenerator {
             }
             this.knowsGenerator.generateKnows(persons, (int)key.block, conf.getFloat("upperBound", 0.1f));
             for( Person p : persons ) {
-                context.write(new LongWritable(p.accountId()), p);
+                context.write(keySetter.getKey(p), p);
             }
         }
     }
 
     private Configuration conf;
     private double upperBound;
-    private String keySetterName;
+    private String preKeySetterName;
+    private String postKeySetterName;
 
 
-    public HadoopKnowsGenerator( Configuration conf, String keySetterName, float upperBound ) {
+    public HadoopKnowsGenerator( Configuration conf, String preKeySetterName, String postKeySetterName, float upperBound ) {
         this.conf = conf;
         this.upperBound = upperBound;
-        this.keySetterName = keySetterName;
+        this.preKeySetterName = preKeySetterName;
+        this.postKeySetterName = postKeySetterName;
     }
 
     public void run( String inputFileName, String outputFileName ) throws Exception {
@@ -63,10 +71,12 @@ public class HadoopKnowsGenerator {
 
         FileSystem fs = FileSystem.get(conf);
 
-        String keyChangedFileName = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/key_changed";
-        HadoopFileKeyChanger keyChanger = new HadoopFileKeyChanger(conf, LongWritable.class,Person.class,keySetterName);
-        keyChanger.run(inputFileName,keyChangedFileName);
-
+        String keyChangedFileName = inputFileName;
+        if(preKeySetterName != null) {
+            keyChangedFileName = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/key_changed";
+            HadoopFileKeyChanger keyChanger = new HadoopFileKeyChanger(conf, TupleKey.class, Person.class, preKeySetterName);
+            keyChanger.run(inputFileName, keyChangedFileName);
+        }
 
         String rankedFileName = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/ranked";
         HadoopFileRanker hadoopFileRanker = new HadoopFileRanker( conf, TupleKey.class, Person.class );
@@ -74,11 +84,12 @@ public class HadoopKnowsGenerator {
         fs.delete(new Path(keyChangedFileName), true);
 
         conf.set("upperBound",Double.toString(upperBound));
+        conf.set("postKeySetterName",postKeySetterName);
         int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads"));
         Job job = Job.getInstance(conf, "Knows generator");
         job.setMapOutputKeyClass(BlockKey.class);
         job.setMapOutputValueClass(Person.class);
-        job.setOutputKeyClass(LongWritable.class);
+        job.setOutputKeyClass(TupleKey.class);
         job.setOutputValueClass(Person.class);
         job.setJarByClass(HadoopBlockMapper.class);
         job.setMapperClass(HadoopBlockMapper.class);

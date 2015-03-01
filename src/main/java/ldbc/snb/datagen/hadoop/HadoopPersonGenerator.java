@@ -25,7 +25,7 @@ import java.io.OutputStream;
  */
 public class HadoopPersonGenerator  {
 
-    public static class HadoopPersonGeneratorMapper  extends Mapper<LongWritable, Text, LongWritable, Person> {
+    public static class HadoopPersonGeneratorMapper  extends Mapper<LongWritable, Text, TupleKey, Person> {
 
         @Override
         public void map(LongWritable key, Text value, Context context)
@@ -50,9 +50,9 @@ public class HadoopPersonGenerator  {
             Person[] block = personGenerator.generateUserBlock(i,DatagenParams.blockSize);
             int size = block.length;
             for( int j = 0; j < size && DatagenParams.blockSize*i + j < DatagenParams.numPersons ; ++j ) {
-                LongWritable outputKey = new LongWritable(block[j].accountId());
+                long outputKey = block[j].accountId();
                 try {
-                    context.write(outputKey, block[j]);
+                    context.write(new TupleKey(outputKey,outputKey), block[j]);
                 } catch( IOException ioE ) {
                     System.err.println("Input/Output Exception when writing to context.");
                     System.err.println(ioE.getMessage());
@@ -65,10 +65,10 @@ public class HadoopPersonGenerator  {
     }
 
 
-    public static class HadoopPersonGeneratorReducer  extends Reducer<LongWritable, Person, LongWritable, Person> {
+    public static class HadoopPersonGeneratorReducer  extends Reducer<TupleKey, Person, TupleKey, Person> {
 
         @Override
-        public void reduce(LongWritable key, Iterable<Person> valueSet,
+        public void reduce(TupleKey key, Iterable<Person> valueSet,
                 Context context) throws IOException, InterruptedException {
             for ( Person person : valueSet ) {
                 context.write(key, person);
@@ -112,9 +112,9 @@ public class HadoopPersonGenerator  {
         int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads"));
         conf.setInt("mapreduce.input.lineinputformat.linespermap", 1);
         Job job = Job.getInstance(conf, "SIB Generate Users & 1st Dimension");
-        job.setMapOutputKeyClass(LongWritable.class);
+        job.setMapOutputKeyClass(TupleKey.class);
         job.setMapOutputValueClass(Person.class);
-        job.setOutputKeyClass(LongWritable.class);
+        job.setOutputKeyClass(TupleKey.class);
         job.setOutputValueClass(Person.class);
         job.setJarByClass(HadoopPersonGeneratorMapper.class);
         job.setMapperClass(HadoopPersonGeneratorMapper.class);
