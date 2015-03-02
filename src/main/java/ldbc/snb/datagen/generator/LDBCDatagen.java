@@ -78,13 +78,13 @@ public class LDBCDatagen {
         printProgress("Starting: Person generation");
         long startPerson = System.currentTimeMillis();
         HadoopPersonGenerator personGenerator = new HadoopPersonGenerator( conf );
-        personGenerator.run(personsFileName1);
+        personGenerator.run(personsFileName1, "ldbc.snb.datagen.hadoop.UniversityKeySetter");
         long endPerson = System.currentTimeMillis();
 
 
         printProgress("Creating university location correlated edges");
         long startUniversity = System.currentTimeMillis();
-        HadoopKnowsGenerator knowsGenerator = new HadoopKnowsGenerator(conf,"ldbc.snb.datagen.hadoop.UniversityKeySetter", "ldbc.snb.datagen.hadoop.InterestKeySetter", 0.45f);
+        HadoopKnowsGenerator knowsGenerator = new HadoopKnowsGenerator(conf,null, "ldbc.snb.datagen.hadoop.InterestKeySetter", 0.45f);
         knowsGenerator.run(personsFileName1,personsFileName2);
         fs.delete(new Path(personsFileName1), true);
         long endUniversity = System.currentTimeMillis();
@@ -126,6 +126,7 @@ public class LDBCDatagen {
                 }
             }
         }
+        fs.delete(new Path(personsFileName2), true);
         long endPersonActivity= System.currentTimeMillis();
 
         long startSortingUpdateStreams= System.currentTimeMillis();

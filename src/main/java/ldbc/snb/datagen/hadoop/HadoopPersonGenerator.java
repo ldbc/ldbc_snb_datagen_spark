@@ -27,11 +27,20 @@ public class HadoopPersonGenerator  {
 
     public static class HadoopPersonGeneratorMapper  extends Mapper<LongWritable, Text, TupleKey, Person> {
 
+        private HadoopFileKeyChanger.KeySetter<TupleKey> keySetter = null;
+
         @Override
         public void map(LongWritable key, Text value, Context context)
         throws IOException, InterruptedException {
 
         Configuration conf = context.getConfiguration();
+
+            try {
+                this.keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(conf.get("postKeySetterName")).newInstance();
+            } catch(Exception e) {
+                System.out.println(e.getMessage());
+            }
+
         int threadId = Integer.parseInt(value.toString());
         System.out.println("Generating user at mapper " + threadId);
         LDBCDatagen.init(conf);
@@ -50,9 +59,8 @@ public class HadoopPersonGenerator  {
             Person[] block = personGenerator.generateUserBlock(i,DatagenParams.blockSize);
             int size = block.length;
             for( int j = 0; j < size && DatagenParams.blockSize*i + j < DatagenParams.numPersons ; ++j ) {
-                long outputKey = block[j].accountId();
                 try {
-                    context.write(new TupleKey(outputKey,outputKey), block[j]);
+                    context.write(keySetter.getKey(block[j]), block[j]);
                 } catch( IOException ioE ) {
                     System.err.println("Input/Output Exception when writing to context.");
                     System.err.println(ioE.getMessage());
@@ -100,7 +108,7 @@ public class HadoopPersonGenerator  {
      * @param outputFileName The name of the file to store the persons.
      * @throws Exception
      */
-    public void run( String outputFileName ) throws Exception {
+    public void run( String outputFileName, String postKeySetterName ) throws Exception {
 
         String hadoopDir = new String( conf.get("ldbc.snb.datagen.serializer.hadoopDir"));
         String tempFile = hadoopDir+"/mrInputFile";
@@ -111,6 +119,7 @@ public class HadoopPersonGenerator  {
 
         int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads"));
         conf.setInt("mapreduce.input.lineinputformat.linespermap", 1);
+        conf.set("postKeySetterName",postKeySetterName);
         Job job = Job.getInstance(conf, "SIB Generate Users & 1st Dimension");
         job.setMapOutputKeyClass(TupleKey.class);
         job.setMapOutputValueClass(Person.class);
