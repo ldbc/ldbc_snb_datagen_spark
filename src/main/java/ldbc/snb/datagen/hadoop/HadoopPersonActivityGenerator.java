@@ -79,6 +79,7 @@ public class HadoopPersonActivityGenerator {
                         updateSerializer_.export(p,k);
                     }
                 }
+                updateSerializer_.changePartition();
                 strbuf.append("\n");
                 friends_.write(strbuf.toString().getBytes("UTF8"));
             }
