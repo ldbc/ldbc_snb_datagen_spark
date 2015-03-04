@@ -2,8 +2,10 @@ package ldbc.snb.datagen.generator;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.generator.distribution.DegreeDistribution;
+import ldbc.snb.datagen.generator.distribution.utils.BucketedDistribution;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
+import org.apache.hadoop.conf.Configuration;
 
 import java.text.Normalizer;
 import java.util.ArrayList;
@@ -19,9 +21,10 @@ public class PersonGenerator {
     private RandomGeneratorFarm randomFarm              = null;
     private int nextId                                  = 0;
 
-    public PersonGenerator( String degreeDistribution ) {
+    public PersonGenerator( Configuration conf, String degreeDistribution ) {
 	    try{
-		    degreeDistribution_ = (DegreeDistribution) Class.forName(degreeDistribution).newInstance();
+		    degreeDistribution_ = new DegreeDistribution();
+            degreeDistribution_.initialize(conf, (BucketedDistribution) Class.forName(degreeDistribution).newInstance());
 	    } catch(ClassNotFoundException e) {
 		    System.out.print(e.getMessage());
             } catch(IllegalAccessException e) {
@@ -30,7 +33,6 @@ public class PersonGenerator {
                 System.out.print(e.getMessage());
             }
 
-	    degreeDistribution_.initialize();
 	    randomTagPowerLaw = new PowerDistGenerator( DatagenParams.minNumTagsPerUser,
 		    DatagenParams.maxNumTagsPerUser + 1,
 		    DatagenParams.alpha);

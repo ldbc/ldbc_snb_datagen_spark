@@ -8,15 +8,16 @@ import org.apache.hadoop.conf.Configuration;
 import java.util.ArrayList;
 
 /**
- * Created by aprat on 26/02/15.
+ * Created by aprat on 4/03/15.
  */
-public class AltmannDistribution implements BucketedDistribution {
+public class MOEZipfDistribution implements BucketedDistribution {
 
     private int NUM_BUCKETS_ = 100;
     private int POPULATION_ = 10000;
-    private double normalization_factor_ = 0.0;
-    private double GAMMA_ = 0.4577;
-    private double DELTA_ = 0.0162;
+    private double normalization_factor_1 = 0.0;
+    private double normalization_factor_2 = 0.0;
+    private double ALFA_ = 2.2767;
+    private double BETA_ = 4.8613;
 
     private ArrayList<Bucket> buckets_ = null;
 
@@ -29,11 +30,19 @@ public class AltmannDistribution implements BucketedDistribution {
     public void initialize(Configuration conf) {
         POPULATION_ = DatagenParams.numPersons;
         for( int i = 1; i <= POPULATION_; ++i ) {
-            normalization_factor_+= Math.pow(i,-GAMMA_)*Math.exp(-DELTA_*i);
+            normalization_factor_1+= Math.pow(i,-ALFA_);
+            normalization_factor_2+= Math.pow(i,-(ALFA_+1));
         }
-        ArrayList<Double> histogram = new ArrayList<Double>();
-        for( int i = 1; i <= POPULATION_; ++i) {
-            histogram.add(POPULATION_*Math.pow(i,-GAMMA_)*Math.exp(-DELTA_*i) / normalization_factor_);
+        ArrayList<Double> histogram = new ArrayList<Double>(POPULATION_);
+        for( int i = 0; i<  POPULATION_; ++i) {
+            histogram.add(0.0);
+        }
+
+        Double hurwitz = 0.0;
+        for( int i = POPULATION_; i > 0; --i) {
+            hurwitz+= Math.pow(i+1,-ALFA_);
+            histogram.set(i-1, POPULATION_ * (1.0 - (BETA_ * hurwitz / (normalization_factor_1 - (1.0 - BETA_) * normalization_factor_2))));
+//            System.out.println(histogram.get(i-1));
         }
 
         double scale_factor = DatagenParams.numPersons / POPULATION_;
@@ -44,3 +53,4 @@ public class AltmannDistribution implements BucketedDistribution {
         }
     }
 }
+

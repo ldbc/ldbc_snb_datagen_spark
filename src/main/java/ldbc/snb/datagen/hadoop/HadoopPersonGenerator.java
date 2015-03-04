@@ -54,7 +54,7 @@ public class HadoopPersonGenerator  {
         int initBlock   = (int) (Math.ceil((numBlocks / (double) DatagenParams.numThreads) * threadId));
         int endBlock    = (int) (Math.ceil((numBlocks / (double) DatagenParams.numThreads) * (threadId + 1)));
 
-        PersonGenerator personGenerator = new PersonGenerator(conf.get("ldbc.snb.datagen.generator.distribution.degreeDistribution"));
+        PersonGenerator personGenerator = new PersonGenerator(conf, conf.get("ldbc.snb.datagen.generator.distribution.degreeDistribution"));
         for (int i = initBlock; i < endBlock; ++i) {
             Person[] block = personGenerator.generateUserBlock(i,DatagenParams.blockSize);
             int size = block.length;
