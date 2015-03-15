@@ -195,8 +195,9 @@ public class DateGenerator {
 
 	// The birthday is fixed during 1980 --> 1990
 	public long getBirthDay(Random random, long userCreatedDate) {
-        calendar_.setTimeInMillis((long)(random.nextDouble() * (toBirthDay_ - fromBirthDay_) + fromBirthDay_));
-        GregorianCalendar aux_calendar = new GregorianCalendar(calendar_.YEAR, calendar_.MONTH, calendar_.DAY_OF_MONTH);
+        calendar_.setTimeInMillis(((long)(random.nextDouble() * (toBirthDay_ - fromBirthDay_)) + fromBirthDay_));
+//        GregorianCalendar aux_calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+        GregorianCalendar  aux_calendar = new GregorianCalendar(calendar_.get(Calendar.YEAR),calendar_.get(Calendar.MONTH), calendar_.get(Calendar.DAY_OF_MONTH),0,0,0);
         aux_calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
 		return aux_calendar.getTimeInMillis();
 	}
