@@ -43,7 +43,7 @@ public class DegreeDistribution {
 
 	public long nextDegree() {
         int idx = randomPercentile_.nextInt(buckets_.size());
-        int minRange = (int)(buckets_.get(idx).min()+1.0);
+        int minRange = (int)(buckets_.get(idx).min());
         int maxRange = (int)(Math.floor(buckets_.get(idx).max()));
         if( maxRange < minRange ) maxRange = minRange;
         return randomDegree_.get(idx).nextInt( maxRange - minRange  + 1) + minRange;

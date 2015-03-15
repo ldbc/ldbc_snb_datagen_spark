@@ -28,7 +28,8 @@ public class MOEZipfDistribution implements BucketedDistribution {
 
     @Override
     public void initialize(Configuration conf) {
-        POPULATION_ = DatagenParams.numPersons;
+        throw new UnsupportedOperationException("Distribution not implemented");
+/*        POPULATION_ = DatagenParams.numPersons;
         for( int i = 1; i <= POPULATION_; ++i ) {
             normalization_factor_1+= Math.pow(i,-ALFA_);
             normalization_factor_2+= Math.pow(i,-(ALFA_+1));
@@ -51,6 +52,7 @@ public class MOEZipfDistribution implements BucketedDistribution {
             e.max(e.max()*scale_factor);
             e.min(e.min()*scale_factor);
         }
+        */
     }
 }
 
