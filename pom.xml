@@ -82,5 +82,10 @@
           <artifactId>groovy-jsr223</artifactId>
           <version>2.1.6</version>
       </dependency>
+      <dependency>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-math3</artifactId>
+          <version>3.4.1</version>
+      </dependency>
   </dependencies>
 </project>
