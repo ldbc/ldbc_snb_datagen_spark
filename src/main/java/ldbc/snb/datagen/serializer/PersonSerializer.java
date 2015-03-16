@@ -46,7 +46,8 @@ abstract public class PersonSerializer {
     }
 
     public void export(long personId, Knows k ) {
-	    serialize(personId, k);
+        if( personId < k.to().accountId())
+            serialize(personId, k);
     }
 
     abstract public void initialize(Configuration conf, int reducerId);
