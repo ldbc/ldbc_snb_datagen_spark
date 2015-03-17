@@ -74,8 +74,8 @@ public class PersonActivityGenerator {
 		for( Post p : wallPosts ) {
 			export(p);
 			// generate likes to post
-			ArrayList<Like> postLikes = likeGenerator_.generateLikes(randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE), wall, p, Like.LikeType.POST);
 			if( randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
+                ArrayList<Like> postLikes = likeGenerator_.generateLikes(randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE), wall, p, Like.LikeType.POST);
 				for( Like l : postLikes ) {
 					export(l);
 				}
@@ -134,7 +134,7 @@ public class PersonActivityGenerator {
 						export(c);
 						// generate likes to comments
 						if( c.content().length() > 10 && randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
-							ArrayList<Like> commentLikes = likeGenerator_.generateLikes(randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE), group, p, Like.LikeType.POST);
+							ArrayList<Like> commentLikes = likeGenerator_.generateLikes(randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE), group, c, Like.LikeType.COMMENT);
 							
 							for( Like l : commentLikes ) {
 								export(l);
