@@ -17,7 +17,12 @@ for line in knowsFile.readlines():
             edgesPerPerson[int(edge[0])]+=1
         else:
             edgesPerPerson[int(edge[0])]=1
-        numEdges+=1
+
+        if int(edge[1]) in edgesPerPerson:
+            edgesPerPerson[int(edge[1])]+=1
+        else:
+            edgesPerPerson[int(edge[1])]=1
+        numEdges+=2
     index+=1   
 knowsFile.close()
 

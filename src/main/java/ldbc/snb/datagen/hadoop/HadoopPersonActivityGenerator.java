@@ -132,7 +132,9 @@ public class HadoopPersonActivityGenerator {
 
         FileInputFormat.setInputPaths(job, new Path(rankedFileName));
         FileOutputFormat.setOutputPath(job, new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")+"/aux"));
-        job.waitForCompletion(true);
+        if(!job.waitForCompletion(true)) {
+            throw new Exception();
+        }
 
         try{
             fs.delete(new Path(rankedFileName), true);

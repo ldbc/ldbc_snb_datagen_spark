@@ -133,6 +133,8 @@ public class HadoopPersonGenerator  {
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
         FileInputFormat.setInputPaths(job, new Path(tempFile));
         FileOutputFormat.setOutputPath(job, new Path(outputFileName));
-        job.waitForCompletion(true);
+        if(!job.waitForCompletion(true)) {
+            throw new Exception();
+        }
     }
 }

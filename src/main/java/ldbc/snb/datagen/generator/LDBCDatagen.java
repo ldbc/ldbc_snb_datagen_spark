@@ -237,8 +237,9 @@ public class LDBCDatagen {
         return 0;
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) /*throws Exception*/ {
 
+        try {
         Configuration conf = ConfigParser.initialize();
         ConfigParser.readConfig(conf,"./src/main/resources/params.ini");
         //ConfigParser.readConfig(conf,args[0]);
@@ -257,6 +258,11 @@ public class LDBCDatagen {
         // Create input text file in HDFS
         LDBCDatagen datagen = new LDBCDatagen();
         LDBCDatagen.init(conf);
-        datagen.runGenerateJob(conf);
+            datagen.runGenerateJob(conf);
+        }catch(Exception e ) {
+            System.err.println("Error during execution");
+            System.err.println(e.getMessage());
+            System.exit(1);
+        }
     }
 }

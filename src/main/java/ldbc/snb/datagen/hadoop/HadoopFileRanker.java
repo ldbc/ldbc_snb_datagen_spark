@@ -155,7 +155,9 @@ public class HadoopFileRanker {
         TotalOrderPartitioner.setPartitionFile(jobSort.getConfiguration(), new Path(inputFileName + "_partition.lst"));
         InputSampler.writePartitionFile(jobSort, sampler);
         jobSort.setPartitionerClass(TotalOrderPartitioner.class);
-        jobSort.waitForCompletion(true);
+        if(!jobSort.waitForCompletion(true)){
+            throw new Exception();
+        }
 
         /** Second Job to assign the rank to each element.**/
         Job jobRank = Job.getInstance(conf, "Sorting "+inputFileName);
@@ -173,7 +175,9 @@ public class HadoopFileRanker {
         jobRank.setInputFormatClass(SequenceFileInputFormat.class);
         jobRank.setOutputFormatClass(SequenceFileOutputFormat.class);
         jobRank.setPartitionerClass(HadoopFileRankerPartitioner.class);
-        jobRank.waitForCompletion(true);
+        if(!jobRank.waitForCompletion(true)) {
+            throw new Exception();
+        }
 
         try{
             FileSystem fs = FileSystem.get(conf);

@@ -78,6 +78,8 @@ public class HadoopFileKeyChanger {
         job.setJarByClass(V);
         job.setInputFormatClass(SequenceFileInputFormat.class);
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
-        job.waitForCompletion(true);
+        if(!job.waitForCompletion(true)){
+            throw new Exception();
+        }
     }
 }

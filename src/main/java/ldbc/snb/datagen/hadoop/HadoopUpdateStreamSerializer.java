@@ -92,7 +92,9 @@ public class HadoopUpdateStreamSerializer {
 		
 		FileInputFormat.setInputPaths(job, new Path(inputFileName));
 		FileOutputFormat.setOutputPath(job, new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")+"/aux"));
-		job.waitForCompletion(true);
+		if(!job.waitForCompletion(true)) {
+            throw new Exception();
+        }
 		
 		
 		try{

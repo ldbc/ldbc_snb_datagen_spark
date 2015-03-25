@@ -58,6 +58,8 @@ public class HadoopFileSorter {
         TotalOrderPartitioner.setPartitionFile(job.getConfiguration(),new Path(inputFileName+"_partition.lst"));
         InputSampler.writePartitionFile(job, sampler);
         job.setPartitionerClass(TotalOrderPartitioner.class);
-        job.waitForCompletion(true);
+        if(!job.waitForCompletion(true)) {
+            throw new Exception();
+        }
     }
 }

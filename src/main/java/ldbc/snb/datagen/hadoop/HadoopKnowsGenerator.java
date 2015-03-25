@@ -113,7 +113,9 @@ public class HadoopKnowsGenerator {
 
         System.out.println("Generating knows relations");
         start = System.currentTimeMillis();
-        job.waitForCompletion(true);
+        if(!job.waitForCompletion(true) ){
+            throw new Exception();
+        }
         System.out.println("... Time to generate knows relations: "+ (System.currentTimeMillis() - start)+" ms");
 
         fs.delete(new Path(rankedFileName), true);
