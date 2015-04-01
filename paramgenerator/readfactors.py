@@ -74,8 +74,7 @@ def load(factorFiles, friendFiles):
 				if not results.existParam(person):
 					results.addNewParam(person)
 				name = line[1]
-				if name != "null":
-					givenNames.setValue(person, name)
+				givenNames.setValue(person, name)
 				results.addValue(person, "f", int(line[2]))
 				results.addValue(person, "p", int(line[3]))
 				results.addValue(person, "pl", int(line[4]))
