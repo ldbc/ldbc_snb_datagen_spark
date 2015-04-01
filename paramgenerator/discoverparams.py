@@ -160,3 +160,26 @@ def generate(factors, portion=SHARE):
 	result.extend([factors[w.start+i][0] for i in range(amount)])
 	return result
 
+def divideFactors(factors, splitPortion):
+  sortedFactors = sorted(factors, key=lambda (k,v): v, reverse=True)
+  oSum= 0
+  for l in sortedFactors:
+    oSum+=l[1]
+  splitPoint = splitPortion*oSum
+  leftFactors = []
+  rightFactors = []
+  currentSum = 0
+  for l in sortedFactors:
+    currentSum+=l[1]
+    if currentSum <= splitPoint:
+      leftFactors.append(l)
+    else:
+      rightFactors.append(l)
+  return(leftFactors,rightFactors)
+
+
+
+
+
+
+

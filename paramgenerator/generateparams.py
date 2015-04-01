@@ -185,12 +185,27 @@ def main(argv=None):
 				break
 		secondCountry.append(selectedCountryParams[3][i])
 
-	# find tag parameters for Query 6
-	print "find parameter bindings for Tags"
+	#find tag parameters for Query 6
+	#print "find parameter bindings for Tags"
+  	# old tag selection
+  	#selectedTagParams = {}
+	#for i in [6]:
+	#	selectedTagParams[i] = discoverparams.generate(tagFactors, portion=0.1)
+	#	# make sure there are as many tag paramters as person parameters
+	#	oldlen = len(selectedTagParams[i])
+	#	newlen = len(selectedPersonParams[i])
+	#	selectedTagParams[i].extend([selectedTagParams[i][random.randint(0, oldlen-1)] for j in range(newlen-oldlen)])
+
+	#print "find parameter bindings for Tags"
+	(leftTagFactors, rightTagFactors) = discoverparams.divideFactors(tagFactors, 0.7)
+	leftSize = len(leftTagFactors)
+	rightSize = len(rightTagFactors)
+	leftPortion = 0.1*(leftSize+rightSize) / (2.0*leftSize)
+	rightPortion = 0.1*(leftSize+rightSize) / (2.0*rightSize)
 	selectedTagParams = {}
 	for i in [6]:
-		selectedTagParams[i] = discoverparams.generate(tagFactors, portion=0.1)
-		# make sure there are as many tag paramters as person parameters
+		selectedTagParams[i] = discoverparams.generate(leftTagFactors, portion=leftPortion)
+		selectedTagParams[i].extend(discoverparams.generate(rightTagFactors, portion=rightPortion))
 		oldlen = len(selectedTagParams[i])
 		newlen = len(selectedPersonParams[i])
 		selectedTagParams[i].extend([selectedTagParams[i][random.randint(0, oldlen-1)] for j in range(newlen-oldlen)])
