@@ -57,7 +57,7 @@ public class HadoopPersonSerializer {
 
 				for( Knows k : p.knows() ) {
 					if( k.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
-						personSerializer_.export(p.accountId(), k);
+						personSerializer_.export(p, k);
 					} 
 				}
 			}

@@ -123,6 +123,7 @@ public class FlashmobTagDictionary {
             flashmobTag.tag = tags[i];
             instances.add(flashmobTag);
             flashmobTagCumDist[i] = flashmobTag;
+//            if(tags[i] == 1761) System.out.println(flashmobTag);
         }
         Arrays.sort(flashmobTagCumDist);
         int size = flashmobTagCumDist.length;

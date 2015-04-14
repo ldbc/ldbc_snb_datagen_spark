@@ -36,6 +36,8 @@
  */
 package ldbc.snb.datagen.objects;
 
+import ldbc.snb.datagen.dictionary.Dictionaries;
+
 public class FlashmobTag implements Comparable<FlashmobTag> {
     public int level;
     public long date;
@@ -54,5 +56,9 @@ public class FlashmobTag implements Comparable<FlashmobTag> {
         t.date = this.date;
         t.prob = this.prob;
         t.tag = this.tag;
+    }
+
+    public String toString(){
+        return "Level: "+level+" Date: "+Dictionaries.dates.formatDateDetail(date)+" Tag:"+ Dictionaries.tags.getName(tag);
     }
 }

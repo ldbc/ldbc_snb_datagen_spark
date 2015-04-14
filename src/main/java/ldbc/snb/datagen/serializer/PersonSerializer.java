@@ -45,9 +45,9 @@ abstract public class PersonSerializer {
         }
     }
 
-    public void export(long personId, Knows k ) {
-        if( personId < k.to().accountId())
-            serialize(personId, k);
+    public void export(Person p, Knows k ) {
+        if( p.accountId() < k.to().accountId())
+            serialize(p, k);
     }
 
     abstract public void initialize(Configuration conf, int reducerId);
@@ -60,5 +60,5 @@ abstract public class PersonSerializer {
 
     abstract protected void serialize(WorkAt workAt);
 
-    abstract protected void serialize(long personId, Knows knows);
+    abstract protected void serialize(Person p, Knows knows);
 }

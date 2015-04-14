@@ -32,7 +32,7 @@ public class EmptyPersonSerializer extends PersonSerializer {
 
     }
 
-    protected void serialize(long p, Knows knows) {
+    protected void serialize(Person p, Knows knows) {
 
     }
 

@@ -43,7 +43,6 @@ public class ForumGenerator {
 		return forum;
 	}
 
-
 	public Forum createGroup(RandomGeneratorFarm randomFarm, long forumId, Person person, ArrayList<Person> persons){
 		long date = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), person.creationDate() + DatagenParams.deltaTime);
 		if( date > Dictionaries.dates.getEndDateTime() )  return null;
