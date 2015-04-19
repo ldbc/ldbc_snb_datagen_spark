@@ -230,8 +230,6 @@ public class DatagenParams {
     public static int	numPartitions			   = 1;
     public static int   numUpdatePartitions         = 1;
 
-    private static TreeMap<Integer, ScaleFactor> scaleFactors;
-    private static final String SCALE_FACTORS_FILE      =  "scale_factors.xml";
 
     public static void readConf( Configuration conf ) {
         try {
@@ -300,30 +298,6 @@ public class DatagenParams {
             flashmobTagDistExp              = Double.parseDouble(conf.get(ParameterNames.FLASHMOB_TAG_DIST_EXP.toString()));
             updatePortion                   = Double.parseDouble(conf.get(ParameterNames.UPDATE_PORTION.toString()));
             blockSize                       = Integer.parseInt(conf.get(ParameterNames.BLOCK_SIZE.toString()));
-            scaleFactors = new TreeMap<Integer, ScaleFactor>();
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(LDBCDatagen.class.getResourceAsStream("/" + SCALE_FACTORS_FILE));
-            doc.getDocumentElement().normalize();
-
-            System.out.println("Reading scale factors..");
-            NodeList nodes = doc.getElementsByTagName("scale_factor");
-            for (int i = 0; i < nodes.getLength(); i++) {
-                Node node = nodes.item(i);
-                if (node.getNodeType() == Node.ELEMENT_NODE) {
-                    Element element = (Element) node;
-                    Integer num = Integer.parseInt(element.getAttribute("number"));
-                    ScaleFactor scaleFactor = new ScaleFactor();
-                    NodeList files = element.getElementsByTagName("num_persons");
-                    scaleFactor.numPersons = Integer.parseInt(files.item(0).getTextContent());
-                    files = element.getElementsByTagName("start_year");
-                    scaleFactor.startYear = Integer.parseInt(files.item(0).getTextContent());
-                    files = element.getElementsByTagName("num_years");
-                    scaleFactor.numYears = Integer.parseInt(files.item(0).getTextContent());
-                    scaleFactors.put(num, scaleFactor);
-                }
-            }
-            System.out.println("Number of scale factors read "+scaleFactors.size());
         } catch (Exception e) {
             System.out.println("Error reading scale factors");
             System.err.println(e.getMessage());
@@ -331,24 +305,10 @@ public class DatagenParams {
         }
 
         try {
-            if (conf.get("ldbc.snb.datagen.generator.numPersons") != null && conf.get("ldbc.snb.datagen.generator.numYears") != null && conf.get("ldbc.snb.datagen.generator.startYear") != null) {
-                numPersons = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numPersons"));
-                startYear = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.startYear"));
-                numYears = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numYears"));
-                endYear = startYear + numYears;
-            } else {
-                int scaleFactorId = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.scaleFactor"));
-                ScaleFactor scaleFactor = scaleFactors.get(scaleFactorId);
-                System.out.println("Executing with scale factor " + scaleFactorId);
-                System.out.println(" ... Num Persons " + scaleFactor.numPersons);
-                System.out.println(" ... Start Year " + scaleFactor.startYear);
-                System.out.println(" ... Num Years " + scaleFactor.numYears);
-                numPersons = scaleFactor.numPersons;
-                startYear = scaleFactor.startYear;
-                numYears = scaleFactor.numYears;
-                endYear = startYear + numYears;
-            }
-
+            numPersons = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numPersons"));
+            startYear = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.startYear"));
+            numYears = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numYears"));
+            endYear = startYear + numYears;
             compressed = conf.getBoolean("ldbc.snb.datagen.serializer.compressed",false);
             numThreads = conf.getInt("ldbc.snb.datagen.generator.numThreads",1);
             updateStreams = conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams",false);
@@ -358,6 +318,9 @@ public class DatagenParams {
             outputDir = conf.get("ldbc.snb.datagen.serializer.outputDir");
             hadoopDir = outputDir+"/hadoop";
             socialNetworkDir = outputDir+"social_network";
+            System.out.println(" ... Num Persons " + numPersons);
+            System.out.println(" ... Start Year " + startYear);
+            System.out.println(" ... Num Years " + numYears);
         } catch (Exception e) {
             System.err.println(e.getMessage());
             System.exit(-1);

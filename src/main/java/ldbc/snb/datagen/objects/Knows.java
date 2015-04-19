@@ -48,6 +48,7 @@ public class Knows implements Writable, Comparable<Knows> {
 
     long creationDate_;
 	Person.PersonSummary to_= null;
+    float weight_ = 0.0f;
 
 	public Knows() {
 		to_ = new Person.PersonSummary();
@@ -56,11 +57,13 @@ public class Knows implements Writable, Comparable<Knows> {
     public Knows(Knows k) {
 	    to_ = new Person.PersonSummary(k.to());
 	    creationDate_ = k.creationDate();
+        weight_ = k.weight();
     }
 
-    public Knows( Person to, long creationDate ){
+    public Knows( Person to, long creationDate, float weight ){
 	    to_ = new Person.PersonSummary(to);
 	    creationDate_ = creationDate;
+        weight_ = weight;
     }
 
     public Person.PersonSummary to ( ) {
@@ -79,15 +82,24 @@ public class Knows implements Writable, Comparable<Knows> {
 	    creationDate_ = creationDate;
     }
 
+    public void weight ( float weight ) {
+        weight_ = weight;
+    }
+
+    public float weight() {
+        return weight_;
+    }
 
     public void readFields(DataInput arg0) throws IOException {
         to_.readFields(arg0);
         creationDate_ = arg0.readLong();
+        weight_ = arg0.readFloat();
     }
 
     public void write(DataOutput arg0) throws IOException {
 	    to_.write(arg0);
 	    arg0.writeLong(creationDate_);
+        arg0.writeFloat(weight_);
     }
 
     public int compareTo(Knows k) {
