@@ -69,7 +69,7 @@ public class ConfigParser {
                     String value = property.getElementsByTagName("value").item(0).getTextContent();
                     scaleFactor.properties.put(name,value);
                 }
-                System.out.println("Loaded scale factor configuration set "+scaleFactorName);
+                System.out.println("Available scale factor configuration set "+scaleFactorName);
                 scaleFactors.put(scaleFactorName, scaleFactor);
             }
         }
@@ -86,17 +86,21 @@ public class ConfigParser {
         try {
             Properties properties = new Properties();
             properties.load(new InputStreamReader(new FileInputStream(paramsFile), "UTF-8"));
+            String val = (String) properties.get("ldbc.snb.datagen.generator.scaleFactor");
+            if( val != null ) {
+                ScaleFactor scaleFactor = scaleFactors.get(val);
+                System.out.println("Applied configuration of scale factor " + val);
+                for( Map.Entry<String,String> e : scaleFactor.properties.entrySet()) {
+                    conf.set(e.getKey(), e.getValue());
+                }
+            }
+
             for( String s : properties.stringPropertyNames()) {
-                if(s.compareTo("ldbc.snb.datagen.generator.scaleFactor") == 0) {
-                    ScaleFactor scaleFactor = scaleFactors.get(properties.get(s));
-                    System.out.println("Applied configuration of scale factor " + properties.get(s));
-                    for( Map.Entry<String,String> e : scaleFactor.properties.entrySet()) {
-                        conf.set(e.getKey(), e.getValue());
-                    }
-                } else {
+                if(s.compareTo("ldbc.snb.datagen.generator.scaleFactor") != 0) {
                     conf.set(s, properties.getProperty(s));
                 }
             }
+
             if (conf.get("fs.defaultFS").compareTo("file:///") == 0) {
                 System.out.println("Running in standalone mode. Setting numThreads to 1");
                 conf.set("ldbc.snb.datagen.generator.numThreads", "1");
