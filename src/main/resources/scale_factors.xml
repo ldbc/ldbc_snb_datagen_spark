@@ -240,22 +240,4 @@
             <value>false</value>
         </property>
     </scale_factor>
-
-    <scale_factor number="3000" >
-        <num_persons>8881000</num_persons>
-        <start_year>2010</start_year>
-        <num_years>3</num_years>
-    </scale_factor>
-
-    <scale_factor number="10000" >
-        <num_persons>24323000</num_persons>
-        <start_year>2010</start_year>
-        <num_years>3</num_years>
-    </scale_factor>
-
-    <scale_factor number="30000" >
-        <num_persons>60994000</num_persons>
-        <start_year>2010</start_year>
-        <num_years>3</num_years>
-    </scale_factor>
 </scale_factors>
