@@ -40,4 +40,9 @@ public class EmptyPersonActivitySerializer extends PersonActivitySerializer {
      protected void serialize( Like like ) {
 
      }
+
+     public void reset() {
+
+     }
+
 }

@@ -52,6 +52,10 @@ public class PersonActivityGenerator {
         }
 	}
 
+	public void reset() {
+		personActivitySerializer_.reset();
+	}
+
 	private void generateWall( Person person, ArrayList<Person> block ) {
 		// generate wall
 		Forum wall = forumGenerator_.createWall(randomFarm_, forumId++, person);
@@ -201,6 +205,7 @@ public class PersonActivityGenerator {
 		forumId = 0;
 		messageId = 0;
 		SN.machineId = seed;
+		personActivitySerializer_.reset();
 		int counter = 0;
 		for( Person p : block ) {
 			generateActivity(p, block);

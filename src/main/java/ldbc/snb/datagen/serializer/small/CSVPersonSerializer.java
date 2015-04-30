@@ -126,4 +126,7 @@ public class CSVPersonSerializer extends PersonSerializer {
         arguments.add(Long.toString(knows.to().accountId()));
         writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeEntry(arguments);
     }
+    public void reset() {
+
+    }
 }

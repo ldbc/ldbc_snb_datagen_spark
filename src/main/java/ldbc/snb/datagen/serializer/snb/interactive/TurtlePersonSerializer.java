@@ -1,0 +1,192 @@
+/*
+ * Copyright (c) 2013 LDBC
+ * Linked Data Benchmark Council (http://ldbc.eu)
+ *
+ * This file is part of ldbc_socialnet_dbgen.
+ *
+ * ldbc_socialnet_dbgen is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * ldbc_socialnet_dbgen is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with ldbc_socialnet_dbgen.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright (C) 2011 OpenLink Software <bdsmt@openlinksw.com>
+ * All Rights Reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation;  only Version 2 of the License dated
+ * June 1991.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+
+package ldbc.snb.datagen.serializer.snb.interactive;
+
+import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.objects.Knows;
+import ldbc.snb.datagen.objects.Person;
+import ldbc.snb.datagen.objects.StudyAt;
+import ldbc.snb.datagen.objects.WorkAt;
+import ldbc.snb.datagen.serializer.HDFSCSVWriter;
+import ldbc.snb.datagen.serializer.HDFSWriter;
+import ldbc.snb.datagen.serializer.PersonSerializer;
+import ldbc.snb.datagen.serializer.Turtle;
+import ldbc.snb.datagen.vocabulary.*;
+import org.apache.hadoop.conf.Configuration;
+
+
+public class TurtlePersonSerializer extends PersonSerializer {
+
+    private HDFSWriter [] writers;
+	private long workAtId     = 0;
+	private long studyAtId    = 0;
+    private long knowsId      = 0;
+
+    private enum FileNames {
+        SOCIAL_NETWORK ("social_network_person");
+
+        private final String name;
+
+        private FileNames( String name ) {
+            this.name = name;
+        }
+        public String toString() {
+            return name;
+        }
+    }
+
+    public TurtlePersonSerializer() {
+    }
+
+    public void initialize(Configuration conf, int reducerId) {
+        int numFiles = FileNames.values().length;
+        writers = new HDFSWriter[numFiles];
+        for( int i = 0; i < numFiles; ++i) {
+            writers[i] = new HDFSWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"), FileNames.values()[i].toString()+"_"+reducerId,conf.getInt("ldbc.snb.datagen.numPartitions",1),conf.getBoolean("ldbc.snb.datagen.serializer.compressed",false),"ttl");
+            writers[i].writeAllPartitions(Turtle.getNamespaces());
+            writers[i].writeAllPartitions(Turtle.getStaticNamespaces());
+        }
+    }
+
+    @Override
+    public void close() {
+        int numFiles = FileNames.values().length;
+        for(int i = 0; i < numFiles; ++i) {
+            writers[i].close();
+        }
+    }
+
+    @Override
+    protected void serialize(Person p) {
+        StringBuffer result = new StringBuffer(19000);
+        String prefix = SN.getPersonURI(p.accountId());
+        Turtle.AddTriple(result, true, false, prefix, RDF.type, SNVOC.Person);
+        Turtle.AddTriple(result, false, false, prefix, SNVOC.id,
+                Turtle.createLiteral(Long.toString(p.accountId())));
+        Turtle.AddTriple(result, false, false, prefix, SNVOC.firstName,
+                Turtle.createLiteral(p.firstName()));
+        Turtle.AddTriple(result, false, false, prefix, SNVOC.lastName,
+                Turtle.createLiteral(p.lastName()));
+
+        if(p.gender() == 1) {
+            Turtle.AddTriple(result, false, false, prefix, SNVOC.gender,
+                    Turtle.createLiteral("male"));
+        } else {
+            Turtle.AddTriple(result, false, false, prefix, SNVOC.gender,
+                    Turtle.createLiteral("female"));
+        }
+        Turtle.AddTriple(result, false, false, prefix, SNVOC.birthday,
+                Turtle.createDataTypeLiteral(Dictionaries.dates.formatDate(p.birthDay()), XSD.Date));
+        Turtle.AddTriple(result, false, false, prefix, SNVOC.ipaddress,
+                    Turtle.createLiteral(p.ipAddress().toString()));
+        Turtle.AddTriple(result, false, false, prefix, SNVOC.browser,
+                        Turtle.createLiteral(Dictionaries.browsers.getName(p.browserId())));
+        Turtle.AddTriple(result, false, true, prefix, SNVOC.creationDate,
+                Turtle.createDataTypeLiteral(Dictionaries.dates.formatDateDetail(p.creationDate()), XSD.DateTime));
+
+        Turtle.createTripleSPO(result, prefix, SNVOC.locatedIn, DBP.fullPrefixed(Dictionaries.places.getPlaceName(p.cityId())));
+
+        for (Integer i : p.languages()) {
+            Turtle.createTripleSPO(result, prefix, SNVOC.speaks,
+                    Turtle.createLiteral(Dictionaries.languages.getLanguageName(i)));
+        }
+
+        for( String email : p.emails()) {
+            Turtle.createTripleSPO(result, prefix, SNVOC.email, Turtle.createLiteral(email));
+        }
+
+        for(Integer tag : p.interests()) {
+            String interest = Dictionaries.tags.getName(tag);
+            Turtle.createTripleSPO(result, prefix, SNVOC.hasInterest, DBP.fullPrefixed(interest));
+        }
+        writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
+    }
+
+    @Override
+    protected void serialize(StudyAt studyAt) {
+        String prefix = SN.getPersonURI(studyAt.user);
+        StringBuffer result = new StringBuffer(19000);
+        long id = SN.formId(studyAtId);
+        Turtle.createTripleSPO(result, prefix, SNVOC.studyAt, SN.getStudyAtURI(id));
+        Turtle.createTripleSPO(result, SN.getStudyAtURI(id), SNVOC.hasOrganisation,
+                DBP.fullPrefixed(Dictionaries.universities.getUniversityName(studyAt.university)));
+        String yearString = Dictionaries.dates.formatYear(studyAt.year);
+        Turtle.createTripleSPO(result, SN.getStudyAtURI(id), SNVOC.classYear,
+                Turtle.createDataTypeLiteral(yearString, XSD.Integer));
+        studyAtId++;
+        writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
+    }
+
+    @Override
+    protected void serialize(WorkAt workAt) {
+        String prefix = SN.getPersonURI(workAt.user);
+        StringBuffer result = new StringBuffer(19000);
+        long id = SN.formId(workAtId);
+        Turtle.createTripleSPO(result, prefix, SNVOC.workAt, SN.getWorkAtURI(id));
+        Turtle.createTripleSPO(result, SN.getWorkAtURI(id), SNVOC.hasOrganisation,
+                DBP.fullPrefixed(Dictionaries.companies.getCompanyName(workAt.company)));
+        String yearString = Dictionaries.dates.formatYear(workAt.year);
+        Turtle.createTripleSPO(result, SN.getWorkAtURI(id), SNVOC.workFrom,
+                Turtle.createDataTypeLiteral(yearString, XSD.Integer));
+        workAtId++;
+        writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
+    }
+
+    @Override
+    protected void serialize(Person p, Knows knows) {
+        String prefix = SN.getPersonURI(p.accountId());
+        StringBuffer result = new StringBuffer(19000);
+        long id = SN.formId(knowsId);
+        Turtle.createTripleSPO(result, prefix, SNVOC.knows, SN.getKnowsURI(id));
+        Turtle.createTripleSPO(result, SN.getKnowsURI(id), SNVOC.hasPerson,
+                SN.getPersonURI(knows.to().accountId()));
+        Turtle.createTripleSPO(result, SN.getKnowsURI(id), SNVOC.creationDate,
+                Turtle.createDataTypeLiteral(Dictionaries.dates.formatDateDetail(knows.creationDate()), XSD.DateTime));
+        writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
+        knowsId++;
+    }
+
+
+    public void reset() {
+        workAtId     = 0;
+        studyAtId    = 0;
+        knowsId      = 0;
+    }
+
+}

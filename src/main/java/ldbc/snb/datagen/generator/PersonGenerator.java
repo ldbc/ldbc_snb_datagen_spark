@@ -5,6 +5,7 @@ import ldbc.snb.datagen.generator.distribution.DegreeDistribution;
 import ldbc.snb.datagen.generator.distribution.utils.BucketedDistribution;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
+import ldbc.snb.datagen.vocabulary.SN;
 import org.apache.hadoop.conf.Configuration;
 
 import java.text.Normalizer;
@@ -164,6 +165,7 @@ public class PersonGenerator {
     public Person[] generateUserBlock( int seed, int blockSize ) {
         resetState(seed);
         nextId=seed*blockSize;
+        SN.machineId = seed;
         Person[] block;
         block = new Person[blockSize];
         for (int j =0; j < blockSize; ++j) {

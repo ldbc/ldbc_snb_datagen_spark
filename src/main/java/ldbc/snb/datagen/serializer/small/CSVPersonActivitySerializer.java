@@ -152,6 +152,11 @@ public class CSVPersonActivitySerializer extends PersonActivitySerializer {
         writers[FileNames.USER_LIKES_MESSAGE.ordinal()].writeEntry(arguments);
         arguments.clear();
     }
+    public void reset() {
+
+    }
+
 
 }
+
 

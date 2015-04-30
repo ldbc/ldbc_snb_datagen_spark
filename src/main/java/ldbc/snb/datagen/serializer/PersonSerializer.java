@@ -50,6 +50,8 @@ abstract public class PersonSerializer {
             serialize(p, k);
     }
 
+    abstract public void reset();
+
     abstract public void initialize(Configuration conf, int reducerId);
 
     abstract public void close();

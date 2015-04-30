@@ -46,6 +46,8 @@ public void export( Like like ) {
 }
 
 
+abstract public void reset();
+
 abstract public void initialize(Configuration conf, int reducerId);
 
 abstract public void close();

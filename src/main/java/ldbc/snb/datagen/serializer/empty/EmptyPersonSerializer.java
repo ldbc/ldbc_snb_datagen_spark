@@ -36,4 +36,8 @@ public class EmptyPersonSerializer extends PersonSerializer {
 
     }
 
+    public void reset() {
+
+    }
+
 }

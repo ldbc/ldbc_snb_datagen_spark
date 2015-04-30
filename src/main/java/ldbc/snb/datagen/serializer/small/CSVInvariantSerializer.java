@@ -69,4 +69,8 @@ public class CSVInvariantSerializer extends InvariantSerializer {
         writers[FileNames.TAG.ordinal()].writeEntry(arguments);
         arguments.clear();
     }
+
+    public void reset() {
+
+    }
 }

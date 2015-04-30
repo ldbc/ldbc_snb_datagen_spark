@@ -227,4 +227,8 @@ public class CSVPersonSerializer extends PersonSerializer {
         arguments.add(dateString);
         writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeEntry(arguments);
     }
+
+    public void reset() {
+
+    }
 }

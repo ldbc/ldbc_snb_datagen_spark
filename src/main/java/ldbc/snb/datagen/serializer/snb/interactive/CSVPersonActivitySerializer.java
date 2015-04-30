@@ -330,5 +330,9 @@ public class CSVPersonActivitySerializer extends PersonActivitySerializer {
 			arguments.clear();
 		}
 	}
+
+	public void reset() {
+
+	}
 	
 }

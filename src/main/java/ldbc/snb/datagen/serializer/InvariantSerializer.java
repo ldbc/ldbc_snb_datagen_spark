@@ -20,6 +20,7 @@ abstract public class InvariantSerializer {
     }
 
 
+    abstract public void reset();
 
     public void export(TagClass tagclass) {
         serialize(tagclass);

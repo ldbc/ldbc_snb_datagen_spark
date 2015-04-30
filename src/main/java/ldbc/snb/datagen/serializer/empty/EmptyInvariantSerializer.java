@@ -35,4 +35,8 @@ import org.apache.hadoop.conf.Configuration;
      protected void serialize(Tag tag) {
 
      }
+
+ public void reset() {
+
+ }
 }
