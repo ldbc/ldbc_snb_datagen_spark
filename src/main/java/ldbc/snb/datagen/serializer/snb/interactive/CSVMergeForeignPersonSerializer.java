@@ -183,6 +183,8 @@ public class CSVMergeForeignPersonSerializer extends PersonSerializer {
         arguments.add(dateString);
         writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeEntry(arguments);
     }
+
+    @Override
     public void reset() {
 
     }

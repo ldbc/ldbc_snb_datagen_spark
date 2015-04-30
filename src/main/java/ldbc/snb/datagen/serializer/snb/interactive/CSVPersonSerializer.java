@@ -228,6 +228,7 @@ public class CSVPersonSerializer extends PersonSerializer {
         writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeEntry(arguments);
     }
 
+    @Override
     public void reset() {
 
     }

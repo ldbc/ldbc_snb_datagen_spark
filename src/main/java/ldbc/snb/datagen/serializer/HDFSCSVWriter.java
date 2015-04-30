@@ -19,6 +19,7 @@ public class HDFSCSVWriter extends HDFSWriter {
     public HDFSCSVWriter( String outputDir, String prefix, int numPartitions, boolean compressed, String separator )  {
        super(outputDir, prefix, numPartitions, compressed, "csv" );
         this.separator = separator;
+        buffer = new StringBuffer(2048);
 
     }
 
