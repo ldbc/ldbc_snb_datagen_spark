@@ -70,7 +70,7 @@ public class PersonGenerator {
         person.countryId(countryId);
         person.cityId(Dictionaries.places.getRandomCity(randomFarm.get(RandomGeneratorFarm.Aspect.CITY), countryId));
         person.ipAddress(Dictionaries.ips.getRandomIPFromLocation(randomFarm.get(RandomGeneratorFarm.Aspect.IP), countryId));
-        person.maxNumKnows(degreeDistribution_.nextDegree());
+        person.maxNumKnows(Math.min(degreeDistribution_.nextDegree(),DatagenParams.numPersons));
         person.accountId(composeUserId(nextId++, creationDate));
         person.mainInterest(Dictionaries.tags.getaTagByCountry(randomFarm.get(RandomGeneratorFarm.Aspect.TAG_OTHER_COUNTRY), randomFarm.get(RandomGeneratorFarm.Aspect.TAG), person.countryId()));
         short numTags = ((short) randomTagPowerLaw.getValue(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_TAG)));
