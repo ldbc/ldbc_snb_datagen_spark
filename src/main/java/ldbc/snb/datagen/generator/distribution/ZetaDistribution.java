@@ -11,26 +11,20 @@ import java.util.ArrayList;
 /**
  * Created by aprat on 5/03/15.
  */
-public class ZetaDistribution extends BucketedDistribution {
+public class ZetaDistribution implements DegreeDistribution {
 
-    private ArrayList<Bucket> buckets_;
     private ZipfDistribution zipf_;
     private double ALPHA_ = 1.7;
 
-    @Override
-    public ArrayList<Bucket> getBuckets() {
-        return buckets_;
-    }
-
-    @Override
     public void initialize(Configuration conf) {
         zipf_ = new ZipfDistribution(DatagenParams.numPersons, ALPHA_);
+    }
 
-        ArrayList<Double> histogram = new ArrayList<Double>();
-        for( int i = 1; i <= DatagenParams.numPersons; ++i ) {
-            histogram.add(DatagenParams.numPersons * zipf_.probability(i));
-        }
+    public void reset (long seed) {
+        zipf_.reseedRandomGenerator(seed);
+    }
 
-        buckets_ = Bucket.bucketizeHistogram(histogram,100);
+    public long nextDegree(){
+        return zipf_.sample();
     }
 }
