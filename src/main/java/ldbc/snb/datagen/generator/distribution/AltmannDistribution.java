@@ -10,7 +10,7 @@ import java.util.ArrayList;
 /**
  * Created by aprat on 26/02/15.
  */
-public class AltmannDistribution implements BucketedDistribution {
+public class AltmannDistribution extends BucketedDistribution {
 
     private int NUM_BUCKETS_ = 100;
     private int POPULATION_ = 10000;

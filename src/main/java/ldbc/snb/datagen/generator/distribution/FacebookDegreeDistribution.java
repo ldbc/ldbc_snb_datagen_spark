@@ -60,7 +60,7 @@ import java.util.Random;
  * 2) Randomly select a social degree in the range of that bucket
  */
 
-public class FacebookDegreeDistribution implements BucketedDistribution {
+public class FacebookDegreeDistribution extends BucketedDistribution {
     private int mean_ = 0;
     private static final int FB_MEAN_ = 190;
     private static final int BUCKET_NUM_ = 100;
@@ -71,15 +71,12 @@ public class FacebookDegreeDistribution implements BucketedDistribution {
 
     @Override
     public ArrayList<Bucket> getBuckets() {
-        return buckets_;
-    }
-
-    public void initialize( Configuration conf) {
         mean_ = (int) Math.round(Math.pow(DatagenParams.numPersons, (0.512 - 0.028 * Math.log10(DatagenParams.numPersons))));
         System.out.println("Mean = " + mean_);
         buckets_ = new ArrayList<Bucket>();
         loadFBBuckets();
         rebuildBucketRange();
+        return buckets_;
     }
 
     public void loadFBBuckets() {

@@ -24,8 +24,8 @@ public class PersonGenerator {
 
     public PersonGenerator( Configuration conf, String degreeDistribution ) {
 	    try{
-		    degreeDistribution_ = new DegreeDistribution();
-            degreeDistribution_.initialize(conf, (BucketedDistribution) Class.forName(degreeDistribution).newInstance());
+		    degreeDistribution_ = (DegreeDistribution)Class.forName(degreeDistribution).newInstance();
+            degreeDistribution_.initialize(conf);
 	    } catch(ClassNotFoundException e) {
 		    System.out.print(e.getMessage());
             } catch(IllegalAccessException e) {

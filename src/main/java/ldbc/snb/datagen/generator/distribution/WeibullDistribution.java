@@ -11,7 +11,7 @@ import java.util.ArrayList;
 /**
  * Created by aprat on 5/03/15.
  */
-public class WeibullDistribution implements BucketedDistribution {
+public class WeibullDistribution extends BucketedDistribution {
 
     private ArrayList<Bucket> buckets_;
     private org.apache.commons.math3.distribution.WeibullDistribution weibull_;
@@ -29,6 +29,7 @@ public class WeibullDistribution implements BucketedDistribution {
 
         ArrayList<Double> histogram = new ArrayList<Double>();
         for( int i = 1; i <= DatagenParams.numPersons; ++i ) {
+            System.out.println(weibull_.probability(i));
             histogram.add(DatagenParams.numPersons * weibull_.probability(i));
         }
 

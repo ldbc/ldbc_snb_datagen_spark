@@ -11,7 +11,7 @@ import java.util.ArrayList;
 /**
  * Created by aprat on 5/03/15.
  */
-public class ZetaDistribution implements BucketedDistribution {
+public class ZetaDistribution extends BucketedDistribution {
 
     private ArrayList<Bucket> buckets_;
     private ZipfDistribution zipf_;

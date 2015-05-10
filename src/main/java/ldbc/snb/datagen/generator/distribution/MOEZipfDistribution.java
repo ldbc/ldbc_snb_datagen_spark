@@ -10,7 +10,7 @@ import java.util.ArrayList;
 /**
  * Created by aprat on 4/03/15.
  */
-public class MOEZipfDistribution implements BucketedDistribution {
+public class MOEZipfDistribution extends BucketedDistribution {
 
     private int NUM_BUCKETS_ = 100;
     private int POPULATION_ = 10000;
