@@ -4,29 +4,35 @@ import math
 from datetime import datetime, date, time
 import time as _time
 
-knowsFile = open(sys.argv[1],'r')
+if len(sys.argv) < 3:
+  print("Incorrect number of parameters")
+
+
 
 edgesPerPerson={}
 SEPARATOR="|"
-index=0
 numEdges=0;
-for line in knowsFile.readlines():
-    if index > 0:
-        edge = line.split(SEPARATOR)
-        if int(edge[0]) in edgesPerPerson:
-            edgesPerPerson[int(edge[0])]+=1
-        else:
-            edgesPerPerson[int(edge[0])]=1
+for i in range(1,len(sys.argv)-1):
+  index=0
+  print("Reading "+sys.argv[i])
+  knowsFile = open(sys.argv[i],'r')
+  for line in knowsFile.readlines():
+      if index > 0:
+          edge = line.split(SEPARATOR)
+          if int(edge[0]) in edgesPerPerson:
+              edgesPerPerson[int(edge[0])]+=1
+          else:
+              edgesPerPerson[int(edge[0])]=1
+  
+          if int(edge[1]) in edgesPerPerson:
+              edgesPerPerson[int(edge[1])]+=1
+          else:
+              edgesPerPerson[int(edge[1])]=1
+          numEdges+=2
+      index+=1   
+  knowsFile.close()
 
-        if int(edge[1]) in edgesPerPerson:
-            edgesPerPerson[int(edge[1])]+=1
-        else:
-            edgesPerPerson[int(edge[1])]=1
-        numEdges+=2
-    index+=1   
-knowsFile.close()
-
-outputFile = open(sys.argv[2],'w')
+outputFile = open(sys.argv[len(sys.argv)-1],'w')
 histogram = {}
 for person in edgesPerPerson:
     degree = edgesPerPerson[person]

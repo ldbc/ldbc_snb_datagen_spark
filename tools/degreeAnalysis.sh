@@ -25,7 +25,7 @@ then
 fi
 
 rm -f .degreeAnalysis.tmp
-python extractDegrees.py $1 .degreeAnalysis.tmp 
-R --no-save --args .degreeAnalysis.tmp $2 degree < cumulative.R 
+python extractDegrees.py `ls $1/person_knows_* ` .degreeAnalysis.tmp 
+R --no-save --args .degreeAnalysis.tmp $2 degree < distribution.R 
 ps2pdf $2
 #rm .degreeAnalysis.tmp
