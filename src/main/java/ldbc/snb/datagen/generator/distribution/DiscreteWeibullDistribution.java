@@ -11,24 +11,28 @@ import java.util.ArrayList;
 /**
  * Created by aprat on 5/03/15.
  */
-public class WeibullDistribution extends BucketedDistribution {
+public class DiscreteWeibullDistribution extends BucketedDistribution {
 
     private ArrayList<Bucket> buckets_;
-    private org.apache.commons.math3.distribution.WeibullDistribution weibull_;
-    private double LAMBDA_ = 0.3881;
-    private double K_ = 0.2622;
+    private double BETA_ = 0.7787;
+    private double P_ = 0.07;
 
     @Override
     public ArrayList<Bucket> getBuckets() {
-        weibull_ = new org.apache.commons.math3.distribution.WeibullDistribution(LAMBDA_,K_);
 
         ArrayList<Double> histogram = new ArrayList<Double>();
         for( int i = 1; i <= DatagenParams.numPersons; ++i ) {
-            System.out.println(weibull_.probability(i));
-            histogram.add(DatagenParams.numPersons * weibull_.probability(i));
+            double prob = Math.pow(1.0-P_,Math.pow(i,BETA_))-Math.pow((1.0-P_),Math.pow(i+1,BETA_));
+            histogram.add(DatagenParams.numPersons * prob);
+            //System.out.println(DatagenParams.numPersons * prob);
         }
 
-        buckets_ = Bucket.bucketizeHistogram(histogram,100);
+        buckets_ = Bucket.bucketizeHistogram(histogram,10000);
+
+        /*for( Bucket e : buckets_) {
+            System.out.println((e.min())+" "+e.max());
+        }
+        */
         return buckets_;
     }
 }

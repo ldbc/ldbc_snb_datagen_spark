@@ -22,7 +22,7 @@ public class KnowsGenerator {
         randomFarm.resetRandomGenerators(seed);
         for( int i = 0; i < persons.size(); ++i ) {
             Person p = persons.get(i);
-           for( int j = i+1; (p.maxNumKnows()*upperBound > p.knows().size()) && (j < (i + 1000)) && (j < persons.size()); ++j  ) {
+           for( int j = i+1; (p.maxNumKnows()*upperBound > p.knows().size()) /*&& (j < (i + 1000))*/ && (j < persons.size()); ++j  ) {
                 if( know(p, persons.get(j), j - i, upperBound)) {
                    createKnow(p, persons.get(j));
                 }
