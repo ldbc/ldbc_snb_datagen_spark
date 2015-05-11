@@ -20,11 +20,6 @@ public class WeibullDistribution extends BucketedDistribution {
 
     @Override
     public ArrayList<Bucket> getBuckets() {
-        return buckets_;
-    }
-
-    @Override
-    public void initialize(Configuration conf) {
         weibull_ = new org.apache.commons.math3.distribution.WeibullDistribution(LAMBDA_,K_);
 
         ArrayList<Double> histogram = new ArrayList<Double>();
@@ -34,5 +29,6 @@ public class WeibullDistribution extends BucketedDistribution {
         }
 
         buckets_ = Bucket.bucketizeHistogram(histogram,100);
+        return buckets_;
     }
 }

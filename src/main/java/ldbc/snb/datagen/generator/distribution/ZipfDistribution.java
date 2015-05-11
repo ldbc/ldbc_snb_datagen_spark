@@ -1,9 +1,6 @@
 package ldbc.snb.datagen.generator.distribution;
 
 import ldbc.snb.datagen.generator.DatagenParams;
-import ldbc.snb.datagen.generator.distribution.utils.Bucket;
-import ldbc.snb.datagen.generator.distribution.utils.BucketedDistribution;
-import org.apache.commons.math3.distribution.ZipfDistribution;
 import org.apache.hadoop.conf.Configuration;
 
 import java.util.ArrayList;
@@ -11,13 +8,13 @@ import java.util.ArrayList;
 /**
  * Created by aprat on 5/03/15.
  */
-public class ZetaDistribution implements DegreeDistribution {
+public class ZipfDistribution implements DegreeDistribution {
 
-    private ZipfDistribution zipf_;
+    private org.apache.commons.math3.distribution.ZipfDistribution zipf_;
     private double ALPHA_ = 1.7;
 
     public void initialize(Configuration conf) {
-        zipf_ = new ZipfDistribution(DatagenParams.numPersons, ALPHA_);
+        zipf_ = new org.apache.commons.math3.distribution.ZipfDistribution(10000, ALPHA_);
     }
 
     public void reset (long seed) {

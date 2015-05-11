@@ -14,13 +14,13 @@ public class Bucket {
         for( Double d : histogram )  {
            population+=d;
         }
-        int percentile_size = population.intValue() / num_buckets;
+        double percentile = 1 / (double)num_buckets;
         int current_histogram_index = 0;
         int current_histogram_counter = histogram.get(current_histogram_index).intValue();
         for( int i = 0; i < num_buckets; ++i ) {
-            double min = population.intValue();
+            double min = population;
             double max = 0;
-            for( int j = 0; j < percentile_size; ++j ) {
+            for( int j = 0; j/(double)population < percentile; ++j ) {
                 min = min > (current_histogram_index+1) ? (current_histogram_index+1) : min;
                 max = max < (current_histogram_index+1) ? (current_histogram_index+1) : max;
                 if(--current_histogram_counter <= 0) {
