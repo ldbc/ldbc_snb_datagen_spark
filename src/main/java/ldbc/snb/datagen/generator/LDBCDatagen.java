@@ -103,6 +103,13 @@ public class LDBCDatagen {
         fs.delete(new Path(personsFileName1), true);
         long endRandom= System.currentTimeMillis();
 
+/*        printProgress("Creating edges to fill the degree gap");
+        long startGap = System.currentTimeMillis();
+        knowsGenerator = new HadoopKnowsGenerator(conf,null, "ldbc.snb.datagen.hadoop.DegreeGapKeySetter", 1.0f);
+        knowsGenerator.run(personsFileName2,personsFileName1);
+        fs.delete(new Path(personsFileName2), true);
+        long endGap = System.currentTimeMillis();*/
+
         printProgress("Serializing persons");
         long startPersonSerializing= System.currentTimeMillis();
         HadoopPersonSerializer serializer = new HadoopPersonSerializer(conf);

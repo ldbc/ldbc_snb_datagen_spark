@@ -26,6 +26,7 @@ public class MOEZipfDistribution implements DegreeDistribution  {
     }
 
     public void reset (long seed) {
+        random_.setSeed(seed);
         zipf_.reseedRandomGenerator(seed);
     }
 
