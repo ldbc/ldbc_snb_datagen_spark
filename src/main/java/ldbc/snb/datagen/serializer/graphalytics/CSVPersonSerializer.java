@@ -79,7 +79,6 @@ public class CSVPersonSerializer extends PersonSerializer {
         arguments.clear();
         arguments.add("Person.id");
         arguments.add("Person.id");
-        arguments.add("Weight");
         writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeEntry(arguments);
 
     }
@@ -109,7 +108,6 @@ public class CSVPersonSerializer extends PersonSerializer {
         ArrayList<String> arguments = new ArrayList<String>();
         arguments.add(Long.toString(p.accountId()));
         arguments.add(Long.toString(knows.to().accountId()));
-        arguments.add(Float.toString(knows.weight()));
         writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeEntry(arguments);
     }
 
