@@ -18,8 +18,8 @@ abstract public class PersonSerializer {
 	    
     }
 
-
     public void export(Person person) {
+//        System.out.println(person.maxNumKnows());
 
         serialize(person);
 

@@ -11,28 +11,27 @@ import java.util.ArrayList;
 /**
  * Created by aprat on 5/03/15.
  */
-public class DiscreteWeibullDistribution extends BucketedDistribution {
+public class DiscreteWeibullDistribution extends CumulativeBasedDegreeDistribution {
 
-    private ArrayList<Bucket> buckets_;
-    private double BETA_ = 0.7787;
-    private double P_ = 0.07;
+    //private double BETA_ = 0.7787;
+    //private double BETA_ = 0.8211;
+    private double BETA_ = 0.8505;
+    //private double P_ = 0.062;
+    //private double P_ = 0.0448;
+    private double P_ = 0.0205;
 
-    @Override
-    public ArrayList<Bucket> getBuckets() {
-
-        ArrayList<Double> histogram = new ArrayList<Double>();
-        for( int i = 1; i <= DatagenParams.numPersons; ++i ) {
-            double prob = Math.pow(1.0-P_,Math.pow(i,BETA_))-Math.pow((1.0-P_),Math.pow(i+1,BETA_));
-            histogram.add(DatagenParams.numPersons * prob);
-            //System.out.println(DatagenParams.numPersons * prob);
+    public ArrayList<CumulativeEntry> cumulativeProbability( Configuration conf ) {
+        BETA_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.DiscreteWeibullDistribution.beta",BETA_);
+        P_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.DiscreteWeibullDistribution.p",P_);
+        ArrayList<CumulativeEntry> cumulative = new ArrayList<CumulativeEntry>();
+        for( int i = 0; i < DatagenParams.numPersons; ++i ) {
+            //double prob = Math.pow(1.0-P_,Math.pow(i,BETA_))-Math.pow((1.0-P_),Math.pow(i+1,BETA_));
+            double prob = 1.0-Math.pow((1.0-P_),Math.pow(i+1,BETA_));
+            CumulativeEntry entry = new CumulativeEntry();
+            entry.prob_ = prob;
+            entry.value_ = i+1;
+            cumulative.add(entry);
         }
-
-        buckets_ = Bucket.bucketizeHistogram(histogram,10000);
-
-        /*for( Bucket e : buckets_) {
-            System.out.println((e.min())+" "+e.max());
-        }
-        */
-        return buckets_;
+        return cumulative;
     }
 }

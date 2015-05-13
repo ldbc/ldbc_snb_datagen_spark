@@ -18,6 +18,7 @@ public class GeoDistribution implements DegreeDistribution {
     private double ALPHA_ = 0.12;
 
     public void initialize(Configuration conf) {
+        ALPHA_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.GeoDistribution.alpha",ALPHA_);
         geo_ = new GeometricDistribution(ALPHA_);
     }
 

@@ -10,35 +10,32 @@ import java.util.ArrayList;
 /**
  * Created by aprat on 26/02/15.
  */
-public class AltmannDistribution extends BucketedDistribution {
+public class AltmannDistribution extends CumulativeBasedDegreeDistribution {
 
-    private int NUM_BUCKETS_ = 10000;
     private int POPULATION_ = 10000;
     private double normalization_factor_ = 0.0;
-    private double GAMMA_ = 0.4577;
-    private double DELTA_ = 0.0162;
+    private double ALPHA_ = 0.4577;
+    private double BETA_ = 0.0162;
 
-    private ArrayList<Bucket> buckets_ = null;
 
-    @Override
-        public ArrayList<Bucket> getBuckets() {
+    public ArrayList<CumulativeEntry> cumulativeProbability( Configuration conf ) {
         //throw new UnsupportedOperationException("Distribution not implemented");
+        ALPHA_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.AltmannDistribution.alpha",ALPHA_);
+        BETA_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.AltmannDistribution.beta",BETA_);
+
         POPULATION_ = DatagenParams.numPersons;
         for( int i = 1; i <= POPULATION_; ++i ) {
-            normalization_factor_+= Math.pow(i,-GAMMA_)*Math.exp(-DELTA_*i);
+            normalization_factor_+= Math.pow(i,-ALPHA_)*Math.exp(-BETA_*i);
         }
-        ArrayList<Double> histogram = new ArrayList<Double>();
+        ArrayList<CumulativeEntry> cumulative = new ArrayList<CumulativeEntry>();
         for( int i = 1; i <= POPULATION_; ++i) {
-            histogram.add(POPULATION_*Math.pow(i,-GAMMA_)*Math.exp(-DELTA_*i) / normalization_factor_);
+            double prob = Math.pow(i,-ALPHA_)*Math.exp(-BETA_*i) / normalization_factor_;
+            prob += cumulative.size() > 0 ? cumulative.get(i-2).prob_ : 0.0;
+            CumulativeEntry entry = new CumulativeEntry();
+            entry.prob_ = prob;
+            entry.value_ = i;
+            cumulative.add(entry);
         }
-
-        double scale_factor = DatagenParams.numPersons / POPULATION_;
-        buckets_ = Bucket.bucketizeHistogram(histogram, NUM_BUCKETS_);
-        for( Bucket e : buckets_) {
-            System.out.println((e.min()*scale_factor)+" "+(e.max()*scale_factor));
-            e.max(e.max()*scale_factor);
-            e.min(e.min()*scale_factor);
-        }
-        return buckets_;
+        return cumulative;
     }
 }
