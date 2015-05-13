@@ -50,7 +50,7 @@ import org.apache.hadoop.conf.Configuration;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class CSVPersonSerializer extends PersonSerializer {
+public class CSVPersonSerializerWithWeights extends PersonSerializer {
 
     private HDFSCSVWriter [] writers;
 
@@ -67,7 +67,7 @@ public class CSVPersonSerializer extends PersonSerializer {
         }
     }
 
-    public CSVPersonSerializer() {
+    public CSVPersonSerializerWithWeights() {
     }
 
     public void initialize(Configuration conf, int reducerId) {
