@@ -117,14 +117,9 @@ public class PersonGenerator {
         if (prob >= DatagenParams.missingRatio) {
             for (int i = 0; i < numCompanies; i++) {
                 long workFrom;
-                if (person.classYear() != -1) {
-                    workFrom = Dictionaries.dates.getWorkFromYear(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),
-                                                                 person.creationDate(),
+                workFrom = Dictionaries.dates.getWorkFromYear(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),
+                                                                 person.classYear(),
                                                                  person.birthDay());
-                } else {
-                    workFrom = Dictionaries.dates.getWorkFromYear(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),
-                                                                 person.classYear());
-                }
                 long company = Dictionaries.companies.getRandomCompany(randomFarm, person.countryId());
                 person.companies().put(company, workFrom);
             }

@@ -216,29 +216,23 @@ public class DateGenerator {
 	//User's age for graduating is from 20 to 30
 
 	public long getClassYear(Random random, long userCreatedDate, long birthday) {
-		long age;
-		long graduateage = (random.nextInt(5) + 20) * ONE_YEAR;
-		if (birthday != -1) {
-			return (long) (birthday + graduateage);
-		} else {
-			age = (long) (random.nextDouble() * THIRTY_YEARS + TEN_YEARS);
-			return (userCreatedDate - age + graduateage);
-		}
+		long graduateage = (random.nextInt(5) + 18) * ONE_YEAR;
+		long classYear =  birthday + graduateage;
+        if( classYear > this.to_ ) return -1;
+        return classYear;
 	}
 
-	public long getWorkFromYear(Random random, long userCreatedDate, long birthday) {
-		long age;
-		long workingage = (random.nextInt(10) + 25) * ONE_YEAR;
-		if (birthday != -1) {
-			return (long) (birthday + workingage);
-		} else {
-			age = (long) (random.nextDouble() * THIRTY_YEARS + TEN_YEARS);
-			return (userCreatedDate - age + workingage);
-		}
-	}
-
-	public long getWorkFromYear(Random random, long classYear) {
-		return (classYear + (long) (random.nextDouble() * TWO_YEARS));
+	public long getWorkFromYear(Random random, long classYear, long birthday) {
+        long workYear = 0;
+        if( classYear == -1) {
+            //long workingage = (random.nextInt(10) + 25) * ONE_YEAR;
+            long workingage = 18 * ONE_YEAR;
+            long from = birthday + workingage;
+            workYear =  Math.min((long)(random.nextDouble()*(to_ - from)) + from, to_);
+        } else {
+            workYear =  (classYear + (long) (random.nextDouble() * TWO_YEARS));
+        }
+        return workYear;
 	}
 
 	public long getStartDateTime() {
