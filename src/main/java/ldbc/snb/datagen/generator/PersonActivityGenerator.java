@@ -209,7 +209,9 @@ public class PersonActivityGenerator {
 		int counter = 0;
 		for( Person p : block ) {
 			generateActivity(p, block);
-            updateSerializer_.changePartition();
+			if( DatagenParams.updateStreams ) {
+				updateSerializer_.changePartition();
+			}
 			if( counter % 100 == 0 ) {
 				context.setStatus("Generating activity of person "+counter+" of block"+seed);
 			}

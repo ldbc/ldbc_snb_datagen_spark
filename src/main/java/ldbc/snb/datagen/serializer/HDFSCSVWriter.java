@@ -13,13 +13,15 @@ public class HDFSCSVWriter extends HDFSWriter {
 
     private String separator = "|";
     private StringBuffer buffer;
+    private boolean endLineSeparator = true;
 
     private OutputStream[] fileOutputStream;
 
-    public HDFSCSVWriter( String outputDir, String prefix, int numPartitions, boolean compressed, String separator )  {
+    public HDFSCSVWriter( String outputDir, String prefix, int numPartitions, boolean compressed, String separator, boolean endLineSeparator )  {
        super(outputDir, prefix, numPartitions, compressed, "csv" );
         this.separator = separator;
-        buffer = new StringBuffer(2048);
+        this.buffer = new StringBuffer(2048);
+        this.endLineSeparator = endLineSeparator;
 
     }
 
@@ -27,7 +29,8 @@ public class HDFSCSVWriter extends HDFSWriter {
         buffer.setLength(0);
         for( int i = 0; i < entry.size(); ++i)  {
             buffer.append(entry.get(i));
-            buffer.append(separator);
+            if((endLineSeparator && i == (entry.size() - 1)) || (i < entry.size() - 1))
+                buffer.append(separator);
         }
         buffer.append("\n");
         this.write(buffer.toString());

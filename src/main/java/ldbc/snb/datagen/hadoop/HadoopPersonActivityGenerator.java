@@ -51,7 +51,9 @@ public class HadoopPersonActivityGenerator {
             try {
                 personActivitySerializer_ = (PersonActivitySerializer) Class.forName(conf.get("ldbc.snb.datagen.serializer.personActivitySerializer")).newInstance();
                 personActivitySerializer_.initialize(conf,reducerId);
-                updateSerializer_ = new UpdateEventSerializer(conf, DatagenParams.hadoopDir+"/temp_updateStream_forum_"+reducerId, DatagenParams.numUpdatePartitions);
+                if(DatagenParams.updateStreams) {
+                    updateSerializer_ = new UpdateEventSerializer(conf, DatagenParams.hadoopDir + "/temp_updateStream_forum_" + reducerId, DatagenParams.numUpdatePartitions);
+                }
                 personActivityGenerator_ = new PersonActivityGenerator(personActivitySerializer_, updateSerializer_);
 
                 fs_ = FileSystem.get(context.getConfiguration());
@@ -79,7 +81,9 @@ public class HadoopPersonActivityGenerator {
                         updateSerializer_.export(p,k);
                     }
                 }
-                updateSerializer_.changePartition();
+                if( DatagenParams.updateStreams ) {
+                    updateSerializer_.changePartition();
+                }
                 strbuf.append("\n");
                 friends_.write(strbuf.toString().getBytes("UTF8"));
             }
@@ -94,7 +98,9 @@ public class HadoopPersonActivityGenerator {
                 e.printStackTrace();
             }
             personActivitySerializer_.close();
-            updateSerializer_.close();
+            if(DatagenParams.updateStreams) {
+                updateSerializer_.close();
+            }
         }
     }
 

@@ -1,12 +1,13 @@
 package ldbc.snb.datagen.hadoop;
 
+import ldbc.snb.datagen.generator.ClusteringKnowsGenerator;
+import ldbc.snb.datagen.generator.DistanceKnowsGenerator;
 import ldbc.snb.datagen.generator.KnowsGenerator;
 import ldbc.snb.datagen.generator.LDBCDatagen;
 import ldbc.snb.datagen.objects.Person;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
@@ -29,7 +30,8 @@ public class HadoopKnowsGenerator {
         private HadoopFileKeyChanger.KeySetter<TupleKey> keySetter = null;
 
         protected void setup(Context context) {
-            this.knowsGenerator = new KnowsGenerator();
+            this.knowsGenerator = new DistanceKnowsGenerator();
+//            this.knowsGenerator = new ClusteringKnowsGenerator();
             this.conf = context.getConfiguration();
             try {
                 this.keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(conf.get("postKeySetterName")).newInstance();
