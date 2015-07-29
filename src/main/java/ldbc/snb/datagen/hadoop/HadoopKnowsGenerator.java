@@ -88,7 +88,9 @@ public class HadoopKnowsGenerator {
         String rankedFileName = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/ranked";
         HadoopFileRanker hadoopFileRanker = new HadoopFileRanker( conf, TupleKey.class, Person.class );
         hadoopFileRanker.run(keyChangedFileName,rankedFileName);
-        fs.delete(new Path(keyChangedFileName), true);
+        if(preKeySetterName != null ) {
+            fs.delete(new Path(keyChangedFileName), true);
+        }
         System.out.println("... Time to rank persons: "+ (System.currentTimeMillis() - start)+" ms");
 
         conf.set("upperBound",Double.toString(upperBound));

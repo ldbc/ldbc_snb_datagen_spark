@@ -51,7 +51,7 @@ public class HadoopPersonSerializer {
 			throws IOException, InterruptedException {
 			personSerializer_.reset();
 			for( Person p : valueSet ) {
-				if(p.creationDate()< Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
+				if(p.creationDate()< Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams  ) {
 					personSerializer_.export(p);
 				} else {
 					updateSerializer_.export(p);
