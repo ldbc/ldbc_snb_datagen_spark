@@ -22,7 +22,7 @@ public class DistanceKnowsGenerator implements KnowsGenerator {
         randomFarm.resetRandomGenerators(seed);
         for( int i = 0; i < persons.size(); ++i ) {
             Person p = persons.get(i);
-           for( int j = i+1; (p.maxNumKnows()*percentage > p.knows().size()) && (j < persons.size()); ++j  ) {
+           for( int j = i+1; ( target_edges(p, percentage) > p.knows().size() ) && ( j < persons.size() ); ++j  ) {
                 if( know(p, persons.get(j), j - i, percentage)) {
                    createKnow(p, persons.get(j));
                 }
@@ -31,8 +31,8 @@ public class DistanceKnowsGenerator implements KnowsGenerator {
     }
 
     boolean know( Person personA, Person personB, int dist, float percentage ) {
-        if((float)(personA.knows().size()) >= (float)(personA.maxNumKnows())*percentage ||
-           personB.knows().size() >= (float)(personB.maxNumKnows())*percentage ) return false;
+        if((float)(personA.knows().size()) >= target_edges(personA,percentage) ||
+           personB.knows().size() >= target_edges(personA,percentage) ) return false;
         double randProb = randomFarm.get(RandomGeneratorFarm.Aspect.UNIFORM).nextDouble();
         double prob = Math.pow(DatagenParams.baseProbCorrelated, dist);
         if ((randProb < prob) || (randProb < DatagenParams.limitProCorrelated)) {
@@ -53,5 +53,9 @@ public class DistanceKnowsGenerator implements KnowsGenerator {
             personB.knows().add(new Knows(personA, creationDate, similarity));
             personA.knows().add(new Knows(personB, creationDate, similarity));
         }
+    }
+
+    float target_edges(Person person, float percentage) {
+        return (float)(person.maxNumKnows())*percentage;
     }
 }
