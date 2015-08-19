@@ -278,6 +278,7 @@ public class LDBCDatagen {
         }catch(Exception e ) {
             System.err.println("Error during execution");
             System.err.println(e.getMessage());
+            e.printStackTrace();
             System.exit(1);
         }
     }

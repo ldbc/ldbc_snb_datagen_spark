@@ -62,7 +62,7 @@ public class HadoopMergeFriendshipFiles {
 
     public HadoopMergeFriendshipFiles( Configuration conf,  String postKeySetterName ) {
 
-        this.conf = conf;
+        this.conf = new Configuration(conf);
         this.postKeySetterName = postKeySetterName;
     }
 

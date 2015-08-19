@@ -9,6 +9,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
@@ -86,7 +87,7 @@ public class HadoopKnowsGenerator {
 
         FileSystem fs = FileSystem.get(conf);
 
-        String keyChangedFileName = inputFileName;
+        /*String keyChangedFileName = inputFileName;
         if(preKeySetterName != null) {
             System.out.println("Changing key of persons");
             long start = System.currentTimeMillis();
@@ -95,18 +96,20 @@ public class HadoopKnowsGenerator {
             keyChanger.run(inputFileName, keyChangedFileName);
             System.out.println("... Time to change keys: "+ (System.currentTimeMillis() - start)+" ms");
         }
+        */
 
         System.out.println("Ranking persons");
         long start = System.currentTimeMillis();
         String rankedFileName = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/ranked";
-        HadoopFileRanker hadoopFileRanker = new HadoopFileRanker( conf, TupleKey.class, Person.class );
-        hadoopFileRanker.run(keyChangedFileName,rankedFileName);
-        if(preKeySetterName != null ) {
+        HadoopFileRanker hadoopFileRanker = new HadoopFileRanker( conf, TupleKey.class, Person.class , preKeySetterName);
+        hadoopFileRanker.run(inputFileName,rankedFileName);
+/*        if(preKeySetterName != null ) {
             fs.delete(new Path(keyChangedFileName), true);
         }
-        System.out.println("... Time to rank persons: "+ (System.currentTimeMillis() - start)+" ms");
+        */
+        System.out.println("... Time to rank persons: " + (System.currentTimeMillis() - start) + " ms");
 
-        conf.setInt("stepIndex",step_index);
+        conf.setInt("stepIndex", step_index);
         int index = 0;
         for( float p : percentages ) {
             conf.setFloat("percentage"+index, p);

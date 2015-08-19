@@ -6,6 +6,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
@@ -23,6 +24,7 @@ public class HadoopFileRanker {
     private Configuration conf;
     private Class<?> K;
     private Class<?> V;
+    private String keySetterName;
 
     /**
      *
@@ -30,10 +32,43 @@ public class HadoopFileRanker {
      * @param K The Key class of the hadoop sequence file.
      * @param V The Value class of the hadoop sequence file.
      */
-    public HadoopFileRanker( Configuration conf, Class<?> K, Class<?> V) {
+    public HadoopFileRanker( Configuration conf, Class<?> K, Class<?> V, String keySetter ) {
         this.conf  = new Configuration(conf);
+        this.keySetterName = keySetter;
         this.K = K;
         this.V = V;
+    }
+
+    public static class HadoopFileRankerSortMapper<K, V>  extends Mapper<K, V, K, V> {
+
+        HadoopFileKeyChanger.KeySetter<TupleKey> keySetter;
+        private long counter = 0;       /** Counter of the number of elements received by this reducer.*/
+
+        @Override
+        public void setup( Context context )  {
+
+            try {
+                LDBCDatagen.init(context.getConfiguration());
+                String className = context.getConfiguration().get("keySetterClassName");
+                keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(className).newInstance();
+            } catch(ClassNotFoundException e) {
+                System.out.print(e.getMessage());
+            } catch(IllegalAccessException e) {
+                System.out.print(e.getMessage());
+            } catch(InstantiationException e) {
+                System.out.print(e.getMessage());
+            }
+        }
+
+        @Override
+        public void map(K key, V value,
+                           Context context) throws IOException, InterruptedException {
+            context.write((K)keySetter.getKey(value), value);
+        }
+
+        @Override
+        public void cleanup(Context context) {
+        }
     }
 
     public static class HadoopFileRankerSortReducer<K, V, T extends BlockKey>  extends Reducer<K, V, BlockKey, V> {
@@ -136,12 +171,19 @@ public class HadoopFileRanker {
     public void run( String inputFileName, String outputFileName ) throws Exception {
         int numThreads = conf.getInt("ldbc.snb.datagen.generator.numThreads",1);
 
+        if( keySetterName != null ) {
+            conf.set("keySetterClassName", keySetterName);
+        }
+
         /** First Job to sort the key-value pairs and to count the number of elements processed by each reducer.**/
         Job jobSort = Job.getInstance(conf, "Sorting "+inputFileName);
 
         FileInputFormat.setInputPaths(jobSort, new Path(inputFileName));
-        FileOutputFormat.setOutputPath(jobSort, new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")+"/rankIntermediate"));
+        FileOutputFormat.setOutputPath(jobSort, new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/rankIntermediate"));
 
+        if( keySetterName != null ) {
+            jobSort.setMapperClass(HadoopFileRankerSortMapper.class);
+        }
         jobSort.setMapOutputKeyClass(K);
         jobSort.setMapOutputValueClass(V);
         jobSort.setOutputKeyClass(BlockKey.class);
