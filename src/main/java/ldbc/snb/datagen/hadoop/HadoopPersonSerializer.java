@@ -25,7 +25,7 @@ import java.io.IOException;
  */
 public class HadoopPersonSerializer {
 	
-	public static class HadoopPersonSerializerReducer  extends Reducer<BlockKey, Person, LongWritable, Person> {
+	public static class HadoopPersonSerializerReducer  extends Reducer<TupleKey, Person, LongWritable, Person> {
 		
 		private int reducerId;                          /** The id of the reducer.**/
 		private PersonSerializer personSerializer_;   /** The person serializer **/
@@ -47,7 +47,7 @@ public class HadoopPersonSerializer {
 		}
 		
 		@Override
-		public void reduce(BlockKey key, Iterable<Person> valueSet,Context context)
+		public void reduce(TupleKey key, Iterable<Person> valueSet,Context context)
 			throws IOException, InterruptedException {
 			personSerializer_.reset();
 			for( Person p : valueSet ) {
@@ -85,39 +85,43 @@ public class HadoopPersonSerializer {
 		
 		FileSystem fs = FileSystem.get(conf);
 
-		String rankedFileName = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/ranked";
+		/*String rankedFileName = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/ranked";
 		HadoopFileRanker hadoopFileRanker = new HadoopFileRanker( conf, TupleKey.class, Person.class, null );
         hadoopFileRanker.run(inputFileName,rankedFileName);
+        */
 
 		int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads"));
 		Job job = Job.getInstance(conf, "Person Serializer");
-		job.setMapOutputKeyClass(BlockKey.class);
+		//job.setMapOutputKeyClass(BlockKey.class);
+		job.setMapOutputKeyClass(TupleKey.class);
 		job.setMapOutputValueClass(Person.class);
 		job.setOutputKeyClass(LongWritable.class);
 		job.setOutputValueClass(Person.class);
-		job.setJarByClass(HadoopBlockMapper.class);
-		job.setMapperClass(HadoopBlockMapper.class);
+		//job.setJarByClass(HadoopBlockMapper.class);
+		//job.setMapperClass(HadoopBlockMapper.class);
 		job.setReducerClass(HadoopPersonSerializerReducer.class);
 		job.setNumReduceTasks(numThreads);
 		job.setInputFormatClass(SequenceFileInputFormat.class);
 		job.setOutputFormatClass(SequenceFileOutputFormat.class);
 		
-		job.setSortComparatorClass(BlockKeyComparator.class);
+		/*job.setSortComparatorClass(BlockKeyComparator.class);
 		job.setGroupingComparatorClass(BlockKeyGroupComparator.class);
 		job.setPartitionerClass(HadoopBlockPartitioner.class);
+		*/
 		
-		FileInputFormat.setInputPaths(job, new Path(rankedFileName));
+		//FileInputFormat.setInputPaths(job, new Path(rankedFileName));
+		FileInputFormat.setInputPaths(job, new Path(inputFileName));
 		FileOutputFormat.setOutputPath(job, new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")+"/aux"));
 		if(!job.waitForCompletion(true)) {
             throw new Exception();
         }
 		
 		
-		try{
+		/*try{
 			fs.delete(new Path(rankedFileName), true);
 			fs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")+"/aux"),true);
 		} catch(IOException e) {
 			System.err.println(e.getMessage());
-		}
+		}*/
 	}
 }
