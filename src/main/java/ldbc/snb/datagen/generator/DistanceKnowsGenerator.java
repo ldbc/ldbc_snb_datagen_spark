@@ -18,21 +18,21 @@ public class DistanceKnowsGenerator implements KnowsGenerator {
         this.randomFarm = new RandomGeneratorFarm();
     }
 
-    public void generateKnows( ArrayList<Person> persons, int seed, float percentage, boolean firstStep )  {
+    public void generateKnows( ArrayList<Person> persons, int seed, ArrayList<Float> percentages, int step_index )  {
         randomFarm.resetRandomGenerators(seed);
         for( int i = 0; i < persons.size(); ++i ) {
             Person p = persons.get(i);
-           for( int j = i+1; ( target_edges(p, percentage, firstStep) > p.knows().size() ) && ( j < persons.size() ); ++j  ) {
-                if( know(p, persons.get(j), j - i, percentage, firstStep)) {
+           for( int j = i+1; ( target_edges(p, percentages, step_index) > p.knows().size() ) && ( j < persons.size() ); ++j  ) {
+                if( know(p, persons.get(j), j - i, percentages, step_index)) {
                    createKnow(p, persons.get(j));
                 }
            }
         }
     }
 
-    boolean know( Person personA, Person personB, int dist, float percentage, boolean firstStep ) {
-        if((float)(personA.knows().size()) >= target_edges(personA,percentage, firstStep) ||
-           personB.knows().size() >= target_edges(personB,percentage, firstStep) ) return false;
+    boolean know( Person personA, Person personB, int dist, ArrayList<Float> percentages, int step_index ) {
+        if( personA.knows().size() >= target_edges( personA, percentages, step_index) ||
+            personB.knows().size() >= target_edges( personB, percentages, step_index) ) return false;
         double randProb = randomFarm.get(RandomGeneratorFarm.Aspect.UNIFORM).nextDouble();
         double prob = Math.pow(DatagenParams.baseProbCorrelated, dist);
         if ((randProb < prob) || (randProb < DatagenParams.limitProCorrelated)) {
@@ -55,11 +55,13 @@ public class DistanceKnowsGenerator implements KnowsGenerator {
         }
     }
 
-    long target_edges(Person person, float percentage, boolean firstStep) {
-        long max =  (long) (person.maxNumKnows() * percentage);
-        if(max == 0 && firstStep ) {
-            return person.maxNumKnows();
+    long target_edges(Person person, ArrayList<Float> percentages, int step_index ) {
+        int generated_edges = 0;
+        for (int i = 0; i < step_index; ++i) {
+            generated_edges += Math.ceil(percentages.get(i)*person.maxNumKnows());
         }
-        return  max;
+        generated_edges = Math.min(generated_edges, (int)person.maxNumKnows());
+        int to_generate = Math.min( (int)person.maxNumKnows() - generated_edges, (int)Math.ceil(percentages.get(step_index)*person.maxNumKnows()));
+        return  to_generate;
     }
 }

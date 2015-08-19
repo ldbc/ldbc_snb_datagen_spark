@@ -73,6 +73,10 @@ public class LDBCDatagen {
 
         String hadoopPrefix = conf.get("ldbc.snb.datagen.serializer.hadoopDir");
         FileSystem fs = FileSystem.get(conf);
+        ArrayList<Float> percentages = new ArrayList<Float>();
+        percentages.add(0.45f);
+        percentages.add(0.45f);
+        percentages.add(0.1f);
 
         long start = System.currentTimeMillis();
         printProgress("Starting: Person generation");
@@ -83,19 +87,19 @@ public class LDBCDatagen {
 
         printProgress("Creating university location correlated edges");
         long startUniversity = System.currentTimeMillis();
-        HadoopKnowsGenerator knowsGenerator = new HadoopKnowsGenerator(conf,"ldbc.snb.datagen.hadoop.UniversityKeySetter", "ldbc.snb.datagen.hadoop.RandomKeySetter", 0.45f,true);
+        HadoopKnowsGenerator knowsGenerator = new HadoopKnowsGenerator(conf,"ldbc.snb.datagen.hadoop.UniversityKeySetter", "ldbc.snb.datagen.hadoop.RandomKeySetter", percentages, 0);
         knowsGenerator.run(hadoopPrefix+"/persons",hadoopPrefix+"/universityEdges");
         long endUniversity = System.currentTimeMillis();
 
         printProgress("Creating main interest correlated edges");
         long startInterest= System.currentTimeMillis();
-        knowsGenerator = new HadoopKnowsGenerator(conf,"ldbc.snb.datagen.hadoop.InterestKeySetter", "ldbc.snb.datagen.hadoop.RandomKeySetter", 0.45f,false);
+        knowsGenerator = new HadoopKnowsGenerator(conf,"ldbc.snb.datagen.hadoop.InterestKeySetter", "ldbc.snb.datagen.hadoop.RandomKeySetter", percentages, 1);
         knowsGenerator.run(hadoopPrefix+"/persons",hadoopPrefix+"/interestEdges");
         long endInterest = System.currentTimeMillis();
 
         printProgress("Creating random correlated edges");
         long startRandom= System.currentTimeMillis();
-        knowsGenerator = new HadoopKnowsGenerator(conf,"ldbc.snb.datagen.hadoop.RandomKeySetter", "ldbc.snb.datagen.hadoop.RandomKeySetter", 0.1f,false);
+        knowsGenerator = new HadoopKnowsGenerator(conf,"ldbc.snb.datagen.hadoop.RandomKeySetter", "ldbc.snb.datagen.hadoop.RandomKeySetter", percentages, 2);
         knowsGenerator.run(hadoopPrefix+"/persons",hadoopPrefix+"/randomEdges");
         long endRandom= System.currentTimeMillis();
 
