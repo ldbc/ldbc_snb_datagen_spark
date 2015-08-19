@@ -83,19 +83,19 @@ public class LDBCDatagen {
 
         printProgress("Creating university location correlated edges");
         long startUniversity = System.currentTimeMillis();
-        HadoopKnowsGenerator knowsGenerator = new HadoopKnowsGenerator(conf,"ldbc.snb.datagen.hadoop.UniversityKeySetter", "ldbc.snb.datagen.hadoop.RandomKeySetter", 0.45f);
+        HadoopKnowsGenerator knowsGenerator = new HadoopKnowsGenerator(conf,"ldbc.snb.datagen.hadoop.UniversityKeySetter", "ldbc.snb.datagen.hadoop.RandomKeySetter", 0.45f,true);
         knowsGenerator.run(hadoopPrefix+"/persons",hadoopPrefix+"/universityEdges");
         long endUniversity = System.currentTimeMillis();
 
         printProgress("Creating main interest correlated edges");
         long startInterest= System.currentTimeMillis();
-        knowsGenerator = new HadoopKnowsGenerator(conf,"ldbc.snb.datagen.hadoop.InterestKeySetter", "ldbc.snb.datagen.hadoop.RandomKeySetter", 0.45f);
+        knowsGenerator = new HadoopKnowsGenerator(conf,"ldbc.snb.datagen.hadoop.InterestKeySetter", "ldbc.snb.datagen.hadoop.RandomKeySetter", 0.45f,false);
         knowsGenerator.run(hadoopPrefix+"/persons",hadoopPrefix+"/interestEdges");
         long endInterest = System.currentTimeMillis();
 
         printProgress("Creating random correlated edges");
         long startRandom= System.currentTimeMillis();
-        knowsGenerator = new HadoopKnowsGenerator(conf,"ldbc.snb.datagen.hadoop.RandomKeySetter", "ldbc.snb.datagen.hadoop.RandomKeySetter", 0.1f);
+        knowsGenerator = new HadoopKnowsGenerator(conf,"ldbc.snb.datagen.hadoop.RandomKeySetter", "ldbc.snb.datagen.hadoop.RandomKeySetter", 0.1f,false);
         knowsGenerator.run(hadoopPrefix+"/persons",hadoopPrefix+"/randomEdges");
         long endRandom= System.currentTimeMillis();
 

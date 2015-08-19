@@ -8,5 +8,5 @@ import java.util.ArrayList;
  * Created by aprat on 11/06/15.
  */
 public interface KnowsGenerator {
-    public void generateKnows( ArrayList<Person> persons, int seed, float upperBound );
+    public void generateKnows( ArrayList<Person> persons, int seed, float upperBound, boolean firstStep );
 }

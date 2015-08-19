@@ -18,21 +18,21 @@ public class DistanceKnowsGenerator implements KnowsGenerator {
         this.randomFarm = new RandomGeneratorFarm();
     }
 
-    public void generateKnows( ArrayList<Person> persons, int seed, float percentage )  {
+    public void generateKnows( ArrayList<Person> persons, int seed, float percentage, boolean firstStep )  {
         randomFarm.resetRandomGenerators(seed);
         for( int i = 0; i < persons.size(); ++i ) {
             Person p = persons.get(i);
-           for( int j = i+1; ( target_edges(p, percentage) > p.knows().size() ) && ( j < persons.size() ); ++j  ) {
-                if( know(p, persons.get(j), j - i, percentage)) {
+           for( int j = i+1; ( target_edges(p, percentage, firstStep) > p.knows().size() ) && ( j < persons.size() ); ++j  ) {
+                if( know(p, persons.get(j), j - i, percentage, firstStep)) {
                    createKnow(p, persons.get(j));
                 }
            }
         }
     }
 
-    boolean know( Person personA, Person personB, int dist, float percentage ) {
-        if((float)(personA.knows().size()) >= target_edges(personA,percentage) ||
-           personB.knows().size() >= target_edges(personA,percentage) ) return false;
+    boolean know( Person personA, Person personB, int dist, float percentage, boolean firstStep ) {
+        if((float)(personA.knows().size()) >= target_edges(personA,percentage, firstStep) ||
+           personB.knows().size() >= target_edges(personB,percentage, firstStep) ) return false;
         double randProb = randomFarm.get(RandomGeneratorFarm.Aspect.UNIFORM).nextDouble();
         double prob = Math.pow(DatagenParams.baseProbCorrelated, dist);
         if ((randProb < prob) || (randProb < DatagenParams.limitProCorrelated)) {
@@ -55,7 +55,11 @@ public class DistanceKnowsGenerator implements KnowsGenerator {
         }
     }
 
-    float target_edges(Person person, float percentage) {
-        return (float)(person.maxNumKnows())*percentage;
+    long target_edges(Person person, float percentage, boolean firstStep) {
+        long max =  (long) (person.maxNumKnows() * percentage);
+        if(max == 0 && firstStep ) {
+            return person.maxNumKnows();
+        }
+        return  max;
     }
 }

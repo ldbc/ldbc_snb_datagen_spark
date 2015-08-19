@@ -72,13 +72,13 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         }
     }
 
-    public void generateKnows( ArrayList<Person> persons, int seed, float upperBound )  {
+    public void generateKnows( ArrayList<Person> persons, int seed, float upperBound, boolean firstStep )  {
         Random random = new Random();
         Map<Long, Integer> personPosition = new HashMap<Long, Integer>();
         for( int i = 0; i < persons.size(); ++i ) {
             personPosition.put(persons.get(i).accountId(), i);
         }
-        distanceKnowsGenerator_.generateKnows(persons,seed,upperBound);
+        distanceKnowsGenerator_.generateKnows(persons,seed,upperBound, firstStep);
         PersonGraph bestGraph = new PersonGraph(persons);
         MinHash minHash = new MinHash(numMinHashes_, 0);
         double bestCC = GraphUtils.ClusteringCoefficient(bestGraph);

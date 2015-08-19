@@ -48,7 +48,7 @@ public class HadoopKnowsGenerator {
             for( Person p : valueSet ) {
                 persons.add(new Person(p));
             }
-            this.knowsGenerator.generateKnows(persons, (int)key.block, conf.getFloat("upperBound", 0.1f));
+            this.knowsGenerator.generateKnows(persons, (int)key.block, conf.getFloat("upperBound", 0.1f), conf.getBoolean("firstStep",false));
             for( Person p : persons ) {
                 context.write(keySetter.getKey(p), p);
             }
@@ -59,13 +59,15 @@ public class HadoopKnowsGenerator {
     private double upperBound;
     private String preKeySetterName;
     private String postKeySetterName;
+    private boolean firstStep;
 
 
-    public HadoopKnowsGenerator( Configuration conf, String preKeySetterName, String postKeySetterName, float upperBound ) {
+    public HadoopKnowsGenerator( Configuration conf, String preKeySetterName, String postKeySetterName, float upperBound, boolean firstStep  ) {
         this.conf = conf;
         this.upperBound = upperBound;
         this.preKeySetterName = preKeySetterName;
         this.postKeySetterName = postKeySetterName;
+        this.firstStep = firstStep;
     }
 
     public void run( String inputFileName, String outputFileName ) throws Exception {
@@ -94,6 +96,7 @@ public class HadoopKnowsGenerator {
         System.out.println("... Time to rank persons: "+ (System.currentTimeMillis() - start)+" ms");
 
         conf.set("upperBound",Double.toString(upperBound));
+        conf.setBoolean("firstStep",firstStep);
         conf.set("postKeySetterName",postKeySetterName);
         int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads"));
         Job job = Job.getInstance(conf, "Knows generator");
