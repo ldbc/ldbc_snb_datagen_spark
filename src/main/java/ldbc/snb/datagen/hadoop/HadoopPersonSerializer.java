@@ -97,7 +97,7 @@ public class HadoopPersonSerializer {
 		job.setMapOutputValueClass(Person.class);
 		job.setOutputKeyClass(LongWritable.class);
 		job.setOutputValueClass(Person.class);
-		//job.setJarByClass(HadoopBlockMapper.class);
+		job.setJarByClass(HadoopBlockMapper.class);
 		//job.setMapperClass(HadoopBlockMapper.class);
 		job.setReducerClass(HadoopPersonSerializerReducer.class);
 		job.setNumReduceTasks(numThreads);
