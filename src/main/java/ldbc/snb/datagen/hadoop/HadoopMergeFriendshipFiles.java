@@ -81,6 +81,7 @@ public class HadoopMergeFriendshipFiles {
         job.setNumReduceTasks(numThreads);
         job.setInputFormatClass(SequenceFileInputFormat.class);
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
+        job.setPartitionerClass(HadoopTuplePartitioner.class);
 
         for ( String s : friendshipFileNames ) {
             FileInputFormat.addInputPath(job, new Path(s));
