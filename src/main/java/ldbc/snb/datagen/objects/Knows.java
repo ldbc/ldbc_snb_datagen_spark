@@ -103,6 +103,11 @@ public class Knows implements Writable, Comparable<Knows> {
     }
 
     public int compareTo(Knows k) {
-        return (int)(to_.accountId() - k.to().accountId());
+        int res =  (int)(to_.accountId() - k.to().accountId());
+        if( res != 0 ) return res;
+        long res2 = creationDate_ - k.creationDate();
+        if( res2 > 0 ) return 1;
+        if( res2 < 0 ) return -1;
+        return 0;
     }
 }
