@@ -117,11 +117,11 @@ public class HadoopPersonSerializer {
         }
 		
 		
-		/*try{
-			fs.delete(new Path(rankedFileName), true);
+		try{
+		//	fs.delete(new Path(rankedFileName), true);
 			fs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")+"/aux"),true);
 		} catch(IOException e) {
 			System.err.println(e.getMessage());
-		}*/
+		}
 	}
 }
