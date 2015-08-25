@@ -103,7 +103,9 @@ public class HadoopPersonSerializer {
 		job.setNumReduceTasks(numThreads);
 		job.setInputFormatClass(SequenceFileInputFormat.class);
 		job.setOutputFormatClass(SequenceFileOutputFormat.class);
-		
+
+		job.setPartitionerClass(HadoopTuplePartitioner.class);
+
 		/*job.setSortComparatorClass(BlockKeyComparator.class);
 		job.setGroupingComparatorClass(BlockKeyGroupComparator.class);
 		job.setPartitionerClass(HadoopBlockPartitioner.class);
