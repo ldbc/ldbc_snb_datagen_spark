@@ -271,7 +271,7 @@
     <scale_factor name="graphalytics.3000" >
         <property>
             <name>ldbc.snb.datagen.generator.numPersons</name>
-            <value>32500000</value>
+            <value>34835000</value>
         </property>
         <property>
             <name>ldbc.snb.datagen.generator.startYear</name>
