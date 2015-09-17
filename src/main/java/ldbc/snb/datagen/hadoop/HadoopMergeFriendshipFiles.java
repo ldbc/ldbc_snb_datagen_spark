@@ -15,11 +15,14 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * Created by aprat on 29/07/15.
  */
 public class HadoopMergeFriendshipFiles {
+
 
     public static class HadoopMergeFriendshipFilesReducer  extends Reducer<TupleKey, Person, TupleKey, Person> {
 
@@ -40,18 +43,32 @@ public class HadoopMergeFriendshipFiles {
         public void reduce(TupleKey key, Iterable<Person> valueSet,Context context)
                 throws IOException, InterruptedException {
 
+            ArrayList<Knows> knows = new ArrayList<Knows>();
             Person person = null;
             int index = 0;
             for ( Person p : valueSet) {
                 if( index == 0 ) {
                     person = new Person(p);
-                } else {
-                    for ( Knows k : p.knows() ) {
-                        person.knows().add(k);
-                    }
+                }
+                for(Knows k : p.knows()) {
+                    knows.add(k);
                 }
                 index++;
             }
+            person.knows().clear();
+            Collections.sort(knows);
+            if(knows.size() > 0 ) {
+                long currentTo = knows.get(0).to().accountId();
+                person.knows().add(knows.get(0));
+                for (index = 1; index < knows.size(); ++index) {
+                    Knows nextKnows = knows.get(index);
+                    if(currentTo != knows.get(index).to().accountId()) {
+                        person.knows().add(nextKnows);
+                        currentTo = nextKnows.to().accountId();
+                    }
+                }
+            }
+
             //System.out.println("Num persons "+index);
             context.write(keySetter.getKey(person),person);
         }

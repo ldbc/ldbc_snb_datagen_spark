@@ -36,12 +36,16 @@
  */
 package ldbc.snb.datagen.objects;
 
+import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.generator.DatagenParams;
+import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import org.apache.hadoop.io.Writable;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-
+import java.util.ArrayList;
+import java.util.Random;
 
 
 public class Knows implements Writable, Comparable<Knows> {
@@ -103,11 +107,38 @@ public class Knows implements Writable, Comparable<Knows> {
     }
 
     public int compareTo(Knows k) {
-        int res =  (int)(to_.accountId() - k.to().accountId());
-        if( res != 0 ) return res;
+        long res =  (to_.accountId() - k.to().accountId());
+        if( res > 0 ) return 1;
+        if( res < 0 ) return -1;
         long res2 = creationDate_ - k.creationDate();
         if( res2 > 0 ) return 1;
         if( res2 < 0 ) return -1;
         return 0;
+    }
+
+    public static int num = 0;
+
+    public static void createKnow( Random random, Person personA, Person personB ) {
+        long  creationDate = Dictionaries.dates.randomKnowsCreationDate(
+                random,
+                personA,
+                personB);
+        creationDate = creationDate - personA.creationDate() >= DatagenParams.deltaTime ? creationDate : creationDate + (DatagenParams.deltaTime - (creationDate - personA.creationDate()));
+        creationDate = creationDate - personB.creationDate() >= DatagenParams.deltaTime ? creationDate : creationDate + (DatagenParams.deltaTime - (creationDate - personB.creationDate()));
+        if( creationDate <= Dictionaries.dates.getEndDateTime() ) {
+            float similarity = Person.Similarity(personA,personB);
+            personB.knows().add(new Knows(personA, creationDate, similarity));
+            personA.knows().add(new Knows(personB, creationDate, similarity));
+        }
+    }
+
+    public static long target_edges(Person person, ArrayList<Float> percentages, int step_index ) {
+        int generated_edges = 0;
+        for (int i = 0; i < step_index; ++i) {
+            generated_edges += Math.ceil(percentages.get(i)*person.maxNumKnows());
+        }
+        generated_edges = Math.min(generated_edges, (int)person.maxNumKnows());
+        int to_generate = Math.min( (int)person.maxNumKnows() - generated_edges, (int)Math.ceil(percentages.get(step_index)*person.maxNumKnows()));
+        return  to_generate;
     }
 }

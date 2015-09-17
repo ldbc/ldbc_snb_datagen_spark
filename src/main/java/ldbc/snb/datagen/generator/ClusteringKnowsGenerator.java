@@ -15,191 +15,442 @@ import java.util.*;
  */
 public class ClusteringKnowsGenerator implements KnowsGenerator {
 
-    DistanceKnowsGenerator distanceKnowsGenerator_;
-    private double targetCC_ = 0.5;
-    private int maxIterations_ = 100;
-    private int numMinHashes_ = 10;
-    private Map<Long, Integer> personPosition;
+    Random rand;
+    private ArrayList<Float> percentages = null;
+    private int stepIndex = 0;
+
+    private class PersonInfo {
+        public int index_;
+        public long degree_;
+    }
+
+    private class Community {
+        public long id_;
+        public ArrayList<PersonInfo> core_;
+        public ArrayList<PersonInfo> periphery_;
+        public float p_ = 1.0f;
+    }
+
+
+    private class PersonInfoComparator implements Comparator<PersonInfo>{
+        public int compare(PersonInfo a, PersonInfo b) {
+            if( a.degree_ != b.degree_ )
+                return (int)(b.degree_ - a.degree_ );
+            return a.index_ - b.index_;
+        }
+    }
+
+    private class ClusteringInfo {
+        public ArrayList<Long> core_node_expected_core_degree_ = new ArrayList<Long>();
+        public ArrayList<Long> core_node_excedence_degree_ = new ArrayList<Long>();
+        public ArrayList<Long> core_node_expected_periphery_degree_ = new ArrayList<Long>();
+        public ArrayList<Long> core_node_expected_external_degree_ = new ArrayList<Long>();
+        public ArrayList<Float> clustering_coefficient_ = new ArrayList<Float>();
+        public ArrayList<Long> community_core_stubs_ = new ArrayList<Long>();
+        public ArrayList<Float> community_core_probs_ = new ArrayList<Float>();
+        public ArrayList<Integer> core_nodes_ = new ArrayList<Integer>();
+        public float sumProbs = 0.0f;
+        public int numCommunities = 0;
+
+        ClusteringInfo( int size, ArrayList<Community> communities ) {
+            for( int i = 0; i < size; ++i) {
+                core_node_expected_core_degree_.add(0L);
+                core_node_excedence_degree_.add(0L);
+                core_node_expected_periphery_degree_.add(0L);
+                core_node_expected_external_degree_.add(0L);
+                clustering_coefficient_.add(0.0f);
+            }
+            for( int i = 0; i < communities.size(); ++i) {
+                community_core_stubs_.add(0L);
+                community_core_probs_.add(0.0f);
+            }
+
+            for( Community c: communities) {
+                for( PersonInfo pI : c.core_) {
+                    core_nodes_.add(pI.index_);
+                }
+            }
+
+            numCommunities = communities.size();
+            sumProbs = communities.size();
+        }
+    }
+
 
     public ClusteringKnowsGenerator() {
-        this.distanceKnowsGenerator_ = new DistanceKnowsGenerator();
+        rand = new Random();
     }
 
-    public class MinHashComparator implements Comparator<MinHashTuple> {
-        private int function_;
-        MinHashComparator(int function) {
-            function_ = function;
+    private Community findSolution( ArrayList<Person> persons, int begin, int last) {
+        ArrayList<PersonInfo> nodes = new ArrayList<PersonInfo>();
+        for (int i = begin; i < last + 1; ++i ) {
+            Person p = persons.get(i);
+            PersonInfo pInfo = new PersonInfo();
+            pInfo.index_ = i;
+            pInfo.degree_ = Knows.target_edges(p,percentages,stepIndex);
+            nodes.add(pInfo);
         }
-        @Override
-        public int compare(MinHashTuple o1, MinHashTuple o2) {
-            long a =  o1.minHashes_.get(function_);
-            long b =  o1.minHashes_.get(function_);
-            if( a < b ) return -1;
-            if( a > b ) return 1;
-            return 0;
+
+        Collections.sort(nodes, new PersonInfoComparator() );
+        ArrayList<PersonInfo> core = new ArrayList<PersonInfo>();
+        ArrayList<PersonInfo> periphery = new ArrayList<PersonInfo>();
+        for (PersonInfo pI : nodes ) {
+            if(pI.degree_ >= core.size() ) {
+                core.add(pI);
+            } else {
+                periphery.add(pI);
+            }
+        }
+        return checkBudget(persons, core, periphery);
+    }
+
+    private ArrayList<Long> createInitialBudget( ArrayList<PersonInfo> core) {
+        return createInitialBudget(core, 1.0f);
+    }
+
+    private ArrayList<Long> createInitialBudget( ArrayList<PersonInfo> core, float p ) {
+        ArrayList<Long> budget = new ArrayList<Long>();
+        int coreSize = core.size();
+        for ( PersonInfo pI : core ) {
+            budget.add(pI.degree_ - (long)((coreSize - 1)*p));
+        }
+        return budget;
+    }
+
+    private Community checkBudget(ArrayList<Person> persons, ArrayList<PersonInfo> core, ArrayList<PersonInfo> periphery) {
+        ArrayList<Long> temp_budget = createInitialBudget(core);
+        Collections.sort(periphery, new PersonInfoComparator());
+        for(PersonInfo pI : periphery ) {
+            long degree = pI.degree_;
+            long remaining = degree;
+            int i = 0;
+            while(i < temp_budget.size() && remaining > 0) {
+                if( temp_budget.get(i) > 0) {
+                    temp_budget.set(i, temp_budget.get(i) - 1);
+                    remaining -= 1;
+                }
+                ++i;
+            }
+            if (remaining > 0) {
+                return null;
+            }
+        }
+        Community community = new Community();
+        community.core_ = core;
+        community.periphery_ = periphery;
+        return community;
+    }
+
+    private  ArrayList<Community> generateCommunities( ArrayList<Person> persons) {
+        ArrayList<Community> communities = new ArrayList<Community>();
+        int last = 0;
+        int begin = 0;
+        int end = persons.size();
+        int threshold = 5;
+        while (last < end ) {
+            int best = last;
+            int numTries = 0;
+            Community bestCommunity = null;
+            while( numTries <= threshold && last < end ) {
+                numTries++;
+                Community community = findSolution(persons, begin, last);
+                if( community != null ) {
+                    bestCommunity = community;
+                    numTries = 0;
+                    best=last;
+                }
+                last++;
+            }
+            bestCommunity.id_ = communities.size();
+            communities.add(bestCommunity);
+            last = best + 1;
+            begin = last;
+        }
+        return communities;
+    }
+
+    private void computeCommunityInfo(ClusteringInfo cInfo, Community c, float prob) {
+        ArrayList<Long> peripheryBudget = new ArrayList<Long>();
+        Collections.sort(c.periphery_, new PersonInfoComparator());
+        for (PersonInfo pI : c.periphery_) {
+            peripheryBudget.add(pI.degree_);
+        }
+
+        // Initializing cInfo with expected degrees
+        for (PersonInfo pI : c.core_) {
+            cInfo.core_node_expected_core_degree_.set(pI.index_, (long) ((c.core_.size() - 1) * prob));
+            cInfo.core_node_excedence_degree_.set(pI.index_, pI.degree_ - cInfo.core_node_expected_core_degree_.get(pI.index_));
+            cInfo.core_node_expected_periphery_degree_.set(pI.index_, 0L);
+        }
+
+        long remainingStubs = 0;
+        //System.out.println(c.core_.size()+" "+c.periphery_.size());
+        for (PersonInfo pI : c.core_) {
+            long pDegree = 0;
+            long maxDegree = pI.degree_ - cInfo.core_node_expected_core_degree_.get(pI.index_);
+            for (Long l : peripheryBudget) {
+                if (l != 0 && pDegree < maxDegree) {
+                    pDegree++;
+                    l--;
+                }
+            }
+
+            cInfo.core_node_expected_periphery_degree_.set(pI.index_, pDegree);
+
+            //    System.out.println(pI.degree_+" "+cInfo.core_node_expected_core_degree_.get(pI.index_)+" "+cInfo.core_node_expected_periphery_degree_.get(pI.index_));
+
+            long deg = ((pI.degree_ - cInfo.core_node_expected_core_degree_.get(pI.index_) - cInfo.core_node_expected_periphery_degree_.get(pI.index_)));
+            cInfo.core_node_expected_external_degree_.set(pI.index_, deg);
+            remainingStubs += deg;
+        }
+        cInfo.community_core_stubs_.set((int)c.id_, remainingStubs);
+        cInfo.community_core_probs_.set((int)c.id_, c.p_);
+    }
+
+
+    private void estimateCCCommunity( ClusteringInfo cInfo, Community c, float prob ) {
+        computeCommunityInfo(cInfo, c, prob);
+
+        float probSameCommunity = 0.0f;
+        float probTriangleSameCommunity = 0.0f;
+        long sumStubs = 0;
+        int index = 0;
+        for(Long l : cInfo.community_core_stubs_) {
+            if(index != c.id_) {
+                float p = l*l;
+                probSameCommunity += p;
+                probTriangleSameCommunity += p*cInfo.community_core_probs_.get(index);
+                sumStubs+=l;
+            }
+            index++;
+        }
+        probSameCommunity /= (sumStubs*sumStubs);
+        probTriangleSameCommunity /= (sumStubs*sumStubs);
+
+        float probTwoConnected  = 0.0f;
+        for( Integer i : cInfo.core_nodes_ ) {
+            long degree1 = cInfo.core_node_expected_external_degree_.get(i);
+            if(degree1 > 0) {
+                for (Integer ii : cInfo.core_nodes_) {
+                    long degree2 = cInfo.core_node_expected_external_degree_.get(ii);
+                    if(degree2 > 0)
+                        probTwoConnected += degree1 * degree2 / (float) (2 * sumStubs * sumStubs);
+                }
+            }
+        }
+
+        // Computing clustering coefficient of periphery nodes
+        for (PersonInfo pI: c.periphery_) {
+            if(pI.degree_ > 1) {
+                cInfo.clustering_coefficient_.set(pI.index_, prob);
+            }
+        }
+
+        ArrayList<Long> peripheryBudget = new ArrayList<Long>();
+        peripheryBudget.clear();
+        for(PersonInfo pI: c.periphery_) {
+            peripheryBudget.add(pI.degree_);
+        }
+
+        // Computing clustering coefficient of core nodes
+        for ( PersonInfo pI : c.core_ ){
+            int size = c.core_.size();
+            if( pI.degree_ > 1 && size > 1) {
+                // core core triangles
+                long internalTriangles = (int)((size-1)*(size-2)*Math.pow(prob,3));
+                // core periphery triangles
+                long peripheryTriangles = 0;
+                index = 0;
+                long remainingDegree = pI.degree_;
+                for(Long l : peripheryBudget) {
+                    if(l > 0) {
+                        l--;
+                        remainingDegree--;
+                        if(c.periphery_.get(index).degree_ > 1) {
+                            peripheryTriangles += 2*(c.periphery_.get(index).degree_ - 1) * prob;
+                        }
+                    }
+                    if(remainingDegree == 0) break;
+                    index++;
+                }
+
+                float external_triangles = 0.0f;
+                if(cInfo.core_node_expected_external_degree_.get(pI.index_) > 1) {
+                    external_triangles += cInfo.core_node_expected_external_degree_.get(pI.index_) * (cInfo.core_node_expected_external_degree_.get(pI.index_) - 1) * probTriangleSameCommunity;
+                    external_triangles += cInfo.core_node_expected_external_degree_.get(pI.index_) * (cInfo.core_node_expected_external_degree_.get(pI.index_) - 1) * (1 - probSameCommunity) * probTwoConnected;
+                }
+                long degree = cInfo.core_node_expected_core_degree_.get(pI.index_) +
+                        cInfo.core_node_expected_periphery_degree_.get(pI.index_) +
+                        cInfo.core_node_expected_external_degree_.get(pI.index_);
+
+                if( degree > 1 ) {
+                    cInfo.clustering_coefficient_.set(pI.index_, (internalTriangles+peripheryTriangles+external_triangles)/(float)(degree*(degree-1)));
+                }
+            }
         }
     }
 
-    protected  class MinHashTuple {
-        public long index_;
-        ArrayList<Long> minHashes_;
-        MinHashTuple( long index, ArrayList<Long> minHashes ){
-            index_ = index;
-            minHashes_ = minHashes;
+
+    float clusteringCoefficient(ClusteringInfo cInfo ) {
+        float accum  = 0.0f;
+        for( float cc : cInfo.clustering_coefficient_) {
+            accum += cc;
+        }
+        return accum / (float)cInfo.clustering_coefficient_.size();
+    }
+
+    void refineCommunities( ClusteringInfo cInfo, ArrayList<Community> communities, float targetCC ) {
+        float currentCC = clusteringCoefficient(cInfo);
+        int lookAhead = 5;
+        int tries = 0;
+        while( Math.abs(currentCC - targetCC)  > 0.001 && tries <= lookAhead) {
+            boolean found = false;
+            tries+=1;
+            if( currentCC < targetCC ) {
+                found = improveCC(cInfo, communities);
+            } else if( currentCC > targetCC){
+                found = worsenCC(cInfo, communities);
+            }
+            if( found ) {
+               currentCC = clusteringCoefficient(cInfo);
+               tries = 0;
+            }
+        }
+        System.out.println("Clustering Coefficient after refinement: " + currentCC);
+    }
+
+    boolean improveCC(ClusteringInfo cInfo, ArrayList<Community> communities) {
+        ArrayList<Community>  filtered = new ArrayList<Community>();
+        for(Community c : communities ) {
+            if(c.p_ < 1.0 ) filtered.add(c);
+        }
+        if(filtered.size() == 0) return false;
+        int index = rand.nextInt(filtered.size());
+        Community c = filtered.get(index);
+        c.p_ = Math.max(c.p_ + 0.01f, 1.0f);
+        cInfo.sumProbs+=0.01;
+        estimateCCCommunity(cInfo, c, c.p_ );
+        return true;
+    }
+
+    boolean worsenCC(ClusteringInfo cInfo, ArrayList<Community> communities) {
+        ArrayList<Community>  filtered = new ArrayList<Community>();
+        for(Community c : communities ) {
+            if(c.p_ > 0.0 ) filtered.add(c);
+        }
+        if(filtered.size() == 0) return false;
+        int index = rand.nextInt(filtered.size());
+        Community c = filtered.get(index);
+        c.p_ = Math.min(c.p_ - 0.01f, 0.0f);
+        cInfo.sumProbs-=0.01;
+        estimateCCCommunity(cInfo, c, c.p_ );
+        return true;
+    }
+
+    void createEdgesCommunityCore(ArrayList<Person> persons, Community c) {
+        for ( PersonInfo pI : c.core_) {
+            for( PersonInfo other: c.core_) {
+                if(pI.index_ < other.index_ ) {
+                    float prob = rand.nextFloat();
+                    if( prob <= c.p_ ) {
+                        // crear aresta
+                        Knows.createKnow(rand, persons.get(pI.index_), persons.get(other.index_));
+                    }
+                }
+            }
         }
     }
 
-    protected class PersonTuple implements Comparable<PersonTuple> {
-        public long a_;
-        public long b_;
-        public double score_;
+    void createEdgesCommunityPeriphery(ClusteringInfo cInfo, ArrayList<Person> persons, Community c) {
 
-        PersonTuple(long a, long b, double score) {
-            a_=Math.min(a,b);
-            b_=Math.max(a,b);
-            score_ = score;
+        ArrayList<Long> peripheryBudget = new ArrayList<Long>();
+        for(PersonInfo pI: c.periphery_) {
+            peripheryBudget.add(pI.degree_);
         }
 
-        @Override
-        public int compareTo(PersonTuple b) {
-            if( score_ < b.score_) return 1;
-            if( score_ > b.score_) return -1;
-            if( a_ < b.a_) return -1;
-            if( a_ > b.a_) return 1;
-            if( b_ < b.b_) return -1;
-            if( b_ > b.b_) return 1;
-            return 0;
+        for ( PersonInfo pI : c.core_ ) {
+            long pDegree = 0;
+            long maxDegree = cInfo.core_node_expected_periphery_degree_.get(pI.index_);
+            int index =0;
+            for (Long l : peripheryBudget) {
+                if( l != 0 && pDegree < maxDegree)  {
+                    pDegree++;
+                    l--;
+                    Knows.createKnow(rand, persons.get(pI.index_), persons.get(c.periphery_.get(index).index_));
+                }
+                ++index;
+            }
         }
     }
+
+    void fillGraphWithRemainingEdges(ClusteringInfo cInfo, ArrayList<Community> communities, ArrayList<Person> persons) {
+        ArrayList<PersonInfo> stubs = new ArrayList<PersonInfo> ();
+        for ( Community c : communities ) {
+            for (PersonInfo pI : c.core_ ) {
+                long diff = pI.degree_ - persons.get(pI.index_).knows().size();
+                //long diff = cInfo.core_node_expected_external_degree_.get(pI.index_);
+                if( diff > 0 ) {
+                    for( int i = 0; i < diff; ++i) {
+                       stubs.add(pI);
+                    }
+                }
+            }
+        }
+        Collections.shuffle(stubs);
+        while(stubs.size()>0) {
+            int index = rand.nextInt(stubs.size());
+            PersonInfo first = stubs.get(index);
+            stubs.remove(index);
+            if(stubs.size() > 0) {
+                int index2 = rand.nextInt(stubs.size());
+                PersonInfo second = stubs.get(index2);
+                stubs.remove(index2);
+                // create edge
+                Knows.createKnow(rand, persons.get(first.index_), persons.get(second.index_));
+            }
+        }
+    }
+
 
     public void generateKnows( ArrayList<Person> persons, int seed, ArrayList<Float> percentages, int step_index )  {
-        Random random = new Random();
-        Map<Long, Integer> personPosition = new HashMap<Long, Integer>();
-        for( int i = 0; i < persons.size(); ++i ) {
-            personPosition.put(persons.get(i).accountId(), i);
-        }
-        distanceKnowsGenerator_.generateKnows(persons,seed, percentages, step_index);
-        PersonGraph bestGraph = new PersonGraph(persons);
-        MinHash minHash = new MinHash(numMinHashes_, 0);
-        double bestCC = GraphUtils.ClusteringCoefficient(bestGraph);
-        int numIterations = 0;
-        ArrayList<MinHashTuple> minHashes = new ArrayList<MinHashTuple>();
-        PersonGraph currentGraph = new PersonGraph(bestGraph);
-        double currentCC = bestCC;
-        while(bestCC < targetCC_ && numIterations < maxIterations_){
-            System.out.println("Starting Refining Iteration "+bestCC+" "+currentCC+" "+numIterations);
-            minHashes.clear();
-            for(Long l : currentGraph.persons()) {
-                minHashes.add(new MinHashTuple(l, minHash.minHash(currentGraph.neighbors(l))));
-            }
-            PriorityQueue<PersonTuple> pq = new PriorityQueue<PersonTuple>();
-            for(int k = 0; k < numMinHashes_; ++k ) {
-                Collections.sort(minHashes, new MinHashComparator(k));
-                for(int i = 0; i < minHashes.size() - 1; ++i) {
-                    long personA = minHashes.get(i).index_;
-                    long personB = minHashes.get(i+1).index_;
-                    double score = computeScore(currentGraph,personA,personB);
-                    if(score > 0.5) {
-                        pq.add(new PersonTuple(personA, personB, score));
-                    }
-                }
-            }
-            random.setSeed(numIterations);
-            HashSet<Long> touched = new HashSet<Long>();
-            while(pq.size() > 0) {
-                PersonTuple t = pq.poll();
-                long personA = t.a_;
-                long personB = t.b_;
-                HashSet<Long> candidatesA = new HashSet<Long>(currentGraph.neighbors(personA));
-                HashSet<Long> candidatesB = new HashSet<Long>(currentGraph.neighbors(personB));
-                HashSet<Long> intersection = new HashSet<Long>(candidatesA);
-                intersection.retainAll(candidatesB);
-                candidatesA.removeAll(intersection);
-                candidatesB.removeAll(intersection);
-                if(candidatesA.size() > 0 && candidatesB.size() > 0) {
-                    List<Long> candidatesListA = new ArrayList<Long>(candidatesA);
-                    List<Long> candidatesListB = new ArrayList<Long>(candidatesB);
-                    Collections.shuffle(candidatesListA,random);
-                    Collections.shuffle(candidatesListB,random);
-                    long kq = candidatesListA.get(random.nextInt(candidatesListA.size()));
-                    long kt = candidatesListB.get(random.nextInt(candidatesListB.size()));
-                    if( !touched.contains(personA) &&
-                        !touched.contains(personB) &&
-                        !touched.contains(kq) &&
-                        !touched.contains(kt)
-                            ) {
-                        touched.add(personA);
-                        touched.add(personB);
-                        touched.add(kq);
-                        touched.add(kt);
-                        /*HashSet<Long> auxA = new HashSet<Long>(currentGraph.neighbors(personA));
-                        auxA.retainAll(currentGraph.neighbors(kq));
-                        long degreeAuxA = Math.min(currentGraph.neighbors(personA).size(), currentGraph.neighbors(kq).size());
-                        double scoreAq =  0.0;
-                        if(degreeAuxA > 1)
-                            scoreAq = (2*auxA.size()) / (double)(degreeAuxA*(degreeAuxA-1));
 
-                        HashSet<Long> auxB = new HashSet<Long>(currentGraph.neighbors(personB));
-                        long degreeAuxB = Math.min(currentGraph.neighbors(personB).size(), currentGraph.neighbors(kt).size());
-                        auxB.retainAll(currentGraph.neighbors(kt));
-                        double scoreBt =  0.0;
-                        if(degreeAuxB > 1)
-                            scoreBt = (2*auxA.size()) / (double)(degreeAuxB*(degreeAuxB-1));
-                        if( scoreBt > bestCC && scoreAq > bestCC)
-                        */
-                            rewire(currentGraph, t.a_, t.b_, kq, kt);
-                    }
-                }
-            }
-            currentCC = GraphUtils.ClusteringCoefficient(currentGraph);
-            numIterations++;
-            if(currentCC > bestCC ) {
-                numIterations = 0;
-                bestGraph = currentGraph;
-                bestCC = currentCC;
-            }
+        rand.setSeed(seed);
+        this.percentages = percentages;
+        this.stepIndex = step_index;
+        float targetCC = 0.23f;
+
+
+        ArrayList<Community>  communities = generateCommunities(persons);
+        ClusteringInfo cInfo = new ClusteringInfo( persons.size(), communities );
+
+        System.out.println("Number of generated communitis: "+communities.size());
+
+
+        for( Community c : communities ) {
+            computeCommunityInfo(cInfo, c, 1.0f);
         }
 
-        for(Person p : persons) {
-            p.knows().clear();
+        for( Community c : communities ) {
+            estimateCCCommunity(cInfo, c, 1.0f);
         }
-        for(Long l : bestGraph.persons()) {
-            Person p = persons.get(personPosition.get(l));
-            Set<Long> neighbors = bestGraph.neighbors(l);
-            for( Long n: neighbors) {
-                if( l < n ) {
-                    Person other = persons.get(personPosition.get(n));
-                    p.knows().add(new Knows(other, 0, 0));
-                    other.knows().add(new Knows(p, 0, 0));
-                }
+
+        float maxCC = clusteringCoefficient(cInfo);
+        System.out.println("maxCC: "+maxCC);
+
+        refineCommunities(cInfo, communities, targetCC);
+
+        for(Community c : communities ) {
+            createEdgesCommunityCore(persons, c);
+            createEdgesCommunityPeriphery(cInfo, persons,c);
+        }
+        fillGraphWithRemainingEdges(cInfo, communities, persons);
+        int count = 0;
+        for( Person p : persons ) {
+            if(p.knows().size() < Knows.target_edges(p,percentages,step_index) ) {
+                count++;
+              //  System.out.println(p.knows().size()+" "+p.maxNumKnows());
             }
         }
+        System.out.println("Number of persons with less degree than expected: "+count);
     }
-
-    void rewire(PersonGraph graph, long i , long j, long q, long t) {
-        graph.neighbors(i).add(j);
-        graph.neighbors(j).add(i);
-        graph.neighbors(i).remove(q);
-        graph.neighbors(q).remove(i);
-        graph.neighbors(j).remove(t);
-        graph.neighbors(t).remove(j);
-        graph.neighbors(q).add(t);
-        graph.neighbors(t).add(q);
-    }
-
-    double computeScore(PersonGraph graph, long personA, long personB){
-        if(graph.neighbors(personA).contains(personB)) return 0.0;
-        HashSet<Long> intersection = new HashSet<Long>(graph.neighbors(personA));
-        intersection.retainAll(graph.neighbors(personB));
-        if(intersection.size() == 0) return 0.0;
-        int degreeA = graph.neighbors(personA).size();
-        double score = 0.0;
-        if(degreeA > 1)
-            score += intersection.size() / (double) (degreeA * (degreeA - 1));
-        int degreeB = graph.neighbors(personB).size();
-        if(degreeB > 1)
-            score += intersection.size() / (double) (degreeB * (degreeB - 1));
-        return score;
-    }
-
 }

@@ -51,6 +51,7 @@ import java.util.ArrayList;
 public class CSVPersonSerializer extends PersonSerializer {
 
     private HDFSCSVWriter [] writers;
+    private String separator_ = " ";
 
     private enum FileNames {
         PERSON_KNOWS_PERSON("person_knows_person");
@@ -72,7 +73,7 @@ public class CSVPersonSerializer extends PersonSerializer {
         int numFiles = FileNames.values().length;
         writers = new HDFSCSVWriter[numFiles];
         for( int i = 0; i < numFiles; ++i) {
-            writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"), FileNames.values()[i].toString()+"_"+reducerId,conf.getInt("ldbc.snb.datagen.numPartitions",1),conf.getBoolean("ldbc.snb.datagen.serializer.compressed",false),"|", false);
+            writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"), FileNames.values()[i].toString()+"_"+reducerId,conf.getInt("ldbc.snb.datagen.numPartitions",1),conf.getBoolean("ldbc.snb.datagen.serializer.compressed",false),separator_, false);
         }
 
         ArrayList<String> arguments = new ArrayList<String>();

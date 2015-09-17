@@ -78,6 +78,7 @@ public class LDBCDatagen {
         percentages.add(0.45f);
         percentages.add(0.1f);
 
+
         long start = System.currentTimeMillis();
         printProgress("Starting: Person generation");
         long startPerson = System.currentTimeMillis();
@@ -96,6 +97,7 @@ public class LDBCDatagen {
         knowsGenerator = new HadoopKnowsGenerator(conf,"ldbc.snb.datagen.hadoop.InterestKeySetter", "ldbc.snb.datagen.hadoop.RandomKeySetter", percentages, 1);
         knowsGenerator.run(hadoopPrefix+"/persons",hadoopPrefix+"/interestEdges");
         long endInterest = System.currentTimeMillis();
+
 
         printProgress("Creating random correlated edges");
         long startRandom= System.currentTimeMillis();
@@ -242,8 +244,8 @@ public class LDBCDatagen {
                 + " total seconds");
         System.out.println("Person generation time: "+((endPerson - startPerson) / 1000));
         System.out.println("University correlated edge generation time: "+((endUniversity - startUniversity) / 1000));
-        System.out.println("Interest correlated edge generation time: "+((endInterest - startInterest) / 1000));
-        System.out.println("Random correlated edge generation time: "+((endRandom - startRandom) / 1000));
+        //System.out.println("Interest correlated edge generation time: "+((endInterest - startInterest) / 1000));
+        //System.out.println("Random correlated edge generation time: "+((endRandom - startRandom) / 1000));
         System.out.println("Edges merge time: "+((endMerge - startMerge) / 1000));
         System.out.println("Person serialization time: "+((endPersonSerializing - startPersonSerializing) / 1000));
         System.out.println("Person activity generation and serialization time: "+((endPersonActivity - startPersonActivity) / 1000));

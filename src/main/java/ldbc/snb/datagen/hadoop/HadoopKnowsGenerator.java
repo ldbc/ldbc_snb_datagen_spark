@@ -33,8 +33,8 @@ public class HadoopKnowsGenerator {
         private int step_index;
 
         protected void setup(Context context) {
-            this.knowsGenerator = new DistanceKnowsGenerator();
-//            this.knowsGenerator = new ClusteringKnowsGenerator();
+            //this.knowsGenerator = new DistanceKnowsGenerator();
+            this.knowsGenerator = new ClusteringKnowsGenerator();
             this.percentages = new ArrayList<Float>();
             this.conf = context.getConfiguration();
             this.step_index = conf.getInt("stepIndex",0);
