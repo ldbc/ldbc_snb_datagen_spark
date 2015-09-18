@@ -10,6 +10,8 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.Properties;
@@ -82,10 +84,21 @@ public class ConfigParser {
         return conf;
     }
 
-    public static Configuration readConfig(Configuration conf, String paramsFile) {
+    public static Configuration readConfig(Configuration conf, String paramsFile ) {
+        try {
+            readConfig(conf, new FileInputStream(paramsFile));
+        } catch (FileNotFoundException e) {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+            System.exit(-1);
+        }
+        return conf;
+    }
+
+    public static Configuration readConfig(Configuration conf, InputStream paramStream ) {
         try {
             Properties properties = new Properties();
-            properties.load(new InputStreamReader(new FileInputStream(paramsFile), "UTF-8"));
+            properties.load(new InputStreamReader(paramStream, "UTF-8"));
             String val = (String) properties.get("ldbc.snb.datagen.generator.scaleFactor");
             if( val != null ) {
                 ScaleFactor scaleFactor = scaleFactors.get(val);
