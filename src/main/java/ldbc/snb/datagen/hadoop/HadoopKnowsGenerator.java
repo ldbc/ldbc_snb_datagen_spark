@@ -34,9 +34,13 @@ public class HadoopKnowsGenerator {
 
         protected void setup(Context context) {
             //this.knowsGenerator = new DistanceKnowsGenerator();
-            this.knowsGenerator = new ClusteringKnowsGenerator();
-            this.percentages = new ArrayList<Float>();
             this.conf = context.getConfiguration();
+            try {
+                this.knowsGenerator = (KnowsGenerator) Class.forName(conf.get("knowsGeneratorName")).newInstance();
+            }catch(Exception e) {
+                System.out.println(e.getMessage());
+            }
+            this.percentages = new ArrayList<Float>();
             this.step_index = conf.getInt("stepIndex",0);
             float p = conf.getFloat("percentage0",0.0f);
             int index = 1;
@@ -70,16 +74,18 @@ public class HadoopKnowsGenerator {
     private Configuration conf;
     private String preKeySetterName;
     private String postKeySetterName;
+    private String knowsGeneratorName;
     private ArrayList<Float> percentages;
     private int step_index;
 
 
-    public HadoopKnowsGenerator( Configuration conf, String preKeySetterName, String postKeySetterName, ArrayList<Float> percentages, int step_index  ) {
+    public HadoopKnowsGenerator( Configuration conf, String preKeySetterName, String postKeySetterName, ArrayList<Float> percentages, int step_index, String knowsGeneratorName  ) {
         this.conf = conf;
         this.preKeySetterName = preKeySetterName;
         this.postKeySetterName = postKeySetterName;
         this.percentages = percentages;
         this.step_index = step_index;
+        this.knowsGeneratorName = knowsGeneratorName;
     }
 
     public void run( String inputFileName, String outputFileName ) throws Exception {
@@ -116,6 +122,7 @@ public class HadoopKnowsGenerator {
             ++index;
         }
         conf.set("postKeySetterName",postKeySetterName);
+        conf.set("knowsGeneratorName", knowsGeneratorName);
         int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads"));
         Job job = Job.getInstance(conf, "Knows generator");
         job.setMapOutputKeyClass(BlockKey.class);

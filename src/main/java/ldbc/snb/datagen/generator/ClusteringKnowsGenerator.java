@@ -22,6 +22,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
     private class PersonInfo {
         public int index_;
         public long degree_;
+        public long original_degree_;
     }
 
     private class Community {
@@ -88,6 +89,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
             PersonInfo pInfo = new PersonInfo();
             pInfo.index_ = i;
             pInfo.degree_ = Knows.target_edges(p,percentages,stepIndex);
+            pInfo.original_degree_ = p.maxNumKnows();
             nodes.add(pInfo);
         }
 
@@ -242,7 +244,8 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         // Computing clustering coefficient of periphery nodes
         for (PersonInfo pI: c.periphery_) {
             if(pI.degree_ > 1) {
-                cInfo.clustering_coefficient_.set(pI.index_, prob);
+                cInfo.clustering_coefficient_.set(pI.index_, pI.degree_*(pI.degree_-1)*prob/(pI.original_degree_*(pI.original_degree_-1)));
+                //cInfo.clustering_coefficient_.set(pI.index_, prob);
             }
         }
 
@@ -279,9 +282,10 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
                     external_triangles += cInfo.core_node_expected_external_degree_.get(pI.index_) * (cInfo.core_node_expected_external_degree_.get(pI.index_) - 1) * probTriangleSameCommunity;
                     external_triangles += cInfo.core_node_expected_external_degree_.get(pI.index_) * (cInfo.core_node_expected_external_degree_.get(pI.index_) - 1) * (1 - probSameCommunity) * probTwoConnected;
                 }
-                long degree = cInfo.core_node_expected_core_degree_.get(pI.index_) +
+                /*long degree = cInfo.core_node_expected_core_degree_.get(pI.index_) +
                         cInfo.core_node_expected_periphery_degree_.get(pI.index_) +
-                        cInfo.core_node_expected_external_degree_.get(pI.index_);
+                        cInfo.core_node_expected_external_degree_.get(pI.index_);*/
+                long degree = pI.original_degree_;
 
                 if( degree > 1 ) {
                     cInfo.clustering_coefficient_.set(pI.index_, (internalTriangles+peripheryTriangles+external_triangles)/(float)(degree*(degree-1)));
@@ -417,7 +421,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         rand.setSeed(seed);
         this.percentages = percentages;
         this.stepIndex = step_index;
-        float targetCC = 0.23f;
+        float targetCC = 0.15f;
 
 
         ArrayList<Community>  communities = generateCommunities(persons);
