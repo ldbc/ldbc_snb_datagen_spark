@@ -265,8 +265,8 @@ public class LDBCDatagen {
                 + " total seconds");
         System.out.println("Person generation time: "+((endPerson - startPerson) / 1000));
         System.out.println("University correlated edge generation time: "+((endUniversity - startUniversity) / 1000));
-        //System.out.println("Interest correlated edge generation time: "+((endInterest - startInterest) / 1000));
-        //System.out.println("Random correlated edge generation time: "+((endRandom - startRandom) / 1000));
+        System.out.println("Interest correlated edge generation time: "+((endInterest - startInterest) / 1000));
+        System.out.println("Random correlated edge generation time: "+((endRandom - startRandom) / 1000));
         System.out.println("Edges merge time: "+((endMerge - startMerge) / 1000));
         System.out.println("Person serialization time: "+((endPersonSerializing - startPersonSerializing) / 1000));
         System.out.println("Person activity generation and serialization time: "+((endPersonActivity - startPersonActivity) / 1000));
