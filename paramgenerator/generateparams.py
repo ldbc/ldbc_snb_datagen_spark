@@ -142,7 +142,7 @@ def main(argv=None):
 			friendsFiles.append(indir+file)
 
 	# read precomputed counts from files	
-	(personFactors, countryFactors, tagFactors, tagClassFactors, nameFactors, givenNames,  ts) = readfactors.load(factorFiles, friendsFiles)
+	(personFactors, countryFactors, tagFactors, tagClassFactors, nameFactors, givenNames,  ts, postHisto) = readfactors.load(factorFiles, friendsFiles)
 
 	# find person parameters
 	print "find parameter bindings for Persons"
