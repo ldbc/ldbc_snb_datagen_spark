@@ -37,6 +37,7 @@ public class HadoopKnowsGenerator {
             this.conf = context.getConfiguration();
             try {
                 this.knowsGenerator = (KnowsGenerator) Class.forName(conf.get("knowsGeneratorName")).newInstance();
+                this.knowsGenerator.initialize(conf);
             }catch(Exception e) {
                 System.out.println(e.getMessage());
             }
@@ -80,7 +81,7 @@ public class HadoopKnowsGenerator {
 
 
     public HadoopKnowsGenerator( Configuration conf, String preKeySetterName, String postKeySetterName, ArrayList<Float> percentages, int step_index, String knowsGeneratorName  ) {
-        this.conf = conf;
+        this.conf = new Configuration(conf);
         this.preKeySetterName = preKeySetterName;
         this.postKeySetterName = postKeySetterName;
         this.percentages = percentages;

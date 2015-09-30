@@ -7,6 +7,7 @@ import ldbc.snb.datagen.generator.tools.PersonGraph;
 import ldbc.snb.datagen.objects.Knows;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
+import org.apache.hadoop.conf.Configuration;
 
 import java.util.*;
 
@@ -18,6 +19,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
     Random rand;
     private ArrayList<Float> percentages = null;
     private int stepIndex = 0;
+    private float targetCC = 0.0f;
 
     private class PersonInfo {
         public int index_;
@@ -333,7 +335,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         Community c = filtered.get(index);
         c.p_ = Math.max(c.p_ + 0.01f, 1.0f);
         cInfo.sumProbs+=0.01;
-        estimateCCCommunity(cInfo, c, c.p_ );
+        estimateCCCommunity(cInfo, c, c.p_);
         return true;
     }
 
@@ -421,7 +423,6 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         rand.setSeed(seed);
         this.percentages = percentages;
         this.stepIndex = step_index;
-        float targetCC = 0.15f;
 
 
         ArrayList<Community>  communities = generateCommunities(persons);
@@ -456,5 +457,11 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
             }
         }
         System.out.println("Number of persons with less degree than expected: "+count);
+    }
+
+    public void initialize( Configuration conf ) {
+        targetCC = conf.getFloat("ldbc.snb.datagen.generator.ClusteringKnowsGenerator.clusteringCoefficient", 0.1f);
+        System.out.println("Initialized clustering coefficient to "+targetCC);
+        targetCC /= 2.0f;
     }
 }

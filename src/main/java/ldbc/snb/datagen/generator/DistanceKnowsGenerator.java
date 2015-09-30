@@ -4,6 +4,7 @@ import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.objects.Knows;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
+import org.apache.hadoop.conf.Configuration;
 
 import java.util.ArrayList;
 
@@ -30,6 +31,10 @@ public class DistanceKnowsGenerator implements KnowsGenerator {
         }
     }
 
+    public void initialize( Configuration conf ) {
+
+    }
+
     boolean know( Person personA, Person personB, int dist, ArrayList<Float> percentages, int step_index ) {
         if( personA.knows().size() >= Knows.target_edges( personA, percentages, step_index) ||
             personB.knows().size() >= Knows.target_edges( personB, percentages, step_index) ) return false;
@@ -40,6 +45,7 @@ public class DistanceKnowsGenerator implements KnowsGenerator {
         }
         return false;
     }
+
 
 
 }

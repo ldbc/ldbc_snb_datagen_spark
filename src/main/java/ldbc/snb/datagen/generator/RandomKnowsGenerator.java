@@ -2,6 +2,7 @@ package ldbc.snb.datagen.generator;
 
 import ldbc.snb.datagen.objects.Knows;
 import ldbc.snb.datagen.objects.Person;
+import org.apache.hadoop.conf.Configuration;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,5 +51,9 @@ public class RandomKnowsGenerator implements KnowsGenerator {
                 }
             }
         }
+    }
+
+    public void initialize( Configuration conf ) {
+
     }
 }
