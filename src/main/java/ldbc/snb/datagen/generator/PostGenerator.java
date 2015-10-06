@@ -38,6 +38,7 @@
 package ldbc.snb.datagen.generator;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.dictionary.TextGenerator;
 import ldbc.snb.datagen.objects.Forum;
 import ldbc.snb.datagen.objects.ForumMembership;
 import ldbc.snb.datagen.objects.Post;
@@ -51,6 +52,8 @@ import java.util.TreeSet;
 
 abstract public class PostGenerator {
 	
+	private TextGenerator generator;
+	
 	static protected class PostInfo {
 		public TreeSet<Integer> tags;
 		public long             date;
@@ -63,7 +66,8 @@ abstract public class PostGenerator {
 	
 	/* A set of random number generator for different purposes.*/
 	
-	public PostGenerator( ){
+	public PostGenerator( TextGenerator generator){
+		this.generator = generator;
 	}
 	
 	/** @brief Initializes the post generator.*/
@@ -87,19 +91,18 @@ abstract public class PostGenerator {
 				if( postInfo != null ) {
 					
 					String content = "";
+					
 					int textSize;
+					/*
 					if( member.person().isLargePoster() && randomFarm.get(RandomGeneratorFarm.Aspect.LARGE_TEXT).nextDouble() > (1.0f-DatagenParams.ratioLargePost) ) {
 						textSize = Dictionaries.tagText.getRandomLargeTextSize( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE),DatagenParams.minLargePostSize, DatagenParams.maxLargePostSize );
 					} else {
 						textSize = Dictionaries.tagText.getRandomTextSize( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT), DatagenParams.minTextSize, DatagenParams.maxTextSize);
-					}
+					}*/
+					// crear properties class para passar 
 					
-					content = Dictionaries.tagText.generateText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), postInfo.tags, textSize );
-					if( content.length() != textSize ) {
-						System.out.println("ERROR while generating text - content size: "+ content.length()+", actual size: "+ textSize);
-						System.exit(-1);
-					}
-					
+					content = this.generator.generateText(member.person(), postInfo.tags);
+									
 					Post post = new Post( SN.formId(SN.composeId(postId,postInfo.date)),
 						postInfo.date,
 						member.person(),
