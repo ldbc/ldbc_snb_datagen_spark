@@ -46,6 +46,7 @@ import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
 
 import java.util.ArrayList;
+import java.util.Properties;
 import java.util.Random;
 import java.util.TreeSet;
 
@@ -100,9 +101,8 @@ abstract public class PostGenerator {
 						textSize = Dictionaries.tagText.getRandomTextSize( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT), DatagenParams.minTextSize, DatagenParams.maxTextSize);
 					}*/
 					// crear properties class para passar 
-					
-					content = this.generator.generateText(member.person(), postInfo.tags);
-									
+					Properties prop = new Properties();
+					content = this.generator.generateText(member.person(), postInfo.tags,prop);				
 					Post post = new Post( SN.formId(SN.composeId(postId,postInfo.date)),
 						postInfo.date,
 						member.person(),
