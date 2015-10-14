@@ -1,8 +1,8 @@
 package ldbc.snb.datagen.hadoop;
 
-import ldbc.snb.datagen.generator.KnowsGenerator;
 import ldbc.snb.datagen.generator.LDBCDatagen;
 import ldbc.snb.datagen.objects.Knows;
+import ldbc.snb.datagen.objects.Knows.FullComparator;
 import ldbc.snb.datagen.objects.Person;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -16,7 +16,6 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 
 /**
  * Created by aprat on 29/07/15.
@@ -28,6 +27,7 @@ public class HadoopMergeFriendshipFiles {
 
         private Configuration conf;
         private HadoopFileKeyChanger.KeySetter<TupleKey> keySetter = null;
+        private int numRepeated = 0;
 
         protected void setup(Context context) {
             this.conf = context.getConfiguration();
@@ -56,7 +56,8 @@ public class HadoopMergeFriendshipFiles {
                 index++;
             }
             person.knows().clear();
-            Collections.sort(knows);
+            Knows.FullComparator comparator = new Knows.FullComparator();
+            Collections.sort(knows, comparator);
             if(knows.size() > 0 ) {
                 long currentTo = knows.get(0).to().accountId();
                 person.knows().add(knows.get(0));
@@ -65,6 +66,8 @@ public class HadoopMergeFriendshipFiles {
                     if(currentTo != knows.get(index).to().accountId()) {
                         person.knows().add(nextKnows);
                         currentTo = nextKnows.to().accountId();
+                    } else {
+                        numRepeated++;
                     }
                 }
             }
@@ -72,6 +75,9 @@ public class HadoopMergeFriendshipFiles {
             //System.out.println("Num persons "+index);
             context.write(keySetter.getKey(person),person);
         }
+        protected void cleanup(Context context){
+            System.out.println("Number of repeated edges: "+numRepeated);
+		}
     }
 
     private Configuration conf;

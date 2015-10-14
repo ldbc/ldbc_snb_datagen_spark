@@ -45,6 +45,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Random;
 
 
@@ -110,15 +111,30 @@ public class Knows implements Writable, Comparable<Knows> {
         long res =  (to_.accountId() - k.to().accountId());
         if( res > 0 ) return 1;
         if( res < 0 ) return -1;
-        long res2 = creationDate_ - k.creationDate();
+        /*long res2 = creationDate_ - k.creationDate();
         if( res2 > 0 ) return 1;
         if( res2 < 0 ) return -1;
+        */
         return 0;
+    }
+
+    static public class FullComparator implements Comparator<Knows> {
+
+        public int compare(Knows a, Knows b) {
+            long res =  (a.to_.accountId() - b.to().accountId());
+            if( res > 0 ) return 1;
+            if( res < 0 ) return -1;
+            long res2 = a.creationDate_ - b.creationDate();
+            if( res2 > 0 ) return 1;
+            if( res2 < 0 ) return -1;
+            return 0;
+        }
+
     }
 
     public static int num = 0;
 
-    public static void createKnow( Random random, Person personA, Person personB ) {
+    public static boolean createKnow( Random random, Person personA, Person personB ) {
         long  creationDate = Dictionaries.dates.randomKnowsCreationDate(
                 random,
                 personA,
@@ -127,9 +143,11 @@ public class Knows implements Writable, Comparable<Knows> {
         creationDate = creationDate - personB.creationDate() >= DatagenParams.deltaTime ? creationDate : creationDate + (DatagenParams.deltaTime - (creationDate - personB.creationDate()));
         if( creationDate <= Dictionaries.dates.getEndDateTime() ) {
             float similarity = Person.Similarity(personA,personB);
-            personB.knows().add(new Knows(personA, creationDate, similarity));
-            personA.knows().add(new Knows(personB, creationDate, similarity));
+            if(!personB.knows().add(new Knows(personA, creationDate, similarity))) return false;
+            if(!personA.knows().add(new Knows(personB, creationDate, similarity))) return false;
+            return true;
         }
+        return false;
     }
 
     public static long target_edges(Person person, ArrayList<Float> percentages, int step_index ) {

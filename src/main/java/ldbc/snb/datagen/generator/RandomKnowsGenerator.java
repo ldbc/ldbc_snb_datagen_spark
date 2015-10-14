@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Random;
 
+
 /**
  * Created by aprat on 11/15/14.
  */
@@ -35,7 +36,7 @@ public class RandomKnowsGenerator implements KnowsGenerator {
             }
             ++index;
         }
-        Collections.shuffle(stubs);
+        Collections.shuffle(stubs,rand);
         while(!stubs.isEmpty()) {
             int first = rand.nextInt(stubs.size());
             int first_index = stubs.get(first);

@@ -31,6 +31,7 @@ public class HadoopKnowsGenerator {
         private HadoopFileKeyChanger.KeySetter<TupleKey> keySetter = null;
         private ArrayList<Float> percentages;
         private int step_index;
+        private int numGeneratedEdges = 0;
 
         protected void setup(Context context) {
             //this.knowsGenerator = new DistanceKnowsGenerator();
@@ -68,7 +69,13 @@ public class HadoopKnowsGenerator {
             this.knowsGenerator.generateKnows(persons, (int)key.block, percentages, step_index);
             for( Person p : persons ) {
                 context.write(keySetter.getKey(p), p);
+                numGeneratedEdges+=p.knows().size();
             }
+        }
+
+        @Override
+        public void cleanup(Context context) {
+            System.out.println("Number of generated edges: "+numGeneratedEdges);
         }
     }
 
