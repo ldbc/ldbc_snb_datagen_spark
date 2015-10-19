@@ -219,11 +219,12 @@ def serialize_q18(post_weeks):
       writer.append([str(week)], [count])
 
 def serialize_q19(tagclasses):
+   PERS_DATE=datetime.strptime("1989-1-1","%Y-%m-%d")
    writer = ParamsWriter("q19", ["date","tagClass1","tagClass2"])
    for ix in range(0,len(tagclasses)):
       tag_class_a, count_a = tagclasses[ix]
       for tag_class_b, count_b in tagclasses[ix+1:]:
-         writer.append([str("1989-1-1"),tag_class_a, tag_class_b], [count_a, count_b])
+         writer.append([str(format_date(PERS_DATE)),tag_class_a, tag_class_b], [count_a, count_b])
 
 def serialize_q20():
    writer = ParamsWriter("q20", [])
