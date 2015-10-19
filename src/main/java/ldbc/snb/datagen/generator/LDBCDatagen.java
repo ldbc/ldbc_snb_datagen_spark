@@ -112,7 +112,7 @@ public class LDBCDatagen {
         long endInterest = System.currentTimeMillis();
 
 
-        printProgress("Creating random correlated edges");
+        /*printProgress("Creating random correlated edges");
         long startRandom= System.currentTimeMillis();
 
         knowsGenerator = new HadoopKnowsGenerator(  conf,
@@ -124,6 +124,7 @@ public class LDBCDatagen {
 
         knowsGenerator.run(hadoopPrefix+"/persons",hadoopPrefix+"/randomEdges");
         long endRandom= System.currentTimeMillis();
+        */
 
 
 
@@ -132,7 +133,7 @@ public class LDBCDatagen {
         ArrayList<String> edgeFileNames = new ArrayList<String>();
         edgeFileNames.add(hadoopPrefix+"/universityEdges");
         edgeFileNames.add(hadoopPrefix+"/interestEdges");
-        edgeFileNames.add(hadoopPrefix+"/randomEdges");
+        //edgeFileNames.add(hadoopPrefix+"/randomEdges");
         long startMerge = System.currentTimeMillis();
         HadoopMergeFriendshipFiles merger = new HadoopMergeFriendshipFiles(conf,"ldbc.snb.datagen.hadoop.RandomKeySetter");
         merger.run(hadoopPrefix+"/mergedPersons", edgeFileNames);
@@ -265,8 +266,8 @@ public class LDBCDatagen {
                 + " total seconds");
         System.out.println("Person generation time: "+((endPerson - startPerson) / 1000));
         System.out.println("University correlated edge generation time: "+((endUniversity - startUniversity) / 1000));
-        System.out.println("Interest correlated edge generation time: "+((endInterest - startInterest) / 1000));
-        System.out.println("Random correlated edge generation time: "+((endRandom - startRandom) / 1000));
+        //System.out.println("Interest correlated edge generation time: "+((endInterest - startInterest) / 1000));
+        //System.out.println("Random correlated edge generation time: "+((endRandom - startRandom) / 1000));
         System.out.println("Edges merge time: "+((endMerge - startMerge) / 1000));
         System.out.println("Person serialization time: "+((endPersonSerializing - startPersonSerializing) / 1000));
         System.out.println("Person activity generation and serialization time: "+((endPersonActivity - startPersonActivity) / 1000));

@@ -75,7 +75,7 @@ public class HadoopKnowsGenerator {
 
         @Override
         public void cleanup(Context context) {
-            System.out.println("Number of generated edges: "+numGeneratedEdges);
+            System.out.println("Number of generated edges: "+numGeneratedEdges/2);
         }
     }
 

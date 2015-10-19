@@ -1,5 +1,7 @@
 package ldbc.snb.datagen.generator;
 
+import ldbc.snb.datagen.generator.tools.GraphUtils;
+import ldbc.snb.datagen.generator.tools.PersonGraph;
 import ldbc.snb.datagen.objects.Knows;
 import ldbc.snb.datagen.objects.Person;
 import org.apache.hadoop.conf.Configuration;
@@ -19,6 +21,8 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
     private int numCoreCoreEdges = 0;
     private int numCorePeripheryEdges = 0;
     private int numCoreExternalEdges = 0;
+    private float step_ = 0.10f;
+    private float min_community_prob_ = 0.0f;
 
     private class PersonInfo {
         public int index_;
@@ -48,7 +52,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         public ArrayList<Double> core_node_excedence_degree_ = new ArrayList<Double>();
         public ArrayList<Double> core_node_expected_periphery_degree_ = new ArrayList<Double>();
         public ArrayList<Double> core_node_expected_external_degree_ = new ArrayList<Double>();
-        public ArrayList<Float> clustering_coefficient_ = new ArrayList<Float>();
+        public ArrayList<Double> clustering_coefficient_ = new ArrayList<Double>();
         public ArrayList<Long> community_core_stubs_ = new ArrayList<Long>();
         public ArrayList<Float> community_core_probs_ = new ArrayList<Float>();
         public ArrayList<Integer> core_nodes_ = new ArrayList<Integer>();
@@ -62,7 +66,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
                 core_node_expected_periphery_degree_.add(0.0);
                 core_node_expected_external_degree_.add(0.0);
                 is_core_.add(false);
-                clustering_coefficient_.add(0.0f);
+                clustering_coefficient_.add(0.0);
             }
             for( int i = 0; i < communities.size(); ++i) {
                 community_core_stubs_.add(0L);
@@ -93,7 +97,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
             PersonInfo pInfo = new PersonInfo();
             pInfo.index_ = i;
             pInfo.degree_ = Knows.target_edges(p,percentages,stepIndex);
-            pInfo.original_degree_ = p.maxNumKnows();
+            pInfo.original_degree_ = (long)(p.maxNumKnows()*0.9);
             nodes.add(pInfo);
         }
 
@@ -169,6 +173,19 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
             }
             bestCommunity.id_ = communities.size();
             communities.add(bestCommunity);
+
+            /*System.out.print("Core: ");
+            for( PersonInfo pI : bestCommunity.core_ ) {
+                System.out.print(pI.degree_+" ");
+            }
+            System.out.println();
+            System.out.print("Periphery: ");
+            for( PersonInfo pI : bestCommunity.periphery_ ) {
+                System.out.print(pI.degree_+" ");
+            }
+            System.out.println();
+            */
+
             last = best + 1;
             begin = last;
         }
@@ -176,15 +193,22 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
     }
 
     private void computeCommunityInfo(ClusteringInfo cInfo, Community c, float prob) {
-        ArrayList<Long> peripheryBudget = new ArrayList<Long>();
+        long [] peripheryBudget = new long[c.periphery_.size()];
         Collections.sort(c.periphery_, new PersonInfoComparator());
+        int index = 0;
         for (PersonInfo pI : c.periphery_) {
-            peripheryBudget.add(pI.degree_);
+            peripheryBudget[index] = pI.degree_;
+            index++;
         }
 
         // Initializing cInfo with expected degrees
         for (PersonInfo pI : c.core_) {
-            cInfo.core_node_expected_core_degree_.set(pI.index_, new Double((c.core_.size() - 1) * prob));
+            //double core_core_degree = (c.core_.size() - 1) * prob;
+            //long complete_edges = (long)core_core_degree;
+            //double incomplete_edge = core_core_degree - complete_edges;
+            //if(rand.nextDouble() < incomplete_edge) complete_edges++;
+            //cInfo.core_node_expected_core_degree_.set(pI.index_, new Double(complete_edges));
+            cInfo.core_node_expected_core_degree_.set(pI.index_,(c.core_.size() - 1) * (double)prob);
             cInfo.core_node_excedence_degree_.set(pI.index_, pI.degree_ - cInfo.core_node_expected_core_degree_.get(pI.index_));
             cInfo.core_node_expected_periphery_degree_.set(pI.index_, 0.0);
         }
@@ -193,10 +217,10 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         for (PersonInfo pI : c.core_) {
             double pDegree = 0;
             double maxDegree = (cInfo.core_node_excedence_degree_.get(pI.index_));
-            for (Long l : peripheryBudget) {
-                if (l != 0 && pDegree < maxDegree) {
+            for(index = 0; index < peripheryBudget.length; ++index) {
+                if (peripheryBudget[index] != 0 && pDegree < maxDegree) {
                     pDegree++;
-                    l--;
+                    peripheryBudget[index]--;
                 }
             }
 
@@ -212,6 +236,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
 
 
     private void estimateCCCommunity( ClusteringInfo cInfo, Community c, float prob ) {
+        //System.out.println("Recompunting community with prob "+c.p_);
         computeCommunityInfo(cInfo, c, prob);
 
         float probSameCommunity = 0.0f;
@@ -245,64 +270,107 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         // Computing clustering coefficient of periphery nodes
         for (PersonInfo pI: c.periphery_) {
             if(pI.degree_ > 1) {
-                cInfo.clustering_coefficient_.set(pI.index_, pI.degree_*(pI.degree_-1)*prob/(pI.original_degree_*(pI.original_degree_-1)));
-                //cInfo.clustering_coefficient_.set(pI.index_, prob);
+                cInfo.clustering_coefficient_.set(pI.index_, (double)pI.degree_*(pI.degree_-1)*prob/(pI.original_degree_*(pI.original_degree_-1)));
+                //cInfo.clustering_coefficient_.set(pI.index_, (double)prob);
             }
         }
 
-        ArrayList<Long> peripheryBudget = new ArrayList<Long>();
-        peripheryBudget.clear();
+        long [] peripheryBudget = new long[c.periphery_.size()];
+        index = 0;
         for(PersonInfo pI: c.periphery_) {
-            peripheryBudget.add(pI.degree_);
+            peripheryBudget[index] = pI.degree_;
+            index++;
         }
 
         // Computing clustering coefficient of core nodes
         for ( PersonInfo pI : c.core_ ){
             int size = c.core_.size();
-            if( pI.degree_ > 1 && size > 1) {
+            if( pI.degree_ > 1 ) {
                 // core core triangles
-                long internalTriangles = (int)((size-1)*(size-2)*Math.pow(prob,3));
+                double internalTriangles = 0.0;
+                double internalDegree = cInfo.core_node_expected_core_degree_.get(pI.index_);
+                /*if(size > 2) {
+                    internalTriangles = ((size - 1) * (size - 2) * Math.pow(prob, 3));
+                }*/
+                boolean enteredOffset = false;
+                if( internalDegree >= 2.0 ) {
+                    internalTriangles = (internalDegree * (internalDegree - 1) * prob);
+                } else if( internalDegree > 1.0) {
+                    double offset = internalDegree - 1.0;
+                    double p = rand.nextDouble();
+                    if(p < offset) {
+                        internalTriangles = prob;
+                        enteredOffset = true;
+                    }
+                }
                 // core periphery triangles
-                long peripheryTriangles = 0;
-                index = 0;
+                double peripheryTriangles = 0;
                 long remainingDegree = pI.degree_;
-                for(Long l : peripheryBudget) {
-                    if(l > 0) {
-                        l--;
+                for(index = 0; index < peripheryBudget.length; ++index) {
+                    if(peripheryBudget[index] > 0) {
+                        peripheryBudget[index]--;
                         remainingDegree--;
                         if(c.periphery_.get(index).degree_ > 1) {
                             peripheryTriangles += 2*(c.periphery_.get(index).degree_ - 1) * prob;
                         }
                     }
                     if(remainingDegree == 0) break;
-                    index++;
                 }
 
-                float external_triangles = 0.0f;
-                if(cInfo.core_node_expected_external_degree_.get(pI.index_) > 1) {
+                double external_triangles = 0.0;
+                if(cInfo.core_node_expected_external_degree_.get(pI.index_) >= 2.0) {
                     external_triangles += cInfo.core_node_expected_external_degree_.get(pI.index_) * (cInfo.core_node_expected_external_degree_.get(pI.index_) - 1) * probTriangleSameCommunity;
                     external_triangles += cInfo.core_node_expected_external_degree_.get(pI.index_) * (cInfo.core_node_expected_external_degree_.get(pI.index_) - 1) * (1 - probSameCommunity) * probTwoConnected;
                 }
-                long degree = pI.original_degree_;
 
-                if( degree > 1 ) {
-                    cInfo.clustering_coefficient_.set(pI.index_, (internalTriangles+peripheryTriangles+external_triangles)/(float)(degree*(degree-1)));
+                /*double degree = (cInfo.core_node_expected_core_degree_.get(pI.index_) +
+                        cInfo.core_node_expected_periphery_degree_.get(pI.index_) +
+                        cInfo.core_node_expected_external_degree_.get(pI.index_));*/
+
+                double degree = pI.original_degree_;
+
+                //System.out.println("Internal Triangles: "+internalTriangles+" , degree: "+degree);
+                if( degree > 1.0 ) {
+                    cInfo.clustering_coefficient_.set(pI.index_, (internalTriangles+peripheryTriangles/*+external_triangles*/)/(degree*(degree-1)));
                 }
+                //else if( degree > 1.0 && enteredOffset ) {
+                //    degree = 2.0;
+                //    cInfo.clustering_coefficient_.set(pI.index_, (internalTriangles+peripheryTriangles+external_triangles)/(double)(degree*(degree-1)));
+                //}
             }
         }
     }
 
+    float clusteringCoefficient(ArrayList<Community> communities, ClusteringInfo cInfo ) {
+        return clusteringCoefficient(communities, cInfo,true);
+    }
 
-    float clusteringCoefficient(ClusteringInfo cInfo ) {
-        float accum  = 0.0f;
-        for( float cc : cInfo.clustering_coefficient_) {
-            accum += cc;
+    float clusteringCoefficient( ArrayList<Community> communities, ClusteringInfo cInfo, Boolean countZeros ) {
+        float accum = 0.0f;
+        int count = 0;
+        for (Community c : communities) {
+            for(PersonInfo pI : c.core_) {
+                if(pI.degree_ > 0) {
+                    accum += cInfo.clustering_coefficient_.get(pI.index_);
+                    count++;
+                }
+            }
+
+            for(PersonInfo pI : c.periphery_) {
+                if(pI.degree_ > 0) {
+                    accum += cInfo.clustering_coefficient_.get(pI.index_);
+                    count++;
+                }
+            }
         }
-        return accum / (float)cInfo.clustering_coefficient_.size();
+        if(countZeros) {
+            return accum / (float) cInfo.clustering_coefficient_.size();
+        }
+        return accum / (float) count;
     }
 
     void refineCommunities( ClusteringInfo cInfo, ArrayList<Community> communities, float targetCC ) {
-        float currentCC = clusteringCoefficient(cInfo);
+        float currentCC = clusteringCoefficient(communities, cInfo);
         int lookAhead = 5;
         int tries = 0;
         while( Math.abs(currentCC - targetCC)  > 0.001 && tries <= lookAhead) {
@@ -314,7 +382,8 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
                 found = worsenCC(cInfo, communities);
             }
             if( found ) {
-               currentCC = clusteringCoefficient(cInfo);
+               currentCC = clusteringCoefficient(communities, cInfo);
+                //System.out.println(currentCC);
                tries = 0;
             }
         }
@@ -324,12 +393,12 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
     boolean improveCC(ClusteringInfo cInfo, ArrayList<Community> communities) {
         ArrayList<Community>  filtered = new ArrayList<Community>();
         for(Community c : communities ) {
-            if(c.p_ < 1.0 ) filtered.add(c);
+            if(c.p_ < 1.0f ) filtered.add(c);
         }
         if(filtered.size() == 0) return false;
         int index = rand.nextInt(filtered.size());
         Community c = filtered.get(index);
-        c.p_ = Math.max(c.p_ + 0.01f, 1.0f);
+        c.p_ = c.p_ + step_ > 1.0f ? 1.0f : c.p_ + step_;
         cInfo.sumProbs+=0.01;
         estimateCCCommunity(cInfo, c, c.p_);
         return true;
@@ -338,12 +407,12 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
     boolean worsenCC(ClusteringInfo cInfo, ArrayList<Community> communities) {
         ArrayList<Community>  filtered = new ArrayList<Community>();
         for(Community c : communities ) {
-            if(c.p_ > 0.0 ) filtered.add(c);
+            if(c.p_ > min_community_prob_ ) filtered.add(c);
         }
         if(filtered.size() == 0) return false;
         int index = rand.nextInt(filtered.size());
         Community c = filtered.get(index);
-        c.p_ = Math.min(c.p_ - 0.01f, 0.0f);
+        c.p_ = c.p_ - step_ < min_community_prob_ ? min_community_prob_ : c.p_ - step_ ;
         cInfo.sumProbs-=0.01;
         estimateCCCommunity(cInfo, c, c.p_ );
         return true;
@@ -368,25 +437,31 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
 
     void createEdgesCommunityPeriphery(ClusteringInfo cInfo, ArrayList<Person> persons, Community c) {
 
-        ArrayList<Long> peripheryBudget = new ArrayList<Long>();
+        long [] peripheryBudget = new long[c.periphery_.size()];
+        int index = 0;
         for(PersonInfo pI: c.periphery_) {
-            peripheryBudget.add(pI.degree_);
+            peripheryBudget[index] = pI.degree_;
+            ++index;
         }
 
         for ( PersonInfo pI : c.core_ ) {
             double pDegree = 0;
             double maxDegree = cInfo.core_node_expected_periphery_degree_.get(pI.index_);
-            int index =0;
-            for (Long l : peripheryBudget) {
-                if( l != 0 && pDegree < maxDegree)  {
+            for (index = 0; index < peripheryBudget.length;  ++index ) {
+                if( peripheryBudget[index] != 0 && pDegree < maxDegree)  {
                     pDegree++;
-                    l--;
+                    peripheryBudget[index]--;
                     if(Knows.createKnow(rand, persons.get(pI.index_), persons.get(c.periphery_.get(index).index_)))
                         numCorePeripheryEdges++;
                     else
                         numMisses++;
                 }
-                ++index;
+            }
+        }
+
+        for( PersonInfo pI : c.periphery_ ) {
+            if(persons.get(pI.index_).knows().size() > pI.degree_ ) {
+                System.out.println("ERROR");
             }
         }
     }
@@ -396,7 +471,6 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         for ( Community c : communities ) {
             for (PersonInfo pI : c.core_ ) {
                 long diff = pI.degree_ - persons.get(pI.index_).knows().size();
-                //long diff = cInfo.core_node_expected_external_degree_.get(pI.index_);
                 if( diff > 0 ) {
                     for( int i = 0; i < diff; ++i) {
                        stubs.add(pI);
@@ -414,6 +488,10 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
                 PersonInfo second = stubs.get(index2);
                 stubs.remove(index2);
                 // create edge
+                if(persons.get(first.index_) == persons.get(second.index_)) {
+                    numMisses++;
+                    continue;
+                }
                 if(Knows.createKnow(rand, persons.get(first.index_), persons.get(second.index_)))
                     numCoreExternalEdges++;
                 else
@@ -429,11 +507,10 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         this.percentages = percentages;
         this.stepIndex = step_index;
 
-
         ArrayList<Community>  communities = generateCommunities(persons);
         ClusteringInfo cInfo = new ClusteringInfo( persons.size(), communities );
 
-        System.out.println("Number of generated communitis: "+communities.size());
+        System.out.println("Number of generated communities: "+communities.size());
 
 
         for( Community c : communities ) {
@@ -444,22 +521,52 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
             estimateCCCommunity(cInfo, c, 1.0f);
         }
 
-        float maxCC = clusteringCoefficient(cInfo);
+        float maxCC = clusteringCoefficient(communities, cInfo);
         System.out.println("maxCC: "+maxCC);
 
-        refineCommunities(cInfo, communities, targetCC);
-
-        for(Community c : communities ) {
-            createEdgesCommunityCore(persons, c);
-        //    createEdgesCommunityPeriphery(cInfo, persons,c);
+        for( Community c : communities ) {
+            estimateCCCommunity(cInfo, c, rand.nextFloat());
         }
-        fillGraphWithRemainingEdges(cInfo, communities, persons);
+
+        PersonGraph graph;
+        boolean iterate;
+        float fakeTargetCC = targetCC;
+        do {
+            System.out.println("Starting refinement iteration");
+            iterate = false;
+            refineCommunities(cInfo, communities, fakeTargetCC);
+            System.out.println("Creating graph");
+            for(Community c : communities ) {
+                createEdgesCommunityCore(persons, c);
+                createEdgesCommunityPeriphery(cInfo, persons,c);
+            }
+            fillGraphWithRemainingEdges(cInfo, communities, persons);
+            graph = new PersonGraph(persons);
+            System.out.println("Computing clustering coefficient");
+            double clusteringCoefficient = GraphUtils.ClusteringCoefficient(graph);
+            System.out.println("Clustering coefficient of the generated graph: "+clusteringCoefficient);
+            double delta = targetCC - clusteringCoefficient;
+            if( Math.abs( delta ) > 0.001 ) {
+                for(Person person: persons) {
+                    person.knows().clear();
+                }
+                if( delta < 0.0) {
+                    fakeTargetCC /=  2.0f;
+                } else {
+                    fakeTargetCC *= 1.5f;
+                }
+
+                System.out.println("New Fake targetCC: "+fakeTargetCC );
+                iterate = true;
+            }
+        }while( iterate );
 
         int countMore = 0;
         int countLess = 0;
         int sumMore = 0;
         int sumLess = 0;
         int index = 0;
+        int countDegreeZero = 0;
         for( Person p : persons ) {
             if(cInfo.is_core_.get(index)) {
                 long target = Knows.target_edges(p, percentages, step_index);
@@ -467,16 +574,20 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
                     sumMore += -target + p.knows().size();
                     countMore++;
                 } else if (p.knows().size() < target) {
+                    //System.out.println(p.knows().size()+" "+target);
                     sumLess += target - p.knows().size();
                     countLess++;
                 }
             }
+            if(p.knows().size() == 0) countDegreeZero++;
             ++index;
         }
+
         System.out.println("Number of persons with more degree than expected: "+countMore);
         System.out.println("Sum of excess degree: "+sumMore);
         System.out.println("Number of persons with less degree than expected: "+countLess);
         System.out.println("Sum of degree missed: "+sumLess);
+        System.out.println("Number of persons with degree zero: "+countDegreeZero);
         printStatistics();
     }
 

@@ -12,6 +12,7 @@ public class GraphUtils {
 
     public static double ClusteringCoefficient( PersonGraph graph ) {
         double CC = 0.0;
+        int numEdges = 0;
         for( Long l : graph.persons()) {
             int triangles = 0;
             Set<Long> neighbors = graph.neighbors(l);
@@ -20,9 +21,10 @@ public class GraphUtils {
                 Set<Long> aux = new HashSet<Long>(neighbors);
                 aux.retainAll(neighbors2);
                 triangles+=aux.size();
+                numEdges++;
             }
             int degree = neighbors.size();
-            if(triangles > 0)
+            if(degree > 1)
                 CC+=triangles / (double)(degree*(degree-1));
         }
         return CC / graph.persons().size();
