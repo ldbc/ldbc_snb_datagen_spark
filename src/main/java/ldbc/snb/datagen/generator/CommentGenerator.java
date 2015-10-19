@@ -6,12 +6,14 @@
 package ldbc.snb.datagen.generator;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.dictionary.TextGenerator;
 import ldbc.snb.datagen.objects.*;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Properties;
 import java.util.TreeSet;
 
 /**
@@ -20,10 +22,11 @@ import java.util.TreeSet;
  */
 public class CommentGenerator {
 	private String[] shortComments_ = {"ok", "good", "great", "cool", "thx", "fine", "LOL", "roflol", "no way!", "I see", "right", "yes", "no", "duh", "thanks", "maybe"};
-	
+	private TextGenerator generator;
 	/* A set of random number generator for different purposes.*/
 	
-	public CommentGenerator( ){
+	public CommentGenerator(TextGenerator generator){
+		this.generator = generator;
 	}	
 	
 	public ArrayList<Comment> createComments(RandomGeneratorFarm randomFarm, Forum forum, Post post, long numComments, long startId ){
@@ -46,14 +49,22 @@ public class CommentGenerator {
 			ForumMembership member = validMemberships.get(randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX).nextInt(validMemberships.size()));
 			TreeSet<Integer> tags = new TreeSet<Integer>();
 			String content = "";
+			
+			///////////pasar  las properties
+			
+			//Properties prop = new Properties();
+			//content = this.generator.generateText(member.person(), replyTo.tags(),prop); 
+			 
+			 
 			boolean isShort = false;
 			if( randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT).nextDouble() > 0.6666) {
+				/*
 				int textSize;
 				if( member.person().isLargePoster() && randomFarm.get(RandomGeneratorFarm.Aspect.LARGE_TEXT).nextDouble() > (1.0f-DatagenParams.ratioLargeComment) ) {
 					textSize = Dictionaries.tagText.getRandomLargeTextSize(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), DatagenParams.minLargeCommentSize, DatagenParams.maxLargeCommentSize);
 				} else {
 					textSize = Dictionaries.tagText.getRandomTextSize( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT), DatagenParams.minCommentSize, DatagenParams.maxCommentSize);
-				}
+				}*/
 				
 				ArrayList<Integer> currentTags = new ArrayList<Integer>();
 				Iterator<Integer> it = replyTo.tags().iterator();
@@ -71,11 +82,15 @@ public class CommentGenerator {
 					tags.add(Dictionaries.tagMatrix.getRandomRelated(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), randomTag));
 				}
 				
-				content = Dictionaries.tagText.generateText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), tags, textSize );
+			
+				Properties prop = new Properties();
+				content = this.generator.generateText(member.person(), tags,prop);
+				//content = Dictionaries.tagText.generateText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), tags, textSize );
+				/*
 				if( content.length() != textSize ) {
 					System.out.println("ERROR while generating text - content size: "+ content.length()+", actual size: "+ textSize);
 					System.exit(-1);
-				}
+				}*/
 			} else {
 				isShort = true;
 				int index = randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE).nextInt(shortComments_.length);
@@ -97,6 +112,8 @@ public class CommentGenerator {
 				result.add(comment);
 				if(!isShort) replyCandidates.add(comment);
 			}
+			//result.add(coment);
+			
 		}
 		return result;
 	}

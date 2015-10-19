@@ -2,12 +2,15 @@
 package ldbc.snb.datagen.generator;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.dictionary.TagDictionary;
+import ldbc.snb.datagen.dictionary.TextGenerator;
 import ldbc.snb.datagen.objects.*;
 import ldbc.snb.datagen.serializer.PersonActivitySerializer;
 import ldbc.snb.datagen.serializer.UpdateEventSerializer;
 import ldbc.snb.datagen.util.FactorTable;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
+
 import org.apache.hadoop.mapreduce.Reducer.Context;
 
 import java.io.OutputStream;
@@ -35,10 +38,14 @@ public class PersonActivityGenerator {
 		randomFarm_ = new RandomGeneratorFarm();
 		// load generators
 		forumGenerator_ = new ForumGenerator();
-		uniformPostGenerator_ = new UniformPostGenerator();
-		flashmobPostGenerator_ = new FlashmobPostGenerator();
+		//david
+		Random random = new Random(); 
+		TextGenerator generator = new LdbcSnbTextGenerator(random, Dictionaries.tags);
+		//d: end
+		uniformPostGenerator_ = new UniformPostGenerator(generator);
+		flashmobPostGenerator_ = new FlashmobPostGenerator(generator);
 		photoGenerator_ = new PhotoGenerator();
-		commentGenerator_ = new CommentGenerator();
+		commentGenerator_ = new CommentGenerator(generator);
 		likeGenerator_ = new LikeGenerator();
         factorTable_ = new FactorTable();
 	}

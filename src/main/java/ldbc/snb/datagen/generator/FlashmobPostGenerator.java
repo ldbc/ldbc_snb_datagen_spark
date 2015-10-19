@@ -6,6 +6,7 @@
 package ldbc.snb.datagen.generator;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.dictionary.TextGenerator;
 import ldbc.snb.datagen.objects.FlashmobTag;
 import ldbc.snb.datagen.objects.Forum;
 import ldbc.snb.datagen.objects.ForumMembership;
@@ -25,7 +26,8 @@ public class FlashmobPostGenerator extends PostGenerator{
 	private long hoursToMillis_;
 	private long flashmobSpan_;
 	private long currentForum = -1;
-	public FlashmobPostGenerator() {
+	public FlashmobPostGenerator(TextGenerator generator) {
+		super(generator);
 		dateDistribution_ = new Distribution(DatagenParams.flashmobDistFile);
 		hoursToMillis_ = 60*60*1000;
 		flashmobSpan_ = 72 * hoursToMillis_;
