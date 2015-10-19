@@ -231,7 +231,7 @@ def serialize_q20():
 def serialize_q21(countries):
    writer = ParamsWriter("q21", ["country","endDate"])
    for country, count in countries:
-      writer.append([country,str("2013-02-01")], [count])
+      writer.append([country,str(format_date(END_DATE))], [count])
 
 def serialize_q22(countries):
    writer = ParamsWriter("q22", ["country1","country2"])
