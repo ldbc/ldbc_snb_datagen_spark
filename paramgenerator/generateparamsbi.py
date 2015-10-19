@@ -131,14 +131,14 @@ def serialize_q2(country_sets, post_day_ranges):
    for country_set, count_country in country_sets:
       for day_range, count_post in post_day_ranges:
          if random.randint(0,len(country_sets) + len(post_day_ranges)) == 0:
-            writer.append([str(day_range[0]), str(day_range[1]), ",".join(country_set), str(format_date(END_DATE))], [count_post,count_post,count_country,333])
+            writer.append([str(day_range[0]), str(day_range[1]), ";".join(country_set), str(format_date(END_DATE))], [count_post,count_post,count_country,333])
 
 def serialize_q3(post_months):
-   writer = ParamsWriter("q3", ["todo1","todo2"])
+   writer = ParamsWriter("q3", ["range1Start","range1End","range2Start","range2End"])
    for ix in range(0,len(post_months)):
       week_range_a, count_a = post_months[ix]
       for week_range_b, count_b in post_months[ix+1:]:
-         writer.append([str(week_range_a),str(week_range_b)], [count_a,count_b])
+         writer.append([str(week_range_a[0]),str(week_range_a[1]),str(week_range_b[0]),str(week_range_b[1])], [count_a,count_b])
 
 def serialize_q4(tagclasses, countries):
    writer = ParamsWriter("q4", ["tagClass","country"])
@@ -178,6 +178,9 @@ def serialize_q10(tags):
    writer = ParamsWriter("q10", ["tag"])
    for tag, count in tags:
       writer.append([tag], [count])
+
+def serialize_q11():
+   writer = ParamsWriter("q11", ["country", "blacklist"])
 
 def serialize_q12(post_weeks):
    writer = ParamsWriter("q12", ["creationDate", "likeCount"])
@@ -221,6 +224,9 @@ def serialize_q19(tagclasses):
       tag_class_a, count_a = tagclasses[ix]
       for tag_class_b, count_b in tagclasses[ix+1:]:
          writer.append([str("1989-1-1"),tag_class_a, tag_class_b], [count_a, count_b])
+
+def serialize_q20():
+   writer = ParamsWriter("q20", [])
 
 def serialize_q21(countries):
    writer = ParamsWriter("q21", ["country","endDate"])
@@ -345,6 +351,9 @@ def main(argv=None):
    serialize_q22(key_params(country_sample, total_posts/120, total_posts/40))
    serialize_q23(key_params(country_sample, total_posts/200, total_posts/100))
    serialize_q24(key_params(tagclass_posts, total_posts/140, total_posts/5))
+
+   serialize_q11()
+   serialize_q20()
 
 if __name__ == "__main__":
    sys.exit(main())
