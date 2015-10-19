@@ -5,9 +5,17 @@ import random
 import json
 import os
 import codecs
-from datetime import date
+import calendar
+import time
+from datetime import date,datetime,timedelta
 from timeparameters import *
 from calendar import timegm
+
+START_DATE=datetime.strptime("2010-01-01","%Y-%m-%d")
+END_DATE=datetime.strptime("2013-01-01","%Y-%m-%d")
+
+def format_date(date):
+   return int(time.mktime(date.timetuple())*1000)
 
 # class ParamsWriter:
 #    def __init__(self, name, num_params):
@@ -105,7 +113,6 @@ def post_month_params(sample, lower_bound, upper_bound):
 #          results.append([[start_day, end_day], count_sum])
 #    return results
 
-
 def key_params(sample, lower_bound, upper_bound):
    results = []
    for key, count in sample:
@@ -124,14 +131,14 @@ def serialize_q2(country_sets, post_day_ranges):
    for country_set, count_country in country_sets:
       for day_range, count_post in post_day_ranges:
          if random.randint(0,len(country_sets) + len(post_day_ranges)) == 0:
-            writer.append([str(day_range[0]), str(day_range[1]), "2013-01-01", ",".join(country_set)], [count_post,count_post,count_country,333])
+            writer.append([str(day_range[0]), str(day_range[1]), ";".join(country_set), str(format_date(END_DATE))], [count_post,count_post,count_country,333])
 
 def serialize_q3(post_months):
-   writer = ParamsWriter("q3", ["todo1","todo2"])
+   writer = ParamsWriter("q3", ["range1Start","range1End","range2Start","range2End"])
    for ix in range(0,len(post_months)):
       week_range_a, count_a = post_months[ix]
       for week_range_b, count_b in post_months[ix+1:]:
-         writer.append([str(week_range_a),str(week_range_b)], [count_a,count_b])
+         writer.append([str(week_range_a[0]),str(week_range_a[1]),str(week_range_b[0]),str(week_range_b[1])], [count_a,count_b])
 
 def serialize_q4(tagclasses, countries):
    writer = ParamsWriter("q4", ["tagClass","country"])
@@ -172,6 +179,9 @@ def serialize_q10(tags):
    for tag, count in tags:
       writer.append([tag], [count])
 
+def serialize_q11():
+   writer = ParamsWriter("q11", ["country", "blacklist"])
+
 def serialize_q12(post_weeks):
    writer = ParamsWriter("q12", ["creationDate", "likeCount"])
    for week, count in post_weeks:
@@ -185,7 +195,7 @@ def serialize_q13(countries):
 def serialize_q14(creationdates):
    writer = ParamsWriter("q14", ["begin","todoEnd"])
    for creation, count in creationdates:
-      writer.append([str(creation),"todo"], [count])
+      writer.append([str(creation),str(1278888800000)], [count])
 
 def serialize_q15(countries):
    writer = ParamsWriter("q15", ["country"])
@@ -215,10 +225,13 @@ def serialize_q19(tagclasses):
       for tag_class_b, count_b in tagclasses[ix+1:]:
          writer.append([str("1989-1-1"),tag_class_a, tag_class_b], [count_a, count_b])
 
+def serialize_q20():
+   writer = ParamsWriter("q20", [])
+
 def serialize_q21(countries):
    writer = ParamsWriter("q21", ["country","endDate"])
    for country, count in countries:
-      writer.append([country,str("2013-02-01")], [count])
+      writer.append([country,str(format_date(END_DATE))], [count])
 
 def serialize_q22(countries):
    writer = ParamsWriter("q22", ["country1","country2"])
@@ -237,15 +250,23 @@ def serialize_q24(tagclasses):
    for tagclass, count in tagclasses:
       writer.append([tagclass], [count])
 
+def add_months(sourcedate,months):
+   month = sourcedate.month - 1 + months
+   year = int(sourcedate.year + month / 12 )
+   month = month % 12 + 1
+   day = min(sourcedate.day,calendar.monthrange(year,month)[1])
+   return sourcedate.replace(year, month, day)
+
 def convert_posts_histo(histogram):
    week_posts = []
    month = 0
    while (histogram.existParam(month)):
       monthTotal = histogram.getValue(month, "p")
-      week_posts.append([month*30, monthTotal/4])
-      week_posts.append([month*30+7, monthTotal/4])
-      week_posts.append([month*30+14, monthTotal/4])
-      week_posts.append([month*30+21, monthTotal/4])
+      baseDate=add_months(START_DATE,month)
+      week_posts.append([format_date(baseDate), monthTotal/4])
+      week_posts.append([format_date(baseDate+timedelta(days=7)), monthTotal/4])
+      week_posts.append([format_date(baseDate+timedelta(days=14)), monthTotal/4])
+      week_posts.append([format_date(baseDate+timedelta(days=21)), monthTotal/4])
       month = month + 1
    return week_posts
 
@@ -299,8 +320,10 @@ def main(argv=None):
    post_upper_threshold = 0.1*total_posts*1.1
    post_day_ranges = post_date_range_params(week_posts, post_lower_threshold, post_upper_threshold)
    
-   post_lower_threshold = (total_posts/(week_posts[len(week_posts)-1][0]/7/4))*0.8
-   post_upper_threshold = (total_posts/(week_posts[len(week_posts)-1][0]/7/4))*1.2
+   #post_lower_threshold = (total_posts/(week_posts[len(week_posts)-1][0]/7/4))*0.8
+   #post_upper_threshold = (total_posts/(week_posts[len(week_posts)-1][0]/7/4))*1.2
+   post_lower_threshold = (total_posts/(len(week_posts)/4))*0.8
+   post_upper_threshold = (total_posts/(len(week_posts)/4))*1.2
    post_months = post_month_params(week_posts, post_lower_threshold, post_upper_threshold)
 
    serialize_q2(country_sets, post_day_ranges)
@@ -328,6 +351,9 @@ def main(argv=None):
    serialize_q22(key_params(country_sample, total_posts/120, total_posts/40))
    serialize_q23(key_params(country_sample, total_posts/200, total_posts/100))
    serialize_q24(key_params(tagclass_posts, total_posts/140, total_posts/5))
+
+   serialize_q11()
+   serialize_q20()
 
 if __name__ == "__main__":
    sys.exit(main())
