@@ -323,8 +323,13 @@ def main(argv=None):
    
    #post_lower_threshold = (total_posts/(week_posts[len(week_posts)-1][0]/7/4))*0.8
    #post_upper_threshold = (total_posts/(week_posts[len(week_posts)-1][0]/7/4))*1.2
-   post_lower_threshold = (total_posts/(len(week_posts)/4))*0.8
-   post_upper_threshold = (total_posts/(len(week_posts)/4))*1.2
+   non_empty_weeks=len(week_posts)
+   for ix in range(0,len(week_posts)):
+      if week_posts[ix][1]==0:
+         non_empty_weeks-= 1
+
+   post_lower_threshold = (total_posts/(non_empty_weeks/4))*0.8
+   post_upper_threshold = (total_posts/(non_empty_weeks/4))*1.2
    post_months = post_month_params(week_posts, post_lower_threshold, post_upper_threshold)
 
    serialize_q2(country_sets, post_day_ranges)
