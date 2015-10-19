@@ -20,12 +20,12 @@ from calendar import timegm
 #          self.files[i].write(param+"\n")
 
 class ParamsWriter:
-   def __init__(self, name, num_params):
+   def __init__(self, name, param_names):
       self.file = codecs.open("substitution_parameters/"+name+"_param.txt", "w",encoding="utf-8")
-      for i in range(0,num_params):
+      for i in range(0,len(param_names)):
          if i>0:
             self.file.write("|")
-         self.file.write("Param"+str(i))
+         self.file.write(param_names[i])
       self.file.write("\n")
 
    def append(self, params, counts):
@@ -114,126 +114,126 @@ def key_params(sample, lower_bound, upper_bound):
    return results
 
 def serialize_q1(post_weeks):
-   writer = ParamsWriter("q1", 1)
+   writer = ParamsWriter("q1", ["date"])
    for week, count in post_weeks:
       writer.append([str(week)], [count])
 
 def serialize_q2(country_sets, post_day_ranges):
-   writer = ParamsWriter("q2", 3)
+   writer = ParamsWriter("q2", ["date1","date2","countries","endDate"])
    random.seed(1988+2)
    for country_set, count_country in country_sets:
       for day_range, count_post in post_day_ranges:
          if random.randint(0,len(country_sets) + len(post_day_ranges)) == 0:
-            writer.append([str(day_range[0]), str(day_range[1]), ",".join(country_set)], [count_post,count_post,count_country])
+            writer.append([str(day_range[0]), str(day_range[1]), "2013-01-01", ",".join(country_set)], [count_post,count_post,count_country,333])
 
 def serialize_q3(post_months):
-   writer = ParamsWriter("q3", 2)
+   writer = ParamsWriter("q3", ["todo1","todo2"])
    for ix in range(0,len(post_months)):
       week_range_a, count_a = post_months[ix]
       for week_range_b, count_b in post_months[ix+1:]:
          writer.append([str(week_range_a),str(week_range_b)], [count_a,count_b])
 
 def serialize_q4(tagclasses, countries):
-   writer = ParamsWriter("q4", 2)
+   writer = ParamsWriter("q4", ["tagClass","country"])
    for tag, count_a in tagclasses:
       for country, count_b in countries:
          writer.append([tag,country], [count_a,count_b])
 
 def serialize_q5(countries):
-   writer = ParamsWriter("q5", 1)
+   writer = ParamsWriter("q5", ["country"])
    for country, count in countries:
       writer.append([country], [count])
 
 
 def serialize_q6(tags):
-   writer = ParamsWriter("q6", 1)
+   writer = ParamsWriter("q6", ["tag"])
    for tag, count in tags:
       writer.append([tag], [count])
 
 def serialize_q7(tags):
-   writer = ParamsWriter("q7", 1)
+   writer = ParamsWriter("q7", ["tag"])
    for tag, count in tags:
       writer.append([tag], [count])
 
 def serialize_q8(tags):
-   writer = ParamsWriter("q8", 1)
+   writer = ParamsWriter("q8", ["tag"])
    for tag, count in tags:
       writer.append([tag], [count])
 
 def serialize_q9(tagclasses):
-   writer = ParamsWriter("q9", 2)
+   writer = ParamsWriter("q9", ["tagClass1", "tagClass2", "threshold"])
    for ix in range(0,len(tagclasses)):
       tag_class_a, count_a = tagclasses[ix]
       for tag_class_b, count_b in tagclasses[ix+1:]:
-         writer.append([tag_class_a, tag_class_b], [count_a, count_b])
+         writer.append([tag_class_a, tag_class_b, str(200)], [count_a, count_b])
 
 def serialize_q10(tags):
-   writer = ParamsWriter("q10", 1)
+   writer = ParamsWriter("q10", ["tag"])
    for tag, count in tags:
       writer.append([tag], [count])
 
 def serialize_q12(post_weeks):
-   writer = ParamsWriter("q12", 1)
+   writer = ParamsWriter("q12", ["creationDate", "likeCount"])
    for week, count in post_weeks:
-      writer.append([str(week)], [count])
+      writer.append([str(week),str(400)], [count])
 
 def serialize_q13(countries):
-   writer = ParamsWriter("q13", 1)
+   writer = ParamsWriter("q13", ["country"])
    for country, count in countries:
       writer.append([country], [count])
 
 def serialize_q14(creationdates):
-   writer = ParamsWriter("q14", 1)
+   writer = ParamsWriter("q14", ["begin","todoEnd"])
    for creation, count in creationdates:
-      writer.append([str(creation)], [count])
+      writer.append([str(creation),"todo"], [count])
 
 def serialize_q15(countries):
-   writer = ParamsWriter("q15", 1)
+   writer = ParamsWriter("q15", ["country"])
    for country, count in countries:
       writer.append([country], [count])
 
 def serialize_q16(tagclasses, countries):
-   writer = ParamsWriter("q16", 2)
+   writer = ParamsWriter("q16", ["todoPerson","tag","country"])
    for tag, count_a in tagclasses:
       for country, count_b in countries:
-         writer.append([tag, country], [count_a, count_b])
+         writer.append([str(11052), tag, country], [count_a, count_b])
 
 def serialize_q17(countries):
-   writer = ParamsWriter("q17", 1)
+   writer = ParamsWriter("q17", ["country"])
    for country, count in countries:
       writer.append([country], [count])
 
 def serialize_q18(post_weeks):
-   writer = ParamsWriter("q18", 1)
+   writer = ParamsWriter("q18", ["creationDate"])
    for week, count in post_weeks:
       writer.append([str(week)], [count])
 
 def serialize_q19(tagclasses):
-   writer = ParamsWriter("q19", 2)
+   writer = ParamsWriter("q19", ["date","tagClass1","tagClass2"])
    for ix in range(0,len(tagclasses)):
       tag_class_a, count_a = tagclasses[ix]
       for tag_class_b, count_b in tagclasses[ix+1:]:
-         writer.append([tag_class_a, tag_class_b], [count_a, count_b])
+         writer.append([str("1989-1-1"),tag_class_a, tag_class_b], [count_a, count_b])
 
 def serialize_q21(countries):
-   writer = ParamsWriter("q21", 1)
+   writer = ParamsWriter("q21", ["country","endDate"])
    for country, count in countries:
-      writer.append([country], [count])
+      writer.append([country,str("2013-02-01")], [count])
 
 def serialize_q22(countries):
-   writer = ParamsWriter("q22", 2)
+   writer = ParamsWriter("q22", ["country1","country2"])
    for ix in range(0,len(countries)):
       country_a, count_a = countries[ix]
       for country_b, count_b in countries[ix+1:]:
          writer.append([country_a, country_b], [count_a, count_b])
 
 def serialize_q23(countries):
-   writer = ParamsWriter("q23", 1)
+   writer = ParamsWriter("q23", ["country"])
    for country, count in countries:
       writer.append([country], [count])
 
 def serialize_q24(tagclasses):
-   writer = ParamsWriter("q24", 1)
+   writer = ParamsWriter("q24", ["tagClass"])
    for tagclass, count in tagclasses:
       writer.append([tagclass], [count])
 
