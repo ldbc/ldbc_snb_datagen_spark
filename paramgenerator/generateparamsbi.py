@@ -195,7 +195,7 @@ def serialize_q13(countries):
 def serialize_q14(creationdates):
    writer = ParamsWriter("q14", ["begin","todoEnd"])
    for creation, count in creationdates:
-      writer.append([str(creation),"todo"], [count])
+      writer.append([str(creation),str(1278888800000)], [count])
 
 def serialize_q15(countries):
    writer = ParamsWriter("q15", ["country"])
