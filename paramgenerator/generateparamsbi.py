@@ -193,9 +193,9 @@ def serialize_q13(countries):
       writer.append([country], [count])
 
 def serialize_q14(creationdates):
-   writer = ParamsWriter("q14", ["begin","todoEnd"])
+   writer = ParamsWriter("q14", ["begin","end"])
    for creation, count in creationdates:
-      writer.append([str(creation),str(1278888800000)], [count])
+      writer.append([str(creation[0]),str(creation[1])], [count])
 
 def serialize_q15(countries):
    writer = ParamsWriter("q15", ["country"])
@@ -219,11 +219,12 @@ def serialize_q18(post_weeks):
       writer.append([str(week)], [count])
 
 def serialize_q19(tagclasses):
+   PERS_DATE=datetime.strptime("1989-1-1","%Y-%m-%d")
    writer = ParamsWriter("q19", ["date","tagClass1","tagClass2"])
    for ix in range(0,len(tagclasses)):
       tag_class_a, count_a = tagclasses[ix]
       for tag_class_b, count_b in tagclasses[ix+1:]:
-         writer.append([str("1989-1-1"),tag_class_a, tag_class_b], [count_a, count_b])
+         writer.append([str(format_date(PERS_DATE)),tag_class_a, tag_class_b], [count_a, count_b])
 
 def serialize_q20():
    writer = ParamsWriter("q20", [])
@@ -322,8 +323,13 @@ def main(argv=None):
    
    #post_lower_threshold = (total_posts/(week_posts[len(week_posts)-1][0]/7/4))*0.8
    #post_upper_threshold = (total_posts/(week_posts[len(week_posts)-1][0]/7/4))*1.2
-   post_lower_threshold = (total_posts/(len(week_posts)/4))*0.8
-   post_upper_threshold = (total_posts/(len(week_posts)/4))*1.2
+   non_empty_weeks=len(week_posts)
+   for ix in range(0,len(week_posts)):
+      if week_posts[ix][1]==0:
+         non_empty_weeks-= 1
+
+   post_lower_threshold = (total_posts/(non_empty_weeks/4))*0.8
+   post_upper_threshold = (total_posts/(non_empty_weeks/4))*1.2
    post_months = post_month_params(week_posts, post_lower_threshold, post_upper_threshold)
 
    serialize_q2(country_sets, post_day_ranges)
