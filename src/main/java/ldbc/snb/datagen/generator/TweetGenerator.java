@@ -23,7 +23,7 @@ public class TweetGenerator extends TextGenerator {
 	private DistributionKey hashtag;
 	private DistributionKey sentiment;
 	private DistributionKey popularword;
-	private DistributionKey ponene; //distribution popular,negative, neutral tweets
+	private DistributionKey proportion; //distribution popular,negative, neutral tweets
 	private DistributionKey lengthsentence; // sentece length and sentences per tweet
 	private DistributionKey lengthtweet;
 
@@ -31,15 +31,12 @@ public class TweetGenerator extends TextGenerator {
 		super(random, tagDic);
 		//input de fitxers i crea els 4 maps
 		String dir = null;
-		hashtag = new DistributionKey(dir);
-		sentiment = new DistributionKey(dir);
-		popularword = new DistributionKey(dir);
-		ponene = new DistributionKey(dir);
-		lengthsentence = new DistributionKey(dir);
-		lengthtweet = new DistributionKey(dir);
-		
-		
-		
+		hashtag = new DistributionKey(DatagenParams.SPARKBENCH_DIRECTORY + "/hashtags.csv");
+		sentiment = new DistributionKey(DatagenParams.SPARKBENCH_DIRECTORY + "/sentiment.csv");
+		popularword = new DistributionKey(DatagenParams.SPARKBENCH_DIRECTORY + "/words.csv");
+		//proportion = new DistributionKey(DatagenParams.SPARKBENCH_DIRECTORY + "/sentiment.csv");
+		lengthsentence = new DistributionKey(DatagenParams.SPARKBENCH_DIRECTORY + "/sentence_lengths.csv");
+		lengthtweet = new DistributionKey(DatagenParams.SPARKBENCH_DIRECTORY + "/sentence_count.csv");
 	}
 
 	@Override
@@ -56,13 +53,13 @@ public class TweetGenerator extends TextGenerator {
 			Double numwords = Double.valueOf(lengthsentence.nextDouble(this.random));
 			// depenen de la distribució de number hashtags per sentence int numhashtags;
 			//int numhashtags = funciondistribuciohashtags(numwords);
-			int numhashtags = 4;
+			int numhashtags = (int)(numwords*0.4);
 			for (int j = 0; j<numhashtags; ++j){
 				content.append(" "+ hashtag.nextDouble(this.random)); 
 			}
 			// depenen de la distribució de number sentiment words per sentence int numhashtags;
 			//int numsentimentswords = funciondistribuciosentimentswords(numwords);
-			int numsentimentswords = 4;
+			int numsentimentswords = (int)(numwords*0.4);
 			for (int q = 0; q<numhashtags; ++q){
 				content.append(" "+ sentiment.nextDouble(this.random)); 
 			}
