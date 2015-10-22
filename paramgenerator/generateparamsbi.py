@@ -126,12 +126,12 @@ def serialize_q1(post_weeks):
       writer.append([str(week)], [count])
 
 def serialize_q2(country_sets, post_day_ranges):
-   writer = ParamsWriter("q2", ["date1","date2","countries","endDate"])
+   writer = ParamsWriter("q2", ["date1","date2","countries","endDate","messageThreshold"])
    random.seed(1988+2)
    for country_set, count_country in country_sets:
       for day_range, count_post in post_day_ranges:
          if random.randint(0,len(country_sets) + len(post_day_ranges)) == 0:
-            writer.append([str(day_range[0]), str(day_range[1]), ";".join(country_set), str(format_date(END_DATE))], [count_post,count_post,count_country,333])
+            writer.append([str(day_range[0]), str(day_range[1]), ";".join(country_set), str(format_date(END_DATE)),str(20)], [count_post,count_post,count_country,333])
 
 def serialize_q3(post_months):
    writer = ParamsWriter("q3", ["range1Start","range1End","range2Start","range2End"])
