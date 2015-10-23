@@ -30,20 +30,10 @@ $HADOOP_HOME/bin/hadoop jar $LDBC_SNB_DATAGEN_HOME/ldbc_snb_datagen.jar $LDBC_SN
 if [ $PARAM_GENERATION -eq 1 ]
 then
 	mkdir -p substitution_parameters
-<<<<<<< HEAD
 	python paramgenerator/generateparams.py $LDBC_SNB_DATAGEN_HOME substitution_parameters/
 	python paramgenerator/generateparamsbi.py $LDBC_SNB_DATAGEN_HOME substitution_parameters/
-  	rm -f m*factors*
-  	rm -f .m*factors*
-	rm -f m0friendList*
-	rm -f .m0friendList*
-fi
-=======
-	python2 paramgenerator/generateparams.py $LDBC_SNB_DATAGEN_HOME substitution_parameters/
-	python2 paramgenerator/generateparamsbi.py $LDBC_SNB_DATAGEN_HOME substitution_parameters/
   rm -f m*factors*
   rm -f .m*factors*
   rm -f m0friendList*
   rm -f .m0friendList*
 fi
->>>>>>> 3185ef402796319ce9f29047703709e656dc20a9
