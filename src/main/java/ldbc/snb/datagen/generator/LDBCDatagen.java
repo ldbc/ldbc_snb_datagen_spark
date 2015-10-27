@@ -98,6 +98,7 @@ public class LDBCDatagen {
         knowsGenerator.run(hadoopPrefix+"/persons",hadoopPrefix+"/universityEdges");
         long endUniversity = System.currentTimeMillis();
 
+        /*
         printProgress("Creating main interest correlated edges");
         long startInterest= System.currentTimeMillis();
 
@@ -112,7 +113,7 @@ public class LDBCDatagen {
         long endInterest = System.currentTimeMillis();
 
 
-        /*printProgress("Creating random correlated edges");
+        printProgress("Creating random correlated edges");
         long startRandom= System.currentTimeMillis();
 
         knowsGenerator = new HadoopKnowsGenerator(  conf,
@@ -132,7 +133,7 @@ public class LDBCDatagen {
         printProgress("Merging the different edge files");
         ArrayList<String> edgeFileNames = new ArrayList<String>();
         edgeFileNames.add(hadoopPrefix+"/universityEdges");
-        edgeFileNames.add(hadoopPrefix+"/interestEdges");
+        //edgeFileNames.add(hadoopPrefix+"/interestEdges");
         //edgeFileNames.add(hadoopPrefix+"/randomEdges");
         long startMerge = System.currentTimeMillis();
         HadoopMergeFriendshipFiles merger = new HadoopMergeFriendshipFiles(conf,"ldbc.snb.datagen.hadoop.RandomKeySetter");
