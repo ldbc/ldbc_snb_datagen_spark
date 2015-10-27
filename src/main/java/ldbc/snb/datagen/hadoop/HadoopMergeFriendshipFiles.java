@@ -1,8 +1,8 @@
 package ldbc.snb.datagen.hadoop;
 
-import ldbc.snb.datagen.generator.KnowsGenerator;
 import ldbc.snb.datagen.generator.LDBCDatagen;
 import ldbc.snb.datagen.objects.Knows;
+import ldbc.snb.datagen.objects.Knows.FullComparator;
 import ldbc.snb.datagen.objects.Person;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -15,16 +15,19 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Created by aprat on 29/07/15.
  */
 public class HadoopMergeFriendshipFiles {
 
+
     public static class HadoopMergeFriendshipFilesReducer  extends Reducer<TupleKey, Person, TupleKey, Person> {
 
         private Configuration conf;
         private HadoopFileKeyChanger.KeySetter<TupleKey> keySetter = null;
+        private int numRepeated = 0;
 
         protected void setup(Context context) {
             this.conf = context.getConfiguration();
@@ -40,21 +43,41 @@ public class HadoopMergeFriendshipFiles {
         public void reduce(TupleKey key, Iterable<Person> valueSet,Context context)
                 throws IOException, InterruptedException {
 
+            ArrayList<Knows> knows = new ArrayList<Knows>();
             Person person = null;
             int index = 0;
             for ( Person p : valueSet) {
                 if( index == 0 ) {
                     person = new Person(p);
-                } else {
-                    for ( Knows k : p.knows() ) {
-                        person.knows().add(k);
-                    }
+                }
+                for(Knows k : p.knows()) {
+                    knows.add(k);
                 }
                 index++;
             }
+            person.knows().clear();
+            Knows.FullComparator comparator = new Knows.FullComparator();
+            Collections.sort(knows, comparator);
+            if(knows.size() > 0 ) {
+                long currentTo = knows.get(0).to().accountId();
+                person.knows().add(knows.get(0));
+                for (index = 1; index < knows.size(); ++index) {
+                    Knows nextKnows = knows.get(index);
+                    if(currentTo != knows.get(index).to().accountId()) {
+                        person.knows().add(nextKnows);
+                        currentTo = nextKnows.to().accountId();
+                    } else {
+                        numRepeated++;
+                    }
+                }
+            }
+
             //System.out.println("Num persons "+index);
             context.write(keySetter.getKey(person),person);
         }
+        protected void cleanup(Context context){
+            System.out.println("Number of repeated edges: "+numRepeated);
+		}
     }
 
     private Configuration conf;
