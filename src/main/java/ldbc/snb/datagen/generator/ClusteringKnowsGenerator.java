@@ -21,7 +21,6 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
     private int numCoreCoreEdges = 0;
     private int numCorePeripheryEdges = 0;
     private int numCoreExternalEdges = 0;
-//    private float step_ = 0.10f;
     private float min_community_prob_ = 0.0f;
 
     private class PersonInfo {
@@ -208,11 +207,6 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
 
         // Initializing cInfo with expected degrees
         for (PersonInfo pI : c.core_) {
-            //double core_core_degree = (c.core_.size() - 1) * prob;
-            //long complete_edges = (long)core_core_degree;
-            //double incomplete_edge = core_core_degree - complete_edges;
-            //if(rand.nextDouble() < incomplete_edge) complete_edges++;
-            //cInfo.core_node_expected_core_degree_.set(pI.index_, new Double(complete_edges));
             cInfo.core_node_expected_core_degree_.set(pI.index_,(c.core_.size() - 1) * (double)prob);
             cInfo.core_node_excedence_degree_.set(pI.index_, pI.degree_ - cInfo.core_node_expected_core_degree_.get(pI.index_));
             cInfo.core_node_expected_periphery_degree_.set(pI.index_, 0.0);
@@ -241,7 +235,6 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
 
 
     private void estimateCCCommunity( ClusteringInfo cInfo, Community c, float prob ) {
-        //System.out.println("Recompunting community with prob "+c.p_);
         computeCommunityInfo(cInfo, c, prob);
 
         float probSameCommunity = 0.0f;
@@ -340,7 +333,8 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
     }
 
     float clusteringCoefficient(ArrayList<Community> communities, ClusteringInfo cInfo ) {
-        return clusteringCoefficient(communities, cInfo,true);
+        float CC =  clusteringCoefficient(communities, cInfo,true);
+        return CC;
     }
 
     float clusteringCoefficient( ArrayList<Community> communities, ClusteringInfo cInfo, Boolean countZeros ) {
@@ -389,7 +383,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
     }
 
     float step(int n) {
-        return 1.0f/(float)n;
+        return 3.0f/(float)n;
     }
 
     boolean improveCC(ClusteringInfo cInfo, ArrayList<Community> communities) {
@@ -402,7 +396,6 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         Community c = filtered.get(index);
         float step = step(c.core_.size());
         c.p_ = c.p_ + step > 1.0f ? 1.0f : c.p_ + step;
-        //c.p_ = c.p_ + step_ > 1.0f ? 1.0f : c.p_ + step_;
         cInfo.sumProbs+=0.01;
         estimateCCCommunity(cInfo, c, c.p_);
         return true;
@@ -418,7 +411,6 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         Community c = filtered.get(index);
         float step = step(c.core_.size());
         c.p_ = c.p_ - step < min_community_prob_ ? min_community_prob_ : c.p_ - step ;
-        //c.p_ = c.p_ - step_ < min_community_prob_ ? min_community_prob_ : c.p_ - step_ ;
         cInfo.sumProbs-=0.01;
         estimateCCCommunity(cInfo, c, c.p_ );
         return true;
@@ -443,6 +435,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
 
     void createEdgesCommunityPeriphery(ClusteringInfo cInfo, ArrayList<Person> persons, Community c) {
 
+        //long start = System.currentTimeMillis();
         long [] peripheryBudget = new long[c.periphery_.size()];
         int index = 0;
         for(PersonInfo pI: c.periphery_) {
@@ -470,29 +463,35 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
                 System.out.println("ERROR");
             }
         }
+        //long end = System.currentTimeMillis();
+        //System.out.println("Time to create core-periphery edges: "+(end-start));
     }
 
     void fillGraphWithRemainingEdges(ClusteringInfo cInfo, ArrayList<Community> communities, ArrayList<Person> persons) {
         ArrayList<PersonInfo> stubs = new ArrayList<PersonInfo> ();
+        LinkedList<Integer> indexes = new LinkedList<Integer>();
+        Integer ii = 0;
         for ( Community c : communities ) {
             for (PersonInfo pI : c.core_ ) {
                 long diff = pI.degree_ - persons.get(pI.index_).knows().size();
                 if( diff > 0 ) {
                     for( int i = 0; i < diff; ++i) {
                        stubs.add(pI);
+                        indexes.add(ii++);
                     }
                 }
             }
         }
+
         Collections.shuffle(stubs,rand);
-        while(stubs.size()>0) {
-            int index = rand.nextInt(stubs.size());
+        Collections.shuffle(indexes,rand);
+
+        while(indexes.size()>0) {
+            int index = indexes.pop();
             PersonInfo first = stubs.get(index);
-            stubs.remove(index);
-            if(stubs.size() > 0) {
-                int index2 = rand.nextInt(stubs.size());
+            if(indexes.size() > 0) {
+                int index2 = indexes.pop();
                 PersonInfo second = stubs.get(index2);
-                stubs.remove(index2);
                 // create edge
                 if(persons.get(first.index_) == persons.get(second.index_)) {
                     numMisses++;
@@ -520,18 +519,20 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
 
 
         for( Community c : communities ) {
+            c.p_ = 1.0f;
             computeCommunityInfo(cInfo, c, 1.0f);
         }
 
         for( Community c : communities ) {
-            estimateCCCommunity(cInfo, c, 1.0f);
+            c.p_ = 1.0f;
+            estimateCCCommunity(cInfo, c, c.p_);
         }
 
         float maxCC = clusteringCoefficient(communities, cInfo);
         System.out.println("maxCC: "+maxCC);
 
         for( Community c : communities ) {
-            c.p_ = 1.0f;//rand.nextFloat();
+            c.p_ = 0.5f;//rand.nextFloat();
             //c.p_ = rand.nextFloat();
             estimateCCCommunity(cInfo, c, c.p_ );
         }
@@ -545,11 +546,14 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
             iterate = false;
             refineCommunities(cInfo, communities, fakeTargetCC);
             System.out.println("Creating graph");
+
+            long start, end;
             for(Community c : communities ) {
                 createEdgesCommunityCore(persons, c);
-                createEdgesCommunityPeriphery(cInfo, persons,c);
+                createEdgesCommunityPeriphery(cInfo, persons, c);
             }
             fillGraphWithRemainingEdges(cInfo, communities, persons);
+
             graph = new PersonGraph(persons);
             System.out.println("Computing clustering coefficient");
             double finalCC = 0;
