@@ -93,7 +93,7 @@ public class LDBCDatagen {
                                                                         "ldbc.snb.datagen.hadoop.RandomKeySetter",
                                                                         percentages,
                                                                         0,
-                                                                        "ldbc.snb.datagen.generator.ClusteringKnowsGenerator");
+                                                                        conf.get("ldbc.snb.datagen.generator.knowsGenerator"));
 
         knowsGenerator.run(hadoopPrefix+"/persons",hadoopPrefix+"/universityEdges");
         long endUniversity = System.currentTimeMillis();
@@ -107,7 +107,7 @@ public class LDBCDatagen {
                                                     "ldbc.snb.datagen.hadoop.RandomKeySetter",
                                                     percentages,
                                                     1,
-                                                    "ldbc.snb.datagen.generator.ClusteringKnowsGenerator");
+                                                    conf.get("ldbc.snb.datagen.generator.knowsGenerator"));
 
         knowsGenerator.run(hadoopPrefix+"/persons",hadoopPrefix+"/interestEdges");
         long endInterest = System.currentTimeMillis();
