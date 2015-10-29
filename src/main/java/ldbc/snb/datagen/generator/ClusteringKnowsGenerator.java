@@ -508,34 +508,48 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
 
     public void generateKnows( ArrayList<Person> persons, int seed, ArrayList<Float> percentages, int step_index )  {
 
+        long start, end;
         rand.setSeed(seed);
         this.percentages = percentages;
         this.stepIndex = step_index;
 
+        start = System.currentTimeMillis();
         ArrayList<Community>  communities = generateCommunities(persons);
+        end = System.currentTimeMillis();
+        System.out.println("Time to configure communities: "+(end-start));
+
         ClusteringInfo cInfo = new ClusteringInfo( persons.size(), communities );
 
         System.out.println("Number of generated communities: "+communities.size());
 
 
+        start = System.currentTimeMillis();
         for( Community c : communities ) {
             c.p_ = 1.0f;
             computeCommunityInfo(cInfo, c, 1.0f);
         }
+        end = System.currentTimeMillis();
+        System.out.println("Time to compute initial community information: "+(end-start));
 
+        start = System.currentTimeMillis();
         for( Community c : communities ) {
             c.p_ = 1.0f;
             estimateCCCommunity(cInfo, c, c.p_);
         }
 
         float maxCC = clusteringCoefficient(communities, cInfo);
+        end = System.currentTimeMillis();
         System.out.println("maxCC: "+maxCC);
+        System.out.println("Time to compute maximum CC: "+(end-start));
 
+        start = System.currentTimeMillis();
         for( Community c : communities ) {
             c.p_ = 0.5f;//rand.nextFloat();
             //c.p_ = rand.nextFloat();
             estimateCCCommunity(cInfo, c, c.p_ );
         }
+        end = System.currentTimeMillis();
+        System.out.println("Time to compute the initial solution: "+(end-start));
 
         PersonGraph graph;
         boolean iterate;
@@ -544,15 +558,21 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         do {
             System.out.println("Starting refinement iteration");
             iterate = false;
+            start = System.currentTimeMillis();
             refineCommunities(cInfo, communities, fakeTargetCC);
+            end = System.currentTimeMillis();
+            System.out.println("Time to refine communities: "+(end-start));
+
             System.out.println("Creating graph");
 
-            long start, end;
+            start = System.currentTimeMillis();
             for(Community c : communities ) {
                 createEdgesCommunityCore(persons, c);
                 createEdgesCommunityPeriphery(cInfo, persons, c);
             }
             fillGraphWithRemainingEdges(cInfo, communities, persons);
+            end = System.currentTimeMillis();
+            System.out.println("Time to generate graph: "+(end-start));
 
             graph = new PersonGraph(persons);
             System.out.println("Computing clustering coefficient");
