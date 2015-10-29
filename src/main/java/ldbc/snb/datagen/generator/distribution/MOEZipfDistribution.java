@@ -21,7 +21,7 @@ public class MOEZipfDistribution implements DegreeDistribution  {
     public void initialize(Configuration conf) {
         ALPHA_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.MOEZipfDistribution.alpha",ALPHA_);
         DELTA_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.MOEZipfDistribution.delta",DELTA_);
-        zipf_ = new org.apache.commons.math3.distribution.ZipfDistribution(10000, ALPHA_);
+        zipf_ = new org.apache.commons.math3.distribution.ZipfDistribution(5000, ALPHA_);
         random_ = new Random();
     }
 

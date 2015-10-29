@@ -14,17 +14,11 @@ import java.util.Set;
 public class PersonGraph {
     private HashMap<Long,HashSet<Long>> adjacencies_;
     public PersonGraph(ArrayList<Person> persons) {
-        HashSet<Long> exists = new HashSet<Long>();
-        for( Person p : persons) {
-            exists.add(p.accountId());
-        }
         adjacencies_ = new HashMap<Long,HashSet<Long>>();
         for( Person p : persons) {
             HashSet<Long> neighbors = new HashSet<Long>();
             for (Knows k: p.knows()) {
-               if(exists.contains(k.to().accountId())) {
-                   neighbors.add(k.to().accountId());
-               }
+                neighbors.add(k.to().accountId());
             }
             adjacencies_.put(p.accountId(),neighbors);
         }

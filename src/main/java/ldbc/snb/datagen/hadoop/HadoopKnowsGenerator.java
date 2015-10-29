@@ -31,12 +31,18 @@ public class HadoopKnowsGenerator {
         private HadoopFileKeyChanger.KeySetter<TupleKey> keySetter = null;
         private ArrayList<Float> percentages;
         private int step_index;
+        private int numGeneratedEdges = 0;
 
         protected void setup(Context context) {
-            this.knowsGenerator = new DistanceKnowsGenerator();
-//            this.knowsGenerator = new ClusteringKnowsGenerator();
-            this.percentages = new ArrayList<Float>();
+            //this.knowsGenerator = new DistanceKnowsGenerator();
             this.conf = context.getConfiguration();
+            try {
+                this.knowsGenerator = (KnowsGenerator) Class.forName(conf.get("knowsGeneratorName")).newInstance();
+                this.knowsGenerator.initialize(conf);
+            }catch(Exception e) {
+                System.out.println(e.getMessage());
+            }
+            this.percentages = new ArrayList<Float>();
             this.step_index = conf.getInt("stepIndex",0);
             float p = conf.getFloat("percentage0",0.0f);
             int index = 1;
@@ -63,23 +69,31 @@ public class HadoopKnowsGenerator {
             this.knowsGenerator.generateKnows(persons, (int)key.block, percentages, step_index);
             for( Person p : persons ) {
                 context.write(keySetter.getKey(p), p);
+                numGeneratedEdges+=p.knows().size();
             }
+        }
+
+        @Override
+        public void cleanup(Context context) {
+            System.out.println("Number of generated edges: "+numGeneratedEdges/2);
         }
     }
 
     private Configuration conf;
     private String preKeySetterName;
     private String postKeySetterName;
+    private String knowsGeneratorName;
     private ArrayList<Float> percentages;
     private int step_index;
 
 
-    public HadoopKnowsGenerator( Configuration conf, String preKeySetterName, String postKeySetterName, ArrayList<Float> percentages, int step_index  ) {
-        this.conf = conf;
+    public HadoopKnowsGenerator( Configuration conf, String preKeySetterName, String postKeySetterName, ArrayList<Float> percentages, int step_index, String knowsGeneratorName  ) {
+        this.conf = new Configuration(conf);
         this.preKeySetterName = preKeySetterName;
         this.postKeySetterName = postKeySetterName;
         this.percentages = percentages;
         this.step_index = step_index;
+        this.knowsGeneratorName = knowsGeneratorName;
     }
 
     public void run( String inputFileName, String outputFileName ) throws Exception {
@@ -116,6 +130,7 @@ public class HadoopKnowsGenerator {
             ++index;
         }
         conf.set("postKeySetterName",postKeySetterName);
+        conf.set("knowsGeneratorName", knowsGeneratorName);
         int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads"));
         Job job = Job.getInstance(conf, "Knows generator");
         job.setMapOutputKeyClass(BlockKey.class);
