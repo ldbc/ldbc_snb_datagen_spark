@@ -179,8 +179,24 @@ def serialize_q10(tags):
    for tag, count in tags:
       writer.append([tag], [count])
 
-def serialize_q11():
+def serialize_q11(countries, bad_words):
    writer = ParamsWriter("q11", ["country", "blacklist"])
+   random.seed(1988+2)
+   for country, count in countries:
+      num_words = random.randint(1,min(len(bad_words),4));
+      random.shuffle(bad_words)
+      blacklist = bad_words[0:num_words]
+      writer.append([country,";".join(blacklist)], [count])
+
+      num_words = random.randint(1,min(len(bad_words),10));
+      random.shuffle(bad_words)
+      blacklist = bad_words[0:num_words]
+      writer.append([country,";".join(blacklist)], [count])
+
+      num_words = random.randint(1,min(len(bad_words),7));
+      random.shuffle(bad_words)
+      blacklist = bad_words[0:num_words]
+      writer.append([country,";".join(blacklist)], [count])
 
 def serialize_q12(post_weeks):
    writer = ParamsWriter("q12", ["creationDate", "likeCount"])
@@ -202,11 +218,12 @@ def serialize_q15(countries):
    for country, count in countries:
       writer.append([country], [count])
 
-def serialize_q16(tagclasses, countries):
-   writer = ParamsWriter("q16", ["todoPerson","tag","country"])
+def serialize_q16(persons, tagclasses, countries):
+   writer = ParamsWriter("q16", ["person","tag","country"])
+   random.seed(1988+2)
    for tag, count_a in tagclasses:
       for country, count_b in countries:
-         writer.append([str(11052), tag, country], [count_a, count_b])
+         writer.append([str(persons[random.randint(0,len(persons))]), tag, country], [0, count_a, count_b])
 
 def serialize_q17(countries):
    writer = ParamsWriter("q17", ["country"])
@@ -226,8 +243,10 @@ def serialize_q19(tagclasses):
       for tag_class_b, count_b in tagclasses[ix+1:]:
          writer.append([str(format_date(PERS_DATE)),tag_class_a, tag_class_b], [count_a, count_b])
 
-def serialize_q20():
-   writer = ParamsWriter("q20", [])
+def serialize_q20(tagclasses):
+   writer = ParamsWriter("q20", ["tagclass"])
+   for tagclass, count in tagclasses:
+      writer.append([tagclass], [count])
 
 def serialize_q21(countries):
    writer = ParamsWriter("q21", ["country","endDate"])
@@ -294,6 +313,12 @@ def main(argv=None):
    (personFactors, countryFactors, tagFactors, tagClassFactors, nameFactors, givenNames,  ts, postsHisto) = readfactors.load(factorFiles, friendsFiles)
    week_posts = convert_posts_histo(postsHisto)
 
+   persons = []
+   for key, _ in personFactors.values.iteritems():
+      persons.append(key)
+   random.seed(1988)
+   random.shuffle(persons)
+
    country_sample = []
    for key, value in countryFactors.values.iteritems():
       country_sample.append([key, value.getValue("p")])
@@ -321,6 +346,7 @@ def main(argv=None):
    post_upper_threshold = 0.1*total_posts*1.1
    post_day_ranges = post_date_range_params(week_posts, post_lower_threshold, post_upper_threshold)
    
+   bad_words = ['Augustine','William','James','with','Henry','Robert','from','Pope','Hippo','album','David','has','one','also','Green','which','that']
    #post_lower_threshold = (total_posts/(week_posts[len(week_posts)-1][0]/7/4))*0.8
    #post_upper_threshold = (total_posts/(week_posts[len(week_posts)-1][0]/7/4))*1.2
    non_empty_weeks=len(week_posts)
@@ -348,9 +374,8 @@ def main(argv=None):
    serialize_q9(key_params(tagclass_posts, 6000, 25000))
    serialize_q10(key_params(tag_posts, total_posts/900, total_posts/600))
    serialize_q13(key_params(country_sample, total_posts/200, total_posts/100))
-   # serialize_q14(post_month_params(week_posts, post_lower_threshold*2, post_upper_threshold*2))
    serialize_q15(key_params(country_sample, total_posts/200, total_posts/100))
-   serialize_q16(key_params(tagclass_posts, total_posts/30, total_posts/10), key_params(country_sample, total_posts/110, total_posts/70))
+   serialize_q16(persons, key_params(tagclass_posts, total_posts/30, total_posts/10), key_params(country_sample, total_posts/80, total_posts/20))
    serialize_q17(key_params(country_sample, total_posts/200, total_posts/100))
    serialize_q19(key_params(tagclass_posts, total_posts/60, total_posts/10))
    serialize_q21(key_params(country_sample, total_posts/200, total_posts/100))
@@ -358,8 +383,9 @@ def main(argv=None):
    serialize_q23(key_params(country_sample, total_posts/200, total_posts/100))
    serialize_q24(key_params(tagclass_posts, total_posts/140, total_posts/5))
 
-   serialize_q11()
-   serialize_q20()
+   # TODO: Refine
+   serialize_q20(key_params(tagclass_posts, total_posts/20, total_posts/2))
+   serialize_q11(key_params(country_sample, total_posts/80, total_posts/20), bad_words)
 
 if __name__ == "__main__":
    sys.exit(main())
