@@ -294,7 +294,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
                 if(internalDegree >= 2.0) {
                     internalTriangles = (internalDegree * (internalDegree - 1) * prob);
                 }
-                boolean enteredOffset = false;
+                
 
                 // core periphery triangles
                 double peripheryTriangles = 0;

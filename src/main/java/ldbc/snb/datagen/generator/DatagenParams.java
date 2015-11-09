@@ -38,16 +38,16 @@
 
 package ldbc.snb.datagen.generator;
 
-import ldbc.snb.datagen.util.ScaleFactor;
-import org.apache.hadoop.conf.Configuration;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.util.TreeMap;
+import org.apache.hadoop.conf.Configuration;
+
+
+
+
+
+
+
+
 
 public class DatagenParams {
 

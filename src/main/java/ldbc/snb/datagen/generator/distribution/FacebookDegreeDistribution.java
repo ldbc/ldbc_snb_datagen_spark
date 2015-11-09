@@ -40,13 +40,13 @@ package ldbc.snb.datagen.generator.distribution;
 import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.generator.distribution.utils.Bucket;
 import ldbc.snb.datagen.generator.distribution.utils.BucketedDistribution;
-import org.apache.hadoop.conf.Configuration;
+
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Random;
+
 
 /**
  * This class generates Facebook-like social degree distribution
@@ -63,7 +63,7 @@ import java.util.Random;
 public class FacebookDegreeDistribution extends BucketedDistribution {
     private int mean_ = 0;
     private static final int FB_MEAN_ = 190;
-    private static final int BUCKET_NUM_ = 100;
+    
     private ArrayList<Bucket> buckets_;
 
     public FacebookDegreeDistribution() {

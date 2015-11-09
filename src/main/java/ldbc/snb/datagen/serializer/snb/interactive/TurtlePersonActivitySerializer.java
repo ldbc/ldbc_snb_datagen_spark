@@ -7,14 +7,14 @@ package ldbc.snb.datagen.serializer.snb.interactive;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.objects.*;
-import ldbc.snb.datagen.serializer.HDFSCSVWriter;
+
 import ldbc.snb.datagen.serializer.HDFSWriter;
 import ldbc.snb.datagen.serializer.PersonActivitySerializer;
 import ldbc.snb.datagen.serializer.Turtle;
 import ldbc.snb.datagen.vocabulary.*;
 import org.apache.hadoop.conf.Configuration;
 
-import java.util.ArrayList;
+
 
 /**
  *
@@ -22,7 +22,7 @@ import java.util.ArrayList;
  */
 public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 	private HDFSWriter[] writers;
-	private String empty="";
+	
 	private long membershipId = 0;
 	private long likeId       = 0;
 

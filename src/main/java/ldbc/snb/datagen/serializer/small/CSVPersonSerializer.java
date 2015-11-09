@@ -38,7 +38,7 @@
 
 package ldbc.snb.datagen.serializer.small;
 
-        import ldbc.snb.datagen.dictionary.Dictionaries;
+        
         import ldbc.snb.datagen.objects.Knows;
         import ldbc.snb.datagen.objects.Person;
         import ldbc.snb.datagen.objects.StudyAt;
@@ -48,7 +48,7 @@ package ldbc.snb.datagen.serializer.small;
         import org.apache.hadoop.conf.Configuration;
 
         import java.util.ArrayList;
-        import java.util.Iterator;
+        
 
 public class CSVPersonSerializer extends PersonSerializer {
 

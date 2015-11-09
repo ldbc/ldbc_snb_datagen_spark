@@ -1,14 +1,14 @@
 package ldbc.snb.datagen.serializer.small;
 
-        import ldbc.snb.datagen.dictionary.Dictionaries;
+        
         import ldbc.snb.datagen.objects.Organization;
         import ldbc.snb.datagen.objects.Place;
         import ldbc.snb.datagen.objects.Tag;
         import ldbc.snb.datagen.objects.TagClass;
         import ldbc.snb.datagen.serializer.HDFSCSVWriter;
         import ldbc.snb.datagen.serializer.InvariantSerializer;
-        import ldbc.snb.datagen.vocabulary.DBP;
-        import ldbc.snb.datagen.vocabulary.DBPOWL;
+        
+        
         import org.apache.hadoop.conf.Configuration;
 
         import java.util.ArrayList;

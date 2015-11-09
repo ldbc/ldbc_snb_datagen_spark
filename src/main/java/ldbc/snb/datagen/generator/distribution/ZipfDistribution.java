@@ -1,9 +1,9 @@
 package ldbc.snb.datagen.generator.distribution;
 
-import ldbc.snb.datagen.generator.DatagenParams;
+
 import org.apache.hadoop.conf.Configuration;
 
-import java.util.ArrayList;
+
 
 /**
  * Created by aprat on 5/03/15.

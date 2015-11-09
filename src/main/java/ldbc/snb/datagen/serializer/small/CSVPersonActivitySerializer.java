@@ -15,7 +15,7 @@ package ldbc.snb.datagen.serializer.small;
 public class CSVPersonActivitySerializer extends PersonActivitySerializer {
     private HDFSCSVWriter [] writers;
     private ArrayList<String> arguments;
-    private String empty="";
+    
 
     private enum FileNames {
         USER_LIKES_MESSAGE ("user_likes_message"),
