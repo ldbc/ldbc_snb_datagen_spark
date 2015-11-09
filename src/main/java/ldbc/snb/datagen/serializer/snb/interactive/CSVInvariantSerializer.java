@@ -1,10 +1,10 @@
 package ldbc.snb.datagen.serializer.snb.interactive;
 
-import ldbc.snb.datagen.dictionary.BrowserDictionary;
+
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.dictionary.LanguageDictionary;
-import ldbc.snb.datagen.dictionary.PlaceDictionary;
-import ldbc.snb.datagen.generator.DatagenParams;
+
+
+
 import ldbc.snb.datagen.objects.Organization;
 import ldbc.snb.datagen.objects.Place;
 import ldbc.snb.datagen.objects.Tag;

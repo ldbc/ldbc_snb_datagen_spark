@@ -21,8 +21,8 @@ import java.util.TreeSet;
  * @author aprat
  */
 public class PhotoGenerator {
-	private long postId = 0;
-	private static final String SEPARATOR = "  ";
+	
+	
 	
 	public PhotoGenerator() {
 	}

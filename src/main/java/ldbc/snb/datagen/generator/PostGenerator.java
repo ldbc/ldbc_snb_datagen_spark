@@ -59,7 +59,7 @@ abstract public class PostGenerator {
 		}
 	}
 	
-	private static final String SEPARATOR = "  ";
+	
 	
 	/* A set of random number generator for different purposes.*/
 	

@@ -1,6 +1,6 @@
 package ldbc.snb.datagen.generator.tools;
 
-import ldbc.snb.datagen.objects.Knows;
+
 
 import java.util.ArrayList;
 import java.util.Random;

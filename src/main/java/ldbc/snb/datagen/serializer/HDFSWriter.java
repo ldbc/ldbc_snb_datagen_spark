@@ -6,7 +6,7 @@ import org.apache.hadoop.fs.Path;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
+
 import java.util.zip.GZIPOutputStream;
 
 public class HDFSWriter {
@@ -16,7 +16,7 @@ public class HDFSWriter {
     private int numPartitions;
     private int currentPartition = 0;
     private boolean compressed;
-    private boolean firstEntry = true;
+    
     private StringBuffer buffer;
 
     private OutputStream[] fileOutputStream;

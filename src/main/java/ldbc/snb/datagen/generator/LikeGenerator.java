@@ -20,7 +20,7 @@ import java.util.Random;
  * @author aprat
  */
 public class LikeGenerator {
-	private double maxNumberOfLikes;
+	
 	private final PowerDistGenerator likesGenerator_;
 
 	

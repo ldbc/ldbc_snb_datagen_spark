@@ -1,15 +1,15 @@
 package ldbc.snb.datagen.serializer;
 
-import ldbc.snb.datagen.dictionary.Dictionaries;
+
 import ldbc.snb.datagen.objects.Organization;
 import ldbc.snb.datagen.objects.Place;
 import ldbc.snb.datagen.objects.Tag;
 import ldbc.snb.datagen.objects.TagClass;
 import org.apache.hadoop.conf.Configuration;
 
-import java.util.Iterator;
-import java.util.Set;
-import java.util.TreeSet;
+
+
+
 
 /**
  * Created by aprat on 12/17/14.

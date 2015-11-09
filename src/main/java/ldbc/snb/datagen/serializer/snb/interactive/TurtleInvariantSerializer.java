@@ -5,14 +5,14 @@ import ldbc.snb.datagen.objects.Organization;
 import ldbc.snb.datagen.objects.Place;
 import ldbc.snb.datagen.objects.Tag;
 import ldbc.snb.datagen.objects.TagClass;
-import ldbc.snb.datagen.serializer.HDFSCSVWriter;
+
 import ldbc.snb.datagen.serializer.HDFSWriter;
 import ldbc.snb.datagen.serializer.InvariantSerializer;
 import ldbc.snb.datagen.serializer.Turtle;
 import ldbc.snb.datagen.vocabulary.*;
 import org.apache.hadoop.conf.Configuration;
 
-import java.util.ArrayList;
+
 
 /**
  * Created by aprat on 12/17/14.

@@ -2,7 +2,7 @@ package ldbc.snb.datagen.generator;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.generator.distribution.DegreeDistribution;
-import ldbc.snb.datagen.generator.distribution.utils.BucketedDistribution;
+
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
@@ -46,17 +46,7 @@ public class PersonGenerator {
         return (bucket << 40) | ((id & idMask));
     }
 
-    /** Tells if a person is a large poster or not.
-     *
-     * @param user The person to check.
-     * @return True if the person is a large poster. False otherwise.
-     */
-    private boolean isUserALargePoster(Person user) {
-        if (Dictionaries.dates.getBirthMonth(user.birthDay()) == GregorianCalendar.JANUARY) {
-            return true;
-        }
-        return false;
-    }
+    
 
     private Person generateUser() {
 
