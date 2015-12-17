@@ -14,7 +14,7 @@ export HADOOP_HOME
 export LDBC_SNB_DATAGEN_HOME
 
 mvn clean
-mvn assembly:assembly
+mvn -DskipTests assembly:assembly 
 
 cp $LDBC_SNB_DATAGEN_HOME/target/ldbc_snb_datagen.jar $LDBC_SNB_DATAGEN_HOME/
 rm $LDBC_SNB_DATAGEN_HOME/target/ldbc_snb_datagen.jar
