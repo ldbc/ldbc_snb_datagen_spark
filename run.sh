@@ -18,7 +18,7 @@ export HADOOP_HEAPSIZE=6144
 export HADOOP_CLIENT_OPTS="-Xmx6g $HADOOP_CLIENT_OPTS"
 
 mvn clean
-mvn assembly:assembly
+mvn -DskipTests assembly:assembly 
 
 cp $LDBC_SNB_DATAGEN_HOME/target/ldbc_snb_datagen.jar $LDBC_SNB_DATAGEN_HOME/
 rm $LDBC_SNB_DATAGEN_HOME/target/ldbc_snb_datagen.jar
