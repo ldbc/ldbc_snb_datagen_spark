@@ -5,25 +5,30 @@ import java.util.*;
 /**
  * Created by aprat on 18/12/15.
  */
-public class PairUniquenessCheck extends Check {
+public class PairUniquenessCheck<T,S> extends Check {
 
 
-    HashMap< String,Set<String>> values = null;
+    protected HashMap< T,Set<S>> values = null;
+    protected Parser<T> parserA = null;
+    protected Parser<S> parserB = null;
 
-    public PairUniquenessCheck(int columnA, int columnB) {
+
+    public PairUniquenessCheck(Parser<T> parserA, Parser<S> parserB, int columnA, int columnB) {
         super( "Pair Uniqueness Check", (new ArrayList<Integer>()));
+        this.parserA = parserA;
+        this.parserB = parserB;
         this.getColumns().add(columnA);
         this.getColumns().add(columnB);
-        values = new HashMap<String, Set<String>>();
+        values = new HashMap<T, Set<S>>();
     }
 
     @Override
     public boolean check(List<String> vals) {
-        String valA = vals.get(0);
-        String valB = vals.get(1);
-        Set<String> others = values.get(valA);
+        T valA = parserA.parse(vals.get(0));
+        S valB = parserB.parse(vals.get(1));
+        Set<S> others = values.get(valA);
         if(others == null) {
-            others = new HashSet<String>();
+            others = new HashSet<S>();
             others.add(valB);
             values.put(valA,others);
         } else {
