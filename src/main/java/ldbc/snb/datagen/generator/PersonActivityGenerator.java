@@ -36,12 +36,9 @@ public class PersonActivityGenerator {
 		personActivitySerializer_ = serializer;
 		updateSerializer_ = updateSerializer;
 		randomFarm_ = new RandomGeneratorFarm();
-		// load generators
 		forumGenerator_ = new ForumGenerator();
-		//david
-		Random random = new Random(); 
+		Random random = new Random();
 		TextGenerator generator = new LdbcSnbTextGenerator(random, Dictionaries.tags);
-		//d: end
 		uniformPostGenerator_ = new UniformPostGenerator(generator);
 		flashmobPostGenerator_ = new FlashmobPostGenerator(generator);
 		photoGenerator_ = new PhotoGenerator();
