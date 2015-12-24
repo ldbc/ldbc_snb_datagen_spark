@@ -232,11 +232,7 @@ public class LDBCDatagen {
         invariantSerializer.run();
         long endInvariantSerializing= System.currentTimeMillis();
 
-
-
         long end = System.currentTimeMillis();
-
-
 
         System.out.println(((end - start) / 1000)
                 + " total seconds");

@@ -19,7 +19,6 @@ import java.util.TreeSet;
  */
 public class UniformPostGenerator extends PostGenerator {
 
-
 	public UniformPostGenerator() {
 		
 	}

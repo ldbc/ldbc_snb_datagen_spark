@@ -93,7 +93,7 @@ public class PersonActivityGenerator {
 				// generate likes to comments
 				if( c.content().length() > 10 && randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
 					ArrayList<Like> commentLikes = likeGenerator_.generateLikes(randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE), wall, c, Like.LikeType.COMMENT);
-					
+
 					for( Like l : commentLikes ) {
 						export(l);
 					}
@@ -185,7 +185,6 @@ public class PersonActivityGenerator {
 				}
 			}
 		}
-		
 	}
 	
 	private int numPostsPerGroup( RandomGeneratorFarm randomFarm, Forum forum, int maxPostsPerMonth, int maxMembersPerForum ) {
