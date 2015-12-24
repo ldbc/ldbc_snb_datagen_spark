@@ -53,6 +53,7 @@ public class DatagenParams {
 
     //Files and folders
     public static final String DICTIONARY_DIRECTORY    = "/dictionaries/";
+    public static final String SPARKBENCH_DIRECTORY    = "/sparkbench";
     public static final String IPZONE_DIRECTORY        = "/ipaddrByCountries";
     public static final String STATS_FILE              = "testdata.json";
     public static final String RDF_OUTPUT_FILE         = "ldbc_socialnet_dbg";

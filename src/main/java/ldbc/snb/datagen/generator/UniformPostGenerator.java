@@ -6,6 +6,7 @@
 package ldbc.snb.datagen.generator;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.dictionary.TextGenerator;
 import ldbc.snb.datagen.objects.Forum;
 import ldbc.snb.datagen.objects.ForumMembership;
 
@@ -19,8 +20,9 @@ import java.util.TreeSet;
  */
 public class UniformPostGenerator extends PostGenerator {
 
-	public UniformPostGenerator() {
-		
+
+	public UniformPostGenerator(TextGenerator generator) {
+		super(generator);
 	}
 	
     protected PostInfo generatePostInfo( Random randomTag, Random randomDate, Forum forum, ForumMembership membership ) {
