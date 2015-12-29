@@ -49,34 +49,35 @@ public class TagMatrix {
 
     private static final String SEPARATOR = " ";
 
-    private ArrayList<ArrayList<Integer>> relatedTags;
+    private TreeMap<Integer, ArrayList<Integer>> relatedTags;
     /**
      * < @brief An array of related tags per tag.
      */
-    private ArrayList<ArrayList<Double>> cumulative;
-    /**
-     * < @brief The cumulative distribution to pick a tag.
-     */
-    private TreeMap<Integer, ArrayList<Integer>> auxMatrix;
-    /**
-     * < @brief Left because it works, but I think this is reduntant.
-     */
-    private ArrayList<Integer> tagList;
+    private TreeMap<Integer, ArrayList<Double>> cumulative;
+
+    private ArrayList<Integer> nonZeroTags;
+
+    private int cacheSize = 20000;
+    private int expandSize = 10000;
+    private ArrayList<Integer> [] unrolledCumulativeCache = null;
+    private int [] unrolledCumulativeCacheTag = null;
 
     /**
      * < @brief The list of tags.
      */
 
-    public TagMatrix(int numPopularTags) {
-        cumulative = new ArrayList<ArrayList<Double>>(numPopularTags);
-        relatedTags = new ArrayList<ArrayList<Integer>>(numPopularTags);
-        for (int i = 0; i < numPopularTags; i++) {
-            cumulative.add(new ArrayList<Double>());
-            relatedTags.add(new ArrayList<Integer>());
+    public TagMatrix() {
+        cumulative = new TreeMap<Integer, ArrayList<Double>>();
+        relatedTags = new TreeMap<Integer, ArrayList<Integer>>();
+        nonZeroTags = new ArrayList<Integer>();
+        unrolledCumulativeCache = new ArrayList[cacheSize];
+        unrolledCumulativeCacheTag = new int[cacheSize];
+        for(int i = 0; i < cacheSize; ++i) {
+            unrolledCumulativeCache[i] = new ArrayList<Integer>();
+            unrolledCumulativeCacheTag[i] = -1;
         }
-        auxMatrix = new TreeMap<Integer, ArrayList<Integer>>();
-        tagList = new ArrayList<Integer>();
-	load(DatagenParams.tagMatrixFile);
+        load(DatagenParams.tagMatrixFile);
+
     }
 
     /**
@@ -92,9 +93,16 @@ public class TagMatrix {
                 int celebrityId = Integer.parseInt(data[0]);
                 int topicId = Integer.parseInt(data[1]);
                 double cumuluative = Double.parseDouble(data[2]);
+                ArrayList<Double> cum = cumulative.get(celebrityId);
+                if(cum == null ) cumulative.put(celebrityId,new ArrayList<Double>());
                 cumulative.get(celebrityId).add(cumuluative);
+                ArrayList<Integer> related = relatedTags.get(celebrityId);
+                if(related == null) relatedTags.put(celebrityId,new ArrayList<Integer>());
                 relatedTags.get(celebrityId).add(topicId);
-                Insert(celebrityId, topicId);
+            }
+            for(Integer tag : relatedTags.keySet()) {
+                nonZeroTags.add(tag);
+                fillCache(tag);
             }
             dictionary.close();
         } catch (Exception e) {
@@ -102,27 +110,23 @@ public class TagMatrix {
         }
     }
 
-    /**
-     * @param tag1 The first tag id.
-     * @param tag2 The second tag id.
-     * @brief Inserts a tag matrix position into the dictionary.
-     */
-    private void Insert(Integer tag1, Integer tag2) {
-        ArrayList<Integer> vect = auxMatrix.get(tag1);
-        if (vect == null) {
-            vect = new ArrayList<Integer>();
-            auxMatrix.put(tag1, vect);
-            tagList.add(tag1);
+    private void fillCache(int tagId) {
+        int cacheIndex = tagId % cacheSize;
+        unrolledCumulativeCacheTag[cacheIndex] = tagId;
+        int tagIndex = 0;
+        ArrayList<Integer> related = relatedTags.get(tagId);
+        for(Double prob : cumulative.get(tagId) ) {
+            double previousProb = 0;
+            if(tagIndex > 0) {
+                previousProb = cumulative.get(tagId).get(tagIndex-1);
+            }
+            int numElements = (int)((prob-previousProb)*expandSize)+1;
+            int relatedTag = related.get(tagIndex);
+            for(int i = 0; i < numElements; ++i) {
+                unrolledCumulativeCache[cacheIndex].add(relatedTag);
+            }
+            ++tagIndex;
         }
-        vect.add(tag2);
-
-        vect = auxMatrix.get(tag2);
-        if (vect == null) {
-            vect = new ArrayList<Integer>();
-            auxMatrix.put(tag2, vect);
-            tagList.add(tag1);
-        }
-        vect.add(tag1);
     }
 
     /**
@@ -132,13 +136,11 @@ public class TagMatrix {
      * @brief Gets a random related tag.
      */
     public Integer getRandomRelated(Random randomTag, int tag) {
-        ArrayList<Integer> vect = auxMatrix.get(tag);
-        if (vect != null) {
-            int index = randomTag.nextInt(vect.size());
-            return vect.get(index);
-        } else {
-            return tagList.get(randomTag.nextInt(tagList.size()));
+        int tagId = tag;
+        if(relatedTags.get(tagId) == null) {
+            tagId = nonZeroTags.get(randomTag.nextInt(nonZeroTags.size()));
         }
+        return relatedTags.get(tagId).get(randomTag.nextInt(relatedTags.get(tagId).size()));
     }
 
     /**
@@ -177,5 +179,61 @@ public class TagMatrix {
             resultTags.add(relatedTags.get(tagId).get(midPoint));
         }
         return resultTags;
+
+    }
+
+    public TreeSet<Integer> getSetofTagsCached(Random randomTopic, Random randomTag, int popularTagId, int numTags) {
+        TreeSet<Integer> resultTags = new TreeSet<Integer>();
+        resultTags.add(popularTagId);
+        while (resultTags.size() < numTags) {
+            int tagId;
+            tagId = popularTagId;
+
+            while (relatedTags.get(tagId) == null) {
+                tagId = nonZeroTags.get(randomTopic.nextInt(nonZeroTags.size()));
+            }
+            int cacheIndex = tagId%cacheSize;
+            if(unrolledCumulativeCacheTag[cacheIndex] != tagId) {
+                fillCache(tagId);
+            }
+            int randomIndex = randomTag.nextInt(unrolledCumulativeCache[cacheIndex].size());
+            resultTags.add(unrolledCumulativeCache[cacheIndex].get(randomIndex));
+        }
+        return resultTags;
+
+        /*TreeSet<Integer> resultTags = new TreeSet<Integer>();
+        resultTags.add(popularTagId);
+        ArrayList<Integer> related = relatedTags.get(popularTagId);
+        if( related.size() <= (numTags-1)) {
+            resultTags.addAll(relatedTags.get(popularTagId));
+        } else if(related.size() > 0) {
+            int [] indices = new int[related.size()];
+            for(int i = 0; i < related.size();++i) {
+                indices[i] = i;
+            }
+        }
+
+        while (resultTags.size() < numTags) {
+            int tagId;
+            tagId = nonZeroTags.get(randomTopic.nextInt(nonZeroTags.size()));
+
+            // Doing binary search for finding the tag
+            double randomDis = randomTag.nextDouble();
+            int lowerBound = 0;
+            int upperBound = relatedTags.get(tagId).size();
+            int midPoint = (upperBound + lowerBound) / 2;
+
+            while (upperBound > (lowerBound + 1)) {
+                if (cumulative.get(tagId).get(midPoint) > randomDis) {
+                    upperBound = midPoint;
+                } else {
+                    lowerBound = midPoint;
+                }
+                midPoint = (upperBound + lowerBound) / 2;
+            }
+            resultTags.add(relatedTags.get(tagId).get(midPoint));
+        }
+        return resultTags;
+        */
     }
 }

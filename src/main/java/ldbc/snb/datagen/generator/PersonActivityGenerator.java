@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class PersonActivityGenerator {
-	
+
 	private ForumGenerator forumGenerator_ = null;
 	private RandomGeneratorFarm randomFarm_ = null;
 	private UniformPostGenerator uniformPostGenerator_ = null;
@@ -31,14 +31,17 @@ public class PersonActivityGenerator {
 	private long forumId = 0;
 	private long messageId = 0;
     private FactorTable factorTable_;
-	
+
 	public PersonActivityGenerator( PersonActivitySerializer serializer, UpdateEventSerializer updateSerializer ) {
 		personActivitySerializer_ = serializer;
 		updateSerializer_ = updateSerializer;
 		randomFarm_ = new RandomGeneratorFarm();
+		// load generators
 		forumGenerator_ = new ForumGenerator();
+		//david
 		Random random = new Random();
 		TextGenerator generator = new LdbcSnbTextGenerator(random, Dictionaries.tags);
+		//d: end
 		uniformPostGenerator_ = new UniformPostGenerator(generator);
 		flashmobPostGenerator_ = new FlashmobPostGenerator(generator);
 		photoGenerator_ = new PhotoGenerator();
@@ -46,7 +49,7 @@ public class PersonActivityGenerator {
 		likeGenerator_ = new LikeGenerator();
         factorTable_ = new FactorTable();
 	}
-	
+
 	private void generateActivity( Person person, ArrayList<Person> block ) {
 		generateWall(person, block);
 		generateGroups(person, block);
@@ -67,7 +70,7 @@ public class PersonActivityGenerator {
 		for( ForumMembership fm : wall.memberships()) {
 			export(fm);
 		}
-		
+
 		// generate wall posts
 		ForumMembership personMembership = new ForumMembership(wall.id(),
 			wall.creationDate()+DatagenParams.deltaTime,  new Person.PersonSummary(person)
@@ -78,7 +81,7 @@ public class PersonActivityGenerator {
 		long aux = messageId + wallPosts.size();
 		wallPosts.addAll(flashmobPostGenerator_.createPosts(randomFarm_, wall, fakeMembers, numPostsPerGroup(randomFarm_, wall, DatagenParams.maxNumFlashmobPostPerMonth, DatagenParams.maxNumFriends), aux ));
 		messageId+=wallPosts.size();
-		
+
 		for( Post p : wallPosts ) {
 			export(p);
 			// generate likes to post
@@ -143,7 +146,7 @@ public class PersonActivityGenerator {
 						// generate likes to comments
 						if( c.content().length() > 10 && randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
 							ArrayList<Like> commentLikes = likeGenerator_.generateLikes(randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE), group, c, Like.LikeType.COMMENT);
-							
+
 							for( Like l : commentLikes ) {
 								export(l);
 							}

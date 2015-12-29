@@ -26,7 +26,7 @@ public class LdbcSnbTextGenerator extends TextGenerator {
 	public String generateText(PersonSummary member, TreeSet<Integer> tags, Properties prop) {
 		//fem un if segons las props i fem una cosa o una altre
 		String content = "";
-		if(prop.getProperty("tipus") == "post"){//si es post fer
+		if(prop.getProperty("type") == "post"){//si es post fer
 			
 			int textSize;
 			if( member.isLargePoster() && this.random.nextDouble() > (1.0f-DatagenParams.ratioLargePost) ) {
@@ -35,9 +35,6 @@ public class LdbcSnbTextGenerator extends TextGenerator {
 				textSize = Dictionaries.tagText.getRandomTextSize( this.random, this.random, DatagenParams.minTextSize, DatagenParams.maxTextSize);
 			}
 			content = Dictionaries.tagText.generateText(this.random,tags,textSize);
-			
-			
-			return content;
 		}
 		else {//si no es post fer
 			int textSize;
@@ -46,10 +43,9 @@ public class LdbcSnbTextGenerator extends TextGenerator {
 			} else {
 				textSize = Dictionaries.tagText.getRandomTextSize( this.random, this.random, DatagenParams.minCommentSize, DatagenParams.maxCommentSize);
 			}
-			
-			return content;
+			content = Dictionaries.tagText.generateText(this.random,tags,textSize);
 		}
-		
+		return content;
 	}
 
 }

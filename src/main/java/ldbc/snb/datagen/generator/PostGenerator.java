@@ -102,6 +102,7 @@ abstract public class PostGenerator {
 					}*/
 					// crear properties class para passar 
 					Properties prop = new Properties();
+					prop.setProperty("type","post");
 					content = this.generator.generateText(member.person(), postInfo.tags,prop);				
 					Post post = new Post( SN.formId(SN.composeId(postId,postInfo.date)),
 						postInfo.date,

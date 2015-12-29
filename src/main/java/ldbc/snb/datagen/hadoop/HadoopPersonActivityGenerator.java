@@ -115,10 +115,12 @@ public class HadoopPersonActivityGenerator {
 
         FileSystem fs = FileSystem.get(conf);
 
+        System.out.println("RANKING");
         String rankedFileName = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/ranked";
         HadoopFileRanker hadoopFileRanker = new HadoopFileRanker( conf, TupleKey.class, Person.class, null );
         hadoopFileRanker.run(inputFileName,rankedFileName);
 
+        System.out.println("GENERATING");
         int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads"));
         Job job = Job.getInstance(conf, "Person Activity Generator/Serializer");
         job.setMapOutputKeyClass(BlockKey.class);
@@ -138,15 +140,18 @@ public class HadoopPersonActivityGenerator {
 
         FileInputFormat.setInputPaths(job, new Path(rankedFileName));
         FileOutputFormat.setOutputPath(job, new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")+"/aux"));
+        long start = System.currentTimeMillis();
         if(!job.waitForCompletion(true)) {
             throw new Exception();
         }
+        System.out.println("Real time to generate activity: "+(System.currentTimeMillis() - start)/1000.0f);
 
         try{
             fs.delete(new Path(rankedFileName), true);
             fs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")+"/aux"),true);
         } catch(IOException e) {
             System.err.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 

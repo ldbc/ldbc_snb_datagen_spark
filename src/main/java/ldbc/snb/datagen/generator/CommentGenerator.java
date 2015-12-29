@@ -50,29 +50,16 @@ public class CommentGenerator {
 			TreeSet<Integer> tags = new TreeSet<Integer>();
 			String content = "";
 			
-			///////////pasar  las properties
-			
-			//Properties prop = new Properties();
-			//content = this.generator.generateText(member.person(), replyTo.tags(),prop); 
-			 
-			 
+
 			boolean isShort = false;
 			if( randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT).nextDouble() > 0.6666) {
-				/*
-				int textSize;
-				if( member.person().isLargePoster() && randomFarm.get(RandomGeneratorFarm.Aspect.LARGE_TEXT).nextDouble() > (1.0f-DatagenParams.ratioLargeComment) ) {
-					textSize = Dictionaries.tagText.getRandomLargeTextSize(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), DatagenParams.minLargeCommentSize, DatagenParams.maxLargeCommentSize);
-				} else {
-					textSize = Dictionaries.tagText.getRandomTextSize( randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT), DatagenParams.minCommentSize, DatagenParams.maxCommentSize);
-				}*/
-				
+
 				ArrayList<Integer> currentTags = new ArrayList<Integer>();
 				Iterator<Integer> it = replyTo.tags().iterator();
 				while(it.hasNext()) {
 					Integer tag = it.next();
 					if( randomFarm.get(RandomGeneratorFarm.Aspect.TAG).nextDouble() > 0.5) {
 						tags.add(tag);
-				//		tags.add(Dictionaries.tagMatrix.getRandomRelated(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), tag));
 					}
 					currentTags.add(tag);
 				}
@@ -81,16 +68,10 @@ public class CommentGenerator {
 					int randomTag = currentTags.get(randomFarm.get(RandomGeneratorFarm.Aspect.TAG).nextInt(currentTags.size()));
 					tags.add(Dictionaries.tagMatrix.getRandomRelated(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), randomTag));
 				}
-				
-			
+
 				Properties prop = new Properties();
+				prop.setProperty("type","comment");
 				content = this.generator.generateText(member.person(), tags,prop);
-				//content = Dictionaries.tagText.generateText(randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE), tags, textSize );
-				/*
-				if( content.length() != textSize ) {
-					System.out.println("ERROR while generating text - content size: "+ content.length()+", actual size: "+ textSize);
-					System.exit(-1);
-				}*/
 			} else {
 				isShort = true;
 				int index = randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE).nextInt(shortComments_.length);
@@ -112,8 +93,6 @@ public class CommentGenerator {
 				result.add(comment);
 				if(!isShort) replyCandidates.add(comment);
 			}
-			//result.add(coment);
-			
 		}
 		return result;
 	}

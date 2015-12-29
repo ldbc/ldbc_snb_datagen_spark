@@ -51,6 +51,7 @@ public class DateGenerator {
 	public static long TEN_YEARS = 10L * ONE_YEAR;
 	public static long THIRTY_YEARS = 30L * ONE_YEAR;
 
+	private Date date_;
 	private long from_;
 	private long to_;
 	private long fromBirthDay_;
@@ -80,6 +81,7 @@ public class DateGenerator {
 
         gmtDateFormatter_ = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         gmtDateFormatter_.setTimeZone(TimeZone.getTimeZone("GMT"));
+		date_ = new Date();
 	}
 
 	/*
@@ -111,8 +113,10 @@ public class DateGenerator {
 	 * format the date with hours and minutes
 	 */
 	public String formatDateDetail(long d) {
-		calendar_.setTimeInMillis(d);
-		return gmtDateFormatter_.format(calendar_.getTime());
+		//calendar_.setTimeInMillis(d);
+		//return gmtDateFormatter_.format(calendar_.getTime());
+		date_.setTime(d);
+		return gmtDateFormatter_.format(date_);
 	}
 
 
