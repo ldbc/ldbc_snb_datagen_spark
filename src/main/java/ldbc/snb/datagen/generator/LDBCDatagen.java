@@ -48,6 +48,7 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Properties;
 
 public class LDBCDatagen {
@@ -70,39 +71,75 @@ public class LDBCDatagen {
 
     public int runGenerateJob(Configuration conf) throws Exception {
 
-        String personsFileName1 = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/persons1";
-        String personsFileName2 = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/persons2";
+        String hadoopPrefix = conf.get("ldbc.snb.datagen.serializer.hadoopDir");
         FileSystem fs = FileSystem.get(conf);
+        ArrayList<Float> percentages = new ArrayList<Float>();
+        percentages.add(0.45f);
+        percentages.add(0.45f);
+        percentages.add(0.1f);
+
 
         long start = System.currentTimeMillis();
         printProgress("Starting: Person generation");
         long startPerson = System.currentTimeMillis();
         HadoopPersonGenerator personGenerator = new HadoopPersonGenerator( conf );
-        personGenerator.run(personsFileName1, "ldbc.snb.datagen.hadoop.UniversityKeySetter");
+        personGenerator.run(hadoopPrefix+"/persons", "ldbc.snb.datagen.hadoop.UniversityKeySetter");
         long endPerson = System.currentTimeMillis();
-
 
         printProgress("Creating university location correlated edges");
         long startUniversity = System.currentTimeMillis();
-        HadoopKnowsGenerator knowsGenerator = new HadoopKnowsGenerator(conf,null, "ldbc.snb.datagen.hadoop.InterestKeySetter", 0.45f);
-        knowsGenerator.run(personsFileName1,personsFileName2);
-        fs.delete(new Path(personsFileName1), true);
+        HadoopKnowsGenerator knowsGenerator = new HadoopKnowsGenerator(conf,
+                                                                        "ldbc.snb.datagen.hadoop.UniversityKeySetter",
+                                                                        "ldbc.snb.datagen.hadoop.RandomKeySetter",
+                                                                        percentages,
+                                                                        0,
+                                                                        conf.get("ldbc.snb.datagen.generator.knowsGenerator"));
+
+        knowsGenerator.run(hadoopPrefix+"/persons",hadoopPrefix+"/universityEdges");
         long endUniversity = System.currentTimeMillis();
+
 
         printProgress("Creating main interest correlated edges");
         long startInterest= System.currentTimeMillis();
-        knowsGenerator = new HadoopKnowsGenerator(conf,null, "ldbc.snb.datagen.hadoop.RandomKeySetter", 0.90f);
-        knowsGenerator.run(personsFileName2,personsFileName1);
-        fs.delete(new Path(personsFileName2), true);
+
+        knowsGenerator = new HadoopKnowsGenerator(  conf,
+                                                    "ldbc.snb.datagen.hadoop.InterestKeySetter",
+                                                    "ldbc.snb.datagen.hadoop.RandomKeySetter",
+                                                    percentages,
+                                                    1,
+                                                    conf.get("ldbc.snb.datagen.generator.knowsGenerator"));
+
+        knowsGenerator.run(hadoopPrefix+"/persons",hadoopPrefix+"/interestEdges");
         long endInterest = System.currentTimeMillis();
+
+
 
         printProgress("Creating random correlated edges");
         long startRandom= System.currentTimeMillis();
-        knowsGenerator = new HadoopKnowsGenerator(conf,null, "ldbc.snb.datagen.hadoop.RandomKeySetter", 1.0f);
-        knowsGenerator.run(personsFileName1,personsFileName2);
-        fs.delete(new Path(personsFileName1), true);
+
+        knowsGenerator = new HadoopKnowsGenerator(  conf,
+                                                    "ldbc.snb.datagen.hadoop.RandomKeySetter",
+                                                    "ldbc.snb.datagen.hadoop.RandomKeySetter",
+                                                    percentages,
+                                                    2,
+                                                    "ldbc.snb.datagen.generator.RandomKnowsGenerator");
+
+        knowsGenerator.run(hadoopPrefix+"/persons",hadoopPrefix+"/randomEdges");
         long endRandom= System.currentTimeMillis();
 
+
+
+
+        fs.delete(new Path(DatagenParams.hadoopDir + "/persons"), true);
+        printProgress("Merging the different edge files");
+        ArrayList<String> edgeFileNames = new ArrayList<String>();
+        edgeFileNames.add(hadoopPrefix+"/universityEdges");
+        edgeFileNames.add(hadoopPrefix+"/interestEdges");
+        edgeFileNames.add(hadoopPrefix+"/randomEdges");
+        long startMerge = System.currentTimeMillis();
+        HadoopMergeFriendshipFiles merger = new HadoopMergeFriendshipFiles(conf,"ldbc.snb.datagen.hadoop.RandomKeySetter");
+        merger.run(hadoopPrefix+"/mergedPersons", edgeFileNames);
+        long endMerge = System.currentTimeMillis();
         /*printProgress("Creating edges to fill the degree gap");
         long startGap = System.currentTimeMillis();
         knowsGenerator = new HadoopKnowsGenerator(conf,null, "ldbc.snb.datagen.hadoop.DegreeGapKeySetter", 1.0f);
@@ -114,14 +151,14 @@ public class LDBCDatagen {
         printProgress("Serializing persons");
         long startPersonSerializing= System.currentTimeMillis();
         HadoopPersonSerializer serializer = new HadoopPersonSerializer(conf);
-        serializer.run(personsFileName2);
+        serializer.run(hadoopPrefix+"/mergedPersons");
         long endPersonSerializing= System.currentTimeMillis();
 
         long startPersonActivity= System.currentTimeMillis();
         if(conf.getBoolean("ldbc.snb.datagen.generator.activity", true)) {
             printProgress("Generating and serializing person activity");
             HadoopPersonActivityGenerator activityGenerator = new HadoopPersonActivityGenerator(conf);
-            activityGenerator.run(personsFileName2);
+            activityGenerator.run(hadoopPrefix+"/mergedPersons");
 
             int numThreads = DatagenParams.numThreads;
             int blockSize = DatagenParams.blockSize;
@@ -134,41 +171,41 @@ public class LDBCDatagen {
                 }
             }
         }
-        fs.delete(new Path(personsFileName2), true);
         long endPersonActivity= System.currentTimeMillis();
 
         long startSortingUpdateStreams= System.currentTimeMillis();
+
         if(conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
+
             printProgress("Sorting update streams ");
 
-        int blockSize = DatagenParams.blockSize;
-        int numBlocks = (int)Math.ceil(DatagenParams.numPersons / (double)blockSize);
+            int blockSize = DatagenParams.blockSize;
+            int numBlocks = (int)Math.ceil(DatagenParams.numPersons / (double)blockSize);
 
-        for( int i = 0; i < DatagenParams.numThreads; ++i) {
-            int numPartitions = conf.getInt("ldbc.snb.datagen.serializer.numUpdatePartitions", 1);
-            if( i < numBlocks ) {
-                for (int j = 0; j < numPartitions; ++j) {
-                    HadoopFileSorter updateStreamSorter = new HadoopFileSorter(conf, LongWritable.class, Text.class);
-                    updateStreamSorter.run(DatagenParams.hadoopDir + "/temp_updateStream_person_" + i + "_" + j, DatagenParams.hadoopDir + "/updateStream_person_" + i + "_" + j);
-                    updateStreamSorter.run(DatagenParams.hadoopDir + "/temp_updateStream_forum_" + i + "_" + j, DatagenParams.hadoopDir + "/updateStream_forum_" + i + "_" + j);
-
-                    fs.delete(new Path(DatagenParams.hadoopDir + "/temp_updateStream_person_" + i + "_" + j), true);
-                    fs.delete(new Path(DatagenParams.hadoopDir + "/temp_updateStream_forum_" + i + "_" + j), true);
-
-                    HadoopUpdateStreamSerializer updateSerializer = new HadoopUpdateStreamSerializer(conf);
-                    updateSerializer.run(DatagenParams.hadoopDir + "/updateStream_person_" + i + "_" + j, i, j, "person");
-                    updateSerializer.run(DatagenParams.hadoopDir + "/updateStream_forum_" + i + "_" + j, i, j, "forum");
-
-                    fs.delete(new Path(DatagenParams.hadoopDir + "/updateStream_person_" + i + "_" + j), true);
-                    fs.delete(new Path(DatagenParams.hadoopDir + "/updateStream_forum_" + i + "_" + j), true);
-                }
-            } else {
-                for (int j = 0; j < numPartitions; ++j) {
-                    fs.delete(new Path(DatagenParams.hadoopDir + "/temp_updateStream_person_" + i + "_" + j), true);
-                    fs.delete(new Path(DatagenParams.hadoopDir + "/temp_updateStream_forum_" + i + "_" + j), true);
+            for( int i = 0; i < DatagenParams.numThreads; ++i) {
+                int numPartitions = conf.getInt("ldbc.snb.datagen.serializer.numUpdatePartitions", 1);
+                if( i < numBlocks ) {
+                    for (int j = 0; j < numPartitions; ++j) {
+                        HadoopFileSorter updateStreamSorter = new HadoopFileSorter(conf, LongWritable.class, Text.class);
+                        HadoopUpdateStreamSerializer updateSerializer = new HadoopUpdateStreamSerializer(conf);
+                        updateStreamSorter.run(DatagenParams.hadoopDir + "/temp_updateStream_person_" + i + "_" + j, DatagenParams.hadoopDir + "/updateStream_person_" + i + "_" + j);
+                        fs.delete(new Path(DatagenParams.hadoopDir + "/temp_updateStream_person_" + i + "_" + j), true);
+                        updateSerializer.run(DatagenParams.hadoopDir + "/updateStream_person_" + i + "_" + j, i, j, "person");
+                        fs.delete(new Path(DatagenParams.hadoopDir + "/updateStream_person_" + i + "_" + j), true);
+                        if( conf.getBoolean("ldbc.snb.datagen.generator.activity", false)) {
+                            updateStreamSorter.run(DatagenParams.hadoopDir + "/temp_updateStream_forum_" + i + "_" + j, DatagenParams.hadoopDir + "/updateStream_forum_" + i + "_" + j);
+                            fs.delete(new Path(DatagenParams.hadoopDir + "/temp_updateStream_forum_" + i + "_" + j), true);
+                            updateSerializer.run(DatagenParams.hadoopDir + "/updateStream_forum_" + i + "_" + j, i, j, "forum");
+                            fs.delete(new Path(DatagenParams.hadoopDir + "/updateStream_forum_" + i + "_" + j), true);
+                        }
+                    }
+                } else {
+                    for (int j = 0; j < numPartitions; ++j) {
+                        fs.delete(new Path(DatagenParams.hadoopDir + "/temp_updateStream_person_" + i + "_" + j), true);
+                        fs.delete(new Path(DatagenParams.hadoopDir + "/temp_updateStream_forum_" + i + "_" + j), true);
+                    }
                 }
             }
-        }
 
             long minDate = Long.MAX_VALUE;
             long maxDate = Long.MIN_VALUE;
@@ -188,18 +225,20 @@ public class LDBCDatagen {
                 file.close();
                 fs.delete(propertiesFile,true);
 
-                propertiesFile = new Path(DatagenParams.hadoopDir+"/temp_updateStream_forum_"+i+".properties");
-                file = fs.open(propertiesFile);
-                properties = new Properties();
-                properties.load(file);
-                aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.min_write_event_start_time"));
-                minDate = aux < minDate ? aux : minDate;
-                aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.max_write_event_start_time"));
-                maxDate = aux > maxDate ? aux : maxDate;
-                aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.num_events"));
-                count += aux;
-                file.close();
-                fs.delete(propertiesFile,true);
+                if( conf.getBoolean("ldbc.snb.datagen.generator.activity", false)) {
+                    propertiesFile = new Path(DatagenParams.hadoopDir + "/temp_updateStream_forum_" + i + ".properties");
+                    file = fs.open(propertiesFile);
+                    properties = new Properties();
+                    properties.load(file);
+                    aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.min_write_event_start_time"));
+                    minDate = aux < minDate ? aux : minDate;
+                    aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.max_write_event_start_time"));
+                    maxDate = aux > maxDate ? aux : maxDate;
+                    aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.num_events"));
+                    count += aux;
+                    file.close();
+                    fs.delete(propertiesFile, true);
+                }
             }
 
             OutputStream output = fs.create(new Path(DatagenParams.socialNetworkDir+"/updateStream"+".properties"),true);
@@ -231,6 +270,7 @@ public class LDBCDatagen {
         System.out.println("University correlated edge generation time: "+((endUniversity - startUniversity) / 1000));
         System.out.println("Interest correlated edge generation time: "+((endInterest - startInterest) / 1000));
         System.out.println("Random correlated edge generation time: "+((endRandom - startRandom) / 1000));
+        System.out.println("Edges merge time: "+((endMerge - startMerge) / 1000));
         System.out.println("Person serialization time: "+((endPersonSerializing - startPersonSerializing) / 1000));
         System.out.println("Person activity generation and serialization time: "+((endPersonActivity - startPersonActivity) / 1000));
         System.out.println("Sorting update streams time: "+((endSortingUpdateStreams - startSortingUpdateStreams) / 1000));
@@ -243,16 +283,15 @@ public class LDBCDatagen {
 
         try {
         Configuration conf = ConfigParser.initialize();
-        ConfigParser.readConfig(conf,"./src/main/resources/params.ini");
-        //ConfigParser.readConfig(conf,args[0]);
-        ConfigParser.readConfig(conf, "./params.ini");
+        ConfigParser.readConfig(conf, args[0]);
+        ConfigParser.readConfig(conf, LDBCDatagen.class.getResourceAsStream("/params.ini"));
         conf.set("ldbc.snb.datagen.serializer.hadoopDir",conf.get("ldbc.snb.datagen.serializer.outputDir")+"/hadoop");
         conf.set("ldbc.snb.datagen.serializer.socialNetworkDir",conf.get("ldbc.snb.datagen.serializer.outputDir")+"/social_network");
         ConfigParser.printConfig(conf);
 //        conf.setBoolean("mapreduce.map.output.compress", true);
 //       conf.setBoolean("mapreduce.output.fileoutputformat.compress", false);
 
-        // Deleting exisging files
+        // Deleting existing files
         FileSystem dfs = FileSystem.get(conf);
         dfs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")), true);
         dfs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir")), true);
@@ -264,6 +303,7 @@ public class LDBCDatagen {
         }catch(Exception e ) {
             System.err.println("Error during execution");
             System.err.println(e.getMessage());
+            e.printStackTrace();
             System.exit(1);
         }
     }

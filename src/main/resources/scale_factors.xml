@@ -133,10 +133,64 @@
         </property>
     </scale_factor>
 
+    <scale_factor name="graphalytics.1" >
+        <property>
+            <name>ldbc.snb.datagen.generator.numPersons</name>
+            <value>36000</value>
+        </property>
+        <property>
+            <name>ldbc.snb.datagen.generator.startYear</name>
+            <value>2010</value>
+        </property>
+        <property>
+            <name>ldbc.snb.datagen.generator.numYears</name>
+            <value>1</value>
+        </property>
+        <property>
+            <name>ldbc.snb.datagen.generator.distribution.degreeDistribution</name>
+            <value>ldbc.snb.datagen.generator.distribution.FacebookDegreeDistribution</value>
+        </property>
+        <property>
+            <name>ldbc.snb.datagen.generator.activity</name>
+            <value>false</value>
+        </property>
+        <property>
+            <name>ldbc.snb.datagen.serializer.updateStreams</name>
+            <value>false</value>
+        </property>
+    </scale_factor>
+
+    <scale_factor name="graphalytics.3" >
+        <property>
+            <name>ldbc.snb.datagen.generator.numPersons</name>
+            <value>86000</value>
+        </property>
+        <property>
+            <name>ldbc.snb.datagen.generator.startYear</name>
+            <value>2010</value>
+        </property>
+        <property>
+            <name>ldbc.snb.datagen.generator.numYears</name>
+            <value>1</value>
+        </property>
+        <property>
+            <name>ldbc.snb.datagen.generator.distribution.degreeDistribution</name>
+            <value>ldbc.snb.datagen.generator.distribution.FacebookDegreeDistribution</value>
+        </property>
+        <property>
+            <name>ldbc.snb.datagen.generator.activity</name>
+            <value>false</value>
+        </property>
+        <property>
+            <name>ldbc.snb.datagen.serializer.updateStreams</name>
+            <value>false</value>
+        </property>
+    </scale_factor>
+
     <scale_factor name="graphalytics.10" >
         <property>
             <name>ldbc.snb.datagen.generator.numPersons</name>
-            <value>250000</value>
+            <value>235000</value>
         </property>
         <property>
             <name>ldbc.snb.datagen.generator.startYear</name>
@@ -163,7 +217,7 @@
     <scale_factor name="graphalytics.30" >
         <property>
             <name>ldbc.snb.datagen.generator.numPersons</name>
-            <value>650000</value>
+            <value>592500</value>
         </property>
         <property>
             <name>ldbc.snb.datagen.generator.startYear</name>
@@ -190,7 +244,7 @@
     <scale_factor name="graphalytics.100" >
         <property>
             <name>ldbc.snb.datagen.generator.numPersons</name>
-            <value>1800000</value>
+            <value>1670000</value>
         </property>
         <property>
             <name>ldbc.snb.datagen.generator.startYear</name>
@@ -217,7 +271,7 @@
     <scale_factor name="graphalytics.300" >
         <property>
             <name>ldbc.snb.datagen.generator.numPersons</name>
-            <value>4800000</value>
+            <value>4350000</value>
         </property>
         <property>
             <name>ldbc.snb.datagen.generator.startYear</name>
@@ -244,7 +298,7 @@
     <scale_factor name="graphalytics.1000" >
         <property>
             <name>ldbc.snb.datagen.generator.numPersons</name>
-            <value>14400000</value>
+            <value>12750000</value>
         </property>
         <property>
             <name>ldbc.snb.datagen.generator.startYear</name>
@@ -271,7 +325,33 @@
     <scale_factor name="graphalytics.3000" >
         <property>
             <name>ldbc.snb.datagen.generator.numPersons</name>
-            <value>32500000</value>
+            <value>34835000</value>
+        </property>
+        <property>
+            <name>ldbc.snb.datagen.generator.startYear</name>
+            <value>2010</value>
+        </property>
+        <property>
+            <name>ldbc.snb.datagen.generator.numYears</name>
+            <value>1</value>
+        </property>
+        <property>
+            <name>ldbc.snb.datagen.generator.distribution.degreeDistribution</name>
+            <value>ldbc.snb.datagen.generator.distribution.FacebookDegreeDistribution</value>
+        </property>
+        <property>
+            <name>ldbc.snb.datagen.generator.activity</name>
+            <value>false</value>
+        </property>
+        <property>
+            <name>ldbc.snb.datagen.serializer.updateStreams</name>
+            <value>false</value>
+        </property>
+    </scale_factor>
+    <scale_factor name="graphalytics.10000" >
+        <property>
+            <name>ldbc.snb.datagen.generator.numPersons</name>
+            <value>90000000</value>
         </property>
         <property>
             <name>ldbc.snb.datagen.generator.startYear</name>

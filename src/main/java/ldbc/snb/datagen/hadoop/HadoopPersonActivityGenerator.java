@@ -116,7 +116,7 @@ public class HadoopPersonActivityGenerator {
         FileSystem fs = FileSystem.get(conf);
 
         String rankedFileName = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/ranked";
-        HadoopFileRanker hadoopFileRanker = new HadoopFileRanker( conf, TupleKey.class, Person.class );
+        HadoopFileRanker hadoopFileRanker = new HadoopFileRanker( conf, TupleKey.class, Person.class, null );
         hadoopFileRanker.run(inputFileName,rankedFileName);
 
         int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads"));

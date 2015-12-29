@@ -16,3 +16,4 @@ target/
 paramgenerator/.pyc
 substitution_parameters/
 target/
+*.pyc

@@ -170,7 +170,7 @@ public class DateGenerator {
 	public long randomKnowsCreationDate(Random random, Person personA, Person personB) {
 		long fromDate = Math.max(personA.creationDate(), personB.creationDate());
 		long randomSpanMilis = (long) (random.nextDouble() * (THIRTY_DAYS));
-		return (fromDate + randomSpanMilis);
+		return Math.min(fromDate + randomSpanMilis, getEndDateTime());
 	}
 
 	public long numberOfMonths(Person user) {

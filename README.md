@@ -12,5 +12,10 @@ ldbc_snb_datagen is GPLv3 licensed, to see detailed information about this licen
 * **[Releases](https://github.com/ldbc-dev/ldbc_snb_datagen_0.2/releases)**
 * **[Configuration](https://github.com/ldbc-dev/ldbc_snb_datagen_0.2/wiki/Configuration)**
 * **[Compilation and Execution](https://github.com/ldbc-dev/ldbc_snb_datagen_0.2/wiki/Compilation_Execution)**
+* **[Advanced Configuration](https://github.com/ldbc-dev/ldbc_snb_datagen_0.2/wiki/Advanced_Configuration)**
 * **[Output](https://github.com/ldbc-dev/ldbc_snb_datagen_0.2/wiki/Data-Output)**
 * **[Troubleshooting](https://github.com/ldbc-dev/ldbc_snb_datagen_0.2/wiki/Throubleshooting)**
+
+**Community provided tools**
+
+* **[Apache Flink Loader:] (https://github.com/s1ck/ldbc-flink-import)** A loader of LDBC datasets for Apache Flink

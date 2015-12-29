@@ -76,7 +76,7 @@ public class PersonGenerator {
         short numTags = ((short) randomTagPowerLaw.getValue(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_TAG)));
         person.interests(Dictionaries.tagMatrix.getSetofTags(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), randomFarm.get(RandomGeneratorFarm.Aspect.TAG_OTHER_COUNTRY), person.mainInterest(), numTags));
         person.universityLocationId(Dictionaries.universities.getRandomUniversity(randomFarm, person.countryId()));
-        person.randomId(randomFarm.get(RandomGeneratorFarm.Aspect.RANDOM).nextLong() % 100);
+        person.randomId(randomFarm.get(RandomGeneratorFarm.Aspect.RANDOM).nextInt(Integer.MAX_VALUE) % 100);
 
         person.firstName(Dictionaries.names.getRandomGivenName(randomFarm.get(RandomGeneratorFarm.Aspect.NAME),
                 person.countryId(),
