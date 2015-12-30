@@ -6,7 +6,6 @@
 package ldbc.snb.datagen.generator;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.dictionary.TextGenerator;
 import ldbc.snb.datagen.objects.*;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;

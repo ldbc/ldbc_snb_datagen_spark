@@ -2,8 +2,6 @@
 package ldbc.snb.datagen.generator;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.dictionary.TagDictionary;
-import ldbc.snb.datagen.dictionary.TextGenerator;
 import ldbc.snb.datagen.objects.*;
 import ldbc.snb.datagen.serializer.PersonActivitySerializer;
 import ldbc.snb.datagen.serializer.UpdateEventSerializer;
@@ -86,12 +84,12 @@ public class PersonActivityGenerator {
 			export(p);
 			// generate likes to post
 			if( randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
-                ArrayList<Like> postLikes = likeGenerator_.generateLikes(randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE), wall, p, Like.LikeType.POST);
+                /*ArrayList<Like> postLikes = likeGenerator_.generateLikes(randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE), wall, p, Like.LikeType.POST);
 				for( Like l : postLikes ) {
 					export(l);
-				}
+				}*/
 			}
-			// generate comments
+			//// generate comments
 			int numComments = randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(DatagenParams.maxNumComments+1);
 			ArrayList<Comment> comments = commentGenerator_.createComments(randomFarm_, wall, p, numComments, messageId);
 			messageId+=comments.size();
@@ -99,11 +97,12 @@ public class PersonActivityGenerator {
 				export(c);
 				// generate likes to comments
 				if( c.content().length() > 10 && randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
-					ArrayList<Like> commentLikes = likeGenerator_.generateLikes(randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE), wall, c, Like.LikeType.COMMENT);
+					/*ArrayList<Like> commentLikes = likeGenerator_.generateLikes(randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE), wall, c, Like.LikeType.COMMENT);
 
 					for( Like l : commentLikes ) {
 						export(l);
 					}
+					*/
 				}
 			}
 		}

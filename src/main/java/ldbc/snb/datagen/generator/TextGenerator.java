@@ -1,4 +1,4 @@
-package ldbc.snb.datagen.dictionary;
+package ldbc.snb.datagen.generator;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -8,6 +8,7 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.TreeSet;
 
+import ldbc.snb.datagen.dictionary.TagDictionary;
 import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.objects.Person;
 

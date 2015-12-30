@@ -38,7 +38,6 @@
 package ldbc.snb.datagen.generator;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.dictionary.TextGenerator;
 import ldbc.snb.datagen.objects.Forum;
 import ldbc.snb.datagen.objects.ForumMembership;
 import ldbc.snb.datagen.objects.Post;

@@ -6,9 +6,7 @@ import java.util.TreeSet;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.dictionary.TagDictionary;
-import ldbc.snb.datagen.dictionary.TextGenerator;
 import ldbc.snb.datagen.objects.Person.PersonSummary;
-import ldbc.snb.datagen.util.RandomGeneratorFarm;
 
 public class LdbcSnbTextGenerator extends TextGenerator {
 
