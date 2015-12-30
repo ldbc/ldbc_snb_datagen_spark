@@ -72,7 +72,7 @@ public class HadoopPersonActivityGenerator {
             for( Person p : valueSet ) {
                 persons.add(new Person(p));
 
-                StringBuffer strbuf = new StringBuffer();
+                StringBuilder strbuf = new StringBuilder();
                 strbuf.append(p.accountId());
                 for( Knows k : p.knows() ) {
                     strbuf.append(",");
