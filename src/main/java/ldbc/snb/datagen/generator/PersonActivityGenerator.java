@@ -52,8 +52,8 @@ public class PersonActivityGenerator {
 
 	private void generateActivity( Person person, ArrayList<Person> block ) {
 		generateWall(person, block);
-		generateGroups(person, block);
-		generateAlbums(person, block);
+		//generateGroups(person, block);
+		//generateAlbums(person, block);
         if(person.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
             factorTable_.extractFactors(person);
         }
@@ -79,7 +79,7 @@ public class PersonActivityGenerator {
 		fakeMembers.add(personMembership);
 		ArrayList<Post> wallPosts = uniformPostGenerator_.createPosts(randomFarm_, wall, fakeMembers , numPostsPerGroup(randomFarm_, wall, DatagenParams.maxNumPostPerMonth, DatagenParams.maxNumFriends), messageId);
 		long aux = messageId + wallPosts.size();
-		//wallPosts.addAll(flashmobPostGenerator_.createPosts(randomFarm_, wall, fakeMembers, numPostsPerGroup(randomFarm_, wall, DatagenParams.maxNumFlashmobPostPerMonth, DatagenParams.maxNumFriends), aux ));
+		wallPosts.addAll(flashmobPostGenerator_.createPosts(randomFarm_, wall, fakeMembers, numPostsPerGroup(randomFarm_, wall, DatagenParams.maxNumFlashmobPostPerMonth, DatagenParams.maxNumFriends), aux ));
 		messageId+=wallPosts.size();
 
 		for( Post p : wallPosts ) {
@@ -126,7 +126,7 @@ public class PersonActivityGenerator {
 				// generate uniform posts/comments
 				ArrayList<Post> groupPosts = uniformPostGenerator_.createPosts(randomFarm_, group, group.memberships(), numPostsPerGroup(randomFarm_, group, DatagenParams.maxNumGroupPostPerMonth, DatagenParams.maxNumMemberGroup), messageId);
 				long aux = messageId+groupPosts.size();
-				//groupPosts.addAll(flashmobPostGenerator_.createPosts(randomFarm_, group, group.memberships(), numPostsPerGroup(randomFarm_, group, DatagenParams.maxNumGroupFlashmobPostPerMonth, DatagenParams.maxNumMemberGroup),aux));
+				groupPosts.addAll(flashmobPostGenerator_.createPosts(randomFarm_, group, group.memberships(), numPostsPerGroup(randomFarm_, group, DatagenParams.maxNumGroupFlashmobPostPerMonth, DatagenParams.maxNumMemberGroup),aux));
 				messageId += groupPosts.size();
 				for( Post p : groupPosts ) {
 					export(p);
@@ -146,7 +146,6 @@ public class PersonActivityGenerator {
 						// generate likes to comments
 						if( c.content().length() > 10 && randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
 							ArrayList<Like> commentLikes = likeGenerator_.generateLikes(randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE), group, c, Like.LikeType.COMMENT);
-
 							for( Like l : commentLikes ) {
 								export(l);
 							}
