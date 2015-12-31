@@ -33,6 +33,9 @@ public class CommentGenerator {
 		ArrayList<Comment> result = new ArrayList<Comment>();
 		ArrayList<Message> replyCandidates = new ArrayList<Message>();
 		replyCandidates.add(post);
+
+		Properties prop = new Properties();
+		prop.setProperty("type","comment");
 		for( int i = 0; i < numComments; ++i ) {
 			int replyIndex = randomFarm.get(RandomGeneratorFarm.Aspect.REPLY_TO).nextInt(replyCandidates.size());
 			Message replyTo = replyCandidates.get(replyIndex);
@@ -67,9 +70,6 @@ public class CommentGenerator {
 					int randomTag = currentTags.get(randomFarm.get(RandomGeneratorFarm.Aspect.TAG).nextInt(currentTags.size()));
 					tags.add(Dictionaries.tagMatrix.getRandomRelated(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), randomTag));
 				}
-
-				Properties prop = new Properties();
-				prop.setProperty("type","comment");
 				content = this.generator.generateText(member.person(), tags,prop);
 			} else {
 				isShort = true;

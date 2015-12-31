@@ -138,6 +138,13 @@ public class HadoopPersonActivityGenerator {
         job.setGroupingComparatorClass(BlockKeyGroupComparator.class);
         job.setPartitionerClass(HadoopBlockPartitioner.class);
 
+        /** PROFILING OPTIONS **/
+        job.setProfileEnabled(true);
+        job.setProfileParams("-agentlib:hprof=cpu=samples,heap=sites,depth=4,thread=y,format=b,file=%s");
+        job.setProfileTaskRange(true,"");
+        job.setProfileTaskRange(false,"0-"+(numThreads-1));
+        /****/
+
         FileInputFormat.setInputPaths(job, new Path(rankedFileName));
         FileOutputFormat.setOutputPath(job, new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")+"/aux"));
         long start = System.currentTimeMillis();
