@@ -50,8 +50,8 @@ public class PersonActivityGenerator {
 
 	private void generateActivity( Person person, ArrayList<Person> block ) {
 		generateWall(person, block);
-		//generateGroups(person, block);
-		//generateAlbums(person, block);
+		generateGroups(person, block);
+		generateAlbums(person, block);
         if(person.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
             factorTable_.extractFactors(person);
         }
@@ -84,10 +84,10 @@ public class PersonActivityGenerator {
 			export(p);
 			// generate likes to post
 			if( randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
-                /*ArrayList<Like> postLikes = likeGenerator_.generateLikes(randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE), wall, p, Like.LikeType.POST);
+                ArrayList<Like> postLikes = likeGenerator_.generateLikes(randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE), wall, p, Like.LikeType.POST);
 				for( Like l : postLikes ) {
 					export(l);
-				}*/
+				}
 			}
 			//// generate comments
 			int numComments = randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(DatagenParams.maxNumComments+1);
@@ -97,12 +97,10 @@ public class PersonActivityGenerator {
 				export(c);
 				// generate likes to comments
 				if( c.content().length() > 10 && randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
-					/*ArrayList<Like> commentLikes = likeGenerator_.generateLikes(randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE), wall, c, Like.LikeType.COMMENT);
-
+					ArrayList<Like> commentLikes = likeGenerator_.generateLikes(randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_LIKE), wall, c, Like.LikeType.COMMENT);
 					for( Like l : commentLikes ) {
 						export(l);
 					}
-					*/
 				}
 			}
 		}
