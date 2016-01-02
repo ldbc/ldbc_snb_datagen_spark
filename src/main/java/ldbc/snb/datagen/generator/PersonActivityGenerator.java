@@ -210,12 +210,15 @@ public class PersonActivityGenerator {
 		personActivitySerializer_.reset();
 		int counter = 0;
 		for( Person p : block ) {
+			long start = System.currentTimeMillis();
 			generateActivity(p, block);
+			System.out.println("Time to generate activity for person "+counter+":"+(System.currentTimeMillis() - start)/1000.0f);
 			if( DatagenParams.updateStreams ) {
 				updateSerializer_.changePartition();
 			}
 			if( counter % 100 == 0 ) {
 				context.setStatus("Generating activity of person "+counter+" of block"+seed);
+				context.progress();
 			}
 			counter++;
 		}
