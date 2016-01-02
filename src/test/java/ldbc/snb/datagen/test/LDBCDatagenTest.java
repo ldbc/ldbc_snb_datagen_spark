@@ -26,7 +26,7 @@ public class LDBCDatagenTest {
         try {
             Process p = pb.start();
             p.waitFor();
-            
+
         }catch(Exception e) {
             System.err.println(e.getMessage());
         }
@@ -190,21 +190,24 @@ public class LDBCDatagenTest {
     }
 
     public void testPairUniquenessPlusExistance(String relationFileName, int columnA, int columnB, String entityFileNameA, int entityColumnA, String entityFileNameB, int entityColumnB) {
-        Set<String> organisations = Column.readColumnAsSet(entityFileNameA,entityColumnA);
-        Set<String> places = Column.readColumnAsSet(entityFileNameB,entityColumnB);
+        LongParser parser = new LongParser();
+        ColumnSet<Long> entitiesA = new ColumnSet<Long>(parser,new File(entityFileNameA),entityColumnA,1);
+        entitiesA.initialize();
+        ColumnSet<Long> entitiesB = new ColumnSet<Long>(parser,new File(entityFileNameB),entityColumnB,1);
+        entitiesB.initialize();
         FileChecker fileChecker = new FileChecker(relationFileName);
-        PairUniquenessCheck pairUniquenessCheck = new PairUniquenessCheck(0,1);
+        PairUniquenessCheck pairUniquenessCheck = new PairUniquenessCheck<Long,Long>(parser,parser,columnA,columnB);
         fileChecker.addCheck(pairUniquenessCheck);
-        List<Set<String>> entityARefColumns = new ArrayList<Set<String>>();
-        entityARefColumns.add(organisations);
-        List<Set<String>> entityBRefColumns = new ArrayList<Set<String>>();
-        entityBRefColumns.add(places);
+        List<ColumnSet<Long>> entityARefColumns = new ArrayList<ColumnSet<Long>>();
+        entityARefColumns.add(entitiesA);
+        List<ColumnSet<Long>> entityBRefColumns = new ArrayList<ColumnSet<Long>>();
+        entityBRefColumns.add(entitiesB);
         List<Integer> organisationIndices = new ArrayList<Integer>();
-        organisationIndices.add(0);
+        organisationIndices.add(columnA);
         List<Integer> placeIndices = new ArrayList<Integer>();
-        placeIndices.add(1);
-        ExistsCheck existsEntityACheck = new ExistsCheck(organisationIndices, entityARefColumns);
-        ExistsCheck existsEntityBCheck = new ExistsCheck(placeIndices, entityBRefColumns);
+        placeIndices.add(columnB);
+        ExistsCheck<Long> existsEntityACheck = new ExistsCheck<Long>(parser,organisationIndices, entityARefColumns);
+        ExistsCheck<Long> existsEntityBCheck = new ExistsCheck<Long>(parser,placeIndices, entityBRefColumns);
         fileChecker.addCheck(existsEntityACheck);
         fileChecker.addCheck(existsEntityBCheck);
         assertEquals("ERROR PASSING ORGANISATION_ISLOCATEDIN_PLACE TEST",true, fileChecker.run(1));
@@ -212,16 +215,18 @@ public class LDBCDatagenTest {
     }
 
     public void testPairUniquenessPlusExistance(String relationFileName, int columnA, int columnB, String entityFileName, int entityColumn) {
-        Set<String> persons = Column.readColumnAsSet(entityFileName,entityColumn);
+        LongParser parser = new LongParser();
+        ColumnSet<Long> entities = new ColumnSet<Long>(parser,new File(entityFileName),entityColumn,1);
+        entities.initialize();
         FileChecker fileChecker = new FileChecker(relationFileName);
-        PairUniquenessCheck pairUniquenessCheck = new PairUniquenessCheck(columnA,columnB);
+        PairUniquenessCheck pairUniquenessCheck = new PairUniquenessCheck<Long,Long>(parser,parser,columnA,columnB);
         fileChecker.addCheck(pairUniquenessCheck);
-        List<Set<String>> refcolumns = new ArrayList<Set<String>>();
-        refcolumns.add(persons);
+        List<ColumnSet<Long>> refcolumns = new ArrayList<ColumnSet<Long>>();
+        refcolumns.add(entities);
         List<Integer> columnIndices = new ArrayList<Integer>();
-        columnIndices.add(0);
-        columnIndices.add(1);
-        ExistsCheck existsCheck = new ExistsCheck(columnIndices, refcolumns);
+        columnIndices.add(columnA);
+        columnIndices.add(columnB);
+        ExistsCheck existsCheck = new ExistsCheck<Long>(parser,columnIndices, refcolumns);
         fileChecker.addCheck(existsCheck);
         assertEquals("ERROR PASSING "+relationFileName+" TEST",true, fileChecker.run(1));
     }

@@ -9,7 +9,6 @@ import java.util.List;
  */
 public class UniquenessCheck extends Check {
 
-
     HashSet<String> values = null;
 
     public UniquenessCheck(int column) {

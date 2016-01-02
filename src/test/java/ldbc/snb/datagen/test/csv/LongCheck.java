@@ -1,0 +1,46 @@
+package ldbc.snb.datagen.test.csv;
+
+/**
+ * Created by aprat on 23/12/15.
+ */
+public class LongCheck extends NumericCheck<Long> {
+
+    public LongCheck(Parser<Long> parser, String name, Integer column, NumericCheckType type, Long val1, Long val2) {
+        super(parser, name, column, type, val1, val2);
+    }
+
+    @Override
+    public boolean greater(Long val1, Long val2) {
+        return val1 > val2;
+    }
+
+    @Override
+    public boolean greaterEqual(Long val1, Long val2) {
+        return val1 >= val2;
+    }
+
+    @Override
+    public boolean less(Long val1, Long val2) {
+        return val1 < val2;
+    }
+
+    @Override
+    public boolean lessEqual(Long val1, Long val2) {
+        return val1 <= val2;
+    }
+
+    @Override
+    public boolean equals(Long val1, Long val2) {
+        return val1 == val2;
+    }
+
+    @Override
+    public boolean nonEquals(Long val1, Long val2) {
+        return val1 != val2;
+    }
+
+    @Override
+    public boolean between(Long val1, Long val2, Long val3) {
+        return (val1 >= val2 && val1 < val3);
+    }
+}

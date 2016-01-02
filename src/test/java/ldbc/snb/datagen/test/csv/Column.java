@@ -1,30 +1,26 @@
 package ldbc.snb.datagen.test.csv;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Iterator;
 
 /**
  * Created by aprat on 18/12/15.
  */
-public class Column {
+public abstract class  Column <T> {
 
-    public static Set<String> readColumnAsSet(String fileName, int index) {
+    protected Parser<T> parser = null;
+    protected File file = null;
+    protected int index = 0;
+    protected int startIndex = 0;
 
-        Set<String> ret = new HashSet<String>();
-        try {
-            File file = new File(fileName);
-            CsvFileReader csvReader = new CsvFileReader(file);
-            while (csvReader.hasNext()) {
-                String[] line = csvReader.next();
-                ret.add(line[index]);
-            }
-        }catch(Exception e) {
-            System.err.println("Error when reading file "+fileName);
-            System.err.println(e.getMessage());
-        }
-        return ret;
+    Column( Parser<T> parser, File file, int index, int startIndex ) {
+        this.parser = parser;
+        this.file = file;
+        this.index = index;
+        this.startIndex = startIndex;
     }
 
+
+    public abstract Iterator<T> iterator();
 
 }

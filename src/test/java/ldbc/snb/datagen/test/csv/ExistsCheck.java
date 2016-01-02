@@ -6,21 +6,23 @@ import java.util.Set;
 /**
  * Created by aprat on 21/12/15.
  */
-public class ExistsCheck extends Check {
+public class ExistsCheck<T> extends Check {
 
-    protected List<Set<String>> refColumns = null;
+    protected List<ColumnSet<T>> refColumns = null;
+    protected Parser<T> parser = null;
 
-    public ExistsCheck(List<Integer> indexes, List<Set<String>> refColumns) {
+    public ExistsCheck(Parser<T> parser, List<Integer> indexes, List<ColumnSet<T>> refColumns) {
         super("Exists Check", indexes);
         this.refColumns = refColumns;
+        this.parser = parser;
     }
 
     @Override
     public boolean check(List<String> values) {
         for(String val : values) {
             boolean found = false;
-            for( Set<String> column : refColumns) {
-                if(column.contains(val)) {
+            for( ColumnSet<T> column : refColumns) {
+                if(column.contains(parser.parse(val))) {
                     found = true;
                     break;
                 }
