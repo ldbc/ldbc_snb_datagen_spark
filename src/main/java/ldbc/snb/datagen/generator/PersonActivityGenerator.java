@@ -210,6 +210,7 @@ public class PersonActivityGenerator {
 		personActivitySerializer_.reset();
 		int counter = 0;
 		for( Person p : block ) {
+            System.out.println("Generating activity for peron"+counter);
 			long start = System.currentTimeMillis();
 			generateActivity(p, block);
 			System.out.println("Time to generate activity for person "+counter+":"+(System.currentTimeMillis() - start)/1000.0f);
