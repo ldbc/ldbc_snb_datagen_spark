@@ -25,8 +25,8 @@ public class FlashmobPostGenerator extends PostGenerator{
 	private long hoursToMillis_;
 	private long flashmobSpan_;
 	private long currentForum = -1;
-	public FlashmobPostGenerator(TextGenerator generator) {
-		super(generator);
+	public FlashmobPostGenerator(TextGenerator generator, CommentGenerator commentGenerator, LikeGenerator likeGenerator) {
+		super(generator, commentGenerator, likeGenerator);
 		dateDistribution_ = new Distribution(DatagenParams.flashmobDistFile);
 		hoursToMillis_ = 60*60*1000;
 		flashmobSpan_ = 72 * hoursToMillis_;

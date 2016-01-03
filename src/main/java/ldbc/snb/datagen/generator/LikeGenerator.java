@@ -11,6 +11,7 @@ import ldbc.snb.datagen.objects.ForumMembership;
 import ldbc.snb.datagen.objects.Like;
 import ldbc.snb.datagen.objects.Like.LikeType;
 import ldbc.snb.datagen.objects.Message;
+import ldbc.snb.datagen.serializer.PersonActivityExporter;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -29,8 +30,7 @@ public class LikeGenerator {
 		likesGenerator_ = new PowerDistGenerator(1,DatagenParams.maxNumLike,0.07);
 	}
 
-	public ArrayList<Like> generateLikes( Random random, Forum forum, Message message, LikeType type ) {
-		ArrayList<Like> likes = new ArrayList<Like>();
+	public void generateLikes(Random random, Forum forum, Message message, LikeType type, PersonActivityExporter exporter) {
 		int numMembers = forum.memberships().size();
 		int numLikes = likesGenerator_.getValue(random);
 		numLikes = numLikes >= numMembers ?  numMembers : numLikes;
@@ -50,9 +50,9 @@ public class LikeGenerator {
 				like.messageId = message.messageId();
 				like.date = date;
 				like.type = type;
-				likes.add(like);
+				exporter.export(like);
 			}
 		}
-		return likes;
+		return;
 	}
 }

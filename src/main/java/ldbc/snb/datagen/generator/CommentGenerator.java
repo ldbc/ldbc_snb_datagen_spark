@@ -7,6 +7,7 @@ package ldbc.snb.datagen.generator;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.objects.*;
+import ldbc.snb.datagen.serializer.PersonActivityExporter;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
 
@@ -22,15 +23,16 @@ import java.util.TreeSet;
 public class CommentGenerator {
 	private String[] shortComments_ = {"ok", "good", "great", "cool", "thx", "fine", "LOL", "roflol", "no way!", "I see", "right", "yes", "no", "duh", "thanks", "maybe"};
 	private TextGenerator generator;
+	private LikeGenerator likeGenerator_;
 	/* A set of random number generator for different purposes.*/
 	
-	public CommentGenerator(TextGenerator generator){
+	public CommentGenerator(TextGenerator generator, LikeGenerator likeGenerator){
 		this.generator = generator;
+		this.likeGenerator_ = likeGenerator;
 	}	
 	
-	public ArrayList<Comment> createComments(RandomGeneratorFarm randomFarm, Forum forum, Post post, long numComments, long startId ){
+	public long createComments(RandomGeneratorFarm randomFarm, Forum forum, Post post, long numComments, long startId, PersonActivityExporter exporter){
 		long nextId = startId;
-		ArrayList<Comment> result = new ArrayList<Comment>();
 		ArrayList<Message> replyCandidates = new ArrayList<Message>();
 		replyCandidates.add(post);
 
@@ -46,7 +48,7 @@ public class CommentGenerator {
 				}
 			}
 			if (validMemberships.size() == 0) {
-				return result;
+				return nextId;
 			}
 			ForumMembership member = validMemberships.get(randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX).nextInt(validMemberships.size()));
 			TreeSet<Integer> tags = new TreeSet<Integer>();
@@ -89,11 +91,15 @@ public class CommentGenerator {
 					Dictionaries.browsers.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER), randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), member.person().browserId()),
 					post.messageId(),
 					replyTo.messageId());
-				result.add(comment);
 				if(!isShort) replyCandidates.add(comment);
+
+				exporter.export(comment);
+				if( comment.content().length() > 10 && randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
+					likeGenerator_.generateLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), forum, comment, Like.LikeType.COMMENT, exporter);
+				}
 			}
 		}
-		return result;
+		return nextId;
 	}
 	
 }
