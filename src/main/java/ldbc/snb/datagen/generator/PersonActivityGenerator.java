@@ -209,12 +209,14 @@ public class PersonActivityGenerator {
 		SN.machineId = seed;
 		personActivitySerializer_.reset();
 		int counter = 0;
+        float personGenerationTime = 0.0f;
         float accumTime = 0;
 		for( Person p : block ) {
             System.out.println("Generating activity for peron"+counter);
 			long start = System.currentTimeMillis();
 			generateActivity(p, block);
             float time = (System.currentTimeMillis() - start)/1000.0f;
+            personGenerationTime+=time;
             accumTime += time;
 			System.out.println("Time to generate activity for person "+counter+": "+time+". Time so far "+accumTime);
             start = System.currentTimeMillis();
@@ -234,6 +236,7 @@ public class PersonActivityGenerator {
             System.out.println("Time to report "+time+". Time so far "+accumTime);
 			counter++;
 		}
+        System.out.println("Average person activity generation time "+personGenerationTime / (float)block.size());
 	}
 
 	private void export(Forum forum) {
