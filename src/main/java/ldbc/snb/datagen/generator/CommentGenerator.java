@@ -92,7 +92,6 @@ public class CommentGenerator {
 					post.messageId(),
 					replyTo.messageId());
 				if(!isShort) replyCandidates.add(comment);
-
 				exporter.export(comment);
 				if( comment.content().length() > 10 && randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
 					likeGenerator_.generateLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), forum, comment, Like.LikeType.COMMENT, exporter);
