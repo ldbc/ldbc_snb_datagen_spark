@@ -209,18 +209,29 @@ public class PersonActivityGenerator {
 		SN.machineId = seed;
 		personActivitySerializer_.reset();
 		int counter = 0;
+        float accumTime = 0;
 		for( Person p : block ) {
             System.out.println("Generating activity for peron"+counter);
 			long start = System.currentTimeMillis();
 			generateActivity(p, block);
-			System.out.println("Time to generate activity for person "+counter+":"+(System.currentTimeMillis() - start)/1000.0f);
+            float time = (System.currentTimeMillis() - start)/1000.0f;
+            accumTime += time;
+			System.out.println("Time to generate activity for person "+counter+": "+time+". Time so far "+accumTime);
+            start = System.currentTimeMillis();
 			if( DatagenParams.updateStreams ) {
 				updateSerializer_.changePartition();
 			}
+            time = (System.currentTimeMillis() - start)/1000.0f;
+            accumTime += time;
+            System.out.println("Time to change partition "+time+". Time so far "+accumTime);
+            start = System.currentTimeMillis();
 			if( counter % 100 == 0 ) {
 				context.setStatus("Generating activity of person "+counter+" of block"+seed);
 				context.progress();
 			}
+            time = (System.currentTimeMillis() - start)/1000.0f;
+            accumTime += time;
+            System.out.println("Time to report "+time+". Time so far "+accumTime);
 			counter++;
 		}
 	}

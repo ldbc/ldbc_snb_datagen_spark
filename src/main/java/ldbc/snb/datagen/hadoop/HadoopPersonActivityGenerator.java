@@ -45,6 +45,7 @@ public class HadoopPersonActivityGenerator {
         private FileSystem fs_;
 
         protected void setup(Context context) {
+            System.out.println("Setting up reducer for person activity generation");
             Configuration conf = context.getConfiguration();
             reducerId = context.getTaskAttemptID().getTaskID().getId();
             LDBCDatagen.init(conf);
@@ -68,6 +69,7 @@ public class HadoopPersonActivityGenerator {
         @Override
         public void reduce(BlockKey key, Iterable<Person> valueSet,Context context)
                 throws IOException, InterruptedException {
+            System.out.println("Reducing block "+key.block);
             ArrayList<Person> persons = new ArrayList<Person>();
             for( Person p : valueSet ) {
                 persons.add(new Person(p));
@@ -87,10 +89,12 @@ public class HadoopPersonActivityGenerator {
                 strbuf.append("\n");
                 friends_.write(strbuf.toString().getBytes("UTF8"));
             }
+            System.out.println("Starting generation of block: "+key.block);
             personActivityGenerator_.generateActivityForBlock((int)key.block, persons, context );
         }
         protected void cleanup(Context context){
             try {
+                System.out.println("Cleaning up");
                 personActivityGenerator_.writeFactors(factors_);
                 factors_.close();
                 friends_.close();
@@ -139,10 +143,10 @@ public class HadoopPersonActivityGenerator {
         job.setPartitionerClass(HadoopBlockPartitioner.class);
 
         /** PROFILING OPTIONS **/
-        job.setProfileEnabled(true);
-        job.setProfileParams("-agentlib:hprof=cpu=samples,heap=sites,depth=4,thread=y,format=b,file=%s");
-        job.setProfileTaskRange(true,"");
-        job.setProfileTaskRange(false,"0-"+(numThreads-1));
+        //job.setProfileEnabled(true);
+        //job.setProfileParams("-agentlib:hprof=cpu=samples,heap=sites,depth=4,thread=y,format=b,file=%s");
+        //job.setProfileTaskRange(true,"");
+        //job.setProfileTaskRange(false,"0-"+(numThreads-1));
         /****/
 
         FileInputFormat.setInputPaths(job, new Path(rankedFileName));
