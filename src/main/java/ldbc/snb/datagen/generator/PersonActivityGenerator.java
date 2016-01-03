@@ -221,25 +221,17 @@ public class PersonActivityGenerator {
             System.out.println("Generating activity for peron"+counter);
 			long start = System.currentTimeMillis();
 			generateActivity(p, block);
-            float time = (System.currentTimeMillis() - start)/1000.0f;
-            personGenerationTime+=time;
-            accumTime += time;
-			System.out.println("Time to generate activity for person "+counter+": "+time+". Time so far "+accumTime);
-            start = System.currentTimeMillis();
 			if( DatagenParams.updateStreams ) {
 				updateSerializer_.changePartition();
 			}
-            time = (System.currentTimeMillis() - start)/1000.0f;
-            accumTime += time;
-            System.out.println("Time to change partition "+time+". Time so far "+accumTime);
-            start = System.currentTimeMillis();
 			if( counter % 100 == 0 ) {
 				context.setStatus("Generating activity of person "+counter+" of block"+seed);
 				context.progress();
 			}
-            time = (System.currentTimeMillis() - start)/1000.0f;
+            float time = (System.currentTimeMillis() - start)/1000.0f;
+            personGenerationTime+=time;
             accumTime += time;
-            System.out.println("Time to report "+time+". Time so far "+accumTime);
+            System.out.println("Time to generate activity for person "+counter+": "+time+". Throughput "+counter/accumTime);
 			counter++;
 		}
         System.out.println("Average person activity generation time "+personGenerationTime / (float)block.size());
