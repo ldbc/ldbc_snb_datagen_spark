@@ -30,7 +30,7 @@ public class PersonActivityExporter {
         public void export(final Post post) {
             if(post.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
                 personActivitySerializer_.export(post);
-                //factorTable_.extractFactors(post);
+                factorTable_.extractFactors(post);
             } else {
                 updateSerializer_.export(post);
             }
@@ -39,7 +39,7 @@ public class PersonActivityExporter {
         public void export(final Comment comment) {
             if(comment.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
                 personActivitySerializer_.export(comment);
-                //factorTable_.extractFactors(comment);
+                factorTable_.extractFactors(comment);
             } else {
                 updateSerializer_.export(comment);
             }
@@ -48,7 +48,7 @@ public class PersonActivityExporter {
         public void export(final Photo photo) {
             if(photo.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
                 personActivitySerializer_.export(photo);
-                //factorTable_.extractFactors(photo);
+                factorTable_.extractFactors(photo);
             } else {
                 updateSerializer_.export(photo);
             }
@@ -57,7 +57,7 @@ public class PersonActivityExporter {
         public void export(final ForumMembership member) {
             if(member.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
                 personActivitySerializer_.export(member);
-                //factorTable_.extractFactors(member);
+                factorTable_.extractFactors(member);
             } else {
                 updateSerializer_.export(member);
             }
@@ -66,7 +66,7 @@ public class PersonActivityExporter {
         public void export(final Like like) {
             if(like.date < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
                 personActivitySerializer_.export(like);
-                //factorTable_.extractFactors(like);
+                factorTable_.extractFactors(like);
             } else {
                 updateSerializer_.export(like);
             }
