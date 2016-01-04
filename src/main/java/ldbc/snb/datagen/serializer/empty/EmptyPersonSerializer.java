@@ -20,19 +20,19 @@ public class EmptyPersonSerializer extends PersonSerializer {
 
     }
 
-    protected void serialize(Person p) {
+    protected void serialize(final Person p) {
 
     }
 
-    protected void serialize(StudyAt studyAt) {
+    protected void serialize(final StudyAt studyAt) {
 
     }
 
-    protected void serialize(WorkAt workAt) {
+    protected void serialize(final WorkAt workAt) {
 
     }
 
-    protected void serialize(Person p, Knows knows) {
+    protected void serialize(final Person p,final  Knows knows) {
 
     }
 

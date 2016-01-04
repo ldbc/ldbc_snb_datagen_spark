@@ -100,7 +100,7 @@ public class FlashmobPostGenerator extends PostGenerator{
 	    }
     }
 
-    protected PostGenerator.PostInfo generatePostInfo( Random randomTag, Random randomDate, Forum forum, ForumMembership membership ) {
+    protected PostGenerator.PostInfo generatePostInfo( Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership ) {
 	    if( currentForum != forum.id() ) {
 		    populateForumFlashmobTags(randomTag,forum);
 		    currentForum = forum.id();

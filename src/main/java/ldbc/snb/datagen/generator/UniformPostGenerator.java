@@ -25,7 +25,7 @@ public class UniformPostGenerator extends PostGenerator {
 	}
 
 	@Override
-    protected PostInfo generatePostInfo( Random randomTag, Random randomDate, Forum forum, ForumMembership membership ) {
+    protected PostInfo generatePostInfo( Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership ) {
 	    PostInfo postInfo = new PostInfo();
 	    postInfo.tags = new TreeSet<Integer>();
 	    Iterator<Integer> it = forum.tags().iterator();

@@ -105,7 +105,7 @@ public class CSVInvariantSerializer extends InvariantSerializer {
         }
     }
 
-    protected void serialize(Place place) {
+    protected void serialize(final Place place) {
         ArrayList<String> arguments = new ArrayList<String>();
         arguments.add(Integer.toString(place.getId()));
         arguments.add(place.getName());
@@ -122,7 +122,7 @@ public class CSVInvariantSerializer extends InvariantSerializer {
         }
     }
 
-    protected void serialize(Organization organization) {
+    protected void serialize(final Organization organization) {
         ArrayList<String> arguments = new ArrayList<String>();
         arguments.add(Long.toString(organization.id));
         arguments.add(organization.type.toString());
@@ -136,7 +136,7 @@ public class CSVInvariantSerializer extends InvariantSerializer {
         writers[FileNames.ORGANIZATION_IS_LOCATED_IN_PLACE.ordinal()].writeEntry(arguments);
     }
 
-    protected void serialize(TagClass tagClass) {
+    protected void serialize(final TagClass tagClass) {
         ArrayList<String> arguments = new ArrayList<String>();
         arguments.add(Integer.toString(tagClass.id));
         arguments.add(tagClass.name);
@@ -155,7 +155,7 @@ public class CSVInvariantSerializer extends InvariantSerializer {
         }
     }
 
-    protected void serialize(Tag tag) {
+    protected void serialize(final Tag tag) {
         ArrayList<String> arguments = new ArrayList<String>();
         arguments.add(Integer.toString(tag.id));
         arguments.add(tag.name);

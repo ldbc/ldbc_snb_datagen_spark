@@ -82,11 +82,11 @@ public class CSVPersonActivitySerializer extends PersonActivitySerializer {
         }
     }
 
-    protected void serialize( Forum forum ) {
+    protected void serialize( final Forum forum ) {
 
     }
 
-    protected void serialize( Post post ) {
+    protected void serialize( final Post post ) {
 
         arguments.add(Long.toString(post.messageId()));
         arguments.add(post.content());
@@ -107,7 +107,7 @@ public class CSVPersonActivitySerializer extends PersonActivitySerializer {
         }
     }
 
-    protected void serialize( Comment comment ) {
+    protected void serialize( final Comment comment ) {
         arguments.add(Long.toString(comment.messageId()));
         arguments.add(comment.content());
         arguments.add(Dictionaries.dates.formatDateDetail(comment.creationDate()));
@@ -139,14 +139,14 @@ public class CSVPersonActivitySerializer extends PersonActivitySerializer {
         }
     }
 
-    protected void serialize( Photo photo ) {
+    protected void serialize(final  Photo photo ) {
 
     }
 
-    protected void serialize( ForumMembership membership ) {
+    protected void serialize( final ForumMembership membership ) {
     }
 
-    protected void serialize( Like like ) {
+    protected void serialize( final Like like ) {
         arguments.add(Long.toString(like.user));
         arguments.add(Long.toString(like.messageId));
         writers[FileNames.USER_LIKES_MESSAGE.ordinal()].writeEntry(arguments);

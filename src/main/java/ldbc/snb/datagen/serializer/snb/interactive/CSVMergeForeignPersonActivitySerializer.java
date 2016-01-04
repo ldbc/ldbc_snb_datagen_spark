@@ -125,7 +125,7 @@ public class CSVMergeForeignPersonActivitySerializer extends PersonActivitySeria
         }
     }
 
-    protected void serialize( Forum forum ) {
+    protected void serialize(final  Forum forum ) {
 
         String dateString = Dictionaries.dates.formatDateDetail(forum.creationDate());
 
@@ -145,7 +145,7 @@ public class CSVMergeForeignPersonActivitySerializer extends PersonActivitySeria
 
     }
 
-    protected void serialize( Post post ) {
+    protected void serialize( final Post post ) {
 
         arguments.add(Long.toString(post.messageId()));
         arguments.add(empty);
@@ -169,7 +169,7 @@ public class CSVMergeForeignPersonActivitySerializer extends PersonActivitySeria
         }
     }
 
-    protected void serialize( Comment comment ) {
+    protected void serialize( final Comment comment ) {
         arguments.add(Long.toString(comment.messageId()));
         arguments.add(Dictionaries.dates.formatDateDetail(comment.creationDate()));
         arguments.add(comment.ipAddress().toString());
@@ -196,7 +196,7 @@ public class CSVMergeForeignPersonActivitySerializer extends PersonActivitySeria
         }
     }
 
-    protected void serialize( Photo photo ) {
+    protected void serialize(final  Photo photo ) {
 
         arguments.add(Long.toString(photo.messageId()));
         arguments.add(photo.content());
@@ -220,7 +220,7 @@ public class CSVMergeForeignPersonActivitySerializer extends PersonActivitySeria
         }
     }
 
-    protected void serialize( ForumMembership membership ) {
+    protected void serialize(final  ForumMembership membership ) {
         arguments.add(Long.toString(membership.forumId()));
         arguments.add(Long.toString(membership.person().accountId()));
         arguments.add(Dictionaries.dates.formatDateDetail(membership.creationDate()));
@@ -228,7 +228,7 @@ public class CSVMergeForeignPersonActivitySerializer extends PersonActivitySeria
         arguments.clear();
     }
 
-    protected void serialize( Like like ) {
+    protected void serialize( final Like like ) {
         arguments.add(Long.toString(like.user));
         arguments.add(Long.toString(like.messageId));
         arguments.add(Dictionaries.dates.formatDateDetail(like.date));

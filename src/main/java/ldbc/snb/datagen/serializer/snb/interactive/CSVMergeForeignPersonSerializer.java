@@ -104,7 +104,7 @@ public class CSVMergeForeignPersonSerializer extends PersonSerializer {
     }
 
     @Override
-    protected void serialize(Person p) {
+    protected void serialize(final Person p) {
 
         ArrayList<String> arguments = new ArrayList<String>();
 
@@ -155,7 +155,7 @@ public class CSVMergeForeignPersonSerializer extends PersonSerializer {
     }
 
     @Override
-    protected void serialize(StudyAt studyAt) {
+    protected void serialize(final StudyAt studyAt) {
         ArrayList<String> arguments = new ArrayList<String>();
         String dateString = Dictionaries.dates.formatYear(studyAt.year);
         arguments.add(Long.toString(studyAt.user));
@@ -165,7 +165,7 @@ public class CSVMergeForeignPersonSerializer extends PersonSerializer {
     }
 
     @Override
-    protected void serialize(WorkAt workAt) {
+    protected void serialize(final WorkAt workAt) {
         ArrayList<String> arguments = new ArrayList<String>();
         String dateString = Dictionaries.dates.formatYear(workAt.year);
         arguments.add(Long.toString(workAt.user));
@@ -175,7 +175,7 @@ public class CSVMergeForeignPersonSerializer extends PersonSerializer {
     }
 
     @Override
-    protected void serialize( Person p, Knows knows) {
+    protected void serialize( final Person p, Knows knows) {
         ArrayList<String> arguments = new ArrayList<String>();
         String dateString = Dictionaries.dates.formatDateDetail(knows.creationDate());
         arguments.add(Long.toString(p.accountId()));

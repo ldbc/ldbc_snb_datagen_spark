@@ -19,7 +19,7 @@ public class PersonActivityExporter {
         this.factorTable_ = factorTable;
     }
 
-        public void export(Forum forum) {
+        public void export(final Forum forum) {
             if(forum.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
                 personActivitySerializer_.export(forum);
             } else {
@@ -27,7 +27,7 @@ public class PersonActivityExporter {
             }
         }
 
-        public void export(Post post) {
+        public void export(final Post post) {
             if(post.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
                 personActivitySerializer_.export(post);
                 factorTable_.extractFactors(post);
@@ -36,7 +36,7 @@ public class PersonActivityExporter {
             }
         }
 
-        public void export(Comment comment) {
+        public void export(final Comment comment) {
             if(comment.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
                 personActivitySerializer_.export(comment);
                 factorTable_.extractFactors(comment);
@@ -45,7 +45,7 @@ public class PersonActivityExporter {
             }
         }
 
-        public void export(Photo photo) {
+        public void export(final Photo photo) {
             if(photo.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
                 personActivitySerializer_.export(photo);
                 factorTable_.extractFactors(photo);
@@ -54,7 +54,7 @@ public class PersonActivityExporter {
             }
         }
 
-        public void export(ForumMembership member) {
+        public void export(final ForumMembership member) {
             if(member.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
                 personActivitySerializer_.export(member);
                 factorTable_.extractFactors(member);
@@ -63,7 +63,7 @@ public class PersonActivityExporter {
             }
         }
 
-        public void export(Like like) {
+        public void export(final Like like) {
             if(like.date < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
                 personActivitySerializer_.export(like);
                 factorTable_.extractFactors(like);

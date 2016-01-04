@@ -49,8 +49,11 @@ public class PersonActivityGenerator {
 	}
 
 	private void generateActivity( Person person, ArrayList<Person> block ) {
+        System.out.println("Generating wall");
 		generateWall(person, block);
+        System.out.println("Generating groups");
 		generateGroups(person, block);
+        System.out.println("Generating albums");
 		generateAlbums(person, block);
         if(person.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
             factorTable_.extractFactors(person);

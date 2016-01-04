@@ -78,7 +78,7 @@ abstract public class PostGenerator {
 	}
 	
 	
-	public long createPosts(RandomGeneratorFarm randomFarm, Forum forum, ArrayList<ForumMembership> memberships, long numPosts, long startId, PersonActivityExporter exporter){
+	public long createPosts(RandomGeneratorFarm randomFarm, final Forum forum, final ArrayList<ForumMembership> memberships, long numPosts, long startId, PersonActivityExporter exporter){
 		long postId = startId;
 		Properties prop = new Properties();
 		prop.setProperty("type","post");
@@ -123,5 +123,5 @@ abstract public class PostGenerator {
 		return postId;
 	}
 	
-	protected abstract PostInfo generatePostInfo( Random randomTag, Random randomDate, Forum forum, ForumMembership membership );
+	protected abstract PostInfo generatePostInfo( Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership );
 }

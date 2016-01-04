@@ -53,16 +53,16 @@ public class CSVInvariantSerializer extends InvariantSerializer {
         }
     }
 
-    protected void serialize(Place place) {
+    protected void serialize(final Place place) {
     }
 
-    protected void serialize(Organization organization) {
+    protected void serialize(final Organization organization) {
     }
 
-    protected void serialize(TagClass tagClass) {
+    protected void serialize(final TagClass tagClass) {
     }
 
-    protected void serialize(Tag tag) {
+    protected void serialize(final Tag tag) {
         ArrayList<String> arguments = new ArrayList<String>();
         arguments.add(Integer.toString(tag.id));
         arguments.add(tag.name);

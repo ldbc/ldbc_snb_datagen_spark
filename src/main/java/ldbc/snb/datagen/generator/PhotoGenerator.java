@@ -27,7 +27,7 @@ public class PhotoGenerator {
 	public PhotoGenerator(LikeGenerator likeGenerator) {
 		this.likeGenerator_ = likeGenerator;
 	}
-	public long createPhotos(RandomGeneratorFarm randomFarm, Forum album, ArrayList<ForumMembership> memberships, long numPhotos, long startId, PersonActivityExporter exporter){
+	public long createPhotos(RandomGeneratorFarm randomFarm, final Forum album, final ArrayList<ForumMembership> memberships, long numPhotos, long startId, PersonActivityExporter exporter){
 		long nextId = startId;
 		ArrayList<Photo> photos = new ArrayList<Photo>();
 		int numPopularPlaces = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_POPULAR).nextInt(DatagenParams.maxNumPopularPlaces + 1);

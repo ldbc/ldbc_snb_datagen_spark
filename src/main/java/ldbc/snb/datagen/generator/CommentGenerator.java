@@ -29,9 +29,9 @@ public class CommentGenerator {
 	public CommentGenerator(TextGenerator generator, LikeGenerator likeGenerator){
 		this.generator = generator;
 		this.likeGenerator_ = likeGenerator;
-	}	
+	}
 	
-	public long createComments(RandomGeneratorFarm randomFarm, Forum forum, Post post, long numComments, long startId, PersonActivityExporter exporter){
+	public long createComments(RandomGeneratorFarm randomFarm, final Forum forum, final Post post, long numComments, long startId, PersonActivityExporter exporter){
 		long nextId = startId;
 		ArrayList<Message> replyCandidates = new ArrayList<Message>();
 		replyCandidates.add(post);
@@ -98,6 +98,7 @@ public class CommentGenerator {
 				}
 			}
 		}
+		replyCandidates.clear();
 		return nextId;
 	}
 	

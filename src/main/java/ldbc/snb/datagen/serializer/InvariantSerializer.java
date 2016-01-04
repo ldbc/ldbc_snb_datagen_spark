@@ -22,19 +22,19 @@ abstract public class InvariantSerializer {
 
     abstract public void reset();
 
-    public void export(TagClass tagclass) {
+    public void export(final TagClass tagclass) {
         serialize(tagclass);
     }
 
-    public void export(Place place) {
+    public void export(final Place place) {
         serialize(place);
     }
 
-    public void export(Organization organization) {
+    public void export(final Organization organization) {
        serialize(organization);
     }
 
-    public void export(Tag tag) {
+    public void export(final Tag tag) {
         serialize(tag);
     }
 
@@ -42,11 +42,11 @@ abstract public class InvariantSerializer {
 
     abstract public void close();
 
-    abstract protected void serialize(Place place);
+    abstract protected void serialize(final Place place);
 
-    abstract protected void serialize(Organization organization);
+    abstract protected void serialize(final Organization organization);
 
-    abstract protected void serialize(TagClass tagClass);
+    abstract protected void serialize(final TagClass tagClass);
 
-    abstract protected void serialize(Tag tag);
+    abstract protected void serialize(final Tag tag);
 }

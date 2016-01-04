@@ -51,7 +51,7 @@ public class TurtleInvariantSerializer extends InvariantSerializer {
         }
     }
 
-    protected void serialize(Place place) {
+    protected void serialize(final Place place) {
         StringBuffer result = new StringBuffer(350);
         String name = place.getName();
         String type = DBPOWL.City;
@@ -72,7 +72,7 @@ public class TurtleInvariantSerializer extends InvariantSerializer {
         }
     }
 
-    protected void serialize(Organization organization) {
+    protected void serialize(final Organization organization) {
         StringBuffer result = new StringBuffer(19000);
         if( organization.type == Organization.OrganisationType.company ) {
             Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()],DBP.fullPrefixed(organization.name), RDF.type, DBPOWL.Company);
@@ -88,7 +88,7 @@ public class TurtleInvariantSerializer extends InvariantSerializer {
         writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
     }
 
-    protected void serialize(TagClass tagClass) {
+    protected void serialize(final TagClass tagClass) {
 
         StringBuffer result = new StringBuffer(350);
         if (tagClass.name.equals("Thing")) {
@@ -115,7 +115,7 @@ public class TurtleInvariantSerializer extends InvariantSerializer {
         }
     }
 
-    protected void serialize(Tag tag) {
+    protected void serialize(final Tag tag) {
         StringBuffer result = new StringBuffer(350);
         Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()],DBP.fullPrefixed(tag.name), FOAF.Name, Turtle.createLiteral(tag.name));
         Integer tagClass = tag.tagClass;
