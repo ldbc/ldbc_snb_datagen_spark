@@ -147,13 +147,13 @@ public class PersonActivityGenerator {
         float personGenerationTime = 0.0f;
         float accumTime = 0;
 		for( Person p : block ) {
-            System.out.println("Generating activity for person "+counter);
+            System.out.println("Generating activity for person "+counter+" with degree "+p.knows().size());
 			long start = System.currentTimeMillis();
 			generateActivity(p, block);
 			if( DatagenParams.updateStreams ) {
 				updateSerializer_.changePartition();
 			}
-			if( counter % 100 == 0 ) {
+			if( counter % 1000 == 0 ) {
 				context.setStatus("Generating activity of person "+counter+" of block"+seed);
 				context.progress();
 			}
