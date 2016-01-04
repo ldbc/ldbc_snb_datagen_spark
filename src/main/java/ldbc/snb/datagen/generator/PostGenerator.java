@@ -54,6 +54,7 @@ abstract public class PostGenerator {
 	private TextGenerator generator_;
 	private CommentGenerator commentGenerator_;
 	private LikeGenerator likeGenerator_;
+	private Post post_;
 	
 	static protected class PostInfo {
 		public TreeSet<Integer> tags;
@@ -71,6 +72,7 @@ abstract public class PostGenerator {
 		this.generator_ = generator;
 		this.commentGenerator_ = commentGenerator;
 		this.likeGenerator_ = likeGenerator;
+		this.post_ = new Post();
 	}
 	
 	/** @brief Initializes the post generator.*/
@@ -99,7 +101,7 @@ abstract public class PostGenerator {
 					
 					// crear properties class para passar
 					content = this.generator_.generateText(member.person(), postInfo.tags,prop);
-					Post post = new Post( SN.formId(SN.composeId(postId++,postInfo.date)),
+					post_.initialize( SN.formId(SN.composeId(postId++,postInfo.date)),
 						postInfo.date,
 						member.person(),
 						forum.id(),
@@ -108,15 +110,15 @@ abstract public class PostGenerator {
 						Dictionaries.ips.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER), member.person().ipAddress(), postInfo.date),
 						Dictionaries.browsers.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER), randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), member.person().browserId()),
 						forum.language());
-					exporter.export(post);
+					exporter.export(post_);
 
 					if( randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
-						likeGenerator_.generateLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), forum, post, Like.LikeType.POST, exporter);
+						likeGenerator_.generateLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), forum, post_, Like.LikeType.POST, exporter);
 					}
 
 					//// generate comments
 					int numComments = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(DatagenParams.maxNumComments+1);
-					postId = commentGenerator_.createComments(randomFarm, forum, post, numComments, postId, exporter);
+					postId = commentGenerator_.createComments(randomFarm, forum, post_, numComments, postId, exporter);
 				}
 			}
 		}

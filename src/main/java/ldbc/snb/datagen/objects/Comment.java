@@ -50,6 +50,12 @@ public class Comment extends Message {
         super();
     }
 
+    public Comment( Comment comment ) {
+        super(comment.messageId(), comment.creationDate(), comment.author(), comment.forumId(), comment.content(), comment.tags(), comment.ipAddress(), comment.browserId());
+        postId_ = comment.postId();
+        replyOf_ = comment.replyOf();
+    }
+
     public Comment(long commentId,
                    long creationDate,
                    PersonSummary author,

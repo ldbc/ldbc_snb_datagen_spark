@@ -24,11 +24,13 @@ public class CommentGenerator {
 	private String[] shortComments_ = {"ok", "good", "great", "cool", "thx", "fine", "LOL", "roflol", "no way!", "I see", "right", "yes", "no", "duh", "thanks", "maybe"};
 	private TextGenerator generator;
 	private LikeGenerator likeGenerator_;
+    private Comment comment_;
 	/* A set of random number generator for different purposes.*/
 	
 	public CommentGenerator(TextGenerator generator, LikeGenerator likeGenerator){
 		this.generator = generator;
 		this.likeGenerator_ = likeGenerator;
+        this.comment_ = new Comment();
 	}
 	
 	public long createComments(RandomGeneratorFarm randomFarm, final Forum forum, final Post post, long numComments, long startId, PersonActivityExporter exporter){
@@ -91,7 +93,7 @@ public class CommentGenerator {
 					Dictionaries.browsers.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER), randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), member.person().browserId()),
 					post.messageId(),
 					replyTo.messageId());
-				if(!isShort) replyCandidates.add(comment);
+				if(!isShort) replyCandidates.add(new Comment(comment));
 				exporter.export(comment);
 				if( comment.content().length() > 10 && randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
 					likeGenerator_.generateLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), forum, comment, Like.LikeType.COMMENT, exporter);
