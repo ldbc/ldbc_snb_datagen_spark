@@ -38,6 +38,8 @@ package ldbc.snb.datagen.serializer;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.generator.DatagenParams;
+import ldbc.snb.datagen.hadoop.TupleKey;
+import ldbc.snb.datagen.hadoop.UpdateEventKey;
 import ldbc.snb.datagen.objects.*;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
@@ -75,9 +77,11 @@ public class UpdateEventSerializer {
 	private Configuration conf_;
 	private UpdateStreamStats  stats_;
 	private String fileNamePrefix_;
+	private int reducerId_;
 	
-	public UpdateEventSerializer(Configuration conf, String fileNamePrefix, int numPartitions ) {
+	public UpdateEventSerializer(Configuration conf, String fileNamePrefix, int reducerId, int numPartitions ) {
 		conf_ = conf;
+		reducerId_ = reducerId;
 		stringBuffer_ = new StringBuffer(512);
 		data_ = new ArrayList<String>();
 		list_ = new ArrayList<String>();
@@ -90,7 +94,7 @@ public class UpdateEventSerializer {
 			FileContext fc = FileContext.getFileContext(conf);
 			for( int i = 0; i < numPartitions_; ++i ) {
 				Path outFile = new Path(fileNamePrefix_+"_"+i);
-				streamWriter_[i] = SequenceFile.createWriter(fc, conf, outFile, LongWritable.class, Text.class, CompressionType.NONE, new DefaultCodec(),new SequenceFile.Metadata(), EnumSet.of(CreateFlag.CREATE), Options.CreateOpts.checksumParam(Options.ChecksumOpt.createDisabled()));
+				streamWriter_[i] = SequenceFile.createWriter(fc, conf, outFile, UpdateEventKey.class, Text.class, CompressionType.NONE, new DefaultCodec(),new SequenceFile.Metadata(), EnumSet.of(CreateFlag.CREATE), Options.CreateOpts.checksumParam(Options.ChecksumOpt.createDisabled()));
 				FileSystem fs = FileSystem.get(conf);
 				Path propertiesFile = new Path(fileNamePrefix+".properties");
 				if(fs.exists(propertiesFile)){
@@ -116,7 +120,7 @@ public class UpdateEventSerializer {
 	
 	public void writeKeyValue( UpdateEvent event ) {
 		try{
-			StringBuffer string = new StringBuffer();
+			StringBuilder string = new StringBuilder();
 			string.append(Long.toString(event.date));
 			string.append("|");
 			string.append(Long.toString(event.dependantDate));
@@ -125,7 +129,7 @@ public class UpdateEventSerializer {
 			string.append("|");
 			string.append(event.eventData);
 			string.append("\n");
-			streamWriter_[nextPartition_].append(new LongWritable(event.date),new Text(string.toString()));
+			streamWriter_[nextPartition_].append(new UpdateEventKey(event.date, reducerId_, nextPartition_),new Text(string.toString()));
 		} catch(IOException e){
 			System.err.println(e.getMessage());
 			System.exit(-1);

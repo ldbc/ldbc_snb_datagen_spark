@@ -54,7 +54,7 @@ public class HadoopPersonActivityGenerator {
                 personActivitySerializer_ = (PersonActivitySerializer) Class.forName(conf.get("ldbc.snb.datagen.serializer.personActivitySerializer")).newInstance();
                 personActivitySerializer_.initialize(conf,reducerId);
                 if(DatagenParams.updateStreams) {
-                    updateSerializer_ = new UpdateEventSerializer(conf, DatagenParams.hadoopDir + "/temp_updateStream_forum_" + reducerId, DatagenParams.numUpdatePartitions);
+                    updateSerializer_ = new UpdateEventSerializer(conf, DatagenParams.hadoopDir + "/temp_updateStream_forum_" + reducerId, reducerId, DatagenParams.numUpdatePartitions);
                 }
                 personActivityGenerator_ = new PersonActivityGenerator(personActivitySerializer_, updateSerializer_);
 
