@@ -294,6 +294,7 @@ public class FactorTable {
                 }
             }
             personCounts_.clear();
+            medianFirstName_.clear();
         } catch (IOException e) {
             System.err.println("Unable to write parameter counts");
             System.err.println(e.getMessage());
