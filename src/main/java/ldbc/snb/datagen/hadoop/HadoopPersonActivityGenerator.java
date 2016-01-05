@@ -40,7 +40,8 @@ public class HadoopPersonActivityGenerator {
         private PersonActivitySerializer personActivitySerializer_;
         private PersonActivityGenerator personActivityGenerator_;
         private UpdateEventSerializer updateSerializer_;
-        private OutputStream factors_;
+        private OutputStream personFactors_;
+        private OutputStream activityFactors_;
         private OutputStream friends_;
         private FileSystem fs_;
 
@@ -58,7 +59,8 @@ public class HadoopPersonActivityGenerator {
                 personActivityGenerator_ = new PersonActivityGenerator(personActivitySerializer_, updateSerializer_);
 
                 fs_ = FileSystem.get(context.getConfiguration());
-                factors_ = fs_.create(new Path(DatagenParams.hadoopDir+"/"+ "m" + reducerId + DatagenParams.PARAM_COUNT_FILE));
+                personFactors_ = fs_.create(new Path(DatagenParams.hadoopDir+"/"+ "m" + reducerId + DatagenParams.PERSON_COUNTS_FILE));
+                activityFactors_ = fs_.create(new Path(DatagenParams.hadoopDir+"/"+ "m" + reducerId + DatagenParams.ACTIVITY_FILE));
                 friends_ = fs_.create(new Path(DatagenParams.hadoopDir+"/"+ "m0friendList" + reducerId +".csv"));
 
             } catch( Exception e ) {
@@ -91,12 +93,14 @@ public class HadoopPersonActivityGenerator {
             }
             System.out.println("Starting generation of block: "+key.block);
             personActivityGenerator_.generateActivityForBlock((int)key.block, persons, context );
+            personActivityGenerator_.writePersonFactors(personFactors_);
         }
         protected void cleanup(Context context){
             try {
                 System.out.println("Cleaning up");
-                personActivityGenerator_.writeFactors(factors_);
-                factors_.close();
+                personActivityGenerator_.writeActivityFactors(activityFactors_);
+                activityFactors_.close();
+                personFactors_.close();
                 friends_.close();
             } catch (IOException e) {
                 e.printStackTrace();

@@ -49,11 +49,8 @@ public class PersonActivityGenerator {
 	}
 
 	private void generateActivity( Person person, ArrayList<Person> block ) {
-        System.out.println("Generating wall");
 		generateWall(person, block);
-        System.out.println("Generating groups");
 		generateGroups(person, block);
-        System.out.println("Generating albums");
 		generateAlbums(person, block);
         if(person.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
             factorTable_.extractFactors(person);
@@ -148,7 +145,7 @@ public class PersonActivityGenerator {
 		personActivitySerializer_.reset();
 		int counter = 0;
         float personGenerationTime = 0.0f;
-        float accumTime = 0;
+        long initTime = System.currentTimeMillis();
 		for( Person p : block ) {
             System.out.println("Generating activity for person "+counter+" with degree "+p.knows().size());
 			long start = System.currentTimeMillis();
@@ -162,15 +159,18 @@ public class PersonActivityGenerator {
 			}
             float time = (System.currentTimeMillis() - start)/1000.0f;
             personGenerationTime+=time;
-            accumTime += time;
-            System.out.println("Time to generate activity for person "+counter+": "+time+". Throughput "+counter/accumTime);
+            System.out.println("Time to generate activity for person "+counter+": "+time+". Throughput "+counter/((System.currentTimeMillis() - initTime)*0.001));
 			counter++;
 		}
         System.out.println("Average person activity generation time "+personGenerationTime / (float)block.size());
 	}
 
 
-    public void writeFactors( OutputStream writer) {
-        factorTable_.write(writer);
+    public void writeActivityFactors( OutputStream writer) {
+        factorTable_.writeActivityFactors(writer);
     }
+
+	public void writePersonFactors( OutputStream writer) {
+		factorTable_.writePersonFactors(writer);
+	}
 }

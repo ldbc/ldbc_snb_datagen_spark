@@ -254,15 +254,62 @@ public class FactorTable {
         personCounts(like.user).incrNumLikes();
     }
 
-    public void write(OutputStream writer ) {
+    public void writePersonFactors(OutputStream writer ) {
         try {
-            Iterator<Map.Entry<Long,PersonCounts>> iter = personCounts_.entrySet().iterator();
+            for (Map.Entry<Long, PersonCounts> c: personCounts_.entrySet()){
+                PersonCounts count = c.getValue();
+                // correct the group counts
+                //count.numberOfGroups += count.numberOfFriends;
+                String name = medianFirstName_.get(c.getKey());
+                if( name != null ) {
+                    StringBuffer strbuf = new StringBuffer();
+                    strbuf.append(c.getKey()); strbuf.append(",");
+                    strbuf.append(name);
+                    strbuf.append(",");
+                    strbuf.append(count.numFriends());
+                    strbuf.append(",");
+                    strbuf.append(count.numPosts());
+                    strbuf.append(",");
+                    strbuf.append(count.numLikes());
+                    strbuf.append(",");
+                    strbuf.append(count.numTagsOfMessages());
+                    strbuf.append(",");
+                    strbuf.append(count.numForums());
+                    strbuf.append(",");
+                    strbuf.append(count.numWorkPlaces());
+                    strbuf.append(",");
+                    strbuf.append(count.numComments());
+                    strbuf.append(",");
+
+                    for (Long bucket : count.numMessagesPerMonth()) {
+                        strbuf.append(bucket);
+                        strbuf.append(",");
+                    }
+                    for (Long bucket : count.numForumsPerMonth()) {
+                        strbuf.append(bucket);
+                        strbuf.append(",");
+                    }
+                    strbuf.setCharAt(strbuf.length() - 1, '\n');
+                    writer.write(strbuf.toString().getBytes("UTF8"));
+                }
+            }
+            personCounts_.clear();
+        } catch (IOException e) {
+            System.err.println("Unable to write parameter counts");
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public void writeActivityFactors(OutputStream writer ) {
+        try {
+            /*Iterator<Map.Entry<Long,PersonCounts>> iter = personCounts_.entrySet().iterator();
             while(iter.hasNext()) {
                 Map.Entry<Long,PersonCounts> entry = iter.next();
                 if (medianFirstName_.get(entry.getKey()) == null) {
                     iter.remove();
                 }
-            }
+            }*/
             writer.write(Integer.toString(personCounts_.size()).getBytes("UTF8"));
             writer.write("\n".getBytes("UTF8"));
             for (Map.Entry<Long, PersonCounts> c: personCounts_.entrySet()){
