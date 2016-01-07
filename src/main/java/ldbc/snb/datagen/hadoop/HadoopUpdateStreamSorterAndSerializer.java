@@ -28,9 +28,6 @@ public class HadoopUpdateStreamSorterAndSerializer {
 
 	public static class HadoopUpdateStreamSorterAndSerializerReducer  extends Reducer<UpdateEventKey, Text, UpdateEventKey, Text> {
 
-		private int reducerId;                          /** The id of the reducer.**/
-		private PersonSerializer personSerializer_;   /** The person serializer **/
-		private UpdateEventSerializer updateSerializer_;
 		private boolean compressed = false;
 		private Configuration conf;
 		private String streamType;
