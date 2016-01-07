@@ -15,6 +15,6 @@ public class HadoopUpdateEventKeyPartitioner extends Partitioner<UpdateEventKey,
 
     @Override
     public int getPartition(UpdateEventKey key, Text text, int numReduceTasks) {
-        return (int)(key.reducerId);
+        return (key.reducerId);
     }
 }

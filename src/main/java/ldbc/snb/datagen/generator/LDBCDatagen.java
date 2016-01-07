@@ -179,13 +179,13 @@ public class LDBCDatagen {
             HadoopUpdateStreamSorterAndSerializer updateSorterAndSerializer = new HadoopUpdateStreamSorterAndSerializer(conf);
             updateSorterAndSerializer.run(personStreamsFileNames, "person");
             updateSorterAndSerializer.run(forumStreamsFileNames, "forum");
-            for(String file : personStreamsFileNames) {
+            /*for(String file : personStreamsFileNames) {
                 fs.delete(new Path(file), true);
             }
 
             for(String file : forumStreamsFileNames) {
                 fs.delete(new Path(file), true);
-            }
+            }*/
 
             /*for( int i = 0; i < DatagenParams.numThreads; ++i) {
                 int numPartitions = conf.getInt("ldbc.snb.datagen.serializer.numUpdatePartitions", 1);
