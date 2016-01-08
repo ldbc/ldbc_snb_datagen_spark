@@ -44,6 +44,7 @@ public class ConfigParser {
         conf.set("ldbc.snb.datagen.serializer.outputDir", "./");
         conf.set("ldbc.snb.datagen.serializer.socialNetworkDir", "./social_network");
         conf.set("ldbc.snb.datagen.serializer.hadoopDir", "./hadoop");
+        conf.set("ldbc.snb.datagen.serializer.endlineSeparator", Boolean.toString(false));
         conf.set("ldbc.snb.datagen.generator.deltaTime", "10000");
         conf.set("ldbc.snb.datagen.generator.activity", "true");
 
