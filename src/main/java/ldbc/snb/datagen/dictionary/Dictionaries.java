@@ -7,6 +7,7 @@ package ldbc.snb.datagen.dictionary;
 
 import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.generator.DateGenerator;
+import org.apache.hadoop.conf.Configuration;
 
 import java.util.GregorianCalendar;
 
@@ -32,11 +33,11 @@ public class Dictionaries {
 	public static FlashmobTagDictionary flashmobs = null;
 
 
-	public static void loadDictionaries() {
+	public static void loadDictionaries(Configuration conf) {
 		
 		browsers = new BrowserDictionary(DatagenParams.probAnotherBrowser);
 		
-		dates = new DateGenerator( new GregorianCalendar(DatagenParams.startYear,
+		dates = new DateGenerator( conf, new GregorianCalendar(DatagenParams.startYear,
 			DatagenParams.startMonth,
 			DatagenParams.startDate),
 			new GregorianCalendar(DatagenParams.endYear,

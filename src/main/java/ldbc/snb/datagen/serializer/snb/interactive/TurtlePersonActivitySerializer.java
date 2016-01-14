@@ -7,14 +7,11 @@ package ldbc.snb.datagen.serializer.snb.interactive;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.objects.*;
-import ldbc.snb.datagen.serializer.HDFSCSVWriter;
 import ldbc.snb.datagen.serializer.HDFSWriter;
 import ldbc.snb.datagen.serializer.PersonActivitySerializer;
 import ldbc.snb.datagen.serializer.Turtle;
 import ldbc.snb.datagen.vocabulary.*;
 import org.apache.hadoop.conf.Configuration;
-
-import java.util.ArrayList;
 
 /**
  *
@@ -75,7 +72,7 @@ public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 		Turtle.AddTriple(result, false, false, forumPrefix, SNVOC.title,
 				Turtle.createLiteral(forum.title()));
 		Turtle.AddTriple(result, false, true, forumPrefix, SNVOC.creationDate,
-				Turtle.createDataTypeLiteral(Dictionaries.dates.formatDateDetail(forum.creationDate()), XSD.DateTime));
+				Turtle.createDataTypeLiteral(Dictionaries.dates.formatDateTime(forum.creationDate()), XSD.DateTime));
 
 		Turtle.createTripleSPO(result, forumPrefix,
 				SNVOC.hasModerator, SN.getPersonURI(forum.moderator().accountId()));
@@ -99,7 +96,7 @@ public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 				Turtle.createLiteral(Long.toString(post.messageId())));
 
 		Turtle.AddTriple(result, false, false, prefix, SNVOC.creationDate,
-				Turtle.createDataTypeLiteral(Dictionaries.dates.formatDateDetail(post.creationDate()), XSD.DateTime));
+				Turtle.createDataTypeLiteral(Dictionaries.dates.formatDateTime(post.creationDate()), XSD.DateTime));
 
 		Turtle.AddTriple(result, false, false, prefix, SNVOC.ipaddress,
 					Turtle.createLiteral(post.ipAddress().toString()));
@@ -138,7 +135,7 @@ public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 				Turtle.createLiteral(Long.toString(comment.messageId())));
 
 		Turtle.AddTriple(result, false, false, prefix, SNVOC.creationDate,
-				Turtle.createDataTypeLiteral(Dictionaries.dates.formatDateDetail(comment.creationDate()), XSD.DateTime));
+				Turtle.createDataTypeLiteral(Dictionaries.dates.formatDateTime(comment.creationDate()), XSD.DateTime));
 		Turtle.AddTriple(result, false, false, prefix, SNVOC.ipaddress,
 				Turtle.createLiteral(comment.ipAddress().toString()));
 		Turtle.AddTriple(result, false, false, prefix, SNVOC.browser,
@@ -179,7 +176,7 @@ public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 		Turtle.AddTriple(result, false, false, prefix, SNVOC.browser,
 				Turtle.createLiteral(Dictionaries.browsers.getName(photo.browserId())));
 		Turtle.AddTriple(result, false, true, prefix, SNVOC.creationDate,
-				Turtle.createDataTypeLiteral(Dictionaries.dates.formatDateDetail(photo.creationDate()), XSD.DateTime));
+				Turtle.createDataTypeLiteral(Dictionaries.dates.formatDateTime(photo.creationDate()), XSD.DateTime));
 
 		Turtle.createTripleSPO(result, prefix, SNVOC.hasCreator, SN.getPersonURI(photo.author().accountId()));
 		Turtle.createTripleSPO(result, SN.getForumURI(photo.forumId()), SNVOC.containerOf, prefix);
@@ -201,7 +198,7 @@ public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 
 		Turtle.AddTriple(result, true, false, memberhipPrefix, SNVOC.hasPerson, SN.getPersonURI(membership.person().accountId()));
 		Turtle.AddTriple(result, false, true, memberhipPrefix, SNVOC.joinDate,
-				Turtle.createDataTypeLiteral(Dictionaries.dates.formatDateDetail(membership.creationDate()), XSD.DateTime));
+				Turtle.createDataTypeLiteral(Dictionaries.dates.formatDateTime(membership.creationDate()), XSD.DateTime));
 		membershipId++;
 		writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
 	}
@@ -221,7 +218,7 @@ public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 			Turtle.AddTriple(result, true, false, likePrefix, SNVOC.hasComment, prefix);
 		}
 		Turtle.AddTriple(result, false, true, likePrefix, SNVOC.creationDate,
-				Turtle.createDataTypeLiteral(Dictionaries.dates.formatDateDetail(like.date), XSD.DateTime));
+				Turtle.createDataTypeLiteral(Dictionaries.dates.formatDateTime(like.date), XSD.DateTime));
 		likeId++;
 		writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
 	}

@@ -127,7 +127,7 @@ public class CSVMergeForeignPersonActivitySerializer extends PersonActivitySeria
 
     protected void serialize(final  Forum forum ) {
 
-        String dateString = Dictionaries.dates.formatDateDetail(forum.creationDate());
+        String dateString = Dictionaries.dates.formatDateTime(forum.creationDate());
 
         arguments.add(Long.toString(forum.id()));
         arguments.add(forum.title());
@@ -149,7 +149,7 @@ public class CSVMergeForeignPersonActivitySerializer extends PersonActivitySeria
 
         arguments.add(Long.toString(post.messageId()));
         arguments.add(empty);
-        arguments.add(Dictionaries.dates.formatDateDetail(post.creationDate()));
+        arguments.add(Dictionaries.dates.formatDateTime(post.creationDate()));
         arguments.add(post.ipAddress().toString());
         arguments.add(Dictionaries.browsers.getName(post.browserId()));
         arguments.add(Dictionaries.languages.getLanguageName(post.language()));
@@ -171,7 +171,7 @@ public class CSVMergeForeignPersonActivitySerializer extends PersonActivitySeria
 
     protected void serialize( final Comment comment ) {
         arguments.add(Long.toString(comment.messageId()));
-        arguments.add(Dictionaries.dates.formatDateDetail(comment.creationDate()));
+        arguments.add(Dictionaries.dates.formatDateTime(comment.creationDate()));
         arguments.add(comment.ipAddress().toString());
         arguments.add(Dictionaries.browsers.getName(comment.browserId()));
         arguments.add(comment.content());
@@ -200,7 +200,7 @@ public class CSVMergeForeignPersonActivitySerializer extends PersonActivitySeria
 
         arguments.add(Long.toString(photo.messageId()));
         arguments.add(photo.content());
-        arguments.add(Dictionaries.dates.formatDateDetail(photo.creationDate()));
+        arguments.add(Dictionaries.dates.formatDateTime(photo.creationDate()));
         arguments.add(photo.ipAddress().toString());
         arguments.add(Dictionaries.browsers.getName(photo.browserId()));
         arguments.add(empty);
@@ -223,7 +223,7 @@ public class CSVMergeForeignPersonActivitySerializer extends PersonActivitySeria
     protected void serialize(final  ForumMembership membership ) {
         arguments.add(Long.toString(membership.forumId()));
         arguments.add(Long.toString(membership.person().accountId()));
-        arguments.add(Dictionaries.dates.formatDateDetail(membership.creationDate()));
+        arguments.add(Dictionaries.dates.formatDateTime(membership.creationDate()));
         writers[FileNames.FORUM_HASMEMBER_PERSON.ordinal()].writeEntry(arguments);
         arguments.clear();
     }
@@ -231,7 +231,7 @@ public class CSVMergeForeignPersonActivitySerializer extends PersonActivitySeria
     protected void serialize( final Like like ) {
         arguments.add(Long.toString(like.user));
         arguments.add(Long.toString(like.messageId));
-        arguments.add(Dictionaries.dates.formatDateDetail(like.date));
+        arguments.add(Dictionaries.dates.formatDateTime(like.date));
         if( like.type == Like.LikeType.POST || like.type == Like.LikeType.PHOTO ) {
             writers[FileNames.PERSON_LIKES_POST.ordinal()].writeEntry(arguments);
             arguments.clear();

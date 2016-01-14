@@ -160,7 +160,7 @@ public class CSVPersonSerializer extends PersonSerializer {
         String dateString = Dictionaries.dates.formatDate(p.birthDay());
         arguments.add(dateString);
 
-        dateString = Dictionaries.dates.formatDateDetail(p.creationDate());
+        dateString = Dictionaries.dates.formatDateTime(p.creationDate());
         arguments.add(dateString);
         arguments.add(p.ipAddress().toString());
         arguments.add(Dictionaries.browsers.getName(p.browserId()));
@@ -221,7 +221,7 @@ public class CSVPersonSerializer extends PersonSerializer {
     @Override
     protected void serialize(final Person p, Knows knows) {
         ArrayList<String> arguments = new ArrayList<String>();
-        String dateString = Dictionaries.dates.formatDateDetail(knows.creationDate());
+        String dateString = Dictionaries.dates.formatDateTime(knows.creationDate());
         arguments.add(Long.toString(p.accountId()));
         arguments.add(Long.toString(knows.to().accountId()));
         arguments.add(dateString);
