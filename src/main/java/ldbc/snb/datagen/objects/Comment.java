@@ -46,6 +46,16 @@ public class Comment extends Message {
     private long postId_;
     private long replyOf_;
 
+    public Comment() {
+        super();
+    }
+
+    public Comment( Comment comment ) {
+        super(comment.messageId(), comment.creationDate(), comment.author(), comment.forumId(), comment.content(), comment.tags(), comment.ipAddress(), comment.browserId());
+        postId_ = comment.postId();
+        replyOf_ = comment.replyOf();
+    }
+
     public Comment(long commentId,
                    long creationDate,
                    PersonSummary author,
@@ -59,6 +69,21 @@ public class Comment extends Message {
     ) {
 
         super(commentId, creationDate, author, forumId, content, tags, ipAddress, browserId);
+        postId_ = postId;
+        replyOf_ = replyOf;
+    }
+
+    public void initialize(long commentId,
+                   long creationDate,
+                   PersonSummary author,
+                   long forumId,
+                   String content,
+                   TreeSet<Integer> tags,
+                   IP ipAddress,
+                   int browserId,
+                   long postId,
+                   long replyOf) {
+        super.initialize(commentId, creationDate, author, forumId, content, tags, ipAddress, browserId);
         postId_ = postId;
         replyOf_ = replyOf;
     }

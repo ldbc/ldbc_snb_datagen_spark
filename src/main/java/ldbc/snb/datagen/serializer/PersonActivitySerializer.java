@@ -18,15 +18,15 @@ abstract public class PersonActivitySerializer {
 public PersonActivitySerializer() {
 }
 
-public void export( Forum forum ) {
+public void export( final Forum forum ) {
 	serialize(forum);
 }
 
-public void export( ForumMembership forumMembership ) {
+public void export( final ForumMembership forumMembership ) {
 		serialize(forumMembership);
 }
 
-public void export( Post post ) {
+public void export( final Post post ) {
 		serialize(post);
 }
 
@@ -52,17 +52,17 @@ abstract public void initialize(Configuration conf, int reducerId);
 
 abstract public void close();
 
-abstract protected void serialize( Forum forum );
+abstract protected void serialize( final Forum forum );
 
-abstract protected void serialize( Post post );
+abstract protected void serialize( final Post post );
 
-abstract protected void serialize( Comment comment );
+abstract protected void serialize( final Comment comment );
 
-abstract protected void serialize( Photo photo );
+abstract protected void serialize( final Photo photo );
 	
-abstract protected void serialize( ForumMembership membership );
+abstract protected void serialize( final ForumMembership membership );
 
-abstract protected void serialize( Like like );
+abstract protected void serialize( final Like like );
 
 
 }

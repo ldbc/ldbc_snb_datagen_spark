@@ -45,6 +45,10 @@ public class Photo extends Message {
     private double latt_;
     private double longt_;
 
+    public Photo() {
+        super();
+    }
+
     public Photo(long messageId,
                  long creationDate,
                  PersonSummary author,
@@ -60,6 +64,23 @@ public class Photo extends Message {
         latt_ = latt;
         longt_ = longt;
     }
+
+    public void initialize(long messageId,
+                 long creationDate,
+                 PersonSummary author,
+                 long forumId,
+                 String content,
+                 TreeSet<Integer> tags,
+                 IP ipAddress,
+                 int browserId,
+                 double latt,
+                 double longt
+    ) {
+        super.initialize(messageId, creationDate, author, forumId, content, tags, ipAddress, browserId);
+        latt_ = latt;
+        longt_ = longt;
+    }
+
 
     public double latt() {
 	    return latt_;

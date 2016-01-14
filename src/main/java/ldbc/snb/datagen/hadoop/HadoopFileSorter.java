@@ -37,7 +37,7 @@ public class HadoopFileSorter {
      * @throws Exception
      */
     public void run( String inputFileName, String outputFileName ) throws Exception {
-        int numThreads = conf.getInt("ldbc.snb.datagen.numThreads",1);
+        int numThreads = conf.getInt("ldbc.snb.datagen.generator.numThreads",1);
         Job job = Job.getInstance(conf, "Sorting "+inputFileName);
 
         FileInputFormat.setInputPaths(job, new Path(inputFileName));
@@ -48,7 +48,6 @@ public class HadoopFileSorter {
         job.setOutputKeyClass(K);
         job.setOutputValueClass(V);
         job.setNumReduceTasks(numThreads);
-
 
         job.setJarByClass(V);
         job.setInputFormatClass(SequenceFileInputFormat.class);

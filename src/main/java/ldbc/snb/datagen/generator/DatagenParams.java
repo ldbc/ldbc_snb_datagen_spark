@@ -53,10 +53,12 @@ public class DatagenParams {
 
     //Files and folders
     public static final String DICTIONARY_DIRECTORY    = "/dictionaries/";
+    public static final String SPARKBENCH_DIRECTORY    = "/sparkbench";
     public static final String IPZONE_DIRECTORY        = "/ipaddrByCountries";
     public static final String STATS_FILE              = "testdata.json";
     public static final String RDF_OUTPUT_FILE         = "ldbc_socialnet_dbg";
-    public static final String PARAM_COUNT_FILE        = "factors.txt";
+    public static final String PERSON_COUNTS_FILE        = "personFactors.txt";
+    public static final String ACTIVITY_FILE        = "activityFactors.txt";
 
     // Dictionaries dataset files
     public static final String browserDictonryFile         = DICTIONARY_DIRECTORY + "browsersDic.txt";

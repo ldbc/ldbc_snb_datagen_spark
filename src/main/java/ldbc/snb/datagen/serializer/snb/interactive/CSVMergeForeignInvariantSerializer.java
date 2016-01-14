@@ -42,7 +42,7 @@ public class CSVMergeForeignInvariantSerializer extends InvariantSerializer {
         int numFiles = FileNames.values().length;
         writers = new HDFSCSVWriter[numFiles];
         for( int i = 0; i < numFiles; ++i) {
-            writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"),FileNames.values()[i].toString()+"_"+reducerId,conf.getInt("ldbc.snb.datagen.numPartitions",1),conf.getBoolean("ldbc.snb.datagen.serializer.compressed",false),"|",false);
+            writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"),FileNames.values()[i].toString()+"_"+reducerId,conf.getInt("ldbc.snb.datagen.numPartitions",1),conf.getBoolean("ldbc.snb.datagen.serializer.compressed",false),"|",conf.getBoolean("ldbc.snb.datagen.serializer.endlineSeparator",false));
         }
 
         ArrayList<String> arguments = new ArrayList<String>();
@@ -93,7 +93,7 @@ public class CSVMergeForeignInvariantSerializer extends InvariantSerializer {
         }
     }
 
-    protected void serialize(Place place) {
+    protected void serialize(final Place place) {
         ArrayList<String> arguments = new ArrayList<String>();
         arguments.add(Integer.toString(place.getId()));
         arguments.add(place.getName());
@@ -111,7 +111,7 @@ public class CSVMergeForeignInvariantSerializer extends InvariantSerializer {
 
     }
 
-    protected void serialize(Organization organization) {
+    protected void serialize(final Organization organization) {
         ArrayList<String> arguments = new ArrayList<String>();
         arguments.add(Long.toString(organization.id));
         arguments.add(organization.type.toString());
@@ -121,7 +121,7 @@ public class CSVMergeForeignInvariantSerializer extends InvariantSerializer {
         writers[FileNames.ORGANIZATION.ordinal()].writeEntry(arguments);
     }
 
-    protected void serialize(TagClass tagClass) {
+    protected void serialize(final TagClass tagClass) {
         ArrayList<String> arguments = new ArrayList<String>();
         arguments.add(Integer.toString(tagClass.id));
         arguments.add(tagClass.name);
@@ -140,7 +140,7 @@ public class CSVMergeForeignInvariantSerializer extends InvariantSerializer {
         }
     }
 
-    protected void serialize(Tag tag) {
+    protected void serialize(final Tag tag) {
         ArrayList<String> arguments = new ArrayList<String>();
         arguments.add(Integer.toString(tag.id));
         arguments.add(tag.name);

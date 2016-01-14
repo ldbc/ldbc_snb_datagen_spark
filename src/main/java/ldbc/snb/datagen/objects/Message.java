@@ -53,6 +53,11 @@ abstract public class Message {
     private int browserId_;
     private int countryId_;
 
+    public Message() {
+        tags_ = new TreeSet<Integer>();
+        ipAddress_ = new IP();
+    }
+
     public Message(long messageId,
                    long creationDate,
                    PersonSummary author,
@@ -69,6 +74,27 @@ abstract public class Message {
         content_ = content;
         tags_ = new TreeSet<Integer>(tags);
         ipAddress_ = new IP(ipAddress);
+        browserId_ = browserId;
+        countryId_ = Dictionaries.ips.getLocation(ipAddress);
+    }
+
+    public void initialize(long messageId,
+                   long creationDate,
+                   PersonSummary author,
+                   long forumId,
+                   String content,
+                   TreeSet<Integer> tags,
+                   IP ipAddress,
+                   int browserId
+                   ) {
+        messageId_ = messageId;
+        creationDate_ = creationDate;
+        author_ = new PersonSummary(author);
+        forumId_ = forumId;
+        content_ = content;
+        tags_.clear();
+        tags_.addAll(tags);
+        ipAddress_.copy(ipAddress);
         browserId_ = browserId;
         countryId_ = Dictionaries.ips.getLocation(ipAddress);
     }

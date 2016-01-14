@@ -299,18 +299,21 @@ def main(argv=None):
       return 1
 
    indir = argv[1]+"/"
-   factorFiles=[]
+   activityFactorFiles=[]
+   personFactorFiles=[]
    friendsFiles = []
    outdir = argv[2]+"/"
 
    for file in os.listdir(indir):
-      if file.endswith("factors.txt"):
-         factorFiles.append(indir+file)
+      if file.endswith("activityFactors.txt"):
+         activityFactorFiles.append(indir+file)
+      if file.endswith("personFactors.txt"):
+         personFactorFiles.append(indir+file)
       if file.startswith("m0friendList"):
          friendsFiles.append(indir+file)
 
    # read precomputed counts from files   
-   (personFactors, countryFactors, tagFactors, tagClassFactors, nameFactors, givenNames,  ts, postsHisto) = readfactors.load(factorFiles, friendsFiles)
+   (personFactors, countryFactors, tagFactors, tagClassFactors, nameFactors, givenNames,  ts, postsHisto) = readfactors.load(personFactorFiles,activityFactorFiles, friendsFiles)
    week_posts = convert_posts_histo(postsHisto)
 
    persons = []

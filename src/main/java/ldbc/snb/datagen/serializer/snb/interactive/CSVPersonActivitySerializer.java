@@ -59,7 +59,7 @@ public class CSVPersonActivitySerializer extends PersonActivitySerializer {
 		int numFiles = FileNames.values().length;
 		writers = new HDFSCSVWriter[numFiles];
 		for( int i = 0; i < numFiles; ++i) {
-			writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"),FileNames.values()[i].toString()+"_"+reducerId,conf.getInt("ldbc.snb.datagen.numPartitions",1),conf.getBoolean("ldbc.snb.datagen.serializer.compressed",false),"|",false);
+			writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"),FileNames.values()[i].toString()+"_"+reducerId,conf.getInt("ldbc.snb.datagen.numPartitions",1),conf.getBoolean("ldbc.snb.datagen.serializer.compressed",false),"|",conf.getBoolean("ldbc.snb.datagen.serializer.endlineSeparator",false) );
 		}
 		arguments = new ArrayList<String>();
 
@@ -172,7 +172,7 @@ public class CSVPersonActivitySerializer extends PersonActivitySerializer {
 		}
 	}
 	
-	protected void serialize( Forum forum ) {
+	protected void serialize( final Forum forum ) {
 		
 		String dateString = Dictionaries.dates.formatDateDetail(forum.creationDate());
 		
@@ -196,7 +196,7 @@ public class CSVPersonActivitySerializer extends PersonActivitySerializer {
 		
 	}
 	
-	protected void serialize( Post post ) {
+	protected void serialize( final Post post ) {
 		
 		arguments.add(Long.toString(post.messageId()));
 		arguments.add(empty);
@@ -233,7 +233,7 @@ public class CSVPersonActivitySerializer extends PersonActivitySerializer {
 		}
 	}
 	
-	protected void serialize( Comment comment ) {
+	protected void serialize( final Comment comment ) {
 		arguments.add(Long.toString(comment.messageId()));
 		arguments.add(Dictionaries.dates.formatDateDetail(comment.creationDate()));
 		arguments.add(comment.ipAddress().toString());
@@ -272,7 +272,7 @@ public class CSVPersonActivitySerializer extends PersonActivitySerializer {
 		}
 	}
 	
-	protected void serialize( Photo photo ) {
+	protected void serialize(final  Photo photo ) {
 		
 		arguments.add(Long.toString(photo.messageId()));
 		arguments.add(photo.content());
@@ -310,7 +310,7 @@ public class CSVPersonActivitySerializer extends PersonActivitySerializer {
 		}
 	}
 	
-	protected void serialize( ForumMembership membership ) {
+	protected void serialize(final  ForumMembership membership ) {
 		arguments.add(Long.toString(membership.forumId()));
 		arguments.add(Long.toString(membership.person().accountId()));
 		arguments.add(Dictionaries.dates.formatDateDetail(membership.creationDate()));
@@ -318,7 +318,7 @@ public class CSVPersonActivitySerializer extends PersonActivitySerializer {
 		arguments.clear();
 	}
 	
-	protected void serialize( Like like ) {
+	protected void serialize( final Like like ) {
 		arguments.add(Long.toString(like.user));
 		arguments.add(Long.toString(like.messageId));
 		arguments.add(Dictionaries.dates.formatDateDetail(like.date));

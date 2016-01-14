@@ -134,8 +134,8 @@ public class PersonGenerator {
         person.languages().addAll(userLanguages);
 
 
-	// Set activity characteristics
-	person.isLargePoster(isLargePoster(person));
+        // Set activity characteristics
+	    person.isLargePoster(isLargePoster(person));
         return person;
     }
 
@@ -165,6 +165,7 @@ public class PersonGenerator {
         block = new Person[blockSize];
         for (int j =0; j < blockSize; ++j) {
             block[j] = generateUser();
+//            System.out.println(j);
         }
         return block;
     }

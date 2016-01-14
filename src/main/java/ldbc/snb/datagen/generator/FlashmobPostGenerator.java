@@ -25,7 +25,8 @@ public class FlashmobPostGenerator extends PostGenerator{
 	private long hoursToMillis_;
 	private long flashmobSpan_;
 	private long currentForum = -1;
-	public FlashmobPostGenerator() {
+	public FlashmobPostGenerator(TextGenerator generator, CommentGenerator commentGenerator, LikeGenerator likeGenerator) {
+		super(generator, commentGenerator, likeGenerator);
 		dateDistribution_ = new Distribution(DatagenParams.flashmobDistFile);
 		hoursToMillis_ = 60*60*1000;
 		flashmobSpan_ = 72 * hoursToMillis_;
@@ -99,7 +100,7 @@ public class FlashmobPostGenerator extends PostGenerator{
 	    }
     }
 
-    protected PostGenerator.PostInfo generatePostInfo( Random randomTag, Random randomDate, Forum forum, ForumMembership membership ) {
+    protected PostGenerator.PostInfo generatePostInfo( Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership ) {
 	    if( currentForum != forum.id() ) {
 		    populateForumFlashmobTags(randomTag,forum);
 		    currentForum = forum.id();
@@ -111,7 +112,7 @@ public class FlashmobPostGenerator extends PostGenerator{
 	    index = selectRandomTag( randomTag, forumFlashmobTags,index);
 	    FlashmobTag flashmobTag =  forumFlashmobTags[index];
 	    postInfo.tags.add(flashmobTag.tag);
-	    Set<Integer> extraTags = Dictionaries.tagMatrix.getSetofTags(randomTag,randomTag,flashmobTag.tag, maxNumTagPerFlashmobPost - 1);
+	    /*Set<Integer> extraTags = Dictionaries.tagMatrix.getSetofTagsCached(randomTag,randomTag,flashmobTag.tag, maxNumTagPerFlashmobPost - 1);
 	    Iterator<Integer> it = extraTags.iterator();
 	    while (it.hasNext()) {
 		    Integer value = it.next();
@@ -119,6 +120,13 @@ public class FlashmobPostGenerator extends PostGenerator{
 			    postInfo.tags.add(value);
 		    }
 	    }
+	    */
+		for(int i = 0; i < maxNumTagPerFlashmobPost - 1 ; ++i) {
+			if(randomTag.nextDouble() < 0.05) {
+				int tag = Dictionaries.tagMatrix.getRandomRelated(randomTag,flashmobTag.tag);
+				postInfo.tags.add(tag);
+			}
+		}
 	    double prob = dateDistribution_.nextDouble(randomDate);
 	    postInfo.date = flashmobTag.date - flashmobSpan_/2 + (long)(prob * flashmobSpan_);
 	    if( postInfo.date > Dictionaries.dates.getEndDateTime() ) return null;

@@ -67,7 +67,7 @@ public class Dictionaries {
 		tags = new TagDictionary(  places.getCountries().size(),
 			DatagenParams.tagCountryCorrProb);
 		
-		tagMatrix = new TagMatrix(tags.getNumPopularTags());
+		tagMatrix = new TagMatrix();
 		
 		companies = new CompanyDictionary(places, DatagenParams.probUnCorrelatedCompany);
 		

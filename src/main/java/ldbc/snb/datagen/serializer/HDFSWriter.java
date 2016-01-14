@@ -4,6 +4,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -32,11 +33,11 @@ public class HDFSWriter {
             fileOutputStream = new OutputStream[numPartitions];
             if (compressed) {
                 for (int i = 0; i < numPartitions; i++) {
-                    this.fileOutputStream[i] = new GZIPOutputStream(fs.create(new Path(outputDir + "/" + prefix + "_" + i + "."+extension+".gz")));
+                    this.fileOutputStream[i] = new GZIPOutputStream(fs.create(new Path(outputDir + "/" + prefix + "_" + i + "."+extension+".gz"),true, 131072));
                 }
             } else {
                 for (int i = 0; i < numPartitions; i++) {
-                    this.fileOutputStream[i] = fs.create(new Path(outputDir + "/" + prefix + "_" + i + "."+extension));
+                    this.fileOutputStream[i] = fs.create(new Path(outputDir + "/" + prefix + "_" + i + "."+extension), true, 131072);
                 }
             }
             buffer = new StringBuffer(1024);

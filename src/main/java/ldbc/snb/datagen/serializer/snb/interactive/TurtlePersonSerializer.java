@@ -93,7 +93,7 @@ public class TurtlePersonSerializer extends PersonSerializer {
     }
 
     @Override
-    protected void serialize(Person p) {
+    protected void serialize(final Person p) {
         StringBuffer result = new StringBuffer(19000);
         String prefix = SN.getPersonURI(p.accountId());
         Turtle.AddTriple(result, true, false, prefix, RDF.type, SNVOC.Person);
@@ -139,7 +139,7 @@ public class TurtlePersonSerializer extends PersonSerializer {
     }
 
     @Override
-    protected void serialize(StudyAt studyAt) {
+    protected void serialize(final StudyAt studyAt) {
         String prefix = SN.getPersonURI(studyAt.user);
         StringBuffer result = new StringBuffer(19000);
         long id = SN.formId(studyAtId);
@@ -154,7 +154,7 @@ public class TurtlePersonSerializer extends PersonSerializer {
     }
 
     @Override
-    protected void serialize(WorkAt workAt) {
+    protected void serialize(final WorkAt workAt) {
         String prefix = SN.getPersonURI(workAt.user);
         StringBuffer result = new StringBuffer(19000);
         long id = SN.formId(workAtId);
@@ -169,7 +169,7 @@ public class TurtlePersonSerializer extends PersonSerializer {
     }
 
     @Override
-    protected void serialize(Person p, Knows knows) {
+    protected void serialize(final Person p, Knows knows) {
         String prefix = SN.getPersonURI(p.accountId());
         StringBuffer result = new StringBuffer(19000);
         long id = SN.formId(knowsId);

@@ -26,19 +26,16 @@ public class TupleKey implements WritableComparable<TupleKey> {
         this.id = id;
     }
 
-    @Override
     public void write(DataOutput out) throws IOException {
         out.writeLong(key);
         out.writeLong(id);
     }
 
-    @Override
     public void readFields(DataInput in) throws IOException {
         key = in.readLong();
         id = in.readLong();
     }
 
-    @Override
     public int compareTo( TupleKey tk) {
         if (key < tk.key) return -1;
         if (key > tk.key) return 1;

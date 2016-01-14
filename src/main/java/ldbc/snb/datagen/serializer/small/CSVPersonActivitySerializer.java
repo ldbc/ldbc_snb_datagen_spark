@@ -42,7 +42,7 @@ public class CSVPersonActivitySerializer extends PersonActivitySerializer {
         int numFiles = FileNames.values().length;
         writers = new HDFSCSVWriter[numFiles];
         for( int i = 0; i < numFiles; ++i) {
-            writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"),FileNames.values()[i].toString()+"_"+reducerId,conf.getInt("ldbc.snb.datagen.numPartitions",1),conf.getBoolean("ldbc.snb.datagen.serializer.compressed",false),"|", false);
+            writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"),FileNames.values()[i].toString()+"_"+reducerId,conf.getInt("ldbc.snb.datagen.numPartitions",1),conf.getBoolean("ldbc.snb.datagen.serializer.compressed",false),"|", conf.getBoolean("ldbc.snb.datagen.serializer.endlineSeparator",false));
         }
         arguments = new ArrayList<String>();
 
@@ -82,11 +82,11 @@ public class CSVPersonActivitySerializer extends PersonActivitySerializer {
         }
     }
 
-    protected void serialize( Forum forum ) {
+    protected void serialize( final Forum forum ) {
 
     }
 
-    protected void serialize( Post post ) {
+    protected void serialize( final Post post ) {
 
         arguments.add(Long.toString(post.messageId()));
         arguments.add(post.content());
@@ -107,7 +107,7 @@ public class CSVPersonActivitySerializer extends PersonActivitySerializer {
         }
     }
 
-    protected void serialize( Comment comment ) {
+    protected void serialize( final Comment comment ) {
         arguments.add(Long.toString(comment.messageId()));
         arguments.add(comment.content());
         arguments.add(Dictionaries.dates.formatDateDetail(comment.creationDate()));
@@ -139,14 +139,14 @@ public class CSVPersonActivitySerializer extends PersonActivitySerializer {
         }
     }
 
-    protected void serialize( Photo photo ) {
+    protected void serialize(final  Photo photo ) {
 
     }
 
-    protected void serialize( ForumMembership membership ) {
+    protected void serialize( final ForumMembership membership ) {
     }
 
-    protected void serialize( Like like ) {
+    protected void serialize( final Like like ) {
         arguments.add(Long.toString(like.user));
         arguments.add(Long.toString(like.messageId));
         writers[FileNames.USER_LIKES_MESSAGE.ordinal()].writeEntry(arguments);

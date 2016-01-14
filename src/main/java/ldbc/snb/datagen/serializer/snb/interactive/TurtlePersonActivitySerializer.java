@@ -62,7 +62,7 @@ public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 		}
 	}
 	
-	protected void serialize( Forum forum ) {
+	protected void serialize(final  Forum forum ) {
 
 		StringBuffer result = new StringBuffer(12000);
 
@@ -87,7 +87,7 @@ public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 		writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
 	}
 	
-	protected void serialize( Post post ) {
+	protected void serialize( final Post post ) {
 
 		StringBuffer result = new StringBuffer(2500);
 
@@ -127,7 +127,7 @@ public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 		writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
 	}
 	
-	protected void serialize( Comment comment ) {
+	protected void serialize(final  Comment comment ) {
 		StringBuffer result = new StringBuffer(2000);
 
 		String prefix = SN.getCommentURI(comment.messageId());
@@ -164,7 +164,7 @@ public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 		writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
 	}
 	
-	protected void serialize( Photo photo ) {
+	protected void serialize(final  Photo photo ) {
 		StringBuffer result = new StringBuffer(2500);
 
 		String prefix = SN.getPostURI(photo.messageId());
@@ -193,7 +193,7 @@ public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 		writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
 	}
 	
-	protected void serialize( ForumMembership membership ) {
+	protected void serialize( final ForumMembership membership ) {
 		String memberhipPrefix = SN.getMembershipURI(SN.formId(membershipId));
 		String forumPrefix = SN.getForumURI(membership.forumId());
 		StringBuffer result = new StringBuffer(19000);
@@ -206,7 +206,7 @@ public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 		writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
 	}
 	
-	protected void serialize( Like like ) {
+	protected void serialize( final Like like ) {
 		StringBuffer result = new StringBuffer(2500);
 		long id = SN.formId(likeId);
 		String likePrefix = SN.getLikeURI(id);

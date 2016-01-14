@@ -254,25 +254,16 @@ public class FactorTable {
         personCounts(like.user).incrNumLikes();
     }
 
-    public void write(OutputStream writer ) {
+    public void writePersonFactors(OutputStream writer ) {
         try {
-            Iterator<Map.Entry<Long,PersonCounts>> iter = personCounts_.entrySet().iterator();
-            while(iter.hasNext()) {
-                Map.Entry<Long,PersonCounts> entry = iter.next();
-                if (medianFirstName_.get(entry.getKey()) == null) {
-                    iter.remove();
-                }
-            }
-            writer.write(Integer.toString(personCounts_.size()).getBytes("UTF8"));
-            writer.write("\n".getBytes("UTF8"));
             for (Map.Entry<Long, PersonCounts> c: personCounts_.entrySet()){
-            	PersonCounts count = c.getValue();
-            	// correct the group counts
-            	//count.numberOfGroups += count.numberOfFriends;
+                PersonCounts count = c.getValue();
+                // correct the group counts
+                //count.numberOfGroups += count.numberOfFriends;
                 String name = medianFirstName_.get(c.getKey());
                 if( name != null ) {
-                StringBuffer strbuf = new StringBuffer();
-                strbuf.append(c.getKey()); strbuf.append(",");
+                    StringBuffer strbuf = new StringBuffer();
+                    strbuf.append(c.getKey()); strbuf.append(",");
                     strbuf.append(name);
                     strbuf.append(",");
                     strbuf.append(count.numFriends());
@@ -302,6 +293,17 @@ public class FactorTable {
                     writer.write(strbuf.toString().getBytes("UTF8"));
                 }
             }
+            personCounts_.clear();
+            medianFirstName_.clear();
+        } catch (IOException e) {
+            System.err.println("Unable to write parameter counts");
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public void writeActivityFactors(OutputStream writer ) {
+        try {
             writer.write(Integer.toString(postsPerCountry_.size()).getBytes("UTF8"));
             writer.write("\n".getBytes("UTF8"));
             for (Map.Entry<Integer, Long> c: postsPerCountry_.entrySet()){
