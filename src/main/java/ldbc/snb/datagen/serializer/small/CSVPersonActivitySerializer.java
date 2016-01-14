@@ -90,7 +90,7 @@ public class CSVPersonActivitySerializer extends PersonActivitySerializer {
 
         arguments.add(Long.toString(post.messageId()));
         arguments.add(post.content());
-        arguments.add(Dictionaries.dates.formatDateDetail(post.creationDate()));
+        arguments.add(Dictionaries.dates.formatDateTime(post.creationDate()));
         writers[FileNames.MESSAGE.ordinal()].writeEntry(arguments);
         arguments.clear();
 
@@ -110,7 +110,7 @@ public class CSVPersonActivitySerializer extends PersonActivitySerializer {
     protected void serialize( final Comment comment ) {
         arguments.add(Long.toString(comment.messageId()));
         arguments.add(comment.content());
-        arguments.add(Dictionaries.dates.formatDateDetail(comment.creationDate()));
+        arguments.add(Dictionaries.dates.formatDateTime(comment.creationDate()));
         writers[FileNames.MESSAGE.ordinal()].writeEntry(arguments);
         arguments.clear();
 

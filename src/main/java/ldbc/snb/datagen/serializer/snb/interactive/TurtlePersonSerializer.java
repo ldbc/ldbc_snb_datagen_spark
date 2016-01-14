@@ -43,7 +43,6 @@ import ldbc.snb.datagen.objects.Knows;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.objects.StudyAt;
 import ldbc.snb.datagen.objects.WorkAt;
-import ldbc.snb.datagen.serializer.HDFSCSVWriter;
 import ldbc.snb.datagen.serializer.HDFSWriter;
 import ldbc.snb.datagen.serializer.PersonSerializer;
 import ldbc.snb.datagen.serializer.Turtle;
@@ -118,7 +117,7 @@ public class TurtlePersonSerializer extends PersonSerializer {
         Turtle.AddTriple(result, false, false, prefix, SNVOC.browser,
                         Turtle.createLiteral(Dictionaries.browsers.getName(p.browserId())));
         Turtle.AddTriple(result, false, true, prefix, SNVOC.creationDate,
-                Turtle.createDataTypeLiteral(Dictionaries.dates.formatDateDetail(p.creationDate()), XSD.DateTime));
+                Turtle.createDataTypeLiteral(Dictionaries.dates.formatDateTime(p.creationDate()), XSD.DateTime));
 
         Turtle.createTripleSPO(result, prefix, SNVOC.locatedIn, DBP.fullPrefixed(Dictionaries.places.getPlaceName(p.cityId())));
 
@@ -177,7 +176,7 @@ public class TurtlePersonSerializer extends PersonSerializer {
         Turtle.createTripleSPO(result, SN.getKnowsURI(id), SNVOC.hasPerson,
                 SN.getPersonURI(knows.to().accountId()));
         Turtle.createTripleSPO(result, SN.getKnowsURI(id), SNVOC.creationDate,
-                Turtle.createDataTypeLiteral(Dictionaries.dates.formatDateDetail(knows.creationDate()), XSD.DateTime));
+                Turtle.createDataTypeLiteral(Dictionaries.dates.formatDateTime(knows.creationDate()), XSD.DateTime));
         writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
         knowsId++;
     }

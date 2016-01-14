@@ -58,7 +58,7 @@ public class LDBCDatagen {
     public static synchronized void init (Configuration conf) {
         if(!initialized) {
             DatagenParams.readConf(conf);
-            Dictionaries.loadDictionaries();
+            Dictionaries.loadDictionaries(conf);
             SN.initialize();
             initialized = true;
         }
