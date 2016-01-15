@@ -11,23 +11,27 @@ import java.util.TimeZone;
  * Created by aprat on 14/01/16.
  */
 public class LongDateFormatter implements DateFormatter {
-    private Date date_;
     private GregorianCalendar calendar_;
-    public void initialize(Configuration config) {
-        date_ = new Date();
-        calendar_ = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+    private int minHour;
+    private int minMinute;
+    private int minSecond;
+    private int minMillisecond;
 
+    public void initialize(Configuration config) {
+        calendar_ = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+        minHour = calendar_.getActualMinimum( Calendar.HOUR );
+        minMinute = calendar_.getActualMinimum( Calendar.MINUTE );
+        minSecond = calendar_.getActualMinimum( Calendar.SECOND );
+        minMillisecond = calendar_.getActualMinimum( Calendar.MILLISECOND );
     }
 
     public String formatDate(long date) {
-        date_.setTime(date);
-        calendar_.setTime(date_);
-        int year = calendar_.get(Calendar.YEAR);
-        int month = calendar_.get(Calendar.MONTH);
-        int day = calendar_.get(Calendar.DAY_OF_MONTH);
-        calendar_.clear();
-        calendar_.set(year, month, day,0,0,0);
-        return Long.toString(calendar_.getTime().getTime());
+        calendar_.setTimeInMillis(date);
+        calendar_.set( Calendar.HOUR,minHour );
+        calendar_.set( Calendar.MINUTE,minMinute );
+        calendar_.set( Calendar.SECOND,minSecond );
+        calendar_.set( Calendar.MILLISECOND,minMillisecond);
+        return Long.toString(calendar_.getTimeInMillis());
     }
 
     public String formatDateTime(long date) {
