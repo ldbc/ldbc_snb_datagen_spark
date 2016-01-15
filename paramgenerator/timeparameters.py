@@ -143,18 +143,17 @@ def computeTimeMedians(factors, lastmonthcount = LAST_MONTHS):
 	
 	return (medianFirstMonth, medianLastMonth, median)	
 
-def readTimeParams(persons, factorFiles, friendFiles):
+def readTimeParams(persons, personFactorFiles, activityFactorFiles, friendFiles):
 
 	postCounts = {}
 	groupCounts = {}
 	offset = 8
 	monthcount = 12*3 + 1
 
-	for inputFactorFile in factorFiles:
+	for inputFactorFile in personFactorFiles:
 		with open(inputFactorFile, 'r') as f:
-			personCount = int(f.readline())
-			for i in range(personCount):
-				line = f.readline().split(",")
+			for line in f.readlines():
+				line = line.split(",")
 				person = int(line[0])
 				localPostCounts = map(int,line[offset:offset+monthcount])
 				localGroupCounts = map(int, line[offset+monthcount:])
@@ -209,7 +208,7 @@ def readTimeParams(persons, factorFiles, friendFiles):
 
 
 
-def findTimeParams(input, factorFiles, friendFiles, startYear):
+def findTimeParams(input, personFactorFiles, activityFactorFiles, friendFiles, startYear):
 	START_YEAR = startYear
 	fPostCount = {}
 	ffPostCount = {}
@@ -217,7 +216,7 @@ def findTimeParams(input, factorFiles, friendFiles, startYear):
 	for queryId in input:
 		persons += input[queryId][0]
 
-	(fPostCount, ffPostCount, ffGroupCount) = readTimeParams(set(persons),factorFiles, friendFiles)
+	(fPostCount, ffPostCount, ffGroupCount) = readTimeParams(set(persons),personFactorFiles, activityFactorFiles, friendFiles)
 
 	mapParam = {
 		"f" : fPostCount,
