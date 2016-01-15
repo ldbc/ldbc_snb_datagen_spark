@@ -19,7 +19,6 @@ public class StringDateFormatter implements DateFormatter{
 
     private SimpleDateFormat gmtDateTimeFormatter_;
     private SimpleDateFormat gmtDateFormatter_;
-    private GregorianCalendar calendar_;
     private Date date_;
     public void initialize(Configuration conf) {
 
