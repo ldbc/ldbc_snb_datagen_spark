@@ -62,7 +62,12 @@ public class LDBCDatagen {
             DatagenParams.readConf(conf);
             Dictionaries.loadDictionaries(conf);
             SN.initialize();
-            Person.personSimilarity = new GeoDistanceSimilarity();
+            try {
+                Person.personSimilarity = (Person.PersonSimilarity) Class.forName(conf.get("ldbc.snb.datagen.generator.person.similarity")).newInstance();
+            } catch(Exception e) {
+                System.err.println("Error while loading person similarity class");
+                System.err.println(e.getMessage());
+            }
             initialized = true;
         }
     }
