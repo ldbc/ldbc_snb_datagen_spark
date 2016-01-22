@@ -162,19 +162,19 @@ public class LDBCDatagen {
             List<String> forumStreamsFileNames = new ArrayList<String>();
             for( int i = 0; i < DatagenParams.numThreads; ++i) {
                 int numPartitions = conf.getInt("ldbc.snb.datagen.serializer.numUpdatePartitions", 1);
-                if( i < numBlocks ) {
+                //if( i < numBlocks ) {
                     for (int j = 0; j < numPartitions; ++j) {
                         personStreamsFileNames.add(DatagenParams.hadoopDir + "/temp_updateStream_person_" + i + "_" + j);
                         if( conf.getBoolean("ldbc.snb.datagen.generator.activity", false)) {
                             forumStreamsFileNames.add(DatagenParams.hadoopDir + "/temp_updateStream_forum_" + i + "_" + j);
                         }
                     }
-                } else {
+                /*} else {
                     for (int j = 0; j < numPartitions; ++j) {
                         fs.delete(new Path(DatagenParams.hadoopDir + "/temp_updateStream_person_" + i + "_" + j), true);
                         fs.delete(new Path(DatagenParams.hadoopDir + "/temp_updateStream_forum_" + i + "_" + j), true);
                     }
-                }
+                } */
             }
             HadoopUpdateStreamSorterAndSerializer updateSorterAndSerializer = new HadoopUpdateStreamSorterAndSerializer(conf);
             updateSorterAndSerializer.run(personStreamsFileNames, "person");

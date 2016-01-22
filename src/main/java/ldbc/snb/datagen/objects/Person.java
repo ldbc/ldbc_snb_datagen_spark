@@ -13,6 +13,10 @@ import java.util.*;
  */
 public class Person implements Writable {
 
+	public static interface PersonSimilarity {
+		public double Similarity(Person personA, Person personB);
+	}
+
 	public static class PersonSummary implements Writable {
 		private long accountId_;
 		private long creationDate_;
@@ -462,10 +466,9 @@ public class Person implements Writable {
 		arg0.writeLong(classYear_);
 	}
 
+	public static PersonSimilarity personSimilarity;
+
 	public static float Similarity(Person personA, Person personB) {
-		int zorderA = Dictionaries.places.getZorderID(personA.countryId());
-		int zorderB = Dictionaries.places.getZorderID(personB.countryId());
-		return 1.0f - (Math.abs(zorderA - zorderB) / 256.0f);
 	}
 
 }
