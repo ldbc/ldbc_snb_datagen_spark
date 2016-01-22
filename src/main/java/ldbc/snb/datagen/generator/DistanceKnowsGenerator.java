@@ -49,7 +49,7 @@ public class DistanceKnowsGenerator implements KnowsGenerator {
         creationDate = creationDate - personA.creationDate() >= DatagenParams.deltaTime ? creationDate : creationDate + (DatagenParams.deltaTime - (creationDate - personA.creationDate()));
         creationDate = creationDate - personB.creationDate() >= DatagenParams.deltaTime ? creationDate : creationDate + (DatagenParams.deltaTime - (creationDate - personB.creationDate()));
         if( creationDate <= Dictionaries.dates.getEndDateTime() ) {
-            float similarity = Person.Similarity(personA,personB);
+            float similarity = Person.personSimilarity.Similarity(personA,personB);
             personB.knows().add(new Knows(personA, creationDate, similarity));
             personA.knows().add(new Knows(personB, creationDate, similarity));
         }
