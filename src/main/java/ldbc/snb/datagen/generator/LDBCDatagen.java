@@ -38,6 +38,8 @@ package ldbc.snb.datagen.generator;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.hadoop.*;
+import ldbc.snb.datagen.objects.Person;
+import ldbc.snb.datagen.objects.similarity.GeoDistanceSimilarity;
 import ldbc.snb.datagen.util.ConfigParser;
 import ldbc.snb.datagen.vocabulary.SN;
 import org.apache.hadoop.conf.Configuration;
@@ -60,6 +62,7 @@ public class LDBCDatagen {
             DatagenParams.readConf(conf);
             Dictionaries.loadDictionaries(conf);
             SN.initialize();
+            Person.personSimilarity = new GeoDistanceSimilarity();
             initialized = true;
         }
     }

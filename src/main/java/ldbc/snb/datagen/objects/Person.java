@@ -14,7 +14,7 @@ import java.util.*;
 public class Person implements Writable {
 
 	public static interface PersonSimilarity {
-		public double Similarity(Person personA, Person personB);
+		public float Similarity(Person personA, Person personB);
 	}
 
 	public static class PersonSummary implements Writable {
@@ -467,8 +467,4 @@ public class Person implements Writable {
 	}
 
 	public static PersonSimilarity personSimilarity;
-
-	public static float Similarity(Person personA, Person personB) {
-	}
-
 }
