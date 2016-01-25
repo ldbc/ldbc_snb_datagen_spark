@@ -145,6 +145,10 @@ public class SN {
         return BLANK_NODE + "knows" + String.format("%020d", id);
     }
 
+    public static String getTagClassURI(long id) {
+        return BLANK_NODE + "tagclass" + String.format("%06d", id);
+    }
+
     public static Long formId(long id) {
         long lowMask = 0x0FFFFF;                                // This mask is used to get the lowest 20 bits.
         long lowerPart = (lowMask & id);

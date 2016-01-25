@@ -91,27 +91,21 @@ public class TurtleInvariantSerializer extends InvariantSerializer {
     protected void serialize(final TagClass tagClass) {
 
         StringBuffer result = new StringBuffer(350);
+        Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()],SN.getTagClassURI(tagClass.id), RDFS.label, Turtle.createLiteral(Dictionaries.tags.getClassLabel(tagClass.id)));
+        Turtle.createTripleSPO(result, SN.getTagClassURI(tagClass.id), RDF.type, SNVOC.TagClass);
+
         if (tagClass.name.equals("Thing")) {
-            Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()],"<http://www.w3.org/2002/07/owl#Thing>", RDFS.label, Turtle.createLiteral(Dictionaries.tags.getClassLabel(tagClass.id)));
-            Turtle.createTripleSPO(result, "<http://www.w3.org/2002/07/owl#Thing>", RDF.type, SNVOC.TagClass);
-            Turtle.createTripleSPO(result, "<http://www.w3.org/2002/07/owl#Thing>", SNVOC.id, Long.toString(tagClass.id));
-            writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
-        } else {
-            Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()],DBPOWL.prefixed(Dictionaries.tags.getClassName(tagClass.id)), RDFS.label,
-                    Turtle.createLiteral(Dictionaries.tags.getClassLabel(tagClass.id)));
-            Turtle.createTripleSPO(result, DBP.fullPrefixed(Dictionaries.tags.getClassName(tagClass.id)), RDF.type, SNVOC.TagClass);
-            Turtle.createTripleSPO(result, DBP.fullPrefixed(Dictionaries.tags.getClassName(tagClass.id)), SNVOC.id, Long.toString(tagClass.id));
-            writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
-        }
+            Turtle.createTripleSPO(result, SN.getTagClassURI(tagClass.id), SNVOC.url, "<http://www.w3.org/2002/07/owl#Thing>");	
+	} else {
+            Turtle.createTripleSPO(result, SN.getTagClassURI(tagClass.id), SNVOC.url, DBPOWL.prefixed(Dictionaries.tags.getClassName(tagClass.id)));	
+	}
+
+        Turtle.createTripleSPO(result, SN.getTagClassURI(tagClass.id), SNVOC.id, Long.toString(tagClass.id));
+        writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
+
         Integer parent = Dictionaries.tags.getClassParent(tagClass.id);
         if (parent != -1) {
-            String parentPrefix;
-            if (Dictionaries.tags.getClassName(parent).equals("Thing")) {
-                parentPrefix = "<http://www.w3.org/2002/07/owl#Thing>";
-            } else {
-                parentPrefix = DBPOWL.prefixed(Dictionaries.tags.getClassName(parent));
-            }
-            Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()],DBPOWL.prefixed(Dictionaries.tags.getClassName(tagClass.id)), RDFS.subClassOf, parentPrefix);
+            Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()],SN.getTagClassURI(tagClass.id), RDFS.subClassOf, SN.getTagClassURI(parent));
         }
     }
 
@@ -119,7 +113,7 @@ public class TurtleInvariantSerializer extends InvariantSerializer {
         StringBuffer result = new StringBuffer(350);
         Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()],DBP.fullPrefixed(tag.name), FOAF.Name, Turtle.createLiteral(tag.name));
         Integer tagClass = tag.tagClass;
-        Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()],DBP.fullPrefixed(tag.name), RDF.type, DBPOWL.prefixed(Dictionaries.tags.getClassName(tagClass)));
+        Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()],DBP.fullPrefixed(tag.name), RDF.type, SN.getTagClassURI(tagClass));
         Turtle.createTripleSPO(result, DBP.fullPrefixed(tag.name), SNVOC.id, Turtle.createLiteral(Long.toString(tag.id)));
         writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
     }
