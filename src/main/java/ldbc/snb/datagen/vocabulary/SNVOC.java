@@ -97,6 +97,7 @@ public class SNVOC {
     public static final String Tag = PREFIX + "Tag";
     public static final String TagClass = PREFIX + "TagClass";
     public static final String isPartOf = PREFIX + "isPartOf";
+    public static final String url = PREFIX + "url"; 
 
     /**
      * Gets the LDBC social network vocabulary prefix version of the input.
