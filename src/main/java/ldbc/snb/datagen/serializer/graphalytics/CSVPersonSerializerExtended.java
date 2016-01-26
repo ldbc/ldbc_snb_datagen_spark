@@ -50,11 +50,12 @@ import org.apache.hadoop.conf.Configuration;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class CSVPersonSerializerWithWeights extends PersonSerializer {
+public class CSVPersonSerializerExtended extends PersonSerializer {
 
     private HDFSCSVWriter [] writers;
 
     private enum FileNames {
+        PERSON("person"),
         PERSON_KNOWS_PERSON("person_knows_person");
 
         private final String name;
@@ -67,7 +68,7 @@ public class CSVPersonSerializerWithWeights extends PersonSerializer {
         }
     }
 
-    public CSVPersonSerializerWithWeights() {
+    public CSVPersonSerializerExtended() {
     }
 
     public void initialize(Configuration conf, int reducerId) {
@@ -78,9 +79,15 @@ public class CSVPersonSerializerWithWeights extends PersonSerializer {
         }
 
         ArrayList<String> arguments = new ArrayList<String>();
+        arguments.add("id");
+        arguments.add("creationDate");
+        writers[FileNames.PERSON.ordinal()].writeEntry(arguments);
+
+        arguments.clear();
         arguments.clear();
         arguments.add("Person.id");
         arguments.add("Person.id");
+        arguments.add("CreationDate");
         arguments.add("Weight");
         writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeEntry(arguments);
 
@@ -96,7 +103,10 @@ public class CSVPersonSerializerWithWeights extends PersonSerializer {
 
     @Override
     protected void serialize(Person p) {
-
+        ArrayList<String> arguments = new ArrayList<String>();
+        arguments.add(Long.toString(p.accountId()));
+        arguments.add(Dictionaries.dates.formatDateTime(p.creationDate()));
+        writers[FileNames.PERSON.ordinal()].writeEntry(arguments);
     }
 
     @Override
@@ -111,6 +121,7 @@ public class CSVPersonSerializerWithWeights extends PersonSerializer {
         ArrayList<String> arguments = new ArrayList<String>();
         arguments.add(Long.toString(p.accountId()));
         arguments.add(Long.toString(knows.to().accountId()));
+        arguments.add(Dictionaries.dates.formatDateTime(knows.creationDate()));
         arguments.add(Float.toString(knows.weight()));
         writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeEntry(arguments);
     }
