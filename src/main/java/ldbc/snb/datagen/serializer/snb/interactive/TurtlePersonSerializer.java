@@ -97,7 +97,7 @@ public class TurtlePersonSerializer extends PersonSerializer {
         String prefix = SN.getPersonURI(p.accountId());
         Turtle.AddTriple(result, true, false, prefix, RDF.type, SNVOC.Person);
         Turtle.AddTriple(result, false, false, prefix, SNVOC.id,
-                Turtle.createLiteral(Long.toString(p.accountId())));
+                Turtle.createDataTypeLiteral(Long.toString(p.accountId()), XSD.Long));
         Turtle.AddTriple(result, false, false, prefix, SNVOC.firstName,
                 Turtle.createLiteral(p.firstName()));
         Turtle.AddTriple(result, false, false, prefix, SNVOC.lastName,

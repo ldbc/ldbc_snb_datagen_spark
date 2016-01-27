@@ -64,7 +64,8 @@ public class TurtleInvariantSerializer extends InvariantSerializer {
         Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()], DBP.fullPrefixed(name), RDF.type, DBPOWL.Place);
         Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()], DBP.fullPrefixed(name), RDF.type, type);
         Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()], DBP.fullPrefixed(name), FOAF.Name, Turtle.createLiteral(name));
-        Turtle.createTripleSPO(result, DBP.fullPrefixed(name), SNVOC.id, Turtle.createLiteral(Long.toString(place.getId())));
+        Turtle.createTripleSPO(result, DBP.fullPrefixed(name), SNVOC.id, 
+		Turtle.createDataTypeLiteral(Long.toString(place.getId()), XSD.Int));
         if (place.getType() != Place.CONTINENT) {
             String countryName = Dictionaries.places.getPlaceName(Dictionaries.places.belongsTo(place.getId()));
             Turtle.createTripleSPO(result, DBP.fullPrefixed(name), SNVOC.isPartOf, DBP.fullPrefixed(countryName));
@@ -83,8 +84,8 @@ public class TurtleInvariantSerializer extends InvariantSerializer {
                 Turtle.createLiteral(organization.name));
         Turtle.createTripleSPO(result, DBP.fullPrefixed(organization.name),
                 SNVOC.locatedIn, DBP.fullPrefixed(Dictionaries.places.getPlaceName(organization.location)));
-        Turtle.createTripleSPO(result, DBP.fullPrefixed(organization.name),
-                SNVOC.id, Turtle.createLiteral(Long.toString(organization.id)));
+        Turtle.createTripleSPO(result, DBP.fullPrefixed(organization.name), SNVOC.id, 
+		Turtle.createDataTypeLiteral(Long.toString(organization.id), XSD.Int));
         writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
     }
 
@@ -100,7 +101,8 @@ public class TurtleInvariantSerializer extends InvariantSerializer {
             Turtle.createTripleSPO(result, SN.getTagClassURI(tagClass.id), SNVOC.url, DBPOWL.prefixed(Dictionaries.tags.getClassName(tagClass.id)));	
 	}
 
-        Turtle.createTripleSPO(result, SN.getTagClassURI(tagClass.id), SNVOC.id, Long.toString(tagClass.id));
+        Turtle.createTripleSPO(result, SN.getTagClassURI(tagClass.id), SNVOC.id, 
+				Turtle.createDataTypeLiteral(Long.toString(tagClass.id), XSD.Int));
         writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
 
         Integer parent = Dictionaries.tags.getClassParent(tagClass.id);
@@ -114,7 +116,8 @@ public class TurtleInvariantSerializer extends InvariantSerializer {
         Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()],DBP.fullPrefixed(tag.name), FOAF.Name, Turtle.createLiteral(tag.name));
         Integer tagClass = tag.tagClass;
         Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()],DBP.fullPrefixed(tag.name), RDF.type, SN.getTagClassURI(tagClass));
-        Turtle.createTripleSPO(result, DBP.fullPrefixed(tag.name), SNVOC.id, Turtle.createLiteral(Long.toString(tag.id)));
+        Turtle.createTripleSPO(result, DBP.fullPrefixed(tag.name), SNVOC.id, 
+				Turtle.createDataTypeLiteral(Long.toString(tag.id), XSD.Int));
         writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
     }
     public void reset() {

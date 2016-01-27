@@ -67,7 +67,7 @@ public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 		Turtle.AddTriple(result, true, false, forumPrefix, RDF.type, SNVOC.Forum);
 
 		Turtle.AddTriple(result, false, false, forumPrefix, SNVOC.id,
-				Turtle.createLiteral(Long.toString(forum.id())));
+				Turtle.createDataTypeLiteral(Long.toString(forum.id()), XSD.Long));
 
 		Turtle.AddTriple(result, false, false, forumPrefix, SNVOC.title,
 				Turtle.createLiteral(forum.title()));
@@ -93,7 +93,7 @@ public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 		Turtle.AddTriple(result, true, false, prefix, RDF.type, SNVOC.Post);
 
 		Turtle.AddTriple(result, false, false, prefix, SNVOC.id,
-				Turtle.createLiteral(Long.toString(post.messageId())));
+				Turtle.createDataTypeLiteral(Long.toString(post.messageId()), XSD.Long));
 
 		Turtle.AddTriple(result, false, false, prefix, SNVOC.creationDate,
 				Turtle.createDataTypeLiteral(Dictionaries.dates.formatDateTime(post.creationDate()), XSD.DateTime));
@@ -106,7 +106,7 @@ public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 		Turtle.AddTriple(result, false, false, prefix, SNVOC.content,
 					Turtle.createLiteral(post.content()));
 		Turtle.AddTriple(result, false, true, prefix, SNVOC.length,
-				Turtle.createLiteral(Integer.toString(post.content().length())));
+				Turtle.createDataTypeLiteral(Integer.toString(post.content().length()), XSD.Int));
 
 		Turtle.createTripleSPO(result, prefix, SNVOC.language,
 				Turtle.createLiteral(Dictionaries.languages.getLanguageName(post.language())));
@@ -132,7 +132,7 @@ public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 		Turtle.AddTriple(result, true, false, prefix, RDF.type, SNVOC.Comment);
 
 		Turtle.AddTriple(result, false, false, prefix, SNVOC.id,
-				Turtle.createLiteral(Long.toString(comment.messageId())));
+				Turtle.createDataTypeLiteral(Long.toString(comment.messageId()), XSD.Long));
 
 		Turtle.AddTriple(result, false, false, prefix, SNVOC.creationDate,
 				Turtle.createDataTypeLiteral(Dictionaries.dates.formatDateTime(comment.creationDate()), XSD.DateTime));
@@ -143,7 +143,7 @@ public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 		Turtle.AddTriple(result, false, false, prefix, SNVOC.content,
 				Turtle.createLiteral(comment.content()));
 		Turtle.AddTriple(result, false, true, prefix, SNVOC.length,
-				Turtle.createLiteral(Integer.toString(comment.content().length())));
+				Turtle.createDataTypeLiteral(Integer.toString(comment.content().length()), XSD.Int));
 
 		String replied = (comment.replyOf() == comment.postId()) ? SN.getPostURI(comment.postId()) :
 				SN.getCommentURI(comment.replyOf());
@@ -168,7 +168,7 @@ public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 		Turtle.AddTriple(result, true, false, prefix, RDF.type, SNVOC.Post);
 
 		Turtle.AddTriple(result, false, false, prefix, SNVOC.id,
-				Turtle.createLiteral(Long.toString(photo.messageId())));
+				Turtle.createDataTypeLiteral(Long.toString(photo.messageId()), XSD.Long));
 
 		Turtle.AddTriple(result, false, false, prefix, SNVOC.hasImage, Turtle.createLiteral(photo.content()));
 		Turtle.AddTriple(result, false, false, prefix, SNVOC.ipaddress,
