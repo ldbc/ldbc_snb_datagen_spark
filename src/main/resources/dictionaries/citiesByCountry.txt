@@ -35,7 +35,6 @@ India Cooch_Behar
 India Hubli
 India Hamirpur
 India Kanpur
-India India
 India Tiruchirappalli
 India Ujjain
 India Visakhapatnam
@@ -357,7 +356,6 @@ China Chibi
 China Fengzhen
 China Chuxiong
 China Qiqihar
-China Hong_Kong
 China Alashankou
 China Huainan
 China Ma'anshan
@@ -404,7 +402,7 @@ Azerbaijan Baku
 Bolivia Carmen_Pampa
 Bosnia_and_Herzegovina Sarajevo
 Bulgaria Sofia
-Chad Chad
+Chad ChadCity
 Croatia Zagreb
 Denmark Copenhagen
 Dominican_Republic Santo_Domingo
@@ -437,7 +435,7 @@ Republic_of_Ireland Dublin
 Republic_of_Macedonia Skopje
 Rwanda Butare
 Scotland Glasgow
-Singapore Singapore
+Singapore SingaporeCity
 Slovakia Bratislava
 Slovenia Ljubljana
 Swaziland Kwaluseni
@@ -549,7 +547,6 @@ Indonesia Medan
 Indonesia Bengkulu
 Indonesia Manokwari
 Indonesia Jakarta
-Indonesia Indonesia
 Indonesia Tarakan
 Indonesia Bandung
 Indonesia Banda_Aceh
@@ -832,7 +829,6 @@ Vietnam Phủ_Lý
 Vietnam Tuy_Hòa
 Vietnam Hung_Yen_province
 Vietnam Tân_An
-Vietnam Vietnam
 Vietnam Sóc_Trăng
 Vietnam Cần_Thơ
 Vietnam Huế
@@ -1202,7 +1198,6 @@ Taiwan Yunlin_County
 Taiwan Hsinchu
 Taiwan Kaohsiung
 Taiwan Taiwan
-Taiwan New_Taipei
 Taiwan Taipei
 Taiwan Tainan
 Romania Bucharest
