@@ -13,6 +13,7 @@ public class Turtle {
         createPrefixLine(result, RDFS.PREFIX, RDFS.NAMESPACE);
         createPrefixLine(result, XSD.PREFIX, XSD.NAMESPACE);
         createPrefixLine(result, SNVOC.PREFIX, SNVOC.NAMESPACE);
+	createPrefixLine(result, SNTAG.PREFIX, SNTAG.NAMESPACE);
         createPrefixLine(result, SN.PREFIX, SN.NAMESPACE);
         createPrefixLine(result, DBP.PREFIX, DBP.NAMESPACE);
         return result.toString();

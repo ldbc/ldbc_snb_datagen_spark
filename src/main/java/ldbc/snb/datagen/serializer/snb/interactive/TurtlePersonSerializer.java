@@ -132,7 +132,7 @@ public class TurtlePersonSerializer extends PersonSerializer {
 
         for(Integer tag : p.interests()) {
             String interest = Dictionaries.tags.getName(tag);
-            Turtle.createTripleSPO(result, prefix, SNVOC.hasInterest, DBP.fullPrefixed(interest));
+            Turtle.createTripleSPO(result, prefix, SNVOC.hasInterest, SNTAG.fullPrefixed(interest));
         }
         writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
     }
