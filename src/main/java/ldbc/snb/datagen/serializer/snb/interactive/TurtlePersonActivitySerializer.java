@@ -79,7 +79,7 @@ public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 
 		for(Integer tag : forum.tags()) {
 			String topic = Dictionaries.tags.getName(tag);
-			Turtle.createTripleSPO(result, forumPrefix, SNVOC.hasTag, DBP.fullPrefixed(topic));
+			Turtle.createTripleSPO(result, forumPrefix, SNVOC.hasTag, SNTAG.fullPrefixed(topic));
 		}
 		writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
 	}
@@ -156,7 +156,7 @@ public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 
 		for( Integer tag : comment.tags()) {
 			String topic = Dictionaries.tags.getName(tag);
-			Turtle.createTripleSPO(result, prefix, SNVOC.hasTag, DBP.fullPrefixed(topic));
+			Turtle.createTripleSPO(result, prefix, SNVOC.hasTag, SNTAG.fullPrefixed(topic));
 		}
 		writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
 	}
@@ -185,7 +185,7 @@ public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 
 		for( Integer tag: photo.tags()) {
 			String topic = Dictionaries.tags.getName(tag);
-			Turtle.createTripleSPO(result, prefix, SNVOC.hasTag, DBP.fullPrefixed(topic));
+			Turtle.createTripleSPO(result, prefix, SNVOC.hasTag, SNTAG.fullPrefixed(topic));
 		}
 		writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
 	}
