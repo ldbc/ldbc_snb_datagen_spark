@@ -144,7 +144,7 @@ public class TurtlePersonSerializer extends PersonSerializer {
         long id = SN.formId(studyAtId);
         Turtle.createTripleSPO(result, prefix, SNVOC.studyAt, SN.getStudyAtURI(id));
         Turtle.createTripleSPO(result, SN.getStudyAtURI(id), SNVOC.hasOrganisation,
-                DBP.fullPrefixed(Dictionaries.universities.getUniversityName(studyAt.university)));
+                SN.getUnivURI(studyAt.university));
         String yearString = Dictionaries.dates.formatYear(studyAt.year);
         Turtle.createTripleSPO(result, SN.getStudyAtURI(id), SNVOC.classYear,
                 Turtle.createDataTypeLiteral(yearString, XSD.Integer));
@@ -159,7 +159,7 @@ public class TurtlePersonSerializer extends PersonSerializer {
         long id = SN.formId(workAtId);
         Turtle.createTripleSPO(result, prefix, SNVOC.workAt, SN.getWorkAtURI(id));
         Turtle.createTripleSPO(result, SN.getWorkAtURI(id), SNVOC.hasOrganisation,
-                DBP.fullPrefixed(Dictionaries.companies.getCompanyName(workAt.company)));
+                SN.getCompURI(workAt.company));
         String yearString = Dictionaries.dates.formatYear(workAt.year);
         Turtle.createTripleSPO(result, SN.getWorkAtURI(id), SNVOC.workFrom,
                 Turtle.createDataTypeLiteral(yearString, XSD.Integer));

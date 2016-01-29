@@ -76,16 +76,25 @@ public class TurtleInvariantSerializer extends InvariantSerializer {
     protected void serialize(final Organization organization) {
         StringBuffer result = new StringBuffer(19000);
         if( organization.type == Organization.OrganisationType.company ) {
-            Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()],DBP.fullPrefixed(organization.name), RDF.type, DBPOWL.Company);
-        } else {
-            Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()], DBP.fullPrefixed(organization.name), RDF.type, DBPOWL.University);
-        }
-        Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()], DBP.fullPrefixed(organization.name), FOAF.Name,
+            Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()], SN.getCompURI(organization.id), RDF.type, DBPOWL.Company);
+	    Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()], SN.getCompURI(organization.id), SNVOC.url, DBP.fullPrefixed(organization.name));
+            Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()], SN.getCompURI(organization.id), FOAF.Name,
                 Turtle.createLiteral(organization.name));
-        Turtle.createTripleSPO(result, DBP.fullPrefixed(organization.name),
+            Turtle.createTripleSPO(result, SN.getCompURI(organization.id),
                 SNVOC.locatedIn, DBP.fullPrefixed(Dictionaries.places.getPlaceName(organization.location)));
-        Turtle.createTripleSPO(result, DBP.fullPrefixed(organization.name), SNVOC.id, 
+            Turtle.createTripleSPO(result, SN.getCompURI(organization.id), SNVOC.id, 
 		Turtle.createDataTypeLiteral(Long.toString(organization.id), XSD.Int));
+        } else {
+            Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()], SN.getUnivURI(organization.id), RDF.type, DBPOWL.University);
+	    Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()], SN.getUnivURI(organization.id), SNVOC.url, DBP.fullPrefixed(organization.name));
+            Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()], SN.getUnivURI(organization.id), FOAF.Name,
+                Turtle.createLiteral(organization.name));
+            Turtle.createTripleSPO(result, SN.getUnivURI(organization.id),
+                SNVOC.locatedIn, DBP.fullPrefixed(Dictionaries.places.getPlaceName(organization.location)));
+            Turtle.createTripleSPO(result, SN.getUnivURI(organization.id), SNVOC.id, 
+		Turtle.createDataTypeLiteral(Long.toString(organization.id), XSD.Int));
+        }
+
         writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
     }
 

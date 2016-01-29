@@ -141,6 +141,14 @@ public class SN {
         return BLANK_NODE + "work" + String.format("%020d", id );
     }
 
+    public static String getUnivURI(long id) {
+        return BLANK_NODE + "uni" + String.format("%06d", id);
+    }
+
+    public static String getCompURI(long id) {
+        return BLANK_NODE + "com" + String.format("%06d", id);
+    }
+
     public static String getKnowsURI(long id) {
         return BLANK_NODE + "knows" + String.format("%020d", id);
     }
