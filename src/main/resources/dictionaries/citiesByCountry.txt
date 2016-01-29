@@ -1197,7 +1197,6 @@ Taiwan Zhongli
 Taiwan Yunlin_County
 Taiwan Hsinchu
 Taiwan Kaohsiung
-Taiwan Taiwan
 Taiwan Taipei
 Taiwan Tainan
 Romania Bucharest
