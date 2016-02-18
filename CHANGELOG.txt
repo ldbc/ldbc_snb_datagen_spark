@@ -1,2 +1,10 @@
-v0.1 - 2013-05-31
-First version
+
+v0.2.5
+Bi parameter generation
+Added testing
+Improved performance of activity generation
+Improved performance of sorting update streams and serialization
+Added option to turn on/off printing the endline separator on csv serializers
+Added possibility to override the way weights of edges are computed
+Added the possibility to override the way dates and datetimes are formatted
+Added graphalytics extended serializer
