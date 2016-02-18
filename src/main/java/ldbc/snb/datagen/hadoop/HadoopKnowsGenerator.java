@@ -37,7 +37,7 @@ public class HadoopKnowsGenerator {
             //this.knowsGenerator = new DistanceKnowsGenerator();
             this.conf = context.getConfiguration();
             try {
-                this.knowsGenerator = (KnowsGenerator) Class.forName(conf.get("ldbc.snb.datagen.generator.knowsGenerator")).newInstance();
+                this.knowsGenerator = (KnowsGenerator) Class.forName(conf.get("knowsGeneratorName")).newInstance();
                 this.knowsGenerator.initialize(conf);
             }catch(Exception e) {
                 System.out.println(e.getMessage());
