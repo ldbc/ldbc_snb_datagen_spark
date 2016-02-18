@@ -3,7 +3,7 @@
 if [ $# -ne 2 ]
 then
    echo "Arguments not correctly supplied"
-   echo "Usage: sh testDatasets <num_reducers1> <dir1> <num_reducers2> <dir2>"
+   echo "Usage: sh testDatasets <dir1> <dir2>"
    exit
 fi
 
