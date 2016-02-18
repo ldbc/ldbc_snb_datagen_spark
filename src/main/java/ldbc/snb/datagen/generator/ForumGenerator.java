@@ -80,11 +80,11 @@ public class ForumGenerator {
 				int friendId = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX).nextInt(person.knows().size());
 				Knows k = friends.get(friendId);
 				if (!added.contains(k.to().accountId())) {
-					added.add(k.to().accountId());
 					Random random = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX);
 					date = Dictionaries.dates.randomDate(random,Math.max(forum.creationDate(), k.creationDate()+DatagenParams.deltaTime));
 					if( date < Dictionaries.dates.getEndDateTime() ) {
 						forum.addMember(new ForumMembership(forum.id(), date, k.to()));
+						added.add(k.to().accountId());
 					}
 				}
 			} else { 
@@ -98,6 +98,7 @@ public class ForumGenerator {
 						date = Dictionaries.dates.randomDate(random,Math.max(forum.creationDate(), member.creationDate()+DatagenParams.deltaTime));
 						if( date < Dictionaries.dates.getEndDateTime() ) {
 							forum.addMember(new ForumMembership(forum.id(), date, new Person.PersonSummary(member)));
+							added.add(member.accountId());
 						}
 					}
 				}

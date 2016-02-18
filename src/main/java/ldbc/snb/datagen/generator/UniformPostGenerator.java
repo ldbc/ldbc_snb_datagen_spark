@@ -20,11 +20,12 @@ import java.util.TreeSet;
 public class UniformPostGenerator extends PostGenerator {
 
 
-	public UniformPostGenerator() {
-		
+	public UniformPostGenerator(TextGenerator generator, CommentGenerator commentGenerator, LikeGenerator likeGenerator) {
+		super(generator, commentGenerator, likeGenerator);
 	}
-	
-    protected PostInfo generatePostInfo( Random randomTag, Random randomDate, Forum forum, ForumMembership membership ) {
+
+	@Override
+    protected PostInfo generatePostInfo( Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership ) {
 	    PostInfo postInfo = new PostInfo();
 	    postInfo.tags = new TreeSet<Integer>();
 	    Iterator<Integer> it = forum.tags().iterator();

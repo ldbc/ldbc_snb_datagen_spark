@@ -73,7 +73,7 @@ public class CSVPersonSerializer extends PersonSerializer {
         int numFiles = FileNames.values().length;
         writers = new HDFSCSVWriter[numFiles];
         for( int i = 0; i < numFiles; ++i) {
-            writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"), FileNames.values()[i].toString()+"_"+reducerId,conf.getInt("ldbc.snb.datagen.numPartitions",1),conf.getBoolean("ldbc.snb.datagen.serializer.compressed",false),separator_, false);
+            writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"), FileNames.values()[i].toString()+"_"+reducerId,conf.getInt("ldbc.snb.datagen.numPartitions",1),conf.getBoolean("ldbc.snb.datagen.serializer.compressed",false),"|", conf.getBoolean("ldbc.snb.datagen.serializer.endlineSeparator",false));
         }
 
         ArrayList<String> arguments = new ArrayList<String>();
@@ -93,19 +93,19 @@ public class CSVPersonSerializer extends PersonSerializer {
     }
 
     @Override
-    protected void serialize(Person p) {
+    protected void serialize(final Person p) {
 
     }
 
     @Override
-    protected void serialize(StudyAt studyAt) {
+    protected void serialize(final StudyAt studyAt) {
     }
 
     @Override
-    protected void serialize(WorkAt workAt) {
+    protected void serialize(final WorkAt workAt) {
     }
 
-    protected void serialize(Person p, Knows knows) {
+    protected void serialize(final Person p, Knows knows) {
         ArrayList<String> arguments = new ArrayList<String>();
         arguments.add(Long.toString(p.accountId()));
         arguments.add(Long.toString(knows.to().accountId()));

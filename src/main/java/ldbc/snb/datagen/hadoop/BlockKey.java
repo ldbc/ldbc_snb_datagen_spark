@@ -28,19 +28,16 @@ import java.io.IOException;
             this.tk = tk;
         }
 
-        @Override
         public void write(DataOutput out) throws IOException {
             out.writeLong(block);
             tk.write(out);
         }
 
-        @Override
         public void readFields(DataInput in) throws IOException {
             block = in.readLong();
             tk.readFields(in);
         }
 
-        @Override
         public int compareTo( BlockKey mpk) {
             if (block < mpk.block) return -1;
             if (block > mpk.block) return 1;

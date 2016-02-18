@@ -233,7 +233,7 @@ public class TagDictionary {
      * @return The random tag id.
      * @brief Gets a random tag by country.
      */
-    public int getaTagByCountry(Random randomTagOtherCountry, Random randomTagCountryProb, int countryId) {
+    public Integer getaTagByCountry(Random randomTagOtherCountry, Random randomTagCountryProb, int countryId) {
         if (tagsByCountry.get(countryId).size() == 0 || randomTagOtherCountry.nextDouble() > tagCountryCorrProb) {
             do {
                 countryId = randomTagOtherCountry.nextInt(tagsByCountry.size());

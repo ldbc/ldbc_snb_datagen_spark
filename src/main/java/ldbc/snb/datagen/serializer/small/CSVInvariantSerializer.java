@@ -37,7 +37,7 @@ public class CSVInvariantSerializer extends InvariantSerializer {
         int numFiles = FileNames.values().length;
         writers = new HDFSCSVWriter[numFiles];
         for( int i = 0; i < numFiles; ++i) {
-            writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"),FileNames.values()[i].toString()+"_"+reducerId,conf.getInt("ldbc.snb.datagen.numPartitions",1),conf.getBoolean("ldbc.snb.datagen.serializer.compressed",false),"|", true);
+            writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"),FileNames.values()[i].toString()+"_"+reducerId,conf.getInt("ldbc.snb.datagen.numPartitions",1),conf.getBoolean("ldbc.snb.datagen.serializer.compressed",false),"|", conf.getBoolean("ldbc.snb.datagen.serializer.endlineSeparator",false));
         }
 
         ArrayList<String> arguments = new ArrayList<String>();
@@ -53,16 +53,16 @@ public class CSVInvariantSerializer extends InvariantSerializer {
         }
     }
 
-    protected void serialize(Place place) {
+    protected void serialize(final Place place) {
     }
 
-    protected void serialize(Organization organization) {
+    protected void serialize(final Organization organization) {
     }
 
-    protected void serialize(TagClass tagClass) {
+    protected void serialize(final TagClass tagClass) {
     }
 
-    protected void serialize(Tag tag) {
+    protected void serialize(final Tag tag) {
         ArrayList<String> arguments = new ArrayList<String>();
         arguments.add(Integer.toString(tag.id));
         arguments.add(tag.name);

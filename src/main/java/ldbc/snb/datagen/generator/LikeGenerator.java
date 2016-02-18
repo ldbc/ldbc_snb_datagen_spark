@@ -11,6 +11,7 @@ import ldbc.snb.datagen.objects.ForumMembership;
 import ldbc.snb.datagen.objects.Like;
 import ldbc.snb.datagen.objects.Like.LikeType;
 import ldbc.snb.datagen.objects.Message;
+import ldbc.snb.datagen.serializer.PersonActivityExporter;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -22,15 +23,15 @@ import java.util.Random;
 public class LikeGenerator {
 	private double maxNumberOfLikes;
 	private final PowerDistGenerator likesGenerator_;
+	private Like like;
 
-	
 
 	public LikeGenerator() {
 		likesGenerator_ = new PowerDistGenerator(1,DatagenParams.maxNumLike,0.07);
+		this.like = new Like();
 	}
 
-	public ArrayList<Like> generateLikes( Random random, Forum forum, Message message, LikeType type ) {
-		ArrayList<Like> likes = new ArrayList<Like>();
+	public void generateLikes(Random random, final Forum forum, final Message message, LikeType type, PersonActivityExporter exporter) {
 		int numMembers = forum.memberships().size();
 		int numLikes = likesGenerator_.getValue(random);
 		numLikes = numLikes >= numMembers ?  numMembers : numLikes;
@@ -44,15 +45,14 @@ public class LikeGenerator {
 			long minDate = message.creationDate() > memberships.get(startIndex+i).creationDate() ? message.creationDate() : membership.creationDate();
 			long date = Math.max(Dictionaries.dates.randomSevenDays(random),DatagenParams.deltaTime) + minDate;
 			if( date <= Dictionaries.dates.getEndDateTime() ) {
-				Like like = new Like();
 				like.user = membership.person().accountId();
 				like.userCreationDate = membership.person().creationDate();
 				like.messageId = message.messageId();
 				like.date = date;
 				like.type = type;
-				likes.add(like);
+				exporter.export(like);
 			}
 		}
-		return likes;
+		return;
 	}
 }

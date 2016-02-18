@@ -37,6 +37,8 @@
 package ldbc.snb.datagen.generator;
 
 import ldbc.snb.datagen.objects.Person;
+import ldbc.snb.datagen.serializer.formatter.DateFormatter;
+import org.apache.hadoop.conf.Configuration;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -60,10 +62,11 @@ public class DateGenerator {
 	private long updateThreshold_;
 	private PowerDistGenerator powerDist_;
     private SimpleDateFormat gmtDateFormatter_;
+	private DateFormatter dateFormatter_;
 
 	// This constructor is for the case of friendship's created date generator
-	public DateGenerator(GregorianCalendar from, GregorianCalendar to,
-		double alpha, long deltaTime) {
+	public DateGenerator(Configuration conf, GregorianCalendar from, GregorianCalendar to,
+						 double alpha, long deltaTime) {
 		from_ = from.getTimeInMillis();
 		to_ = to.getTimeInMillis();
 		powerDist_ = new PowerDistGenerator(0.0, 1.0, alpha);
@@ -78,8 +81,13 @@ public class DateGenerator {
 		calendar_.setTimeZone(TimeZone.getTimeZone("GMT"));
 		updateThreshold_ = getMaxDateTime() - (long)((getMaxDateTime() - getStartDateTime())*(DatagenParams.updatePortion));
 
-        gmtDateFormatter_ = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-        gmtDateFormatter_.setTimeZone(TimeZone.getTimeZone("GMT"));
+		try {
+			dateFormatter_ = (DateFormatter) Class.forName(conf.get("ldbc.snb.datagen.serializer.dateFormatter")).newInstance();
+			dateFormatter_.initialize(conf);
+		} catch(Exception e) {
+			System.err.println("Error when initializing date formatter");
+			System.err.println(e.getMessage());
+		}
 	}
 
 	/*
@@ -95,24 +103,20 @@ public class DateGenerator {
 	 * format the date
 	 */
 	public String formatDate(long date) {
-		SimpleDateFormat gmtDateFormatter = new SimpleDateFormat("yyyy-MM-dd");
-		gmtDateFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
-		calendar_.setTimeInMillis(date);
-		return gmtDateFormatter.format(calendar_.getTime());
+		return dateFormatter_.formatDate(date);
 	}
 
 	public String formatYear(long date) {
-		calendar_.setTimeInMillis(date);
-		int year = calendar_.get(Calendar.YEAR);
-		return year + "";
+        calendar_.setTimeInMillis(date);
+        int year = calendar_.get(Calendar.YEAR);
+        return year + "";
 	}
 
 	/*
 	 * format the date with hours and minutes
 	 */
-	public String formatDateDetail(long d) {
-		calendar_.setTimeInMillis(d);
-		return gmtDateFormatter_.format(calendar_.getTime());
+	public String formatDateTime(long date) {
+		return dateFormatter_.formatDateTime(date);
 	}
 
 

@@ -45,8 +45,13 @@ public class ConfigParser {
         conf.set("ldbc.snb.datagen.serializer.outputDir", "./");
         conf.set("ldbc.snb.datagen.serializer.socialNetworkDir", "./social_network");
         conf.set("ldbc.snb.datagen.serializer.hadoopDir", "./hadoop");
+        conf.set("ldbc.snb.datagen.serializer.endlineSeparator", Boolean.toString(false));
         conf.set("ldbc.snb.datagen.generator.deltaTime", "10000");
         conf.set("ldbc.snb.datagen.generator.activity", "true");
+        conf.set("ldbc.snb.datagen.serializer.dateFormatter", "ldbc.snb.datagen.serializer.formatter.StringDateFormatter");
+        conf.set("ldbc.snb.datagen.serializer.formatter.StringDateFormatter.dateTimeFormat", "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        conf.set("ldbc.snb.datagen.serializer.formatter.StringDateFormatter.dateFormat", "yyyy-MM-dd");
+        conf.set("ldbc.snb.datagen.generator.person.similarity", "ldbc.snb.datagen.objects.similarity.GeoDistanceSimilarity");
 
         /** Loading predefined Scale Factors **/
 

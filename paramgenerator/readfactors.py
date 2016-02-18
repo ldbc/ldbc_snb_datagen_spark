@@ -53,10 +53,11 @@ class NameParameter:
 	def getValue(self, person):
 		return self.values[person]
 
-def load(factorFiles, friendFiles):
+def load(personFactorFiles,activityFactorFiles, friendFiles):
 	print "loading input for parameter generation"
 	results = Factors()
 	countries = Factors()
+	postsHisto = Factors()
 	givenNames = NameParameter()
 
 	tagClasses = {}
@@ -64,12 +65,10 @@ def load(factorFiles, friendFiles):
 	names = {}
 	timestamp = [0,0,0,0]
 
-	for inputFileName in factorFiles:
-		with codecs.open(inputFileName, "r", "utf-8") as f:
-			line = f.readline()
-			personCount = int(line)
-			for i in range(personCount):
-				line = f.readline().split(",")
+	for inputfileName in personFactorFiles:
+		with codecs.open(inputfileName, "r", "utf-8") as f:
+			for line in f.readlines():
+				line = line.split(",")
 				person = int(line[0])
 				if not results.existParam(person):
 					results.addNewParam(person)
@@ -82,7 +81,13 @@ def load(factorFiles, friendFiles):
 				results.addValue(person, "g", int(line[6]))
 				results.addValue(person, "w", int(line[7]))
 				results.addValue(person, "pr", int(line[8]))
+				for i in range((len(line)-9)/2):
+					if not postsHisto.existParam(i):
+						postsHisto.addNewParam(i)
+					postsHisto.addValue(i, "p", int(line[9+i]))
 
+	for inputFileName in activityFactorFiles:
+		with codecs.open(inputFileName, "r", "utf-8") as f:
 			countryCount = int(f.readline())
 			for i in range(countryCount):
 				line = f.readline().split(",")
@@ -123,7 +128,7 @@ def load(factorFiles, friendFiles):
 
 	loadFriends(friendFiles, results)
 
-	return (results, countries, tags.items(), tagClasses.items(), names.items(), givenNames,timestamp)
+	return (results, countries, tags.items(), tagClasses.items(), names.items(), givenNames,timestamp, postsHisto)
 
 def loadFriends(friendFiles, factors):
 

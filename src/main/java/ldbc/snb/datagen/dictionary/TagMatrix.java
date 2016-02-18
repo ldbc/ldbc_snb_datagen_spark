@@ -49,34 +49,24 @@ public class TagMatrix {
 
     private static final String SEPARATOR = " ";
 
-    private ArrayList<ArrayList<Integer>> relatedTags;
+    private TreeMap<Integer, ArrayList<Integer>> relatedTags;
     /**
      * < @brief An array of related tags per tag.
      */
-    private ArrayList<ArrayList<Double>> cumulative;
-    /**
-     * < @brief The cumulative distribution to pick a tag.
-     */
-    private TreeMap<Integer, ArrayList<Integer>> auxMatrix;
-    /**
-     * < @brief Left because it works, but I think this is reduntant.
-     */
-    private ArrayList<Integer> tagList;
+    private TreeMap<Integer, ArrayList<Double>> cumulative;
+
+    private ArrayList<Integer> nonZeroTags;
 
     /**
      * < @brief The list of tags.
      */
 
-    public TagMatrix(int numPopularTags) {
-        cumulative = new ArrayList<ArrayList<Double>>(numPopularTags);
-        relatedTags = new ArrayList<ArrayList<Integer>>(numPopularTags);
-        for (int i = 0; i < numPopularTags; i++) {
-            cumulative.add(new ArrayList<Double>());
-            relatedTags.add(new ArrayList<Integer>());
-        }
-        auxMatrix = new TreeMap<Integer, ArrayList<Integer>>();
-        tagList = new ArrayList<Integer>();
-	load(DatagenParams.tagMatrixFile);
+    public TagMatrix() {
+        cumulative = new TreeMap<Integer, ArrayList<Double>>();
+        relatedTags = new TreeMap<Integer, ArrayList<Integer>>();
+        nonZeroTags = new ArrayList<Integer>();
+        load(DatagenParams.tagMatrixFile);
+
     }
 
     /**
@@ -92,37 +82,20 @@ public class TagMatrix {
                 int celebrityId = Integer.parseInt(data[0]);
                 int topicId = Integer.parseInt(data[1]);
                 double cumuluative = Double.parseDouble(data[2]);
+                ArrayList<Double> cum = cumulative.get(celebrityId);
+                if(cum == null ) cumulative.put(celebrityId,new ArrayList<Double>());
                 cumulative.get(celebrityId).add(cumuluative);
+                ArrayList<Integer> related = relatedTags.get(celebrityId);
+                if(related == null) relatedTags.put(celebrityId,new ArrayList<Integer>());
                 relatedTags.get(celebrityId).add(topicId);
-                Insert(celebrityId, topicId);
+            }
+            for(Integer tag : relatedTags.keySet()) {
+                nonZeroTags.add(tag);
             }
             dictionary.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * @param tag1 The first tag id.
-     * @param tag2 The second tag id.
-     * @brief Inserts a tag matrix position into the dictionary.
-     */
-    private void Insert(Integer tag1, Integer tag2) {
-        ArrayList<Integer> vect = auxMatrix.get(tag1);
-        if (vect == null) {
-            vect = new ArrayList<Integer>();
-            auxMatrix.put(tag1, vect);
-            tagList.add(tag1);
-        }
-        vect.add(tag2);
-
-        vect = auxMatrix.get(tag2);
-        if (vect == null) {
-            vect = new ArrayList<Integer>();
-            auxMatrix.put(tag2, vect);
-            tagList.add(tag1);
-        }
-        vect.add(tag1);
     }
 
     /**
@@ -132,13 +105,11 @@ public class TagMatrix {
      * @brief Gets a random related tag.
      */
     public Integer getRandomRelated(Random randomTag, int tag) {
-        ArrayList<Integer> vect = auxMatrix.get(tag);
-        if (vect != null) {
-            int index = randomTag.nextInt(vect.size());
-            return vect.get(index);
-        } else {
-            return tagList.get(randomTag.nextInt(tagList.size()));
+        int tagId = tag;
+        if(relatedTags.get(tagId) == null) {
+            tagId = nonZeroTags.get(randomTag.nextInt(nonZeroTags.size()));
         }
+        return relatedTags.get(tagId).get(randomTag.nextInt(relatedTags.get(tagId).size()));
     }
 
     /**
@@ -156,8 +127,8 @@ public class TagMatrix {
             int tagId;
             tagId = popularTagId;
 
-            while (relatedTags.get(tagId).size() == 0) {
-                tagId = randomTopic.nextInt(relatedTags.size());
+            if(relatedTags.get(tagId) == null) {
+                tagId = nonZeroTags.get(randomTag.nextInt(nonZeroTags.size()));
             }
 
             // Doing binary search for finding the tag
@@ -177,5 +148,6 @@ public class TagMatrix {
             resultTags.add(relatedTags.get(tagId).get(midPoint));
         }
         return resultTags;
+
     }
 }

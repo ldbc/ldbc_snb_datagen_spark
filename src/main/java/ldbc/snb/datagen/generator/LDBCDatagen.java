@@ -38,6 +38,8 @@ package ldbc.snb.datagen.generator;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.hadoop.*;
+import ldbc.snb.datagen.objects.Person;
+import ldbc.snb.datagen.objects.similarity.GeoDistanceSimilarity;
 import ldbc.snb.datagen.util.ConfigParser;
 import ldbc.snb.datagen.vocabulary.SN;
 import org.apache.hadoop.conf.Configuration;
@@ -49,6 +51,7 @@ import org.apache.hadoop.io.Text;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 public class LDBCDatagen {
@@ -57,8 +60,14 @@ public class LDBCDatagen {
     public static synchronized void init (Configuration conf) {
         if(!initialized) {
             DatagenParams.readConf(conf);
-            Dictionaries.loadDictionaries();
+            Dictionaries.loadDictionaries(conf);
             SN.initialize();
+            try {
+                Person.personSimilarity = (Person.PersonSimilarity) Class.forName(conf.get("ldbc.snb.datagen.generator.person.similarity")).newInstance();
+            } catch(Exception e) {
+                System.err.println("Error while loading person similarity class");
+                System.err.println(e.getMessage());
+            }
             initialized = true;
         }
     }
@@ -166,7 +175,8 @@ public class LDBCDatagen {
 
             for( int i = 0; i < numThreads; ++i ) {
                 if( i < numBlocks ) {
-                    fs.copyToLocalFile(false, new Path(DatagenParams.hadoopDir + "/m" + i + "factors.txt"), new Path("./"));
+                    fs.copyToLocalFile(false, new Path(DatagenParams.hadoopDir + "/m" + i + "personFactors.txt"), new Path("./"));
+                    fs.copyToLocalFile(false, new Path(DatagenParams.hadoopDir + "/m" + i + "activityFactors.txt"), new Path("./"));
                     fs.copyToLocalFile(false, new Path(DatagenParams.hadoopDir + "/m0friendList" + i + ".csv"), new Path("./"));
                 }
             }
@@ -182,7 +192,36 @@ public class LDBCDatagen {
             int blockSize = DatagenParams.blockSize;
             int numBlocks = (int)Math.ceil(DatagenParams.numPersons / (double)blockSize);
 
+            List<String> personStreamsFileNames = new ArrayList<String>();
+            List<String> forumStreamsFileNames = new ArrayList<String>();
             for( int i = 0; i < DatagenParams.numThreads; ++i) {
+                int numPartitions = conf.getInt("ldbc.snb.datagen.serializer.numUpdatePartitions", 1);
+                //if( i < numBlocks ) {
+                    for (int j = 0; j < numPartitions; ++j) {
+                        personStreamsFileNames.add(DatagenParams.hadoopDir + "/temp_updateStream_person_" + i + "_" + j);
+                        if( conf.getBoolean("ldbc.snb.datagen.generator.activity", false)) {
+                            forumStreamsFileNames.add(DatagenParams.hadoopDir + "/temp_updateStream_forum_" + i + "_" + j);
+                        }
+                    }
+                /*} else {
+                    for (int j = 0; j < numPartitions; ++j) {
+                        fs.delete(new Path(DatagenParams.hadoopDir + "/temp_updateStream_person_" + i + "_" + j), true);
+                        fs.delete(new Path(DatagenParams.hadoopDir + "/temp_updateStream_forum_" + i + "_" + j), true);
+                    }
+                } */
+            }
+            HadoopUpdateStreamSorterAndSerializer updateSorterAndSerializer = new HadoopUpdateStreamSorterAndSerializer(conf);
+            updateSorterAndSerializer.run(personStreamsFileNames, "person");
+            updateSorterAndSerializer.run(forumStreamsFileNames, "forum");
+            for(String file : personStreamsFileNames) {
+                fs.delete(new Path(file), true);
+            }
+
+            for(String file : forumStreamsFileNames) {
+                fs.delete(new Path(file), true);
+            }
+
+            /*for( int i = 0; i < DatagenParams.numThreads; ++i) {
                 int numPartitions = conf.getInt("ldbc.snb.datagen.serializer.numUpdatePartitions", 1);
                 if( i < numBlocks ) {
                     for (int j = 0; j < numPartitions; ++j) {
@@ -205,7 +244,7 @@ public class LDBCDatagen {
                         fs.delete(new Path(DatagenParams.hadoopDir + "/temp_updateStream_forum_" + i + "_" + j), true);
                     }
                 }
-            }
+            }*/
 
             long minDate = Long.MAX_VALUE;
             long maxDate = Long.MIN_VALUE;
@@ -258,11 +297,7 @@ public class LDBCDatagen {
         invariantSerializer.run();
         long endInvariantSerializing= System.currentTimeMillis();
 
-
-
         long end = System.currentTimeMillis();
-
-
 
         System.out.println(((end - start) / 1000)
                 + " total seconds");

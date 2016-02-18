@@ -34,8 +34,6 @@ def findNameParameters(names, amount = 100):
 		i -= 1
 	return res
 
-
-
 class CSVSerializer:
 	def __init__(self):
 		self.handlers = []
@@ -130,19 +128,23 @@ def main(argv=None):
 		return 1
 
 	indir = argv[1]+"/"
-	factorFiles=[]
+	activityFactorFiles=[]
+	personFactorFiles=[]
 	friendsFiles = []
 	outdir = argv[2]+"/"
 	random.seed(SEED)
 	
+
 	for file in os.listdir(indir):
-		if file.endswith("factors.txt"):
-			factorFiles.append(indir+file)
+		if file.endswith("activityFactors.txt"):
+			activityFactorFiles.append(indir+file)
+		if file.endswith("personFactors.txt"):
+			personFactorFiles.append(indir+file)
 		if file.startswith("m0friendList"):
 			friendsFiles.append(indir+file)
 
 	# read precomputed counts from files	
-	(personFactors, countryFactors, tagFactors, tagClassFactors, nameFactors, givenNames,  ts) = readfactors.load(factorFiles, friendsFiles)
+	(personFactors, countryFactors, tagFactors, tagClassFactors, nameFactors, givenNames,  ts, postHisto) = readfactors.load(personFactorFiles, activityFactorFiles, friendsFiles)
 
 	# find person parameters
 	print "find parameter bindings for Persons"
@@ -234,7 +236,7 @@ def main(argv=None):
 	}
 
 	print "find parameter bindings for Timestamps"
-	selectedTimeParams = findTimeParams(timeSelectionInput, factorFiles, friendsFiles, ts[1])
+	selectedTimeParams = findTimeParams(timeSelectionInput, personFactorFiles, activityFactorFiles, friendsFiles, ts[1])
 	# Query 11 takes WorksFrom timestamp
 	selectedTimeParams[11] = [random.randint(ts[2], ts[3]) for j in range(len(selectedPersonParams[11]))]
 

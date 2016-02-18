@@ -57,14 +57,13 @@ public class TagTextDictionary {
      */
     private double reducedTextRatio;
 
-    /**
-     * < @brief The probability to retrieve an small text.
-     */
+    StringBuilder returnString = null;
 
     public TagTextDictionary(TagDictionary tagDic, double reducedTextRatio) {
         this.tagText = new HashMap<Integer, String>();
         this.tagDic = tagDic;
         this.reducedTextRatio = reducedTextRatio;
+        this.returnString = new StringBuilder(1000);
 	load(DatagenParams.tagTextFile);
     }
 
@@ -123,6 +122,7 @@ public class TagTextDictionary {
     }
 
     /**
+     *
      * @param randomTextSize The random number generator to generate the amount of text devoted to each tag.
      * @param tags           The set of tags to generate the text from.
      * @param textSize       The final text size.
@@ -130,7 +130,7 @@ public class TagTextDictionary {
      * @brief Generates a text given a set of tags.
      */
     public String generateText(Random randomTextSize, TreeSet<Integer> tags, int textSize) {
-        String returnString = "";
+        returnString.setLength(0);
         int textSizePerTag = (int) Math.ceil(textSize / (double) tags.size());
         while (returnString.length() < textSize) {
             Iterator<Integer> it = tags.iterator();
@@ -138,36 +138,31 @@ public class TagTextDictionary {
                 Integer tag = it.next();
                 String content = getTagText(tag);
                 int thisTagTextSize = Math.min(textSizePerTag, textSize - returnString.length());
+                String tagName = tagDic.getName(tag).replace("_", " ");
+                tagName = tagName.replace("\"", "\\\"");
+                String prefix = "About " + tagName + ", ";
+                thisTagTextSize+=prefix.length();
                 if (thisTagTextSize >= content.length()) {
-                    returnString += content;
+                    returnString.append(content);
                 } else {
-                    int startingPos = randomTextSize.nextInt(content.length() - thisTagTextSize);
-                    String finalString = content.substring(startingPos, startingPos + thisTagTextSize);
-                    String tagName = tagDic.getName(tag).replace("_", " ");
-                    tagName = tagName.replace("\"", "\\\"");
-                    String prefix = "About " + tagName + ", ";
-
-                    int posSpace = finalString.indexOf(" ");
-                    finalString = (posSpace != -1) ? prefix + finalString.substring(posSpace).trim() : prefix + finalString;
-                    posSpace = finalString.lastIndexOf(" ");
-                    if (posSpace != -1) {
-                        finalString = finalString.substring(0, posSpace);
-                    }
-                    finalString = finalString.substring(0, Math.min(thisTagTextSize, finalString.length()));
-                    returnString += finalString;
-                }
-                if (!returnString.endsWith(".")) {
-                    if (returnString.length() == 1) {
-                        returnString = ".";
-                    } else {
-                        returnString = returnString.substring(0, returnString.length() - 1) + ".";
-                    }
-                }
-                if (returnString.length() < textSize - 1) {
-                    returnString += " ";
+                    int startingPos = randomTextSize.nextInt(content.length() - thisTagTextSize + prefix.length());
+                    String finalString = content.substring(startingPos, startingPos + thisTagTextSize - prefix.length());
+                    returnString.append(prefix);
+                    returnString.append(finalString);
                 }
             }
         }
-        return returnString.replace("|", " ");
+
+        if (!(returnString.charAt(returnString.length()-1) == '.')) {
+            if (returnString.length() == 1) {
+                returnString.append(".");
+            } else {
+                returnString.append(".");
+            }
+        }
+        if (returnString.length() < textSize - 1) {
+            returnString.append(" ");
+        }
+        return returnString.toString().replace("|", " ");
     }
 }
