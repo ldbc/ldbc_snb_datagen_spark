@@ -17,27 +17,27 @@ public class EmptyPersonActivitySerializer extends PersonActivitySerializer {
 
      }
 
-     protected void serialize( Forum forum ) {
+     protected void serialize(final  Forum forum ) {
 
      }
 
-     protected void serialize( Post post ) {
+     protected void serialize(final  Post post ) {
 
      }
 
-     protected void serialize( Comment comment ) {
+     protected void serialize(final  Comment comment ) {
 
      }
 
-     protected void serialize( Photo photo ) {
+     protected void serialize(final  Photo photo ) {
 
      }
 
-     protected void serialize( ForumMembership membership ) {
+     protected void serialize(final  ForumMembership membership ) {
 
      }
 
-     protected void serialize( Like like ) {
+     protected void serialize(final  Like like ) {
 
      }
 

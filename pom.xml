@@ -7,36 +7,14 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ldbc.snb.datagen</groupId>
   <artifactId>ldbc_snb_datagen</artifactId>
-  <version>0.1</version>
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.4</version>
-        <configuration>
-          <descriptorRefs>
-            <descriptorRef>jar-with-dependencies</descriptorRef>
-          </descriptorRefs>
-          <archive>
-            <manifest>
-              <mainClass>ldbc.snb.datagen.generator.LDBCDatagen</mainClass>
-            </manifest>
-          </archive>
-          <finalName>ldbc_snb_datagen</finalName>
-          <appendAssemblyId>false</appendAssemblyId>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.1</version>
-        <configuration>        
-          <compilerVersion>1.6</compilerVersion>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-  <dependencies>
+  <version>0.2.5</version>
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
        <dependency>
            <groupId>xerces</groupId>
            <artifactId>xercesImpl</artifactId>
@@ -88,4 +66,32 @@
           <version>3.4.1</version>
       </dependency>
   </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>ldbc.snb.datagen.generator.LDBCDatagen</mainClass>
+                        </manifest>
+                    </archive>
+                    <finalName>ldbc_snb_datagen</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <compilerVersion>1.6</compilerVersion>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

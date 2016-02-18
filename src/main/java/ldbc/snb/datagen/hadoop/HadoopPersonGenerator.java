@@ -38,7 +38,8 @@ public class HadoopPersonGenerator  {
             try {
                 this.keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(conf.get("postKeySetterName")).newInstance();
             } catch(Exception e) {
-                System.out.println(e.getMessage());
+                System.err.println("Error when setting key setter");
+                System.err.println(e.getMessage());
             }
 
         int threadId = Integer.parseInt(value.toString());

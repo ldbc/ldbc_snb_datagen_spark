@@ -18,7 +18,7 @@ abstract public class PersonSerializer {
 	    
     }
 
-    public void export(Person person) {
+    public void export(final Person person) {
 //        System.out.println(person.maxNumKnows());
 
         serialize(person);
@@ -45,7 +45,7 @@ abstract public class PersonSerializer {
         }
     }
 
-    public void export(Person p, Knows k ) {
+    public void export(final Person p, final Knows k ) {
         if( p.accountId() < k.to().accountId())
             serialize(p, k);
     }
@@ -56,11 +56,11 @@ abstract public class PersonSerializer {
 
     abstract public void close();
 
-    abstract protected void serialize(Person p);
+    abstract protected void serialize(final Person p);
 
-    abstract protected void serialize(StudyAt studyAt);
+    abstract protected void serialize(final StudyAt studyAt);
 
-    abstract protected void serialize(WorkAt workAt);
+    abstract protected void serialize(final WorkAt workAt);
 
-    abstract protected void serialize(Person p, Knows knows);
+    abstract protected void serialize(final Person p, final Knows knows);
 }

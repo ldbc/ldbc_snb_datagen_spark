@@ -43,7 +43,6 @@ import ldbc.snb.datagen.objects.Knows;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.objects.StudyAt;
 import ldbc.snb.datagen.objects.WorkAt;
-import ldbc.snb.datagen.serializer.HDFSCSVWriter;
 import ldbc.snb.datagen.serializer.HDFSWriter;
 import ldbc.snb.datagen.serializer.PersonSerializer;
 import ldbc.snb.datagen.serializer.Turtle;
@@ -93,12 +92,12 @@ public class TurtlePersonSerializer extends PersonSerializer {
     }
 
     @Override
-    protected void serialize(Person p) {
+    protected void serialize(final Person p) {
         StringBuffer result = new StringBuffer(19000);
         String prefix = SN.getPersonURI(p.accountId());
         Turtle.AddTriple(result, true, false, prefix, RDF.type, SNVOC.Person);
         Turtle.AddTriple(result, false, false, prefix, SNVOC.id,
-                Turtle.createLiteral(Long.toString(p.accountId())));
+                Turtle.createDataTypeLiteral(Long.toString(p.accountId()), XSD.Long));
         Turtle.AddTriple(result, false, false, prefix, SNVOC.firstName,
                 Turtle.createLiteral(p.firstName()));
         Turtle.AddTriple(result, false, false, prefix, SNVOC.lastName,
@@ -118,7 +117,7 @@ public class TurtlePersonSerializer extends PersonSerializer {
         Turtle.AddTriple(result, false, false, prefix, SNVOC.browser,
                         Turtle.createLiteral(Dictionaries.browsers.getName(p.browserId())));
         Turtle.AddTriple(result, false, true, prefix, SNVOC.creationDate,
-                Turtle.createDataTypeLiteral(Dictionaries.dates.formatDateDetail(p.creationDate()), XSD.DateTime));
+                Turtle.createDataTypeLiteral(Dictionaries.dates.formatDateTime(p.creationDate()), XSD.DateTime));
 
         Turtle.createTripleSPO(result, prefix, SNVOC.locatedIn, DBP.fullPrefixed(Dictionaries.places.getPlaceName(p.cityId())));
 
@@ -133,19 +132,19 @@ public class TurtlePersonSerializer extends PersonSerializer {
 
         for(Integer tag : p.interests()) {
             String interest = Dictionaries.tags.getName(tag);
-            Turtle.createTripleSPO(result, prefix, SNVOC.hasInterest, DBP.fullPrefixed(interest));
+            Turtle.createTripleSPO(result, prefix, SNVOC.hasInterest, SNTAG.fullPrefixed(interest));
         }
         writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
     }
 
     @Override
-    protected void serialize(StudyAt studyAt) {
+    protected void serialize(final StudyAt studyAt) {
         String prefix = SN.getPersonURI(studyAt.user);
         StringBuffer result = new StringBuffer(19000);
         long id = SN.formId(studyAtId);
         Turtle.createTripleSPO(result, prefix, SNVOC.studyAt, SN.getStudyAtURI(id));
         Turtle.createTripleSPO(result, SN.getStudyAtURI(id), SNVOC.hasOrganisation,
-                DBP.fullPrefixed(Dictionaries.universities.getUniversityName(studyAt.university)));
+                SN.getUnivURI(studyAt.university));
         String yearString = Dictionaries.dates.formatYear(studyAt.year);
         Turtle.createTripleSPO(result, SN.getStudyAtURI(id), SNVOC.classYear,
                 Turtle.createDataTypeLiteral(yearString, XSD.Integer));
@@ -154,13 +153,13 @@ public class TurtlePersonSerializer extends PersonSerializer {
     }
 
     @Override
-    protected void serialize(WorkAt workAt) {
+    protected void serialize(final WorkAt workAt) {
         String prefix = SN.getPersonURI(workAt.user);
         StringBuffer result = new StringBuffer(19000);
         long id = SN.formId(workAtId);
         Turtle.createTripleSPO(result, prefix, SNVOC.workAt, SN.getWorkAtURI(id));
         Turtle.createTripleSPO(result, SN.getWorkAtURI(id), SNVOC.hasOrganisation,
-                DBP.fullPrefixed(Dictionaries.companies.getCompanyName(workAt.company)));
+                SN.getCompURI(workAt.company));
         String yearString = Dictionaries.dates.formatYear(workAt.year);
         Turtle.createTripleSPO(result, SN.getWorkAtURI(id), SNVOC.workFrom,
                 Turtle.createDataTypeLiteral(yearString, XSD.Integer));
@@ -169,7 +168,7 @@ public class TurtlePersonSerializer extends PersonSerializer {
     }
 
     @Override
-    protected void serialize(Person p, Knows knows) {
+    protected void serialize(final Person p, Knows knows) {
         String prefix = SN.getPersonURI(p.accountId());
         StringBuffer result = new StringBuffer(19000);
         long id = SN.formId(knowsId);
@@ -177,7 +176,7 @@ public class TurtlePersonSerializer extends PersonSerializer {
         Turtle.createTripleSPO(result, SN.getKnowsURI(id), SNVOC.hasPerson,
                 SN.getPersonURI(knows.to().accountId()));
         Turtle.createTripleSPO(result, SN.getKnowsURI(id), SNVOC.creationDate,
-                Turtle.createDataTypeLiteral(Dictionaries.dates.formatDateDetail(knows.creationDate()), XSD.DateTime));
+                Turtle.createDataTypeLiteral(Dictionaries.dates.formatDateTime(knows.creationDate()), XSD.DateTime));
         writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
         knowsId++;
     }
