@@ -15,7 +15,7 @@ public class ZipfDistribution implements DegreeDistribution {
 
     public void initialize(Configuration conf) {
         ALPHA_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.ZipfDistribution.alpha",ALPHA_);
-        zipf_ = new org.apache.commons.math3.distribution.ZipfDistribution(10000, ALPHA_);
+        zipf_ = new org.apache.commons.math3.distribution.ZipfDistribution(1000, ALPHA_);
     }
 
     public void reset (long seed) {
