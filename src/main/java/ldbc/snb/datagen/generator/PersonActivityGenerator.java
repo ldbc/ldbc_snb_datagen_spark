@@ -33,12 +33,11 @@ public class PersonActivityGenerator {
     private PersonActivityExporter exporter_;
 
 	public PersonActivityGenerator( PersonActivitySerializer serializer, UpdateEventSerializer updateSerializer ) {
+		randomFarm_ = new RandomGeneratorFarm();
 		personActivitySerializer_ = serializer;
 		updateSerializer_ = updateSerializer;
-		randomFarm_ = new RandomGeneratorFarm();
 		forumGenerator_ = new ForumGenerator();
-		Random random = new Random();
-		TextGenerator generator = new LdbcSnbTextGenerator(random, Dictionaries.tags);
+		TextGenerator generator = new LdbcSnbTextGenerator(randomFarm_.get(RandomGeneratorFarm.Aspect.LARGE_TEXT), Dictionaries.tags);
         likeGenerator_ = new LikeGenerator();
         commentGenerator_ = new CommentGenerator(generator, likeGenerator_);
 		uniformPostGenerator_ = new UniformPostGenerator(generator, commentGenerator_, likeGenerator_);
