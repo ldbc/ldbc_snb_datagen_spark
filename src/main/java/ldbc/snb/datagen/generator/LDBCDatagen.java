@@ -49,6 +49,8 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 
+
+import java.io.File;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -135,6 +137,7 @@ public class LDBCDatagen {
 
         knowsGenerator.run(hadoopPrefix+"/persons",hadoopPrefix+"/randomEdges");
         long endRandom= System.currentTimeMillis();
+
 
 
 
@@ -311,6 +314,30 @@ public class LDBCDatagen {
         System.out.println("Sorting update streams time: "+((endSortingUpdateStreams - startSortingUpdateStreams) / 1000));
         System.out.println("Invariant schema serialization time: "+((endInvariantSerializing - startInvariantSerializing) / 1000));
         System.out.println("Total Execution time: "+((end - start) / 1000));
+
+        System.out.println("Running Parameter Generation");
+        if(conf.getBoolean("ldbc.snb.datagen.parametergenerator.parameters",false) && conf.getBoolean("ldbc.snb.datagen.generator.activity",false)) {
+            ProcessBuilder pb = new ProcessBuilder("mkdir", "-p",conf.get("ldbc.snb.datagen.serializer.outputDir")+"/substitution_parameters");
+            pb.directory(new File("./"));
+            Process p = pb.start();
+            p.waitFor();
+
+            pb = new ProcessBuilder(conf.get("ldbc.snb.datagen.parametergenerator.python"), "paramgenerator/generateparams.py", "./",conf.get("ldbc.snb.datagen.serializer.outputDir")+"/substitution_parameters");
+            pb.directory(new File("./"));
+            File logInteractive = new File("parameters_interactive.log");
+            pb.redirectErrorStream(true);
+            pb.redirectOutput(ProcessBuilder.Redirect.appendTo(logInteractive));
+            p = pb.start();
+            p.waitFor();
+
+            pb = new ProcessBuilder(conf.get("ldbc.snb.datagen.parametergenerator.python"), "paramgenerator/generateparamsbi.py", "./",conf.get("ldbc.snb.datagen.serializer.outputDir")+"/substitution_parameters");
+            pb.directory(new File("./"));
+            File logBi = new File("parameters_bi.log");
+            pb.redirectErrorStream(true);
+            pb.redirectOutput(ProcessBuilder.Redirect.appendTo(logBi));
+            p = pb.start();
+            p.waitFor();
+        }
         return 0;
     }
 

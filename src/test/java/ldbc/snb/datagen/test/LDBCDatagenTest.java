@@ -18,15 +18,18 @@ import java.util.Set;
 public class LDBCDatagenTest {
 
     final String dir = "./test_data/social_network";
+    final String sdir = "./test_data/substitution_parameters";
 
     @BeforeClass
     public static void generateData() {
-        ProcessBuilder pb = new ProcessBuilder("java", "-cp", "ldbc_snb_datagen.jar","org.apache.hadoop.util.RunJar","./ldbc_snb_datagen.jar","./test_params.ini");
+        ProcessBuilder pb = new ProcessBuilder("java", "-cp", "target/ldbc_snb_datagen.jar","org.apache.hadoop.util.RunJar","target/ldbc_snb_datagen.jar","./test_params.ini");
         pb.directory(new File("./"));
+        File log = new File("test_log");
+        pb.redirectErrorStream(true);
+        pb.redirectOutput(ProcessBuilder.Redirect.appendTo(log));
         try {
             Process p = pb.start();
             p.waitFor();
-
         }catch(Exception e) {
             System.err.println(e.getMessage());
         }
@@ -182,9 +185,111 @@ public class LDBCDatagenTest {
         testPairUniquenessPlusExistance(dir+"/person_likes_post_0_0.csv",0,1,dir+"/person_0_0.csv",0,dir+"/post_0_0.csv",0);
     }
 
+    // test update stream  time consistency
+    @Test
+    public void updateStreamForumsConsistencyCheck() {
+        testLongPair(dir+"/updateStream_0_0_forum.csv",0,1,NumericPairCheck.NumericCheckType.G);
+    }
+
+    @Test
+    public void queryParamsTest() {
+        LongParser parser = new LongParser();
+        ColumnSet<Long> persons = new ColumnSet<Long>(parser,new File(dir+"/person_0_0.csv"),0,1);
+        persons.initialize();
+        List<ColumnSet<Long>> personsRef = new ArrayList<ColumnSet<Long>>();
+        personsRef.add(persons);
+        List<Integer> personIndex = new ArrayList<Integer>();
+        personIndex.add(0);
+        ExistsCheck<Long> existsPersonCheck = new ExistsCheck<Long>(parser,personIndex, personsRef);
+
+        FileChecker fileChecker = new FileChecker(sdir+"/query_1_param.txt");
+        fileChecker.addCheck(existsPersonCheck);
+        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 1 PERSON EXISTS ",true, false);
+
+        fileChecker = new FileChecker(sdir+"/query_2_param.txt");
+        fileChecker.addCheck(existsPersonCheck);
+        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 2 PERSON EXISTS ",true, false);
+
+        fileChecker = new FileChecker(sdir+"/query_3_param.txt");
+        fileChecker.addCheck(existsPersonCheck);
+        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 3 PERSON EXISTS ",true, false);
+
+        fileChecker = new FileChecker(sdir+"/query_4_param.txt");
+        fileChecker.addCheck(existsPersonCheck);
+        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 4 PERSON EXISTS ",true, false);
+
+        fileChecker = new FileChecker(sdir+"/query_5_param.txt");
+        fileChecker.addCheck(existsPersonCheck);
+        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 5 PERSON EXISTS ",true, false);
+
+        fileChecker = new FileChecker(sdir+"/query_6_param.txt");
+        fileChecker.addCheck(existsPersonCheck);
+        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 6 PERSON EXISTS ",true, false);
+
+        fileChecker = new FileChecker(sdir+"/query_7_param.txt");
+        fileChecker.addCheck(existsPersonCheck);
+        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 7 PERSON EXISTS ",true, false);
+
+        fileChecker = new FileChecker(sdir+"/query_8_param.txt");
+        fileChecker.addCheck(existsPersonCheck);
+        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 8 PERSON EXISTS ",true, false);
+
+        fileChecker = new FileChecker(sdir+"/query_9_param.txt");
+        fileChecker.addCheck(existsPersonCheck);
+        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 9 PERSON EXISTS ",true, false);
+
+        fileChecker = new FileChecker(sdir+"/query_10_param.txt");
+        fileChecker.addCheck(existsPersonCheck);
+        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 10 PERSON EXISTS ",true, false);
+
+        fileChecker = new FileChecker(sdir+"/query_11_param.txt");
+        fileChecker.addCheck(existsPersonCheck);
+        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 11 PERSON EXISTS ",true, false);
+
+        fileChecker = new FileChecker(sdir+"/query_12_param.txt");
+        fileChecker.addCheck(existsPersonCheck);
+        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 12 PERSON EXISTS ",true, false);
+
+        personIndex.add(1);
+        ExistsCheck<Long> exists2PersonCheck = new ExistsCheck<Long>(parser,personIndex, personsRef);
+
+        fileChecker = new FileChecker(sdir+"/query_13_param.txt");
+        fileChecker.addCheck(exists2PersonCheck);
+        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 13 PERSON EXISTS ",true, false);
+
+        fileChecker = new FileChecker(sdir+"/query_14_param.txt");
+        fileChecker.addCheck(exists2PersonCheck);
+        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 14 PERSON EXISTS ",true, false);
+
+
+    }
+    // test query parameters correctness
+    // query 1, check person id existance and surname existance
+    // query 2, check person id existance and date time within simulation interval
+    // query 3, check person id existance, country X and Y existance, startData + duration within simulation interval
+    // query 4, check person id existance and startDate + duration within simulation interval
+    // query 5, check person id and date within simulation interval
+    // query 6, check person id and tag name existance
+    // query 7, check person id existance
+    // query 8, check person id existance
+    // query 9, check person id and date within simulation interval
+    // query 10, check person id existance and month between 1 and 12
+    // query 11, check person id existance, Country existance and year something reasonable
+    // query 12, check person id existance and tagclass existance
+    // query 13, check persons id existance
+    // query 14, check persons id existance
+
+    public void testLongPair(String fileName, Integer columnA, Integer columnB, NumericPairCheck.NumericCheckType type) {
+        FileChecker fileChecker = new FileChecker(fileName);
+        LongParser parser = new LongParser();
+        LongPairCheck check = new LongPairCheck(parser, " Long check less equal ", columnA, columnB, type);
+        fileChecker.addCheck(check);
+        if(!fileChecker.run(0)) assertEquals("ERROR PASSING TEST LONG PAIR FOR FILE "+fileName,true, false);
+    }
+
     public void testIdUniqueness(String fileName, int column) {
         FileChecker fileChecker = new FileChecker(fileName);
-        UniquenessCheck check = new UniquenessCheck(0);
+        UniquenessCheck check = new UniquenessCheck(column);
         fileChecker.addCheck(check);
         if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST ID UNIQUENESS FOR FILE "+fileName,true, false);
     }

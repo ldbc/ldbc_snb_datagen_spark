@@ -40,6 +40,10 @@ public class FileChecker {
                             for(Integer index : c.getColumns()) {
                                System.err.print(index+" ");
                             }
+                            System.err.print(" with values ");
+                            for(String index : row) {
+                                System.err.print(index+" ");
+                            }
                             System.err.println();
                             return false;
                         }
