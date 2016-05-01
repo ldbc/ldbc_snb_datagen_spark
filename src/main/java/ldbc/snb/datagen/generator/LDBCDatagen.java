@@ -362,6 +362,11 @@ public class LDBCDatagen {
         LDBCDatagen datagen = new LDBCDatagen();
         LDBCDatagen.init(conf);
             datagen.runGenerateJob(conf);
+        }catch(AssertionError e ) {
+            System.err.println("Error during execution");
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+            System.exit(1);
         }catch(Exception e ) {
             System.err.println("Error during execution");
             System.err.println(e.getMessage());

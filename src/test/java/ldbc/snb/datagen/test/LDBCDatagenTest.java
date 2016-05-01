@@ -1,16 +1,14 @@
 package ldbc.snb.datagen.test;
 
 import ldbc.snb.datagen.test.csv.*;
-import org.codehaus.groovy.vmplugin.v5.JUnit4Utils;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by aprat on 18/12/15.
@@ -22,7 +20,7 @@ public class LDBCDatagenTest {
 
     @BeforeClass
     public static void generateData() {
-        ProcessBuilder pb = new ProcessBuilder("java", "-cp", "target/ldbc_snb_datagen.jar","org.apache.hadoop.util.RunJar","target/ldbc_snb_datagen.jar","./test_params.ini");
+        ProcessBuilder pb = new ProcessBuilder("java", "-ea","-cp","target/ldbc_snb_datagen-0.2.5.jar","ldbc.snb.datagen.generator.LDBCDatagen","./test_params.ini");
         pb.directory(new File("./"));
         File log = new File("test_log");
         pb.redirectErrorStream(true);
@@ -188,7 +186,7 @@ public class LDBCDatagenTest {
     // test update stream  time consistency
     @Test
     public void updateStreamForumsConsistencyCheck() {
-        testLongPair(dir+"/updateStream_0_0_forum.csv",0,1,NumericPairCheck.NumericCheckType.G);
+        testLongPair(dir+"/updateStream_0_0_forum.csv",0,1,NumericPairCheck.NumericCheckType.GE, -10000,0);
     }
 
     @Test
@@ -202,9 +200,19 @@ public class LDBCDatagenTest {
         personIndex.add(0);
         ExistsCheck<Long> existsPersonCheck = new ExistsCheck<Long>(parser,personIndex, personsRef);
 
+        StringParser strParser = new StringParser();
+        ColumnSet<String> names = new ColumnSet<String>(strParser,new File(dir+"/person_0_0.csv"),1,1);
+        names.initialize();
+        List<ColumnSet<String>> namesRef = new ArrayList<ColumnSet<String>>();
+        namesRef.add(names);
+        List<Integer> namesIndex = new ArrayList<Integer>();
+        namesIndex.add(1);
+        ExistsCheck<String> existsNameCheck = new ExistsCheck<String>(strParser,namesIndex, namesRef);
+
         FileChecker fileChecker = new FileChecker(sdir+"/query_1_param.txt");
         fileChecker.addCheck(existsPersonCheck);
-        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 1 PERSON EXISTS ",true, false);
+        fileChecker.addCheck(existsNameCheck);
+        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 1 PERSON AND NAME EXISTS ",true, false);
 
         fileChecker = new FileChecker(sdir+"/query_2_param.txt");
         fileChecker.addCheck(existsPersonCheck);
@@ -264,7 +272,7 @@ public class LDBCDatagenTest {
 
     }
     // test query parameters correctness
-    // query 1, check person id existance and surname existance
+    // query 1, check person id existance and name existance
     // query 2, check person id existance and date time within simulation interval
     // query 3, check person id existance, country X and Y existance, startData + duration within simulation interval
     // query 4, check person id existance and startDate + duration within simulation interval
@@ -279,10 +287,10 @@ public class LDBCDatagenTest {
     // query 13, check persons id existance
     // query 14, check persons id existance
 
-    public void testLongPair(String fileName, Integer columnA, Integer columnB, NumericPairCheck.NumericCheckType type) {
+    public void testLongPair(String fileName, Integer columnA, Integer columnB, NumericPairCheck.NumericCheckType type, long offsetA, long offsetB) {
         FileChecker fileChecker = new FileChecker(fileName);
         LongParser parser = new LongParser();
-        LongPairCheck check = new LongPairCheck(parser, " Long check less equal ", columnA, columnB, type);
+        LongPairCheck check = new LongPairCheck(parser, " Long check ", columnA, columnB, type, offsetA, offsetB);
         fileChecker.addCheck(check);
         if(!fileChecker.run(0)) assertEquals("ERROR PASSING TEST LONG PAIR FOR FILE "+fileName,true, false);
     }

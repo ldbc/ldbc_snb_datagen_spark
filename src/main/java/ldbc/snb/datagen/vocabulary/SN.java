@@ -59,7 +59,8 @@ public class SN {
 
     public static void initialize() {
 	minDate = Dictionaries.dates.getStartDateTime();
-	maxDate = Dictionaries.dates.getMaxDateTime();
+	//maxDate = Dictionaries.dates.getMaxDateTime();
+        maxDate = Dictionaries.dates.getEndDateTime();
         numBits = (int) Math.ceil(Math.log10(Math.ceil(DatagenParams.numPersons/(double)DatagenParams.blockSize)) / Math.log10(2));
         if (numBits > 14) System.out.print("WARNING: Possible id overlapp");
     }

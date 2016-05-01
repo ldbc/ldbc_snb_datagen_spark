@@ -36,12 +36,15 @@
  */
 package ldbc.snb.datagen.objects;
 
+import ldbc.snb.datagen.generator.DatagenParams;
+
 public class ForumMembership {
     private long forumId_;
     private long creationDate_;
     private Person.PersonSummary person_;
 
     public ForumMembership( long forumId, long creationDate, Person.PersonSummary p ) {
+        assert (p.creationDate() + DatagenParams.deltaTime) <= creationDate : "Person creation date is larger than membership";
 	    forumId_ = forumId;
 	    creationDate_ = creationDate;
 	    person_ = new Person.PersonSummary(p);

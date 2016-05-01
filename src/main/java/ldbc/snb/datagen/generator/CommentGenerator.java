@@ -82,7 +82,7 @@ public class CommentGenerator {
 			}
 			
 			long creationDate = Dictionaries.dates.powerlawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),replyTo.creationDate()+DatagenParams.deltaTime);
-			if( creationDate <= Dictionaries.dates.getEndDateTime() ) {
+			/*if( creationDate <= Dictionaries.dates.getEndDateTime() )*/ {
 				Comment comment = new Comment(SN.formId(SN.composeId(nextId++,creationDate)),
 					creationDate,
 					member.person(),

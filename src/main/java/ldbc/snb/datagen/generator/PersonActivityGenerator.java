@@ -48,11 +48,16 @@ public class PersonActivityGenerator {
 	}
 
 	private void generateActivity( Person person, ArrayList<Person> block ) {
-		generateWall(person, block);
-		generateGroups(person, block);
-		generateAlbums(person, block);
-        if(person.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
+        try {
             factorTable_.extractFactors(person);
+            generateWall(person, block);
+            generateGroups(person, block);
+            generateAlbums(person, block);
+        } catch (AssertionError e) {
+            System.out.println("Assertion error when generating activity!");
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            System.exit(1);
         }
 	}
 

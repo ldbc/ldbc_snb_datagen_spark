@@ -40,7 +40,7 @@ public class UniformPostGenerator extends PostGenerator {
 		    }
 	    }
 	    postInfo.date = Dictionaries.dates.randomDate(randomDate,membership.creationDate()+DatagenParams.deltaTime);
-	    if( postInfo.date > Dictionaries.dates.getEndDateTime() ) return null;
+	    //if( postInfo.date > Dictionaries.dates.getEndDateTime() ) return null;
 	    return postInfo;
     }
 }

@@ -93,6 +93,7 @@ public class HadoopPersonActivityGenerator {
             }
             System.out.println("Starting generation of block: "+key.block);
             personActivityGenerator_.generateActivityForBlock((int)key.block, persons, context );
+            System.out.println("Writing person factors for block: "+key.block);
             personActivityGenerator_.writePersonFactors(personFactors_);
         }
         protected void cleanup(Context context){
@@ -119,7 +120,7 @@ public class HadoopPersonActivityGenerator {
         this.conf = conf;
     }
 
-    public void run( String inputFileName ) throws Exception {
+    public void run( String inputFileName ) throws AssertionError, Exception {
 
         FileSystem fs = FileSystem.get(conf);
 
@@ -156,8 +157,12 @@ public class HadoopPersonActivityGenerator {
         FileInputFormat.setInputPaths(job, new Path(rankedFileName));
         FileOutputFormat.setOutputPath(job, new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")+"/aux"));
         long start = System.currentTimeMillis();
-        if(!job.waitForCompletion(true)) {
-            throw new Exception();
+        try {
+            if (!job.waitForCompletion(true)) {
+                throw new Exception();
+            }
+        } catch (AssertionError e)  {
+            throw e;
         }
         System.out.println("Real time to generate activity: "+(System.currentTimeMillis() - start)/1000.0f);
 

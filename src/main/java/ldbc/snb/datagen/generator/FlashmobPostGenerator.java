@@ -129,7 +129,7 @@ public class FlashmobPostGenerator extends PostGenerator{
 		}
 	    double prob = dateDistribution_.nextDouble(randomDate);
 	    postInfo.date = flashmobTag.date - flashmobSpan_/2 + (long)(prob * flashmobSpan_);
-	    if( postInfo.date > Dictionaries.dates.getEndDateTime() ) return null;
+	    //if( postInfo.date > Dictionaries.dates.getEndDateTime() ) return null;
 	    return postInfo;
     }
 }

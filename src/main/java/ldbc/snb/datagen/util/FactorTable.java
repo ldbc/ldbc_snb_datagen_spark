@@ -6,10 +6,7 @@ import ldbc.snb.datagen.objects.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by aprat on 1/8/15.
@@ -24,6 +21,8 @@ public class FactorTable {
         private long numForums_ = 0;
         private long numWorkPlaces_ = 0;
         private long numComments_ = 0;
+        private int country_= 0;
+        private String name_ = null;
         private ArrayList<Long> numMessagesPerMonth_ = null;
         private ArrayList<Long> numForumsPerMonth_ = null;
 
@@ -38,6 +37,21 @@ public class FactorTable {
             }
         }
 
+        public int country() {
+            return country_;
+        }
+
+        public String name() {
+            return name_;
+        }
+
+        public void country(int country) {
+            this.country_ = country;
+        }
+
+        public void name(String name) {
+            this.name_ = name;
+        }
 
         public long numFriends() {
             return numFriends_;
@@ -200,67 +214,105 @@ public class FactorTable {
     }
 
     public void extractFactors( Person person ) {
-        personCounts(person.accountId()).numFriends(person.knows().size());
-        personCounts(person.accountId()).numWorkPlaces(person.companies().size());
-        for( Map.Entry<Long,Long> e : person.companies().entrySet()) {
-            if( minWorkFrom_ > e.getValue() )  minWorkFrom_ = e.getValue();
-            if( maxWorkFrom_ < e.getValue() )  maxWorkFrom_ = e.getValue();
+        if( person.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
+            personCounts(person.accountId()).country(person.countryId());
+            personCounts(person.accountId()).name(person.firstName());
+            personCounts(person.accountId()).numFriends(person.knows().size());
+            personCounts(person.accountId()).numWorkPlaces(person.companies().size());
+            for (Map.Entry<Long, Long> e : person.companies().entrySet()) {
+                if (minWorkFrom_ > e.getValue()) minWorkFrom_ = e.getValue();
+                if (maxWorkFrom_ < e.getValue()) maxWorkFrom_ = e.getValue();
+            }
+            incrFirstNameCount(person.firstName());
+            String medianName = Dictionaries.names.getMedianGivenName(person.countryId(), person.gender() == 1,
+                    Dictionaries.dates.getBirthYear(person.birthDay()));
+            medianFirstName_.put(person.accountId(), medianName);
         }
-        incrFirstNameCount(person.firstName());
-        String medianName = Dictionaries.names.getMedianGivenName(person.countryId(), person.gender() == 1,
-                Dictionaries.dates.getBirthYear(person.birthDay()));
-        medianFirstName_.put(person.accountId(), medianName);
     }
 
     public void extractFactors( ForumMembership member ) {
-        long memberId = member.person().accountId();
-        personCounts(memberId).incrNumForums();
-        int bucket = Dictionaries.dates.getNumberOfMonths(member.creationDate(),DatagenParams.startMonth, DatagenParams.startYear);
-        if( bucket < 36 + 1)
-            personCounts(memberId).incrNumForumsPerMonth(bucket);
+        if( member.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
+            long memberId = member.person().accountId();
+            personCounts(memberId).incrNumForums();
+            int bucket = Dictionaries.dates.getNumberOfMonths(member.creationDate(), DatagenParams.startMonth, DatagenParams.startYear);
+            if (bucket < 36 + 1)
+                personCounts(memberId).incrNumForumsPerMonth(bucket);
+        }
     }
 
     public void extractFactors( Comment comment ) {
-        extractFactors((Message)comment);
-        personCounts(comment.author().accountId()).incrNumComments();
+        if( comment.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
+            assert personCounts_.get(comment.author().accountId()) != null : "Person counts does not exist when extracting factors from comment";
+            extractFactors((Message) comment);
+            personCounts(comment.author().accountId()).incrNumComments();
+        }
     }
 
     public void extractFactors( Post post ) {
-        extractFactors((Message)post);
-        personCounts(post.author().accountId()).incrNumPosts();
+        if( post.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
+            assert(personCounts_.get(post.author().accountId()) != null): "Person counts does not exist when extracting factors from post";
+            extractFactors((Message) post);
+            personCounts(post.author().accountId()).incrNumPosts();
+        }
     }
 
     public void extractFactors( Photo photo ) {
-        extractFactors((Message)photo);
-        personCounts(photo.author().accountId()).incrNumPosts();
+        if( photo.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
+            assert(personCounts_.get(photo.author().accountId()) != null): "Person counts does not exist when extracting factors from photo";
+            extractFactors((Message) photo);
+            personCounts(photo.author().accountId()).incrNumPosts();
+        }
     }
 
     private void extractFactors( Message message ) {
-        long authorId = message.author().accountId();
-        long current = personCounts(authorId).numTagsOfMessages();
-        personCounts(authorId).numTagsOfMessages(current + message.tags().size());
-        int bucket = Dictionaries.dates.getNumberOfMonths(message.creationDate(),DatagenParams.startMonth, DatagenParams.startYear);
-        if( bucket < 36 + 1)
-            personCounts(authorId).incrNumMessagesPerMonth(bucket);
-        incrPostPerCountry(message.countryId());
-        for (Integer t: message.tags()){
-            Integer tagClass = Dictionaries.tags.getTagClass(t);
-            incrTagClassCount(tagClass);
-            incrTagCount(t);
+        if( message.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
+            assert(personCounts_.get(message.author().accountId()) != null): "Person counts does not exist when extracting factors from message";
+            long authorId = message.author().accountId();
+            long current = personCounts(authorId).numTagsOfMessages();
+            personCounts(authorId).numTagsOfMessages(current + message.tags().size());
+            int bucket = Dictionaries.dates.getNumberOfMonths(message.creationDate(), DatagenParams.startMonth, DatagenParams.startYear);
+            if (bucket < 36 + 1)
+                personCounts(authorId).incrNumMessagesPerMonth(bucket);
+            incrPostPerCountry(message.countryId());
+            for (Integer t : message.tags()) {
+                Integer tagClass = Dictionaries.tags.getTagClass(t);
+                incrTagClassCount(tagClass);
+                incrTagCount(t);
+            }
         }
     }
 
     public void extractFactors( Like like ) {
-        personCounts(like.user).incrNumLikes();
+        if( like.date < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
+            assert(personCounts_.get(like.user) != null): "Person counts does not exist when extracting factors from like";
+            personCounts(like.user).incrNumLikes();
+        }
     }
 
     public void writePersonFactors(OutputStream writer ) {
         try {
+            Map<Integer,List<String>> countryNames = new TreeMap<Integer,List<String>>();
+            for (Map.Entry<Long, PersonCounts> c: personCounts_.entrySet()) {
+                if(c.getValue().name() != null) {
+                    List<String> names = countryNames.get(c.getValue().country());
+                    if (names == null) {
+                        names = new ArrayList<String>();
+                        countryNames.put(c.getValue().country(), names);
+                    }
+                    names.add(c.getValue().name());
+                }
+            }
+            Map<Integer,String> medianNames = new TreeMap<Integer,String>();
+            for (Map.Entry<Integer,List<String>> entry : countryNames.entrySet()) {
+                entry.getValue().sort( (a ,b) -> a.compareTo(b));
+                medianNames.put(entry.getKey(),entry.getValue().get(entry.getValue().size()/2));
+            }
             for (Map.Entry<Long, PersonCounts> c: personCounts_.entrySet()){
                 PersonCounts count = c.getValue();
                 // correct the group counts
                 //count.numberOfGroups += count.numberOfFriends;
-                String name = medianFirstName_.get(c.getKey());
+                //String name = medianFirstName_.get(c.getKey());
+                String name = medianNames.get(c.getValue().country());
                 if( name != null ) {
                     StringBuffer strbuf = new StringBuffer();
                     strbuf.append(c.getKey()); strbuf.append(",");
@@ -295,6 +347,10 @@ public class FactorTable {
             }
             personCounts_.clear();
             medianFirstName_.clear();
+        } catch (AssertionError e) {
+            System.err.println("Unable to write parameter counts");
+            System.err.println(e.getMessage());
+            e.printStackTrace();
         } catch (IOException e) {
             System.err.println("Unable to write parameter counts");
             System.err.println(e.getMessage());

@@ -46,17 +46,4 @@ public class DistanceKnowsGenerator implements KnowsGenerator {
         return false;
     }
 
-    void createKnow( Person personA, Person personB ) {
-        long  creationDate = Dictionaries.dates.randomKnowsCreationDate(
-                randomFarm.get(RandomGeneratorFarm.Aspect.DATE),
-                personA,
-                personB);
-        creationDate = creationDate - personA.creationDate() >= DatagenParams.deltaTime ? creationDate : creationDate + (DatagenParams.deltaTime - (creationDate - personA.creationDate()));
-        creationDate = creationDate - personB.creationDate() >= DatagenParams.deltaTime ? creationDate : creationDate + (DatagenParams.deltaTime - (creationDate - personB.creationDate()));
-        if( creationDate <= Dictionaries.dates.getEndDateTime() ) {
-            float similarity = Person.personSimilarity.Similarity(personA,personB);
-            personB.knows().add(new Knows(personA, creationDate, similarity));
-            personA.knows().add(new Knows(personB, creationDate, similarity));
-        }
-    }
 }
