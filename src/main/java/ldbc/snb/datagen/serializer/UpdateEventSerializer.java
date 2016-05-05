@@ -120,7 +120,7 @@ public class UpdateEventSerializer {
 	
 	public void writeKeyValue( UpdateEvent event ) {
 		try{
-			/*if(event.date <= Dictionaries.dates.getEndDateTime())*/ {
+			if(event.date <= Dictionaries.dates.getEndDateTime()) {
 				StringBuilder string = new StringBuilder();
 				string.append(Long.toString(event.date));
 				string.append("|");
