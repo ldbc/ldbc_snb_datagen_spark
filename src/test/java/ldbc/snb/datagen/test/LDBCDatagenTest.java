@@ -1,6 +1,11 @@
 package ldbc.snb.datagen.test;
 
+import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.generator.DatagenParams;
+import ldbc.snb.datagen.generator.LDBCDatagen;
 import ldbc.snb.datagen.test.csv.*;
+import ldbc.snb.datagen.util.ConfigParser;
+import org.apache.hadoop.conf.Configuration;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -31,6 +36,11 @@ public class LDBCDatagenTest {
         }catch(Exception e) {
             System.err.println(e.getMessage());
         }
+
+        Configuration conf = ConfigParser.initialize();
+        ConfigParser.readConfig(conf, "./test_params.ini");
+        ConfigParser.readConfig(conf, LDBCDatagen.class.getResourceAsStream("/params.ini"));
+        LDBCDatagen.init(conf);
     }
 
     @Test
@@ -41,6 +51,7 @@ public class LDBCDatagenTest {
     @Test
     public void postTest() {
         testIdUniqueness(dir+"/post_0_0.csv", 0);
+        testLongBetween(dir+"/post_0_0.csv",7,0,2001);
     }
 
     @Test
@@ -51,6 +62,7 @@ public class LDBCDatagenTest {
     @Test
     public void commentTest() {
         testIdUniqueness(dir+"/comment_0_0.csv", 0);
+        testLongBetween(dir+"/comment_0_0.csv",5,0,2001);
     }
 
     @Test
@@ -178,6 +190,7 @@ public class LDBCDatagenTest {
         testPairUniquenessPlusExistance(dir+"/person_likes_comment_0_0.csv",0,1,dir+"/person_0_0.csv",0,dir+"/comment_0_0.csv",0);
     }
 
+
     @Test
     public void personLikesPostCheck() {
         testPairUniquenessPlusExistance(dir+"/person_likes_post_0_0.csv",0,1,dir+"/person_0_0.csv",0,dir+"/post_0_0.csv",0);
@@ -191,6 +204,8 @@ public class LDBCDatagenTest {
 
     @Test
     public void queryParamsTest() {
+
+        //Creating person id check
         LongParser parser = new LongParser();
         ColumnSet<Long> persons = new ColumnSet<Long>(parser,new File(dir+"/person_0_0.csv"),0,1);
         persons.initialize();
@@ -200,6 +215,7 @@ public class LDBCDatagenTest {
         personIndex.add(0);
         ExistsCheck<Long> existsPersonCheck = new ExistsCheck<Long>(parser,personIndex, personsRef);
 
+        //Creating name check
         StringParser strParser = new StringParser();
         ColumnSet<String> names = new ColumnSet<String>(strParser,new File(dir+"/person_0_0.csv"),1,1);
         names.initialize();
@@ -209,29 +225,60 @@ public class LDBCDatagenTest {
         namesIndex.add(1);
         ExistsCheck<String> existsNameCheck = new ExistsCheck<String>(strParser,namesIndex, namesRef);
 
+
+
         FileChecker fileChecker = new FileChecker(sdir+"/query_1_param.txt");
         fileChecker.addCheck(existsPersonCheck);
         fileChecker.addCheck(existsNameCheck);
         if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 1 PERSON AND NAME EXISTS ",true, false);
 
+        //Crating date interval check
         fileChecker = new FileChecker(sdir+"/query_2_param.txt");
         fileChecker.addCheck(existsPersonCheck);
         if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 2 PERSON EXISTS ",true, false);
+        testLongBetween(sdir+"/query_2_param.txt",1, Dictionaries.dates.getStartDateTime(), Dictionaries.dates.getEndDateTime());
+
+        //Creating country check
+        ColumnSet<String> places = new ColumnSet<String>(strParser,new File(dir+"/place_0_0.csv"),1,1);
+        places.initialize();
+        List<ColumnSet<String>> placesRef = new ArrayList<ColumnSet<String>>();
+        placesRef.add(places);
+        List<Integer> countriesIndex = new ArrayList<Integer>();
+        countriesIndex.add(3);
+        countriesIndex.add(4);
+        ExistsCheck<String> countryExists = new ExistsCheck<String>(strParser,countriesIndex, placesRef);
+
+        //Date duration check
+        DateDurationCheck dateDurationCheck = new DateDurationCheck("Date duration check",1,2,Dictionaries.dates.getStartDateTime(), Dictionaries.dates.getEndDateTime());
 
         fileChecker = new FileChecker(sdir+"/query_3_param.txt");
         fileChecker.addCheck(existsPersonCheck);
+        fileChecker.addCheck(countryExists);
+        fileChecker.addCheck(dateDurationCheck);
         if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 3 PERSON EXISTS ",true, false);
 
         fileChecker = new FileChecker(sdir+"/query_4_param.txt");
         fileChecker.addCheck(existsPersonCheck);
+        fileChecker.addCheck(dateDurationCheck);
         if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 4 PERSON EXISTS ",true, false);
 
         fileChecker = new FileChecker(sdir+"/query_5_param.txt");
         fileChecker.addCheck(existsPersonCheck);
         if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 5 PERSON EXISTS ",true, false);
+        testLongBetween(sdir+"/query_5_param.txt",1, Dictionaries.dates.getStartDateTime(), Dictionaries.dates.getEndDateTime());
+
+        //Creating tag check
+        ColumnSet<String> tags = new ColumnSet<String>(strParser,new File(dir+"/tag_0_0.csv"),1,1);
+        tags.initialize();
+        List<ColumnSet<String>> tagsRef = new ArrayList<ColumnSet<String>>();
+        tagsRef.add(tags);
+        List<Integer> tagsIndex = new ArrayList<Integer>();
+        tagsIndex.add(1);
+        ExistsCheck<String> tagExists = new ExistsCheck<String>(strParser,tagsIndex, tagsRef);
 
         fileChecker = new FileChecker(sdir+"/query_6_param.txt");
         fileChecker.addCheck(existsPersonCheck);
+        fileChecker.addCheck(tagExists);
         if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 6 PERSON EXISTS ",true, false);
 
         fileChecker = new FileChecker(sdir+"/query_7_param.txt");
@@ -245,17 +292,35 @@ public class LDBCDatagenTest {
         fileChecker = new FileChecker(sdir+"/query_9_param.txt");
         fileChecker.addCheck(existsPersonCheck);
         if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 9 PERSON EXISTS ",true, false);
+        testLongBetween(sdir+"/query_9_param.txt",1, Dictionaries.dates.getStartDateTime(), Dictionaries.dates.getEndDateTime());
 
         fileChecker = new FileChecker(sdir+"/query_10_param.txt");
         fileChecker.addCheck(existsPersonCheck);
         if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 10 PERSON EXISTS ",true, false);
+        testLongBetween(sdir+"/query_10_param.txt",1, 1, 13);
+
+        //Creating country check
+        countriesIndex.clear();
+        countriesIndex.add(1);
+        countryExists = new ExistsCheck<String>(strParser,countriesIndex, placesRef);
 
         fileChecker = new FileChecker(sdir+"/query_11_param.txt");
         fileChecker.addCheck(existsPersonCheck);
+        fileChecker.addCheck(countryExists);
         if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 11 PERSON EXISTS ",true, false);
+
+        //Creating tagClass check
+        ColumnSet<String> tagClass = new ColumnSet<String>(strParser,new File(dir+"/tagclass_0_0.csv"),1,1);
+        tagClass.initialize();
+        List<ColumnSet<String>> tagClassRef = new ArrayList<ColumnSet<String>>();
+        tagClassRef.add(tagClass);
+        List<Integer> tagClassIndex = new ArrayList<Integer>();
+        tagClassIndex.add(1);
+        ExistsCheck<String> tagClassExists = new ExistsCheck<String>(strParser,tagClassIndex, tagClassRef);
 
         fileChecker = new FileChecker(sdir+"/query_12_param.txt");
         fileChecker.addCheck(existsPersonCheck);
+        fileChecker.addCheck(tagClassExists);
         if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 12 PERSON EXISTS ",true, false);
 
         personIndex.add(1);
@@ -269,23 +334,7 @@ public class LDBCDatagenTest {
         fileChecker.addCheck(exists2PersonCheck);
         if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 14 PERSON EXISTS ",true, false);
 
-
     }
-    // test query parameters correctness
-    // query 1, check person id existance and name existance
-    // query 2, check person id existance and date time within simulation interval
-    // query 3, check person id existance, country X and Y existance, startData + duration within simulation interval
-    // query 4, check person id existance and startDate + duration within simulation interval
-    // query 5, check person id and date within simulation interval
-    // query 6, check person id and tag name existance
-    // query 7, check person id existance
-    // query 8, check person id existance
-    // query 9, check person id and date within simulation interval
-    // query 10, check person id existance and month between 1 and 12
-    // query 11, check person id existance, Country existance and year something reasonable
-    // query 12, check person id existance and tagclass existance
-    // query 13, check persons id existance
-    // query 14, check persons id existance
 
     public void testLongPair(String fileName, Integer columnA, Integer columnB, NumericPairCheck.NumericCheckType type, long offsetA, long offsetB) {
         FileChecker fileChecker = new FileChecker(fileName);
@@ -300,6 +349,14 @@ public class LDBCDatagenTest {
         UniquenessCheck check = new UniquenessCheck(column);
         fileChecker.addCheck(check);
         if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST ID UNIQUENESS FOR FILE "+fileName,true, false);
+    }
+
+    public void testLongBetween(String fileName, int column, long a, long b) {
+        FileChecker fileChecker = new FileChecker(fileName);
+        LongParser parser = new LongParser();
+        LongCheck longcheck = new LongCheck(parser, "Date Test",column, NumericCheck.NumericCheckType.BETWEEN, a,b);
+        fileChecker.addCheck(longcheck);
+        if(!fileChecker.run(1)) assertEquals("ERROR PASSING BETWEENS TEST FOR FILE "+fileName+" column "+column+" between "+a+" and "+b,true, false);
     }
 
     public void testPairUniquenessPlusExistance(String relationFileName, int columnA, int columnB, String entityFileNameA, int entityColumnA, String entityFileNameB, int entityColumnB) {

@@ -8,7 +8,7 @@ import java.util.List;
  */
 public abstract class NumericCheck<T extends Number > extends Check {
 
-    enum NumericCheckType {
+    public enum NumericCheckType {
         G,
         GE,
         L,
