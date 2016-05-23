@@ -163,6 +163,10 @@ public class TagTextDictionary {
         if (returnString.length() < textSize - 1) {
             returnString.append(" ");
         }
+        if (returnString.length() > textSize) {
+            returnString.delete(textSize-1,returnString.length());
+            returnString.trimToSize();
+        }
         return returnString.toString().replace("|", " ");
     }
 }

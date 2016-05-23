@@ -42,7 +42,8 @@ public class PersonGenerator {
     
     private long composeUserId(long id, long date) {
         long idMask = ~(0xFFFFFFFFFFFFFFFFL << 40);
-        long bucket = (long) (256 * (date - Dictionaries.dates.getStartDateTime()) / (double) Dictionaries.dates.getMaxDateTime());
+        //long bucket = (long) (256 * (date - Dictionaries.dates.getStartDateTime()) / (double) Dictionaries.dates.getMaxDateTime());
+        long bucket = (long) (256 * (date - Dictionaries.dates.getStartDateTime()) / (double) Dictionaries.dates.getEndDateTime());
         return (bucket << 40) | ((id & idMask));
     }
 
@@ -60,7 +61,7 @@ public class PersonGenerator {
 
     private Person generateUser() {
 
-        long creationDate = Dictionaries.dates.randomDateInMillis(randomFarm.get(RandomGeneratorFarm.Aspect.DATE));
+        long creationDate = Dictionaries.dates.randomPersonCreationDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE));
         int countryId = Dictionaries.places.getCountryForUser(randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY));
         Person person = new Person();
         person.creationDate(creationDate);

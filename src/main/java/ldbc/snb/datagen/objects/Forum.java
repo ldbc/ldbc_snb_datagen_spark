@@ -35,6 +35,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package ldbc.snb.datagen.objects;
+import ldbc.snb.datagen.generator.DatagenParams;
+
 import java.util.ArrayList;
 
 public class Forum {
@@ -50,6 +52,7 @@ public class Forum {
 
 
     public Forum( long id, long creationDate, Person.PersonSummary moderator, String title, int placeId, int language  ) {
+        assert (moderator.creationDate() + DatagenParams.deltaTime) <= creationDate : "Moderator creation date is larger than message creation date";
 	    memberships_ = new ArrayList<ForumMembership>();
 	    tags_ = new ArrayList<Integer>();
 	    id_ = id;

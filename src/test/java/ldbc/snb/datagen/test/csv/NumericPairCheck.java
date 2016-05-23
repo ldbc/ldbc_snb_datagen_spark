@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by aprat on 23/12/15.
+ * Created by aprat on 30/03/16.
  */
-public abstract class NumericCheck<T extends Number > extends Check {
+public abstract class NumericPairCheck<T> extends Check {
 
     public enum NumericCheckType {
         G,
@@ -14,21 +14,17 @@ public abstract class NumericCheck<T extends Number > extends Check {
         L,
         LE,
         E,
-        NE,
-        BETWEEN
+        NE
     }
 
     protected NumericCheckType type;
-    protected T val1;
-    protected T val2;
     protected Parser<T> parser;
 
-    public NumericCheck(Parser<T> parser, String name, Integer column, NumericCheckType type, T val1, T val2 ) {
+    public NumericPairCheck(Parser<T> parser, String name, Integer columnA, Integer columnB, NumericCheckType type) {
         super(name, new ArrayList<Integer>());
-        this.getColumns().add(column);
+        this.getColumns().add(columnA);
+        this.getColumns().add(columnB);
         this.type = type;
-        this.val1 = val1;
-        this.val2 = val2;
         this.parser = parser;
     }
 
@@ -36,19 +32,17 @@ public abstract class NumericCheck<T extends Number > extends Check {
     public boolean check(List<String> values) {
         switch(type) {
             case G:
-                return greater(parser.parse(values.get(0)),val1);
+                return greater(parser.parse(values.get(0)),parser.parse(values.get(1)));
             case GE:
-                return greaterEqual(parser.parse(values.get(0)),val1);
+                return greaterEqual(parser.parse(values.get(0)),parser.parse(values.get(1)));
             case L:
-                return less(parser.parse(values.get(0)),val1);
+                return less(parser.parse(values.get(0)),parser.parse(values.get(1)));
             case LE:
-                return lessEqual(parser.parse(values.get(0)),val1);
+                return lessEqual(parser.parse(values.get(0)),parser.parse(values.get(1)));
             case E:
-                return equals(parser.parse(values.get(0)),val1);
+                return equals(parser.parse(values.get(0)),parser.parse(values.get(1)));
             case NE:
-                return nonEquals(parser.parse(values.get(0)),val1);
-            case BETWEEN:
-                return between(parser.parse(values.get(0)),val1, val2);
+                return nonEquals(parser.parse(values.get(0)),parser.parse(values.get(1)));
             default:
                 return false;
         }
@@ -65,7 +59,5 @@ public abstract class NumericCheck<T extends Number > extends Check {
     public abstract boolean equals(T val1, T val2);
 
     public abstract boolean nonEquals(T val1, T val2);
-
-    public abstract boolean between(T val1, T val2, T val3);
 
 }

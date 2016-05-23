@@ -120,16 +120,18 @@ public class UpdateEventSerializer {
 	
 	public void writeKeyValue( UpdateEvent event ) {
 		try{
-			StringBuilder string = new StringBuilder();
-			string.append(Long.toString(event.date));
-			string.append("|");
-			string.append(Long.toString(event.dependantDate));
-			string.append("|");
-			string.append(Integer.toString(event.type.ordinal()+1));
-			string.append("|");
-			string.append(event.eventData);
-			string.append("\n");
-			streamWriter_[nextPartition_].append(new UpdateEventKey(event.date, reducerId_, nextPartition_),new Text(string.toString()));
+			if(event.date <= Dictionaries.dates.getEndDateTime()) {
+				StringBuilder string = new StringBuilder();
+				string.append(Long.toString(event.date));
+				string.append("|");
+				string.append(Long.toString(event.dependantDate));
+				string.append("|");
+				string.append(Integer.toString(event.type.ordinal() + 1));
+				string.append("|");
+				string.append(event.eventData);
+				string.append("\n");
+				streamWriter_[nextPartition_].append(new UpdateEventKey(event.date, reducerId_, nextPartition_), new Text(string.toString()));
+			}
 		} catch(IOException e){
 			System.err.println(e.getMessage());
 			System.exit(-1);

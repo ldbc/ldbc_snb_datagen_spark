@@ -79,7 +79,8 @@ public class DateGenerator {
 		toBirthDay_ = tobirthCalendar.getTimeInMillis();
 		calendar_ = new GregorianCalendar();
 		calendar_.setTimeZone(TimeZone.getTimeZone("GMT"));
-		updateThreshold_ = getMaxDateTime() - (long)((getMaxDateTime() - getStartDateTime())*(DatagenParams.updatePortion));
+		//updateThreshold_ = getMaxDateTime() - (long)((getMaxDateTime() - getStartDateTime())*(DatagenParams.updatePortion));
+        updateThreshold_ = getEndDateTime() - (long)((getEndDateTime() - getStartDateTime())*(DatagenParams.updatePortion));
 
 		try {
 			dateFormatter_ = (DateFormatter) Class.forName(conf.get("ldbc.snb.datagen.serializer.dateFormatter")).newInstance();
@@ -93,7 +94,7 @@ public class DateGenerator {
 	/*
 	 * Date between from and to
 	 */
-	public Long randomDateInMillis(Random random) {
+	public Long randomPersonCreationDate(Random random) {
 		long date = (long) (random.nextDouble() * (to_ - from_) + from_);
 		calendar_.setTime(new Date(date));
 		return calendar_.getTimeInMillis();
@@ -136,45 +137,18 @@ public class DateGenerator {
 		}
 	}
 
-	/*
-	 * Format date in xsd:dateTime format
-	 */
-/*	public String formatDateTime(Long date) {
-		calendar.setTimeInMillis(date);
-		String dateString = formatDate(calendar);
-		return dateString + "T00:00:00";
-	}
-
-	public String formatDateTime(GregorianCalendar date) {
-		String dateString = formatDate(date);
-		return dateString + "T00:00:00";
-	}
-	*/
-
 	public int getNumberOfMonths(long date, int startMonth, int startYear) {
         calendar_.setTimeInMillis(date);
 		int month = calendar_.get(Calendar.MONTH) + 1;
 		int year = calendar_.get(Calendar.YEAR);
-
 		return (year - startYear) * 12 + month - startMonth;
 	}
 
-	public Long randomDateInMillis(Random random, Long from, Long to) {
-		long date = (long) (random.nextDouble() * (to - from) + from);
-		calendar_.setTime(new Date(date));
-
-		return calendar_.getTimeInMillis();
-	}
-
-	public Long randomThirtyDaysSpan(Random random, Long from) {
-		long randomSpanMilis = (long) (random.nextDouble() * (THIRTY_DAYS));
-		return (from + randomSpanMilis);
-	}
-
 	public long randomKnowsCreationDate(Random random, Person personA, Person personB) {
-		long fromDate = Math.max(personA.creationDate(), personB.creationDate());
-		long randomSpanMilis = (long) (random.nextDouble() * (THIRTY_DAYS));
-		return Math.min(fromDate + randomSpanMilis, getEndDateTime());
+		long fromDate = Math.max(personA.creationDate(), personB.creationDate()) + DatagenParams.deltaTime;
+		//long randomSpanMilis = (long) (random.nextDouble() * (THIRTY_DAYS));
+		//return Math.min(fromDate + randomSpanMilis, getEndDateTime() + DatagenParams.deltaTime);
+        return randomDate(random, fromDate, fromDate + THIRTY_DAYS);
 	}
 
 	public long numberOfMonths(Person user) {
@@ -182,25 +156,48 @@ public class DateGenerator {
 	}
 
 	public long numberOfMonths(long fromDate) {
-		return (to_ - fromDate) / THIRTY_DAYS;
+		return (to_  - fromDate) / THIRTY_DAYS;
 	}
 
-	public long randomDate(Random random, long minDate) {
-		return (long) (random.nextDouble() * (to_ - minDate) + minDate);
+	/*public long randomDate(Random random, long minDate) {
+		return (long) (random.nextDouble() * (to_+ DatagenParams.deltaTime - minDate) + minDate);
 	}
 
-	public long randomSevenDays(Random random) {
-		return (long) (random.nextDouble() * DateGenerator.SEVEN_DAYS);
-	}
+    public long randomDate(Random random, long minDate, long maxDate) {
+        long to = Math.min(maxDate, to_ + DatagenParams.deltaTime);
+        return (long) (random.nextDouble() * (to - minDate) + minDate);
+    }
 
-	public long powerlawCommDateDay(Random random, long lastCommentCreatedDate) {
-		return (long) (powerDist_.getDouble(random) * ONE_DAY + lastCommentCreatedDate);
-	}
+    public long powerlawCommDateDay(Random random, long lastCommentCreatedDate) {
+        long date = (long) (powerDist_.getDouble(random) * ONE_DAY + lastCommentCreatedDate);
+        return Math.min(to_+DatagenParams.deltaTime,date);
+    }*/
+
+
+    public long randomDate(Random random, long minDate) {
+        long to = Math.max(minDate+THIRTY_DAYS, to_);
+        return (long) (random.nextDouble() * (to - minDate) + minDate);
+    }
+
+    public long randomDate(Random random, long minDate, long maxDate) {
+        long to = maxDate;
+        return (long) (random.nextDouble() * (to - minDate) + minDate);
+    }
+
+    public long powerlawCommDateDay(Random random, long lastCommentCreatedDate) {
+        long date = (long) (powerDist_.getDouble(random) * ONE_DAY + lastCommentCreatedDate);
+        return date;
+    }
+
+
+
+    public long randomSevenDays(Random random) {
+        return (long) (random.nextDouble() * DateGenerator.SEVEN_DAYS);
+    }
 
 	// The birthday is fixed during 1980 --> 1990
 	public long getBirthDay(Random random, long userCreatedDate) {
         calendar_.setTimeInMillis(((long)(random.nextDouble() * (toBirthDay_ - fromBirthDay_)) + fromBirthDay_));
-//        GregorianCalendar aux_calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
         GregorianCalendar  aux_calendar = new GregorianCalendar(calendar_.get(Calendar.YEAR),calendar_.get(Calendar.MONTH), calendar_.get(Calendar.DAY_OF_MONTH),0,0,0);
         aux_calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
 		return aux_calendar.getTimeInMillis();
@@ -247,9 +244,10 @@ public class DateGenerator {
 		return to_;
 	}
 
-	public long getMaxDateTime() {
+/*	public long getMaxDateTime() {
 		return to_ + SEVEN_DAYS + deltaTime_;
 	}
+	*/
 	
 	public long getUpdateThreshold() {
 		return updateThreshold_;

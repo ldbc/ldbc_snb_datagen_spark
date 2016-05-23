@@ -56,7 +56,7 @@ public class FlashmobPostGenerator extends PostGenerator{
     /** @brief Selects the earliest flashmob tag index from a given date.
      *  @return The index to the earliest flashmob tag.*/
     private int searchEarliest( FlashmobTag[] tags, ForumMembership membership ) {
-        long fromDate = membership.creationDate();
+        long fromDate = membership.creationDate() + flashmobSpan_/2 + DatagenParams.deltaTime;
         int lowerBound = 0;
         int upperBound = tags.length - 1;
         int midPoint = (upperBound + lowerBound)  / 2;
@@ -129,7 +129,7 @@ public class FlashmobPostGenerator extends PostGenerator{
 		}
 	    double prob = dateDistribution_.nextDouble(randomDate);
 	    postInfo.date = flashmobTag.date - flashmobSpan_/2 + (long)(prob * flashmobSpan_);
-	    if( postInfo.date > Dictionaries.dates.getEndDateTime() ) return null;
+	    //if( postInfo.date > Dictionaries.dates.getEndDateTime() ) return null;
 	    return postInfo;
     }
 }

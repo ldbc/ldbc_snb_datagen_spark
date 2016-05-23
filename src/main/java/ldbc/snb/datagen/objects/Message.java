@@ -37,6 +37,7 @@
 package ldbc.snb.datagen.objects;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.objects.Person.PersonSummary;
 
 import java.util.TreeSet;
@@ -67,6 +68,8 @@ abstract public class Message {
                    IP ipAddress,
                    int browserId
                    ) {
+
+        assert((author.creationDate() + DatagenParams.deltaTime) <= creationDate);
         messageId_ = messageId;
         creationDate_ = creationDate;
         author_ = new PersonSummary(author);

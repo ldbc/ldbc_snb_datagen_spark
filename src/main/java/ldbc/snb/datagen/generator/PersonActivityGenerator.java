@@ -48,11 +48,16 @@ public class PersonActivityGenerator {
 	}
 
 	private void generateActivity( Person person, ArrayList<Person> block ) {
-		generateWall(person, block);
-		generateGroups(person, block);
-		generateAlbums(person, block);
-        if(person.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
+        try {
             factorTable_.extractFactors(person);
+            generateWall(person, block);
+            generateGroups(person, block);
+            generateAlbums(person, block);
+        } catch (AssertionError e) {
+            System.out.println("Assertion error when generating activity!");
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            System.exit(1);
         }
 	}
 
@@ -146,7 +151,6 @@ public class PersonActivityGenerator {
         float personGenerationTime = 0.0f;
         long initTime = System.currentTimeMillis();
 		for( Person p : block ) {
-            System.out.println("Generating activity for person "+counter+" with degree "+p.knows().size());
 			long start = System.currentTimeMillis();
 			generateActivity(p, block);
 			if( DatagenParams.updateStreams ) {
@@ -158,7 +162,7 @@ public class PersonActivityGenerator {
 			}
             float time = (System.currentTimeMillis() - start)/1000.0f;
             personGenerationTime+=time;
-            System.out.println("Time to generate activity for person "+counter+": "+time+". Throughput "+counter/((System.currentTimeMillis() - initTime)*0.001));
+            //System.out.println("Time to generate activity for person "+counter+": "+time+". Throughput "+counter/((System.currentTimeMillis() - initTime)*0.001));
 			counter++;
 		}
         System.out.println("Average person activity generation time "+personGenerationTime / (float)block.size());

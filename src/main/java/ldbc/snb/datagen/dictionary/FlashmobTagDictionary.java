@@ -117,7 +117,7 @@ public class FlashmobTagDictionary {
                 flashmobTags.put(tags[i], instances);
             }
             FlashmobTag flashmobTag = new FlashmobTag();
-            flashmobTag.date = dateGen.randomDateInMillis(random, dateGen.getStartDateTime(), dateGen.getEndDateTime());
+            flashmobTag.date = dateGen.randomDate(random, dateGen.getStartDateTime());
             flashmobTag.level = levelGenerator.getValue(random);
             sumLevels += flashmobTag.level;
             flashmobTag.tag = tags[i];
