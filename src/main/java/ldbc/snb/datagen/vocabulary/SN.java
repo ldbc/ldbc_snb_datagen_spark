@@ -58,11 +58,10 @@ public class SN {
      */
 
     public static void initialize() {
-	minDate = Dictionaries.dates.getStartDateTime();
-	//maxDate = Dictionaries.dates.getMaxDateTime();
+        minDate = Dictionaries.dates.getStartDateTime();
         maxDate = Dictionaries.dates.getEndDateTime();
         numBits = (int) Math.ceil(Math.log10(Math.ceil(DatagenParams.numPersons/(double)DatagenParams.blockSize)) / Math.log10(2));
-        if (numBits > 14) System.out.print("WARNING: Possible id overlapp");
+        if (numBits > 20) System.out.print("WARNING: Possible id overlapp");
     }
 
     /**
@@ -168,7 +167,7 @@ public class SN {
 
     public static long composeId(long id, long date) {
         long bucket = (long) (256 * (date - minDate) / (double) maxDate);
-        long idMask = ~(0xFFFFFFFFFFFFFFFFL << 33);
-        return (bucket << 33) | (id & idMask);
+        long idMask = ~(0xFFFFFFFFFFFFFFFFL << 36);
+        return (bucket << 36) | (id & idMask);
     }
 }

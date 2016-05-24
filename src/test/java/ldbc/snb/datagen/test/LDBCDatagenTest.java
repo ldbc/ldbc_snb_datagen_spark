@@ -25,7 +25,7 @@ public class LDBCDatagenTest {
 
     @BeforeClass
     public static void generateData() {
-        ProcessBuilder pb = new ProcessBuilder("java", "-ea","-cp","target/ldbc_snb_datagen-0.2.5.jar","ldbc.snb.datagen.generator.LDBCDatagen","./test_params.ini");
+        ProcessBuilder pb = new ProcessBuilder("java", "-ea","-cp","target/ldbc_snb_datagen-0.2.5-jar-with-dependencies.jar","ldbc.snb.datagen.generator.LDBCDatagen","./test_params.ini");
         pb.directory(new File("./"));
         File log = new File("test_log");
         pb.redirectErrorStream(true);
