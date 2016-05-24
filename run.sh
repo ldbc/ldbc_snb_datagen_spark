@@ -13,9 +13,9 @@ export HADOOP_HOME
 export LDBC_SNB_DATAGEN_HOME
 
 mvn clean
-mvn -DskipTests package 
+mvn -DskipTests assembly:assembly 
 
-$HADOOP_HOME/bin/hadoop jar $LDBC_SNB_DATAGEN_HOME/target/ldbc_snb_datagen-0.2.5.jar ldbc.snb.datagen.generator.LDBCDatagen $LDBC_SNB_DATAGEN_HOME/params.ini
+$HADOOP_HOME/bin/hadoop jar $LDBC_SNB_DATAGEN_HOME/target/ldbc_snb_datagen-0.2.5-jar-with-dependencies.jar $LDBC_SNB_DATAGEN_HOME/params.ini
 
 rm -f m*personFactors*
 rm -f .m*personFactors*
