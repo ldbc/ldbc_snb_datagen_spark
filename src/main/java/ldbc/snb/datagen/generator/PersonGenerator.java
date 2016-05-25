@@ -41,10 +41,9 @@ public class PersonGenerator {
     }
     
     private long composeUserId(long id, long date) {
-        long idMask = ~(0xFFFFFFFFFFFFFFFFL << 40);
-        //long bucket = (long) (256 * (date - Dictionaries.dates.getStartDateTime()) / (double) Dictionaries.dates.getMaxDateTime());
+        long idMask = ~(0xFFFFFFFFFFFFFFFFL << 41);
         long bucket = (long) (256 * (date - Dictionaries.dates.getStartDateTime()) / (double) Dictionaries.dates.getEndDateTime());
-        return (bucket << 40) | ((id & idMask));
+        return (bucket << 41) | ((id & idMask));
     }
 
     /** Tells if a person is a large poster or not.
