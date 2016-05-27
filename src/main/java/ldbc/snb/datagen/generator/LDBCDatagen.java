@@ -320,8 +320,8 @@ public class LDBCDatagen {
         System.out.println("Invariant schema serialization time: "+((endInvariantSerializing - startInvariantSerializing) / 1000));
         System.out.println("Total Execution time: "+((end - start) / 1000));
 
-        System.out.println("Running Parameter Generation");
         if(conf.getBoolean("ldbc.snb.datagen.parametergenerator.parameters",false) && conf.getBoolean("ldbc.snb.datagen.generator.activity",false)) {
+            System.out.println("Running Parameter Generation");
             ProcessBuilder pb = new ProcessBuilder("mkdir", "-p",conf.get("ldbc.snb.datagen.serializer.outputDir")+"/substitution_parameters");
             pb.directory(new File("./"));
             Process p = pb.start();
