@@ -322,6 +322,7 @@ public class LDBCDatagen {
 
         if(conf.getBoolean("ldbc.snb.datagen.parametergenerator.parameters",false) && conf.getBoolean("ldbc.snb.datagen.generator.activity",false)) {
             System.out.println("Running Parameter Generation");
+            System.out.println("Generating Interactive Parameters");
             ProcessBuilder pb = new ProcessBuilder("mkdir", "-p",conf.get("ldbc.snb.datagen.serializer.outputDir")+"/substitution_parameters");
             pb.directory(new File("./"));
             Process p = pb.start();
@@ -335,6 +336,7 @@ public class LDBCDatagen {
             p = pb.start();
             p.waitFor();
 
+            System.out.println("Generating BI Parameters");
             pb = new ProcessBuilder(conf.get("ldbc.snb.datagen.parametergenerator.python"), "paramgenerator/generateparamsbi.py", "./",conf.get("ldbc.snb.datagen.serializer.outputDir")+"/substitution_parameters");
             pb.directory(new File("./"));
             File logBi = new File("parameters_bi.log");
@@ -342,6 +344,7 @@ public class LDBCDatagen {
             pb.redirectOutput(ProcessBuilder.Redirect.appendTo(logBi));
             p = pb.start();
             p.waitFor();
+            System.out.println("Finished Parameter Generation");
         }
         return 0;
     }
