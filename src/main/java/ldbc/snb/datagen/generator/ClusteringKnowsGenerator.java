@@ -596,7 +596,10 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
                 for(Person person: persons) {
                     person.knows().clear();
                 }
-                fakeTargetCC +=  delta*0.8f;
+                if(delta > 0)
+                    fakeTargetCC += Math.abs(delta)*0.5f;
+                else
+                    fakeTargetCC /=  2;
                 System.out.println("New Fake targetCC: "+fakeTargetCC );
                 iterate = true;
             }
