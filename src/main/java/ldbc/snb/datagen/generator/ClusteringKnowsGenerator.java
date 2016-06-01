@@ -556,7 +556,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         float fakeTargetCC = targetCC;
         int numIterations = 0;
         do {
-            System.out.println("Starting refinement iteration");
+            System.out.println("****** STARTING REFINEMENT ITERATION ******");
             iterate = false;
             start = System.currentTimeMillis();
             refineCommunities(cInfo, communities, fakeTargetCC);
@@ -604,7 +604,8 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
                 iterate = true;
             }
             numIterations++;
-        }while( iterate || numIterations < 10 );
+            System.out.println("****** FINISHED REFINEMENT ITERATION ******");
+        }while( iterate && numIterations < 10 );
 
         int countMore = 0;
         int countLess = 0;
