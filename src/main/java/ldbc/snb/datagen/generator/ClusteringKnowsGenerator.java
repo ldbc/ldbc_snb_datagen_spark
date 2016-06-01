@@ -604,7 +604,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
                 iterate = true;
             }
             numIterations++;
-        }while( iterate );
+        }while( iterate || numIterations < 10 );
 
         int countMore = 0;
         int countLess = 0;
