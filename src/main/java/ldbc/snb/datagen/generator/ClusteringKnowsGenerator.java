@@ -605,7 +605,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
             }
             numIterations++;
             System.out.println("****** FINISHED REFINEMENT ITERATION ******");
-        }while( iterate && numIterations < 10 );
+        }while( iterate && numIterations < 20 );
 
         int countMore = 0;
         int countLess = 0;
