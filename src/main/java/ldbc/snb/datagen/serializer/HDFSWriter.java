@@ -75,6 +75,7 @@ public class HDFSWriter {
     public void close() {
         try {
             for (int i = 0; i < numPartitions; ++i) {
+                fileOutputStream[i].flush();
                 fileOutputStream[i].close();
             }
         } catch (IOException e) {
