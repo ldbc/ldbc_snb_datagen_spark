@@ -32,6 +32,7 @@ public class HadoopPersonSortAndSerializer {
 		private PersonSerializer personSerializer_;   /** The person serializer **/
 		private UpdateEventSerializer updateSerializer_;
 
+		@Override
 		protected void setup(Context context) {
 			Configuration conf = context.getConfiguration();
 			reducerId = context.getTaskAttemptID().getTaskID().getId();
@@ -68,6 +69,7 @@ public class HadoopPersonSortAndSerializer {
 			}
 
 		}
+		@Override
 		protected void cleanup(Context context){
 			personSerializer_.close();
 			if (DatagenParams.updateStreams) {

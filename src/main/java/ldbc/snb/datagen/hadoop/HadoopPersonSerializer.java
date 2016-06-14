@@ -26,13 +26,13 @@ import java.io.IOException;
  */
 public class HadoopPersonSerializer {
 	
-//	public static class HadoopPersonSerializerReducer  extends Reducer<BlockKey, Person, LongWritable, Person> {
 	public static class HadoopPersonSerializerReducer  extends Reducer<TupleKey, Person, LongWritable, Person> {
 
 		private int reducerId;                          /** The id of the reducer.**/
 		private PersonSerializer personSerializer_;   /** The person serializer **/
-		private UpdateEventSerializer updateSerializer_;   
-		
+		private UpdateEventSerializer updateSerializer_;
+
+		@Override
 		protected void setup(Context context) {
 			Configuration conf = context.getConfiguration();
 			reducerId = context.getTaskAttemptID().getTaskID().getId();
@@ -49,7 +49,6 @@ public class HadoopPersonSerializer {
 		}
 		
 		@Override
-	//	public void reduce(BlockKey key, Iterable<Person> valueSet,Context context)
 	public void reduce(TupleKey key, Iterable<Person> valueSet,Context context)
 			throws IOException, InterruptedException {
 //			SN.machineId = key.block;
@@ -70,6 +69,8 @@ public class HadoopPersonSerializer {
 			}
 			
 		}
+
+		@Override
 		protected void cleanup(Context context){
 			personSerializer_.close();
 			if (DatagenParams.updateStreams) {
