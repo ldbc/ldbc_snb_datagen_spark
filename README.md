@@ -16,6 +16,11 @@ ldbc_snb_datagen is GPLv3 licensed, to see detailed information about this licen
 * **[Output](https://github.com/ldbc-dev/ldbc_snb_datagen_0.2/wiki/Data-Output)**
 * **[Troubleshooting](https://github.com/ldbc-dev/ldbc_snb_datagen_0.2/wiki/Throubleshooting)**
 
+**Datasets**
+
+Publicly available datasets can be found at the LDBC-SNB Amazon Bucket. These datasets are the official SNB datasets and were generated using version 0.2.6. They are available in the three official supported serializers: CSV, CSVMergeForeign and TTL. The bucket is configured in "Requester Pays" mode, thus in order to access them you need a properly set up AWS client.
+* http://ldbc-snb.s3.amazonaws.com/
+
 **Community provided tools**
 
 * **[Apache Flink Loader:] (https://github.com/s1ck/ldbc-flink-import)** A loader of LDBC datasets for Apache Flink
