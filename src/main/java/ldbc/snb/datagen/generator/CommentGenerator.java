@@ -11,6 +11,7 @@ import ldbc.snb.datagen.serializer.PersonActivityExporter;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Properties;
@@ -33,7 +34,7 @@ public class CommentGenerator {
         this.comment_ = new Comment();
 	}
 	
-	public long createComments(RandomGeneratorFarm randomFarm, final Forum forum, final Post post, long numComments, long startId, PersonActivityExporter exporter){
+	public long createComments(RandomGeneratorFarm randomFarm, final Forum forum, final Post post, long numComments, long startId, PersonActivityExporter exporter) throws IOException {
 		long nextId = startId;
 		ArrayList<Message> replyCandidates = new ArrayList<Message>();
 		replyCandidates.add(post);

@@ -53,10 +53,13 @@ public class HadoopFileRanker {
                 keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(className).newInstance();
             } catch(ClassNotFoundException e) {
                 System.out.print(e.getMessage());
+                e.printStackTrace();
             } catch(IllegalAccessException e) {
                 System.out.print(e.getMessage());
+                e.printStackTrace();
             } catch(InstantiationException e) {
                 System.out.print(e.getMessage());
+                e.printStackTrace();
             }
         }
 
@@ -108,7 +111,6 @@ public class HadoopFileRanker {
 
         public HadoopFileRankerPartitioner() {
             super();
-
         }
 
         @Override
@@ -141,6 +143,7 @@ public class HadoopFileRanker {
                 }
             } catch(IOException e) {
                 System.err.println(e.getMessage());
+                e.printStackTrace();
             }
 
             counters[0] = 0;

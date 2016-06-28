@@ -42,6 +42,7 @@ public class ConfigParser {
         conf.set("ldbc.snb.datagen.serializer.compressed", Boolean.toString(false));
         conf.set("ldbc.snb.datagen.serializer.updateStreams", Boolean.toString(true));
         conf.set("ldbc.snb.datagen.serializer.numPartitions", "1");
+        conf.set("ldbc.snb.datagen.serializer.numUpdatePartitions", "1");
         conf.set("ldbc.snb.datagen.serializer.outputDir", "./");
         conf.set("ldbc.snb.datagen.serializer.socialNetworkDir", "./social_network");
         conf.set("ldbc.snb.datagen.serializer.hadoopDir", "./hadoop");

@@ -70,7 +70,7 @@ public class FacebookDegreeDistribution extends BucketedDistribution {
     }
 
     @Override
-    public ArrayList<Bucket> getBuckets() {
+    public ArrayList<Bucket> getBuckets(Configuration conf) {
         mean_ = (int) Math.round(Math.pow(DatagenParams.numPersons, (0.512 - 0.028 * Math.log10(DatagenParams.numPersons))));
         System.out.println("Mean = " + mean_);
         buckets_ = new ArrayList<Bucket>();
@@ -86,7 +86,7 @@ public class FacebookDegreeDistribution extends BucketedDistribution {
             String line;
             while ((line = fbDataReader.readLine()) != null) {
                 String data[] = line.split(" ");
-                buckets_.add(new Bucket(Double.parseDouble(data[0]), Double.parseDouble(data[1])));
+                buckets_.add(new Bucket(Integer.parseInt(data[0]), Integer.parseInt(data[1])));
             }
             fbDataReader.close();
         } catch (IOException e) {
@@ -95,7 +95,7 @@ public class FacebookDegreeDistribution extends BucketedDistribution {
     }
 
     public void rebuildBucketRange() {
-        double newMin, newMax;
+        int newMin, newMax;
         for (int i = 0; i < buckets_.size(); i++) {
             newMin = buckets_.get(i).min() * mean_ / FB_MEAN_;
             newMax = buckets_.get(i).max() * mean_ / FB_MEAN_;

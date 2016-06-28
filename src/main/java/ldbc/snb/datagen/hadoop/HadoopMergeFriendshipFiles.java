@@ -31,12 +31,13 @@ public class HadoopMergeFriendshipFiles {
 
         protected void setup(Context context) {
             this.conf = context.getConfiguration();
+            LDBCDatagen.init(conf);
             try {
                 this.keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(conf.get("postKeySetterName")).newInstance();
             }catch(Exception e) {
                 System.out.println(e.getMessage());
+                e.printStackTrace();
             }
-            LDBCDatagen.init(conf);
         }
 
         @Override

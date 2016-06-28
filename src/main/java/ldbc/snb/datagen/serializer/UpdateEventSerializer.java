@@ -79,7 +79,7 @@ public class UpdateEventSerializer {
 	private String fileNamePrefix_;
 	private int reducerId_;
 	
-	public UpdateEventSerializer(Configuration conf, String fileNamePrefix, int reducerId, int numPartitions ) {
+	public UpdateEventSerializer(Configuration conf, String fileNamePrefix, int reducerId, int numPartitions ) throws IOException{
 		conf_ = conf;
 		reducerId_ = reducerId;
 		stringBuffer_ = new StringBuffer(512);
@@ -94,9 +94,9 @@ public class UpdateEventSerializer {
 			FileContext fc = FileContext.getFileContext(conf);
 			for( int i = 0; i < numPartitions_; ++i ) {
 				Path outFile = new Path(fileNamePrefix_+"_"+i);
-				streamWriter_[i] = SequenceFile.createWriter(fc, conf, outFile, UpdateEventKey.class, Text.class, CompressionType.NONE, new DefaultCodec(),new SequenceFile.Metadata(), EnumSet.of(CreateFlag.CREATE), Options.CreateOpts.checksumParam(Options.ChecksumOpt.createDisabled()));
+				streamWriter_[i] = SequenceFile.createWriter(fc, conf, outFile, UpdateEventKey.class, Text.class, CompressionType.NONE, new DefaultCodec(),new SequenceFile.Metadata(), EnumSet.of(CreateFlag.CREATE,CreateFlag.OVERWRITE), Options.CreateOpts.checksumParam(Options.ChecksumOpt.createDisabled()));
 				FileSystem fs = FileSystem.get(conf);
-				Path propertiesFile = new Path(fileNamePrefix+".properties");
+				Path propertiesFile = new Path(fileNamePrefix_+".properties");
 				if(fs.exists(propertiesFile)){
 					FSDataInputStream file = fs.open(propertiesFile);
 					Properties properties = new Properties();
@@ -109,8 +109,7 @@ public class UpdateEventSerializer {
 				}
 			}
 		} catch(IOException e){
-			System.err.println(e.getMessage());
-			System.exit(-1);
+			throw e;
 		}
 	}
 	
@@ -118,7 +117,7 @@ public class UpdateEventSerializer {
 		nextPartition_ = (++nextPartition_) % numPartitions_;
 	}
 	
-	public void writeKeyValue( UpdateEvent event ) {
+	public void writeKeyValue( UpdateEvent event ) throws IOException {
 		try{
 			if(event.date <= Dictionaries.dates.getEndDateTime()) {
 				StringBuilder string = new StringBuilder();
@@ -133,8 +132,7 @@ public class UpdateEventSerializer {
 				streamWriter_[nextPartition_].append(new UpdateEventKey(event.date, reducerId_, nextPartition_), new Text(string.toString()));
 			}
 		} catch(IOException e){
-			System.err.println(e.getMessage());
-			System.exit(-1);
+			throw e;
 		}
 	}
 	
@@ -159,7 +157,7 @@ public class UpdateEventSerializer {
 		data_.clear();
 	}
 	
-	private void endEvent() {
+	private void endEvent() throws IOException {
 		currentEvent_.eventData = formatStringArray(data_,"|");
 		writeKeyValue(currentEvent_);
 	}
@@ -199,7 +197,7 @@ public class UpdateEventSerializer {
 		}
 	}
 	
-	public void export(Person person) {
+	public void export(Person person) throws IOException {
 		
 		currentDependantDate_ = 0;
 		beginEvent(person.creationDate(), UpdateEvent.UpdateEventType.ADD_PERSON);
@@ -259,7 +257,7 @@ public class UpdateEventSerializer {
 		endEvent();
 	}
 	
-	public void export(Person p, Knows k) {
+	public void export(Person p, Knows k) throws IOException{
         if( p.accountId() < k.to().accountId() ) {
             currentDependantDate_ = Math.max(p.creationDate(), k.to().creationDate());
             beginEvent(k.creationDate(), UpdateEvent.UpdateEventType.ADD_FRIENDSHIP);
@@ -270,7 +268,7 @@ public class UpdateEventSerializer {
         }
 	}
 	
-	public void export(Post post) {
+	public void export(Post post) throws IOException {
 		currentDependantDate_ = post.author().creationDate();
 		beginEvent(post.creationDate(), UpdateEvent.UpdateEventType.ADD_POST);
 		String empty = "";
@@ -294,7 +292,7 @@ public class UpdateEventSerializer {
 		endEvent();
 	}
 	
-	public void export(Like like) {
+	public void export(Like like) throws IOException {
 		currentDependantDate_ = like.userCreationDate;
 		if( like.type == Like.LikeType.COMMENT) {
 			beginEvent(like.date, UpdateEvent.UpdateEventType.ADD_LIKE_COMMENT);
@@ -307,7 +305,7 @@ public class UpdateEventSerializer {
 		endEvent();
 	}
 	
-	public void export(Photo photo) {
+	public void export(Photo photo) throws IOException {
 		
 		currentDependantDate_ = photo.author().creationDate();
 		beginEvent(photo.creationDate(), UpdateEvent.UpdateEventType.ADD_POST);
@@ -332,7 +330,7 @@ public class UpdateEventSerializer {
 		endEvent();
 	}
 	
-	public void export(Comment comment) {
+	public void export(Comment comment) throws IOException {
 		
 		currentDependantDate_ = comment.author().creationDate();
 		beginEvent(comment.creationDate(), UpdateEvent.UpdateEventType.ADD_COMMENT);
@@ -359,7 +357,7 @@ public class UpdateEventSerializer {
 		endEvent();
 	}
 	
-	public void export(Forum forum) {
+	public void export(Forum forum) throws IOException {
 		currentDependantDate_ = forum.moderator().creationDate();
 		beginEvent(forum.creationDate(), UpdateEvent.UpdateEventType.ADD_FORUM);
 		data_.add(Long.toString(forum.id()));
@@ -375,7 +373,7 @@ public class UpdateEventSerializer {
 		endEvent();
 	}
 	
-	public void export(ForumMembership membership) {
+	public void export(ForumMembership membership) throws IOException {
 		currentDependantDate_ = membership.person().creationDate();
 		beginEvent(membership.creationDate(), UpdateEvent.UpdateEventType.ADD_FORUM_MEMBERSHIP);
 		data_.add(Long.toString(membership.forumId()));

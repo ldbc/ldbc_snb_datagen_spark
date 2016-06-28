@@ -40,6 +40,7 @@ public class HadoopPersonGenerator  {
             } catch(Exception e) {
                 System.err.println("Error when setting key setter");
                 System.err.println(e.getMessage());
+                e.printStackTrace();
             }
 
         int threadId = Integer.parseInt(value.toString());
@@ -65,8 +66,10 @@ public class HadoopPersonGenerator  {
                 } catch( IOException ioE ) {
                     System.err.println("Input/Output Exception when writing to context.");
                     System.err.println(ioE.getMessage());
+                    ioE.printStackTrace();
                 } catch( InterruptedException iE ) {
                     System.err.println("Interrupted Exception when writing to context.");
+                    iE.printStackTrace();
                 }
             }
         }

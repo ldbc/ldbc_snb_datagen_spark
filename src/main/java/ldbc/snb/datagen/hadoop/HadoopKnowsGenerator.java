@@ -36,6 +36,7 @@ public class HadoopKnowsGenerator {
         protected void setup(Context context) {
             //this.knowsGenerator = new DistanceKnowsGenerator();
             this.conf = context.getConfiguration();
+            LDBCDatagen.init(conf);
             try {
                 this.knowsGenerator = (KnowsGenerator) Class.forName(conf.get("knowsGeneratorName")).newInstance();
                 this.knowsGenerator.initialize(conf);
@@ -55,8 +56,8 @@ public class HadoopKnowsGenerator {
                 this.keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(conf.get("postKeySetterName")).newInstance();
             }catch(Exception e) {
                 System.out.println(e.getMessage());
+                e.printStackTrace();
             }
-            LDBCDatagen.init(conf);
         }
 
         @Override

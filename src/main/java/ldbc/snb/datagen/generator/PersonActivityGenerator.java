@@ -12,6 +12,7 @@ import ldbc.snb.datagen.vocabulary.SN;
 
 import org.apache.hadoop.mapreduce.Reducer.Context;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Random;
@@ -47,7 +48,7 @@ public class PersonActivityGenerator {
         exporter_ = new PersonActivityExporter(personActivitySerializer_, updateSerializer_, factorTable_);
 	}
 
-	private void generateActivity( Person person, ArrayList<Person> block ) {
+	private void generateActivity( Person person, ArrayList<Person> block ) throws IOException {
         try {
             factorTable_.extractFactors(person);
             generateWall(person, block);
@@ -65,7 +66,7 @@ public class PersonActivityGenerator {
 		personActivitySerializer_.reset();
 	}
 
-	private void generateWall( Person person, ArrayList<Person> block ) {
+	private void generateWall( Person person, ArrayList<Person> block ) throws IOException {
 		// generate wall
 		Forum wall = forumGenerator_.createWall(randomFarm_, forumId++, person);
 		exporter_.export(wall);
@@ -83,7 +84,7 @@ public class PersonActivityGenerator {
 		messageId = flashmobPostGenerator_.createPosts(randomFarm_, wall, fakeMembers, numPostsPerGroup(randomFarm_, wall, DatagenParams.maxNumFlashmobPostPerMonth, DatagenParams.maxNumFriends), messageId, exporter_ );
 	}
 
-	private void generateGroups( Person person, ArrayList<Person> block ) {
+	private void generateGroups( Person person, ArrayList<Person> block ) throws IOException  {
 		// generate user created groups
 		double moderatorProb = randomFarm_.get(RandomGeneratorFarm.Aspect.FORUM_MODERATOR).nextDouble();
 		if (moderatorProb <= DatagenParams.groupModeratorProb) {
@@ -104,7 +105,7 @@ public class PersonActivityGenerator {
 
 	}
 
-	private void generateAlbums(Person person, ArrayList<Person> block ) {
+	private void generateAlbums(Person person, ArrayList<Person> block ) throws IOException {
 		// generate albums
 		int numOfmonths = (int) Dictionaries.dates.numberOfMonths(person);
 		int numPhotoAlbums = randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_PHOTO_ALBUM).nextInt(DatagenParams.maxNumPhotoAlbumsPerMonth+1);
@@ -141,7 +142,7 @@ public class PersonActivityGenerator {
 		return (numberPost * forum.memberships().size()) / maxMembersPerForum;
 	}
 	
-	public void generateActivityForBlock( int seed, ArrayList<Person> block, Context context ) {
+	public void generateActivityForBlock( int seed, ArrayList<Person> block, Context context ) throws IOException {
 		randomFarm_.resetRandomGenerators(seed);
 		forumId = 0;
 		messageId = 0;

@@ -13,6 +13,7 @@ import ldbc.snb.datagen.objects.Like.LikeType;
 import ldbc.snb.datagen.objects.Message;
 import ldbc.snb.datagen.serializer.PersonActivityExporter;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -31,7 +32,7 @@ public class LikeGenerator {
 		this.like = new Like();
 	}
 
-	public void generateLikes(Random random, final Forum forum, final Message message, LikeType type, PersonActivityExporter exporter) {
+	public void generateLikes(Random random, final Forum forum, final Message message, LikeType type, PersonActivityExporter exporter) throws IOException {
 		int numMembers = forum.memberships().size();
 		int numLikes = likesGenerator_.getValue(random);
 		numLikes = numLikes >= numMembers ?  numMembers : numLikes;

@@ -11,6 +11,7 @@ import ldbc.snb.datagen.serializer.PersonActivityExporter;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.TreeSet;
 
@@ -29,7 +30,7 @@ public class PhotoGenerator {
 		this.likeGenerator_ = likeGenerator;
 		this.photo_ = new Photo();
 	}
-	public long createPhotos(RandomGeneratorFarm randomFarm, final Forum album, final ArrayList<ForumMembership> memberships, long numPhotos, long startId, PersonActivityExporter exporter){
+	public long createPhotos(RandomGeneratorFarm randomFarm, final Forum album, final ArrayList<ForumMembership> memberships, long numPhotos, long startId, PersonActivityExporter exporter) throws IOException {
 		long nextId = startId;
 		ArrayList<Photo> photos = new ArrayList<Photo>();
 		int numPopularPlaces = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_POPULAR).nextInt(DatagenParams.maxNumPopularPlaces + 1);

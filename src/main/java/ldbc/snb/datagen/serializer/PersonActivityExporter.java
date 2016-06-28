@@ -5,6 +5,8 @@ import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.objects.*;
 import ldbc.snb.datagen.util.FactorTable;
 
+import java.io.IOException;
+
 /**
  * Created by aprat on 3/01/16.
  */
@@ -19,7 +21,7 @@ public class PersonActivityExporter {
         this.factorTable_ = factorTable;
     }
 
-        public void export(final Forum forum) {
+        public void export(final Forum forum) throws IOException {
             if(forum.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
                 personActivitySerializer_.export(forum);
             } else {
@@ -27,7 +29,7 @@ public class PersonActivityExporter {
             }
         }
 
-        public void export(final Post post) {
+        public void export(final Post post) throws IOException {
             if(post.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
                 personActivitySerializer_.export(post);
                 factorTable_.extractFactors(post);
@@ -36,7 +38,7 @@ public class PersonActivityExporter {
             }
         }
 
-        public void export(final Comment comment) {
+        public void export(final Comment comment) throws IOException {
             if(comment.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
                 personActivitySerializer_.export(comment);
                 factorTable_.extractFactors(comment);
@@ -45,7 +47,7 @@ public class PersonActivityExporter {
             }
         }
 
-        public void export(final Photo photo) {
+        public void export(final Photo photo) throws IOException {
             if(photo.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
                 personActivitySerializer_.export(photo);
                 factorTable_.extractFactors(photo);
@@ -54,7 +56,7 @@ public class PersonActivityExporter {
             }
         }
 
-        public void export(final ForumMembership member) {
+        public void export(final ForumMembership member) throws IOException {
             if(member.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
                 personActivitySerializer_.export(member);
                 factorTable_.extractFactors(member);
@@ -63,7 +65,7 @@ public class PersonActivityExporter {
             }
         }
 
-        public void export(final Like like) {
+        public void export(final Like like) throws IOException {
             if(like.date < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
                 personActivitySerializer_.export(like);
                 factorTable_.extractFactors(like);

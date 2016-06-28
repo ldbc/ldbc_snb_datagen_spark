@@ -41,6 +41,7 @@ public class HadoopInvariantSerializer {
             }
         } catch( Exception e ) {
             System.err.println(e.getMessage());
+            e.printStackTrace();
         }
 
         exportPlaces();

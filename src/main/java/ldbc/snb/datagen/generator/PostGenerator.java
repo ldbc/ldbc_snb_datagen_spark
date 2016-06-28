@@ -43,6 +43,7 @@ import ldbc.snb.datagen.serializer.PersonActivityExporter;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Random;
@@ -80,7 +81,7 @@ abstract public class PostGenerator {
 	}
 	
 	
-	public long createPosts(RandomGeneratorFarm randomFarm, final Forum forum, final ArrayList<ForumMembership> memberships, long numPosts, long startId, PersonActivityExporter exporter){
+	public long createPosts(RandomGeneratorFarm randomFarm, final Forum forum, final ArrayList<ForumMembership> memberships, long numPosts, long startId, PersonActivityExporter exporter) throws IOException {
 		long postId = startId;
 		Properties prop = new Properties();
 		prop.setProperty("type","post");

@@ -15,10 +15,10 @@ public abstract class BucketedDistribution implements DegreeDistribution {
     private ArrayList<Random> randomDegree_;
     private Random randomPercentile_;
 
-    public abstract ArrayList<Bucket> getBuckets();
+    public abstract ArrayList<Bucket> getBuckets(Configuration conf);
 
     public void initialize( Configuration conf ) {
-        buckets_ = this.getBuckets();
+        buckets_ = this.getBuckets(conf);
         randomPercentile_ = new Random(0);
         randomDegree_ = new ArrayList<Random>();
         for (int i = 0; i < buckets_.size(); i++) {
@@ -36,8 +36,8 @@ public abstract class BucketedDistribution implements DegreeDistribution {
 
     public long nextDegree() {
         int idx = randomPercentile_.nextInt(buckets_.size());
-        int minRange = (int)(buckets_.get(idx).min());
-        int maxRange = (int)(buckets_.get(idx).max());
+        int minRange = (buckets_.get(idx).min());
+        int maxRange = (buckets_.get(idx).max());
         if( maxRange < minRange ) {
             maxRange = minRange;
         }
