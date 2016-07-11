@@ -86,10 +86,12 @@ public class FacebookDegreeDistribution extends BucketedDistribution {
             String line;
             while ((line = fbDataReader.readLine()) != null) {
                 String data[] = line.split(" ");
-                buckets_.add(new Bucket(Integer.parseInt(data[0]), Integer.parseInt(data[1])));
+                buckets_.add(new Bucket((int)Float.parseFloat(data[0]), (int)Float.parseFloat(data[1])));
             }
             fbDataReader.close();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

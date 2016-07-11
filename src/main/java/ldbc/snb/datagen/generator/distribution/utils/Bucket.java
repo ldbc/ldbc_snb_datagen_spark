@@ -20,6 +20,8 @@ public class Bucket {
            population+=i.getValue();
            num_edges+=i.getValue()*i.getKey();
         }
+        num_edges /= 2;
+
 
         int avgDegreeAt1B = 200;
         int avgDegree = num_edges/population;
@@ -53,7 +55,6 @@ public class Bucket {
             min = (int)(min*target_mean/(double)avgDegree);
             max = (int)(max*target_mean/(double)avgDegree);
             buckets.add(new Bucket(min,max));
-            //System.out.println(i+" "+min+" "+max);
         }
         return buckets;
     }
