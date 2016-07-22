@@ -59,27 +59,27 @@ public class Bucket {
         return buckets;
     }
 
-    int min_;
-    int max_;
+    double min_;
+    double max_;
 
-    public Bucket(int min, int max) {
+    public Bucket(double min, double max) {
         this.min_ = min;
         this.max_ = max;
     }
 
-    public int min() {
+    public double min() {
         return min_;
     }
 
-    public void min(int min) {
+    public void min(double min) {
         min_ = min;
     }
 
-    public int max() {
+    public double max() {
         return max_;
     }
 
-    public void max(int max) {
+    public void max(double max) {
         max_ = max;
     }
 }

@@ -89,6 +89,9 @@ public class LDBCDatagen {
         percentages.add(0.45f);
         percentages.add(0.1f);
 
+        //percentages.add(1.0f);
+        //percentages.add(0.1f);
+
 
         long start = System.currentTimeMillis();
         printProgress("Starting: Person generation");

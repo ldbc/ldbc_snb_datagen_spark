@@ -36,12 +36,12 @@ public abstract class BucketedDistribution implements DegreeDistribution {
 
     public long nextDegree() {
         int idx = randomPercentile_.nextInt(buckets_.size());
-        int minRange = (buckets_.get(idx).min());
-        int maxRange = (buckets_.get(idx).max());
+        double minRange = (buckets_.get(idx).min());
+        double maxRange = (buckets_.get(idx).max());
         if( maxRange < minRange ) {
             maxRange = minRange;
         }
-        long ret= randomDegree_.get(idx).nextInt( maxRange - minRange  + 1) + minRange;
+        long ret= randomDegree_.get(idx).nextInt( (int)maxRange - (int)minRange  + 1) + (int)minRange;
         return ret;
     }
 }

@@ -86,7 +86,7 @@ public class FacebookDegreeDistribution extends BucketedDistribution {
             String line;
             while ((line = fbDataReader.readLine()) != null) {
                 String data[] = line.split(" ");
-                buckets_.add(new Bucket((int)Float.parseFloat(data[0]), (int)Float.parseFloat(data[1])));
+                buckets_.add(new Bucket(Float.parseFloat(data[0]), Float.parseFloat(data[1])));
             }
             fbDataReader.close();
         } catch (IOException e) {
@@ -97,7 +97,7 @@ public class FacebookDegreeDistribution extends BucketedDistribution {
     }
 
     public void rebuildBucketRange() {
-        int newMin, newMax;
+        double newMin, newMax;
         for (int i = 0; i < buckets_.size(); i++) {
             newMin = buckets_.get(i).min() * mean_ / FB_MEAN_;
             newMax = buckets_.get(i).max() * mean_ / FB_MEAN_;

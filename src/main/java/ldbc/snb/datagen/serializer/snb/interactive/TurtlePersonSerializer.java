@@ -49,6 +49,9 @@ import ldbc.snb.datagen.serializer.Turtle;
 import ldbc.snb.datagen.vocabulary.*;
 import org.apache.hadoop.conf.Configuration;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 
 public class TurtlePersonSerializer extends PersonSerializer {
 
@@ -56,6 +59,8 @@ public class TurtlePersonSerializer extends PersonSerializer {
 	private long workAtId     = 0;
 	private long studyAtId    = 0;
     private long knowsId      = 0;
+    private SimpleDateFormat dateTimeFormat = null;
+
 
     private enum FileNames {
         SOCIAL_NETWORK ("social_network_person");
@@ -74,6 +79,7 @@ public class TurtlePersonSerializer extends PersonSerializer {
     }
 
     public void initialize(Configuration conf, int reducerId) {
+        dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
         int numFiles = FileNames.values().length;
         writers = new HDFSWriter[numFiles];
         for( int i = 0; i < numFiles; ++i) {
@@ -117,7 +123,7 @@ public class TurtlePersonSerializer extends PersonSerializer {
         Turtle.AddTriple(result, false, false, prefix, SNVOC.browser,
                         Turtle.createLiteral(Dictionaries.browsers.getName(p.browserId())));
         Turtle.AddTriple(result, false, true, prefix, SNVOC.creationDate,
-                Turtle.createDataTypeLiteral(Dictionaries.dates.formatDateTime(p.creationDate()), XSD.DateTime));
+                Turtle.createDataTypeLiteral(dateTimeFormat.format(p.creationDate()), XSD.DateTime));
 
         Turtle.createTripleSPO(result, prefix, SNVOC.locatedIn, DBP.fullPrefixed(Dictionaries.places.getPlaceName(p.cityId())));
 
@@ -175,8 +181,9 @@ public class TurtlePersonSerializer extends PersonSerializer {
         Turtle.createTripleSPO(result, prefix, SNVOC.knows, SN.getKnowsURI(id));
         Turtle.createTripleSPO(result, SN.getKnowsURI(id), SNVOC.hasPerson,
                 SN.getPersonURI(knows.to().accountId()));
+
         Turtle.createTripleSPO(result, SN.getKnowsURI(id), SNVOC.creationDate,
-                Turtle.createDataTypeLiteral(Dictionaries.dates.formatDateTime(knows.creationDate()), XSD.DateTime));
+                Turtle.createDataTypeLiteral(dateTimeFormat.format(knows.creationDate()), XSD.DateTime));
         writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
         knowsId++;
     }
