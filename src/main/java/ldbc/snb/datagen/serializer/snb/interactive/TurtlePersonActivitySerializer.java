@@ -124,7 +124,7 @@ public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 
 		for( Integer tag : post.tags()) {
 			String topic = Dictionaries.tags.getName(tag);
-			Turtle.createTripleSPO(result, prefix, SNVOC.hasTag, DBP.fullPrefixed(topic));
+			Turtle.createTripleSPO(result, prefix, SNVOC.hasTag, SNTAG.fullPrefixed(topic));
 		}
 		writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
 	}

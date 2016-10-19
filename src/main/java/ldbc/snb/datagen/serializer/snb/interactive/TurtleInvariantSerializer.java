@@ -101,7 +101,7 @@ public class TurtleInvariantSerializer extends InvariantSerializer {
     protected void serialize(final TagClass tagClass) {
 
         StringBuffer result = new StringBuffer(350);
-        Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()],SN.getTagClassURI(tagClass.id), RDFS.label, Turtle.createLiteral(Dictionaries.tags.getClassLabel(tagClass.id)));
+        Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()],SN.getTagClassURI(tagClass.id), RDFS.label, Turtle.createLiteral(Dictionaries.tags.getClassName(tagClass.id)));
         Turtle.createTripleSPO(result, SN.getTagClassURI(tagClass.id), RDF.type, SNVOC.TagClass);
 
         if (tagClass.name.equals("Thing")) {
