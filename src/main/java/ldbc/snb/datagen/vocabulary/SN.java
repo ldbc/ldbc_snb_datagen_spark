@@ -142,11 +142,11 @@ public class SN {
     }
 
     public static String getUnivURI(long id) {
-        return BLANK_NODE + "uni" + String.format("%06d", id);
+	return PREFIX + "uni" + String.format("%06d", id);
     }
 
     public static String getCompURI(long id) {
-        return BLANK_NODE + "com" + String.format("%06d", id);
+	return PREFIX + "com" + String.format("%06d", id);
     }
 
     public static String getKnowsURI(long id) {
