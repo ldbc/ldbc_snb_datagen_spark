@@ -57,6 +57,7 @@ public class LDBCDatagenTest {
     @Test
     public void forumTest() {
         testIdUniqueness(dir+"/forum_0_0.csv", 0);
+        testStringLength(dir+"/forum_0_0.csv", 1, 256);
     }
 
     @Test
@@ -68,21 +69,25 @@ public class LDBCDatagenTest {
     @Test
     public void organisationTest() {
         testIdUniqueness(dir+"/organisation_0_0.csv", 0);
+        testStringLength(dir+"/organisation_0_0.csv", 2, 256);
     }
 
     @Test
     public void placeTest() {
         testIdUniqueness(dir+"/place_0_0.csv", 0);
+        testStringLength(dir+"/place_0_0.csv", 1, 256);
     }
 
     @Test
     public void tagTest() {
         testIdUniqueness(dir+"/tag_0_0.csv", 0);
+        testStringLength(dir+"/tag_0_0.csv", 1, 256);
     }
 
     @Test
     public void tagclassTest() {
         testIdUniqueness(dir+"/tagclass_0_0.csv", 0);
+        testStringLength(dir+"/tagclass_0_0.csv", 1, 256);
     }
 
     @Test
@@ -199,6 +204,7 @@ public class LDBCDatagenTest {
     @Test
     public void personEmailAddressCheck() {
         testIdExistance(dir+"/person_0_0.csv",0,dir+"/person_email_emailaddress_0_0.csv",0);
+        testStringLength(dir+"/person_email_emailaddress_0_0.csv", 1, 256);
     }
 
     // test update stream  time consistency
@@ -417,6 +423,13 @@ public class LDBCDatagenTest {
         columnIndices.add(columnToCheckExistanceOf);
         ExistsCheck existsCheck = new ExistsCheck<Long>(parser,columnIndices, refcolumns);
         fileChecker.addCheck(existsCheck);
+        assertEquals("ERROR PASSING "+fileToCheckExistanceOf+" ID EXISTANCE TEST",true, fileChecker.run(1));
+    }
+
+    public void testStringLength(String fileToCheckExistanceOf, int columnToCheckExistanceOf, int length) {
+        FileChecker fileChecker = new FileChecker(fileToCheckExistanceOf);
+        StringLengthCheck lengthCheck = new StringLengthCheck(columnToCheckExistanceOf, length);
+        fileChecker.addCheck(lengthCheck);
         assertEquals("ERROR PASSING "+fileToCheckExistanceOf+" ID EXISTANCE TEST",true, fileChecker.run(1));
     }
 

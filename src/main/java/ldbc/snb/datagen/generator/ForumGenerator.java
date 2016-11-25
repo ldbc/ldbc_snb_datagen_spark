@@ -7,6 +7,7 @@ import ldbc.snb.datagen.objects.ForumMembership;
 import ldbc.snb.datagen.objects.Knows;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
+import ldbc.snb.datagen.util.StringUtils;
 import ldbc.snb.datagen.vocabulary.SN;
 
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ public class ForumGenerator {
 		Forum forum = new Forum(SN.formId(SN.composeId(forumId,person.creationDate()+DatagenParams.deltaTime)), 
 				person.creationDate()+DatagenParams.deltaTime, 
 				new Person.PersonSummary(person),  
-				"Wall of " + person.firstName() + " " + person.lastName(),
+				StringUtils.clampString("Wall of " + person.firstName() + " " + person.lastName(), 256),
 				person.cityId(),
 				language
 				);
@@ -62,7 +63,7 @@ public class ForumGenerator {
 		Forum forum = new Forum(SN.formId(SN.composeId(forumId,date)),
 				date, 
 				new Person.PersonSummary(person),  
-				"Group for " + Dictionaries.tags.getName(interestId).replace("\"","\\\"") + " in " + Dictionaries.places.getPlaceName(person.cityId()),
+				StringUtils.clampString("Group for " + Dictionaries.tags.getName(interestId).replace("\"","\\\"") + " in " + Dictionaries.places.getPlaceName(person.cityId()),256),
 				person.cityId(),
 				language
 				);
@@ -119,7 +120,7 @@ public class ForumGenerator {
 		Forum forum = new Forum(SN.formId(SN.composeId(forumId,date)),
 				date, 
 				new Person.PersonSummary(person),  
-				"Album " + numAlbum + " of " + person.firstName() + " " + person.lastName(),
+				StringUtils.clampString("Album " + numAlbum + " of " + person.firstName() + " " + person.lastName(),256),
 				person.cityId(),
 				language
 				);
