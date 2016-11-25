@@ -196,6 +196,11 @@ public class LDBCDatagenTest {
         testPairUniquenessPlusExistance(dir+"/person_likes_post_0_0.csv",0,1,dir+"/person_0_0.csv",0,dir+"/post_0_0.csv",0);
     }
 
+    @Test
+    public void personEmailAddressCheck() {
+        testIdExistance(dir+"/person_0_0.csv",0,dir+"/person_email_emailaddress_0_0.csv",0);
+    }
+
     // test update stream  time consistency
     @Test
     public void updateStreamForumsConsistencyCheck() {
@@ -399,6 +404,20 @@ public class LDBCDatagenTest {
         ExistsCheck existsCheck = new ExistsCheck<Long>(parser,columnIndices, refcolumns);
         fileChecker.addCheck(existsCheck);
         assertEquals("ERROR PASSING "+relationFileName+" TEST",true, fileChecker.run(1));
+    }
+
+    public void testIdExistance(String fileToCheckExistanceOf, int columnToCheckExistanceOf, String fileToCheckExistanceAgainst, int columnToCheckExistanceAgainst) {
+        LongParser parser = new LongParser();
+        ColumnSet<Long> checkAgainstEntities = new ColumnSet<Long>(parser,new File(fileToCheckExistanceAgainst),columnToCheckExistanceAgainst,1);
+        checkAgainstEntities.initialize();
+        FileChecker fileChecker = new FileChecker(fileToCheckExistanceOf);
+        List<ColumnSet<Long>> refcolumns = new ArrayList<ColumnSet<Long>>();
+        refcolumns.add(checkAgainstEntities);
+        List<Integer> columnIndices = new ArrayList<Integer>();
+        columnIndices.add(columnToCheckExistanceOf);
+        ExistsCheck existsCheck = new ExistsCheck<Long>(parser,columnIndices, refcolumns);
+        fileChecker.addCheck(existsCheck);
+        assertEquals("ERROR PASSING "+fileToCheckExistanceOf+" ID EXISTANCE TEST",true, fileChecker.run(1));
     }
 
 }

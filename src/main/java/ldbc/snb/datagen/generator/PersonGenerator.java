@@ -87,7 +87,7 @@ public class PersonGenerator {
 
         int numEmails = randomFarm.get(RandomGeneratorFarm.Aspect.EXTRA_INFO).nextInt(DatagenParams.maxEmails) + 1;
         double prob = randomFarm.get(RandomGeneratorFarm.Aspect.EXTRA_INFO).nextDouble();
-        if (prob >= DatagenParams.missingRatio) {
+        /*if (prob >= DatagenParams.missingRatio)*/ {
             String base = person.firstName();
             base = Normalizer.normalize(base, Normalizer.Form.NFD);
             base = base.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");

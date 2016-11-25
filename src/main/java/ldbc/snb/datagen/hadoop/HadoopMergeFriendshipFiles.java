@@ -41,7 +41,7 @@ public class HadoopMergeFriendshipFiles {
         }
 
         @Override
-        public void reduce(TupleKey key, Iterable<Person> valueSet,Context context)
+        public void reduce(TupleKey key, Iterable<Person> valueSet, Context context)
                 throws IOException, InterruptedException {
 
             ArrayList<Knows> knows = new ArrayList<Knows>();
