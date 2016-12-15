@@ -46,12 +46,21 @@ public class LDBCDatagenTest {
     @Test
     public void personTest() {
         testIdUniqueness(dir+"/person_0_0.csv", 0);
+        testStringLength(dir+"/person_0_0.csv", 1, 40);
+        testStringLength(dir+"/person_0_0.csv", 2, 40);
+        testStringLength(dir+"/person_0_0.csv", 3, 40);
+        testStringLength(dir+"/person_0_0.csv", 6, 40);
+        testStringLength(dir+"/person_0_0.csv", 7, 40);
     }
 
     @Test
     public void postTest() {
         testIdUniqueness(dir+"/post_0_0.csv", 0);
         testLongBetween(dir+"/post_0_0.csv",7,0,2001);
+        testStringLength(dir+"/post_0_0.csv", 1, 40);
+        testStringLength(dir+"/post_0_0.csv", 3, 40);
+        testStringLength(dir+"/post_0_0.csv", 4, 40);
+        testStringLength(dir+"/post_0_0.csv", 5, 40);
     }
 
     @Test
@@ -64,6 +73,8 @@ public class LDBCDatagenTest {
     public void commentTest() {
         testIdUniqueness(dir+"/comment_0_0.csv", 0);
         testLongBetween(dir+"/comment_0_0.csv",5,0,2001);
+        testStringLength(dir+"/comment_0_0.csv", 2, 40);
+        testStringLength(dir+"/comment_0_0.csv", 3, 40);
     }
 
     @Test
