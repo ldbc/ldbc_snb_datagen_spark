@@ -19,3 +19,6 @@ target/
 *.pyc
 scripts/
 *.iml
+/hadoop/
+/social_network/
+*.log
