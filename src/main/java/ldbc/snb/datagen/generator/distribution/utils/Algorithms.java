@@ -32,7 +32,7 @@ public class Algorithms {
             }
             currentNumPersons = (numPersonsMax - numPersonsMin) / 2 + numPersonsMin;
             currentScale = scale(currentNumPersons, distribution.mean(currentNumPersons));
-            //System.out.println(numPersonsMin+" "+numPersonsMax+" "+currentNumPersons+" "+currentScale);
+            System.out.println(numPersonsMin+" "+numPersonsMax+" "+currentNumPersons+" "+currentScale);
         }
         return currentNumPersons;
     }
