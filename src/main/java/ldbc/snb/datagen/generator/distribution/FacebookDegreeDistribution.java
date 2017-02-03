@@ -46,7 +46,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Random;
 
 /**
  * This class generates Facebook-like social degree distribution
@@ -71,8 +70,7 @@ public class FacebookDegreeDistribution extends BucketedDistribution {
 
     @Override
     public ArrayList<Bucket> getBuckets(Configuration conf) {
-        mean_ = (int) Math.round(Math.pow(DatagenParams.numPersons, (0.512 - 0.028 * Math.log10(DatagenParams.numPersons))));
-        System.out.println("Mean = " + mean_);
+        mean_ = (int)mean(DatagenParams.numPersons);
         buckets_ = new ArrayList<Bucket>();
         loadFBBuckets();
         rebuildBucketRange();
@@ -105,5 +103,10 @@ public class FacebookDegreeDistribution extends BucketedDistribution {
             buckets_.get(i).min(newMin);
             buckets_.get(i).max(newMax);
         }
+    }
+
+    @Override
+    public double mean(long numPersons) {
+        return Math.round(Math.pow(numPersons, (0.512 - 0.028 * Math.log10(numPersons))));
     }
 }

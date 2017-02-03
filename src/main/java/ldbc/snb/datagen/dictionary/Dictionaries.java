@@ -49,7 +49,7 @@ public class Dictionaries {
 		
 		emails = new EmailDictionary();
 		
-		places = new PlaceDictionary(DatagenParams.numPersons);
+		places = new PlaceDictionary();
 		
 		ips = new IPAddressDictionary(  places,
 			DatagenParams.probDiffIPinTravelSeason,

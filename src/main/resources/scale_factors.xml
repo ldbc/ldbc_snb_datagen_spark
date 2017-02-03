@@ -135,8 +135,8 @@
 
     <scale_factor name="graphalytics.1" >
         <property>
-            <name>ldbc.snb.datagen.generator.numPersons</name>
-            <value>36000</value>
+            <name>ldbc.snb.datagen.generator.gscale</name>
+            <value>6.0</value>
         </property>
         <property>
             <name>ldbc.snb.datagen.generator.startYear</name>
@@ -162,8 +162,8 @@
 
     <scale_factor name="graphalytics.3" >
         <property>
-            <name>ldbc.snb.datagen.generator.numPersons</name>
-            <value>86000</value>
+            <name>ldbc.snb.datagen.generator.gscale</name>
+            <value>6.5</value>
         </property>
         <property>
             <name>ldbc.snb.datagen.generator.startYear</name>
@@ -189,8 +189,8 @@
 
     <scale_factor name="graphalytics.10" >
         <property>
-            <name>ldbc.snb.datagen.generator.numPersons</name>
-            <value>235000</value>
+            <name>ldbc.snb.datagen.generator.gscale</name>
+            <value>7.0</value>
         </property>
         <property>
             <name>ldbc.snb.datagen.generator.startYear</name>
@@ -216,8 +216,8 @@
 
     <scale_factor name="graphalytics.30" >
         <property>
-            <name>ldbc.snb.datagen.generator.numPersons</name>
-            <value>592500</value>
+            <name>ldbc.snb.datagen.generator.gscale</name>
+            <value>7.5</value>
         </property>
         <property>
             <name>ldbc.snb.datagen.generator.startYear</name>
@@ -243,8 +243,8 @@
 
     <scale_factor name="graphalytics.100" >
         <property>
-            <name>ldbc.snb.datagen.generator.numPersons</name>
-            <value>1670000</value>
+            <name>ldbc.snb.datagen.generator.gscale</name>
+            <value>8.0</value>
         </property>
         <property>
             <name>ldbc.snb.datagen.generator.startYear</name>
@@ -270,8 +270,8 @@
 
     <scale_factor name="graphalytics.300" >
         <property>
-            <name>ldbc.snb.datagen.generator.numPersons</name>
-            <value>4350000</value>
+            <name>ldbc.snb.datagen.generator.gscale</name>
+            <value>8.5</value>
         </property>
         <property>
             <name>ldbc.snb.datagen.generator.startYear</name>
@@ -297,8 +297,8 @@
 
     <scale_factor name="graphalytics.1000" >
         <property>
-            <name>ldbc.snb.datagen.generator.numPersons</name>
-            <value>12750000</value>
+            <name>ldbc.snb.datagen.generator.gscale</name>
+            <value>9.0</value>
         </property>
         <property>
             <name>ldbc.snb.datagen.generator.startYear</name>
@@ -324,8 +324,8 @@
 
     <scale_factor name="graphalytics.3000" >
         <property>
-            <name>ldbc.snb.datagen.generator.numPersons</name>
-            <value>34835000</value>
+            <name>ldbc.snb.datagen.generator.gscale</name>
+            <value>9.5</value>
         </property>
         <property>
             <name>ldbc.snb.datagen.generator.startYear</name>
@@ -350,8 +350,8 @@
     </scale_factor>
     <scale_factor name="graphalytics.10000" >
         <property>
-            <name>ldbc.snb.datagen.generator.numPersons</name>
-            <value>90000000</value>
+            <name>ldbc.snb.datagen.generator.gscale</name>
+            <value>10</value>
         </property>
         <property>
             <name>ldbc.snb.datagen.generator.startYear</name>
@@ -376,8 +376,8 @@
     </scale_factor>
     <scale_factor name="graphalytics.30000" >
         <property>
-            <name>ldbc.snb.datagen.generator.numPersons</name>
-            <value>250000000</value>
+            <name>ldbc.snb.datagen.generator.gscale</name>
+            <value>10.5</value>
         </property>
         <property>
             <name>ldbc.snb.datagen.generator.startYear</name>

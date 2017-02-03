@@ -12,7 +12,7 @@ import java.util.ArrayList;
  */
 public class AltmannDistribution extends CumulativeBasedDegreeDistribution {
 
-    private int POPULATION_ = 10000;
+    private long POPULATION_ = 10000;
     private double normalization_factor_ = 0.0;
     private double ALPHA_ = 0.4577;
     private double BETA_ = 0.0162;

@@ -9,7 +9,7 @@ import java.util.Random;
 /**
  * Created by aprat on 3/03/15.
  */
-public abstract class BucketedDistribution implements DegreeDistribution {
+public abstract class BucketedDistribution extends DegreeDistribution {
 
     private ArrayList<Bucket> buckets_;
     private ArrayList<Random> randomDegree_;
@@ -43,5 +43,10 @@ public abstract class BucketedDistribution implements DegreeDistribution {
         }
         long ret= randomDegree_.get(idx).nextInt( (int)maxRange - (int)minRange  + 1) + (int)minRange;
         return ret;
+    }
+
+    @Override
+    public double mean(long numPersons) {
+        return -1.0;
     }
 }
