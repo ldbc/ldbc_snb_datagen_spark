@@ -304,7 +304,12 @@ public class FactorTable {
             }
             Map<Integer,String> medianNames = new TreeMap<Integer,String>();
             for (Map.Entry<Integer,List<String>> entry : countryNames.entrySet()) {
-                entry.getValue().sort( (a ,b) -> a.compareTo(b));
+                entry.getValue().sort(new Comparator<String>(){
+                    @Override
+                    public int compare(String o1, String o2) {
+                        return o1.compareTo(o2);
+                    }
+                });
                 medianNames.put(entry.getKey(),entry.getValue().get(entry.getValue().size()/2));
             }
             for (Map.Entry<Long, PersonCounts> c: personCounts_.entrySet()){
