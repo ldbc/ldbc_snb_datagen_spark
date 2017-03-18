@@ -23,4 +23,4 @@ Publicly available datasets can be found at the LDBC-SNB Amazon Bucket. These da
 
 **Community provided tools**
 
-* **[Apache Flink Loader:] (https://github.com/s1ck/ldbc-flink-import)** A loader of LDBC datasets for Apache Flink
+* **[Apache Flink Loader:](https://github.com/s1ck/ldbc-flink-import)** A loader of LDBC datasets for Apache Flink
