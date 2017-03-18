@@ -9,12 +9,12 @@ The LDBC-SNB Data Generator (DATAGEN) is the responsible of providing the data s
 ldbc_snb_datagen is part of the LDBC project (http://www.ldbc.eu/).
 ldbc_snb_datagen is GPLv3 licensed, to see detailed information about this license read the LICENSE.txt.
 
-* **[Releases](https://github.com/ldbc-dev/ldbc_snb_datagen_0.2/releases)**
-* **[Configuration](https://github.com/ldbc-dev/ldbc_snb_datagen_0.2/wiki/Configuration)**
-* **[Compilation and Execution](https://github.com/ldbc-dev/ldbc_snb_datagen_0.2/wiki/Compilation_Execution)**
-* **[Advanced Configuration](https://github.com/ldbc-dev/ldbc_snb_datagen_0.2/wiki/Advanced_Configuration)**
-* **[Output](https://github.com/ldbc-dev/ldbc_snb_datagen_0.2/wiki/Data-Output)**
-* **[Troubleshooting](https://github.com/ldbc-dev/ldbc_snb_datagen_0.2/wiki/Troubleshooting)**
+* **[Releases](https://github.com/ldbc/ldbc_snb_datagen/releases)**
+* **[Configuration](https://github.com/ldbc/ldbc_snb_datagen/wiki/Configuration)**
+* **[Compilation and Execution](https://github.com/ldbc/ldbc_snb_datagen/wiki/Compilation_Execution)**
+* **[Advanced Configuration](https://github.com/ldbc/ldbc_snb_datagen/wiki/Advanced_Configuration)**
+* **[Output](https://github.com/ldbc/ldbc_snb_datagen/wiki/Data-Output)**
+* **[Troubleshooting](https://github.com/ldbc/ldbc_snb_datagen/wiki/Troubleshooting)**
 
 **Datasets**
 
