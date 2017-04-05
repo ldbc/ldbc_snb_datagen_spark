@@ -1,6 +1,13 @@
 language: java
 jdk:
   - openjdk7
-install: true
+install:
+  - curl -s http://www.eu.apache.org/dist/hadoop/common/hadoop-2.6.5/hadoop-2.6.5.tar.gz | tar -xz
+before_script:
+  - export HADOOP_HOME=`readlink -f hadoop-2.6.5`
+  - export LDBC_SNB_DATAGEN_HOME=`pwd`
+  - export HADOOP_CLIENT_OPTS="-Xmx2G"
 script:
-  - mvn package -DskipTests
+  - cp test_params.ini params.ini
+  - ./run.sh
+  - mvn test
