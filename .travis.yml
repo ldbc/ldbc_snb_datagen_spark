@@ -12,4 +12,6 @@ before_script:
 script:
   - cp test_params.ini params.ini
   - ./run.sh
+  - ls -al
+  - echo $LDBC_SNB_DATAGEN_HOME
   - mvn test
