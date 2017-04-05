@@ -1,15 +1,23 @@
 package ldbc.snb.datagen.generator;
 
-import javafx.util.Pair;
-import ldbc.snb.datagen.objects.Knows;
-import ldbc.snb.datagen.objects.Person;
-import org.apache.hadoop.conf.Configuration;
-import org.roaringbitmap.RoaringBitmap;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Random;
+import java.util.TreeMap;
+
+import org.apache.commons.math3.util.Pair;
+import org.apache.hadoop.conf.Configuration;
+import org.roaringbitmap.RoaringBitmap;
+
+import ldbc.snb.datagen.objects.Knows;
+import ldbc.snb.datagen.objects.Person;
 
 /**
  * Created by aprat on 12/07/16.
@@ -176,7 +184,7 @@ public class BTERKnowsGenerator implements KnowsGenerator{
         TreeMap<Long,RoaringBitmap> sortedMap = new TreeMap<Long,RoaringBitmap>(openCommunities);
         RoaringBitmap currentCommunity = null;
         long currentCommunitySize = 0;
-        for(HashMap.Entry<Long,RoaringBitmap> community : sortedMap.entrySet()) {
+        for(Map.Entry<Long,RoaringBitmap> community : sortedMap.entrySet()) {
             RoaringBitmap nextCommunity = community.getValue();
             if(currentCommunity == null) {
                 currentCommunity = nextCommunity;
