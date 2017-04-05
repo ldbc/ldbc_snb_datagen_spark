@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
 
@@ -183,7 +184,7 @@ public class BTERKnowsGenerator implements KnowsGenerator{
         TreeMap<Long,RoaringBitmap> sortedMap = new TreeMap<Long,RoaringBitmap>(openCommunities);
         RoaringBitmap currentCommunity = null;
         long currentCommunitySize = 0;
-        for(HashMap.Entry<Long,RoaringBitmap> community : sortedMap.entrySet()) {
+        for(Map.Entry<Long,RoaringBitmap> community : sortedMap.entrySet()) {
             RoaringBitmap nextCommunity = community.getValue();
             if(currentCommunity == null) {
                 currentCommunity = nextCommunity;
