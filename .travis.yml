@@ -15,3 +15,8 @@ script:
   - ls -al
   - echo $LDBC_SNB_DATAGEN_HOME
   - mvn test
+notifications:
+  slack: ldbcouncil:OrBanrJ7l0EHQbj8T5YdJYhd
+  email: false
+  on_success: change
+  on_failure: always
