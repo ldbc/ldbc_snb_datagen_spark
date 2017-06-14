@@ -25,6 +25,17 @@ public class HDFSCSVWriter extends HDFSWriter {
 
     }
 
+    public void writeHeader( ArrayList<String> entry ) {
+        buffer.setLength(0);
+        for( int i = 0; i < entry.size(); ++i)  {
+            buffer.append(entry.get(i));
+            if((endLineSeparator && i == (entry.size() - 1)) || (i < entry.size() - 1))
+                buffer.append(separator);
+        }
+        buffer.append("\n");
+        this.writeAllPartitions(buffer.toString());
+    }
+
     public void writeEntry( ArrayList<String> entry ) {
         buffer.setLength(0);
         for( int i = 0; i < entry.size(); ++i)  {

@@ -55,47 +55,47 @@ public class CSVInvariantSerializer extends InvariantSerializer {
         arguments.add("id");
         arguments.add("name");
         arguments.add("url");
-        writers[FileNames.TAG.ordinal()].writeEntry(arguments);
+        writers[FileNames.TAG.ordinal()].writeHeader(arguments);
 
         arguments.clear();
         arguments.add("Tag.id");
         arguments.add("TagClass.id");
-        writers[FileNames.TAG_HAS_TYPE_TAGCLASS.ordinal()].writeEntry(arguments);
+        writers[FileNames.TAG_HAS_TYPE_TAGCLASS.ordinal()].writeHeader(arguments);
 
         arguments.clear();
         arguments.add("id");
         arguments.add("name");
         arguments.add("url");
-        writers[FileNames.TAGCLASS.ordinal()].writeEntry(arguments);
+        writers[FileNames.TAGCLASS.ordinal()].writeHeader(arguments);
 
         arguments.clear();
         arguments.add("TagClass.id");
         arguments.add("TagClass.id");
-        writers[FileNames.TAGCLASS_IS_SUBCLASS_OF_TAGCLASS.ordinal()].writeEntry(arguments);
+        writers[FileNames.TAGCLASS_IS_SUBCLASS_OF_TAGCLASS.ordinal()].writeHeader(arguments);
 
         arguments.clear();
         arguments.add("id");
         arguments.add("name");
         arguments.add("url");
         arguments.add("type");
-        writers[FileNames.PLACE.ordinal()].writeEntry(arguments);
+        writers[FileNames.PLACE.ordinal()].writeHeader(arguments);
 
         arguments.clear();
         arguments.add("id");
         arguments.add("type");
         arguments.add("name");
         arguments.add("url");
-        writers[FileNames.ORGANIZATION.ordinal()].writeEntry(arguments);
+        writers[FileNames.ORGANIZATION.ordinal()].writeHeader(arguments);
 
         arguments.clear();
         arguments.add("Organisation.id");
         arguments.add("Place.id");
-        writers[FileNames.ORGANIZATION_IS_LOCATED_IN_PLACE.ordinal()].writeEntry(arguments);
+        writers[FileNames.ORGANIZATION_IS_LOCATED_IN_PLACE.ordinal()].writeHeader(arguments);
 
         arguments.clear();
         arguments.add("Place.id");
         arguments.add("Place.id");
-        writers[FileNames.PLACE_IS_PART_OF_PLACE.ordinal()].writeEntry(arguments);
+        writers[FileNames.PLACE_IS_PART_OF_PLACE.ordinal()].writeHeader(arguments);
     }
 
     public void close() {
