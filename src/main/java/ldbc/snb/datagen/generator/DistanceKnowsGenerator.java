@@ -31,8 +31,9 @@ public class DistanceKnowsGenerator implements KnowsGenerator {
         }
     }
 
+    @Override
     public void initialize( Configuration conf ) {
-
+        // This is inherited from knows generator and no initialization is required.
     }
 
     boolean know( Person personA, Person personB, int dist, ArrayList<Float> percentages, int step_index ) {

@@ -54,7 +54,8 @@ public class RandomKnowsGenerator implements KnowsGenerator {
         }
     }
 
+    @Override
     public void initialize( Configuration conf ) {
-
+        // Method inherited from Knows Generator. This specialization is empty because it does not require initizalization
     }
 }

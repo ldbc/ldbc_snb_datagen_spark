@@ -370,7 +370,6 @@ public class LDBCDatagen {
             ConfigParser.readConfig(conf, args[0]);
             ConfigParser.readConfig(conf, LDBCDatagen.class.getResourceAsStream("/params.ini"));
 
-            // Create input text file in HDFS
             LDBCDatagen.prepareConfiguration(conf);
             LDBCDatagen.initializeContext(conf);
             LDBCDatagen datagen = new LDBCDatagen();

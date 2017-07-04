@@ -52,10 +52,7 @@ public class PersonGenerator {
      * @return True if the person is a large poster. False otherwise.
      */
     private boolean isUserALargePoster(Person user) {
-        if (Dictionaries.dates.getBirthMonth(user.birthDay()) == GregorianCalendar.JANUARY) {
-            return true;
-        }
-        return false;
+        return Dictionaries.dates.getBirthMonth(user.birthDay()) == GregorianCalendar.JANUARY;
     }
 
     private Person generateUser() {

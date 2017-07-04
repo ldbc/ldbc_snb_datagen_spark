@@ -13,6 +13,31 @@ import java.util.*;
  */
 public class Person implements Writable {
 
+
+	private long accountId_;
+	private long creationDate_;
+	private long maxNumKnows_;
+	private TreeSet<Knows> knows_;
+	private int browserId_;
+	private IP ipAddress_;
+	private int countryId_;
+	private int cityId_;
+	private long wallId_;
+	private TreeSet<Integer> interests_;
+	private int mainInterest_;
+	private int universityLocationId_;
+	private byte gender_;
+	private long birthDay_;
+	private boolean isLargePoster_;
+	private long randomId_;
+
+	private TreeSet<String> emails_;
+	private ArrayList<Integer> languages_;
+	private String firstName_;
+	private String lastName_;
+	private HashMap<Long, Long> companies_;
+	private long classYear_;
+
 	public static interface PersonSimilarity {
 		public float Similarity(Person personA, Person personB);
 	}
@@ -106,30 +131,6 @@ public class Person implements Writable {
 			arg0.writeBoolean(isLargePoster_);
 		}
 	}
-
-	private long accountId_;
-	private long creationDate_;
-	private long maxNumKnows_;
-	private TreeSet<Knows> knows_;
-	private int browserId_;
-	private IP ipAddress_;
-	private int countryId_;
-	private int cityId_;
-	private long wallId_;
-	private TreeSet<Integer> interests_;
-	private int mainInterest_;
-	private int universityLocationId_;
-	private byte gender_;
-	private long birthDay_;
-	private boolean isLargePoster_;
-	private long randomId_;
-
-	private TreeSet<String> emails_;
-	private ArrayList<Integer> languages_;
-	private String firstName_;
-	private String lastName_;
-	private HashMap<Long, Long> companies_;
-	private long classYear_;
 
 	public Person(){
 		knows_ = new TreeSet<Knows>();

@@ -332,12 +332,12 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         }
     }
 
-    float clusteringCoefficient(ArrayList<Community> communities, ClusteringInfo cInfo ) {
+    private float clusteringCoefficient(ArrayList<Community> communities, ClusteringInfo cInfo ) {
         float CC =  clusteringCoefficient(communities, cInfo,true);
         return CC;
     }
 
-    float clusteringCoefficient( ArrayList<Community> communities, ClusteringInfo cInfo, Boolean countZeros ) {
+    private float clusteringCoefficient( ArrayList<Community> communities, ClusteringInfo cInfo, Boolean countZeros ) {
         float accum = 0.0f;
         int count = 0;
         for (Community c : communities) {
@@ -361,7 +361,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         return accum / (float) count;
     }
 
-    void refineCommunities( ClusteringInfo cInfo, ArrayList<Community> communities, float targetCC ) {
+    private void refineCommunities( ClusteringInfo cInfo, ArrayList<Community> communities, float targetCC ) {
         float currentCC = clusteringCoefficient(communities, cInfo);
         int lookAhead = 5;
         int tries = 0;
@@ -386,7 +386,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         return 3.0f/(float)n;
     }
 
-    boolean improveCC(ClusteringInfo cInfo, ArrayList<Community> communities) {
+    private boolean improveCC(ClusteringInfo cInfo, ArrayList<Community> communities) {
         ArrayList<Community>  filtered = new ArrayList<Community>();
         for(Community c : communities ) {
             if(c.p_ < 1.0f ) filtered.add(c);
@@ -401,7 +401,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         return true;
     }
 
-    boolean worsenCC(ClusteringInfo cInfo, ArrayList<Community> communities) {
+    private boolean worsenCC(ClusteringInfo cInfo, ArrayList<Community> communities) {
         ArrayList<Community>  filtered = new ArrayList<Community>();
         for(Community c : communities ) {
             if(c.p_ > min_community_prob_ ) filtered.add(c);
@@ -416,7 +416,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         return true;
     }
 
-    void createEdgesCommunityCore(ArrayList<Person> persons, Community c) {
+    private void createEdgesCommunityCore(ArrayList<Person> persons, Community c) {
         for ( PersonInfo pI : c.core_) {
             for( PersonInfo other: c.core_) {
                 if(pI.index_ < other.index_ ) {
@@ -433,7 +433,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         }
     }
 
-    void createEdgesCommunityPeriphery(ClusteringInfo cInfo, ArrayList<Person> persons, Community c) {
+    private void createEdgesCommunityPeriphery(ClusteringInfo cInfo, ArrayList<Person> persons, Community c) {
 
         //long start = System.currentTimeMillis();
         long [] peripheryBudget = new long[c.periphery_.size()];
@@ -467,7 +467,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         //System.out.println("Time to create core-periphery edges: "+(end-start));
     }
 
-    void fillGraphWithRemainingEdges(ClusteringInfo cInfo, ArrayList<Community> communities, ArrayList<Person> persons) {
+    private void fillGraphWithRemainingEdges(ClusteringInfo cInfo, ArrayList<Community> communities, ArrayList<Person> persons) {
         ArrayList<PersonInfo> stubs = new ArrayList<PersonInfo> ();
         LinkedList<Integer> indexes = new LinkedList<Integer>();
         Integer ii = 0;

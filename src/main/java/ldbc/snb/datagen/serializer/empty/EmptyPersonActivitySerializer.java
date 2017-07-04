@@ -9,40 +9,48 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class EmptyPersonActivitySerializer extends PersonActivitySerializer {
 
-     public void initialize(Configuration conf, int reducerId) {
+    @Override
+    public void initialize(Configuration conf, int reducerId) {
+        //This is left intentionally blank
+    }
 
-     }
+    @Override
+    public void close() {
+        //This is left intentionally blank
+    }
 
-     public void close() {
+    @Override
+    protected void serialize(final  Forum forum ) {
+        //This is left intentionally blank
+    }
 
-     }
+    @Override
+    protected void serialize(final  Post post ) {
+        //This is left intentionally blank
+    }
 
-     protected void serialize(final  Forum forum ) {
+    @Override
+    protected void serialize(final  Comment comment ) {
+        //This is left intentionally blank
+    }
 
-     }
+    @Override
+    protected void serialize(final  Photo photo ) {
+        //This is left intentionally blank
+    }
 
-     protected void serialize(final  Post post ) {
+    @Override
+    protected void serialize(final  ForumMembership membership ) {
+        //This is left intentionally blank
+    }
 
-     }
+    @Override
+    protected void serialize(final  Like like ) {
+        //This is left intentionally blank
+    }
 
-     protected void serialize(final  Comment comment ) {
-
-     }
-
-     protected void serialize(final  Photo photo ) {
-
-     }
-
-     protected void serialize(final  ForumMembership membership ) {
-
-     }
-
-     protected void serialize(final  Like like ) {
-
-     }
-
-     public void reset() {
-
-     }
-
+    @Override
+    public void reset() {
+        //This is left intentionally blank
+    }
 }

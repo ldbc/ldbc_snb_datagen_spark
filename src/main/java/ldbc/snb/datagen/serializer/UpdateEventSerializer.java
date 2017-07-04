@@ -60,12 +60,7 @@ import java.util.Properties;
  */
 public class UpdateEventSerializer {
 	
-	private class UpdateStreamStats {
-		public long minDate_ = Long.MAX_VALUE;
-		public long maxDate_ = Long.MIN_VALUE;
-		public long count_ = 0;
-	}
-	
+
 	private SequenceFile.Writer streamWriter_[];
 	private ArrayList<String> data_;
 	private ArrayList<String> list_;
@@ -78,7 +73,13 @@ public class UpdateEventSerializer {
 	private UpdateStreamStats  stats_;
 	private String fileNamePrefix_;
 	private int reducerId_;
-	
+
+	private class UpdateStreamStats {
+		public long minDate_ = Long.MAX_VALUE;
+		public long maxDate_ = Long.MIN_VALUE;
+		public long count_ = 0;
+	}
+
 	public UpdateEventSerializer(Configuration conf, String fileNamePrefix, int reducerId, int numPartitions ) throws IOException{
 		conf_ = conf;
 		reducerId_ = reducerId;
@@ -236,13 +237,11 @@ public class UpdateEventSerializer {
 		
 		beginList();
 		int universityId = person.universityLocationId();
-		if ( universityId != -1){
-			if (person.classYear() != -1 ) {
+		if ( universityId != -1 && person.classYear() != -1 ) {
 				ArrayList<String> studyAtData = new ArrayList<String>();
 				studyAtData.add(Long.toString(Dictionaries.universities.getUniversityFromLocation(universityId)));
 				studyAtData.add(Dictionaries.dates.formatYear(person.classYear()));
 				list_.add(formatStringArray(studyAtData,","));
-			}
 		}
 		endList();
 		

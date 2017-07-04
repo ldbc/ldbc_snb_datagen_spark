@@ -22,13 +22,12 @@ import static ldbc.snb.datagen.generator.DatagenParams.maxNumTagPerFlashmobPost;
 public class FlashmobPostGenerator extends PostGenerator{
 	private Distribution dateDistribution_;
 	private FlashmobTag[] forumFlashmobTags = null;
-	private long hoursToMillis_;
 	private long flashmobSpan_;
 	private long currentForum = -1;
 	public FlashmobPostGenerator(TextGenerator generator, CommentGenerator commentGenerator, LikeGenerator likeGenerator) {
 		super(generator, commentGenerator, likeGenerator);
 		dateDistribution_ = new Distribution(DatagenParams.flashmobDistFile);
-		hoursToMillis_ = 60*60*1000;
+		long hoursToMillis_ = 60*60*1000;
 		flashmobSpan_ = 72 * hoursToMillis_;
 		dateDistribution_.initialize();
 	}
