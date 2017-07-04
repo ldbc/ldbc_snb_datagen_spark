@@ -16,7 +16,6 @@ script:
   - ./run.sh
   - ls -al
   - echo $LDBC_SNB_DATAGEN_HOME
-  - mvn -DskipTests assembly:assembly
   - mvn test
 notifications:
   slack: ldbcouncil:OrBanrJ7l0EHQbj8T5YdJYhd

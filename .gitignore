@@ -10,12 +10,31 @@
 .idea
 ldbc_socialnet_dbgen.iml
 
-#other stuff
+# other stuff
 target/
 .m0factors.txt.crc
 .m0friendList0.csv.crc
+test_data/
 substitution_parameters/
-target/
 *.pyc
 scripts/
 *.iml
+/hadoop/
+/social_network/
+*.log
+test_log
+
+# Eclipse stuff
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+.recommenders
+.project
+.classpath
