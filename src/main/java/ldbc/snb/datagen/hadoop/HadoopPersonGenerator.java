@@ -45,7 +45,7 @@ public class HadoopPersonGenerator  {
 
         int threadId = Integer.parseInt(value.toString());
         System.out.println("Generating user at mapper " + threadId);
-        LDBCDatagen.init(conf);
+        LDBCDatagen.initializeContext(conf);
         if (DatagenParams.numPersons % DatagenParams.cellSize != 0) {
             System.err.println("Number of users should be a multiple of the cellsize");
             System.exit(-1);

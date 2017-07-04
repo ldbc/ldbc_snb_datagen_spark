@@ -100,10 +100,9 @@ public class PlaceDictionary {
     }
 
     /**
-     * @param numUsers: The total number of users.
      * @brief Creator.
      */
-    public PlaceDictionary(int numUsers) {
+    public PlaceDictionary() {
         this.cumulativeDistribution = new ArrayList<Float>();
         this.countryNames = new HashMap<String, Integer>();
         this.cityNames = new HashMap<String, Integer>();

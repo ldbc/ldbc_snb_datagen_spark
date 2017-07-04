@@ -39,15 +39,12 @@ package ldbc.snb.datagen.generator;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.hadoop.*;
 import ldbc.snb.datagen.objects.Person;
-import ldbc.snb.datagen.objects.similarity.GeoDistanceSimilarity;
 import ldbc.snb.datagen.util.ConfigParser;
 import ldbc.snb.datagen.vocabulary.SN;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.Text;
 
 
 import java.io.File;
@@ -59,7 +56,7 @@ import java.util.Properties;
 public class LDBCDatagen {
 
     static boolean initialized = false;
-    public static synchronized void init (Configuration conf) {
+    public static synchronized void initializeContext(Configuration conf) {
         if(!initialized) {
             DatagenParams.readConf(conf);
             Dictionaries.loadDictionaries(conf);
@@ -352,26 +349,31 @@ public class LDBCDatagen {
         return 0;
     }
 
-    public static void main(String[] args) /*throws Exception*/ {
+    public static void prepareConfiguration(Configuration conf) throws Exception {
 
-        try {
-        Configuration conf = ConfigParser.initialize();
-        ConfigParser.readConfig(conf, args[0]);
-        ConfigParser.readConfig(conf, LDBCDatagen.class.getResourceAsStream("/params.ini"));
         conf.set("ldbc.snb.datagen.serializer.hadoopDir",conf.get("ldbc.snb.datagen.serializer.outputDir")+"/hadoop");
         conf.set("ldbc.snb.datagen.serializer.socialNetworkDir",conf.get("ldbc.snb.datagen.serializer.outputDir")+"/social_network");
-        ConfigParser.printConfig(conf);
-//        conf.setBoolean("mapreduce.map.output.compress", true);
-//       conf.setBoolean("mapreduce.output.fileoutputformat.compress", false);
 
         // Deleting existing files
         FileSystem dfs = FileSystem.get(conf);
         dfs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")), true);
         dfs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir")), true);
 
-        // Create input text file in HDFS
-        LDBCDatagen datagen = new LDBCDatagen();
-        LDBCDatagen.init(conf);
+        ConfigParser.printConfig(conf);
+
+    }
+
+    public static void main(String[] args) /*throws Exception*/ {
+
+        try {
+            Configuration conf = ConfigParser.initialize();
+            ConfigParser.readConfig(conf, args[0]);
+            ConfigParser.readConfig(conf, LDBCDatagen.class.getResourceAsStream("/params.ini"));
+
+            // Create input text file in HDFS
+            LDBCDatagen.prepareConfiguration(conf);
+            LDBCDatagen.initializeContext(conf);
+            LDBCDatagen datagen = new LDBCDatagen();
             datagen.runGenerateJob(conf);
         }catch(AssertionError e ) {
             System.err.println("Error during execution");

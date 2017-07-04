@@ -58,40 +58,40 @@ public class CSVMergeForeignPersonSerializer extends PersonSerializer {
         arguments.add("locationIP");
         arguments.add("browserUsed");
         arguments.add("place");
-        writers[FileNames.PERSON.ordinal()].writeEntry(arguments);
+        writers[FileNames.PERSON.ordinal()].writeHeader(arguments);
 
         arguments.clear();
         arguments.add("Person.id");
         arguments.add("language");
-        writers[FileNames.PERSON_SPEAKS_LANGUAGE.ordinal()].writeEntry(arguments);
+        writers[FileNames.PERSON_SPEAKS_LANGUAGE.ordinal()].writeHeader(arguments);
 
         arguments.clear();
         arguments.add("Person.id");
         arguments.add("email");
-        writers[FileNames.PERSON_HAS_EMAIL.ordinal()].writeEntry(arguments);
+        writers[FileNames.PERSON_HAS_EMAIL.ordinal()].writeHeader(arguments);
 
         arguments.clear();
         arguments.add("Person.id");
         arguments.add("Tag.id");
-        writers[FileNames.PERSON_HAS_INTEREST_TAG.ordinal()].writeEntry(arguments);
+        writers[FileNames.PERSON_HAS_INTEREST_TAG.ordinal()].writeHeader(arguments);
 
         arguments.clear();
         arguments.add("Person.id");
         arguments.add("Organisation.id");
         arguments.add("workFrom");
-        writers[FileNames.PERSON_WORK_AT.ordinal()].writeEntry(arguments);
+        writers[FileNames.PERSON_WORK_AT.ordinal()].writeHeader(arguments);
 
         arguments.clear();
         arguments.add("Person.id");
         arguments.add("Organisation.id");
         arguments.add("classYear");
-        writers[FileNames.PERSON_STUDY_AT.ordinal()].writeEntry(arguments);
+        writers[FileNames.PERSON_STUDY_AT.ordinal()].writeHeader(arguments);
 
         arguments.clear();
         arguments.add("Person.id");
         arguments.add("Person.id");
         arguments.add("creationDate");
-        writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeEntry(arguments);
+        writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeHeader(arguments);
 
     }
 

@@ -5,22 +5,21 @@
  */
 package ldbc.snb.datagen.generator.distribution;
 
-import ldbc.snb.datagen.generator.distribution.utils.Bucket;
-import ldbc.snb.datagen.generator.distribution.utils.BucketedDistribution;
 import org.apache.hadoop.conf.Configuration;
-
-import java.util.ArrayList;
-import java.util.Random;
 
 /**
  *
  * @author aprat
  */
-public interface DegreeDistribution {
+public abstract class DegreeDistribution {
 
-	public void initialize( Configuration conf );
+	public abstract void initialize( Configuration conf );
 
-    public void reset (long seed);
+    public abstract void reset (long seed);
 
-	public long nextDegree();
+	public abstract long nextDegree();
+
+	public double mean(long numPersons) {
+		return -1;
+	}
 }

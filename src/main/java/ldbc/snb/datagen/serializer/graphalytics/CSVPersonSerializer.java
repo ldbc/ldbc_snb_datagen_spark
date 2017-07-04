@@ -80,7 +80,7 @@ public class CSVPersonSerializer extends PersonSerializer {
         arguments.clear();
         arguments.add("Person.id");
         arguments.add("Person.id");
-        writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeEntry(arguments);
+        writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeHeader(arguments);
 
     }
 

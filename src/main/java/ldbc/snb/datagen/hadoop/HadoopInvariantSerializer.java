@@ -29,7 +29,7 @@ public class HadoopInvariantSerializer {
     public HadoopInvariantSerializer( Configuration conf ) {
         conf_ = new Configuration(conf);
         exportedClasses_ = new TreeSet<Integer>();
-        LDBCDatagen.init(conf_);
+        LDBCDatagen.initializeContext(conf_);
     }
 
     public void run() throws Exception {

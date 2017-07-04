@@ -49,7 +49,7 @@ public class HadoopPersonActivityGenerator {
             System.out.println("Setting up reducer for person activity generation");
             Configuration conf = context.getConfiguration();
             reducerId = context.getTaskAttemptID().getTaskID().getId();
-            LDBCDatagen.init(conf);
+            LDBCDatagen.initializeContext(conf);
             try {
                 personActivitySerializer_ = (PersonActivitySerializer) Class.forName(conf.get("ldbc.snb.datagen.serializer.personActivitySerializer")).newInstance();
                 personActivitySerializer_.initialize(conf,reducerId);

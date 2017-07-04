@@ -1,7 +1,6 @@
 package ldbc.snb.datagen.test;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.generator.LDBCDatagen;
 import ldbc.snb.datagen.test.csv.*;
 import ldbc.snb.datagen.util.ConfigParser;
@@ -25,7 +24,7 @@ public class LDBCDatagenTest {
 
     @BeforeClass
     public static void generateData() {
-        ProcessBuilder pb = new ProcessBuilder("java", "-ea","-cp","target/ldbc_snb_datagen-0.2.5-jar-with-dependencies.jar","ldbc.snb.datagen.generator.LDBCDatagen","./test_params.ini");
+        /*ProcessBuilder pb = new ProcessBuilder("java", "-ea","-cp","target/ldbc_snb_datagen-0.2.7-jar-with-dependencies.jar","ldbc.snb.datagen.generator.LDBCDatagen","./test_params.ini");
         pb.directory(new File("./"));
         File log = new File("test_log");
         pb.redirectErrorStream(true);
@@ -35,12 +34,20 @@ public class LDBCDatagenTest {
             p.waitFor();
         }catch(Exception e) {
             System.err.println(e.getMessage());
-        }
+        }*/
 
         Configuration conf = ConfigParser.initialize();
         ConfigParser.readConfig(conf, "./test_params.ini");
         ConfigParser.readConfig(conf, LDBCDatagen.class.getResourceAsStream("/params.ini"));
-        LDBCDatagen.init(conf);
+        try {
+            LDBCDatagen.prepareConfiguration(conf);
+            LDBCDatagen.initializeContext(conf);
+            LDBCDatagen datagen = new LDBCDatagen();
+            datagen.runGenerateJob(conf);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 
     @Test

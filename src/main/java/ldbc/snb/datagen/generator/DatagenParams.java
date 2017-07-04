@@ -38,16 +38,9 @@
 
 package ldbc.snb.datagen.generator;
 
-import ldbc.snb.datagen.util.ScaleFactor;
+import ldbc.snb.datagen.generator.distribution.DegreeDistribution;
+import ldbc.snb.datagen.generator.distribution.utils.Algorithms;
 import org.apache.hadoop.conf.Configuration;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.util.TreeMap;
 
 public class DatagenParams {
 
@@ -217,12 +210,12 @@ public class DatagenParams {
     public static final double alpha                       = 0.4;
 
 
-    public static String outputDir                         = "./";
+    public static String outputDir                          = "./";
     public static String hadoopDir                         = "./";
     public static String socialNetworkDir                  = "./";
     public static int    numThreads                        = 1;
     public static int    deltaTime                         = 10000;
-    public static int    numPersons                        = 10000;
+    public static long   numPersons                         = 10000;
     public static int    startYear                         = 2010;
     public static int    endYear                           = 2013;
     public static int    numYears                          = 3;
@@ -307,7 +300,7 @@ public class DatagenParams {
         }
 
         try {
-            numPersons = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numPersons"));
+            numPersons = Long.parseLong(conf.get("ldbc.snb.datagen.generator.numPersons"));
             startYear = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.startYear"));
             numYears = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numYears"));
             endYear = startYear + numYears;
@@ -320,6 +313,13 @@ public class DatagenParams {
             outputDir = conf.get("ldbc.snb.datagen.serializer.outputDir");
             hadoopDir = outputDir+"/hadoop";
             socialNetworkDir = outputDir+"social_network";
+            if(conf.get("ldbc.snb.datagen.generator.gscale") != null) {
+                double scale = conf.getDouble("ldbc.snb.datagen.generator.gscale", 6.0);
+                String degreeDistributionName = conf.get("ldbc.snb.datagen.generator.distribution.degreeDistribution");
+                DegreeDistribution  degreeDistribution = (DegreeDistribution)Class.forName(degreeDistributionName).newInstance();
+                degreeDistribution.initialize(conf);
+                numPersons = Algorithms.findNumPersonsFromGraphalyticsScale(degreeDistribution,scale);
+            }
             System.out.println(" ... Num Persons " + numPersons);
             System.out.println(" ... Start Year " + startYear);
             System.out.println(" ... Num Years " + numYears);

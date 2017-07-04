@@ -12,7 +12,7 @@ package ldbc.snb.datagen.generator.distribution;
 /**
  * Created by aprat on 5/03/15.
  */
-public class GeoDistribution implements DegreeDistribution {
+public class GeoDistribution extends DegreeDistribution {
 
     private GeometricDistribution geo_;
     private double ALPHA_ = 0.12;
@@ -28,5 +28,10 @@ public class GeoDistribution implements DegreeDistribution {
 
     public long nextDegree(){
         return geo_.sample();
+    }
+
+    @Override
+    public double mean(long numPersons) {
+        return geo_.getNumericalMean();
     }
 }

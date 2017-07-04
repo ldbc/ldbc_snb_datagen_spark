@@ -49,23 +49,23 @@ public class CSVMergeForeignInvariantSerializer extends InvariantSerializer {
         arguments.add("id");
         arguments.add("name");
         arguments.add("url");
-        writers[FileNames.TAG.ordinal()].writeEntry(arguments);
+        writers[FileNames.TAG.ordinal()].writeHeader(arguments);
 
         arguments.clear();
         arguments.add("Tag.id");
         arguments.add("TagClass.id");
-        writers[FileNames.TAG_HAS_TYPE_TAGCLASS.ordinal()].writeEntry(arguments);
+        writers[FileNames.TAG_HAS_TYPE_TAGCLASS.ordinal()].writeHeader(arguments);
 
         arguments.clear();
         arguments.add("id");
         arguments.add("name");
         arguments.add("url");
-        writers[FileNames.TAGCLASS.ordinal()].writeEntry(arguments);
+        writers[FileNames.TAGCLASS.ordinal()].writeHeader(arguments);
 
         arguments.clear();
         arguments.add("TagClass.id");
         arguments.add("TagClass.id");
-        writers[FileNames.TAGCLASS_IS_SUBCLASS_OF_TAGCLASS.ordinal()].writeEntry(arguments);
+        writers[FileNames.TAGCLASS_IS_SUBCLASS_OF_TAGCLASS.ordinal()].writeHeader(arguments);
 
         arguments.clear();
         arguments.add("id");
@@ -73,7 +73,7 @@ public class CSVMergeForeignInvariantSerializer extends InvariantSerializer {
         arguments.add("url");
         arguments.add("type");
         arguments.add("isPartOf");
-        writers[FileNames.PLACE.ordinal()].writeEntry(arguments);
+        writers[FileNames.PLACE.ordinal()].writeHeader(arguments);
 
 
         arguments.clear();
@@ -82,7 +82,7 @@ public class CSVMergeForeignInvariantSerializer extends InvariantSerializer {
         arguments.add("name");
         arguments.add("url");
         arguments.add("place");
-        writers[FileNames.ORGANIZATION.ordinal()].writeEntry(arguments);
+        writers[FileNames.ORGANIZATION.ordinal()].writeHeader(arguments);
 
     }
 

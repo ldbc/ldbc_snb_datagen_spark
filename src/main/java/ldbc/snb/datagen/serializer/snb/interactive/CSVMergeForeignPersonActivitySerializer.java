@@ -53,30 +53,30 @@ public class CSVMergeForeignPersonActivitySerializer extends PersonActivitySeria
         arguments.add("title");
         arguments.add("creationDate");
         arguments.add("moderator");
-        writers[FileNames.FORUM.ordinal()].writeEntry(arguments);
+        writers[FileNames.FORUM.ordinal()].writeHeader(arguments);
         arguments.clear();
 
         arguments.add("Forum.id");
         arguments.add("Person.id");
         arguments.add("joinDate");
-        writers[FileNames.FORUM_HASMEMBER_PERSON.ordinal()].writeEntry(arguments);
+        writers[FileNames.FORUM_HASMEMBER_PERSON.ordinal()].writeHeader(arguments);
         arguments.clear();
 
         arguments.add("Forum.id");
         arguments.add("Tag.id");
-        writers[FileNames.FORUM_HASTAG_TAG.ordinal()].writeEntry(arguments);
+        writers[FileNames.FORUM_HASTAG_TAG.ordinal()].writeHeader(arguments);
         arguments.clear();
 
         arguments.add("Person.id");
         arguments.add("Post.id");
         arguments.add("creationDate");
-        writers[FileNames.PERSON_LIKES_POST.ordinal()].writeEntry(arguments);
+        writers[FileNames.PERSON_LIKES_POST.ordinal()].writeHeader(arguments);
         arguments.clear();
 
         arguments.add("Person.id");
         arguments.add("Comment.id");
         arguments.add("creationDate");
-        writers[FileNames.PERSON_LIKES_COMMENT.ordinal()].writeEntry(arguments);
+        writers[FileNames.PERSON_LIKES_COMMENT.ordinal()].writeHeader(arguments);
         arguments.clear();
 
         arguments.add("id");
@@ -90,12 +90,12 @@ public class CSVMergeForeignPersonActivitySerializer extends PersonActivitySeria
         arguments.add("creator");
         arguments.add("Forum.id");
         arguments.add("place");
-        writers[FileNames.POST.ordinal()].writeEntry(arguments);
+        writers[FileNames.POST.ordinal()].writeHeader(arguments);
         arguments.clear();
 
         arguments.add("Post.id");
         arguments.add("Tag.id");
-        writers[FileNames.POST_HASTAG_TAG.ordinal()].writeEntry(arguments);
+        writers[FileNames.POST_HASTAG_TAG.ordinal()].writeHeader(arguments);
         arguments.clear();
 
         arguments.add("id");
@@ -108,12 +108,12 @@ public class CSVMergeForeignPersonActivitySerializer extends PersonActivitySeria
         arguments.add("place");
         arguments.add("replyOfPost");
         arguments.add("replyOfComment");
-        writers[FileNames.COMMENT.ordinal()].writeEntry(arguments);
+        writers[FileNames.COMMENT.ordinal()].writeHeader(arguments);
         arguments.clear();
 
         arguments.add("Comment.id");
         arguments.add("Tag.id");
-        writers[FileNames.COMMENT_HASTAG_TAG.ordinal()].writeEntry(arguments);
+        writers[FileNames.COMMENT_HASTAG_TAG.ordinal()].writeHeader(arguments);
         arguments.clear();
     }
 

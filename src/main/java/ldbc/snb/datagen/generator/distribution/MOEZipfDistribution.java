@@ -11,7 +11,7 @@ import java.util.Random;
 /**
  * Created by aprat on 4/03/15.
  */
-public class MOEZipfDistribution implements DegreeDistribution  {
+public class MOEZipfDistribution extends DegreeDistribution {
 
     private org.apache.commons.math3.distribution.ZipfDistribution zipf_;
     private double ALPHA_ = 1.7;

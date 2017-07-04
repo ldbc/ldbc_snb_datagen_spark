@@ -8,7 +8,7 @@ import java.util.Random;
 /**
  * Created by aprat on 12/05/15.
  */
-public abstract class CumulativeBasedDegreeDistribution implements DegreeDistribution{
+public abstract class CumulativeBasedDegreeDistribution extends DegreeDistribution {
 
     public class CumulativeEntry {
         double prob_;
