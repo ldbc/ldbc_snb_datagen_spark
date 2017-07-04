@@ -62,7 +62,6 @@ import java.util.ArrayList;
 public class FacebookDegreeDistribution extends BucketedDistribution {
     private int mean_ = 0;
     private static final int FB_MEAN_ = 190;
-    private static final int BUCKET_NUM_ = 100;
     private ArrayList<Bucket> buckets_;
 
     public FacebookDegreeDistribution() {

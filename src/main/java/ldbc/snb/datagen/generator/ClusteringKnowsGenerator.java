@@ -285,7 +285,6 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
 
         // Computing clustering coefficient of core nodes
         for ( PersonInfo pI : c.core_ ){
-            int size = c.core_.size();
             if( pI.degree_ > 1 ) {
                 // core core triangles
                 double internalTriangles = 0.0;
@@ -294,7 +293,6 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
                 if(internalDegree >= 2.0) {
                     internalTriangles = (internalDegree * (internalDegree - 1) * prob);
                 }
-                boolean enteredOffset = false;
 
                 // core periphery triangles
                 double peripheryTriangles = 0;

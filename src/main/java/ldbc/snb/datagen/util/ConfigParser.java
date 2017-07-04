@@ -136,12 +136,6 @@ public class ConfigParser {
         return conf;
     }
 
-    private static void checkOption(Configuration conf, String option, Properties properties) {
-        String value = properties.getProperty(option);
-        if (value != null) {
-            conf.set(option, value);
-        }
-    }
 
     public static void printConfig(Configuration conf) {
         System.out.println("********* Configuration *********");

@@ -50,7 +50,6 @@ import ldbc.snb.datagen.vocabulary.*;
 import org.apache.hadoop.conf.Configuration;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 
 public class TurtlePersonSerializer extends PersonSerializer {

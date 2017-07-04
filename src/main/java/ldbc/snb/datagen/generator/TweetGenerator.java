@@ -14,14 +14,13 @@ public class TweetGenerator extends TextGenerator {
 	private DistributionKey hashtag;
 	private DistributionKey sentiment;
 	private DistributionKey popularword;
-	private DistributionKey proportion; //distribution popular,negative, neutral tweets
+	 //distribution popular,negative, neutral tweets
 	private DistributionKey lengthsentence; // sentece length and sentences per tweet
 	private DistributionKey lengthtweet;
 
 	public TweetGenerator(Random random, TagDictionary tagDic) throws NumberFormatException, IOException {
 		super(random, tagDic);
 		//input de fitxers i crea els 4 maps
-		String dir = null;
 		hashtag = new DistributionKey(DatagenParams.SPARKBENCH_DIRECTORY + "/hashtags.csv");
 		sentiment = new DistributionKey(DatagenParams.SPARKBENCH_DIRECTORY + "/sentiment.csv");
 		popularword = new DistributionKey(DatagenParams.SPARKBENCH_DIRECTORY + "/words.csv");

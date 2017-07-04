@@ -24,14 +24,12 @@ abstract public class PersonSerializer {
         serialize(person);
 
         long universityId = Dictionaries.universities.getUniversityFromLocation(person.universityLocationId());
-        if (universityId != -1) {
-            if (person.classYear() != -1) {
-                StudyAt studyAt = new StudyAt();
-                studyAt.year = person.classYear();
-                studyAt.user = person.accountId();
-                studyAt.university = universityId;
-                serialize(studyAt);
-            }
+        if ((universityId != -1) && (person.classYear() != -1)) {
+            StudyAt studyAt = new StudyAt();
+            studyAt.year = person.classYear();
+            studyAt.user = person.accountId();
+            studyAt.university = universityId;
+            serialize(studyAt);
         }
 
         Iterator<Long> it = person.companies().keySet().iterator();

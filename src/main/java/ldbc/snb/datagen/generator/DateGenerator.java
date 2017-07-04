@@ -61,7 +61,6 @@ public class DateGenerator {
 	private long deltaTime_;
 	private long updateThreshold_;
 	private PowerDistGenerator powerDist_;
-    private SimpleDateFormat gmtDateFormatter_;
 	private DateFormatter dateFormatter_;
 
 	// This constructor is for the case of friendship's created date generator

@@ -198,7 +198,6 @@ public class LDBCDatagen {
             printProgress("Sorting update streams ");
 
             int blockSize = DatagenParams.blockSize;
-            int numBlocks = (int)Math.ceil(DatagenParams.numPersons / (double)blockSize);
 
             List<String> personStreamsFileNames = new ArrayList<String>();
             List<String> forumStreamsFileNames = new ArrayList<String>();

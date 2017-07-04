@@ -48,7 +48,6 @@ import ldbc.snb.datagen.serializer.PersonSerializer;
 import org.apache.hadoop.conf.Configuration;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class CSVPersonSerializerExtended extends PersonSerializer {
 

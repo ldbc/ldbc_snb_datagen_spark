@@ -1,6 +1,5 @@
 package ldbc.snb.datagen.test.csv;
 
-import org.apache.commons.collections.iterators.CollatingIterator;
 
 import java.io.File;
 import java.util.Iterator;
