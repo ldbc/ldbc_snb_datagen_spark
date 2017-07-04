@@ -165,7 +165,6 @@ public class IPAddressDictionary {
     }
 
     private boolean changeUsualIp(Random randomDiffIP, Random randomDiffIPForTravelers, long date) {
-        double diffIpProb = randomDiffIP.nextDouble();
         double diffIpForTravelersProb = randomDiffIPForTravelers.nextDouble();
         boolean isTravelSeason = DateGenerator.isTravelSeason(date);
                 if ((isTravelSeason && diffIpForTravelersProb < probDiffIPinTravelSeason) ||

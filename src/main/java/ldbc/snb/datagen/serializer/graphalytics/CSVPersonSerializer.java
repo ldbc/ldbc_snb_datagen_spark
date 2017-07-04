@@ -51,7 +51,6 @@ import java.util.ArrayList;
 public class CSVPersonSerializer extends PersonSerializer {
 
     private HDFSCSVWriter [] writers;
-    private String separator_ = " ";
 
     private enum FileNames {
         PERSON_KNOWS_PERSON("person_knows_person");

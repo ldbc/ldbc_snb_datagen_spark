@@ -1,9 +1,6 @@
 package ldbc.snb.datagen.test.csv;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by aprat on 18/12/15.

@@ -1,31 +1,17 @@
 package ldbc.snb.datagen.generator;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Properties;
 import java.util.Random;
 import java.util.TreeSet;
 
 import ldbc.snb.datagen.dictionary.TagDictionary;
-import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.objects.Person;
 
 public abstract class TextGenerator {
-	private static final String SEPARATOR = "  ";
-    protected TagDictionary tagDic;
+	   protected TagDictionary tagDic;
     protected Random random;
-    /**
-     * < @brief The tag dictionary. *
-     */
-    private HashMap<Integer, String> tagText;
-    /**
-     * < @brief The tag text. *
-     */
-    private double reducedTextRatio;
     
-    private Person persona;
 
     /**
      * < @brief The probability to retrieve an small text.

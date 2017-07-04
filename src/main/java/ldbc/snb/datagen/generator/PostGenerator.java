@@ -65,7 +65,6 @@ abstract public class PostGenerator {
 		}
 	}
 	
-	private static final String SEPARATOR = "  ";
 	
 	/* A set of random number generator for different purposes.*/
 	
@@ -85,7 +84,6 @@ abstract public class PostGenerator {
 		long postId = startId;
 		Properties prop = new Properties();
 		prop.setProperty("type","post");
-		ArrayList<Post> result = new ArrayList<Post>();
 		for( ForumMembership member : memberships ) {
 			double numPostsMember = numPosts / (double)memberships.size();
 			if( numPostsMember < 1.0 ) {

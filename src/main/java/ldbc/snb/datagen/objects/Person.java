@@ -1,6 +1,5 @@
 package ldbc.snb.datagen.objects;
 
-import ldbc.snb.datagen.dictionary.Dictionaries;
 import org.apache.hadoop.io.Writable;
 
 import java.io.DataInput;

@@ -1,7 +1,5 @@
 package ldbc.snb.datagen.generator.tools;
 
-import ldbc.snb.datagen.objects.Knows;
-import ldbc.snb.datagen.objects.Person;
 
 import java.util.*;
 

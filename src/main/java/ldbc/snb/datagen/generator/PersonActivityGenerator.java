@@ -150,7 +150,6 @@ public class PersonActivityGenerator {
 		personActivitySerializer_.reset();
 		int counter = 0;
         float personGenerationTime = 0.0f;
-        long initTime = System.currentTimeMillis();
 		for( Person p : block ) {
 			long start = System.currentTimeMillis();
 			generateActivity(p, block);

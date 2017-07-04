@@ -1,7 +1,6 @@
 package ldbc.snb.datagen.test.csv;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by aprat on 21/12/15.

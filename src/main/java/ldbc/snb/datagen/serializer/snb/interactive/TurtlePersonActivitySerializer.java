@@ -22,7 +22,6 @@ import java.text.SimpleDateFormat;
  */
 public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 	private HDFSWriter[] writers;
-	private String empty="";
 	private long membershipId = 0;
 	private long likeId       = 0;
 	private SimpleDateFormat dateTimeFormat = null;

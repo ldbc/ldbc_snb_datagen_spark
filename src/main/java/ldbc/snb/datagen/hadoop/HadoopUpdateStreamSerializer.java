@@ -25,9 +25,7 @@ public class HadoopUpdateStreamSerializer {
 	
 	public static class HadoopUpdateStreamSerializerReducer  extends Reducer<LongWritable, Text, LongWritable, Text> {
 		
-		private int reducerId;                          /** The id of the reducer.**/
-		private PersonSerializer personSerializer_;   /** The person serializer **/
-		private UpdateEventSerializer updateSerializer_;   
+		                                
 		private OutputStream out;
 		
 		protected void setup(Context context) {

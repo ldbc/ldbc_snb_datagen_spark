@@ -1,6 +1,5 @@
 package ldbc.snb.datagen.hadoop;
 
-import ldbc.snb.datagen.objects.Person;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Partitioner;
 

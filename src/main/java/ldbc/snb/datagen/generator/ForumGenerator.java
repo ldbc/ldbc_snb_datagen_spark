@@ -95,16 +95,14 @@ public class ForumGenerator {
 				int candidateIndex = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX).nextInt(persons.size());
 				Person member = persons.get(candidateIndex);
 				prob = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP).nextDouble();
-				if (prob < 0.1) {
-					if (!added.contains(member.accountId())) {
+				if ((prob < 0.1) && !added.contains(member.accountId())) {
+					added.add(member.accountId());
+					Random random = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX);
+					date = Dictionaries.dates.randomDate(random, Math.max(forum.creationDate(), member.creationDate() + DatagenParams.deltaTime));
+					{
+						assert forum.creationDate() + DatagenParams.deltaTime <= date : "Forum creation date larger than membership date for block based members";
+						forum.addMember(new ForumMembership(forum.id(), date, new Person.PersonSummary(member)));
 						added.add(member.accountId());
-						Random random = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX);
-						date = Dictionaries.dates.randomDate(random,Math.max(forum.creationDate(), member.creationDate()+DatagenParams.deltaTime));
-						/*if( date < Dictionaries.dates.getEndDateTime() )*/ {
-							assert forum.creationDate() +DatagenParams.deltaTime <= date : "Forum creation date larger than membership date for block based members";
-							forum.addMember(new ForumMembership(forum.id(), date, new Person.PersonSummary(member)));
-							added.add(member.accountId());
-						}
 					}
 				}
 			}

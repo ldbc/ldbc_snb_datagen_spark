@@ -20,11 +20,9 @@ import java.util.TreeSet;
  * @author aprat
  */
 public class PhotoGenerator {
-	private long postId = 0;
 	private LikeGenerator likeGenerator_;
 	private Photo photo_;
 
-	private static final String SEPARATOR = "  ";
 	
 	public PhotoGenerator(LikeGenerator likeGenerator) {
 		this.likeGenerator_ = likeGenerator;
@@ -32,7 +30,6 @@ public class PhotoGenerator {
 	}
 	public long createPhotos(RandomGeneratorFarm randomFarm, final Forum album, final ArrayList<ForumMembership> memberships, long numPhotos, long startId, PersonActivityExporter exporter) throws IOException {
 		long nextId = startId;
-		ArrayList<Photo> photos = new ArrayList<Photo>();
 		int numPopularPlaces = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_POPULAR).nextInt(DatagenParams.maxNumPopularPlaces + 1);
 		ArrayList<Short> popularPlaces = new ArrayList<Short>();
 		for (int i = 0; i < numPopularPlaces; i++){

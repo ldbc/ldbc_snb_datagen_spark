@@ -73,7 +73,6 @@ public class FlashmobPostGenerator extends PostGenerator{
 
     private void populateForumFlashmobTags( Random randomNumPost, Forum forum ) {
 	    
-	    ArrayList<Integer> forumTags = forum.tags();
 	    TreeSet<Integer> tags = new TreeSet<Integer>();
 	    for( Integer tag : tags ) {
 		    tags.add(tag);

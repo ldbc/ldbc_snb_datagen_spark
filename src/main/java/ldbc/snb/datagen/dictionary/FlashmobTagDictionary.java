@@ -179,10 +179,8 @@ public class FlashmobTagDictionary {
                 Iterator<FlashmobTag> it2 = instances.iterator();
                 while (it2.hasNext()) {
                     FlashmobTag instance = it2.next();
-                    if (instance.date >= fromDate) {
-                        if (rand.nextDouble() > 1 - probInterestFlashmobTag) {
-                            result.add(instance);
-                        }
+                    if ((instance.date >= fromDate) && (rand.nextDouble() > 1 - probInterestFlashmobTag)) {
+                        result.add(instance);
                     }
                 }
             }

@@ -1,7 +1,6 @@
 package ldbc.snb.datagen.generator.distribution;
 
 import org.apache.hadoop.conf.Configuration;
-import umontreal.iro.lecuyer.probdist.PowerDist;
 
 import java.util.*;
 

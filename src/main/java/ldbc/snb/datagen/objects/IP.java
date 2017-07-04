@@ -122,4 +122,7 @@ public class IP implements Writable {
         arg0.writeInt(mask);
     }
 
+    public int hashCode() {
+        return super.hashCode();
+    }
 }
