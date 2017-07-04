@@ -36,7 +36,7 @@ public class HadoopPersonSortAndSerializer {
 		protected void setup(Context context) {
 			Configuration conf = context.getConfiguration();
 			reducerId = context.getTaskAttemptID().getTaskID().getId();
-            LDBCDatagen.init(conf);
+            LDBCDatagen.initializeContext(conf);
 			try {
 				personSerializer_ = (PersonSerializer) Class.forName(conf.get("ldbc.snb.datagen.serializer.personSerializer")).newInstance();
 				personSerializer_.initialize(conf,reducerId);

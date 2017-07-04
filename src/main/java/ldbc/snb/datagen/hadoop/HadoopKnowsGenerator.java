@@ -1,7 +1,5 @@
 package ldbc.snb.datagen.hadoop;
 
-import ldbc.snb.datagen.generator.ClusteringKnowsGenerator;
-import ldbc.snb.datagen.generator.DistanceKnowsGenerator;
 import ldbc.snb.datagen.generator.KnowsGenerator;
 import ldbc.snb.datagen.generator.LDBCDatagen;
 import ldbc.snb.datagen.objects.Person;
@@ -9,7 +7,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
@@ -36,7 +33,7 @@ public class HadoopKnowsGenerator {
         protected void setup(Context context) {
             //this.knowsGenerator = new DistanceKnowsGenerator();
             this.conf = context.getConfiguration();
-            LDBCDatagen.init(conf);
+            LDBCDatagen.initializeContext(conf);
             try {
                 this.knowsGenerator = (KnowsGenerator) Class.forName(conf.get("knowsGeneratorName")).newInstance();
                 this.knowsGenerator.initialize(conf);

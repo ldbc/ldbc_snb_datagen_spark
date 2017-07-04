@@ -7,7 +7,6 @@ import ldbc.snb.datagen.objects.Knows;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.serializer.PersonSerializer;
 import ldbc.snb.datagen.serializer.UpdateEventSerializer;
-import ldbc.snb.datagen.vocabulary.SN;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -36,7 +35,7 @@ public class HadoopPersonSerializer {
 		protected void setup(Context context) {
 			Configuration conf = context.getConfiguration();
 			reducerId = context.getTaskAttemptID().getTaskID().getId();
-            LDBCDatagen.init(conf);
+            LDBCDatagen.initializeContext(conf);
 			try {
 				personSerializer_ = (PersonSerializer) Class.forName(conf.get("ldbc.snb.datagen.serializer.personSerializer")).newInstance();
 				personSerializer_.initialize(conf,reducerId);

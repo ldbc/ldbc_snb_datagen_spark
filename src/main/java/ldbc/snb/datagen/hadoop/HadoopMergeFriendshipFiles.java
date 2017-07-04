@@ -2,7 +2,6 @@ package ldbc.snb.datagen.hadoop;
 
 import ldbc.snb.datagen.generator.LDBCDatagen;
 import ldbc.snb.datagen.objects.Knows;
-import ldbc.snb.datagen.objects.Knows.FullComparator;
 import ldbc.snb.datagen.objects.Person;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -31,7 +30,7 @@ public class HadoopMergeFriendshipFiles {
 
         protected void setup(Context context) {
             this.conf = context.getConfiguration();
-            LDBCDatagen.init(conf);
+            LDBCDatagen.initializeContext(conf);
             try {
                 this.keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(conf.get("postKeySetterName")).newInstance();
             }catch(Exception e) {

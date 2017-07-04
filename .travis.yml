@@ -3,6 +3,8 @@ sudo: required
 language: java
 jdk:
   - openjdk7
+python:
+  - "2.7"
 install:
   - curl -s http://www.eu.apache.org/dist/hadoop/common/hadoop-2.6.5/hadoop-2.6.5.tar.gz | tar -xz
 before_script:
@@ -14,6 +16,7 @@ script:
   - ./run.sh
   - ls -al
   - echo $LDBC_SNB_DATAGEN_HOME
+  - mvn -DskipTests assembly:assembly
   - mvn test
 notifications:
   slack: ldbcouncil:OrBanrJ7l0EHQbj8T5YdJYhd

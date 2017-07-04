@@ -48,7 +48,7 @@ public class HadoopFileRanker {
         public void setup( Context context )  {
 
             try {
-                LDBCDatagen.init(context.getConfiguration());
+                LDBCDatagen.initializeContext(context.getConfiguration());
                 String className = context.getConfiguration().get("keySetterClassName");
                 keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(className).newInstance();
             } catch(ClassNotFoundException e) {
@@ -133,7 +133,7 @@ public class HadoopFileRanker {
             reducerId = context.getTaskAttemptID().getTaskID().getId();
             numReduceTasks = context.getNumReduceTasks();
             counters = new long[numReduceTasks];
-	    LDBCDatagen.init(conf);
+	    LDBCDatagen.initializeContext(conf);
             try{
                 FileSystem fs = FileSystem.get(conf);
                 for(int i = 0; i < (numReduceTasks-1); ++i ) {

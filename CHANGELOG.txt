@@ -1,4 +1,12 @@
 
+v0.2.7 CHANGELOG
+
+- Added gscale option which allows specifying the size of the generated dataset
+based on the graphalytics scaling metric.
+
+- Fixed a bug which caused wrong serialization of data once the numPartitions
+parameter was larger than 1.
+
 v0.2.6 CHANGELOG
 Bi parameter generation
 Added testing
