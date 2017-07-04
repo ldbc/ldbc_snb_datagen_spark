@@ -7,6 +7,11 @@ based on the graphalytics scaling metric.
 - Fixed a bug which caused wrong serialization of data once the numPartitions
 parameter was larger than 1.
 
+- Fixed several coding style issues reported by Codacy
+
+- Added Walkmod (www.walkmod.com) to automatically fix coding style issues during the build
+  process before committing
+
 v0.2.6 CHANGELOG
 Bi parameter generation
 Added testing

@@ -94,7 +94,24 @@
           <target>1.7</target>
         </configuration>
       </plugin>
-	<plugin>
+      <plugin>
+        <groupId>org.walkmod.maven.plugins</groupId>
+        <artifactId>walkmod-maven-plugin</artifactId>
+        <version>1.0.3</version>
+        <executions>
+          <execution>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>apply</goal>
+            </goals>
+            <configuration>
+              <chains>pmd</chains>
+              <properties>configurationFile=rulesets/java/basic.xml</properties>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.4</version>
                 <configuration>
