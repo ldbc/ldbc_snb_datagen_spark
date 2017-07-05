@@ -96,9 +96,7 @@ public class ConfigParser {
         try {
             readConfig(conf, new FileInputStream(paramsFile));
         } catch (FileNotFoundException e) {
-            System.err.println(e.getMessage());
-            e.printStackTrace();
-            System.exit(-1);
+            throw new RuntimeException(e);
         }
         return conf;
     }
