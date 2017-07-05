@@ -74,7 +74,11 @@ public class HadoopPersonSerializer {
 		protected void cleanup(Context context){
 			personSerializer_.close();
 			if (DatagenParams.updateStreams) {
-				updateSerializer_.close();
+				try {
+					updateSerializer_.close();
+				} catch(IOException e) {
+					throw new RuntimeException(e.getMessage());
+				}
 			}
 		}
 	}

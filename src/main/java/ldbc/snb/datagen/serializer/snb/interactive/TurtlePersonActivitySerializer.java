@@ -13,6 +13,7 @@ import ldbc.snb.datagen.serializer.Turtle;
 import ldbc.snb.datagen.vocabulary.*;
 import org.apache.hadoop.conf.Configuration;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 
 
@@ -43,7 +44,7 @@ public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 	}
 	
 	@Override
-	public void initialize(Configuration conf, int reducerId) {
+    public void initialize(Configuration conf, int reducerId) throws IOException {
 
 		dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
 		int numFiles = FileNames.values().length;
@@ -68,14 +69,14 @@ public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 		StringBuffer result = new StringBuffer(12000);
 
 		String forumPrefix = SN.getForumURI(forum.id());
-		Turtle.AddTriple(result, true, false, forumPrefix, RDF.type, SNVOC.Forum);
+		Turtle.addTriple(result, true, false, forumPrefix, RDF.type, SNVOC.Forum);
 
-		Turtle.AddTriple(result, false, false, forumPrefix, SNVOC.id,
+		Turtle.addTriple(result, false, false, forumPrefix, SNVOC.id,
 				Turtle.createDataTypeLiteral(Long.toString(forum.id()), XSD.Long));
 
-		Turtle.AddTriple(result, false, false, forumPrefix, SNVOC.title,
+		Turtle.addTriple(result, false, false, forumPrefix, SNVOC.title,
 				Turtle.createLiteral(forum.title()));
-		Turtle.AddTriple(result, false, true, forumPrefix, SNVOC.creationDate,
+		Turtle.addTriple(result, false, true, forumPrefix, SNVOC.creationDate,
 				Turtle.createDataTypeLiteral(dateTimeFormat.format(forum.creationDate()), XSD.DateTime));
 
 		Turtle.createTripleSPO(result, forumPrefix,
@@ -94,22 +95,22 @@ public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 
 		String prefix = SN.getPostURI(post.messageId());
 
-		Turtle.AddTriple(result, true, false, prefix, RDF.type, SNVOC.Post);
+		Turtle.addTriple(result, true, false, prefix, RDF.type, SNVOC.Post);
 
-		Turtle.AddTriple(result, false, false, prefix, SNVOC.id,
+		Turtle.addTriple(result, false, false, prefix, SNVOC.id,
 				Turtle.createDataTypeLiteral(Long.toString(post.messageId()), XSD.Long));
 
-		Turtle.AddTriple(result, false, false, prefix, SNVOC.creationDate,
+		Turtle.addTriple(result, false, false, prefix, SNVOC.creationDate,
 				Turtle.createDataTypeLiteral(dateTimeFormat.format(post.creationDate()), XSD.DateTime));
 
-		Turtle.AddTriple(result, false, false, prefix, SNVOC.ipaddress,
+		Turtle.addTriple(result, false, false, prefix, SNVOC.ipaddress,
 					Turtle.createLiteral(post.ipAddress().toString()));
-		Turtle.AddTriple(result, false, false, prefix, SNVOC.browser,
+		Turtle.addTriple(result, false, false, prefix, SNVOC.browser,
 				Turtle.createLiteral(Dictionaries.browsers.getName(post.browserId())));
 
-		Turtle.AddTriple(result, false, false, prefix, SNVOC.content,
+		Turtle.addTriple(result, false, false, prefix, SNVOC.content,
 					Turtle.createLiteral(post.content()));
-		Turtle.AddTriple(result, false, true, prefix, SNVOC.length,
+		Turtle.addTriple(result, false, true, prefix, SNVOC.length,
 				Turtle.createDataTypeLiteral(Integer.toString(post.content().length()), XSD.Int));
 
 		Turtle.createTripleSPO(result, prefix, SNVOC.language,
@@ -133,20 +134,20 @@ public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 
 		String prefix = SN.getCommentURI(comment.messageId());
 
-		Turtle.AddTriple(result, true, false, prefix, RDF.type, SNVOC.Comment);
+		Turtle.addTriple(result, true, false, prefix, RDF.type, SNVOC.Comment);
 
-		Turtle.AddTriple(result, false, false, prefix, SNVOC.id,
+		Turtle.addTriple(result, false, false, prefix, SNVOC.id,
 				Turtle.createDataTypeLiteral(Long.toString(comment.messageId()), XSD.Long));
 
-		Turtle.AddTriple(result, false, false, prefix, SNVOC.creationDate,
+		Turtle.addTriple(result, false, false, prefix, SNVOC.creationDate,
 				Turtle.createDataTypeLiteral(dateTimeFormat.format(comment.creationDate()), XSD.DateTime));
-		Turtle.AddTriple(result, false, false, prefix, SNVOC.ipaddress,
+		Turtle.addTriple(result, false, false, prefix, SNVOC.ipaddress,
 				Turtle.createLiteral(comment.ipAddress().toString()));
-		Turtle.AddTriple(result, false, false, prefix, SNVOC.browser,
+		Turtle.addTriple(result, false, false, prefix, SNVOC.browser,
 				Turtle.createLiteral(Dictionaries.browsers.getName(comment.browserId())));
-		Turtle.AddTriple(result, false, false, prefix, SNVOC.content,
+		Turtle.addTriple(result, false, false, prefix, SNVOC.content,
 				Turtle.createLiteral(comment.content()));
-		Turtle.AddTriple(result, false, true, prefix, SNVOC.length,
+		Turtle.addTriple(result, false, true, prefix, SNVOC.length,
 				Turtle.createDataTypeLiteral(Integer.toString(comment.content().length()), XSD.Int));
 
 		String replied = (comment.replyOf() == comment.postId()) ? SN.getPostURI(comment.postId()) :
@@ -169,17 +170,17 @@ public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 		StringBuffer result = new StringBuffer(2500);
 
 		String prefix = SN.getPostURI(photo.messageId());
-		Turtle.AddTriple(result, true, false, prefix, RDF.type, SNVOC.Post);
+		Turtle.addTriple(result, true, false, prefix, RDF.type, SNVOC.Post);
 
-		Turtle.AddTriple(result, false, false, prefix, SNVOC.id,
+		Turtle.addTriple(result, false, false, prefix, SNVOC.id,
 				Turtle.createDataTypeLiteral(Long.toString(photo.messageId()), XSD.Long));
 
-		Turtle.AddTriple(result, false, false, prefix, SNVOC.hasImage, Turtle.createLiteral(photo.content()));
-		Turtle.AddTriple(result, false, false, prefix, SNVOC.ipaddress,
+		Turtle.addTriple(result, false, false, prefix, SNVOC.hasImage, Turtle.createLiteral(photo.content()));
+		Turtle.addTriple(result, false, false, prefix, SNVOC.ipaddress,
 				Turtle.createLiteral(photo.ipAddress().toString()));
-		Turtle.AddTriple(result, false, false, prefix, SNVOC.browser,
+		Turtle.addTriple(result, false, false, prefix, SNVOC.browser,
 				Turtle.createLiteral(Dictionaries.browsers.getName(photo.browserId())));
-		Turtle.AddTriple(result, false, true, prefix, SNVOC.creationDate,
+		Turtle.addTriple(result, false, true, prefix, SNVOC.creationDate,
 				Turtle.createDataTypeLiteral(dateTimeFormat.format(photo.creationDate()), XSD.DateTime));
 
 		Turtle.createTripleSPO(result, prefix, SNVOC.hasCreator, SN.getPersonURI(photo.author().accountId()));
@@ -200,8 +201,8 @@ public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 		StringBuffer result = new StringBuffer(19000);
 		Turtle.createTripleSPO(result, forumPrefix, SNVOC.hasMember, memberhipPrefix);
 
-		Turtle.AddTriple(result, true, false, memberhipPrefix, SNVOC.hasPerson, SN.getPersonURI(membership.person().accountId()));
-		Turtle.AddTriple(result, false, true, memberhipPrefix, SNVOC.joinDate,
+		Turtle.addTriple(result, true, false, memberhipPrefix, SNVOC.hasPerson, SN.getPersonURI(membership.person().accountId()));
+		Turtle.addTriple(result, false, true, memberhipPrefix, SNVOC.joinDate,
 				Turtle.createDataTypeLiteral(dateTimeFormat.format(membership.creationDate()), XSD.DateTime));
 		membershipId++;
 		writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
@@ -216,12 +217,12 @@ public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 
 		if( like.type == Like.LikeType.POST || like.type == Like.LikeType.PHOTO ) {
 			String prefix = SN.getPostURI(like.messageId);
-			Turtle.AddTriple(result, true, false, likePrefix, SNVOC.hasPost, prefix);
+			Turtle.addTriple(result, true, false, likePrefix, SNVOC.hasPost, prefix);
 		} else {
 			String prefix = SN.getCommentURI(like.messageId);
-			Turtle.AddTriple(result, true, false, likePrefix, SNVOC.hasComment, prefix);
+			Turtle.addTriple(result, true, false, likePrefix, SNVOC.hasComment, prefix);
 		}
-		Turtle.AddTriple(result, false, true, likePrefix, SNVOC.creationDate,
+		Turtle.addTriple(result, false, true, likePrefix, SNVOC.creationDate,
 				Turtle.createDataTypeLiteral(dateTimeFormat.format(like.date), XSD.DateTime));
 		likeId++;
 		writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());

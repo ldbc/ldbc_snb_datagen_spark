@@ -19,7 +19,7 @@ public class HDFSWriter {
 
     private OutputStream[] fileOutputStream;
 
-    public HDFSWriter(String outputDir, String prefix, int numPartitions, boolean compressed, String extension) {
+    public HDFSWriter(String outputDir, String prefix, int numPartitions, boolean compressed, String extension) throws IOException{
         this.outputDir = outputDir;
         this.prefix = prefix;
         this.numPartitions = numPartitions;
@@ -40,7 +40,7 @@ public class HDFSWriter {
             buffer = new StringBuffer(1024);
         } catch (IOException e) {
             System.err.println(e.getMessage());
-            System.exit(-1);
+            throw e;
         }
     }
 

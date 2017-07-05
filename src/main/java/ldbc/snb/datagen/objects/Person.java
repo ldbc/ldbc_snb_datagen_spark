@@ -38,7 +38,7 @@ public class Person implements Writable {
 	private long classYear_;
 
 	public static interface PersonSimilarity {
-		public float Similarity(Person personA, Person personB);
+		public float similarity(Person personA, Person personB);
 	}
 
 	public static class PersonSummary implements Writable {

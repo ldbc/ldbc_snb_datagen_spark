@@ -29,7 +29,7 @@ public class RandomKnowsGenerator implements KnowsGenerator {
         ArrayList<Integer> stubs = new ArrayList<Integer>();
         int index = 0;
         for(Person p : persons ) {
-            long degree = Knows.target_edges(p, percentages, step_index);
+            long degree = Knows.targetEdges(p, percentages, step_index);
             for( int i =0; i < degree; ++i ) {
                 stubs.add(index);
             }

@@ -47,6 +47,7 @@ import ldbc.snb.datagen.serializer.HDFSCSVWriter;
 import ldbc.snb.datagen.serializer.PersonSerializer;
 import org.apache.hadoop.conf.Configuration;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -77,7 +78,7 @@ public class CSVPersonSerializer extends PersonSerializer {
     public CSVPersonSerializer() {
     }
 
-    public void initialize(Configuration conf, int reducerId) {
+    public void initialize(Configuration conf, int reducerId) throws IOException {
         int numFiles = FileNames.values().length;
         writers = new HDFSCSVWriter[numFiles];
         for( int i = 0; i < numFiles; ++i) {

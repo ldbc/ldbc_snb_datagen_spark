@@ -47,8 +47,7 @@ public class HadoopPersonGenerator  {
         System.out.println("Generating user at mapper " + threadId);
         LDBCDatagen.initializeContext(conf);
         if (DatagenParams.numPersons % DatagenParams.cellSize != 0) {
-            System.err.println("Number of users should be a multiple of the cellsize");
-            System.exit(-1);
+            throw new InterruptedException("Number of users should be a multiple of the cellsize");
         }
 
         // Here we determine the blocks in the "block space" that this mapper is responsible for.

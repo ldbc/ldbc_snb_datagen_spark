@@ -7,6 +7,7 @@ import ldbc.snb.datagen.objects.StudyAt;
 import ldbc.snb.datagen.objects.WorkAt;
 import org.apache.hadoop.conf.Configuration;
 
+import java.io.IOException;
 import java.util.Iterator;
 
 /**
@@ -50,7 +51,7 @@ abstract public class PersonSerializer {
 
     abstract public void reset();
 
-    abstract public void initialize(Configuration conf, int reducerId);
+    abstract public void initialize(Configuration conf, int reducerId) throws IOException;
 
     abstract public void close();
 

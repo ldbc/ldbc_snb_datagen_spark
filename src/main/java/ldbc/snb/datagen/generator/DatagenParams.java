@@ -296,7 +296,7 @@ public class DatagenParams {
         } catch (Exception e) {
             System.out.println("Error reading scale factors");
             System.err.println(e.getMessage());
-            System.exit(-1);
+            throw e;
         }
 
         try {

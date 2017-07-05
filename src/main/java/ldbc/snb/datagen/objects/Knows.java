@@ -140,16 +140,13 @@ public class Knows implements Writable, Comparable<Knows> {
                 personB);
         creationDate = creationDate - personA.creationDate() >= DatagenParams.deltaTime ? creationDate : creationDate + (DatagenParams.deltaTime - (creationDate - personA.creationDate()));
         creationDate = creationDate - personB.creationDate() >= DatagenParams.deltaTime ? creationDate : creationDate + (DatagenParams.deltaTime - (creationDate - personB.creationDate()));
-        /*if( creationDate <= Dictionaries.dates.getEndDateTime() )*/ {
-            float similarity = Person.personSimilarity.Similarity(personA,personB);
-            if(!personB.knows().add(new Knows(personA, creationDate, similarity))) return false;
-            if(!personA.knows().add(new Knows(personB, creationDate, similarity))) return false;
-            return true;
-        }
-        //return false;
+        float similarity = Person.personSimilarity.similarity(personA,personB);
+        if(!personB.knows().add(new Knows(personA, creationDate, similarity))) return false;
+        if(!personA.knows().add(new Knows(personB, creationDate, similarity))) return false;
+        return true;
     }
 
-    public static long target_edges(Person person, ArrayList<Float> percentages, int step_index ) {
+    public static long targetEdges(Person person, ArrayList<Float> percentages, int step_index ) {
         int generated_edges = 0;
         for (int i = 0; i < step_index; ++i) {
             generated_edges += Math.ceil(percentages.get(i)*person.maxNumKnows());

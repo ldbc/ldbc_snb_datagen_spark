@@ -75,8 +75,8 @@ public class Turtle {
      * @param subject: The RDF subject.
      * @param predicate: The RDF predicate.
      */
-    public static void AddTriple(StringBuffer result, boolean beginning,
-                           boolean end, String subject, String predicate, String object1, String object2) {
+    public static void addTriple(StringBuffer result, boolean beginning,
+                                 boolean end, String subject, String predicate, String object1, String object2) {
         if (beginning) {
             result.append(subject + "\n");
         }
@@ -98,9 +98,9 @@ public class Turtle {
      * @param predicate: The RDF predicate.
      * @param object: The RDF object.
      */
-    public static void AddTriple(StringBuffer result, boolean beginning,
-                           boolean end, String subject, String predicate, String object) {
-        AddTriple(result, beginning, end, subject, predicate, object, "");
+    public static void addTriple(StringBuffer result, boolean beginning,
+                                 boolean end, String subject, String predicate, String object) {
+        addTriple(result, beginning, end, subject, predicate, object, "");
     }
 
 

@@ -6,15 +6,13 @@ import ldbc.snb.datagen.objects.Tag;
 import ldbc.snb.datagen.objects.TagClass;
 import org.apache.hadoop.conf.Configuration;
 
+import java.io.IOException;
+
 
 /**
  * Created by aprat on 12/17/14.
  */
 abstract public class InvariantSerializer {
-
-    public InvariantSerializer() {
-    }
-
 
     abstract public void reset();
 
@@ -34,7 +32,7 @@ abstract public class InvariantSerializer {
         serialize(tag);
     }
 
-    abstract public void initialize(Configuration conf, int reducerId);
+    abstract public void initialize(Configuration conf, int reducerId) throws IOException;
 
     abstract public void close();
 

@@ -362,7 +362,7 @@ public class LDBCDatagen {
 
     }
 
-    public static void main(String[] args) /*throws Exception*/ {
+    public static void main(String[] args) throws Exception {
 
         try {
             Configuration conf = ConfigParser.initialize();
@@ -373,16 +373,11 @@ public class LDBCDatagen {
             LDBCDatagen.initializeContext(conf);
             LDBCDatagen datagen = new LDBCDatagen();
             datagen.runGenerateJob(conf);
-        }catch(AssertionError e ) {
+        } catch(Exception e ) {
             System.err.println("Error during execution");
             System.err.println(e.getMessage());
             e.printStackTrace();
-            System.exit(1);
-        }catch(Exception e ) {
-            System.err.println("Error during execution");
-            System.err.println(e.getMessage());
-            e.printStackTrace();
-            System.exit(1);
+            throw e;
         }
     }
 }

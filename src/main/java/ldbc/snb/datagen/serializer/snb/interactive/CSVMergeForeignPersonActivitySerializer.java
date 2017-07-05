@@ -6,6 +6,7 @@ import ldbc.snb.datagen.serializer.HDFSCSVWriter;
 import ldbc.snb.datagen.serializer.PersonActivitySerializer;
 import org.apache.hadoop.conf.Configuration;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -37,11 +38,8 @@ public class CSVMergeForeignPersonActivitySerializer extends PersonActivitySeria
         }
     }
 
-    public CSVMergeForeignPersonActivitySerializer() {
-    }
-
     @Override
-    public void initialize(Configuration conf, int reducerId) {
+    public void initialize(Configuration conf, int reducerId) throws IOException {
         int numFiles = FileNames.values().length;
         writers = new HDFSCSVWriter[numFiles];
         for( int i = 0; i < numFiles; ++i) {

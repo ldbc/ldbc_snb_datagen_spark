@@ -60,12 +60,6 @@ public class HadoopUpdateStreamSorterAndSerializer {
 				System.err.println(e.getMessage());
 			}
 		}
-		protected void cleanup(Context context){
-			try {
-			} catch( Exception e ) {
-				System.err.println(e.getMessage());
-			}
-		}
 	}
 
 

@@ -25,7 +25,7 @@ public class ConfigParser {
     private static TreeMap<String, ScaleFactor> scaleFactors;
     private static final String SCALE_FACTORS_FILE      =  "scale_factors.xml";
 
-    public static Configuration initialize() {
+    public static Configuration initialize() throws RuntimeException {
 
         /** Default Parameters **/
         Configuration conf = new Configuration();
@@ -87,9 +87,7 @@ public class ConfigParser {
         }
         System.out.println("Number of scale factors read "+scaleFactors.size());
         } catch (Exception e) {
-            System.out.println("Error reading scale factors");
-            System.err.println(e.getMessage());
-            System.exit(-1);
+            throw new RuntimeException("Error reading scale factors");
         }
         return conf;
     }

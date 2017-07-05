@@ -11,6 +11,8 @@ import ldbc.snb.datagen.serializer.Turtle;
 import ldbc.snb.datagen.vocabulary.*;
 import org.apache.hadoop.conf.Configuration;
 
+import java.io.IOException;
+
 
 /**
  * Created by aprat on 12/17/14.
@@ -31,7 +33,8 @@ public class TurtleInvariantSerializer extends InvariantSerializer {
         }
     }
 
-    public void initialize(Configuration conf, int reducerId) {
+    @Override
+    public void initialize(Configuration conf, int reducerId) throws IOException {
 
         int numFiles = FileNames.values().length;
         writers = new HDFSWriter[numFiles];

@@ -4,13 +4,15 @@ import ldbc.snb.datagen.objects.*;
 import ldbc.snb.datagen.serializer.PersonActivitySerializer;
 import org.apache.hadoop.conf.Configuration;
 
+import java.io.IOException;
+
 /**
  * Created by aprat on 30/01/15.
  */
 public class EmptyPersonActivitySerializer extends PersonActivitySerializer {
 
     @Override
-    public void initialize(Configuration conf, int reducerId) {
+    public void initialize(Configuration conf, int reducerId) throws IOException {
         //This is left intentionally blank
     }
 

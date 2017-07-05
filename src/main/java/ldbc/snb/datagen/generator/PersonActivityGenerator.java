@@ -48,7 +48,7 @@ public class PersonActivityGenerator {
         exporter_ = new PersonActivityExporter(personActivitySerializer_, updateSerializer_, factorTable_);
 	}
 
-	private void generateActivity( Person person, ArrayList<Person> block ) throws IOException {
+	private void generateActivity( Person person, ArrayList<Person> block ) throws AssertionError, IOException {
         try {
             factorTable_.extractFactors(person);
             generateWall(person, block);
@@ -58,7 +58,7 @@ public class PersonActivityGenerator {
             System.out.println("Assertion error when generating activity!");
             System.out.println(e.getMessage());
             e.printStackTrace();
-            System.exit(1);
+            throw e;
         }
 	}
 

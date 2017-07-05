@@ -33,9 +33,8 @@ public class BTERKnowsGenerator implements KnowsGenerator{
     private ArrayList<RoaringBitmap>  closedCommunities = new ArrayList<RoaringBitmap>();
     private RoaringBitmap smallDegreeNodes = new RoaringBitmap();
     private RoaringBitmap [] adjacencyMatrix;
-    private int count = 0;
 
-    public int BinarySearch(ArrayList<Pair<Long,Double>> array, Long degree) {
+    public int binarySearch(ArrayList<Pair<Long,Double>> array, Long degree) {
         int min = 0;
         int max = array.size();
         while(min <= max) {
@@ -133,7 +132,7 @@ public class BTERKnowsGenerator implements KnowsGenerator{
         int maxExpectedDegree = 0;
         for(int i = 0; i < graphSize; ++i) {
             adjacencyMatrix[i].clear();
-            expectedDegree[i] = Knows.target_edges(persons.get(i),percentages,step_index);
+            expectedDegree[i] = Knows.targetEdges(persons.get(i),percentages,step_index);
             maxExpectedDegree = maxExpectedDegree < expectedDegree[i] ? (int)expectedDegree[i] : maxExpectedDegree;
         }
         p = new double[maxExpectedDegree+1];
@@ -157,7 +156,7 @@ public class BTERKnowsGenerator implements KnowsGenerator{
         p[1] = 0.0;
         for(int i = 2; i < maxExpectedDegree+1; ++i) {
             int degree = i;
-            int pos = BinarySearch(ccDistribution,(long)degree);
+            int pos = binarySearch(ccDistribution,(long)degree);
             if(ccDistribution.get(pos).getKey() == degree || pos == (ccDistribution.size() - 1)) {
                 p[degree] = ccDistribution.get(pos).getValue();
             } else if( pos < ccDistribution.size() - 1 ){
@@ -221,8 +220,6 @@ public class BTERKnowsGenerator implements KnowsGenerator{
                 Knows.createKnow(random, persons.get(i), persons.get(next));
             }
         }
-        count++;
-
     }
 
     @Override

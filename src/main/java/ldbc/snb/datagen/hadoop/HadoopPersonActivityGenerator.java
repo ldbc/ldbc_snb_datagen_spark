@@ -97,6 +97,7 @@ public class HadoopPersonActivityGenerator {
             System.out.println("Writing person factors for block: "+key.block);
             personActivityGenerator_.writePersonFactors(personFactors_);
         }
+
         protected void cleanup(Context context){
             try {
                 System.out.println("Cleaning up");
@@ -109,7 +110,11 @@ public class HadoopPersonActivityGenerator {
             }
             personActivitySerializer_.close();
             if(DatagenParams.updateStreams) {
-                updateSerializer_.close();
+                try {
+                    updateSerializer_.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e.getMessage());
+                }
             }
         }
     }
