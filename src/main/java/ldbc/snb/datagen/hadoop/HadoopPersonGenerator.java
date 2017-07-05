@@ -25,6 +25,8 @@ import java.io.OutputStream;
  */
 public class HadoopPersonGenerator  {
 
+    private Configuration conf = null;
+
     public static class HadoopPersonGeneratorMapper  extends Mapper<LongWritable, Text, TupleKey, Person> {
 
         private HadoopFileKeyChanger.KeySetter<TupleKey> keySetter = null;
@@ -87,7 +89,6 @@ public class HadoopPersonGenerator  {
         }
     }
 
-    private Configuration conf = null;
 
     public HadoopPersonGenerator( Configuration conf ) {
         this.conf  = new Configuration(conf);

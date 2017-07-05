@@ -19,8 +19,8 @@ import java.util.List;
  */
 public class LDBCDatagenTest {
 
-    final String dir = "./test_data/social_network";
-    final String sdir = "./test_data/substitution_parameters";
+    private final String dir = "./test_data/social_network";
+    private final String sdir = "./test_data/substitution_parameters";
 
     @BeforeClass
     public static void generateData() throws Exception {

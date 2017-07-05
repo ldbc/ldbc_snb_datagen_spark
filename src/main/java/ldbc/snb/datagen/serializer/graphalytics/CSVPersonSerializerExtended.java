@@ -68,8 +68,6 @@ public class CSVPersonSerializerExtended extends PersonSerializer {
         }
     }
 
-    public CSVPersonSerializerExtended() {
-    }
 
     @Override
     public void initialize(Configuration conf, int reducerId) throws IOException {
@@ -91,7 +89,6 @@ public class CSVPersonSerializerExtended extends PersonSerializer {
         arguments.add("CreationDate");
         arguments.add("Weight");
         writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeHeader(arguments);
-
     }
 
     @Override
@@ -112,12 +109,15 @@ public class CSVPersonSerializerExtended extends PersonSerializer {
 
     @Override
     protected void serialize(StudyAt studyAt) {
+        //Intentionally left empty
     }
 
     @Override
     protected void serialize(WorkAt workAt) {
+        //Intentionally left empty
     }
 
+    @Override
     protected void serialize(Person p, Knows knows) {
         ArrayList<String> arguments = new ArrayList<String>();
         arguments.add(Long.toString(p.accountId()));
@@ -127,7 +127,8 @@ public class CSVPersonSerializerExtended extends PersonSerializer {
         writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeEntry(arguments);
     }
 
+    @Override
     public void reset() {
-
+        //Intentionally left empty
     }
 }

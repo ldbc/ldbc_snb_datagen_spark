@@ -39,9 +39,6 @@ public class CSVMergeForeignPersonSerializer extends PersonSerializer {
         }
     }
 
-    public CSVMergeForeignPersonSerializer() {
-    }
-
     public void initialize(Configuration conf, int reducerId) throws IOException {
         int numFiles = FileNames.values().length;
         writers = new HDFSCSVWriter[numFiles];

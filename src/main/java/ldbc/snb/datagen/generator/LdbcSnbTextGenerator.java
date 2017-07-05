@@ -12,12 +12,11 @@ public class LdbcSnbTextGenerator extends TextGenerator {
 
 	public LdbcSnbTextGenerator(Random random, TagDictionary tagDic) {
 		super(random, tagDic);
-		
 	}
 
 	@Override
 	protected void load() {
-		
+		// Intentionally left empty
 	}
 
 	@Override

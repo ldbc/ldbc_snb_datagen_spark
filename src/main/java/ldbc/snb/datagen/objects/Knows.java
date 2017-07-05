@@ -50,9 +50,9 @@ import java.util.Random;
 
 public class Knows implements Writable, Comparable<Knows> {
 
-    long creationDate_;
-	Person.PersonSummary to_= null;
-    float weight_ = 0.0f;
+    private long creationDate_;
+	private Person.PersonSummary to_= null;
+    private float weight_ = 0.0f;
 
 	public Knows() {
 		to_ = new Person.PersonSummary();

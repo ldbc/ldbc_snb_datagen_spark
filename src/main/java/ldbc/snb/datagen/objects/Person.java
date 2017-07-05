@@ -172,7 +172,7 @@ public class Person implements Writable {
 		randomId_ = p.randomId();
 
 		for( String s : p.emails().descendingSet()) {
-			emails_.add(new String(s));
+			emails_.add(s);
 		}
 
 		for( Integer i : p.languages()) {

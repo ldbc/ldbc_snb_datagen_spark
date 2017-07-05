@@ -14,14 +14,11 @@ import java.util.Random;
  */
 public class RandomKnowsGenerator implements KnowsGenerator {
 
-    Random rand;
-
+    private Random rand;
 
     public RandomKnowsGenerator() {
         rand = new Random();
     }
-
-
 
     public void generateKnows( ArrayList<Person> persons, int seed, ArrayList<Float> percentages, int step_index )  {
 

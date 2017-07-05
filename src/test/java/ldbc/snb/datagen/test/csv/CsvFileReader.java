@@ -72,13 +72,13 @@ public class CsvFileReader implements Iterator<String[]>
 
     private boolean closeReader()
     {
-        if ( true == closed )
+        if ( closed )
         {
             String errMsg = "Can not close file multiple times";
             logger.error( errMsg );
             throw new RuntimeException( errMsg );
         }
-        if ( null == csvReader )
+        if ( csvReader == null )
         {
             String errMsg = "Can not close file - reader is null";
             logger.error( errMsg );

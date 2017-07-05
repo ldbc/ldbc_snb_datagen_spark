@@ -66,9 +66,7 @@ public class CSVPersonSerializer extends PersonSerializer {
         }
     }
 
-    public CSVPersonSerializer() {
-    }
-
+    @Override
     public void initialize(Configuration conf, int reducerId) throws IOException {
         int numFiles = FileNames.values().length;
         writers = new HDFSCSVWriter[numFiles];
@@ -87,17 +85,20 @@ public class CSVPersonSerializer extends PersonSerializer {
 
     @Override
     protected void serialize(final Person p) {
-
+        //Intentionally left empty
     }
 
     @Override
     protected void serialize(final StudyAt studyAt) {
+        //Intentionally left empty
     }
 
     @Override
     protected void serialize(final WorkAt workAt) {
+        //Intentionally left empty
     }
 
+    @Override
     protected void serialize(final Person p, Knows knows) {
         ArrayList<String> arguments = new ArrayList<String>();
         arguments.add(Long.toString(p.accountId()));
@@ -105,7 +106,8 @@ public class CSVPersonSerializer extends PersonSerializer {
         writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeEntry(arguments);
     }
 
+    @Override
     public void reset() {
-
+        //Intentionally left empty
     }
 }

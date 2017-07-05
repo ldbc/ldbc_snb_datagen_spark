@@ -465,7 +465,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         //System.out.println("Time to create core-periphery edges: "+(end-start));
     }
 
-    private void fillGraphWithRemainingEdges(ClusteringInfo cInfo, ArrayList<Community> communities, ArrayList<Person> persons) {
+    private void fillGraphWithRemainingEdges(ArrayList<Community> communities, ArrayList<Person> persons) {
         ArrayList<PersonInfo> stubs = new ArrayList<PersonInfo> ();
         LinkedList<Integer> indexes = new LinkedList<Integer>();
         Integer ii = 0;
@@ -568,7 +568,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
                 createEdgesCommunityCore(persons, c);
                 createEdgesCommunityPeriphery(cInfo, persons, c);
             }
-            fillGraphWithRemainingEdges(cInfo, communities, persons);
+            fillGraphWithRemainingEdges(communities, persons);
             end = System.currentTimeMillis();
             System.out.println("Time to generate graph: "+(end-start));
 

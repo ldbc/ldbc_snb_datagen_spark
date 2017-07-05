@@ -41,8 +41,8 @@ import java.util.Random;
 
 public class RandomGeneratorFarm {
 
-    int numRandomGenerators;
-    Random[] randomGenerators;
+    private int numRandomGenerators;
+    private Random[] randomGenerators;
 
     public enum Aspect {
         DATE,

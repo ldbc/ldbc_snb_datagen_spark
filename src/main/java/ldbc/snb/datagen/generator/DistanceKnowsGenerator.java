@@ -40,10 +40,7 @@ public class DistanceKnowsGenerator implements KnowsGenerator {
             personB.knows().size() >= Knows.targetEdges( personB, percentages, step_index) ) return false;
         double randProb = randomFarm.get(RandomGeneratorFarm.Aspect.UNIFORM).nextDouble();
         double prob = Math.pow(DatagenParams.baseProbCorrelated, dist);
-        if ((randProb < prob) || (randProb < DatagenParams.limitProCorrelated)) {
-            return true;
-        }
-        return false;
+        return ((randProb < prob) || (randProb < DatagenParams.limitProCorrelated));
     }
 
 }

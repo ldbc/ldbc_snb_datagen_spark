@@ -10,7 +10,6 @@ import java.util.ArrayList;
  */
 public class AltmannDistribution extends CumulativeBasedDegreeDistribution {
 
-    private long POPULATION_ = 10000;
     private double normalization_factor_ = 0.0;
     private double ALPHA_ = 0.4577;
     private double BETA_ = 0.0162;
@@ -21,7 +20,7 @@ public class AltmannDistribution extends CumulativeBasedDegreeDistribution {
         ALPHA_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.AltmannDistribution.alpha",ALPHA_);
         BETA_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.AltmannDistribution.beta",BETA_);
 
-        POPULATION_ = DatagenParams.numPersons;
+        long POPULATION_ = DatagenParams.numPersons;
         for( int i = 1; i <= POPULATION_; ++i ) {
             normalization_factor_+= Math.pow(i,-ALPHA_)*Math.exp(-BETA_*i);
         }

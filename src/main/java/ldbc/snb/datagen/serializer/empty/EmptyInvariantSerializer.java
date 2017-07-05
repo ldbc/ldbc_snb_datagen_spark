@@ -10,33 +10,46 @@ import org.apache.hadoop.conf.Configuration;
 /**
  * Created by aprat on 30/01/15.
  */
-    public class EmptyInvariantSerializer extends InvariantSerializer {
+public class EmptyInvariantSerializer extends InvariantSerializer {
 
-     public void initialize(Configuration conf, int reducerId) {
+    @Override
+    public void initialize(Configuration conf, int reducerId) {
+        //Intentionally left empty
+    }
 
-     }
+    @Override
+    public void close() {
+        //Intentionally left empty
 
-     public void close() {
+    }
 
-     }
+    @Override
+    protected void serialize(final Place place) {
+        //Intentionally left empty
 
-     protected void serialize(final Place place) {
+    }
 
-     }
+    @Override
+    protected void serialize(final Organization organization) {
+        //Intentionally left empty
 
-     protected void serialize(final Organization organization) {
+    }
 
-     }
+    @Override
+    protected void serialize(final TagClass tagClass) {
+        //Intentionally left empty
 
-     protected void serialize(final TagClass tagClass) {
+    }
 
-     }
+    @Override
+    protected void serialize(final Tag tag) {
+        //Intentionally left empty
 
-     protected void serialize(final Tag tag) {
+    }
 
-     }
+    @Override
+    public void reset() {
+        //Intentionally left empty
 
- public void reset() {
-
- }
+    }
 }

@@ -14,32 +14,39 @@ import java.io.IOException;
  */
 public class EmptyPersonSerializer extends PersonSerializer {
 
+    @Override
     public void initialize(Configuration conf, int reducerId) throws IOException {
-
+        //Intentionally left empty
     }
 
+    @Override
     public void close() {
-
+        //Intentionally left empty
     }
 
+    @Override
     protected void serialize(final Person p) {
-
+        //Intentionally left empty
     }
 
+    @Override
     protected void serialize(final StudyAt studyAt) {
-
+        //Intentionally left empty
     }
 
+    @Override
     protected void serialize(final WorkAt workAt) {
-
+        //Intentionally left empty
     }
 
+    @Override
     protected void serialize(final Person p,final  Knows knows) {
-
+        //Intentionally left empty
     }
 
+    @Override
     public void reset() {
-
+        //Intentionally left empty
     }
 
 }

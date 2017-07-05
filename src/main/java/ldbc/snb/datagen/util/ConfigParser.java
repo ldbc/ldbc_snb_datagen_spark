@@ -9,10 +9,8 @@ import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.*;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
@@ -25,7 +23,7 @@ public class ConfigParser {
     private static TreeMap<String, ScaleFactor> scaleFactors;
     private static final String SCALE_FACTORS_FILE      =  "scale_factors.xml";
 
-    public static Configuration initialize() throws RuntimeException {
+    public static Configuration initialize() throws Exception {
 
         /** Default Parameters **/
         Configuration conf = new Configuration();
@@ -86,8 +84,10 @@ public class ConfigParser {
             }
         }
         System.out.println("Number of scale factors read "+scaleFactors.size());
-        } catch (Exception e) {
-            throw new RuntimeException("Error reading scale factors");
+        } catch (ParserConfigurationException e) {
+            throw e;
+        } catch (IOException e) {
+            throw e;
         }
         return conf;
     }

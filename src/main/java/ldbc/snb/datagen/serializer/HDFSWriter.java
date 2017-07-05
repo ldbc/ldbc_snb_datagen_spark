@@ -11,7 +11,6 @@ import java.util.zip.GZIPOutputStream;
 public class HDFSWriter {
 
     private String outputDir;
-    private String prefix;
     private int numPartitions;
     private int currentPartition = 0;
     private boolean compressed;
@@ -21,7 +20,6 @@ public class HDFSWriter {
 
     public HDFSWriter(String outputDir, String prefix, int numPartitions, boolean compressed, String extension) throws IOException{
         this.outputDir = outputDir;
-        this.prefix = prefix;
         this.numPartitions = numPartitions;
         this.compressed = compressed;
         try {
