@@ -226,7 +226,7 @@ public class DatagenParams {
     public static int   numUpdatePartitions         = 1;
 
 
-    public static void readConf( Configuration conf ) throws Exception {
+    public static void readConf( Configuration conf ) {
         try {
 
             ParameterNames values[] = ParameterNames.values();
@@ -324,7 +324,7 @@ public class DatagenParams {
             System.out.println(" ... Start Year " + startYear);
             System.out.println(" ... Num Years " + numYears);
         } catch (Exception e) {
-            throw e;
+            throw new RuntimeException(e);
         }
     }
 }
