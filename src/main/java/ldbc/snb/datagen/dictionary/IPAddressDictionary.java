@@ -137,10 +137,11 @@ public class IPAddressDictionary {
     }
 
     public IP getRandomIPFromLocation(Random random, int locationIdx) {
-        while (placeDictionary.getType(locationIdx) != "country") {
-            locationIdx = placeDictionary.belongsTo(locationIdx);
+        int finalLocationIndex = locationIdx;
+        while (placeDictionary.getType(finalLocationIndex) != "country") {
+            finalLocationIndex = placeDictionary.belongsTo(finalLocationIndex);
         }
-        ArrayList<IP> countryIPs = ipsByCountry.get(locationIdx);
+        ArrayList<IP> countryIPs = ipsByCountry.get(finalLocationIndex);
         int idx = random.nextInt(countryIPs.size());
 
         IP networkIp = countryIPs.get(idx);
@@ -167,11 +168,8 @@ public class IPAddressDictionary {
     private boolean changeUsualIp(Random randomDiffIP, Random randomDiffIPForTravelers, long date) {
         double diffIpForTravelersProb = randomDiffIPForTravelers.nextDouble();
         boolean isTravelSeason = DateGenerator.isTravelSeason(date);
-                if ((isTravelSeason && diffIpForTravelersProb < probDiffIPinTravelSeason) ||
-                        (!isTravelSeason && diffIpForTravelersProb < probDiffIPnotTravelSeason)) {
-            return true;
-        }
-        return false;
+        return (isTravelSeason && diffIpForTravelersProb < probDiffIPinTravelSeason) ||
+               (!isTravelSeason && diffIpForTravelersProb < probDiffIPnotTravelSeason);
     }
 
     public IP getIP(Random randomIP, Random randomDiffIP, Random randomDiffIPForTravelers, IP ip, long date) {

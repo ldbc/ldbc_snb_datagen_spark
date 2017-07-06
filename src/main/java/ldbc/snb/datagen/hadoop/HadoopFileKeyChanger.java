@@ -16,14 +16,15 @@ import java.io.IOException;
  */
 public class HadoopFileKeyChanger {
 
-    public interface KeySetter<K> {
-       public K getKey(Object object);
-    }
-
     private String keySetterName;
     private Configuration conf;
     private Class<?> K;
     private Class<?> V;
+
+    public interface KeySetter<K> {
+       public K getKey(Object object);
+    }
+
 
     public HadoopFileKeyChanger( Configuration conf, Class<?> K, Class<?> V, String keySetterName ) {
         this.keySetterName = keySetterName;
@@ -33,7 +34,9 @@ public class HadoopFileKeyChanger {
     }
 
     public static class HadoopFileKeyChangerReducer<K, V>  extends Reducer<K, V, TupleKey, V> {
-        KeySetter<TupleKey> keySetter;
+
+        private KeySetter<TupleKey> keySetter;
+
         @Override
         public void setup( Context context ) {
             try {

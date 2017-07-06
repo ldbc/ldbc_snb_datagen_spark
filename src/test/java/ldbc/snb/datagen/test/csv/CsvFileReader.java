@@ -28,7 +28,7 @@ public class CsvFileReader implements Iterator<String[]>
 
     public boolean hasNext()
     {
-        if ( true == closed ) return false;
+        if ( closed ) return false;
         next = ( next == null ) ? nextLine() : next;
         if ( null == next ) closed = closeReader();
         return ( null != next );

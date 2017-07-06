@@ -34,6 +34,8 @@ import java.util.ArrayList;
  */
 public class HadoopPersonActivityGenerator {
 
+    private Configuration conf;
+
     public static class HadoopPersonActivityGeneratorReducer  extends Reducer<BlockKey, Person, LongWritable, Person> {
 
         private int reducerId;                          /** The id of the reducer.**/
@@ -118,9 +120,6 @@ public class HadoopPersonActivityGenerator {
             }
         }
     }
-
-
-    private Configuration conf;
 
     public HadoopPersonActivityGenerator(Configuration conf) {
         this.conf = conf;

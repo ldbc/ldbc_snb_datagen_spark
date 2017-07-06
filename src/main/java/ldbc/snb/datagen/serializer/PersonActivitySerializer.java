@@ -17,9 +17,6 @@ import java.io.IOException;
 abstract public class PersonActivitySerializer {
 
 
-public PersonActivitySerializer() {
-}
-
 public void export( final Forum forum ) {
 	serialize(forum);
 }

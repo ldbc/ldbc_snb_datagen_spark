@@ -75,9 +75,7 @@ public class CSVPersonSerializer extends PersonSerializer {
         }
     }
 
-    public CSVPersonSerializer() {
-    }
-
+    @Override
     public void initialize(Configuration conf, int reducerId) throws IOException {
         int numFiles = FileNames.values().length;
         writers = new HDFSCSVWriter[numFiles];
@@ -231,6 +229,6 @@ public class CSVPersonSerializer extends PersonSerializer {
 
     @Override
     public void reset() {
-
+        // Intentionally left empty
     }
 }

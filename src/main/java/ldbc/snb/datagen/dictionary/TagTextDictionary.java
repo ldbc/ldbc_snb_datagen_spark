@@ -57,7 +57,7 @@ public class TagTextDictionary {
      */
     private double reducedTextRatio;
 
-    StringBuilder returnString = null;
+    private StringBuilder returnString = null;
 
     public TagTextDictionary(TagDictionary tagDic, double reducedTextRatio) {
         this.tagText = new HashMap<Integer, String>();
@@ -153,12 +153,8 @@ public class TagTextDictionary {
             }
         }
 
-        if (!(returnString.charAt(returnString.length()-1) == '.')) {
-            if (returnString.length() == 1) {
-                returnString.append(".");
-            } else {
-                returnString.append(".");
-            }
+        if (returnString.charAt(returnString.length()-1) != '.') {
+            returnString.append(".");
         }
         if (returnString.length() < textSize - 1) {
             returnString.append(" ");

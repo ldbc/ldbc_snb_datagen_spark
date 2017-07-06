@@ -13,7 +13,7 @@ import java.util.*;
  */
 public class ClusteringKnowsGenerator implements KnowsGenerator {
 
-    Random rand;
+    private Random rand;
     private ArrayList<Float> percentages = null;
     private int stepIndex = 0;
     private float targetCC = 0.0f;
@@ -380,7 +380,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         System.out.println("Clustering Coefficient after refinement: " + currentCC);
     }
 
-    float step(int n) {
+    private float step(int n) {
         return 3.0f/(float)n;
     }
 

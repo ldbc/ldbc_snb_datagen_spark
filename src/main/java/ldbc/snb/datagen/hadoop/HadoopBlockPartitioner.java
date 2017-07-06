@@ -8,10 +8,6 @@ import org.apache.hadoop.mapreduce.Partitioner;
  */
 public class HadoopBlockPartitioner extends Partitioner<BlockKey, Person> {
 
-    public HadoopBlockPartitioner() {
-        super();
-    }
-
     @Override
     public int getPartition(BlockKey key, Person person, int numReduceTasks) {
         return (int)(key.block % numReduceTasks);

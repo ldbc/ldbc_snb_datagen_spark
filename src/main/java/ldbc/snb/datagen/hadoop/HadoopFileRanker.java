@@ -109,10 +109,6 @@ public class HadoopFileRanker {
 
     public static class HadoopFileRankerPartitioner<V> extends Partitioner<BlockKey, V> {
 
-        public HadoopFileRankerPartitioner() {
-            super();
-        }
-
         @Override
         public int getPartition(BlockKey key, V value,
                                 int numReduceTasks) {

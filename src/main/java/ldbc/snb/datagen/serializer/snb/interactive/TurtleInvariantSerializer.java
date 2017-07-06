@@ -45,6 +45,7 @@ public class TurtleInvariantSerializer extends InvariantSerializer {
         }
     }
 
+    @Override
     public void close() {
         int numFiles = FileNames.values().length;
         for(int i = 0; i < numFiles; ++i) {
@@ -52,6 +53,7 @@ public class TurtleInvariantSerializer extends InvariantSerializer {
         }
     }
 
+    @Override
     protected void serialize(final Place place) {
         StringBuffer result = new StringBuffer(350);
         String name = place.getName();
@@ -74,6 +76,7 @@ public class TurtleInvariantSerializer extends InvariantSerializer {
         }
     }
 
+    @Override
     protected void serialize(final Organization organization) {
         StringBuffer result = new StringBuffer(19000);
         if( organization.type == Organization.OrganisationType.company ) {
@@ -99,6 +102,7 @@ public class TurtleInvariantSerializer extends InvariantSerializer {
         writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
     }
 
+    @Override
     protected void serialize(final TagClass tagClass) {
 
         StringBuffer result = new StringBuffer(350);
@@ -121,6 +125,7 @@ public class TurtleInvariantSerializer extends InvariantSerializer {
         }
     }
 
+    @Override
     protected void serialize(final Tag tag) {
         StringBuffer result = new StringBuffer(350);
         Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()],SNTAG.fullPrefixed(tag.name), FOAF.Name, Turtle.createLiteral(tag.name));
@@ -130,7 +135,9 @@ public class TurtleInvariantSerializer extends InvariantSerializer {
 				Turtle.createDataTypeLiteral(Long.toString(tag.id), XSD.Int));
         writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
     }
-    public void reset() {
 
+    @Override
+    public void reset() {
+        // Intentionally left empty
     }
 }
