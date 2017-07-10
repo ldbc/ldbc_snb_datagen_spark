@@ -8,10 +8,6 @@ import org.apache.hadoop.mapreduce.Partitioner;
  */
 public class HadoopTuplePartitioner extends Partitioner<TupleKey, Person> {
 
-    public HadoopTuplePartitioner() {
-        super();
-    }
-
     @Override
     public int getPartition(TupleKey key, Person person, int numReduceTasks) {
         return (int)(key.key % numReduceTasks);

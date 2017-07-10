@@ -42,9 +42,7 @@ public class PhotoGenerator {
 			int locationId = album.place();
 			double latt = 0;
 			double longt = 0;
-			String locationName = "";
 			if (popularPlaces.size() == 0){
-				locationName = Dictionaries.places.getPlaceName(locationId);
 				latt = Dictionaries.places.getLatt(locationId);
 				longt = Dictionaries.places.getLongt(locationId);
 			} else{
@@ -55,7 +53,6 @@ public class PhotoGenerator {
 					int popularIndex = randomFarm.get(RandomGeneratorFarm.Aspect.POPULAR).nextInt(popularPlaces.size());
 					popularPlaceId = popularPlaces.get(popularIndex);
 					popularPlace = Dictionaries.popularPlaces.getPopularPlace(album.place(), popularPlaceId);
-					locationName = popularPlace.getName();
 					latt = popularPlace.getLatt();
 					longt = popularPlace.getLongt();
 				} else{
@@ -63,11 +60,9 @@ public class PhotoGenerator {
 					popularPlaceId = Dictionaries.popularPlaces.getPopularPlace(randomFarm.get(RandomGeneratorFarm.Aspect.POPULAR),locationId);
 					if (popularPlaceId != -1){
 						popularPlace = Dictionaries.popularPlaces.getPopularPlace(locationId, popularPlaceId);
-						locationName = popularPlace.getName();
 						latt = popularPlace.getLatt();
 						longt = popularPlace.getLongt();
 					} else{
-						locationName = Dictionaries.places.getPlaceName(locationId);
 						latt = Dictionaries.places.getLatt(locationId);
 						longt = Dictionaries.places.getLongt(locationId);
 					}

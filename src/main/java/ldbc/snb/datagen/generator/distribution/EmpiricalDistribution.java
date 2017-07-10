@@ -1,15 +1,14 @@
 package ldbc.snb.datagen.generator.distribution;
 
+import ldbc.snb.datagen.generator.distribution.utils.Bucket;
+import ldbc.snb.datagen.generator.distribution.utils.BucketedDistribution;
+import org.apache.commons.math3.util.Pair;
+import org.apache.hadoop.conf.Configuration;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-
-import org.apache.commons.math3.util.Pair;
-import org.apache.hadoop.conf.Configuration;
-
-import ldbc.snb.datagen.generator.distribution.utils.Bucket;
-import ldbc.snb.datagen.generator.distribution.utils.BucketedDistribution;
 
 /**
  * Created by aprat on 27/06/16.

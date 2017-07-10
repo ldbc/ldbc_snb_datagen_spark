@@ -21,6 +21,8 @@ import java.util.zip.GZIPOutputStream;
  */
 public class HadoopUpdateStreamSorterAndSerializer {
 
+	private Configuration conf;
+
 	public static class HadoopUpdateStreamSorterAndSerializerReducer  extends Reducer<UpdateEventKey, Text, UpdateEventKey, Text> {
 
 		private boolean compressed = false;
@@ -60,16 +62,8 @@ public class HadoopUpdateStreamSorterAndSerializer {
 				System.err.println(e.getMessage());
 			}
 		}
-		protected void cleanup(Context context){
-			try {
-			} catch( Exception e ) {
-				System.err.println(e.getMessage());
-			}
-		}
 	}
 
-
-	private Configuration conf;
 
 	public HadoopUpdateStreamSorterAndSerializer(Configuration conf ) {
 		this.conf = new Configuration(conf);

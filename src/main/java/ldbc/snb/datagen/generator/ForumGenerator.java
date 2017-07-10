@@ -17,10 +17,6 @@ import java.util.TreeSet;
 
 public class ForumGenerator {
 
-
-	public ForumGenerator(){
-	}
-
 	public Forum createWall(RandomGeneratorFarm randomFarm, long forumId, Person person){
 		int language = randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE).nextInt(person.languages().size());
 		Forum forum = new Forum(SN.formId(SN.composeId(forumId,person.creationDate()+DatagenParams.deltaTime)), 

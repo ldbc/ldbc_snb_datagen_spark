@@ -137,10 +137,11 @@ public class IPAddressDictionary {
     }
 
     public IP getRandomIPFromLocation(Random random, int locationIdx) {
-        while (placeDictionary.getType(locationIdx) != "country") {
-            locationIdx = placeDictionary.belongsTo(locationIdx);
+        int finalLocationIndex = locationIdx;
+        while (placeDictionary.getType(finalLocationIndex) != "country") {
+            finalLocationIndex = placeDictionary.belongsTo(finalLocationIndex);
         }
-        ArrayList<IP> countryIPs = ipsByCountry.get(locationIdx);
+        ArrayList<IP> countryIPs = ipsByCountry.get(finalLocationIndex);
         int idx = random.nextInt(countryIPs.size());
 
         IP networkIp = countryIPs.get(idx);
@@ -164,21 +165,18 @@ public class IPAddressDictionary {
         return getRandomIPFromLocation(random, randomLocationIdx);
     }
 
-    private boolean changeUsualIp(Random randomDiffIP, Random randomDiffIPForTravelers, long date) {
+    private boolean changeUsualIp(Random randomDiffIPForTravelers, long date) {
         double diffIpForTravelersProb = randomDiffIPForTravelers.nextDouble();
         boolean isTravelSeason = DateGenerator.isTravelSeason(date);
-                if ((isTravelSeason && diffIpForTravelersProb < probDiffIPinTravelSeason) ||
-                        (!isTravelSeason && diffIpForTravelersProb < probDiffIPnotTravelSeason)) {
-            return true;
-        }
-        return false;
+        return (isTravelSeason && diffIpForTravelersProb < probDiffIPinTravelSeason) ||
+               (!isTravelSeason && diffIpForTravelersProb < probDiffIPnotTravelSeason);
     }
 
     public IP getIP(Random randomIP, Random randomDiffIP, Random randomDiffIPForTravelers, IP ip, long date) {
-        return (changeUsualIp(randomDiffIP, randomDiffIPForTravelers, date)) ? new IP(ip.getIp(), ip.getMask()) : getRandomIP(randomIP);
+        return (changeUsualIp(randomDiffIPForTravelers, date)) ? new IP(ip.getIp(), ip.getMask()) : getRandomIP(randomIP);
     }
 
     public IP getIP(Random randomIP, Random randomDiffIP, Random randomDiffIPForTravelers, IP ip, long date, int countryId) {
-        return (changeUsualIp(randomDiffIP, randomDiffIPForTravelers, date)) ? new IP(ip.getIp(), ip.getMask()) : getRandomIPFromLocation(randomIP, countryId);
+        return (changeUsualIp(randomDiffIPForTravelers, date)) ? new IP(ip.getIp(), ip.getMask()) : getRandomIPFromLocation(randomIP, countryId);
     }
 }

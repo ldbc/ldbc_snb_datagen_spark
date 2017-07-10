@@ -13,6 +13,16 @@ import java.util.*;
  */
 public class FactorTable {
 
+
+    private HashMap<Long, PersonCounts > personCounts_;
+    private HashMap<Integer, Long> postsPerCountry_;
+    private HashMap<Integer, Long> tagClassCount_;
+    private HashMap<String,Long> firstNameCount_;
+    private HashMap<Integer,Long> tagCount_;
+    private HashMap<Long, String> medianFirstName_;
+    private long minWorkFrom_ = Long.MAX_VALUE;
+    private long maxWorkFrom_ = Long.MIN_VALUE;
+
     static public class PersonCounts {
         private long numFriends_ = 0;
         private long numPosts_ = 0;
@@ -153,15 +163,6 @@ public class FactorTable {
         }
     }
 
-
-    private HashMap<Long, PersonCounts > personCounts_;
-    private HashMap<Integer, Long> postsPerCountry_;
-    private HashMap<Integer, Long> tagClassCount_;
-    private HashMap<String,Long> firstNameCount_;
-    private HashMap<Integer,Long> tagCount_;
-    private HashMap<Long, String> medianFirstName_;
-    private long minWorkFrom_ = Long.MAX_VALUE;
-    private long maxWorkFrom_ = Long.MIN_VALUE;
 
     public FactorTable() {
         personCounts_ = new HashMap<Long, PersonCounts >();

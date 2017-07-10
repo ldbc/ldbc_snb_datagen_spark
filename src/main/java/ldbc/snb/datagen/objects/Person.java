@@ -38,7 +38,7 @@ public class Person implements Writable {
 	private long classYear_;
 
 	public static interface PersonSimilarity {
-		public float Similarity(Person personA, Person personB);
+		public float similarity(Person personA, Person personB);
 	}
 
 	public static class PersonSummary implements Writable {
@@ -172,7 +172,7 @@ public class Person implements Writable {
 		randomId_ = p.randomId();
 
 		for( String s : p.emails().descendingSet()) {
-			emails_.add(new String(s));
+			emails_.add(s);
 		}
 
 		for( Integer i : p.languages()) {

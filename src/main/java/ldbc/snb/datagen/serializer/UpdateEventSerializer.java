@@ -169,8 +169,8 @@ public class UpdateEventSerializer {
 		data_.add(formatStringArray(list_,";"));
 	}
 	
-	
-	public void close() {
+
+	public void close() throws IOException {
 		try {
 			FileSystem fs = FileSystem.get(conf_);
 			for( int i = 0; i < numPartitions_; ++i ) {
@@ -192,7 +192,7 @@ public class UpdateEventSerializer {
 			}
 		} catch(IOException e){
 			System.err.println(e.getMessage());
-			System.exit(-1);
+			throw e;
 		}
 	}
 	

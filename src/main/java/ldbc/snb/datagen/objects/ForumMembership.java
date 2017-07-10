@@ -55,7 +55,7 @@ public class ForumMembership {
     }
 
     public void forumId( long forumId ) {
-	    forumId = forumId;
+	    this.forumId_ = forumId;
     }
 
     public long creationDate() {

@@ -49,6 +49,7 @@ import ldbc.snb.datagen.serializer.Turtle;
 import ldbc.snb.datagen.vocabulary.*;
 import org.apache.hadoop.conf.Configuration;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 
 
@@ -74,10 +75,7 @@ public class TurtlePersonSerializer extends PersonSerializer {
         }
     }
 
-    public TurtlePersonSerializer() {
-    }
-
-    public void initialize(Configuration conf, int reducerId) {
+    public void initialize(Configuration conf, int reducerId) throws IOException {
         dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
         int numFiles = FileNames.values().length;
         writers = new HDFSWriter[numFiles];
@@ -100,28 +98,28 @@ public class TurtlePersonSerializer extends PersonSerializer {
     protected void serialize(final Person p) {
         StringBuffer result = new StringBuffer(19000);
         String prefix = SN.getPersonURI(p.accountId());
-        Turtle.AddTriple(result, true, false, prefix, RDF.type, SNVOC.Person);
-        Turtle.AddTriple(result, false, false, prefix, SNVOC.id,
+        Turtle.addTriple(result, true, false, prefix, RDF.type, SNVOC.Person);
+        Turtle.addTriple(result, false, false, prefix, SNVOC.id,
                 Turtle.createDataTypeLiteral(Long.toString(p.accountId()), XSD.Long));
-        Turtle.AddTriple(result, false, false, prefix, SNVOC.firstName,
+        Turtle.addTriple(result, false, false, prefix, SNVOC.firstName,
                 Turtle.createLiteral(p.firstName()));
-        Turtle.AddTriple(result, false, false, prefix, SNVOC.lastName,
+        Turtle.addTriple(result, false, false, prefix, SNVOC.lastName,
                 Turtle.createLiteral(p.lastName()));
 
         if(p.gender() == 1) {
-            Turtle.AddTriple(result, false, false, prefix, SNVOC.gender,
+            Turtle.addTriple(result, false, false, prefix, SNVOC.gender,
                     Turtle.createLiteral("male"));
         } else {
-            Turtle.AddTriple(result, false, false, prefix, SNVOC.gender,
+            Turtle.addTriple(result, false, false, prefix, SNVOC.gender,
                     Turtle.createLiteral("female"));
         }
-        Turtle.AddTriple(result, false, false, prefix, SNVOC.birthday,
+        Turtle.addTriple(result, false, false, prefix, SNVOC.birthday,
                 Turtle.createDataTypeLiteral(Dictionaries.dates.formatDate(p.birthDay()), XSD.Date));
-        Turtle.AddTriple(result, false, false, prefix, SNVOC.ipaddress,
+        Turtle.addTriple(result, false, false, prefix, SNVOC.ipaddress,
                     Turtle.createLiteral(p.ipAddress().toString()));
-        Turtle.AddTriple(result, false, false, prefix, SNVOC.browser,
+        Turtle.addTriple(result, false, false, prefix, SNVOC.browser,
                         Turtle.createLiteral(Dictionaries.browsers.getName(p.browserId())));
-        Turtle.AddTriple(result, false, true, prefix, SNVOC.creationDate,
+        Turtle.addTriple(result, false, true, prefix, SNVOC.creationDate,
                 Turtle.createDataTypeLiteral(dateTimeFormat.format(p.creationDate()), XSD.DateTime));
 
         Turtle.createTripleSPO(result, prefix, SNVOC.locatedIn, DBP.fullPrefixed(Dictionaries.places.getPlaceName(p.cityId())));

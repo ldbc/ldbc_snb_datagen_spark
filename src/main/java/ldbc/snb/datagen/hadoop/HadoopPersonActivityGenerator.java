@@ -34,6 +34,8 @@ import java.util.ArrayList;
  */
 public class HadoopPersonActivityGenerator {
 
+    private Configuration conf;
+
     public static class HadoopPersonActivityGeneratorReducer  extends Reducer<BlockKey, Person, LongWritable, Person> {
 
         private int reducerId;                          /** The id of the reducer.**/
@@ -97,6 +99,7 @@ public class HadoopPersonActivityGenerator {
             System.out.println("Writing person factors for block: "+key.block);
             personActivityGenerator_.writePersonFactors(personFactors_);
         }
+
         protected void cleanup(Context context){
             try {
                 System.out.println("Cleaning up");
@@ -109,13 +112,14 @@ public class HadoopPersonActivityGenerator {
             }
             personActivitySerializer_.close();
             if(DatagenParams.updateStreams) {
-                updateSerializer_.close();
+                try {
+                    updateSerializer_.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e.getMessage());
+                }
             }
         }
     }
-
-
-    private Configuration conf;
 
     public HadoopPersonActivityGenerator(Configuration conf) {
         this.conf = conf;

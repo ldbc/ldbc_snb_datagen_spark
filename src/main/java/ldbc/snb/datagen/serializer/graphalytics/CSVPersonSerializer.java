@@ -46,6 +46,7 @@ import ldbc.snb.datagen.serializer.HDFSCSVWriter;
 import ldbc.snb.datagen.serializer.PersonSerializer;
 import org.apache.hadoop.conf.Configuration;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class CSVPersonSerializer extends PersonSerializer {
@@ -56,8 +57,7 @@ public class CSVPersonSerializer extends PersonSerializer {
         PERSON_KNOWS_PERSON("person_knows_person");
 
         private final String name;
-
-        private FileNames( String name ) {
+        FileNames( String name ) {
             this.name = name;
         }
         public String toString() {
@@ -65,10 +65,8 @@ public class CSVPersonSerializer extends PersonSerializer {
         }
     }
 
-    public CSVPersonSerializer() {
-    }
-
-    public void initialize(Configuration conf, int reducerId) {
+    @Override
+    public void initialize(Configuration conf, int reducerId) throws IOException {
         int numFiles = FileNames.values().length;
         writers = new HDFSCSVWriter[numFiles];
         for( int i = 0; i < numFiles; ++i) {
@@ -93,17 +91,20 @@ public class CSVPersonSerializer extends PersonSerializer {
 
     @Override
     protected void serialize(final Person p) {
-
+        //Intentionally left empty
     }
 
     @Override
     protected void serialize(final StudyAt studyAt) {
+        //Intentionally left empty
     }
 
     @Override
     protected void serialize(final WorkAt workAt) {
+        //Intentionally left empty
     }
 
+    @Override
     protected void serialize(final Person p, Knows knows) {
         ArrayList<String> arguments = new ArrayList<String>();
         arguments.add(Long.toString(p.accountId()));
@@ -111,7 +112,8 @@ public class CSVPersonSerializer extends PersonSerializer {
         writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeEntry(arguments);
     }
 
+    @Override
     public void reset() {
-
+        //Intentionally left empty
     }
 }

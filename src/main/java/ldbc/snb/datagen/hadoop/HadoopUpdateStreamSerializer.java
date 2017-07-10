@@ -1,7 +1,5 @@
 package ldbc.snb.datagen.hadoop;
 
-import ldbc.snb.datagen.serializer.PersonSerializer;
-import ldbc.snb.datagen.serializer.UpdateEventSerializer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;

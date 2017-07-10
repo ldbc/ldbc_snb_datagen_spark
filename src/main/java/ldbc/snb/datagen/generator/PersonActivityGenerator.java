@@ -2,14 +2,15 @@
 package ldbc.snb.datagen.generator;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.objects.*;
+import ldbc.snb.datagen.objects.Forum;
+import ldbc.snb.datagen.objects.ForumMembership;
+import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.serializer.PersonActivityExporter;
 import ldbc.snb.datagen.serializer.PersonActivitySerializer;
 import ldbc.snb.datagen.serializer.UpdateEventSerializer;
 import ldbc.snb.datagen.util.FactorTable;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
-
 import org.apache.hadoop.mapreduce.Reducer.Context;
 
 import java.io.IOException;
@@ -25,7 +26,6 @@ public class PersonActivityGenerator {
 	private FlashmobPostGenerator flashmobPostGenerator_ = null;
 	private PhotoGenerator photoGenerator_ = null;
 	private CommentGenerator commentGenerator_ = null;
-	private LikeGenerator likeGenerator_ = null;
 	private PersonActivitySerializer personActivitySerializer_ = null;
 	private UpdateEventSerializer updateSerializer_ = null;
 	private long forumId = 0;
@@ -39,7 +39,7 @@ public class PersonActivityGenerator {
 		updateSerializer_ = updateSerializer;
 		forumGenerator_ = new ForumGenerator();
 		TextGenerator generator = new LdbcSnbTextGenerator(randomFarm_.get(RandomGeneratorFarm.Aspect.LARGE_TEXT), Dictionaries.tags);
-        likeGenerator_ = new LikeGenerator();
+        LikeGenerator likeGenerator_ = new LikeGenerator();
         commentGenerator_ = new CommentGenerator(generator, likeGenerator_);
 		uniformPostGenerator_ = new UniformPostGenerator(generator, commentGenerator_, likeGenerator_);
 		flashmobPostGenerator_ = new FlashmobPostGenerator(generator, commentGenerator_, likeGenerator_);
@@ -48,17 +48,17 @@ public class PersonActivityGenerator {
         exporter_ = new PersonActivityExporter(personActivitySerializer_, updateSerializer_, factorTable_);
 	}
 
-	private void generateActivity( Person person, ArrayList<Person> block ) throws IOException {
+	private void generateActivity( Person person, ArrayList<Person> block ) throws AssertionError, IOException {
         try {
             factorTable_.extractFactors(person);
             generateWall(person, block);
-            generateGroups(person, block);
-            generateAlbums(person, block);
+            generateGroups(person,block);
+            generateAlbums(person);
         } catch (AssertionError e) {
             System.out.println("Assertion error when generating activity!");
             System.out.println(e.getMessage());
             e.printStackTrace();
-            System.exit(1);
+            throw e;
         }
 	}
 
@@ -105,7 +105,7 @@ public class PersonActivityGenerator {
 
 	}
 
-	private void generateAlbums(Person person, ArrayList<Person> block ) throws IOException {
+	private void generateAlbums(Person person) throws IOException {
 		// generate albums
 		int numOfmonths = (int) Dictionaries.dates.numberOfMonths(person);
 		int numPhotoAlbums = randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_PHOTO_ALBUM).nextInt(DatagenParams.maxNumPhotoAlbumsPerMonth+1);

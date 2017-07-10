@@ -1,23 +1,15 @@
 package ldbc.snb.datagen.generator;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Random;
-import java.util.TreeMap;
-
+import ldbc.snb.datagen.objects.Knows;
+import ldbc.snb.datagen.objects.Person;
 import org.apache.commons.math3.util.Pair;
 import org.apache.hadoop.conf.Configuration;
 import org.roaringbitmap.RoaringBitmap;
 
-import ldbc.snb.datagen.objects.Knows;
-import ldbc.snb.datagen.objects.Person;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.*;
 
 /**
  * Created by aprat on 12/07/16.
@@ -33,9 +25,8 @@ public class BTERKnowsGenerator implements KnowsGenerator{
     private ArrayList<RoaringBitmap>  closedCommunities = new ArrayList<RoaringBitmap>();
     private RoaringBitmap smallDegreeNodes = new RoaringBitmap();
     private RoaringBitmap [] adjacencyMatrix;
-    private int count = 0;
 
-    public int BinarySearch(ArrayList<Pair<Long,Double>> array, Long degree) {
+    public int binarySearch(ArrayList<Pair<Long,Double>> array, Long degree) {
         int min = 0;
         int max = array.size();
         while(min <= max) {
@@ -53,7 +44,7 @@ public class BTERKnowsGenerator implements KnowsGenerator{
         return max;
     }
 
-    void generateCommunities(RoaringBitmap block) {
+    private void generateCommunities(RoaringBitmap block) {
         Iterator<Integer> iter = block.iterator();
         while(iter.hasNext()) {
             int node = iter.next();
@@ -72,7 +63,7 @@ public class BTERKnowsGenerator implements KnowsGenerator{
         }
     }
 
-    void generateEdgesInCommunity(RoaringBitmap community) {
+    private void generateEdgesInCommunity(RoaringBitmap community) {
         Iterator<Integer> iter = community.iterator();
         while(iter.hasNext()) {
             int nodeA = iter.next();
@@ -90,7 +81,7 @@ public class BTERKnowsGenerator implements KnowsGenerator{
         }
     }
 
-    void generateRemainingEdges() {
+    private void generateRemainingEdges() {
         LinkedList<Integer> stubs = new LinkedList<Integer>();
         for(int i = 0; i < graphSize; ++i) {
             long difference = expectedDegree[i]-adjacencyMatrix[i].getCardinality();
@@ -133,7 +124,7 @@ public class BTERKnowsGenerator implements KnowsGenerator{
         int maxExpectedDegree = 0;
         for(int i = 0; i < graphSize; ++i) {
             adjacencyMatrix[i].clear();
-            expectedDegree[i] = Knows.target_edges(persons.get(i),percentages,step_index);
+            expectedDegree[i] = Knows.targetEdges(persons.get(i),percentages,step_index);
             maxExpectedDegree = maxExpectedDegree < expectedDegree[i] ? (int)expectedDegree[i] : maxExpectedDegree;
         }
         p = new double[maxExpectedDegree+1];
@@ -157,7 +148,7 @@ public class BTERKnowsGenerator implements KnowsGenerator{
         p[1] = 0.0;
         for(int i = 2; i < maxExpectedDegree+1; ++i) {
             int degree = i;
-            int pos = BinarySearch(ccDistribution,(long)degree);
+            int pos = binarySearch(ccDistribution,(long)degree);
             if(ccDistribution.get(pos).getKey() == degree || pos == (ccDistribution.size() - 1)) {
                 p[degree] = ccDistribution.get(pos).getValue();
             } else if( pos < ccDistribution.size() - 1 ){
@@ -221,8 +212,6 @@ public class BTERKnowsGenerator implements KnowsGenerator{
                 Knows.createKnow(random, persons.get(i), persons.get(next));
             }
         }
-        count++;
-
     }
 
     @Override

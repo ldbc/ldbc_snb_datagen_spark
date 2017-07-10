@@ -47,6 +47,9 @@ import java.util.Random;
 
 public class DistributionKey {
 
+    private ArrayList<Pair> distribution;
+    private String distributionFile;
+
     static class Pair{
         private double l;
         private String r;
@@ -60,10 +63,6 @@ public class DistributionKey {
         public void setR(String r){ this.r = r; }
 
     }
-
-
-    ArrayList<Pair> distribution;
-    String distributionFile;
 
     public DistributionKey(String distributionFile) {
         this.distributionFile = distributionFile;

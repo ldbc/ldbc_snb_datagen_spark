@@ -2,7 +2,10 @@ package ldbc.snb.datagen.generator.distribution;
 
 import org.apache.hadoop.conf.Configuration;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Random;
 
 /**
  * Created by aprat on 5/03/15.

@@ -1,18 +1,19 @@
 package ldbc.snb.datagen.generator.distribution.utils;
 
-import java.util.ArrayList;
-
+import ldbc.snb.datagen.generator.DatagenParams;
 import org.apache.commons.math3.util.Pair;
 
-import ldbc.snb.datagen.generator.DatagenParams;
+import java.util.ArrayList;
 
 /**
  * Created by aprat on 3/03/15.
  */
 public class Bucket {
 
-    public static ArrayList<Bucket> bucketizeHistogram(ArrayList<Pair<Integer,Integer>> histogram, int num_buckets) {
+    private double min_;
+    private double max_;
 
+    public static ArrayList<Bucket> bucketizeHistogram(ArrayList<Pair<Integer,Integer>> histogram, int num_buckets) {
 
         ArrayList<Bucket> buckets = new ArrayList<Bucket>();
         int population = 0;
@@ -60,8 +61,6 @@ public class Bucket {
         return buckets;
     }
 
-    double min_;
-    double max_;
 
     public Bucket(double min, double max) {
         this.min_ = min;

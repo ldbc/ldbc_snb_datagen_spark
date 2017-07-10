@@ -1,14 +1,16 @@
 package ldbc.snb.datagen.generator.tools;
 
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by aprat on 17/06/15.
  */
 public class GraphUtils {
 
-    public static double ClusteringCoefficient( PersonGraph graph ) {
+    public static double clusteringCoefficient(PersonGraph graph ) {
         double CC = 0.0;
         int numEdges = 0;
         for( Long l : graph.persons()) {
@@ -28,7 +30,7 @@ public class GraphUtils {
         return CC / graph.persons().size();
     }
 
-    public static ArrayList<Double> ClusteringCoefficientList( PersonGraph graph ) {
+    public static ArrayList<Double> clusteringCoefficientList(PersonGraph graph ) {
         ArrayList<Double> CC = new ArrayList<Double>();
         int numEdges = 0;
         for( Long l : graph.persons()) {

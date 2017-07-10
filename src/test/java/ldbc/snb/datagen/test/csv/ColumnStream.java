@@ -44,7 +44,7 @@ public class ColumnStream<T> extends Column<T>{
         }
 
         public void remove() {
-
+            // Intentionally left empty
         }
     }
 

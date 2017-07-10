@@ -1,7 +1,7 @@
 package ldbc.snb.datagen.serializer;
 
 
-import java.io.OutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class HDFSCSVWriter extends HDFSWriter {
@@ -11,7 +11,7 @@ public class HDFSCSVWriter extends HDFSWriter {
     private boolean endLineSeparator = true;
 
 
-    public HDFSCSVWriter( String outputDir, String prefix, int numPartitions, boolean compressed, String separator, boolean endLineSeparator )  {
+    public HDFSCSVWriter( String outputDir, String prefix, int numPartitions, boolean compressed, String separator, boolean endLineSeparator )  throws IOException {
        super(outputDir, prefix, numPartitions, compressed, "csv" );
         this.separator = separator;
         this.buffer = new StringBuffer(2048);

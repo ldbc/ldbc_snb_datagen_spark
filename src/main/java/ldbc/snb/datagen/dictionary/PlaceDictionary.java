@@ -254,7 +254,6 @@ public class PlaceDictionary {
             BufferedReader dictionary = new BufferedReader(
                     new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));
 
-            int cities = 0;
             String line;
             while ((line = dictionary.readLine()) != null) {
                 String data[] = line.split(SEPARATOR_CITY);
@@ -274,8 +273,6 @@ public class PlaceDictionary {
                         citiesByCountry.get(countryId).add(placeId.getId());
 
                         cityNames.put(data[1], placeId.getId());
-
-                        cities++;
                     }
                 }
             }

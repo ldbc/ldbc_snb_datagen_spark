@@ -8,12 +8,9 @@ import org.apache.hadoop.mapreduce.Partitioner;
  */
 public class HadoopUpdateEventKeyPartitioner extends Partitioner<UpdateEventKey, Text> {
 
-    public HadoopUpdateEventKeyPartitioner() {
-        super();
-    }
-
     @Override
     public int getPartition(UpdateEventKey key, Text text, int numReduceTasks) {
         return (key.reducerId);
     }
 }
+

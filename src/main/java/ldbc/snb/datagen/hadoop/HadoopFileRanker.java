@@ -41,7 +41,7 @@ public class HadoopFileRanker {
 
     public static class HadoopFileRankerSortMapper<K, V>  extends Mapper<K, V, K, V> {
 
-        HadoopFileKeyChanger.KeySetter<TupleKey> keySetter;
+        private HadoopFileKeyChanger.KeySetter<TupleKey> keySetter;
                /** Counter of the number of elements received by this reducer.*/
 
         @Override
@@ -108,10 +108,6 @@ public class HadoopFileRanker {
     }
 
     public static class HadoopFileRankerPartitioner<V> extends Partitioner<BlockKey, V> {
-
-        public HadoopFileRankerPartitioner() {
-            super();
-        }
 
         @Override
         public int getPartition(BlockKey key, V value,

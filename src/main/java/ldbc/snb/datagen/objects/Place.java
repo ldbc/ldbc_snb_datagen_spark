@@ -46,14 +46,14 @@ public class Place implements Serializable {
     public static final String CONTINENT = "continent";
     public static final String AREA = "world";
 
-    int id;
-    int zId;
+    private int id;
+    private int zId;
 
-    String name;
-    double latt;
-    double longt;
-    long population;
-    String type;
+    private String name;
+    private double latt;
+    private double longt;
+    private long population;
+    private String type;
 
     public int getzId() {
         return zId;

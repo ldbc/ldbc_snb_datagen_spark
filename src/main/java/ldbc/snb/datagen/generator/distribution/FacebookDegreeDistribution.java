@@ -64,9 +64,6 @@ public class FacebookDegreeDistribution extends BucketedDistribution {
     private static final int FB_MEAN_ = 190;
     private ArrayList<Bucket> buckets_;
 
-    public FacebookDegreeDistribution() {
-    }
-
     @Override
     public ArrayList<Bucket> getBuckets(Configuration conf) {
         mean_ = (int)mean(DatagenParams.numPersons);
@@ -94,7 +91,8 @@ public class FacebookDegreeDistribution extends BucketedDistribution {
     }
 
     public void rebuildBucketRange() {
-        double newMin, newMax;
+        double newMin;
+        double newMax;
         for (int i = 0; i < buckets_.size(); i++) {
             newMin = buckets_.get(i).min() * mean_ / FB_MEAN_;
             newMax = buckets_.get(i).max() * mean_ / FB_MEAN_;

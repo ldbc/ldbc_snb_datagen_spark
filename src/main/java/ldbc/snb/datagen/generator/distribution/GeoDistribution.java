@@ -1,7 +1,7 @@
 package ldbc.snb.datagen.generator.distribution;
 
-        import org.apache.commons.math3.distribution.GeometricDistribution;
-        import org.apache.hadoop.conf.Configuration;
+import org.apache.commons.math3.distribution.GeometricDistribution;
+import org.apache.hadoop.conf.Configuration;
 
 
 /**

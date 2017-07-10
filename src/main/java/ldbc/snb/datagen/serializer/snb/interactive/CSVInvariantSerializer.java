@@ -11,6 +11,7 @@ import ldbc.snb.datagen.vocabulary.DBP;
 import ldbc.snb.datagen.vocabulary.DBPOWL;
 import org.apache.hadoop.conf.Configuration;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -40,7 +41,8 @@ public class CSVInvariantSerializer extends InvariantSerializer {
         }
     }
 
-    public void initialize(Configuration conf, int reducerId) {
+    @Override
+    public void initialize(Configuration conf, int reducerId) throws IOException {
         int numFiles = FileNames.values().length;
         writers = new HDFSCSVWriter[numFiles];
         for( int i = 0; i < numFiles; ++i) {
@@ -163,7 +165,9 @@ public class CSVInvariantSerializer extends InvariantSerializer {
         arguments.add(Integer.toString(tag.tagClass));
         writers[FileNames.TAG_HAS_TYPE_TAGCLASS.ordinal()].writeEntry(arguments);
     }
+
     public void reset() {
+        // Intentionally left empty
 
     }
 }

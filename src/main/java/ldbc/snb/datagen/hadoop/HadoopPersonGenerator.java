@@ -25,6 +25,8 @@ import java.io.OutputStream;
  */
 public class HadoopPersonGenerator  {
 
+    private Configuration conf = null;
+
     public static class HadoopPersonGeneratorMapper  extends Mapper<LongWritable, Text, TupleKey, Person> {
 
         private HadoopFileKeyChanger.KeySetter<TupleKey> keySetter = null;
@@ -47,8 +49,7 @@ public class HadoopPersonGenerator  {
         System.out.println("Generating user at mapper " + threadId);
         LDBCDatagen.initializeContext(conf);
         if (DatagenParams.numPersons % DatagenParams.cellSize != 0) {
-            System.err.println("Number of users should be a multiple of the cellsize");
-            System.exit(-1);
+            throw new InterruptedException("Number of users should be a multiple of the cellsize");
         }
 
         // Here we determine the blocks in the "block space" that this mapper is responsible for.
@@ -88,7 +89,6 @@ public class HadoopPersonGenerator  {
         }
     }
 
-    private Configuration conf = null;
 
     public HadoopPersonGenerator( Configuration conf ) {
         this.conf  = new Configuration(conf);

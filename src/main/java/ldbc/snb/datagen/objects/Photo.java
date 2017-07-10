@@ -54,7 +54,7 @@ public class Photo extends Message {
                  PersonSummary author,
                  long forumId,
                  String content,
-		 TreeSet<Integer> tags,
+		         TreeSet<Integer> tags,
                  IP ipAddress,
                  int browserId,
                  double latt,

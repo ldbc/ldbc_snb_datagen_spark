@@ -5,7 +5,7 @@ package ldbc.snb.datagen.test.csv;
  */
 public class LongCheck extends NumericCheck<Long> {
 
-    long offset = 0;
+    private long offset = 0;
 
     public LongCheck(Parser<Long> parser, String name, Integer column, NumericCheckType type, Long val1, Long val2, Long offset ) {
         super(parser, name, column, type, val1, val2);

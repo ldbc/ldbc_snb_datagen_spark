@@ -14,14 +14,11 @@ import java.util.Random;
  */
 public class RandomKnowsGenerator implements KnowsGenerator {
 
-    Random rand;
-
+    private Random rand;
 
     public RandomKnowsGenerator() {
         rand = new Random();
     }
-
-
 
     public void generateKnows( ArrayList<Person> persons, int seed, ArrayList<Float> percentages, int step_index )  {
 
@@ -29,7 +26,7 @@ public class RandomKnowsGenerator implements KnowsGenerator {
         ArrayList<Integer> stubs = new ArrayList<Integer>();
         int index = 0;
         for(Person p : persons ) {
-            long degree = Knows.target_edges(p, percentages, step_index);
+            long degree = Knows.targetEdges(p, percentages, step_index);
             for( int i =0; i < degree; ++i ) {
                 stubs.add(index);
             }

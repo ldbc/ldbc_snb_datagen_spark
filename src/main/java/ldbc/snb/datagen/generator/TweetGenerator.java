@@ -1,13 +1,13 @@
 package ldbc.snb.datagen.generator;
 
+import ldbc.snb.datagen.dictionary.TagDictionary;
+import ldbc.snb.datagen.objects.Person.PersonSummary;
+import ldbc.snb.datagen.util.DistributionKey;
+
 import java.io.IOException;
 import java.util.Properties;
 import java.util.Random;
 import java.util.TreeSet;
-
-import ldbc.snb.datagen.dictionary.TagDictionary;
-import ldbc.snb.datagen.objects.Person.PersonSummary;
-import ldbc.snb.datagen.util.DistributionKey;
 
 
 public class TweetGenerator extends TextGenerator {
@@ -31,7 +31,7 @@ public class TweetGenerator extends TextGenerator {
 
 	@Override
 	protected void load() {
-		
+		// Intentionally left empty
 	}
 
 	@Override

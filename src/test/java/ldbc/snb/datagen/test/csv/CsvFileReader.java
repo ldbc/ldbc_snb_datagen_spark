@@ -1,15 +1,11 @@
 package ldbc.snb.datagen.test.csv;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import org.apache.log4j.Logger;
+
+import java.io.*;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
-
-import org.apache.log4j.Logger;
 
 public class CsvFileReader implements Iterator<String[]>
 {
@@ -28,7 +24,7 @@ public class CsvFileReader implements Iterator<String[]>
 
     public boolean hasNext()
     {
-        if ( true == closed ) return false;
+        if ( closed ) return false;
         next = ( next == null ) ? nextLine() : next;
         if ( null == next ) closed = closeReader();
         return ( null != next );
@@ -72,13 +68,13 @@ public class CsvFileReader implements Iterator<String[]>
 
     private boolean closeReader()
     {
-        if ( true == closed )
+        if ( closed )
         {
             String errMsg = "Can not close file multiple times";
             logger.error( errMsg );
             throw new RuntimeException( errMsg );
         }
-        if ( null == csvReader )
+        if ( csvReader == null )
         {
             String errMsg = "Can not close file - reader is null";
             logger.error( errMsg );

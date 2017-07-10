@@ -24,7 +24,9 @@ import java.io.IOException;
  * Created by aprat on 10/15/14.
  */
 public class HadoopPersonSerializer {
-	
+
+	private Configuration conf;
+
 	public static class HadoopPersonSerializerReducer  extends Reducer<TupleKey, Person, LongWritable, Person> {
 
 		private int reducerId;                          /** The id of the reducer.**/
@@ -74,14 +76,15 @@ public class HadoopPersonSerializer {
 		protected void cleanup(Context context){
 			personSerializer_.close();
 			if (DatagenParams.updateStreams) {
-				updateSerializer_.close();
+				try {
+					updateSerializer_.close();
+				} catch(IOException e) {
+					throw new RuntimeException(e.getMessage());
+				}
 			}
 		}
 	}
-	
-	
-	private Configuration conf;
-	
+
 	public HadoopPersonSerializer( Configuration conf ) {
 		this.conf = new Configuration(conf);
 	}

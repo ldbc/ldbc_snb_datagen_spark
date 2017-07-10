@@ -46,7 +46,6 @@ import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
-
 import java.io.File;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -54,8 +53,8 @@ import java.util.List;
 import java.util.Properties;
 
 public class LDBCDatagen {
+    private static boolean initialized = false;
 
-    static boolean initialized = false;
     public static synchronized void initializeContext(Configuration conf) {
         if(!initialized) {
             DatagenParams.readConf(conf);
@@ -162,7 +161,7 @@ public class LDBCDatagen {
 
         printProgress("Serializing persons");
         long startPersonSerializing= System.currentTimeMillis();
-        if(conf.getBoolean("ldbc.snb.datagen.serializer.persons.sort",false) == false) {
+        if(!conf.getBoolean("ldbc.snb.datagen.serializer.persons.sort",false)) {
             HadoopPersonSerializer serializer = new HadoopPersonSerializer(conf);
             serializer.run(hadoopPrefix + "/mergedPersons");
         } else {
@@ -362,7 +361,7 @@ public class LDBCDatagen {
 
     }
 
-    public static void main(String[] args) /*throws Exception*/ {
+    public static void main(String[] args) throws Exception {
 
         try {
             Configuration conf = ConfigParser.initialize();
@@ -373,16 +372,11 @@ public class LDBCDatagen {
             LDBCDatagen.initializeContext(conf);
             LDBCDatagen datagen = new LDBCDatagen();
             datagen.runGenerateJob(conf);
-        }catch(AssertionError e ) {
+        } catch(Exception e ) {
             System.err.println("Error during execution");
             System.err.println(e.getMessage());
             e.printStackTrace();
-            System.exit(1);
-        }catch(Exception e ) {
-            System.err.println("Error during execution");
-            System.err.println(e.getMessage());
-            e.printStackTrace();
-            System.exit(1);
+            throw e;
         }
     }
 }

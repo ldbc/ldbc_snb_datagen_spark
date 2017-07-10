@@ -38,9 +38,9 @@ package ldbc.snb.datagen.objects;
 
 public class PopularPlace {
 
-    String name;
-    double latt;
-    double longt;
+    private String name;
+    private double latt;
+    private double longt;
 
     public PopularPlace(String _name, double _latt, double _longt) {
         this.name = _name;

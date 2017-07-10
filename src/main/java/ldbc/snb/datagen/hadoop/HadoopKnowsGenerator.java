@@ -21,6 +21,14 @@ import java.util.ArrayList;
  */
 public class HadoopKnowsGenerator {
 
+    private Configuration conf;
+    private String preKeySetterName;
+    private String postKeySetterName;
+    private String knowsGeneratorName;
+    private ArrayList<Float> percentages;
+    private int step_index;
+
+
     public static class HadoopKnowsGeneratorReducer  extends Reducer<BlockKey, Person, TupleKey, Person> {
 
         private KnowsGenerator knowsGenerator;   /** The person serializer **/
@@ -76,13 +84,6 @@ public class HadoopKnowsGenerator {
             System.out.println("Number of generated edges: "+numGeneratedEdges/2);
         }
     }
-
-    private Configuration conf;
-    private String preKeySetterName;
-    private String postKeySetterName;
-    private String knowsGeneratorName;
-    private ArrayList<Float> percentages;
-    private int step_index;
 
 
     public HadoopKnowsGenerator( Configuration conf, String preKeySetterName, String postKeySetterName, ArrayList<Float> percentages, int step_index, String knowsGeneratorName  ) {

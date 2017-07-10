@@ -21,6 +21,8 @@ import java.util.Collections;
  */
 public class HadoopMergeFriendshipFiles {
 
+    private Configuration conf;
+    private String postKeySetterName;
 
     public static class HadoopMergeFriendshipFilesReducer  extends Reducer<TupleKey, Person, TupleKey, Person> {
 
@@ -80,8 +82,6 @@ public class HadoopMergeFriendshipFiles {
 		}
     }
 
-    private Configuration conf;
-    private String postKeySetterName;
 
     public HadoopMergeFriendshipFiles( Configuration conf,  String postKeySetterName ) {
 
@@ -117,7 +117,5 @@ public class HadoopMergeFriendshipFiles {
             throw new Exception();
         }
         System.out.println("... time to merge edges: "+ (System.currentTimeMillis() - start)+" ms");
-
-
     }
 }

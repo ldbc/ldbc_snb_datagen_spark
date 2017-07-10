@@ -8,22 +8,22 @@ import org.apache.hadoop.conf.Configuration;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by aprat on 18/12/15.
  */
 public class LDBCDatagenTest {
 
-    final String dir = "./test_data/social_network";
-    final String sdir = "./test_data/substitution_parameters";
+    private final String dir = "./test_data/social_network";
+    private final String sdir = "./test_data/substitution_parameters";
 
     @BeforeClass
-    public static void generateData() {
+    public static void generateData() throws Exception {
         /*ProcessBuilder pb = new ProcessBuilder("java", "-ea","-cp","target/ldbc_snb_datagen-0.2.7-jar-with-dependencies.jar","ldbc.snb.datagen.generator.LDBCDatagen","./test_params.ini");
         pb.directory(new File("./"));
         File log = new File("test_log");
@@ -46,7 +46,7 @@ public class LDBCDatagenTest {
             datagen.runGenerateJob(conf);
         } catch (Exception e) {
             e.printStackTrace();
-            System.exit(1);
+            throw e;
         }
     }
 
@@ -58,6 +58,7 @@ public class LDBCDatagenTest {
         testStringLength(dir+"/person_0_0.csv", 3, 40);
         testStringLength(dir+"/person_0_0.csv", 6, 40);
         testStringLength(dir+"/person_0_0.csv", 7, 40);
+        assertTrue("Everything ok",true);
     }
 
     @Test
@@ -68,12 +69,14 @@ public class LDBCDatagenTest {
         testStringLength(dir+"/post_0_0.csv", 3, 40);
         testStringLength(dir+"/post_0_0.csv", 4, 40);
         testStringLength(dir+"/post_0_0.csv", 5, 40);
+        assertTrue("Everything ok",true);
     }
 
     @Test
     public void forumTest() {
         testIdUniqueness(dir+"/forum_0_0.csv", 0);
         testStringLength(dir+"/forum_0_0.csv", 1, 256);
+        assertTrue("Everything ok",true);
     }
 
     @Test
@@ -82,158 +85,185 @@ public class LDBCDatagenTest {
         testLongBetween(dir+"/comment_0_0.csv",5,0,2001);
         testStringLength(dir+"/comment_0_0.csv", 2, 40);
         testStringLength(dir+"/comment_0_0.csv", 3, 40);
+        assertTrue("Everything ok",true);
     }
 
     @Test
     public void organisationTest() {
         testIdUniqueness(dir+"/organisation_0_0.csv", 0);
         testStringLength(dir+"/organisation_0_0.csv", 2, 256);
+        assertTrue("Everything ok",true);
     }
 
     @Test
     public void placeTest() {
         testIdUniqueness(dir+"/place_0_0.csv", 0);
         testStringLength(dir+"/place_0_0.csv", 1, 256);
+        assertTrue("Everything ok",true);
     }
 
     @Test
     public void tagTest() {
         testIdUniqueness(dir+"/tag_0_0.csv", 0);
         testStringLength(dir+"/tag_0_0.csv", 1, 256);
+        assertTrue("Everything ok",true);
     }
 
     @Test
     public void tagclassTest() {
         testIdUniqueness(dir+"/tagclass_0_0.csv", 0);
         testStringLength(dir+"/tagclass_0_0.csv", 1, 256);
+        assertTrue("Everything ok",true);
     }
 
     @Test
     public void personKnowsPersonTest() {
         testPairUniquenessPlusExistance(dir+"/person_knows_person_0_0.csv",0,1,dir+"/person_0_0.csv",0);
+        assertTrue("Everything ok",true);
     }
 
     @Test
     public void organisationIsLocatedInPlaceTest() {
         testPairUniquenessPlusExistance(dir+"/organisation_isLocatedIn_place_0_0.csv",0,1,dir+"/organisation_0_0.csv",0,dir+"/place_0_0.csv",0);
+        assertTrue("Everything ok",true);
     }
 
     @Test
     public void placeIsPartOfPlaceTest() {
         testPairUniquenessPlusExistance(dir+"/place_isPartOf_place_0_0.csv",0,1,dir+"/place_0_0.csv",0);
+        assertTrue("Everything ok",true);
     }
 
     @Test
     public void tagClassIsSubclassOfTest() {
         testPairUniquenessPlusExistance(dir+"/tagclass_isSubclassOf_tagclass_0_0.csv",0,1,dir+"/tagclass_0_0.csv",0);
+        assertTrue("Everything ok",true);
     }
 
     @Test
     public void tagHasTypeTagclassCheck() {
         testPairUniquenessPlusExistance(dir+"/tag_hasType_tagclass_0_0.csv",0,1,dir+"/tag_0_0.csv",0,dir+"/tagclass_0_0.csv",0);
+        assertTrue("Everything ok",true);
     }
 
     @Test
     public void personStudyAtOrganisationCheck() {
         testPairUniquenessPlusExistance(dir+"/person_studyAt_organisation_0_0.csv",0,1,dir+"/person_0_0.csv",0,dir+"/organisation_0_0.csv",0);
+        assertTrue("Everything ok",true);
     }
 
     @Test
     public void personWorkAtOrganisationCheck() {
         testPairUniquenessPlusExistance(dir+"/person_workAt_organisation_0_0.csv",0,1,dir+"/person_0_0.csv",0,dir+"/organisation_0_0.csv",0);
+        assertTrue("Everything ok",true);
     }
 
     @Test
     public void personHasInterestTagCheck() {
         testPairUniquenessPlusExistance(dir+"/person_hasInterest_tag_0_0.csv",0,1,dir+"/person_0_0.csv",0,dir+"/tag_0_0.csv",0);
+        assertTrue("Everything ok",true);
     }
 
     @Test
     public void personIsLocatedInPlaceCheck() {
         testPairUniquenessPlusExistance(dir+"/person_isLocatedIn_place_0_0.csv",0,1,dir+"/person_0_0.csv",0,dir+"/place_0_0.csv",0);
+        assertTrue("Everything ok",true);
     }
 
     @Test
     public void forumHasTagCheck() {
         testPairUniquenessPlusExistance(dir+"/forum_hasTag_tag_0_0.csv",0,1,dir+"/forum_0_0.csv",0,dir+"/tag_0_0.csv",0);
+        assertTrue("Everything ok",true);
     }
 
     @Test
     public void forumHasModeratorPersonCheck() {
         testPairUniquenessPlusExistance(dir+"/forum_hasModerator_person_0_0.csv",0,1,dir+"/forum_0_0.csv",0,dir+"/person_0_0.csv",0);
+        assertTrue("Everything ok",true);
     }
 
     @Test
     public void forumHasMemberPersonCheck() {
         testPairUniquenessPlusExistance(dir+"/forum_hasMember_person_0_0.csv",0,1,dir+"/forum_0_0.csv",0,dir+"/person_0_0.csv",0);
+        assertTrue("Everything ok",true);
     }
 
     @Test
     public void forumContainerOfPostCheck() {
         testPairUniquenessPlusExistance(dir+"/forum_containerOf_post_0_0.csv",0,1,dir+"/forum_0_0.csv",0,dir+"/post_0_0.csv",0);
+        assertTrue("Everything ok",true);
     }
 
     @Test
     public void commentHasCreatorPersonCheck() {
         testPairUniquenessPlusExistance(dir+"/comment_hasCreator_person_0_0.csv",0,1,dir+"/comment_0_0.csv",0,dir+"/person_0_0.csv",0);
+        assertTrue("Everything ok",true);
     }
 
     @Test
     public void commentHasTagTagCheck() {
         testPairUniquenessPlusExistance(dir+"/comment_hasTag_tag_0_0.csv",0,1,dir+"/comment_0_0.csv",0,dir+"/tag_0_0.csv",0);
+        assertTrue("Everything ok",true);
     }
 
     @Test
     public void commentIsLocatedInPlaceCheck() {
         testPairUniquenessPlusExistance(dir+"/comment_isLocatedIn_place_0_0.csv",0,1,dir+"/comment_0_0.csv",0,dir+"/place_0_0.csv",0);
+        assertTrue("Everything ok",true);
     }
 
     @Test
     public void commentReplyOfCommentCheck() {
         testPairUniquenessPlusExistance(dir+"/comment_replyOf_comment_0_0.csv",0,1,dir+"/comment_0_0.csv",0,dir+"/comment_0_0.csv",0);
+        assertTrue("Everything ok",true);
     }
 
     @Test
     public void commentReplyOfPostCheck() {
         testPairUniquenessPlusExistance(dir+"/comment_replyOf_post_0_0.csv",0,1,dir+"/comment_0_0.csv",0,dir+"/post_0_0.csv",0);
+        assertTrue("Everything ok",true);
     }
 
     @Test
     public void postHasCreatorPersonCheck() {
         testPairUniquenessPlusExistance(dir+"/post_hasCreator_person_0_0.csv",0,1,dir+"/post_0_0.csv",0,dir+"/person_0_0.csv",0);
+        assertTrue("Everything ok",true);
     }
 
     @Test
     public void postIsLocatedInPlaceCheck() {
         testPairUniquenessPlusExistance(dir+"/post_isLocatedIn_place_0_0.csv",0,1,dir+"/post_0_0.csv",0,dir+"/place_0_0.csv",0);
+        assertTrue("Everything ok",true);
     }
 
     @Test
     public void personLikesCommentCheck() {
         testPairUniquenessPlusExistance(dir+"/person_likes_comment_0_0.csv",0,1,dir+"/person_0_0.csv",0,dir+"/comment_0_0.csv",0);
+        assertTrue("Everything ok",true);
     }
-
 
     @Test
     public void personLikesPostCheck() {
         testPairUniquenessPlusExistance(dir+"/person_likes_post_0_0.csv",0,1,dir+"/person_0_0.csv",0,dir+"/post_0_0.csv",0);
+        assertTrue("Everything ok",true);
     }
 
     @Test
     public void personEmailAddressCheck() {
         testIdExistance(dir+"/person_0_0.csv",0,dir+"/person_email_emailaddress_0_0.csv",0);
         testStringLength(dir+"/person_email_emailaddress_0_0.csv", 1, 256);
+        assertTrue("Everything ok",true);
     }
 
     // test update stream  time consistency
     @Test
     public void updateStreamForumsConsistencyCheck() {
         testLongPair(dir+"/updateStream_0_0_forum.csv",0,1,NumericPairCheck.NumericCheckType.GE, -10000,0);
+        assertTrue("Everything ok",true);
     }
 
     @Test
     public void queryParamsTest() {
-
         //Creating person id check
         LongParser parser = new LongParser();
         ColumnSet<Long> persons = new ColumnSet<Long>(parser,new File(dir+"/person_0_0.csv"),0,1);
@@ -259,12 +289,12 @@ public class LDBCDatagenTest {
         FileChecker fileChecker = new FileChecker(sdir+"/query_1_param.txt");
         fileChecker.addCheck(existsPersonCheck);
         fileChecker.addCheck(existsNameCheck);
-        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 1 PERSON AND NAME EXISTS ",true, false);
+        assertTrue("ERROR PASSING TEST QUERY 1 PERSON AND NAME EXISTS ",fileChecker.run(1));
 
         //Crating date interval check
         fileChecker = new FileChecker(sdir+"/query_2_param.txt");
         fileChecker.addCheck(existsPersonCheck);
-        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 2 PERSON EXISTS ",true, false);
+        assertTrue("ERROR PASSING TEST QUERY 2 PERSON EXISTS ",fileChecker.run(1));
         testLongBetween(sdir+"/query_2_param.txt",1, Dictionaries.dates.getStartDateTime(), Dictionaries.dates.getEndDateTime());
 
         //Creating country check
@@ -284,16 +314,16 @@ public class LDBCDatagenTest {
         fileChecker.addCheck(existsPersonCheck);
         fileChecker.addCheck(countryExists);
         fileChecker.addCheck(dateDurationCheck);
-        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 3 PERSON EXISTS ",true, false);
+        assertTrue("ERROR PASSING TEST QUERY 3 PERSON EXISTS ",fileChecker.run(1));
 
         fileChecker = new FileChecker(sdir+"/query_4_param.txt");
         fileChecker.addCheck(existsPersonCheck);
         fileChecker.addCheck(dateDurationCheck);
-        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 4 PERSON EXISTS ",true, false);
+        assertTrue("ERROR PASSING TEST QUERY 4 PERSON EXISTS ",fileChecker.run(1));
 
         fileChecker = new FileChecker(sdir+"/query_5_param.txt");
         fileChecker.addCheck(existsPersonCheck);
-        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 5 PERSON EXISTS ",true, false);
+        assertTrue("ERROR PASSING TEST QUERY 5 PERSON EXISTS ",fileChecker.run(1));
         testLongBetween(sdir+"/query_5_param.txt",1, Dictionaries.dates.getStartDateTime(), Dictionaries.dates.getEndDateTime());
 
         //Creating tag check
@@ -308,24 +338,24 @@ public class LDBCDatagenTest {
         fileChecker = new FileChecker(sdir+"/query_6_param.txt");
         fileChecker.addCheck(existsPersonCheck);
         fileChecker.addCheck(tagExists);
-        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 6 PERSON EXISTS ",true, false);
+        assertTrue("ERROR PASSING TEST QUERY 6 PERSON EXISTS ",fileChecker.run(1));
 
         fileChecker = new FileChecker(sdir+"/query_7_param.txt");
         fileChecker.addCheck(existsPersonCheck);
-        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 7 PERSON EXISTS ",true, false);
+        assertTrue("ERROR PASSING TEST QUERY 7 PERSON EXISTS ",fileChecker.run(1));
 
         fileChecker = new FileChecker(sdir+"/query_8_param.txt");
         fileChecker.addCheck(existsPersonCheck);
-        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 8 PERSON EXISTS ",true, false);
+        assertTrue("ERROR PASSING TEST QUERY 8 PERSON EXISTS ",fileChecker.run(1));
 
         fileChecker = new FileChecker(sdir+"/query_9_param.txt");
         fileChecker.addCheck(existsPersonCheck);
-        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 9 PERSON EXISTS ",true, false);
+        assertTrue("ERROR PASSING TEST QUERY 9 PERSON EXISTS ",fileChecker.run(1));
         testLongBetween(sdir+"/query_9_param.txt",1, Dictionaries.dates.getStartDateTime(), Dictionaries.dates.getEndDateTime());
 
         fileChecker = new FileChecker(sdir+"/query_10_param.txt");
         fileChecker.addCheck(existsPersonCheck);
-        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 10 PERSON EXISTS ",true, false);
+        assertTrue("ERROR PASSING TEST QUERY 10 PERSON EXISTS ",fileChecker.run(1));
         testLongBetween(sdir+"/query_10_param.txt",1, 1, 13);
 
         //Creating country check
@@ -336,7 +366,7 @@ public class LDBCDatagenTest {
         fileChecker = new FileChecker(sdir+"/query_11_param.txt");
         fileChecker.addCheck(existsPersonCheck);
         fileChecker.addCheck(countryExists);
-        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 11 PERSON EXISTS ",true, false);
+        assertTrue("ERROR PASSING TEST QUERY 11 PERSON EXISTS ",fileChecker.run(1));
 
         //Creating tagClass check
         ColumnSet<String> tagClass = new ColumnSet<String>(strParser,new File(dir+"/tagclass_0_0.csv"),1,1);
@@ -350,18 +380,18 @@ public class LDBCDatagenTest {
         fileChecker = new FileChecker(sdir+"/query_12_param.txt");
         fileChecker.addCheck(existsPersonCheck);
         fileChecker.addCheck(tagClassExists);
-        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 12 PERSON EXISTS ",true, false);
+        assertTrue("ERROR PASSING TEST QUERY 12 PERSON EXISTS ",fileChecker.run(1));
 
         personIndex.add(1);
         ExistsCheck<Long> exists2PersonCheck = new ExistsCheck<Long>(parser,personIndex, personsRef);
 
         fileChecker = new FileChecker(sdir+"/query_13_param.txt");
         fileChecker.addCheck(exists2PersonCheck);
-        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 13 PERSON EXISTS ",true, false);
+        assertTrue("ERROR PASSING TEST QUERY 13 PERSON EXISTS ",fileChecker.run(1));
 
         fileChecker = new FileChecker(sdir+"/query_14_param.txt");
         fileChecker.addCheck(exists2PersonCheck);
-        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST QUERY 14 PERSON EXISTS ",true, false);
+        assertTrue("ERROR PASSING TEST QUERY 14 PERSON EXISTS ",fileChecker.run(1));
 
     }
 
@@ -370,14 +400,14 @@ public class LDBCDatagenTest {
         LongParser parser = new LongParser();
         LongPairCheck check = new LongPairCheck(parser, " Long check ", columnA, columnB, type, offsetA, offsetB);
         fileChecker.addCheck(check);
-        if(!fileChecker.run(0)) assertEquals("ERROR PASSING TEST LONG PAIR FOR FILE "+fileName,true, false);
+        assertTrue("ERROR PASSING TEST LONG PAIR FOR FILE "+fileName,fileChecker.run(0));
     }
 
     public void testIdUniqueness(String fileName, int column) {
         FileChecker fileChecker = new FileChecker(fileName);
         UniquenessCheck check = new UniquenessCheck(column);
         fileChecker.addCheck(check);
-        if(!fileChecker.run(1)) assertEquals("ERROR PASSING TEST ID UNIQUENESS FOR FILE "+fileName,true, false);
+        assertTrue("ERROR PASSING TEST ID UNIQUENESS FOR FILE "+fileName,fileChecker.run(1));
     }
 
     public void testLongBetween(String fileName, int column, long a, long b) {
@@ -385,7 +415,7 @@ public class LDBCDatagenTest {
         LongParser parser = new LongParser();
         LongCheck longcheck = new LongCheck(parser, "Date Test",column, NumericCheck.NumericCheckType.BETWEEN, a,b);
         fileChecker.addCheck(longcheck);
-        if(!fileChecker.run(1)) assertEquals("ERROR PASSING BETWEENS TEST FOR FILE "+fileName+" column "+column+" between "+a+" and "+b,true, false);
+        assertTrue("ERROR PASSING BETWEENS TEST FOR FILE "+fileName+" column "+column+" between "+a+" and "+b,fileChecker.run(1));
     }
 
     public void testPairUniquenessPlusExistance(String relationFileName, int columnA, int columnB, String entityFileNameA, int entityColumnA, String entityFileNameB, int entityColumnB) {
@@ -409,7 +439,7 @@ public class LDBCDatagenTest {
         ExistsCheck<Long> existsEntityBCheck = new ExistsCheck<Long>(parser,placeIndices, entityBRefColumns);
         fileChecker.addCheck(existsEntityACheck);
         fileChecker.addCheck(existsEntityBCheck);
-        assertEquals("ERROR PASSING ORGANISATION_ISLOCATEDIN_PLACE TEST",true, fileChecker.run(1));
+        assertTrue("ERROR PASSING ORGANISATION_ISLOCATEDIN_PLACE TEST",fileChecker.run(1));
 
     }
 
@@ -427,7 +457,7 @@ public class LDBCDatagenTest {
         columnIndices.add(columnB);
         ExistsCheck existsCheck = new ExistsCheck<Long>(parser,columnIndices, refcolumns);
         fileChecker.addCheck(existsCheck);
-        assertEquals("ERROR PASSING "+relationFileName+" TEST",true, fileChecker.run(1));
+        assertTrue("ERROR PASSING "+relationFileName+" TEST",fileChecker.run(1));
     }
 
     public void testIdExistance(String fileToCheckExistanceOf, int columnToCheckExistanceOf, String fileToCheckExistanceAgainst, int columnToCheckExistanceAgainst) {
@@ -441,14 +471,14 @@ public class LDBCDatagenTest {
         columnIndices.add(columnToCheckExistanceOf);
         ExistsCheck existsCheck = new ExistsCheck<Long>(parser,columnIndices, refcolumns);
         fileChecker.addCheck(existsCheck);
-        assertEquals("ERROR PASSING "+fileToCheckExistanceOf+" ID EXISTANCE TEST",true, fileChecker.run(1));
+        assertTrue("ERROR PASSING "+fileToCheckExistanceOf+" ID EXISTANCE TEST",fileChecker.run(1));
     }
 
     public void testStringLength(String fileToCheckExistanceOf, int columnToCheckExistanceOf, int length) {
         FileChecker fileChecker = new FileChecker(fileToCheckExistanceOf);
         StringLengthCheck lengthCheck = new StringLengthCheck(columnToCheckExistanceOf, length);
         fileChecker.addCheck(lengthCheck);
-        assertEquals("ERROR PASSING "+fileToCheckExistanceOf+" ID EXISTANCE TEST",true, fileChecker.run(1));
+        assertTrue("ERROR PASSING "+fileToCheckExistanceOf+" ID EXISTANCE TEST",fileChecker.run(1));
     }
 
 }

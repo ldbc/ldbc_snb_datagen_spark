@@ -8,15 +8,14 @@ package ldbc.snb.datagen.serializer;
 import ldbc.snb.datagen.objects.*;
 import org.apache.hadoop.conf.Configuration;
 
+import java.io.IOException;
+
 /**
  *
  * @author aprat
  */
 abstract public class PersonActivitySerializer {
 
-
-public PersonActivitySerializer() {
-}
 
 public void export( final Forum forum ) {
 	serialize(forum);
@@ -48,7 +47,7 @@ public void export( Like like ) {
 
 abstract public void reset();
 
-abstract public void initialize(Configuration conf, int reducerId);
+abstract public void initialize(Configuration conf, int reducerId) throws IOException;
 
 abstract public void close();
 

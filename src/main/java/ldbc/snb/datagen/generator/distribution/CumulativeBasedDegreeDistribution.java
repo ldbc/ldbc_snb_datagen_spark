@@ -10,13 +10,13 @@ import java.util.Random;
  */
 public abstract class CumulativeBasedDegreeDistribution extends DegreeDistribution {
 
-    public class CumulativeEntry {
-        double prob_;
-        int value_;
-    }
-
     private ArrayList<CumulativeEntry> cumulativeProbability_;
     private Random random_;
+
+    public class CumulativeEntry {
+        public double prob_;
+        public int value_;
+    }
 
     public void initialize( Configuration conf ) {
         cumulativeProbability_ = cumulativeProbability( conf );

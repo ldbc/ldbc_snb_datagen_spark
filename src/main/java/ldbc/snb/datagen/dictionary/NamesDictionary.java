@@ -55,13 +55,11 @@ public class NamesDictionary {
     
     private static final int topN = 30;
 	
-	PlaceDictionary locationDic;
-	
-	HashMap<Integer, Vector<String>> surNamesByLocations;
-	Vector<HashMap<Integer, Vector<String>>> givenNamesByLocationsMale;    // Year / Location / Names		
-	Vector<HashMap<Integer, Vector<String>>> givenNamesByLocationsFemale;
-	
-	GeometricDist geoDist;
+	private PlaceDictionary locationDic;
+	private HashMap<Integer, Vector<String>> surNamesByLocations;
+	private Vector<HashMap<Integer, Vector<String>>> givenNamesByLocationsMale;    // Year / Location / Names
+	private Vector<HashMap<Integer, Vector<String>>> givenNamesByLocationsFemale;
+	private GeometricDist geoDist;
 	
 	public NamesDictionary( PlaceDictionary locationDic ) {
 		this.locationDic = locationDic;

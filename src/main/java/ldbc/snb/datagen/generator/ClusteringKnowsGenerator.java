@@ -13,7 +13,7 @@ import java.util.*;
  */
 public class ClusteringKnowsGenerator implements KnowsGenerator {
 
-    Random rand;
+    private Random rand;
     private ArrayList<Float> percentages = null;
     private int stepIndex = 0;
     private float targetCC = 0.0f;
@@ -105,7 +105,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
             Person p = persons.get(i);
             PersonInfo pInfo = new PersonInfo();
             pInfo.index_ = i;
-            pInfo.degree_ = Knows.target_edges(p,percentages,stepIndex);
+            pInfo.degree_ = Knows.targetEdges(p,percentages,stepIndex);
             pInfo.original_degree_ = (long)(p.maxNumKnows());
             nodes.add(pInfo);
         }
@@ -120,7 +120,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
                 periphery.add(pI);
             }
         }
-        return checkBudget(persons, core, periphery);
+        return checkBudget(core, periphery);
     }
 
     private ArrayList<Long> createInitialBudget( ArrayList<PersonInfo> core) {
@@ -136,7 +136,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         return budget;
     }
 
-    private Community checkBudget(ArrayList<Person> persons, ArrayList<PersonInfo> core, ArrayList<PersonInfo> periphery) {
+    private Community checkBudget(ArrayList<PersonInfo> core, ArrayList<PersonInfo> periphery) {
         ArrayList<Long> temp_budget = createInitialBudget(core);
         Collections.sort(periphery, new PersonInfoComparator());
         for(PersonInfo pI : periphery ) {
@@ -380,7 +380,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         System.out.println("Clustering Coefficient after refinement: " + currentCC);
     }
 
-    float step(int n) {
+    private float step(int n) {
         return 3.0f/(float)n;
     }
 
@@ -465,7 +465,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         //System.out.println("Time to create core-periphery edges: "+(end-start));
     }
 
-    private void fillGraphWithRemainingEdges(ClusteringInfo cInfo, ArrayList<Community> communities, ArrayList<Person> persons) {
+    private void fillGraphWithRemainingEdges(ArrayList<Community> communities, ArrayList<Person> persons) {
         ArrayList<PersonInfo> stubs = new ArrayList<PersonInfo> ();
         LinkedList<Integer> indexes = new LinkedList<Integer>();
         Integer ii = 0;
@@ -506,7 +506,8 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
 
     public void generateKnows( ArrayList<Person> persons, int seed, ArrayList<Float> percentages, int step_index )  {
 
-        long start, end;
+        long start;
+        long end;
         rand.setSeed(seed);
         this.percentages = percentages;
         this.stepIndex = step_index;
@@ -568,14 +569,14 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
                 createEdgesCommunityCore(persons, c);
                 createEdgesCommunityPeriphery(cInfo, persons, c);
             }
-            fillGraphWithRemainingEdges(cInfo, communities, persons);
+            fillGraphWithRemainingEdges(communities, persons);
             end = System.currentTimeMillis();
             System.out.println("Time to generate graph: "+(end-start));
 
             graph = new PersonGraph(persons);
             System.out.println("Computing clustering coefficient");
             double finalCC = 0;
-            ArrayList<Double> clusteringCoefficient = GraphUtils.ClusteringCoefficientList(graph);
+            ArrayList<Double> clusteringCoefficient = GraphUtils.clusteringCoefficientList(graph);
             int i = 0;
             for( Person p : persons) {
                 long degree = graph.neighbors(p.accountId()).size();
@@ -585,7 +586,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
                 i++;
             }
             finalCC /= persons.size();
-            //double finalCC = GraphUtils.ClusteringCoefficient(graph);
+            //double finalCC = GraphUtils.clusteringCoefficient(graph);
 
             System.out.println("Clustering coefficient of the generated graph: "+finalCC);
             double delta = targetCC - finalCC;
@@ -613,7 +614,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         int countDegreeZero = 0;
         for( Person p : persons ) {
             if(cInfo.is_core_.get(index)) {
-                long target = Knows.target_edges(p, percentages, step_index);
+                long target = Knows.targetEdges(p, percentages, step_index);
                 if (p.knows().size() > target) {
                     sumMore += -target + p.knows().size();
                     countMore++;
