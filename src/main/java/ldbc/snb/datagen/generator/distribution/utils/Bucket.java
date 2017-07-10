@@ -1,10 +1,9 @@
 package ldbc.snb.datagen.generator.distribution.utils;
 
-import java.util.ArrayList;
-
+import ldbc.snb.datagen.generator.DatagenParams;
 import org.apache.commons.math3.util.Pair;
 
-import ldbc.snb.datagen.generator.DatagenParams;
+import java.util.ArrayList;
 
 /**
  * Created by aprat on 3/03/15.

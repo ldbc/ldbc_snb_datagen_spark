@@ -46,7 +46,6 @@ import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
-
 import java.io.File;
 import java.io.OutputStream;
 import java.util.ArrayList;

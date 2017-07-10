@@ -2,7 +2,6 @@ package ldbc.snb.datagen.serializer;
 
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 
 public class HDFSCSVWriter extends HDFSWriter {

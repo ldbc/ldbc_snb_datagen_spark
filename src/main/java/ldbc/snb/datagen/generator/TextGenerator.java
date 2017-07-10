@@ -1,12 +1,11 @@
 package ldbc.snb.datagen.generator;
 
-import java.util.HashMap;
+import ldbc.snb.datagen.dictionary.TagDictionary;
+import ldbc.snb.datagen.objects.Person;
+
 import java.util.Properties;
 import java.util.Random;
 import java.util.TreeSet;
-
-import ldbc.snb.datagen.dictionary.TagDictionary;
-import ldbc.snb.datagen.objects.Person;
 
 public abstract class TextGenerator {
 	   protected TagDictionary tagDic;

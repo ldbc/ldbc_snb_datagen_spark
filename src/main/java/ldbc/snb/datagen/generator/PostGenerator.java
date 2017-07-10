@@ -38,7 +38,10 @@
 package ldbc.snb.datagen.generator;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.objects.*;
+import ldbc.snb.datagen.objects.Forum;
+import ldbc.snb.datagen.objects.ForumMembership;
+import ldbc.snb.datagen.objects.Like;
+import ldbc.snb.datagen.objects.Post;
 import ldbc.snb.datagen.serializer.PersonActivityExporter;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;

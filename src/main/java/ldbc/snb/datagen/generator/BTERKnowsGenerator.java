@@ -1,23 +1,15 @@
 package ldbc.snb.datagen.generator;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Random;
-import java.util.TreeMap;
-
+import ldbc.snb.datagen.objects.Knows;
+import ldbc.snb.datagen.objects.Person;
 import org.apache.commons.math3.util.Pair;
 import org.apache.hadoop.conf.Configuration;
 import org.roaringbitmap.RoaringBitmap;
 
-import ldbc.snb.datagen.objects.Knows;
-import ldbc.snb.datagen.objects.Person;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.*;
 
 /**
  * Created by aprat on 12/07/16.
@@ -52,7 +44,7 @@ public class BTERKnowsGenerator implements KnowsGenerator{
         return max;
     }
 
-    void generateCommunities(RoaringBitmap block) {
+    private void generateCommunities(RoaringBitmap block) {
         Iterator<Integer> iter = block.iterator();
         while(iter.hasNext()) {
             int node = iter.next();
@@ -71,7 +63,7 @@ public class BTERKnowsGenerator implements KnowsGenerator{
         }
     }
 
-    void generateEdgesInCommunity(RoaringBitmap community) {
+    private void generateEdgesInCommunity(RoaringBitmap community) {
         Iterator<Integer> iter = community.iterator();
         while(iter.hasNext()) {
             int nodeA = iter.next();
@@ -89,7 +81,7 @@ public class BTERKnowsGenerator implements KnowsGenerator{
         }
     }
 
-    void generateRemainingEdges() {
+    private void generateRemainingEdges() {
         LinkedList<Integer> stubs = new LinkedList<Integer>();
         for(int i = 0; i < graphSize; ++i) {
             long difference = expectedDegree[i]-adjacencyMatrix[i].getCardinality();

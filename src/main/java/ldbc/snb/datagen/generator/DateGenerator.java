@@ -40,7 +40,6 @@ import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.serializer.formatter.DateFormatter;
 import org.apache.hadoop.conf.Configuration;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class DateGenerator {

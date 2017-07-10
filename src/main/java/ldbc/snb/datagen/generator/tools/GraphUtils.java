@@ -1,7 +1,9 @@
 package ldbc.snb.datagen.generator.tools;
 
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by aprat on 17/06/15.

@@ -2,14 +2,15 @@
 package ldbc.snb.datagen.generator;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.objects.*;
+import ldbc.snb.datagen.objects.Forum;
+import ldbc.snb.datagen.objects.ForumMembership;
+import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.serializer.PersonActivityExporter;
 import ldbc.snb.datagen.serializer.PersonActivitySerializer;
 import ldbc.snb.datagen.serializer.UpdateEventSerializer;
 import ldbc.snb.datagen.util.FactorTable;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
-
 import org.apache.hadoop.mapreduce.Reducer.Context;
 
 import java.io.IOException;
