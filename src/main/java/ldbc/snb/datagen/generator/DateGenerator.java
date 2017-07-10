@@ -57,7 +57,6 @@ public class DateGenerator {
 	private long fromBirthDay_;
 	private long toBirthDay_;
 	private GregorianCalendar calendar_;
-	private long deltaTime_;
 	private long updateThreshold_;
 	private PowerDistGenerator powerDist_;
 	private DateFormatter dateFormatter_;
@@ -68,13 +67,13 @@ public class DateGenerator {
 		from_ = from.getTimeInMillis();
 		to_ = to.getTimeInMillis();
 		powerDist_ = new PowerDistGenerator(0.0, 1.0, alpha);
-		deltaTime_ = deltaTime;
+		long deltaTime_ = deltaTime;
 
 		// For birthday from 1980 to 1990
 		GregorianCalendar frombirthCalendar = new GregorianCalendar(1980, 1, 1);
 		GregorianCalendar tobirthCalendar = new GregorianCalendar(1990, 1, 1);
 		fromBirthDay_ = frombirthCalendar.getTimeInMillis();
-		toBirthDay_ = tobirthCalendar.getTimeInMillis();
+		toBirthDay_ = tobirthCalendar.getTimse
 		calendar_ = new GregorianCalendar();
 		calendar_.setTimeZone(TimeZone.getTimeZone("GMT"));
 		//updateThreshold_ = getMaxDateTime() - (long)((getMaxDateTime() - getStartDateTime())*(DatagenParams.updatePortion));

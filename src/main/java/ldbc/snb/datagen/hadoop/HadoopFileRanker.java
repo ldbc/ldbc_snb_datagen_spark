@@ -41,7 +41,7 @@ public class HadoopFileRanker {
 
     public static class HadoopFileRankerSortMapper<K, V>  extends Mapper<K, V, K, V> {
 
-        HadoopFileKeyChanger.KeySetter<TupleKey> keySetter;
+        private HadoopFileKeyChanger.KeySetter<TupleKey> keySetter;
                /** Counter of the number of elements received by this reducer.*/
 
         @Override

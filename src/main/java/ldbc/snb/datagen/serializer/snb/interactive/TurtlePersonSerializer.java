@@ -75,9 +75,6 @@ public class TurtlePersonSerializer extends PersonSerializer {
         }
     }
 
-    public TurtlePersonSerializer() {
-    }
-
     public void initialize(Configuration conf, int reducerId) throws IOException {
         dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
         int numFiles = FileNames.values().length;

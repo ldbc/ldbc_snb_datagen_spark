@@ -184,6 +184,6 @@ public class CSVMergeForeignPersonSerializer extends PersonSerializer {
 
     @Override
     public void reset() {
-
+        // Intentionally left empty
     }
 }

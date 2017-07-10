@@ -53,8 +53,8 @@ public class IP implements Writable {
     public static final int BYTE2_SHIFT_POSITION = 16;
     public static final int BYTE3_SHIFT_POSITION = 8;
 
-    int ip;
-    int mask;
+    private int ip;
+    private int mask;
 
     public IP () {
 

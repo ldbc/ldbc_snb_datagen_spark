@@ -53,6 +53,7 @@ public class Knows implements Writable, Comparable<Knows> {
     private long creationDate_;
 	private Person.PersonSummary to_= null;
     private float weight_ = 0.0f;
+    public static int num = 0;
 
 	public Knows() {
 		to_ = new Person.PersonSummary();
@@ -131,7 +132,6 @@ public class Knows implements Writable, Comparable<Knows> {
 
     }
 
-    public static int num = 0;
 
     public static boolean createKnow( Random random, Person personA, Person personB ) {
         long  creationDate = Dictionaries.dates.randomKnowsCreationDate(
@@ -141,9 +141,8 @@ public class Knows implements Writable, Comparable<Knows> {
         creationDate = creationDate - personA.creationDate() >= DatagenParams.deltaTime ? creationDate : creationDate + (DatagenParams.deltaTime - (creationDate - personA.creationDate()));
         creationDate = creationDate - personB.creationDate() >= DatagenParams.deltaTime ? creationDate : creationDate + (DatagenParams.deltaTime - (creationDate - personB.creationDate()));
         float similarity = Person.personSimilarity.similarity(personA,personB);
-        if(!personB.knows().add(new Knows(personA, creationDate, similarity))) return false;
-        if(!personA.knows().add(new Knows(personB, creationDate, similarity))) return false;
-        return true;
+        return personB.knows().add(new Knows(personA, creationDate, similarity)) &&
+               personA.knows().add(new Knows(personB, creationDate, similarity));
     }
 
     public static long targetEdges(Person person, ArrayList<Float> percentages, int step_index ) {

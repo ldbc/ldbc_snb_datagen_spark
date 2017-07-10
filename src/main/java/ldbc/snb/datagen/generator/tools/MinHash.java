@@ -14,11 +14,10 @@ public class MinHash<T> {
     private int a[];
     private int b[];
     private int p[];
-    private Random random_;
 
-    public MinHash( int numHashes, int seed ) {
+    public MinHash(int numHashes) {
         numHashes_ =  numHashes;
-        random_ =new Random();
+        Random random_ =new Random();
         a = new int[numHashes];
         b = new int[numHashes];
         p = new int[numHashes];

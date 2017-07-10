@@ -58,6 +58,7 @@ public class LDBCDatagenTest {
         testStringLength(dir+"/person_0_0.csv", 3, 40);
         testStringLength(dir+"/person_0_0.csv", 6, 40);
         testStringLength(dir+"/person_0_0.csv", 7, 40);
+        assertTrue("Everything ok",true);
     }
 
     @Test

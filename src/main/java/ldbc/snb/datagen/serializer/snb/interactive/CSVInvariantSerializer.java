@@ -165,7 +165,9 @@ public class CSVInvariantSerializer extends InvariantSerializer {
         arguments.add(Integer.toString(tag.tagClass));
         writers[FileNames.TAG_HAS_TYPE_TAGCLASS.ordinal()].writeEntry(arguments);
     }
+
     public void reset() {
+        // Intentionally left empty
 
     }
 }

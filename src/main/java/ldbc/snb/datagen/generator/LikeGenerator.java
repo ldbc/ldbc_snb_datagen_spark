@@ -55,6 +55,5 @@ public class LikeGenerator {
 				exporter.export(like);
 			}
 		}
-		return;
 	}
 }

@@ -35,7 +35,7 @@ public class DistanceKnowsGenerator implements KnowsGenerator {
         // This is inherited from knows generator and no initialization is required.
     }
 
-    boolean know( Person personA, Person personB, int dist, ArrayList<Float> percentages, int step_index ) {
+    private boolean know( Person personA, Person personB, int dist, ArrayList<Float> percentages, int step_index ) {
         if( personA.knows().size() >= Knows.targetEdges( personA, percentages, step_index) ||
             personB.knows().size() >= Knows.targetEdges( personB, percentages, step_index) ) return false;
         double randProb = randomFarm.get(RandomGeneratorFarm.Aspect.UNIFORM).nextDouble();

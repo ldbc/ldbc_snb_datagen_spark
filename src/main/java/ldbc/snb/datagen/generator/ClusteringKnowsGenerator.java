@@ -120,7 +120,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
                 periphery.add(pI);
             }
         }
-        return checkBudget(persons, core, periphery);
+        return checkBudget(core, periphery);
     }
 
     private ArrayList<Long> createInitialBudget( ArrayList<PersonInfo> core) {
@@ -136,7 +136,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         return budget;
     }
 
-    private Community checkBudget(ArrayList<Person> persons, ArrayList<PersonInfo> core, ArrayList<PersonInfo> periphery) {
+    private Community checkBudget(ArrayList<PersonInfo> core, ArrayList<PersonInfo> periphery) {
         ArrayList<Long> temp_budget = createInitialBudget(core);
         Collections.sort(periphery, new PersonInfoComparator());
         for(PersonInfo pI : periphery ) {
@@ -506,7 +506,8 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
 
     public void generateKnows( ArrayList<Person> persons, int seed, ArrayList<Float> percentages, int step_index )  {
 
-        long start, end;
+        long start;
+        long end;
         rand.setSeed(seed);
         this.percentages = percentages;
         this.stepIndex = step_index;

@@ -238,7 +238,8 @@ public class CSVMergeForeignPersonActivitySerializer extends PersonActivitySeria
             arguments.clear();
         }
     }
-    public void reset() {
 
+    public void reset() {
+        // Intentionally left empty
     }
 }

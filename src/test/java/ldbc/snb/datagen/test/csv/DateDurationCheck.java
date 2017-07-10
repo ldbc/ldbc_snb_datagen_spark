@@ -10,8 +10,8 @@ import java.util.List;
  */
 public class DateDurationCheck extends Check {
 
-    Long val1;
-    Long val2;
+    private Long val1;
+    private Long val2;
 
     public DateDurationCheck(String name, Integer baseColumn, Integer offsetColumn, Long val1, Long val2 ) {
         super(name, new ArrayList<Integer>());

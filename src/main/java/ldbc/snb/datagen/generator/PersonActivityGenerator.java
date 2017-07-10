@@ -26,7 +26,6 @@ public class PersonActivityGenerator {
 	private FlashmobPostGenerator flashmobPostGenerator_ = null;
 	private PhotoGenerator photoGenerator_ = null;
 	private CommentGenerator commentGenerator_ = null;
-	private LikeGenerator likeGenerator_ = null;
 	private PersonActivitySerializer personActivitySerializer_ = null;
 	private UpdateEventSerializer updateSerializer_ = null;
 	private long forumId = 0;
@@ -40,7 +39,7 @@ public class PersonActivityGenerator {
 		updateSerializer_ = updateSerializer;
 		forumGenerator_ = new ForumGenerator();
 		TextGenerator generator = new LdbcSnbTextGenerator(randomFarm_.get(RandomGeneratorFarm.Aspect.LARGE_TEXT), Dictionaries.tags);
-        likeGenerator_ = new LikeGenerator();
+        LikeGenerator likeGenerator_ = new LikeGenerator();
         commentGenerator_ = new CommentGenerator(generator, likeGenerator_);
 		uniformPostGenerator_ = new UniformPostGenerator(generator, commentGenerator_, likeGenerator_);
 		flashmobPostGenerator_ = new FlashmobPostGenerator(generator, commentGenerator_, likeGenerator_);
@@ -53,8 +52,8 @@ public class PersonActivityGenerator {
         try {
             factorTable_.extractFactors(person);
             generateWall(person, block);
-            generateGroups(person, block);
-            generateAlbums(person, block);
+            generateGroups(person,block);
+            generateAlbums(person);
         } catch (AssertionError e) {
             System.out.println("Assertion error when generating activity!");
             System.out.println(e.getMessage());
@@ -106,7 +105,7 @@ public class PersonActivityGenerator {
 
 	}
 
-	private void generateAlbums(Person person, ArrayList<Person> block ) throws IOException {
+	private void generateAlbums(Person person) throws IOException {
 		// generate albums
 		int numOfmonths = (int) Dictionaries.dates.numberOfMonths(person);
 		int numPhotoAlbums = randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_PHOTO_ALBUM).nextInt(DatagenParams.maxNumPhotoAlbumsPerMonth+1);

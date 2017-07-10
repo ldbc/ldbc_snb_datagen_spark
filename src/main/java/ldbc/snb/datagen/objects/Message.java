@@ -139,7 +139,7 @@ abstract public class Message {
     }
 
     public void content( String s)  {
-	    content_ = new String(s);
+	    content_ = s;
     }
 
     public TreeSet<Integer> tags() {

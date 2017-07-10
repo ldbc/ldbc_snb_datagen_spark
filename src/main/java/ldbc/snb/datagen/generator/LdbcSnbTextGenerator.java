@@ -21,9 +21,8 @@ public class LdbcSnbTextGenerator extends TextGenerator {
 
 	@Override
 	public String generateText(PersonSummary member, TreeSet<Integer> tags, Properties prop) {
-		//fem un if segons las props i fem una cosa o una altre
 		String content = "";
-		if(prop.getProperty("type") == "post"){//si es post fer
+		if(prop.getProperty("type").equals("post")){//si es post fer
 			
 			int textSize;
 			if( member.isLargePoster() && this.random.nextDouble() > (1.0f-DatagenParams.ratioLargePost) ) {

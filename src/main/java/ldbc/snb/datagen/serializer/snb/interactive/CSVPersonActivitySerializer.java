@@ -52,9 +52,6 @@ public class CSVPersonActivitySerializer extends PersonActivitySerializer {
 		}
 	}
 	
-	public CSVPersonActivitySerializer() {
-	}
-	
 	@Override
     public void initialize(Configuration conf, int reducerId) throws IOException {
 		int numFiles = FileNames.values().length;
@@ -333,7 +330,7 @@ public class CSVPersonActivitySerializer extends PersonActivitySerializer {
 	}
 
 	public void reset() {
-
+	    // Intentionally left empty
 	}
 	
 }

@@ -80,6 +80,7 @@ abstract public class PostGenerator {
 	
 	/** @brief Initializes the post generator.*/
 	public void initialize() {
+		// Intentionally left empty
 	}
 	
 	

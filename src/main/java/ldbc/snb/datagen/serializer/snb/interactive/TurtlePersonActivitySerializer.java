@@ -40,9 +40,6 @@ public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
 		}
 	}
 
-	public TurtlePersonActivitySerializer() {
-	}
-	
 	@Override
     public void initialize(Configuration conf, int reducerId) throws IOException {
 

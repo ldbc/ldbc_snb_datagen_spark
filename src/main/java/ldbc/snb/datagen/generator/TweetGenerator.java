@@ -31,7 +31,7 @@ public class TweetGenerator extends TextGenerator {
 
 	@Override
 	protected void load() {
-		
+		// Intentionally left empty
 	}
 
 	@Override

@@ -53,8 +53,8 @@ import java.util.List;
 import java.util.Properties;
 
 public class LDBCDatagen {
+    private static boolean initialized = false;
 
-    static boolean initialized = false;
     public static synchronized void initializeContext(Configuration conf) {
         if(!initialized) {
             DatagenParams.readConf(conf);
