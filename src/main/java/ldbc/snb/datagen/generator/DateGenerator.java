@@ -73,7 +73,7 @@ public class DateGenerator {
 		GregorianCalendar frombirthCalendar = new GregorianCalendar(1980, 1, 1);
 		GregorianCalendar tobirthCalendar = new GregorianCalendar(1990, 1, 1);
 		fromBirthDay_ = frombirthCalendar.getTimeInMillis();
-		toBirthDay_ = tobirthCalendar.getTimse
+		toBirthDay_ = tobirthCalendar.getTimeInMillis();
 		calendar_ = new GregorianCalendar();
 		calendar_.setTimeZone(TimeZone.getTimeZone("GMT"));
 		//updateThreshold_ = getMaxDateTime() - (long)((getMaxDateTime() - getStartDateTime())*(DatagenParams.updatePortion));
