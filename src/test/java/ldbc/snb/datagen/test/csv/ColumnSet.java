@@ -31,8 +31,6 @@ public class ColumnSet<T> extends Column<T> {
         }
     }
 
-    public void initialize() {
-    }
 
     public boolean contains(T element) {
         return data.contains(element);

@@ -1,3 +1,38 @@
+/* 
+ Copyright (c) 2013 LDBC
+ Linked Data Benchmark Council (http://www.ldbcouncil.org)
+ 
+ This file is part of ldbc_snb_datagen.
+ 
+ ldbc_snb_datagen is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ ldbc_snb_datagen is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with ldbc_snb_datagen.  If not, see <http://www.gnu.org/licenses/>.
+ 
+ Copyright (C) 2011 OpenLink Software <bdsmt@openlinksw.com>
+ All Rights Reserved.
+ 
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation;  only Version 2 of the License dated
+ June 1991.
+ 
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer.snb.interactive;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
@@ -109,7 +144,7 @@ public class TurtleInvariantSerializer extends InvariantSerializer {
         Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()],SN.getTagClassURI(tagClass.id), RDFS.label, Turtle.createLiteral(Dictionaries.tags.getClassName(tagClass.id)));
         Turtle.createTripleSPO(result, SN.getTagClassURI(tagClass.id), RDF.type, SNVOC.TagClass);
 
-        if (tagClass.name.equals("Thing")) {
+        if ("Thing".equals(tagClass.name)) {
             Turtle.createTripleSPO(result, SN.getTagClassURI(tagClass.id), SNVOC.url, "<http://www.w3.org/2002/07/owl#Thing>");	
 	} else {
             Turtle.createTripleSPO(result, SN.getTagClassURI(tagClass.id), SNVOC.url, DBPOWL.prefixed(Dictionaries.tags.getClassName(tagClass.id)));	

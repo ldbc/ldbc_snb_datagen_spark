@@ -1,39 +1,38 @@
-/*
- * Copyright (c) 2013 LDBC
- * Linked Data Benchmark Council (http://ldbc.eu)
- *
- * This file is part of ldbc_socialnet_dbgen.
- *
- * ldbc_socialnet_dbgen is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * ldbc_socialnet_dbgen is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with ldbc_socialnet_dbgen.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright (C) 2011 OpenLink Software <bdsmt@openlinksw.com>
- * All Rights Reserved.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation;  only Version 2 of the License dated
- * June 1991.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
+/* 
+ Copyright (c) 2013 LDBC
+ Linked Data Benchmark Council (http://www.ldbcouncil.org)
+ 
+ This file is part of ldbc_snb_datagen.
+ 
+ ldbc_snb_datagen is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ ldbc_snb_datagen is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with ldbc_snb_datagen.  If not, see <http://www.gnu.org/licenses/>.
+ 
+ Copyright (C) 2011 OpenLink Software <bdsmt@openlinksw.com>
+ All Rights Reserved.
+ 
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation;  only Version 2 of the License dated
+ June 1991.
+ 
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
@@ -84,10 +83,6 @@ public class LDBCDatagen {
         percentages.add(0.45f);
         percentages.add(0.45f);
         percentages.add(0.1f);
-
-        //percentages.add(1.0f);
-        //percentages.add(0.1f);
-
 
         long start = System.currentTimeMillis();
         printProgress("Starting: Person generation");
@@ -151,13 +146,6 @@ public class LDBCDatagen {
         HadoopMergeFriendshipFiles merger = new HadoopMergeFriendshipFiles(conf,"ldbc.snb.datagen.hadoop.RandomKeySetter");
         merger.run(hadoopPrefix+"/mergedPersons", edgeFileNames);
         long endMerge = System.currentTimeMillis();
-        /*printProgress("Creating edges to fill the degree gap");
-        long startGap = System.currentTimeMillis();
-        knowsGenerator = new HadoopKnowsGenerator(conf,null, "ldbc.snb.datagen.hadoop.DegreeGapKeySetter", 1.0f);
-        knowsGenerator.run(personsFileName2,personsFileName1);
-        fs.delete(new Path(personsFileName2), true);
-        long endGap = System.currentTimeMillis();
-        */
 
         printProgress("Serializing persons");
         long startPersonSerializing= System.currentTimeMillis();
@@ -196,25 +184,16 @@ public class LDBCDatagen {
 
             printProgress("Sorting update streams ");
 
-            int blockSize = DatagenParams.blockSize;
-
             List<String> personStreamsFileNames = new ArrayList<String>();
             List<String> forumStreamsFileNames = new ArrayList<String>();
             for( int i = 0; i < DatagenParams.numThreads; ++i) {
                 int numPartitions = conf.getInt("ldbc.snb.datagen.serializer.numUpdatePartitions", 1);
-                //if( i < numBlocks ) {
                     for (int j = 0; j < numPartitions; ++j) {
                         personStreamsFileNames.add(DatagenParams.hadoopDir + "/temp_updateStream_person_" + i + "_" + j);
                         if( conf.getBoolean("ldbc.snb.datagen.generator.activity", false)) {
                             forumStreamsFileNames.add(DatagenParams.hadoopDir + "/temp_updateStream_forum_" + i + "_" + j);
                         }
                     }
-                /*} else {
-                    for (int j = 0; j < numPartitions; ++j) {
-                        fs.delete(new Path(DatagenParams.hadoopDir + "/temp_updateStream_person_" + i + "_" + j), true);
-                        fs.delete(new Path(DatagenParams.hadoopDir + "/temp_updateStream_forum_" + i + "_" + j), true);
-                    }
-                } */
             }
             HadoopUpdateStreamSorterAndSerializer updateSorterAndSerializer = new HadoopUpdateStreamSorterAndSerializer(conf);
             updateSorterAndSerializer.run(personStreamsFileNames, "person");
@@ -226,31 +205,6 @@ public class LDBCDatagen {
             for(String file : forumStreamsFileNames) {
                 fs.delete(new Path(file), true);
             }
-
-            /*for( int i = 0; i < DatagenParams.numThreads; ++i) {
-                int numPartitions = conf.getInt("ldbc.snb.datagen.serializer.numUpdatePartitions", 1);
-                if( i < numBlocks ) {
-                    for (int j = 0; j < numPartitions; ++j) {
-                        HadoopFileSorter updateStreamSorter = new HadoopFileSorter(conf, LongWritable.class, Text.class);
-                        HadoopUpdateStreamSerializer updateSerializer = new HadoopUpdateStreamSerializer(conf);
-                        updateStreamSorter.run(DatagenParams.hadoopDir + "/temp_updateStream_person_" + i + "_" + j, DatagenParams.hadoopDir + "/updateStream_person_" + i + "_" + j);
-                        fs.delete(new Path(DatagenParams.hadoopDir + "/temp_updateStream_person_" + i + "_" + j), true);
-                        updateSerializer.run(DatagenParams.hadoopDir + "/updateStream_person_" + i + "_" + j, i, j, "person");
-                        fs.delete(new Path(DatagenParams.hadoopDir + "/updateStream_person_" + i + "_" + j), true);
-                        if( conf.getBoolean("ldbc.snb.datagen.generator.activity", false)) {
-                            updateStreamSorter.run(DatagenParams.hadoopDir + "/temp_updateStream_forum_" + i + "_" + j, DatagenParams.hadoopDir + "/updateStream_forum_" + i + "_" + j);
-                            fs.delete(new Path(DatagenParams.hadoopDir + "/temp_updateStream_forum_" + i + "_" + j), true);
-                            updateSerializer.run(DatagenParams.hadoopDir + "/updateStream_forum_" + i + "_" + j, i, j, "forum");
-                            fs.delete(new Path(DatagenParams.hadoopDir + "/updateStream_forum_" + i + "_" + j), true);
-                        }
-                    }
-                } else {
-                    for (int j = 0; j < numPartitions; ++j) {
-                        fs.delete(new Path(DatagenParams.hadoopDir + "/temp_updateStream_person_" + i + "_" + j), true);
-                        fs.delete(new Path(DatagenParams.hadoopDir + "/temp_updateStream_forum_" + i + "_" + j), true);
-                    }
-                }
-            }*/
 
             long minDate = Long.MAX_VALUE;
             long maxDate = Long.MIN_VALUE;

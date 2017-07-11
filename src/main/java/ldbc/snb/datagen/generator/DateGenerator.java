@@ -1,39 +1,38 @@
-/*
- * Copyright (c) 2013 LDBC
- * Linked Data Benchmark Council (http://ldbc.eu)
- *
- * This file is part of ldbc_socialnet_dbgen.
- *
- * ldbc_socialnet_dbgen is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * ldbc_socialnet_dbgen is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with ldbc_socialnet_dbgen.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright (C) 2011 OpenLink Software <bdsmt@openlinksw.com>
- * All Rights Reserved.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation;  only Version 2 of the License dated
- * June 1991.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
+/* 
+ Copyright (c) 2013 LDBC
+ Linked Data Benchmark Council (http://www.ldbcouncil.org)
+ 
+ This file is part of ldbc_snb_datagen.
+ 
+ ldbc_snb_datagen is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ ldbc_snb_datagen is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with ldbc_snb_datagen.  If not, see <http://www.gnu.org/licenses/>.
+ 
+ Copyright (C) 2011 OpenLink Software <bdsmt@openlinksw.com>
+ All Rights Reserved.
+ 
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation;  only Version 2 of the License dated
+ June 1991.
+ 
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator;
 
 import ldbc.snb.datagen.objects.Person;
@@ -44,13 +43,13 @@ import java.util.*;
 
 public class DateGenerator {
 
-	public static long ONE_DAY = 24L * 60L * 60L * 1000L;
-	public static long SEVEN_DAYS = 7L * ONE_DAY;
-	public static long THIRTY_DAYS = 30L * ONE_DAY;
-	public static long ONE_YEAR = 365L * ONE_DAY;
-	public static long TWO_YEARS = 2L * ONE_YEAR;
-	public static long TEN_YEARS = 10L * ONE_YEAR;
-	public static long THIRTY_YEARS = 30L * ONE_YEAR;
+	public static final long ONE_DAY = 24L * 60L * 60L * 1000L;
+	public static final long SEVEN_DAYS = 7L * ONE_DAY;
+	public static final long THIRTY_DAYS = 30L * ONE_DAY;
+	public static final long ONE_YEAR = 365L * ONE_DAY;
+	public static final long TWO_YEARS = 2L * ONE_YEAR;
+	public static final long TEN_YEARS = 10L * ONE_YEAR;
+	public static final long THIRTY_YEARS = 30L * ONE_YEAR;
 
 	private long from_;
 	private long to_;
@@ -63,11 +62,10 @@ public class DateGenerator {
 
 	// This constructor is for the case of friendship's created date generator
 	public DateGenerator(Configuration conf, GregorianCalendar from, GregorianCalendar to,
-						 double alpha, long deltaTime) {
+						 double alpha) {
 		from_ = from.getTimeInMillis();
 		to_ = to.getTimeInMillis();
 		powerDist_ = new PowerDistGenerator(0.0, 1.0, alpha);
-		long deltaTime_ = deltaTime;
 
 		// For birthday from 1980 to 1990
 		GregorianCalendar frombirthCalendar = new GregorianCalendar(1980, 1, 1);
@@ -76,7 +74,6 @@ public class DateGenerator {
 		toBirthDay_ = tobirthCalendar.getTimeInMillis();
 		calendar_ = new GregorianCalendar();
 		calendar_.setTimeZone(TimeZone.getTimeZone("GMT"));
-		//updateThreshold_ = getMaxDateTime() - (long)((getMaxDateTime() - getStartDateTime())*(DatagenParams.updatePortion));
         updateThreshold_ = getEndDateTime() - (long)((getEndDateTime() - getStartDateTime())*(DatagenParams.updatePortion));
 
 		try {
@@ -127,11 +124,8 @@ public class DateGenerator {
 
 		if ((month > 5) && (month < 8)) {
 			return true;
-		} else if ((month == 12) && (day > 23)) {
-			return true;
-		} else {
-			return false;
 		}
+		return ((month == 12) && (day > 23));
 	}
 
 	public int getNumberOfMonths(long date, int startMonth, int startYear) {
@@ -143,8 +137,6 @@ public class DateGenerator {
 
 	public long randomKnowsCreationDate(Random random, Person personA, Person personB) {
 		long fromDate = Math.max(personA.creationDate(), personB.creationDate()) + DatagenParams.deltaTime;
-		//long randomSpanMilis = (long) (random.nextDouble() * (THIRTY_DAYS));
-		//return Math.min(fromDate + randomSpanMilis, getEndDateTime() + DatagenParams.deltaTime);
         return randomDate(random, fromDate, fromDate + THIRTY_DAYS);
 	}
 
@@ -155,21 +147,6 @@ public class DateGenerator {
 	public long numberOfMonths(long fromDate) {
 		return (to_  - fromDate) / THIRTY_DAYS;
 	}
-
-	/*public long randomDate(Random random, long minDate) {
-		return (long) (random.nextDouble() * (to_+ DatagenParams.deltaTime - minDate) + minDate);
-	}
-
-    public long randomDate(Random random, long minDate, long maxDate) {
-        long to = Math.min(maxDate, to_ + DatagenParams.deltaTime);
-        return (long) (random.nextDouble() * (to - minDate) + minDate);
-    }
-
-    public long powerlawCommDateDay(Random random, long lastCommentCreatedDate) {
-        long date = (long) (powerDist_.getDouble(random) * ONE_DAY + lastCommentCreatedDate);
-        return Math.min(to_+DatagenParams.deltaTime,date);
-    }*/
-
 
     public long randomDate(Random random, long minDate) {
         long to = Math.max(minDate+THIRTY_DAYS, to_);
@@ -185,8 +162,6 @@ public class DateGenerator {
         long date = (long) (powerDist_.getDouble(random) * ONE_DAY + lastCommentCreatedDate);
         return date;
     }
-
-
 
     public long randomSevenDays(Random random) {
         return (long) (random.nextDouble() * DateGenerator.SEVEN_DAYS);
@@ -241,11 +216,6 @@ public class DateGenerator {
 		return to_;
 	}
 
-/*	public long getMaxDateTime() {
-		return to_ + SEVEN_DAYS + deltaTime_;
-	}
-	*/
-	
 	public long getUpdateThreshold() {
 		return updateThreshold_;
 	}
