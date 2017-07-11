@@ -229,11 +229,12 @@ public class TagDictionary {
     /**
      * @param randomTagOtherCountry The random number generator for choosing another country.
      * @param randomTagCountryProb  The random number generator for choosing a country.
-     * @param countryId             The country id.
+     * @param countryId_             The country id.
      * @return The random tag id.
      * @brief Gets a random tag by country.
      */
-    public Integer getaTagByCountry(Random randomTagOtherCountry, Random randomTagCountryProb, int countryId) {
+    public Integer getaTagByCountry(Random randomTagOtherCountry, Random randomTagCountryProb, int countryId_) {
+        int countryId = countryId_;
         if (tagsByCountry.get(countryId).size() == 0 || randomTagOtherCountry.nextDouble() > tagCountryCorrProb) {
             do {
                 countryId = randomTagOtherCountry.nextInt(tagsByCountry.size());

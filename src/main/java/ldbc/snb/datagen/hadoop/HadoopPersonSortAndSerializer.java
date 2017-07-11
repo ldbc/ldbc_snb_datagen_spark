@@ -26,6 +26,8 @@ import java.io.IOException;
  */
 public class HadoopPersonSortAndSerializer {
 
+	private Configuration conf;
+
 	public static class HadoopPersonSerializerReducer  extends Reducer<BlockKey, Person, LongWritable, Person> {
 
 		private int reducerId;                          /** The id of the reducer.**/
@@ -84,7 +86,6 @@ public class HadoopPersonSortAndSerializer {
 	}
 
 
-	private Configuration conf;
 
 	public HadoopPersonSortAndSerializer(Configuration conf ) {
 		this.conf = new Configuration(conf);

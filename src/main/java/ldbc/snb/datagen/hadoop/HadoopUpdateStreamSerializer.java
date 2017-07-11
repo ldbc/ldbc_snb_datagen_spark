@@ -20,10 +20,11 @@ import java.util.zip.GZIPOutputStream;
  * Created by aprat on 10/15/14.
  */
 public class HadoopUpdateStreamSerializer {
-	
+
+	private Configuration conf;
+
 	public static class HadoopUpdateStreamSerializerReducer  extends Reducer<LongWritable, Text, LongWritable, Text> {
-		
-		                                
+
 		private OutputStream out;
 		
 		protected void setup(Context context) {
@@ -33,7 +34,7 @@ public class HadoopUpdateStreamSerializer {
 			String streamType = conf.get("streamType");
 			try {
 				FileSystem fs = FileSystem.get(conf);
-				if( Boolean.parseBoolean(conf.get("ldbc.snb.datagen.serializer.compressed")) == true ) {
+				if( Boolean.parseBoolean(conf.get("ldbc.snb.datagen.serializer.compressed")) ) {
 					Path outFile = new Path(context.getConfiguration().get("ldbc.snb.datagen.serializer.socialNetworkDir")+"/updateStream_"+reducerId+"_"+partitionId+"_"+streamType+".csv.gz");
 					out = new GZIPOutputStream( fs.create(outFile));
 				} else {
@@ -62,9 +63,6 @@ public class HadoopUpdateStreamSerializer {
 			}
 		}
 	}
-	
-	
-	private Configuration conf;
 	
 	public HadoopUpdateStreamSerializer( Configuration conf ) {
 		this.conf = new Configuration(conf);

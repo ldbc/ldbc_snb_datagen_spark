@@ -25,7 +25,6 @@ public class PersonActivityGenerator {
 	private UniformPostGenerator uniformPostGenerator_ = null;
 	private FlashmobPostGenerator flashmobPostGenerator_ = null;
 	private PhotoGenerator photoGenerator_ = null;
-	private CommentGenerator commentGenerator_ = null;
 	private PersonActivitySerializer personActivitySerializer_ = null;
 	private UpdateEventSerializer updateSerializer_ = null;
 	private long forumId = 0;
@@ -40,9 +39,9 @@ public class PersonActivityGenerator {
 		forumGenerator_ = new ForumGenerator();
 		TextGenerator generator = new LdbcSnbTextGenerator(randomFarm_.get(RandomGeneratorFarm.Aspect.LARGE_TEXT), Dictionaries.tags);
         LikeGenerator likeGenerator_ = new LikeGenerator();
-        commentGenerator_ = new CommentGenerator(generator, likeGenerator_);
-		uniformPostGenerator_ = new UniformPostGenerator(generator, commentGenerator_, likeGenerator_);
-		flashmobPostGenerator_ = new FlashmobPostGenerator(generator, commentGenerator_, likeGenerator_);
+        CommentGenerator commentGenerator = new CommentGenerator(generator, likeGenerator_);
+		uniformPostGenerator_ = new UniformPostGenerator(generator, commentGenerator, likeGenerator_);
+		flashmobPostGenerator_ = new FlashmobPostGenerator(generator, commentGenerator, likeGenerator_);
 		photoGenerator_ = new PhotoGenerator(likeGenerator_);
         factorTable_ = new FactorTable();
         exporter_ = new PersonActivityExporter(personActivitySerializer_, updateSerializer_, factorTable_);
@@ -162,7 +161,6 @@ public class PersonActivityGenerator {
 			}
             float time = (System.currentTimeMillis() - start)/1000.0f;
             personGenerationTime+=time;
-            //System.out.println("Time to generate activity for person "+counter+": "+time+". Throughput "+counter/((System.currentTimeMillis() - initTime)*0.001));
 			counter++;
 		}
         System.out.println("Average person activity generation time "+personGenerationTime / (float)block.size());

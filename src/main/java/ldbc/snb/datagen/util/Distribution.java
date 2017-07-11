@@ -46,9 +46,8 @@ import java.util.Random;
 
 public class Distribution {
 
-
-    double[] distribution;
-    String distributionFile;
+    private double[] distribution;
+    private String distributionFile;
 
     public Distribution(String distributionFile) {
         this.distributionFile = distributionFile;

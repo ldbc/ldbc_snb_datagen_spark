@@ -128,10 +128,7 @@ public class PersonGenerator {
     }
 
     private boolean isLargePoster(Person p ) {
-	    if(Dictionaries.dates.getBirthMonth(p.birthDay()) == GregorianCalendar.JANUARY) {
-		    return true;
-	    }
-	    return false;
+	    return Dictionaries.dates.getBirthMonth(p.birthDay()) == GregorianCalendar.JANUARY;
     }
 
     private void resetState(int blockId){

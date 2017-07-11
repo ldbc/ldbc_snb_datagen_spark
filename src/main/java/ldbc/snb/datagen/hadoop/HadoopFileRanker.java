@@ -42,7 +42,6 @@ public class HadoopFileRanker {
     public static class HadoopFileRankerSortMapper<K, V>  extends Mapper<K, V, K, V> {
 
         private HadoopFileKeyChanger.KeySetter<TupleKey> keySetter;
-               /** Counter of the number of elements received by this reducer.*/
 
         @Override
         public void setup( Context context )  {
@@ -67,10 +66,6 @@ public class HadoopFileRanker {
         public void map(K key, V value,
                            Context context) throws IOException, InterruptedException {
             context.write((K)keySetter.getKey(value), value);
-        }
-
-        @Override
-        public void cleanup(Context context) {
         }
     }
 

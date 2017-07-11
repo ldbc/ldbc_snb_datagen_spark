@@ -109,7 +109,7 @@ public class TurtleInvariantSerializer extends InvariantSerializer {
         Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()],SN.getTagClassURI(tagClass.id), RDFS.label, Turtle.createLiteral(Dictionaries.tags.getClassName(tagClass.id)));
         Turtle.createTripleSPO(result, SN.getTagClassURI(tagClass.id), RDF.type, SNVOC.TagClass);
 
-        if (tagClass.name.equals("Thing")) {
+        if ("Thing".equals(tagClass.name)) {
             Turtle.createTripleSPO(result, SN.getTagClassURI(tagClass.id), SNVOC.url, "<http://www.w3.org/2002/07/owl#Thing>");	
 	} else {
             Turtle.createTripleSPO(result, SN.getTagClassURI(tagClass.id), SNVOC.url, DBPOWL.prefixed(Dictionaries.tags.getClassName(tagClass.id)));	

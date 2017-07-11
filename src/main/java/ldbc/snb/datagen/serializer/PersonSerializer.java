@@ -15,12 +15,7 @@ import java.util.Iterator;
  */
 abstract public class PersonSerializer {
 
-    public PersonSerializer() {
-	    
-    }
-
     public void export(final Person person) {
-//        System.out.println(person.maxNumKnows());
 
         serialize(person);
 

@@ -52,9 +52,7 @@ public class HadoopUpdateStreamSorterAndSerializer {
 					Path outFile = new Path(context.getConfiguration().get("ldbc.snb.datagen.serializer.socialNetworkDir")+"/updateStream_"+key.reducerId+"_"+key.partition+"_"+streamType+".csv");
 					out = fs.create(outFile);
 				}
-				int counter = 0;
 				for( Text t : valueSet ) {
-					counter++;
 					out.write(t.toString().getBytes("UTF8"));
 				}
 				out.close();

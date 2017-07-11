@@ -43,8 +43,8 @@ public class Dictionaries {
 			new GregorianCalendar(DatagenParams.endYear,
 				DatagenParams.endMonth,
 				DatagenParams.endDate),
-			DatagenParams.alpha,
-			DatagenParams.deltaTime);
+			DatagenParams.alpha
+        );
 		
 		
 		emails = new EmailDictionary();

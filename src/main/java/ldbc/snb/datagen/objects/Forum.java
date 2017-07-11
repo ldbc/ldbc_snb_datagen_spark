@@ -57,7 +57,7 @@ public class Forum {
 	    tags_ = new ArrayList<Integer>();
 	    id_ = id;
 	    creationDate_ = creationDate;
-	    title_ = new String(title);
+	    title_ = title;
 	    placeId_ = placeId;
 	    moderator_ = new Person.PersonSummary(moderator);
 	    language_ = language;
@@ -105,7 +105,7 @@ public class Forum {
     }
 
     public void title(String title) {
-        title = new String(title);
+        this.title_ = title;
     }
 
     public ArrayList<ForumMembership> memberships() {

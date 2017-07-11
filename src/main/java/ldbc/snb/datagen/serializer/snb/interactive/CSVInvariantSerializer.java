@@ -138,13 +138,12 @@ public class CSVInvariantSerializer extends InvariantSerializer {
         ArrayList<String> arguments = new ArrayList<String>();
         arguments.add(Integer.toString(tagClass.id));
         arguments.add(tagClass.name);
-        if (tagClass.name.equals("Thing")) {
+        if ("Thing".equals(tagClass.name)) {
             arguments.add("http://www.w3.org/2002/07/owl#Thing");
         } else {
             arguments.add(DBPOWL.getUrl(tagClass.name));
         }
         writers[FileNames.TAGCLASS.ordinal()].writeEntry(arguments);
-
         if (tagClass.parent != -1) {
             arguments.clear();
             arguments.add(Integer.toString(tagClass.id));

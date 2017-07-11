@@ -141,12 +141,13 @@ public class UniversityDictionary {
 
     /**
      * @param randomFarm The random number generator farm.
-     * @param countryId  The country id.
+     * @param countryId_  The country id.
      * @return The university id.
      * @brief Gets a random university.
      */
-    public int getRandomUniversity(RandomGeneratorFarm randomFarm, int countryId) {
+    public int getRandomUniversity(RandomGeneratorFarm randomFarm, int countryId_) {
 
+        int countryId = countryId_;
         double prob = randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_UNIVERSITY).nextDouble();
         ArrayList<Integer> countries = locationDic.getCountries();
         if (randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_UNIVERSITY).nextDouble() <= probUncorrelatedUniversity) {

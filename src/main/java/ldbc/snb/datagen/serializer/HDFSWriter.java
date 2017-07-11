@@ -10,18 +10,13 @@ import java.util.zip.GZIPOutputStream;
 
 public class HDFSWriter {
 
-    private String outputDir;
     private int numPartitions;
     private int currentPartition = 0;
-    private boolean compressed;
     private StringBuffer buffer;
-
     private OutputStream[] fileOutputStream;
 
     public HDFSWriter(String outputDir, String prefix, int numPartitions, boolean compressed, String extension) throws IOException{
-        this.outputDir = outputDir;
         this.numPartitions = numPartitions;
-        this.compressed = compressed;
         try {
             Configuration conf = new Configuration();
             FileSystem fs = FileSystem.get(conf);

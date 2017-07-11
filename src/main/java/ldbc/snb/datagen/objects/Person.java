@@ -68,7 +68,7 @@ public class Person implements Writable {
 			isLargePoster_ = p.isLargePoster();
 		}
 
-		void copy( PersonSummary p ) {
+		public void copy( PersonSummary p ) {
 			accountId_ = p.accountId();
 			creationDate_ = p.creationDate();
 			browserId_ = p.browserId();
@@ -347,7 +347,7 @@ public class Person implements Writable {
 		return lastName_;
 	}
 	public  void lastName ( String lastName ) {
-		lastName_ = new String(lastName);
+		lastName_ = lastName;
 	}
 
 	public  HashMap<Long, Long> companies () {

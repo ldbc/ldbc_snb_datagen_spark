@@ -15,7 +15,7 @@ import java.util.ArrayList;
  */
 public class EmpiricalDistribution extends BucketedDistribution{
 
-    String fileName = null;
+    private String fileName = null;
 
     @Override
     public ArrayList<Bucket> getBuckets(Configuration conf) {

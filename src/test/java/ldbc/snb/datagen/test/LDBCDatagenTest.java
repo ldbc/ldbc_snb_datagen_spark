@@ -24,18 +24,6 @@ public class LDBCDatagenTest {
 
     @BeforeClass
     public static void generateData() throws Exception {
-        /*ProcessBuilder pb = new ProcessBuilder("java", "-ea","-cp","target/ldbc_snb_datagen-0.2.7-jar-with-dependencies.jar","ldbc.snb.datagen.generator.LDBCDatagen","./test_params.ini");
-        pb.directory(new File("./"));
-        File log = new File("test_log");
-        pb.redirectErrorStream(true);
-        pb.redirectOutput(ProcessBuilder.Redirect.appendTo(log));
-        try {
-            Process p = pb.start();
-            p.waitFor();
-        }catch(Exception e) {
-            System.err.println(e.getMessage());
-        }*/
-
         Configuration conf = ConfigParser.initialize();
         ConfigParser.readConfig(conf, "./test_params.ini");
         ConfigParser.readConfig(conf, LDBCDatagen.class.getResourceAsStream("/params.ini"));
@@ -267,7 +255,6 @@ public class LDBCDatagenTest {
         //Creating person id check
         LongParser parser = new LongParser();
         ColumnSet<Long> persons = new ColumnSet<Long>(parser,new File(dir+"/person_0_0.csv"),0,1);
-        persons.initialize();
         List<ColumnSet<Long>> personsRef = new ArrayList<ColumnSet<Long>>();
         personsRef.add(persons);
         List<Integer> personIndex = new ArrayList<Integer>();
@@ -277,7 +264,6 @@ public class LDBCDatagenTest {
         //Creating name check
         StringParser strParser = new StringParser();
         ColumnSet<String> names = new ColumnSet<String>(strParser,new File(dir+"/person_0_0.csv"),1,1);
-        names.initialize();
         List<ColumnSet<String>> namesRef = new ArrayList<ColumnSet<String>>();
         namesRef.add(names);
         List<Integer> namesIndex = new ArrayList<Integer>();
@@ -299,7 +285,6 @@ public class LDBCDatagenTest {
 
         //Creating country check
         ColumnSet<String> places = new ColumnSet<String>(strParser,new File(dir+"/place_0_0.csv"),1,1);
-        places.initialize();
         List<ColumnSet<String>> placesRef = new ArrayList<ColumnSet<String>>();
         placesRef.add(places);
         List<Integer> countriesIndex = new ArrayList<Integer>();
@@ -328,7 +313,6 @@ public class LDBCDatagenTest {
 
         //Creating tag check
         ColumnSet<String> tags = new ColumnSet<String>(strParser,new File(dir+"/tag_0_0.csv"),1,1);
-        tags.initialize();
         List<ColumnSet<String>> tagsRef = new ArrayList<ColumnSet<String>>();
         tagsRef.add(tags);
         List<Integer> tagsIndex = new ArrayList<Integer>();
@@ -370,7 +354,6 @@ public class LDBCDatagenTest {
 
         //Creating tagClass check
         ColumnSet<String> tagClass = new ColumnSet<String>(strParser,new File(dir+"/tagclass_0_0.csv"),1,1);
-        tagClass.initialize();
         List<ColumnSet<String>> tagClassRef = new ArrayList<ColumnSet<String>>();
         tagClassRef.add(tagClass);
         List<Integer> tagClassIndex = new ArrayList<Integer>();
@@ -421,9 +404,7 @@ public class LDBCDatagenTest {
     public void testPairUniquenessPlusExistance(String relationFileName, int columnA, int columnB, String entityFileNameA, int entityColumnA, String entityFileNameB, int entityColumnB) {
         LongParser parser = new LongParser();
         ColumnSet<Long> entitiesA = new ColumnSet<Long>(parser,new File(entityFileNameA),entityColumnA,1);
-        entitiesA.initialize();
         ColumnSet<Long> entitiesB = new ColumnSet<Long>(parser,new File(entityFileNameB),entityColumnB,1);
-        entitiesB.initialize();
         FileChecker fileChecker = new FileChecker(relationFileName);
         PairUniquenessCheck pairUniquenessCheck = new PairUniquenessCheck<Long,Long>(parser,parser,columnA,columnB);
         fileChecker.addCheck(pairUniquenessCheck);
@@ -446,7 +427,6 @@ public class LDBCDatagenTest {
     public void testPairUniquenessPlusExistance(String relationFileName, int columnA, int columnB, String entityFileName, int entityColumn) {
         LongParser parser = new LongParser();
         ColumnSet<Long> entities = new ColumnSet<Long>(parser,new File(entityFileName),entityColumn,1);
-        entities.initialize();
         FileChecker fileChecker = new FileChecker(relationFileName);
         PairUniquenessCheck pairUniquenessCheck = new PairUniquenessCheck<Long,Long>(parser,parser,columnA,columnB);
         fileChecker.addCheck(pairUniquenessCheck);
@@ -463,7 +443,6 @@ public class LDBCDatagenTest {
     public void testIdExistance(String fileToCheckExistanceOf, int columnToCheckExistanceOf, String fileToCheckExistanceAgainst, int columnToCheckExistanceAgainst) {
         LongParser parser = new LongParser();
         ColumnSet<Long> checkAgainstEntities = new ColumnSet<Long>(parser,new File(fileToCheckExistanceAgainst),columnToCheckExistanceAgainst,1);
-        checkAgainstEntities.initialize();
         FileChecker fileChecker = new FileChecker(fileToCheckExistanceOf);
         List<ColumnSet<Long>> refcolumns = new ArrayList<ColumnSet<Long>>();
         refcolumns.add(checkAgainstEntities);

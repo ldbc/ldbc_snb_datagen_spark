@@ -77,7 +77,6 @@ public class PopularPlacesDictionary {
         String locationName;
         String lastLocationName = "";
         int curLocationId = -1;
-        int totalNumPopularPlaces = 0;
 
         String label;
         try {
@@ -97,14 +96,12 @@ public class PopularPlacesDictionary {
                         latt = Double.parseDouble(infos[3]);
                         longt = Double.parseDouble(infos[4]);
                         popularPlacesByCountry.get(curLocationId).add(new PopularPlace(label, latt, longt));
-                        totalNumPopularPlaces++;
                     }
                 } else {
                     label = infos[2];
                     latt = Double.parseDouble(infos[3]);
                     longt = Double.parseDouble(infos[4]);
                     popularPlacesByCountry.get(curLocationId).add(new PopularPlace(label, latt, longt));
-                    totalNumPopularPlaces++;
                 }
             }
             dicPopularPlace.close();

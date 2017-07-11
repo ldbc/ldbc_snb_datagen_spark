@@ -138,7 +138,7 @@ public class IPAddressDictionary {
 
     public IP getRandomIPFromLocation(Random random, int locationIdx) {
         int finalLocationIndex = locationIdx;
-        while (placeDictionary.getType(finalLocationIndex) != "country") {
+        while (!placeDictionary.getType(finalLocationIndex).equals("country")) {
             finalLocationIndex = placeDictionary.belongsTo(finalLocationIndex);
         }
         ArrayList<IP> countryIPs = ipsByCountry.get(finalLocationIndex);

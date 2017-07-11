@@ -111,10 +111,6 @@ public class Knows implements Writable, Comparable<Knows> {
         long res =  (to_.accountId() - k.to().accountId());
         if( res > 0 ) return 1;
         if( res < 0 ) return -1;
-        /*long res2 = creationDate_ - k.creationDate();
-        if( res2 > 0 ) return 1;
-        if( res2 < 0 ) return -1;
-        */
         return 0;
     }
 
@@ -131,7 +127,6 @@ public class Knows implements Writable, Comparable<Knows> {
         }
 
     }
-
 
     public static boolean createKnow( Random random, Person personA, Person personB ) {
         long  creationDate = Dictionaries.dates.randomKnowsCreationDate(
