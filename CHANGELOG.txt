@@ -7,6 +7,16 @@ based on the graphalytics scaling metric.
 - Fixed a bug which caused wrong serialization of data once the numPartitions
 parameter was larger than 1.
 
+- Integrated codacy and fixed a zillion of coding style issues
+
+- Updated license header and added it to those files where it was missing
+
+- Fixed a Bug causing the distribution of population to be wrong. Added a test
+  for this
+
+- Fixed a Bug causing the distribution of posts per country to be wrong. Added a
+  test for this
+
 v0.2.6 CHANGELOG
 Bi parameter generation
 Added testing

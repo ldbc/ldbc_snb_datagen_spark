@@ -54,12 +54,13 @@ public class Photo extends Message {
                  long forumId,
                  String content,
 		         TreeSet<Integer> tags,
+                 int countryId,
                  IP ipAddress,
                  int browserId,
                  double latt,
                  double longt
     ) {
-        super(messageId, creationDate, author, forumId, content, tags, ipAddress, browserId);
+        super(messageId, creationDate, author, forumId, content, tags, countryId, ipAddress, browserId);
         latt_ = latt;
         longt_ = longt;
     }
@@ -70,12 +71,13 @@ public class Photo extends Message {
                  long forumId,
                  String content,
                  TreeSet<Integer> tags,
+                 int countryId,
                  IP ipAddress,
                  int browserId,
                  double latt,
                  double longt
     ) {
-        super.initialize(messageId, creationDate, author, forumId, content, tags, ipAddress, browserId);
+        super.initialize(messageId, creationDate, author, forumId, content, tags, countryId, ipAddress, browserId);
         latt_ = latt;
         longt_ = longt;
     }

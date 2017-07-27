@@ -57,11 +57,12 @@ public class Post extends Message {
                 long forumId,
                 String content,
                 TreeSet<Integer> tags,
+                int countryId,
                 IP ipAddress,
                 int browserId,
                 int language
     ) {
-        super(postId, creationDate, author, forumId, content, tags, ipAddress, browserId);
+        super(postId, creationDate, author, forumId, content, tags, countryId, ipAddress, browserId);
         language_ = language;
     }
 
@@ -71,11 +72,12 @@ public class Post extends Message {
                 long forumId,
                 String content,
                 TreeSet<Integer> tags,
+                int countryId,
                 IP ipAddress,
                 int browserId,
                 int language
     )  {
-        super.initialize(postId, creationDate, author, forumId, content, tags, ipAddress, browserId);
+        super.initialize(postId, creationDate, author, forumId, content, tags, countryId, ipAddress, browserId);
         language_ = language;
     }
 

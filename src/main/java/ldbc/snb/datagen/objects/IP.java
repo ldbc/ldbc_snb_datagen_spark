@@ -47,15 +47,15 @@ public class IP implements Writable {
     public static final int BYTE_SIZE = 8;
     public static final int IP4_SIZE_BITS = 32;
     public static final int IP4_SIZE_BYTES = IP4_SIZE_BITS / 8;
-    ;
     public static final int BYTE1_SHIFT_POSITION = 24;
     public static final int BYTE2_SHIFT_POSITION = 16;
     public static final int BYTE3_SHIFT_POSITION = 8;
 
     private int ip;
     private int mask;
+    private int network;
 
-    public IP () {
+    public IP() {
 
     }
 
@@ -65,20 +65,20 @@ public class IP implements Writable {
                 ((byte3 & BYTE_MASK) << BYTE3_SHIFT_POSITION) |
                 (byte4 & BYTE_MASK);
 
-        mask = (networkMask == IP4_SIZE_BITS) ? 0 : 1;
-        for (int k = networkMask + 1; k < IP4_SIZE_BITS; k++) {
-            mask = mask | mask << 1;
-        }
+        mask = 0xFFFFFFFF << (IP4_SIZE_BITS - networkMask);
+        network = ip & mask;
     }
 
     public IP(IP i) {
         this.ip = i.ip;
         this.mask = i.mask;
+        this.network = i.network;
     }
 
     public IP(int ip, int mask) {
         this.ip = ip;
         this.mask = mask;
+        this.network = this.ip & this.mask;
     }
 
     public int getIp() {
@@ -89,9 +89,11 @@ public class IP implements Writable {
         return mask;
     }
 
-    public boolean belongsToMyNetwork(IP ip) {
-        return (mask == ip.mask) && ((this.ip & ~this.mask) == (ip.ip & ~ip.mask));
+
+    public int getNetwork() {
+        return network;
     }
+
 
     public String toString() {
         return ((ip >>> BYTE1_SHIFT_POSITION) & BYTE_MASK) + "." +
@@ -109,16 +111,19 @@ public class IP implements Writable {
     public void copy( IP ip ) {
 	    this.ip = ip.ip;
 	    this.mask = ip.mask;
+	    this.network = ip.network;
     }
 
     public void readFields(DataInput arg0) throws IOException {
        	ip = arg0.readInt(); 
         mask = arg0.readInt();
+        network = arg0.readInt();
     }
 
     public void write(DataOutput arg0) throws IOException {
         arg0.writeInt(ip);
         arg0.writeInt(mask);
+        arg0.writeInt(network);
     }
 
     public int hashCode() {

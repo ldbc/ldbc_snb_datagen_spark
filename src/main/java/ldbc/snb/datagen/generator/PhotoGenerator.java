@@ -38,11 +38,13 @@ package ldbc.snb.datagen.generator;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.objects.*;
 import ldbc.snb.datagen.serializer.PersonActivityExporter;
+import ldbc.snb.datagen.util.PersonBehavior;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.TreeSet;
 
 /**
@@ -100,13 +102,31 @@ public class PhotoGenerator {
 			}
 			TreeSet<Integer> tags = new TreeSet<Integer>();
 			long date = album.creationDate()+DatagenParams.deltaTime+1000*(i+1);
-			/*if( date <= Dictionaries.dates.getEndDateTime() )*/ {
-				long id = SN.formId(SN.composeId(nextId++,date));
-				photo_.initialize(id,date,album.moderator(), album.id(), "photo"+id+".jpg",tags,album.moderator().ipAddress(),album.moderator().browserId(),latt,longt);
-				exporter.export(photo_);
-				if( randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
-					likeGenerator_.generateLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), album, photo_, Like.LikeType.PHOTO, exporter);
-				}
+			int country = Dictionaries.places.belongsTo(album.moderator().cityId());
+			IP ip = album.moderator().ipAddress();
+			Random random = randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER);
+			if(PersonBehavior.changeUsualCountry(random, date)) {
+				random = randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY);
+				country = Dictionaries.places.getRandomCountryUniform(random);
+				random = randomFarm.get(RandomGeneratorFarm.Aspect.IP);
+				ip = Dictionaries.ips.getIP(random,country);
+			}
+
+			long id = SN.formId(SN.composeId(nextId++,date));
+			photo_.initialize(id,
+							  date,
+							  album.moderator(),
+							  album.id(),
+							  "photo"+id+".jpg",
+							  tags,
+							  country,
+							  ip,
+							  album.moderator().browserId(),
+							  latt,
+							  longt);
+			exporter.export(photo_);
+			if( randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
+				likeGenerator_.generateLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), album, photo_, Like.LikeType.PHOTO, exporter);
 			}
 		}
 		return nextId;

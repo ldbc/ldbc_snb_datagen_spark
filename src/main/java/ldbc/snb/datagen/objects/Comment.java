@@ -50,7 +50,8 @@ public class Comment extends Message {
     }
 
     public Comment( Comment comment ) {
-        super(comment.messageId(), comment.creationDate(), comment.author(), comment.forumId(), comment.content(), comment.tags(), comment.ipAddress(), comment.browserId());
+        super(comment.messageId(), comment.creationDate(), comment.author(), comment.forumId(), comment.content(),
+              comment.tags(), comment.countryId(), comment.ipAddress(), comment.browserId());
         postId_ = comment.postId();
         replyOf_ = comment.replyOf();
     }
@@ -61,13 +62,14 @@ public class Comment extends Message {
                    long forumId,
                    String content,
                    TreeSet<Integer> tags,
+                   int countryId,
                    IP ipAddress,
                    int browserId,
                    long postId,
                    long replyOf
     ) {
 
-        super(commentId, creationDate, author, forumId, content, tags, ipAddress, browserId);
+        super(commentId, creationDate, author, forumId, content, tags, countryId, ipAddress, browserId);
         postId_ = postId;
         replyOf_ = replyOf;
     }
@@ -78,11 +80,12 @@ public class Comment extends Message {
                    long forumId,
                    String content,
                    TreeSet<Integer> tags,
+                   int countryId,
                    IP ipAddress,
                    int browserId,
                    long postId,
                    long replyOf) {
-        super.initialize(commentId, creationDate, author, forumId, content, tags, ipAddress, browserId);
+        super.initialize(commentId, creationDate, author, forumId, content, tags, countryId, ipAddress, browserId);
         postId_ = postId;
         replyOf_ = replyOf;
     }

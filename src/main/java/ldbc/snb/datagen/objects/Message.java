@@ -35,7 +35,6 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.objects;
 
-import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.objects.Person.PersonSummary;
 
@@ -64,6 +63,7 @@ abstract public class Message {
                    long forumId,
                    String content,
                    TreeSet<Integer> tags,
+                   int countryId,
                    IP ipAddress,
                    int browserId
                    ) {
@@ -75,9 +75,9 @@ abstract public class Message {
         forumId_ = forumId;
         content_ = content;
         tags_ = new TreeSet<Integer>(tags);
+        countryId_ = countryId;
         ipAddress_ = new IP(ipAddress);
         browserId_ = browserId;
-        countryId_ = Dictionaries.ips.getLocation(ipAddress);
     }
 
     public void initialize(long messageId,
@@ -86,6 +86,7 @@ abstract public class Message {
                    long forumId,
                    String content,
                    TreeSet<Integer> tags,
+                   int countryId,
                    IP ipAddress,
                    int browserId
                    ) {
@@ -96,9 +97,9 @@ abstract public class Message {
         content_ = content;
         tags_.clear();
         tags_.addAll(tags);
+        countryId_ = countryId;
         ipAddress_.copy(ipAddress);
         browserId_ = browserId;
-        countryId_ = Dictionaries.ips.getLocation(ipAddress);
     }
 
     public long messageId() {

@@ -278,7 +278,7 @@ public class UpdateEventSerializer {
 		data_.add(Long.toString(post.content().length()));
 		data_.add(Long.toString(post.author().accountId()));
 		data_.add(Long.toString(post.forumId()));
-		data_.add(Long.toString(Dictionaries.ips.getLocation(post.ipAddress())));
+		data_.add(Long.toString(post.countryId()));
 		
 		beginList();
 		for( int tag : post.tags()) {
@@ -316,7 +316,7 @@ public class UpdateEventSerializer {
 		data_.add("0");
 		data_.add(Long.toString(photo.author().accountId()));
 		data_.add(Long.toString(photo.forumId()));
-		data_.add(Long.toString(Dictionaries.ips.getLocation(photo.ipAddress())));
+		data_.add(Long.toString(photo.countryId()));
 		
 		beginList();
 		for( int tag : photo.tags()) {
@@ -337,7 +337,7 @@ public class UpdateEventSerializer {
 		data_.add(comment.content());
 		data_.add(Integer.toString(comment.content().length()));
 		data_.add(Long.toString(comment.author().accountId()));
-		data_.add(Long.toString(Dictionaries.ips.getLocation(comment.ipAddress())));
+		data_.add(Long.toString(comment.countryId()));
 		if (comment.replyOf() == comment.postId()) {
 			data_.add(Long.toString(comment.postId()));
 			data_.add("-1");

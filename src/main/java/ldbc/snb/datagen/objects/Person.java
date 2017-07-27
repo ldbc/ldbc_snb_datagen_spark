@@ -80,6 +80,7 @@ public class Person implements Writable {
 		private long accountId_;
 		private long creationDate_;
 		private int browserId_;
+		private int cityId_;
 		private IP ipAddress_;
 		private boolean isLargePoster_;
 
@@ -91,6 +92,7 @@ public class Person implements Writable {
 			accountId_ = p.accountId();
 			creationDate_ = p.creationDate();
 			browserId_ = p.browserId();
+			cityId_ = p.cityId();
 			ipAddress_ = new IP(p.ipAddress());
 			isLargePoster_ = p.isLargePoster();
 		}
@@ -99,6 +101,7 @@ public class Person implements Writable {
 			accountId_ = p.accountId();
 			creationDate_ = p.creationDate();
 			browserId_ = p.browserId();
+			cityId_ = p.cityId();
 			ipAddress_ = new IP(p.ipAddress());
 			isLargePoster_ = p.isLargePoster();
 		}
@@ -107,6 +110,7 @@ public class Person implements Writable {
 			accountId_ = p.accountId();
 			creationDate_ = p.creationDate();
 			browserId_ = p.browserId();
+			cityId_ = p.cityId();
 			ipAddress_= new IP(p.ipAddress());
 			isLargePoster_ = p.isLargePoster();
 		}
@@ -135,6 +139,10 @@ public class Person implements Writable {
 			browserId_ = browserId;
 		}
 
+		public int cityId() { return cityId_; }
+
+		public void cityId(int cityId) { cityId_ = cityId;}
+
 		public  IP ipAddress() {
 			return ipAddress_;
 		}
@@ -154,6 +162,7 @@ public class Person implements Writable {
 			accountId_ = arg0.readLong();
 			creationDate_ = arg0.readLong();
 			browserId_ = arg0.readInt();
+			cityId_ = arg0.readInt();
 			ipAddress_.readFields(arg0);
 			isLargePoster_ = arg0.readBoolean();
 		}
@@ -161,6 +170,7 @@ public class Person implements Writable {
 			arg0.writeLong(accountId_);
 			arg0.writeLong(creationDate_);
 			arg0.writeInt(browserId_);
+			arg0.writeInt(cityId_);
 			ipAddress_.write(arg0);
 			arg0.writeBoolean(isLargePoster_);
 		}

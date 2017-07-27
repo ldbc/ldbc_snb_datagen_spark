@@ -38,14 +38,12 @@ package ldbc.snb.datagen.generator;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.objects.*;
 import ldbc.snb.datagen.serializer.PersonActivityExporter;
+import ldbc.snb.datagen.util.PersonBehavior;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Properties;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  *
@@ -109,24 +107,33 @@ public class CommentGenerator {
 				int index = randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE).nextInt(shortComments_.length);
 				content = shortComments_[index];
 			}
-			
+
 			long creationDate = Dictionaries.dates.powerlawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),replyTo.creationDate()+DatagenParams.deltaTime);
-			/*if( creationDate <= Dictionaries.dates.getEndDateTime() )*/ {
-				Comment comment = new Comment(SN.formId(SN.composeId(nextId++,creationDate)),
-					creationDate,
-					member.person(),
-					forum.id(),
-					content,
-					tags,
-					Dictionaries.ips.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP), randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER), member.person().ipAddress(), creationDate),
-					Dictionaries.browsers.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER), randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), member.person().browserId()),
-					post.messageId(),
-					replyTo.messageId());
-				if(!isShort) replyCandidates.add(new Comment(comment));
-				exporter.export(comment);
-				if( comment.content().length() > 10 && randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
-					likeGenerator_.generateLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), forum, comment, Like.LikeType.COMMENT, exporter);
-				}
+			int country = Dictionaries.places.belongsTo(member.person().cityId());
+			IP ip = member.person().ipAddress();
+			Random random = randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER);
+			if(PersonBehavior.changeUsualCountry(random,creationDate)) {
+				random = randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY);
+			    country = Dictionaries.places.getRandomCountryUniform(random);
+			    random = randomFarm.get(RandomGeneratorFarm.Aspect.IP);
+			    ip = Dictionaries.ips.getIP(random,country);
+			}
+
+			Comment comment = new Comment(SN.formId(SN.composeId(nextId++,creationDate)),
+										  creationDate,
+										  member.person(),
+										  forum.id(),
+										  content,
+										  tags,
+										  country,
+										  ip,
+										  Dictionaries.browsers.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER), randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), member.person().browserId()),
+										  post.messageId(),
+										  replyTo.messageId());
+			if(!isShort) replyCandidates.add(new Comment(comment));
+			exporter.export(comment);
+			if( comment.content().length() > 10 && randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
+				likeGenerator_.generateLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), forum, comment, Like.LikeType.COMMENT, exporter);
 			}
 		}
 		replyCandidates.clear();
