@@ -12,10 +12,6 @@ before_script:
   - export LDBC_SNB_DATAGEN_HOME=`pwd`
   - export HADOOP_CLIENT_OPTS="-Xmx2G"
 script:
-  - cp test_params.ini params.ini
-  - ./run.sh
-  - ls -al
-  - echo $LDBC_SNB_DATAGEN_HOME
   - mvn test
 notifications:
   slack: ldbcouncil:OrBanrJ7l0EHQbj8T5YdJYhd
