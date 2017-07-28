@@ -13,6 +13,10 @@ before_script:
   - export HADOOP_CLIENT_OPTS="-Xmx2G"
 script:
   - mvn test
+  - ls ./test_data
+  - ls ./test_data/social_network
+  - ls ./test_data/substitution_parameters
+  - head -n 15 ./test_data/substitution_parameters/query_2_param.txt
   - cat ./parameters_interactive.log
   - cat ./parameters_bi.log
 notifications:
