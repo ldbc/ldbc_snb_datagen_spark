@@ -40,6 +40,7 @@ import ldbc.snb.datagen.hadoop.*;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.util.ConfigParser;
 import ldbc.snb.datagen.vocabulary.SN;
+import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -310,6 +311,8 @@ public class LDBCDatagen {
         FileSystem dfs = FileSystem.get(conf);
         dfs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")), true);
         dfs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir")), true);
+        FileUtils.deleteDirectory(new File(conf.get("ldbc.snb.datagen.serializer.outputDir")
+                                                  +"/substitution_parameters"));
 
         ConfigParser.printConfig(conf);
 

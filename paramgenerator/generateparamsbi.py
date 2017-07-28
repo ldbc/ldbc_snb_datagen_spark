@@ -29,7 +29,7 @@ def format_date(date):
 
 class ParamsWriter:
    def __init__(self, name, param_names):
-      self.file = codecs.open("substitution_parameters/"+name+"_param.txt", "w",encoding="utf-8")
+      self.file = codecs.open(sys.argv[2]+"/"+name+"_param.txt", "w",encoding="utf-8")
       for i in range(0,len(param_names)):
          if i>0:
             self.file.write("|")
