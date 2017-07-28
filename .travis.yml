@@ -5,6 +5,9 @@ jdk:
   - openjdk8
 python:
   - "2.7"
+script:
+  - mvn test
+  - wc -l ./test_data/social_network/*
 notifications:
   slack: ldbcouncil:OrBanrJ7l0EHQbj8T5YdJYhd
   email: false
