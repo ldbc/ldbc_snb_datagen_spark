@@ -109,7 +109,7 @@ public class CommentGenerator {
 			}
 
 			long creationDate = Dictionaries.dates.powerlawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),replyTo.creationDate()+DatagenParams.deltaTime);
-			int country = Dictionaries.places.belongsTo(member.person().cityId());
+			int country = member.person().countryId();
 			IP ip = member.person().ipAddress();
 			Random random = randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER);
 			if(PersonBehavior.changeUsualCountry(random,creationDate)) {

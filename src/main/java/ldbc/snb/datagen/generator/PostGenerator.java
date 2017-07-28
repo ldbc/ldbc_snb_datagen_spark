@@ -102,7 +102,7 @@ abstract public class PostGenerator {
 					// crear properties class para passar
 					content = this.generator_.generateText(member.person(), postInfo.tags,prop);
 
-					int country = Dictionaries.places.belongsTo(member.person().cityId());
+					int country = member.person().countryId();
 					IP ip = member.person().ipAddress();
 					Random random = randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER);
 					if(PersonBehavior.changeUsualCountry(random, postInfo.date)) {

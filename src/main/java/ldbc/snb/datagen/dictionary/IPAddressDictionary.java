@@ -44,6 +44,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.TreeMap;
 
 
 public class IPAddressDictionary {
@@ -52,11 +53,7 @@ public class IPAddressDictionary {
     private static final String SEPARATOR_IP = "[.]";
     private static final String SEPARATOR_MASK = "/";
     private static final int MAX_IP_COUNTRY = 100;
-    private HashMap<Integer, ArrayList<IP>> ipsByCountry;
-    /**
-     * < @brief The ips by country. *
-     */
-    private HashMap<Integer, Integer> ipCountry;
+    private TreeMap<Integer, ArrayList<IP>> ipsByCountry;
     /**
      * < @brief The country of ips. *
      */
@@ -68,8 +65,7 @@ public class IPAddressDictionary {
     public IPAddressDictionary(PlaceDictionary locationDic) {
 
         this.placeDictionary = locationDic;
-        this.ipCountry = new HashMap<Integer, Integer>();
-        this.ipsByCountry = new HashMap<Integer, ArrayList<IP>>();
+        this.ipsByCountry = new TreeMap<Integer, ArrayList<IP>>();
 	load(DatagenParams.countryAbbrMappingFile,DatagenParams.IPZONE_DIRECTORY);
     }
 

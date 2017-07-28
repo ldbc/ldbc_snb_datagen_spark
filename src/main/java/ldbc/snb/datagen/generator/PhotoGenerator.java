@@ -102,7 +102,7 @@ public class PhotoGenerator {
 			}
 			TreeSet<Integer> tags = new TreeSet<Integer>();
 			long date = album.creationDate()+DatagenParams.deltaTime+1000*(i+1);
-			int country = Dictionaries.places.belongsTo(album.moderator().cityId());
+			int country = album.moderator().countryId();
 			IP ip = album.moderator().ipAddress();
 			Random random = randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER);
 			if(PersonBehavior.changeUsualCountry(random, date)) {
