@@ -8,6 +8,8 @@ python:
 script:
   - mvn test
   - wc -l ./test_data/social_network/*
+  - head -n 15 ./test_data/social_network/person_0_0.csv
+  - head -n 15 ./test_data/social_network/person_knows_person_0_0.csv
 notifications:
   slack: ldbcouncil:OrBanrJ7l0EHQbj8T5YdJYhd
   email: false
