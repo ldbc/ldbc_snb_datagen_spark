@@ -36,7 +36,6 @@
 package ldbc.snb.datagen.dictionary;
 
 import ldbc.snb.datagen.generator.DatagenParams;
-import ldbc.snb.datagen.generator.DateGenerator;
 import ldbc.snb.datagen.objects.IP;
 
 import java.io.BufferedReader;
@@ -65,18 +64,12 @@ public class IPAddressDictionary {
     /**
      * < @brief The location dictionary. *
      */
-    private double probDiffIPinTravelSeason;
-    private double probDiffIPnotTravelSeason;
 
-    public IPAddressDictionary(PlaceDictionary locationDic,
-                               double _probDiffIPinTravelSeason,
-                               double _probDiffIPnotTravelSeason) {
+    public IPAddressDictionary(PlaceDictionary locationDic) {
 
         this.placeDictionary = locationDic;
         this.ipCountry = new HashMap<Integer, Integer>();
         this.ipsByCountry = new HashMap<Integer, ArrayList<IP>>();
-        this.probDiffIPinTravelSeason = _probDiffIPinTravelSeason;
-        this.probDiffIPnotTravelSeason = _probDiffIPnotTravelSeason;
 	load(DatagenParams.countryAbbrMappingFile,DatagenParams.IPZONE_DIRECTORY);
     }
 

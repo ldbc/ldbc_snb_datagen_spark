@@ -81,10 +81,7 @@ public class Dictionaries {
 		
 		places = new PlaceDictionary();
 		
-		ips = new IPAddressDictionary(  places,
-			DatagenParams.probDiffIPinTravelSeason,
-			DatagenParams.probDiffIPnotTravelSeason
-		);
+		ips = new IPAddressDictionary(places);
 		
 		
 		languages = new LanguageDictionary(places,
