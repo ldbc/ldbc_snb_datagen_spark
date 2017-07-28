@@ -5,22 +5,6 @@ jdk:
   - openjdk8
 python:
   - "2.7"
-install:
-  - curl -s http://www.eu.apache.org/dist/hadoop/common/hadoop-2.6.5/hadoop-2.6.5.tar.gz | tar -xz
-before_script:
-  - export HADOOP_HOME=`readlink -f hadoop-2.6.5`
-  - export LDBC_SNB_DATAGEN_HOME=`pwd`
-  - export HADOOP_CLIENT_OPTS="-Xmx2G"
-script:
-  - mvn test
-  - du -ml ./test_data/social_network
-  - wc -l ./test_data/social_network/person_0_0.csv 
-  - head -n 15 ./test_data/substitution_parameters/query_2_param.txt
-  - head -n 15 ./m0activityFactors.txt
-  - head -n 15 ./m0personFactors.txt
-  - head -n 15 ./m0friendList0.csv
-  - cat ./parameters_interactive.log
-  - cat ./parameters_bi.log
 notifications:
   slack: ldbcouncil:OrBanrJ7l0EHQbj8T5YdJYhd
   email: false
