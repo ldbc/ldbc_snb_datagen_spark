@@ -2,6 +2,7 @@ dist: trusty
 sudo: required
 language: java
 jdk:
+  - oraclejdk7
   - openjdk7
 python:
   - "2.7"
@@ -14,6 +15,7 @@ before_script:
 script:
   - mvn test
   - du -ml ./test_data/social_network
+  - wc -l ./test_data/social_network/person_0_0.csv 
   - head -n 15 ./test_data/substitution_parameters/query_2_param.txt
   - head -n 15 ./m0activityFactors.txt
   - head -n 15 ./m0personFactors.txt
