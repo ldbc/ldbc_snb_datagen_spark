@@ -202,8 +202,8 @@ public class PersonActivityGenerator {
 	}
 
 
-    public void writeActivityFactors( OutputStream writer) {
-        factorTable_.writeActivityFactors(writer);
+    public void writeActivityFactors( OutputStream writer) throws IOException {
+		factorTable_.writeActivityFactors(writer);
     }
 
 	public void writePersonFactors( OutputStream writer) {

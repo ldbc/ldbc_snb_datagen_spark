@@ -394,7 +394,7 @@ public class FactorTable {
         }
     }
 
-    public void writeActivityFactors(OutputStream writer ) {
+    public void writeActivityFactors(OutputStream writer ) throws IOException{
         try {
             writer.write(Integer.toString(postsPerCountry_.size()).getBytes("UTF8"));
             writer.write("\n".getBytes("UTF8"));
@@ -454,6 +454,7 @@ public class FactorTable {
             System.err.println("Unable to write parameter counts");
             System.err.println(e.getMessage());
             e.printStackTrace();
+            throw e;
         }
     }
 }

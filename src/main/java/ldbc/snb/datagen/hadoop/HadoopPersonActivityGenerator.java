@@ -139,6 +139,7 @@ public class HadoopPersonActivityGenerator {
                 friends_.close();
             } catch (IOException e) {
                 e.printStackTrace();
+                throw new RuntimeException(e);
             }
             personActivitySerializer_.close();
             if(DatagenParams.updateStreams) {
