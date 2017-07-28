@@ -70,7 +70,7 @@ public class ForumGenerator {
 
 		TreeSet<Knows> knows = person.knows();
 		for ( Knows k : knows ) {
-			long date = Math.max(k.creationDate(), forum.creationDate()+DatagenParams.deltaTime);
+			long date = Math.max(k.creationDate(), forum.creationDate())+DatagenParams.deltaTime;
 			assert (forum.creationDate() + DatagenParams.deltaTime) <= date : "Forum creation date is larger than knows in wall "+forum.creationDate()+ " " +k.creationDate();
 			forum.addMember(new ForumMembership(forum.id(), date, k.to()));
 		}
@@ -129,7 +129,8 @@ public class ForumGenerator {
 				if ((prob < 0.1) && !added.contains(member.accountId())) {
 					added.add(member.accountId());
 					Random random = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX);
-					date = Dictionaries.dates.randomDate(random, Math.max(forum.creationDate(), member.creationDate() + DatagenParams.deltaTime));
+					date = Dictionaries.dates.randomDate(random,
+														 Math.max(forum.creationDate(), member.creationDate()) + DatagenParams.deltaTime);
 					{
 						assert forum.creationDate() + DatagenParams.deltaTime <= date : "Forum creation date larger than membership date for block based members";
 						forum.addMember(new ForumMembership(forum.id(), date, new Person.PersonSummary(member)));
@@ -173,7 +174,8 @@ public class ForumGenerator {
 			double prob = randomFarm.get(RandomGeneratorFarm.Aspect.ALBUM_MEMBERSHIP).nextDouble();
 			if (prob < 0.7) {
 				Random random = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX);
-				date = Dictionaries.dates.randomDate(random,Math.max(forum.creationDate(), k.creationDate()+DatagenParams.deltaTime));
+				date = Dictionaries.dates.randomDate(random,Math.max(forum.creationDate(), k.creationDate())
+                        +DatagenParams.deltaTime);
 				/*if( date < Dictionaries.dates.getEndDateTime() )*/ {
 					forum.addMember(new ForumMembership(forum.id(), date, k.to()));
 				}

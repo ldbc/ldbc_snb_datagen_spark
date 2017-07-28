@@ -63,13 +63,17 @@ public class DateGenerator {
 	// This constructor is for the case of friendship's created date generator
 	public DateGenerator(Configuration conf, GregorianCalendar from, GregorianCalendar to,
 						 double alpha) {
+		to.setTimeZone(TimeZone.getTimeZone("GMT"));
+		from.setTimeZone(TimeZone.getTimeZone("GMT"));
 		from_ = from.getTimeInMillis();
 		to_ = to.getTimeInMillis();
 		powerDist_ = new PowerDistGenerator(0.0, 1.0, alpha);
 
 		// For birthday from 1980 to 1990
 		GregorianCalendar frombirthCalendar = new GregorianCalendar(1980, 1, 1);
+		frombirthCalendar.setTimeZone(TimeZone.getTimeZone("GMT"));
 		GregorianCalendar tobirthCalendar = new GregorianCalendar(1990, 1, 1);
+		tobirthCalendar.setTimeZone(TimeZone.getTimeZone("GMT"));
 		fromBirthDay_ = frombirthCalendar.getTimeInMillis();
 		toBirthDay_ = tobirthCalendar.getTimeInMillis();
 		calendar_ = new GregorianCalendar();
@@ -89,9 +93,7 @@ public class DateGenerator {
 	 * Date between from and to
 	 */
 	public Long randomPersonCreationDate(Random random) {
-		long date = (long) (random.nextDouble() * (to_ - from_) + from_);
-		calendar_.setTime(new Date(date));
-		return calendar_.getTimeInMillis();
+		return (long) (random.nextDouble() * (to_ - from_) + from_);
 	}
 
 	/*
@@ -117,15 +119,16 @@ public class DateGenerator {
 
 	public static boolean isTravelSeason(long date) {
 		GregorianCalendar c = new GregorianCalendar();
+		c.setTimeZone(TimeZone.getTimeZone("GMT"));
 		c.setTimeInMillis(date);
 
 		int day = c.get(Calendar.DAY_OF_MONTH);
 		int month = c.get(Calendar.MONTH) + 1;
 
-		if ((month > 5) && (month < 8)) {
+		if ((month > 4) && (month < 7)) {
 			return true;
 		}
-		return ((month == 12) && (day > 23));
+		return ((month == 11) && (day > 23));
 	}
 
 	public int getNumberOfMonths(long date, int startMonth, int startYear) {

@@ -108,7 +108,9 @@ public class CommentGenerator {
 				content = shortComments_[index];
 			}
 
-			long creationDate = Dictionaries.dates.powerlawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),replyTo.creationDate()+DatagenParams.deltaTime);
+			long baseDate = Math.max(replyTo.creationDate(),member.creationDate()) + DatagenParams.deltaTime;
+			long creationDate = Dictionaries.dates.powerlawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect
+																							  .DATE),baseDate);
 			int country = member.person().countryId();
 			IP ip = member.person().ipAddress();
 			Random random = randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER);

@@ -351,7 +351,8 @@ public class FactorTable {
                 String name = medianNames.get(c.getValue().country());
                 if( name != null ) {
                     StringBuffer strbuf = new StringBuffer();
-                    strbuf.append(c.getKey()); strbuf.append(",");
+                    strbuf.append(c.getKey());
+                    strbuf.append(",");
                     strbuf.append(name);
                     strbuf.append(",");
                     strbuf.append(count.numFriends());
