@@ -2,7 +2,7 @@ dist: trusty
 sudo: required
 language: java
 jdk:
-  - oraclejdk7
+  - openjdk8
 python:
   - "2.7"
 install:
