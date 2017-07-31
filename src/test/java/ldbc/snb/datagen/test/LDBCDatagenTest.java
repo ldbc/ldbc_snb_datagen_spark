@@ -293,18 +293,19 @@ public class LDBCDatagenTest {
         ExistsCheck<String> countryExists = new ExistsCheck<String>(strParser,countriesIndex, placesRef);
 
         //Date duration check
-        DateDurationCheck dateDurationCheck = new DateDurationCheck("Date duration check",1,2,Dictionaries.dates.getStartDateTime(), Dictionaries.dates.getEndDateTime());
+        //DateDurationCheck dateDurationCheck = new DateDurationCheck("Date duration check",1,2,Dictionaries.dates
+         //       .getStartDateTime(), Dictionaries.dates.getEndDateTime());
 
         fileChecker = new FileChecker(sdir+"/query_3_param.txt");
         fileChecker.addCheck(existsPersonCheck);
         fileChecker.addCheck(countryExists);
-        //fileChecker.addCheck(dateDurationCheck);
         assertTrue("ERROR PASSING TEST QUERY 3 PERSON EXISTS ",fileChecker.run(1));
+        testLongGE(sdir+"/query_3_param.txt",1, Dictionaries.dates.getStartDateTime());
 
         fileChecker = new FileChecker(sdir+"/query_4_param.txt");
         fileChecker.addCheck(existsPersonCheck);
-        //fileChecker.addCheck(dateDurationCheck);
         assertTrue("ERROR PASSING TEST QUERY 4 PERSON EXISTS ",fileChecker.run(1));
+        testLongGE(sdir+"/query_4_param.txt",1, Dictionaries.dates.getStartDateTime());
 
         fileChecker = new FileChecker(sdir+"/query_5_param.txt");
         fileChecker.addCheck(existsPersonCheck);
