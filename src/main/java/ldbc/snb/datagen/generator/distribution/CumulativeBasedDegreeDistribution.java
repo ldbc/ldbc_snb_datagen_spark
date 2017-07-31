@@ -53,35 +53,35 @@ public abstract class CumulativeBasedDegreeDistribution extends DegreeDistributi
         public int value_;
     }
 
-    public void initialize( Configuration conf ) {
-        cumulativeProbability_ = cumulativeProbability( conf );
+    public void initialize(Configuration conf) {
+        cumulativeProbability_ = cumulativeProbability(conf);
         random_ = new Random();
     }
 
-    public void reset (long seed){
+    public void reset(long seed) {
         random_.setSeed(seed);
     }
 
     public long nextDegree() {
         double prob = random_.nextDouble();
-        int index = binarySearch(cumulativeProbability_,prob);
+        int index = binarySearch(cumulativeProbability_, prob);
         return cumulativeProbability_.get(index).value_;
     }
 
-    private int binarySearch( ArrayList<CumulativeEntry> cumulative, double prob ) {
-        int upperBound = cumulative.size()-1;
+    private int binarySearch(ArrayList<CumulativeEntry> cumulative, double prob) {
+        int upperBound = cumulative.size() - 1;
         int lowerBound = 0;
-        int midPoint = (upperBound + lowerBound)  / 2;
-        while (upperBound > (lowerBound+1)){
-            if (cumulative.get(midPoint).prob_ > prob ){
+        int midPoint = (upperBound + lowerBound) / 2;
+        while (upperBound > (lowerBound + 1)) {
+            if (cumulative.get(midPoint).prob_ > prob) {
                 upperBound = midPoint;
-            } else{
+            } else {
                 lowerBound = midPoint;
             }
-            midPoint = (upperBound + lowerBound)  / 2;
+            midPoint = (upperBound + lowerBound) / 2;
         }
         return midPoint;
     }
 
-    public abstract ArrayList<CumulativeEntry> cumulativeProbability( Configuration conf );
+    public abstract ArrayList<CumulativeEntry> cumulativeProbability(Configuration conf);
 }

@@ -52,14 +52,16 @@ public abstract class BucketedDistribution extends DegreeDistribution {
 
     public abstract ArrayList<Bucket> getBuckets(Configuration conf);
 
-    public void initialize( Configuration conf ) {
+    public void initialize(Configuration conf) {
         buckets_ = this.getBuckets(conf);
         randomPercentile_ = new Random(0);
         randomDegree_ = new ArrayList<Random>();
         for (int i = 0; i < buckets_.size(); i++) {
             randomDegree_.add(new Random(0));
         }
-    };
+    }
+
+    ;
 
     public void reset(long seed) {
         Random seedRandom = new Random(53223436L + 1234567 * seed);
@@ -73,10 +75,10 @@ public abstract class BucketedDistribution extends DegreeDistribution {
         int idx = randomPercentile_.nextInt(buckets_.size());
         double minRange = (buckets_.get(idx).min());
         double maxRange = (buckets_.get(idx).max());
-        if( maxRange < minRange ) {
+        if (maxRange < minRange) {
             maxRange = minRange;
         }
-        long ret= randomDegree_.get(idx).nextInt( (int)maxRange - (int)minRange  + 1) + (int)minRange;
+        long ret = randomDegree_.get(idx).nextInt((int) maxRange - (int) minRange + 1) + (int) minRange;
         return ret;
     }
 

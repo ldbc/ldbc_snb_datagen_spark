@@ -54,7 +54,8 @@ public class Distribution {
 
     public void initialize() {
         try {
-            BufferedReader distributionBuffer = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(distributionFile), "UTF-8"));
+            BufferedReader distributionBuffer = new BufferedReader(new InputStreamReader(getClass()
+                                                                                                 .getResourceAsStream(distributionFile), "UTF-8"));
             ArrayList<Double> temp = new ArrayList<Double>();
             String line;
             while ((line = distributionBuffer.readLine()) != null) {

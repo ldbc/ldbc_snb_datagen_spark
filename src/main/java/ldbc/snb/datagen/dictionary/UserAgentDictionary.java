@@ -58,7 +58,7 @@ public class UserAgentDictionary {
      */
     public UserAgentDictionary(double probSentFromAgent) {
         this.probSentFromAgent = probSentFromAgent;
-	load(DatagenParams.agentFile);
+        load(DatagenParams.agentFile);
     }
 
     /**
@@ -68,7 +68,8 @@ public class UserAgentDictionary {
     private void load(String fileName) {
         try {
             userAgents = new ArrayList<String>();
-            BufferedReader agentFile = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));
+            BufferedReader agentFile = new BufferedReader(new InputStreamReader(getClass()
+                                                                                        .getResourceAsStream(fileName), "UTF-8"));
             String line;
             while ((line = agentFile.readLine()) != null) {
                 userAgents.add(line.trim());

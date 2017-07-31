@@ -108,7 +108,7 @@ public class PlaceDictionary {
         this.isPartOf = new HashMap<Integer, Integer>();
         this.countries = new ArrayList<Integer>();
         this.citiesByCountry = new HashMap<Integer, ArrayList<Integer>>();
-	load(DatagenParams.cityDictionaryFile, DatagenParams.countryDictionaryFile);
+        load(DatagenParams.cityDictionaryFile, DatagenParams.countryDictionaryFile);
     }
 
     /**
@@ -231,7 +231,7 @@ public class PlaceDictionary {
     }
 
     /**
-     * @param random    The random  number generator.
+     * @param random The random  number generator.
      * @return The country identifier.
      */
     public int getRandomCountryUniform(Random random) {
@@ -376,18 +376,18 @@ public class PlaceDictionary {
      * @brief Gets a country for a user.
      */
     public int getCountryForUser(Random random) {
-        int position = Arrays.binarySearch(cumulativeDistribution,random.nextFloat());
-        if(position >= 0) {
+        int position = Arrays.binarySearch(cumulativeDistribution, random.nextFloat());
+        if (position >= 0) {
             return position;
         }
         return (-(position + 1));
     }
 
     public float getCumProbabilityCountry(int countryId) {
-        if(countryId == 0) {
+        if (countryId == 0) {
             return cumulativeDistribution[0];
         }
-        return cumulativeDistribution[countryId] - cumulativeDistribution[countryId-1];
+        return cumulativeDistribution[countryId] - cumulativeDistribution[countryId - 1];
     }
 
     /**
@@ -399,7 +399,8 @@ public class PlaceDictionary {
 
         for (int i = 0; i < countries.size(); i++) {
             Place loc = places.get(countries.get(i));
-            int zvalue = zorder.getZValue(((int) Math.round(loc.getLongt()) + 180) / 2, ((int) Math.round(loc.getLatt()) + 180) / 2);
+            int zvalue = zorder.getZValue(((int) Math.round(loc.getLongt()) + 180) / 2, ((int) Math
+                    .round(loc.getLatt()) + 180) / 2);
             sortedPlace[i] = new PlaceZOrder(loc.getId(), zvalue);
         }
 

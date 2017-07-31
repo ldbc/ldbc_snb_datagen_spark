@@ -44,7 +44,7 @@ import java.util.TimeZone;
 /**
  * Created by aprat on 14/01/16.
  */
-public class StringDateFormatter implements DateFormatter{
+public class StringDateFormatter implements DateFormatter {
 
     private String formatDateTimeString_ = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
     private String formatDateString_ = "yyyy-MM-dd";
@@ -52,12 +52,15 @@ public class StringDateFormatter implements DateFormatter{
     private SimpleDateFormat gmtDateTimeFormatter_;
     private SimpleDateFormat gmtDateFormatter_;
     private Date date_;
+
     public void initialize(Configuration conf) {
 
-        formatDateTimeString_ = conf.get("ldbc.snb.datagen.serializer.formatter.StringDateFormatter.dateTimeFormat", formatDateTimeString_);
+        formatDateTimeString_ = conf
+                .get("ldbc.snb.datagen.serializer.formatter.StringDateFormatter.dateTimeFormat", formatDateTimeString_);
         gmtDateTimeFormatter_ = new SimpleDateFormat(formatDateTimeString_);
         gmtDateTimeFormatter_.setTimeZone(TimeZone.getTimeZone("GMT"));
-        formatDateString_ = conf.get("ldbc.snb.datagen.serializer.formatter.StringDateFormatter.dateFormat", formatDateString_);
+        formatDateString_ = conf
+                .get("ldbc.snb.datagen.serializer.formatter.StringDateFormatter.dateFormat", formatDateString_);
         gmtDateFormatter_ = new SimpleDateFormat(formatDateString_);
         gmtDateFormatter_.setTimeZone(TimeZone.getTimeZone("GMT"));
         date_ = new Date();

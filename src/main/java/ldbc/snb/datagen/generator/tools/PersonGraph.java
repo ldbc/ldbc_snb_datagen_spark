@@ -47,22 +47,23 @@ import java.util.Set;
  * Created by aprat on 18/06/15.
  */
 public class PersonGraph {
-    private HashMap<Long,HashSet<Long>> adjacencies_;
+    private HashMap<Long, HashSet<Long>> adjacencies_;
+
     public PersonGraph(ArrayList<Person> persons) {
-        adjacencies_ = new HashMap<Long,HashSet<Long>>();
-        for( Person p : persons) {
+        adjacencies_ = new HashMap<Long, HashSet<Long>>();
+        for (Person p : persons) {
             HashSet<Long> neighbors = new HashSet<Long>();
-            for (Knows k: p.knows()) {
+            for (Knows k : p.knows()) {
                 neighbors.add(k.to().accountId());
             }
-            adjacencies_.put(p.accountId(),neighbors);
+            adjacencies_.put(p.accountId(), neighbors);
         }
     }
 
     public PersonGraph(PersonGraph graph) {
-        adjacencies_ = new HashMap<Long,HashSet<Long>>();
-        for(Long l : graph.adjacencies_.keySet()) {
-           adjacencies_.put(l, new HashSet<Long>(graph.adjacencies_.get(l)));
+        adjacencies_ = new HashMap<Long, HashSet<Long>>();
+        for (Long l : graph.adjacencies_.keySet()) {
+            adjacencies_.put(l, new HashSet<Long>(graph.adjacencies_.get(l)));
         }
     }
 

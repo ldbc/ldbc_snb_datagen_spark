@@ -98,7 +98,7 @@ public class FlashmobTagDictionary {
         this.flashmobTagsPerMonth = flashmobTagsPerMonth;
         this.probInterestFlashmobTag = probInterestFlashmobTag;
         this.probRandomPerLevel = probRandomPerLevel;
-		initialize();
+        initialize();
     }
 
     /**
@@ -186,7 +186,7 @@ public class FlashmobTagDictionary {
         }
         int earliestIndex = searchEarliestIndex(fromDate);
         for (int i = earliestIndex; i < flashmobTagCumDist.length; ++i) {
-            if (selectFlashmobTag(rand,i)) {
+            if (selectFlashmobTag(rand, i)) {
                 result.add(flashmobTagCumDist[i]);
             }
         }

@@ -59,7 +59,7 @@ public class HadoopMergeFriendshipFiles {
     private Configuration conf;
     private String postKeySetterName;
 
-    public static class HadoopMergeFriendshipFilesReducer  extends Reducer<TupleKey, Person, TupleKey, Person> {
+    public static class HadoopMergeFriendshipFilesReducer extends Reducer<TupleKey, Person, TupleKey, Person> {
 
         private Configuration conf;
         private HadoopFileKeyChanger.KeySetter<TupleKey> keySetter = null;
@@ -69,8 +69,9 @@ public class HadoopMergeFriendshipFiles {
             this.conf = context.getConfiguration();
             LDBCDatagen.initializeContext(conf);
             try {
-                this.keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(conf.get("postKeySetterName")).newInstance();
-            }catch(Exception e) {
+                this.keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(conf.get("postKeySetterName"))
+                                                                       .newInstance();
+            } catch (Exception e) {
                 System.out.println(e.getMessage());
                 e.printStackTrace();
             }
@@ -83,11 +84,11 @@ public class HadoopMergeFriendshipFiles {
             ArrayList<Knows> knows = new ArrayList<Knows>();
             Person person = null;
             int index = 0;
-            for ( Person p : valueSet) {
-                if( index == 0 ) {
+            for (Person p : valueSet) {
+                if (index == 0) {
                     person = new Person(p);
                 }
-                for(Knows k : p.knows()) {
+                for (Knows k : p.knows()) {
                     knows.add(k);
                 }
                 index++;
@@ -95,12 +96,12 @@ public class HadoopMergeFriendshipFiles {
             person.knows().clear();
             Knows.FullComparator comparator = new Knows.FullComparator();
             Collections.sort(knows, comparator);
-            if(knows.size() > 0 ) {
+            if (knows.size() > 0) {
                 long currentTo = knows.get(0).to().accountId();
                 person.knows().add(knows.get(0));
                 for (index = 1; index < knows.size(); ++index) {
                     Knows nextKnows = knows.get(index);
-                    if(currentTo != knows.get(index).to().accountId()) {
+                    if (currentTo != knows.get(index).to().accountId()) {
                         person.knows().add(nextKnows);
                         currentTo = nextKnows.to().accountId();
                     } else {
@@ -110,23 +111,24 @@ public class HadoopMergeFriendshipFiles {
             }
 
             //System.out.println("Num persons "+index);
-            context.write(keySetter.getKey(person),person);
+            context.write(keySetter.getKey(person), person);
         }
-        protected void cleanup(Context context){
-            System.out.println("Number of repeated edges: "+numRepeated);
-		}
+
+        protected void cleanup(Context context) {
+            System.out.println("Number of repeated edges: " + numRepeated);
+        }
     }
 
 
-    public HadoopMergeFriendshipFiles( Configuration conf,  String postKeySetterName ) {
+    public HadoopMergeFriendshipFiles(Configuration conf, String postKeySetterName) {
 
         this.conf = new Configuration(conf);
         this.postKeySetterName = postKeySetterName;
     }
 
-    public void run( String outputFileName, ArrayList<String> friendshipFileNames ) throws Exception {
+    public void run(String outputFileName, ArrayList<String> friendshipFileNames) throws Exception {
 
-        conf.set("postKeySetterName",postKeySetterName);
+        conf.set("postKeySetterName", postKeySetterName);
         int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads"));
         Job job = Job.getInstance(conf, "Edges merger generator");
         job.setMapOutputKeyClass(TupleKey.class);
@@ -141,16 +143,16 @@ public class HadoopMergeFriendshipFiles {
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
         job.setPartitionerClass(HadoopTuplePartitioner.class);
 
-        for ( String s : friendshipFileNames ) {
+        for (String s : friendshipFileNames) {
             FileInputFormat.addInputPath(job, new Path(s));
         }
         FileOutputFormat.setOutputPath(job, new Path(outputFileName));
 
         System.out.println("Merging edges");
         long start = System.currentTimeMillis();
-        if(!job.waitForCompletion(true) ){
+        if (!job.waitForCompletion(true)) {
             throw new Exception();
         }
-        System.out.println("... time to merge edges: "+ (System.currentTimeMillis() - start)+" ms");
+        System.out.println("... time to merge edges: " + (System.currentTimeMillis() - start) + " ms");
     }
 }

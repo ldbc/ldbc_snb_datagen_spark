@@ -48,15 +48,15 @@ public class GeoDistribution extends DegreeDistribution {
     private double ALPHA_ = 0.12;
 
     public void initialize(Configuration conf) {
-        ALPHA_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.GeoDistribution.alpha",ALPHA_);
+        ALPHA_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.GeoDistribution.alpha", ALPHA_);
         geo_ = new GeometricDistribution(ALPHA_);
     }
 
-    public void reset (long seed) {
+    public void reset(long seed) {
         geo_.reseedRandomGenerator(seed);
     }
 
-    public long nextDegree(){
+    public long nextDegree() {
         return geo_.sample();
     }
 

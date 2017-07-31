@@ -94,7 +94,7 @@ public class UniversityDictionary {
         for (Integer id : locationDic.getCountries()) {
             universitiesByCountry.put(id, new ArrayList<Long>());
         }
-	load(DatagenParams.universityDictionaryFile);
+        load(DatagenParams.universityDictionaryFile);
     }
 
     /**
@@ -140,7 +140,7 @@ public class UniversityDictionary {
 
     /**
      * @param randomFarm The random number generator farm.
-     * @param countryId_  The country id.
+     * @param countryId_ The country id.
      * @return The university id.
      * @brief Gets a random university.
      */
@@ -149,16 +149,20 @@ public class UniversityDictionary {
         int countryId = countryId_;
         double prob = randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_UNIVERSITY).nextDouble();
         ArrayList<Integer> countries = locationDic.getCountries();
-        if (randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_UNIVERSITY).nextDouble() <= probUncorrelatedUniversity) {
-            countryId = countries.get(randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_UNIVERSITY_LOCATION).nextInt(countries.size()));
+        if (randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_UNIVERSITY)
+                      .nextDouble() <= probUncorrelatedUniversity) {
+            countryId = countries.get(randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_UNIVERSITY_LOCATION)
+                                                .nextInt(countries.size()));
         }
 
         while (universitiesByCountry.get(countryId).size() == 0) {
-            countryId = countries.get(randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_UNIVERSITY_LOCATION).nextInt(countries.size()));
+            countryId = countries.get(randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_UNIVERSITY_LOCATION)
+                                                .nextInt(countries.size()));
         }
 
         int range = universitiesByCountry.get(countryId).size();
-        if (prob > probUncorrelatedUniversity && randomFarm.get(RandomGeneratorFarm.Aspect.TOP_UNIVERSITY).nextDouble() < probTopUniv) {
+        if (prob > probUncorrelatedUniversity && randomFarm.get(RandomGeneratorFarm.Aspect.TOP_UNIVERSITY)
+                                                           .nextDouble() < probTopUniv) {
             range = Math.min(universitiesByCountry.get(countryId).size(), 10);
         }
 

@@ -48,13 +48,13 @@ public class BrowserDictionary {
     private static final String SEPARATOR_ = "  ";
     private ArrayList<String> browsers_;
     private ArrayList<Double> cumulativeDistribution_;
-    private double probAnotherBrowser_ = 0.0f;                   
+    private double probAnotherBrowser_ = 0.0f;
 
     public BrowserDictionary(double probAnotherBrowser) {
         probAnotherBrowser_ = probAnotherBrowser;
         browsers_ = new ArrayList<String>();
         cumulativeDistribution_ = new ArrayList<Double>();
-	load(DatagenParams.browserDictonryFile);
+        load(DatagenParams.browserDictonryFile);
     }
 
     private void load(String fileName) {
@@ -83,7 +83,8 @@ public class BrowserDictionary {
     public int getRandomBrowserId(Random random) {
         double prob = random.nextDouble();
         int minIdx = 0;
-        int maxIdx = (byte) ((prob < cumulativeDistribution_.get(minIdx)) ? minIdx : cumulativeDistribution_.size() - 1);
+        int maxIdx = (byte) ((prob < cumulativeDistribution_.get(minIdx)) ? minIdx : cumulativeDistribution_
+                .size() - 1);
         // Binary search
         while ((maxIdx - minIdx) > 1) {
             int middlePoint = minIdx + (maxIdx - minIdx) / 2;

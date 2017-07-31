@@ -281,8 +281,7 @@ public class LDBCDatagenTest {
         fileChecker = new FileChecker(sdir+"/query_2_param.txt");
         fileChecker.addCheck(existsPersonCheck);
         assertTrue("ERROR PASSING TEST QUERY 2 PERSON EXISTS ",fileChecker.run(1));
-        //testLongBetween(sdir+"/query_2_param.txt",1, Dictionaries.dates.getStartDateTime(), Dictionaries.dates
-        //        .getEndDateTime());
+        testLongGE(sdir+"/query_2_param.txt",1, Dictionaries.dates.getStartDateTime());
 
         //Creating country check
         ColumnSet<String> places = new ColumnSet<String>(strParser,new File(dir+"/place_0_0.csv"),1,1);
@@ -310,8 +309,7 @@ public class LDBCDatagenTest {
         fileChecker = new FileChecker(sdir+"/query_5_param.txt");
         fileChecker.addCheck(existsPersonCheck);
         assertTrue("ERROR PASSING TEST QUERY 5 PERSON EXISTS ",fileChecker.run(1));
-        //testLongBetween(sdir+"/query_5_param.txt",1, Dictionaries.dates.getStartDateTime(), Dictionaries.dates
-        //        .getEndDateTime());
+        testLongGE(sdir+"/query_5_param.txt",1, Dictionaries.dates.getStartDateTime());
 
         //Creating tag check
         ColumnSet<String> tags = new ColumnSet<String>(strParser,new File(dir+"/tag_0_0.csv"),1,1);
@@ -337,13 +335,12 @@ public class LDBCDatagenTest {
         fileChecker = new FileChecker(sdir+"/query_9_param.txt");
         fileChecker.addCheck(existsPersonCheck);
         assertTrue("ERROR PASSING TEST QUERY 9 PERSON EXISTS ",fileChecker.run(1));
-        //testLongBetween(sdir+"/query_9_param.txt",1, Dictionaries.dates.getStartDateTime(), Dictionaries.dates
-        //        .getEndDateTime());
+        testLongGE(sdir+"/query_9_param.txt",1, Dictionaries.dates.getStartDateTime());
 
         fileChecker = new FileChecker(sdir+"/query_10_param.txt");
         fileChecker.addCheck(existsPersonCheck);
         assertTrue("ERROR PASSING TEST QUERY 10 PERSON EXISTS ",fileChecker.run(1));
-        //testLongBetween(sdir+"/query_10_param.txt",1, 1, 13);
+        testLongBetween(sdir+"/query_10_param.txt",1, 1, 13);
 
         //Creating country check
         countriesIndex.clear();
@@ -394,6 +391,14 @@ public class LDBCDatagenTest {
         UniquenessCheck check = new UniquenessCheck(column);
         fileChecker.addCheck(check);
         assertTrue("ERROR PASSING TEST ID UNIQUENESS FOR FILE "+fileName,fileChecker.run(1));
+    }
+
+    public void testLongGE(String fileName, int column, long a) {
+        FileChecker fileChecker = new FileChecker(fileName);
+        LongParser parser = new LongParser();
+        LongCheck longcheck = new LongCheck(parser, "Date Test",column, NumericCheck.NumericCheckType.GE, a,0L);
+        fileChecker.addCheck(longcheck);
+        assertTrue("ERROR PASSING GE TEST FOR FILE "+fileName+" column "+column+" greater or equal "+a,fileChecker.run(1));
     }
 
     public void testLongBetween(String fileName, int column, long a, long b) {

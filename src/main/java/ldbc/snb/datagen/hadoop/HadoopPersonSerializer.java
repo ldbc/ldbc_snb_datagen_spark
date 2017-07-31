@@ -60,111 +60,118 @@ import java.io.IOException;
  */
 public class HadoopPersonSerializer {
 
-	private Configuration conf;
+    private Configuration conf;
 
-	public static class HadoopPersonSerializerReducer  extends Reducer<TupleKey, Person, LongWritable, Person> {
+    public static class HadoopPersonSerializerReducer extends Reducer<TupleKey, Person, LongWritable, Person> {
 
-		private int reducerId;                          /** The id of the reducer.**/
-		private PersonSerializer personSerializer_;   /** The person serializer **/
-		private UpdateEventSerializer updateSerializer_;
+        private int reducerId;
+        /**
+         * The id of the reducer.
+         **/
+        private PersonSerializer personSerializer_;
+        /**
+         * The person serializer
+         **/
+        private UpdateEventSerializer updateSerializer_;
 
-		@Override
-		protected void setup(Context context) {
-			Configuration conf = context.getConfiguration();
-			reducerId = context.getTaskAttemptID().getTaskID().getId();
+        @Override
+        protected void setup(Context context) {
+            Configuration conf = context.getConfiguration();
+            reducerId = context.getTaskAttemptID().getTaskID().getId();
             LDBCDatagen.initializeContext(conf);
-			try {
-				personSerializer_ = (PersonSerializer) Class.forName(conf.get("ldbc.snb.datagen.serializer.personSerializer")).newInstance();
-				personSerializer_.initialize(conf,reducerId);
-				if (DatagenParams.updateStreams) {
-					updateSerializer_ = new UpdateEventSerializer(conf, DatagenParams.hadoopDir + "/temp_updateStream_person_" + reducerId, reducerId, DatagenParams.numUpdatePartitions);
-				}
-			} catch( Exception e ) {
-				System.err.println(e.getMessage());
-				e.printStackTrace();
-			}
-		}
-		
-		@Override
-	public void reduce(TupleKey key, Iterable<Person> valueSet,Context context)
-			throws IOException, InterruptedException {
+            try {
+                personSerializer_ = (PersonSerializer) Class
+                        .forName(conf.get("ldbc.snb.datagen.serializer.personSerializer")).newInstance();
+                personSerializer_.initialize(conf, reducerId);
+                if (DatagenParams.updateStreams) {
+                    updateSerializer_ = new UpdateEventSerializer(conf, DatagenParams.hadoopDir + "/temp_updateStream_person_" + reducerId, reducerId, DatagenParams.numUpdatePartitions);
+                }
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void reduce(TupleKey key, Iterable<Person> valueSet, Context context)
+                throws IOException, InterruptedException {
 //			SN.machineId = key.block;
-			personSerializer_.reset();
-			for( Person p : valueSet ) {
-				if(p.creationDate()< Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams  ) {
-					personSerializer_.export(p);
-				} else {
-					updateSerializer_.export(p);
+            personSerializer_.reset();
+            for (Person p : valueSet) {
+                if (p.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
+                    personSerializer_.export(p);
+                } else {
+                    updateSerializer_.export(p);
                     updateSerializer_.changePartition();
-				}
+                }
 
-				for( Knows k : p.knows() ) {
-					if( k.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams ) {
-						personSerializer_.export(p, k);
-					} 
-				}
-			}
-			
-		}
+                for (Knows k : p.knows()) {
+                    if (k.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
+                        personSerializer_.export(p, k);
+                    }
+                }
+            }
 
-		@Override
-		protected void cleanup(Context context){
-			personSerializer_.close();
-			if (DatagenParams.updateStreams) {
-				try {
-					updateSerializer_.close();
-				} catch(IOException e) {
-					throw new RuntimeException(e.getMessage());
-				}
-			}
-		}
-	}
+        }
 
-	public HadoopPersonSerializer( Configuration conf ) {
-		this.conf = new Configuration(conf);
-	}
-	
-	public void run( String inputFileName ) throws Exception {
-		
-		FileSystem fs = FileSystem.get(conf);
+        @Override
+        protected void cleanup(Context context) {
+            personSerializer_.close();
+            if (DatagenParams.updateStreams) {
+                try {
+                    updateSerializer_.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e.getMessage());
+                }
+            }
+        }
+    }
+
+    public HadoopPersonSerializer(Configuration conf) {
+        this.conf = new Configuration(conf);
+    }
+
+    public void run(String inputFileName) throws Exception {
+
+        FileSystem fs = FileSystem.get(conf);
 
 		/*String rankedFileName = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/ranked";
-		HadoopFileRanker hadoopFileRanker = new HadoopFileRanker( conf, TupleKey.class, Person.class, null );
+        HadoopFileRanker hadoopFileRanker = new HadoopFileRanker( conf, TupleKey.class, Person.class, null );
         hadoopFileRanker.run(inputFileName,rankedFileName);*/
 
-		int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads"));
-		Job job = Job.getInstance(conf, "Person Serializer");
-		//job.setMapOutputKeyClass(BlockKey.class);
-		job.setMapOutputKeyClass(TupleKey.class);
-		job.setMapOutputValueClass(Person.class);
-		job.setOutputKeyClass(LongWritable.class);
-		job.setOutputValueClass(Person.class);
-		job.setJarByClass(HadoopBlockMapper.class);
-		//job.setMapperClass(HadoopBlockMapper.class);
-		job.setReducerClass(HadoopPersonSerializerReducer.class);
-		job.setNumReduceTasks(numThreads);
-		job.setInputFormatClass(SequenceFileInputFormat.class);
-		job.setOutputFormatClass(SequenceFileOutputFormat.class);
+        int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads"));
+        Job job = Job.getInstance(conf, "Person Serializer");
+        //job.setMapOutputKeyClass(BlockKey.class);
+        job.setMapOutputKeyClass(TupleKey.class);
+        job.setMapOutputValueClass(Person.class);
+        job.setOutputKeyClass(LongWritable.class);
+        job.setOutputValueClass(Person.class);
+        job.setJarByClass(HadoopBlockMapper.class);
+        //job.setMapperClass(HadoopBlockMapper.class);
+        job.setReducerClass(HadoopPersonSerializerReducer.class);
+        job.setNumReduceTasks(numThreads);
+        job.setInputFormatClass(SequenceFileInputFormat.class);
+        job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
-		job.setPartitionerClass(HadoopTuplePartitioner.class);
+        job.setPartitionerClass(HadoopTuplePartitioner.class);
 
 		/*job.setSortComparatorClass(BlockKeyComparator.class);
 		job.setGroupingComparatorClass(BlockKeyGroupComparator.class);
 		job.setPartitionerClass(HadoopBlockPartitioner.class);*/
 
-		//FileInputFormat.setInputPaths(job, new Path(rankedFileName));
-		FileInputFormat.setInputPaths(job, new Path(inputFileName));
-		FileOutputFormat.setOutputPath(job, new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")+"/aux"));
-		if(!job.waitForCompletion(true)) {
+        //FileInputFormat.setInputPaths(job, new Path(rankedFileName));
+        FileInputFormat.setInputPaths(job, new Path(inputFileName));
+        FileOutputFormat.setOutputPath(job, new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/aux"));
+        if (!job.waitForCompletion(true)) {
             throw new Exception();
         }
-		
-		
-		try{
-			//fs.delete(new Path(rankedFileName), true);
-			fs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")+"/aux"),true);
-		} catch(IOException e) {
-			System.err.println(e.getMessage());
-		}
-	}
+
+
+        try {
+            //fs.delete(new Path(rankedFileName), true);
+            fs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/aux"), true);
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+        }
+    }
 }

@@ -59,7 +59,9 @@ public class SN {
     public static void initialize() {
         minDate = Dictionaries.dates.getStartDateTime();
         maxDate = Dictionaries.dates.getEndDateTime();
-        numBits = (int) Math.ceil(Math.log10(Math.ceil(DatagenParams.numPersons/(double)DatagenParams.blockSize)) / Math.log10(2));
+        numBits = (int) Math
+                .ceil(Math.log10(Math.ceil(DatagenParams.numPersons / (double) DatagenParams.blockSize)) / Math
+                        .log10(2));
         if (numBits > 20) System.out.print("WARNING: Possible id overlapp");
     }
 
@@ -137,15 +139,15 @@ public class SN {
      * Gets the workAt relation prefix.
      */
     public static String getWorkAtURI(long id) {
-        return BLANK_NODE + "work" + String.format("%020d", id );
+        return BLANK_NODE + "work" + String.format("%020d", id);
     }
 
     public static String getUnivURI(long id) {
-	return PREFIX + "uni" + String.format("%06d", id);
+        return PREFIX + "uni" + String.format("%06d", id);
     }
 
     public static String getCompURI(long id) {
-	return PREFIX + "com" + String.format("%06d", id);
+        return PREFIX + "com" + String.format("%06d", id);
     }
 
     public static String getKnowsURI(long id) {

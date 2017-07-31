@@ -48,7 +48,7 @@ public class TupleKey implements WritableComparable<TupleKey> {
     public long key;
     public long id;
 
-    public TupleKey( ) {
+    public TupleKey() {
     }
 
     public TupleKey(TupleKey tK) {
@@ -56,7 +56,7 @@ public class TupleKey implements WritableComparable<TupleKey> {
         this.id = tK.id;
     }
 
-    public TupleKey(  long key, long id) {
+    public TupleKey(long key, long id) {
         this.key = key;
         this.id = id;
     }
@@ -71,7 +71,7 @@ public class TupleKey implements WritableComparable<TupleKey> {
         id = in.readLong();
     }
 
-    public int compareTo( TupleKey tk) {
+    public int compareTo(TupleKey tk) {
         if (key < tk.key) return -1;
         if (key > tk.key) return 1;
         if (id < tk.id) return -1;

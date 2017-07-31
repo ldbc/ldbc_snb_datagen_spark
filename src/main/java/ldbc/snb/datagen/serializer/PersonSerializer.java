@@ -74,8 +74,8 @@ abstract public class PersonSerializer {
         }
     }
 
-    public void export(final Person p, final Knows k ) {
-        if( p.accountId() < k.to().accountId())
+    public void export(final Person p, final Knows k) {
+        if (p.accountId() < k.to().accountId())
             serialize(p, k);
     }
 

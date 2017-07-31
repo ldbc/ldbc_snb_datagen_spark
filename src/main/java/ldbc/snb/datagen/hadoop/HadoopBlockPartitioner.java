@@ -45,6 +45,6 @@ public class HadoopBlockPartitioner extends Partitioner<BlockKey, Person> {
 
     @Override
     public int getPartition(BlockKey key, Person person, int numReduceTasks) {
-        return (int)(key.block % numReduceTasks);
+        return (int) (key.block % numReduceTasks);
     }
 }

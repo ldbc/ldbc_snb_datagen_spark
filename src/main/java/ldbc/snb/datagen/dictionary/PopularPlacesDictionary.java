@@ -64,7 +64,7 @@ public class PopularPlacesDictionary {
         for (Integer id : placeDictionary.getCountries()) {
             this.popularPlacesByCountry.put(id, new ArrayList<PopularPlace>());
         }
-	load(DatagenParams.popularDictionaryFile);
+        load(DatagenParams.popularDictionaryFile);
     }
 
     /**

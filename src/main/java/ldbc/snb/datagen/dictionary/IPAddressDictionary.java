@@ -58,6 +58,7 @@ public class IPAddressDictionary {
      * < @brief The country of ips. *
      */
     private PlaceDictionary placeDictionary;
+
     /**
      * < @brief The location dictionary. *
      */
@@ -66,7 +67,7 @@ public class IPAddressDictionary {
 
         this.placeDictionary = locationDic;
         this.ipsByCountry = new TreeMap<Integer, ArrayList<IP>>();
-	load(DatagenParams.countryAbbrMappingFile,DatagenParams.IPZONE_DIRECTORY);
+        load(DatagenParams.countryAbbrMappingFile, DatagenParams.IPZONE_DIRECTORY);
     }
 
     /**
@@ -78,7 +79,8 @@ public class IPAddressDictionary {
         String line;
         HashMap<String, String> countryAbbreMap = new HashMap<String, String>();
         try {
-            BufferedReader mappingFile = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(mappingFileName), "UTF-8"));
+            BufferedReader mappingFile = new BufferedReader(new InputStreamReader(getClass()
+                                                                                          .getResourceAsStream(mappingFileName), "UTF-8"));
             while ((line = mappingFile.readLine()) != null) {
                 String data[] = line.split(SEPARATOR_COUNTRY);
                 String abbr = data[0];
@@ -94,7 +96,8 @@ public class IPAddressDictionary {
                 //Get the name of file
                 String fileName = countryAbbreMap.get(placeDictionary.getPlaceName(countries.get(i)));
                 fileName = baseIPdir + "/" + fileName + ".zone";
-                BufferedReader ipZoneFile = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));
+                BufferedReader ipZoneFile = new BufferedReader(new InputStreamReader(getClass()
+                                                                                             .getResourceAsStream(fileName), "UTF-8"));
 
                 int j = 0;
                 while ((line = ipZoneFile.readLine()) != null && (j < MAX_IP_COUNTRY)) {

@@ -75,7 +75,7 @@ public class EmptyPersonSerializer extends PersonSerializer {
     }
 
     @Override
-    protected void serialize(final Person p,final  Knows knows) {
+    protected void serialize(final Person p, final Knows knows) {
         //Intentionally left empty
     }
 

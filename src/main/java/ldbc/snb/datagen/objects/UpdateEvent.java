@@ -56,12 +56,12 @@ public class UpdateEvent implements Writable {
         NO_EVENT
     }
 
-    public long    date;
-    public long    dependantDate;
+    public long date;
+    public long dependantDate;
     public String eventData;
     public UpdateEventType type;
 
-    public UpdateEvent( long date, long dependantDate, UpdateEventType type, String eventData) {
+    public UpdateEvent(long date, long dependantDate, UpdateEventType type, String eventData) {
         this.date = date;
         this.type = type;
         this.eventData = eventData;

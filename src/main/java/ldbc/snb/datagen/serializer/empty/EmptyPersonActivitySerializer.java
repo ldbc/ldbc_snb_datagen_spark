@@ -57,32 +57,32 @@ public class EmptyPersonActivitySerializer extends PersonActivitySerializer {
     }
 
     @Override
-    protected void serialize(final  Forum forum ) {
+    protected void serialize(final Forum forum) {
         //This is left intentionally blank
     }
 
     @Override
-    protected void serialize(final  Post post ) {
+    protected void serialize(final Post post) {
         //This is left intentionally blank
     }
 
     @Override
-    protected void serialize(final  Comment comment ) {
+    protected void serialize(final Comment comment) {
         //This is left intentionally blank
     }
 
     @Override
-    protected void serialize(final  Photo photo ) {
+    protected void serialize(final Photo photo) {
         //This is left intentionally blank
     }
 
     @Override
-    protected void serialize(final  ForumMembership membership ) {
+    protected void serialize(final ForumMembership membership) {
         //This is left intentionally blank
     }
 
     @Override
-    protected void serialize(final  Like like ) {
+    protected void serialize(final Like like) {
         //This is left intentionally blank
     }
 

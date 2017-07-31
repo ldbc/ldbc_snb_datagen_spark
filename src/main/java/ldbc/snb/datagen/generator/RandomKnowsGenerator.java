@@ -55,28 +55,28 @@ public class RandomKnowsGenerator implements KnowsGenerator {
         rand = new Random();
     }
 
-    public void generateKnows( ArrayList<Person> persons, int seed, ArrayList<Float> percentages, int step_index )  {
+    public void generateKnows(ArrayList<Person> persons, int seed, ArrayList<Float> percentages, int step_index) {
 
         rand.setSeed(seed);
         ArrayList<Integer> stubs = new ArrayList<Integer>();
         int index = 0;
-        for(Person p : persons ) {
+        for (Person p : persons) {
             long degree = Knows.targetEdges(p, percentages, step_index);
-            for( int i =0; i < degree; ++i ) {
+            for (int i = 0; i < degree; ++i) {
                 stubs.add(index);
             }
             ++index;
         }
-        Collections.shuffle(stubs,rand);
-        while(!stubs.isEmpty()) {
+        Collections.shuffle(stubs, rand);
+        while (!stubs.isEmpty()) {
             int first = rand.nextInt(stubs.size());
             int first_index = stubs.get(first);
             stubs.remove(first);
-            if(!stubs.isEmpty()) {
+            if (!stubs.isEmpty()) {
                 int second = rand.nextInt(stubs.size());
                 int second_index = stubs.get(second);
                 stubs.remove(second);
-                if(first_index != second_index ) {
+                if (first_index != second_index) {
                     Person p1 = persons.get(first_index);
                     Person p2 = persons.get(second_index);
                     Knows.createKnow(rand, p1, p2);
@@ -86,7 +86,7 @@ public class RandomKnowsGenerator implements KnowsGenerator {
     }
 
     @Override
-    public void initialize( Configuration conf ) {
+    public void initialize(Configuration conf) {
         // Method inherited from Knows Generator. This specialization is empty because it does not require initizalization
     }
 }

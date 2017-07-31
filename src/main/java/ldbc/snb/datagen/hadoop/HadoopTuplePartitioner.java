@@ -45,6 +45,6 @@ public class HadoopTuplePartitioner extends Partitioner<TupleKey, Person> {
 
     @Override
     public int getPartition(TupleKey key, Person person, int numReduceTasks) {
-        return (int)(key.key % numReduceTasks);
+        return (int) (key.key % numReduceTasks);
     }
 }

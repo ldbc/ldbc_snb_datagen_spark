@@ -42,35 +42,36 @@ public class ForumMembership {
     private long creationDate_;
     private Person.PersonSummary person_;
 
-    public ForumMembership( long forumId, long creationDate, Person.PersonSummary p ) {
-        assert (p.creationDate() + DatagenParams.deltaTime) <= creationDate : "Person creation date is larger than membership";
-	    forumId_ = forumId;
-	    creationDate_ = creationDate;
-	    person_ = new Person.PersonSummary(p);
+    public ForumMembership(long forumId, long creationDate, Person.PersonSummary p) {
+        assert (p
+                .creationDate() + DatagenParams.deltaTime) <= creationDate : "Person creation date is larger than membership";
+        forumId_ = forumId;
+        creationDate_ = creationDate;
+        person_ = new Person.PersonSummary(p);
     }
 
     public long forumId() {
-	    return forumId_;
+        return forumId_;
     }
 
-    public void forumId( long forumId ) {
-	    this.forumId_ = forumId;
+    public void forumId(long forumId) {
+        this.forumId_ = forumId;
     }
 
     public long creationDate() {
-	    return creationDate_;
+        return creationDate_;
     }
 
-    public void creationDate( long creationDate ) {
-	    creationDate_ = creationDate;
+    public void creationDate(long creationDate) {
+        creationDate_ = creationDate;
     }
 
     public Person.PersonSummary person() {
-	    return person_;
+        return person_;
     }
 
-    public void person(Person.PersonSummary p ) {
-	    person_ = p;
+    public void person(Person.PersonSummary p) {
+        person_ = p;
     }
 
 }

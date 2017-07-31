@@ -85,7 +85,7 @@ public class CompanyDictionary {
         for (Integer id : placeDictionary.getCountries()) {
             this.companiesByCountry.put(id, new ArrayList<Long>());
         }
-	load(DatagenParams.companiesDictionaryFile);
+        load(DatagenParams.companiesDictionaryFile);
     }
 
     /**
@@ -137,13 +137,16 @@ public class CompanyDictionary {
         int locId = countryId;
         ArrayList<Integer> countries = placeDictionary.getCountries();
         if (randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_COMPANY).nextDouble() <= probUnCorrelatedCompany) {
-            locId = countries.get(randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_COMPANY_LOCATION).nextInt(countries.size()));
+            locId = countries.get(randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_COMPANY_LOCATION)
+                                            .nextInt(countries.size()));
         }
         // In case the country doesn't have any company select another country.
         while (companiesByCountry.get(locId).size() == 0) {
-            locId = countries.get(randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_COMPANY_LOCATION).nextInt(countries.size()));
+            locId = countries.get(randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_COMPANY_LOCATION)
+                                            .nextInt(countries.size()));
         }
-        int randomCompanyIdx = randomFarm.get(RandomGeneratorFarm.Aspect.COMPANY).nextInt(companiesByCountry.get(locId).size());
+        int randomCompanyIdx = randomFarm.get(RandomGeneratorFarm.Aspect.COMPANY).nextInt(companiesByCountry.get(locId)
+                                                                                                            .size());
         return companiesByCountry.get(locId).get(randomCompanyIdx);
     }
 

@@ -66,9 +66,9 @@ abstract public class Message {
                    int countryId,
                    IP ipAddress,
                    int browserId
-                   ) {
+    ) {
 
-        assert((author.creationDate() + DatagenParams.deltaTime) <= creationDate);
+        assert ((author.creationDate() + DatagenParams.deltaTime) <= creationDate);
         messageId_ = messageId;
         creationDate_ = creationDate;
         author_ = new PersonSummary(author);
@@ -81,15 +81,15 @@ abstract public class Message {
     }
 
     public void initialize(long messageId,
-                   long creationDate,
-                   PersonSummary author,
-                   long forumId,
-                   String content,
-                   TreeSet<Integer> tags,
-                   int countryId,
-                   IP ipAddress,
-                   int browserId
-                   ) {
+                           long creationDate,
+                           PersonSummary author,
+                           long forumId,
+                           String content,
+                           TreeSet<Integer> tags,
+                           int countryId,
+                           IP ipAddress,
+                           int browserId
+    ) {
         messageId_ = messageId;
         creationDate_ = creationDate;
         author_ = new PersonSummary(author);
@@ -103,75 +103,75 @@ abstract public class Message {
     }
 
     public long messageId() {
-	    return messageId_;
+        return messageId_;
     }
 
-    public void messageId(long id ) {
-	    messageId_ = id;
+    public void messageId(long id) {
+        messageId_ = id;
     }
 
-    public long creationDate () {
-	    return creationDate_;
+    public long creationDate() {
+        return creationDate_;
     }
 
-    public void creationDate ( long date ) {
-	    creationDate_ = date;
+    public void creationDate(long date) {
+        creationDate_ = date;
     }
 
-    public PersonSummary author () {
-	    return author_;
+    public PersonSummary author() {
+        return author_;
     }
 
-    public void authorId ( PersonSummary person ) {
-	    author_.copy(person) ;
+    public void authorId(PersonSummary person) {
+        author_.copy(person);
     }
 
     public long forumId() {
-	    return forumId_;
+        return forumId_;
     }
-	    
+
     public void forumId(long id) {
-	    forumId_ = id;
+        forumId_ = id;
     }
 
-    public String content()  {
-	    return content_;
+    public String content() {
+        return content_;
     }
 
-    public void content( String s)  {
-	    content_ = s;
+    public void content(String s) {
+        content_ = s;
     }
 
     public TreeSet<Integer> tags() {
-	    return tags_;
+        return tags_;
     }
 
-    public void tags( TreeSet<Integer> tags )  {
-	    tags_.clear();
-	    tags_.addAll(tags);
+    public void tags(TreeSet<Integer> tags) {
+        tags_.clear();
+        tags_.addAll(tags);
     }
 
     public IP ipAddress() {
-	    return ipAddress_;
+        return ipAddress_;
     }
 
-    public void ipAddress( IP ip ) {
-	    ipAddress_.copy(ip);
+    public void ipAddress(IP ip) {
+        ipAddress_.copy(ip);
     }
 
-    public int browserId () {
-	    return browserId_;
+    public int browserId() {
+        return browserId_;
     }
 
-    public void browserId ( int browser ) {
-	    browserId_ = browser;
+    public void browserId(int browser) {
+        browserId_ = browser;
     }
 
     public int countryId() {
-	    return countryId_;
+        return countryId_;
     }
 
-    public void countryId ( int l ) {
-	    countryId_ = l;
+    public void countryId(int l) {
+        countryId_ = l;
     }
 }

@@ -86,7 +86,7 @@ public class LanguageDictionary {
         this.languages = new ArrayList<String>();
         this.officalLanguagesByCountry = new HashMap<Integer, ArrayList<Integer>>();
         this.languagesByCountry = new HashMap<Integer, ArrayList<Integer>>();
-	load(DatagenParams.languageDictionaryFile);
+        load(DatagenParams.languageDictionaryFile);
     }
 
     /**
@@ -99,7 +99,8 @@ public class LanguageDictionary {
                 officalLanguagesByCountry.put(id, new ArrayList<Integer>());
                 languagesByCountry.put(id, new ArrayList<Integer>());
             }
-            BufferedReader dictionary = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));
+            BufferedReader dictionary = new BufferedReader(new InputStreamReader(getClass()
+                                                                                         .getResourceAsStream(fileName), "UTF-8"));
             String line;
             while ((line = dictionary.readLine()) != null) {
                 String data[] = line.split(SEPARATOR);

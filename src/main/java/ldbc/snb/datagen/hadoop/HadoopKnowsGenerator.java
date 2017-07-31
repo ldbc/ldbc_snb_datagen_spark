@@ -64,9 +64,12 @@ public class HadoopKnowsGenerator {
     private int step_index;
 
 
-    public static class HadoopKnowsGeneratorReducer  extends Reducer<BlockKey, Person, TupleKey, Person> {
+    public static class HadoopKnowsGeneratorReducer extends Reducer<BlockKey, Person, TupleKey, Person> {
 
-        private KnowsGenerator knowsGenerator;   /** The person serializer **/
+        private KnowsGenerator knowsGenerator;
+        /**
+         * The person serializer
+         **/
         private Configuration conf;
         private HadoopFileKeyChanger.KeySetter<TupleKey> keySetter = null;
         private ArrayList<Float> percentages;
@@ -80,48 +83,49 @@ public class HadoopKnowsGenerator {
             try {
                 this.knowsGenerator = (KnowsGenerator) Class.forName(conf.get("knowsGeneratorName")).newInstance();
                 this.knowsGenerator.initialize(conf);
-            }catch(Exception e) {
+            } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
             this.percentages = new ArrayList<Float>();
-            this.step_index = conf.getInt("stepIndex",0);
-            float p = conf.getFloat("percentage0",0.0f);
+            this.step_index = conf.getInt("stepIndex", 0);
+            float p = conf.getFloat("percentage0", 0.0f);
             int index = 1;
-            while(p != 0.0f) {
+            while (p != 0.0f) {
                 this.percentages.add(p);
-                p = conf.getFloat("percentage"+index,0.0f);
+                p = conf.getFloat("percentage" + index, 0.0f);
                 ++index;
             }
             try {
-                this.keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(conf.get("postKeySetterName")).newInstance();
-            }catch(Exception e) {
+                this.keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(conf.get("postKeySetterName"))
+                                                                       .newInstance();
+            } catch (Exception e) {
                 System.out.println(e.getMessage());
                 e.printStackTrace();
             }
         }
 
         @Override
-        public void reduce(BlockKey key, Iterable<Person> valueSet,Context context)
+        public void reduce(BlockKey key, Iterable<Person> valueSet, Context context)
                 throws IOException, InterruptedException {
             ArrayList<Person> persons = new ArrayList<Person>();
-            for( Person p : valueSet ) {
+            for (Person p : valueSet) {
                 persons.add(new Person(p));
             }
-            this.knowsGenerator.generateKnows(persons, (int)key.block, percentages, step_index);
-            for( Person p : persons ) {
+            this.knowsGenerator.generateKnows(persons, (int) key.block, percentages, step_index);
+            for (Person p : persons) {
                 context.write(keySetter.getKey(p), p);
-                numGeneratedEdges+=p.knows().size();
+                numGeneratedEdges += p.knows().size();
             }
         }
 
         @Override
         public void cleanup(Context context) {
-            System.out.println("Number of generated edges: "+numGeneratedEdges/2);
+            System.out.println("Number of generated edges: " + numGeneratedEdges / 2);
         }
     }
 
 
-    public HadoopKnowsGenerator( Configuration conf, String preKeySetterName, String postKeySetterName, ArrayList<Float> percentages, int step_index, String knowsGeneratorName  ) {
+    public HadoopKnowsGenerator(Configuration conf, String preKeySetterName, String postKeySetterName, ArrayList<Float> percentages, int step_index, String knowsGeneratorName) {
         this.conf = new Configuration(conf);
         this.preKeySetterName = preKeySetterName;
         this.postKeySetterName = postKeySetterName;
@@ -130,7 +134,7 @@ public class HadoopKnowsGenerator {
         this.knowsGeneratorName = knowsGeneratorName;
     }
 
-    public void run( String inputFileName, String outputFileName ) throws Exception {
+    public void run(String inputFileName, String outputFileName) throws Exception {
 
 
         FileSystem fs = FileSystem.get(conf);
@@ -149,8 +153,8 @@ public class HadoopKnowsGenerator {
         System.out.println("Ranking persons");
         long start = System.currentTimeMillis();
         String rankedFileName = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/ranked";
-        HadoopFileRanker hadoopFileRanker = new HadoopFileRanker( conf, TupleKey.class, Person.class , preKeySetterName);
-        hadoopFileRanker.run(inputFileName,rankedFileName);
+        HadoopFileRanker hadoopFileRanker = new HadoopFileRanker(conf, TupleKey.class, Person.class, preKeySetterName);
+        hadoopFileRanker.run(inputFileName, rankedFileName);
 /*        if(preKeySetterName != null ) {
             fs.delete(new Path(keyChangedFileName), true);
         }
@@ -159,11 +163,11 @@ public class HadoopKnowsGenerator {
 
         conf.setInt("stepIndex", step_index);
         int index = 0;
-        for( float p : percentages ) {
-            conf.setFloat("percentage"+index, p);
+        for (float p : percentages) {
+            conf.setFloat("percentage" + index, p);
             ++index;
         }
-        conf.set("postKeySetterName",postKeySetterName);
+        conf.set("postKeySetterName", postKeySetterName);
         conf.set("knowsGeneratorName", knowsGeneratorName);
         int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads"));
         Job job = Job.getInstance(conf, "Knows generator");
@@ -187,10 +191,10 @@ public class HadoopKnowsGenerator {
 
         System.out.println("Generating knows relations");
         start = System.currentTimeMillis();
-        if(!job.waitForCompletion(true) ){
+        if (!job.waitForCompletion(true)) {
             throw new Exception();
         }
-        System.out.println("... Time to generate knows relations: "+ (System.currentTimeMillis() - start)+" ms");
+        System.out.println("... Time to generate knows relations: " + (System.currentTimeMillis() - start) + " ms");
 
         fs.delete(new Path(rankedFileName), true);
     }

@@ -67,26 +67,26 @@ public class Post extends Message {
     }
 
     public void initialize(long postId,
-                long creationDate,
-                PersonSummary author,
-                long forumId,
-                String content,
-                TreeSet<Integer> tags,
-                int countryId,
-                IP ipAddress,
-                int browserId,
-                int language
-    )  {
+                           long creationDate,
+                           PersonSummary author,
+                           long forumId,
+                           String content,
+                           TreeSet<Integer> tags,
+                           int countryId,
+                           IP ipAddress,
+                           int browserId,
+                           int language
+    ) {
         super.initialize(postId, creationDate, author, forumId, content, tags, countryId, ipAddress, browserId);
         language_ = language;
     }
 
     public int language() {
-	    return language_;
+        return language_;
     }
 
-    public void language( int l ) {
-	    language_ = l ;
+    public void language(int l) {
+        language_ = l;
     }
 
 }

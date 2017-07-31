@@ -108,14 +108,14 @@ public class IP implements Writable {
         return this.ip == a.ip && this.mask == a.mask;
     }
 
-    public void copy( IP ip ) {
-	    this.ip = ip.ip;
-	    this.mask = ip.mask;
-	    this.network = ip.network;
+    public void copy(IP ip) {
+        this.ip = ip.ip;
+        this.mask = ip.mask;
+        this.network = ip.network;
     }
 
     public void readFields(DataInput arg0) throws IOException {
-       	ip = arg0.readInt(); 
+        ip = arg0.readInt();
         mask = arg0.readInt();
         network = arg0.readInt();
     }

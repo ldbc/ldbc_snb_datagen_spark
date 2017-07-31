@@ -46,100 +46,107 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- *
  * @author aprat
  */
 public class CommentGenerator {
-	private String[] shortComments_ = {"ok", "good", "great", "cool", "thx", "fine", "LOL", "roflol", "no way!", "I see", "right", "yes", "no", "duh", "thanks", "maybe"};
-	private TextGenerator generator;
-	private LikeGenerator likeGenerator_;
-	/* A set of random number generator for different purposes.*/
-	
-	public CommentGenerator(TextGenerator generator, LikeGenerator likeGenerator){
-		this.generator = generator;
-		this.likeGenerator_ = likeGenerator;
-	}
-	
-	public long createComments(RandomGeneratorFarm randomFarm, final Forum forum, final Post post, long numComments, long startId, PersonActivityExporter exporter) throws IOException {
-		long nextId = startId;
-		ArrayList<Message> replyCandidates = new ArrayList<Message>();
-		replyCandidates.add(post);
+    private String[] shortComments_ = {"ok", "good", "great", "cool", "thx", "fine", "LOL", "roflol", "no way!", "I see", "right", "yes", "no", "duh", "thanks", "maybe"};
+    private TextGenerator generator;
+    private LikeGenerator likeGenerator_;
+    /* A set of random number generator for different purposes.*/
 
-		Properties prop = new Properties();
-		prop.setProperty("type","comment");
-		for( int i = 0; i < numComments; ++i ) {
-			int replyIndex = randomFarm.get(RandomGeneratorFarm.Aspect.REPLY_TO).nextInt(replyCandidates.size());
-			Message replyTo = replyCandidates.get(replyIndex);
-			ArrayList<ForumMembership> validMemberships = new ArrayList<ForumMembership>();
-			for( ForumMembership fM : forum.memberships()) {
-				if (fM.creationDate()+DatagenParams.deltaTime <= replyTo.creationDate()){
-					validMemberships.add(fM);
-				}
-			}
-			if (validMemberships.size() == 0) {
-				return nextId;
-			}
-			ForumMembership member = validMemberships.get(randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX).nextInt(validMemberships.size()));
-			TreeSet<Integer> tags = new TreeSet<Integer>();
-			String content = "";
-			
+    public CommentGenerator(TextGenerator generator, LikeGenerator likeGenerator) {
+        this.generator = generator;
+        this.likeGenerator_ = likeGenerator;
+    }
 
-			boolean isShort = false;
-			if( randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT).nextDouble() > 0.6666) {
+    public long createComments(RandomGeneratorFarm randomFarm, final Forum forum, final Post post, long numComments, long startId, PersonActivityExporter exporter) throws IOException {
+        long nextId = startId;
+        ArrayList<Message> replyCandidates = new ArrayList<Message>();
+        replyCandidates.add(post);
 
-				ArrayList<Integer> currentTags = new ArrayList<Integer>();
-				Iterator<Integer> it = replyTo.tags().iterator();
-				while(it.hasNext()) {
-					Integer tag = it.next();
-					if( randomFarm.get(RandomGeneratorFarm.Aspect.TAG).nextDouble() > 0.5) {
-						tags.add(tag);
-					}
-					currentTags.add(tag);
-				}
-				
-				for( int j = 0; j < (int)Math.ceil(replyTo.tags().size() / 2.0); ++j) {
-					int randomTag = currentTags.get(randomFarm.get(RandomGeneratorFarm.Aspect.TAG).nextInt(currentTags.size()));
-					tags.add(Dictionaries.tagMatrix.getRandomRelated(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), randomTag));
-				}
-				content = this.generator.generateText(member.person(), tags,prop);
-			} else {
-				isShort = true;
-				int index = randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE).nextInt(shortComments_.length);
-				content = shortComments_[index];
-			}
+        Properties prop = new Properties();
+        prop.setProperty("type", "comment");
+        for (int i = 0; i < numComments; ++i) {
+            int replyIndex = randomFarm.get(RandomGeneratorFarm.Aspect.REPLY_TO).nextInt(replyCandidates.size());
+            Message replyTo = replyCandidates.get(replyIndex);
+            ArrayList<ForumMembership> validMemberships = new ArrayList<ForumMembership>();
+            for (ForumMembership fM : forum.memberships()) {
+                if (fM.creationDate() + DatagenParams.deltaTime <= replyTo.creationDate()) {
+                    validMemberships.add(fM);
+                }
+            }
+            if (validMemberships.size() == 0) {
+                return nextId;
+            }
+            ForumMembership member = validMemberships.get(randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX)
+                                                                    .nextInt(validMemberships.size()));
+            TreeSet<Integer> tags = new TreeSet<Integer>();
+            String content = "";
 
-			long baseDate = Math.max(replyTo.creationDate(),member.creationDate()) + DatagenParams.deltaTime;
-			long creationDate = Dictionaries.dates.powerlawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect
-																							  .DATE),baseDate);
-			int country = member.person().countryId();
-			IP ip = member.person().ipAddress();
-			Random random = randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER);
-			if(PersonBehavior.changeUsualCountry(random,creationDate)) {
-				random = randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY);
-			    country = Dictionaries.places.getRandomCountryUniform(random);
-			    random = randomFarm.get(RandomGeneratorFarm.Aspect.IP);
-			    ip = Dictionaries.ips.getIP(random,country);
-			}
 
-			Comment comment = new Comment(SN.formId(SN.composeId(nextId++,creationDate)),
-										  creationDate,
-										  member.person(),
-										  forum.id(),
-										  content,
-										  tags,
-										  country,
-										  ip,
-										  Dictionaries.browsers.getPostBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER), randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER), member.person().browserId()),
-										  post.messageId(),
-										  replyTo.messageId());
-			if(!isShort) replyCandidates.add(new Comment(comment));
-			exporter.export(comment);
-			if( comment.content().length() > 10 && randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1 ) {
-				likeGenerator_.generateLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), forum, comment, Like.LikeType.COMMENT, exporter);
-			}
-		}
-		replyCandidates.clear();
-		return nextId;
-	}
-	
+            boolean isShort = false;
+            if (randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT).nextDouble() > 0.6666) {
+
+                ArrayList<Integer> currentTags = new ArrayList<Integer>();
+                Iterator<Integer> it = replyTo.tags().iterator();
+                while (it.hasNext()) {
+                    Integer tag = it.next();
+                    if (randomFarm.get(RandomGeneratorFarm.Aspect.TAG).nextDouble() > 0.5) {
+                        tags.add(tag);
+                    }
+                    currentTags.add(tag);
+                }
+
+                for (int j = 0; j < (int) Math.ceil(replyTo.tags().size() / 2.0); ++j) {
+                    int randomTag = currentTags.get(randomFarm.get(RandomGeneratorFarm.Aspect.TAG)
+                                                              .nextInt(currentTags.size()));
+                    tags.add(Dictionaries.tagMatrix
+                                     .getRandomRelated(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), randomTag));
+                }
+                content = this.generator.generateText(member.person(), tags, prop);
+            } else {
+                isShort = true;
+                int index = randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE).nextInt(shortComments_.length);
+                content = shortComments_[index];
+            }
+
+            long baseDate = Math.max(replyTo.creationDate(), member.creationDate()) + DatagenParams.deltaTime;
+            long creationDate = Dictionaries.dates.powerlawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect
+                                                                                              .DATE), baseDate);
+            int country = member.person().countryId();
+            IP ip = member.person().ipAddress();
+            Random random = randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER);
+            if (PersonBehavior.changeUsualCountry(random, creationDate)) {
+                random = randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY);
+                country = Dictionaries.places.getRandomCountryUniform(random);
+                random = randomFarm.get(RandomGeneratorFarm.Aspect.IP);
+                ip = Dictionaries.ips.getIP(random, country);
+            }
+
+            Comment comment = new Comment(SN.formId(SN.composeId(nextId++, creationDate)),
+                                          creationDate,
+                                          member.person(),
+                                          forum.id(),
+                                          content,
+                                          tags,
+                                          country,
+                                          ip,
+                                          Dictionaries.browsers.getPostBrowserId(randomFarm
+                                                                                         .get(RandomGeneratorFarm.Aspect.DIFF_BROWSER), randomFarm
+                                                                                         .get(RandomGeneratorFarm.Aspect.BROWSER), member
+                                                                                         .person().browserId()),
+                                          post.messageId(),
+                                          replyTo.messageId());
+            if (!isShort) replyCandidates.add(new Comment(comment));
+            exporter.export(comment);
+            if (comment.content().length() > 10 && randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE)
+                                                             .nextDouble() <= 0.1) {
+                likeGenerator_.generateLikes(randomFarm
+                                                     .get(RandomGeneratorFarm.Aspect.NUM_LIKE), forum, comment, Like.LikeType.COMMENT, exporter);
+            }
+        }
+        replyCandidates.clear();
+        return nextId;
+    }
+
 }

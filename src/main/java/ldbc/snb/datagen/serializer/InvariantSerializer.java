@@ -60,7 +60,7 @@ abstract public class InvariantSerializer {
     }
 
     public void export(final Organization organization) {
-       serialize(organization);
+        serialize(organization);
     }
 
     public void export(final Tag tag) {

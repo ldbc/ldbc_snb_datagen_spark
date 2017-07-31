@@ -34,6 +34,7 @@
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.objects;
+
 import ldbc.snb.datagen.generator.DatagenParams;
 
 import java.util.ArrayList;
@@ -41,29 +42,30 @@ import java.util.ArrayList;
 public class Forum {
 
     private long id_;
-    private Person.PersonSummary moderator_;        
+    private Person.PersonSummary moderator_;
     private long creationDate_;
     private String title_;
     private ArrayList<Integer> tags_;
-    private int placeId_;            
+    private int placeId_;
     private int language_;
     private ArrayList<ForumMembership> memberships_;
 
 
-    public Forum( long id, long creationDate, Person.PersonSummary moderator, String title, int placeId, int language  ) {
-        assert (moderator.creationDate() + DatagenParams.deltaTime) <= creationDate : "Moderator creation date is larger than message creation date";
-	    memberships_ = new ArrayList<ForumMembership>();
-	    tags_ = new ArrayList<Integer>();
-	    id_ = id;
-	    creationDate_ = creationDate;
-	    title_ = title;
-	    placeId_ = placeId;
-	    moderator_ = new Person.PersonSummary(moderator);
-	    language_ = language;
+    public Forum(long id, long creationDate, Person.PersonSummary moderator, String title, int placeId, int language) {
+        assert (moderator
+                .creationDate() + DatagenParams.deltaTime) <= creationDate : "Moderator creation date is larger than message creation date";
+        memberships_ = new ArrayList<ForumMembership>();
+        tags_ = new ArrayList<Integer>();
+        id_ = id;
+        creationDate_ = creationDate;
+        title_ = title;
+        placeId_ = placeId;
+        moderator_ = new Person.PersonSummary(moderator);
+        language_ = language;
     }
 
     public void addMember(ForumMembership member) {
-	    memberships_.add(member);
+        memberships_.add(member);
     }
 
     public long id() {
@@ -71,14 +73,14 @@ public class Forum {
     }
 
     public void id(long id) {
-	    id_ = id;
+        id_ = id;
     }
 
     public Person.PersonSummary moderator() {
         return moderator_;
     }
 
-    public void moderator( Person.PersonSummary moderator) {
+    public void moderator(Person.PersonSummary moderator) {
         moderator_.copy(moderator);
     }
 
@@ -95,8 +97,8 @@ public class Forum {
     }
 
     public void tags(ArrayList<Integer> tags) {
-	    tags_.clear();
-	    tags_.addAll(tags);
+        tags_.clear();
+        tags_.addAll(tags);
     }
 
     public String title() {
@@ -122,12 +124,12 @@ public class Forum {
     public void place(int placeId) {
         placeId_ = placeId;
     }
-    
+
     public int language() {
-	    return language_;
+        return language_;
     }
 
-    public void language( int l ) {
-	    language_ = l;
+    public void language(int l) {
+        language_ = l;
     }
 }

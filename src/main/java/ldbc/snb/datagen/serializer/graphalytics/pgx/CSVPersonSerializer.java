@@ -50,16 +50,17 @@ import java.util.ArrayList;
 
 public class CSVPersonSerializer extends PersonSerializer {
 
-    private HDFSCSVWriter [] writers;
+    private HDFSCSVWriter[] writers;
 
     private enum FileNames {
         PERSON_KNOWS_PERSON("person_knows_person");
 
         private final String name;
 
-        private FileNames( String name ) {
+        private FileNames(String name) {
             this.name = name;
         }
+
         public String toString() {
             return name;
         }
@@ -69,15 +70,18 @@ public class CSVPersonSerializer extends PersonSerializer {
     public void initialize(Configuration conf, int reducerId) throws IOException {
         int numFiles = FileNames.values().length;
         writers = new HDFSCSVWriter[numFiles];
-        for( int i = 0; i < numFiles; ++i) {
-            writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"), FileNames.values()[i].toString()+"_"+reducerId,conf.getInt("ldbc.snb.datagen.numPartitions",1),conf.getBoolean("ldbc.snb.datagen.serializer.compressed",false)," ", conf.getBoolean("ldbc.snb.datagen.serializer.endlineSeparator",false));
+        for (int i = 0; i < numFiles; ++i) {
+            writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"), FileNames
+                    .values()[i].toString() + "_" + reducerId, conf.getInt("ldbc.snb.datagen.numPartitions", 1), conf
+                                                   .getBoolean("ldbc.snb.datagen.serializer.compressed", false), " ", conf
+                                                   .getBoolean("ldbc.snb.datagen.serializer.endlineSeparator", false));
         }
     }
 
     @Override
     public void close() {
         int numFiles = FileNames.values().length;
-        for(int i = 0; i < numFiles; ++i) {
+        for (int i = 0; i < numFiles; ++i) {
             writers[i].close();
         }
     }

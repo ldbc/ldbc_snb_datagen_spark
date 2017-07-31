@@ -42,8 +42,8 @@ import ldbc.snb.datagen.objects.Person;
  */
 public class InterestKeySetter implements HadoopFileKeyChanger.KeySetter<TupleKey> {
 
-    public TupleKey getKey(Object object ) {
-        Person person = (Person)object;
-        return new TupleKey(person.mainInterest(),person.accountId());
+    public TupleKey getKey(Object object) {
+        Person person = (Person) object;
+        return new TupleKey(person.mainInterest(), person.accountId());
     }
 }
