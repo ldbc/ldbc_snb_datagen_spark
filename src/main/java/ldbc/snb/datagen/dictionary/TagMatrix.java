@@ -74,7 +74,8 @@ public class TagMatrix {
      */
     private void load(String tagMatrixFileName) {
         try {
-            BufferedReader dictionary = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(tagMatrixFileName), "UTF-8"));
+            BufferedReader dictionary = new BufferedReader(new InputStreamReader(getClass()
+                                                                                         .getResourceAsStream(tagMatrixFileName), "UTF-8"));
             String line;
             while ((line = dictionary.readLine()) != null) {
                 String data[] = line.split(SEPARATOR);
@@ -82,13 +83,13 @@ public class TagMatrix {
                 int topicId = Integer.parseInt(data[1]);
                 double cumuluative = Double.parseDouble(data[2]);
                 ArrayList<Double> cum = cumulative.get(celebrityId);
-                if(cum == null ) cumulative.put(celebrityId,new ArrayList<Double>());
+                if (cum == null) cumulative.put(celebrityId, new ArrayList<Double>());
                 cumulative.get(celebrityId).add(cumuluative);
                 ArrayList<Integer> related = relatedTags.get(celebrityId);
-                if(related == null) relatedTags.put(celebrityId,new ArrayList<Integer>());
+                if (related == null) relatedTags.put(celebrityId, new ArrayList<Integer>());
                 relatedTags.get(celebrityId).add(topicId);
             }
-            for(Integer tag : relatedTags.keySet()) {
+            for (Integer tag : relatedTags.keySet()) {
                 nonZeroTags.add(tag);
             }
             dictionary.close();
@@ -105,7 +106,7 @@ public class TagMatrix {
      */
     public Integer getRandomRelated(Random randomTag, int tag) {
         int tagId = tag;
-        if(relatedTags.get(tagId) == null) {
+        if (relatedTags.get(tagId) == null) {
             tagId = nonZeroTags.get(randomTag.nextInt(nonZeroTags.size()));
         }
         return relatedTags.get(tagId).get(randomTag.nextInt(relatedTags.get(tagId).size()));
@@ -126,7 +127,7 @@ public class TagMatrix {
             int tagId;
             tagId = popularTagId;
 
-            if(relatedTags.get(tagId) == null) {
+            if (relatedTags.get(tagId) == null) {
                 tagId = nonZeroTags.get(randomTag.nextInt(nonZeroTags.size()));
             }
 

@@ -56,7 +56,7 @@ public class PlaceDictionary {
     private static final String SEPARATOR_CITY = " ";
 
     private PlaceZOrder[] sortedPlace;
-    private ArrayList<Float> cumulativeDistribution;
+    private Float cumulativeDistribution[];
 
     private ArrayList<Integer> countries;
     /**
@@ -102,14 +102,13 @@ public class PlaceDictionary {
      * @brief Creator.
      */
     public PlaceDictionary() {
-        this.cumulativeDistribution = new ArrayList<Float>();
         this.countryNames = new HashMap<String, Integer>();
         this.cityNames = new HashMap<String, Integer>();
         this.places = new HashMap<Integer, Place>();
         this.isPartOf = new HashMap<Integer, Integer>();
         this.countries = new ArrayList<Integer>();
         this.citiesByCountry = new HashMap<Integer, ArrayList<Integer>>();
-	load(DatagenParams.cityDictionaryFile, DatagenParams.countryDictionaryFile);
+        load(DatagenParams.cityDictionaryFile, DatagenParams.countryDictionaryFile);
     }
 
     /**
@@ -232,6 +231,15 @@ public class PlaceDictionary {
     }
 
     /**
+     * @param random The random  number generator.
+     * @return The country identifier.
+     */
+    public int getRandomCountryUniform(Random random) {
+        int randomNumber = random.nextInt(countries.size());
+        return countries.get(randomNumber);
+    }
+
+    /**
      * @param citiesFileName    The cities file name.
      * @param countriesFileName The countries file name.
      * @brief Loads the dictionary files.
@@ -290,6 +298,8 @@ public class PlaceDictionary {
             BufferedReader dictionary = new BufferedReader(
                     new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));
 
+            ArrayList<Float> temporalCumulative = new ArrayList<Float>();
+
             String line;
             while ((line = dictionary.readLine()) != null) {
                 String data[] = line.split(SEPARATOR);
@@ -306,12 +316,14 @@ public class PlaceDictionary {
                 places.put(place.getId(), place);
                 countryNames.put(placeName, place.getId());
                 float dist = Float.parseFloat(data[5]);
-                cumulativeDistribution.add(dist);
+                temporalCumulative.add(dist);
                 countries.add(place.getId());
 
                 citiesByCountry.put(place.getId(), new ArrayList<Integer>());
             }
             dictionary.close();
+            cumulativeDistribution = new Float[temporalCumulative.size()];
+            cumulativeDistribution = temporalCumulative.toArray(cumulativeDistribution);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -364,19 +376,18 @@ public class PlaceDictionary {
      * @brief Gets a country for a user.
      */
     public int getCountryForUser(Random random) {
-        float prob = random.nextFloat();
-        int minIdx = 0;
-        int maxIdx = cumulativeDistribution.size();
-        // Binary search
-        while ((maxIdx - minIdx) > 1) {
-            int middlePoint = minIdx + (maxIdx - minIdx) / 2;
-            if (prob > cumulativeDistribution.get(middlePoint)) {
-                minIdx = middlePoint;
-            } else {
-                maxIdx = middlePoint;
-            }
+        int position = Arrays.binarySearch(cumulativeDistribution, random.nextFloat());
+        if (position >= 0) {
+            return position;
         }
-        return maxIdx;
+        return (-(position + 1));
+    }
+
+    public float getCumProbabilityCountry(int countryId) {
+        if (countryId == 0) {
+            return cumulativeDistribution[0];
+        }
+        return cumulativeDistribution[countryId] - cumulativeDistribution[countryId - 1];
     }
 
     /**
@@ -388,7 +399,8 @@ public class PlaceDictionary {
 
         for (int i = 0; i < countries.size(); i++) {
             Place loc = places.get(countries.get(i));
-            int zvalue = zorder.getZValue(((int) Math.round(loc.getLongt()) + 180) / 2, ((int) Math.round(loc.getLatt()) + 180) / 2);
+            int zvalue = zorder.getZValue(((int) Math.round(loc.getLongt()) + 180) / 2, ((int) Math
+                    .round(loc.getLatt()) + 180) / 2);
             sortedPlace[i] = new PlaceZOrder(loc.getId(), zvalue);
         }
 

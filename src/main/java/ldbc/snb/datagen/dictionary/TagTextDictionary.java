@@ -63,7 +63,7 @@ public class TagTextDictionary {
         this.tagDic = tagDic;
         this.reducedTextRatio = reducedTextRatio;
         this.returnString = new StringBuilder(1000);
-	load(DatagenParams.tagTextFile);
+        load(DatagenParams.tagTextFile);
     }
 
     /**
@@ -72,7 +72,8 @@ public class TagTextDictionary {
      */
     private void load(String fileName) {
         try {
-            BufferedReader dictionary = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));
+            BufferedReader dictionary = new BufferedReader(new InputStreamReader(getClass()
+                                                                                         .getResourceAsStream(fileName), "UTF-8"));
             String line;
             while ((line = dictionary.readLine()) != null) {
                 String[] data = line.split(SEPARATOR);
@@ -121,7 +122,6 @@ public class TagTextDictionary {
     }
 
     /**
-     *
      * @param randomTextSize The random number generator to generate the amount of text devoted to each tag.
      * @param tags           The set of tags to generate the text from.
      * @param textSize       The final text size.
@@ -140,26 +140,27 @@ public class TagTextDictionary {
                 String tagName = tagDic.getName(tag).replace("_", " ");
                 tagName = tagName.replace("\"", "\\\"");
                 String prefix = "About " + tagName + ", ";
-                thisTagTextSize+=prefix.length();
+                thisTagTextSize += prefix.length();
                 if (thisTagTextSize >= content.length()) {
                     returnString.append(content);
                 } else {
                     int startingPos = randomTextSize.nextInt(content.length() - thisTagTextSize + prefix.length());
-                    String finalString = content.substring(startingPos, startingPos + thisTagTextSize - prefix.length());
+                    String finalString = content.substring(startingPos, startingPos + thisTagTextSize - prefix
+                            .length());
                     returnString.append(prefix);
                     returnString.append(finalString);
                 }
             }
         }
 
-        if (returnString.charAt(returnString.length()-1) != '.') {
+        if (returnString.charAt(returnString.length() - 1) != '.') {
             returnString.append(".");
         }
         if (returnString.length() < textSize - 1) {
             returnString.append(" ");
         }
         if (returnString.length() > textSize) {
-            returnString.delete(textSize-1,returnString.length());
+            returnString.delete(textSize - 1, returnString.length());
             returnString.trimToSize();
         }
         return returnString.toString().replace("|", " ");

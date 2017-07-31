@@ -51,26 +51,26 @@ public class MinHash<T> {
     private int p[];
 
     public MinHash(int numHashes) {
-        numHashes_ =  numHashes;
-        Random random_ =new Random();
+        numHashes_ = numHashes;
+        Random random_ = new Random();
         a = new int[numHashes];
         b = new int[numHashes];
         p = new int[numHashes];
-        for(int i = 0; i < numHashes; ++i ) {
+        for (int i = 0; i < numHashes; ++i) {
             a[i] = random_.nextInt();
             b[i] = random_.nextInt();
             p[i] = random_.nextInt();
         }
     }
 
-    public ArrayList<Long> minHash( Set<Long> set ) {
+    public ArrayList<Long> minHash(Set<Long> set) {
         ArrayList<Long> minHashes = new ArrayList<Long>();
-        for(int i = 0; i < numHashes_; ++i ) {
+        for (int i = 0; i < numHashes_; ++i) {
             long min = Long.MAX_VALUE;
             long minl = 0;
-            for( Long l : set ) {
-                long hash = (a[i]*l+b[i]) % p[i];
-                if(hash <= min) {
+            for (Long l : set) {
+                long hash = (a[i] * l + b[i]) % p[i];
+                if (hash <= min) {
                     min = hash;
                     minl = l;
 

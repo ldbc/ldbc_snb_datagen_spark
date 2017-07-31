@@ -49,8 +49,9 @@ public class Comment extends Message {
         super();
     }
 
-    public Comment( Comment comment ) {
-        super(comment.messageId(), comment.creationDate(), comment.author(), comment.forumId(), comment.content(), comment.tags(), comment.ipAddress(), comment.browserId());
+    public Comment(Comment comment) {
+        super(comment.messageId(), comment.creationDate(), comment.author(), comment.forumId(), comment.content(),
+              comment.tags(), comment.countryId(), comment.ipAddress(), comment.browserId());
         postId_ = comment.postId();
         replyOf_ = comment.replyOf();
     }
@@ -61,46 +62,48 @@ public class Comment extends Message {
                    long forumId,
                    String content,
                    TreeSet<Integer> tags,
+                   int countryId,
                    IP ipAddress,
                    int browserId,
                    long postId,
                    long replyOf
     ) {
 
-        super(commentId, creationDate, author, forumId, content, tags, ipAddress, browserId);
+        super(commentId, creationDate, author, forumId, content, tags, countryId, ipAddress, browserId);
         postId_ = postId;
         replyOf_ = replyOf;
     }
 
     public void initialize(long commentId,
-                   long creationDate,
-                   PersonSummary author,
-                   long forumId,
-                   String content,
-                   TreeSet<Integer> tags,
-                   IP ipAddress,
-                   int browserId,
-                   long postId,
-                   long replyOf) {
-        super.initialize(commentId, creationDate, author, forumId, content, tags, ipAddress, browserId);
+                           long creationDate,
+                           PersonSummary author,
+                           long forumId,
+                           String content,
+                           TreeSet<Integer> tags,
+                           int countryId,
+                           IP ipAddress,
+                           int browserId,
+                           long postId,
+                           long replyOf) {
+        super.initialize(commentId, creationDate, author, forumId, content, tags, countryId, ipAddress, browserId);
         postId_ = postId;
         replyOf_ = replyOf;
     }
 
     public long postId() {
-	    return postId_;
+        return postId_;
     }
 
-    public void postId( long id ) {
-	   postId_ = id; 
+    public void postId(long id) {
+        postId_ = id;
     }
 
     public long replyOf() {
-	    return replyOf_;
+        return replyOf_;
     }
 
-    public void replyOf( long id ) {
-	    replyOf_ = id;
+    public void replyOf(long id) {
+        replyOf_ = id;
     }
 
 }

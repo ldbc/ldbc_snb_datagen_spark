@@ -57,33 +57,33 @@ public class HadoopFileKeyChanger {
     private Class<?> V;
 
     public interface KeySetter<K> {
-       public K getKey(Object object);
+        public K getKey(Object object);
     }
 
 
-    public HadoopFileKeyChanger( Configuration conf, Class<?> K, Class<?> V, String keySetterName ) {
+    public HadoopFileKeyChanger(Configuration conf, Class<?> K, Class<?> V, String keySetterName) {
         this.keySetterName = keySetterName;
         this.conf = conf;
         this.K = K;
         this.V = V;
     }
 
-    public static class HadoopFileKeyChangerReducer<K, V>  extends Reducer<K, V, TupleKey, V> {
+    public static class HadoopFileKeyChangerReducer<K, V> extends Reducer<K, V, TupleKey, V> {
 
         private KeySetter<TupleKey> keySetter;
 
         @Override
-        public void setup( Context context ) {
+        public void setup(Context context) {
             try {
                 String className = context.getConfiguration().get("keySetterClassName");
                 keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(className).newInstance();
-            } catch(ClassNotFoundException e) {
+            } catch (ClassNotFoundException e) {
                 System.out.print(e.getMessage());
                 e.printStackTrace();
-            } catch(IllegalAccessException e) {
+            } catch (IllegalAccessException e) {
                 System.out.print(e.getMessage());
                 e.printStackTrace();
-            } catch(InstantiationException e) {
+            } catch (InstantiationException e) {
                 System.out.print(e.getMessage());
                 e.printStackTrace();
             }
@@ -92,20 +92,20 @@ public class HadoopFileKeyChanger {
         @Override
         public void reduce(K key, Iterable<V> valueSet,
                            Context context) throws IOException, InterruptedException {
-            for( V v : valueSet ) {
+            for (V v : valueSet) {
                 context.write(keySetter.getKey(v), v);
             }
         }
     }
 
-    public void run( String inputFileName, String outputFileName ) throws Exception {
+    public void run(String inputFileName, String outputFileName) throws Exception {
 
-        int numThreads = conf.getInt("ldbc.snb.datagen.generator.numThreads",1);
-        System.out.println("***************"+numThreads);
+        int numThreads = conf.getInt("ldbc.snb.datagen.generator.numThreads", 1);
+        System.out.println("***************" + numThreads);
         conf.set("keySetterClassName", keySetterName);
 
         /** First Job to sort the key-value pairs and to count the number of elements processed by each reducer.**/
-	Job job = Job.getInstance(conf, "Sorting "+inputFileName);
+        Job job = Job.getInstance(conf, "Sorting " + inputFileName);
 
         FileInputFormat.setInputPaths(job, new Path(inputFileName));
         FileOutputFormat.setOutputPath(job, new Path(outputFileName));
@@ -119,7 +119,7 @@ public class HadoopFileKeyChanger {
         job.setJarByClass(V);
         job.setInputFormatClass(SequenceFileInputFormat.class);
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
-        if(!job.waitForCompletion(true)){
+        if (!job.waitForCompletion(true)) {
             throw new Exception();
         }
     }

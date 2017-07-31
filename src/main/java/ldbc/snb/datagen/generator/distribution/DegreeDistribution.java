@@ -38,18 +38,17 @@ package ldbc.snb.datagen.generator.distribution;
 import org.apache.hadoop.conf.Configuration;
 
 /**
- *
  * @author aprat
  */
 public abstract class DegreeDistribution {
 
-	public abstract void initialize( Configuration conf );
+    public abstract void initialize(Configuration conf);
 
-    public abstract void reset (long seed);
+    public abstract void reset(long seed);
 
-	public abstract long nextDegree();
+    public abstract long nextDegree();
 
-	public double mean(long numPersons) {
-		return -1;
-	}
+    public double mean(long numPersons) {
+        return -1;
+    }
 }

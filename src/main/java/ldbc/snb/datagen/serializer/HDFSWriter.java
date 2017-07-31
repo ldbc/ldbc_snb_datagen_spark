@@ -50,7 +50,7 @@ public class HDFSWriter {
     private StringBuffer buffer;
     private OutputStream[] fileOutputStream;
 
-    public HDFSWriter(String outputDir, String prefix, int numPartitions, boolean compressed, String extension) throws IOException{
+    public HDFSWriter(String outputDir, String prefix, int numPartitions, boolean compressed, String extension) throws IOException {
         this.numPartitions = numPartitions;
         try {
             Configuration conf = new Configuration();
@@ -58,11 +58,12 @@ public class HDFSWriter {
             fileOutputStream = new OutputStream[numPartitions];
             if (compressed) {
                 for (int i = 0; i < numPartitions; i++) {
-                    this.fileOutputStream[i] = new GZIPOutputStream(fs.create(new Path(outputDir + "/" + prefix + "_" + i + "."+extension+".gz"),true, 131072));
+                    this.fileOutputStream[i] = new GZIPOutputStream(fs.create(new Path(outputDir + "/" + prefix + "_" + i + "." + extension + ".gz"), true, 131072));
                 }
             } else {
                 for (int i = 0; i < numPartitions; i++) {
-                    this.fileOutputStream[i] = fs.create(new Path(outputDir + "/" + prefix + "_" + i + "."+extension), true, 131072);
+                    this.fileOutputStream[i] = fs
+                            .create(new Path(outputDir + "/" + prefix + "_" + i + "." + extension), true, 131072);
                 }
             }
             buffer = new StringBuffer(1024);
@@ -72,26 +73,24 @@ public class HDFSWriter {
         }
     }
 
-    public void write( String entry ) {
+    public void write(String entry) {
         buffer.setLength(0);
         buffer.append(entry);
         try {
             fileOutputStream[currentPartition].write(buffer.toString().getBytes("UTF8"));
             currentPartition = ++currentPartition % numPartitions;
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             System.out.println("Cannot write to output file ");
             e.printStackTrace();
         }
     }
 
-    public void writeAllPartitions( String entry ) {
+    public void writeAllPartitions(String entry) {
         try {
-            for(int i = 0; i < numPartitions;++i ) {
+            for (int i = 0; i < numPartitions; ++i) {
                 fileOutputStream[i].write(entry.getBytes("UTF8"));
             }
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             System.out.println("Cannot write to output file ");
             e.printStackTrace();
         }

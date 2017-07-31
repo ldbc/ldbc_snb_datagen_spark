@@ -59,16 +59,18 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 
 /**
- *
  * @author aprat
  */
 public class HadoopPersonActivityGenerator {
 
     private Configuration conf;
 
-    public static class HadoopPersonActivityGeneratorReducer  extends Reducer<BlockKey, Person, LongWritable, Person> {
+    public static class HadoopPersonActivityGeneratorReducer extends Reducer<BlockKey, Person, LongWritable, Person> {
 
-        private int reducerId;                          /** The id of the reducer.**/
+        private int reducerId;
+        /**
+         * The id of the reducer.
+         **/
         private PersonActivitySerializer personActivitySerializer_;
         private PersonActivityGenerator personActivityGenerator_;
         private UpdateEventSerializer updateSerializer_;
@@ -83,54 +85,57 @@ public class HadoopPersonActivityGenerator {
             reducerId = context.getTaskAttemptID().getTaskID().getId();
             LDBCDatagen.initializeContext(conf);
             try {
-                personActivitySerializer_ = (PersonActivitySerializer) Class.forName(conf.get("ldbc.snb.datagen.serializer.personActivitySerializer")).newInstance();
-                personActivitySerializer_.initialize(conf,reducerId);
-                if(DatagenParams.updateStreams) {
+                personActivitySerializer_ = (PersonActivitySerializer) Class
+                        .forName(conf.get("ldbc.snb.datagen.serializer.personActivitySerializer")).newInstance();
+                personActivitySerializer_.initialize(conf, reducerId);
+                if (DatagenParams.updateStreams) {
                     updateSerializer_ = new UpdateEventSerializer(conf, DatagenParams.hadoopDir + "/temp_updateStream_forum_" + reducerId, reducerId, DatagenParams.numUpdatePartitions);
                 }
                 personActivityGenerator_ = new PersonActivityGenerator(personActivitySerializer_, updateSerializer_);
 
                 fs_ = FileSystem.get(context.getConfiguration());
-                personFactors_ = fs_.create(new Path(DatagenParams.hadoopDir+"/"+ "m" + reducerId + DatagenParams.PERSON_COUNTS_FILE));
-                activityFactors_ = fs_.create(new Path(DatagenParams.hadoopDir+"/"+ "m" + reducerId + DatagenParams.ACTIVITY_FILE));
-                friends_ = fs_.create(new Path(DatagenParams.hadoopDir+"/"+ "m0friendList" + reducerId +".csv"));
+                personFactors_ = fs_
+                        .create(new Path(DatagenParams.hadoopDir + "/" + "m" + reducerId + DatagenParams.PERSON_COUNTS_FILE));
+                activityFactors_ = fs_
+                        .create(new Path(DatagenParams.hadoopDir + "/" + "m" + reducerId + DatagenParams.ACTIVITY_FILE));
+                friends_ = fs_.create(new Path(DatagenParams.hadoopDir + "/" + "m0friendList" + reducerId + ".csv"));
 
-            } catch( Exception e ) {
+            } catch (Exception e) {
                 System.err.println(e.getMessage());
                 e.printStackTrace();
             }
         }
 
         @Override
-        public void reduce(BlockKey key, Iterable<Person> valueSet,Context context)
+        public void reduce(BlockKey key, Iterable<Person> valueSet, Context context)
                 throws IOException, InterruptedException {
-            System.out.println("Reducing block "+key.block);
+            System.out.println("Reducing block " + key.block);
             ArrayList<Person> persons = new ArrayList<Person>();
-            for( Person p : valueSet ) {
+            for (Person p : valueSet) {
                 persons.add(new Person(p));
 
                 StringBuilder strbuf = new StringBuilder();
                 strbuf.append(p.accountId());
-                for( Knows k : p.knows() ) {
+                for (Knows k : p.knows()) {
                     strbuf.append(",");
                     strbuf.append(k.to().accountId());
-                    if( k.creationDate() > Dictionaries.dates.getUpdateThreshold() && DatagenParams.updateStreams ) {
-                        updateSerializer_.export(p,k);
+                    if (k.creationDate() > Dictionaries.dates.getUpdateThreshold() && DatagenParams.updateStreams) {
+                        updateSerializer_.export(p, k);
                     }
                 }
-                if( DatagenParams.updateStreams ) {
+                if (DatagenParams.updateStreams) {
                     updateSerializer_.changePartition();
                 }
                 strbuf.append("\n");
                 friends_.write(strbuf.toString().getBytes("UTF8"));
             }
-            System.out.println("Starting generation of block: "+key.block);
-            personActivityGenerator_.generateActivityForBlock((int)key.block, persons, context );
-            System.out.println("Writing person factors for block: "+key.block);
+            System.out.println("Starting generation of block: " + key.block);
+            personActivityGenerator_.generateActivityForBlock((int) key.block, persons, context);
+            System.out.println("Writing person factors for block: " + key.block);
             personActivityGenerator_.writePersonFactors(personFactors_);
         }
 
-        protected void cleanup(Context context){
+        protected void cleanup(Context context) {
             try {
                 System.out.println("Cleaning up");
                 personActivityGenerator_.writeActivityFactors(activityFactors_);
@@ -139,9 +144,10 @@ public class HadoopPersonActivityGenerator {
                 friends_.close();
             } catch (IOException e) {
                 e.printStackTrace();
+                throw new RuntimeException(e);
             }
             personActivitySerializer_.close();
-            if(DatagenParams.updateStreams) {
+            if (DatagenParams.updateStreams) {
                 try {
                     updateSerializer_.close();
                 } catch (IOException e) {
@@ -155,14 +161,14 @@ public class HadoopPersonActivityGenerator {
         this.conf = conf;
     }
 
-    public void run( String inputFileName ) throws AssertionError, Exception {
+    public void run(String inputFileName) throws AssertionError, Exception {
 
         FileSystem fs = FileSystem.get(conf);
 
         System.out.println("RANKING");
         String rankedFileName = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/ranked";
-        HadoopFileRanker hadoopFileRanker = new HadoopFileRanker( conf, TupleKey.class, Person.class, null );
-        hadoopFileRanker.run(inputFileName,rankedFileName);
+        HadoopFileRanker hadoopFileRanker = new HadoopFileRanker(conf, TupleKey.class, Person.class, null);
+        hadoopFileRanker.run(inputFileName, rankedFileName);
 
         System.out.println("GENERATING");
         int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads"));
@@ -190,21 +196,21 @@ public class HadoopPersonActivityGenerator {
         /****/
 
         FileInputFormat.setInputPaths(job, new Path(rankedFileName));
-        FileOutputFormat.setOutputPath(job, new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")+"/aux"));
+        FileOutputFormat.setOutputPath(job, new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/aux"));
         long start = System.currentTimeMillis();
         try {
             if (!job.waitForCompletion(true)) {
                 throw new Exception();
             }
-        } catch (AssertionError e)  {
+        } catch (AssertionError e) {
             throw e;
         }
-        System.out.println("Real time to generate activity: "+(System.currentTimeMillis() - start)/1000.0f);
+        System.out.println("Real time to generate activity: " + (System.currentTimeMillis() - start) / 1000.0f);
 
-        try{
+        try {
             fs.delete(new Path(rankedFileName), true);
-            fs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")+"/aux"),true);
-        } catch(IOException e) {
+            fs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/aux"), true);
+        } catch (IOException e) {
             System.err.println(e.getMessage());
             e.printStackTrace();
         }

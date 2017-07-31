@@ -52,16 +52,16 @@ public class DiscreteWeibullDistribution extends CumulativeBasedDegreeDistributi
     //private double P_ = 0.0448;
     private double P_ = 0.0205;
 
-    public ArrayList<CumulativeEntry> cumulativeProbability( Configuration conf ) {
-        BETA_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.DiscreteWeibullDistribution.beta",BETA_);
-        P_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.DiscreteWeibullDistribution.p",P_);
+    public ArrayList<CumulativeEntry> cumulativeProbability(Configuration conf) {
+        BETA_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.DiscreteWeibullDistribution.beta", BETA_);
+        P_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.DiscreteWeibullDistribution.p", P_);
         ArrayList<CumulativeEntry> cumulative = new ArrayList<CumulativeEntry>();
-        for( int i = 0; i < DatagenParams.numPersons; ++i ) {
+        for (int i = 0; i < DatagenParams.numPersons; ++i) {
             //double prob = Math.pow(1.0-P_,Math.pow(i,BETA_))-Math.pow((1.0-P_),Math.pow(i+1,BETA_));
-            double prob = 1.0-Math.pow((1.0-P_),Math.pow(i+1,BETA_));
+            double prob = 1.0 - Math.pow((1.0 - P_), Math.pow(i + 1, BETA_));
             CumulativeEntry entry = new CumulativeEntry();
             entry.prob_ = prob;
-            entry.value_ = i+1;
+            entry.value_ = i + 1;
             cumulative.add(entry);
         }
         return cumulative;

@@ -50,14 +50,14 @@ import java.util.ArrayList;
 public class CSVMergeForeignPersonActivitySerializer extends PersonActivitySerializer {
     private HDFSCSVWriter[] writers;
     private ArrayList<String> arguments;
-    private String empty="";
+    private String empty = "";
 
     private enum FileNames {
-        FORUM ("forum"),
-        FORUM_HASMEMBER_PERSON ("forum_hasMember_person"),
-        FORUM_HASTAG_TAG ("forum_hasTag_tag"),
-        PERSON_LIKES_POST ("person_likes_post"),
-        PERSON_LIKES_COMMENT ("person_likes_comment"),
+        FORUM("forum"),
+        FORUM_HASMEMBER_PERSON("forum_hasMember_person"),
+        FORUM_HASTAG_TAG("forum_hasTag_tag"),
+        PERSON_LIKES_POST("person_likes_post"),
+        PERSON_LIKES_COMMENT("person_likes_comment"),
         POST("post"),
         POST_HASTAG_TAG("post_hasTag_tag"),
         COMMENT("comment"),
@@ -65,9 +65,10 @@ public class CSVMergeForeignPersonActivitySerializer extends PersonActivitySeria
 
         private final String name;
 
-        private FileNames( String name ) {
+        private FileNames(String name) {
             this.name = name;
         }
+
         public String toString() {
             return name;
         }
@@ -77,8 +78,11 @@ public class CSVMergeForeignPersonActivitySerializer extends PersonActivitySeria
     public void initialize(Configuration conf, int reducerId) throws IOException {
         int numFiles = FileNames.values().length;
         writers = new HDFSCSVWriter[numFiles];
-        for( int i = 0; i < numFiles; ++i) {
-            writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"),FileNames.values()[i].toString()+"_"+reducerId,conf.getInt("ldbc.snb.datagen.numPartitions",1),conf.getBoolean("ldbc.snb.datagen.serializer.compressed",false),"|",conf.getBoolean("ldbc.snb.datagen.serializer.endlineSeparator",false));
+        for (int i = 0; i < numFiles; ++i) {
+            writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"), FileNames
+                    .values()[i].toString() + "_" + reducerId, conf.getInt("ldbc.snb.datagen.numPartitions", 1), conf
+                                                   .getBoolean("ldbc.snb.datagen.serializer.compressed", false), "|", conf
+                                                   .getBoolean("ldbc.snb.datagen.serializer.endlineSeparator", false));
         }
         arguments = new ArrayList<String>();
 
@@ -153,12 +157,12 @@ public class CSVMergeForeignPersonActivitySerializer extends PersonActivitySeria
     @Override
     public void close() {
         int numFiles = FileNames.values().length;
-        for(int i = 0; i < numFiles; ++i) {
+        for (int i = 0; i < numFiles; ++i) {
             writers[i].close();
         }
     }
 
-    protected void serialize(final  Forum forum ) {
+    protected void serialize(final Forum forum) {
 
         String dateString = Dictionaries.dates.formatDateTime(forum.creationDate());
 
@@ -169,7 +173,7 @@ public class CSVMergeForeignPersonActivitySerializer extends PersonActivitySeria
         writers[FileNames.FORUM.ordinal()].writeEntry(arguments);
         arguments.clear();
 
-        for( Integer i : forum.tags()) {
+        for (Integer i : forum.tags()) {
             arguments.add(Long.toString(forum.id()));
             arguments.add(Integer.toString(i));
             writers[FileNames.FORUM_HASTAG_TAG.ordinal()].writeEntry(arguments);
@@ -178,7 +182,7 @@ public class CSVMergeForeignPersonActivitySerializer extends PersonActivitySeria
 
     }
 
-    protected void serialize( final Post post ) {
+    protected void serialize(final Post post) {
 
         arguments.add(Long.toString(post.messageId()));
         arguments.add(empty);
@@ -194,7 +198,7 @@ public class CSVMergeForeignPersonActivitySerializer extends PersonActivitySeria
         writers[FileNames.POST.ordinal()].writeEntry(arguments);
         arguments.clear();
 
-        for( Integer t : post.tags() ) {
+        for (Integer t : post.tags()) {
             arguments.add(Long.toString(post.messageId()));
             arguments.add(Integer.toString(t));
             writers[FileNames.POST_HASTAG_TAG.ordinal()].writeEntry(arguments);
@@ -202,7 +206,7 @@ public class CSVMergeForeignPersonActivitySerializer extends PersonActivitySeria
         }
     }
 
-    protected void serialize( final Comment comment ) {
+    protected void serialize(final Comment comment) {
         arguments.add(Long.toString(comment.messageId()));
         arguments.add(Dictionaries.dates.formatDateTime(comment.creationDate()));
         arguments.add(comment.ipAddress().toString());
@@ -221,7 +225,7 @@ public class CSVMergeForeignPersonActivitySerializer extends PersonActivitySeria
         writers[FileNames.COMMENT.ordinal()].writeEntry(arguments);
         arguments.clear();
 
-        for( Integer t : comment.tags() ) {
+        for (Integer t : comment.tags()) {
             arguments.add(Long.toString(comment.messageId()));
             arguments.add(Integer.toString(t));
             writers[FileNames.COMMENT_HASTAG_TAG.ordinal()].writeEntry(arguments);
@@ -229,7 +233,7 @@ public class CSVMergeForeignPersonActivitySerializer extends PersonActivitySeria
         }
     }
 
-    protected void serialize(final  Photo photo ) {
+    protected void serialize(final Photo photo) {
 
         arguments.add(Long.toString(photo.messageId()));
         arguments.add(photo.content());
@@ -245,7 +249,7 @@ public class CSVMergeForeignPersonActivitySerializer extends PersonActivitySeria
         writers[FileNames.POST.ordinal()].writeEntry(arguments);
         arguments.clear();
 
-        for( Integer t : photo.tags() ) {
+        for (Integer t : photo.tags()) {
             arguments.add(Long.toString(photo.messageId()));
             arguments.add(Integer.toString(t));
             writers[FileNames.POST_HASTAG_TAG.ordinal()].writeEntry(arguments);
@@ -253,7 +257,7 @@ public class CSVMergeForeignPersonActivitySerializer extends PersonActivitySeria
         }
     }
 
-    protected void serialize(final  ForumMembership membership ) {
+    protected void serialize(final ForumMembership membership) {
         arguments.add(Long.toString(membership.forumId()));
         arguments.add(Long.toString(membership.person().accountId()));
         arguments.add(Dictionaries.dates.formatDateTime(membership.creationDate()));
@@ -261,11 +265,11 @@ public class CSVMergeForeignPersonActivitySerializer extends PersonActivitySeria
         arguments.clear();
     }
 
-    protected void serialize( final Like like ) {
+    protected void serialize(final Like like) {
         arguments.add(Long.toString(like.user));
         arguments.add(Long.toString(like.messageId));
         arguments.add(Dictionaries.dates.formatDateTime(like.date));
-        if( like.type == Like.LikeType.POST || like.type == Like.LikeType.PHOTO ) {
+        if (like.type == Like.LikeType.POST || like.type == Like.LikeType.PHOTO) {
             writers[FileNames.PERSON_LIKES_POST.ordinal()].writeEntry(arguments);
             arguments.clear();
         } else {

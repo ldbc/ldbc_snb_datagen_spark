@@ -48,7 +48,7 @@ public class Turtle {
         createPrefixLine(result, RDFS.PREFIX, RDFS.NAMESPACE);
         createPrefixLine(result, XSD.PREFIX, XSD.NAMESPACE);
         createPrefixLine(result, SNVOC.PREFIX, SNVOC.NAMESPACE);
-	createPrefixLine(result, SNTAG.PREFIX, SNTAG.NAMESPACE);
+        createPrefixLine(result, SNTAG.PREFIX, SNTAG.NAMESPACE);
         createPrefixLine(result, SN.PREFIX, SN.NAMESPACE);
         createPrefixLine(result, DBP.PREFIX, DBP.NAMESPACE);
         return result.toString();
@@ -68,9 +68,8 @@ public class Turtle {
     }
 
     /**
-     *
-     * @param result: The StringBuffer to append to.
-     * @param prefix: The RDF namespace prefix abbreviation.
+     * @param result:    The StringBuffer to append to.
+     * @param prefix:    The RDF namespace prefix abbreviation.
      * @param namespace: The RDF namespace.
      */
     public static void createPrefixLine(StringBuffer result, String prefix, String namespace) {
@@ -86,9 +85,9 @@ public class Turtle {
     /**
      * Writes a RDF triple in the dbpedia static data file.
      *
-     * @param subject: The RDF subject.
+     * @param subject:   The RDF subject.
      * @param predicate: The RDF predicate.
-     * @param object: The RDF object.
+     * @param object:    The RDF object.
      */
     public static void writeDBPData(HDFSWriter writer, String subject, String predicate, String object) {
         StringBuffer result = new StringBuffer(150);
@@ -104,10 +103,10 @@ public class Turtle {
     /**
      * Adds the appropriate triple kind into the input StringBuffer.
      *
-     * @param result: The StringBuffer to append to.
+     * @param result:    The StringBuffer to append to.
      * @param beginning: The beggining of a subject abbreviation block.
-     * @param end: The end of a subject abbreviation block.
-     * @param subject: The RDF subject.
+     * @param end:       The end of a subject abbreviation block.
+     * @param subject:   The RDF subject.
      * @param predicate: The RDF predicate.
      */
     public static void addTriple(StringBuffer result, boolean beginning,
@@ -126,12 +125,12 @@ public class Turtle {
     /**
      * Adds the appropriate triple kind into the input StringBuffer.
      *
-     * @param result: The StringBuffer to append to.
+     * @param result:    The StringBuffer to append to.
      * @param beginning: The beggining of a subject abbreviation block.
-     * @param end: The end of a subject abbreviation block.
-     * @param subject: The RDF subject.
+     * @param end:       The end of a subject abbreviation block.
+     * @param subject:   The RDF subject.
      * @param predicate: The RDF predicate.
-     * @param object: The RDF object.
+     * @param object:    The RDF object.
      */
     public static void addTriple(StringBuffer result, boolean beginning,
                                  boolean end, String subject, String predicate, String object) {
@@ -141,7 +140,7 @@ public class Turtle {
 
     /**
      * Builds a plain RDF literal.
-     *
+     * <p>
      * See<a href="http://www.w3.org/TR/rdf-concepts/#section-Literals">RDF literals.</a>
      *
      * @param value: The value.
@@ -153,10 +152,10 @@ public class Turtle {
 
     /**
      * Builds a typed RDF literal.
-     *
+     * <p>
      * See<a href="http://www.w3.org/TR/rdf-concepts/#section-Literals">RDF literals.</a>
      *
-     * @param value: The literal value.
+     * @param value:       The literal value.
      * @param datatypeURI: The data type.
      * @return The RDF typed literal string representation.
      */
@@ -166,13 +165,13 @@ public class Turtle {
 
     /**
      * Builds a simple turtle triple: subject predicate object .
-     *
+     * <p>
      * See <a href="http://www.w3.org/TeamSubmission/turtle/">Turtle</a>
      *
-     * @param result: The stringBuffer where the triple representation will be appended to.
-     * @param subject: The RDF subject.
+     * @param result:    The stringBuffer where the triple representation will be appended to.
+     * @param subject:   The RDF subject.
      * @param predicate: The RDF predicate.
-     * @param object: The RDF object.
+     * @param object:    The RDF object.
      */
     public static void createTripleSPO(StringBuffer result, String subject, String predicate, String object) {
         result.append(subject);
@@ -185,12 +184,12 @@ public class Turtle {
 
     /**
      * Builds a subject abbreviated turtle triple.
-     *
+     * <p>
      * See <a href="http://www.w3.org/TeamSubmission/turtle/">Turtle</a>
      *
-     * @param result: The stringBuffer where the triple representation will be appended to.
-     * @param predicate: The RDF predicate.
-     * @param object: The RDF object.
+     * @param result:           The stringBuffer where the triple representation will be appended to.
+     * @param predicate:        The RDF predicate.
+     * @param object:           The RDF object.
      * @param endSubjectRepeat: The marker to end the subject repetition symbol.
      */
     public static void createTriplePO(StringBuffer result, String predicate, String object, boolean endSubjectRepeat) {
@@ -207,13 +206,13 @@ public class Turtle {
 
     /**
      * Builds a subject abbreviated turtle triple with two objects.
-     *
+     * <p>
      * See <a href="http://www.w3.org/TeamSubmission/turtle/">Turtle</a>
      *
-     * @param result: The stringBuffer where the triple representation will be appended to.
-     * @param predicate: The RDF predicate.
-     * @param object1: The first RDF object.
-     * @param object2: The second RDF object.
+     * @param result:           The stringBuffer where the triple representation will be appended to.
+     * @param predicate:        The RDF predicate.
+     * @param object1:          The first RDF object.
+     * @param object2:          The second RDF object.
      * @param endSubjectRepeat: The marker to end the subject repetition symbol.
      */
     public static void createTriplePOO(StringBuffer result, String predicate, String object1, String object2, boolean endSubjectRepeat) {

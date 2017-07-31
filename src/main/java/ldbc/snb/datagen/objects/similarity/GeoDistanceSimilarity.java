@@ -41,7 +41,7 @@ import ldbc.snb.datagen.objects.Person;
 /**
  * Created by aprat on 22/01/16.
  */
-public class GeoDistanceSimilarity implements Person.PersonSimilarity{
+public class GeoDistanceSimilarity implements Person.PersonSimilarity {
     @Override
     public float similarity(Person personA, Person personB) {
         int zorderA = Dictionaries.places.getZorderID(personA.countryId());

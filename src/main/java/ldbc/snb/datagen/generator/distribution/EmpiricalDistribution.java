@@ -48,24 +48,24 @@ import java.util.ArrayList;
 /**
  * Created by aprat on 27/06/16.
  */
-public class EmpiricalDistribution extends BucketedDistribution{
+public class EmpiricalDistribution extends BucketedDistribution {
 
     private String fileName = null;
 
     @Override
     public ArrayList<Bucket> getBuckets(Configuration conf) {
         fileName = conf.get("ldbc.snb.datagen.generator.distribution.EmpiricalDistribution.fileName");
-        ArrayList<Pair<Integer,Integer>> histogram = new ArrayList<Pair<Integer,Integer>>();
+        ArrayList<Pair<Integer, Integer>> histogram = new ArrayList<Pair<Integer, Integer>>();
         try {
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));
             String line;
             while ((line = reader.readLine()) != null) {
                 String data[] = line.split(" ");
-                histogram.add(new Pair<Integer,Integer>(Integer.parseInt(data[0]),Integer.parseInt(data[1])));
+                histogram.add(new Pair<Integer, Integer>(Integer.parseInt(data[0]), Integer.parseInt(data[1])));
             }
             reader.close();
-            return Bucket.bucketizeHistogram(histogram,1000);
+            return Bucket.bucketizeHistogram(histogram, 1000);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (Exception e) {

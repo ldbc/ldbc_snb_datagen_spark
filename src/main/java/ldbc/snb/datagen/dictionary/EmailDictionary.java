@@ -58,7 +58,7 @@ public class EmailDictionary {
      * @brief Constructor.
      */
     public EmailDictionary() {
-	    load(DatagenParams.emailDictionaryFile);
+        load(DatagenParams.emailDictionaryFile);
     }
 
     /**
@@ -97,7 +97,8 @@ public class EmailDictionary {
         int maxIdx = cumulativeDistribution.size() - 1;
         double prob = randomTop.nextDouble();
         if (prob > cumulativeDistribution.get(maxIdx)) {
-            int Idx = randomEmail.nextInt(emails.size() - cumulativeDistribution.size()) + cumulativeDistribution.size();
+            int Idx = randomEmail.nextInt(emails.size() - cumulativeDistribution.size()) + cumulativeDistribution
+                    .size();
             return emails.get(Idx);
         } else if (prob < cumulativeDistribution.get(minIdx)) {
             return emails.get(minIdx);

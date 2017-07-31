@@ -52,23 +52,24 @@ import java.util.Iterator;
 
 public class CSVPersonSerializer extends PersonSerializer {
 
-    private HDFSCSVWriter [] writers;
+    private HDFSCSVWriter[] writers;
 
     private enum FileNames {
-        PERSON ("person"),
-        PERSON_SPEAKS_LANGUAGE ("person_speaks_language"),
-        PERSON_HAS_EMAIL ("person_email_emailaddress"),
-        PERSON_LOCATED_IN_PLACE ("person_isLocatedIn_place"),
-        PERSON_HAS_INTEREST_TAG ("person_hasInterest_tag"),
-        PERSON_WORK_AT ("person_workAt_organisation"),
-        PERSON_STUDY_AT ("person_studyAt_organisation"),
+        PERSON("person"),
+        PERSON_SPEAKS_LANGUAGE("person_speaks_language"),
+        PERSON_HAS_EMAIL("person_email_emailaddress"),
+        PERSON_LOCATED_IN_PLACE("person_isLocatedIn_place"),
+        PERSON_HAS_INTEREST_TAG("person_hasInterest_tag"),
+        PERSON_WORK_AT("person_workAt_organisation"),
+        PERSON_STUDY_AT("person_studyAt_organisation"),
         PERSON_KNOWS_PERSON("person_knows_person");
 
         private final String name;
 
-        private FileNames( String name ) {
+        private FileNames(String name) {
             this.name = name;
         }
+
         public String toString() {
             return name;
         }
@@ -78,8 +79,12 @@ public class CSVPersonSerializer extends PersonSerializer {
     public void initialize(Configuration conf, int reducerId) throws IOException {
         int numFiles = FileNames.values().length;
         writers = new HDFSCSVWriter[numFiles];
-        for( int i = 0; i < numFiles; ++i) {
-            writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"),FileNames.values()[i].toString()+"_"+reducerId,conf.getInt("ldbc.snb.datagen.serializer.numPartitions",1),conf.getBoolean("ldbc.snb.datagen.serializer.compressed",false),"|",conf.getBoolean("ldbc.snb.datagen.serializer.endlineSeparator",false));
+        for (int i = 0; i < numFiles; ++i) {
+            writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"), FileNames
+                    .values()[i].toString() + "_" + reducerId, conf
+                                                   .getInt("ldbc.snb.datagen.serializer.numPartitions", 1), conf
+                                                   .getBoolean("ldbc.snb.datagen.serializer.compressed", false), "|", conf
+                                                   .getBoolean("ldbc.snb.datagen.serializer.endlineSeparator", false));
         }
 
         ArrayList<String> arguments = new ArrayList<String>();
@@ -136,7 +141,7 @@ public class CSVPersonSerializer extends PersonSerializer {
     @Override
     public void close() {
         int numFiles = FileNames.values().length;
-        for(int i = 0; i < numFiles; ++i) {
+        for (int i = 0; i < numFiles; ++i) {
             writers[i].close();
         }
     }
@@ -149,7 +154,7 @@ public class CSVPersonSerializer extends PersonSerializer {
         arguments.add(Long.toString(p.accountId()));
         arguments.add(p.firstName());
         arguments.add(p.lastName());
-        if(p.gender() == 1) {
+        if (p.gender() == 1) {
             arguments.add("male");
         } else {
             arguments.add("female");

@@ -110,10 +110,10 @@ public class TagDictionary {
         }
         this.numPopularTags = 0;
 
-        load( DatagenParams.tagsFile,
-                            DatagenParams.popularTagByCountryFile,
-                            DatagenParams.tagClassFile,
-                            DatagenParams.tagClassHierarchyFile);
+        load(DatagenParams.tagsFile,
+             DatagenParams.popularTagByCountryFile,
+             DatagenParams.tagClassFile,
+             DatagenParams.tagClassHierarchyFile);
     }
 
     /**
@@ -174,7 +174,8 @@ public class TagDictionary {
      */
     private void load(String tagsFileName, String popularTagByCountryFileName, String tagClassFileName, String tagClassHierarchyFileName) {
         try {
-            BufferedReader dictionary = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(tagClassFileName), "UTF-8"));
+            BufferedReader dictionary = new BufferedReader(new InputStreamReader(getClass()
+                                                                                         .getResourceAsStream(tagClassFileName), "UTF-8"));
 
             String line;
             while ((line = dictionary.readLine()) != null) {
@@ -185,7 +186,8 @@ public class TagDictionary {
             }
 
             dictionary.close();
-            dictionary = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(tagClassHierarchyFileName), "UTF-8"));
+            dictionary = new BufferedReader(new InputStreamReader(getClass()
+                                                                          .getResourceAsStream(tagClassHierarchyFileName), "UTF-8"));
             while ((line = dictionary.readLine()) != null) {
                 String infos[] = line.split(SEPARATOR);
                 Integer classId = Integer.valueOf(infos[0]);
@@ -194,7 +196,8 @@ public class TagDictionary {
             }
 
             dictionary.close();
-            dictionary = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(tagsFileName), "UTF-8"));
+            dictionary = new BufferedReader(new InputStreamReader(getClass()
+                                                                          .getResourceAsStream(tagsFileName), "UTF-8"));
             while ((line = dictionary.readLine()) != null) {
                 String infos[] = line.split(SEPARATOR);
                 int tagId = Integer.valueOf(infos[0]);
@@ -205,7 +208,8 @@ public class TagDictionary {
             }
 
             dictionary.close();
-            dictionary = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(popularTagByCountryFileName), "UTF-8"));
+            dictionary = new BufferedReader(new InputStreamReader(getClass()
+                                                                          .getResourceAsStream(popularTagByCountryFileName), "UTF-8"));
             while ((line = dictionary.readLine()) != null) {
                 String infos[] = line.split(" ");
                 int countryId = Integer.parseInt(infos[0]);
@@ -228,7 +232,7 @@ public class TagDictionary {
     /**
      * @param randomTagOtherCountry The random number generator for choosing another country.
      * @param randomTagCountryProb  The random number generator for choosing a country.
-     * @param countryId_             The country id.
+     * @param countryId_            The country id.
      * @return The random tag id.
      * @brief Gets a random tag by country.
      */

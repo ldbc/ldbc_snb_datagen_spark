@@ -57,7 +57,8 @@ public class FlashmobTag implements Comparable<FlashmobTag> {
         t.tag = this.tag;
     }
 
-    public String toString(){
-        return "Level: "+level+" Date: "+Dictionaries.dates.formatDateTime(date)+" Tag:"+ Dictionaries.tags.getName(tag);
+    public String toString() {
+        return "Level: " + level + " Date: " + Dictionaries.dates.formatDateTime(date) + " Tag:" + Dictionaries.tags
+                .getName(tag);
     }
 }

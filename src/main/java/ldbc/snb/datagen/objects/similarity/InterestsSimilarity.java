@@ -51,7 +51,7 @@ public class InterestsSimilarity implements Person.PersonSimilarity {
         union.add(personB.mainInterest());
         Set<Integer> intersection = new TreeSet<Integer>(personA.interests());
         intersection.retainAll(personB.interests());
-        if(personA.mainInterest() == personB.mainInterest()) intersection.add(personA.mainInterest());
-        return union.size() > 0 ? intersection.size() / (float)union.size() : 0;
+        if (personA.mainInterest() == personB.mainInterest()) intersection.add(personA.mainInterest());
+        return union.size() > 0 ? intersection.size() / (float) union.size() : 0;
     }
 }
