@@ -17,7 +17,8 @@ parameter was larger than 1.
 - Fixed a Bug causing the distribution of posts per country to be wrong. Added a
   test for this
 
-- Fixed several bugs related to date generation of dependent events
+- Fixed several bugs related to date generation of dependent events. Added a
+  test for this
 
 v0.2.6 CHANGELOG
 Bi parameter generation
