@@ -100,6 +100,28 @@ def post_month_params(sample, lower_bound, upper_bound):
          results.append([[start_day, end_day], count_sum])
    return results
 
+def enumerate_path_bounds(minLength,maxLength,minDifference):
+   results = []
+   for i in range(minLength, maxLength):
+      for j in range(i+minDifference,maxLength):
+         results.append([i,j])
+   return results
+
+def prob_language_codes():
+   results = []
+   results.append(["ar"])
+   for i in range(0, 2):
+      results.append(["tk"])
+   for i in range(0, 8):
+      results.append(["uz"])
+   for i in range(0, 2):
+      results.append(["uz","tk"])
+   return results
+
+def prob_post_lengths():
+   results = [20,40,113,97,240]
+   return results
+
 # def post_three_month_params(sample, lower_bound, upper_bound):
 #    results = []
 #    for ix in range(0, len(sample)/12):
@@ -218,22 +240,25 @@ def serialize_q15(countries):
    for country, count in countries:
       writer.append([country], [count])
 
-def serialize_q16(persons, tagclasses, countries):
-   writer = ParamsWriter("q16", ["person","tag","country"])
+def serialize_q16(persons, tagclasses, countries, path_bounds):
+   writer = ParamsWriter("q16", ["person","tag","country","minPathDistance","maxPathDistance"])
    random.seed(1988+2)
    for tag, count_a in tagclasses:
       for country, count_b in countries:
-         writer.append([str(persons[random.randint(0,len(persons))]), tag, country], [0, count_a, count_b])
+         for minDist, maxDist in path_bounds:
+            writer.append([str(persons[random.randint(0,len(persons))]), tag, country, str(minDist), str(maxDist)], [0, count_a, count_b, 0, 0])
 
 def serialize_q17(countries):
    writer = ParamsWriter("q17", ["country"])
    for country, count in countries:
       writer.append([country], [count])
 
-def serialize_q18(post_weeks):
-   writer = ParamsWriter("q18", ["creationDate"])
+def serialize_q18(post_weeks, lengths, languages):
+   writer = ParamsWriter("q18", ["creationDate", "lengthThreshold", "languageCodes"])
    for week, count in post_weeks:
-      writer.append([str(week)], [count])
+      for length in lengths:
+         for language_set in languages:
+            writer.append([str(week), str(length), ";".join(language_set)], [count, 0, 0])
 
 def serialize_q19(tagclasses):
    PERS_DATE=datetime.strptime("1989-1-1","%Y-%m-%d")
@@ -269,6 +294,18 @@ def serialize_q24(tagclasses):
    writer = ParamsWriter("q24", ["tagClass"])
    for tagclass, count in tagclasses:
       writer.append([tagclass], [count])
+
+def serialize_q25(persons, post_month_ranges):
+   writer = ParamsWriter("q25", ["person1Id","person2Id","startDate","endDate"])
+   for day_range, count_post in post_month_ranges:
+      count=min(len(persons),10)
+      for _ in range(0,count):
+         person1Id = persons[random.randint(0, len(persons)-1)]
+         while True:
+            person2Id = persons[random.randint(0, len(persons)-1)]
+            if person2Id != person1Id:
+               writer.append([str(person1Id), str(person2Id), str(day_range[0]), str(day_range[1])], [0, 0, count_post, count_post])
+               break
 
 def add_months(sourcedate,months):
    month = sourcedate.month - 1 + months
@@ -309,7 +346,7 @@ def main(argv=None):
       if file.startswith("m0friendList"):
          friendsFiles.append(indir+file)
 
-   # read precomputed counts from files   
+   # read precomputed counts from files
    (personFactors, countryFactors, tagFactors, tagClassFactors, nameFactors, givenNames,  ts, postsHisto) = readfactors.load(factorFiles, friendsFiles)
    week_posts = convert_posts_histo(postsHisto)
 
@@ -358,13 +395,17 @@ def main(argv=None):
    post_upper_threshold = (total_posts/(non_empty_weeks/4))*1.2
    post_months = post_month_params(week_posts, post_lower_threshold, post_upper_threshold)
 
+   path_bounds = enumerate_path_bounds(3,9,2)
+   language_codes = prob_language_codes()
+   post_lengths = prob_post_lengths()
+
    serialize_q2(country_sets, post_day_ranges)
    serialize_q3(post_months)
    serialize_q14(post_month_params(week_posts, post_lower_threshold*2, post_upper_threshold*2))
 
    serialize_q1(post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts))
    serialize_q12(post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts))
-   serialize_q18(post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts))
+   serialize_q18(post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts), post_lengths, language_codes)
 
    serialize_q4(key_params(tagclass_posts, total_posts/20, total_posts/10), key_params(country_sample, total_posts/120, total_posts/70))
    serialize_q5(key_params(country_sample, total_posts/200, total_posts/100))
@@ -375,13 +416,14 @@ def main(argv=None):
    serialize_q10(key_params(tag_posts, total_posts/900, total_posts/600))
    serialize_q13(key_params(country_sample, total_posts/200, total_posts/100))
    serialize_q15(key_params(country_sample, total_posts/200, total_posts/100))
-   serialize_q16(persons, key_params(tagclass_posts, total_posts/30, total_posts/10), key_params(country_sample, total_posts/80, total_posts/20))
+   serialize_q16(persons, key_params(tagclass_posts, total_posts/30, total_posts/10), key_params(country_sample, total_posts/80, total_posts/20), path_bounds)
    serialize_q17(key_params(country_sample, total_posts/200, total_posts/100))
    serialize_q19(key_params(tagclass_posts, total_posts/60, total_posts/10))
    serialize_q21(key_params(country_sample, total_posts/200, total_posts/100))
    serialize_q22(key_params(country_sample, total_posts/120, total_posts/40))
    serialize_q23(key_params(country_sample, total_posts/200, total_posts/100))
    serialize_q24(key_params(tagclass_posts, total_posts/140, total_posts/5))
+   serialize_q25(persons,post_months)
 
    # TODO: Refine
    serialize_q20(key_params(tagclass_posts, total_posts/20, total_posts/2))
