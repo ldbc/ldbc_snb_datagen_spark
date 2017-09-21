@@ -9,8 +9,8 @@ LDBC-SNB Data Generator
 The LDBC-SNB Data Generator (DATAGEN) is the responsible of providing the data sets used by all the LDBC benchmarks. This data generator is designed to produce directed labeled graphs that mimic the characteristics of those graphs of real data. A detailed description of the schema produced by datagen, as well as the format of the output files, can be found in the latest version of official [LDBC SNB specification document](https://github.com/ldbc/ldbc_snb_docs).
 
 
-ldbc_snb_datagen is part of the LDBC project (http://www.ldbc.eu/).
-ldbc_snb_datagen is GPLv3 licensed, to see detailed information about this license read the LICENSE.txt.
+ldbc_snb_datagen is part of the [LDBC project](http://www.ldbc.eu/).
+ldbc_snb_datagen is GPLv3 licensed, to see detailed information about this license read the `LICENSE.txt` file.
 
 * **[Releases](https://github.com/ldbc/ldbc_snb_datagen/releases)**
 * **[Configuration](https://github.com/ldbc/ldbc_snb_datagen/wiki/Configuration)**
@@ -26,4 +26,4 @@ Publicly available datasets can be found at the LDBC-SNB Amazon Bucket. These da
 
 **Community provided tools**
 
-* **[Apache Flink Loader:](https://github.com/s1ck/ldbc-flink-import)** A loader of LDBC datasets for Apache Flink
+* **[Apache Flink Loader:](https://github.com/s1ck/ldbc-flink-import)** A loader of LDBC datasets for Apache Flink.
