@@ -30,8 +30,8 @@ def format_date(date):
 #          self.files[i].write(param+"\n")
 
 class ParamsWriter:
-   def __init__(self, name, param_names):
-      self.file = codecs.open(sys.argv[2]+"/"+name+"_param.txt", "w",encoding="utf-8")
+   def __init__(self, outdir, name, param_names):
+      self.file = codecs.open(outdir+"/"+name+"_param.txt", "w",encoding="utf-8")
       for i in range(0,len(param_names)):
          if i>0:
             self.file.write("|")
@@ -122,67 +122,67 @@ def key_params(sample, lower_bound, upper_bound):
          results.append([key, count])
    return results
 
-def serialize_q1(post_weeks):
-   writer = ParamsWriter("q1", ["date"])
+def serializes_q1(outdir, post_weeks):
+   writer = ParamsWriter(outdir, "q1", ["date"])
    for week, count in post_weeks:
       writer.append([str(week)], [count])
 
-def serialize_q2(country_sets, post_day_ranges):
-   writer = ParamsWriter("q2", ["date1","date2","countries","endDate","messageThreshold"])
+def serializes_q2(outdir, country_sets, post_day_ranges):
+   writer = ParamsWriter(outdir, "q2", ["date1","date2","countries","endDate","messageThreshold"])
    random.seed(1988+2)
    for country_set, count_country in country_sets:
       for day_range, count_post in post_day_ranges:
          if random.randint(0,len(country_sets) + len(post_day_ranges)) == 0:
             writer.append([str(day_range[0]), str(day_range[1]), ";".join(country_set), str(format_date(END_DATE)),str(20)], [count_post,count_post,count_country,333])
 
-def serialize_q3(post_months):
-   writer = ParamsWriter("q3", ["range1Start","range1End","range2Start","range2End"])
+def serializes_q3(outdir, post_months):
+   writer = ParamsWriter(outdir, "q3", ["range1Start","range1End","range2Start","range2End"])
    for ix in range(0,len(post_months)):
       week_range_a, count_a = post_months[ix]
       for week_range_b, count_b in post_months[ix+1:]:
          writer.append([str(week_range_a[0]),str(week_range_a[1]),str(week_range_b[0]),str(week_range_b[1])], [count_a,count_b])
 
-def serialize_q4(tagclasses, countries):
-   writer = ParamsWriter("q4", ["tagClass","country"])
+def serializes_q4(outdir, tagclasses, countries):
+   writer = ParamsWriter(outdir, "q4", ["tagClass","country"])
    for tag, count_a in tagclasses:
       for country, count_b in countries:
          writer.append([tag,country], [count_a,count_b])
 
-def serialize_q5(countries):
-   writer = ParamsWriter("q5", ["country"])
+def serializes_q5(outdir, countries):
+   writer = ParamsWriter(outdir, "q5", ["country"])
    for country, count in countries:
       writer.append([country], [count])
 
 
-def serialize_q6(tags):
-   writer = ParamsWriter("q6", ["tag"])
+def serializes_q6(outdir, tags):
+   writer = ParamsWriter(outdir, "q6", ["tag"])
    for tag, count in tags:
       writer.append([tag], [count])
 
-def serialize_q7(tags):
-   writer = ParamsWriter("q7", ["tag"])
+def serializes_q7(outdir, tags):
+   writer = ParamsWriter(outdir, "q7", ["tag"])
    for tag, count in tags:
       writer.append([tag], [count])
 
-def serialize_q8(tags):
-   writer = ParamsWriter("q8", ["tag"])
+def serializes_q8(outdir, tags):
+   writer = ParamsWriter(outdir, "q8", ["tag"])
    for tag, count in tags:
       writer.append([tag], [count])
 
-def serialize_q9(tagclasses):
-   writer = ParamsWriter("q9", ["tagClass1", "tagClass2", "threshold"])
+def serializes_q9(outdir, tagclasses):
+   writer = ParamsWriter(outdir, "q9", ["tagClass1", "tagClass2", "threshold"])
    for ix in range(0,len(tagclasses)):
       tag_class_a, count_a = tagclasses[ix]
       for tag_class_b, count_b in tagclasses[ix+1:]:
          writer.append([tag_class_a, tag_class_b, str(200)], [count_a, count_b])
 
-def serialize_q10(tags):
-   writer = ParamsWriter("q10", ["tag"])
+def serializes_q10(outdir, tags):
+   writer = ParamsWriter(outdir, "q10", ["tag"])
    for tag, count in tags:
       writer.append([tag], [count])
 
-def serialize_q11(countries, bad_words):
-   writer = ParamsWriter("q11", ["country", "blacklist"])
+def serializes_q11(outdir, countries, bad_words):
+   writer = ParamsWriter(outdir, "q11", ["country", "blacklist"])
    random.seed(1988+2)
    for country, count in countries:
       num_words = random.randint(1,min(len(bad_words),4));
@@ -200,75 +200,75 @@ def serialize_q11(countries, bad_words):
       blacklist = bad_words[0:num_words]
       writer.append([country,";".join(blacklist)], [count])
 
-def serialize_q12(post_weeks):
-   writer = ParamsWriter("q12", ["creationDate", "likeCount"])
+def serializes_q12(outdir, post_weeks):
+   writer = ParamsWriter(outdir, "q12", ["creationDate", "likeCount"])
    for week, count in post_weeks:
       writer.append([str(week),str(400)], [count])
 
-def serialize_q13(countries):
-   writer = ParamsWriter("q13", ["country"])
+def serializes_q13(outdir, countries):
+   writer = ParamsWriter(outdir, "q13", ["country"])
    for country, count in countries:
       writer.append([country], [count])
 
-def serialize_q14(creationdates):
-   writer = ParamsWriter("q14", ["begin","end"])
+def serializes_q14(outdir, creationdates):
+   writer = ParamsWriter(outdir, "q14", ["begin","end"])
    for creation, count in creationdates:
       writer.append([str(creation[0]),str(creation[1])], [count])
 
-def serialize_q15(countries):
-   writer = ParamsWriter("q15", ["country"])
+def serializes_q15(outdir, countries):
+   writer = ParamsWriter(outdir, "q15", ["country"])
    for country, count in countries:
       writer.append([country], [count])
 
-def serialize_q16(persons, tagclasses, countries):
-   writer = ParamsWriter("q16", ["person","tag","country"])
+def serializes_q16(outdir, persons, tagclasses, countries):
+   writer = ParamsWriter(outdir, "q16", ["person","tag","country"])
    random.seed(1988+2)
    for tag, count_a in tagclasses:
       for country, count_b in countries:
          writer.append([str(persons[random.randint(0,len(persons))]), tag, country], [0, count_a, count_b])
 
-def serialize_q17(countries):
-   writer = ParamsWriter("q17", ["country"])
+def serializes_q17(outdir, countries):
+   writer = ParamsWriter(outdir, "q17", ["country"])
    for country, count in countries:
       writer.append([country], [count])
 
-def serialize_q18(post_weeks):
-   writer = ParamsWriter("q18", ["creationDate"])
+def serializes_q18(outdir, post_weeks):
+   writer = ParamsWriter(outdir, "q18", ["creationDate"])
    for week, count in post_weeks:
       writer.append([str(week)], [count])
 
-def serialize_q19(tagclasses):
+def serializes_q19(outdir, tagclasses):
    PERS_DATE=datetime.strptime("1989-1-1","%Y-%m-%d")
-   writer = ParamsWriter("q19", ["date","tagClass1","tagClass2"])
+   writer = ParamsWriter(outdir, "q19", ["date","tagClass1","tagClass2"])
    for ix in range(0,len(tagclasses)):
       tag_class_a, count_a = tagclasses[ix]
       for tag_class_b, count_b in tagclasses[ix+1:]:
          writer.append([str(format_date(PERS_DATE)),tag_class_a, tag_class_b], [count_a, count_b])
 
-def serialize_q20(tagclasses):
-   writer = ParamsWriter("q20", ["tagclass"])
+def serializes_q20(outdir, tagclasses):
+   writer = ParamsWriter(outdir, "q20", ["tagclass"])
    for tagclass, count in tagclasses:
       writer.append([tagclass], [count])
 
-def serialize_q21(countries):
-   writer = ParamsWriter("q21", ["country","endDate"])
+def serializes_q21(outdir, countries):
+   writer = ParamsWriter(outdir, "q21", ["country","endDate"])
    for country, count in countries:
       writer.append([country,str(format_date(END_DATE))], [count])
 
-def serialize_q22(countries):
-   writer = ParamsWriter("q22", ["country1","country2"])
+def serializes_q22(outdir, countries):
+   writer = ParamsWriter(outdir, "q22", ["country1","country2"])
    for ix in range(0,len(countries)):
       country_a, count_a = countries[ix]
       for country_b, count_b in countries[ix+1:]:
          writer.append([country_a, country_b], [count_a, count_b])
 
-def serialize_q23(countries):
-   writer = ParamsWriter("q23", ["country"])
+def serializes_q23(outdir, countries):
+   writer = ParamsWriter(outdir, "q23", ["country"])
    for country, count in countries:
       writer.append([country], [count])
 
-def serialize_q24(tagclasses):
-   writer = ParamsWriter("q24", ["tagClass"])
+def serializes_q24(outdir, tagclasses):
+   writer = ParamsWriter(outdir, "q24", ["tagClass"])
    for tagclass, count in tagclasses:
       writer.append([tagclass], [count])
 
@@ -297,14 +297,14 @@ def main(argv=None):
       argv = sys.argv
 
    if len(argv) < 3:
-      print "arguments: <input dir> <output>"
+      print "arguments: <input dir> <output dir>"
       return 1
 
    indir = argv[1]+"/"
+   outdir = argv[2]+"/"
    activityFactorFiles=[]
    personFactorFiles=[]
    friendsFiles = []
-   outdir = argv[2]+"/"
 
    for file in os.listdir(indir):
       if file.endswith("activityFactors.txt"):
@@ -363,34 +363,34 @@ def main(argv=None):
    post_upper_threshold = (total_posts/(non_empty_weeks/4))*1.2
    post_months = post_month_params(week_posts, post_lower_threshold, post_upper_threshold)
 
-   serialize_q2(country_sets, post_day_ranges)
-   serialize_q3(post_months)
-   serialize_q14(post_month_params(week_posts, post_lower_threshold*2, post_upper_threshold*2))
+   serializes_q2(outdir, country_sets, post_day_ranges)
+   serializes_q3(outdir, post_months)
+   serializes_q14(outdir, post_month_params(week_posts, post_lower_threshold*2, post_upper_threshold*2))
 
-   serialize_q1(post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts))
-   serialize_q12(post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts))
-   serialize_q18(post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts))
+   serializes_q1(outdir, post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts))
+   serializes_q12(outdir, post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts))
+   serializes_q18(outdir, post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts))
 
-   serialize_q4(key_params(tagclass_posts, total_posts/20, total_posts/10), key_params(country_sample, total_posts/120, total_posts/70))
-   serialize_q5(key_params(country_sample, total_posts/200, total_posts/100))
-   serialize_q6(key_params(tag_posts, total_posts/1300, total_posts/900))
-   serialize_q7(key_params(tag_posts, total_posts/900, total_posts/600))
-   serialize_q8(key_params(tag_posts, total_posts/600, total_posts/300))
-   serialize_q9(key_params(tagclass_posts, 6000, 25000))
-   serialize_q10(key_params(tag_posts, total_posts/900, total_posts/600))
-   serialize_q13(key_params(country_sample, total_posts/200, total_posts/100))
-   serialize_q15(key_params(country_sample, total_posts/200, total_posts/100))
-   serialize_q16(persons, key_params(tagclass_posts, total_posts/30, total_posts/10), key_params(country_sample, total_posts/80, total_posts/20))
-   serialize_q17(key_params(country_sample, total_posts/200, total_posts/100))
-   serialize_q19(key_params(tagclass_posts, total_posts/60, total_posts/10))
-   serialize_q21(key_params(country_sample, total_posts/200, total_posts/100))
-   serialize_q22(key_params(country_sample, total_posts/120, total_posts/40))
-   serialize_q23(key_params(country_sample, total_posts/200, total_posts/100))
-   serialize_q24(key_params(tagclass_posts, total_posts/140, total_posts/5))
+   serializes_q4(outdir, key_params(tagclass_posts, total_posts/20, total_posts/10), key_params(country_sample, total_posts/120, total_posts/70))
+   serializes_q5(outdir, key_params(country_sample, total_posts/200, total_posts/100))
+   serializes_q6(outdir, key_params(tag_posts, total_posts/1300, total_posts/900))
+   serializes_q7(outdir, key_params(tag_posts, total_posts/900, total_posts/600))
+   serializes_q8(outdir, key_params(tag_posts, total_posts/600, total_posts/300))
+   serializes_q9(outdir, key_params(tagclass_posts, 6000, 25000))
+   serializes_q10(outdir, key_params(tag_posts, total_posts/900, total_posts/600))
+   serializes_q13(outdir, key_params(country_sample, total_posts/200, total_posts/100))
+   serializes_q15(outdir, key_params(country_sample, total_posts/200, total_posts/100))
+   serializes_q16(outdir, persons, key_params(tagclass_posts, total_posts/30, total_posts/10), key_params(country_sample, total_posts/80, total_posts/20))
+   serializes_q17(outdir, key_params(country_sample, total_posts/200, total_posts/100))
+   serializes_q19(outdir, key_params(tagclass_posts, total_posts/60, total_posts/10))
+   serializes_q21(outdir, key_params(country_sample, total_posts/200, total_posts/100))
+   serializes_q22(outdir, key_params(country_sample, total_posts/120, total_posts/40))
+   serializes_q23(outdir, key_params(country_sample, total_posts/200, total_posts/100))
+   serializes_q24(outdir, key_params(tagclass_posts, total_posts/140, total_posts/5))
 
    # TODO: Refine
-   serialize_q20(key_params(tagclass_posts, total_posts/20, total_posts/2))
-   serialize_q11(key_params(country_sample, total_posts/80, total_posts/20), bad_words)
+   serializes_q20(outdir, key_params(tagclass_posts, total_posts/20, total_posts/2))
+   serializes_q11(outdir, key_params(country_sample, total_posts/80, total_posts/20), bad_words)
 
 if __name__ == "__main__":
    sys.exit(main())
