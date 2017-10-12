@@ -7,7 +7,7 @@ rm -rf out || exit 0
 mkdir out
 
 # run our compile script, discussed above
-cp -r substitution_parameters out/
+cp -r test_data/substitution_parameters out/
 
 # go to the out directory and create a *new* Git repo
 cd out
