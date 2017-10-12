@@ -13,8 +13,8 @@ from datetime import date,datetime,timedelta
 from timeparameters import *
 from calendar import timegm
 
-START_DATE=datetime.strptime("2010-01-01","%Y-%m-%d")
-END_DATE=datetime.strptime("2013-01-01","%Y-%m-%d")
+START_DATE=datetime.strptime("2010-01-01", "%Y-%m-%d")
+END_DATE=datetime.strptime("2013-01-01", "%Y-%m-%d")
 
 def format_date(date):
    return int(time.mktime(date.timetuple())*1000)
@@ -127,23 +127,23 @@ def serializes_q1(outdir, post_weeks):
    for week, count in post_weeks:
       writer.append([str(week)], [count])
 
-def serializes_q2(outdir, country_sets, post_day_ranges):
-   writer = ParamsWriter(outdir, "q2", ["date1","date2","countries","endDate","messageThreshold"])
+def serializes_q2(outdir, country_sets, post_day_ranges): # TODO country1, country2
+   writer = ParamsWriter(outdir, "q2", ["date1", "date2", "countries", "endDate", "messageThreshold"])
    random.seed(1988+2)
    for country_set, count_country in country_sets:
       for day_range, count_post in post_day_ranges:
          if random.randint(0,len(country_sets) + len(post_day_ranges)) == 0:
             writer.append([str(day_range[0]), str(day_range[1]), ";".join(country_set), str(format_date(END_DATE)),str(20)], [count_post,count_post,count_country,333])
 
-def serializes_q3(outdir, post_months):
-   writer = ParamsWriter(outdir, "q3", ["range1Start","range1End","range2Start","range2End"])
+def serializes_q3(outdir, post_months): # TODO year, month
+   writer = ParamsWriter(outdir, "q3", ["range1Start", "range1End", "range2Start", "range2End"])
    for ix in range(0,len(post_months)):
       week_range_a, count_a = post_months[ix]
       for week_range_b, count_b in post_months[ix+1:]:
          writer.append([str(week_range_a[0]),str(week_range_a[1]),str(week_range_b[0]),str(week_range_b[1])], [count_a,count_b])
 
 def serializes_q4(outdir, tagclasses, countries):
-   writer = ParamsWriter(outdir, "q4", ["tagClass","country"])
+   writer = ParamsWriter(outdir, "q4", ["tagClass", "country"])
    for tag, count_a in tagclasses:
       for country, count_b in countries:
          writer.append([tag,country], [count_a,count_b])
@@ -176,7 +176,7 @@ def serializes_q9(outdir, tagclasses):
       for tag_class_b, count_b in tagclasses[ix+1:]:
          writer.append([tag_class_a, tag_class_b, str(200)], [count_a, count_b])
 
-def serializes_q10(outdir, tags):
+def serializes_q10(outdir, tags): # TODO date
    writer = ParamsWriter(outdir, "q10", ["tag"])
    for tag, count in tags:
       writer.append([tag], [count])
@@ -201,7 +201,7 @@ def serializes_q11(outdir, countries, bad_words):
       writer.append([country,";".join(blacklist)], [count])
 
 def serializes_q12(outdir, post_weeks):
-   writer = ParamsWriter(outdir, "q12", ["creationDate", "likeCount"])
+   writer = ParamsWriter(outdir, "q12", ["creationDate", "likeThreshold"])
    for week, count in post_weeks:
       writer.append([str(week),str(400)], [count])
 
@@ -211,7 +211,7 @@ def serializes_q13(outdir, countries):
       writer.append([country], [count])
 
 def serializes_q14(outdir, creationdates):
-   writer = ParamsWriter(outdir, "q14", ["begin","end"])
+   writer = ParamsWriter(outdir, "q14", ["begin", "end"])
    for creation, count in creationdates:
       writer.append([str(creation[0]),str(creation[1])], [count])
 
@@ -221,7 +221,7 @@ def serializes_q15(outdir, countries):
       writer.append([country], [count])
 
 def serializes_q16(outdir, persons, tagclasses, countries):
-   writer = ParamsWriter(outdir, "q16", ["person","tag","country"])
+   writer = ParamsWriter(outdir, "q16", ["person", "tag", "country"]) # TODO minPathDistance and maxPathDistance are missing
    random.seed(1988+2)
    for tag, count_a in tagclasses:
       for country, count_b in countries:
@@ -233,30 +233,30 @@ def serializes_q17(outdir, countries):
       writer.append([country], [count])
 
 def serializes_q18(outdir, post_weeks):
-   writer = ParamsWriter(outdir, "q18", ["creationDate"])
+   writer = ParamsWriter(outdir, "q18", ["date"]) # TODO lengthThreshold and languages are missing
    for week, count in post_weeks:
       writer.append([str(week)], [count])
 
 def serializes_q19(outdir, tagclasses):
-   PERS_DATE=datetime.strptime("1989-1-1","%Y-%m-%d")
-   writer = ParamsWriter(outdir, "q19", ["date","tagClass1","tagClass2"])
+   PERS_DATE=datetime.strptime("1989-1-1", "%Y-%m-%d")
+   writer = ParamsWriter(outdir, "q19", ["date", "tagClass1", "tagClass2"])
    for ix in range(0,len(tagclasses)):
       tag_class_a, count_a = tagclasses[ix]
       for tag_class_b, count_b in tagclasses[ix+1:]:
          writer.append([str(format_date(PERS_DATE)),tag_class_a, tag_class_b], [count_a, count_b])
 
 def serializes_q20(outdir, tagclasses):
-   writer = ParamsWriter(outdir, "q20", ["tagclass"])
+   writer = ParamsWriter(outdir, "q20", ["tagclass"]) # TODO tagclasses
    for tagclass, count in tagclasses:
       writer.append([tagclass], [count])
 
 def serializes_q21(outdir, countries):
-   writer = ParamsWriter(outdir, "q21", ["country","endDate"])
+   writer = ParamsWriter(outdir, "q21", ["country", "endDate"])
    for country, count in countries:
       writer.append([country,str(format_date(END_DATE))], [count])
 
 def serializes_q22(outdir, countries):
-   writer = ParamsWriter(outdir, "q22", ["country1","country2"])
+   writer = ParamsWriter(outdir, "q22", ["country1", "country2"])
    for ix in range(0,len(countries)):
       country_a, count_a = countries[ix]
       for country_b, count_b in countries[ix+1:]:
