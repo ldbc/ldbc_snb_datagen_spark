@@ -81,6 +81,29 @@ def post_month_params(sample, lower_bound, upper_bound):
          results.append([[start_day, end_day], count_sum])
    return results
 
+def enumerate_path_bounds(minLength,maxLength,minDifference):
+  results = []
+  for i in range(minLength, maxLength):
+     for j in range(i+minDifference,maxLength):
+        results.append([i,j])
+  return results
+
+def prob_language_codes():
+  results = []
+  results.append(["ar"])
+  for i in range(0, 2):
+     results.append(["tk"])
+  for i in range(0, 8):
+     results.append(["uz"])
+  for i in range(0, 2):
+     results.append(["uz","tk"])
+  return results
+
+def prob_post_lengths():
+  results = [20,40,113,97,240]
+  return results
+
+
 # def post_three_month_params(sample, lower_bound, upper_bound):
 #    results = []
 #    for ix in range(0, len(sample)/12):
@@ -197,24 +220,25 @@ def serializes_q15(outdir, countries):
    for country, count in countries:
       writer.append([country])
 
-def serializes_q16(outdir, persons, tagclasses, countries):
+def serializes_q16(outdir, persons, tagclasses, countries, path_bounds):
    writer = ParamsWriter(outdir, "q16", ["person", "tag", "country", "minPathDistance", "maxPathDistance"])
    random.seed(1988+2)
    for tag, count_a in tagclasses:
       for country, count_b in countries:
-         writer.append([str(persons[random.randint(0,len(persons))]), tag, country])
-         # TODO minPathDistance and maxPathDistance are missing
+         for minDist, maxDist in path_bounds:
+            writer.append([str(persons[random.randint(0, len(persons))]), tag, country, str(minDist), str(maxDist)])
 
 def serializes_q17(outdir, countries):
    writer = ParamsWriter(outdir, "q17", ["country"])
    for country, count in countries:
       writer.append([country])
 
-def serializes_q18(outdir, post_weeks):
+def serializes_q18(outdir, post_weeks, lengths, languages):
    writer = ParamsWriter(outdir, "q18", ["date", "lengthThreshold", "languages"])
    for week, count in post_weeks:
-      writer.append([str(week)])
-      # TODO lengthThreshold and languages are missing
+      for length in lengths:
+         for language_set in languages:
+            writer.append([str(week), str(length), ";".join(language_set)])
 
 def serializes_q19(outdir, tagclasses):
    PERS_DATE=datetime.strptime("1989-1-1", "%Y-%m-%d")
@@ -251,9 +275,19 @@ def serializes_q24(outdir, tagclasses):
    for tagclass, count in tagclasses:
       writer.append([tagclass])
 
-def serializes_q25(outdir):
-   writer = ParamsWriter(outdir, "q25", ["person1Id", "person2Id", "startDate", "endDate"])
-   # TODO
+def serialize_q25(outdir, persons, post_month_ranges):
+   writer = ParamsWriter("q25", ["person1Id", "person2Id", "startDate", "endDate"])
+   for day_range, count_post in post_month_ranges:
+      count = min(len(persons), 10)
+      for _ in range(0, count):
+         person1Id = persons[random.randint(0, len(persons) - 1)]
+         while True:
+            person2Id = persons[random.randint(0, len(persons) - 1)]
+            if person2Id != person1Id:
+               writer.append([str(person1Id), str(person2Id), str(day_range[0]), str(day_range[1])],
+                             [0, 0, count_post, count_post])
+               break
+
 
 def add_months(sourcedate,months):
    month = sourcedate.month - 1 + months
@@ -343,13 +377,17 @@ def main(argv=None):
    post_upper_threshold = (total_posts/(non_empty_weeks/4))*1.2
    post_months = post_month_params(week_posts, post_lower_threshold, post_upper_threshold)
 
+   path_bounds = enumerate_path_bounds(3, 9, 2)
+   language_codes = prob_language_codes()
+   post_lengths = prob_post_lengths()
+
    serializes_q2 (outdir, key_params(country_sample, total_posts/200, total_posts/100), post_day_ranges) # TODO determine constants
    serializes_q3 (outdir, post_months)
    serializes_q14(outdir, post_month_params(week_posts, post_lower_threshold*2, post_upper_threshold*2))
 
    serializes_q1 (outdir, post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts))
    serializes_q12(outdir, post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts))
-   serializes_q18(outdir, post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts))
+   serializes_q18(outdir, post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts), post_lengths, language_codes)
    serializes_q10(outdir, key_params(tag_posts, total_posts/900, total_posts/600), post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts))
 
    serializes_q4 (outdir, key_params(tagclass_posts, total_posts/20, total_posts/10), key_params(country_sample, total_posts/120, total_posts/70))
@@ -360,20 +398,17 @@ def main(argv=None):
    serializes_q9 (outdir, key_params(tagclass_posts, 6000, 25000))
    serializes_q13(outdir, key_params(country_sample, total_posts/200, total_posts/100))
    serializes_q15(outdir, key_params(country_sample, total_posts/200, total_posts/100))
-   serializes_q16(outdir, persons, key_params(tagclass_posts, total_posts/30, total_posts/10), key_params(country_sample, total_posts/80, total_posts/20))
+   serializes_q16(outdir, persons, key_params(tagclass_posts, total_posts/30, total_posts/10), key_params(country_sample, total_posts/80, total_posts/20), path_bounds)
    serializes_q17(outdir, key_params(country_sample, total_posts/200, total_posts/100))
    serializes_q19(outdir, key_params(tagclass_posts, total_posts/60, total_posts/10))
    serializes_q21(outdir, key_params(country_sample, total_posts/200, total_posts/100))
    serializes_q22(outdir, key_params(country_sample, total_posts/120, total_posts/40))
    serializes_q23(outdir, key_params(country_sample, total_posts/200, total_posts/100))
-   serializes_q24(outdir, key_params(tagclass_posts, total_posts/140, total_posts/5))
+   serializes_q24(outdir, key_params(tagclass_posts, total_posts/140, total_posts/5))   serialize_q25(outdir, persons, post_months)
 
    # TODO: Refine
    serializes_q20(outdir, key_params(tagclass_posts, total_posts/20, total_posts/2))
    serializes_q11(outdir, key_params(country_sample, total_posts/80, total_posts/20), bad_words)
-
-   # TODO: implement
-   #serializes_q25(outdir, ...)
 
 if __name__ == "__main__":
    sys.exit(main())
