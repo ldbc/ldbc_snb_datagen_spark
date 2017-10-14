@@ -2,15 +2,15 @@
 
 set -e # exit with nonzero exit code if anything fails
 
-# clear and re-create the out directory
-rm -rf out || exit 0
-mkdir out
+# clear and re-create the directory
+rm -rf deployed || exit 0
+mkdir deployed
 
 # run our compile script, discussed above
-cp -r test_data/substitution_parameters out/
+cp -r test_data/substitution_parameters deployed/
 
-# go to the out directory and create a *new* Git repo
-cd out
+# go to the directory and create a *new* Git repo
+cd deployed
 git init
 
 # inside this git repo we'll pretend to be a new user
