@@ -9,6 +9,7 @@ env:
   global:
   - GH_REF=github.com/ldbc/ldbc_snb_datagen.git
   - secure: UG0OiJIFnm9mlQvV62cRwZzRFclw1Tu1QTFTUvEVcyskFV7fvIZjVZ1ozvIs8arfVulHXnijWYOr4X76HqB4bEMCpuk47nTk6zA+8omC+IVML1C8Mq0yT7L0k9iCShPOylAtvTqUMtrgewYXINqsQQxunqwWsIoeIdFh3wC+Km+0k2/NlxGlsCj4ajP1reGcYxj9b51mjskAC4EueJn0mgd7uFS3C92hJEaFovKUykpnVx9Vx54ssm2QkTtijdGiEUtps8b93dQQ0wQ/KShTQ6HiHr60Z0pt5PGThVT7EeO9RSHEJjIGhK+UKEf6ab0yxWjQxoIGjXEE19orVA+hLiHq9nnAQK293Y6+J6Qc6s+HI2PTrymI3kQGi3KcTN/K9ukW2wfulxX4R/nTFAtWJK4MMmMBahC+t2dSeKDKbq0yzFfFaSgFPLfDcfe/aQ/YBWFDhbvAqWmguMTcwreNeZMvMNLDdRCY3uXMOjqVEhxbJItbyhXCYTnPgdDDKcaJO2GaOadSzZdomwFhqpKjOca9ynVes1NX1Q+jv9E1862l9D8gkWGiMekMW2IhaVZTQvp1V77TCJ+az4jJVmTPdMAjiQvyisKFzC39xYUix11fYuZOTKQjPB1r4CUwVTTS649n6VwGukE0OdnzEFqbMHql6iV4ODQlHEO+syNbAOM=
+install: true
 script:
 - mvn test | grep "^\\["
 - if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then ./deploy.sh; fi
