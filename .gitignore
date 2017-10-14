@@ -38,3 +38,7 @@ local.properties
 .recommenders
 .project
 .classpath
+
+/*.crc
+/*.txt
+/*.csv
