@@ -141,7 +141,7 @@ def serialize_q3(outdir, post_months):
    writer = ParamsWriter(outdir, "q3", ["year", "month"] )
    for post_month in post_months:
       t = time.gmtime(post_month[0][0]/1000)
-      writer.append([t.tm_year, t.tm_mon])
+      writer.append([str(t.tm_year), str(t.tm_mon)])
 
 def serialize_q4(outdir, tagclasses, countries):
    writer = ParamsWriter(outdir, "q4", ["tagClass", "country"])
