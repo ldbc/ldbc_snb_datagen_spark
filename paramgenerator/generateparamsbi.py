@@ -252,9 +252,27 @@ def serialize_q19(outdir, tagclasses):
          writer.append([str(format_date(PERS_DATE)),tag_class_a, tag_class_b])
 
 def serialize_q20(outdir, tagclasses):
-   writer = ParamsWriter(outdir, 20, ["tagClasses"]) # TODO tagclasses
-   for tagclass, count in tagclasses:
-      writer.append([tagclass])
+   random.seed(1988+3)
+   writer = ParamsWriter(outdir, 20, ["tagClasses"])
+
+   tagclasses = [tc[0] for tc in tagclasses]
+
+   # I'm not sure this is the correct way to approach this problem,
+   # but it should work reasonably well
+   num_words = random.randint(1,min(len(tagclasses),4));
+   random.shuffle(tagclasses)
+   tcs = tagclasses[0:num_words]
+   writer.append([";".join(tcs)])
+
+   num_words = random.randint(1,min(len(tagclasses),10));
+   random.shuffle(tagclasses)
+   tcs = tagclasses[0:num_words]
+   writer.append([";".join(tcs)])
+
+   num_words = random.randint(1,min(len(tagclasses),7));
+   random.shuffle(tagclasses)
+   tcs = tagclasses[0:num_words]
+   writer.append([";".join(tcs)])
 
 def serialize_q21(outdir, countries):
    writer = ParamsWriter(outdir, 21, ["country", "endDate"])
