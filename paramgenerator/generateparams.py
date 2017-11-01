@@ -269,7 +269,7 @@ def main(argv=None):
 	# all the queries have Person as parameter
 	for i in range(1,15):
 		csvWriter = CSVSerializer()
-		csvWriter.setOutputFile(outdir+"query_%d_param.txt"%(i))
+		csvWriter.setOutputFile(outdir+"interactive_%d_param.txt"%(i))
 		if i != 13 and i != 14: # these three queries take two Persons as parameters
 			csvWriter.registerHandler(handlePersonParam, selectedPersonParams[i], "Person")
 		csvWriters[i] = csvWriter
