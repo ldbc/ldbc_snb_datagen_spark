@@ -185,7 +185,8 @@ def serialize_q10(outdir, tags, post_weeks):
 
 def serialize_q11(outdir, countries, bad_words):
    writer = ParamsWriter(outdir, 11, ["country", "blacklist"])
-   random.seed(1988+2)
+   random.seed(1988+1)
+   # note: this approach keeps shuffling the bad_words list
    for country, count in countries:
       num_words = random.randint(1,min(len(bad_words),4));
       random.shuffle(bad_words)
