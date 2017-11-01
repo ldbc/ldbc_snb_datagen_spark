@@ -224,12 +224,12 @@ def serialize_q15(outdir, countries):
       writer.append([country])
 
 def serialize_q16(outdir, persons, tagclasses, countries, path_bounds):
-   writer = ParamsWriter(outdir, 16, ["person", "tag", "country", "minPathDistance", "maxPathDistance"])
+   writer = ParamsWriter(outdir, 16, ["person", "country", "tagClass", "minPathDistance", "maxPathDistance"])
    random.seed(1988+2)
-   for tag, count_a in tagclasses:
-      for country, count_b in countries:
+   for country, count_b in countries:
+      for tagClass, count_a in tagclasses:
          for minDist, maxDist in path_bounds:
-            writer.append([str(persons[random.randint(0, len(persons))]), tag, country, str(minDist), str(maxDist)])
+            writer.append([str(persons[random.randint(0, len(persons))]), country, tagClass, str(minDist), str(maxDist)])
 
 def serialize_q17(outdir, countries):
    writer = ParamsWriter(outdir, 17, ["country"])
