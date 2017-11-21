@@ -5,6 +5,7 @@
 *.war
 *.ear
 *.pyc
+*.iml
 
 # IntelliJ stuff
 .idea
