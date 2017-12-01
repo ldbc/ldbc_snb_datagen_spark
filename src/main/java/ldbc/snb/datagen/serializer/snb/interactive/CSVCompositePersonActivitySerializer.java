@@ -46,7 +46,7 @@ import java.io.IOException;
  */
 public class CSVCompositePersonActivitySerializer extends PersonActivitySerializer {
 
-    CSVPersonActivitySerializer activitySerializer = new CSVPersonActivitySerializer();
+    private CSVPersonActivitySerializer activitySerializer = new CSVPersonActivitySerializer();
 
     @Override
     public void initialize(Configuration conf, int reducerId) throws IOException {
