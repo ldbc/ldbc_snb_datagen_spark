@@ -35,14 +35,11 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer.snb.interactive;
 
-import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.objects.*;
-import ldbc.snb.datagen.serializer.HDFSCSVWriter;
 import ldbc.snb.datagen.serializer.PersonActivitySerializer;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 /**
  * @author aprat

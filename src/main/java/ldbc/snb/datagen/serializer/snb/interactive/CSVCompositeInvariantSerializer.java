@@ -35,19 +35,14 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer.snb.interactive;
 
-import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.objects.Organization;
 import ldbc.snb.datagen.objects.Place;
 import ldbc.snb.datagen.objects.Tag;
 import ldbc.snb.datagen.objects.TagClass;
-import ldbc.snb.datagen.serializer.HDFSCSVWriter;
 import ldbc.snb.datagen.serializer.InvariantSerializer;
-import ldbc.snb.datagen.vocabulary.DBP;
-import ldbc.snb.datagen.vocabulary.DBPOWL;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 /**
  * Created by aprat on 12/17/14.
