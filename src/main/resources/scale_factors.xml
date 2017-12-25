@@ -19,6 +19,25 @@
         </property>
     </scale_factor>
 
+    <scale_factor name="snb.interactive.0.2" >
+        <property>
+            <name>ldbc.snb.datagen.generator.numPersons</name>
+            <value>2200</value>
+        </property>
+        <property>
+            <name>ldbc.snb.datagen.generator.startYear</name>
+            <value>2010</value>
+        </property>
+        <property>
+            <name>ldbc.snb.datagen.generator.numYears</name>
+            <value>3</value>
+        </property>
+        <property>
+            <name>ldbc.snb.datagen.generator.distribution.degreeDistribution</name>
+            <value>ldbc.snb.datagen.generator.distribution.FacebookDegreeDistribution</value>
+        </property>
+    </scale_factor>
+
     <scale_factor name="snb.interactive.1" >
         <property>
             <name>ldbc.snb.datagen.generator.numPersons</name>
