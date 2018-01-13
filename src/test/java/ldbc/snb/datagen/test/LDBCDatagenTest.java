@@ -272,16 +272,16 @@ public class LDBCDatagenTest {
 
 
 
-        FileChecker fileChecker = new FileChecker(sdir+"/query_1_param.txt");
+        FileChecker fileChecker = new FileChecker(sdir+"/interactive_1_param.txt");
         fileChecker.addCheck(existsPersonCheck);
         fileChecker.addCheck(existsNameCheck);
         assertTrue("ERROR PASSING TEST QUERY 1 PERSON AND NAME EXISTS ",fileChecker.run(1));
 
         //Crating date interval check
-        fileChecker = new FileChecker(sdir+"/query_2_param.txt");
+        fileChecker = new FileChecker(sdir+"/interactive_2_param.txt");
         fileChecker.addCheck(existsPersonCheck);
         assertTrue("ERROR PASSING TEST QUERY 2 PERSON EXISTS ",fileChecker.run(1));
-        testLongGE(sdir+"/query_2_param.txt",1, Dictionaries.dates.getStartDateTime());
+        testLongGE(sdir+"/interactive_2_param.txt",1, Dictionaries.dates.getStartDateTime());
 
         //Creating country check
         ColumnSet<String> places = new ColumnSet<String>(strParser,new File(dir+"/place_0_0.csv"),1,1);
@@ -296,21 +296,21 @@ public class LDBCDatagenTest {
         //DateDurationCheck dateDurationCheck = new DateDurationCheck("Date duration check",1,2,Dictionaries.dates
          //       .getStartDateTime(), Dictionaries.dates.getEndDateTime());
 
-        fileChecker = new FileChecker(sdir+"/query_3_param.txt");
+        fileChecker = new FileChecker(sdir+"/interactive_3_param.txt");
         fileChecker.addCheck(existsPersonCheck);
         fileChecker.addCheck(countryExists);
         assertTrue("ERROR PASSING TEST QUERY 3 PERSON EXISTS ",fileChecker.run(1));
-        testLongGE(sdir+"/query_3_param.txt",1, Dictionaries.dates.getStartDateTime());
+        testLongGE(sdir+"/interactive_3_param.txt",1, Dictionaries.dates.getStartDateTime());
 
-        fileChecker = new FileChecker(sdir+"/query_4_param.txt");
+        fileChecker = new FileChecker(sdir+"/interactive_4_param.txt");
         fileChecker.addCheck(existsPersonCheck);
         assertTrue("ERROR PASSING TEST QUERY 4 PERSON EXISTS ",fileChecker.run(1));
-        testLongGE(sdir+"/query_4_param.txt",1, Dictionaries.dates.getStartDateTime());
+        testLongGE(sdir+"/interactive_4_param.txt",1, Dictionaries.dates.getStartDateTime());
 
-        fileChecker = new FileChecker(sdir+"/query_5_param.txt");
+        fileChecker = new FileChecker(sdir+"/interactive_5_param.txt");
         fileChecker.addCheck(existsPersonCheck);
         assertTrue("ERROR PASSING TEST QUERY 5 PERSON EXISTS ",fileChecker.run(1));
-        testLongGE(sdir+"/query_5_param.txt",1, Dictionaries.dates.getStartDateTime());
+        testLongGE(sdir+"/interactive_5_param.txt",1, Dictionaries.dates.getStartDateTime());
 
         //Creating tag check
         ColumnSet<String> tags = new ColumnSet<String>(strParser,new File(dir+"/tag_0_0.csv"),1,1);
@@ -320,35 +320,35 @@ public class LDBCDatagenTest {
         tagsIndex.add(1);
         ExistsCheck<String> tagExists = new ExistsCheck<String>(strParser,tagsIndex, tagsRef);
 
-        fileChecker = new FileChecker(sdir+"/query_6_param.txt");
+        fileChecker = new FileChecker(sdir+"/interactive_6_param.txt");
         fileChecker.addCheck(existsPersonCheck);
         fileChecker.addCheck(tagExists);
         assertTrue("ERROR PASSING TEST QUERY 6 PERSON EXISTS ",fileChecker.run(1));
 
-        fileChecker = new FileChecker(sdir+"/query_7_param.txt");
+        fileChecker = new FileChecker(sdir+"/interactive_7_param.txt");
         fileChecker.addCheck(existsPersonCheck);
         assertTrue("ERROR PASSING TEST QUERY 7 PERSON EXISTS ",fileChecker.run(1));
 
-        fileChecker = new FileChecker(sdir+"/query_8_param.txt");
+        fileChecker = new FileChecker(sdir+"/interactive_8_param.txt");
         fileChecker.addCheck(existsPersonCheck);
         assertTrue("ERROR PASSING TEST QUERY 8 PERSON EXISTS ",fileChecker.run(1));
 
-        fileChecker = new FileChecker(sdir+"/query_9_param.txt");
+        fileChecker = new FileChecker(sdir+"/interactive_9_param.txt");
         fileChecker.addCheck(existsPersonCheck);
         assertTrue("ERROR PASSING TEST QUERY 9 PERSON EXISTS ",fileChecker.run(1));
-        testLongGE(sdir+"/query_9_param.txt",1, Dictionaries.dates.getStartDateTime());
+        testLongGE(sdir+"/interactive_9_param.txt",1, Dictionaries.dates.getStartDateTime());
 
-        fileChecker = new FileChecker(sdir+"/query_10_param.txt");
+        fileChecker = new FileChecker(sdir+"/interactive_10_param.txt");
         fileChecker.addCheck(existsPersonCheck);
         assertTrue("ERROR PASSING TEST QUERY 10 PERSON EXISTS ",fileChecker.run(1));
-        testLongBetween(sdir+"/query_10_param.txt",1, 1, 13);
+        testLongBetween(sdir+"/interactive_10_param.txt",1, 1, 13);
 
         //Creating country check
         countriesIndex.clear();
         countriesIndex.add(1);
         countryExists = new ExistsCheck<String>(strParser,countriesIndex, placesRef);
 
-        fileChecker = new FileChecker(sdir+"/query_11_param.txt");
+        fileChecker = new FileChecker(sdir+"/interactive_11_param.txt");
         fileChecker.addCheck(existsPersonCheck);
         fileChecker.addCheck(countryExists);
         assertTrue("ERROR PASSING TEST QUERY 11 PERSON EXISTS ",fileChecker.run(1));
@@ -361,7 +361,7 @@ public class LDBCDatagenTest {
         tagClassIndex.add(1);
         ExistsCheck<String> tagClassExists = new ExistsCheck<String>(strParser,tagClassIndex, tagClassRef);
 
-        fileChecker = new FileChecker(sdir+"/query_12_param.txt");
+        fileChecker = new FileChecker(sdir+"/interactive_12_param.txt");
         fileChecker.addCheck(existsPersonCheck);
         fileChecker.addCheck(tagClassExists);
         assertTrue("ERROR PASSING TEST QUERY 12 PERSON EXISTS ",fileChecker.run(1));
@@ -369,11 +369,11 @@ public class LDBCDatagenTest {
         personIndex.add(1);
         ExistsCheck<Long> exists2PersonCheck = new ExistsCheck<Long>(parser,personIndex, personsRef);
 
-        fileChecker = new FileChecker(sdir+"/query_13_param.txt");
+        fileChecker = new FileChecker(sdir+"/interactive_13_param.txt");
         fileChecker.addCheck(exists2PersonCheck);
         assertTrue("ERROR PASSING TEST QUERY 13 PERSON EXISTS ",fileChecker.run(1));
 
-        fileChecker = new FileChecker(sdir+"/query_14_param.txt");
+        fileChecker = new FileChecker(sdir+"/interactive_14_param.txt");
         fileChecker.addCheck(exists2PersonCheck);
         assertTrue("ERROR PASSING TEST QUERY 14 PERSON EXISTS ",fileChecker.run(1));
 
