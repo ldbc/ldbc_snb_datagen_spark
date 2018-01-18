@@ -3,7 +3,7 @@
     <scale_factor name="snb.interactive.0.1" >
         <property>
             <name>ldbc.snb.datagen.generator.numPersons</name>
-            <value>1100</value>
+            <value>1700</value>
         </property>
         <property>
             <name>ldbc.snb.datagen.generator.startYear</name>
@@ -19,10 +19,10 @@
         </property>
     </scale_factor>
 
-    <scale_factor name="snb.interactive.0.2" >
+    <scale_factor name="snb.interactive.0.3" >
         <property>
             <name>ldbc.snb.datagen.generator.numPersons</name>
-            <value>2200</value>
+            <value>3900</value>
         </property>
         <property>
             <name>ldbc.snb.datagen.generator.startYear</name>
