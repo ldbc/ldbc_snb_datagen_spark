@@ -60,7 +60,6 @@ public class CSVMergeForeignInvariantSerializer extends InvariantSerializer {
         TAG("tag"),
         TAG_HAS_TYPE_TAGCLASS("tag_hasType_tagclass"),
         TAGCLASS("tagclass"),
-        TAGCLASS_IS_SUBCLASS_OF_TAGCLASS("tagclass_isSubclassOf_tagclass"),
         PLACE("place"),
         ORGANIZATION("organisation");
 
@@ -101,12 +100,8 @@ public class CSVMergeForeignInvariantSerializer extends InvariantSerializer {
         arguments.add("id");
         arguments.add("name");
         arguments.add("url");
+        arguments.add("isSubclassOf");
         writers[FileNames.TAGCLASS.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("TagClass.id");
-        arguments.add("TagClass.id");
-        writers[FileNames.TAGCLASS_IS_SUBCLASS_OF_TAGCLASS.ordinal()].writeHeader(arguments);
 
         arguments.clear();
         arguments.add("id");
@@ -171,14 +166,13 @@ public class CSVMergeForeignInvariantSerializer extends InvariantSerializer {
         } else {
             arguments.add(DBPOWL.getUrl(tagClass.name));
         }
+        if (tagClass.parent != -1) {
+            arguments.add(Integer.toString(tagClass.parent));
+        } else {
+            arguments.add("");
+        }
         writers[FileNames.TAGCLASS.ordinal()].writeEntry(arguments);
 
-        if (tagClass.parent != -1) {
-            arguments.clear();
-            arguments.add(Integer.toString(tagClass.id));
-            arguments.add(Integer.toString(tagClass.parent));
-            writers[FileNames.TAGCLASS_IS_SUBCLASS_OF_TAGCLASS.ordinal()].writeEntry(arguments);
-        }
     }
 
     protected void serialize(final Tag tag) {
