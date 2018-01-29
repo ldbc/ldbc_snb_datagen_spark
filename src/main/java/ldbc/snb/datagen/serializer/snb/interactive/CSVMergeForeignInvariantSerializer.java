@@ -58,7 +58,6 @@ public class CSVMergeForeignInvariantSerializer extends InvariantSerializer {
 
     private enum FileNames {
         TAG("tag"),
-        TAG_HAS_TYPE_TAGCLASS("tag_hasType_tagclass"),
         TAGCLASS("tagclass"),
         PLACE("place"),
         ORGANIZATION("organisation");
@@ -89,12 +88,8 @@ public class CSVMergeForeignInvariantSerializer extends InvariantSerializer {
         arguments.add("id");
         arguments.add("name");
         arguments.add("url");
+        arguments.add("hasType");
         writers[FileNames.TAG.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Tag.id");
-        arguments.add("TagClass.id");
-        writers[FileNames.TAG_HAS_TYPE_TAGCLASS.ordinal()].writeHeader(arguments);
 
         arguments.clear();
         arguments.add("id");
@@ -180,12 +175,8 @@ public class CSVMergeForeignInvariantSerializer extends InvariantSerializer {
         arguments.add(Integer.toString(tag.id));
         arguments.add(tag.name);
         arguments.add(DBP.getUrl(tag.name));
-        writers[FileNames.TAG.ordinal()].writeEntry(arguments);
-
-        arguments.clear();
-        arguments.add(Integer.toString(tag.id));
         arguments.add(Integer.toString(tag.tagClass));
-        writers[FileNames.TAG_HAS_TYPE_TAGCLASS.ordinal()].writeEntry(arguments);
+        writers[FileNames.TAG.ordinal()].writeEntry(arguments);
     }
 
     public void reset() {
