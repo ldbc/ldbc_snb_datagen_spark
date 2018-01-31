@@ -397,7 +397,8 @@ def main(argv=None):
    post_upper_threshold = (total_posts/(non_empty_weeks/4))*1.2
    post_months = post_month_params(week_posts, post_lower_threshold, post_upper_threshold)
 
-   path_bounds = enumerate_path_bounds(3, 9, 2)
+   # the lower bound is inclusive and the upper bound is exclusive
+   path_bounds = enumerate_path_bounds(3, 7, 2)
    language_codes = prob_language_codes()
    post_lengths = prob_post_lengths()
 
