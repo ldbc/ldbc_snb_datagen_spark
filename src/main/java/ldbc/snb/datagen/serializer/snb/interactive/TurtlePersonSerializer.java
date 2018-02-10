@@ -50,6 +50,7 @@ import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 
 public class TurtlePersonSerializer extends PersonSerializer {
@@ -77,6 +78,7 @@ public class TurtlePersonSerializer extends PersonSerializer {
 
     public void initialize(Configuration conf, int reducerId) throws IOException {
         dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+        dateTimeFormat .setTimeZone(TimeZone.getTimeZone("GMT"));
         int numFiles = FileNames.values().length;
         writers = new HDFSWriter[numFiles];
         for (int i = 0; i < numFiles; ++i) {
