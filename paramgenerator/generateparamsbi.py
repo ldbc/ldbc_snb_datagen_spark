@@ -385,7 +385,7 @@ def main(argv=None):
    serialize_q18(outdir, post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts), post_lengths, language_codes)
    serialize_q10(outdir, key_params(tag_posts, total_posts/900, total_posts/600), post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts))
 
-   serialize_q4 (outdir, key_params(tagclass_posts, total_posts/20, total_posts/10), key_params(country_sample, total_posts/120, total_posts/70))
+   serialize_q4 (outdir, key_params(tagclass_posts, total_posts/20, total_posts/10), key_params(country_sample, total_posts/150, total_posts/50))
    serialize_q5 (outdir, key_params(country_sample, total_posts/200, total_posts/100))
    serialize_q6 (outdir, key_params(tag_posts, total_posts/1300, total_posts/900))
    serialize_q7 (outdir, key_params(tag_posts, total_posts/900, total_posts/600))
