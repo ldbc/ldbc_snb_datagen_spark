@@ -1,17 +1,14 @@
 #!/usr/bin/env python2
 
-import sys
-import discoverparams
-import readfactors
-import random
-import json
-import os
-import codecs
 import calendar
+import codecs
+import os
+import random
 import time
-from datetime import date,datetime,timedelta
+from datetime import datetime,timedelta
+
+import readfactors
 from timeparameters import *
-from calendar import timegm
 
 START_DATE=datetime.strptime("2010-01-01", "%Y-%m-%d")
 END_DATE=datetime.strptime("2013-01-01", "%Y-%m-%d")
@@ -19,15 +16,6 @@ END_DATE=datetime.strptime("2013-01-01", "%Y-%m-%d")
 def format_date(date):
    return int(time.mktime(date.timetuple())*1000)
 
-# class ParamsWriter:
-#    def __init__(self, name, num_params):
-#       self.files = []
-#       for i in range(0, num_params):
-#          self.files.append(codecs.open("params/"+name+"."+str(i+1)+".params", "w",encoding="utf-8"))
-
-#    def append(self, params):
-#       for i, param in enumerate(params):
-#          self.files[i].write(param+"\n")
 
 class ParamsWriter:
    def __init__(self, outdir, number, param_names):
@@ -102,20 +90,6 @@ def prob_language_codes():
 def prob_post_lengths():
   results = [20,40,113,97,240]
   return results
-
-
-# def post_three_month_params(sample, lower_bound, upper_bound):
-#    results = []
-#    for ix in range(0, len(sample)/12):
-#       start_ix = ix*12
-#       count_sum = 0
-#       for offset, count in sample[start_ix:start_ix+12]:
-#          count_sum += count
-#       if count_sum > lower_bound and count_sum < upper_bound:
-#          start_day = sample[start_ix][0]
-#          end_day = sample[start_ix+12][0]
-#          results.append([[start_day, end_day], count_sum])
-#    return results
 
 def key_params(sample, lower_bound, upper_bound):
    results = []
