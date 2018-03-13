@@ -188,7 +188,7 @@ def serialize_q13(outdir, countries):
       writer.append([country])
 
 def serialize_q14(outdir, creationdates):
-   writer = ParamsWriter(outdir, 14, ["begin", "end"])
+   writer = ParamsWriter(outdir, 14, ["startDate", "endDate"])
    for creation, count in creationdates:
       writer.append([str(creation[0]),str(creation[1])])
 
@@ -378,7 +378,7 @@ def main(argv=None):
 
    serialize_q2 (outdir, key_params(country_sample, total_posts/200, total_posts/100), post_day_ranges) # TODO determine constants
    serialize_q3 (outdir, post_months)
-   serialize_q14(outdir, post_month_params(week_posts, post_lower_threshold*2, post_upper_threshold*2))
+   serialize_q14(outdir, post_months)
 
    serialize_q1 (outdir, post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts))
    serialize_q12(outdir, post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts))
