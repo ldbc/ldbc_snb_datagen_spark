@@ -372,7 +372,7 @@ def main(argv=None):
    post_months = post_month_params(week_posts, post_lower_threshold, post_upper_threshold)
 
    # the lower bound is inclusive and the upper bound is exclusive
-   path_bounds = enumerate_path_bounds(3, 7, 2)
+   path_bounds = enumerate_path_bounds(3, 6, 2)
    language_codes = prob_language_codes()
    post_lengths = prob_post_lengths()
 
