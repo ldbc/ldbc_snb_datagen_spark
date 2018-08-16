@@ -7,5 +7,6 @@ For standalone testing, provide the input and output directories as parameters. 
 For example:
 
 ```bash
+./generateparams.py ../hadoop ../substitution_parameters
 ./generateparamsbi.py ../hadoop ../substitution_parameters
 ```
