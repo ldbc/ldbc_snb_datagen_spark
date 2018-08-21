@@ -5,7 +5,7 @@
         <field>firstName</field>
         <field>lastName</field>
         <field>gender</field>
-        <field>birthDay</field>
+        <field>birthday</field>
         <field>creationDate</field>
         <field>ip</field>
         <field>browser</field>

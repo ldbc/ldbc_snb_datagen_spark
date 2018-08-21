@@ -262,7 +262,7 @@ public class FactorTable {
             incrFirstNameCount(person.firstName());
             String medianName = Dictionaries.names.getMedianGivenName(person.countryId(), person.gender() == 1,
                                                                       Dictionaries.dates
-                                                                              .getBirthYear(person.birthDay()));
+                                                                              .getBirthYear(person.birthday()));
             medianFirstName_.put(person.accountId(), medianName);
         }
     }

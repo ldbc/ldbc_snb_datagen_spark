@@ -180,13 +180,13 @@ public class DateGenerator {
         return aux_calendar.getTimeInMillis();
     }
 
-    public int getBirthYear(long birthDay) {
-        calendar_.setTimeInMillis(birthDay);
+    public int getBirthYear(long birthday) {
+        calendar_.setTimeInMillis(birthday);
         return calendar_.get(GregorianCalendar.YEAR);
     }
 
-    public int getBirthMonth(long birthDay) {
-        calendar_.setTimeInMillis(birthDay);
+    public int getBirthMonth(long birthday) {
+        calendar_.setTimeInMillis(birthday);
         return calendar_.get(GregorianCalendar.MONTH);
     }
     //If do not know the birthday, first randomly guess the age of user

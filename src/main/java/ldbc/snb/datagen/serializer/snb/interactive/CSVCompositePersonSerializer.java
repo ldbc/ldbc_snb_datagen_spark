@@ -150,7 +150,7 @@ public class CSVCompositePersonSerializer extends PersonSerializer {
             arguments.add("female");
         }
 
-        String dateString = Dictionaries.dates.formatDate(p.birthDay());
+        String dateString = Dictionaries.dates.formatDate(p.birthday());
         arguments.add(dateString);
 
         dateString = Dictionaries.dates.formatDateTime(p.creationDate());
