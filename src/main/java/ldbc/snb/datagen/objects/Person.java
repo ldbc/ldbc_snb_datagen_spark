@@ -61,7 +61,7 @@ public class Person implements Writable {
     private int mainInterest_;
     private int universityLocationId_;
     private byte gender_;
-    private long birthDay_;
+    private long birthday_;
     private boolean isLargePoster_;
     private long randomId_;
 
@@ -218,7 +218,7 @@ public class Person implements Writable {
 
         universityLocationId_ = p.universityLocationId();
         gender_ = p.gender();
-        birthDay_ = p.birthDay();
+        birthday_ = p.birthday();
         isLargePoster_ = p.isLargePoster();
         randomId_ = p.randomId();
 
@@ -346,12 +346,12 @@ public class Person implements Writable {
         gender_ = gender;
     }
 
-    public long birthDay() {
-        return birthDay_;
+    public long birthday() {
+        return birthday_;
     }
 
-    public void birthDay(long birthDay) {
-        birthDay_ = birthDay;
+    public void birthday(long birthday) {
+        birthday_ = birthday;
     }
 
     public boolean isLargePoster() {
@@ -450,7 +450,7 @@ public class Person implements Writable {
 
         universityLocationId_ = arg0.readInt();
         gender_ = arg0.readByte();
-        birthDay_ = arg0.readLong();
+        birthday_ = arg0.readLong();
         isLargePoster_ = arg0.readBoolean();
         randomId_ = arg0.readLong();
 
@@ -499,7 +499,7 @@ public class Person implements Writable {
         arg0.writeInt(mainInterest_);
         arg0.writeInt(universityLocationId_);
         arg0.writeByte(gender_);
-        arg0.writeLong(birthDay_);
+        arg0.writeLong(birthday_);
         arg0.writeBoolean(isLargePoster_);
         arg0.writeLong(randomId_);
 

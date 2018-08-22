@@ -118,7 +118,7 @@ public class TurtlePersonSerializer extends PersonSerializer {
                              Turtle.createLiteral("female"));
         }
         Turtle.addTriple(result, false, false, prefix, SNVOC.birthday,
-                         Turtle.createDataTypeLiteral(Dictionaries.dates.formatDate(p.birthDay()), XSD.Date));
+                         Turtle.createDataTypeLiteral(Dictionaries.dates.formatDate(p.birthday()), XSD.Date));
         Turtle.addTriple(result, false, false, prefix, SNVOC.ipaddress,
                          Turtle.createLiteral(p.ipAddress().toString()));
         Turtle.addTriple(result, false, false, prefix, SNVOC.browser,

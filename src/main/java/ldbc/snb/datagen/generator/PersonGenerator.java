@@ -90,7 +90,7 @@ public class PersonGenerator {
         Person person = new Person();
         person.creationDate(creationDate);
         person.gender((randomFarm.get(RandomGeneratorFarm.Aspect.GENDER).nextDouble() > 0.5) ? (byte) 1 : (byte) 0);
-        person.birthDay(Dictionaries.dates
+        person.birthday(Dictionaries.dates
                                 .getBirthDay(randomFarm.get(RandomGeneratorFarm.Aspect.BIRTH_DAY), creationDate));
         person.browserId(Dictionaries.browsers.getRandomBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER)));
         person.countryId(countryId);
@@ -113,7 +113,7 @@ public class PersonGenerator {
         person.firstName(Dictionaries.names.getRandomGivenName(randomFarm.get(RandomGeneratorFarm.Aspect.NAME),
                                                                person.countryId(),
                                                                person.gender() == 1,
-                                                               Dictionaries.dates.getBirthYear(person.birthDay())));
+                                                               Dictionaries.dates.getBirthYear(person.birthday())));
 
         person.lastName(Dictionaries.names.getRandomSurname(randomFarm.get(RandomGeneratorFarm.Aspect.SURNAME), person
                 .countryId()));
@@ -142,7 +142,7 @@ public class PersonGenerator {
         } else {
             person.classYear(Dictionaries.dates.getClassYear(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),
                                                              person.creationDate(),
-                                                             person.birthDay()));
+                                                             person.birthday()));
         }
 
         // Set company and workFrom
@@ -154,7 +154,7 @@ public class PersonGenerator {
                 long workFrom;
                 workFrom = Dictionaries.dates.getWorkFromYear(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),
                                                               person.classYear(),
-                                                              person.birthDay());
+                                                              person.birthday());
                 long company = Dictionaries.companies.getRandomCompany(randomFarm, person.countryId());
                 person.companies().put(company, workFrom);
             }
@@ -177,7 +177,7 @@ public class PersonGenerator {
     }
 
     private boolean isLargePoster(Person p) {
-        return Dictionaries.dates.getBirthMonth(p.birthDay()) == GregorianCalendar.JANUARY;
+        return Dictionaries.dates.getBirthMonth(p.birthday()) == GregorianCalendar.JANUARY;
     }
 
     private void resetState(int blockId) {
