@@ -1,21 +1,17 @@
 #!/usr/bin/env python2
 
-import sys
 import discoverparams
 import readfactors
 import random
-import json
 import os
 import codecs
 from datetime import date
 from timeparameters import *
 from calendar import timegm
 
-PERSON_PREFIX = "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers"
-COUNTRY_PREFIX = "http://dbpedia.org/resource/"
 SEED = 1
 
-def findNameParameters(names, amount = 100):
+def findNameParameters(names):
 	srtd = sorted(names,key=lambda x: -x[1])
 	res = []
 	hist = {}
@@ -72,18 +68,14 @@ class CSVSerializer:
 
 def handlePersonParam(person):
 	return str(person)
-	#return {"PersonID": person, "PersonURI":(PERSON_PREFIX+str("%020d"%person))}
 
 def handleTimeParam(timeParam):
-	#print timeParam.year
-	#print timeParam.year
-	res =  str(timegm(date(year=int(timeParam.year), 
+	res =  str(timegm(date(year=int(timeParam.year),
 		month=int(timeParam.month), day=int(timeParam.day)).timetuple())*1000)
 	return res
 
 def handleTimeDurationParam(timeParam):
-	#print timeParam.year
-	res =  str(timegm(date(year=int(timeParam.year), 
+	res =  str(timegm(date(year=int(timeParam.year),
 		month=int(timeParam.month), day=int(timeParam.day)).timetuple())*1000)
 	res += "|"+str(timeParam.duration)
 	return res
@@ -91,35 +83,27 @@ def handleTimeDurationParam(timeParam):
 
 def handlePairCountryParam((Country1, Country2)):
 	return Country1+"|"+Country2
-	#return {"Country1":Country1, "Country2":Country2, "Country1URI":(COUNTRY_PREFIX + Country1), "Country2URI":(COUNTRY_PREFIX + Country2)}
 
 def handleCountryParam(Country):
 	return Country
-	#return {"Country":Country, "CountryURI": (COUNTRY_PREFIX + Country)}
 
 def handleTagParam(tag):
 	return tag
-	#return {"Tag": tag}
 
 def handleTagTypeParam(tagType):
 	return tagType
-	#return {"TagType": tagType}
 
-def handleHSParam((HS0, HS1)):
-	return str(HS0)
-	#return {"HS0":HS0, "HS1":HS1}
+def handleMonthParam(month):
+	return str(month)
 
 def handleFirstNameParam(firstName):
 	return firstName
-	#return {"Name":firstName}
 
 def handlePairPersonParam((person1, person2)):
 	return str(person1)+"|"+str(person2)
-	#return {"Person1ID":person1, "Person2ID":person2, "Person2URI":(PERSON_PREFIX+str(person2)), "Person1URI":(PERSON_PREFIX+str(person1))}
 
 def handleWorkYearParam(timeParam):
 	return str(timeParam)
-	#return {"Date0":timeParam}
 
 def main(argv=None):
 	if argv is None:
@@ -149,7 +133,6 @@ def main(argv=None):
 	(personFactors, countryFactors, tagFactors, tagClassFactors, nameFactors, givenNames,  ts, postHisto) = readfactors.load(personFactorFiles, activityFactorFiles, friendsFiles)
 
 	# find person parameters
-	print "find parameter bindings for Persons"
 	selectedPersonParams = {}
 	for i in range(1, 15):
 		factors = readfactors.getFactorsForQuery(i, personFactors)
@@ -168,7 +151,6 @@ def main(argv=None):
 			secondPerson[i].append(selectedPersonParams[i][j])
 
 	# find country parameters for Query 3 and 11
-	print "find parameter bindings for Countries"
 	selectedCountryParams = {}
 	for i in [3, 11]:
 		factors = readfactors.getCountryFactorsForQuery(i, countryFactors)
@@ -189,18 +171,6 @@ def main(argv=None):
 				break
 		secondCountry.append(selectedCountryParams[3][i])
 
-	#find tag parameters for Query 6
-	#print "find parameter bindings for Tags"
-  	# old tag selection
-  	#selectedTagParams = {}
-	#for i in [6]:
-	#	selectedTagParams[i] = discoverparams.generate(tagFactors, portion=0.1)
-	#	# make sure there are as many tag paramters as person parameters
-	#	oldlen = len(selectedTagParams[i])
-	#	newlen = len(selectedPersonParams[i])
-	#	selectedTagParams[i].extend([selectedTagParams[i][random.randint(0, oldlen-1)] for j in range(newlen-oldlen)])
-
-	#print "find parameter bindings for Tags"
 	(leftTagFactors, rightTagFactors) = discoverparams.divideFactors(tagFactors, 0.7)
 	leftSize = len(leftTagFactors)
 	rightSize = len(rightTagFactors)
@@ -227,38 +197,24 @@ def main(argv=None):
 	selectedPersons = selectedPersonParams[2] + selectedPersonParams[3]+selectedPersonParams[4]
 	selectedPersons += selectedPersonParams[5] + selectedPersonParams[9]
 
-	selectedTimeParams = {}
 	timeSelectionInput = {
 		2: (selectedPersonParams[2], "f", getTimeParamsBeforeMedian),
 		3: (selectedPersonParams[3], "ff", getTimeParamsWithMedian),
 		4: (selectedPersonParams[4], "f", getTimeParamsWithMedian),
 		5: (selectedPersonParams[5], "ffg", getTimeParamsAfterMedian),
 		9: (selectedPersonParams[9], "ff", getTimeParamsBeforeMedian)
-		#11: (selectedPersonParams[11], "w", getTimeParamsBeforeMedian) # friends of friends work
 	}
 
-	print "find parameter bindings for Timestamps"
 	selectedTimeParams = findTimeParams(timeSelectionInput, personFactorFiles, activityFactorFiles, friendsFiles, ts[1])
 	# Query 11 takes WorksFrom timestamp
 	selectedTimeParams[11] = [random.randint(ts[2], ts[3]) for j in range(len(selectedPersonParams[11]))]
 
-	# Query 10 additionally needs the HS parameter
-	HS = []
+	# Query 10 additionally needs the month parameter
+	months = []
 	for person in selectedPersonParams[10]:
-		HS0 = random.randint(1, 12)
-		if HS0 == 12:
-			HS1 = 1
-		else:
-			HS1 = HS0 + 1
-		HS.append((HS0, HS1))
+		month = random.randint(1, 12)
+		months.append(month)
 
-	# Query 1 takes first name as a parameter
-	#nameParams =  findNameParameters(nameFactors)# discoverparams.generate(nameFactors)
-	## if there are fewer first names than person parameters, repeat some of the names
-	#if len(nameParams) < len(selectedPersonParams[2]):
-	#	oldlen = len(nameParams)
-	#	newlen = len(selectedPersonParams[2])
-	#	nameParams.extend([nameParams[random.randint(0, oldlen-1)] for j in range(newlen-oldlen)])
 	nameParams = []
 	for person in selectedPersonParams[1]:
 		n = givenNames.getValue(person)
@@ -271,26 +227,28 @@ def main(argv=None):
 		csvWriter = CSVSerializer()
 		csvWriter.setOutputFile(outdir+"interactive_%d_param.txt"%(i))
 		if i != 13 and i != 14: # these three queries take two Persons as parameters
-			csvWriter.registerHandler(handlePersonParam, selectedPersonParams[i], "Person")
+			csvWriter.registerHandler(handlePersonParam, selectedPersonParams[i], "personId")
 		csvWriters[i] = csvWriter
 
 	# add output for Time parameter
 	for i in timeSelectionInput:
 		if i==3 or i==4:
-			csvWriters[i].registerHandler(handleTimeDurationParam, selectedTimeParams[i], "Date0|Duration")
-		else:
-			csvWriters[i].registerHandler(handleTimeParam, selectedTimeParams[i], "Date0")
+			csvWriters[i].registerHandler(handleTimeDurationParam, selectedTimeParams[i], "startDate|durationDays")
+		elif i==2 or i==9:
+			csvWriters[i].registerHandler(handleTimeParam, selectedTimeParams[i], "maxDate")
+		elif i==5:
+			csvWriters[i].registerHandler(handleTimeParam, selectedTimeParams[i], "minDate")
 
 	# other, query-specific parameters
-	csvWriters[1].registerHandler(handleFirstNameParam, nameParams, "Name")
-	csvWriters[3].registerHandler(handlePairCountryParam, zip(selectedCountryParams[3],secondCountry),"Country1|Country2")
-	csvWriters[6].registerHandler(handleTagParam, selectedTagParams[6],"Tag")
-	csvWriters[10].registerHandler(handleHSParam, HS, "HS0")
-	csvWriters[11].registerHandler(handleCountryParam, selectedCountryParams[11],"Country")
-	csvWriters[11].registerHandler(handleWorkYearParam, selectedTimeParams[11],"Year")
-	csvWriters[12].registerHandler(handleTagTypeParam, selectedTagTypeParams[12],"TagType")
-	csvWriters[13].registerHandler(handlePairPersonParam, zip(selectedPersonParams[13], secondPerson[13]),"Person1|Person2")
-	csvWriters[14].registerHandler(handlePairPersonParam, zip(selectedPersonParams[14], secondPerson[14]),"Person1|Person2")
+	csvWriters[1].registerHandler(handleFirstNameParam, nameParams, "firstName")
+	csvWriters[3].registerHandler(handlePairCountryParam, zip(selectedCountryParams[3],secondCountry), "countryXName|countryYName")
+	csvWriters[6].registerHandler(handleTagParam, selectedTagParams[6], "tagName")
+	csvWriters[10].registerHandler(handleMonthParam, months, "month")
+	csvWriters[11].registerHandler(handleCountryParam, selectedCountryParams[11], "countryName")
+	csvWriters[11].registerHandler(handleWorkYearParam, selectedTimeParams[11], "workFromYear")
+	csvWriters[12].registerHandler(handleTagTypeParam, selectedTagTypeParams[12], "tagClassName")
+	csvWriters[13].registerHandler(handlePairPersonParam, zip(selectedPersonParams[13], secondPerson[13]), "person1Id|person2Id")
+	csvWriters[14].registerHandler(handlePairPersonParam, zip(selectedPersonParams[14], secondPerson[14]), "person1Id|person2Id")
 
 
 	for j in csvWriters:
