@@ -18,6 +18,20 @@ ldbc_snb_datagen is GPLv3 licensed, to see detailed information about this licen
 * **[Output](https://github.com/ldbc/ldbc_snb_datagen/wiki/Data-Output)**
 * **[Troubleshooting](https://github.com/ldbc/ldbc_snb_datagen/wiki/Troubleshooting)**
 
+## Quick start
+
+```bash
+wget http://archive.apache.org/dist/hadoop/core/hadoop-2.6.0/hadoop-2.6.0.tar.gz
+wget hadoop-2.6.0.tar.gz
+export HADOOP_CLIENT_OPTS="-Xmx2G"
+# set this to the Hadoop 2.6.0 directory
+export HADOOP_HOME=
+# set this to the repository's directory
+export LDBC_SNB_DATAGEN_HOME=
+cd $LDBC_SNB_DATAGEN_HOME
+./run.sh
+```
+
 <!-- **Datasets** -->
 
 <!-- Publicly available datasets can be found at the LDBC-SNB Amazon Bucket. These datasets are the official SNB datasets and were  generated using version 0.2.6. They are available in the three official supported serializers: CSV, CSVMergeForeign and TTL. The bucket is configured in "Requester Pays" mode, thus in order to access them you need a properly set up AWS client.
