@@ -12,7 +12,7 @@ script:
 - mvn test | grep "^\\[" | tee mvn.log
 # test if the output of the mvn command contained an "[INFO] BUILD SUCCESS" entry
 - grep 'BUILD SUCCESS' mvn.log
-- ls -al
+- ls -al test_data
 - if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then ./deploy.sh; fi
 notifications:
   slack: ldbcouncil:OrBanrJ7l0EHQbj8T5YdJYhd
