@@ -1,4 +1,5 @@
 ![LDBC_LOGO](https://raw.githubusercontent.com/wiki/ldbc/ldbc_snb_datagen/images/ldbc-logo.png)
+
 LDBC-SNB Data Generator
 ----------------------
 
@@ -22,7 +23,7 @@ ldbc_snb_datagen is GPLv3 licensed, to see detailed information about this licen
 
 ```bash
 wget http://archive.apache.org/dist/hadoop/core/hadoop-2.6.0/hadoop-2.6.0.tar.gz
-wget hadoop-2.6.0.tar.gz
+tar xf hadoop-2.6.0.tar.gz
 export HADOOP_CLIENT_OPTS="-Xmx2G"
 # set this to the Hadoop 2.6.0 directory
 export HADOOP_HOME=
@@ -38,5 +39,6 @@ cd $LDBC_SNB_DATAGEN_HOME
 * http://ldbc-snb.s3.amazonaws.com/ -->
 
 **Community provided tools**
+
 
 * **[Apache Flink Loader:](https://github.com/s1ck/ldbc-flink-import)** A loader of LDBC datasets for Apache Flink.
