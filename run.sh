@@ -12,8 +12,16 @@ LDBC_SNB_DATAGEN_HOME=${LDBC_SNB_DATAGEN_HOME:-$DEFAULT_LDBC_SNB_DATAGEN_HOME}
 export HADOOP_HOME
 export LDBC_SNB_DATAGEN_HOME
 
+echo ===============================================================================
+echo Running generator with the following parameters:
+echo -------------------------------------------------------------------------------
+echo LDBC_SNB_DATAGEN_HOME: $LDBC_SNB_DATAGEN_HOME
+echo HADOOP_HOME: $HADOOP_HOME
+echo HADOOP_CLIENT_OPTS: $HADOOP_CLIENT_OPTS
+echo ===============================================================================
+
 mvn clean
-mvn -DskipTests assembly:assembly 
+mvn -DskipTests assembly:assembly
 
 #  --- for OSX, add this line ---
 # zip -d $LDBC_SNB_DATAGEN_HOME/target/ldbc_snb_datagen-0.2.7-jar-with-dependencies.jar META-INF/LICENSE
