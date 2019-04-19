@@ -49,17 +49,16 @@ public class TweetGenerator extends TextGenerator {
     private DistributionKey hashtag;
     private DistributionKey sentiment;
     private DistributionKey popularword;
-    //distribution popular,negative, neutral tweets
-    private DistributionKey lengthsentence; // sentece length and sentences per tweet
+    // distribution of popular, negative, and neutral tweets
+    private DistributionKey lengthsentence; // sentence length and sentences per tweet
     private DistributionKey lengthtweet;
 
     public TweetGenerator(Random random, TagDictionary tagDic) throws NumberFormatException, IOException {
         super(random, tagDic);
-        //input de fitxers i crea els 4 maps
+        // load the input files and create 5 maps
         hashtag = new DistributionKey(DatagenParams.SPARKBENCH_DIRECTORY + "/hashtags.csv");
         sentiment = new DistributionKey(DatagenParams.SPARKBENCH_DIRECTORY + "/sentiment.csv");
         popularword = new DistributionKey(DatagenParams.SPARKBENCH_DIRECTORY + "/words.csv");
-        //proportion = new DistributionKey(DatagenParams.SPARKBENCH_DIRECTORY + "/sentiment.csv");
         lengthsentence = new DistributionKey(DatagenParams.SPARKBENCH_DIRECTORY + "/sentence_lengths.csv");
         lengthtweet = new DistributionKey(DatagenParams.SPARKBENCH_DIRECTORY + "/sentence_count.csv");
     }
@@ -72,17 +71,17 @@ public class TweetGenerator extends TextGenerator {
     @Override
     public String generateText(PersonSummary member, TreeSet<Integer> tags, Properties prop) {
         StringBuffer content = null;
-        //mirar num de frases
+        // determine the number of sentence
         Double numsentences = Double.valueOf(lengthtweet.nextDouble(this.random));
         for (int i = 0; i < numsentences; ++i) {
             Double numwords = Double.valueOf(lengthsentence.nextDouble(this.random));
-            // depenen de la distribució de number hashtags per sentence int numhashtags;
+            // depenen de la distribució de number hashtags per sentence int numhashtags; _TRANSLATE
             //int numhashtags = funciondistribuciohashtags(numwords);
             int numhashtags = (int) (numwords * 0.4);
             for (int j = 0; j < numhashtags; ++j) {
                 content.append(" " + hashtag.nextDouble(this.random));
             }
-            // depenen de la distribució de number sentiment words per sentence int numhashtags;
+            // depenen de la distribució de number sentiment words per sentence int numhashtags; _TRANSLATE
             //int numsentimentswords = funciondistribuciosentimentswords(numwords);
             int numsentimentswords = (int) (numwords * 0.4);
             for (int q = 0; q < numhashtags; ++q) {
@@ -94,12 +93,9 @@ public class TweetGenerator extends TextGenerator {
             }
 
         }
-        //per cada frase mirar numero de paraules
-        //mirar numero de hashtags
+        //per cada frase mirar numero de paraules mirar numero de hashtags _TRANSLATE
         content.toString();
         return content.toString();
-
     }
-
 
 }

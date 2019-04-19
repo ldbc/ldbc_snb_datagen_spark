@@ -104,7 +104,7 @@ public class ForumGenerator {
                                 language
         );
 
-        //Set tags of this forum
+        // Set tags of this forum
         forum.tags(interest);
 
 

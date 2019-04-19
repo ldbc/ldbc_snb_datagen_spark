@@ -84,7 +84,7 @@ public class PhotoGenerator {
                 int popularPlaceId;
                 PopularPlace popularPlace;
                 if (randomFarm.get(RandomGeneratorFarm.Aspect.POPULAR).nextDouble() < DatagenParams.probPopularPlaces) {
-                    //Generate photo information from user's popular place
+                    // Generate photo information from user's popular place
                     int popularIndex = randomFarm.get(RandomGeneratorFarm.Aspect.POPULAR).nextInt(popularPlaces.size());
                     popularPlaceId = popularPlaces.get(popularIndex);
                     popularPlace = Dictionaries.popularPlaces.getPopularPlace(album.place(), popularPlaceId);
