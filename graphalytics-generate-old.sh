@@ -2,7 +2,6 @@
 
 # This script generates old versions of Graphalytics data sets.
 # Beware that the script cleans the current git repository and discards any changes.
-# The script is intended to reproduce Graphalytics data sets, but it can be modified to produce SNB data sets as well.
 
 # To run this script:
 #
@@ -103,4 +102,3 @@ for VERSION in v0.2.6 v0.2.7 v0.2.8; do
         mv social_network ../datagen-graphs/social_network-$VERSION
     fi
 done
-
