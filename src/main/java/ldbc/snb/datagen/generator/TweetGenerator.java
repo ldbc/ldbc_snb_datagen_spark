@@ -71,18 +71,17 @@ public class TweetGenerator extends TextGenerator {
     @Override
     public String generateText(PersonSummary member, TreeSet<Integer> tags, Properties prop) {
         StringBuffer content = null;
-        // determine the number of sentence
+        // determine the number of sentences
         Double numsentences = Double.valueOf(lengthtweet.nextDouble(this.random));
         for (int i = 0; i < numsentences; ++i) {
             Double numwords = Double.valueOf(lengthsentence.nextDouble(this.random));
-            // depenen de la distribució de number hashtags per sentence int numhashtags; _TRANSLATE
-            //int numhashtags = funciondistribuciohashtags(numwords);
+            // the number of hashtages depends on the number of words in the
+            // sentence
             int numhashtags = (int) (numwords * 0.4);
             for (int j = 0; j < numhashtags; ++j) {
                 content.append(" " + hashtag.nextDouble(this.random));
             }
-            // depenen de la distribució de number sentiment words per sentence int numhashtags; _TRANSLATE
-            //int numsentimentswords = funciondistribuciosentimentswords(numwords);
+            // the number of sentiment words depends on the number of words in the sentence
             int numsentimentswords = (int) (numwords * 0.4);
             for (int q = 0; q < numhashtags; ++q) {
                 content.append(" " + sentiment.nextDouble(this.random));
@@ -91,10 +90,7 @@ public class TweetGenerator extends TextGenerator {
             for (int j = 0; j < numwords; ++j) {
                 content.append(" " + popularword.nextDouble(this.random));
             }
-
         }
-        //per cada frase mirar numero de paraules mirar numero de hashtags _TRANSLATE
-        content.toString();
         return content.toString();
     }
 

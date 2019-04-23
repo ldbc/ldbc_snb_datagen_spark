@@ -102,8 +102,6 @@ abstract public class PostGenerator {
                 if (postInfo != null) {
 
                     String content = "";
-
-                    // crear properties class para passar _TRANSLATE
                     content = this.generator_.generateText(member.person(), postInfo.tags, prop);
 
                     int country = member.person().countryId();
