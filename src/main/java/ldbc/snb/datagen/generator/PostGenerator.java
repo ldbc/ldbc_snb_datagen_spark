@@ -102,8 +102,6 @@ abstract public class PostGenerator {
                 if (postInfo != null) {
 
                     String content = "";
-
-                    // crear properties class para passar
                     content = this.generator_.generateText(member.person(), postInfo.tags, prop);
 
                     int country = member.person().countryId();
@@ -136,7 +134,7 @@ abstract public class PostGenerator {
                                                              .get(RandomGeneratorFarm.Aspect.NUM_LIKE), forum, post_, Like.LikeType.POST, exporter);
                     }
 
-                    //// generate comments
+                    // generate comments
                     int numComments = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT)
                                                 .nextInt(DatagenParams.maxNumComments + 1);
                     postId = commentGenerator_.createComments(randomFarm, forum, post_, numComments, postId, exporter);

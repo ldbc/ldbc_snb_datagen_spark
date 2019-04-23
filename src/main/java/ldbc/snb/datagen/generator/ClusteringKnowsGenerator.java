@@ -463,7 +463,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
                 if (pI.index_ < other.index_) {
                     float prob = rand.nextFloat();
                     if (prob <= c.p_) {
-                        // crear aresta
+                        // create edge
                         if (Knows.createKnow(rand, persons.get(pI.index_), persons.get(other.index_)))
                             numCoreCoreEdges++;
                         else

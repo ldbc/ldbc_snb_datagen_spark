@@ -43,7 +43,7 @@ import org.apache.hadoop.conf.Configuration;
 
 public class DatagenParams {
 
-    //Files and folders
+    // Files and folders
     public static final String DICTIONARY_DIRECTORY = "/dictionaries/";
     public static final String SPARKBENCH_DIRECTORY = "/sparkbench";
     public static final String IPZONE_DIRECTORY = "/ipaddrByCountries";
