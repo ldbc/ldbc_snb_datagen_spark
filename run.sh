@@ -16,6 +16,7 @@ echo ===========================================================================
 echo Running generator with the following parameters:
 echo -------------------------------------------------------------------------------
 echo LDBC_SNB_DATAGEN_HOME: $LDBC_SNB_DATAGEN_HOME
+echo JAVA_HOME: $JAVA_HOME
 echo HADOOP_HOME: $HADOOP_HOME
 echo HADOOP_CLIENT_OPTS: $HADOOP_CLIENT_OPTS
 echo ===============================================================================
