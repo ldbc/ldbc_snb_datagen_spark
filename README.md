@@ -33,6 +33,33 @@ cd $LDBC_SNB_DATAGEN_HOME
 ./run.sh
 ```
 
+## Docker image
+
+The image can be simply built with the provided Dockerfile.
+To build, execute the following command from the project directory:
+```
+docker build . --tag ldbc/datagen
+```
+
+### Running
+
+The project will output it's results in the `/opt/ldbc_snb_datagen/social_network/` directory. In order to save the results of the generation, a directory must be mounted in the container from the host:
+
+```
+mkdir datagen_output
+
+docker run --rm --mount type=bind,source="$(pwd)/datagen_output/",target="/opt/ldbc_snb_datagen/social_network/" ldbc/datagen
+```
+
+### Options
+
+The container image can be customized with environment variables passed through the `docker run` command. The following options are present:
+  * `HADOOP_CLIENT_OPTS`: A standard HADOOP environment variable controlling the Hadoop client parameters. Default is `-Xmx8G` to provide the client enough heap.
+  * `DATAGEN_SCALE_FACTOR`: The scale factor of the generated dataset. Default is `snb.interactive.1`
+  * `DATAGEN_PERSON_SERIALIZER`: The serializer used for Person objects. Default is `ldbc.snb.datagen.serializer.snb.interactive.CSVPersonSerializer`
+  * `DATAGEN_INVARIANT_SERIALIZER` The serializer used for Invariant objects. Default is `ldbc.snb.datagen.serializer.snb.interactive.CSVInvariantSerializer`
+  * `DATAGEN_PERSON_ACTIVITY_SERIALIZER` The serializer used for Invariant objects. Default is `ldbc.snb.datagen.serializer.snb.interactive.CSVPersonActivitySerializer`
+
 <!-- **Datasets** -->
 
 <!-- Publicly available datasets can be found at the LDBC-SNB Amazon Bucket. These datasets are the official SNB datasets and were  generated using version 0.2.6. They are available in the three official supported serializers: CSV, CSVMergeForeign and TTL. The bucket is configured in "Requester Pays" mode, thus in order to access them you need a properly set up AWS client.

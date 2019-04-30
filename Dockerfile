@@ -11,4 +11,9 @@ WORKDIR /opt/ldbc_snb_datagen
 RUN mvn -DskipTests clean assembly:assembly
 
 ENV HADOOP_CLIENT_OPTS '-Xmx8G'
+ENV DATAGEN_SCALE_FACTOR 'snb.interactive.1'
+ENV DATAGEN_PERSON_SERIALIZER 'ldbc.snb.datagen.serializer.snb.interactive.CSVPersonSerializer'
+ENV DATAGEN_INVARIANT_SERIALIZER 'ldbc.snb.datagen.serializer.snb.interactive.CSVInvariantSerializer'
+ENV DATAGEN_PERSON_ACTIVITY_SERIALIZER 'ldbc.snb.datagen.serializer.snb.interactive.CSVPersonActivitySerializer'
+
 CMD /opt/ldbc_snb_datagen/docker_run.sh
