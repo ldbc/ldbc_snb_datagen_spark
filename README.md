@@ -36,7 +36,7 @@ cd $LDBC_SNB_DATAGEN_HOME
 ## Docker image
 
 The image can be simply built with the provided Dockerfile.
-To build, execute the following command from the project directory:
+To build, execute the following command from the repository directory:
 ```
 docker build . --tag ldbc/datagen
 ```
@@ -54,11 +54,11 @@ docker run --rm --mount type=bind,source="$(pwd)/datagen_output/",target="/opt/l
 ### Options
 
 The container image can be customized with environment variables passed through the `docker run` command. The following options are present:
-  * `HADOOP_CLIENT_OPTS`: A standard Hadoop environment variable controlling the Hadoop client parameters. Default is `-Xmx8G` to provide the client enough heap.
-  * `DATAGEN_SCALE_FACTOR`: The scale factor of the generated dataset. Default is `snb.interactive.1`
-  * `DATAGEN_PERSON_SERIALIZER`: The serializer used for Person objects. Default is `ldbc.snb.datagen.serializer.snb.interactive.CSVPersonSerializer`
-  * `DATAGEN_INVARIANT_SERIALIZER` The serializer used for Invariant objects. Default is `ldbc.snb.datagen.serializer.snb.interactive.CSVInvariantSerializer`
-  * `DATAGEN_PERSON_ACTIVITY_SERIALIZER` The serializer used for Invariant objects. Default is `ldbc.snb.datagen.serializer.snb.interactive.CSVPersonActivitySerializer`
+  * `HADOOP_CLIENT_OPTS`: A standard Hadoop environment variable controlling the Hadoop client parameters. The default is `-Xmx8G`
+  * `DATAGEN_SCALE_FACTOR`: The scale factor of the generated dataset. The default is `snb.interactive.1`
+  * `DATAGEN_PERSON_SERIALIZER`: The serializer used for Person objects. The default is `ldbc.snb.datagen.serializer.snb.interactive.CSVPersonSerializer`
+  * `DATAGEN_INVARIANT_SERIALIZER` The serializer used for Invariant objects. The default is `ldbc.snb.datagen.serializer.snb.interactive.CSVInvariantSerializer`
+  * `DATAGEN_PERSON_ACTIVITY_SERIALIZER` The serializer used for Invariant objects. The default is `ldbc.snb.datagen.serializer.snb.interactive.CSVPersonActivitySerializer`
 
 <!-- **Datasets** -->
 
