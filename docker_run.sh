@@ -1,8 +1,7 @@
-#!/bin/bash
+#o!/bin/bash
 
 # Parameter serialization
 PARAMS_FILE=params.ini
-echo "ldbc.snb.datagen.generator.numThreads":$(nproc) > ${PARAMS_FILE}
 echo "ldbc.snb.datagen.generator.scaleFactor:${DATAGEN_SCALE_FACTOR}" >> ${PARAMS_FILE}
 echo "ldbc.snb.datagen.serializer.personSerializer:${DATAGEN_PERSON_SERIALIZER}" >> ${PARAMS_FILE}
 echo "ldbc.snb.datagen.serializer.invariantSerializer:${DATAGEN_INVARIANT_SERIALIZER}" >> ${PARAMS_FILE}
