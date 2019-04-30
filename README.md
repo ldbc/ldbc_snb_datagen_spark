@@ -43,7 +43,7 @@ docker build . --tag ldbc/datagen
 
 ### Running
 
-The project will output it's results in the `/opt/ldbc_snb_datagen/social_network/` directory. In order to save the results of the generation, a directory must be mounted in the container from the host:
+The project will output its results in the `/opt/ldbc_snb_datagen/social_network/` directory. In order to save the results of the generation, a directory must be mounted in the container from the host:
 
 ```
 mkdir datagen_output
