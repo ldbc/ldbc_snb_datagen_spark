@@ -8,12 +8,9 @@ RUN curl -L 'http://archive.apache.org/dist/hadoop/core/hadoop-2.6.0/hadoop-2.6.
 # Copy the project
 COPY . /opt/ldbc_snb_datagen
 WORKDIR /opt/ldbc_snb_datagen
+# Remove sample parameters
+RUN rm params*.ini
+# Build jar bundle
 RUN mvn -DskipTests clean assembly:assembly
-
-ENV HADOOP_CLIENT_OPTS '-Xmx8G'
-ENV DATAGEN_SCALE_FACTOR 'snb.interactive.1'
-ENV DATAGEN_PERSON_SERIALIZER 'ldbc.snb.datagen.serializer.snb.interactive.CSVPersonSerializer'
-ENV DATAGEN_INVARIANT_SERIALIZER 'ldbc.snb.datagen.serializer.snb.interactive.CSVInvariantSerializer'
-ENV DATAGEN_PERSON_ACTIVITY_SERIALIZER 'ldbc.snb.datagen.serializer.snb.interactive.CSVPersonActivitySerializer'
 
 CMD /opt/ldbc_snb_datagen/docker_run.sh

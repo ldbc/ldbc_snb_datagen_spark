@@ -43,24 +43,15 @@ docker build . --tag ldbc/datagen
 
 ### Running
 
-The project will output its results in the `/opt/ldbc_snb_datagen/social_network/` directory. In order to save the results of the generation, a directory must be mounted in the container from the host:
+In order to run the container, a `params.ini` file is required. For reference, please see the params*.ini files in the repository. The file will be mounted in the container by the `--mount type=bind,source="$(pwd)/params.ini,target="/opt/ldbc_snb_datagen/params.ini"` option. If required, the source path can be set to a different path.
+
+The container will output it's results in the `/opt/ldbc_snb_datagen/social_network/` directory. In order to save the results of the generation, a directory must be mounted in the container from the host:
 
 ```
 mkdir datagen_output
 
-docker run --rm --mount type=bind,source="$(pwd)/datagen_output/",target="/opt/ldbc_snb_datagen/social_network/" ldbc/datagen
+docker run --rm --mount type=bind,source="$(pwd)/datagen_output/",target="/opt/ldbc_snb_datagen/social_network/" --mount type=bind,source="$(pwd)/params.ini",target="/opt/ldbc_snb_datagen/params.ini" ldbc/datagen
 ```
-
-### Options
-
-The container image can be customized with environment variables passed through the `docker run` command. The following options are present:
-  * `HADOOP_CLIENT_OPTS`: A standard Hadoop environment variable controlling the Hadoop client parameters. The default is `-Xmx8G`
-  * `DATAGEN_SCALE_FACTOR`: The scale factor of the generated dataset. The default is `snb.interactive.1`
-  * `DATAGEN_PERSON_SERIALIZER`: The serializer used for Person objects. The default is `ldbc.snb.datagen.serializer.snb.interactive.CSVPersonSerializer`
-  * `DATAGEN_INVARIANT_SERIALIZER` The serializer used for Invariant objects. The default is `ldbc.snb.datagen.serializer.snb.interactive.CSVInvariantSerializer`
-  * `DATAGEN_PERSON_ACTIVITY_SERIALIZER` The serializer used for Invariant objects. The default is `ldbc.snb.datagen.serializer.snb.interactive.CSVPersonActivitySerializer`
-
-<!-- **Datasets** -->
 
 <!-- Publicly available datasets can be found at the LDBC-SNB Amazon Bucket. These datasets are the official SNB datasets and were  generated using version 0.2.6. They are available in the three official supported serializers: CSV, CSVMergeForeign and TTL. The bucket is configured in "Requester Pays" mode, thus in order to access them you need a properly set up AWS client.
 * http://ldbc-snb.s3.amazonaws.com/ -->
