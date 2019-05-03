@@ -41,6 +41,10 @@ To build, execute the following command from the repository directory:
 docker build . --tag ldbc/datagen
 ```
 
+### Options
+
+To configure the amount of memory available, set the `HADOOP_CLIENT_OPTS` variable in the Dockerfile. The default value is `-Xmx8G`.
+
 ### Running
 
 In order to run the container, a `params.ini` file is required. For reference, please see the `params*.ini` files in the repository. The file will be mounted in the container by the `--mount type=bind,source="$(pwd)/params.ini,target="/opt/ldbc_snb_datagen/params.ini"` option. If required, the source path can be set to a different path.
