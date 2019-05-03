@@ -57,6 +57,8 @@ mkdir datagen_output
 docker run --rm --mount type=bind,source="$(pwd)/datagen_output/",target="/opt/ldbc_snb_datagen/social_network/" --mount type=bind,source="$(pwd)/params.ini",target="/opt/ldbc_snb_datagen/params.ini" ldbc/datagen
 ```
 
+If the memory limit has to be raised, the `-e HADOOP_CLIENT_OPTS="-Xmx..."` parameter can override the default `-Xmx8G` value.
+
 <!-- Publicly available datasets can be found at the LDBC-SNB Amazon Bucket. These datasets are the official SNB datasets and were  generated using version 0.2.6. They are available in the three official supported serializers: CSV, CSVMergeForeign and TTL. The bucket is configured in "Requester Pays" mode, thus in order to access them you need a properly set up AWS client.
 * http://ldbc-snb.s3.amazonaws.com/ -->
 
