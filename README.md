@@ -33,7 +33,29 @@ cd $LDBC_SNB_DATAGEN_HOME
 ./run.sh
 ```
 
-<!-- **Datasets** -->
+## Docker image
+
+The image can be simply built with the provided Dockerfile.
+To build, execute the following command from the repository directory:
+```
+docker build . --tag ldbc/datagen
+```
+
+### Options
+
+To configure the amount of memory available, set the `HADOOP_CLIENT_OPTS` variable in the Dockerfile. The default value is `-Xmx8G`.
+
+### Running
+
+In order to run the container, a `params.ini` file is required. For reference, please see the `params*.ini` files in the repository. The file will be mounted in the container by the `--mount type=bind,source="$(pwd)/params.ini,target="/opt/ldbc_snb_datagen/params.ini"` option. If required, the source path can be set to a different path.
+
+The container will output it's results in the `/opt/ldbc_snb_datagen/social_network/` directory. In order to save the results of the generation, a directory must be mounted in the container from the host:
+
+```
+mkdir datagen_output
+
+docker run --rm --mount type=bind,source="$(pwd)/datagen_output/",target="/opt/ldbc_snb_datagen/social_network/" --mount type=bind,source="$(pwd)/params.ini",target="/opt/ldbc_snb_datagen/params.ini" ldbc/datagen
+```
 
 <!-- Publicly available datasets can be found at the LDBC-SNB Amazon Bucket. These datasets are the official SNB datasets and were  generated using version 0.2.6. They are available in the three official supported serializers: CSV, CSVMergeForeign and TTL. The bucket is configured in "Requester Pays" mode, thus in order to access them you need a properly set up AWS client.
 * http://ldbc-snb.s3.amazonaws.com/ -->
