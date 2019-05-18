@@ -10,11 +10,11 @@ from datetime import datetime,timedelta
 import readfactors
 from timeparameters import *
 
-START_DATE=datetime.strptime("2010-01-01", "%Y-%m-%d")
-END_DATE=datetime.strptime("2013-01-01", "%Y-%m-%d")
-
-def format_date(date):
-   return int(time.mktime(date.timetuple())*1000)
+# START_DATE=datetime.strptime("2010-01-01", "%Y-%m-%d")
+# END_DATE=datetime.strptime("2013-01-01", "%Y-%m-%d")
+#
+# def format_date(date):
+#   return int(time.mktime(date.timetuple())*1000)
 
 
 class ParamsWriter:
@@ -34,62 +34,62 @@ class ParamsWriter:
       self.file.write("\n")
 
 
-def post_date_right_open_range_params(sample, lower_bound, upper_bound):
-   results = []
-   for ix in range(0, len(sample)):
-      start_offset = sample[ix][0]
-      count_sum = 0
-      for offset, count in sample[ix:]:
-         count_sum += count
-      if count_sum > lower_bound and count_sum < upper_bound:
-         results.append([start_offset, count_sum])
-   return results
+# def post_date_right_open_range_params(sample, lower_bound, upper_bound):
+#    results = []
+#    for ix in range(0, len(sample)):
+#       start_offset = sample[ix][0]
+#       count_sum = 0
+#       for offset, count in sample[ix:]:
+#          count_sum += count
+#       if count_sum > lower_bound and count_sum < upper_bound:
+#          results.append([start_offset, count_sum])
+#    return results
+#
+# def post_date_range_params(sample, lower_bound, upper_bound):
+#    results = []
+#    for ix in range(0, len(sample)):
+#       start_offset = sample[ix][0]
+#       count_sum = 0
+#       for offset, count in sample[ix:]:
+#          count_sum += count
+#          if count_sum > lower_bound and count_sum < upper_bound:
+#             results.append([[start_offset, offset], count_sum])
+#    return results
+#
+# def post_month_params(sample, lower_bound, upper_bound):
+#    results = []
+#    for ix in range(0, len(sample)/4):
+#       start_ix = ix*4
+#       count_sum = 0
+#       for offset, count in sample[start_ix:start_ix+4]:
+#          count_sum += count
+#       if count_sum > lower_bound and count_sum < upper_bound:
+#          start_day = sample[start_ix][0]
+#          end_day = sample[start_ix+4][0]
+#          results.append([[start_day, end_day], count_sum])
+#    return results
+#
+# def enumerate_path_bounds(minLength,maxLength,minDifference):
+#   results = []
+#   for i in range(minLength, maxLength):
+#      for j in range(i+minDifference,maxLength):
+#         results.append([i,j])
+#   return results
 
-def post_date_range_params(sample, lower_bound, upper_bound):
-   results = []
-   for ix in range(0, len(sample)):
-      start_offset = sample[ix][0]
-      count_sum = 0
-      for offset, count in sample[ix:]:
-         count_sum += count
-         if count_sum > lower_bound and count_sum < upper_bound:
-            results.append([[start_offset, offset], count_sum])
-   return results
-
-def post_month_params(sample, lower_bound, upper_bound):
-   results = []
-   for ix in range(0, len(sample)/4):
-      start_ix = ix*4
-      count_sum = 0
-      for offset, count in sample[start_ix:start_ix+4]:
-         count_sum += count
-      if count_sum > lower_bound and count_sum < upper_bound:
-         start_day = sample[start_ix][0]
-         end_day = sample[start_ix+4][0]
-         results.append([[start_day, end_day], count_sum])
-   return results
-
-def enumerate_path_bounds(minLength,maxLength,minDifference):
-  results = []
-  for i in range(minLength, maxLength):
-     for j in range(i+minDifference,maxLength):
-        results.append([i,j])
-  return results
-
-def prob_language_codes():
-  results = []
-  results.append(["ar"])
-  for i in range(0, 2):
-     results.append(["tk"])
-  for i in range(0, 8):
-     results.append(["uz"])
-  for i in range(0, 2):
-     results.append(["uz","tk"])
-  return results
-
-def prob_post_lengths():
-  results = [20,40,113,97,240]
-  return results
+# def prob_language_codes():
+#   results = []
+#   results.append(["ar"])
+#   for i in range(0, 2):
+#      results.append(["tk"])
+#   for i in range(0, 8):
+#      results.append(["uz"])
+#   for i in range(0, 2):
+#      results.append(["uz","tk"])
+#   return results
+#
+# def prob_post_lengths():
+#   results = [20,40,113,97,240]
+#   return results
 
 def key_params(sample, lower_bound, upper_bound):
    results = []
@@ -98,11 +98,11 @@ def key_params(sample, lower_bound, upper_bound):
          results.append([key, count])
    return results
 
-def serialize_q1(outdir, post_weeks):
-   writer = ParamsWriter(outdir, 1, ["date"])
-   for week, count in post_weeks:
-      writer.append([str(week)])
-
+# def serialize_q1(outdir, post_weeks):
+#    writer = ParamsWriter(outdir, 1, ["date"])
+#    for week, count in post_weeks:
+#       writer.append([str(week)])
+#
 # def serialize_q2(outdir, countries, post_day_ranges):
 #    writer = ParamsWriter(outdir, 2, ["date1", "date2", "country1", "country2"])
 #    for day_range, count_post in post_day_ranges:
@@ -406,5 +406,5 @@ def main(argv=None):
    # serialize_q20(outdir, key_params(tagclass_posts, total_posts/20, total_posts/2))
    # serialize_q11(outdir, key_params(country_sample, total_posts/80, total_posts/20), bad_words)
 
-if __name__ == "__main__":
-   sys.exit(main())
+#if __name__ == "__main__":
+#   sys.exit(main())
