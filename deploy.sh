@@ -6,8 +6,13 @@ set -e # exit with nonzero exit code if anything fails
 rm -rf deployed || exit 0
 mkdir deployed
 
-# run our compile script, discussed above
-cp -r test_data/substitution_parameters deployed/
+# create md5sum files
+cd substitution_parameters
+md5sum interactive* > md5-interactive.chk
+md5sum bi* > md5-bi.chk
+
+# copy dir
+cp -r substitution_parameters deployed/
 
 # go to the directory and create a *new* Git repo
 cd deployed
