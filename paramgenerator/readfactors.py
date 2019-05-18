@@ -67,26 +67,6 @@ def load(personFactorFiles,activityFactorFiles, friendFiles):
 	names = {}
 	timestamp = [0,0,0,0]
 
-	for inputfileName in personFactorFiles:
-		with codecs.open(inputfileName, "r", "utf-8") as f:
-			for line in f.readlines():
-				line = line.split(",")
-				person = int(line[0])
-				if not results.existParam(person):
-					results.addNewParam(person)
-				name = line[1]
-				givenNames.setValue(person, name)
-				results.addValue(person, "f", int(line[2]))
-				results.addValue(person, "p", int(line[3]))
-				results.addValue(person, "pl", int(line[4]))
-				results.addValue(person, "pt", int(line[5]))
-				results.addValue(person, "g", int(line[6]))
-				results.addValue(person, "w", int(line[7]))
-				results.addValue(person, "pr", int(line[8]))
-				for i in range((len(line)-9)/2):
-					if not postsHisto.existParam(i):
-						postsHisto.addNewParam(i)
-					postsHisto.addValue(i, "p", int(line[9+i]))
 
 	for inputFileName in activityFactorFiles:
 		with codecs.open(inputFileName, "r", "utf-8") as f:
@@ -98,13 +78,13 @@ def load(personFactorFiles,activityFactorFiles, friendFiles):
 					countries.addNewParam(country)
 				countries.addValue(country, "p", int(line[1]))
 
-			tagCount = int(f.readline())
-			for i in range(tagCount):
+			tagClassCount = int(f.readline())
+			for i in range(tagClassCount):
 				line = f.readline().split(",")
-				tag = line[0]
-				if not tag in tagClasses:
-					tagClasses[tag] = 0
-				tagClasses[tag] += int(line[2])
+				tagClass = line[0]
+				if not tagClass in tagClasses:
+					tagClasses[tagClass] = 0
+				tagClasses[tagClass] += int(line[2])
 
 			tagCount = int(f.readline())
 			for i in range(tagCount):
@@ -178,48 +158,48 @@ def getColumns(factors, columnNames):
 	return res
 
 
-def getFactorsForQuery(queryId, factors):
-
-	queryFactorDict = {
-		1: getColumns(factors, ["f", "ff"]),
-		2: getColumns(factors, [ "f", "fp"]),
-		3: getColumns(factors, ["ff", "ffp"]),
-		4: getColumns(factors, ["fp", "f",  "fpt"]),
-		5: getColumns(factors, ["ff", "ffg"]),	
-		6: getColumns(factors, ["f","ff", "ffp", "ffpt"]),
-		7: getColumns(factors, ["pl", "p"]),
-		8: getColumns(factors, ["pr","p"]), ### add "pr"
-		9: getColumns(factors, ["f", "ffp", "ff"]),
-		10: getColumns(factors, ["f","ff", "ffp", "ffpt"]),
-		11: getColumns(factors, ["f","ff", "ffw"]),
-		12: getColumns(factors, ["f", "fp"]), ### add "fpr"
-		13: getColumns(factors, ["ff"]),
-		14: getColumns(factors, ["ff"])
-	}
-
-	return queryFactorDict[queryId]
-
-def getCountryFactorsForQuery(queryId, factors):
-	queryFactorDict = {
-		3: getColumns(factors, ["p"]),
-		11: getColumns(factors, ["p"]) ### replace with "org"
-	}
-
-	return queryFactorDict[queryId]
-
-def getTagFactorsForQuery(queryId, factors):
-	queryFactorDict = {
-		6: getColumns(factors, ["p"]),
-	}
-
-	return queryFactorDict[queryId]
-
-if __name__ == "__main__":
-	argv = sys.argv
-	if len(argv)< 3:
-		print "arguments: <m0factors.txt> <m0friendsList.txt>"
-		sys.exit(1)
-
-	sys.exit(load(argv[1], argv[2]))
-
-
+# def getFactorsForQuery(queryId, factors):
+#
+# 	queryFactorDict = {
+# 		1: getColumns(factors, ["f", "ff"]),
+# 		2: getColumns(factors, [ "f", "fp"]),
+# 		3: getColumns(factors, ["ff", "ffp"]),
+# 		4: getColumns(factors, ["fp", "f",  "fpt"]),
+# 		5: getColumns(factors, ["ff", "ffg"]),
+# 		6: getColumns(factors, ["f","ff", "ffp", "ffpt"]),
+# 		7: getColumns(factors, ["pl", "p"]),
+# 		8: getColumns(factors, ["pr","p"]), ### add "pr"
+# 		9: getColumns(factors, ["f", "ffp", "ff"]),
+# 		10: getColumns(factors, ["f","ff", "ffp", "ffpt"]),
+# 		11: getColumns(factors, ["f","ff", "ffw"]),
+# 		12: getColumns(factors, ["f", "fp"]), ### add "fpr"
+# 		13: getColumns(factors, ["ff"]),
+# 		14: getColumns(factors, ["ff"])
+# 	}
+#
+# 	return queryFactorDict[queryId]
+#
+# def getCountryFactorsForQuery(queryId, factors):
+# 	queryFactorDict = {
+# 		3: getColumns(factors, ["p"]),
+# 		11: getColumns(factors, ["p"]) ### replace with "org"
+# 	}
+#
+# 	return queryFactorDict[queryId]
+#
+# def getTagFactorsForQuery(queryId, factors):
+# 	queryFactorDict = {
+# 		6: getColumns(factors, ["p"]),
+# 	}
+#
+# 	return queryFactorDict[queryId]
+#
+# if __name__ == "__main__":
+# 	argv = sys.argv
+# 	if len(argv)< 3:
+# 		print "arguments: <m0factors.txt> <m0friendsList.txt>"
+# 		sys.exit(1)
+#
+# 	sys.exit(load(argv[1], argv[2]))
+#
+#

@@ -26,6 +26,69 @@
 #    for tag, count in tags:
 #       writer.append([tag])
 
+#    # read precomputed counts from files
+#    (personFactors, countryFactors, tagFactors, tagClassFactors, nameFactors, givenNames,  ts, postsHisto) = \
+#       readfactors.load(personFactorFiles,activityFactorFiles, friendsFiles)
+
+#    tag_posts = tagFactors
+#    tag_posts.sort(key=lambda x: x[1], reverse=True)
+
+#    total_posts = 0
+#    for day, count in tag_posts:
+#       total_posts += count
+
+#    serialize_q6 (outdir, key_params(tag_posts, total_posts/1300, total_posts/900))
+
+
+## readfactors.py
+
+
+# for inputFileName in activityFactorFiles:
+#     with codecs.open(inputFileName, "r", "utf-8") as f:
+#         countryCount = int(f.readline())
+#         for i in range(countryCount):
+#             line = f.readline().split(",")
+#             country = line[0]
+#             if not countries.existParam(country):
+#                 countries.addNewParam(country)
+#             countries.addValue(country, "p", int(line[1]))
+
+#         tagClassCount = int(f.readline())
+#         for i in range(tagClassCount):
+#             line = f.readline().split(",")
+#             tagClass = line[0]
+#             if not tagClass in tagClasses:
+#                 tagClasses[tagClass] = 0
+#             tagClasses[tagClass] += int(line[2])
+
+#         tagCount = int(f.readline())
+#         for i in range(tagCount):
+#             line = f.readline()
+#             count = line[1+line.rfind(","):]
+#             name = line[:line.rfind(",")]
+#             if not name in tags:
+#                 tags[name] = 0
+#             tags[name] += int(count)
+
+#         nameCount = int(f.readline())
+#         for i in range(nameCount):
+#             line = f.readline().split(",")
+#             name = line[0]
+#             if not name in names:
+#                 names[name] = 0
+#             names[name] += int(line[1])
+
+#         for i in range(4):
+#             t = f.readline().rstrip()
+#             if timestamp[i] == 0 and t != 'null':
+#                 timestamp[i] = int(t)
+
+# loadFriends(friendFiles, results)
+
+# return (results, countries, tags.items(), tagClasses.items(), names.items(), givenNames,timestamp, postsHisto)
+
+
+
 ##############################################################################
 # Julia code starts from here
 ##############################################################################
@@ -43,23 +106,23 @@ indir = "../hadoop/"
 outdir = "../substitution_out/"
 
 files = readdir(indir)
-activityFactorFiles = filter!(r"activityFactors\.txt$", files)
-personFactorFiles = filter!(r"personFactors\.txt$", files)
-friendsFiles = filter!(r"^m0friendList", files)
+activityFactorFiles = filter!(f -> endswith(f, "activityFactors.txt"), files)
+#personFactorFiles = filter!(r"personFactors\.txt$", files)
+#friendsFiles = filter!(r"^m0friendList", files)
 
 println(activityFactorFiles)
-println(personFactorFiles)
-println(friendsFiles)
+#println(personFactorFiles)
+#println(friendsFiles)
 
-#    # read precomputed counts from files
-#    (personFactors, countryFactors, tagFactors, tagClassFactors, nameFactors, givenNames,  ts, postsHisto) = \
-#       readfactors.load(personFactorFiles,activityFactorFiles, friendsFiles)
+activityFactorFile = activityFactorFiles[1]
+open(indir * activityFactorFile) do f
+    countryCount = parse(Int64, readline(f))
 
-#    tag_posts = tagFactors
-#    tag_posts.sort(key=lambda x: x[1], reverse=True)
 
-#    total_posts = 0
-#    for day, count in tag_posts:
-#       total_posts += count
-
-#    serialize_q6 (outdir, key_params(tag_posts, total_posts/1300, total_posts/900))
+    for i = 1:countryCount
+        line = split(readline(f), ",")
+        country = line[1]
+        population = parse(Int64, line[2])
+        println("$country: $population")
+    end
+end
