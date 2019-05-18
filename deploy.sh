@@ -10,6 +10,7 @@ mkdir deployed
 cd substitution_parameters
 md5sum interactive* > md5-interactive.chk
 md5sum bi* > md5-bi.chk
+cd ..
 
 # copy dir
 cp -r substitution_parameters deployed/
