@@ -60,8 +60,8 @@ In order to run the container, a `params.ini` file is required. For reference, p
 The container will output its results in the `/opt/ldbc_snb_datagen/social_network/` directory. In order to save the results of the generation, a directory must be mounted in the container from the host:
 
 ```bash
-mkdir datagen_output
-docker run --rm --mount type=bind,source="$(pwd)/datagen_output/",target="/opt/ldbc_snb_datagen/social_network/" --mount type=bind,source="$(pwd)/params.ini",target="/opt/ldbc_snb_datagen/params.ini" ldbc/datagen
+mkdir out
+docker run --rm --mount type=bind,source="$(pwd)/datagen_output/",target="/opt/ldbc_snb_datagen/out" --mount type=bind,source="$(pwd)/params.ini",target="/opt/ldbc_snb_datagen/params.ini" ldbc/datagen
 ```
 
 If the memory limit has to be raised, the `-e HADOOP_CLIENT_OPTS="-Xmx..."` parameter can override the default `-Xmx8G` value.
