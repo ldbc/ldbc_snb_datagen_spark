@@ -17,3 +17,7 @@ rm -f m*activityFactors*
 rm -f .m*activityFactors*
 rm -f m0friendList*
 rm -f .m0friendList*
+
+# Move stuff to directory mounted to the host machine
+mv social_network/ out/
+mv substitution_parameters/ out/
