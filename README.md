@@ -57,11 +57,10 @@ To configure the amount of memory available, set the `HADOOP_CLIENT_OPTS` variab
 
 In order to run the container, a `params.ini` file is required. For reference, please see the `params*.ini` files in the repository. The file will be mounted in the container by the `--mount type=bind,source="$(pwd)/params.ini,target="/opt/ldbc_snb_datagen/params.ini"` option. If required, the source path can be set to a different path.
 
-The container will output its results in the `/opt/ldbc_snb_datagen/social_network/` directory. In order to save the results of the generation, a directory must be mounted in the container from the host:
+The container outputs its results in the `/opt/ldbc_snb_datagen/out/` directory which contains two sub-directories, `social_network/` and `subsitution_parameters`. In order to save the results of the generation, a directory must be mounted in the container from the host. The driver requires the results be in the datagen repository directory.
 
 ```bash
-mkdir datagen_output
-docker run --rm --mount type=bind,source="$(pwd)/datagen_output/",target="/opt/ldbc_snb_datagen/out" --mount type=bind,source="$(pwd)/params.ini",target="/opt/ldbc_snb_datagen/params.ini" ldbc/datagen
+docker run --rm --mount type=bind,source="$(pwd)/",target="/opt/ldbc_snb_datagen/out" --mount type=bind,source="$(pwd)/params.ini",target="/opt/ldbc_snb_datagen/params.ini" ldbc/datagen
 ```
 
 If you need to raise the memory limit, use the `-e HADOOP_CLIENT_OPTS="-Xmx..."` parameter to override the default value (`-Xmx8G`).
