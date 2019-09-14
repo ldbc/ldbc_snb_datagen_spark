@@ -13,16 +13,7 @@ before_install:
 - docker build . --tag ldbc/datagen
 install: true
 script:
-- mvn test | grep "^\\[" | tee mvn.log
-# test if the output of the mvn command contained an "[INFO] BUILD SUCCESS" entry
-- grep 'BUILD SUCCESS' mvn.log
-# generate SF1 data set
-- wget -q http://archive.apache.org/dist/hadoop/core/hadoop-2.6.0/hadoop-2.6.0.tar.gz
-- tar xf hadoop-2.6.0.tar.gz
-- export HADOOP_CLIENT_OPTS="-Xmx2G"
-- export HADOOP_HOME=`pwd`/hadoop-2.6.0
-- export LDBC_SNB_DATAGEN_HOME=`pwd`
-- ./run.sh
+- docker run --rm --mount type=bind,source="$(pwd)/",target="/opt/ldbc_snb_datagen/out" --mount type=bind,source="$(pwd)/params.ini",target="/opt/ldbc_snb_datagen/params.ini" ldbc/datagen
 - mkdir out
 - cp -r substitution_parameters out/
 notifications:
