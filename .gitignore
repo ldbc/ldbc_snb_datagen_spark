@@ -45,3 +45,7 @@ local.properties
 /*.csv
 out/
 datagen_output/
+
+# Hadoop directory extracted as instructed in the Quick Start guide
+/hadoop-2.6.0.tar.gz
+/hadoop-2.6.0/
