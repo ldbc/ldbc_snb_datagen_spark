@@ -42,9 +42,9 @@ export LDBC_SNB_DATAGEN_HOME=`pwd`
 ```
 
 ### Docker image
+SNB datagen images are available via [DockerHub](https://hub.docker.com/r/ldbc/datagen/) where you may find both the latest version of the generator as well as previous stable versions. 
 
-The image can be simply built with the provided Dockerfile.
-To build, execute the following command from the repository directory:
+Alternatively, the image can be built with the provided Dockerfile. To build, execute the following command from the repository directory:
 
 ```bash
 docker build . --tag ldbc/datagen
@@ -52,7 +52,7 @@ docker build . --tag ldbc/datagen
 
 #### Configuration
 
-To configure the amount of memory available, set the `HADOOP_CLIENT_OPTS` variable in the Dockerfile. The default value is `-Xmx8G`.
+To configure the amount of memory available, set the `HADOOP_CLIENT_OPTS` variable in the Dockerfile. The default value is `-Xmx2G`. If you are using a the precompiled image, you can the `-e HADOOP_CLIENT_OPTS=` flag when running (as described below).
 
 Initialize the `params.ini` file as needed. For example, to generate the basic CSV files, issue:
 
@@ -71,7 +71,7 @@ docker run --rm --mount type=bind,source="$(pwd)/",target="/opt/ldbc_snb_datagen
   sudo chown -R $USER:$USER social_network/ substitution_parameters/
 ```
 
-If you need to raise the memory limit, use the `-e HADOOP_CLIENT_OPTS="-Xmx..."` parameter to override the default value (`-Xmx8G`).
+If you need to raise the memory limit, use the `-e HADOOP_CLIENT_OPTS="-Xmx..."` parameter to override the default value (`-Xmx2G`).
 
 ### Hadoop cluster
 
