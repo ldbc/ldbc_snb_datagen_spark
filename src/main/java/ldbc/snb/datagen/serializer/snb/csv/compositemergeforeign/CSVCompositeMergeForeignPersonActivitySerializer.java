@@ -33,10 +33,11 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.serializer.snb.interactive;
+package ldbc.snb.datagen.serializer.snb.csv.compositemergeforeign;
 
 import ldbc.snb.datagen.objects.*;
 import ldbc.snb.datagen.serializer.PersonActivitySerializer;
+import ldbc.snb.datagen.serializer.snb.csv.mergeforeign.CSVMergeForeignPersonActivitySerializer;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
@@ -60,32 +61,32 @@ public class CSVCompositeMergeForeignPersonActivitySerializer extends PersonActi
 
     @Override
     protected void serialize(final Forum forum) {
-        activitySerializer.serialize(forum);
+        activitySerializer.export(forum);
     }
 
     @Override
     protected void serialize(final Post post) {
-        activitySerializer.serialize(post);
+        activitySerializer.export(post);
     }
 
     @Override
     protected void serialize(final Comment comment) {
-        activitySerializer.serialize(comment);
+        activitySerializer.export(comment);
     }
 
     @Override
     protected void serialize(final Photo photo) {
-        activitySerializer.serialize(photo);
+        activitySerializer.export(photo);
     }
 
     @Override
     protected void serialize(final ForumMembership membership) {
-        activitySerializer.serialize(membership);
+        activitySerializer.export(membership);
     }
 
     @Override
     protected void serialize(final Like like) {
-        activitySerializer.serialize(like);
+        activitySerializer.export(like);
     }
 
     @Override

@@ -33,57 +33,65 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.serializer.snb.interactive;
+package ldbc.snb.datagen.serializer.snb.csv.composite;
 
-import ldbc.snb.datagen.objects.Organization;
-import ldbc.snb.datagen.objects.Place;
-import ldbc.snb.datagen.objects.Tag;
-import ldbc.snb.datagen.objects.TagClass;
-import ldbc.snb.datagen.serializer.InvariantSerializer;
+import ldbc.snb.datagen.objects.*;
+import ldbc.snb.datagen.serializer.PersonActivitySerializer;
+import ldbc.snb.datagen.serializer.snb.csv.basic.CSVPersonActivitySerializer;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
 
 /**
- * Created by aprat on 17/02/15.
+ * @author aprat
  */
-public class CSVCompositeMergeForeignInvariantSerializer extends InvariantSerializer {
+public class CSVCompositePersonActivitySerializer extends PersonActivitySerializer {
 
-    private CSVMergeForeignInvariantSerializer invariantSerializer = new CSVMergeForeignInvariantSerializer();
+    private CSVPersonActivitySerializer activitySerializer = new CSVPersonActivitySerializer();
 
     @Override
     public void initialize(Configuration conf, int reducerId) throws IOException {
-        invariantSerializer.initialize(conf, reducerId);
+        activitySerializer.initialize(conf, reducerId);
     }
 
     @Override
     public void close() {
-        invariantSerializer.close();
+        activitySerializer.close();
     }
 
     @Override
-    protected void serialize(final Place place) {
-        invariantSerializer.serialize(place);
+    protected void serialize(final Forum forum) {
+        activitySerializer.export(forum);
     }
 
     @Override
-    protected void serialize(final Organization organization) {
-        invariantSerializer.serialize(organization);
+    protected void serialize(final Post post) {
+        activitySerializer.export(post);
     }
 
     @Override
-    protected void serialize(final TagClass tagClass) {
-        invariantSerializer.serialize(tagClass);
+    protected void serialize(final Comment comment) {
+        activitySerializer.export(comment);
     }
 
     @Override
-    protected void serialize(final Tag tag) {
-        invariantSerializer.serialize(tag);
+    protected void serialize(final Photo photo) {
+        activitySerializer.export(photo);
+    }
+
+    @Override
+    protected void serialize(final ForumMembership membership) {
+        activitySerializer.export(membership);
+    }
+
+    @Override
+    protected void serialize(final Like like) {
+        activitySerializer.export(like);
     }
 
     @Override
     public void reset() {
         // Intentionally left empty
-
     }
+
 }

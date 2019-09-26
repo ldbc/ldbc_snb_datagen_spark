@@ -33,9 +33,7 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-
-
-package ldbc.snb.datagen.serializer.snb.interactive;
+package ldbc.snb.datagen.serializer.snb.csv.compositemergeforeign;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.objects.Knows;
@@ -50,15 +48,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class CSVPersonSerializer extends PersonSerializer {
+/**
+ * Created by aprat on 17/02/15.
+ */
+public class CSVCompositeMergeForeignPersonSerializer extends PersonSerializer {
 
     private HDFSCSVWriter[] writers;
 
     private enum FileNames {
         PERSON("person"),
-        PERSON_SPEAKS_LANGUAGE("person_speaks_language"),
-        PERSON_HAS_EMAIL("person_email_emailaddress"),
-        PERSON_LOCATED_IN_PLACE("person_isLocatedIn_place"),
         PERSON_HAS_INTEREST_TAG("person_hasInterest_tag"),
         PERSON_WORK_AT("person_workAt_organisation"),
         PERSON_STUDY_AT("person_studyAt_organisation"),
@@ -75,14 +73,12 @@ public class CSVPersonSerializer extends PersonSerializer {
         }
     }
 
-    @Override
     public void initialize(Configuration conf, int reducerId) throws IOException {
         int numFiles = FileNames.values().length;
         writers = new HDFSCSVWriter[numFiles];
         for (int i = 0; i < numFiles; ++i) {
             writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"), FileNames
-                    .values()[i].toString() + "_" + reducerId, conf
-                                                   .getInt("ldbc.snb.datagen.serializer.numPartitions", 1), conf
+                    .values()[i].toString() + "_" + reducerId, conf.getInt("ldbc.snb.datagen.numPartitions", 1), conf
                                                    .getBoolean("ldbc.snb.datagen.serializer.compressed", false), "|", conf
                                                    .getBoolean("ldbc.snb.datagen.serializer.endlineSeparator", false));
         }
@@ -96,22 +92,10 @@ public class CSVPersonSerializer extends PersonSerializer {
         arguments.add("creationDate");
         arguments.add("locationIP");
         arguments.add("browserUsed");
-        writers[FileNames.PERSON.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Person.id");
+        arguments.add("place");
         arguments.add("language");
-        writers[FileNames.PERSON_SPEAKS_LANGUAGE.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Person.id");
         arguments.add("email");
-        writers[FileNames.PERSON_HAS_EMAIL.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Person.id");
-        arguments.add("Place.id");
-        writers[FileNames.PERSON_LOCATED_IN_PLACE.ordinal()].writeHeader(arguments);
+        writers[FileNames.PERSON.ordinal()].writeHeader(arguments);
 
         arguments.clear();
         arguments.add("Person.id");
@@ -167,29 +151,28 @@ public class CSVPersonSerializer extends PersonSerializer {
         arguments.add(dateString);
         arguments.add(p.ipAddress().toString());
         arguments.add(Dictionaries.browsers.getName(p.browserId()));
-        writers[FileNames.PERSON.ordinal()].writeEntry(arguments);
+        arguments.add(Integer.toString(p.cityId()));
 
         ArrayList<Integer> languages = p.languages();
-        for (int i = 0; i < languages.size(); i++) {
-            arguments.clear();
-            arguments.add(Long.toString(p.accountId()));
-            arguments.add(Dictionaries.languages.getLanguageName(languages.get(i)));
-            writers[FileNames.PERSON_SPEAKS_LANGUAGE.ordinal()].writeEntry(arguments);
+        StringBuilder languagesBuilder = new StringBuilder();
+        for (int i = 0; i < languages.size()-1; i++) {
+            languagesBuilder.append(Dictionaries.languages.getLanguageName(languages.get(i))+";");
         }
+        if(languages.size() > 0) {
+            languagesBuilder.append(Dictionaries.languages.getLanguageName(languages.get(languages.size()-1)));
+        }
+        arguments.add(languagesBuilder.toString());
 
+        StringBuilder emailsBuilder = new StringBuilder();
         Iterator<String> itString = p.emails().iterator();
-        while (itString.hasNext()) {
-            arguments.clear();
-            String email = itString.next();
-            arguments.add(Long.toString(p.accountId()));
-            arguments.add(email);
-            writers[FileNames.PERSON_HAS_EMAIL.ordinal()].writeEntry(arguments);
+        for (int i = 0; i < p.emails().size()-1; i++) {
+            emailsBuilder.append(itString.next()+";");
         }
-
-        arguments.clear();
-        arguments.add(Long.toString(p.accountId()));
-        arguments.add(Integer.toString(p.cityId()));
-        writers[FileNames.PERSON_LOCATED_IN_PLACE.ordinal()].writeEntry(arguments);
+        if(itString.hasNext()) {
+            emailsBuilder.append(itString.next());
+        }
+        arguments.add(emailsBuilder.toString());
+        writers[FileNames.PERSON.ordinal()].writeEntry(arguments);
 
         Iterator<Integer> itInteger = p.interests().iterator();
         while (itInteger.hasNext()) {

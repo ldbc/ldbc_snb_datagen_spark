@@ -33,23 +33,24 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.serializer.snb.interactive;
+package ldbc.snb.datagen.serializer.snb.csv.compositemergeforeign;
 
 import ldbc.snb.datagen.objects.Organization;
 import ldbc.snb.datagen.objects.Place;
 import ldbc.snb.datagen.objects.Tag;
 import ldbc.snb.datagen.objects.TagClass;
 import ldbc.snb.datagen.serializer.InvariantSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.mergeforeign.CSVMergeForeignInvariantSerializer;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
 
 /**
- * Created by aprat on 12/17/14.
+ * Created by aprat on 17/02/15.
  */
-public class CSVCompositeInvariantSerializer extends InvariantSerializer {
+public class CSVCompositeMergeForeignInvariantSerializer extends InvariantSerializer {
 
-    private CSVInvariantSerializer invariantSerializer = new CSVInvariantSerializer();
+    private CSVMergeForeignInvariantSerializer invariantSerializer = new CSVMergeForeignInvariantSerializer();
 
     @Override
     public void initialize(Configuration conf, int reducerId) throws IOException {
@@ -63,22 +64,22 @@ public class CSVCompositeInvariantSerializer extends InvariantSerializer {
 
     @Override
     protected void serialize(final Place place) {
-        invariantSerializer.serialize(place);
+        invariantSerializer.export(place);
     }
 
     @Override
     protected void serialize(final Organization organization) {
-        invariantSerializer.serialize(organization);
+        invariantSerializer.export(organization);
     }
 
     @Override
     protected void serialize(final TagClass tagClass) {
-        invariantSerializer.serialize(tagClass);
+        invariantSerializer.export(tagClass);
     }
 
     @Override
     protected void serialize(final Tag tag) {
-        invariantSerializer.serialize(tag);
+        invariantSerializer.export(tag);
     }
 
     @Override
