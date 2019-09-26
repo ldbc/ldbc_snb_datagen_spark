@@ -33,58 +33,61 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.serializer.snb.csv.composite;
+package ldbc.snb.datagen.serializer.empty;
 
-import ldbc.snb.datagen.objects.Organization;
-import ldbc.snb.datagen.objects.Place;
-import ldbc.snb.datagen.objects.Tag;
-import ldbc.snb.datagen.objects.TagClass;
-import ldbc.snb.datagen.serializer.InvariantSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.basic.CSVInvariantSerializer;
+import ldbc.snb.datagen.objects.*;
+import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
 
 /**
- * Created by aprat on 12/17/14.
+ * Created by aprat on 30/01/15.
  */
-public class CSVCompositeInvariantSerializer extends InvariantSerializer {
-
-    private CSVInvariantSerializer invariantSerializer = new CSVInvariantSerializer();
+public class EmptyDynamicActivitySerializer extends DynamicActivitySerializer {
 
     @Override
     public void initialize(Configuration conf, int reducerId) throws IOException {
-        invariantSerializer.initialize(conf, reducerId);
+        //This is left intentionally blank
     }
 
     @Override
     public void close() {
-        invariantSerializer.close();
+        //This is left intentionally blank
     }
 
     @Override
-    protected void serialize(final Place place) {
-        invariantSerializer.export(place);
+    protected void serialize(final Forum forum) {
+        //This is left intentionally blank
     }
 
     @Override
-    protected void serialize(final Organization organization) {
-        invariantSerializer.export(organization);
+    protected void serialize(final Post post) {
+        //This is left intentionally blank
     }
 
     @Override
-    protected void serialize(final TagClass tagClass) {
-        invariantSerializer.export(tagClass);
+    protected void serialize(final Comment comment) {
+        //This is left intentionally blank
     }
 
     @Override
-    protected void serialize(final Tag tag) {
-        invariantSerializer.export(tag);
+    protected void serialize(final Photo photo) {
+        //This is left intentionally blank
+    }
+
+    @Override
+    protected void serialize(final ForumMembership membership) {
+        //This is left intentionally blank
+    }
+
+    @Override
+    protected void serialize(final Like like) {
+        //This is left intentionally blank
     }
 
     @Override
     public void reset() {
-        // Intentionally left empty
-
+        //This is left intentionally blank
     }
 }

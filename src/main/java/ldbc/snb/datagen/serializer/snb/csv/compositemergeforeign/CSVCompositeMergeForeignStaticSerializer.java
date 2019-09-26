@@ -33,55 +33,58 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.serializer.empty;
+package ldbc.snb.datagen.serializer.snb.csv.compositemergeforeign;
 
-import ldbc.snb.datagen.objects.Knows;
-import ldbc.snb.datagen.objects.Person;
-import ldbc.snb.datagen.objects.StudyAt;
-import ldbc.snb.datagen.objects.WorkAt;
-import ldbc.snb.datagen.serializer.PersonSerializer;
+import ldbc.snb.datagen.objects.Organization;
+import ldbc.snb.datagen.objects.Place;
+import ldbc.snb.datagen.objects.Tag;
+import ldbc.snb.datagen.objects.TagClass;
+import ldbc.snb.datagen.serializer.StaticSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.mergeforeign.CSVMergeForeignStaticSerializer;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
 
 /**
- * Created by aprat on 30/01/15.
+ * Created by aprat on 17/02/15.
  */
-public class EmptyPersonSerializer extends PersonSerializer {
+public class CSVCompositeMergeForeignStaticSerializer extends StaticSerializer {
+
+    private CSVMergeForeignStaticSerializer staticSerializer = new CSVMergeForeignStaticSerializer();
 
     @Override
     public void initialize(Configuration conf, int reducerId) throws IOException {
-        //Intentionally left empty
+        staticSerializer.initialize(conf, reducerId);
     }
 
     @Override
     public void close() {
-        //Intentionally left empty
+        staticSerializer.close();
     }
 
     @Override
-    protected void serialize(final Person p) {
-        //Intentionally left empty
+    protected void serialize(final Place place) {
+        staticSerializer.export(place);
     }
 
     @Override
-    protected void serialize(final StudyAt studyAt) {
-        //Intentionally left empty
+    protected void serialize(final Organization organization) {
+        staticSerializer.export(organization);
     }
 
     @Override
-    protected void serialize(final WorkAt workAt) {
-        //Intentionally left empty
+    protected void serialize(final TagClass tagClass) {
+        staticSerializer.export(tagClass);
     }
 
     @Override
-    protected void serialize(final Person p, final Knows knows) {
-        //Intentionally left empty
+    protected void serialize(final Tag tag) {
+        staticSerializer.export(tag);
     }
 
     @Override
     public void reset() {
-        //Intentionally left empty
-    }
+        // Intentionally left empty
 
+    }
 }

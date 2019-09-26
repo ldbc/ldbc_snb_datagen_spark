@@ -43,7 +43,7 @@ import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.objects.StudyAt;
 import ldbc.snb.datagen.objects.WorkAt;
 import ldbc.snb.datagen.serializer.HDFSWriter;
-import ldbc.snb.datagen.serializer.PersonSerializer;
+import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
 import ldbc.snb.datagen.serializer.Turtle;
 import ldbc.snb.datagen.vocabulary.*;
 import org.apache.hadoop.conf.Configuration;
@@ -53,7 +53,7 @@ import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
 
-public class TurtlePersonSerializer extends PersonSerializer {
+public class TurtleDynamicPersonSerializer extends DynamicPersonSerializer {
 
     private HDFSWriter[] writers;
     private long workAtId = 0;

@@ -33,64 +33,58 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.serializer.snb.csv.compositemergeforeign;
+package ldbc.snb.datagen.serializer.empty;
 
-import ldbc.snb.datagen.objects.*;
-import ldbc.snb.datagen.serializer.PersonActivitySerializer;
-import ldbc.snb.datagen.serializer.snb.csv.mergeforeign.CSVMergeForeignPersonActivitySerializer;
+import ldbc.snb.datagen.objects.Organization;
+import ldbc.snb.datagen.objects.Place;
+import ldbc.snb.datagen.objects.Tag;
+import ldbc.snb.datagen.objects.TagClass;
+import ldbc.snb.datagen.serializer.StaticSerializer;
 import org.apache.hadoop.conf.Configuration;
 
-import java.io.IOException;
-
 /**
- * Created by aprat on 17/02/15.
+ * Created by aprat on 30/01/15.
  */
-public class CSVCompositeMergeForeignPersonActivitySerializer extends PersonActivitySerializer {
-
-    private CSVMergeForeignPersonActivitySerializer activitySerializer = new CSVMergeForeignPersonActivitySerializer();
+public class EmptyStaticSerializer extends StaticSerializer {
 
     @Override
-    public void initialize(Configuration conf, int reducerId) throws IOException {
-        activitySerializer.initialize(conf, reducerId);
+    public void initialize(Configuration conf, int reducerId) {
+        //Intentionally left empty
     }
 
     @Override
     public void close() {
-        activitySerializer.close();
+        //Intentionally left empty
+
     }
 
     @Override
-    protected void serialize(final Forum forum) {
-        activitySerializer.export(forum);
+    protected void serialize(final Place place) {
+        //Intentionally left empty
+
     }
 
     @Override
-    protected void serialize(final Post post) {
-        activitySerializer.export(post);
+    protected void serialize(final Organization organization) {
+        //Intentionally left empty
+
     }
 
     @Override
-    protected void serialize(final Comment comment) {
-        activitySerializer.export(comment);
+    protected void serialize(final TagClass tagClass) {
+        //Intentionally left empty
+
     }
 
     @Override
-    protected void serialize(final Photo photo) {
-        activitySerializer.export(photo);
-    }
+    protected void serialize(final Tag tag) {
+        //Intentionally left empty
 
-    @Override
-    protected void serialize(final ForumMembership membership) {
-        activitySerializer.export(membership);
-    }
-
-    @Override
-    protected void serialize(final Like like) {
-        activitySerializer.export(like);
     }
 
     @Override
     public void reset() {
-        // Intentionally left empty
+        //Intentionally left empty
+
     }
 }

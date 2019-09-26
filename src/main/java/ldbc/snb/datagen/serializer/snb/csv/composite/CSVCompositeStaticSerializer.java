@@ -33,64 +33,58 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.serializer;
+package ldbc.snb.datagen.serializer.snb.csv.composite;
 
-import ldbc.snb.datagen.objects.*;
+import ldbc.snb.datagen.objects.Organization;
+import ldbc.snb.datagen.objects.Place;
+import ldbc.snb.datagen.objects.Tag;
+import ldbc.snb.datagen.objects.TagClass;
+import ldbc.snb.datagen.serializer.StaticSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.basic.CSVStaticSerializer;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
 
 /**
- * @author aprat
+ * Created by aprat on 12/17/14.
  */
-abstract public class PersonActivitySerializer {
+public class CSVCompositeStaticSerializer extends StaticSerializer {
 
+    private CSVStaticSerializer staticSerializer = new CSVStaticSerializer();
 
-    public void export(final Forum forum) {
-        serialize(forum);
+    @Override
+    public void initialize(Configuration conf, int reducerId) throws IOException {
+        staticSerializer.initialize(conf, reducerId);
     }
 
-    public void export(final ForumMembership forumMembership) {
-        serialize(forumMembership);
+    @Override
+    public void close() {
+        staticSerializer.close();
     }
 
-    public void export(final Post post) {
-        serialize(post);
+    @Override
+    protected void serialize(final Place place) {
+        staticSerializer.export(place);
     }
 
-    public void export(Comment comment) {
-        serialize(comment);
-
+    @Override
+    protected void serialize(final Organization organization) {
+        staticSerializer.export(organization);
     }
 
-    public void export(Photo photo) {
-        serialize(photo);
-
+    @Override
+    protected void serialize(final TagClass tagClass) {
+        staticSerializer.export(tagClass);
     }
 
-    public void export(Like like) {
-        serialize(like);
-
+    @Override
+    protected void serialize(final Tag tag) {
+        staticSerializer.export(tag);
     }
 
+    @Override
+    public void reset() {
+        // Intentionally left empty
 
-    abstract public void reset();
-
-    abstract public void initialize(Configuration conf, int reducerId) throws IOException;
-
-    abstract public void close();
-
-    abstract protected void serialize(final Forum forum);
-
-    abstract protected void serialize(final Post post);
-
-    abstract protected void serialize(final Comment comment);
-
-    abstract protected void serialize(final Photo photo);
-
-    abstract protected void serialize(final ForumMembership membership);
-
-    abstract protected void serialize(final Like like);
-
-
+    }
 }

@@ -38,7 +38,7 @@ package ldbc.snb.datagen.serializer.snb.turtle;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.objects.*;
 import ldbc.snb.datagen.serializer.HDFSWriter;
-import ldbc.snb.datagen.serializer.PersonActivitySerializer;
+import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
 import ldbc.snb.datagen.serializer.Turtle;
 import ldbc.snb.datagen.vocabulary.*;
 import org.apache.hadoop.conf.Configuration;
@@ -51,7 +51,7 @@ import java.util.TimeZone;
 /**
  * @author aprat
  */
-public class TurtlePersonActivitySerializer extends PersonActivitySerializer {
+public class TurtleDynamicActivitySerializer extends DynamicActivitySerializer {
     private HDFSWriter[] writers;
     private long membershipId = 0;
     private long likeId = 0;

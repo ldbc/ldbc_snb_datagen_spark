@@ -41,7 +41,7 @@ import ldbc.snb.datagen.objects.Place;
 import ldbc.snb.datagen.objects.Tag;
 import ldbc.snb.datagen.objects.TagClass;
 import ldbc.snb.datagen.serializer.HDFSWriter;
-import ldbc.snb.datagen.serializer.InvariantSerializer;
+import ldbc.snb.datagen.serializer.StaticSerializer;
 import ldbc.snb.datagen.serializer.Turtle;
 import ldbc.snb.datagen.vocabulary.*;
 import org.apache.hadoop.conf.Configuration;
@@ -52,7 +52,7 @@ import java.io.IOException;
 /**
  * Created by aprat on 12/17/14.
  */
-public class TurtleInvariantSerializer extends InvariantSerializer {
+public class TurtleStaticSerializer extends StaticSerializer {
 
     private HDFSWriter[] writers;
 

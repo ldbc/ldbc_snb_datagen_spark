@@ -33,7 +33,7 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.serializer.snb.csv.mergeforeign;
+package ldbc.snb.datagen.serializer.snb.csv.basic;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.objects.Organization;
@@ -41,7 +41,7 @@ import ldbc.snb.datagen.objects.Place;
 import ldbc.snb.datagen.objects.Tag;
 import ldbc.snb.datagen.objects.TagClass;
 import ldbc.snb.datagen.serializer.HDFSCSVWriter;
-import ldbc.snb.datagen.serializer.InvariantSerializer;
+import ldbc.snb.datagen.serializer.StaticSerializer;
 import ldbc.snb.datagen.vocabulary.DBP;
 import ldbc.snb.datagen.vocabulary.DBPOWL;
 import org.apache.hadoop.conf.Configuration;
@@ -50,17 +50,21 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * Created by aprat on 17/02/15.
+ * Created by aprat on 12/17/14.
  */
-public class CSVMergeForeignInvariantSerializer extends InvariantSerializer {
+public class CSVStaticSerializer extends StaticSerializer {
 
     private HDFSCSVWriter[] writers;
 
     private enum FileNames {
         TAG("tag"),
+        TAG_HAS_TYPE_TAGCLASS("tag_hasType_tagclass"),
         TAGCLASS("tagclass"),
+        TAGCLASS_IS_SUBCLASS_OF_TAGCLASS("tagclass_isSubclassOf_tagclass"),
         PLACE("place"),
-        ORGANIZATION("organisation");
+        PLACE_IS_PART_OF_PLACE("place_isPartOf_place"),
+        ORGANIZATION("organisation"),
+        ORGANIZATION_IS_LOCATED_IN_PLACE("organisation_isLocatedIn_place");
 
         private final String name;
 
@@ -88,33 +92,47 @@ public class CSVMergeForeignInvariantSerializer extends InvariantSerializer {
         arguments.add("id");
         arguments.add("name");
         arguments.add("url");
-        arguments.add("hasType");
         writers[FileNames.TAG.ordinal()].writeHeader(arguments);
 
         arguments.clear();
+        arguments.add("Tag.id");
+        arguments.add("TagClass.id");
+        writers[FileNames.TAG_HAS_TYPE_TAGCLASS.ordinal()].writeHeader(arguments);
+
+        arguments.clear();
         arguments.add("id");
         arguments.add("name");
         arguments.add("url");
-        arguments.add("isSubclassOf");
         writers[FileNames.TAGCLASS.ordinal()].writeHeader(arguments);
 
         arguments.clear();
+        arguments.add("TagClass.id");
+        arguments.add("TagClass.id");
+        writers[FileNames.TAGCLASS_IS_SUBCLASS_OF_TAGCLASS.ordinal()].writeHeader(arguments);
+
+        arguments.clear();
         arguments.add("id");
         arguments.add("name");
         arguments.add("url");
         arguments.add("type");
-        arguments.add("isPartOf");
         writers[FileNames.PLACE.ordinal()].writeHeader(arguments);
-
 
         arguments.clear();
         arguments.add("id");
         arguments.add("type");
         arguments.add("name");
         arguments.add("url");
-        arguments.add("place");
         writers[FileNames.ORGANIZATION.ordinal()].writeHeader(arguments);
 
+        arguments.clear();
+        arguments.add("Organisation.id");
+        arguments.add("Place.id");
+        writers[FileNames.ORGANIZATION_IS_LOCATED_IN_PLACE.ordinal()].writeHeader(arguments);
+
+        arguments.clear();
+        arguments.add("Place.id");
+        arguments.add("Place.id");
+        writers[FileNames.PLACE_IS_PART_OF_PLACE.ordinal()].writeHeader(arguments);
     }
 
     public void close() {
@@ -130,16 +148,15 @@ public class CSVMergeForeignInvariantSerializer extends InvariantSerializer {
         arguments.add(place.getName());
         arguments.add(DBP.getUrl(place.getName()));
         arguments.add(place.getType());
+        writers[FileNames.PLACE.ordinal()].writeEntry(arguments);
 
         if (place.getType() == Place.CITY ||
                 place.getType() == Place.COUNTRY) {
+            arguments.clear();
+            arguments.add(Integer.toString(place.getId()));
             arguments.add(Integer.toString(Dictionaries.places.belongsTo(place.getId())));
-        } else {
-            arguments.add("");
+            writers[FileNames.PLACE_IS_PART_OF_PLACE.ordinal()].writeEntry(arguments);
         }
-        writers[FileNames.PLACE.ordinal()].writeEntry(arguments);
-
-
     }
 
     protected void serialize(final Organization organization) {
@@ -148,26 +165,30 @@ public class CSVMergeForeignInvariantSerializer extends InvariantSerializer {
         arguments.add(organization.type.toString());
         arguments.add(organization.name);
         arguments.add(DBP.getUrl(organization.name));
-        arguments.add(Integer.toString(organization.location));
         writers[FileNames.ORGANIZATION.ordinal()].writeEntry(arguments);
+
+        arguments.clear();
+        arguments.add(Long.toString(organization.id));
+        arguments.add(Integer.toString(organization.location));
+        writers[FileNames.ORGANIZATION_IS_LOCATED_IN_PLACE.ordinal()].writeEntry(arguments);
     }
 
     protected void serialize(final TagClass tagClass) {
         ArrayList<String> arguments = new ArrayList<String>();
         arguments.add(Integer.toString(tagClass.id));
         arguments.add(tagClass.name);
-        if (tagClass.name.equals("Thing")) {
+        if ("Thing".equals(tagClass.name)) {
             arguments.add("http://www.w3.org/2002/07/owl#Thing");
         } else {
             arguments.add(DBPOWL.getUrl(tagClass.name));
         }
-        if (tagClass.parent != -1) {
-            arguments.add(Integer.toString(tagClass.parent));
-        } else {
-            arguments.add("");
-        }
         writers[FileNames.TAGCLASS.ordinal()].writeEntry(arguments);
-
+        if (tagClass.parent != -1) {
+            arguments.clear();
+            arguments.add(Integer.toString(tagClass.id));
+            arguments.add(Integer.toString(tagClass.parent));
+            writers[FileNames.TAGCLASS_IS_SUBCLASS_OF_TAGCLASS.ordinal()].writeEntry(arguments);
+        }
     }
 
     protected void serialize(final Tag tag) {
@@ -175,12 +196,16 @@ public class CSVMergeForeignInvariantSerializer extends InvariantSerializer {
         arguments.add(Integer.toString(tag.id));
         arguments.add(tag.name);
         arguments.add(DBP.getUrl(tag.name));
-        arguments.add(Integer.toString(tag.tagClass));
         writers[FileNames.TAG.ordinal()].writeEntry(arguments);
+
+        arguments.clear();
+        arguments.add(Integer.toString(tag.id));
+        arguments.add(Integer.toString(tag.tagClass));
+        writers[FileNames.TAG_HAS_TYPE_TAGCLASS.ordinal()].writeEntry(arguments);
     }
 
     public void reset() {
         // Intentionally left empty
-    }
 
+    }
 }

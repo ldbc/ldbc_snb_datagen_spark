@@ -33,21 +33,21 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.serializer.snb.csv.composite;
+package ldbc.snb.datagen.serializer.snb.csv.compositemergeforeign;
 
 import ldbc.snb.datagen.objects.*;
-import ldbc.snb.datagen.serializer.PersonActivitySerializer;
-import ldbc.snb.datagen.serializer.snb.csv.basic.CSVPersonActivitySerializer;
+import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
+import ldbc.snb.datagen.serializer.snb.csv.mergeforeign.CSVMergeForeignDynamicActivitySerializer;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
 
 /**
- * @author aprat
+ * Created by aprat on 17/02/15.
  */
-public class CSVCompositePersonActivitySerializer extends PersonActivitySerializer {
+public class CSVCompositeMergeForeignDynamicActivitySerializer extends DynamicActivitySerializer {
 
-    private CSVPersonActivitySerializer activitySerializer = new CSVPersonActivitySerializer();
+    private CSVMergeForeignDynamicActivitySerializer activitySerializer = new CSVMergeForeignDynamicActivitySerializer();
 
     @Override
     public void initialize(Configuration conf, int reducerId) throws IOException {
@@ -93,5 +93,4 @@ public class CSVCompositePersonActivitySerializer extends PersonActivitySerializ
     public void reset() {
         // Intentionally left empty
     }
-
 }

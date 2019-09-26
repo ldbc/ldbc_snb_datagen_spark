@@ -41,7 +41,7 @@ import ldbc.snb.datagen.generator.LDBCDatagen;
 import ldbc.snb.datagen.generator.PersonActivityGenerator;
 import ldbc.snb.datagen.objects.Knows;
 import ldbc.snb.datagen.objects.Person;
-import ldbc.snb.datagen.serializer.PersonActivitySerializer;
+import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
 import ldbc.snb.datagen.serializer.UpdateEventSerializer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -71,7 +71,7 @@ public class HadoopPersonActivityGenerator {
         /**
          * The id of the reducer.
          **/
-        private PersonActivitySerializer personActivitySerializer_;
+        private DynamicActivitySerializer dynamicActivitySerializer_;
         private PersonActivityGenerator personActivityGenerator_;
         private UpdateEventSerializer updateSerializer_;
         private OutputStream personFactors_;
@@ -85,13 +85,13 @@ public class HadoopPersonActivityGenerator {
             reducerId = context.getTaskAttemptID().getTaskID().getId();
             LDBCDatagen.initializeContext(conf);
             try {
-                personActivitySerializer_ = (PersonActivitySerializer) Class
-                        .forName(conf.get("ldbc.snb.datagen.serializer.personActivitySerializer")).newInstance();
-                personActivitySerializer_.initialize(conf, reducerId);
+                dynamicActivitySerializer_ = (DynamicActivitySerializer) Class
+                        .forName(conf.get("ldbc.snb.datagen.serializer.dynamicActivitySerializer")).newInstance();
+                dynamicActivitySerializer_.initialize(conf, reducerId);
                 if (DatagenParams.updateStreams) {
                     updateSerializer_ = new UpdateEventSerializer(conf, DatagenParams.hadoopDir + "/temp_updateStream_forum_" + reducerId, reducerId, DatagenParams.numUpdatePartitions);
                 }
-                personActivityGenerator_ = new PersonActivityGenerator(personActivitySerializer_, updateSerializer_);
+                personActivityGenerator_ = new PersonActivityGenerator(dynamicActivitySerializer_, updateSerializer_);
 
                 fs_ = FileSystem.get(context.getConfiguration());
                 personFactors_ = fs_
@@ -146,7 +146,7 @@ public class HadoopPersonActivityGenerator {
                 e.printStackTrace();
                 throw new RuntimeException(e);
             }
-            personActivitySerializer_.close();
+            dynamicActivitySerializer_.close();
             if (DatagenParams.updateStreams) {
                 try {
                     updateSerializer_.close();

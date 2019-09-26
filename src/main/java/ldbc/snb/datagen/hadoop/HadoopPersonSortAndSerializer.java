@@ -40,7 +40,7 @@ import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.generator.LDBCDatagen;
 import ldbc.snb.datagen.objects.Knows;
 import ldbc.snb.datagen.objects.Person;
-import ldbc.snb.datagen.serializer.PersonSerializer;
+import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
 import ldbc.snb.datagen.serializer.UpdateEventSerializer;
 import ldbc.snb.datagen.vocabulary.SN;
 import org.apache.hadoop.conf.Configuration;
@@ -63,13 +63,13 @@ public class HadoopPersonSortAndSerializer {
 
     private Configuration conf;
 
-    public static class HadoopPersonSerializerReducer extends Reducer<BlockKey, Person, LongWritable, Person> {
+    public static class HadoopDynamicPersonSerializerReducer extends Reducer<BlockKey, Person, LongWritable, Person> {
 
         private int reducerId;
         /**
          * The id of the reducer.
          **/
-        private PersonSerializer personSerializer_;
+        private DynamicPersonSerializer dynamicPersonSerializer_;
         /**
          * The person serializer
          **/
@@ -81,9 +81,9 @@ public class HadoopPersonSortAndSerializer {
             reducerId = context.getTaskAttemptID().getTaskID().getId();
             LDBCDatagen.initializeContext(conf);
             try {
-                personSerializer_ = (PersonSerializer) Class
-                        .forName(conf.get("ldbc.snb.datagen.serializer.personSerializer")).newInstance();
-                personSerializer_.initialize(conf, reducerId);
+                dynamicPersonSerializer_ = (DynamicPersonSerializer) Class
+                        .forName(conf.get("ldbc.snb.datagen.serializer.dynamicPersonSerializer")).newInstance();
+                dynamicPersonSerializer_.initialize(conf, reducerId);
                 if (DatagenParams.updateStreams) {
                     updateSerializer_ = new UpdateEventSerializer(conf, DatagenParams.hadoopDir + "/temp_updateStream_person_" + reducerId, reducerId, DatagenParams.numUpdatePartitions);
                 }
@@ -97,10 +97,10 @@ public class HadoopPersonSortAndSerializer {
         public void reduce(BlockKey key, Iterable<Person> valueSet, Context context)
                 throws IOException, InterruptedException {
             SN.machineId = key.block;
-            personSerializer_.reset();
+            dynamicPersonSerializer_.reset();
             for (Person p : valueSet) {
                 if (p.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
-                    personSerializer_.export(p);
+                    dynamicPersonSerializer_.export(p);
                 } else {
                     updateSerializer_.export(p);
                     updateSerializer_.changePartition();
@@ -108,7 +108,7 @@ public class HadoopPersonSortAndSerializer {
 
                 for (Knows k : p.knows()) {
                     if (k.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
-                        personSerializer_.export(p, k);
+                        dynamicPersonSerializer_.export(p, k);
                     }
                 }
             }
@@ -117,7 +117,7 @@ public class HadoopPersonSortAndSerializer {
 
         @Override
         protected void cleanup(Context context) {
-            personSerializer_.close();
+            dynamicPersonSerializer_.close();
             if (DatagenParams.updateStreams) {
                 try {
                     updateSerializer_.close();
@@ -149,7 +149,7 @@ public class HadoopPersonSortAndSerializer {
         job.setOutputValueClass(Person.class);
         job.setJarByClass(HadoopBlockMapper.class);
         job.setMapperClass(HadoopBlockMapper.class);
-        job.setReducerClass(HadoopPersonSerializerReducer.class);
+        job.setReducerClass(HadoopDynamicPersonSerializerReducer.class);
         job.setNumReduceTasks(numThreads);
         job.setInputFormatClass(SequenceFileInputFormat.class);
         job.setOutputFormatClass(SequenceFileOutputFormat.class);

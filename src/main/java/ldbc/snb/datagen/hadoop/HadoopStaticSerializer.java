@@ -42,7 +42,7 @@ import ldbc.snb.datagen.objects.Organization;
 import ldbc.snb.datagen.objects.Place;
 import ldbc.snb.datagen.objects.Tag;
 import ldbc.snb.datagen.objects.TagClass;
-import ldbc.snb.datagen.serializer.InvariantSerializer;
+import ldbc.snb.datagen.serializer.StaticSerializer;
 import ldbc.snb.datagen.util.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 
@@ -53,15 +53,15 @@ import java.util.TreeSet;
 /**
  * Created by aprat on 12/17/14.
  */
-public class HadoopInvariantSerializer {
+public class HadoopStaticSerializer {
 
-    private InvariantSerializer[] invariantSerializer_;
+    private StaticSerializer[] staticSerializer_;
     private TreeSet<Integer> exportedClasses_;
     private int currentFile_ = 0;
 
     private Configuration conf_;
 
-    public HadoopInvariantSerializer(Configuration conf) {
+    public HadoopStaticSerializer(Configuration conf) {
         conf_ = new Configuration(conf);
         exportedClasses_ = new TreeSet<Integer>();
         LDBCDatagen.initializeContext(conf_);
@@ -70,11 +70,11 @@ public class HadoopInvariantSerializer {
     public void run() throws Exception {
 
         try {
-            invariantSerializer_ = new InvariantSerializer[DatagenParams.numThreads];
+            staticSerializer_ = new StaticSerializer[DatagenParams.numThreads];
             for (int i = 0; i < DatagenParams.numThreads; ++i) {
-                invariantSerializer_[i] = (InvariantSerializer) Class
-                        .forName(conf_.get("ldbc.snb.datagen.serializer.invariantSerializer")).newInstance();
-                invariantSerializer_[i].initialize(conf_, i);
+                staticSerializer_[i] = (StaticSerializer) Class
+                        .forName(conf_.get("ldbc.snb.datagen.serializer.staticSerializer")).newInstance();
+                staticSerializer_[i].initialize(conf_, i);
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -86,7 +86,7 @@ public class HadoopInvariantSerializer {
         exportOrganizations();
 
         for (int i = 0; i < DatagenParams.numThreads; ++i) {
-            invariantSerializer_[i].close();
+            staticSerializer_[i].close();
         }
     }
 
@@ -104,7 +104,7 @@ public class HadoopInvariantSerializer {
             tagClass.id = classId;
             tagClass.name = StringUtils.clampString(Dictionaries.tags.getClassName(classId), 256);
             tagClass.parent = Dictionaries.tags.getClassParent(tagClass.id);
-            invariantSerializer_[nextFile()].export(tagClass);
+            staticSerializer_[nextFile()].export(tagClass);
             classId = tagClass.parent;
         }
     }
@@ -115,7 +115,7 @@ public class HadoopInvariantSerializer {
         while (it.hasNext()) {
             Place place = Dictionaries.places.getLocation(it.next());
             place.setName(StringUtils.clampString(place.getName(), 256));
-            invariantSerializer_[nextFile()].export(place);
+            staticSerializer_[nextFile()].export(place);
         }
     }
 
@@ -128,7 +128,7 @@ public class HadoopInvariantSerializer {
             company.type = Organization.OrganisationType.company;
             company.name = StringUtils.clampString(Dictionaries.companies.getCompanyName(company.id), 256);
             company.location = Dictionaries.companies.getCountry(company.id);
-            invariantSerializer_[nextFile()].export(company);
+            staticSerializer_[nextFile()].export(company);
         }
 
         Set<Long> universities = Dictionaries.universities.getUniversities();
@@ -139,7 +139,7 @@ public class HadoopInvariantSerializer {
             university.type = Organization.OrganisationType.university;
             university.name = StringUtils.clampString(Dictionaries.universities.getUniversityName(university.id), 256);
             university.location = Dictionaries.universities.getUniversityCity(university.id);
-            invariantSerializer_[nextFile()].export(university);
+            staticSerializer_[nextFile()].export(university);
         }
     }
 
@@ -152,7 +152,7 @@ public class HadoopInvariantSerializer {
             tag.name = StringUtils.clampString(Dictionaries.tags.getName(tag.id), 256);
             tag.name.replace("\"", "\\\"");
             tag.tagClass = Dictionaries.tags.getTagClass(tag.id);
-            invariantSerializer_[nextFile()].export(tag);
+            staticSerializer_[nextFile()].export(tag);
             exportTagHierarchy(tag);
         }
     }

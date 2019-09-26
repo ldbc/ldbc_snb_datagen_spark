@@ -33,61 +33,64 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.serializer.empty;
+package ldbc.snb.datagen.serializer;
 
 import ldbc.snb.datagen.objects.*;
-import ldbc.snb.datagen.serializer.PersonActivitySerializer;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
 
 /**
- * Created by aprat on 30/01/15.
+ * @author aprat
  */
-public class EmptyPersonActivitySerializer extends PersonActivitySerializer {
+abstract public class DynamicActivitySerializer {
 
-    @Override
-    public void initialize(Configuration conf, int reducerId) throws IOException {
-        //This is left intentionally blank
+
+    public void export(final Forum forum) {
+        serialize(forum);
     }
 
-    @Override
-    public void close() {
-        //This is left intentionally blank
+    public void export(final ForumMembership forumMembership) {
+        serialize(forumMembership);
     }
 
-    @Override
-    protected void serialize(final Forum forum) {
-        //This is left intentionally blank
+    public void export(final Post post) {
+        serialize(post);
     }
 
-    @Override
-    protected void serialize(final Post post) {
-        //This is left intentionally blank
+    public void export(Comment comment) {
+        serialize(comment);
+
     }
 
-    @Override
-    protected void serialize(final Comment comment) {
-        //This is left intentionally blank
+    public void export(Photo photo) {
+        serialize(photo);
+
     }
 
-    @Override
-    protected void serialize(final Photo photo) {
-        //This is left intentionally blank
+    public void export(Like like) {
+        serialize(like);
+
     }
 
-    @Override
-    protected void serialize(final ForumMembership membership) {
-        //This is left intentionally blank
-    }
 
-    @Override
-    protected void serialize(final Like like) {
-        //This is left intentionally blank
-    }
+    abstract public void reset();
 
-    @Override
-    public void reset() {
-        //This is left intentionally blank
-    }
+    abstract public void initialize(Configuration conf, int reducerId) throws IOException;
+
+    abstract public void close();
+
+    abstract protected void serialize(final Forum forum);
+
+    abstract protected void serialize(final Post post);
+
+    abstract protected void serialize(final Comment comment);
+
+    abstract protected void serialize(final Photo photo);
+
+    abstract protected void serialize(final ForumMembership membership);
+
+    abstract protected void serialize(final Like like);
+
+
 }

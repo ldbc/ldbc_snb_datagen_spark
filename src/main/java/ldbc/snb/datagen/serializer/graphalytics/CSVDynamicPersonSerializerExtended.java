@@ -43,13 +43,13 @@ import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.objects.StudyAt;
 import ldbc.snb.datagen.objects.WorkAt;
 import ldbc.snb.datagen.serializer.HDFSCSVWriter;
-import ldbc.snb.datagen.serializer.PersonSerializer;
+import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class CSVPersonSerializerExtended extends PersonSerializer {
+public class CSVDynamicPersonSerializerExtended extends DynamicPersonSerializer {
 
     private HDFSCSVWriter[] writers;
 

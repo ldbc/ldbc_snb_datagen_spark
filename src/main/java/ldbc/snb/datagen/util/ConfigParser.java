@@ -67,9 +67,9 @@ public class ConfigParser {
         conf.set("ldbc.snb.datagen.generator.startYear", "2010");
         conf.set("ldbc.snb.datagen.generator.numYears", "3");
         conf.set("ldbc.snb.datagen.generator.numThreads", Integer.toString(1));
-        conf.set("ldbc.snb.datagen.serializer.personSerializer", "ldbc.snb.datagen.serializer.snb.csv.basic.CSVPersonSerializer");
-        conf.set("ldbc.snb.datagen.serializer.invariantSerializer", "ldbc.snb.datagen.serializer.snb.csv.basic.CSVInvariantSerializer");
-        conf.set("ldbc.snb.datagen.serializer.personActivitySerializer", "ldbc.snb.datagen.serializer.snb.csv.basic.CSVPersonActivitySerializer");
+        conf.set("ldbc.snb.datagen.serializer.dynamicPersonSerializer", "ldbc.snb.datagen.serializer.snb.csv.basic.CSVDynamicPersonSerializer");
+        conf.set("ldbc.snb.datagen.serializer.staticSerializer", "ldbc.snb.datagen.serializer.snb.csv.basic.CSVStaticSerializer");
+        conf.set("ldbc.snb.datagen.serializer.dynamicActivitySerializer", "ldbc.snb.datagen.serializer.snb.csv.basic.CSVDynamicActivitySerializer");
         conf.set("ldbc.snb.datagen.generator.distribution.degreeDistribution", "ldbc.snb.datagen.generator.distribution.FacebookDegreeDistribution");
         conf.set("ldbc.snb.datagen.generator.knowsGenerator", "ldbc.snb.datagen.generator.DistanceKnowsGenerator");
         conf.set("ldbc.snb.datagen.serializer.compressed", Boolean.toString(false));

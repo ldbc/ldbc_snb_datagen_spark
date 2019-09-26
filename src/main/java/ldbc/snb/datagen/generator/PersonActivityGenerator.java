@@ -41,7 +41,7 @@ import ldbc.snb.datagen.objects.Forum;
 import ldbc.snb.datagen.objects.ForumMembership;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.serializer.PersonActivityExporter;
-import ldbc.snb.datagen.serializer.PersonActivitySerializer;
+import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
 import ldbc.snb.datagen.serializer.UpdateEventSerializer;
 import ldbc.snb.datagen.util.FactorTable;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
@@ -60,16 +60,16 @@ public class PersonActivityGenerator {
     private UniformPostGenerator uniformPostGenerator_ = null;
     private FlashmobPostGenerator flashmobPostGenerator_ = null;
     private PhotoGenerator photoGenerator_ = null;
-    private PersonActivitySerializer personActivitySerializer_ = null;
+    private DynamicActivitySerializer dynamicActivitySerializer_ = null;
     private UpdateEventSerializer updateSerializer_ = null;
     private long forumId = 0;
     private long messageId = 0;
     private FactorTable factorTable_;
     private PersonActivityExporter exporter_;
 
-    public PersonActivityGenerator(PersonActivitySerializer serializer, UpdateEventSerializer updateSerializer) {
+    public PersonActivityGenerator(DynamicActivitySerializer serializer, UpdateEventSerializer updateSerializer) {
         randomFarm_ = new RandomGeneratorFarm();
-        personActivitySerializer_ = serializer;
+        dynamicActivitySerializer_ = serializer;
         updateSerializer_ = updateSerializer;
         forumGenerator_ = new ForumGenerator();
         TextGenerator generator = new LdbcSnbTextGenerator(randomFarm_
@@ -80,7 +80,7 @@ public class PersonActivityGenerator {
         flashmobPostGenerator_ = new FlashmobPostGenerator(generator, commentGenerator, likeGenerator_);
         photoGenerator_ = new PhotoGenerator(likeGenerator_);
         factorTable_ = new FactorTable();
-        exporter_ = new PersonActivityExporter(personActivitySerializer_, updateSerializer_, factorTable_);
+        exporter_ = new PersonActivityExporter(dynamicActivitySerializer_, updateSerializer_, factorTable_);
     }
 
     private void generateActivity(Person person, ArrayList<Person> block) throws AssertionError, IOException {
@@ -98,7 +98,7 @@ public class PersonActivityGenerator {
     }
 
     public void reset() {
-        personActivitySerializer_.reset();
+        dynamicActivitySerializer_.reset();
     }
 
     private void generateWall(Person person, ArrayList<Person> block) throws IOException {
@@ -189,7 +189,7 @@ public class PersonActivityGenerator {
         forumId = 0;
         messageId = 0;
         SN.machineId = seed;
-        personActivitySerializer_.reset();
+        dynamicActivitySerializer_.reset();
         int counter = 0;
         float personGenerationTime = 0.0f;
         for (Person p : block) {
