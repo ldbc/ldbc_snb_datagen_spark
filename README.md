@@ -28,7 +28,7 @@ There are three main ways to run Datagen:
 
 ### Pseudo-distributed Hadoop node
 
-To grab Hadoop, extract it, and set the environment values to sensible defaults, and generate the data as specified in the `parameters.ini` file, run the following script:
+To grab Hadoop, extract it, and set the environment values to sensible defaults, and generate the data as specified in the `params.ini` file, run the following script:
 
 ```bash
 wget http://archive.apache.org/dist/hadoop/core/hadoop-2.6.0/hadoop-2.6.0.tar.gz
