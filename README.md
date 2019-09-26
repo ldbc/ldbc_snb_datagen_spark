@@ -54,6 +54,12 @@ docker build . --tag ldbc/datagen
 
 To configure the amount of memory available, set the `HADOOP_CLIENT_OPTS` variable in the Dockerfile. The default value is `-Xmx8G`.
 
+Initialize the `params.ini` file as needed. For example, to generate the basic CSV files, issue:
+
+```bash
+cp params-csv.ini params.ini
+```
+
 #### Running
 
 In order to run the container, a `params.ini` file is required. For reference, please see the `params*.ini` files in the repository. The file will be mounted in the container by the `--mount type=bind,source="$(pwd)/params.ini,target="/opt/ldbc_snb_datagen/params.ini"` option. If required, the source path can be set to a different path.
