@@ -40,7 +40,7 @@ import ldbc.snb.datagen.LDBCDatagen;
 import ldbc.snb.datagen.generator.generators.PersonGenerator;
 import ldbc.snb.datagen.hadoop.miscjob.keychanger.HadoopFileKeyChanger;
 import ldbc.snb.datagen.hadoop.key.TupleKey;
-import ldbc.snb.datagen.objects.Person;
+import ldbc.snb.datagen.objects.dynamic.person.Person;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;

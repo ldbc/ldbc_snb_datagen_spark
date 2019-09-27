@@ -37,7 +37,13 @@ package ldbc.snb.datagen.util;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.objects.*;
+import ldbc.snb.datagen.objects.dynamic.messages.Comment;
+import ldbc.snb.datagen.objects.dynamic.messages.Message;
+import ldbc.snb.datagen.objects.dynamic.messages.Photo;
+import ldbc.snb.datagen.objects.dynamic.messages.Post;
+import ldbc.snb.datagen.objects.dynamic.person.Person;
+import ldbc.snb.datagen.objects.dynamic.relations.ForumMembership;
+import ldbc.snb.datagen.objects.dynamic.relations.Like;
 
 import java.io.IOException;
 import java.io.OutputStream;

@@ -36,10 +36,10 @@
 package ldbc.snb.datagen.serializer.snb.turtle;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.objects.Organisation;
-import ldbc.snb.datagen.objects.Place;
-import ldbc.snb.datagen.objects.Tag;
-import ldbc.snb.datagen.objects.TagClass;
+import ldbc.snb.datagen.objects.statictype.Organisation;
+import ldbc.snb.datagen.objects.statictype.place.Place;
+import ldbc.snb.datagen.objects.statictype.tag.Tag;
+import ldbc.snb.datagen.objects.statictype.TagClass;
 import ldbc.snb.datagen.hadoop.writer.HDFSWriter;
 import ldbc.snb.datagen.serializer.StaticSerializer;
 import ldbc.snb.datagen.vocabulary.*;

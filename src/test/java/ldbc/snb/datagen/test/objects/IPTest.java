@@ -1,6 +1,6 @@
 package ldbc.snb.datagen.test.objects;
 
-import ldbc.snb.datagen.objects.IP;
+import ldbc.snb.datagen.objects.dynamic.person.IP;
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 

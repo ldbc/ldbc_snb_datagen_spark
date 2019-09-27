@@ -36,10 +36,10 @@
 package ldbc.snb.datagen.serializer.snb.csv.mergeforeign;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.objects.Knows;
-import ldbc.snb.datagen.objects.Person;
-import ldbc.snb.datagen.objects.StudyAt;
-import ldbc.snb.datagen.objects.WorkAt;
+import ldbc.snb.datagen.objects.dynamic.relations.Knows;
+import ldbc.snb.datagen.objects.dynamic.person.Person;
+import ldbc.snb.datagen.objects.dynamic.relations.StudyAt;
+import ldbc.snb.datagen.objects.dynamic.relations.WorkAt;
 import ldbc.snb.datagen.hadoop.writer.HDFSCSVWriter;
 import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
 import org.apache.hadoop.conf.Configuration;

@@ -35,7 +35,12 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer;
 
-import ldbc.snb.datagen.objects.*;
+import ldbc.snb.datagen.objects.dynamic.messages.Comment;
+import ldbc.snb.datagen.objects.dynamic.messages.Photo;
+import ldbc.snb.datagen.objects.dynamic.messages.Post;
+import ldbc.snb.datagen.objects.dynamic.relations.ForumMembership;
+import ldbc.snb.datagen.objects.dynamic.relations.Like;
+import ldbc.snb.datagen.objects.dynamic.Forum;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;

@@ -36,8 +36,13 @@
 package ldbc.snb.datagen.serializer.snb.turtle;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.objects.*;
 import ldbc.snb.datagen.hadoop.writer.HDFSWriter;
+import ldbc.snb.datagen.objects.dynamic.messages.Comment;
+import ldbc.snb.datagen.objects.dynamic.messages.Photo;
+import ldbc.snb.datagen.objects.dynamic.messages.Post;
+import ldbc.snb.datagen.objects.dynamic.relations.ForumMembership;
+import ldbc.snb.datagen.objects.dynamic.relations.Like;
+import ldbc.snb.datagen.objects.dynamic.Forum;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
 import ldbc.snb.datagen.vocabulary.*;
 import org.apache.hadoop.conf.Configuration;

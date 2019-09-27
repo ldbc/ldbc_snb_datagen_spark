@@ -33,19 +33,13 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
+package ldbc.snb.datagen.objects.dynamic.relations;
 
-
-package ldbc.snb.datagen.objects;
-
-public class Organisation {
-
-    public enum OrganisationType {
-        university,
-        company
-    }
-
-    public long id;
-    public String name;
-    public OrganisationType type;
-    public int location;
+/**
+ * Created by aprat on 4/15/14.
+ */
+public class WorkAt {
+    public long user;
+    public long company;
+    public long year;
 }

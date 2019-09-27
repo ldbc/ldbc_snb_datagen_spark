@@ -37,7 +37,12 @@ package ldbc.snb.datagen.serializer;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.objects.*;
+import ldbc.snb.datagen.objects.dynamic.messages.Comment;
+import ldbc.snb.datagen.objects.dynamic.messages.Photo;
+import ldbc.snb.datagen.objects.dynamic.messages.Post;
+import ldbc.snb.datagen.objects.dynamic.relations.ForumMembership;
+import ldbc.snb.datagen.objects.dynamic.relations.Like;
+import ldbc.snb.datagen.objects.dynamic.Forum;
 import ldbc.snb.datagen.util.FactorTable;
 
 import java.io.IOException;

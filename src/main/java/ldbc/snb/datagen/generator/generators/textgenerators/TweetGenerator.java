@@ -37,7 +37,7 @@ package ldbc.snb.datagen.generator.generators.textgenerators;
 
 import ldbc.snb.datagen.dictionary.TagDictionary;
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.objects.Person.PersonSummary;
+import ldbc.snb.datagen.objects.dynamic.person.Person.PersonSummary;
 import ldbc.snb.datagen.util.DistributionKey;
 
 import java.util.Properties;

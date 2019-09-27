@@ -35,7 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.generators.knowsgenerators;
 
-import ldbc.snb.datagen.objects.Person;
+import ldbc.snb.datagen.objects.dynamic.person.Person;
 import org.apache.hadoop.conf.Configuration;
 
 import java.util.ArrayList;

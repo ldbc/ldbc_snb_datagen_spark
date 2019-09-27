@@ -33,39 +33,49 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.objects;
+package ldbc.snb.datagen.objects.dynamic.messages;
 
-import ldbc.snb.datagen.objects.Person.PersonSummary;
+
+import ldbc.snb.datagen.objects.dynamic.person.IP;
+import ldbc.snb.datagen.objects.dynamic.person.Person.PersonSummary;
 
 import java.util.TreeSet;
 
-public class Photo extends Message {
+public class Comment extends Message {
 
-    private double latt_;
-    private double longt_;
+    private long postId_;
+    private long replyOf_;
 
-    public Photo() {
+    public Comment() {
         super();
     }
 
-    public Photo(long messageId,
-                 long creationDate,
-                 PersonSummary author,
-                 long forumId,
-                 String content,
-                 TreeSet<Integer> tags,
-                 int countryId,
-                 IP ipAddress,
-                 int browserId,
-                 double latt,
-                 double longt
-    ) {
-        super(messageId, creationDate, author, forumId, content, tags, countryId, ipAddress, browserId);
-        latt_ = latt;
-        longt_ = longt;
+    public Comment(Comment comment) {
+        super(comment.messageId(), comment.creationDate(), comment.author(), comment.forumId(), comment.content(),
+              comment.tags(), comment.countryId(), comment.ipAddress(), comment.browserId());
+        postId_ = comment.postId();
+        replyOf_ = comment.replyOf();
     }
 
-    public void initialize(long messageId,
+    public Comment(long commentId,
+                   long creationDate,
+                   PersonSummary author,
+                   long forumId,
+                   String content,
+                   TreeSet<Integer> tags,
+                   int countryId,
+                   IP ipAddress,
+                   int browserId,
+                   long postId,
+                   long replyOf
+    ) {
+
+        super(commentId, creationDate, author, forumId, content, tags, countryId, ipAddress, browserId);
+        postId_ = postId;
+        replyOf_ = replyOf;
+    }
+
+    public void initialize(long commentId,
                            long creationDate,
                            PersonSummary author,
                            long forumId,
@@ -74,29 +84,27 @@ public class Photo extends Message {
                            int countryId,
                            IP ipAddress,
                            int browserId,
-                           double latt,
-                           double longt
-    ) {
-        super.initialize(messageId, creationDate, author, forumId, content, tags, countryId, ipAddress, browserId);
-        latt_ = latt;
-        longt_ = longt;
+                           long postId,
+                           long replyOf) {
+        super.initialize(commentId, creationDate, author, forumId, content, tags, countryId, ipAddress, browserId);
+        postId_ = postId;
+        replyOf_ = replyOf;
     }
 
-
-    public double latt() {
-        return latt_;
+    public long postId() {
+        return postId_;
     }
 
-    public void latt(double l) {
-        latt_ = l;
+    public void postId(long id) {
+        postId_ = id;
     }
 
-    public double longt() {
-        return longt_;
+    public long replyOf() {
+        return replyOf_;
     }
 
-    public void longt(double l) {
-        longt_ = l;
+    public void replyOf(long id) {
+        replyOf_ = id;
     }
 
 }
