@@ -35,7 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer;
 
-import ldbc.snb.datagen.objects.Organization;
+import ldbc.snb.datagen.objects.Organisation;
 import ldbc.snb.datagen.objects.Place;
 import ldbc.snb.datagen.objects.Tag;
 import ldbc.snb.datagen.objects.TagClass;
@@ -59,8 +59,8 @@ abstract public class StaticSerializer {
         serialize(place);
     }
 
-    public void export(final Organization organization) {
-        serialize(organization);
+    public void export(final Organisation organisation) {
+        serialize(organisation);
     }
 
     public void export(final Tag tag) {
@@ -73,7 +73,7 @@ abstract public class StaticSerializer {
 
     abstract protected void serialize(final Place place);
 
-    abstract protected void serialize(final Organization organization);
+    abstract protected void serialize(final Organisation organisation);
 
     abstract protected void serialize(final TagClass tagClass);
 

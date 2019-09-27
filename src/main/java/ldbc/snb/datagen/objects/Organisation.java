@@ -37,7 +37,7 @@
 
 package ldbc.snb.datagen.objects;
 
-public class Organization {
+public class Organisation {
 
     public enum OrganisationType {
         university,

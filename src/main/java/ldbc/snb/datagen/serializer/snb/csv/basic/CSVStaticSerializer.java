@@ -36,7 +36,7 @@
 package ldbc.snb.datagen.serializer.snb.csv.basic;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.objects.Organization;
+import ldbc.snb.datagen.objects.Organisation;
 import ldbc.snb.datagen.objects.Place;
 import ldbc.snb.datagen.objects.Tag;
 import ldbc.snb.datagen.objects.TagClass;
@@ -159,17 +159,17 @@ public class CSVStaticSerializer extends StaticSerializer {
         }
     }
 
-    protected void serialize(final Organization organization) {
+    protected void serialize(final Organisation organisation) {
         ArrayList<String> arguments = new ArrayList<String>();
-        arguments.add(Long.toString(organization.id));
-        arguments.add(organization.type.toString());
-        arguments.add(organization.name);
-        arguments.add(DBP.getUrl(organization.name));
+        arguments.add(Long.toString(organisation.id));
+        arguments.add(organisation.type.toString());
+        arguments.add(organisation.name);
+        arguments.add(DBP.getUrl(organisation.name));
         writers[FileNames.ORGANIZATION.ordinal()].writeEntry(arguments);
 
         arguments.clear();
-        arguments.add(Long.toString(organization.id));
-        arguments.add(Integer.toString(organization.location));
+        arguments.add(Long.toString(organisation.id));
+        arguments.add(Integer.toString(organisation.location));
         writers[FileNames.ORGANIZATION_IS_LOCATED_IN_PLACE.ordinal()].writeEntry(arguments);
     }
 

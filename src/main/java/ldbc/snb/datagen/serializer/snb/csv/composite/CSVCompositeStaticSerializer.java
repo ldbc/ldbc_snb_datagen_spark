@@ -35,7 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer.snb.csv.composite;
 
-import ldbc.snb.datagen.objects.Organization;
+import ldbc.snb.datagen.objects.Organisation;
 import ldbc.snb.datagen.objects.Place;
 import ldbc.snb.datagen.objects.Tag;
 import ldbc.snb.datagen.objects.TagClass;
@@ -68,8 +68,8 @@ public class CSVCompositeStaticSerializer extends StaticSerializer {
     }
 
     @Override
-    protected void serialize(final Organization organization) {
-        staticSerializer.export(organization);
+    protected void serialize(final Organisation organisation) {
+        staticSerializer.export(organisation);
     }
 
     @Override
