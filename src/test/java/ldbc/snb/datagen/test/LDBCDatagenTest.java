@@ -1,7 +1,7 @@
 package ldbc.snb.datagen.test;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.generator.LDBCDatagen;
+import ldbc.snb.datagen.LDBCDatagen;
 import ldbc.snb.datagen.test.csv.*;
 import ldbc.snb.datagen.util.ConfigParser;
 import org.apache.hadoop.conf.Configuration;

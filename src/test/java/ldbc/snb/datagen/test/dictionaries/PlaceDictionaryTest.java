@@ -1,7 +1,7 @@
 package ldbc.snb.datagen.test.dictionaries;
 
 import ldbc.snb.datagen.dictionary.PlaceDictionary;
-import ldbc.snb.datagen.generator.LDBCDatagen;
+import ldbc.snb.datagen.LDBCDatagen;
 import ldbc.snb.datagen.util.ConfigParser;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;

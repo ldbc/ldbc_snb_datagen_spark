@@ -36,7 +36,7 @@
 package ldbc.snb.datagen.hadoop;
 
 import ldbc.snb.datagen.generator.DatagenParams;
-import ldbc.snb.datagen.generator.LDBCDatagen;
+import ldbc.snb.datagen.LDBCDatagen;
 import ldbc.snb.datagen.generator.PersonGenerator;
 import ldbc.snb.datagen.objects.Person;
 import org.apache.hadoop.conf.Configuration;

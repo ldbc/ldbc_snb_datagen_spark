@@ -35,7 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop;
 
-import ldbc.snb.datagen.generator.LDBCDatagen;
+import ldbc.snb.datagen.LDBCDatagen;
 import ldbc.snb.datagen.objects.Knows;
 import ldbc.snb.datagen.objects.Person;
 import org.apache.hadoop.conf.Configuration;

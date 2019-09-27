@@ -36,7 +36,7 @@
 package ldbc.snb.datagen.hadoop;
 
 import ldbc.snb.datagen.generator.KnowsGenerator;
-import ldbc.snb.datagen.generator.LDBCDatagen;
+import ldbc.snb.datagen.LDBCDatagen;
 import ldbc.snb.datagen.objects.Person;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
