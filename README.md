@@ -1,4 +1,4 @@
-![LDBC_LOGO](https://raw.githubusercontent.com/wiki/ldbc/ldbc_snb_datagen/images/ldbc-logo.png)
+gi![LDBC_LOGO](https://raw.githubusercontent.com/wiki/ldbc/ldbc_snb_datagen/images/ldbc-logo.png)
 
 LDBC-SNB Data Generator
 ----------------------
@@ -42,11 +42,11 @@ To grab Hadoop, extract it, and set the environment values to sensible defaults,
 
 ```bash
 cp params-csv.ini params.ini
-wget http://archive.apache.org/dist/hadoop/core/hadoop-2.9.2/hadoop-2.9.2.tar.gz
-tar xf hadoop-2.9.2.tar.gz
+wget http://archive.apache.org/dist/hadoop/core/hadoop-3.2.1/hadoop-3.2.1.tar.gz
+tar xf hadoop-3.2.1.tar.gz
 export HADOOP_CLIENT_OPTS="-Xmx2G"
-# set this to the Hadoop 2.9.2 directory
-export HADOOP_HOME=`pwd`/hadoop-2.9.2
+# set this to the Hadoop 3.2.1 directory
+export HADOOP_HOME=`pwd`/hadoop-3.2.1
 # set this to the repository's directory
 export LDBC_SNB_DATAGEN_HOME=`pwd`
 ./run.sh
