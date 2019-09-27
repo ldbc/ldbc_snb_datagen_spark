@@ -1,6 +1,6 @@
 package ldbc.snb.datagen.test.csv;
 
-import ldbc.snb.datagen.generation.DateGenerator;
+import ldbc.snb.datagen.generator.DateGenerator;
 
 import java.util.ArrayList;
 import java.util.List;

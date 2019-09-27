@@ -35,7 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.dictionary;
 
-import ldbc.snb.datagen.generation.DatagenParams;
+import ldbc.snb.datagen.generator.DatagenParams;
 import umontreal.iro.lecuyer.probdist.GeometricDist;
 
 import java.io.BufferedReader;
