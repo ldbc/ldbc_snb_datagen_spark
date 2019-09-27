@@ -33,46 +33,29 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.writer;
+package ldbc.snb.datagen.hadoop.key.updatekey;
 
+import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.WritableComparator;
 
-import java.io.IOException;
-import java.util.ArrayList;
+/**
+ * Created by aprat on 11/17/14.
+ */
 
-public class HDFSCSVWriter extends HDFSWriter {
+public class UpdateEventKeySortComparator extends WritableComparator {
 
-    private String separator = "|";
-    private StringBuffer buffer;
-    private boolean endLineSeparator = true;
-
-
-    public HDFSCSVWriter(String outputDir, String prefix, int numPartitions, boolean compressed, String separator, boolean endLineSeparator) throws IOException {
-        super(outputDir, prefix, numPartitions, compressed, "csv");
-        this.separator = separator;
-        this.buffer = new StringBuffer(2048);
-        this.endLineSeparator = endLineSeparator;
-
+    protected UpdateEventKeySortComparator() {
+        super(UpdateEventKey.class, true);
     }
 
-    public void writeHeader(ArrayList<String> entry) {
-        buffer.setLength(0);
-        for (int i = 0; i < entry.size(); ++i) {
-            buffer.append(entry.get(i));
-            if ((endLineSeparator && i == (entry.size() - 1)) || (i < entry.size() - 1))
-                buffer.append(separator);
-        }
-        buffer.append("\n");
-        this.writeAllPartitions(buffer.toString());
-    }
-
-    public void writeEntry(ArrayList<String> entry) {
-        buffer.setLength(0);
-        for (int i = 0; i < entry.size(); ++i) {
-            buffer.append(entry.get(i));
-            if ((endLineSeparator && i == (entry.size() - 1)) || (i < entry.size() - 1))
-                buffer.append(separator);
-        }
-        buffer.append("\n");
-        this.write(buffer.toString());
+    @Override
+    public int compare(WritableComparable a, WritableComparable b) {
+        UpdateEventKey keyA = (UpdateEventKey) a;
+        UpdateEventKey keyB = (UpdateEventKey) b;
+        if (keyA.reducerId != keyB.reducerId) return keyA.reducerId - keyB.reducerId;
+        if (keyA.partition != keyB.partition) return keyA.partition - keyB.partition;
+        if (keyA.date < keyB.date) return -1;
+        if (keyA.date > keyB.date) return 1;
+        return 0;
     }
 }

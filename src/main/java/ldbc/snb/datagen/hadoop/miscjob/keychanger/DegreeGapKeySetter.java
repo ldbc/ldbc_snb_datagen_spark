@@ -33,17 +33,18 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.hadoop;
+package ldbc.snb.datagen.hadoop.miscjob.keychanger;
 
+import ldbc.snb.datagen.hadoop.key.TupleKey;
 import ldbc.snb.datagen.objects.Person;
 
 /**
  * Created by aprat on 11/17/14.
  */
-public class UniversityKeySetter implements HadoopFileKeyChanger.KeySetter<TupleKey> {
+public class DegreeGapKeySetter implements HadoopFileKeyChanger.KeySetter<TupleKey> {
 
     public TupleKey getKey(Object object) {
         Person person = (Person) object;
-        return new TupleKey(person.universityLocationId(), person.accountId());
+        return new TupleKey(person.maxNumKnows() - person.knows().size(), person.accountId());
     }
 }

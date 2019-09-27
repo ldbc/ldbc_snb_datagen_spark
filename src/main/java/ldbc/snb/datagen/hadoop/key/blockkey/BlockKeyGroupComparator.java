@@ -33,56 +33,28 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.hadoop;
+package ldbc.snb.datagen.hadoop.key.blockkey;
 
 import org.apache.hadoop.io.WritableComparable;
-
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
+import org.apache.hadoop.io.WritableComparator;
 
 /**
- * Created by aprat on 5/01/16.
+ * Created by aprat on 11/17/14.
  */
-public class UpdateEventKey implements WritableComparable<UpdateEventKey> {
 
-    public long date;
-    public int reducerId;
-    public int partition;
+public class BlockKeyGroupComparator extends WritableComparator {
 
-    public UpdateEventKey() {
+    protected BlockKeyGroupComparator() {
+        super(BlockKey.class, true);
     }
 
-    public UpdateEventKey(UpdateEventKey key) {
-        this.date = key.date;
-        this.reducerId = key.reducerId;
-        this.partition = key.partition;
-    }
-
-    public UpdateEventKey(long date, int reducerId, int partition) {
-
-        this.date = date;
-        this.reducerId = reducerId;
-        this.partition = partition;
-    }
-
-    public void write(DataOutput out) throws IOException {
-        out.writeLong(date);
-        out.writeInt(reducerId);
-        out.writeInt(partition);
-    }
-
-    public void readFields(DataInput in) throws IOException {
-        date = in.readLong();
-        reducerId = in.readInt();
-        partition = in.readInt();
-    }
-
-    public int compareTo(UpdateEventKey key) {
-        if (reducerId != key.reducerId) return reducerId - key.reducerId;
-        if (partition != key.partition) return partition - key.partition;
-        if (date < key.date) return -1;
-        if (date > key.date) return 1;
+    @Override
+    public int compare(WritableComparable a, WritableComparable b) {
+        //return a.compareTo(b);
+        BlockKey keyA = (BlockKey) a;
+        BlockKey keyB = (BlockKey) b;
+        if (keyA.block < keyB.block) return -1;
+        if (keyA.block > keyB.block) return 1;
         return 0;
     }
 }

@@ -33,46 +33,79 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.hadoop;
+package ldbc.snb.datagen.hadoop.miscjob.keychanger;
 
+import ldbc.snb.datagen.hadoop.key.TupleKey;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.partition.InputSampler;
-import org.apache.hadoop.mapreduce.lib.partition.TotalOrderPartitioner;
+
+import java.io.IOException;
 
 /**
- * Created by aprat on 10/14/14.
+ * Created by aprat on 11/17/14.
  */
-public class HadoopFileSorter {
+public class HadoopFileKeyChanger {
+
+    private String keySetterName;
     private Configuration conf;
     private Class<?> K;
     private Class<?> V;
 
-    /**
-     * @param conf The configuration object.
-     * @param K    The Key class of the hadoop sequence file.
-     * @param V    The Value class of the hadoop sequence file.
-     */
-    public HadoopFileSorter(Configuration conf, Class<?> K, Class<?> V) {
-        this.conf = new Configuration(conf);
+    public interface KeySetter<K> {
+        public K getKey(Object object);
+    }
+
+
+    public HadoopFileKeyChanger(Configuration conf, Class<?> K, Class<?> V, String keySetterName) {
+        this.keySetterName = keySetterName;
+        this.conf = conf;
         this.K = K;
         this.V = V;
     }
 
-    /**
-     * Sorts a hadoop sequence file
-     *
-     * @param inputFileName  The name of the file to sort.
-     * @param outputFileName The name of the sorted file.
-     * @throws Exception
-     */
+    public static class HadoopFileKeyChangerReducer<K, V> extends Reducer<K, V, TupleKey, V> {
+
+        private KeySetter<TupleKey> keySetter;
+
+        @Override
+        public void setup(Context context) {
+            try {
+                String className = context.getConfiguration().get("keySetterClassName");
+                keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(className).newInstance();
+            } catch (ClassNotFoundException e) {
+                System.out.print(e.getMessage());
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                System.out.print(e.getMessage());
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                System.out.print(e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void reduce(K key, Iterable<V> valueSet,
+                           Context context) throws IOException, InterruptedException {
+            for (V v : valueSet) {
+                context.write(keySetter.getKey(v), v);
+            }
+        }
+    }
+
     public void run(String inputFileName, String outputFileName) throws Exception {
+
         int numThreads = conf.getInt("ldbc.snb.datagen.generator.numThreads", 1);
+        System.out.println("***************" + numThreads);
+        conf.set("keySetterClassName", keySetterName);
+
+        /** First Job to sort the key-value pairs and to count the number of elements processed by each reducer.**/
         Job job = Job.getInstance(conf, "Sorting " + inputFileName);
 
         FileInputFormat.setInputPaths(job, new Path(inputFileName));
@@ -80,18 +113,13 @@ public class HadoopFileSorter {
 
         job.setMapOutputKeyClass(K);
         job.setMapOutputValueClass(V);
-        job.setOutputKeyClass(K);
+        job.setOutputKeyClass(TupleKey.class);
         job.setOutputValueClass(V);
         job.setNumReduceTasks(numThreads);
-
+        job.setReducerClass(HadoopFileKeyChangerReducer.class);
         job.setJarByClass(V);
         job.setInputFormatClass(SequenceFileInputFormat.class);
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
-
-        InputSampler.Sampler sampler = new InputSampler.RandomSampler(0.1, 1000);
-        TotalOrderPartitioner.setPartitionFile(job.getConfiguration(), new Path(inputFileName + "_partition.lst"));
-        InputSampler.writePartitionFile(job, sampler);
-        job.setPartitionerClass(TotalOrderPartitioner.class);
         if (!job.waitForCompletion(true)) {
             throw new Exception();
         }

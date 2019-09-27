@@ -33,49 +33,46 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.hadoop;
+package ldbc.snb.datagen.hadoop.writer;
 
-import org.apache.hadoop.io.WritableComparable;
 
-import java.io.DataInput;
-import java.io.DataOutput;
 import java.io.IOException;
+import java.util.ArrayList;
 
-/**
- * Created by aprat on 12/17/14.
- */
-public class TupleKey implements WritableComparable<TupleKey> {
-    public long key;
-    public long id;
+public class HDFSCSVWriter extends HDFSWriter {
 
-    public TupleKey() {
+    private String separator = "|";
+    private StringBuffer buffer;
+    private boolean endLineSeparator = true;
+
+
+    public HDFSCSVWriter(String outputDir, String prefix, int numPartitions, boolean compressed, String separator, boolean endLineSeparator) throws IOException {
+        super(outputDir, prefix, numPartitions, compressed, "csv");
+        this.separator = separator;
+        this.buffer = new StringBuffer(2048);
+        this.endLineSeparator = endLineSeparator;
+
     }
 
-    public TupleKey(TupleKey tK) {
-        this.key = tK.key;
-        this.id = tK.id;
+    public void writeHeader(ArrayList<String> entry) {
+        buffer.setLength(0);
+        for (int i = 0; i < entry.size(); ++i) {
+            buffer.append(entry.get(i));
+            if ((endLineSeparator && i == (entry.size() - 1)) || (i < entry.size() - 1))
+                buffer.append(separator);
+        }
+        buffer.append("\n");
+        this.writeAllPartitions(buffer.toString());
     }
 
-    public TupleKey(long key, long id) {
-        this.key = key;
-        this.id = id;
-    }
-
-    public void write(DataOutput out) throws IOException {
-        out.writeLong(key);
-        out.writeLong(id);
-    }
-
-    public void readFields(DataInput in) throws IOException {
-        key = in.readLong();
-        id = in.readLong();
-    }
-
-    public int compareTo(TupleKey tk) {
-        if (key < tk.key) return -1;
-        if (key > tk.key) return 1;
-        if (id < tk.id) return -1;
-        if (id > tk.id) return 1;
-        return 0;
+    public void writeEntry(ArrayList<String> entry) {
+        buffer.setLength(0);
+        for (int i = 0; i < entry.size(); ++i) {
+            buffer.append(entry.get(i));
+            if ((endLineSeparator && i == (entry.size() - 1)) || (i < entry.size() - 1))
+                buffer.append(separator);
+        }
+        buffer.append("\n");
+        this.write(buffer.toString());
     }
 }

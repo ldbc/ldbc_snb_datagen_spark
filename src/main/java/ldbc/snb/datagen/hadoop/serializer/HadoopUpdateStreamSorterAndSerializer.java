@@ -33,12 +33,14 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.hadoop;
+package ldbc.snb.datagen.hadoop.serializer;
 
+import ldbc.snb.datagen.hadoop.generator.HadoopUpdateEventKeyPartitioner;
+import ldbc.snb.datagen.hadoop.key.updatekey.UpdateEventKey;
+import ldbc.snb.datagen.hadoop.key.updatekey.UpdateEventKeyGroupComparator;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -49,52 +51,50 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
 /**
  * Created by aprat on 10/15/14.
  */
-public class HadoopUpdateStreamSerializer {
+public class HadoopUpdateStreamSorterAndSerializer {
 
     private Configuration conf;
 
-    public static class HadoopUpdateStreamSerializerReducer extends Reducer<LongWritable, Text, LongWritable, Text> {
+    public static class HadoopUpdateStreamSorterAndSerializerReducer extends Reducer<UpdateEventKey, Text, UpdateEventKey, Text> {
 
-        private OutputStream out;
+        private boolean compressed = false;
+        private Configuration conf;
+        private String streamType;
 
         protected void setup(Context context) {
-            Configuration conf = context.getConfiguration();
-            int reducerId = Integer.parseInt(conf.get("reducerId"));
-            int partitionId = Integer.parseInt(conf.get("partitionId"));
-            String streamType = conf.get("streamType");
+            conf = context.getConfiguration();
+            streamType = conf.get("streamType");
             try {
-                FileSystem fs = FileSystem.get(conf);
-                if (Boolean.parseBoolean(conf.get("ldbc.snb.datagen.serializer.compressed"))) {
-                    Path outFile = new Path(context.getConfiguration()
-                                                   .get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/updateStream_" + reducerId + "_" + partitionId + "_" + streamType + ".csv.gz");
-                    out = new GZIPOutputStream(fs.create(outFile));
-                } else {
-                    Path outFile = new Path(context.getConfiguration()
-                                                   .get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/updateStream_" + reducerId + "_" + partitionId + "_" + streamType + ".csv");
-                    out = fs.create(outFile);
-                }
+                compressed = Boolean.parseBoolean(conf.get("ldbc.snb.datagen.serializer.compressed"));
             } catch (Exception e) {
                 System.err.println(e.getMessage());
-                e.printStackTrace();
             }
         }
 
         @Override
-        public void reduce(LongWritable key, Iterable<Text> valueSet, Context context)
+        public void reduce(UpdateEventKey key, Iterable<Text> valueSet, Context context)
                 throws IOException, InterruptedException {
-            for (Text t : valueSet) {
-                out.write(t.toString().getBytes("UTF8"));
-            }
-
-        }
-
-        protected void cleanup(Context context) {
+            OutputStream out;
             try {
+                FileSystem fs = FileSystem.get(conf);
+                if (compressed) {
+                    Path outFile = new Path(context.getConfiguration()
+                                                   .get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/updateStream_" + key.reducerId + "_" + key.partition + "_" + streamType + ".csv.gz");
+                    out = new GZIPOutputStream(fs.create(outFile));
+                } else {
+                    Path outFile = new Path(context.getConfiguration()
+                                                   .get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/updateStream_" + key.reducerId + "_" + key.partition + "_" + streamType + ".csv");
+                    out = fs.create(outFile);
+                }
+                for (Text t : valueSet) {
+                    out.write(t.toString().getBytes("UTF8"));
+                }
                 out.close();
             } catch (Exception e) {
                 System.err.println(e.getMessage());
@@ -102,28 +102,33 @@ public class HadoopUpdateStreamSerializer {
         }
     }
 
-    public HadoopUpdateStreamSerializer(Configuration conf) {
+
+    public HadoopUpdateStreamSorterAndSerializer(Configuration conf) {
         this.conf = new Configuration(conf);
     }
 
-    public void run(String inputFileName, int reducer, int partition, String type) throws Exception {
+    public void run(List<String> inputFileNames, String type) throws Exception {
 
-        conf.setInt("reducerId", reducer);
-        conf.setInt("partitionId", partition);
+        int numThreads = conf.getInt("ldbc.snb.datagen.generator.numThreads", 1);
         conf.set("streamType", type);
 
         Job job = Job.getInstance(conf, "Update Stream Serializer");
-        job.setMapOutputKeyClass(LongWritable.class);
+        job.setMapOutputKeyClass(UpdateEventKey.class);
         job.setMapOutputValueClass(Text.class);
-        job.setOutputKeyClass(LongWritable.class);
+        job.setOutputKeyClass(UpdateEventKey.class);
         job.setOutputValueClass(Text.class);
-        job.setJarByClass(HadoopUpdateStreamSerializerReducer.class);
-        job.setReducerClass(HadoopUpdateStreamSerializerReducer.class);
-        job.setNumReduceTasks(1);
+        job.setJarByClass(HadoopUpdateStreamSorterAndSerializerReducer.class);
+        job.setReducerClass(HadoopUpdateStreamSorterAndSerializerReducer.class);
+        job.setNumReduceTasks(numThreads);
         job.setInputFormatClass(SequenceFileInputFormat.class);
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
+        job.setPartitionerClass(HadoopUpdateEventKeyPartitioner.class);
+        job.setGroupingComparatorClass(UpdateEventKeyGroupComparator.class);
+        //job.setSortComparatorClass(UpdateEventKeySortComparator.class);
 
-        FileInputFormat.setInputPaths(job, new Path(inputFileName));
+        for (String s : inputFileNames) {
+            FileInputFormat.addInputPath(job, new Path(s));
+        }
         FileOutputFormat.setOutputPath(job, new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/aux"));
         if (!job.waitForCompletion(true)) {
             throw new Exception();

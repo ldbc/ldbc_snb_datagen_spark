@@ -33,8 +33,9 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.hadoop;
+package ldbc.snb.datagen.hadoop.key.blockkey;
 
+import ldbc.snb.datagen.hadoop.key.TupleKey;
 import org.apache.hadoop.io.WritableComparable;
 
 import java.io.DataInput;

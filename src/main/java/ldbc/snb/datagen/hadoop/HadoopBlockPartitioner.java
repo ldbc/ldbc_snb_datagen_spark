@@ -35,6 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop;
 
+import ldbc.snb.datagen.hadoop.key.blockkey.BlockKey;
 import ldbc.snb.datagen.objects.Person;
 import org.apache.hadoop.mapreduce.Partitioner;
 

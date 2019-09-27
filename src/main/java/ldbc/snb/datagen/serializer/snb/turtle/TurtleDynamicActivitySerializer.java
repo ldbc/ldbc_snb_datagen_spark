@@ -37,7 +37,7 @@ package ldbc.snb.datagen.serializer.snb.turtle;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.objects.*;
-import ldbc.snb.datagen.writer.HDFSWriter;
+import ldbc.snb.datagen.hadoop.writer.HDFSWriter;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
 import ldbc.snb.datagen.vocabulary.*;
 import org.apache.hadoop.conf.Configuration;

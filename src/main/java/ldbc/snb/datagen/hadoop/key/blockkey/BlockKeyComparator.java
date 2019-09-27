@@ -33,27 +33,27 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.hadoop;
+package ldbc.snb.datagen.hadoop.key.blockkey;
 
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 
 /**
- * Created by aprat on 11/17/14.
+ * Created by aprat on 11/9/14.
  */
+public class BlockKeyComparator extends WritableComparator {
 
-public class UpdateEventKeyGroupComparator extends WritableComparator {
-
-    protected UpdateEventKeyGroupComparator() {
-        super(UpdateEventKey.class, true);
+    protected BlockKeyComparator() {
+        super(BlockKey.class, true);
     }
 
     @Override
     public int compare(WritableComparable a, WritableComparable b) {
-        UpdateEventKey keyA = (UpdateEventKey) a;
-        UpdateEventKey keyB = (UpdateEventKey) b;
-        if (keyA.reducerId != keyB.reducerId) return keyA.reducerId - keyB.reducerId;
-        if (keyA.partition != keyB.partition) return keyA.partition - keyB.partition;
-        return 0;
+        //return a.compareTo(b);
+        BlockKey keyA = (BlockKey) a;
+        BlockKey keyB = (BlockKey) b;
+        if (keyA.block < keyB.block) return -1;
+        if (keyA.block > keyB.block) return 1;
+        return keyA.tk.compareTo(keyB.tk);
     }
 }

@@ -36,7 +36,7 @@
 package ldbc.snb.datagen.serializer.snb.turtle;
 
 import ldbc.snb.datagen.vocabulary.*;
-import ldbc.snb.datagen.writer.HDFSWriter;
+import ldbc.snb.datagen.hadoop.writer.HDFSWriter;
 
 /**
  * Created by aprat on 29/04/15.

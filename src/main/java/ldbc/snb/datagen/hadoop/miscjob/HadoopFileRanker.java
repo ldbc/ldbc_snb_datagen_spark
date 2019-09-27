@@ -33,9 +33,13 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.hadoop;
+package ldbc.snb.datagen.hadoop.miscjob;
 
 import ldbc.snb.datagen.LDBCDatagen;
+import ldbc.snb.datagen.hadoop.key.blockkey.BlockKey;
+import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyComparator;
+import ldbc.snb.datagen.hadoop.key.TupleKey;
+import ldbc.snb.datagen.hadoop.miscjob.keychanger.HadoopFileKeyChanger;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;

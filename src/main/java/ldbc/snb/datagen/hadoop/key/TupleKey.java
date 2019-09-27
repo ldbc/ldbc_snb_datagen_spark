@@ -33,18 +33,49 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.hadoop;
+package ldbc.snb.datagen.hadoop.key;
 
-import ldbc.snb.datagen.objects.Person;
+import org.apache.hadoop.io.WritableComparable;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 
 /**
- * Created by aprat on 11/17/14.
+ * Created by aprat on 12/17/14.
  */
-public class RandomKeySetter implements HadoopFileKeyChanger.KeySetter<TupleKey> {
+public class TupleKey implements WritableComparable<TupleKey> {
+    public long key;
+    public long id;
 
-    public TupleKey getKey(Object object) {
-        Person person = (Person) object;
-        return new TupleKey(person.randomId(), person.accountId());
+    public TupleKey() {
+    }
+
+    public TupleKey(TupleKey tK) {
+        this.key = tK.key;
+        this.id = tK.id;
+    }
+
+    public TupleKey(long key, long id) {
+        this.key = key;
+        this.id = id;
+    }
+
+    public void write(DataOutput out) throws IOException {
+        out.writeLong(key);
+        out.writeLong(id);
+    }
+
+    public void readFields(DataInput in) throws IOException {
+        key = in.readLong();
+        id = in.readLong();
+    }
+
+    public int compareTo(TupleKey tk) {
+        if (key < tk.key) return -1;
+        if (key > tk.key) return 1;
+        if (id < tk.id) return -1;
+        if (id > tk.id) return 1;
+        return 0;
     }
 }
-

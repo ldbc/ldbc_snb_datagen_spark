@@ -33,17 +33,20 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.hadoop;
+package ldbc.snb.datagen.hadoop.generator;
 
-import ldbc.snb.datagen.objects.Person;
+import ldbc.snb.datagen.hadoop.key.updatekey.UpdateEventKey;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Partitioner;
 
 /**
- * Created by aprat on 11/17/14.
+ * Created by aprat on 25/08/15.
  */
-public class InterestKeySetter implements HadoopFileKeyChanger.KeySetter<TupleKey> {
+public class HadoopUpdateEventKeyPartitioner extends Partitioner<UpdateEventKey, Text> {
 
-    public TupleKey getKey(Object object) {
-        Person person = (Person) object;
-        return new TupleKey(person.mainInterest(), person.accountId());
+    @Override
+    public int getPartition(UpdateEventKey key, Text text, int numReduceTasks) {
+        return (key.reducerId);
     }
 }
+

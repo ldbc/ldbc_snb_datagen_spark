@@ -33,19 +33,27 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.hadoop;
+package ldbc.snb.datagen.hadoop.key.updatekey;
 
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Partitioner;
+import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.WritableComparator;
 
 /**
- * Created by aprat on 25/08/15.
+ * Created by aprat on 11/17/14.
  */
-public class HadoopUpdateEventKeyPartitioner extends Partitioner<UpdateEventKey, Text> {
+
+public class UpdateEventKeyGroupComparator extends WritableComparator {
+
+    protected UpdateEventKeyGroupComparator() {
+        super(UpdateEventKey.class, true);
+    }
 
     @Override
-    public int getPartition(UpdateEventKey key, Text text, int numReduceTasks) {
-        return (key.reducerId);
+    public int compare(WritableComparable a, WritableComparable b) {
+        UpdateEventKey keyA = (UpdateEventKey) a;
+        UpdateEventKey keyB = (UpdateEventKey) b;
+        if (keyA.reducerId != keyB.reducerId) return keyA.reducerId - keyB.reducerId;
+        if (keyA.partition != keyB.partition) return keyA.partition - keyB.partition;
+        return 0;
     }
 }
-

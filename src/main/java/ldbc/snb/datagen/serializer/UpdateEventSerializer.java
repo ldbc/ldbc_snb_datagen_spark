@@ -37,7 +37,7 @@ package ldbc.snb.datagen.serializer;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.hadoop.UpdateEventKey;
+import ldbc.snb.datagen.hadoop.key.updatekey.UpdateEventKey;
 import ldbc.snb.datagen.objects.*;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
