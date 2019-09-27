@@ -33,9 +33,11 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.generator;
+package ldbc.snb.datagen.generator.generators;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.DatagenParams;
+import ldbc.snb.datagen.generator.generators.textgenerators.TextGenerator;
 import ldbc.snb.datagen.objects.*;
 import ldbc.snb.datagen.serializer.PersonActivityExporter;
 import ldbc.snb.datagen.util.PersonBehavior;

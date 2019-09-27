@@ -35,8 +35,8 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.dictionary;
 
-import ldbc.snb.datagen.generator.DatagenParams;
-import ldbc.snb.datagen.generator.DateGenerator;
+import ldbc.snb.datagen.DatagenParams;
+import ldbc.snb.datagen.util.DateUtils;
 import org.apache.hadoop.conf.Configuration;
 
 import java.util.GregorianCalendar;
@@ -48,7 +48,7 @@ public class Dictionaries {
 
     public static BrowserDictionary browsers = null;
     public static CompanyDictionary companies = null;
-    public static DateGenerator dates = null;
+    public static DateUtils dates = null;
     public static EmailDictionary emails = null;
     public static IPAddressDictionary ips = null;
     public static LanguageDictionary languages = null;
@@ -66,7 +66,7 @@ public class Dictionaries {
 
         browsers = new BrowserDictionary(DatagenParams.probAnotherBrowser);
 
-        dates = new DateGenerator(conf, new GregorianCalendar(DatagenParams.startYear,
+        dates = new DateUtils(conf, new GregorianCalendar(DatagenParams.startYear,
                                                               DatagenParams.startMonth,
                                                               DatagenParams.startDate),
                                   new GregorianCalendar(DatagenParams.endYear,

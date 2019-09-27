@@ -33,9 +33,11 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.generator;
+package ldbc.snb.datagen.generator.generators;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.DatagenParams;
+import ldbc.snb.datagen.generator.tools.PowerDistribution;
 import ldbc.snb.datagen.objects.Forum;
 import ldbc.snb.datagen.objects.ForumMembership;
 import ldbc.snb.datagen.objects.Like;
@@ -51,12 +53,12 @@ import java.util.Random;
  * @author aprat
  */
 public class LikeGenerator {
-    private final PowerDistGenerator likesGenerator_;
+    private final PowerDistribution likesGenerator_;
     private Like like;
 
 
     public LikeGenerator() {
-        likesGenerator_ = new PowerDistGenerator(1, DatagenParams.maxNumLike, 0.07);
+        likesGenerator_ = new PowerDistribution(1, DatagenParams.maxNumLike, 0.07);
         this.like = new Like();
     }
 

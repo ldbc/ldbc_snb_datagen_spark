@@ -36,7 +36,7 @@
 
 package ldbc.snb.datagen.generator.distribution;
 
-import ldbc.snb.datagen.generator.DatagenParams;
+import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.generator.tools.Bucket;
 import org.apache.hadoop.conf.Configuration;
 

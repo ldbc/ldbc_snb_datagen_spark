@@ -36,7 +36,6 @@
 package ldbc.snb.datagen;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.hadoop.*;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.util.ConfigParser;
@@ -129,7 +128,7 @@ public class LDBCDatagen {
                                                   "ldbc.snb.datagen.hadoop.RandomKeySetter",
                                                   percentages,
                                                   2,
-                                                  "ldbc.snb.datagen.generator.RandomKnowsGenerator");
+                                                  "ldbc.snb.datagen.generator.generators.knowsgenerators.RandomKnowsGenerator");
 
         knowsGenerator.run(hadoopPrefix + "/persons", hadoopPrefix + "/randomEdges");
         long endRandom = System.currentTimeMillis();

@@ -33,8 +33,9 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.generator;
+package ldbc.snb.datagen.generator.generators.knowsgenerators;
 
+import ldbc.snb.datagen.generator.generators.knowsgenerators.KnowsGenerator;
 import ldbc.snb.datagen.objects.Knows;
 import ldbc.snb.datagen.objects.Person;
 import org.apache.commons.math3.util.Pair;
@@ -169,7 +170,7 @@ public class BTERKnowsGenerator implements KnowsGenerator {
         try {
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(getClass()
-                                                  .getResourceAsStream(conf.get("ldbc.snb.datagen.generator.BTERKnowsGenerator.ccDistribution")), "UTF-8"));
+                                                  .getResourceAsStream(conf.get("ldbc.snb.datagen.generator.generators.knowsgenerators.BTERKnowsGenerator.ccDistribution")), "UTF-8"));
             String line;
             while ((line = reader.readLine()) != null) {
                 String data[] = line.split(" ");

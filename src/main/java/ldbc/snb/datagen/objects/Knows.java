@@ -36,7 +36,7 @@
 package ldbc.snb.datagen.objects;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.generator.DatagenParams;
+import ldbc.snb.datagen.DatagenParams;
 import org.apache.hadoop.io.Writable;
 
 import java.io.DataInput;

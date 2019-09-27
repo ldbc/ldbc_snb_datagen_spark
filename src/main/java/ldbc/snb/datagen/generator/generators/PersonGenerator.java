@@ -33,10 +33,12 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.generator;
+package ldbc.snb.datagen.generator.generators;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.generator.distribution.DegreeDistribution;
+import ldbc.snb.datagen.generator.tools.PowerDistribution;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
@@ -52,7 +54,7 @@ import java.util.GregorianCalendar;
 public class PersonGenerator {
 
     private DegreeDistribution degreeDistribution_ = null;
-    private PowerDistGenerator randomTagPowerLaw = null;
+    private PowerDistribution randomTagPowerLaw = null;
     private RandomGeneratorFarm randomFarm = null;
     private int nextId = 0;
 
@@ -68,7 +70,7 @@ public class PersonGenerator {
             System.out.print(e.getMessage());
         }
 
-        randomTagPowerLaw = new PowerDistGenerator(DatagenParams.minNumTagsPerUser,
+        randomTagPowerLaw = new PowerDistribution(DatagenParams.minNumTagsPerUser,
                                                    DatagenParams.maxNumTagsPerUser + 1,
                                                    DatagenParams.alpha);
         randomFarm = new RandomGeneratorFarm();

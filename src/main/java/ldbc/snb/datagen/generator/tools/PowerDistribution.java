@@ -33,18 +33,24 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.generator;
+package ldbc.snb.datagen.generator.tools;
 
-import ldbc.snb.datagen.objects.Person;
-import org.apache.hadoop.conf.Configuration;
+import umontreal.iro.lecuyer.probdist.PowerDist;
 
-import java.util.ArrayList;
+import java.util.Random;
 
-/**
- * Created by aprat on 11/06/15.
- */
-public interface KnowsGenerator {
-    public void generateKnows(ArrayList<Person> persons, int seed, ArrayList<Float> percentages, int step_index);
+public class PowerDistribution {
+    private PowerDist powerDist;
 
-    public void initialize(Configuration conf);
+    public PowerDistribution(double a, double b, double alpha) {
+        powerDist = new PowerDist(a, b, alpha);
+    }
+
+    public int getValue(Random random) {
+        return (int) powerDist.inverseF(random.nextDouble());
+    }
+
+    public double getDouble(Random random) {
+        return powerDist.inverseF(random.nextDouble());
+    }
 }

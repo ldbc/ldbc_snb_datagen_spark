@@ -33,43 +33,18 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.generator;
+package ldbc.snb.datagen.generator.generators.knowsgenerators;
 
-import ldbc.snb.datagen.dictionary.TagDictionary;
 import ldbc.snb.datagen.objects.Person;
+import org.apache.hadoop.conf.Configuration;
 
-import java.util.Properties;
-import java.util.Random;
-import java.util.TreeSet;
+import java.util.ArrayList;
 
-public abstract class TextGenerator {
-    protected TagDictionary tagDic;
-    protected Random random;
+/**
+ * Created by aprat on 11/06/15.
+ */
+public interface KnowsGenerator {
+    public void generateKnows(ArrayList<Person> persons, int seed, ArrayList<Float> percentages, int step_index);
 
-
-    /**
-     * < @brief The probability to retrieve an small text.
-     */
-
-    public TextGenerator(Random random, TagDictionary tagDic) {
-        this.tagDic = tagDic;
-        this.random = random;
-    }
-
-    /**
-     * @param fileName The tag text dictionary file name.
-     * @brief Loads the dictionary.
-     */
-    protected abstract void load();
-
-    /**
-     * @param randomTextSize The random number generator to generate the amount of text devoted to each tag.
-     * @param tags           The set of tags to generate the text from.
-     * @param textSize       The final text size.
-     * @return The final text.
-     * @brief Generates a text given a set of tags.
-     */
-    //info extra
-    public abstract String generateText(Person.PersonSummary person, TreeSet<Integer> tags, Properties prop);
-
+    public void initialize(Configuration conf);
 }

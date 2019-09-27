@@ -33,8 +33,9 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.generator;
+package ldbc.snb.datagen.generator.generators.knowsgenerators;
 
+import ldbc.snb.datagen.generator.generators.knowsgenerators.KnowsGenerator;
 import ldbc.snb.datagen.generator.tools.GraphUtils;
 import ldbc.snb.datagen.generator.tools.PersonGraph;
 import ldbc.snb.datagen.objects.Knows;
@@ -682,7 +683,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
     }
 
     public void initialize(Configuration conf) {
-        targetCC = conf.getFloat("ldbc.snb.datagen.generator.ClusteringKnowsGenerator.clusteringCoefficient", 0.1f);
+        targetCC = conf.getFloat("ldbc.snb.datagen.generator.generators.knowsgenerators.ClusteringKnowsGenerator.clusteringCoefficient", 0.1f);
         System.out.println("Initialized clustering coefficient to " + targetCC);
         targetCC /= 2.0f;
     }

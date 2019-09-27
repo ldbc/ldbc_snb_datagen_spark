@@ -33,13 +33,13 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.generator;
+package ldbc.snb.datagen.generator.generators.textgenerators;
 
 import ldbc.snb.datagen.dictionary.TagDictionary;
+import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.objects.Person.PersonSummary;
 import ldbc.snb.datagen.util.DistributionKey;
 
-import java.io.IOException;
 import java.util.Properties;
 import java.util.Random;
 import java.util.TreeSet;
@@ -53,7 +53,7 @@ public class TweetGenerator extends TextGenerator {
     private DistributionKey lengthsentence; // sentence length and sentences per tweet
     private DistributionKey lengthtweet;
 
-    public TweetGenerator(Random random, TagDictionary tagDic) throws NumberFormatException, IOException {
+    public TweetGenerator(Random random, TagDictionary tagDic) throws NumberFormatException {
         super(random, tagDic);
         // load the input files and create 5 maps
         hashtag = new DistributionKey(DatagenParams.SPARKBENCH_DIRECTORY + "/hashtags.csv");

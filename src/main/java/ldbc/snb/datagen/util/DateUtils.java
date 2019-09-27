@@ -33,15 +33,17 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.generator;
+package ldbc.snb.datagen.util;
 
+import ldbc.snb.datagen.DatagenParams;
+import ldbc.snb.datagen.generator.tools.PowerDistribution;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.serializer.formatter.DateFormatter;
 import org.apache.hadoop.conf.Configuration;
 
 import java.util.*;
 
-public class DateGenerator {
+public class DateUtils {
 
     public static final long ONE_DAY = 24L * 60L * 60L * 1000L;
     public static final long SEVEN_DAYS = 7L * ONE_DAY;
@@ -57,17 +59,17 @@ public class DateGenerator {
     private long toBirthDay_;
     private GregorianCalendar calendar_;
     private long updateThreshold_;
-    private PowerDistGenerator powerDist_;
+    private PowerDistribution powerDist_;
     private DateFormatter dateFormatter_;
 
     // This constructor is for the case of friendship's created date generator
-    public DateGenerator(Configuration conf, GregorianCalendar from, GregorianCalendar to,
-                         double alpha) {
+    public DateUtils(Configuration conf, GregorianCalendar from, GregorianCalendar to,
+                     double alpha) {
         to.setTimeZone(TimeZone.getTimeZone("GMT"));
         from.setTimeZone(TimeZone.getTimeZone("GMT"));
         from_ = from.getTimeInMillis();
         to_ = to.getTimeInMillis();
-        powerDist_ = new PowerDistGenerator(0.0, 1.0, alpha);
+        powerDist_ = new PowerDistribution(0.0, 1.0, alpha);
 
         // For birthday from 1980 to 1990
         GregorianCalendar frombirthCalendar = new GregorianCalendar(1980, 1, 1);
@@ -168,7 +170,7 @@ public class DateGenerator {
     }
 
     public long randomSevenDays(Random random) {
-        return (long) (random.nextDouble() * DateGenerator.SEVEN_DAYS);
+        return (long) (random.nextDouble() * DateUtils.SEVEN_DAYS);
     }
 
     // The birthday is fixed during 1980 --> 1990

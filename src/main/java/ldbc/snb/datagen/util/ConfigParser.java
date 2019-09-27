@@ -71,7 +71,7 @@ public class ConfigParser {
         conf.set("ldbc.snb.datagen.serializer.staticSerializer", "ldbc.snb.datagen.serializer.snb.csv.basic.CSVStaticSerializer");
         conf.set("ldbc.snb.datagen.serializer.dynamicActivitySerializer", "ldbc.snb.datagen.serializer.snb.csv.basic.CSVDynamicActivitySerializer");
         conf.set("ldbc.snb.datagen.generator.distribution.degreeDistribution", "ldbc.snb.datagen.generator.distribution.FacebookDegreeDistribution");
-        conf.set("ldbc.snb.datagen.generator.knowsGenerator", "ldbc.snb.datagen.generator.DistanceKnowsGenerator");
+        conf.set("ldbc.snb.datagen.generator.knowsGenerator", "ldbc.snb.datagen.generator.generators.knowsgenerators.DistanceKnowsGenerator");
         conf.set("ldbc.snb.datagen.serializer.compressed", Boolean.toString(false));
         conf.set("ldbc.snb.datagen.serializer.updateStreams", Boolean.toString(true));
         conf.set("ldbc.snb.datagen.serializer.numPartitions", "1");
