@@ -159,10 +159,6 @@ public class Person implements Writable {
             return isLargePoster_;
         }
 
-        public void isLargePoster(boolean largePoster) {
-            isLargePoster_ = largePoster;
-        }
-
         public void readFields(DataInput arg0) throws IOException {
             accountId_ = arg0.readLong();
             creationDate_ = arg0.readLong();
