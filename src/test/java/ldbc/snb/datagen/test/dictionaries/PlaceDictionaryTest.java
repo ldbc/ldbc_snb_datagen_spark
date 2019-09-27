@@ -22,7 +22,7 @@ public class PlaceDictionaryTest {
         try {
             Configuration conf = ConfigParser.initialize();
             ConfigParser.readConfig(conf, "./test_params.ini");
-            ConfigParser.readConfig(conf, LDBCDatagen.class.getResourceAsStream("/params.ini"));
+            ConfigParser.readConfig(conf, LDBCDatagen.class.getResourceAsStream("/params_default.ini"));
             LDBCDatagen.prepareConfiguration(conf);
             LDBCDatagen.initializeContext(conf);
         } catch (Exception e) {

@@ -26,7 +26,7 @@ public class LDBCDatagenTest {
     public static void generateData() throws Exception {
         Configuration conf = ConfigParser.initialize();
         ConfigParser.readConfig(conf, "./test_params.ini");
-        ConfigParser.readConfig(conf, LDBCDatagen.class.getResourceAsStream("/params.ini"));
+        ConfigParser.readConfig(conf, LDBCDatagen.class.getResourceAsStream("/params_default.ini"));
         try {
             LDBCDatagen.prepareConfiguration(conf);
             LDBCDatagen.initializeContext(conf);

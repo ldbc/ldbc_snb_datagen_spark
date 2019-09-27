@@ -339,7 +339,7 @@ public class LDBCDatagen {
         try {
             Configuration conf = ConfigParser.initialize();
             ConfigParser.readConfig(conf, args[0]);
-            ConfigParser.readConfig(conf, LDBCDatagen.class.getResourceAsStream("/params.ini"));
+            ConfigParser.readConfig(conf, LDBCDatagen.class.getResourceAsStream("/params_default.ini"));
 
             LDBCDatagen.prepareConfiguration(conf);
             LDBCDatagen.initializeContext(conf);
