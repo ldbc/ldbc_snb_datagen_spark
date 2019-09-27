@@ -1,11 +1,11 @@
 package ldbc.snb.datagen.util;
 
-import ldbc.snb.datagen.generator.DateGenerator;
+import ldbc.snb.datagen.generation.DateGenerator;
 
 import java.util.Random;
 
-import static ldbc.snb.datagen.generator.DatagenParams.probDiffIPinTravelSeason;
-import static ldbc.snb.datagen.generator.DatagenParams.probDiffIPnotTravelSeason;
+import static ldbc.snb.datagen.generation.DatagenParams.probDiffIPinTravelSeason;
+import static ldbc.snb.datagen.generation.DatagenParams.probDiffIPnotTravelSeason;
 
 /**
  * Created by aprat on 27/07/17.

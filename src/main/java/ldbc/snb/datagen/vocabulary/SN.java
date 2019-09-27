@@ -36,7 +36,7 @@
 package ldbc.snb.datagen.vocabulary;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.generator.DatagenParams;
+import ldbc.snb.datagen.generation.DatagenParams;
 
 /**
  * LDBC social network data namespace used in the serialization process.

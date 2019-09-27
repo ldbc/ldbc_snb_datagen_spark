@@ -36,7 +36,7 @@
 package ldbc.snb.datagen.util;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.generator.DatagenParams;
+import ldbc.snb.datagen.generation.DatagenParams;
 import ldbc.snb.datagen.objects.*;
 
 import java.io.IOException;

@@ -36,7 +36,7 @@
 package ldbc.snb.datagen;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.generator.DatagenParams;
+import ldbc.snb.datagen.generation.DatagenParams;
 import ldbc.snb.datagen.hadoop.*;
 import ldbc.snb.datagen.objects.Person;
 import ldbc.snb.datagen.util.ConfigParser;
