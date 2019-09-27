@@ -48,8 +48,8 @@ out/
 datagen_output/
 
 # Hadoop directory extracted as instructed in the Quick Start guide
-/hadoop-2.9.2.tar.gz
-/hadoop-2.9.2/
+/hadoop-*.tar.gz
+/hadoop-*/
 
 # configuration file
 params.ini
