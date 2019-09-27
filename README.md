@@ -21,16 +21,27 @@ The LDBC-SNB Data Generator (Datagen) is the responsible of providing the data s
 
 ## Quick start
 
-There are three main ways to run Datagen:
-(1) using a pseudo-distributed Hadoop installation,
-(2) running the same setup in a Docker image,
-(3) running on a distributed Hadoop cluster.
+### Configuration
+
+Initialize the `params.ini` file as needed. For example, to generate the basic CSV files, issue:
+
+```bash
+cp params-csv.ini params.ini
+```
+
+There are three main ways to run Datagen, each using a different approach to configure the amount of memory available.
+
+1. using a pseudo-distributed Hadoop installation,
+2. running the same setup in a Docker image,
+3. running on a distributed Hadoop cluster.
 
 ### Pseudo-distributed Hadoop node
 
-To grab Hadoop, extract it, and set the environment values to sensible defaults, and generate the data as specified in the `params.ini` file, run the following script:
+To configure the amount of memory available, set the `HADOOP_CLIENT_OPTS` environment variable.
+To grab Hadoop, extract it, and set the environment values to sensible defaults, and generate the data as specified in the `params-csv.ini` file, run the following script:
 
 ```bash
+cp params-csv.ini params.ini
 wget http://archive.apache.org/dist/hadoop/core/hadoop-2.9.2/hadoop-2.9.2.tar.gz
 tar xf hadoop-2.9.2.tar.gz
 export HADOOP_CLIENT_OPTS="-Xmx2G"
@@ -42,7 +53,8 @@ export LDBC_SNB_DATAGEN_HOME=`pwd`
 ```
 
 ### Docker image
-SNB datagen images are available via [DockerHub](https://hub.docker.com/r/ldbc/datagen/) where you may find both the latest version of the generator as well as previous stable versions. 
+
+SNB datagen images are available via [Docker Hub](https://hub.docker.com/r/ldbc/datagen/) where you may find both the latest version of the generator as well as previous stable versions.
 
 Alternatively, the image can be built with the provided Dockerfile. To build, execute the following command from the repository directory:
 
@@ -50,19 +62,9 @@ Alternatively, the image can be built with the provided Dockerfile. To build, ex
 docker build . --tag ldbc/datagen
 ```
 
-#### Configuration
-
-To configure the amount of memory available, set the `HADOOP_CLIENT_OPTS` variable in the Dockerfile. The default value is `-Xmx2G`. If you are using a the precompiled image, you can the `-e HADOOP_CLIENT_OPTS=` flag when running (as described below).
-
-Initialize the `params.ini` file as needed. For example, to generate the basic CSV files, issue:
-
-```bash
-cp params-csv.ini params.ini
-```
-
 #### Running
 
-In order to run the container, a `params.ini` file is required. For reference, please see the `params*.ini` files in the repository. The file will be mounted in the container by the `--mount type=bind,source="$(pwd)/params.ini,target="/opt/ldbc_snb_datagen/params.ini"` option. If required, the source path can be set to a different path.
+Set the `params.ini` in the repository as for the pseudo-distributed case. The file will be mounted in the container by the `--mount type=bind,source="$(pwd)/params.ini,target="/opt/ldbc_snb_datagen/params.ini"` option. If required, the source path can be set to a different path.
 
 The container outputs its results in the `/opt/ldbc_snb_datagen/out/` directory which contains two sub-directories, `social_network/` and `subsitution_parameters`. In order to save the results of the generation, a directory must be mounted in the container from the host. The driver requires the results be in the datagen repository directory. To generate the data, run the following command which includes changing the owner (`chown`) of the Docker-mounted volumes:
 
@@ -75,7 +77,7 @@ If you need to raise the memory limit, use the `-e HADOOP_CLIENT_OPTS="-Xmx..."`
 
 ### Hadoop cluster
 
-Instructions are currently not provided. (TBD)
+Instructions are currently not provided.
 
 ### Community provided tools
 
