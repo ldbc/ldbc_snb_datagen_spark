@@ -31,11 +31,11 @@ There are three main ways to run Datagen:
 To grab Hadoop, extract it, and set the environment values to sensible defaults, and generate the data as specified in the `params.ini` file, run the following script:
 
 ```bash
-wget http://archive.apache.org/dist/hadoop/core/hadoop-2.6.0/hadoop-2.6.0.tar.gz
-tar xf hadoop-2.6.0.tar.gz
+wget http://archive.apache.org/dist/hadoop/core/hadoop-2.9.2/hadoop-2.9.2.tar.gz
+tar xf hadoop-2.9.2.tar.gz
 export HADOOP_CLIENT_OPTS="-Xmx2G"
-# set this to the Hadoop 2.6.0 directory
-export HADOOP_HOME=`pwd`/hadoop-2.6.0
+# set this to the Hadoop 2.9.2 directory
+export HADOOP_HOME=`pwd`/hadoop-2.9.2
 # set this to the repository's directory
 export LDBC_SNB_DATAGEN_HOME=`pwd`
 ./run.sh
