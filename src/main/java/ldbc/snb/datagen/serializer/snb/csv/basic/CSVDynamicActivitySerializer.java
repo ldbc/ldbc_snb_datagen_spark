@@ -37,7 +37,7 @@ package ldbc.snb.datagen.serializer.snb.csv.basic;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.objects.*;
-import ldbc.snb.datagen.serializer.HDFSCSVWriter;
+import ldbc.snb.datagen.writer.HDFSCSVWriter;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
 import org.apache.hadoop.conf.Configuration;
 
