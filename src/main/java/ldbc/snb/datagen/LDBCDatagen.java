@@ -97,14 +97,14 @@ public class LDBCDatagen {
         printProgress("Starting: Person generation");
         long startPerson = System.currentTimeMillis();
         HadoopPersonGenerator personGenerator = new HadoopPersonGenerator(conf);
-        personGenerator.run(hadoopPrefix + "/persons", "ldbc.snb.datagen.hadoop.utiljobs.keychanger.UniversityKeySetter");
+        personGenerator.run(hadoopPrefix + "/persons", "ldbc.snb.datagen.hadoop.miscjob.keychanger.UniversityKeySetter");
         long endPerson = System.currentTimeMillis();
 
         printProgress("Creating university location correlated edges");
         long startUniversity = System.currentTimeMillis();
         HadoopKnowsGenerator knowsGenerator = new HadoopKnowsGenerator(conf,
-                                                                       "ldbc.snb.datagen.hadoop.utiljobs.keychanger.UniversityKeySetter",
-                                                                       "ldbc.snb.datagen.hadoop.utiljobs.keychanger.RandomKeySetter",
+                                                                       "ldbc.snb.datagen.hadoop.miscjob.keychanger.UniversityKeySetter",
+                                                                       "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter",
                                                                        percentages,
                                                                        0,
                                                                        conf.get("ldbc.snb.datagen.generator.knowsGenerator"));
@@ -117,8 +117,8 @@ public class LDBCDatagen {
         long startInterest = System.currentTimeMillis();
 
         knowsGenerator = new HadoopKnowsGenerator(conf,
-                                                  "ldbc.snb.datagen.hadoop.utiljobs.keychanger.InterestKeySetter",
-                                                  "ldbc.snb.datagen.hadoop.utiljobs.keychanger.RandomKeySetter",
+                                                  "ldbc.snb.datagen.hadoop.miscjob.keychanger.InterestKeySetter",
+                                                  "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter",
                                                   percentages,
                                                   1,
                                                   conf.get("ldbc.snb.datagen.generator.knowsGenerator"));
@@ -131,8 +131,8 @@ public class LDBCDatagen {
         long startRandom = System.currentTimeMillis();
 
         knowsGenerator = new HadoopKnowsGenerator(conf,
-                                                  "ldbc.snb.datagen.hadoop.utiljobs.keychanger.RandomKeySetter",
-                                                  "ldbc.snb.datagen.hadoop.utiljobs.keychanger.RandomKeySetter",
+                                                  "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter",
+                                                  "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter",
                                                   percentages,
                                                   2,
                                                   "ldbc.snb.datagen.generator.generators.knowsgenerators.RandomKnowsGenerator");
@@ -148,7 +148,7 @@ public class LDBCDatagen {
         edgeFileNames.add(hadoopPrefix + "/interestEdges");
         edgeFileNames.add(hadoopPrefix + "/randomEdges");
         long startMerge = System.currentTimeMillis();
-        HadoopMergeFriendshipFiles merger = new HadoopMergeFriendshipFiles(conf, "ldbc.snb.datagen.hadoop.utiljobs.keychanger.RandomKeySetter");
+        HadoopMergeFriendshipFiles merger = new HadoopMergeFriendshipFiles(conf, "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter");
         merger.run(hadoopPrefix + "/mergedPersons", edgeFileNames);
         long endMerge = System.currentTimeMillis();
 
