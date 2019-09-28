@@ -15,8 +15,9 @@ install: true
 script:
 - cp params-csv.ini params.ini
 - docker run --rm --mount type=bind,source="$(pwd)/",target="/opt/ldbc_snb_datagen/out" --mount type=bind,source="$(pwd)/params.ini",target="/opt/ldbc_snb_datagen/params.ini" ldbc/datagen
+- md5sum social_network/*.csv | sort
 - "[[ `md5sum social_network/*.csv | sort | md5sum` == 'a70c44efcb11694757c707e78c932f69  -' ]]"
-- "[[ `md5sum substitution_parameters/* | sort | md5sum == '1867c45665c3fca9aa2470e9a349ef09  -' ]]"
+- "[[ `md5sum substitution_parameters/* | sort | md5sum` == '1867c45665c3fca9aa2470e9a349ef09  -' ]]"
 - mkdir out
 - cp -r substitution_parameters out/
 notifications:
