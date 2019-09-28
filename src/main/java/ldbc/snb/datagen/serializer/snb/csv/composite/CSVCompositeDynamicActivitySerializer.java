@@ -35,68 +35,9 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer.snb.csv.composite;
 
-import ldbc.snb.datagen.entities.dynamic.messages.Comment;
-import ldbc.snb.datagen.entities.dynamic.messages.Photo;
-import ldbc.snb.datagen.entities.dynamic.messages.Post;
-import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
-import ldbc.snb.datagen.entities.dynamic.relations.Like;
-import ldbc.snb.datagen.entities.dynamic.Forum;
-import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
 import ldbc.snb.datagen.serializer.snb.csv.basic.CSVDynamicActivitySerializer;
-import org.apache.hadoop.conf.Configuration;
-
-import java.io.IOException;
 
 /**
  * @author aprat
  */
-public class CSVCompositeDynamicActivitySerializer extends DynamicActivitySerializer {
-
-    private CSVDynamicActivitySerializer activitySerializer = new CSVDynamicActivitySerializer();
-
-    @Override
-    public void initialize(Configuration conf, int reducerId) throws IOException {
-        activitySerializer.initialize(conf, reducerId);
-    }
-
-    @Override
-    public void close() {
-        activitySerializer.close();
-    }
-
-    @Override
-    protected void serialize(final Forum forum) {
-        activitySerializer.export(forum);
-    }
-
-    @Override
-    protected void serialize(final Post post) {
-        activitySerializer.export(post);
-    }
-
-    @Override
-    protected void serialize(final Comment comment) {
-        activitySerializer.export(comment);
-    }
-
-    @Override
-    protected void serialize(final Photo photo) {
-        activitySerializer.export(photo);
-    }
-
-    @Override
-    protected void serialize(final ForumMembership membership) {
-        activitySerializer.export(membership);
-    }
-
-    @Override
-    protected void serialize(final Like like) {
-        activitySerializer.export(like);
-    }
-
-    @Override
-    public void reset() {
-        // Intentionally left empty
-    }
-
-}
+public class CSVCompositeDynamicActivitySerializer extends CSVDynamicActivitySerializer { }
