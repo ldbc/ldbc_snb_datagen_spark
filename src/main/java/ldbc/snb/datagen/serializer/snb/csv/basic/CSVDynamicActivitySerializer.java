@@ -35,6 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer.snb.csv.basic;
 
+import com.google.common.collect.ImmutableList;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.hadoop.writer.HDFSCSVWriter;
 import ldbc.snb.datagen.entities.dynamic.messages.Comment;
@@ -46,216 +47,66 @@ import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
 import org.apache.hadoop.conf.Configuration;
+import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
+import ldbc.snb.datagen.serializer.snb.csv.FileName;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * @author aprat
  */
 public class CSVDynamicActivitySerializer extends DynamicActivitySerializer {
-    private HDFSCSVWriter[] writers;
-    private ArrayList<String> arguments;
-    private String empty = "";
-
-    private enum FileNames {
-        FORUM("forum"),
-        FORUM_CONTAINEROF_POST("forum_containerOf_post"),
-        FORUM_HASMEMBER_PERSON("forum_hasMember_person"),
-        FORUM_HASMODERATOR_PERSON("forum_hasModerator_person"),
-        FORUM_HASTAG_TAG("forum_hasTag_tag"),
-        PERSON_LIKES_POST("person_likes_post"),
-        PERSON_LIKES_COMMENT("person_likes_comment"),
-        POST("post"),
-        POST_HASCREATOR_PERSON("post_hasCreator_person"),
-        POST_HASTAG_TAG("post_hasTag_tag"),
-        POST_ISLOCATEDIN_PLACE("post_isLocatedIn_place"),
-        COMMENT("comment"),
-        COMMENT_HASCREATOR_PERSON("comment_hasCreator_person"),
-        COMMENT_HASTAG_TAG("comment_hasTag_tag"),
-        COMMENT_ISLOCATEDIN_PLACE("comment_isLocatedIn_place"),
-        COMMENT_REPLYOF_POST("comment_replyOf_post"),
-        COMMENT_REPLYOF_COMMENT("comment_replyOf_comment");
-
-        private final String name;
-
-        private FileNames(String name) {
-            this.name = name;
-        }
-
-        public String toString() {
-            return name;
-        }
-    }
 
     @Override
     public List<FileName> getFileNames() {
-        return null;
+        return Arrays.asList(FORUM, FORUM_CONTAINEROF_POST, FORUM_HASMEMBER_PERSON, FORUM_HASMODERATOR_PERSON, FORUM_HASTAG_TAG,
+                PERSON_LIKES_POST, PERSON_LIKES_COMMENT, POST, POST_HASCREATOR_PERSON, POST_HASTAG_TAG, POST_ISLOCATEDIN_PLACE,
+                COMMENT, COMMENT_HASCREATOR_PERSON, COMMENT_HASTAG_TAG, COMMENT_ISLOCATEDIN_PLACE, COMMENT_REPLYOF_POST,
+                COMMENT_REPLYOF_COMMENT);
     }
 
     @Override
     public void writeFileHeaders() {
-
-    }
-
-    @Override
-    public void initialize(Configuration conf, int reducerId) throws IOException {
-        int numFiles = FileNames.values().length;
-        writers = new HDFSCSVWriter[numFiles];
-        for (int i = 0; i < numFiles; ++i) {
-            writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir")+"/dynamic/", FileNames
-                    .values()[i].toString() + "_" + reducerId, conf.getInt("ldbc.snb.datagen.numPartitions", 1), conf
-                                                   .getBoolean("ldbc.snb.datagen.serializer.compressed", false), "|", conf
-                                                   .getBoolean("ldbc.snb.datagen.serializer.endlineSeparator", false));
-        }
-        arguments = new ArrayList<String>();
-
-        arguments.add("id");
-        arguments.add("title");
-        arguments.add("creationDate");
-        writers[FileNames.FORUM.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Forum.id");
-        arguments.add("Post.id");
-        writers[FileNames.FORUM_CONTAINEROF_POST.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Forum.id");
-        arguments.add("Person.id");
-        arguments.add("joinDate");
-        writers[FileNames.FORUM_HASMEMBER_PERSON.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Forum.id");
-        arguments.add("Person.id");
-        writers[FileNames.FORUM_HASMODERATOR_PERSON.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Forum.id");
-        arguments.add("Tag.id");
-        writers[FileNames.FORUM_HASTAG_TAG.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Person.id");
-        arguments.add("Post.id");
-        arguments.add("creationDate");
-        writers[FileNames.PERSON_LIKES_POST.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Person.id");
-        arguments.add("Comment.id");
-        arguments.add("creationDate");
-        writers[FileNames.PERSON_LIKES_COMMENT.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("id");
-        arguments.add("imageFile");
-        arguments.add("creationDate");
-        arguments.add("locationIP");
-        arguments.add("browserUsed");
-        arguments.add("language");
-        arguments.add("content");
-        arguments.add("length");
-        writers[FileNames.POST.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Post.id");
-        arguments.add("Person.id");
-        writers[FileNames.POST_HASCREATOR_PERSON.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Post.id");
-        arguments.add("Tag.id");
-        writers[FileNames.POST_HASTAG_TAG.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Post.id");
-        arguments.add("Place.id");
-        writers[FileNames.POST_ISLOCATEDIN_PLACE.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("id");
-        arguments.add("creationDate");
-        arguments.add("locationIP");
-        arguments.add("browserUsed");
-        arguments.add("content");
-        arguments.add("length");
-        writers[FileNames.COMMENT.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Comment.id");
-        arguments.add("Person.id");
-        writers[FileNames.COMMENT_HASCREATOR_PERSON.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Comment.id");
-        arguments.add("Tag.id");
-        writers[FileNames.COMMENT_HASTAG_TAG.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Comment.id");
-        arguments.add("Place.id");
-        writers[FileNames.COMMENT_ISLOCATEDIN_PLACE.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Comment.id");
-        arguments.add("Post.id");
-        writers[FileNames.COMMENT_REPLYOF_POST.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Comment.id");
-        arguments.add("Comment.id");
-        writers[FileNames.COMMENT_REPLYOF_COMMENT.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-    }
-
-    @Override
-    public void close() {
-        int numFiles = FileNames.values().length;
-        for (int i = 0; i < numFiles; ++i) {
-            writers[i].close();
-        }
+        writers.get(FORUM).writeHeader(ImmutableList.of("id", "title", "creationDate"));
+        writers.get(FORUM_CONTAINEROF_POST).writeHeader(ImmutableList.of("Forum.id","Post.id"));
+        writers.get(FORUM_HASMEMBER_PERSON).writeHeader(ImmutableList.of("Forum.id","Person.id","joinDate"));
+        writers.get(FORUM_HASMODERATOR_PERSON).writeHeader(ImmutableList.of("Forum.id","Person.id"));
+        writers.get(FORUM_HASTAG_TAG).writeHeader(ImmutableList.of("Forum.id","Tag.id"));
+        writers.get(PERSON_LIKES_POST).writeHeader(ImmutableList.of("Person.id","Post.id","creationDate"));
+        writers.get(PERSON_LIKES_COMMENT).writeHeader(ImmutableList.of("Person.id","Comment.id","creationDate"));
+        writers.get(POST).writeHeader(ImmutableList.of("id","imageFile","creationDate","locationIP","browserUsed","language","content","length"));
+        writers.get(POST_HASCREATOR_PERSON).writeHeader(ImmutableList.of("Post.id","Person.id"));
+        writers.get(POST_HASTAG_TAG).writeHeader(ImmutableList.of("Post.id","Tag.id"));
+        writers.get(POST_ISLOCATEDIN_PLACE).writeHeader(ImmutableList.of("Post.id","Place.id"));
+        writers.get(COMMENT).writeHeader(ImmutableList.of("id","creationDate","locationIP","browserUsed","content","length"));
+        writers.get(COMMENT_HASCREATOR_PERSON).writeHeader(ImmutableList.of("Comment.id","Person.id"));
+        writers.get(COMMENT_HASTAG_TAG).writeHeader(ImmutableList.of("Comment.id","Tag.id"));
+        writers.get(COMMENT_ISLOCATEDIN_PLACE).writeHeader(ImmutableList.of("Comment.id","Place.id"));
+        writers.get(COMMENT_REPLYOF_POST).writeHeader(ImmutableList.of("Comment.id","Post.id"));
+        writers.get(COMMENT_REPLYOF_COMMENT).writeHeader(ImmutableList.of("Comment.id","Comment.id"));
     }
 
     protected void serialize(final Forum forum) {
-
         String dateString = Dictionaries.dates.formatDateTime(forum.creationDate());
-
-        arguments.add(Long.toString(forum.id()));
-        arguments.add(forum.title());
-        arguments.add(dateString);
-        writers[FileNames.FORUM.ordinal()].writeEntry(arguments);
-        arguments.clear();
-
-        arguments.add(Long.toString(forum.id()));
-        arguments.add(Long.toString(forum.moderator().accountId()));
-        writers[FileNames.FORUM_HASMODERATOR_PERSON.ordinal()].writeEntry(arguments);
-        arguments.clear();
-
+        writers.get(FORUM).writeEntry(ImmutableList.of(Long.toString(forum.id()), forum.title(),dateString));
+        writers.get(FORUM_HASMODERATOR_PERSON).writeEntry(ImmutableList.of(Long.toString(forum.id()),
+                Long.toString(forum.moderator().accountId())));
         for (Integer i : forum.tags()) {
-            arguments.add(Long.toString(forum.id()));
-            arguments.add(Integer.toString(i));
-            writers[FileNames.FORUM_HASTAG_TAG.ordinal()].writeEntry(arguments);
-            arguments.clear();
+            writers.get(FORUM_HASTAG_TAG).writeEntry(ImmutableList.of(Long.toString(forum.id()),Integer.toString(i)));
         }
-
     }
 
     protected void serialize(final Post post) {
-
-        arguments.add(Long.toString(post.messageId()));
-        arguments.add(empty);
-        arguments.add(Dictionaries.dates.formatDateTime(post.creationDate()));
-        arguments.add(post.ipAddress().toString());
-        arguments.add(Dictionaries.browsers.getName(post.browserId()));
-        arguments.add(Dictionaries.languages.getLanguageName(post.language()));
-        arguments.add(post.content());
-        arguments.add(Integer.toString(post.content().length()));
-        writers[FileNames.POST.ordinal()].writeEntry(arguments);
-        arguments.clear();
+        writers.get(POST).writeEntry(ImmutableList.of(Long.toString(post.messageId()),"",
+                Dictionaries.dates.formatDateTime(post.creationDate()),post.ipAddress().toString(),
+                Dictionaries.browsers.getName(post.browserId()),Dictionaries.languages.getLanguageName(post.language()),
+                post.content(),Integer.toString(post.content().length())));
+        writers.get().writeEntry(ImmutableList.of());
+        writers.get().writeEntry(ImmutableList.of());
+        //TODO finish 
 
         arguments.add(Long.toString(post.messageId()));
         arguments.add(Integer.toString(post.countryId()));
