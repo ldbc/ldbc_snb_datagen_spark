@@ -40,14 +40,26 @@ import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.StudyAt;
 import ldbc.snb.datagen.entities.dynamic.relations.WorkAt;
 import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.FileName;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Created by aprat on 30/01/15.
  */
 public class EmptyDynamicPersonSerializer extends DynamicPersonSerializer {
+
+    @Override
+    public List<FileName> getFileNames() {
+        return null;
+    }
+
+    @Override
+    public void writeFileHeaders() {
+
+    }
 
     @Override
     public void initialize(Configuration conf, int reducerId) throws IOException {
@@ -76,11 +88,6 @@ public class EmptyDynamicPersonSerializer extends DynamicPersonSerializer {
 
     @Override
     protected void serialize(final Person p, final Knows knows) {
-        //Intentionally left empty
-    }
-
-    @Override
-    public void reset() {
         //Intentionally left empty
     }
 

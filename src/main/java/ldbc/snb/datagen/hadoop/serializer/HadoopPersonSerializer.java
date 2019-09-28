@@ -99,7 +99,7 @@ public class HadoopPersonSerializer {
         public void reduce(TupleKey key, Iterable<Person> valueSet, Context context)
                 throws IOException, InterruptedException {
 //			SN.machineId = key.block;
-            dynamicPersonSerializer_.reset();
+//            dynamicPersonSerializer_.reset();
             for (Person p : valueSet) {
                 if (p.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
                     dynamicPersonSerializer_.export(p);

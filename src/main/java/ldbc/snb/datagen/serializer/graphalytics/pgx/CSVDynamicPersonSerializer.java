@@ -43,10 +43,12 @@ import ldbc.snb.datagen.entities.dynamic.relations.StudyAt;
 import ldbc.snb.datagen.entities.dynamic.relations.WorkAt;
 import ldbc.snb.datagen.hadoop.writer.HDFSCSVWriter;
 import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.FileName;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class CSVDynamicPersonSerializer extends DynamicPersonSerializer {
 
@@ -64,6 +66,16 @@ public class CSVDynamicPersonSerializer extends DynamicPersonSerializer {
         public String toString() {
             return name;
         }
+    }
+
+    @Override
+    public List<FileName> getFileNames() {
+        return null;
+    }
+
+    @Override
+    public void writeFileHeaders() {
+
     }
 
     @Override
@@ -109,8 +121,4 @@ public class CSVDynamicPersonSerializer extends DynamicPersonSerializer {
         writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeEntry(arguments);
     }
 
-    @Override
-    public void reset() {
-        //Intentionally left empty
-    }
 }

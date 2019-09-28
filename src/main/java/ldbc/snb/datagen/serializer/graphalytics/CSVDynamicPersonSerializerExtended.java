@@ -142,8 +142,4 @@ public class CSVDynamicPersonSerializerExtended extends DynamicPersonSerializer 
         writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeEntry(arguments);
     }
 
-    @Override
-    public void reset() {
-        //Intentionally left empty
-    }
 }
