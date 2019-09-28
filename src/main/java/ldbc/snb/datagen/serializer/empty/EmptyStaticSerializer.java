@@ -35,10 +35,10 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer.empty;
 
-import ldbc.snb.datagen.objects.Organization;
-import ldbc.snb.datagen.objects.Place;
-import ldbc.snb.datagen.objects.Tag;
-import ldbc.snb.datagen.objects.TagClass;
+import ldbc.snb.datagen.objects.statictype.Organisation;
+import ldbc.snb.datagen.objects.statictype.place.Place;
+import ldbc.snb.datagen.objects.statictype.tag.Tag;
+import ldbc.snb.datagen.objects.statictype.TagClass;
 import ldbc.snb.datagen.serializer.StaticSerializer;
 import org.apache.hadoop.conf.Configuration;
 
@@ -65,7 +65,7 @@ public class EmptyStaticSerializer extends StaticSerializer {
     }
 
     @Override
-    protected void serialize(final Organization organization) {
+    protected void serialize(final Organisation organisation) {
         //Intentionally left empty
 
     }

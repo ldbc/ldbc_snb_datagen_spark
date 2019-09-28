@@ -33,45 +33,61 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.objects;
+package ldbc.snb.datagen.objects.dynamic.messages;
 
-import ldbc.snb.datagen.DatagenParams;
+import ldbc.snb.datagen.objects.dynamic.person.IP;
+import ldbc.snb.datagen.objects.dynamic.person.Person.PersonSummary;
 
-public class ForumMembership {
-    private long forumId_;
-    private long creationDate_;
-    private Person.PersonSummary person_;
+import java.util.TreeSet;
 
-    public ForumMembership(long forumId, long creationDate, Person.PersonSummary p) {
-        assert (p
-                .creationDate() + DatagenParams.deltaTime) <= creationDate : "Person creation date is larger than membership";
-        forumId_ = forumId;
-        creationDate_ = creationDate;
-        person_ = new Person.PersonSummary(p);
+public class Post extends Message {
+
+    private int language_;
+
+    /**
+     * < @brief The language used in the post.
+     */
+
+    public Post() {
+        super();
     }
 
-    public long forumId() {
-        return forumId_;
+    public Post(long postId,
+                long creationDate,
+                PersonSummary author,
+                long forumId,
+                String content,
+                TreeSet<Integer> tags,
+                int countryId,
+                IP ipAddress,
+                int browserId,
+                int language
+    ) {
+        super(postId, creationDate, author, forumId, content, tags, countryId, ipAddress, browserId);
+        language_ = language;
     }
 
-    public void forumId(long forumId) {
-        this.forumId_ = forumId;
+    public void initialize(long postId,
+                           long creationDate,
+                           PersonSummary author,
+                           long forumId,
+                           String content,
+                           TreeSet<Integer> tags,
+                           int countryId,
+                           IP ipAddress,
+                           int browserId,
+                           int language
+    ) {
+        super.initialize(postId, creationDate, author, forumId, content, tags, countryId, ipAddress, browserId);
+        language_ = language;
     }
 
-    public long creationDate() {
-        return creationDate_;
+    public int language() {
+        return language_;
     }
 
-    public void creationDate(long creationDate) {
-        creationDate_ = creationDate;
-    }
-
-    public Person.PersonSummary person() {
-        return person_;
-    }
-
-    public void person(Person.PersonSummary p) {
-        person_ = p;
+    public void language(int l) {
+        language_ = l;
     }
 
 }

@@ -38,10 +38,10 @@
 package ldbc.snb.datagen.serializer.snb.turtle;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.objects.Knows;
-import ldbc.snb.datagen.objects.Person;
-import ldbc.snb.datagen.objects.StudyAt;
-import ldbc.snb.datagen.objects.WorkAt;
+import ldbc.snb.datagen.objects.dynamic.relations.Knows;
+import ldbc.snb.datagen.objects.dynamic.person.Person;
+import ldbc.snb.datagen.objects.dynamic.relations.StudyAt;
+import ldbc.snb.datagen.objects.dynamic.relations.WorkAt;
 import ldbc.snb.datagen.hadoop.writer.HDFSWriter;
 import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
 import ldbc.snb.datagen.vocabulary.*;

@@ -36,8 +36,8 @@
 package ldbc.snb.datagen.generator.generators.knowsgenerators;
 
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.objects.Knows;
-import ldbc.snb.datagen.objects.Person;
+import ldbc.snb.datagen.objects.dynamic.relations.Knows;
+import ldbc.snb.datagen.objects.dynamic.person.Person;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import org.apache.hadoop.conf.Configuration;
 

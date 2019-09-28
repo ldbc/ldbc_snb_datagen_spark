@@ -33,10 +33,11 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.objects;
+package ldbc.snb.datagen.objects.dynamic.messages;
 
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.objects.Person.PersonSummary;
+import ldbc.snb.datagen.objects.dynamic.person.IP;
+import ldbc.snb.datagen.objects.dynamic.person.Person.PersonSummary;
 
 import java.util.TreeSet;
 

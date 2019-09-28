@@ -36,7 +36,7 @@
 package ldbc.snb.datagen.dictionary;
 
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.objects.Place;
+import ldbc.snb.datagen.objects.statictype.place.Place;
 import ldbc.snb.datagen.util.ZOrder;
 
 import java.io.BufferedReader;

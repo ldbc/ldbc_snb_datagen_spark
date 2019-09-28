@@ -36,10 +36,10 @@
 package ldbc.snb.datagen.serializer.snb.csv.mergeforeign;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.objects.Organization;
-import ldbc.snb.datagen.objects.Place;
-import ldbc.snb.datagen.objects.Tag;
-import ldbc.snb.datagen.objects.TagClass;
+import ldbc.snb.datagen.objects.statictype.Organisation;
+import ldbc.snb.datagen.objects.statictype.place.Place;
+import ldbc.snb.datagen.objects.statictype.tag.Tag;
+import ldbc.snb.datagen.objects.statictype.TagClass;
 import ldbc.snb.datagen.hadoop.writer.HDFSCSVWriter;
 import ldbc.snb.datagen.serializer.StaticSerializer;
 import ldbc.snb.datagen.vocabulary.DBP;
@@ -142,13 +142,13 @@ public class CSVMergeForeignStaticSerializer extends StaticSerializer {
 
     }
 
-    protected void serialize(final Organization organization) {
+    protected void serialize(final Organisation organisation) {
         ArrayList<String> arguments = new ArrayList<String>();
-        arguments.add(Long.toString(organization.id));
-        arguments.add(organization.type.toString());
-        arguments.add(organization.name);
-        arguments.add(DBP.getUrl(organization.name));
-        arguments.add(Integer.toString(organization.location));
+        arguments.add(Long.toString(organisation.id));
+        arguments.add(organisation.type.toString());
+        arguments.add(organisation.name);
+        arguments.add(DBP.getUrl(organisation.name));
+        arguments.add(Integer.toString(organisation.location));
         writers[FileNames.ORGANIZATION.ordinal()].writeEntry(arguments);
     }
 

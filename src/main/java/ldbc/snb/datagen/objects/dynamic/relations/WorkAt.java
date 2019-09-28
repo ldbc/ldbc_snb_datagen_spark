@@ -33,14 +33,13 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-
-package ldbc.snb.datagen.objects;
+package ldbc.snb.datagen.objects.dynamic.relations;
 
 /**
- * Created by aprat on 4/14/14.
+ * Created by aprat on 4/15/14.
  */
-public class TagClass {
-    public int id;
-    public String name;
-    public int parent;
+public class WorkAt {
+    public long user;
+    public long company;
+    public long year;
 }

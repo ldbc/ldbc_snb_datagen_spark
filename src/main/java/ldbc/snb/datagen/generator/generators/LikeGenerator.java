@@ -38,11 +38,11 @@ package ldbc.snb.datagen.generator.generators;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.generator.tools.PowerDistribution;
-import ldbc.snb.datagen.objects.Forum;
-import ldbc.snb.datagen.objects.ForumMembership;
-import ldbc.snb.datagen.objects.Like;
-import ldbc.snb.datagen.objects.Like.LikeType;
-import ldbc.snb.datagen.objects.Message;
+import ldbc.snb.datagen.objects.dynamic.Forum;
+import ldbc.snb.datagen.objects.dynamic.relations.ForumMembership;
+import ldbc.snb.datagen.objects.dynamic.relations.Like;
+import ldbc.snb.datagen.objects.dynamic.relations.Like.LikeType;
+import ldbc.snb.datagen.objects.dynamic.messages.Message;
 import ldbc.snb.datagen.serializer.PersonActivityExporter;
 
 import java.io.IOException;

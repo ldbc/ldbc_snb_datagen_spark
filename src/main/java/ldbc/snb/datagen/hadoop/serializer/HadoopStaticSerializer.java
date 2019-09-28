@@ -38,10 +38,10 @@ package ldbc.snb.datagen.hadoop.serializer;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.LDBCDatagen;
-import ldbc.snb.datagen.objects.Organization;
-import ldbc.snb.datagen.objects.Place;
-import ldbc.snb.datagen.objects.Tag;
-import ldbc.snb.datagen.objects.TagClass;
+import ldbc.snb.datagen.objects.statictype.Organisation;
+import ldbc.snb.datagen.objects.statictype.place.Place;
+import ldbc.snb.datagen.objects.statictype.tag.Tag;
+import ldbc.snb.datagen.objects.statictype.TagClass;
 import ldbc.snb.datagen.serializer.StaticSerializer;
 import ldbc.snb.datagen.util.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -123,9 +123,9 @@ public class HadoopStaticSerializer {
         Set<Long> companies = Dictionaries.companies.getCompanies();
         Iterator<Long> it = companies.iterator();
         while (it.hasNext()) {
-            Organization company = new Organization();
+            Organisation company = new Organisation();
             company.id = it.next();
-            company.type = Organization.OrganisationType.company;
+            company.type = Organisation.OrganisationType.company;
             company.name = StringUtils.clampString(Dictionaries.companies.getCompanyName(company.id), 256);
             company.location = Dictionaries.companies.getCountry(company.id);
             staticSerializer_[nextFile()].export(company);
@@ -134,9 +134,9 @@ public class HadoopStaticSerializer {
         Set<Long> universities = Dictionaries.universities.getUniversities();
         it = universities.iterator();
         while (it.hasNext()) {
-            Organization university = new Organization();
+            Organisation university = new Organisation();
             university.id = it.next();
-            university.type = Organization.OrganisationType.university;
+            university.type = Organisation.OrganisationType.university;
             university.name = StringUtils.clampString(Dictionaries.universities.getUniversityName(university.id), 256);
             university.location = Dictionaries.universities.getUniversityCity(university.id);
             staticSerializer_[nextFile()].export(university);

@@ -37,7 +37,7 @@ package ldbc.snb.datagen.dictionary;
 
 import ldbc.snb.datagen.util.DateUtils;
 import ldbc.snb.datagen.generator.tools.PowerDistribution;
-import ldbc.snb.datagen.objects.FlashmobTag;
+import ldbc.snb.datagen.objects.statictype.tag.FlashmobTag;
 
 import java.util.*;
 

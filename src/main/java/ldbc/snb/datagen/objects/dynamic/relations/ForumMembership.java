@@ -33,23 +33,46 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
+package ldbc.snb.datagen.objects.dynamic.relations;
 
-package ldbc.snb.datagen.objects;
+import ldbc.snb.datagen.DatagenParams;
+import ldbc.snb.datagen.objects.dynamic.person.Person;
 
-/**
- * Created by aprat on 4/14/14.
- */
-public class Like {
-    public static enum LikeType {
-        POST,
-        COMMENT,
-        PHOTO
+public class ForumMembership {
+    private long forumId_;
+    private long creationDate_;
+    private Person.PersonSummary person_;
 
+    public ForumMembership(long forumId, long creationDate, Person.PersonSummary p) {
+        assert (p
+                .creationDate() + DatagenParams.deltaTime) <= creationDate : "Person creation date is larger than membership";
+        forumId_ = forumId;
+        creationDate_ = creationDate;
+        person_ = new Person.PersonSummary(p);
     }
 
-    public long user;
-    public long userCreationDate;
-    public long messageId;
-    public long date;
-    public LikeType type;
+    public long forumId() {
+        return forumId_;
+    }
+
+    public void forumId(long forumId) {
+        this.forumId_ = forumId;
+    }
+
+    public long creationDate() {
+        return creationDate_;
+    }
+
+    public void creationDate(long creationDate) {
+        creationDate_ = creationDate;
+    }
+
+    public Person.PersonSummary person() {
+        return person_;
+    }
+
+    public void person(Person.PersonSummary p) {
+        person_ = p;
+    }
+
 }
