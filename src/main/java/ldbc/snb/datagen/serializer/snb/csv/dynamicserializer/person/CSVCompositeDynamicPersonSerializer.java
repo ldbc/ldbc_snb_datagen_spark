@@ -37,6 +37,7 @@
 
 package ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person;
 
+import com.google.common.collect.ImmutableList;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
@@ -44,120 +45,45 @@ import ldbc.snb.datagen.entities.dynamic.relations.StudyAt;
 import ldbc.snb.datagen.entities.dynamic.relations.WorkAt;
 import ldbc.snb.datagen.hadoop.writer.HDFSCSVWriter;
 import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.FileName;
 import org.apache.hadoop.conf.Configuration;
-
+import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
+import ldbc.snb.datagen.serializer.snb.csv.FileName;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 public class CSVCompositeDynamicPersonSerializer extends DynamicPersonSerializer {
 
-    private HDFSCSVWriter[] writers;
 
-    private enum FileNames {
-        PERSON("person"),
-        PERSON_LOCATED_IN_PLACE("person_isLocatedIn_place"),
-        PERSON_HAS_INTEREST_TAG("person_hasInterest_tag"),
-        PERSON_WORK_AT("person_workAt_organisation"),
-        PERSON_STUDY_AT("person_studyAt_organisation"),
-        PERSON_KNOWS_PERSON("person_knows_person");
-
-        private final String name;
-
-        private FileNames(String name) {
-            this.name = name;
-        }
-
-        public String toString() {
-            return name;
-        }
+    @Override
+    public List<FileName> getFileNames() {
+        return Arrays.asList(PERSON,PERSON_LOCATED_IN_PLACE,PERSON_HAS_INTEREST_TAG,
+                PERSON_WORK_AT,PERSON_STUDY_AT,PERSON_KNOWS_PERSON)
     }
 
     @Override
-    public void initialize(Configuration conf, int reducerId) throws IOException {
-        int numFiles = FileNames.values().length;
-        writers = new HDFSCSVWriter[numFiles];
-        for (int i = 0; i < numFiles; ++i) {
-            writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir")+"/dynamic/", FileNames
-                    .values()[i].toString() + "_" + reducerId, conf
-                                                   .getInt("ldbc.snb.datagen.serializer.numPartitions", 1), conf
-                                                   .getBoolean("ldbc.snb.datagen.serializer.compressed", false), "|", conf
-                                                   .getBoolean("ldbc.snb.datagen.serializer.endlineSeparator", false));
-        }
+    public void writeFileHeaders() {
+        writers.get(PERSON).writeHeader(ImmutableList.of("id","firstName","lastName","gender",
+                "birthday","creationDate","locationIP","browserUsed","language","email"));
+        writers.get(PERSON_LOCATED_IN_PLACE).writeHeader(ImmutableList.of("Person.id","Place.id"));
+        writers.get(PERSON_HAS_INTEREST_TAG).writeHeader(ImmutableList.of("Person.id","Tag.id"));
+        writers.get(PERSON_WORK_AT).writeHeader(ImmutableList.of("Person.id","Organisation.id","workFrom"));
+        writers.get(PERSON_STUDY_AT).writeHeader(ImmutableList.of("Person.id","Organisation.id","classYear"));
+        writers.get(PERSON_KNOWS_PERSON).writeHeader(ImmutableList.of("Person.id","Person.id","creationDate"));
 
-        ArrayList<String> arguments = new ArrayList<String>();
-        arguments.add("id");
-        arguments.add("firstName");
-        arguments.add("lastName");
-        arguments.add("gender");
-        arguments.add("birthday");
-        arguments.add("creationDate");
-        arguments.add("locationIP");
-        arguments.add("browserUsed");
-        arguments.add("language");
-        arguments.add("email");
-        writers[FileNames.PERSON.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Person.id");
-        arguments.add("Place.id");
-        writers[FileNames.PERSON_LOCATED_IN_PLACE.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Person.id");
-        arguments.add("Tag.id");
-        writers[FileNames.PERSON_HAS_INTEREST_TAG.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Person.id");
-        arguments.add("Organisation.id");
-        arguments.add("workFrom");
-        writers[FileNames.PERSON_WORK_AT.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Person.id");
-        arguments.add("Organisation.id");
-        arguments.add("classYear");
-        writers[FileNames.PERSON_STUDY_AT.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Person.id");
-        arguments.add("Person.id");
-        arguments.add("creationDate");
-        writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeHeader(arguments);
-
-    }
-
-    @Override
-    public void close() {
-        int numFiles = FileNames.values().length;
-        for (int i = 0; i < numFiles; ++i) {
-            writers[i].close();
-        }
     }
 
     @Override
     protected void serialize(final Person p) {
-
-        ArrayList<String> arguments = new ArrayList<String>();
-
-        arguments.add(Long.toString(p.accountId()));
-        arguments.add(p.firstName());
-        arguments.add(p.lastName());
+        String gender = "";
         if (p.gender() == 1) {
-            arguments.add("male");
+            gender ="male";
         } else {
-            arguments.add("female");
+            gender = "female";
         }
-
-        String dateString = Dictionaries.dates.formatDate(p.birthday());
-        arguments.add(dateString);
-
-        dateString = Dictionaries.dates.formatDateTime(p.creationDate());
-        arguments.add(dateString);
-        arguments.add(p.ipAddress().toString());
-        arguments.add(Dictionaries.browsers.getName(p.browserId()));
-
         ArrayList<Integer> languages = p.languages();
         StringBuilder languagesBuilder = new StringBuilder();
         for (int i = 0; i < languages.size()-1; i++) {
@@ -166,8 +92,6 @@ public class CSVCompositeDynamicPersonSerializer extends DynamicPersonSerializer
         if(languages.size() > 0) {
             languagesBuilder.append(Dictionaries.languages.getLanguageName(languages.get(languages.size()-1)));
         }
-        arguments.add(languagesBuilder.toString());
-
         StringBuilder emailsBuilder = new StringBuilder();
         Iterator<String> itString = p.emails().iterator();
         for (int i = 0; i < p.emails().size()-1; i++) {
@@ -176,53 +100,35 @@ public class CSVCompositeDynamicPersonSerializer extends DynamicPersonSerializer
         if(itString.hasNext()) {
             emailsBuilder.append(itString.next());
         }
-        arguments.add(emailsBuilder.toString());
 
-        writers[FileNames.PERSON.ordinal()].writeEntry(arguments);
+        writers.get(PERSON).writeEntry(ImmutableList.of(Long.toString(p.accountId()),p.firstName(),p.lastName(),
+                gender,Dictionaries.dates.formatDate(p.birthday()),Dictionaries.dates.formatDateTime(p.creationDate()),
+                p.ipAddress().toString(),Dictionaries.browsers.getName(p.browserId()),languagesBuilder.toString(),
+                emailsBuilder.toString()));
 
-        arguments.clear();
-        arguments.add(Long.toString(p.accountId()));
-        arguments.add(Integer.toString(p.cityId()));
-        writers[FileNames.PERSON_LOCATED_IN_PLACE.ordinal()].writeEntry(arguments);
+
+        writers.get(PERSON_LOCATED_IN_PLACE).writeEntry(ImmutableList.of(Long.toString(p.accountId()),Integer.toString(p.cityId())));
 
         Iterator<Integer> itInteger = p.interests().iterator();
         while (itInteger.hasNext()) {
-            arguments.clear();
             Integer interestIdx = itInteger.next();
-            arguments.add(Long.toString(p.accountId()));
-            arguments.add(Integer.toString(interestIdx));
-            writers[FileNames.PERSON_HAS_INTEREST_TAG.ordinal()].writeEntry(arguments);
+            writers.get(PERSON_HAS_INTEREST_TAG).writeEntry(ImmutableList.of(Long.toString(p.accountId()),Integer.toString(interestIdx)));
         }
     }
 
     @Override
     protected void serialize(final StudyAt studyAt) {
-        ArrayList<String> arguments = new ArrayList<String>();
-        String dateString = Dictionaries.dates.formatYear(studyAt.year);
-        arguments.add(Long.toString(studyAt.user));
-        arguments.add(Long.toString(studyAt.university));
-        arguments.add(dateString);
-        writers[FileNames.PERSON_STUDY_AT.ordinal()].writeEntry(arguments);
+        writers.get(PERSON_STUDY_AT).writeEntry(ImmutableList.of(Long.toString(studyAt.user),Long.toString(studyAt.university),Dictionaries.dates.formatYear(studyAt.year)));
     }
 
     @Override
     protected void serialize(final WorkAt workAt) {
-        ArrayList<String> arguments = new ArrayList<String>();
-        String dateString = Dictionaries.dates.formatYear(workAt.year);
-        arguments.add(Long.toString(workAt.user));
-        arguments.add(Long.toString(workAt.company));
-        arguments.add(dateString);
-        writers[FileNames.PERSON_WORK_AT.ordinal()].writeEntry(arguments);
+        writers.get(PERSON_WORK_AT).writeEntry(ImmutableList.of(Long.toString(workAt.user),Long.toString(workAt.company),Dictionaries.dates.formatYear(workAt.year)));
     }
 
     @Override
     protected void serialize(final Person p, Knows knows) {
-        ArrayList<String> arguments = new ArrayList<String>();
-        String dateString = Dictionaries.dates.formatDateTime(knows.creationDate());
-        arguments.add(Long.toString(p.accountId()));
-        arguments.add(Long.toString(knows.to().accountId()));
-        arguments.add(dateString);
-        writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeEntry(arguments);
+        writers.get(PERSON_KNOWS_PERSON).writeEntry(ImmutableList.of(Long.toString(p.accountId()),Long.toString(knows.to().accountId()), Dictionaries.dates.formatDateTime(knows.creationDate())));
     }
 
     @Override
