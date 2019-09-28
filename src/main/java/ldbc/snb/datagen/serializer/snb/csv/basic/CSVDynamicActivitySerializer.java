@@ -103,41 +103,41 @@ public class CSVDynamicActivitySerializer extends DynamicActivitySerializer {
         arguments.add("title");
         arguments.add("creationDate");
         writers[FileNames.FORUM.ordinal()].writeHeader(arguments);
-        arguments.clear();
 
+        arguments.clear();
         arguments.add("Forum.id");
         arguments.add("Post.id");
         writers[FileNames.FORUM_CONTAINEROF_POST.ordinal()].writeHeader(arguments);
-        arguments.clear();
 
+        arguments.clear();
         arguments.add("Forum.id");
         arguments.add("Person.id");
         arguments.add("joinDate");
         writers[FileNames.FORUM_HASMEMBER_PERSON.ordinal()].writeHeader(arguments);
-        arguments.clear();
 
+        arguments.clear();
         arguments.add("Forum.id");
         arguments.add("Person.id");
         writers[FileNames.FORUM_HASMODERATOR_PERSON.ordinal()].writeHeader(arguments);
-        arguments.clear();
 
+        arguments.clear();
         arguments.add("Forum.id");
         arguments.add("Tag.id");
         writers[FileNames.FORUM_HASTAG_TAG.ordinal()].writeHeader(arguments);
-        arguments.clear();
 
+        arguments.clear();
         arguments.add("Person.id");
         arguments.add("Post.id");
         arguments.add("creationDate");
         writers[FileNames.PERSON_LIKES_POST.ordinal()].writeHeader(arguments);
-        arguments.clear();
 
+        arguments.clear();
         arguments.add("Person.id");
         arguments.add("Comment.id");
         arguments.add("creationDate");
         writers[FileNames.PERSON_LIKES_COMMENT.ordinal()].writeHeader(arguments);
-        arguments.clear();
 
+        arguments.clear();
         arguments.add("id");
         arguments.add("imageFile");
         arguments.add("creationDate");
@@ -147,23 +147,23 @@ public class CSVDynamicActivitySerializer extends DynamicActivitySerializer {
         arguments.add("content");
         arguments.add("length");
         writers[FileNames.POST.ordinal()].writeHeader(arguments);
-        arguments.clear();
 
+        arguments.clear();
         arguments.add("Post.id");
         arguments.add("Person.id");
         writers[FileNames.POST_HASCREATOR_PERSON.ordinal()].writeHeader(arguments);
-        arguments.clear();
 
+        arguments.clear();
         arguments.add("Post.id");
         arguments.add("Tag.id");
         writers[FileNames.POST_HASTAG_TAG.ordinal()].writeHeader(arguments);
-        arguments.clear();
 
+        arguments.clear();
         arguments.add("Post.id");
         arguments.add("Place.id");
         writers[FileNames.POST_ISLOCATEDIN_PLACE.ordinal()].writeHeader(arguments);
-        arguments.clear();
 
+        arguments.clear();
         arguments.add("id");
         arguments.add("creationDate");
         arguments.add("locationIP");
@@ -171,33 +171,33 @@ public class CSVDynamicActivitySerializer extends DynamicActivitySerializer {
         arguments.add("content");
         arguments.add("length");
         writers[FileNames.COMMENT.ordinal()].writeHeader(arguments);
-        arguments.clear();
 
+        arguments.clear();
         arguments.add("Comment.id");
         arguments.add("Person.id");
         writers[FileNames.COMMENT_HASCREATOR_PERSON.ordinal()].writeHeader(arguments);
-        arguments.clear();
 
+        arguments.clear();
         arguments.add("Comment.id");
         arguments.add("Tag.id");
         writers[FileNames.COMMENT_HASTAG_TAG.ordinal()].writeHeader(arguments);
-        arguments.clear();
 
+        arguments.clear();
         arguments.add("Comment.id");
         arguments.add("Place.id");
         writers[FileNames.COMMENT_ISLOCATEDIN_PLACE.ordinal()].writeHeader(arguments);
-        arguments.clear();
 
+        arguments.clear();
         arguments.add("Comment.id");
         arguments.add("Post.id");
         writers[FileNames.COMMENT_REPLYOF_POST.ordinal()].writeHeader(arguments);
-        arguments.clear();
 
+        arguments.clear();
         arguments.add("Comment.id");
         arguments.add("Comment.id");
         writers[FileNames.COMMENT_REPLYOF_COMMENT.ordinal()].writeHeader(arguments);
-        arguments.clear();
 
+        arguments.clear();
     }
 
     @Override

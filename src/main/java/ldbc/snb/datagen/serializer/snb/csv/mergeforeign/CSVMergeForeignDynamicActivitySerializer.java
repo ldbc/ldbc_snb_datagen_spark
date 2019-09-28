@@ -96,31 +96,31 @@ public class CSVMergeForeignDynamicActivitySerializer extends DynamicActivitySer
         arguments.add("creationDate");
         arguments.add("moderator");
         writers[FileNames.FORUM.ordinal()].writeHeader(arguments);
-        arguments.clear();
 
+        arguments.clear();
         arguments.add("Forum.id");
         arguments.add("Person.id");
         arguments.add("joinDate");
         writers[FileNames.FORUM_HASMEMBER_PERSON.ordinal()].writeHeader(arguments);
-        arguments.clear();
 
+        arguments.clear();
         arguments.add("Forum.id");
         arguments.add("Tag.id");
         writers[FileNames.FORUM_HASTAG_TAG.ordinal()].writeHeader(arguments);
-        arguments.clear();
 
+        arguments.clear();
         arguments.add("Person.id");
         arguments.add("Post.id");
         arguments.add("creationDate");
         writers[FileNames.PERSON_LIKES_POST.ordinal()].writeHeader(arguments);
-        arguments.clear();
 
+        arguments.clear();
         arguments.add("Person.id");
         arguments.add("Comment.id");
         arguments.add("creationDate");
         writers[FileNames.PERSON_LIKES_COMMENT.ordinal()].writeHeader(arguments);
-        arguments.clear();
 
+        arguments.clear();
         arguments.add("id");
         arguments.add("imageFile");
         arguments.add("creationDate");
@@ -133,13 +133,13 @@ public class CSVMergeForeignDynamicActivitySerializer extends DynamicActivitySer
         arguments.add("Forum.id");
         arguments.add("place");
         writers[FileNames.POST.ordinal()].writeHeader(arguments);
-        arguments.clear();
 
+        arguments.clear();
         arguments.add("Post.id");
         arguments.add("Tag.id");
         writers[FileNames.POST_HASTAG_TAG.ordinal()].writeHeader(arguments);
-        arguments.clear();
 
+        arguments.clear();
         arguments.add("id");
         arguments.add("creationDate");
         arguments.add("locationIP");
@@ -151,11 +151,12 @@ public class CSVMergeForeignDynamicActivitySerializer extends DynamicActivitySer
         arguments.add("replyOfPost");
         arguments.add("replyOfComment");
         writers[FileNames.COMMENT.ordinal()].writeHeader(arguments);
-        arguments.clear();
 
+        arguments.clear();
         arguments.add("Comment.id");
         arguments.add("Tag.id");
         writers[FileNames.COMMENT_HASTAG_TAG.ordinal()].writeHeader(arguments);
+
         arguments.clear();
     }
 
