@@ -42,7 +42,9 @@ import ldbc.snb.datagen.entities.dynamic.relations.StudyAt;
 import ldbc.snb.datagen.entities.dynamic.relations.WorkAt;
 import org.apache.hadoop.conf.Configuration;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.TreeSet;
 
 /**
  * Created by aprat on 10/15/14.
@@ -76,6 +78,36 @@ abstract public class DynamicPersonSerializer extends LDBCSerializer {
     public void export(final Person p, final Knows k) {
         if (p.accountId() < k.to().accountId())
             serialize(p, k);
+    }
+
+    public String getGender(int gender) {
+        if (gender == 1) {
+            return "male";
+        } else {
+            return "female";
+        }
+    }
+    public String buildLanguages(ArrayList<Integer> languages) {
+        StringBuilder languagesBuilder = new StringBuilder();
+        for (int i = 0; i < languages.size()-1; i++) {
+            languagesBuilder.append(Dictionaries.languages.getLanguageName(languages.get(i))+";");
+        }
+        if(languages.size() > 0) {
+            languagesBuilder.append(Dictionaries.languages.getLanguageName(languages.get(languages.size()-1)));
+        }
+        return  languagesBuilder.toString();
+    }
+
+    public String buildEmail(TreeSet<String> emails) {
+        StringBuilder emailsBuilder = new StringBuilder();
+        Iterator<String> itString = emails.iterator();
+        for (int i = 0; i < emails.size()-1; i++) {
+            emailsBuilder.append(itString.next()+";");
+        }
+        if(itString.hasNext()) {
+            emailsBuilder.append(itString.next());
+        }
+        return  emailsBuilder.toString();
     }
 
     abstract protected void serialize(final Person p);

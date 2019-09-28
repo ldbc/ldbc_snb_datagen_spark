@@ -43,14 +43,11 @@ import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.StudyAt;
 import ldbc.snb.datagen.entities.dynamic.relations.WorkAt;
-import ldbc.snb.datagen.hadoop.writer.HDFSCSVWriter;
 import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
-import org.apache.hadoop.conf.Configuration;
+
 import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
-import ldbc.snb.datagen.serializer.snb.csv.FileName;
-import java.io.IOException;
-import java.util.ArrayList;
+
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -78,34 +75,18 @@ public class CSVCompositeDynamicPersonSerializer extends DynamicPersonSerializer
 
     @Override
     protected void serialize(final Person p) {
-        String gender = "";
-        if (p.gender() == 1) {
-            gender ="male";
-        } else {
-            gender = "female";
-        }
-        ArrayList<Integer> languages = p.languages();
-        StringBuilder languagesBuilder = new StringBuilder();
-        for (int i = 0; i < languages.size()-1; i++) {
-            languagesBuilder.append(Dictionaries.languages.getLanguageName(languages.get(i))+";");
-        }
-        if(languages.size() > 0) {
-            languagesBuilder.append(Dictionaries.languages.getLanguageName(languages.get(languages.size()-1)));
-        }
-        StringBuilder emailsBuilder = new StringBuilder();
-        Iterator<String> itString = p.emails().iterator();
-        for (int i = 0; i < p.emails().size()-1; i++) {
-            emailsBuilder.append(itString.next()+";");
-        }
-        if(itString.hasNext()) {
-            emailsBuilder.append(itString.next());
-        }
 
-        writers.get(PERSON).writeEntry(ImmutableList.of(Long.toString(p.accountId()),p.firstName(),p.lastName(),
-                gender,Dictionaries.dates.formatDate(p.birthday()),Dictionaries.dates.formatDateTime(p.creationDate()),
-                p.ipAddress().toString(),Dictionaries.browsers.getName(p.browserId()),languagesBuilder.toString(),
-                emailsBuilder.toString()));
-
+        writers.get(PERSON).writeEntry(ImmutableList.of(
+                Long.toString(p.accountId()),
+                p.firstName(),
+                p.lastName(),
+                getGender(p.gender()),
+                Dictionaries.dates.formatDate(p.birthday()),
+                Dictionaries.dates.formatDateTime(p.creationDate()),
+                p.ipAddress().toString(),
+                Dictionaries.browsers.getName(p.browserId()),
+                buildLanguages(p.languages()),
+                buildEmail(p.emails())));
 
         writers.get(PERSON_LOCATED_IN_PLACE).writeEntry(ImmutableList.of(Long.toString(p.accountId()),Integer.toString(p.cityId())));
 

@@ -81,7 +81,7 @@ public class CSVMergeForeignDynamicPersonSerializer extends DynamicPersonSeriali
             Long.toString(p.accountId()),
             p.firstName(),
             p.lastName(),
-            p.gender() == 1 ? "male" : "female",
+            getGender(p.gender()),
             Dictionaries.dates.formatDate(p.birthday()),
             Dictionaries.dates.formatDateTime(p.creationDate()),
             p.ipAddress().toString(),
