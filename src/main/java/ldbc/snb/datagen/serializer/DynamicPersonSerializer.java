@@ -35,6 +35,8 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
@@ -88,26 +90,11 @@ abstract public class DynamicPersonSerializer extends LDBCSerializer {
         }
     }
     public String buildLanguages(ArrayList<Integer> languages) {
-        StringBuilder languagesBuilder = new StringBuilder();
-        for (int i = 0; i < languages.size()-1; i++) {
-            languagesBuilder.append(Dictionaries.languages.getLanguageName(languages.get(i))+";");
-        }
-        if(languages.size() > 0) {
-            languagesBuilder.append(Dictionaries.languages.getLanguageName(languages.get(languages.size()-1)));
-        }
-        return  languagesBuilder.toString();
+        return Joiner.on(";").join(languages);
     }
 
     public String buildEmail(TreeSet<String> emails) {
-        StringBuilder emailsBuilder = new StringBuilder();
-        Iterator<String> itString = emails.iterator();
-        for (int i = 0; i < emails.size()-1; i++) {
-            emailsBuilder.append(itString.next()+";");
-        }
-        if(itString.hasNext()) {
-            emailsBuilder.append(itString.next());
-        }
-        return  emailsBuilder.toString();
+        return Joiner.on(";").join(emails);
     }
 
     abstract protected void serialize(final Person p);
