@@ -88,7 +88,6 @@ public class ConfigParser {
         conf.set("ldbc.snb.datagen.generator.person.similarity", "ldbc.snb.datagen.objects.dynamic.person.similarity.GeoDistanceSimilarity");
         conf.set("ldbc.snb.datagen.parametergenerator.python", "python");
         conf.set("ldbc.snb.datagen.parametergenerator.parameters", "true");
-        conf.set("ldbc.snb.datagen.serializer.persons.sort", "true");
 
         /** Loading predefined Scale Factors **/
 
