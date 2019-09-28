@@ -82,7 +82,7 @@ public class TurtleDynamicActivitySerializer extends DynamicActivitySerializer {
         int numFiles = FileNames.values().length;
         writers = new HDFSWriter[numFiles];
         for (int i = 0; i < numFiles; ++i) {
-            writers[i] = new HDFSWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"), FileNames.values()[i]
+            writers[i] = new HDFSWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir")+"/dynamic/", FileNames.values()[i]
                     .toString() + "_" + reducerId, conf.getInt("ldbc.snb.datagen.numPartitions", 1), conf
                                                 .getBoolean("ldbc.snb.datagen.serializer.compressed", false), "ttl");
             writers[i].writeAllPartitions(Turtle.getNamespaces());

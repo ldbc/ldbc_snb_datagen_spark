@@ -84,7 +84,7 @@ public class CSVMergeForeignDynamicActivitySerializer extends DynamicActivitySer
         int numFiles = FileNames.values().length;
         writers = new HDFSCSVWriter[numFiles];
         for (int i = 0; i < numFiles; ++i) {
-            writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"), FileNames
+            writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir")+"/dynamic/", FileNames
                     .values()[i].toString() + "_" + reducerId, conf.getInt("ldbc.snb.datagen.numPartitions", 1), conf
                                                    .getBoolean("ldbc.snb.datagen.serializer.compressed", false), "|", conf
                                                    .getBoolean("ldbc.snb.datagen.serializer.endlineSeparator", false));
