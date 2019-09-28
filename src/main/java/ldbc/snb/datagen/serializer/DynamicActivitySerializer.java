@@ -52,25 +52,6 @@ import java.io.IOException;
  */
 abstract public class DynamicActivitySerializer extends LDBCSerializer {
 
-    public void initialize(Configuration conf, int reducerId) throws IOException {
-        for (FileName f : getFileNames()) {
-            writers.put(f, new HDFSCSVWriter(
-                    conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/dynamic/",
-                    f.toString() + "_" + reducerId,
-                    conf.getInt("ldbc.snb.datagen.numPartitions", 1),
-                    conf.getBoolean("ldbc.snb.datagen.serializer.compressed", false), "|",
-                    conf.getBoolean("ldbc.snb.datagen.serializer.endlineSeparator", false))
-            );
-        }
-        writeFileHeaders();
-    }
-
-    public void close() {
-        for (FileName f : getFileNames()) {
-            writers.get(f).close();
-        }
-    }
-
     public void export(final Forum forum) {
         serialize(forum);
     }
