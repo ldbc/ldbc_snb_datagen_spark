@@ -36,7 +36,7 @@
 package ldbc.snb.datagen.dictionary;
 
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.objects.dynamic.person.IP;
+import ldbc.snb.datagen.entities.dynamic.person.IP;
 
 import java.io.BufferedReader;
 import java.io.IOException;

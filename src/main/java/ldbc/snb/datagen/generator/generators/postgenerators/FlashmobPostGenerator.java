@@ -40,9 +40,9 @@ import ldbc.snb.datagen.generator.generators.CommentGenerator;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.generator.generators.LikeGenerator;
 import ldbc.snb.datagen.generator.generators.textgenerators.TextGenerator;
-import ldbc.snb.datagen.objects.statictype.tag.FlashmobTag;
-import ldbc.snb.datagen.objects.dynamic.Forum;
-import ldbc.snb.datagen.objects.dynamic.relations.ForumMembership;
+import ldbc.snb.datagen.entities.statictype.tag.FlashmobTag;
+import ldbc.snb.datagen.entities.dynamic.Forum;
+import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.util.Distribution;
 
 import java.util.*;

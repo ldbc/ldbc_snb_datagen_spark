@@ -37,12 +37,12 @@ package ldbc.snb.datagen.generator.generators;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.objects.dynamic.person.IP;
-import ldbc.snb.datagen.objects.dynamic.relations.ForumMembership;
-import ldbc.snb.datagen.objects.dynamic.relations.Like;
-import ldbc.snb.datagen.objects.dynamic.messages.Photo;
-import ldbc.snb.datagen.objects.dynamic.Forum;
-import ldbc.snb.datagen.objects.statictype.place.PopularPlace;
+import ldbc.snb.datagen.entities.dynamic.person.IP;
+import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
+import ldbc.snb.datagen.entities.dynamic.relations.Like;
+import ldbc.snb.datagen.entities.dynamic.messages.Photo;
+import ldbc.snb.datagen.entities.dynamic.Forum;
+import ldbc.snb.datagen.entities.statictype.place.PopularPlace;
 import ldbc.snb.datagen.serializer.PersonActivityExporter;
 import ldbc.snb.datagen.util.PersonBehavior;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;

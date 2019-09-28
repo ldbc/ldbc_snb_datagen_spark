@@ -35,12 +35,12 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer.snb.csv.composite;
 
-import ldbc.snb.datagen.objects.dynamic.messages.Comment;
-import ldbc.snb.datagen.objects.dynamic.messages.Photo;
-import ldbc.snb.datagen.objects.dynamic.messages.Post;
-import ldbc.snb.datagen.objects.dynamic.relations.ForumMembership;
-import ldbc.snb.datagen.objects.dynamic.relations.Like;
-import ldbc.snb.datagen.objects.dynamic.Forum;
+import ldbc.snb.datagen.entities.dynamic.messages.Comment;
+import ldbc.snb.datagen.entities.dynamic.messages.Photo;
+import ldbc.snb.datagen.entities.dynamic.messages.Post;
+import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
+import ldbc.snb.datagen.entities.dynamic.relations.Like;
+import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
 import ldbc.snb.datagen.serializer.snb.csv.basic.CSVDynamicActivitySerializer;
 import org.apache.hadoop.conf.Configuration;

@@ -37,12 +37,12 @@ package ldbc.snb.datagen.serializer.snb.csv.basic;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.hadoop.writer.HDFSCSVWriter;
-import ldbc.snb.datagen.objects.dynamic.messages.Comment;
-import ldbc.snb.datagen.objects.dynamic.messages.Photo;
-import ldbc.snb.datagen.objects.dynamic.messages.Post;
-import ldbc.snb.datagen.objects.dynamic.relations.ForumMembership;
-import ldbc.snb.datagen.objects.dynamic.relations.Like;
-import ldbc.snb.datagen.objects.dynamic.Forum;
+import ldbc.snb.datagen.entities.dynamic.messages.Comment;
+import ldbc.snb.datagen.entities.dynamic.messages.Photo;
+import ldbc.snb.datagen.entities.dynamic.messages.Post;
+import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
+import ldbc.snb.datagen.entities.dynamic.relations.Like;
+import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
 import org.apache.hadoop.conf.Configuration;
 

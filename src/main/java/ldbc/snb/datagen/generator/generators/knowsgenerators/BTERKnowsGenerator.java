@@ -35,8 +35,8 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.generators.knowsgenerators;
 
-import ldbc.snb.datagen.objects.dynamic.relations.Knows;
-import ldbc.snb.datagen.objects.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.relations.Knows;
+import ldbc.snb.datagen.entities.dynamic.person.Person;
 import org.apache.commons.math3.util.Pair;
 import org.apache.hadoop.conf.Configuration;
 import org.roaringbitmap.RoaringBitmap;

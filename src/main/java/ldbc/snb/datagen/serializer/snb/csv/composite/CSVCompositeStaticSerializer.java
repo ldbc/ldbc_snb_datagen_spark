@@ -35,10 +35,10 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer.snb.csv.composite;
 
-import ldbc.snb.datagen.objects.statictype.Organisation;
-import ldbc.snb.datagen.objects.statictype.place.Place;
-import ldbc.snb.datagen.objects.statictype.tag.Tag;
-import ldbc.snb.datagen.objects.statictype.TagClass;
+import ldbc.snb.datagen.entities.statictype.Organisation;
+import ldbc.snb.datagen.entities.statictype.place.Place;
+import ldbc.snb.datagen.entities.statictype.tag.Tag;
+import ldbc.snb.datagen.entities.statictype.TagClass;
 import ldbc.snb.datagen.serializer.StaticSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.basic.CSVStaticSerializer;
 import org.apache.hadoop.conf.Configuration;

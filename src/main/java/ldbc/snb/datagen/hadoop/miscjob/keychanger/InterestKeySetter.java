@@ -36,7 +36,7 @@
 package ldbc.snb.datagen.hadoop.miscjob.keychanger;
 
 import ldbc.snb.datagen.hadoop.key.TupleKey;
-import ldbc.snb.datagen.objects.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.person.Person;
 
 /**
  * Created by aprat on 11/17/14.

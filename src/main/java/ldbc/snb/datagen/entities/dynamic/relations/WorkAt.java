@@ -33,19 +33,13 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.objects.dynamic.person.similarity;
-
-import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.objects.dynamic.person.Person;
+package ldbc.snb.datagen.entities.dynamic.relations;
 
 /**
- * Created by aprat on 22/01/16.
+ * Created by aprat on 4/15/14.
  */
-public class GeoDistanceSimilarity implements Person.PersonSimilarity {
-    @Override
-    public float similarity(Person personA, Person personB) {
-        int zorderA = Dictionaries.places.getZorderID(personA.countryId());
-        int zorderB = Dictionaries.places.getZorderID(personB.countryId());
-        return 1.0f - (Math.abs(zorderA - zorderB) / 256.0f);
-    }
+public class WorkAt {
+    public long user;
+    public long company;
+    public long year;
 }

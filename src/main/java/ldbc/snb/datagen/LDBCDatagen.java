@@ -43,7 +43,7 @@ import ldbc.snb.datagen.hadoop.serializer.HadoopPersonSerializer;
 import ldbc.snb.datagen.hadoop.serializer.HadoopStaticSerializer;
 import ldbc.snb.datagen.hadoop.serializer.HadoopUpdateStreamSorterAndSerializer;
 import ldbc.snb.datagen.hadoop.miscjob.HadoopMergeFriendshipFiles;
-import ldbc.snb.datagen.objects.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.util.ConfigParser;
 import ldbc.snb.datagen.vocabulary.SN;
 import org.apache.commons.io.FileUtils;

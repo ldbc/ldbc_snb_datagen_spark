@@ -37,7 +37,7 @@ package ldbc.snb.datagen.hadoop;
 
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKey;
 import ldbc.snb.datagen.hadoop.key.TupleKey;
-import ldbc.snb.datagen.objects.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.person.Person;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Mapper;

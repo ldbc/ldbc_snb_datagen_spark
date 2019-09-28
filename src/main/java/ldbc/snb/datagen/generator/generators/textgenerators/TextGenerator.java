@@ -36,7 +36,7 @@
 package ldbc.snb.datagen.generator.generators.textgenerators;
 
 import ldbc.snb.datagen.dictionary.TagDictionary;
-import ldbc.snb.datagen.objects.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.person.Person;
 
 import java.util.Properties;
 import java.util.Random;

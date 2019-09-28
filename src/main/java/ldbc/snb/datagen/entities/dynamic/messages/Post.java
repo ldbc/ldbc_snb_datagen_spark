@@ -33,40 +33,41 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.objects.dynamic.messages;
+package ldbc.snb.datagen.entities.dynamic.messages;
 
-import ldbc.snb.datagen.objects.dynamic.person.IP;
-import ldbc.snb.datagen.objects.dynamic.person.Person.PersonSummary;
+import ldbc.snb.datagen.entities.dynamic.person.IP;
+import ldbc.snb.datagen.entities.dynamic.person.Person.PersonSummary;
 
 import java.util.TreeSet;
 
-public class Photo extends Message {
+public class Post extends Message {
 
-    private double latt_;
-    private double longt_;
+    private int language_;
 
-    public Photo() {
+    /**
+     * < @brief The language used in the post.
+     */
+
+    public Post() {
         super();
     }
 
-    public Photo(long messageId,
-                 long creationDate,
-                 PersonSummary author,
-                 long forumId,
-                 String content,
-                 TreeSet<Integer> tags,
-                 int countryId,
-                 IP ipAddress,
-                 int browserId,
-                 double latt,
-                 double longt
+    public Post(long postId,
+                long creationDate,
+                PersonSummary author,
+                long forumId,
+                String content,
+                TreeSet<Integer> tags,
+                int countryId,
+                IP ipAddress,
+                int browserId,
+                int language
     ) {
-        super(messageId, creationDate, author, forumId, content, tags, countryId, ipAddress, browserId);
-        latt_ = latt;
-        longt_ = longt;
+        super(postId, creationDate, author, forumId, content, tags, countryId, ipAddress, browserId);
+        language_ = language;
     }
 
-    public void initialize(long messageId,
+    public void initialize(long postId,
                            long creationDate,
                            PersonSummary author,
                            long forumId,
@@ -75,29 +76,18 @@ public class Photo extends Message {
                            int countryId,
                            IP ipAddress,
                            int browserId,
-                           double latt,
-                           double longt
+                           int language
     ) {
-        super.initialize(messageId, creationDate, author, forumId, content, tags, countryId, ipAddress, browserId);
-        latt_ = latt;
-        longt_ = longt;
+        super.initialize(postId, creationDate, author, forumId, content, tags, countryId, ipAddress, browserId);
+        language_ = language;
     }
 
-
-    public double latt() {
-        return latt_;
+    public int language() {
+        return language_;
     }
 
-    public void latt(double l) {
-        latt_ = l;
-    }
-
-    public double longt() {
-        return longt_;
-    }
-
-    public void longt(double l) {
-        longt_ = l;
+    public void language(int l) {
+        language_ = l;
     }
 
 }

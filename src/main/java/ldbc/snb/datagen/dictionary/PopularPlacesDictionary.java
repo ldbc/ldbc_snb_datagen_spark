@@ -36,7 +36,7 @@
 package ldbc.snb.datagen.dictionary;
 
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.objects.statictype.place.PopularPlace;
+import ldbc.snb.datagen.entities.statictype.place.PopularPlace;
 
 import java.io.BufferedReader;
 import java.io.IOException;

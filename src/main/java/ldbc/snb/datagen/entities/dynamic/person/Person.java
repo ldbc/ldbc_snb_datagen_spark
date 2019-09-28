@@ -33,9 +33,9 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.objects.dynamic.person;
+package ldbc.snb.datagen.entities.dynamic.person;
 
-import ldbc.snb.datagen.objects.dynamic.relations.Knows;
+import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import org.apache.hadoop.io.Writable;
 
 import java.io.DataInput;
