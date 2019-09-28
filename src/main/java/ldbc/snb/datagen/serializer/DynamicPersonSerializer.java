@@ -48,7 +48,7 @@ import java.util.Iterator;
 /**
  * Created by aprat on 10/15/14.
  */
-abstract public class DynamicPersonSerializer extends LDBCSerializer{
+abstract public class DynamicPersonSerializer extends LDBCSerializer {
 
     public void export(final Person person) {
 
@@ -78,12 +78,6 @@ abstract public class DynamicPersonSerializer extends LDBCSerializer{
         if (p.accountId() < k.to().accountId())
             serialize(p, k);
     }
-
-    abstract public void reset();
-
-    abstract public void initialize(Configuration conf, int reducerId) throws IOException;
-
-    abstract public void close();
 
     abstract protected void serialize(final Person p);
 

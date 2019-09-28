@@ -35,194 +35,103 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person;
 
+import com.google.common.collect.ImmutableList;
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.entities.dynamic.relations.StudyAt;
 import ldbc.snb.datagen.entities.dynamic.relations.WorkAt;
 import ldbc.snb.datagen.hadoop.writer.HDFSCSVWriter;
 import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.FileName;
 import org.apache.hadoop.conf.Configuration;
+
+import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Created by aprat on 17/02/15.
  */
 public class CSVMergeForeignDynamicPersonSerializer extends DynamicPersonSerializer {
 
-    private HDFSCSVWriter[] writers;
-
-    private enum FileNames {
-        PERSON("person"),
-        PERSON_SPEAKS_LANGUAGE("person_speaks_language"),
-        PERSON_HAS_EMAIL("person_email_emailaddress"),
-        PERSON_HAS_INTEREST_TAG("person_hasInterest_tag"),
-        PERSON_WORK_AT("person_workAt_organisation"),
-        PERSON_STUDY_AT("person_studyAt_organisation"),
-        PERSON_KNOWS_PERSON("person_knows_person");
-
-        private final String name;
-
-        private FileNames(String name) {
-            this.name = name;
-        }
-
-        public String toString() {
-            return name;
-        }
-    }
-
-    public void initialize(Configuration conf, int reducerId) throws IOException {
-        int numFiles = FileNames.values().length;
-        writers = new HDFSCSVWriter[numFiles];
-        for (int i = 0; i < numFiles; ++i) {
-            writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir")+"/dynamic/", FileNames
-                    .values()[i].toString() + "_" + reducerId, conf.getInt("ldbc.snb.datagen.numPartitions", 1), conf
-                                                   .getBoolean("ldbc.snb.datagen.serializer.compressed", false), "|", conf
-                                                   .getBoolean("ldbc.snb.datagen.serializer.endlineSeparator", false));
-        }
-
-        ArrayList<String> arguments = new ArrayList<String>();
-        arguments.add("id");
-        arguments.add("firstName");
-        arguments.add("lastName");
-        arguments.add("gender");
-        arguments.add("birthday");
-        arguments.add("creationDate");
-        arguments.add("locationIP");
-        arguments.add("browserUsed");
-        arguments.add("place");
-        writers[FileNames.PERSON.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Person.id");
-        arguments.add("language");
-        writers[FileNames.PERSON_SPEAKS_LANGUAGE.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Person.id");
-        arguments.add("email");
-        writers[FileNames.PERSON_HAS_EMAIL.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Person.id");
-        arguments.add("Tag.id");
-        writers[FileNames.PERSON_HAS_INTEREST_TAG.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Person.id");
-        arguments.add("Organisation.id");
-        arguments.add("workFrom");
-        writers[FileNames.PERSON_WORK_AT.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Person.id");
-        arguments.add("Organisation.id");
-        arguments.add("classYear");
-        writers[FileNames.PERSON_STUDY_AT.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Person.id");
-        arguments.add("Person.id");
-        arguments.add("creationDate");
-        writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeHeader(arguments);
-
+    @Override
+    public List<FileName> getFileNames() {
+        return ImmutableList.of(PERSON, PERSON_SPEAKS_LANGUAGE, PERSON_HAS_EMAIL, PERSON_HAS_INTEREST_TAG,
+                PERSON_WORK_AT, PERSON_STUDY_AT, PERSON_KNOWS_PERSON);
     }
 
     @Override
-    public void close() {
-        int numFiles = FileNames.values().length;
-        for (int i = 0; i < numFiles; ++i) {
-            writers[i].close();
-        }
+    public void writeFileHeaders() {
+        writers.get(PERSON).writeHeader(ImmutableList.of("id", "firstName", "lastName", "gender", "birthday", "creationDate", "locationIP", "browserUsed", "place"));
+        writers.get(PERSON_SPEAKS_LANGUAGE).writeHeader(ImmutableList.of("Person.id", "language"));
+        writers.get(PERSON_HAS_EMAIL).writeHeader(ImmutableList.of("Person.id", "email"));
+        writers.get(PERSON_HAS_INTEREST_TAG).writeHeader(ImmutableList.of("Person.id", "Tag.id"));
+        writers.get(PERSON_WORK_AT).writeHeader(ImmutableList.of("Person.id", "Organisation.id", "workFrom"));
+        writers.get(PERSON_STUDY_AT).writeHeader(ImmutableList.of("Person.id", "Organisation.id", "classYear"));
+        writers.get(PERSON_KNOWS_PERSON).writeHeader(ImmutableList.of("Person.id", "Person.id", "creationDate"));
     }
 
     @Override
     protected void serialize(final Person p) {
+        writers.get(PERSON).writeEntry(ImmutableList.of(
+            Long.toString(p.accountId()),
+            p.firstName(),
+            p.lastName(),
+            p.gender() == 1 ? "male" : "female",
+            Dictionaries.dates.formatDate(p.birthday()),
+            Dictionaries.dates.formatDateTime(p.creationDate()),
+            p.ipAddress().toString(),
+            Dictionaries.browsers.getName(p.browserId()),
+            Integer.toString(p.cityId())
+        ));
 
-        ArrayList<String> arguments = new ArrayList<String>();
-
-        arguments.add(Long.toString(p.accountId()));
-        arguments.add(p.firstName());
-        arguments.add(p.lastName());
-        if (p.gender() == 1) {
-            arguments.add("male");
-        } else {
-            arguments.add("female");
-        }
-
-        String dateString = Dictionaries.dates.formatDate(p.birthday());
-        arguments.add(dateString);
-
-        dateString = Dictionaries.dates.formatDateTime(p.creationDate());
-        arguments.add(dateString);
-        arguments.add(p.ipAddress().toString());
-        arguments.add(Dictionaries.browsers.getName(p.browserId()));
-        arguments.add(Integer.toString(p.cityId()));
-        writers[FileNames.PERSON.ordinal()].writeEntry(arguments);
-
-        ArrayList<Integer> languages = p.languages();
+        List<Integer> languages = p.languages();
         for (int i = 0; i < languages.size(); i++) {
-            arguments.clear();
-            arguments.add(Long.toString(p.accountId()));
-            arguments.add(Dictionaries.languages.getLanguageName(languages.get(i)));
-            writers[FileNames.PERSON_SPEAKS_LANGUAGE.ordinal()].writeEntry(arguments);
+            writers.get(PERSON_SPEAKS_LANGUAGE).writeEntry(ImmutableList.of(
+                Long.toString(p.accountId()), Dictionaries.languages.getLanguageName(languages.get(i))
+            ));
         }
 
-        Iterator<String> itString = p.emails().iterator();
-        while (itString.hasNext()) {
-            arguments.clear();
-            String email = itString.next();
-            arguments.add(Long.toString(p.accountId()));
-            arguments.add(email);
-            writers[FileNames.PERSON_HAS_EMAIL.ordinal()].writeEntry(arguments);
+        Iterator<String> emails = p.emails().iterator();
+        while (emails.hasNext()) {
+            writers.get(PERSON_HAS_EMAIL).writeEntry(ImmutableList.of(
+                Long.toString(p.accountId()), emails.next()
+            ));
         }
 
-        Iterator<Integer> itInteger = p.interests().iterator();
-        while (itInteger.hasNext()) {
-            arguments.clear();
-            Integer interestIdx = itInteger.next();
-            arguments.add(Long.toString(p.accountId()));
-            arguments.add(Integer.toString(interestIdx));
-            writers[FileNames.PERSON_HAS_INTEREST_TAG.ordinal()].writeEntry(arguments);
+        Iterator<Integer> interests = p.interests().iterator();
+        while (interests.hasNext()) {
+            writers.get(PERSON_HAS_INTEREST_TAG).writeEntry(ImmutableList.of(
+                Long.toString(p.accountId()), Integer.toString(interests.next())
+            ));
         }
     }
 
     @Override
     protected void serialize(final StudyAt studyAt) {
-        ArrayList<String> arguments = new ArrayList<String>();
-        String dateString = Dictionaries.dates.formatYear(studyAt.year);
-        arguments.add(Long.toString(studyAt.user));
-        arguments.add(Long.toString(studyAt.university));
-        arguments.add(dateString);
-        writers[FileNames.PERSON_STUDY_AT.ordinal()].writeEntry(arguments);
+        writers.get(PERSON_STUDY_AT).writeEntry(ImmutableList.of(
+            Long.toString(studyAt.user), Long.toString(studyAt.university), Dictionaries.dates.formatYear(studyAt.year)
+        ));
     }
 
     @Override
     protected void serialize(final WorkAt workAt) {
-        ArrayList<String> arguments = new ArrayList<String>();
-        String dateString = Dictionaries.dates.formatYear(workAt.year);
-        arguments.add(Long.toString(workAt.user));
-        arguments.add(Long.toString(workAt.company));
-        arguments.add(dateString);
-        writers[FileNames.PERSON_WORK_AT.ordinal()].writeEntry(arguments);
+        writers.get(PERSON_WORK_AT).writeEntry(ImmutableList.of(
+            Long.toString(workAt.user), Long.toString(workAt.company), Dictionaries.dates.formatYear(workAt.year)
+        ));
     }
 
     @Override
     protected void serialize(final Person p, Knows knows) {
-        ArrayList<String> arguments = new ArrayList<String>();
-        String dateString = Dictionaries.dates.formatDateTime(knows.creationDate());
-        arguments.add(Long.toString(p.accountId()));
-        arguments.add(Long.toString(knows.to().accountId()));
-        arguments.add(dateString);
-        writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeEntry(arguments);
+        writers.get(PERSON_KNOWS_PERSON).writeEntry(ImmutableList.of(
+            Long.toString(p.accountId()),
+            Long.toString(knows.to().accountId()),
+            Dictionaries.dates.formatDateTime(knows.creationDate())
+        ));
     }
 
-    @Override
-    public void reset() {
-        // Intentionally left empty
-    }
 }

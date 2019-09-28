@@ -44,11 +44,13 @@ import ldbc.snb.datagen.entities.dynamic.relations.StudyAt;
 import ldbc.snb.datagen.entities.dynamic.relations.WorkAt;
 import ldbc.snb.datagen.hadoop.writer.HDFSWriter;
 import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.FileName;
 import ldbc.snb.datagen.vocabulary.*;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.TimeZone;
 
 
@@ -73,6 +75,16 @@ public class TurtleDynamicPersonSerializer extends DynamicPersonSerializer {
         public String toString() {
             return name;
         }
+    }
+
+    @Override
+    public List<FileName> getFileNames() {
+        return null;
+    }
+
+    @Override
+    public void writeFileHeaders() {
+
     }
 
     public void initialize(Configuration conf, int reducerId) throws IOException {
