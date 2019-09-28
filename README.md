@@ -79,6 +79,12 @@ If you need to raise the memory limit, use the `-e HADOOP_CLIENT_OPTS="-Xmx..."`
 
 Instructions are currently not provided.
 
+### Graph schema
+
+The graph schema is as follows:
+
+![](https://raw.githubusercontent.com/ldbc/ldbc_snb_docs/dev/figures/schema-comfortable.png)
+
 ### Community provided tools
 
 * **[Apache Flink Loader:](https://github.com/s1ck/ldbc-flink-import)** A loader of LDBC datasets for Apache Flink.
