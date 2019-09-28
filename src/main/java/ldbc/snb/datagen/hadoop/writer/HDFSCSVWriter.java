@@ -38,6 +38,7 @@ package ldbc.snb.datagen.hadoop.writer;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class HDFSCSVWriter extends HDFSWriter {
 
@@ -54,7 +55,7 @@ public class HDFSCSVWriter extends HDFSWriter {
 
     }
 
-    public void writeHeader(ArrayList<String> entry) {
+    public void writeHeader(List<String> entry) {
         buffer.setLength(0);
         for (int i = 0; i < entry.size(); ++i) {
             buffer.append(entry.get(i));
@@ -65,7 +66,7 @@ public class HDFSCSVWriter extends HDFSWriter {
         this.writeAllPartitions(buffer.toString());
     }
 
-    public void writeEntry(ArrayList<String> entry) {
+    public void writeEntry(List<String> entry) {
         buffer.setLength(0);
         for (int i = 0; i < entry.size(); ++i) {
             buffer.append(entry.get(i));

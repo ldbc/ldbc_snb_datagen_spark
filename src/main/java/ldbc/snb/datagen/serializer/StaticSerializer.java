@@ -47,7 +47,7 @@ import java.io.IOException;
 /**
  * Created by aprat on 12/17/14.
  */
-abstract public class StaticSerializer {
+abstract public class StaticSerializer extends LDBCSerializer {
 
     abstract public void reset();
 

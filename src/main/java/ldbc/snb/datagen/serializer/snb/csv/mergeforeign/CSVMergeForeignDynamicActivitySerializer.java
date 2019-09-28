@@ -35,6 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer.snb.csv.mergeforeign;
 
+import com.google.common.collect.ImmutableList;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.hadoop.writer.HDFSCSVWriter;
 import ldbc.snb.datagen.entities.dynamic.messages.Comment;
@@ -44,128 +45,41 @@ import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.entities.dynamic.relations.Like;
 import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
+import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
+
+import ldbc.snb.datagen.serializer.snb.csv.FileName;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by aprat on 17/02/15.
  */
 public class CSVMergeForeignDynamicActivitySerializer extends DynamicActivitySerializer {
-    private HDFSCSVWriter[] writers;
+
     private ArrayList<String> arguments;
-    private String empty = "";
 
-    private enum FileNames {
-        FORUM("forum"),
-        FORUM_HASMEMBER_PERSON("forum_hasMember_person"),
-        FORUM_HASTAG_TAG("forum_hasTag_tag"),
-        PERSON_LIKES_POST("person_likes_post"),
-        PERSON_LIKES_COMMENT("person_likes_comment"),
-        POST("post"),
-        POST_HASTAG_TAG("post_hasTag_tag"),
-        COMMENT("comment"),
-        COMMENT_HASTAG_TAG("comment_hasTag_tag");
-
-        private final String name;
-
-        private FileNames(String name) {
-            this.name = name;
-        }
-
-        public String toString() {
-            return name;
-        }
+    @Override
+    public List<FileName> getFileNames() {
+        return Arrays.asList(FORUM, FORUM_HASMEMBER_PERSON, FORUM_HASTAG_TAG, PERSON_LIKES_POST,
+                PERSON_LIKES_COMMENT, POST, POST_HASTAG_TAG, COMMENT, COMMENT_HASTAG_TAG);
     }
 
     @Override
-    public void initialize(Configuration conf, int reducerId) throws IOException {
-        int numFiles = FileNames.values().length;
-        writers = new HDFSCSVWriter[numFiles];
-        for (int i = 0; i < numFiles; ++i) {
-            writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir")+"/dynamic/", FileNames
-                    .values()[i].toString() + "_" + reducerId, conf.getInt("ldbc.snb.datagen.numPartitions", 1), conf
-                                                   .getBoolean("ldbc.snb.datagen.serializer.compressed", false), "|", conf
-                                                   .getBoolean("ldbc.snb.datagen.serializer.endlineSeparator", false));
-        }
-        arguments = new ArrayList<String>();
-
-        arguments.add("id");
-        arguments.add("title");
-        arguments.add("creationDate");
-        arguments.add("moderator");
-        writers[FileNames.FORUM.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Forum.id");
-        arguments.add("Person.id");
-        arguments.add("joinDate");
-        writers[FileNames.FORUM_HASMEMBER_PERSON.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Forum.id");
-        arguments.add("Tag.id");
-        writers[FileNames.FORUM_HASTAG_TAG.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Person.id");
-        arguments.add("Post.id");
-        arguments.add("creationDate");
-        writers[FileNames.PERSON_LIKES_POST.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Person.id");
-        arguments.add("Comment.id");
-        arguments.add("creationDate");
-        writers[FileNames.PERSON_LIKES_COMMENT.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("id");
-        arguments.add("imageFile");
-        arguments.add("creationDate");
-        arguments.add("locationIP");
-        arguments.add("browserUsed");
-        arguments.add("language");
-        arguments.add("content");
-        arguments.add("length");
-        arguments.add("creator");
-        arguments.add("Forum.id");
-        arguments.add("place");
-        writers[FileNames.POST.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Post.id");
-        arguments.add("Tag.id");
-        writers[FileNames.POST_HASTAG_TAG.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("id");
-        arguments.add("creationDate");
-        arguments.add("locationIP");
-        arguments.add("browserUsed");
-        arguments.add("content");
-        arguments.add("length");
-        arguments.add("creator");
-        arguments.add("place");
-        arguments.add("replyOfPost");
-        arguments.add("replyOfComment");
-        writers[FileNames.COMMENT.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Comment.id");
-        arguments.add("Tag.id");
-        writers[FileNames.COMMENT_HASTAG_TAG.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-    }
-
-    @Override
-    public void close() {
-        int numFiles = FileNames.values().length;
-        for (int i = 0; i < numFiles; ++i) {
-            writers[i].close();
-        }
+    public void writeFileHeaders() {
+        writers.get(FORUM).writeHeader(ImmutableList.of("id", "title", "creationDate", "moderator"));
+        writers.get(FORUM_HASMEMBER_PERSON).writeHeader(ImmutableList.of("Forum.id", "Person.id", "joinDate"));
+        writers.get(FORUM_HASTAG_TAG).writeHeader(ImmutableList.of("Forum.id", "Tag.id"));
+        writers.get(PERSON_LIKES_POST).writeHeader(ImmutableList.of("Person.id", "Post.id", "creationDate"));
+        writers.get(PERSON_LIKES_COMMENT).writeHeader(ImmutableList.of("Person.id", "Comment.id", "creationDate"));
+        writers.get(POST).writeHeader(ImmutableList.of("id", "imageFile", "creationDate", "locationIP", "browserUsed", "language", "content", "length", "creator", "Forum.id", "place"));
+        writers.get(POST_HASTAG_TAG).writeHeader(ImmutableList.of("Post.id", "Tag.id"));
+        writers.get(COMMENT).writeHeader(ImmutableList.of("id", "creationDate", "locationIP", "browserUsed", "content", "length", "creator", "place", "replyOfPost", "replyOfComment"));
+        writers.get(COMMENT_HASTAG_TAG).writeHeader(ImmutableList.of("Comment.id", "Tag.id"));
     }
 
     protected void serialize(final Forum forum) {
@@ -191,7 +105,7 @@ public class CSVMergeForeignDynamicActivitySerializer extends DynamicActivitySer
     protected void serialize(final Post post) {
 
         arguments.add(Long.toString(post.messageId()));
-        arguments.add(empty);
+        arguments.add("");
         arguments.add(Dictionaries.dates.formatDateTime(post.creationDate()));
         arguments.add(post.ipAddress().toString());
         arguments.add(Dictionaries.browsers.getName(post.browserId()));
@@ -223,9 +137,9 @@ public class CSVMergeForeignDynamicActivitySerializer extends DynamicActivitySer
         arguments.add(Integer.toString(comment.countryId()));
         if (comment.replyOf() == comment.postId()) {
             arguments.add(Long.toString(comment.postId()));
-            arguments.add(empty);
+            arguments.add("");
         } else {
-            arguments.add(empty);
+            arguments.add("");
             arguments.add(Long.toString(comment.replyOf()));
         }
         writers[FileNames.COMMENT.ordinal()].writeEntry(arguments);
@@ -246,8 +160,8 @@ public class CSVMergeForeignDynamicActivitySerializer extends DynamicActivitySer
         arguments.add(Dictionaries.dates.formatDateTime(photo.creationDate()));
         arguments.add(photo.ipAddress().toString());
         arguments.add(Dictionaries.browsers.getName(photo.browserId()));
-        arguments.add(empty);
-        arguments.add(empty);
+        arguments.add("");
+        arguments.add("");
         arguments.add(Integer.toString(0));
         arguments.add(Long.toString(photo.author().accountId()));
         arguments.add(Long.toString(photo.forumId()));
@@ -287,4 +201,5 @@ public class CSVMergeForeignDynamicActivitySerializer extends DynamicActivitySer
     public void reset() {
         // Intentionally left empty
     }
+
 }

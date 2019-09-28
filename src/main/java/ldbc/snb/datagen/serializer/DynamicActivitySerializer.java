@@ -48,7 +48,7 @@ import java.io.IOException;
 /**
  * @author aprat
  */
-abstract public class DynamicActivitySerializer {
+abstract public class DynamicActivitySerializer extends LDBCSerializer {
 
 
     public void export(final Forum forum) {
