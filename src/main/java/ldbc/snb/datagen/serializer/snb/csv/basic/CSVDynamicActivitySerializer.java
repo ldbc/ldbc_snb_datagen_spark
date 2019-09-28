@@ -104,129 +104,57 @@ public class CSVDynamicActivitySerializer extends DynamicActivitySerializer {
                 Dictionaries.dates.formatDateTime(post.creationDate()),post.ipAddress().toString(),
                 Dictionaries.browsers.getName(post.browserId()),Dictionaries.languages.getLanguageName(post.language()),
                 post.content(),Integer.toString(post.content().length())));
-        writers.get().writeEntry(ImmutableList.of());
-        writers.get().writeEntry(ImmutableList.of());
-        //TODO finish 
 
-        arguments.add(Long.toString(post.messageId()));
-        arguments.add(Integer.toString(post.countryId()));
-        writers[FileNames.POST_ISLOCATEDIN_PLACE.ordinal()].writeEntry(arguments);
-        arguments.clear();
+        writers.get(POST_ISLOCATEDIN_PLACE).writeEntry(ImmutableList.of(Long.toString(post.messageId()),
+                Integer.toString(post.countryId())));
+        writers.get(POST_HASCREATOR_PERSON).writeEntry(ImmutableList.of(Long.toString(post.messageId()),
+                Long.toString(post.author().accountId())));
+        writers.get(FORUM_CONTAINEROF_POST).writeEntry(ImmutableList.of(Long.toString(post.forumId()),Long.toString(post.messageId())));
+        for (Integer t : post.tags())
+            writers.get(POST_HASTAG_TAG).writeEntry(ImmutableList.of(Long.toString(post.messageId()),Integer.toString(t)));
 
-        arguments.add(Long.toString(post.messageId()));
-        arguments.add(Long.toString(post.author().accountId()));
-        writers[FileNames.POST_HASCREATOR_PERSON.ordinal()].writeEntry(arguments);
-        arguments.clear();
-
-
-        arguments.add(Long.toString(post.forumId()));
-        arguments.add(Long.toString(post.messageId()));
-        writers[FileNames.FORUM_CONTAINEROF_POST.ordinal()].writeEntry(arguments);
-        arguments.clear();
-
-        for (Integer t : post.tags()) {
-            arguments.add(Long.toString(post.messageId()));
-            arguments.add(Integer.toString(t));
-            writers[FileNames.POST_HASTAG_TAG.ordinal()].writeEntry(arguments);
-            arguments.clear();
-        }
     }
 
     protected void serialize(final Comment comment) {
-        arguments.add(Long.toString(comment.messageId()));
-        arguments.add(Dictionaries.dates.formatDateTime(comment.creationDate()));
-        arguments.add(comment.ipAddress().toString());
-        arguments.add(Dictionaries.browsers.getName(comment.browserId()));
-        arguments.add(comment.content());
-        arguments.add(Integer.toString(comment.content().length()));
-        writers[FileNames.COMMENT.ordinal()].writeEntry(arguments);
-        arguments.clear();
+        writers.get(COMMENT).writeEntry(ImmutableList.of(Long.toString(comment.messageId()),Dictionaries.dates.formatDateTime(comment.creationDate()),
+                comment.ipAddress().toString(),Dictionaries.browsers.getName(comment.browserId()),comment.content(),
+                Integer.toString(comment.content().length())));
 
         if (comment.replyOf() == comment.postId()) {
-            arguments.add(Long.toString(comment.messageId()));
-            arguments.add(Long.toString(comment.postId()));
-            writers[FileNames.COMMENT_REPLYOF_POST.ordinal()].writeEntry(arguments);
-            arguments.clear();
+            writers.get(COMMENT_REPLYOF_POST).writeEntry(ImmutableList.of(Long.toString(comment.messageId()),Long.toString(comment.postId())));
         } else {
-            arguments.add(Long.toString(comment.messageId()));
-            arguments.add(Long.toString(comment.replyOf()));
-            writers[FileNames.COMMENT_REPLYOF_COMMENT.ordinal()].writeEntry(arguments);
-            arguments.clear();
+            writers.get(COMMENT_REPLYOF_COMMENT).writeEntry(ImmutableList.of(Long.toString(comment.messageId()),Long.toString(comment.replyOf())));
         }
-        arguments.add(Long.toString(comment.messageId()));
-        arguments.add(Integer.toString(comment.countryId()));
-        writers[FileNames.COMMENT_ISLOCATEDIN_PLACE.ordinal()].writeEntry(arguments);
-        arguments.clear();
+        writers.get(COMMENT_ISLOCATEDIN_PLACE).writeEntry(ImmutableList.of(Long.toString(comment.messageId()),Integer.toString(comment.countryId())));
+        writers.get(COMMENT_HASCREATOR_PERSON).writeEntry(ImmutableList.of(Long.toString(comment.messageId()),Long.toString(comment.author().accountId())));
+        for (Integer t : comment.tags())
+            writers.get(COMMENT_HASTAG_TAG).writeEntry(ImmutableList.of(Long.toString(comment.messageId()),Integer.toString(t)));
 
-        arguments.add(Long.toString(comment.messageId()));
-        arguments.add(Long.toString(comment.author().accountId()));
-        writers[FileNames.COMMENT_HASCREATOR_PERSON.ordinal()].writeEntry(arguments);
-        arguments.clear();
-
-        for (Integer t : comment.tags()) {
-            arguments.add(Long.toString(comment.messageId()));
-            arguments.add(Integer.toString(t));
-            writers[FileNames.COMMENT_HASTAG_TAG.ordinal()].writeEntry(arguments);
-            arguments.clear();
-        }
     }
 
     protected void serialize(final Photo photo) {
+        writers.get(POST).writeEntry(ImmutableList.of(Long.toString(photo.messageId()),photo.content(),Dictionaries.dates.formatDateTime(photo.creationDate()),
+                photo.ipAddress().toString(),Dictionaries.browsers.getName(photo.browserId()),"","",Integer.toString(0)));
 
-        arguments.add(Long.toString(photo.messageId()));
-        arguments.add(photo.content());
-        arguments.add(Dictionaries.dates.formatDateTime(photo.creationDate()));
-        arguments.add(photo.ipAddress().toString());
-        arguments.add(Dictionaries.browsers.getName(photo.browserId()));
-        arguments.add(empty);
-        arguments.add(empty);
-        arguments.add(Integer.toString(0));
-        writers[FileNames.POST.ordinal()].writeEntry(arguments);
-        arguments.clear();
-
-
-        arguments.add(Long.toString(photo.messageId()));
-        arguments.add(Integer.toString(photo.countryId()));
-        writers[FileNames.POST_ISLOCATEDIN_PLACE.ordinal()].writeEntry(arguments);
-        arguments.clear();
-
-        arguments.add(Long.toString(photo.messageId()));
-        arguments.add(Long.toString(photo.author().accountId()));
-        writers[FileNames.POST_HASCREATOR_PERSON.ordinal()].writeEntry(arguments);
-        arguments.clear();
-
-
-        arguments.add(Long.toString(photo.forumId()));
-        arguments.add(Long.toString(photo.messageId()));
-        writers[FileNames.FORUM_CONTAINEROF_POST.ordinal()].writeEntry(arguments);
-        arguments.clear();
+        writers.get(POST_ISLOCATEDIN_PLACE).writeEntry(ImmutableList.of(Long.toString(photo.messageId()),Integer.toString(photo.countryId())));
+        writers.get(POST_HASCREATOR_PERSON).writeEntry(ImmutableList.of(Long.toString(photo.messageId()),Long.toString(photo.author().accountId())));
+        writers.get(FORUM_CONTAINEROF_POST).writeEntry(ImmutableList.of(Long.toString(photo.forumId()),Long.toString(photo.messageId())));
 
         for (Integer t : photo.tags()) {
-            arguments.add(Long.toString(photo.messageId()));
-            arguments.add(Integer.toString(t));
-            writers[FileNames.POST_HASTAG_TAG.ordinal()].writeEntry(arguments);
-            arguments.clear();
+            writers.get(POST_HASTAG_TAG).writeEntry(ImmutableList.of(Long.toString(photo.messageId()),Integer.toString(t)));
         }
     }
 
     protected void serialize(final ForumMembership membership) {
-        arguments.add(Long.toString(membership.forumId()));
-        arguments.add(Long.toString(membership.person().accountId()));
-        arguments.add(Dictionaries.dates.formatDateTime(membership.creationDate()));
-        writers[FileNames.FORUM_HASMEMBER_PERSON.ordinal()].writeEntry(arguments);
-        arguments.clear();
+        writers.get(FORUM_HASMEMBER_PERSON).writeEntry(ImmutableList.of(Long.toString(membership.forumId()),Long.toString(membership.person().accountId()),
+                Dictionaries.dates.formatDateTime(membership.creationDate())));
     }
 
     protected void serialize(final Like like) {
-        arguments.add(Long.toString(like.user));
-        arguments.add(Long.toString(like.messageId));
-        arguments.add(Dictionaries.dates.formatDateTime(like.date));
         if (like.type == Like.LikeType.POST || like.type == Like.LikeType.PHOTO) {
-            writers[FileNames.PERSON_LIKES_POST.ordinal()].writeEntry(arguments);
-            arguments.clear();
+            writers.get(PERSON_LIKES_POST).writeEntry(ImmutableList.of(Long.toString(like.user),Long.toString(like.messageId),Dictionaries.dates.formatDateTime(like.date)));
         } else {
-            writers[FileNames.PERSON_LIKES_COMMENT.ordinal()].writeEntry(arguments);
-            arguments.clear();
+            writers.get(PERSON_LIKES_COMMENT).writeEntry(ImmutableList.of(Long.toString(like.user),Long.toString(like.messageId),Dictionaries.dates.formatDateTime(like.date)));
         }
     }
 
