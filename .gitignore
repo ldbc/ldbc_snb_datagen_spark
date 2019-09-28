@@ -24,6 +24,7 @@ scripts/
 /social_network/
 *.log
 test_log
+.DS_Store
 
 # Eclipse stuff
 .metadata
@@ -47,5 +48,8 @@ out/
 datagen_output/
 
 # Hadoop directory extracted as instructed in the Quick Start guide
-/hadoop-2.6.0.tar.gz
-/hadoop-2.6.0/
+/hadoop-*.tar.gz
+/hadoop-*/
+
+# configuration file
+params.ini

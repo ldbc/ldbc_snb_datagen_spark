@@ -1,7 +1,7 @@
 package ldbc.snb.datagen.test;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.generator.LDBCDatagen;
+import ldbc.snb.datagen.LDBCDatagen;
 import ldbc.snb.datagen.test.csv.*;
 import ldbc.snb.datagen.util.ConfigParser;
 import org.apache.hadoop.conf.Configuration;
@@ -26,7 +26,7 @@ public class LDBCDatagenTest {
     public static void generateData() throws Exception {
         Configuration conf = ConfigParser.initialize();
         ConfigParser.readConfig(conf, "./test_params.ini");
-        ConfigParser.readConfig(conf, LDBCDatagen.class.getResourceAsStream("/params.ini"));
+        ConfigParser.readConfig(conf, LDBCDatagen.class.getResourceAsStream("/params_default.ini"));
         try {
             LDBCDatagen.prepareConfiguration(conf);
             LDBCDatagen.initializeContext(conf);

@@ -35,19 +35,19 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.dictionary;
 
-import ldbc.snb.datagen.generator.DateGenerator;
-import ldbc.snb.datagen.generator.PowerDistGenerator;
-import ldbc.snb.datagen.objects.FlashmobTag;
+import ldbc.snb.datagen.util.DateUtils;
+import ldbc.snb.datagen.generator.tools.PowerDistribution;
+import ldbc.snb.datagen.objects.statictype.tag.FlashmobTag;
 
 import java.util.*;
 
 public class FlashmobTagDictionary {
 
-    private DateGenerator dateGen;
+    private DateUtils dateGen;
     /**
      * < @brief The date generator used to generate dates.
      */
-    private PowerDistGenerator levelGenerator;
+    private PowerDistribution levelGenerator;
     /**
      * < @brief The powerlaw distribution generator used to generate the levels.
      */
@@ -82,7 +82,7 @@ public class FlashmobTagDictionary {
      */
 
     public FlashmobTagDictionary(TagDictionary tagDictionary,
-                                 DateGenerator dateGen,
+                                 DateUtils dateGen,
                                  int flashmobTagsPerMonth,
                                  double probInterestFlashmobTag,
                                  double probRandomPerLevel,
@@ -92,7 +92,7 @@ public class FlashmobTagDictionary {
 
         this.tagDictionary = tagDictionary;
         this.dateGen = dateGen;
-        this.levelGenerator = new PowerDistGenerator(flashmobTagMinLevel, flashmobTagMaxLevel, flashmobTagDistExp);
+        this.levelGenerator = new PowerDistribution(flashmobTagMinLevel, flashmobTagMaxLevel, flashmobTagDistExp);
         this.random = new Random(0);
         this.flashmobTags = new HashMap<Integer, ArrayList<FlashmobTag>>();
         this.flashmobTagsPerMonth = flashmobTagsPerMonth;

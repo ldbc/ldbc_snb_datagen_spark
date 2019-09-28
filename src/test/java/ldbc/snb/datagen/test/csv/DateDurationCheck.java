@@ -1,6 +1,6 @@
 package ldbc.snb.datagen.test.csv;
 
-import ldbc.snb.datagen.generator.DateGenerator;
+import ldbc.snb.datagen.util.DateUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,7 @@ public class DateDurationCheck extends Check {
 
     @Override
     public boolean check(List<String> values) {
-        Long date = Long.valueOf(values.get(0)) + Long.valueOf(values.get(1))* DateGenerator.ONE_DAY;
+        Long date = Long.valueOf(values.get(0)) + Long.valueOf(values.get(1))* DateUtils.ONE_DAY;
         return  date <= val2 && date >= val1;
     }
 }

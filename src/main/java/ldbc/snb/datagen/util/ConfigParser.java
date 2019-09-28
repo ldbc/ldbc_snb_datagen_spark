@@ -35,7 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.util;
 
-import ldbc.snb.datagen.generator.LDBCDatagen;
+import ldbc.snb.datagen.LDBCDatagen;
 import org.apache.hadoop.conf.Configuration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -67,11 +67,11 @@ public class ConfigParser {
         conf.set("ldbc.snb.datagen.generator.startYear", "2010");
         conf.set("ldbc.snb.datagen.generator.numYears", "3");
         conf.set("ldbc.snb.datagen.generator.numThreads", Integer.toString(1));
-        conf.set("ldbc.snb.datagen.serializer.personSerializer", "ldbc.snb.datagen.serializer.snb.interactive.CSVPersonSerializer");
-        conf.set("ldbc.snb.datagen.serializer.invariantSerializer", "ldbc.snb.datagen.serializer.snb.interactive.CSVInvariantSerializer");
-        conf.set("ldbc.snb.datagen.serializer.personActivitySerializer", "ldbc.snb.datagen.serializer.snb.interactive.CSVPersonActivitySerializer");
+        conf.set("ldbc.snb.datagen.serializer.dynamicPersonSerializer", "ldbc.snb.datagen.serializer.snb.csv.basic.CSVDynamicPersonSerializer");
+        conf.set("ldbc.snb.datagen.serializer.staticSerializer", "ldbc.snb.datagen.serializer.snb.csv.basic.CSVStaticSerializer");
+        conf.set("ldbc.snb.datagen.serializer.dynamicActivitySerializer", "ldbc.snb.datagen.serializer.snb.csv.basic.CSVDynamicActivitySerializer");
         conf.set("ldbc.snb.datagen.generator.distribution.degreeDistribution", "ldbc.snb.datagen.generator.distribution.FacebookDegreeDistribution");
-        conf.set("ldbc.snb.datagen.generator.knowsGenerator", "ldbc.snb.datagen.generator.DistanceKnowsGenerator");
+        conf.set("ldbc.snb.datagen.generator.knowsGenerator", "ldbc.snb.datagen.generator.generators.knowsgenerators.DistanceKnowsGenerator");
         conf.set("ldbc.snb.datagen.serializer.compressed", Boolean.toString(false));
         conf.set("ldbc.snb.datagen.serializer.updateStreams", Boolean.toString(true));
         conf.set("ldbc.snb.datagen.serializer.numPartitions", "1");
@@ -85,7 +85,7 @@ public class ConfigParser {
         conf.set("ldbc.snb.datagen.serializer.dateFormatter", "ldbc.snb.datagen.serializer.formatter.StringDateFormatter");
         conf.set("ldbc.snb.datagen.serializer.formatter.StringDateFormatter.dateTimeFormat", "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         conf.set("ldbc.snb.datagen.serializer.formatter.StringDateFormatter.dateFormat", "yyyy-MM-dd");
-        conf.set("ldbc.snb.datagen.generator.person.similarity", "ldbc.snb.datagen.objects.similarity.GeoDistanceSimilarity");
+        conf.set("ldbc.snb.datagen.generator.person.similarity", "ldbc.snb.datagen.objects.dynamic.person.similarity.GeoDistanceSimilarity");
         conf.set("ldbc.snb.datagen.parametergenerator.python", "python");
         conf.set("ldbc.snb.datagen.parametergenerator.parameters", "true");
         conf.set("ldbc.snb.datagen.serializer.persons.sort", "true");

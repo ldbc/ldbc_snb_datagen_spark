@@ -13,7 +13,10 @@ before_install:
 - docker build . --tag ldbc/datagen
 install: true
 script:
+- cp params-csv.ini params.ini
 - docker run --rm --mount type=bind,source="$(pwd)/",target="/opt/ldbc_snb_datagen/out" --mount type=bind,source="$(pwd)/params.ini",target="/opt/ldbc_snb_datagen/params.ini" ldbc/datagen
+- "[[ `md5sum social_network/*.csv | sort | md5sum` == 'fa046e4c44e4c3e8f6858720c45d80ed  -' ]]"
+- "[[ `md5sum substitution_parameters/interactive_* | sort | md5sum` == '5cba23795df372c19688b05c5a9f318f  -' ]]"
 - mkdir out
 - cp -r substitution_parameters out/
 notifications:

@@ -49,9 +49,9 @@ for VERSION in v0.2.1 v0.2.2 v0.2.3 v0.2.4 v0.2.5 v0.2.6 v0.2.7 v0.2.8; do
 
     echo > params.ini
     echo ldbc.snb.datagen.generator.scaleFactor:snb.interactive.$SCALE_FACTOR >> params.ini
-    echo ldbc.snb.datagen.serializer.personSerializer:ldbc.snb.datagen.serializer.snb.interactive.CSVPersonSerializer >> params.ini
-    echo ldbc.snb.datagen.serializer.invariantSerializer:ldbc.snb.datagen.serializer.snb.interactive.CSVInvariantSerializer >> params.ini
-    echo ldbc.snb.datagen.serializer.personActivitySerializer:ldbc.snb.datagen.serializer.snb.interactive.CSVPersonActivitySerializer >> params.ini
+    echo ldbc.snb.datagen.serializer.dynamicPersonSerializer:ldbc.snb.datagen.serializer.snb.csv.basic.CSVDynamicPersonSerializer >> params.ini
+    echo ldbc.snb.datagen.serializer.staticSerializer:ldbc.snb.datagen.serializer.snb.csv.basic.CSVStaticSerializer >> params.ini
+    echo ldbc.snb.datagen.serializer.dynamicActivitySerializer:ldbc.snb.datagen.serializer.snb.csv.basic.CSVDynamicActivitySerializer >> params.ini
 
     ./run.sh
     tail -n +2 social_network/person_0_0.csv | wc -l >> ../datagen-snb.log

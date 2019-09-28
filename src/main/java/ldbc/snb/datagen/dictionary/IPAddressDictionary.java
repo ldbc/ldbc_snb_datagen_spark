@@ -35,8 +35,8 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.dictionary;
 
-import ldbc.snb.datagen.generator.DatagenParams;
-import ldbc.snb.datagen.objects.IP;
+import ldbc.snb.datagen.DatagenParams;
+import ldbc.snb.datagen.objects.dynamic.person.IP;
 
 import java.io.BufferedReader;
 import java.io.IOException;
