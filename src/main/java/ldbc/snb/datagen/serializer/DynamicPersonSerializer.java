@@ -48,7 +48,7 @@ import java.util.Iterator;
 /**
  * Created by aprat on 10/15/14.
  */
-abstract public class DynamicPersonSerializer {
+abstract public class DynamicPersonSerializer extends LDBCSerializer{
 
     public void export(final Person person) {
 
