@@ -39,8 +39,7 @@ import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.hadoop.generator.HadoopKnowsGenerator;
 import ldbc.snb.datagen.hadoop.generator.HadoopPersonActivityGenerator;
 import ldbc.snb.datagen.hadoop.generator.HadoopPersonGenerator;
-import ldbc.snb.datagen.hadoop.serializer.HadoopDynamicPersonSerializer;
-import ldbc.snb.datagen.hadoop.serializer.HadoopPersonSortAndSerializer;
+import ldbc.snb.datagen.hadoop.serializer.HadoopPersonSerializer;
 import ldbc.snb.datagen.hadoop.serializer.HadoopStaticSerializer;
 import ldbc.snb.datagen.hadoop.serializer.HadoopUpdateStreamSorterAndSerializer;
 import ldbc.snb.datagen.hadoop.miscjob.HadoopMergeFriendshipFiles;
@@ -154,7 +153,7 @@ public class LDBCDatagen {
 
         printProgress("Serializing persons");
         long startPersonSerializing = System.currentTimeMillis();
-        HadoopDynamicPersonSerializer serializer = new HadoopDynamicPersonSerializer(conf);
+        HadoopPersonSerializer serializer = new HadoopPersonSerializer(conf);
         serializer.run(hadoopPrefix + "/mergedPersons");
         long endPersonSerializing = System.currentTimeMillis();
 

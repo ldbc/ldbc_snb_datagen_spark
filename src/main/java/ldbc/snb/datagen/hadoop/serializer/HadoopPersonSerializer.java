@@ -61,7 +61,7 @@ import java.io.IOException;
 /**
  * Created by aprat on 10/15/14.
  */
-public class HadoopDynamicPersonSerializer {
+public class HadoopPersonSerializer {
 
     private Configuration conf;
 
@@ -130,7 +130,7 @@ public class HadoopDynamicPersonSerializer {
         }
     }
 
-    public HadoopDynamicPersonSerializer(Configuration conf) {
+    public HadoopPersonSerializer(Configuration conf) {
         this.conf = new Configuration(conf);
     }
 
