@@ -42,14 +42,26 @@ import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.entities.dynamic.relations.Like;
 import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
+import ldbc.snb.datagen.serializer.snb.csv.FileName;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Created by aprat on 30/01/15.
  */
 public class EmptyDynamicActivitySerializer extends DynamicActivitySerializer {
+
+    @Override
+    public List<FileName> getFileNames() {
+        return null;
+    }
+
+    @Override
+    public void writeFileHeaders() {
+
+    }
 
     @Override
     public void initialize(Configuration conf, int reducerId) throws IOException {

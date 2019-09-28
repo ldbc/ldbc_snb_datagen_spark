@@ -42,12 +42,14 @@ import ldbc.snb.datagen.entities.statictype.tag.Tag;
 import ldbc.snb.datagen.entities.statictype.TagClass;
 import ldbc.snb.datagen.hadoop.writer.HDFSCSVWriter;
 import ldbc.snb.datagen.serializer.StaticSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.FileName;
 import ldbc.snb.datagen.vocabulary.DBP;
 import ldbc.snb.datagen.vocabulary.DBPOWL;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by aprat on 17/02/15.
@@ -71,6 +73,16 @@ public class CSVMergeForeignStaticSerializer extends StaticSerializer {
         public String toString() {
             return name;
         }
+    }
+
+    @Override
+    public List<FileName> getFileNames() {
+        return null;
+    }
+
+    @Override
+    public void writeFileHeaders() {
+
     }
 
     @Override

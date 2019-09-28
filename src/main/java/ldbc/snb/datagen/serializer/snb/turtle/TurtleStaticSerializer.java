@@ -42,10 +42,12 @@ import ldbc.snb.datagen.entities.statictype.tag.Tag;
 import ldbc.snb.datagen.entities.statictype.TagClass;
 import ldbc.snb.datagen.hadoop.writer.HDFSWriter;
 import ldbc.snb.datagen.serializer.StaticSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.FileName;
 import ldbc.snb.datagen.vocabulary.*;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
+import java.util.List;
 
 
 /**
@@ -66,6 +68,16 @@ public class TurtleStaticSerializer extends StaticSerializer {
         public String toString() {
             return name;
         }
+    }
+
+    @Override
+    public List<FileName> getFileNames() {
+        return null;
+    }
+
+    @Override
+    public void writeFileHeaders() {
+
     }
 
     @Override

@@ -40,12 +40,25 @@ import ldbc.snb.datagen.entities.statictype.place.Place;
 import ldbc.snb.datagen.entities.statictype.tag.Tag;
 import ldbc.snb.datagen.entities.statictype.TagClass;
 import ldbc.snb.datagen.serializer.StaticSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.FileName;
 import org.apache.hadoop.conf.Configuration;
+
+import java.util.List;
 
 /**
  * Created by aprat on 30/01/15.
  */
 public class EmptyStaticSerializer extends StaticSerializer {
+
+    @Override
+    public List<FileName> getFileNames() {
+        return null;
+    }
+
+    @Override
+    public void writeFileHeaders() {
+
+    }
 
     @Override
     public void initialize(Configuration conf, int reducerId) {
