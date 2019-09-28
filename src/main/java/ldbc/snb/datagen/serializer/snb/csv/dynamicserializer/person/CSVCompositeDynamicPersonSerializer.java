@@ -61,7 +61,7 @@ public class CSVCompositeDynamicPersonSerializer extends DynamicPersonSerializer
     @Override
     public List<FileName> getFileNames() {
         return Arrays.asList(PERSON,PERSON_LOCATED_IN_PLACE,PERSON_HAS_INTEREST_TAG,
-                PERSON_WORK_AT,PERSON_STUDY_AT,PERSON_KNOWS_PERSON)
+                PERSON_WORK_AT,PERSON_STUDY_AT,PERSON_KNOWS_PERSON);
     }
 
     @Override
@@ -129,10 +129,5 @@ public class CSVCompositeDynamicPersonSerializer extends DynamicPersonSerializer
     @Override
     protected void serialize(final Person p, Knows knows) {
         writers.get(PERSON_KNOWS_PERSON).writeEntry(ImmutableList.of(Long.toString(p.accountId()),Long.toString(knows.to().accountId()), Dictionaries.dates.formatDateTime(knows.creationDate())));
-    }
-
-    @Override
-    public void reset() {
-        // Intentionally left empty
     }
 }
