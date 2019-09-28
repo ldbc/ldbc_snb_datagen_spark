@@ -15,7 +15,7 @@ install: true
 script:
 - cp params-csv.ini params.ini
 - docker run --rm --mount type=bind,source="$(pwd)/",target="/opt/ldbc_snb_datagen/out" --mount type=bind,source="$(pwd)/params.ini",target="/opt/ldbc_snb_datagen/params.ini" ldbc/datagen
-- ./check-md5sums.sh
+- bash check-md5sums.sh
 - mkdir out
 - cp -r substitution_parameters out/
 notifications:

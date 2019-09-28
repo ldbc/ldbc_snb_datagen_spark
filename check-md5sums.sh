@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 [[ `md5sum social_network/static/organisation_0_0.csv                   | cut -d' ' -f1` == 'e6164941fce2c182ec303c84568e9282' ]]
 [[ `md5sum social_network/static/organisation_isLocatedIn_place_0_0.csv | cut -d' ' -f1` == 'f78cd5fe83cb7d860aae5f2350a89d78' ]]
 [[ `md5sum social_network/static/place_0_0.csv                          | cut -d' ' -f1` == 'af21fd950c4a5766391d50e1c8ee6a16' ]]
