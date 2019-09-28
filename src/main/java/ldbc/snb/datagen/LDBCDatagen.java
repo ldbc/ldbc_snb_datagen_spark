@@ -259,7 +259,7 @@ public class LDBCDatagen {
 
         long endSortingUpdateStreams = System.currentTimeMillis();
 
-        printProgress("Serializing invariant schema ");
+        printProgress("Serializing static graph ");
         long startInvariantSerializing = System.currentTimeMillis();
         HadoopStaticSerializer staticSerializer = new HadoopStaticSerializer(conf);
         staticSerializer.run();
