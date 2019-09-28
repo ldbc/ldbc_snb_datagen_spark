@@ -35,56 +35,9 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer.snb.csv.compositemergeforeign;
 
-import ldbc.snb.datagen.entities.statictype.Organisation;
-import ldbc.snb.datagen.entities.statictype.place.Place;
-import ldbc.snb.datagen.entities.statictype.tag.Tag;
-import ldbc.snb.datagen.entities.statictype.TagClass;
-import ldbc.snb.datagen.serializer.StaticSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.mergeforeign.CSVMergeForeignStaticSerializer;
-import org.apache.hadoop.conf.Configuration;
-
-import java.io.IOException;
 
 /**
  * Created by aprat on 17/02/15.
  */
-public class CSVCompositeMergeForeignStaticSerializer extends StaticSerializer {
-
-    private CSVMergeForeignStaticSerializer staticSerializer = new CSVMergeForeignStaticSerializer();
-
-    @Override
-    public void initialize(Configuration conf, int reducerId) throws IOException {
-        staticSerializer.initialize(conf, reducerId);
-    }
-
-    @Override
-    public void close() {
-        staticSerializer.close();
-    }
-
-    @Override
-    protected void serialize(final Place place) {
-        staticSerializer.export(place);
-    }
-
-    @Override
-    protected void serialize(final Organisation organisation) {
-        staticSerializer.export(organisation);
-    }
-
-    @Override
-    protected void serialize(final TagClass tagClass) {
-        staticSerializer.export(tagClass);
-    }
-
-    @Override
-    protected void serialize(final Tag tag) {
-        staticSerializer.export(tag);
-    }
-
-    @Override
-    public void reset() {
-        // Intentionally left empty
-
-    }
-}
+public class CSVCompositeMergeForeignStaticSerializer extends CSVMergeForeignStaticSerializer { }
