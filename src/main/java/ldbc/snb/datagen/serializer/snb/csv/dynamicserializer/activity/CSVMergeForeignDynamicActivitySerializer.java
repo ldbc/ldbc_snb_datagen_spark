@@ -171,7 +171,7 @@ public class CSVMergeForeignDynamicActivitySerializer extends DynamicActivitySer
         if (like.type == Like.LikeType.POST || like.type == Like.LikeType.PHOTO) {
             writers.get(PERSON_LIKES_POST).writeEntry(arguments);
         } else {
-            writers.get(PERSON_LIKES_POST).writeEntry(arguments);
+            writers.get(PERSON_LIKES_COMMENT).writeEntry(arguments);
         }
     }
 
