@@ -37,24 +37,19 @@ package ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity;
 
 import com.google.common.collect.ImmutableList;
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.hadoop.writer.HDFSCSVWriter;
+import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.entities.dynamic.messages.Comment;
 import ldbc.snb.datagen.entities.dynamic.messages.Photo;
 import ldbc.snb.datagen.entities.dynamic.messages.Post;
 import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.entities.dynamic.relations.Like;
-import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
-import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
-
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
-import org.apache.hadoop.conf.Configuration;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+
+import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
 
 /**
  * Created by aprat on 17/02/15.
@@ -178,20 +173,6 @@ public class CSVMergeForeignDynamicActivitySerializer extends DynamicActivitySer
         } else {
             writers.get(PERSON_LIKES_POST).writeEntry(arguments);
         }
-    }
-
-    public void reset() {
-        // Intentionally left empty
-    }
-
-    @Override
-    public void initialize(Configuration conf, int reducerId) throws IOException {
-
-    }
-
-    @Override
-    public void close() {
-
     }
 
 }

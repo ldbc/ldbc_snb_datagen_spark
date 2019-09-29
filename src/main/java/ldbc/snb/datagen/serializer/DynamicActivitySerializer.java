@@ -79,9 +79,6 @@ abstract public class DynamicActivitySerializer extends LDBCSerializer {
 
     }
 
-
-    abstract public void reset();
-
     abstract protected void serialize(final Forum forum);
 
     abstract protected void serialize(final Post post);

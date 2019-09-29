@@ -37,18 +37,19 @@ package ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity;
 
 import com.google.common.collect.ImmutableList;
 import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.entities.dynamic.messages.Comment;
 import ldbc.snb.datagen.entities.dynamic.messages.Photo;
 import ldbc.snb.datagen.entities.dynamic.messages.Post;
 import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.entities.dynamic.relations.Like;
-import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
-import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
 
 /**
  * @author aprat
@@ -151,10 +152,6 @@ public class CSVDynamicActivitySerializer extends DynamicActivitySerializer {
         } else {
             writers.get(PERSON_LIKES_COMMENT).writeEntry(ImmutableList.of(Long.toString(like.user),Long.toString(like.messageId),Dictionaries.dates.formatDateTime(like.date)));
         }
-    }
-
-    public void reset() {
-        // Intentionally left empty
     }
 
 }
