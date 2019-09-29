@@ -35,154 +35,72 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer.snb.csv.staticserializer;
 
+import com.google.common.collect.ImmutableList;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.statictype.Organisation;
+import ldbc.snb.datagen.entities.statictype.TagClass;
 import ldbc.snb.datagen.entities.statictype.place.Place;
 import ldbc.snb.datagen.entities.statictype.tag.Tag;
-import ldbc.snb.datagen.entities.statictype.TagClass;
-import ldbc.snb.datagen.hadoop.writer.HDFSCSVWriter;
 import ldbc.snb.datagen.serializer.StaticSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
 import ldbc.snb.datagen.vocabulary.DBP;
 import ldbc.snb.datagen.vocabulary.DBPOWL;
-import org.apache.hadoop.conf.Configuration;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
 
 /**
  * Created by aprat on 12/17/14.
  */
 public class CSVStaticSerializer extends StaticSerializer {
 
-    private HDFSCSVWriter[] writers;
-
-    private enum FileNames {
-        TAG("tag"),
-        TAG_HAS_TYPE_TAGCLASS("tag_hasType_tagclass"),
-        TAGCLASS("tagclass"),
-        TAGCLASS_IS_SUBCLASS_OF_TAGCLASS("tagclass_isSubclassOf_tagclass"),
-        PLACE("place"),
-        PLACE_IS_PART_OF_PLACE("place_isPartOf_place"),
-        ORGANIZATION("organisation"),
-        ORGANIZATION_IS_LOCATED_IN_PLACE("organisation_isLocatedIn_place");
-
-        private final String name;
-
-        private FileNames(String name) {
-            this.name = name;
-        }
-
-        public String toString() {
-            return name;
-        }
-    }
-
     @Override
     public List<FileName> getFileNames() {
-        return null;
+        return ImmutableList.of(TAG, TAG_HAS_TYPE_TAGCLASS, TAGCLASS, TAGCLASS_IS_SUBCLASS_OF_TAGCLASS, PLACE, PLACE_IS_PART_OF_PLACE, ORGANIZATION, ORGANIZATION_IS_LOCATED_IN_PLACE);
     }
 
     @Override
     public void writeFileHeaders() {
-
-    }
-
-    @Override
-    public void initialize(Configuration conf, int reducerId) throws IOException {
-        int numFiles = FileNames.values().length;
-        writers = new HDFSCSVWriter[numFiles];
-        for (int i = 0; i < numFiles; ++i) {
-            writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir")+"/static", FileNames
-                    .values()[i].toString() + "_" + reducerId, conf.getInt("ldbc.snb.datagen.numPartitions", 1), conf
-                                                   .getBoolean("ldbc.snb.datagen.serializer.compressed", false), "|", conf
-                                                   .getBoolean("ldbc.snb.datagen.serializer.endlineSeparator", false));
-        }
-
-        ArrayList<String> arguments = new ArrayList<String>();
-        arguments.add("id");
-        arguments.add("name");
-        arguments.add("url");
-        writers[FileNames.TAG.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Tag.id");
-        arguments.add("TagClass.id");
-        writers[FileNames.TAG_HAS_TYPE_TAGCLASS.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("id");
-        arguments.add("name");
-        arguments.add("url");
-        writers[FileNames.TAGCLASS.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("TagClass.id");
-        arguments.add("TagClass.id");
-        writers[FileNames.TAGCLASS_IS_SUBCLASS_OF_TAGCLASS.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("id");
-        arguments.add("name");
-        arguments.add("url");
-        arguments.add("type");
-        writers[FileNames.PLACE.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("id");
-        arguments.add("type");
-        arguments.add("name");
-        arguments.add("url");
-        writers[FileNames.ORGANIZATION.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Organisation.id");
-        arguments.add("Place.id");
-        writers[FileNames.ORGANIZATION_IS_LOCATED_IN_PLACE.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.add("Place.id");
-        arguments.add("Place.id");
-        writers[FileNames.PLACE_IS_PART_OF_PLACE.ordinal()].writeHeader(arguments);
-    }
-
-    public void close() {
-        int numFiles = FileNames.values().length;
-        for (int i = 0; i < numFiles; ++i) {
-            writers[i].close();
-        }
+        writers.get(TAG).writeHeader(ImmutableList.of("id", "name", "url"));
+        writers.get(TAG_HAS_TYPE_TAGCLASS).writeHeader(ImmutableList.of("Tag.id", "TagClass.id"));
+        writers.get(TAGCLASS).writeHeader(ImmutableList.of("id", "name", "url"));
+        writers.get(TAGCLASS_IS_SUBCLASS_OF_TAGCLASS).writeHeader(ImmutableList.of("TagClass.id", "TagClass.id"));
+        writers.get(PLACE).writeHeader(ImmutableList.of("id", "name", "url", "type"));
+        writers.get(ORGANIZATION).writeHeader(ImmutableList.of("id", "type", "name", "url"));
+        writers.get(ORGANIZATION_IS_LOCATED_IN_PLACE).writeHeader(ImmutableList.of("Organisation.id", "Place.id"));
+        writers.get(PLACE_IS_PART_OF_PLACE).writeHeader(ImmutableList.of("Place.id", "Place.id"));
     }
 
     protected void serialize(final Place place) {
-        ArrayList<String> arguments = new ArrayList<String>();
-        arguments.add(Integer.toString(place.getId()));
-        arguments.add(place.getName());
-        arguments.add(DBP.getUrl(place.getName()));
-        arguments.add(place.getType());
-        writers[FileNames.PLACE.ordinal()].writeEntry(arguments);
+        writers.get(PLACE).writeEntry(ImmutableList.of(
+            Integer.toString(place.getId()),
+            place.getName(),
+            DBP.getUrl(place.getName()),
+            place.getType()
+        ));
 
-        if (place.getType() == Place.CITY ||
-                place.getType() == Place.COUNTRY) {
-            arguments.clear();
-            arguments.add(Integer.toString(place.getId()));
-            arguments.add(Integer.toString(Dictionaries.places.belongsTo(place.getId())));
-            writers[FileNames.PLACE_IS_PART_OF_PLACE.ordinal()].writeEntry(arguments);
+        if (place.getType() == Place.CITY || place.getType() == Place.COUNTRY) {
+            writers.get(PLACE_IS_PART_OF_PLACE).writeEntry(ImmutableList.of(
+                Integer.toString(place.getId()),
+                Integer.toString(Dictionaries.places.belongsTo(place.getId()))
+            ));
         }
     }
 
     protected void serialize(final Organisation organisation) {
-        ArrayList<String> arguments = new ArrayList<String>();
-        arguments.add(Long.toString(organisation.id));
-        arguments.add(organisation.type.toString());
-        arguments.add(organisation.name);
-        arguments.add(DBP.getUrl(organisation.name));
-        writers[FileNames.ORGANIZATION.ordinal()].writeEntry(arguments);
+        writers.get(ORGANIZATION).writeEntry(ImmutableList.of(
+            Long.toString(organisation.id),
+            organisation.type.toString(),
+            organisation.name,
+            DBP.getUrl(organisation.name)
+        ));
 
-        arguments.clear();
-        arguments.add(Long.toString(organisation.id));
-        arguments.add(Integer.toString(organisation.location));
-        writers[FileNames.ORGANIZATION_IS_LOCATED_IN_PLACE.ordinal()].writeEntry(arguments);
+        writers.get(ORGANIZATION_IS_LOCATED_IN_PLACE).writeEntry(ImmutableList.of(
+            Long.toString(organisation.id),
+            Integer.toString(organisation.location)
+        ));
     }
 
     protected void serialize(final TagClass tagClass) {
@@ -194,30 +112,18 @@ public class CSVStaticSerializer extends StaticSerializer {
         } else {
             arguments.add(DBPOWL.getUrl(tagClass.name));
         }
-        writers[FileNames.TAGCLASS.ordinal()].writeEntry(arguments);
+        writers.get(TAGCLASS).writeEntry(ImmutableList.of());
         if (tagClass.parent != -1) {
             arguments.clear();
             arguments.add(Integer.toString(tagClass.id));
             arguments.add(Integer.toString(tagClass.parent));
-            writers[FileNames.TAGCLASS_IS_SUBCLASS_OF_TAGCLASS.ordinal()].writeEntry(arguments);
+            writers.get(TAGCLASS_IS_SUBCLASS_OF_TAGCLASS).writeEntry(ImmutableList.of());
         }
     }
 
     protected void serialize(final Tag tag) {
-        ArrayList<String> arguments = new ArrayList<String>();
-        arguments.add(Integer.toString(tag.id));
-        arguments.add(tag.name);
-        arguments.add(DBP.getUrl(tag.name));
-        writers[FileNames.TAG.ordinal()].writeEntry(arguments);
-
-        arguments.clear();
-        arguments.add(Integer.toString(tag.id));
-        arguments.add(Integer.toString(tag.tagClass));
-        writers[FileNames.TAG_HAS_TYPE_TAGCLASS.ordinal()].writeEntry(arguments);
+        writers.get(TAG).writeEntry(ImmutableList.of(Integer.toString(tag.id), tag.name, DBP.getUrl(tag.name)));
+        writers.get(TAG_HAS_TYPE_TAGCLASS).writeEntry(ImmutableList.of(Integer.toString(tag.id), Integer.toString(tag.tagClass)));
     }
 
-    public void reset() {
-        // Intentionally left empty
-
-    }
 }

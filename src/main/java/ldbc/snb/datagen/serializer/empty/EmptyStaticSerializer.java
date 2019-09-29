@@ -61,17 +61,6 @@ public class EmptyStaticSerializer extends StaticSerializer {
     }
 
     @Override
-    public void initialize(Configuration conf, int reducerId) {
-        //Intentionally left empty
-    }
-
-    @Override
-    public void close() {
-        //Intentionally left empty
-
-    }
-
-    @Override
     protected void serialize(final Place place) {
         //Intentionally left empty
 
@@ -95,9 +84,4 @@ public class EmptyStaticSerializer extends StaticSerializer {
 
     }
 
-    @Override
-    public void reset() {
-        //Intentionally left empty
-
-    }
 }

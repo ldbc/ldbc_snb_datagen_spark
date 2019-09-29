@@ -49,8 +49,6 @@ import java.io.IOException;
  */
 abstract public class StaticSerializer extends LDBCSerializer {
 
-    abstract public void reset();
-
     public void export(final TagClass tagclass) {
         serialize(tagclass);
     }
@@ -67,10 +65,6 @@ abstract public class StaticSerializer extends LDBCSerializer {
         serialize(tag);
     }
 
-    abstract public void initialize(Configuration conf, int reducerId) throws IOException;
-
-    abstract public void close();
-
     abstract protected void serialize(final Place place);
 
     abstract protected void serialize(final Organisation organisation);
@@ -78,4 +72,5 @@ abstract public class StaticSerializer extends LDBCSerializer {
     abstract protected void serialize(final TagClass tagClass);
 
     abstract protected void serialize(final Tag tag);
+
 }

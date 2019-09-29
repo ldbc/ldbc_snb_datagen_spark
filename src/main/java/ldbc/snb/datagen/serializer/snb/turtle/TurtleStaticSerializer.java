@@ -200,8 +200,4 @@ public class TurtleStaticSerializer extends StaticSerializer {
         writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
     }
 
-    @Override
-    public void reset() {
-        // Intentionally left empty
-    }
 }
