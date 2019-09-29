@@ -38,7 +38,7 @@ package ldbc.snb.datagen.util;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.generator.tools.PowerDistribution;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
-import ldbc.snb.datagen.serializer.formatter.DateFormatter;
+import ldbc.snb.datagen.util.formatter.DateFormatter;
 import org.apache.hadoop.conf.Configuration;
 
 import java.util.*;

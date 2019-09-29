@@ -33,7 +33,7 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.serializer.formatter;
+package ldbc.snb.datagen.util.formatter;
 
 import org.apache.hadoop.conf.Configuration;
 
@@ -56,11 +56,11 @@ public class StringDateFormatter implements DateFormatter {
     public void initialize(Configuration conf) {
 
         formatDateTimeString_ = conf
-                .get("ldbc.snb.datagen.serializer.formatter.StringDateFormatter.dateTimeFormat", formatDateTimeString_);
+                .get("ldbc.snb.datagen.util.formatter.StringDateFormatter.dateTimeFormat", formatDateTimeString_);
         gmtDateTimeFormatter_ = new SimpleDateFormat(formatDateTimeString_);
         gmtDateTimeFormatter_.setTimeZone(TimeZone.getTimeZone("GMT"));
         formatDateString_ = conf
-                .get("ldbc.snb.datagen.serializer.formatter.StringDateFormatter.dateFormat", formatDateString_);
+                .get("ldbc.snb.datagen.util.formatter.StringDateFormatter.dateFormat", formatDateString_);
         gmtDateFormatter_ = new SimpleDateFormat(formatDateString_);
         gmtDateFormatter_.setTimeZone(TimeZone.getTimeZone("GMT"));
         date_ = new Date();
