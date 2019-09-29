@@ -153,8 +153,13 @@ public class LDBCDatagen {
 
         printProgress("Serializing persons");
         long startPersonSerializing = System.currentTimeMillis();
-        HadoopPersonSerializer serializer = new HadoopPersonSerializer(conf);
-        serializer.run(hadoopPrefix + "/mergedPersons");
+        if (conf.getBoolean("ldbc.snb.datagen.serializer.persons.sort", true)) {
+            HadoopPersonSortAndSerializer serializer = new HadoopPersonSortAndSerializer(conf);
+            serializer.run(hadoopPrefix + "/mergedPersons");
+        } else {
+            HadoopDynamicPersonSerializer serializer = new HadoopDynamicPersonSerializer(conf);
+            serializer.run(hadoopPrefix + "/mergedPersons");
+        }
         long endPersonSerializing = System.currentTimeMillis();
 
         long startPersonActivity = System.currentTimeMillis();
