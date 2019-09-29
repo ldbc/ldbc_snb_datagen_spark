@@ -103,7 +103,7 @@ public class PersonActivityGenerator {
     }
 
     public void reset() {
-        dynamicActivitySerializer_.reset();
+//        dynamicActivitySerializer_.reset();
     }
 
     private void generateWall(Person person, ArrayList<Person> block) throws IOException {
@@ -194,7 +194,7 @@ public class PersonActivityGenerator {
         forumId = 0;
         messageId = 0;
         SN.machineId = seed;
-        dynamicActivitySerializer_.reset();
+//        dynamicActivitySerializer_.reset();
         int counter = 0;
         float personGenerationTime = 0.0f;
         for (Person p : block) {

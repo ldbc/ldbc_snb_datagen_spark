@@ -103,8 +103,4 @@ public class EmptyDynamicActivitySerializer extends DynamicActivitySerializer {
         //This is left intentionally blank
     }
 
-    @Override
-    public void reset() {
-        //This is left intentionally blank
-    }
 }
