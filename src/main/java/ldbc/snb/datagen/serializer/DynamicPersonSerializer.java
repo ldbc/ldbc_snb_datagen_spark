@@ -104,4 +104,10 @@ abstract public class DynamicPersonSerializer extends LDBCSerializer {
     abstract protected void serialize(final WorkAt workAt);
 
     abstract protected void serialize(final Person p, final Knows knows);
+
+    @Override
+    protected boolean isDynamic() {
+        return true;
+    }
+
 }

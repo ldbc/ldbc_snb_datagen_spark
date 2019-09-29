@@ -91,5 +91,9 @@ abstract public class DynamicActivitySerializer extends LDBCSerializer {
 
     abstract protected void serialize(final Like like);
 
+    @Override
+    protected boolean isDynamic() {
+        return true;
+    }
 
 }

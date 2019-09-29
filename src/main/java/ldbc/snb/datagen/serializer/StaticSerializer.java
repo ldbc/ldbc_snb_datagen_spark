@@ -73,4 +73,9 @@ abstract public class StaticSerializer extends LDBCSerializer {
 
     abstract protected void serialize(final Tag tag);
 
+    @Override
+    protected boolean isDynamic() {
+        return false;
+    }
+
 }

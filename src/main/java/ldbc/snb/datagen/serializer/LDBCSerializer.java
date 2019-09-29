@@ -20,7 +20,7 @@ abstract public class LDBCSerializer {
     public void initialize(Configuration conf, int reducerId) throws IOException {
         for (FileName f : getFileNames()) {
             writers.put(f, new HDFSCSVWriter(
-                    conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/dynamic/",
+                    conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + (isDynamic() ? "/dynamic/" : "/static/"),
                     f.toString() + "_" + reducerId,
                     conf.getInt("ldbc.snb.datagen.numPartitions", 1),
                     conf.getBoolean("ldbc.snb.datagen.serializer.compressed", false), "|",
@@ -29,6 +29,8 @@ abstract public class LDBCSerializer {
         }
         writeFileHeaders();
     }
+
+    protected abstract boolean isDynamic();
 
     public void close() {
         for (FileName f : getFileNames()) {
