@@ -96,29 +96,29 @@ public class CSVDynamicPersonSerializer extends DynamicPersonSerializer {
 
         Iterator<String> itString = p.emails().iterator();
         while (itString.hasNext())
-            writers.get(PERSON_HAS_EMAIL).writeHeader(ImmutableList.of(Long.toString(p.accountId()),itString.next()));
+            writers.get(PERSON_HAS_EMAIL).writeEntry(ImmutableList.of(Long.toString(p.accountId()),itString.next()));
 
 
-        writers.get(PERSON_LOCATED_IN_PLACE).writeHeader(ImmutableList.of(Long.toString(p.accountId()),Integer.toString(p.cityId())));
+        writers.get(PERSON_LOCATED_IN_PLACE).writeEntry(ImmutableList.of(Long.toString(p.accountId()),Integer.toString(p.cityId())));
 
         Iterator<Integer> itInteger = p.interests().iterator();
         while (itInteger.hasNext())
-            writers.get(PERSON_HAS_INTEREST_TAG).writeHeader(ImmutableList.of(Long.toString(p.accountId()),Integer.toString(itInteger.next())));
+            writers.get(PERSON_HAS_INTEREST_TAG).writeEntry(ImmutableList.of(Long.toString(p.accountId()),Integer.toString(itInteger.next())));
     }
 
     @Override
     protected void serialize(final StudyAt studyAt) {
-        writers.get(PERSON_STUDY_AT).writeHeader(ImmutableList.of(Long.toString(studyAt.user),Long.toString(studyAt.university),Dictionaries.dates.formatYear(studyAt.year)));
+        writers.get(PERSON_STUDY_AT).writeEntry(ImmutableList.of(Long.toString(studyAt.user),Long.toString(studyAt.university),Dictionaries.dates.formatYear(studyAt.year)));
     }
 
     @Override
     protected void serialize(final WorkAt workAt) {
-        writers.get(PERSON_WORK_AT).writeHeader(ImmutableList.of(Long.toString(workAt.user),Long.toString(workAt.company), Dictionaries.dates.formatYear(workAt.year)));
+        writers.get(PERSON_WORK_AT).writeEntry(ImmutableList.of(Long.toString(workAt.user),Long.toString(workAt.company), Dictionaries.dates.formatYear(workAt.year)));
     }
 
     @Override
     protected void serialize(final Person p, Knows knows) {
-        writers.get(PERSON_KNOWS_PERSON).writeHeader(ImmutableList.of(Long.toString(p.accountId()),Long.toString(knows.to().accountId()),Dictionaries.dates.formatDateTime(knows.creationDate())));
+        writers.get(PERSON_KNOWS_PERSON).writeEntry(ImmutableList.of(Long.toString(p.accountId()),Long.toString(knows.to().accountId()),Dictionaries.dates.formatDateTime(knows.creationDate())));
     }
 
 }
