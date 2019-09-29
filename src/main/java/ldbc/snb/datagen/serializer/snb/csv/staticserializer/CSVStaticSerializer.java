@@ -104,20 +104,16 @@ public class CSVStaticSerializer extends StaticSerializer {
     }
 
     protected void serialize(final TagClass tagClass) {
-        ArrayList<String> arguments = new ArrayList<String>();
-        arguments.add(Integer.toString(tagClass.id));
-        arguments.add(tagClass.name);
-        if ("Thing".equals(tagClass.name)) {
-            arguments.add("http://www.w3.org/2002/07/owl#Thing");
-        } else {
-            arguments.add(DBPOWL.getUrl(tagClass.name));
-        }
-        writers.get(TAGCLASS).writeEntry(ImmutableList.of());
+        writers.get(TAGCLASS).writeEntry(ImmutableList.of(
+                Integer.toString(tagClass.id),
+                tagClass.name,
+                "Thing".equals(tagClass.name) ? "http://www.w3.org/2002/07/owl#Thing" : DBPOWL.getUrl(tagClass.name)
+        ));
         if (tagClass.parent != -1) {
-            arguments.clear();
-            arguments.add(Integer.toString(tagClass.id));
-            arguments.add(Integer.toString(tagClass.parent));
-            writers.get(TAGCLASS_IS_SUBCLASS_OF_TAGCLASS).writeEntry(ImmutableList.of());
+            writers.get(TAGCLASS_IS_SUBCLASS_OF_TAGCLASS).writeEntry(ImmutableList.of(
+                Integer.toString(tagClass.id),
+                Integer.toString(tagClass.parent)
+            ));
         }
     }
 
