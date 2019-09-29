@@ -46,7 +46,9 @@ import org.apache.hadoop.conf.Configuration;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 /**
  * Created by aprat on 10/15/14.
@@ -89,8 +91,11 @@ abstract public class DynamicPersonSerializer extends LDBCSerializer {
             return "female";
         }
     }
+
     public String buildLanguages(ArrayList<Integer> languages) {
-        return Joiner.on(";").join(languages);
+        return languages.stream()
+                .map(l -> Dictionaries.languages.getLanguageName(l))
+                .collect(Collectors.joining(";"));
     }
 
     public String buildEmail(TreeSet<String> emails) {
