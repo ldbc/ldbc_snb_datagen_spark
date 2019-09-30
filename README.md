@@ -26,7 +26,7 @@ The LDBC-SNB Data Generator (Datagen) is the responsible of providing the data s
 Initialize the `params.ini` file as needed. For example, to generate the basic CSV files, issue:
 
 ```bash
-cp params-csv.ini params.ini
+cp params-csv-basic.ini params.ini
 ```
 
 There are three main ways to run Datagen, each using a different approach to configure the amount of memory available.
@@ -38,10 +38,10 @@ There are three main ways to run Datagen, each using a different approach to con
 ### Pseudo-distributed Hadoop node
 
 To configure the amount of memory available, set the `HADOOP_CLIENT_OPTS` environment variable.
-To grab Hadoop, extract it, and set the environment values to sensible defaults, and generate the data as specified in the `params-csv.ini` file, run the following script:
+To grab Hadoop, extract it, and set the environment values to sensible defaults, and generate the data as specified in the `params-csv-params.ini` template file, run the following script:
 
 ```bash
-cp params-csv.ini params.ini
+cp params-csv-basic.ini params.ini
 wget http://archive.apache.org/dist/hadoop/core/hadoop-2.9.2/hadoop-2.9.2.tar.gz
 tar xf hadoop-2.9.2.tar.gz
 export HADOOP_CLIENT_OPTS="-Xmx2G"
