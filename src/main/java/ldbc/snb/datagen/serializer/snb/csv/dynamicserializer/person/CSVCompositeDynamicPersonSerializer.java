@@ -57,7 +57,7 @@ public class CSVCompositeDynamicPersonSerializer extends DynamicPersonSerializer
 
     @Override
     public List<FileName> getFileNames() {
-        return Arrays.asList(PERSON,PERSON_LOCATED_IN_PLACE,PERSON_HAS_INTEREST_TAG,
+        return ImmutableList.of(PERSON,PERSON_LOCATED_IN_PLACE,PERSON_HAS_INTEREST_TAG,
                 PERSON_WORK_AT,PERSON_STUDY_AT,PERSON_KNOWS_PERSON);
     }
 

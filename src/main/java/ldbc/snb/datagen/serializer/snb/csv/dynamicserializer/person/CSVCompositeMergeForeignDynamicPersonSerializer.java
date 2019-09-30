@@ -55,7 +55,7 @@ import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
 public class CSVCompositeMergeForeignDynamicPersonSerializer extends DynamicPersonSerializer {
     @Override
     public List<FileName> getFileNames() {
-        return Arrays.asList(PERSON,PERSON_HAS_INTEREST_TAG,PERSON_WORK_AT,PERSON_STUDY_AT,PERSON_KNOWS_PERSON);
+        return ImmutableList.of(PERSON,PERSON_HAS_INTEREST_TAG,PERSON_WORK_AT,PERSON_STUDY_AT,PERSON_KNOWS_PERSON);
     }
 
     @Override

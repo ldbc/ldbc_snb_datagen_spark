@@ -58,7 +58,7 @@ public class CSVMergeForeignDynamicActivitySerializer extends DynamicActivitySer
 
     @Override
     public List<FileName> getFileNames() {
-        return Arrays.asList(FORUM, FORUM_HASMEMBER_PERSON, FORUM_HASTAG_TAG, PERSON_LIKES_POST,
+        return ImmutableList.of(FORUM, FORUM_HASMEMBER_PERSON, FORUM_HASTAG_TAG, PERSON_LIKES_POST,
                 PERSON_LIKES_COMMENT, POST, POST_HASTAG_TAG, COMMENT, COMMENT_HASTAG_TAG);
     }
 
