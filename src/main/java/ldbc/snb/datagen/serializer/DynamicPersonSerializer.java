@@ -36,17 +36,14 @@
 package ldbc.snb.datagen.serializer;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.Iterables;
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.entities.dynamic.relations.StudyAt;
 import ldbc.snb.datagen.entities.dynamic.relations.WorkAt;
-import org.apache.hadoop.conf.Configuration;
-import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 

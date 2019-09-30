@@ -36,12 +36,11 @@
 package ldbc.snb.datagen.serializer.empty;
 
 import ldbc.snb.datagen.entities.statictype.Organisation;
+import ldbc.snb.datagen.entities.statictype.TagClass;
 import ldbc.snb.datagen.entities.statictype.place.Place;
 import ldbc.snb.datagen.entities.statictype.tag.Tag;
-import ldbc.snb.datagen.entities.statictype.TagClass;
 import ldbc.snb.datagen.serializer.StaticSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
-import org.apache.hadoop.conf.Configuration;
 
 import java.util.List;
 

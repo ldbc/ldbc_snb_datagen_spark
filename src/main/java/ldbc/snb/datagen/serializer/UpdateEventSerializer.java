@@ -35,10 +35,9 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer;
 
-import ldbc.snb.datagen.hadoop.UpdateEvent;
-import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.hadoop.key.updatekey.UpdateEventKey;
+import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.entities.dynamic.messages.Comment;
 import ldbc.snb.datagen.entities.dynamic.messages.Photo;
 import ldbc.snb.datagen.entities.dynamic.messages.Post;
@@ -46,9 +45,15 @@ import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.entities.dynamic.relations.Like;
-import ldbc.snb.datagen.entities.dynamic.Forum;
+import ldbc.snb.datagen.hadoop.UpdateEvent;
+import ldbc.snb.datagen.hadoop.key.updatekey.UpdateEventKey;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.*;
+import org.apache.hadoop.fs.CreateFlag;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FileContext;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Options;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.SequenceFile.CompressionType;
 import org.apache.hadoop.io.Text;

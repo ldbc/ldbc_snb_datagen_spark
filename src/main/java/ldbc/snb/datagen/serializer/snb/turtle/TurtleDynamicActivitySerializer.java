@@ -36,16 +36,21 @@
 package ldbc.snb.datagen.serializer.snb.turtle;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.hadoop.writer.HDFSWriter;
+import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.entities.dynamic.messages.Comment;
 import ldbc.snb.datagen.entities.dynamic.messages.Photo;
 import ldbc.snb.datagen.entities.dynamic.messages.Post;
 import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.entities.dynamic.relations.Like;
-import ldbc.snb.datagen.entities.dynamic.Forum;
+import ldbc.snb.datagen.hadoop.writer.HDFSWriter;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
-import ldbc.snb.datagen.vocabulary.*;
+import ldbc.snb.datagen.vocabulary.DBP;
+import ldbc.snb.datagen.vocabulary.RDF;
+import ldbc.snb.datagen.vocabulary.SN;
+import ldbc.snb.datagen.vocabulary.SNTAG;
+import ldbc.snb.datagen.vocabulary.SNVOC;
+import ldbc.snb.datagen.vocabulary.XSD;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;

@@ -35,11 +35,16 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.dictionary;
 
-import ldbc.snb.datagen.util.DateUtils;
-import ldbc.snb.datagen.generator.tools.PowerDistribution;
 import ldbc.snb.datagen.entities.statictype.tag.FlashmobTag;
+import ldbc.snb.datagen.generator.tools.PowerDistribution;
+import ldbc.snb.datagen.util.DateUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Random;
+import java.util.TreeSet;
 
 public class FlashmobTagDictionary {
 

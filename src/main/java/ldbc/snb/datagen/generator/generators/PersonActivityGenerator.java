@@ -36,17 +36,17 @@
 
 package ldbc.snb.datagen.generator.generators;
 
-import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.DatagenParams;
+import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.entities.dynamic.Forum;
+import ldbc.snb.datagen.entities.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.generator.generators.postgenerators.FlashmobPostGenerator;
 import ldbc.snb.datagen.generator.generators.postgenerators.UniformPostGenerator;
 import ldbc.snb.datagen.generator.generators.textgenerators.LdbcSnbTextGenerator;
 import ldbc.snb.datagen.generator.generators.textgenerators.TextGenerator;
-import ldbc.snb.datagen.entities.dynamic.Forum;
-import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
-import ldbc.snb.datagen.entities.dynamic.person.Person;
-import ldbc.snb.datagen.serializer.PersonActivityExporter;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
+import ldbc.snb.datagen.serializer.PersonActivityExporter;
 import ldbc.snb.datagen.serializer.UpdateEventSerializer;
 import ldbc.snb.datagen.util.FactorTable;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;

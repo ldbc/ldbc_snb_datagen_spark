@@ -36,12 +36,9 @@
 package ldbc.snb.datagen.serializer;
 
 import ldbc.snb.datagen.entities.statictype.Organisation;
+import ldbc.snb.datagen.entities.statictype.TagClass;
 import ldbc.snb.datagen.entities.statictype.place.Place;
 import ldbc.snb.datagen.entities.statictype.tag.Tag;
-import ldbc.snb.datagen.entities.statictype.TagClass;
-import org.apache.hadoop.conf.Configuration;
-
-import java.io.IOException;
 
 
 /**

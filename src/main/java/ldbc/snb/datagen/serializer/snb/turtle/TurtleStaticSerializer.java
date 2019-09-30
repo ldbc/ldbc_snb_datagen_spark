@@ -37,13 +37,21 @@ package ldbc.snb.datagen.serializer.snb.turtle;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.statictype.Organisation;
+import ldbc.snb.datagen.entities.statictype.TagClass;
 import ldbc.snb.datagen.entities.statictype.place.Place;
 import ldbc.snb.datagen.entities.statictype.tag.Tag;
-import ldbc.snb.datagen.entities.statictype.TagClass;
 import ldbc.snb.datagen.hadoop.writer.HDFSWriter;
 import ldbc.snb.datagen.serializer.StaticSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
-import ldbc.snb.datagen.vocabulary.*;
+import ldbc.snb.datagen.vocabulary.DBP;
+import ldbc.snb.datagen.vocabulary.DBPOWL;
+import ldbc.snb.datagen.vocabulary.FOAF;
+import ldbc.snb.datagen.vocabulary.RDF;
+import ldbc.snb.datagen.vocabulary.RDFS;
+import ldbc.snb.datagen.vocabulary.SN;
+import ldbc.snb.datagen.vocabulary.SNTAG;
+import ldbc.snb.datagen.vocabulary.SNVOC;
+import ldbc.snb.datagen.vocabulary.XSD;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;

@@ -35,16 +35,17 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop.generator;
 
-import ldbc.snb.datagen.generator.generators.knowsgenerators.KnowsGenerator;
 import ldbc.snb.datagen.LDBCDatagen;
-import ldbc.snb.datagen.hadoop.*;
+import ldbc.snb.datagen.entities.dynamic.person.Person;
+import ldbc.snb.datagen.generator.generators.knowsgenerators.KnowsGenerator;
+import ldbc.snb.datagen.hadoop.HadoopBlockMapper;
+import ldbc.snb.datagen.hadoop.HadoopBlockPartitioner;
+import ldbc.snb.datagen.hadoop.key.TupleKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyComparator;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyGroupComparator;
-import ldbc.snb.datagen.hadoop.key.TupleKey;
-import ldbc.snb.datagen.hadoop.miscjob.keychanger.HadoopFileKeyChanger;
 import ldbc.snb.datagen.hadoop.miscjob.HadoopFileRanker;
-import ldbc.snb.datagen.entities.dynamic.person.Person;
+import ldbc.snb.datagen.hadoop.miscjob.keychanger.HadoopFileKeyChanger;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;

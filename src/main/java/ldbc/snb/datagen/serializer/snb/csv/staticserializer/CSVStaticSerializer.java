@@ -46,7 +46,6 @@ import ldbc.snb.datagen.serializer.snb.csv.FileName;
 import ldbc.snb.datagen.vocabulary.DBP;
 import ldbc.snb.datagen.vocabulary.DBPOWL;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;

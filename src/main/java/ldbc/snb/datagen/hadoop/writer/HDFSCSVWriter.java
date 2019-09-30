@@ -37,7 +37,6 @@ package ldbc.snb.datagen.hadoop.writer;
 
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class HDFSCSVWriter extends HDFSWriter {

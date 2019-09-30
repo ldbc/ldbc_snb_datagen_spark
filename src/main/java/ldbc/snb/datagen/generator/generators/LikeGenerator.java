@@ -35,14 +35,14 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.generators;
 
-import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.generator.tools.PowerDistribution;
+import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.Forum;
+import ldbc.snb.datagen.entities.dynamic.messages.Message;
 import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.entities.dynamic.relations.Like;
 import ldbc.snb.datagen.entities.dynamic.relations.Like.LikeType;
-import ldbc.snb.datagen.entities.dynamic.messages.Message;
+import ldbc.snb.datagen.generator.tools.PowerDistribution;
 import ldbc.snb.datagen.serializer.PersonActivityExporter;
 
 import java.io.IOException;

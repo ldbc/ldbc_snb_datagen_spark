@@ -36,8 +36,8 @@
 package ldbc.snb.datagen.entities.dynamic;
 
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 
 import java.util.ArrayList;
 

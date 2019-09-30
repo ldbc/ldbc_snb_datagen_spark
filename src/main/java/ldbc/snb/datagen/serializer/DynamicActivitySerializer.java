@@ -35,17 +35,12 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer;
 
+import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.entities.dynamic.messages.Comment;
 import ldbc.snb.datagen.entities.dynamic.messages.Photo;
 import ldbc.snb.datagen.entities.dynamic.messages.Post;
 import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.entities.dynamic.relations.Like;
-import ldbc.snb.datagen.entities.dynamic.Forum;
-import ldbc.snb.datagen.hadoop.writer.HDFSCSVWriter;
-import ldbc.snb.datagen.serializer.snb.csv.FileName;
-import org.apache.hadoop.conf.Configuration;
-
-import java.io.IOException;
 
 /**
  * @author aprat

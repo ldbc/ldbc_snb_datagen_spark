@@ -35,8 +35,16 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer.snb.turtle;
 
-import ldbc.snb.datagen.vocabulary.*;
 import ldbc.snb.datagen.hadoop.writer.HDFSWriter;
+import ldbc.snb.datagen.vocabulary.DBP;
+import ldbc.snb.datagen.vocabulary.DBPOWL;
+import ldbc.snb.datagen.vocabulary.FOAF;
+import ldbc.snb.datagen.vocabulary.RDF;
+import ldbc.snb.datagen.vocabulary.RDFS;
+import ldbc.snb.datagen.vocabulary.SN;
+import ldbc.snb.datagen.vocabulary.SNTAG;
+import ldbc.snb.datagen.vocabulary.SNVOC;
+import ldbc.snb.datagen.vocabulary.XSD;
 
 /**
  * Created by aprat on 29/04/15.

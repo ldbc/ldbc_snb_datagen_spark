@@ -36,12 +36,12 @@
 package ldbc.snb.datagen.hadoop.miscjob;
 
 import ldbc.snb.datagen.LDBCDatagen;
+import ldbc.snb.datagen.entities.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.hadoop.HadoopBlockMapper;
 import ldbc.snb.datagen.hadoop.HadoopTuplePartitioner;
 import ldbc.snb.datagen.hadoop.key.TupleKey;
 import ldbc.snb.datagen.hadoop.miscjob.keychanger.HadoopFileKeyChanger;
-import ldbc.snb.datagen.entities.dynamic.relations.Knows;
-import ldbc.snb.datagen.entities.dynamic.person.Person;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;

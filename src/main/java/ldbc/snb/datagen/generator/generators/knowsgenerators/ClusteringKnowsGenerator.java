@@ -35,13 +35,17 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.generators.knowsgenerators;
 
+import ldbc.snb.datagen.entities.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.generator.tools.GraphUtils;
 import ldbc.snb.datagen.generator.tools.PersonGraph;
-import ldbc.snb.datagen.entities.dynamic.relations.Knows;
-import ldbc.snb.datagen.entities.dynamic.person.Person;
 import org.apache.hadoop.conf.Configuration;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.Random;
 
 /**
  * Created by aprat on 11/15/14.
