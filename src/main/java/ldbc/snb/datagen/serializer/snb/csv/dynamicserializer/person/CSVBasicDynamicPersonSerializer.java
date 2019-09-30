@@ -53,7 +53,7 @@ import java.util.List;
 
 import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
 
-public class CSVDynamicPersonSerializer extends DynamicPersonSerializer {
+public class CSVBasicDynamicPersonSerializer extends DynamicPersonSerializer {
 
     @Override
     public List<FileName> getFileNames() {

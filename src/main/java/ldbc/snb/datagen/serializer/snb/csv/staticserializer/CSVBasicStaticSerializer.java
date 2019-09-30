@@ -53,7 +53,7 @@ import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
 /**
  * Created by aprat on 12/17/14.
  */
-public class CSVStaticSerializer extends StaticSerializer {
+public class CSVBasicStaticSerializer extends StaticSerializer {
 
     @Override
     public List<FileName> getFileNames() {

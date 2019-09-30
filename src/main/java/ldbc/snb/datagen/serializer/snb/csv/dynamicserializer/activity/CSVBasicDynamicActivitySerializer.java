@@ -54,7 +54,7 @@ import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
 /**
  * @author aprat
  */
-public class CSVDynamicActivitySerializer extends DynamicActivitySerializer {
+public class CSVBasicDynamicActivitySerializer extends DynamicActivitySerializer {
 
     @Override
     public List<FileName> getFileNames() {
