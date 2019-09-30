@@ -58,7 +58,7 @@ public class CSVStaticSerializer extends StaticSerializer {
 
     @Override
     public List<FileName> getFileNames() {
-        return ImmutableList.of(TAG, TAG_HAS_TYPE_TAGCLASS, TAGCLASS, TAGCLASS_IS_SUBCLASS_OF_TAGCLASS, PLACE, PLACE_IS_PART_OF_PLACE, ORGANIZATION, ORGANIZATION_IS_LOCATED_IN_PLACE);
+        return ImmutableList.of(TAG, TAG_HAS_TYPE_TAGCLASS, TAGCLASS, TAGCLASS_IS_SUBCLASS_OF_TAGCLASS, PLACE, PLACE_IS_PART_OF_PLACE, ORGANISATION, ORGANISATION_IS_LOCATED_IN_PLACE);
     }
 
     @Override
@@ -68,8 +68,8 @@ public class CSVStaticSerializer extends StaticSerializer {
         writers.get(TAGCLASS).writeHeader(ImmutableList.of("id", "name", "url"));
         writers.get(TAGCLASS_IS_SUBCLASS_OF_TAGCLASS).writeHeader(ImmutableList.of("TagClass.id", "TagClass.id"));
         writers.get(PLACE).writeHeader(ImmutableList.of("id", "name", "url", "type"));
-        writers.get(ORGANIZATION).writeHeader(ImmutableList.of("id", "type", "name", "url"));
-        writers.get(ORGANIZATION_IS_LOCATED_IN_PLACE).writeHeader(ImmutableList.of("Organisation.id", "Place.id"));
+        writers.get(ORGANISATION).writeHeader(ImmutableList.of("id", "type", "name", "url"));
+        writers.get(ORGANISATION_IS_LOCATED_IN_PLACE).writeHeader(ImmutableList.of("Organisation.id", "Place.id"));
         writers.get(PLACE_IS_PART_OF_PLACE).writeHeader(ImmutableList.of("Place.id", "Place.id"));
     }
 
@@ -90,14 +90,14 @@ public class CSVStaticSerializer extends StaticSerializer {
     }
 
     protected void serialize(final Organisation organisation) {
-        writers.get(ORGANIZATION).writeEntry(ImmutableList.of(
+        writers.get(ORGANISATION).writeEntry(ImmutableList.of(
             Long.toString(organisation.id),
             organisation.type.toString(),
             organisation.name,
             DBP.getUrl(organisation.name)
         ));
 
-        writers.get(ORGANIZATION_IS_LOCATED_IN_PLACE).writeEntry(ImmutableList.of(
+        writers.get(ORGANISATION_IS_LOCATED_IN_PLACE).writeEntry(ImmutableList.of(
             Long.toString(organisation.id),
             Integer.toString(organisation.location)
         ));

@@ -57,7 +57,7 @@ public class CSVMergeForeignStaticSerializer extends StaticSerializer {
 
     @Override
     public List<FileName> getFileNames() {
-        return ImmutableList.of(TAG, TAGCLASS, PLACE, ORGANIZATION);
+        return ImmutableList.of(TAG, TAGCLASS, PLACE, ORGANISATION);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class CSVMergeForeignStaticSerializer extends StaticSerializer {
         writers.get(TAG).writeHeader(ImmutableList.of("id", "name", "url", "hasType"));
         writers.get(TAGCLASS).writeHeader(ImmutableList.of("id", "name", "url", "isSubclassOf"));
         writers.get(PLACE).writeHeader(ImmutableList.of("id", "name", "url", "type", "isPartOf"));
-        writers.get(ORGANIZATION).writeHeader(ImmutableList.of("id", "type", "name", "url", "place"));
+        writers.get(ORGANISATION).writeHeader(ImmutableList.of("id", "type", "name", "url", "place"));
     }
 
     protected void serialize(final Place place) {
@@ -79,7 +79,7 @@ public class CSVMergeForeignStaticSerializer extends StaticSerializer {
     }
 
     protected void serialize(final Organisation organisation) {
-        writers.get(ORGANIZATION).writeEntry(ImmutableList.of(
+        writers.get(ORGANISATION).writeEntry(ImmutableList.of(
             Long.toString(organisation.id),
             organisation.type.toString(),
             organisation.name,

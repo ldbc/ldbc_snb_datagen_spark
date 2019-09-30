@@ -9,8 +9,8 @@ public enum FileName {
     TAGCLASS_IS_SUBCLASS_OF_TAGCLASS("tagclass_isSubclassOf_tagclass"),
     PLACE("place"),
     PLACE_IS_PART_OF_PLACE("place_isPartOf_place"),
-    ORGANIZATION("organisation"),
-    ORGANIZATION_IS_LOCATED_IN_PLACE("organisation_isLocatedIn_place"),
+    ORGANISATION("organisation"),
+    ORGANISATION_IS_LOCATED_IN_PLACE("organisation_isLocatedIn_place"),
 
     // dynamic activity
     FORUM("forum"),
