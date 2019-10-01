@@ -40,206 +40,206 @@ public class LDBCDatagenTest {
 
     @Test
     public void personTest() {
-        testIdUniqueness(dir+"/person_0_0.csv", 0);
-        testStringLength(dir+"/person_0_0.csv", 1, 40);
-        testStringLength(dir+"/person_0_0.csv", 2, 40);
-        testStringLength(dir+"/person_0_0.csv", 3, 40);
-        testStringLength(dir+"/person_0_0.csv", 6, 40);
-        testStringLength(dir+"/person_0_0.csv", 7, 40);
+        testIdUniqueness(dir+"/dynamic/person_0_0.csv", 0);
+        testStringLength(dir+"/dynamic/person_0_0.csv", 1, 40);
+        testStringLength(dir+"/dynamic/person_0_0.csv", 2, 40);
+        testStringLength(dir+"/dynamic/person_0_0.csv", 3, 40);
+        testStringLength(dir+"/dynamic/person_0_0.csv", 6, 40);
+        testStringLength(dir+"/dynamic/person_0_0.csv", 7, 40);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void postTest() {
-        testIdUniqueness(dir+"/post_0_0.csv", 0);
-        testLongBetween(dir+"/post_0_0.csv",7,0,2001);
-        testStringLength(dir+"/post_0_0.csv", 1, 40);
-        testStringLength(dir+"/post_0_0.csv", 3, 40);
-        testStringLength(dir+"/post_0_0.csv", 4, 40);
-        testStringLength(dir+"/post_0_0.csv", 5, 40);
+        testIdUniqueness(dir+"/dynamic/post_0_0.csv", 0);
+        testLongBetween(dir+"/dynamic/post_0_0.csv",7,0,2001);
+        testStringLength(dir+"/dynamic/post_0_0.csv", 1, 40);
+        testStringLength(dir+"/dynamic/post_0_0.csv", 3, 40);
+        testStringLength(dir+"/dynamic/post_0_0.csv", 4, 40);
+        testStringLength(dir+"/dynamic/post_0_0.csv", 5, 40);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void forumTest() {
-        testIdUniqueness(dir+"/forum_0_0.csv", 0);
-        testStringLength(dir+"/forum_0_0.csv", 1, 256);
+        testIdUniqueness(dir+"/dynamic/forum_0_0.csv", 0);
+        testStringLength(dir+"/dynamic/forum_0_0.csv", 1, 256);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void commentTest() {
-        testIdUniqueness(dir+"/comment_0_0.csv", 0);
-        testLongBetween(dir+"/comment_0_0.csv",5,0,2001);
-        testStringLength(dir+"/comment_0_0.csv", 2, 40);
-        testStringLength(dir+"/comment_0_0.csv", 3, 40);
+        testIdUniqueness(dir+"/dynamic/comment_0_0.csv", 0);
+        testLongBetween(dir+"/dynamic/comment_0_0.csv",5,0,2001);
+        testStringLength(dir+"/dynamic/comment_0_0.csv", 2, 40);
+        testStringLength(dir+"/dynamic/comment_0_0.csv", 3, 40);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void organisationTest() {
-        testIdUniqueness(dir+"/organisation_0_0.csv", 0);
-        testStringLength(dir+"/organisation_0_0.csv", 2, 256);
+        testIdUniqueness(dir+"/static/organisation_0_0.csv", 0);
+        testStringLength(dir+"/static/organisation_0_0.csv", 2, 256);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void placeTest() {
-        testIdUniqueness(dir+"/place_0_0.csv", 0);
-        testStringLength(dir+"/place_0_0.csv", 1, 256);
+        testIdUniqueness(dir+"/static/place_0_0.csv", 0);
+        testStringLength(dir+"/static/place_0_0.csv", 1, 256);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void tagTest() {
-        testIdUniqueness(dir+"/tag_0_0.csv", 0);
-        testStringLength(dir+"/tag_0_0.csv", 1, 256);
+        testIdUniqueness(dir+"/static/tag_0_0.csv", 0);
+        testStringLength(dir+"/static/tag_0_0.csv", 1, 256);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void tagclassTest() {
-        testIdUniqueness(dir+"/tagclass_0_0.csv", 0);
-        testStringLength(dir+"/tagclass_0_0.csv", 1, 256);
+        testIdUniqueness(dir+"/static/tagclass_0_0.csv", 0);
+        testStringLength(dir+"/static/tagclass_0_0.csv", 1, 256);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void personKnowsPersonTest() {
-        testPairUniquenessPlusExistance(dir+"/person_knows_person_0_0.csv",0,1,dir+"/person_0_0.csv",0);
+        testPairUniquenessPlusExistance(dir+"/dynamic/person_knows_person_0_0.csv",0,1,dir+"/dynamic/person_0_0.csv",0);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void organisationIsLocatedInPlaceTest() {
-        testPairUniquenessPlusExistance(dir+"/organisation_isLocatedIn_place_0_0.csv",0,1,dir+"/organisation_0_0.csv",0,dir+"/place_0_0.csv",0);
+        testPairUniquenessPlusExistance(dir+"/static/organisation_isLocatedIn_place_0_0.csv",0,1,dir+"/static/organisation_0_0.csv",0,dir+"/static/place_0_0.csv",0);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void placeIsPartOfPlaceTest() {
-        testPairUniquenessPlusExistance(dir+"/place_isPartOf_place_0_0.csv",0,1,dir+"/place_0_0.csv",0);
+        testPairUniquenessPlusExistance(dir+"/static/place_isPartOf_place_0_0.csv",0,1,dir+"/static/place_0_0.csv",0);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void tagClassIsSubclassOfTest() {
-        testPairUniquenessPlusExistance(dir+"/tagclass_isSubclassOf_tagclass_0_0.csv",0,1,dir+"/tagclass_0_0.csv",0);
+        testPairUniquenessPlusExistance(dir+"/static/tagclass_isSubclassOf_tagclass_0_0.csv",0,1,dir+"/static/tagclass_0_0.csv",0);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void tagHasTypeTagclassCheck() {
-        testPairUniquenessPlusExistance(dir+"/tag_hasType_tagclass_0_0.csv",0,1,dir+"/tag_0_0.csv",0,dir+"/tagclass_0_0.csv",0);
+        testPairUniquenessPlusExistance(dir+"/static/tag_hasType_tagclass_0_0.csv",0,1,dir+"/static/tag_0_0.csv",0,dir+"/static/tagclass_0_0.csv",0);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void personStudyAtOrganisationCheck() {
-        testPairUniquenessPlusExistance(dir+"/person_studyAt_organisation_0_0.csv",0,1,dir+"/person_0_0.csv",0,dir+"/organisation_0_0.csv",0);
+        testPairUniquenessPlusExistance(dir+"/dynamic/person_studyAt_organisation_0_0.csv",0,1,dir+"/dynamic/person_0_0.csv",0,dir+"/static/organisation_0_0.csv",0);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void personWorkAtOrganisationCheck() {
-        testPairUniquenessPlusExistance(dir+"/person_workAt_organisation_0_0.csv",0,1,dir+"/person_0_0.csv",0,dir+"/organisation_0_0.csv",0);
+        testPairUniquenessPlusExistance(dir+"/dynamic/person_workAt_organisation_0_0.csv",0,1,dir+"/dynamic/person_0_0.csv",0,dir+"/static/organisation_0_0.csv",0);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void personHasInterestTagCheck() {
-        testPairUniquenessPlusExistance(dir+"/person_hasInterest_tag_0_0.csv",0,1,dir+"/person_0_0.csv",0,dir+"/tag_0_0.csv",0);
+        testPairUniquenessPlusExistance(dir+"/dynamic/person_hasInterest_tag_0_0.csv",0,1,dir+"/dynamic/person_0_0.csv",0,dir+"/static/tag_0_0.csv",0);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void personIsLocatedInPlaceCheck() {
-        testPairUniquenessPlusExistance(dir+"/person_isLocatedIn_place_0_0.csv",0,1,dir+"/person_0_0.csv",0,dir+"/place_0_0.csv",0);
+        testPairUniquenessPlusExistance(dir+"/dynamic/person_isLocatedIn_place_0_0.csv",0,1,dir+"/dynamic/person_0_0.csv",0,dir+"/static/place_0_0.csv",0);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void forumHasTagCheck() {
-        testPairUniquenessPlusExistance(dir+"/forum_hasTag_tag_0_0.csv",0,1,dir+"/forum_0_0.csv",0,dir+"/tag_0_0.csv",0);
+        testPairUniquenessPlusExistance(dir+"/dynamic/forum_hasTag_tag_0_0.csv",0,1,dir+"/dynamic/forum_0_0.csv",0,dir+"/static/tag_0_0.csv",0);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void forumHasModeratorPersonCheck() {
-        testPairUniquenessPlusExistance(dir+"/forum_hasModerator_person_0_0.csv",0,1,dir+"/forum_0_0.csv",0,dir+"/person_0_0.csv",0);
+        testPairUniquenessPlusExistance(dir+"/dynamic/forum_hasModerator_person_0_0.csv",0,1,dir+"/dynamic/forum_0_0.csv",0,dir+"/dynamic/person_0_0.csv",0);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void forumHasMemberPersonCheck() {
-        testPairUniquenessPlusExistance(dir+"/forum_hasMember_person_0_0.csv",0,1,dir+"/forum_0_0.csv",0,dir+"/person_0_0.csv",0);
+        testPairUniquenessPlusExistance(dir+"/dynamic/forum_hasMember_person_0_0.csv",0,1,dir+"/dynamic/forum_0_0.csv",0,dir+"/dynamic/person_0_0.csv",0);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void forumContainerOfPostCheck() {
-        testPairUniquenessPlusExistance(dir+"/forum_containerOf_post_0_0.csv",0,1,dir+"/forum_0_0.csv",0,dir+"/post_0_0.csv",0);
+        testPairUniquenessPlusExistance(dir+"/dynamic/forum_containerOf_post_0_0.csv",0,1,dir+"/dynamic/forum_0_0.csv",0,dir+"/dynamic/post_0_0.csv",0);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void commentHasCreatorPersonCheck() {
-        testPairUniquenessPlusExistance(dir+"/comment_hasCreator_person_0_0.csv",0,1,dir+"/comment_0_0.csv",0,dir+"/person_0_0.csv",0);
+        testPairUniquenessPlusExistance(dir+"/dynamic/comment_hasCreator_person_0_0.csv",0,1,dir+"/dynamic/comment_0_0.csv",0,dir+"/dynamic/person_0_0.csv",0);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void commentHasTagTagCheck() {
-        testPairUniquenessPlusExistance(dir+"/comment_hasTag_tag_0_0.csv",0,1,dir+"/comment_0_0.csv",0,dir+"/tag_0_0.csv",0);
+        testPairUniquenessPlusExistance(dir+"/dynamic/comment_hasTag_tag_0_0.csv",0,1,dir+"/dynamic/comment_0_0.csv",0,dir+"/static/tag_0_0.csv",0);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void commentIsLocatedInPlaceCheck() {
-        testPairUniquenessPlusExistance(dir+"/comment_isLocatedIn_place_0_0.csv",0,1,dir+"/comment_0_0.csv",0,dir+"/place_0_0.csv",0);
+        testPairUniquenessPlusExistance(dir+"/dynamic/comment_isLocatedIn_place_0_0.csv",0,1,dir+"/dynamic/comment_0_0.csv",0,dir+"/static/place_0_0.csv",0);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void commentReplyOfCommentCheck() {
-        testPairUniquenessPlusExistance(dir+"/comment_replyOf_comment_0_0.csv",0,1,dir+"/comment_0_0.csv",0,dir+"/comment_0_0.csv",0);
+        testPairUniquenessPlusExistance(dir+"/dynamic/comment_replyOf_comment_0_0.csv",0,1,dir+"/dynamic/comment_0_0.csv",0,dir+"/dynamic/comment_0_0.csv",0);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void commentReplyOfPostCheck() {
-        testPairUniquenessPlusExistance(dir+"/comment_replyOf_post_0_0.csv",0,1,dir+"/comment_0_0.csv",0,dir+"/post_0_0.csv",0);
+        testPairUniquenessPlusExistance(dir+"/dynamic/comment_replyOf_post_0_0.csv",0,1,dir+"/dynamic/comment_0_0.csv",0,dir+"/dynamic/post_0_0.csv",0);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void postHasCreatorPersonCheck() {
-        testPairUniquenessPlusExistance(dir+"/post_hasCreator_person_0_0.csv",0,1,dir+"/post_0_0.csv",0,dir+"/person_0_0.csv",0);
+        testPairUniquenessPlusExistance(dir+"/dynamic/post_hasCreator_person_0_0.csv",0,1,dir+"/dynamic/post_0_0.csv",0,dir+"/dynamic/person_0_0.csv",0);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void postIsLocatedInPlaceCheck() {
-        testPairUniquenessPlusExistance(dir+"/post_isLocatedIn_place_0_0.csv",0,1,dir+"/post_0_0.csv",0,dir+"/place_0_0.csv",0);
+        testPairUniquenessPlusExistance(dir+"/dynamic/post_isLocatedIn_place_0_0.csv",0,1,dir+"/dynamic/post_0_0.csv",0,dir+"/static/place_0_0.csv",0);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void personLikesCommentCheck() {
-        testPairUniquenessPlusExistance(dir+"/person_likes_comment_0_0.csv",0,1,dir+"/person_0_0.csv",0,dir+"/comment_0_0.csv",0);
+        testPairUniquenessPlusExistance(dir+"/dynamic/person_likes_comment_0_0.csv",0,1,dir+"/dynamic/person_0_0.csv",0,dir+"/dynamic/comment_0_0.csv",0);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void personLikesPostCheck() {
-        testPairUniquenessPlusExistance(dir+"/person_likes_post_0_0.csv",0,1,dir+"/person_0_0.csv",0,dir+"/post_0_0.csv",0);
+        testPairUniquenessPlusExistance(dir+"/dynamic/person_likes_post_0_0.csv",0,1,dir+"/dynamic/person_0_0.csv",0,dir+"/dynamic/post_0_0.csv",0);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void personEmailAddressCheck() {
-        testIdExistance(dir+"/person_0_0.csv",0,dir+"/person_email_emailaddress_0_0.csv",0);
-        testStringLength(dir+"/person_email_emailaddress_0_0.csv", 1, 256);
+        testIdExistance(dir+"/dynamic/person_0_0.csv",0,dir+"/dynamic/person_email_emailaddress_0_0.csv",0);
+        testStringLength(dir+"/dynamic/person_email_emailaddress_0_0.csv", 1, 256);
         assertTrue("Everything ok",true);
     }
 
@@ -254,7 +254,7 @@ public class LDBCDatagenTest {
     public void queryParamsTest() {
         //Creating person id check
         LongParser parser = new LongParser();
-        ColumnSet<Long> persons = new ColumnSet<Long>(parser,new File(dir+"/person_0_0.csv"),0,1);
+        ColumnSet<Long> persons = new ColumnSet<Long>(parser,new File(dir+"/dynamic/person_0_0.csv"),0,1);
         List<ColumnSet<Long>> personsRef = new ArrayList<ColumnSet<Long>>();
         personsRef.add(persons);
         List<Integer> personIndex = new ArrayList<Integer>();
@@ -263,7 +263,7 @@ public class LDBCDatagenTest {
 
         //Creating name check
         StringParser strParser = new StringParser();
-        ColumnSet<String> names = new ColumnSet<String>(strParser,new File(dir+"/person_0_0.csv"),1,1);
+        ColumnSet<String> names = new ColumnSet<String>(strParser,new File(dir+"/dynamic/person_0_0.csv"),1,1);
         List<ColumnSet<String>> namesRef = new ArrayList<ColumnSet<String>>();
         namesRef.add(names);
         List<Integer> namesIndex = new ArrayList<Integer>();
@@ -284,7 +284,7 @@ public class LDBCDatagenTest {
         testLongGE(sdir+"/interactive_2_param.txt",1, Dictionaries.dates.getStartDateTime());
 
         //Creating country check
-        ColumnSet<String> places = new ColumnSet<String>(strParser,new File(dir+"/place_0_0.csv"),1,1);
+        ColumnSet<String> places = new ColumnSet<String>(strParser,new File(dir+"/static/place_0_0.csv"),1,1);
         List<ColumnSet<String>> placesRef = new ArrayList<ColumnSet<String>>();
         placesRef.add(places);
         List<Integer> countriesIndex = new ArrayList<Integer>();
@@ -313,7 +313,7 @@ public class LDBCDatagenTest {
         testLongGE(sdir+"/interactive_5_param.txt",1, Dictionaries.dates.getStartDateTime());
 
         //Creating tag check
-        ColumnSet<String> tags = new ColumnSet<String>(strParser,new File(dir+"/tag_0_0.csv"),1,1);
+        ColumnSet<String> tags = new ColumnSet<String>(strParser,new File(dir+"/static/tag_0_0.csv"),1,1);
         List<ColumnSet<String>> tagsRef = new ArrayList<ColumnSet<String>>();
         tagsRef.add(tags);
         List<Integer> tagsIndex = new ArrayList<Integer>();
@@ -354,7 +354,7 @@ public class LDBCDatagenTest {
         assertTrue("ERROR PASSING TEST QUERY 11 PERSON EXISTS ",fileChecker.run(1));
 
         //Creating tagClass check
-        ColumnSet<String> tagClass = new ColumnSet<String>(strParser,new File(dir+"/tagclass_0_0.csv"),1,1);
+        ColumnSet<String> tagClass = new ColumnSet<String>(strParser,new File(dir+"/static/tagclass_0_0.csv"),1,1);
         List<ColumnSet<String>> tagClassRef = new ArrayList<ColumnSet<String>>();
         tagClassRef.add(tagClass);
         List<Integer> tagClassIndex = new ArrayList<Integer>();
