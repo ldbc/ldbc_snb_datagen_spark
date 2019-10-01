@@ -43,10 +43,11 @@ import ldbc.snb.datagen.entities.dynamic.messages.Photo;
 import ldbc.snb.datagen.entities.dynamic.messages.Post;
 import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.entities.dynamic.relations.Like;
+import ldbc.snb.datagen.hadoop.writer.HDFSCSVWriter;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
+import ldbc.snb.datagen.serializer.snb.csv.CSVSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
@@ -54,7 +55,7 @@ import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
 /**
  * @author aprat
  */
-public class CSVBasicDynamicActivitySerializer extends DynamicActivitySerializer {
+public class CSVBasicDynamicActivitySerializer extends DynamicActivitySerializer<HDFSCSVWriter> implements CSVSerializer {
 
     @Override
     public List<FileName> getFileNames() {

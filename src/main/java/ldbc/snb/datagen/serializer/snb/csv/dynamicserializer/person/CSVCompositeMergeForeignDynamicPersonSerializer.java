@@ -41,7 +41,9 @@ import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.entities.dynamic.relations.StudyAt;
 import ldbc.snb.datagen.entities.dynamic.relations.WorkAt;
+import ldbc.snb.datagen.hadoop.writer.HDFSCSVWriter;
 import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.CSVSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
 
 import java.util.Arrays;
@@ -52,7 +54,7 @@ import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
 /**
  * Created by aprat on 17/02/15.
  */
-public class CSVCompositeMergeForeignDynamicPersonSerializer extends DynamicPersonSerializer {
+public class CSVCompositeMergeForeignDynamicPersonSerializer extends DynamicPersonSerializer<HDFSCSVWriter> implements CSVSerializer {
     @Override
     public List<FileName> getFileNames() {
         return ImmutableList.of(PERSON,PERSON_HAS_INTEREST_TAG,PERSON_WORK_AT,PERSON_STUDY_AT,PERSON_KNOWS_PERSON);
@@ -70,8 +72,8 @@ public class CSVCompositeMergeForeignDynamicPersonSerializer extends DynamicPers
     @Override
     protected void serialize(final Person p) {
 
-        writers.get(PERSON).writeEntry(ImmutableList.of(Long.toString(
-                p.accountId()),
+        writers.get(PERSON).writeEntry(ImmutableList.of(
+                Long.toString(p.accountId()),
                 p.firstName(),
                 p.lastName(),
                 getGender(p.gender()),

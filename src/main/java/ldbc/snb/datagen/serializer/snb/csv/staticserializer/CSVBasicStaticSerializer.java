@@ -41,7 +41,9 @@ import ldbc.snb.datagen.entities.statictype.Organisation;
 import ldbc.snb.datagen.entities.statictype.TagClass;
 import ldbc.snb.datagen.entities.statictype.place.Place;
 import ldbc.snb.datagen.entities.statictype.tag.Tag;
+import ldbc.snb.datagen.hadoop.writer.HDFSCSVWriter;
 import ldbc.snb.datagen.serializer.StaticSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.CSVSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
 import ldbc.snb.datagen.vocabulary.DBP;
 import ldbc.snb.datagen.vocabulary.DBPOWL;
@@ -53,7 +55,7 @@ import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
 /**
  * Created by aprat on 12/17/14.
  */
-public class CSVBasicStaticSerializer extends StaticSerializer {
+public class CSVBasicStaticSerializer extends StaticSerializer<HDFSCSVWriter> implements CSVSerializer {
 
     @Override
     public List<FileName> getFileNames() {

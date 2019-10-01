@@ -44,6 +44,7 @@ import ldbc.snb.datagen.entities.dynamic.relations.StudyAt;
 import ldbc.snb.datagen.entities.dynamic.relations.WorkAt;
 import ldbc.snb.datagen.hadoop.writer.HDFSCSVWriter;
 import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.CSVSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
 import org.apache.hadoop.conf.Configuration;
 
@@ -51,7 +52,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CSVDynamicPersonSerializerExtended extends DynamicPersonSerializer {
+public class CSVDynamicPersonSerializerExtended extends DynamicPersonSerializer<HDFSCSVWriter> implements CSVSerializer {
 
     private HDFSCSVWriter[] writers;
 

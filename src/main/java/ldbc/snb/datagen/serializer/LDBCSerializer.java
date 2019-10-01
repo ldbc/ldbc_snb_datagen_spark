@@ -1,32 +1,23 @@
 package ldbc.snb.datagen.serializer;
 
-import ldbc.snb.datagen.hadoop.writer.HDFSCSVWriter;
+import ldbc.snb.datagen.hadoop.writer.HDFSWriter;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-abstract public class LDBCSerializer {
+abstract public class LDBCSerializer<TWriter extends HDFSWriter> implements Serializer<TWriter> {
 
-    protected Map<FileName, HDFSCSVWriter> writers = new HashMap<>();
+    protected Map<FileName, TWriter> writers;
 
     abstract public List<FileName> getFileNames();
 
     abstract public void writeFileHeaders();
 
     public void initialize(Configuration conf, int reducerId) throws IOException {
-        for (FileName f : getFileNames()) {
-            writers.put(f, new HDFSCSVWriter(
-                    conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + (isDynamic() ? "/dynamic/" : "/static/"),
-                    f.toString() + "_" + reducerId,
-                    conf.getInt("ldbc.snb.datagen.numPartitions", 1),
-                    conf.getBoolean("ldbc.snb.datagen.serializer.compressed", false), "|",
-                    conf.getBoolean("ldbc.snb.datagen.serializer.endlineSeparator", false))
-            );
-        }
+        writers = initialize(conf, reducerId, isDynamic(), getFileNames());
         writeFileHeaders();
     }
 

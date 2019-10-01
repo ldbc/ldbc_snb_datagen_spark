@@ -45,7 +45,6 @@ public class HDFSCSVWriter extends HDFSWriter {
     private StringBuffer buffer;
     private boolean endLineSeparator = true;
 
-
     public HDFSCSVWriter(String outputDir, String prefix, int numPartitions, boolean compressed, String separator, boolean endLineSeparator) throws IOException {
         super(outputDir, prefix, numPartitions, compressed, "csv");
         this.separator = separator;

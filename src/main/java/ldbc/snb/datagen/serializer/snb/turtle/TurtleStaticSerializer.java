@@ -35,13 +35,17 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer.snb.turtle;
 
+import com.google.common.collect.ImmutableList;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.statictype.Organisation;
 import ldbc.snb.datagen.entities.statictype.TagClass;
 import ldbc.snb.datagen.entities.statictype.place.Place;
 import ldbc.snb.datagen.entities.statictype.tag.Tag;
+import ldbc.snb.datagen.hadoop.writer.HDFSCSVWriter;
 import ldbc.snb.datagen.hadoop.writer.HDFSWriter;
+import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
 import ldbc.snb.datagen.serializer.StaticSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.CSVSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
 import ldbc.snb.datagen.vocabulary.DBP;
 import ldbc.snb.datagen.vocabulary.DBPOWL;
@@ -57,58 +61,21 @@ import org.apache.hadoop.conf.Configuration;
 import java.io.IOException;
 import java.util.List;
 
+import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
+
 
 /**
  * Created by aprat on 12/17/14.
  */
-public class TurtleStaticSerializer extends StaticSerializer {
-
-    private HDFSWriter[] writers;
-
-    private enum FileNames {
-        SOCIAL_NETWORK("social_network_static");
-        private final String name;
-
-        private FileNames(String name) {
-            this.name = name;
-        }
-
-        public String toString() {
-            return name;
-        }
-    }
+public class TurtleStaticSerializer extends StaticSerializer<HDFSWriter> implements TurtleSerializer {
 
     @Override
     public List<FileName> getFileNames() {
-        return null;
+        return ImmutableList.of(SOCIAL_NETWORK_STATIC);
     }
 
     @Override
-    public void writeFileHeaders() {
-
-    }
-
-    @Override
-    public void initialize(Configuration conf, int reducerId) throws IOException {
-
-        int numFiles = FileNames.values().length;
-        writers = new HDFSWriter[numFiles];
-        for (int i = 0; i < numFiles; ++i) {
-            writers[i] = new HDFSWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir")+"/static/", FileNames.values()[i]
-                    .toString() + "_" + reducerId, conf.getInt("ldbc.snb.datagen.numPartitions", 1), conf
-                                                .getBoolean("ldbc.snb.datagen.serializer.compressed", false), "ttl");
-            writers[i].writeAllPartitions(Turtle.getNamespaces());
-            writers[i].writeAllPartitions(Turtle.getStaticNamespaces());
-        }
-    }
-
-    @Override
-    public void close() {
-        int numFiles = FileNames.values().length;
-        for (int i = 0; i < numFiles; ++i) {
-            writers[i].close();
-        }
-    }
+    public void writeFileHeaders() { }
 
     @Override
     protected void serialize(final Place place) {
@@ -121,17 +88,17 @@ public class TurtleStaticSerializer extends StaticSerializer {
             type = DBPOWL.Continent;
         }
 
-        Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()], DBP
+        Turtle.writeDBPData(writers.get(SOCIAL_NETWORK_STATIC), DBP
                 .fullPrefixed(name), RDF.type, DBPOWL.Place);
-        Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()], DBP.fullPrefixed(name), RDF.type, type);
-        Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()], DBP.fullPrefixed(name), FOAF.Name, Turtle
+        Turtle.writeDBPData(writers.get(SOCIAL_NETWORK_STATIC), DBP.fullPrefixed(name), RDF.type, type);
+        Turtle.writeDBPData(writers.get(SOCIAL_NETWORK_STATIC), DBP.fullPrefixed(name), FOAF.Name, Turtle
                 .createLiteral(name));
         Turtle.createTripleSPO(result, DBP.fullPrefixed(name), SNVOC.id,
                                Turtle.createDataTypeLiteral(Long.toString(place.getId()), XSD.Int));
         if (place.getType() != Place.CONTINENT) {
             String countryName = Dictionaries.places.getPlaceName(Dictionaries.places.belongsTo(place.getId()));
             Turtle.createTripleSPO(result, DBP.fullPrefixed(name), SNVOC.isPartOf, DBP.fullPrefixed(countryName));
-            writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
+            writers.get(SOCIAL_NETWORK_STATIC).write(result.toString());
         }
     }
 
@@ -139,11 +106,11 @@ public class TurtleStaticSerializer extends StaticSerializer {
     protected void serialize(final Organisation organisation) {
         StringBuffer result = new StringBuffer(19000);
         if (organisation.type == Organisation.OrganisationType.company) {
-            Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()], SN
+            Turtle.writeDBPData(writers.get(SOCIAL_NETWORK_STATIC), SN
                     .getCompURI(organisation.id), RDF.type, DBPOWL.Company);
-            Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()], SN
+            Turtle.writeDBPData(writers.get(SOCIAL_NETWORK_STATIC), SN
                     .getCompURI(organisation.id), SNVOC.url, DBP.fullPrefixed(organisation.name));
-            Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()], SN.getCompURI(organisation.id), FOAF.Name,
+            Turtle.writeDBPData(writers.get(SOCIAL_NETWORK_STATIC), SN.getCompURI(organisation.id), FOAF.Name,
                                 Turtle.createLiteral(organisation.name));
             Turtle.createTripleSPO(result, SN.getCompURI(organisation.id),
                                    SNVOC.locatedIn, DBP
@@ -151,11 +118,11 @@ public class TurtleStaticSerializer extends StaticSerializer {
             Turtle.createTripleSPO(result, SN.getCompURI(organisation.id), SNVOC.id,
                                    Turtle.createDataTypeLiteral(Long.toString(organisation.id), XSD.Int));
         } else {
-            Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()], SN
+            Turtle.writeDBPData(writers.get(SOCIAL_NETWORK_STATIC), SN
                     .getUnivURI(organisation.id), RDF.type, DBPOWL.University);
-            Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()], SN
+            Turtle.writeDBPData(writers.get(SOCIAL_NETWORK_STATIC), SN
                     .getUnivURI(organisation.id), SNVOC.url, DBP.fullPrefixed(organisation.name));
-            Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()], SN.getUnivURI(organisation.id), FOAF.Name,
+            Turtle.writeDBPData(writers.get(SOCIAL_NETWORK_STATIC), SN.getUnivURI(organisation.id), FOAF.Name,
                                 Turtle.createLiteral(organisation.name));
             Turtle.createTripleSPO(result, SN.getUnivURI(organisation.id),
                                    SNVOC.locatedIn, DBP
@@ -164,14 +131,14 @@ public class TurtleStaticSerializer extends StaticSerializer {
                                    Turtle.createDataTypeLiteral(Long.toString(organisation.id), XSD.Int));
         }
 
-        writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
+        writers.get(SOCIAL_NETWORK_STATIC).write(result.toString());
     }
 
     @Override
     protected void serialize(final TagClass tagClass) {
 
         StringBuffer result = new StringBuffer(350);
-        Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()], SN
+        Turtle.writeDBPData(writers.get(SOCIAL_NETWORK_STATIC), SN
                 .getTagClassURI(tagClass.id), RDFS.label, Turtle
                                     .createLiteral(Dictionaries.tags.getClassName(tagClass.id)));
         Turtle.createTripleSPO(result, SN.getTagClassURI(tagClass.id), RDF.type, SNVOC.TagClass);
@@ -186,11 +153,11 @@ public class TurtleStaticSerializer extends StaticSerializer {
 
         Turtle.createTripleSPO(result, SN.getTagClassURI(tagClass.id), SNVOC.id,
                                Turtle.createDataTypeLiteral(Long.toString(tagClass.id), XSD.Int));
-        writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
+        writers.get(SOCIAL_NETWORK_STATIC).write(result.toString());
 
         Integer parent = Dictionaries.tags.getClassParent(tagClass.id);
         if (parent != -1) {
-            Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()], SN
+            Turtle.writeDBPData(writers.get(SOCIAL_NETWORK_STATIC), SN
                     .getTagClassURI(tagClass.id), RDFS.subClassOf, SN.getTagClassURI(parent));
         }
     }
@@ -198,14 +165,14 @@ public class TurtleStaticSerializer extends StaticSerializer {
     @Override
     protected void serialize(final Tag tag) {
         StringBuffer result = new StringBuffer(350);
-        Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()], SNTAG.fullPrefixed(tag.name), FOAF.Name, Turtle
+        Turtle.writeDBPData(writers.get(SOCIAL_NETWORK_STATIC), SNTAG.fullPrefixed(tag.name), FOAF.Name, Turtle
                 .createLiteral(tag.name));
         Integer tagClass = tag.tagClass;
-        Turtle.writeDBPData(writers[FileNames.SOCIAL_NETWORK.ordinal()], SNTAG.fullPrefixed(tag.name), RDF.type, SN
+        Turtle.writeDBPData(writers.get(SOCIAL_NETWORK_STATIC), SNTAG.fullPrefixed(tag.name), RDF.type, SN
                 .getTagClassURI(tagClass));
         Turtle.createTripleSPO(result, SNTAG.fullPrefixed(tag.name), SNVOC.id,
                                Turtle.createDataTypeLiteral(Long.toString(tag.id), XSD.Int));
-        writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
+        writers.get(SOCIAL_NETWORK_STATIC).write(result.toString());
     }
 
 }

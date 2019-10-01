@@ -41,7 +41,10 @@ import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.entities.dynamic.relations.StudyAt;
 import ldbc.snb.datagen.entities.dynamic.relations.WorkAt;
+import ldbc.snb.datagen.hadoop.writer.HDFSCSVWriter;
 import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
+import ldbc.snb.datagen.serializer.StaticSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.CSVSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
 
 import java.util.Iterator;
@@ -52,7 +55,7 @@ import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
 /**
  * Created by aprat on 17/02/15.
  */
-public class CSVMergeForeignDynamicPersonSerializer extends DynamicPersonSerializer {
+public class CSVMergeForeignDynamicPersonSerializer extends DynamicPersonSerializer<HDFSCSVWriter> implements CSVSerializer {
 
     @Override
     public List<FileName> getFileNames() {

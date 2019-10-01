@@ -39,12 +39,20 @@ import ldbc.snb.datagen.entities.statictype.Organisation;
 import ldbc.snb.datagen.entities.statictype.TagClass;
 import ldbc.snb.datagen.entities.statictype.place.Place;
 import ldbc.snb.datagen.entities.statictype.tag.Tag;
-
+import ldbc.snb.datagen.hadoop.writer.HDFSWriter;
 
 /**
  * Created by aprat on 12/17/14.
  */
-abstract public class StaticSerializer extends LDBCSerializer {
+abstract public class StaticSerializer<TWriter extends HDFSWriter> extends LDBCSerializer<TWriter> {
+
+    abstract protected void serialize(final Place place);
+
+    abstract protected void serialize(final Organisation organisation);
+
+    abstract protected void serialize(final TagClass tagClass);
+
+    abstract protected void serialize(final Tag tag);
 
     public void export(final TagClass tagclass) {
         serialize(tagclass);
@@ -61,14 +69,6 @@ abstract public class StaticSerializer extends LDBCSerializer {
     public void export(final Tag tag) {
         serialize(tag);
     }
-
-    abstract protected void serialize(final Place place);
-
-    abstract protected void serialize(final Organisation organisation);
-
-    abstract protected void serialize(final TagClass tagClass);
-
-    abstract protected void serialize(final Tag tag);
 
     @Override
     protected boolean isDynamic() {

@@ -46,7 +46,9 @@ import ldbc.snb.datagen.serializer.snb.csv.FileName;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by aprat on 30/01/15.
@@ -101,6 +103,11 @@ public class EmptyDynamicActivitySerializer extends DynamicActivitySerializer {
     @Override
     protected void serialize(final Like like) {
         //This is left intentionally blank
+    }
+
+    @Override
+    public Map initialize(Configuration conf, int reducerId, boolean dynamic, List list) throws IOException {
+        return Collections.emptyMap();
     }
 
 }

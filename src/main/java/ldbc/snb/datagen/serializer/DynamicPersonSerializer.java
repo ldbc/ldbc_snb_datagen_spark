@@ -41,6 +41,7 @@ import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.entities.dynamic.relations.StudyAt;
 import ldbc.snb.datagen.entities.dynamic.relations.WorkAt;
+import ldbc.snb.datagen.hadoop.writer.HDFSWriter;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -50,10 +51,17 @@ import java.util.stream.Collectors;
 /**
  * Created by aprat on 10/15/14.
  */
-abstract public class DynamicPersonSerializer extends LDBCSerializer {
+abstract public class DynamicPersonSerializer<TWriter extends HDFSWriter> extends LDBCSerializer<TWriter> {
+
+    abstract protected void serialize(final Person p);
+
+    abstract protected void serialize(final StudyAt studyAt);
+
+    abstract protected void serialize(final WorkAt workAt);
+
+    abstract protected void serialize(final Person p, final Knows knows);
 
     public void export(final Person person) {
-
         serialize(person);
 
         long universityId = Dictionaries.universities.getUniversityFromLocation(person.universityLocationId());
@@ -98,14 +106,6 @@ abstract public class DynamicPersonSerializer extends LDBCSerializer {
     public String buildEmail(TreeSet<String> emails) {
         return Joiner.on(";").join(emails);
     }
-
-    abstract protected void serialize(final Person p);
-
-    abstract protected void serialize(final StudyAt studyAt);
-
-    abstract protected void serialize(final WorkAt workAt);
-
-    abstract protected void serialize(final Person p, final Knows knows);
 
     @Override
     protected boolean isDynamic() {
