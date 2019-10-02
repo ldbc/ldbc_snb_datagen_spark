@@ -36,18 +36,19 @@
 
 package ldbc.snb.datagen.generator.generators;
 
-import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.objects.dynamic.Forum;
-import ldbc.snb.datagen.objects.dynamic.relations.ForumMembership;
-import ldbc.snb.datagen.objects.dynamic.relations.Knows;
-import ldbc.snb.datagen.objects.dynamic.person.Person;
+import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.entities.dynamic.Forum;
+import ldbc.snb.datagen.entities.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
+import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.util.StringUtils;
 import ldbc.snb.datagen.vocabulary.SN;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 import java.util.TreeSet;
 
@@ -63,7 +64,7 @@ public class ForumGenerator {
                                 language
         );
 
-        ArrayList<Integer> forumTags = new ArrayList<Integer>();
+        List<Integer> forumTags = new ArrayList<>();
         for (Integer interest : person.interests()) {
             forumTags.add(interest);
         }
@@ -80,10 +81,9 @@ public class ForumGenerator {
         return forum;
     }
 
-    public Forum createGroup(RandomGeneratorFarm randomFarm, long forumId, Person person, ArrayList<Person> persons) {
+    public Forum createGroup(RandomGeneratorFarm randomFarm, long forumId, Person person, List<Person> persons) {
         long date = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), person
                 .creationDate() + DatagenParams.deltaTime);
-        //if( date > Dictionaries.dates.getEndDateTime() )  return null;
 
         int language = randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE).nextInt(person.languages().size());
         Iterator<Integer> iter = person.interests().iterator();
@@ -92,7 +92,7 @@ public class ForumGenerator {
             iter.next();
         }
         int interestId = iter.next().intValue();
-        ArrayList<Integer> interest = new ArrayList<Integer>();
+        List<Integer> interest = new ArrayList<>();
         interest.add(interestId);
 
         Forum forum = new Forum(SN.formId(SN.composeId(forumId, date)),
@@ -109,8 +109,8 @@ public class ForumGenerator {
         forum.tags(interest);
 
 
-        TreeSet<Long> added = new TreeSet<Long>();
-        ArrayList<Knows> friends = new ArrayList<Knows>();
+        TreeSet<Long> added = new TreeSet<>();
+        List<Knows> friends = new ArrayList<>();
         friends.addAll(person.knows());
         int numMembers = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_USERS_PER_FORUM)
                                    .nextInt(DatagenParams.maxNumMemberGroup);
@@ -127,11 +127,8 @@ public class ForumGenerator {
                             .max(forum.creationDate(), k.creationDate() + DatagenParams.deltaTime));
                     assert forum
                             .creationDate() + DatagenParams.deltaTime <= date : "Forum creation date larger than membership date for knows based members";
-                    /*if( date < Dictionaries.dates.getEndDateTime() )*/
-                    {
-                        forum.addMember(new ForumMembership(forum.id(), date, k.to()));
-                        added.add(k.to().accountId());
-                    }
+                    forum.addMember(new ForumMembership(forum.id(), date, k.to()));
+                    added.add(k.to().accountId());
                 }
             } else {
                 int candidateIndex = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX)
@@ -144,12 +141,10 @@ public class ForumGenerator {
                     date = Dictionaries.dates.randomDate(random,
                                                          Math.max(forum.creationDate(), member
                                                                  .creationDate()) + DatagenParams.deltaTime);
-                    {
-                        assert forum
-                                .creationDate() + DatagenParams.deltaTime <= date : "Forum creation date larger than membership date for block based members";
-                        forum.addMember(new ForumMembership(forum.id(), date, new Person.PersonSummary(member)));
-                        added.add(member.accountId());
-                    }
+                    assert forum
+                            .creationDate() + DatagenParams.deltaTime <= date : "Forum creation date larger than membership date for block based members";
+                    forum.addMember(new ForumMembership(forum.id(), date, new Person.PersonSummary(member)));
+                    added.add(member.accountId());
                 }
             }
             numLoop++;
@@ -160,7 +155,6 @@ public class ForumGenerator {
     public Forum createAlbum(RandomGeneratorFarm randomFarm, long forumId, Person person, int numAlbum) {
         long date = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), person
                 .creationDate() + DatagenParams.deltaTime);
-        //if( date > Dictionaries.dates.getEndDateTime() )  return null;
         int language = randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE).nextInt(person.languages().size());
         Forum forum = new Forum(SN.formId(SN.composeId(forumId, date)),
                                 date,
@@ -177,14 +171,14 @@ public class ForumGenerator {
             iter.next();
         }
         int interestId = iter.next().intValue();
-        ArrayList<Integer> interest = new ArrayList<Integer>();
+        List<Integer> interest = new ArrayList<>();
         interest.add(interestId);
         forum.tags(interest);
 
-        ArrayList<Integer> countries = Dictionaries.places.getCountries();
+        List<Integer> countries = Dictionaries.places.getCountries();
         int randomCountry = randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY).nextInt(countries.size());
         forum.place(countries.get(randomCountry));
-        ArrayList<Knows> friends = new ArrayList<Knows>();
+        List<Knows> friends = new ArrayList<>();
         friends.addAll(person.knows());
         for (Knows k : friends) {
             double prob = randomFarm.get(RandomGeneratorFarm.Aspect.ALBUM_MEMBERSHIP).nextDouble();
@@ -192,10 +186,7 @@ public class ForumGenerator {
                 Random random = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX);
                 date = Dictionaries.dates.randomDate(random, Math.max(forum.creationDate(), k.creationDate())
                         + DatagenParams.deltaTime);
-				/*if( date < Dictionaries.dates.getEndDateTime() )*/
-                {
-                    forum.addMember(new ForumMembership(forum.id(), date, k.to()));
-                }
+                forum.addMember(new ForumMembership(forum.id(), date, k.to()));
             }
         }
         return forum;

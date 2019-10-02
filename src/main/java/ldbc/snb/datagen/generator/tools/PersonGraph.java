@@ -35,35 +35,26 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.tools;
 
-import ldbc.snb.datagen.objects.dynamic.relations.Knows;
-import ldbc.snb.datagen.objects.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-/**
- * Created by aprat on 18/06/15.
- */
 public class PersonGraph {
-    private HashMap<Long, HashSet<Long>> adjacencies_;
+    private Map<Long, HashSet<Long>> adjacencies_;
 
-    public PersonGraph(ArrayList<Person> persons) {
-        adjacencies_ = new HashMap<Long, HashSet<Long>>();
+    public PersonGraph(List<Person> persons) {
+        adjacencies_ = new HashMap<>();
         for (Person p : persons) {
-            HashSet<Long> neighbors = new HashSet<Long>();
+            HashSet<Long> neighbors = new HashSet<>();
             for (Knows k : p.knows()) {
                 neighbors.add(k.to().accountId());
             }
             adjacencies_.put(p.accountId(), neighbors);
-        }
-    }
-
-    public PersonGraph(PersonGraph graph) {
-        adjacencies_ = new HashMap<Long, HashSet<Long>>();
-        for (Long l : graph.adjacencies_.keySet()) {
-            adjacencies_.put(l, new HashSet<Long>(graph.adjacencies_.get(l)));
         }
     }
 

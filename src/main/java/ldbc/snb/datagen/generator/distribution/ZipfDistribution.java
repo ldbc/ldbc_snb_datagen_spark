@@ -40,17 +40,15 @@ import org.apache.hadoop.conf.Configuration;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
-/**
- * Created by aprat on 5/03/15.
- */
 public class ZipfDistribution extends DegreeDistribution {
 
     private org.apache.commons.math3.distribution.ZipfDistribution zipf_;
     private double ALPHA_ = 2.0;
     private Random random = new Random();
-    private HashMap<Integer, Integer> histogram = new HashMap<Integer, Integer>();
+    private Map<Integer, Integer> histogram = new HashMap<>();
     private double probabilities[];
     private Integer values[];
     private double mean_ = 0.0;
@@ -71,12 +69,7 @@ public class ZipfDistribution extends DegreeDistribution {
         probabilities = new double[numDifferentValues];
         values = new Integer[numDifferentValues];
         histogram.keySet().toArray(values);
-        Arrays.sort(values, new Comparator<Integer>() {
-            @Override
-            public int compare(Integer o1, Integer o2) {
-                return o1 - o2;
-            }
-        });
+        Arrays.sort(values, Comparator.comparingInt(o -> o));
 
         probabilities[0] = histogram.get(values[0]) / (double) numSamples;
         for (int i = 1; i < numDifferentValues; ++i) {
@@ -93,7 +86,6 @@ public class ZipfDistribution extends DegreeDistribution {
     }
 
     public long nextDegree() {
-        //return zipf_.sample();
         int min = 0;
         int max = probabilities.length;
         double prob = random.nextDouble();
@@ -110,7 +102,6 @@ public class ZipfDistribution extends DegreeDistribution {
     }
 
     public double mean(long numPersons) {
-        //return zipf_.getNumericalMean();
         return mean_;
     }
 }

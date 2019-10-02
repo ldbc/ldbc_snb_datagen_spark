@@ -35,7 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.util;
 
-import ldbc.snb.datagen.LDBCDatagen;
+import ldbc.snb.datagen.LdbcDatagen;
 import org.apache.hadoop.conf.Configuration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -45,14 +45,15 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
 
-/**
- * Created by aprat on 6/1/14.
- */
 public class ConfigParser {
 
     private static TreeMap<String, ScaleFactor> scaleFactors;
@@ -67,9 +68,9 @@ public class ConfigParser {
         conf.set("ldbc.snb.datagen.generator.startYear", "2010");
         conf.set("ldbc.snb.datagen.generator.numYears", "3");
         conf.set("ldbc.snb.datagen.generator.numThreads", Integer.toString(1));
-        conf.set("ldbc.snb.datagen.serializer.dynamicPersonSerializer", "ldbc.snb.datagen.serializer.snb.csv.basic.CSVDynamicPersonSerializer");
-        conf.set("ldbc.snb.datagen.serializer.staticSerializer", "ldbc.snb.datagen.serializer.snb.csv.basic.CSVStaticSerializer");
-        conf.set("ldbc.snb.datagen.serializer.dynamicActivitySerializer", "ldbc.snb.datagen.serializer.snb.csv.basic.CSVDynamicActivitySerializer");
+        conf.set("ldbc.snb.datagen.serializer.dynamicActivitySerializer", "ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CSVBasicDynamicActivitySerializer");
+        conf.set("ldbc.snb.datagen.serializer.dynamicPersonSerializer", "ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CSVBasicDynamicPersonSerializer");
+        conf.set("ldbc.snb.datagen.serializer.staticSerializer", "ldbc.snb.datagen.serializer.snb.csv.staticserializer.CSVBasicStaticSerializer");
         conf.set("ldbc.snb.datagen.generator.distribution.degreeDistribution", "ldbc.snb.datagen.generator.distribution.FacebookDegreeDistribution");
         conf.set("ldbc.snb.datagen.generator.knowsGenerator", "ldbc.snb.datagen.generator.generators.knowsgenerators.DistanceKnowsGenerator");
         conf.set("ldbc.snb.datagen.serializer.compressed", Boolean.toString(false));
@@ -82,10 +83,10 @@ public class ConfigParser {
         conf.set("ldbc.snb.datagen.serializer.endlineSeparator", Boolean.toString(false));
         conf.set("ldbc.snb.datagen.generator.deltaTime", "10000");
         conf.set("ldbc.snb.datagen.generator.activity", "true");
-        conf.set("ldbc.snb.datagen.serializer.dateFormatter", "ldbc.snb.datagen.serializer.formatter.StringDateFormatter");
-        conf.set("ldbc.snb.datagen.serializer.formatter.StringDateFormatter.dateTimeFormat", "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-        conf.set("ldbc.snb.datagen.serializer.formatter.StringDateFormatter.dateFormat", "yyyy-MM-dd");
-        conf.set("ldbc.snb.datagen.generator.person.similarity", "ldbc.snb.datagen.objects.dynamic.person.similarity.GeoDistanceSimilarity");
+        conf.set("ldbc.snb.datagen.serializer.dateFormatter", "ldbc.snb.datagen.util.formatter.StringDateFormatter");
+        conf.set("ldbc.snb.datagen.util.formatter.StringDateFormatter.dateTimeFormat", "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        conf.set("ldbc.snb.datagen.util.formatter.StringDateFormatter.dateFormat", "yyyy-MM-dd");
+        conf.set("ldbc.snb.datagen.generator.person.similarity", "ldbc.snb.datagen.entities.dynamic.person.similarity.GeoDistanceSimilarity");
         conf.set("ldbc.snb.datagen.parametergenerator.python", "python");
         conf.set("ldbc.snb.datagen.parametergenerator.parameters", "true");
         conf.set("ldbc.snb.datagen.serializer.persons.sort", "true");
@@ -93,10 +94,10 @@ public class ConfigParser {
         /** Loading predefined Scale Factors **/
 
         try {
-            scaleFactors = new TreeMap<String, ScaleFactor>();
+            scaleFactors = new TreeMap<>();
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(LDBCDatagen.class.getResourceAsStream("/" + SCALE_FACTORS_FILE));
+            Document doc = dBuilder.parse(LdbcDatagen.class.getResourceAsStream("/" + SCALE_FACTORS_FILE));
             doc.getDocumentElement().normalize();
 
             System.out.println("Reading scale factors..");

@@ -1,5 +1,5 @@
 #!/bin/bash
-DEFAULT_HADOOP_HOME=/home/user/hadoop-2.6.0 #change to your hadoop folder
+DEFAULT_HADOOP_HOME=/home/user/hadoop-2.9.2 #change to your hadoop folder
 DEFAULT_LDBC_SNB_DATAGEN_HOME=`pwd` #change to your ldbc_snb_datagen folder
 
 # allow overriding configuration from outside via environment variables

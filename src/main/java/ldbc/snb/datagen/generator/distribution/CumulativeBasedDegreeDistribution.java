@@ -37,15 +37,12 @@ package ldbc.snb.datagen.generator.distribution;
 
 import org.apache.hadoop.conf.Configuration;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
-/**
- * Created by aprat on 12/05/15.
- */
 public abstract class CumulativeBasedDegreeDistribution extends DegreeDistribution {
 
-    private ArrayList<CumulativeEntry> cumulativeProbability_;
+    private List<CumulativeEntry> cumulativeProbability_;
     private Random random_;
 
     public class CumulativeEntry {
@@ -68,7 +65,7 @@ public abstract class CumulativeBasedDegreeDistribution extends DegreeDistributi
         return cumulativeProbability_.get(index).value_;
     }
 
-    private int binarySearch(ArrayList<CumulativeEntry> cumulative, double prob) {
+    private int binarySearch(List<CumulativeEntry> cumulative, double prob) {
         int upperBound = cumulative.size() - 1;
         int lowerBound = 0;
         int midPoint = (upperBound + lowerBound) / 2;
@@ -83,5 +80,5 @@ public abstract class CumulativeBasedDegreeDistribution extends DegreeDistributi
         return midPoint;
     }
 
-    public abstract ArrayList<CumulativeEntry> cumulativeProbability(Configuration conf);
+    public abstract List<CumulativeEntry> cumulativeProbability(Configuration conf);
 }

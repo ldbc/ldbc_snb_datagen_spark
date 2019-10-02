@@ -36,13 +36,19 @@
 package ldbc.snb.datagen.dictionary;
 
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.objects.statictype.place.Place;
+import ldbc.snb.datagen.entities.statictype.place.Place;
 import ldbc.snb.datagen.util.ZOrder;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 /**
  * This class reads the files containing the country data and city data used in the ldbc socialnet generation and
@@ -58,27 +64,27 @@ public class PlaceDictionary {
     private PlaceZOrder[] sortedPlace;
     private Float cumulativeDistribution[];
 
-    private ArrayList<Integer> countries;
+    private List<Integer> countries;
     /**
      * < @brief The set of countries. *
      */
-    private HashMap<Integer, Place> places;
+    private Map<Integer, Place> places;
     /**
      * < @brief The places by id. *
      */
-    private HashMap<Integer, Integer> isPartOf;
+    private Map<Integer, Integer> isPartOf;
     /**
      * < @brief The location hierarchy. *
      */
-    private HashMap<Integer, ArrayList<Integer>> citiesByCountry;
+    private Map<Integer, List<Integer>> citiesByCountry;
     /**
      * < @brief The cities by country. *
      */
-    private HashMap<String, Integer> cityNames;
+    private Map<String, Integer> cityNames;
     /**
      * < @brief The city names. *
      */
-    private HashMap<String, Integer> countryNames;       /**< @brief The country names. **/
+    private Map<String, Integer> countryNames;       /**< @brief The country names. **/
 
     /**
      * Private class used to sort countries by their z-order value.
@@ -102,12 +108,12 @@ public class PlaceDictionary {
      * @brief Creator.
      */
     public PlaceDictionary() {
-        this.countryNames = new HashMap<String, Integer>();
-        this.cityNames = new HashMap<String, Integer>();
-        this.places = new HashMap<Integer, Place>();
-        this.isPartOf = new HashMap<Integer, Integer>();
-        this.countries = new ArrayList<Integer>();
-        this.citiesByCountry = new HashMap<Integer, ArrayList<Integer>>();
+        this.countryNames = new HashMap<>();
+        this.cityNames = new HashMap<>();
+        this.places = new HashMap<>();
+        this.isPartOf = new HashMap<>();
+        this.countries = new ArrayList<>();
+        this.citiesByCountry = new HashMap<>();
         load(DatagenParams.cityDictionaryFile, DatagenParams.countryDictionaryFile);
     }
 
@@ -123,8 +129,8 @@ public class PlaceDictionary {
      * @return The set of countries
      * @brief Gets a list of the country ids.
      */
-    public ArrayList<Integer> getCountries() {
-        return new ArrayList<Integer>(countries);
+    public List<Integer> getCountries() {
+        return new ArrayList<>(countries);
     }
 
     /**
@@ -298,7 +304,7 @@ public class PlaceDictionary {
             BufferedReader dictionary = new BufferedReader(
                     new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));
 
-            ArrayList<Float> temporalCumulative = new ArrayList<Float>();
+            List<Float> temporalCumulative = new ArrayList<>();
 
             String line;
             while ((line = dictionary.readLine()) != null) {
@@ -319,7 +325,7 @@ public class PlaceDictionary {
                 temporalCumulative.add(dist);
                 countries.add(place.getId());
 
-                citiesByCountry.put(place.getId(), new ArrayList<Integer>());
+                citiesByCountry.put(place.getId(), new ArrayList<>());
             }
             dictionary.close();
             cumulativeDistribution = new Float[temporalCumulative.size()];
@@ -334,7 +340,7 @@ public class PlaceDictionary {
      * @brief Reads a continents file name.
      */
     private void readContinents(String fileName) {
-        HashMap<String, Integer> treatedContinents = new HashMap<String, Integer>();
+        Map<String, Integer> treatedContinents = new HashMap<>();
         try {
             BufferedReader dictionary = new BufferedReader(
                     new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));

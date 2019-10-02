@@ -36,17 +36,17 @@
 
 package ldbc.snb.datagen.generator.generators;
 
-import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.DatagenParams;
+import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.entities.dynamic.Forum;
+import ldbc.snb.datagen.entities.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.generator.generators.postgenerators.FlashmobPostGenerator;
 import ldbc.snb.datagen.generator.generators.postgenerators.UniformPostGenerator;
 import ldbc.snb.datagen.generator.generators.textgenerators.LdbcSnbTextGenerator;
 import ldbc.snb.datagen.generator.generators.textgenerators.TextGenerator;
-import ldbc.snb.datagen.objects.dynamic.Forum;
-import ldbc.snb.datagen.objects.dynamic.relations.ForumMembership;
-import ldbc.snb.datagen.objects.dynamic.person.Person;
-import ldbc.snb.datagen.serializer.PersonActivityExporter;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
+import ldbc.snb.datagen.serializer.PersonActivityExporter;
 import ldbc.snb.datagen.serializer.UpdateEventSerializer;
 import ldbc.snb.datagen.util.FactorTable;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
@@ -56,6 +56,7 @@ import org.apache.hadoop.mapreduce.Reducer.Context;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class PersonActivityGenerator {
@@ -88,7 +89,7 @@ public class PersonActivityGenerator {
         exporter_ = new PersonActivityExporter(dynamicActivitySerializer_, updateSerializer_, factorTable_);
     }
 
-    private void generateActivity(Person person, ArrayList<Person> block) throws AssertionError, IOException {
+    private void generateActivity(Person person, List<Person> block) throws AssertionError, IOException {
         try {
             factorTable_.extractFactors(person);
             generateWall(person, block);
@@ -102,11 +103,7 @@ public class PersonActivityGenerator {
         }
     }
 
-    public void reset() {
-        dynamicActivitySerializer_.reset();
-    }
-
-    private void generateWall(Person person, ArrayList<Person> block) throws IOException {
+    private void generateWall(Person person, List<Person> block) throws IOException {
         // generate wall
         Forum wall = forumGenerator_.createWall(randomFarm_, forumId++, person);
         exporter_.export(wall);
@@ -118,7 +115,7 @@ public class PersonActivityGenerator {
         ForumMembership personMembership = new ForumMembership(wall.id(),
                                                                wall.creationDate() + DatagenParams.deltaTime, new Person.PersonSummary(person)
         );
-        ArrayList<ForumMembership> fakeMembers = new ArrayList<ForumMembership>();
+        List<ForumMembership> fakeMembers = new ArrayList<>();
         fakeMembers.add(personMembership);
         messageId = uniformPostGenerator_
                 .createPosts(randomFarm_, wall, fakeMembers, numPostsPerGroup(randomFarm_, wall, DatagenParams.maxNumPostPerMonth, DatagenParams.maxNumFriends), messageId, exporter_);
@@ -126,7 +123,7 @@ public class PersonActivityGenerator {
                 .createPosts(randomFarm_, wall, fakeMembers, numPostsPerGroup(randomFarm_, wall, DatagenParams.maxNumFlashmobPostPerMonth, DatagenParams.maxNumFriends), messageId, exporter_);
     }
 
-    private void generateGroups(Person person, ArrayList<Person> block) throws IOException {
+    private void generateGroups(Person person, List<Person> block) throws IOException {
         // generate user created groups
         double moderatorProb = randomFarm_.get(RandomGeneratorFarm.Aspect.FORUM_MODERATOR).nextDouble();
         if (moderatorProb <= DatagenParams.groupModeratorProb) {
@@ -169,7 +166,7 @@ public class PersonActivityGenerator {
             ForumMembership personMembership = new ForumMembership(album.id(),
                                                                    album.creationDate() + DatagenParams.deltaTime, new Person.PersonSummary(person)
             );
-            ArrayList<ForumMembership> fakeMembers = new ArrayList<ForumMembership>();
+            List<ForumMembership> fakeMembers = new ArrayList<>();
             fakeMembers.add(personMembership);
             int numPhotos = randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_PHOTO)
                                        .nextInt(DatagenParams.maxNumPhotoPerAlbums + 1);
@@ -189,12 +186,11 @@ public class PersonActivityGenerator {
         return (numberPost * forum.memberships().size()) / maxMembersPerForum;
     }
 
-    public void generateActivityForBlock(int seed, ArrayList<Person> block, Context context) throws IOException {
+    public void generateActivityForBlock(int seed, List<Person> block, Context context) throws IOException {
         randomFarm_.resetRandomGenerators(seed);
         forumId = 0;
         messageId = 0;
         SN.machineId = seed;
-        dynamicActivitySerializer_.reset();
         int counter = 0;
         float personGenerationTime = 0.0f;
         for (Person p : block) {

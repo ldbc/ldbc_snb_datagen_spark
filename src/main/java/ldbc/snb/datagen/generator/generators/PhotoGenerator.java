@@ -35,14 +35,14 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.generators;
 
-import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.objects.dynamic.person.IP;
-import ldbc.snb.datagen.objects.dynamic.relations.ForumMembership;
-import ldbc.snb.datagen.objects.dynamic.relations.Like;
-import ldbc.snb.datagen.objects.dynamic.messages.Photo;
-import ldbc.snb.datagen.objects.dynamic.Forum;
-import ldbc.snb.datagen.objects.statictype.place.PopularPlace;
+import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.entities.dynamic.Forum;
+import ldbc.snb.datagen.entities.dynamic.messages.Photo;
+import ldbc.snb.datagen.entities.dynamic.person.IP;
+import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
+import ldbc.snb.datagen.entities.dynamic.relations.Like;
+import ldbc.snb.datagen.entities.statictype.place.PopularPlace;
 import ldbc.snb.datagen.serializer.PersonActivityExporter;
 import ldbc.snb.datagen.util.PersonBehavior;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
@@ -50,12 +50,10 @@ import ldbc.snb.datagen.vocabulary.SN;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.TreeSet;
 
-/**
- * @author aprat
- */
 public class PhotoGenerator {
     private LikeGenerator likeGenerator_;
     private Photo photo_;
@@ -66,11 +64,11 @@ public class PhotoGenerator {
         this.photo_ = new Photo();
     }
 
-    public long createPhotos(RandomGeneratorFarm randomFarm, final Forum album, final ArrayList<ForumMembership> memberships, long numPhotos, long startId, PersonActivityExporter exporter) throws IOException {
+    public long createPhotos(RandomGeneratorFarm randomFarm, final Forum album, final List<ForumMembership> memberships, long numPhotos, long startId, PersonActivityExporter exporter) throws IOException {
         long nextId = startId;
         int numPopularPlaces = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_POPULAR)
                                          .nextInt(DatagenParams.maxNumPopularPlaces + 1);
-        ArrayList<Short> popularPlaces = new ArrayList<Short>();
+        List<Short> popularPlaces = new ArrayList<>();
         for (int i = 0; i < numPopularPlaces; i++) {
             short aux = Dictionaries.popularPlaces.getPopularPlace(randomFarm
                                                                            .get(RandomGeneratorFarm.Aspect.POPULAR), album
@@ -110,7 +108,7 @@ public class PhotoGenerator {
                     }
                 }
             }
-            TreeSet<Integer> tags = new TreeSet<Integer>();
+            TreeSet<Integer> tags = new TreeSet<>();
             long date = album.creationDate() + DatagenParams.deltaTime + 1000 * (i + 1);
             int country = album.moderator().countryId();
             IP ip = album.moderator().ipAddress();

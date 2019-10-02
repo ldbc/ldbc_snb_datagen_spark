@@ -35,26 +35,28 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer.empty;
 
-import ldbc.snb.datagen.objects.statictype.Organisation;
-import ldbc.snb.datagen.objects.statictype.place.Place;
-import ldbc.snb.datagen.objects.statictype.tag.Tag;
-import ldbc.snb.datagen.objects.statictype.TagClass;
+import ldbc.snb.datagen.entities.statictype.Organisation;
+import ldbc.snb.datagen.entities.statictype.TagClass;
+import ldbc.snb.datagen.entities.statictype.place.Place;
+import ldbc.snb.datagen.entities.statictype.tag.Tag;
 import ldbc.snb.datagen.serializer.StaticSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.FileName;
 import org.apache.hadoop.conf.Configuration;
 
-/**
- * Created by aprat on 30/01/15.
- */
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 public class EmptyStaticSerializer extends StaticSerializer {
 
     @Override
-    public void initialize(Configuration conf, int reducerId) {
-        //Intentionally left empty
+    public List<FileName> getFileNames() {
+        return null;
     }
 
     @Override
-    public void close() {
-        //Intentionally left empty
+    public void writeFileHeaders() {
 
     }
 
@@ -83,8 +85,8 @@ public class EmptyStaticSerializer extends StaticSerializer {
     }
 
     @Override
-    public void reset() {
-        //Intentionally left empty
-
+    public Map initialize(Configuration conf, int reducerId, boolean dynamic, List list) throws IOException {
+        return Collections.emptyMap();
     }
+
 }

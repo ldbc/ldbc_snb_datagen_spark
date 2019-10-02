@@ -35,16 +35,13 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.generators.knowsgenerators;
 
-import ldbc.snb.datagen.objects.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.person.Person;
 import org.apache.hadoop.conf.Configuration;
 
-import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Created by aprat on 11/06/15.
- */
 public interface KnowsGenerator {
-    public void generateKnows(ArrayList<Person> persons, int seed, ArrayList<Float> percentages, int step_index);
+    void generateKnows(List<Person> persons, int seed, List<Float> percentages, int step_index);
 
-    public void initialize(Configuration conf);
+    void initialize(Configuration conf);
 }

@@ -51,9 +51,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.zip.GZIPOutputStream;
 
-/**
- * Created by aprat on 10/15/14.
- */
 public class HadoopUpdateStreamSerializer {
 
     private Configuration conf;

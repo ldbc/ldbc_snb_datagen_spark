@@ -35,55 +35,15 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer;
 
-import ldbc.snb.datagen.objects.dynamic.messages.Comment;
-import ldbc.snb.datagen.objects.dynamic.messages.Photo;
-import ldbc.snb.datagen.objects.dynamic.messages.Post;
-import ldbc.snb.datagen.objects.dynamic.relations.ForumMembership;
-import ldbc.snb.datagen.objects.dynamic.relations.Like;
-import ldbc.snb.datagen.objects.dynamic.Forum;
-import org.apache.hadoop.conf.Configuration;
+import ldbc.snb.datagen.entities.dynamic.Forum;
+import ldbc.snb.datagen.entities.dynamic.messages.Comment;
+import ldbc.snb.datagen.entities.dynamic.messages.Photo;
+import ldbc.snb.datagen.entities.dynamic.messages.Post;
+import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
+import ldbc.snb.datagen.entities.dynamic.relations.Like;
+import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
 
-import java.io.IOException;
-
-/**
- * @author aprat
- */
-abstract public class DynamicActivitySerializer {
-
-
-    public void export(final Forum forum) {
-        serialize(forum);
-    }
-
-    public void export(final ForumMembership forumMembership) {
-        serialize(forumMembership);
-    }
-
-    public void export(final Post post) {
-        serialize(post);
-    }
-
-    public void export(Comment comment) {
-        serialize(comment);
-
-    }
-
-    public void export(Photo photo) {
-        serialize(photo);
-
-    }
-
-    public void export(Like like) {
-        serialize(like);
-
-    }
-
-
-    abstract public void reset();
-
-    abstract public void initialize(Configuration conf, int reducerId) throws IOException;
-
-    abstract public void close();
+abstract public class DynamicActivitySerializer<TWriter extends HdfsWriter> extends LdbcSerializer<TWriter> {
 
     abstract protected void serialize(final Forum forum);
 
@@ -97,5 +57,27 @@ abstract public class DynamicActivitySerializer {
 
     abstract protected void serialize(final Like like);
 
+    public void export(final Forum forum) {
+        serialize(forum);
+    }
+
+    public void export(final ForumMembership forumMembership) {
+        serialize(forumMembership);
+    }
+
+    public void export(final Post post) {
+        serialize(post);
+    }
+
+    public void export(Comment comment) { serialize(comment); }
+
+    public void export(Photo photo) { serialize(photo); }
+
+    public void export(Like like) { serialize(like); }
+
+    @Override
+    protected boolean isDynamic() {
+        return true;
+    }
 
 }

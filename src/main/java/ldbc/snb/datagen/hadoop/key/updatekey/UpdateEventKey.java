@@ -41,9 +41,6 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-/**
- * Created by aprat on 5/01/16.
- */
 public class UpdateEventKey implements WritableComparable<UpdateEventKey> {
 
     public long date;
@@ -51,12 +48,6 @@ public class UpdateEventKey implements WritableComparable<UpdateEventKey> {
     public int partition;
 
     public UpdateEventKey() {
-    }
-
-    public UpdateEventKey(UpdateEventKey key) {
-        this.date = key.date;
-        this.reducerId = key.reducerId;
-        this.partition = key.partition;
     }
 
     public UpdateEventKey(long date, int reducerId, int partition) {

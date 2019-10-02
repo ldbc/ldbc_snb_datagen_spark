@@ -35,12 +35,17 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer.snb.turtle;
 
-import ldbc.snb.datagen.vocabulary.*;
-import ldbc.snb.datagen.hadoop.writer.HDFSWriter;
+import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
+import ldbc.snb.datagen.vocabulary.DBP;
+import ldbc.snb.datagen.vocabulary.DBPOWL;
+import ldbc.snb.datagen.vocabulary.FOAF;
+import ldbc.snb.datagen.vocabulary.RDF;
+import ldbc.snb.datagen.vocabulary.RDFS;
+import ldbc.snb.datagen.vocabulary.SN;
+import ldbc.snb.datagen.vocabulary.SNTAG;
+import ldbc.snb.datagen.vocabulary.SNVOC;
+import ldbc.snb.datagen.vocabulary.XSD;
 
-/**
- * Created by aprat on 29/04/15.
- */
 public class Turtle {
 
     public static String getNamespaces() {
@@ -90,13 +95,13 @@ public class Turtle {
      * @param predicate: The RDF predicate.
      * @param object:    The RDF object.
      */
-    public static void writeDBPData(HDFSWriter writer, String subject, String predicate, String object) {
+    public static void writeDBPData(HdfsWriter writer, String subject, String predicate, String object) {
         StringBuffer result = new StringBuffer(150);
         createTripleSPO(result, subject, predicate, object);
         writer.write(result.toString());
     }
 
-    public static void writeDBPData(HDFSWriter writer, String data) {
+    public static void writeDBPData(HdfsWriter writer, String data) {
         writer.write(data);
     }
 

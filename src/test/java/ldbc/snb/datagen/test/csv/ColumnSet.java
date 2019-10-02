@@ -5,16 +5,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-/**
- * Created by aprat on 22/12/15.
- */
 public class ColumnSet<T> extends Column<T> {
 
     protected Set<T> data = null;
 
     public ColumnSet(Parser<T> parser, File file, int index, int startIndex) {
         super(parser, file, index, startIndex);
-        data = new HashSet<T>();
+        data = new HashSet<>();
         try {
             CsvFileReader csvReader = new CsvFileReader(file);
             int count = 0;
