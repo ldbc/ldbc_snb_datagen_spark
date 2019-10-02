@@ -143,7 +143,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
             PersonInfo pInfo = new PersonInfo();
             pInfo.index_ = i;
             pInfo.degree_ = Knows.targetEdges(p, percentages, stepIndex);
-            pInfo.original_degree_ = (long) (p.maxNumKnows());
+            pInfo.original_degree_ = p.maxNumKnows();
             nodes.add(pInfo);
         }
 
