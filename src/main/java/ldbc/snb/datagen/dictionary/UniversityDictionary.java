@@ -91,7 +91,7 @@ public class UniversityDictionary {
         this.startIndex = startIndex;
         this.universityName = new TreeMap<>();
         this.universityCity = new TreeMap<>();
-        this.universitiesByCountry = new TreeMap<Integer, List<Long>>();
+        this.universitiesByCountry = new TreeMap<>();
         for (Integer id : locationDic.getCountries()) {
             universitiesByCountry.put(id, new ArrayList<>());
         }

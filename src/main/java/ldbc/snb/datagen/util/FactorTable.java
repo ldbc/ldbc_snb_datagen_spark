@@ -343,7 +343,7 @@ public class FactorTable {
 
     public void writePersonFactors(OutputStream writer) {
         try {
-            Map<Integer, List<String>> countryNames = new TreeMap<Integer, List<String>>();
+            Map<Integer, List<String>> countryNames = new TreeMap<>();
             for (Map.Entry<Long, PersonCounts> c : personCounts_.entrySet()) {
                 if (c.getValue().name() != null) {
                     List<String> names = countryNames.get(c.getValue().country());

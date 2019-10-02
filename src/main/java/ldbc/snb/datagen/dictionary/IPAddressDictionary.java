@@ -68,7 +68,7 @@ public class IPAddressDictionary {
     public IPAddressDictionary(PlaceDictionary locationDic) {
 
         this.placeDictionary = locationDic;
-        this.ipsByCountry = new TreeMap<Integer, List<IP>>();
+        this.ipsByCountry = new TreeMap<>();
         load(DatagenParams.countryAbbrMappingFile, DatagenParams.IPZONE_DIRECTORY);
     }
 

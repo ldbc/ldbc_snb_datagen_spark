@@ -62,8 +62,8 @@ public class TagMatrix {
      */
 
     public TagMatrix() {
-        cumulative = new TreeMap<Integer, List<Double>>();
-        relatedTags = new TreeMap<Integer, List<Integer>>();
+        cumulative = new TreeMap<>();
+        relatedTags = new TreeMap<>();
         nonZeroTags = new ArrayList<>();
         load(DatagenParams.tagMatrixFile);
 
