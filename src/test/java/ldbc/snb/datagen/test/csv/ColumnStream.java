@@ -48,7 +48,7 @@ public class ColumnStream<T> extends Column<T>{
     public Iterator<T> iterator( ) {
         try {
             CsvFileReader reader = new CsvFileReader(file);
-            ColumnStreamIterator<T> iter =  new ColumnStreamIterator<T>(this,reader,index);
+            ColumnStreamIterator<T> iter =  new ColumnStreamIterator<>(this,reader,index);
             iter.advance(startIndex);
             return iter;
         } catch(Exception e) {

@@ -47,7 +47,7 @@ public class Bucket {
 
     public static ArrayList<Bucket> bucketizeHistogram(ArrayList<Pair<Integer, Integer>> histogram, int num_buckets) {
 
-        ArrayList<Bucket> buckets = new ArrayList<Bucket>();
+        ArrayList<Bucket> buckets = new ArrayList<>();
         int population = 0;
         int num_edges = 0;
         for (Pair<Integer, Integer> i : histogram) {

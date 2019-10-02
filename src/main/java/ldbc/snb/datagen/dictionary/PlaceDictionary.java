@@ -106,11 +106,11 @@ public class PlaceDictionary {
      * @brief Creator.
      */
     public PlaceDictionary() {
-        this.countryNames = new HashMap<String, Integer>();
-        this.cityNames = new HashMap<String, Integer>();
-        this.places = new HashMap<Integer, Place>();
-        this.isPartOf = new HashMap<Integer, Integer>();
-        this.countries = new ArrayList<Integer>();
+        this.countryNames = new HashMap<>();
+        this.cityNames = new HashMap<>();
+        this.places = new HashMap<>();
+        this.isPartOf = new HashMap<>();
+        this.countries = new ArrayList<>();
         this.citiesByCountry = new HashMap<Integer, ArrayList<Integer>>();
         load(DatagenParams.cityDictionaryFile, DatagenParams.countryDictionaryFile);
     }
@@ -128,7 +128,7 @@ public class PlaceDictionary {
      * @brief Gets a list of the country ids.
      */
     public ArrayList<Integer> getCountries() {
-        return new ArrayList<Integer>(countries);
+        return new ArrayList<>(countries);
     }
 
     /**
@@ -302,7 +302,7 @@ public class PlaceDictionary {
             BufferedReader dictionary = new BufferedReader(
                     new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));
 
-            ArrayList<Float> temporalCumulative = new ArrayList<Float>();
+            ArrayList<Float> temporalCumulative = new ArrayList<>();
 
             String line;
             while ((line = dictionary.readLine()) != null) {
@@ -323,7 +323,7 @@ public class PlaceDictionary {
                 temporalCumulative.add(dist);
                 countries.add(place.getId());
 
-                citiesByCountry.put(place.getId(), new ArrayList<Integer>());
+                citiesByCountry.put(place.getId(), new ArrayList<>());
             }
             dictionary.close();
             cumulativeDistribution = new Float[temporalCumulative.size()];
@@ -338,7 +338,7 @@ public class PlaceDictionary {
      * @brief Reads a continents file name.
      */
     private void readContinents(String fileName) {
-        HashMap<String, Integer> treatedContinents = new HashMap<String, Integer>();
+        HashMap<String, Integer> treatedContinents = new HashMap<>();
         try {
             BufferedReader dictionary = new BufferedReader(
                     new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));

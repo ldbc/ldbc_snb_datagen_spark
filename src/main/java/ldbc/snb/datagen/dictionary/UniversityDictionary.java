@@ -88,11 +88,11 @@ public class UniversityDictionary {
         this.locationDic = locationDic;
         this.probUncorrelatedUniversity = probUncorrelatedUniversity;
         this.startIndex = startIndex;
-        this.universityName = new TreeMap<Long, String>();
-        this.universityCity = new TreeMap<Long, Integer>();
+        this.universityName = new TreeMap<>();
+        this.universityCity = new TreeMap<>();
         this.universitiesByCountry = new TreeMap<Integer, ArrayList<Long>>();
         for (Integer id : locationDic.getCountries()) {
-            universitiesByCountry.put(id, new ArrayList<Long>());
+            universitiesByCountry.put(id, new ArrayList<>());
         }
         load(DatagenParams.universityDictionaryFile);
     }

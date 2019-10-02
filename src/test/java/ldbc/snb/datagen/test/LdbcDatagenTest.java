@@ -251,21 +251,21 @@ public class LdbcDatagenTest {
     public void queryParamsTest() {
         //Creating person id check
         LongParser parser = new LongParser();
-        ColumnSet<Long> persons = new ColumnSet<Long>(parser,new File(dir+"/dynamic/person_0_0.csv"),0,1);
+        ColumnSet<Long> persons = new ColumnSet<>(parser,new File(dir+"/dynamic/person_0_0.csv"),0,1);
         List<ColumnSet<Long>> personsRef = new ArrayList<ColumnSet<Long>>();
         personsRef.add(persons);
-        List<Integer> personIndex = new ArrayList<Integer>();
+        List<Integer> personIndex = new ArrayList<>();
         personIndex.add(0);
-        ExistsCheck<Long> existsPersonCheck = new ExistsCheck<Long>(parser,personIndex, personsRef);
+        ExistsCheck<Long> existsPersonCheck = new ExistsCheck<>(parser,personIndex, personsRef);
 
         //Creating name check
         StringParser strParser = new StringParser();
-        ColumnSet<String> names = new ColumnSet<String>(strParser,new File(dir+"/dynamic/person_0_0.csv"),1,1);
+        ColumnSet<String> names = new ColumnSet<>(strParser,new File(dir+"/dynamic/person_0_0.csv"),1,1);
         List<ColumnSet<String>> namesRef = new ArrayList<ColumnSet<String>>();
         namesRef.add(names);
-        List<Integer> namesIndex = new ArrayList<Integer>();
+        List<Integer> namesIndex = new ArrayList<>();
         namesIndex.add(1);
-        ExistsCheck<String> existsNameCheck = new ExistsCheck<String>(strParser,namesIndex, namesRef);
+        ExistsCheck<String> existsNameCheck = new ExistsCheck<>(strParser,namesIndex, namesRef);
 
 
 
@@ -281,13 +281,13 @@ public class LdbcDatagenTest {
         testLongGE(sdir+"/interactive_2_param.txt",1, Dictionaries.dates.getStartDateTime());
 
         //Creating country check
-        ColumnSet<String> places = new ColumnSet<String>(strParser,new File(dir+"/static/place_0_0.csv"),1,1);
+        ColumnSet<String> places = new ColumnSet<>(strParser,new File(dir+"/static/place_0_0.csv"),1,1);
         List<ColumnSet<String>> placesRef = new ArrayList<ColumnSet<String>>();
         placesRef.add(places);
-        List<Integer> countriesIndex = new ArrayList<Integer>();
+        List<Integer> countriesIndex = new ArrayList<>();
         countriesIndex.add(3);
         countriesIndex.add(4);
-        ExistsCheck<String> countryExists = new ExistsCheck<String>(strParser,countriesIndex, placesRef);
+        ExistsCheck<String> countryExists = new ExistsCheck<>(strParser,countriesIndex, placesRef);
 
         //Date duration check
         //DateDurationCheck dateDurationCheck = new DateDurationCheck("Date duration check",1,2,Dictionaries.dates
@@ -310,12 +310,12 @@ public class LdbcDatagenTest {
         testLongGE(sdir+"/interactive_5_param.txt",1, Dictionaries.dates.getStartDateTime());
 
         //Creating tag check
-        ColumnSet<String> tags = new ColumnSet<String>(strParser,new File(dir+"/static/tag_0_0.csv"),1,1);
+        ColumnSet<String> tags = new ColumnSet<>(strParser,new File(dir+"/static/tag_0_0.csv"),1,1);
         List<ColumnSet<String>> tagsRef = new ArrayList<ColumnSet<String>>();
         tagsRef.add(tags);
-        List<Integer> tagsIndex = new ArrayList<Integer>();
+        List<Integer> tagsIndex = new ArrayList<>();
         tagsIndex.add(1);
-        ExistsCheck<String> tagExists = new ExistsCheck<String>(strParser,tagsIndex, tagsRef);
+        ExistsCheck<String> tagExists = new ExistsCheck<>(strParser,tagsIndex, tagsRef);
 
         fileChecker = new FileChecker(sdir+"/interactive_6_param.txt");
         fileChecker.addCheck(existsPersonCheck);
@@ -343,7 +343,7 @@ public class LdbcDatagenTest {
         //Creating country check
         countriesIndex.clear();
         countriesIndex.add(1);
-        countryExists = new ExistsCheck<String>(strParser,countriesIndex, placesRef);
+        countryExists = new ExistsCheck<>(strParser,countriesIndex, placesRef);
 
         fileChecker = new FileChecker(sdir+"/interactive_11_param.txt");
         fileChecker.addCheck(existsPersonCheck);
@@ -351,12 +351,12 @@ public class LdbcDatagenTest {
         assertTrue("ERROR PASSING TEST QUERY 11 PERSON EXISTS ",fileChecker.run(1));
 
         //Creating tagClass check
-        ColumnSet<String> tagClass = new ColumnSet<String>(strParser,new File(dir+"/static/tagclass_0_0.csv"),1,1);
+        ColumnSet<String> tagClass = new ColumnSet<>(strParser,new File(dir+"/static/tagclass_0_0.csv"),1,1);
         List<ColumnSet<String>> tagClassRef = new ArrayList<ColumnSet<String>>();
         tagClassRef.add(tagClass);
-        List<Integer> tagClassIndex = new ArrayList<Integer>();
+        List<Integer> tagClassIndex = new ArrayList<>();
         tagClassIndex.add(1);
-        ExistsCheck<String> tagClassExists = new ExistsCheck<String>(strParser,tagClassIndex, tagClassRef);
+        ExistsCheck<String> tagClassExists = new ExistsCheck<>(strParser,tagClassIndex, tagClassRef);
 
         fileChecker = new FileChecker(sdir+"/interactive_12_param.txt");
         fileChecker.addCheck(existsPersonCheck);
@@ -364,7 +364,7 @@ public class LdbcDatagenTest {
         assertTrue("ERROR PASSING TEST QUERY 12 PERSON EXISTS ",fileChecker.run(1));
 
         personIndex.add(1);
-        ExistsCheck<Long> exists2PersonCheck = new ExistsCheck<Long>(parser,personIndex, personsRef);
+        ExistsCheck<Long> exists2PersonCheck = new ExistsCheck<>(parser,personIndex, personsRef);
 
         fileChecker = new FileChecker(sdir+"/interactive_13_param.txt");
         fileChecker.addCheck(exists2PersonCheck);
@@ -409,21 +409,21 @@ public class LdbcDatagenTest {
 
     public void testPairUniquenessPlusExistance(String relationFileName, int columnA, int columnB, String entityFileNameA, int entityColumnA, String entityFileNameB, int entityColumnB) {
         LongParser parser = new LongParser();
-        ColumnSet<Long> entitiesA = new ColumnSet<Long>(parser,new File(entityFileNameA),entityColumnA,1);
-        ColumnSet<Long> entitiesB = new ColumnSet<Long>(parser,new File(entityFileNameB),entityColumnB,1);
+        ColumnSet<Long> entitiesA = new ColumnSet<>(parser,new File(entityFileNameA),entityColumnA,1);
+        ColumnSet<Long> entitiesB = new ColumnSet<>(parser,new File(entityFileNameB),entityColumnB,1);
         FileChecker fileChecker = new FileChecker(relationFileName);
-        PairUniquenessCheck pairUniquenessCheck = new PairUniquenessCheck<Long,Long>(parser,parser,columnA,columnB);
+        PairUniquenessCheck pairUniquenessCheck = new PairUniquenessCheck<>(parser,parser,columnA,columnB);
         fileChecker.addCheck(pairUniquenessCheck);
         List<ColumnSet<Long>> entityARefColumns = new ArrayList<ColumnSet<Long>>();
         entityARefColumns.add(entitiesA);
         List<ColumnSet<Long>> entityBRefColumns = new ArrayList<ColumnSet<Long>>();
         entityBRefColumns.add(entitiesB);
-        List<Integer> organisationIndices = new ArrayList<Integer>();
+        List<Integer> organisationIndices = new ArrayList<>();
         organisationIndices.add(columnA);
-        List<Integer> placeIndices = new ArrayList<Integer>();
+        List<Integer> placeIndices = new ArrayList<>();
         placeIndices.add(columnB);
-        ExistsCheck<Long> existsEntityACheck = new ExistsCheck<Long>(parser,organisationIndices, entityARefColumns);
-        ExistsCheck<Long> existsEntityBCheck = new ExistsCheck<Long>(parser,placeIndices, entityBRefColumns);
+        ExistsCheck<Long> existsEntityACheck = new ExistsCheck<>(parser,organisationIndices, entityARefColumns);
+        ExistsCheck<Long> existsEntityBCheck = new ExistsCheck<>(parser,placeIndices, entityBRefColumns);
         fileChecker.addCheck(existsEntityACheck);
         fileChecker.addCheck(existsEntityBCheck);
         assertTrue("ERROR PASSING ORGANISATION_ISLOCATEDIN_PLACE TEST",fileChecker.run(1));
@@ -432,29 +432,29 @@ public class LdbcDatagenTest {
 
     public void testPairUniquenessPlusExistance(String relationFileName, int columnA, int columnB, String entityFileName, int entityColumn) {
         LongParser parser = new LongParser();
-        ColumnSet<Long> entities = new ColumnSet<Long>(parser,new File(entityFileName),entityColumn,1);
+        ColumnSet<Long> entities = new ColumnSet<>(parser,new File(entityFileName),entityColumn,1);
         FileChecker fileChecker = new FileChecker(relationFileName);
-        PairUniquenessCheck pairUniquenessCheck = new PairUniquenessCheck<Long,Long>(parser,parser,columnA,columnB);
+        PairUniquenessCheck pairUniquenessCheck = new PairUniquenessCheck<>(parser,parser,columnA,columnB);
         fileChecker.addCheck(pairUniquenessCheck);
         List<ColumnSet<Long>> refcolumns = new ArrayList<ColumnSet<Long>>();
         refcolumns.add(entities);
-        List<Integer> columnIndices = new ArrayList<Integer>();
+        List<Integer> columnIndices = new ArrayList<>();
         columnIndices.add(columnA);
         columnIndices.add(columnB);
-        ExistsCheck existsCheck = new ExistsCheck<Long>(parser,columnIndices, refcolumns);
+        ExistsCheck existsCheck = new ExistsCheck<>(parser,columnIndices, refcolumns);
         fileChecker.addCheck(existsCheck);
         assertTrue("ERROR PASSING "+relationFileName+" TEST",fileChecker.run(1));
     }
 
     public void testIdExistance(String fileToCheckExistanceOf, int columnToCheckExistanceOf, String fileToCheckExistanceAgainst, int columnToCheckExistanceAgainst) {
         LongParser parser = new LongParser();
-        ColumnSet<Long> checkAgainstEntities = new ColumnSet<Long>(parser,new File(fileToCheckExistanceAgainst),columnToCheckExistanceAgainst,1);
+        ColumnSet<Long> checkAgainstEntities = new ColumnSet<>(parser,new File(fileToCheckExistanceAgainst),columnToCheckExistanceAgainst,1);
         FileChecker fileChecker = new FileChecker(fileToCheckExistanceOf);
         List<ColumnSet<Long>> refcolumns = new ArrayList<ColumnSet<Long>>();
         refcolumns.add(checkAgainstEntities);
-        List<Integer> columnIndices = new ArrayList<Integer>();
+        List<Integer> columnIndices = new ArrayList<>();
         columnIndices.add(columnToCheckExistanceOf);
-        ExistsCheck existsCheck = new ExistsCheck<Long>(parser,columnIndices, refcolumns);
+        ExistsCheck existsCheck = new ExistsCheck<>(parser,columnIndices, refcolumns);
         fileChecker.addCheck(existsCheck);
         assertTrue("ERROR PASSING "+fileToCheckExistanceOf+" ID EXISTANCE TEST",fileChecker.run(1));
     }

@@ -90,7 +90,7 @@ public class HadoopKnowsGenerator {
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
-            this.percentages = new ArrayList<Float>();
+            this.percentages = new ArrayList<>();
             this.step_index = conf.getInt("stepIndex", 0);
             float p = conf.getFloat("percentage0", 0.0f);
             int index = 1;
@@ -111,7 +111,7 @@ public class HadoopKnowsGenerator {
         @Override
         public void reduce(BlockKey key, Iterable<Person> valueSet, Context context)
                 throws IOException, InterruptedException {
-            ArrayList<Person> persons = new ArrayList<Person>();
+            ArrayList<Person> persons = new ArrayList<>();
             for (Person p : valueSet) {
                 persons.add(new Person(p));
             }

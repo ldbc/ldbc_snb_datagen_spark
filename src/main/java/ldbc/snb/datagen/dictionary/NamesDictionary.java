@@ -69,7 +69,7 @@ public class NamesDictionary {
     private void init() {
         surNamesByLocations = new HashMap<Integer, Vector<String>>();
         for (Integer id : locationDic.getCountries()) {
-            surNamesByLocations.put(id, new Vector<String>());
+            surNamesByLocations.put(id, new Vector<>());
         }
 
         //assume that there is only 2 periods of birthyears
@@ -80,8 +80,8 @@ public class NamesDictionary {
             givenNamesByLocationsMale.add(new HashMap<Integer, Vector<String>>());
             givenNamesByLocationsFemale.add(new HashMap<Integer, Vector<String>>());
             for (Integer id : locationDic.getCountries()) {
-                givenNamesByLocationsMale.lastElement().put(id, new Vector<String>());
-                givenNamesByLocationsFemale.lastElement().put(id, new Vector<String>());
+                givenNamesByLocationsMale.lastElement().put(id, new Vector<>());
+                givenNamesByLocationsFemale.lastElement().put(id, new Vector<>());
             }
         }
 

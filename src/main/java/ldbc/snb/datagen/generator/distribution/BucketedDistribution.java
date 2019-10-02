@@ -52,7 +52,7 @@ public abstract class BucketedDistribution extends DegreeDistribution {
     public void initialize(Configuration conf) {
         buckets_ = this.getBuckets(conf);
         randomPercentile_ = new Random(0);
-        randomDegree_ = new ArrayList<Random>();
+        randomDegree_ = new ArrayList<>();
         for (int i = 0; i < buckets_.size(); i++) {
             randomDegree_.add(new Random(0));
         }

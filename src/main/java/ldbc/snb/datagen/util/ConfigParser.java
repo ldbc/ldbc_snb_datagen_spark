@@ -94,7 +94,7 @@ public class ConfigParser {
         /** Loading predefined Scale Factors **/
 
         try {
-            scaleFactors = new TreeMap<String, ScaleFactor>();
+            scaleFactors = new TreeMap<>();
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(LdbcDatagen.class.getResourceAsStream("/" + SCALE_FACTORS_FILE));

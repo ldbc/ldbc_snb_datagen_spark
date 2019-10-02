@@ -77,7 +77,7 @@ public class IPAddressDictionary {
      */
     private void load(String mappingFileName, String baseIPdir) {
         String line;
-        HashMap<String, String> countryAbbreMap = new HashMap<String, String>();
+        HashMap<String, String> countryAbbreMap = new HashMap<>();
         try {
             BufferedReader mappingFile = new BufferedReader(new InputStreamReader(getClass()
                                                                                           .getResourceAsStream(mappingFileName), "UTF-8"));
@@ -91,7 +91,7 @@ public class IPAddressDictionary {
 
             ArrayList<Integer> countries = placeDictionary.getCountries();
             for (int i = 0; i < countries.size(); i++) {
-                ipsByCountry.put(countries.get(i), new ArrayList<IP>());
+                ipsByCountry.put(countries.get(i), new ArrayList<>());
 
                 //Get the name of file
                 String fileName = countryAbbreMap.get(placeDictionary.getPlaceName(countries.get(i)));

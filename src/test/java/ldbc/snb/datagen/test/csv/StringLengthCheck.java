@@ -10,7 +10,7 @@ public class StringLengthCheck extends Check {
 
 
     public StringLengthCheck(int column, int length) {
-        super( "String length check of "+length+" unicode characters", (new ArrayList<Integer>()));
+        super( "String length check of "+length+" unicode characters", (new ArrayList<>()));
         this.length = length;
         this.getColumns().add(column);
     }

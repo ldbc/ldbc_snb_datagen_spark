@@ -91,8 +91,8 @@ public class UpdateEventSerializer {
         conf_ = conf;
         reducerId_ = reducerId;
         stringBuffer_ = new StringBuffer(512);
-        data_ = new ArrayList<String>();
-        list_ = new ArrayList<String>();
+        data_ = new ArrayList<>();
+        list_ = new ArrayList<>();
         currentEvent_ = new UpdateEvent(-1, -1, UpdateEvent.UpdateEventType.NO_EVENT, new String(""));
         numPartitions_ = numPartitions;
         stats_ = new UpdateStreamStats();
@@ -255,7 +255,7 @@ public class UpdateEventSerializer {
         beginList();
         int universityId = person.universityLocationId();
         if (universityId != -1 && person.classYear() != -1) {
-            ArrayList<String> studyAtData = new ArrayList<String>();
+            ArrayList<String> studyAtData = new ArrayList<>();
             studyAtData.add(Long.toString(Dictionaries.universities.getUniversityFromLocation(universityId)));
             studyAtData.add(Dictionaries.dates.formatYear(person.classYear()));
             list_.add(formatStringArray(studyAtData, ","));
@@ -264,7 +264,7 @@ public class UpdateEventSerializer {
 
         beginList();
         for (Long companyId : person.companies().keySet()) {
-            ArrayList<String> workAtData = new ArrayList<String>();
+            ArrayList<String> workAtData = new ArrayList<>();
             workAtData.add(Long.toString(companyId));
             workAtData.add(Dictionaries.dates.formatYear(person.companies().get(companyId)));
             list_.add(formatStringArray(workAtData, ","));

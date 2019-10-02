@@ -117,7 +117,7 @@ public class FlashmobTagDictionary {
         for (int i = 0; i < numFlashmobTags; ++i) {
             ArrayList<FlashmobTag> instances = flashmobTags.get(tags[i]);
             if (instances == null) {
-                instances = new ArrayList<FlashmobTag>();
+                instances = new ArrayList<>();
                 flashmobTags.put(tags[i], instances);
             }
             FlashmobTag flashmobTag = new FlashmobTag();
@@ -174,7 +174,7 @@ public class FlashmobTagDictionary {
      * @param[in] fromDate The date from which to consider the flashmob tags.
      */
     public ArrayList<FlashmobTag> generateFlashmobTags(Random rand, TreeSet<Integer> interests, long fromDate) {
-        ArrayList<FlashmobTag> result = new ArrayList<FlashmobTag>();
+        ArrayList<FlashmobTag> result = new ArrayList<>();
         Iterator<Integer> it = interests.iterator();
         while (it.hasNext()) {
             Integer tag = it.next();

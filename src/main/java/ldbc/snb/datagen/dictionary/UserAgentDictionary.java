@@ -67,7 +67,7 @@ public class UserAgentDictionary {
      */
     private void load(String fileName) {
         try {
-            userAgents = new ArrayList<String>();
+            userAgents = new ArrayList<>();
             BufferedReader agentFile = new BufferedReader(new InputStreamReader(getClass()
                                                                                         .getResourceAsStream(fileName), "UTF-8"));
             String line;

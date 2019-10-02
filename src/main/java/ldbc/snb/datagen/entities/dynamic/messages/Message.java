@@ -54,7 +54,7 @@ abstract public class Message {
     private int countryId_;
 
     public Message() {
-        tags_ = new TreeSet<Integer>();
+        tags_ = new TreeSet<>();
         ipAddress_ = new IP();
     }
 
@@ -75,7 +75,7 @@ abstract public class Message {
         author_ = new PersonSummary(author);
         forumId_ = forumId;
         content_ = content;
-        tags_ = new TreeSet<Integer>(tags);
+        tags_ = new TreeSet<>(tags);
         countryId_ = countryId;
         ipAddress_ = new IP(ipAddress);
         browserId_ = browserId;

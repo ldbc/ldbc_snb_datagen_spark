@@ -49,7 +49,7 @@ public class GraphUtils {
             Set<Long> neighbors = graph.neighbors(l);
             for (Long n : neighbors) {
                 Set<Long> neighbors2 = graph.neighbors(n);
-                Set<Long> aux = new HashSet<Long>(neighbors);
+                Set<Long> aux = new HashSet<>(neighbors);
                 aux.retainAll(neighbors2);
                 triangles += aux.size();
             }
@@ -61,13 +61,13 @@ public class GraphUtils {
     }
 
     public static ArrayList<Double> clusteringCoefficientList(PersonGraph graph) {
-        ArrayList<Double> CC = new ArrayList<Double>();
+        ArrayList<Double> CC = new ArrayList<>();
         for (Long l : graph.persons()) {
             int triangles = 0;
             Set<Long> neighbors = graph.neighbors(l);
             for (Long n : neighbors) {
                 Set<Long> neighbors2 = graph.neighbors(n);
-                Set<Long> aux = new HashSet<Long>(neighbors);
+                Set<Long> aux = new HashSet<>(neighbors);
                 aux.retainAll(neighbors2);
                 triangles += aux.size();
             }

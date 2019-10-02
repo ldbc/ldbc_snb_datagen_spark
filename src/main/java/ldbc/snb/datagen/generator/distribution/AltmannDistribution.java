@@ -55,7 +55,7 @@ public class AltmannDistribution extends CumulativeBasedDegreeDistribution {
         for (int i = 1; i <= POPULATION_; ++i) {
             normalization_factor_ += Math.pow(i, -ALPHA_) * Math.exp(-BETA_ * i);
         }
-        ArrayList<CumulativeEntry> cumulative = new ArrayList<CumulativeEntry>();
+        ArrayList<CumulativeEntry> cumulative = new ArrayList<>();
         for (int i = 1; i <= POPULATION_; ++i) {
             double prob = Math.pow(i, -ALPHA_) * Math.exp(-BETA_ * i) / normalization_factor_;
             prob += cumulative.size() > 0 ? cumulative.get(i - 2).prob_ : 0.0;

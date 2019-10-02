@@ -61,7 +61,7 @@ public class MinHash<T> {
     }
 
     public ArrayList<Long> minHash(Set<Long> set) {
-        ArrayList<Long> minHashes = new ArrayList<Long>();
+        ArrayList<Long> minHashes = new ArrayList<>();
         for (int i = 0; i < numHashes_; ++i) {
             long min = Long.MAX_VALUE;
             long minl = 0;

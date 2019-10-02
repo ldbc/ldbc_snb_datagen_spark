@@ -88,7 +88,7 @@ public class LdbcDatagen {
 
         String hadoopPrefix = conf.get("ldbc.snb.datagen.serializer.hadoopDir");
         FileSystem fs = FileSystem.get(conf);
-        ArrayList<Float> percentages = new ArrayList<Float>();
+        ArrayList<Float> percentages = new ArrayList<>();
         percentages.add(0.45f);
         percentages.add(0.45f);
         percentages.add(0.1f);
@@ -143,7 +143,7 @@ public class LdbcDatagen {
 
         fs.delete(new Path(DatagenParams.hadoopDir + "/persons"), true);
         printProgress("Merging the different edge files");
-        ArrayList<String> edgeFileNames = new ArrayList<String>();
+        ArrayList<String> edgeFileNames = new ArrayList<>();
         edgeFileNames.add(hadoopPrefix + "/universityEdges");
         edgeFileNames.add(hadoopPrefix + "/interestEdges");
         edgeFileNames.add(hadoopPrefix + "/randomEdges");
@@ -189,8 +189,8 @@ public class LdbcDatagen {
 
             printProgress("Sorting update streams ");
 
-            List<String> personStreamsFileNames = new ArrayList<String>();
-            List<String> forumStreamsFileNames = new ArrayList<String>();
+            List<String> personStreamsFileNames = new ArrayList<>();
+            List<String> forumStreamsFileNames = new ArrayList<>();
             for (int i = 0; i < DatagenParams.numThreads; ++i) {
                 int numPartitions = conf.getInt("ldbc.snb.datagen.serializer.numUpdatePartitions", 1);
                 for (int j = 0; j < numPartitions; ++j) {

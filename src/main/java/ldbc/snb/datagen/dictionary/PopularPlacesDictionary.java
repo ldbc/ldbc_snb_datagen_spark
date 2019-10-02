@@ -62,7 +62,7 @@ public class PopularPlacesDictionary {
         this.placeDictionary = locationDic;
         this.popularPlacesByCountry = new HashMap<Integer, ArrayList<PopularPlace>>();
         for (Integer id : placeDictionary.getCountries()) {
-            this.popularPlacesByCountry.put(id, new ArrayList<PopularPlace>());
+            this.popularPlacesByCountry.put(id, new ArrayList<>());
         }
         load(DatagenParams.popularDictionaryFile);
     }

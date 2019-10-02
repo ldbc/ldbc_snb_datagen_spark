@@ -41,6 +41,6 @@ public class ScaleFactor {
     public TreeMap<String, String> properties;
 
     ScaleFactor() {
-        properties = new TreeMap<String, String>();
+        properties = new TreeMap<>();
     }
 }

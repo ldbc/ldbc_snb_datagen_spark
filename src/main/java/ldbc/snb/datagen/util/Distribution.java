@@ -55,7 +55,7 @@ public class Distribution {
         try {
             BufferedReader distributionBuffer = new BufferedReader(new InputStreamReader(getClass()
                                                                                                  .getResourceAsStream(distributionFile), "UTF-8"));
-            ArrayList<Double> temp = new ArrayList<Double>();
+            ArrayList<Double> temp = new ArrayList<>();
             String line;
             while ((line = distributionBuffer.readLine()) != null) {
                 Double prob = Double.valueOf(line);

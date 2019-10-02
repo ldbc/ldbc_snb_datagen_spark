@@ -21,7 +21,7 @@ public abstract class NumericCheck<T extends Number > extends Check {
     protected Parser<T> parser;
 
     public NumericCheck(Parser<T> parser, String name, Integer column, NumericCheckType type, T val1, T val2 ) {
-        super(name, new ArrayList<Integer>());
+        super(name, new ArrayList<>());
         this.getColumns().add(column);
         this.type = type;
         this.val1 = val1;

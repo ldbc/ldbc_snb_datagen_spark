@@ -60,7 +60,7 @@ public class HadoopStaticSerializer {
 
     public HadoopStaticSerializer(Configuration conf) {
         conf_ = new Configuration(conf);
-        exportedClasses_ = new TreeSet<Integer>();
+        exportedClasses_ = new TreeSet<>();
         LdbcDatagen.initializeContext(conf_);
     }
 

@@ -9,9 +9,9 @@ public class UniquenessCheck extends Check {
     private HashSet<String> values = null;
 
     public UniquenessCheck(int column) {
-        super( "Uniqueness check", (new ArrayList<Integer>()));
+        super( "Uniqueness check", (new ArrayList<>()));
         this.getColumns().add(column);
-        values = new HashSet<String>();
+        values = new HashSet<>();
     }
 
     @Override

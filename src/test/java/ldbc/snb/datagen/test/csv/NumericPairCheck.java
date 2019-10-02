@@ -18,7 +18,7 @@ public abstract class NumericPairCheck<T> extends Check {
     protected Parser<T> parser;
 
     public NumericPairCheck(Parser<T> parser, String name, Integer columnA, Integer columnB, NumericCheckType type) {
-        super(name, new ArrayList<Integer>());
+        super(name, new ArrayList<>());
         this.getColumns().add(columnA);
         this.getColumns().add(columnB);
         this.type = type;

@@ -67,7 +67,7 @@ public class PhotoGenerator {
         long nextId = startId;
         int numPopularPlaces = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_POPULAR)
                                          .nextInt(DatagenParams.maxNumPopularPlaces + 1);
-        ArrayList<Short> popularPlaces = new ArrayList<Short>();
+        ArrayList<Short> popularPlaces = new ArrayList<>();
         for (int i = 0; i < numPopularPlaces; i++) {
             short aux = Dictionaries.popularPlaces.getPopularPlace(randomFarm
                                                                            .get(RandomGeneratorFarm.Aspect.POPULAR), album
@@ -107,7 +107,7 @@ public class PhotoGenerator {
                     }
                 }
             }
-            TreeSet<Integer> tags = new TreeSet<Integer>();
+            TreeSet<Integer> tags = new TreeSet<>();
             long date = album.creationDate() + DatagenParams.deltaTime + 1000 * (i + 1);
             int country = album.moderator().countryId();
             IP ip = album.moderator().ipAddress();

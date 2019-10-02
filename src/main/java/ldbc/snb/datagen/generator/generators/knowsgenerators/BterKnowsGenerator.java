@@ -60,8 +60,8 @@ public class BterKnowsGenerator implements KnowsGenerator {
     private Configuration conf;
     private long[] expectedDegree;
     private double[] p;
-    private HashMap<Long, RoaringBitmap> openCommunities = new HashMap<Long, RoaringBitmap>();
-    private ArrayList<RoaringBitmap> closedCommunities = new ArrayList<RoaringBitmap>();
+    private HashMap<Long, RoaringBitmap> openCommunities = new HashMap<>();
+    private ArrayList<RoaringBitmap> closedCommunities = new ArrayList<>();
     private RoaringBitmap smallDegreeNodes = new RoaringBitmap();
     private RoaringBitmap[] adjacencyMatrix;
 
@@ -121,7 +121,7 @@ public class BterKnowsGenerator implements KnowsGenerator {
     }
 
     private void generateRemainingEdges() {
-        LinkedList<Integer> stubs = new LinkedList<Integer>();
+        LinkedList<Integer> stubs = new LinkedList<>();
         for (int i = 0; i < graphSize; ++i) {
             long difference = expectedDegree[i] - adjacencyMatrix[i].getCardinality();
             if (difference > 0) {
@@ -177,7 +177,7 @@ public class BterKnowsGenerator implements KnowsGenerator {
             String line;
             while ((line = reader.readLine()) != null) {
                 String data[] = line.split(" ");
-                ccDistribution.add(new Pair<Long, Double>(Long.parseLong(data[0]), Double.parseDouble(data[1])));
+                ccDistribution.add(new Pair<>(Long.parseLong(data[0]), Double.parseDouble(data[1])));
             }
             reader.close();
         } catch (IOException e) {
@@ -212,7 +212,7 @@ public class BterKnowsGenerator implements KnowsGenerator {
         }
         generateCommunities(block);
 
-        TreeMap<Long, RoaringBitmap> sortedMap = new TreeMap<Long, RoaringBitmap>(openCommunities);
+        TreeMap<Long, RoaringBitmap> sortedMap = new TreeMap<>(openCommunities);
         RoaringBitmap currentCommunity = null;
         long currentCommunitySize = 0;
         for (Map.Entry<Long, RoaringBitmap> community : sortedMap.entrySet()) {

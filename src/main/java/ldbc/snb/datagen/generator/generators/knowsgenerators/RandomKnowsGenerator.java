@@ -55,7 +55,7 @@ public class RandomKnowsGenerator implements KnowsGenerator {
     public void generateKnows(ArrayList<Person> persons, int seed, ArrayList<Float> percentages, int step_index) {
 
         rand.setSeed(seed);
-        ArrayList<Integer> stubs = new ArrayList<Integer>();
+        ArrayList<Integer> stubs = new ArrayList<>();
         int index = 0;
         for (Person p : persons) {
             long degree = Knows.targetEdges(p, percentages, step_index);

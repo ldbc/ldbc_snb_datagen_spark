@@ -181,20 +181,20 @@ public class Person implements Writable {
     }
 
     public Person() {
-        knows_ = new TreeSet<Knows>();
-        emails_ = new TreeSet<String>();
-        interests_ = new TreeSet<Integer>();
-        languages_ = new ArrayList<Integer>();
-        companies_ = new HashMap<Long, Long>();
+        knows_ = new TreeSet<>();
+        emails_ = new TreeSet<>();
+        interests_ = new TreeSet<>();
+        languages_ = new ArrayList<>();
+        companies_ = new HashMap<>();
         ipAddress_ = new IP();
     }
 
     public Person(Person p) {
-        knows_ = new TreeSet<Knows>();
-        emails_ = new TreeSet<String>();
-        interests_ = new TreeSet<Integer>();
-        languages_ = new ArrayList<Integer>();
-        companies_ = new HashMap<Long, Long>();
+        knows_ = new TreeSet<>();
+        emails_ = new TreeSet<>();
+        interests_ = new TreeSet<>();
+        languages_ = new ArrayList<>();
+        companies_ = new HashMap<>();
 
         accountId_ = p.accountId();
         creationDate_ = p.creationDate();
@@ -424,7 +424,7 @@ public class Person implements Writable {
         creationDate_ = arg0.readLong();
         maxNumKnows_ = arg0.readLong();
         int numFriends = arg0.readShort();
-        knows_ = new TreeSet<Knows>();
+        knows_ = new TreeSet<>();
         for (int i = 0; i < numFriends; i++) {
             Knows fr = new Knows();
             fr.readFields(arg0);
@@ -440,7 +440,7 @@ public class Person implements Writable {
         wallId_ = arg0.readLong();
 
         byte numTags = arg0.readByte();
-        interests_ = new TreeSet<Integer>();
+        interests_ = new TreeSet<>();
         for (byte i = 0; i < numTags; i++) {
             interests_.add(arg0.readInt());
         }
@@ -453,19 +453,19 @@ public class Person implements Writable {
         randomId_ = arg0.readLong();
 
         int numEmails = arg0.readInt();
-        emails_ = new TreeSet<String>();
+        emails_ = new TreeSet<>();
         for (int i = 0; i < numEmails; ++i) {
             emails_.add(arg0.readUTF());
         }
         int numLanguages = arg0.readInt();
-        languages_ = new ArrayList<Integer>();
+        languages_ = new ArrayList<>();
         for (int i = 0; i < numLanguages; ++i) {
             languages_.add(arg0.readInt());
         }
         firstName_ = arg0.readUTF();
         lastName_ = arg0.readUTF();
         int numCompanies = arg0.readInt();
-        companies_ = new HashMap<Long, Long>();
+        companies_ = new HashMap<>();
         for (int i = 0; i < numCompanies; ++i) {
             companies_.put(arg0.readLong(), arg0.readLong());
         }

@@ -52,8 +52,8 @@ public class BrowserDictionary {
 
     public BrowserDictionary(double probAnotherBrowser) {
         probAnotherBrowser_ = probAnotherBrowser;
-        browsers_ = new ArrayList<String>();
-        cumulativeDistribution_ = new ArrayList<Double>();
+        browsers_ = new ArrayList<>();
+        cumulativeDistribution_ = new ArrayList<>();
         load(DatagenParams.browserDictonryFile);
     }
 

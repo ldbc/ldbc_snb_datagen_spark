@@ -59,7 +59,7 @@ public class TagTextDictionary {
     private StringBuilder returnString = null;
 
     public TagTextDictionary(TagDictionary tagDic, double reducedTextRatio) {
-        this.tagText = new HashMap<Integer, String>();
+        this.tagText = new HashMap<>();
         this.tagDic = tagDic;
         this.reducedTextRatio = reducedTextRatio;
         this.returnString = new StringBuilder(1000);

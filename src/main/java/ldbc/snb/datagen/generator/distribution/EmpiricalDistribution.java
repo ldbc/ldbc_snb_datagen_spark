@@ -58,7 +58,7 @@ public class EmpiricalDistribution extends BucketedDistribution {
             String line;
             while ((line = reader.readLine()) != null) {
                 String data[] = line.split(" ");
-                histogram.add(new Pair<Integer, Integer>(Integer.parseInt(data[0]), Integer.parseInt(data[1])));
+                histogram.add(new Pair<>(Integer.parseInt(data[0]), Integer.parseInt(data[1])));
             }
             reader.close();
             return Bucket.bucketizeHistogram(histogram, 1000);

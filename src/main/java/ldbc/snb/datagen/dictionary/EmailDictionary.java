@@ -70,8 +70,8 @@ public class EmailDictionary {
             BufferedReader emailDictionary = new BufferedReader(
                     new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));
 
-            emails = new ArrayList<String>();
-            cumulativeDistribution = new ArrayList<Double>();
+            emails = new ArrayList<>();
+            cumulativeDistribution = new ArrayList<>();
 
             String line;
             double cummulativeDist = 0.0;

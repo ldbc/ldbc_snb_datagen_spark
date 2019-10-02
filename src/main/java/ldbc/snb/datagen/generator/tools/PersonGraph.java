@@ -49,7 +49,7 @@ public class PersonGraph {
     public PersonGraph(ArrayList<Person> persons) {
         adjacencies_ = new HashMap<Long, HashSet<Long>>();
         for (Person p : persons) {
-            HashSet<Long> neighbors = new HashSet<Long>();
+            HashSet<Long> neighbors = new HashSet<>();
             for (Knows k : p.knows()) {
                 neighbors.add(k.to().accountId());
             }

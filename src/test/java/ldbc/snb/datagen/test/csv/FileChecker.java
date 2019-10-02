@@ -11,7 +11,7 @@ public class FileChecker {
 
     public FileChecker(String fileName) {
         this.fileName = fileName;
-        this.checks = new ArrayList<Check>();
+        this.checks = new ArrayList<>();
     }
 
     public void addCheck( Check check) {
@@ -27,7 +27,7 @@ public class FileChecker {
                 String[] line = csvReader.next();
                 if(startLine <= lineCount-1) {
                     for (Check c : checks) {
-                        List<String> row = new ArrayList<String>();
+                        List<String> row = new ArrayList<>();
                         for (Integer index : c.getColumns()) {
                             row.add(line[index]);
                         }

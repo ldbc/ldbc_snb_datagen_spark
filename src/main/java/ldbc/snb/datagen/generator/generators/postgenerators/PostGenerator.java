@@ -70,7 +70,7 @@ abstract public class PostGenerator {
         public long date;
 
         public PostInfo() {
-            this.tags = new TreeSet<Integer>();
+            this.tags = new TreeSet<>();
         }
     }
 

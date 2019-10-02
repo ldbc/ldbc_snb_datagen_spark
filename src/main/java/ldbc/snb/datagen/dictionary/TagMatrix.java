@@ -63,7 +63,7 @@ public class TagMatrix {
     public TagMatrix() {
         cumulative = new TreeMap<Integer, ArrayList<Double>>();
         relatedTags = new TreeMap<Integer, ArrayList<Integer>>();
-        nonZeroTags = new ArrayList<Integer>();
+        nonZeroTags = new ArrayList<>();
         load(DatagenParams.tagMatrixFile);
 
     }
@@ -83,10 +83,10 @@ public class TagMatrix {
                 int topicId = Integer.parseInt(data[1]);
                 double cumuluative = Double.parseDouble(data[2]);
                 ArrayList<Double> cum = cumulative.get(celebrityId);
-                if (cum == null) cumulative.put(celebrityId, new ArrayList<Double>());
+                if (cum == null) cumulative.put(celebrityId, new ArrayList<>());
                 cumulative.get(celebrityId).add(cumuluative);
                 ArrayList<Integer> related = relatedTags.get(celebrityId);
-                if (related == null) relatedTags.put(celebrityId, new ArrayList<Integer>());
+                if (related == null) relatedTags.put(celebrityId, new ArrayList<>());
                 relatedTags.get(celebrityId).add(topicId);
             }
             for (Integer tag : relatedTags.keySet()) {
@@ -121,7 +121,7 @@ public class TagMatrix {
      * @brief Get a set of related tags.
      */
     public TreeSet<Integer> getSetofTags(Random randomTopic, Random randomTag, int popularTagId, int numTags) {
-        TreeSet<Integer> resultTags = new TreeSet<Integer>();
+        TreeSet<Integer> resultTags = new TreeSet<>();
         resultTags.add(popularTagId);
         while (resultTags.size() < numTags) {
             int tagId;

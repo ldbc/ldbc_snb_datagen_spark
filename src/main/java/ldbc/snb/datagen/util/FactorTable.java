@@ -79,11 +79,11 @@ public class FactorTable {
         private ArrayList<Long> numForumsPerMonth_ = null;
 
         public PersonCounts() {
-            numMessagesPerMonth_ = new ArrayList<Long>(36 + 1);
+            numMessagesPerMonth_ = new ArrayList<>(36 + 1);
             for (int i = 0; i < 36 + 1; ++i) {
                 numMessagesPerMonth_.add(new Long(0));
             }
-            numForumsPerMonth_ = new ArrayList<Long>(36 + 1);
+            numForumsPerMonth_ = new ArrayList<>(36 + 1);
             for (int i = 0; i < 36 + 1; ++i) {
                 numForumsPerMonth_.add(new Long(0));
             }
@@ -207,12 +207,12 @@ public class FactorTable {
 
 
     public FactorTable() {
-        personCounts_ = new HashMap<Long, PersonCounts>();
-        postsPerCountry_ = new HashMap<Integer, Long>();
-        tagClassCount_ = new HashMap<Integer, Long>();
-        firstNameCount_ = new HashMap<String, Long>();
-        tagCount_ = new HashMap<Integer, Long>();
-        medianFirstName_ = new HashMap<Long, String>();
+        personCounts_ = new HashMap<>();
+        postsPerCountry_ = new HashMap<>();
+        tagClassCount_ = new HashMap<>();
+        firstNameCount_ = new HashMap<>();
+        tagCount_ = new HashMap<>();
+        medianFirstName_ = new HashMap<>();
     }
 
     private PersonCounts personCounts(Long id) {
@@ -347,13 +347,13 @@ public class FactorTable {
                 if (c.getValue().name() != null) {
                     List<String> names = countryNames.get(c.getValue().country());
                     if (names == null) {
-                        names = new ArrayList<String>();
+                        names = new ArrayList<>();
                         countryNames.put(c.getValue().country(), names);
                     }
                     names.add(c.getValue().name());
                 }
             }
-            Map<Integer, String> medianNames = new TreeMap<Integer, String>();
+            Map<Integer, String> medianNames = new TreeMap<>();
             for (Map.Entry<Integer, List<String>> entry : countryNames.entrySet()) {
                 Collections.sort(entry.getValue());
                 medianNames.put(entry.getKey(), entry.getValue().get(entry.getValue().size() / 2));

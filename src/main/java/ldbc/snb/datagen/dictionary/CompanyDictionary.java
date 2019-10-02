@@ -79,11 +79,11 @@ public class CompanyDictionary {
 
         this.placeDictionary = placeDictionary;
         this.probUnCorrelatedCompany = probUnCorrelatedCompany;
-        this.companyName = new TreeMap<Long, String>();
-        this.companyCountry = new TreeMap<Long, Integer>();
+        this.companyName = new TreeMap<>();
+        this.companyCountry = new TreeMap<>();
         this.companiesByCountry = new TreeMap<Integer, ArrayList<Long>>();
         for (Integer id : placeDictionary.getCountries()) {
-            this.companiesByCountry.put(id, new ArrayList<Long>());
+            this.companiesByCountry.put(id, new ArrayList<>());
         }
         load(DatagenParams.companiesDictionaryFile);
     }

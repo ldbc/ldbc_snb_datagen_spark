@@ -56,8 +56,8 @@ public class Forum {
     public Forum(long id, long creationDate, Person.PersonSummary moderator, String title, int placeId, int language) {
         assert (moderator
                 .creationDate() + DatagenParams.deltaTime) <= creationDate : "Moderator creation date is larger than message creation date";
-        memberships_ = new ArrayList<ForumMembership>();
-        tags_ = new ArrayList<Integer>();
+        memberships_ = new ArrayList<>();
+        tags_ = new ArrayList<>();
         id_ = id;
         creationDate_ = creationDate;
         title_ = title;

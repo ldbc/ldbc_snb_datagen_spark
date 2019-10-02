@@ -65,7 +65,7 @@ public class FacebookDegreeDistribution extends BucketedDistribution {
     @Override
     public ArrayList<Bucket> getBuckets(Configuration conf) {
         mean_ = (int) mean(DatagenParams.numPersons);
-        buckets_ = new ArrayList<Bucket>();
+        buckets_ = new ArrayList<>();
         loadFBBuckets();
         rebuildBucketRange();
         return buckets_;

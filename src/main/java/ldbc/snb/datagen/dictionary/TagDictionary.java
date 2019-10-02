@@ -98,15 +98,15 @@ public class TagDictionary {
         this.tagCountryCorrProb = tagCountryCorrProb;
         this.tagCummulativeDist = new ArrayList<ArrayList<Double>>(numCountries);
         this.tagsByCountry = new ArrayList<ArrayList<Integer>>(numCountries);
-        this.tagNames = new HashMap<Integer, String>();
-        this.tagTagClass = new HashMap<Integer, Integer>();
-        this.tagDescription = new HashMap<Integer, String>();
-        this.tagClassName = new HashMap<Integer, String>();
-        this.tagClassLabel = new HashMap<Integer, String>();
-        this.tagClassHierarchy = new HashMap<Integer, Integer>();
+        this.tagNames = new HashMap<>();
+        this.tagTagClass = new HashMap<>();
+        this.tagDescription = new HashMap<>();
+        this.tagClassName = new HashMap<>();
+        this.tagClassLabel = new HashMap<>();
+        this.tagClassHierarchy = new HashMap<>();
         for (int i = 0; i < numCountries; i++) {
-            tagCummulativeDist.add(new ArrayList<Double>());
-            tagsByCountry.add(new ArrayList<Integer>());
+            tagCummulativeDist.add(new ArrayList<>());
+            tagsByCountry.add(new ArrayList<>());
         }
         this.numPopularTags = 0;
 

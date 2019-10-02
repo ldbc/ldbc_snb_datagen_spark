@@ -11,7 +11,7 @@ public class ColumnSet<T> extends Column<T> {
 
     public ColumnSet(Parser<T> parser, File file, int index, int startIndex) {
         super(parser, file, index, startIndex);
-        data = new HashSet<T>();
+        data = new HashSet<>();
         try {
             CsvFileReader csvReader = new CsvFileReader(file);
             int count = 0;

@@ -114,7 +114,7 @@ public class PersonActivityGenerator {
         ForumMembership personMembership = new ForumMembership(wall.id(),
                                                                wall.creationDate() + DatagenParams.deltaTime, new Person.PersonSummary(person)
         );
-        ArrayList<ForumMembership> fakeMembers = new ArrayList<ForumMembership>();
+        ArrayList<ForumMembership> fakeMembers = new ArrayList<>();
         fakeMembers.add(personMembership);
         messageId = uniformPostGenerator_
                 .createPosts(randomFarm_, wall, fakeMembers, numPostsPerGroup(randomFarm_, wall, DatagenParams.maxNumPostPerMonth, DatagenParams.maxNumFriends), messageId, exporter_);
@@ -165,7 +165,7 @@ public class PersonActivityGenerator {
             ForumMembership personMembership = new ForumMembership(album.id(),
                                                                    album.creationDate() + DatagenParams.deltaTime, new Person.PersonSummary(person)
             );
-            ArrayList<ForumMembership> fakeMembers = new ArrayList<ForumMembership>();
+            ArrayList<ForumMembership> fakeMembers = new ArrayList<>();
             fakeMembers.add(personMembership);
             int numPhotos = randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_PHOTO)
                                        .nextInt(DatagenParams.maxNumPhotoPerAlbums + 1);

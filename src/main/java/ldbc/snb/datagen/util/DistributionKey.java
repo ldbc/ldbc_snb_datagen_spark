@@ -82,7 +82,7 @@ public class DistributionKey {
             BufferedReader distributionBuffer = new BufferedReader(new InputStreamReader(getClass()
                                                                                                  .getResourceAsStream(distributionFile), "UTF-8"));
             String line;
-            distribution = new ArrayList<Pair>();
+            distribution = new ArrayList<>();
 
             while ((line = distributionBuffer.readLine()) != null) {
                 String[] parts = line.split(" ");

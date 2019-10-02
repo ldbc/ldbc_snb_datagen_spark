@@ -47,7 +47,7 @@ public class ZipfDistribution extends DegreeDistribution {
     private org.apache.commons.math3.distribution.ZipfDistribution zipf_;
     private double ALPHA_ = 2.0;
     private Random random = new Random();
-    private HashMap<Integer, Integer> histogram = new HashMap<Integer, Integer>();
+    private HashMap<Integer, Integer> histogram = new HashMap<>();
     private double probabilities[];
     private Integer values[];
     private double mean_ = 0.0;
@@ -68,12 +68,7 @@ public class ZipfDistribution extends DegreeDistribution {
         probabilities = new double[numDifferentValues];
         values = new Integer[numDifferentValues];
         histogram.keySet().toArray(values);
-        Arrays.sort(values, new Comparator<Integer>() {
-            @Override
-            public int compare(Integer o1, Integer o2) {
-                return o1 - o2;
-            }
-        });
+        Arrays.sort(values, Comparator.comparingInt(o -> o));
 
         probabilities[0] = histogram.get(values[0]) / (double) numSamples;
         for (int i = 1; i < numDifferentValues; ++i) {

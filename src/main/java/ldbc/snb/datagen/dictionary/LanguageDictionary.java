@@ -83,7 +83,7 @@ public class LanguageDictionary {
         this.placeDictionary = locationDic;
         this.probEnglish = probEnglish;
         this.probSecondLang = probSecondLang;
-        this.languages = new ArrayList<String>();
+        this.languages = new ArrayList<>();
         this.officalLanguagesByCountry = new HashMap<Integer, ArrayList<Integer>>();
         this.languagesByCountry = new HashMap<Integer, ArrayList<Integer>>();
         load(DatagenParams.languageDictionaryFile);
@@ -96,8 +96,8 @@ public class LanguageDictionary {
     private void load(String fileName) {
         try {
             for (Integer id : placeDictionary.getCountries()) {
-                officalLanguagesByCountry.put(id, new ArrayList<Integer>());
-                languagesByCountry.put(id, new ArrayList<Integer>());
+                officalLanguagesByCountry.put(id, new ArrayList<>());
+                languagesByCountry.put(id, new ArrayList<>());
             }
             BufferedReader dictionary = new BufferedReader(new InputStreamReader(getClass()
                                                                                          .getResourceAsStream(fileName), "UTF-8"));
@@ -146,7 +146,7 @@ public class LanguageDictionary {
      * @breif Gets a set of random languages from a country.
      */
     public ArrayList<Integer> getLanguages(Random random, int country) {
-        ArrayList<Integer> langSet = new ArrayList<Integer>();
+        ArrayList<Integer> langSet = new ArrayList<>();
         if (officalLanguagesByCountry.get(country).size() != 0) {
             int id = random.nextInt(officalLanguagesByCountry.get(country).size());
             langSet.add(officalLanguagesByCountry.get(country).get(id));

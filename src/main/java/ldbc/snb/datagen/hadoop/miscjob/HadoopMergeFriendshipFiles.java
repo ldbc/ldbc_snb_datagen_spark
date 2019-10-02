@@ -82,7 +82,7 @@ public class HadoopMergeFriendshipFiles {
         public void reduce(TupleKey key, Iterable<Person> valueSet, Context context)
                 throws IOException, InterruptedException {
 
-            ArrayList<Knows> knows = new ArrayList<Knows>();
+            ArrayList<Knows> knows = new ArrayList<>();
             Person person = null;
             int index = 0;
             for (Person p : valueSet) {
