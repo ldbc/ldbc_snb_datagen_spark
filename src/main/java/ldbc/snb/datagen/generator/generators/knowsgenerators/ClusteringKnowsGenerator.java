@@ -311,8 +311,6 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
             if (pI.degree_ > 1) {
                 cInfo.clustering_coefficient_
                         .set(pI.index_, (double) pI.degree_ * (pI.degree_ - 1) * prob / (pI.original_degree_ * (pI.original_degree_ - 1)));
-                //cInfo.clustering_coefficient_.set(pI.index_, (double)prob);
-                //cInfo.clustering_coefficient_.set(pI.index_, 0.0);
             }
         }
 
@@ -471,8 +469,6 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
     }
 
     private void createEdgesCommunityPeriphery(ClusteringInfo cInfo, List<Person> persons, Community c) {
-
-        //long start = System.currentTimeMillis();
         long[] peripheryBudget = new long[c.periphery_.size()];
         int index = 0;
         for (PersonInfo pI : c.periphery_) {
@@ -500,8 +496,6 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
                 System.out.println("ERROR");
             }
         }
-        //long end = System.currentTimeMillis();
-        //System.out.println("Time to create core-periphery edges: "+(end-start));
     }
 
     private void fillGraphWithRemainingEdges(List<Community> communities, List<Person> persons) {
@@ -582,8 +576,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
 
         start = System.currentTimeMillis();
         for (Community c : communities) {
-            c.p_ = 0.5f;//rand.nextFloat();
-            //c.p_ = rand.nextFloat();
+            c.p_ = 0.5f;
             estimateCCCommunity(cInfo, c, c.p_);
         }
         end = System.currentTimeMillis();
@@ -626,7 +619,6 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
                 i++;
             }
             finalCC /= persons.size();
-            //double finalCC = GraphUtils.clusteringCoefficient(graph);
 
             System.out.println("Clustering coefficient of the generated graph: " + finalCC);
             double delta = targetCC - finalCC;
@@ -659,7 +651,6 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
                     sumMore += -target + p.knows().size();
                     countMore++;
                 } else if (p.knows().size() < target) {
-                    //System.out.println(p.knows().size()+" "+target);
                     sumLess += target - p.knows().size();
                     countLess++;
                 }

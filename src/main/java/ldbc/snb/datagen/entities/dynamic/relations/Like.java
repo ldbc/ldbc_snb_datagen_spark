@@ -41,7 +41,6 @@ public class Like {
         POST,
         COMMENT,
         PHOTO
-
     }
 
     public long user;

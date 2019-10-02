@@ -83,10 +83,6 @@ public class Forum {
         return moderator_;
     }
 
-    public void moderator(Person.PersonSummary moderator) {
-        moderator_.copy(moderator);
-    }
-
     public long creationDate() {
         return creationDate_;
     }

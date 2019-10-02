@@ -133,19 +133,13 @@ public class HadoopPersonSerializer {
 
         FileSystem fs = FileSystem.get(conf);
 
-		/*String rankedFileName = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/ranked";
-        HadoopFileRanker hadoopFileRanker = new HadoopFileRanker( conf, TupleKey.class, Person.class, null );
-        hadoopFileRanker.run(inputFileName,rankedFileName);*/
-
         int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads"));
         Job job = Job.getInstance(conf, "Person Serializer");
-        //job.setMapOutputKeyClass(BlockKey.class);
         job.setMapOutputKeyClass(TupleKey.class);
         job.setMapOutputValueClass(Person.class);
         job.setOutputKeyClass(LongWritable.class);
         job.setOutputValueClass(Person.class);
         job.setJarByClass(HadoopBlockMapper.class);
-        //job.setMapperClass(HadoopBlockMapper.class);
         job.setReducerClass(HadoopDynamicPersonSerializerReducer.class);
         job.setNumReduceTasks(numThreads);
         job.setInputFormatClass(SequenceFileInputFormat.class);
@@ -153,20 +147,13 @@ public class HadoopPersonSerializer {
 
         job.setPartitionerClass(HadoopTuplePartitioner.class);
 
-		/*job.setSortComparatorClass(BlockKeyComparator.class);
-		job.setGroupingComparatorClass(BlockKeyGroupComparator.class);
-		job.setPartitionerClass(HadoopBlockPartitioner.class);*/
-
-        //FileInputFormat.setInputPaths(job, new Path(rankedFileName));
         FileInputFormat.setInputPaths(job, new Path(inputFileName));
         FileOutputFormat.setOutputPath(job, new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/aux"));
         if (!job.waitForCompletion(true)) {
             throw new Exception();
         }
 
-
         try {
-            //fs.delete(new Path(rankedFileName), true);
             fs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/aux"), true);
         } catch (IOException e) {
             System.err.println(e.getMessage());

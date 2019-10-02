@@ -59,8 +59,6 @@ public abstract class BucketedDistribution extends DegreeDistribution {
         }
     }
 
-    ;
-
     public void reset(long seed) {
         Random seedRandom = new Random(53223436L + 1234567 * seed);
         for (int i = 0; i < buckets_.size(); i++) {

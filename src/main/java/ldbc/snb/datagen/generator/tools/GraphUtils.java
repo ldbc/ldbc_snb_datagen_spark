@@ -43,24 +43,6 @@ import java.util.Set;
 
 public class GraphUtils {
 
-    public static double clusteringCoefficient(PersonGraph graph) {
-        double CC = 0.0;
-        for (Long l : graph.persons()) {
-            int triangles = 0;
-            Set<Long> neighbors = graph.neighbors(l);
-            for (Long n : neighbors) {
-                Set<Long> neighbors2 = graph.neighbors(n);
-                Set<Long> aux = new HashSet<>(neighbors);
-                aux.retainAll(neighbors2);
-                triangles += aux.size();
-            }
-            int degree = neighbors.size();
-            if (degree > 1)
-                CC += triangles / (double) (degree * (degree - 1));
-        }
-        return CC / graph.persons().size();
-    }
-
     public static List<Double> clusteringCoefficientList(PersonGraph graph) {
         List<Double> CC = new ArrayList<>();
         for (Long l : graph.persons()) {

@@ -200,7 +200,4 @@ public class FlashmobTagDictionary {
         return result;
     }
 
-    public FlashmobTag[] getFlashmobTags() {
-        return flashmobTagCumDist;
-    }
 }

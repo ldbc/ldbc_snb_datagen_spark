@@ -261,7 +261,6 @@ public class Person implements Writable {
 
     public void maxNumKnows(long maxKnows) {
         maxNumKnows_ = maxKnows;
-
     }
 
     public TreeSet<Knows> knows() {
@@ -307,10 +306,6 @@ public class Person implements Writable {
 
     public long wallId() {
         return wallId_;
-    }
-
-    public void wallId(long wallId) {
-        wallId_ = wallId;
     }
 
     public TreeSet<Integer> interests() {
@@ -406,11 +401,6 @@ public class Person implements Writable {
 
     public Map<Long, Long> companies() {
         return companies_;
-    }
-
-    public void companies(Map<Long, Long> companies) {
-        companies.clear();
-        companies_.putAll(companies);
     }
 
     public long classYear() {

@@ -151,7 +151,7 @@ public class HadoopPersonGenerator {
      */
     public void run(String outputFileName, String postKeySetterName) throws Exception {
 
-        String hadoopDir = new String(conf.get("ldbc.snb.datagen.serializer.hadoopDir"));
+        String hadoopDir = conf.get("ldbc.snb.datagen.serializer.hadoopDir");
         String tempFile = hadoopDir + "/mrInputFile";
 
         FileSystem dfs = FileSystem.get(conf);
