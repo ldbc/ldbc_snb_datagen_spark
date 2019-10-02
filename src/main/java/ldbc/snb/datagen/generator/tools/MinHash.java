@@ -37,6 +37,7 @@ package ldbc.snb.datagen.generator.tools;
 
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -60,8 +61,8 @@ public class MinHash<T> {
         }
     }
 
-    public ArrayList<Long> minHash(Set<Long> set) {
-        ArrayList<Long> minHashes = new ArrayList<>();
+    public List<Long> minHash(Set<Long> set) {
+        List<Long> minHashes = new ArrayList<>();
         for (int i = 0; i < numHashes_; ++i) {
             long min = Long.MAX_VALUE;
             long minl = 0;

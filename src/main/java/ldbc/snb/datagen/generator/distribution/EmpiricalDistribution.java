@@ -43,15 +43,16 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 
 public class EmpiricalDistribution extends BucketedDistribution {
 
     private String fileName = null;
 
     @Override
-    public ArrayList<Bucket> getBuckets(Configuration conf) {
+    public List<Bucket> getBuckets(Configuration conf) {
         fileName = conf.get("ldbc.snb.datagen.generator.distribution.EmpiricalDistribution.fileName");
-        ArrayList<Pair<Integer, Integer>> histogram = new ArrayList<Pair<Integer, Integer>>();
+        List<Pair<Integer, Integer>> histogram = new ArrayList<>();
         try {
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));

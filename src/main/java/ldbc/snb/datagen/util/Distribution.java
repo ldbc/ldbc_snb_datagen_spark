@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 
 public class Distribution {
@@ -55,7 +56,7 @@ public class Distribution {
         try {
             BufferedReader distributionBuffer = new BufferedReader(new InputStreamReader(getClass()
                                                                                                  .getResourceAsStream(distributionFile), "UTF-8"));
-            ArrayList<Double> temp = new ArrayList<>();
+            List<Double> temp = new ArrayList<>();
             String line;
             while ((line = distributionBuffer.readLine()) != null) {
                 Double prob = Double.valueOf(line);

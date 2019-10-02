@@ -38,6 +38,7 @@ package ldbc.snb.datagen.generator.tools;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class GraphUtils {
@@ -60,8 +61,8 @@ public class GraphUtils {
         return CC / graph.persons().size();
     }
 
-    public static ArrayList<Double> clusteringCoefficientList(PersonGraph graph) {
-        ArrayList<Double> CC = new ArrayList<>();
+    public static List<Double> clusteringCoefficientList(PersonGraph graph) {
+        List<Double> CC = new ArrayList<>();
         for (Long l : graph.persons()) {
             int triangles = 0;
             Set<Long> neighbors = graph.neighbors(l);

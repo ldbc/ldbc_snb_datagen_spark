@@ -38,16 +38,17 @@ package ldbc.snb.datagen.generator.tools;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class PersonGraph {
-    private HashMap<Long, HashSet<Long>> adjacencies_;
+    private Map<Long, HashSet<Long>> adjacencies_;
 
-    public PersonGraph(ArrayList<Person> persons) {
-        adjacencies_ = new HashMap<Long, HashSet<Long>>();
+    public PersonGraph(List<Person> persons) {
+        adjacencies_ = new HashMap<>();
         for (Person p : persons) {
             HashSet<Long> neighbors = new HashSet<>();
             for (Knows k : p.knows()) {

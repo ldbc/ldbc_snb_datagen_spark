@@ -39,15 +39,16 @@ import ldbc.snb.datagen.generator.tools.Bucket;
 import org.apache.hadoop.conf.Configuration;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public abstract class BucketedDistribution extends DegreeDistribution {
 
-    private ArrayList<Bucket> buckets_;
-    private ArrayList<Random> randomDegree_;
+    private List<Bucket> buckets_;
+    private List<Random> randomDegree_;
     private Random randomPercentile_;
 
-    public abstract ArrayList<Bucket> getBuckets(Configuration conf);
+    public abstract List<Bucket> getBuckets(Configuration conf);
 
     public void initialize(Configuration conf) {
         buckets_ = this.getBuckets(conf);

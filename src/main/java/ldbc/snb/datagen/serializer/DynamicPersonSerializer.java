@@ -43,8 +43,8 @@ import ldbc.snb.datagen.entities.dynamic.relations.StudyAt;
 import ldbc.snb.datagen.entities.dynamic.relations.WorkAt;
 import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
 
-import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
@@ -94,7 +94,7 @@ abstract public class DynamicPersonSerializer<TWriter extends HdfsWriter> extend
         }
     }
 
-    public String buildLanguages(ArrayList<Integer> languages) {
+    public String buildLanguages(List<Integer> languages) {
         return languages.stream()
                 .map(l -> Dictionaries.languages.getLanguageName(l))
                 .collect(Collectors.joining(";"));

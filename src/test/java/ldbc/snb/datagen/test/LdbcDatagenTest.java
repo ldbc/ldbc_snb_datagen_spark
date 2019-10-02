@@ -1,8 +1,19 @@
 package ldbc.snb.datagen.test;
 
-import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.LdbcDatagen;
-import ldbc.snb.datagen.test.csv.*;
+import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.test.csv.ColumnSet;
+import ldbc.snb.datagen.test.csv.ExistsCheck;
+import ldbc.snb.datagen.test.csv.FileChecker;
+import ldbc.snb.datagen.test.csv.LongCheck;
+import ldbc.snb.datagen.test.csv.LongPairCheck;
+import ldbc.snb.datagen.test.csv.LongParser;
+import ldbc.snb.datagen.test.csv.NumericCheck;
+import ldbc.snb.datagen.test.csv.NumericPairCheck;
+import ldbc.snb.datagen.test.csv.PairUniquenessCheck;
+import ldbc.snb.datagen.test.csv.StringLengthCheck;
+import ldbc.snb.datagen.test.csv.StringParser;
+import ldbc.snb.datagen.test.csv.UniquenessCheck;
 import ldbc.snb.datagen.util.ConfigParser;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.BeforeClass;
@@ -12,7 +23,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class LdbcDatagenTest {
 
@@ -252,7 +263,7 @@ public class LdbcDatagenTest {
         //Creating person id check
         LongParser parser = new LongParser();
         ColumnSet<Long> persons = new ColumnSet<>(parser,new File(dir+"/dynamic/person_0_0.csv"),0,1);
-        List<ColumnSet<Long>> personsRef = new ArrayList<ColumnSet<Long>>();
+        List<ColumnSet<Long>> personsRef = new ArrayList<>();
         personsRef.add(persons);
         List<Integer> personIndex = new ArrayList<>();
         personIndex.add(0);
@@ -261,7 +272,7 @@ public class LdbcDatagenTest {
         //Creating name check
         StringParser strParser = new StringParser();
         ColumnSet<String> names = new ColumnSet<>(strParser,new File(dir+"/dynamic/person_0_0.csv"),1,1);
-        List<ColumnSet<String>> namesRef = new ArrayList<ColumnSet<String>>();
+        List<ColumnSet<String>> namesRef = new ArrayList<>();
         namesRef.add(names);
         List<Integer> namesIndex = new ArrayList<>();
         namesIndex.add(1);
@@ -282,7 +293,7 @@ public class LdbcDatagenTest {
 
         //Creating country check
         ColumnSet<String> places = new ColumnSet<>(strParser,new File(dir+"/static/place_0_0.csv"),1,1);
-        List<ColumnSet<String>> placesRef = new ArrayList<ColumnSet<String>>();
+        List<ColumnSet<String>> placesRef = new ArrayList<>();
         placesRef.add(places);
         List<Integer> countriesIndex = new ArrayList<>();
         countriesIndex.add(3);
@@ -311,7 +322,7 @@ public class LdbcDatagenTest {
 
         //Creating tag check
         ColumnSet<String> tags = new ColumnSet<>(strParser,new File(dir+"/static/tag_0_0.csv"),1,1);
-        List<ColumnSet<String>> tagsRef = new ArrayList<ColumnSet<String>>();
+        List<ColumnSet<String>> tagsRef = new ArrayList<>();
         tagsRef.add(tags);
         List<Integer> tagsIndex = new ArrayList<>();
         tagsIndex.add(1);
@@ -352,7 +363,7 @@ public class LdbcDatagenTest {
 
         //Creating tagClass check
         ColumnSet<String> tagClass = new ColumnSet<>(strParser,new File(dir+"/static/tagclass_0_0.csv"),1,1);
-        List<ColumnSet<String>> tagClassRef = new ArrayList<ColumnSet<String>>();
+        List<ColumnSet<String>> tagClassRef = new ArrayList<>();
         tagClassRef.add(tagClass);
         List<Integer> tagClassIndex = new ArrayList<>();
         tagClassIndex.add(1);
@@ -414,9 +425,9 @@ public class LdbcDatagenTest {
         FileChecker fileChecker = new FileChecker(relationFileName);
         PairUniquenessCheck pairUniquenessCheck = new PairUniquenessCheck<>(parser,parser,columnA,columnB);
         fileChecker.addCheck(pairUniquenessCheck);
-        List<ColumnSet<Long>> entityARefColumns = new ArrayList<ColumnSet<Long>>();
+        List<ColumnSet<Long>> entityARefColumns = new ArrayList<>();
         entityARefColumns.add(entitiesA);
-        List<ColumnSet<Long>> entityBRefColumns = new ArrayList<ColumnSet<Long>>();
+        List<ColumnSet<Long>> entityBRefColumns = new ArrayList<>();
         entityBRefColumns.add(entitiesB);
         List<Integer> organisationIndices = new ArrayList<>();
         organisationIndices.add(columnA);
@@ -436,7 +447,7 @@ public class LdbcDatagenTest {
         FileChecker fileChecker = new FileChecker(relationFileName);
         PairUniquenessCheck pairUniquenessCheck = new PairUniquenessCheck<>(parser,parser,columnA,columnB);
         fileChecker.addCheck(pairUniquenessCheck);
-        List<ColumnSet<Long>> refcolumns = new ArrayList<ColumnSet<Long>>();
+        List<ColumnSet<Long>> refcolumns = new ArrayList<>();
         refcolumns.add(entities);
         List<Integer> columnIndices = new ArrayList<>();
         columnIndices.add(columnA);
@@ -450,7 +461,7 @@ public class LdbcDatagenTest {
         LongParser parser = new LongParser();
         ColumnSet<Long> checkAgainstEntities = new ColumnSet<>(parser,new File(fileToCheckExistanceAgainst),columnToCheckExistanceAgainst,1);
         FileChecker fileChecker = new FileChecker(fileToCheckExistanceOf);
-        List<ColumnSet<Long>> refcolumns = new ArrayList<ColumnSet<Long>>();
+        List<ColumnSet<Long>> refcolumns = new ArrayList<>();
         refcolumns.add(checkAgainstEntities);
         List<Integer> columnIndices = new ArrayList<>();
         columnIndices.add(columnToCheckExistanceOf);

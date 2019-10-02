@@ -63,14 +63,15 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Properties;
 
 public class UpdateEventSerializer {
 
 
     private SequenceFile.Writer streamWriter_[];
-    private ArrayList<String> data_;
-    private ArrayList<String> list_;
+    private List<String> data_;
+    private List<String> list_;
     private UpdateEvent currentEvent_;
     private int numPartitions_ = 1;
     private int nextPartition_ = 0;
@@ -150,7 +151,7 @@ public class UpdateEventSerializer {
         }
     }
 
-    private String formatStringArray(ArrayList<String> array, String separator) {
+    private String formatStringArray(List<String> array, String separator) {
         if (array.size() == 0) return "";
         stringBuffer_.setLength(0);
         for (String s : array) {
@@ -255,7 +256,7 @@ public class UpdateEventSerializer {
         beginList();
         int universityId = person.universityLocationId();
         if (universityId != -1 && person.classYear() != -1) {
-            ArrayList<String> studyAtData = new ArrayList<>();
+            List<String> studyAtData = new ArrayList<>();
             studyAtData.add(Long.toString(Dictionaries.universities.getUniversityFromLocation(universityId)));
             studyAtData.add(Dictionaries.dates.formatYear(person.classYear()));
             list_.add(formatStringArray(studyAtData, ","));
@@ -264,7 +265,7 @@ public class UpdateEventSerializer {
 
         beginList();
         for (Long companyId : person.companies().keySet()) {
-            ArrayList<String> workAtData = new ArrayList<>();
+            List<String> workAtData = new ArrayList<>();
             workAtData.add(Long.toString(companyId));
             workAtData.add(Dictionaries.dates.formatYear(person.companies().get(companyId)));
             list_.add(formatStringArray(workAtData, ","));

@@ -41,7 +41,7 @@ import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import org.apache.hadoop.conf.Configuration;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class DistanceKnowsGenerator implements KnowsGenerator {
 
@@ -51,7 +51,7 @@ public class DistanceKnowsGenerator implements KnowsGenerator {
         this.randomFarm = new RandomGeneratorFarm();
     }
 
-    public void generateKnows(ArrayList<Person> persons, int seed, ArrayList<Float> percentages, int step_index) {
+    public void generateKnows(List<Person> persons, int seed, List<Float> percentages, int step_index) {
         randomFarm.resetRandomGenerators(seed);
         for (int i = 0; i < persons.size(); ++i) {
             Person p = persons.get(i);
@@ -69,7 +69,7 @@ public class DistanceKnowsGenerator implements KnowsGenerator {
         // This is inherited from knows generator and no initialization is required.
     }
 
-    private boolean know(Person personA, Person personB, int dist, ArrayList<Float> percentages, int step_index) {
+    private boolean know(Person personA, Person personB, int dist, List<Float> percentages, int step_index) {
         if (personA.knows().size() >= Knows.targetEdges(personA, percentages, step_index) ||
                 personB.knows().size() >= Knows.targetEdges(personB, percentages, step_index)) return false;
         double randProb = randomFarm.get(RandomGeneratorFarm.Aspect.UNIFORM).nextDouble();

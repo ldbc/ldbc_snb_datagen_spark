@@ -41,6 +41,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 
@@ -51,8 +52,8 @@ import java.util.Random;
 public class EmailDictionary {
 
     private static final String SEPARATOR = " ";
-    private ArrayList<String> emails;
-    private ArrayList<Double> cumulativeDistribution;
+    private List<String> emails;
+    private List<Double> cumulativeDistribution;
 
     /**
      * @brief Constructor.

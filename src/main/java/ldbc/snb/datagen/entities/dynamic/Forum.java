@@ -40,6 +40,7 @@ import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Forum {
 
@@ -47,10 +48,10 @@ public class Forum {
     private Person.PersonSummary moderator_;
     private long creationDate_;
     private String title_;
-    private ArrayList<Integer> tags_;
+    private List<Integer> tags_;
     private int placeId_;
     private int language_;
-    private ArrayList<ForumMembership> memberships_;
+    private List<ForumMembership> memberships_;
 
 
     public Forum(long id, long creationDate, Person.PersonSummary moderator, String title, int placeId, int language) {
@@ -94,11 +95,11 @@ public class Forum {
         creationDate_ = creationDate;
     }
 
-    public ArrayList<Integer> tags() {
+    public List<Integer> tags() {
         return tags_;
     }
 
-    public void tags(ArrayList<Integer> tags) {
+    public void tags(List<Integer> tags) {
         tags_.clear();
         tags_.addAll(tags);
     }
@@ -111,7 +112,7 @@ public class Forum {
         this.title_ = title;
     }
 
-    public ArrayList<ForumMembership> memberships() {
+    public List<ForumMembership> memberships() {
         return memberships_;
     }
 

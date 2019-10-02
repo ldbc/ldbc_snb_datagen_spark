@@ -2,7 +2,8 @@ package ldbc.snb.datagen.test.entities;
 
 import ldbc.snb.datagen.entities.dynamic.person.IP;
 import org.junit.Test;
-import static org.junit.Assert.assertTrue;
+
+import static org.junit.Assert.*;
 
 public class IPTest {
 

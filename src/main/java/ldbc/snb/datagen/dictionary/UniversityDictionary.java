@@ -42,6 +42,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -56,7 +57,7 @@ public class UniversityDictionary {
     /**
      * < @brief The university city.
      */
-    private TreeMap<Integer, ArrayList<Long>> universitiesByCountry;
+    private TreeMap<Integer, List<Long>> universitiesByCountry;
     /**
      * < @brief The universities by country .
      */
@@ -90,7 +91,7 @@ public class UniversityDictionary {
         this.startIndex = startIndex;
         this.universityName = new TreeMap<>();
         this.universityCity = new TreeMap<>();
-        this.universitiesByCountry = new TreeMap<Integer, ArrayList<Long>>();
+        this.universitiesByCountry = new TreeMap<Integer, List<Long>>();
         for (Integer id : locationDic.getCountries()) {
             universitiesByCountry.put(id, new ArrayList<>());
         }
@@ -148,7 +149,7 @@ public class UniversityDictionary {
 
         int countryId = countryId_;
         double prob = randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_UNIVERSITY).nextDouble();
-        ArrayList<Integer> countries = locationDic.getCountries();
+        List<Integer> countries = locationDic.getCountries();
         if (randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_UNIVERSITY)
                       .nextDouble() <= probUncorrelatedUniversity) {
             countryId = countries.get(randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_UNIVERSITY_LOCATION)

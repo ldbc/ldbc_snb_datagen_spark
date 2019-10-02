@@ -43,6 +43,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
 import java.util.Random;
 
 
@@ -52,7 +54,7 @@ public class PopularPlacesDictionary {
     /**
      * < @brief The location dictionary. *
      */
-    private HashMap<Integer, ArrayList<PopularPlace>> popularPlacesByCountry;   /**< @brief The popular places by country .**/
+    private Map<Integer, List<PopularPlace>> popularPlacesByCountry;   /**< @brief The popular places by country .**/
 
     /**
      * @param locationDic The location dictionary.
@@ -60,7 +62,7 @@ public class PopularPlacesDictionary {
      */
     public PopularPlacesDictionary(PlaceDictionary locationDic) {
         this.placeDictionary = locationDic;
-        this.popularPlacesByCountry = new HashMap<Integer, ArrayList<PopularPlace>>();
+        this.popularPlacesByCountry = new HashMap<>();
         for (Integer id : placeDictionary.getCountries()) {
             this.popularPlacesByCountry.put(id, new ArrayList<>());
         }

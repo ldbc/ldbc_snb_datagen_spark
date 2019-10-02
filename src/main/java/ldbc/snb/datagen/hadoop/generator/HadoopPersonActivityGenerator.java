@@ -64,6 +64,7 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 public class HadoopPersonActivityGenerator {
 
@@ -114,7 +115,7 @@ public class HadoopPersonActivityGenerator {
         public void reduce(BlockKey key, Iterable<Person> valueSet, Context context)
                 throws IOException, InterruptedException {
             System.out.println("Reducing block " + key.block);
-            ArrayList<Person> persons = new ArrayList<>();
+            List<Person> persons = new ArrayList<>();
             for (Person p : valueSet) {
                 persons.add(new Person(p));
 

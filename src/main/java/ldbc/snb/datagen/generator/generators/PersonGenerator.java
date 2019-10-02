@@ -45,8 +45,8 @@ import ldbc.snb.datagen.vocabulary.SN;
 import org.apache.hadoop.conf.Configuration;
 
 import java.text.Normalizer;
-import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 public class PersonGenerator {
 
@@ -156,7 +156,7 @@ public class PersonGenerator {
             }
         }
 
-        ArrayList<Integer> userLanguages = Dictionaries.languages.getLanguages(randomFarm
+        List<Integer> userLanguages = Dictionaries.languages.getLanguages(randomFarm
                                                                                        .get(RandomGeneratorFarm.Aspect.LANGUAGE),
                                                                                person.countryId());
         int internationalLang = Dictionaries.languages.getInternationlLanguage(randomFarm

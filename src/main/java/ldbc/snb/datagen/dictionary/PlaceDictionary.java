@@ -45,6 +45,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -62,27 +64,27 @@ public class PlaceDictionary {
     private PlaceZOrder[] sortedPlace;
     private Float cumulativeDistribution[];
 
-    private ArrayList<Integer> countries;
+    private List<Integer> countries;
     /**
      * < @brief The set of countries. *
      */
-    private HashMap<Integer, Place> places;
+    private Map<Integer, Place> places;
     /**
      * < @brief The places by id. *
      */
-    private HashMap<Integer, Integer> isPartOf;
+    private Map<Integer, Integer> isPartOf;
     /**
      * < @brief The location hierarchy. *
      */
-    private HashMap<Integer, ArrayList<Integer>> citiesByCountry;
+    private Map<Integer, List<Integer>> citiesByCountry;
     /**
      * < @brief The cities by country. *
      */
-    private HashMap<String, Integer> cityNames;
+    private Map<String, Integer> cityNames;
     /**
      * < @brief The city names. *
      */
-    private HashMap<String, Integer> countryNames;       /**< @brief The country names. **/
+    private Map<String, Integer> countryNames;       /**< @brief The country names. **/
 
     /**
      * Private class used to sort countries by their z-order value.
@@ -111,7 +113,7 @@ public class PlaceDictionary {
         this.places = new HashMap<>();
         this.isPartOf = new HashMap<>();
         this.countries = new ArrayList<>();
-        this.citiesByCountry = new HashMap<Integer, ArrayList<Integer>>();
+        this.citiesByCountry = new HashMap<>();
         load(DatagenParams.cityDictionaryFile, DatagenParams.countryDictionaryFile);
     }
 
@@ -127,7 +129,7 @@ public class PlaceDictionary {
      * @return The set of countries
      * @brief Gets a list of the country ids.
      */
-    public ArrayList<Integer> getCountries() {
+    public List<Integer> getCountries() {
         return new ArrayList<>(countries);
     }
 
@@ -302,7 +304,7 @@ public class PlaceDictionary {
             BufferedReader dictionary = new BufferedReader(
                     new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));
 
-            ArrayList<Float> temporalCumulative = new ArrayList<>();
+            List<Float> temporalCumulative = new ArrayList<>();
 
             String line;
             while ((line = dictionary.readLine()) != null) {
@@ -338,7 +340,7 @@ public class PlaceDictionary {
      * @brief Reads a continents file name.
      */
     private void readContinents(String fileName) {
-        HashMap<String, Integer> treatedContinents = new HashMap<>();
+        Map<String, Integer> treatedContinents = new HashMap<>();
         try {
             BufferedReader dictionary = new BufferedReader(
                     new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));

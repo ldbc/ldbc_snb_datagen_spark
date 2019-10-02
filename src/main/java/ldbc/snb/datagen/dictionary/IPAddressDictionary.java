@@ -43,6 +43,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
 import java.util.Random;
 import java.util.TreeMap;
 
@@ -53,7 +55,7 @@ public class IPAddressDictionary {
     private static final String SEPARATOR_IP = "[.]";
     private static final String SEPARATOR_MASK = "/";
     private static final int MAX_IP_COUNTRY = 100;
-    private TreeMap<Integer, ArrayList<IP>> ipsByCountry;
+    private TreeMap<Integer, List<IP>> ipsByCountry;
     /**
      * < @brief The country of ips. *
      */
@@ -66,7 +68,7 @@ public class IPAddressDictionary {
     public IPAddressDictionary(PlaceDictionary locationDic) {
 
         this.placeDictionary = locationDic;
-        this.ipsByCountry = new TreeMap<Integer, ArrayList<IP>>();
+        this.ipsByCountry = new TreeMap<Integer, List<IP>>();
         load(DatagenParams.countryAbbrMappingFile, DatagenParams.IPZONE_DIRECTORY);
     }
 
@@ -77,7 +79,7 @@ public class IPAddressDictionary {
      */
     private void load(String mappingFileName, String baseIPdir) {
         String line;
-        HashMap<String, String> countryAbbreMap = new HashMap<>();
+        Map<String, String> countryAbbreMap = new HashMap<>();
         try {
             BufferedReader mappingFile = new BufferedReader(new InputStreamReader(getClass()
                                                                                           .getResourceAsStream(mappingFileName), "UTF-8"));
@@ -89,7 +91,7 @@ public class IPAddressDictionary {
             }
             mappingFile.close();
 
-            ArrayList<Integer> countries = placeDictionary.getCountries();
+            List<Integer> countries = placeDictionary.getCountries();
             for (int i = 0; i < countries.size(); i++) {
                 ipsByCountry.put(countries.get(i), new ArrayList<>());
 
@@ -126,7 +128,7 @@ public class IPAddressDictionary {
         while (!placeDictionary.getType(finalLocationIndex).equals("country")) {
             finalLocationIndex = placeDictionary.belongsTo(finalLocationIndex);
         }
-        ArrayList<IP> countryIPs = ipsByCountry.get(finalLocationIndex);
+        List<IP> countryIPs = ipsByCountry.get(finalLocationIndex);
         int idx = random.nextInt(countryIPs.size());
 
         IP networkIp = countryIPs.get(idx);

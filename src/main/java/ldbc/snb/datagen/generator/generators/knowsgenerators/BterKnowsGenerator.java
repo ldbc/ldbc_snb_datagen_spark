@@ -47,8 +47,10 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
@@ -60,12 +62,12 @@ public class BterKnowsGenerator implements KnowsGenerator {
     private Configuration conf;
     private long[] expectedDegree;
     private double[] p;
-    private HashMap<Long, RoaringBitmap> openCommunities = new HashMap<>();
-    private ArrayList<RoaringBitmap> closedCommunities = new ArrayList<>();
+    private Map<Long, RoaringBitmap> openCommunities = new HashMap<>();
+    private List<RoaringBitmap> closedCommunities = new ArrayList<>();
     private RoaringBitmap smallDegreeNodes = new RoaringBitmap();
     private RoaringBitmap[] adjacencyMatrix;
 
-    public int binarySearch(ArrayList<Pair<Long, Double>> array, Long degree) {
+    public int binarySearch(List<Pair<Long, Double>> array, Long degree) {
         int min = 0;
         int max = array.size();
         while (min <= max) {
@@ -146,7 +148,7 @@ public class BterKnowsGenerator implements KnowsGenerator {
     }
 
     @Override
-    public void generateKnows(ArrayList<Person> persons, int seed, ArrayList<Float> percentages, int step_index) {
+    public void generateKnows(List<Person> persons, int seed, List<Float> percentages, int step_index) {
 
         graphSize = persons.size();
         expectedDegree = new long[graphSize];
@@ -169,7 +171,7 @@ public class BterKnowsGenerator implements KnowsGenerator {
         p = new double[maxExpectedDegree + 1];
 
         /** Initializing the array of triangles **/
-        ArrayList<Pair<Long, Double>> ccDistribution = new ArrayList<Pair<Long, Double>>();
+        List<Pair<Long, Double>> ccDistribution = new ArrayList<>();
         try {
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(getClass()

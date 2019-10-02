@@ -54,6 +54,7 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class HadoopMergeFriendshipFiles {
 
@@ -82,7 +83,7 @@ public class HadoopMergeFriendshipFiles {
         public void reduce(TupleKey key, Iterable<Person> valueSet, Context context)
                 throws IOException, InterruptedException {
 
-            ArrayList<Knows> knows = new ArrayList<>();
+            List<Knows> knows = new ArrayList<>();
             Person person = null;
             int index = 0;
             for (Person p : valueSet) {
@@ -127,7 +128,7 @@ public class HadoopMergeFriendshipFiles {
         this.postKeySetterName = postKeySetterName;
     }
 
-    public void run(String outputFileName, ArrayList<String> friendshipFileNames) throws Exception {
+    public void run(String outputFileName, List<String> friendshipFileNames) throws Exception {
 
         conf.set("postKeySetterName", postKeySetterName);
         int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads"));

@@ -43,8 +43,8 @@ import org.apache.hadoop.io.Writable;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Random;
 
 
@@ -144,7 +144,7 @@ public class Knows implements Writable, Comparable<Knows> {
                 personA.knows().add(new Knows(personB, creationDate, similarity));
     }
 
-    public static long targetEdges(Person person, ArrayList<Float> percentages, int step_index) {
+    public static long targetEdges(Person person, List<Float> percentages, int step_index) {
         int generated_edges = 0;
         for (int i = 0; i < step_index; ++i) {
             generated_edges += Math.ceil(percentages.get(i) * person.maxNumKnows());

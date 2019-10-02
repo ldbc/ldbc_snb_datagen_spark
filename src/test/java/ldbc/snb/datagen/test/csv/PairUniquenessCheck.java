@@ -1,11 +1,16 @@
 package ldbc.snb.datagen.test.csv;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class PairUniquenessCheck<T,S> extends Check {
 
 
-    protected HashMap< T,Set<S>> values = null;
+    protected Map< T,Set<S>> values = null;
     protected Parser<T> parserA = null;
     protected Parser<S> parserB = null;
 
@@ -16,7 +21,7 @@ public class PairUniquenessCheck<T,S> extends Check {
         this.parserB = parserB;
         this.getColumns().add(columnA);
         this.getColumns().add(columnB);
-        values = new HashMap<T, Set<S>>();
+        values = new HashMap<>();
     }
 
     @Override

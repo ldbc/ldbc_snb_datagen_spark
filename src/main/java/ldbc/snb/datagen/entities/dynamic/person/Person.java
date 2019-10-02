@@ -43,7 +43,9 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
@@ -68,10 +70,10 @@ public class Person implements Writable {
     private long randomId_;
 
     private TreeSet<String> emails_;
-    private ArrayList<Integer> languages_;
+    private List<Integer> languages_;
     private String firstName_;
     private String lastName_;
-    private HashMap<Long, Long> companies_;
+    private Map<Long, Long> companies_;
     private long classYear_;
 
     public static interface PersonSimilarity {
@@ -377,11 +379,11 @@ public class Person implements Writable {
         emails_.addAll(emails);
     }
 
-    public ArrayList<Integer> languages() {
+    public List<Integer> languages() {
         return languages_;
     }
 
-    public void languages(ArrayList<Integer> languages) {
+    public void languages(List<Integer> languages) {
         languages_.clear();
         languages_.addAll(languages);
     }
@@ -402,11 +404,11 @@ public class Person implements Writable {
         lastName_ = lastName;
     }
 
-    public HashMap<Long, Long> companies() {
+    public Map<Long, Long> companies() {
         return companies_;
     }
 
-    public void companies(HashMap<Long, Long> companies) {
+    public void companies(Map<Long, Long> companies) {
         companies.clear();
         companies_.putAll(companies);
     }

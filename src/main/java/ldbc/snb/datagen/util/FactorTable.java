@@ -50,18 +50,19 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 public class FactorTable {
 
-    private HashMap<Long, PersonCounts> personCounts_;
-    private HashMap<Integer, Long> postsPerCountry_;
-    private HashMap<Integer, Long> tagClassCount_;
-    private HashMap<String, Long> firstNameCount_;
-    private HashMap<Integer, Long> tagCount_;
-    private HashMap<Long, String> medianFirstName_;
+    private Map<Long, PersonCounts> personCounts_;
+    private Map<Integer, Long> postsPerCountry_;
+    private Map<Integer, Long> tagClassCount_;
+    private Map<String, Long> firstNameCount_;
+    private Map<Integer, Long> tagCount_;
+    private Map<Long, String> medianFirstName_;
     private long minWorkFrom_ = Long.MAX_VALUE;
     private long maxWorkFrom_ = Long.MIN_VALUE;
 
@@ -75,8 +76,8 @@ public class FactorTable {
         private long numComments_ = 0;
         private int country_ = 0;
         private String name_ = null;
-        private ArrayList<Long> numMessagesPerMonth_ = null;
-        private ArrayList<Long> numForumsPerMonth_ = null;
+        private List<Long> numMessagesPerMonth_ = null;
+        private List<Long> numForumsPerMonth_ = null;
 
         public PersonCounts() {
             numMessagesPerMonth_ = new ArrayList<>(36 + 1);
@@ -177,11 +178,11 @@ public class FactorTable {
             numComments_++;
         }
 
-        public ArrayList<Long> numMessagesPerMonth() {
+        public List<Long> numMessagesPerMonth() {
             return numMessagesPerMonth_;
         }
 
-        public void numMessagesPerMonth(ArrayList<Long> numMessagesPerMonth) {
+        public void numMessagesPerMonth(List<Long> numMessagesPerMonth) {
             numMessagesPerMonth_.clear();
             numMessagesPerMonth_.addAll(numMessagesPerMonth);
         }
@@ -191,11 +192,11 @@ public class FactorTable {
         }
 
 
-        public ArrayList<Long> numForumsPerMonth() {
+        public List<Long> numForumsPerMonth() {
             return numForumsPerMonth_;
         }
 
-        public void numGroupsPerMonth(ArrayList<Long> numForumsPerMonth) {
+        public void numGroupsPerMonth(List<Long> numForumsPerMonth) {
             numForumsPerMonth_.clear();
             numForumsPerMonth_ = numForumsPerMonth;
         }

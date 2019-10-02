@@ -88,7 +88,7 @@ public class LdbcDatagen {
 
         String hadoopPrefix = conf.get("ldbc.snb.datagen.serializer.hadoopDir");
         FileSystem fs = FileSystem.get(conf);
-        ArrayList<Float> percentages = new ArrayList<>();
+        List<Float> percentages = new ArrayList<>();
         percentages.add(0.45f);
         percentages.add(0.45f);
         percentages.add(0.1f);
@@ -143,7 +143,7 @@ public class LdbcDatagen {
 
         fs.delete(new Path(DatagenParams.hadoopDir + "/persons"), true);
         printProgress("Merging the different edge files");
-        ArrayList<String> edgeFileNames = new ArrayList<>();
+        List<String> edgeFileNames = new ArrayList<>();
         edgeFileNames.add(hadoopPrefix + "/universityEdges");
         edgeFileNames.add(hadoopPrefix + "/interestEdges");
         edgeFileNames.add(hadoopPrefix + "/randomEdges");

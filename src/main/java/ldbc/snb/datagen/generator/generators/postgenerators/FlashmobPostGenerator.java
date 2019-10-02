@@ -45,9 +45,9 @@ import ldbc.snb.datagen.generator.generators.LikeGenerator;
 import ldbc.snb.datagen.generator.generators.textgenerators.TextGenerator;
 import ldbc.snb.datagen.util.Distribution;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 import java.util.TreeSet;
 
@@ -117,7 +117,7 @@ public class FlashmobPostGenerator extends PostGenerator {
         for (Integer tag : tags) {
             tags.add(tag);
         }
-        ArrayList<FlashmobTag> temp = Dictionaries.flashmobs.generateFlashmobTags(randomNumPost, tags, forum
+        List<FlashmobTag> temp = Dictionaries.flashmobs.generateFlashmobTags(randomNumPost, tags, forum
                 .creationDate());
         forumFlashmobTags = new FlashmobTag[temp.size()];
         Iterator<FlashmobTag> it = temp.iterator();

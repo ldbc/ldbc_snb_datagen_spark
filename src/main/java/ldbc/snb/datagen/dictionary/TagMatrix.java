@@ -40,6 +40,7 @@ import ldbc.snb.datagen.DatagenParams;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -48,21 +49,21 @@ public class TagMatrix {
 
     private static final String SEPARATOR = " ";
 
-    private TreeMap<Integer, ArrayList<Integer>> relatedTags;
+    private TreeMap<Integer, List<Integer>> relatedTags;
     /**
      * < @brief An array of related tags per tag.
      */
-    private TreeMap<Integer, ArrayList<Double>> cumulative;
+    private TreeMap<Integer, List<Double>> cumulative;
 
-    private ArrayList<Integer> nonZeroTags;
+    private List<Integer> nonZeroTags;
 
     /**
      * < @brief The list of tags.
      */
 
     public TagMatrix() {
-        cumulative = new TreeMap<Integer, ArrayList<Double>>();
-        relatedTags = new TreeMap<Integer, ArrayList<Integer>>();
+        cumulative = new TreeMap<Integer, List<Double>>();
+        relatedTags = new TreeMap<Integer, List<Integer>>();
         nonZeroTags = new ArrayList<>();
         load(DatagenParams.tagMatrixFile);
 
@@ -82,10 +83,10 @@ public class TagMatrix {
                 int celebrityId = Integer.parseInt(data[0]);
                 int topicId = Integer.parseInt(data[1]);
                 double cumuluative = Double.parseDouble(data[2]);
-                ArrayList<Double> cum = cumulative.get(celebrityId);
+                List<Double> cum = cumulative.get(celebrityId);
                 if (cum == null) cumulative.put(celebrityId, new ArrayList<>());
                 cumulative.get(celebrityId).add(cumuluative);
-                ArrayList<Integer> related = relatedTags.get(celebrityId);
+                List<Integer> related = relatedTags.get(celebrityId);
                 if (related == null) relatedTags.put(celebrityId, new ArrayList<>());
                 relatedTags.get(celebrityId).add(topicId);
             }

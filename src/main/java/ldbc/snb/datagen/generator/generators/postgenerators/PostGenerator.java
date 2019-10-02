@@ -52,7 +52,7 @@ import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 import java.util.TreeSet;
@@ -92,7 +92,7 @@ abstract public class PostGenerator {
     }
 
 
-    public long createPosts(RandomGeneratorFarm randomFarm, final Forum forum, final ArrayList<ForumMembership> memberships, long numPosts, long startId, PersonActivityExporter exporter) throws IOException {
+    public long createPosts(RandomGeneratorFarm randomFarm, final Forum forum, final List<ForumMembership> memberships, long numPosts, long startId, PersonActivityExporter exporter) throws IOException {
         long postId = startId;
         Properties prop = new Properties();
         prop.setProperty("type", "post");

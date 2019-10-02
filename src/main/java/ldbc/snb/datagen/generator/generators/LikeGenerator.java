@@ -46,7 +46,7 @@ import ldbc.snb.datagen.generator.tools.PowerDistribution;
 import ldbc.snb.datagen.serializer.PersonActivityExporter;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class LikeGenerator {
@@ -63,7 +63,7 @@ public class LikeGenerator {
         int numMembers = forum.memberships().size();
         int numLikes = likesGenerator_.getValue(random);
         numLikes = numLikes >= numMembers ? numMembers : numLikes;
-        ArrayList<ForumMembership> memberships = forum.memberships();
+        List<ForumMembership> memberships = forum.memberships();
         int startIndex = 0;
         if (numLikes < numMembers) {
             startIndex = random.nextInt(numMembers - numLikes);

@@ -40,6 +40,7 @@ import ldbc.snb.datagen.DatagenParams;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.TreeSet;
@@ -50,7 +51,7 @@ public class TagTextDictionary {
     /**
      * < @brief The tag dictionary. *
      */
-    private HashMap<Integer, String> tagText;
+    private Map<Integer, String> tagText;
     /**
      * < @brief The tag text. *
      */

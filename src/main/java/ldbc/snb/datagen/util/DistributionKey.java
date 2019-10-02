@@ -39,11 +39,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class DistributionKey {
 
-    private ArrayList<Pair> distribution;
+    private List<Pair> distribution;
     private String distributionFile;
 
     static class Pair {

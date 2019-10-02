@@ -50,6 +50,7 @@ import ldbc.snb.datagen.vocabulary.SN;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.TreeSet;
 
@@ -63,11 +64,11 @@ public class PhotoGenerator {
         this.photo_ = new Photo();
     }
 
-    public long createPhotos(RandomGeneratorFarm randomFarm, final Forum album, final ArrayList<ForumMembership> memberships, long numPhotos, long startId, PersonActivityExporter exporter) throws IOException {
+    public long createPhotos(RandomGeneratorFarm randomFarm, final Forum album, final List<ForumMembership> memberships, long numPhotos, long startId, PersonActivityExporter exporter) throws IOException {
         long nextId = startId;
         int numPopularPlaces = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_POPULAR)
                                          .nextInt(DatagenParams.maxNumPopularPlaces + 1);
-        ArrayList<Short> popularPlaces = new ArrayList<>();
+        List<Short> popularPlaces = new ArrayList<>();
         for (int i = 0; i < numPopularPlaces; i++) {
             short aux = Dictionaries.popularPlaces.getPopularPlace(randomFarm
                                                                            .get(RandomGeneratorFarm.Aspect.POPULAR), album

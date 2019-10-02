@@ -58,6 +58,7 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class HadoopKnowsGenerator {
 
@@ -65,7 +66,7 @@ public class HadoopKnowsGenerator {
     private String preKeySetterName;
     private String postKeySetterName;
     private String knowsGeneratorName;
-    private ArrayList<Float> percentages;
+    private List<Float> percentages;
     private int step_index;
 
 
@@ -77,7 +78,7 @@ public class HadoopKnowsGenerator {
          **/
         private Configuration conf;
         private HadoopFileKeyChanger.KeySetter<TupleKey> keySetter = null;
-        private ArrayList<Float> percentages;
+        private List<Float> percentages;
         private int step_index;
         private int numGeneratedEdges = 0;
 
@@ -111,7 +112,7 @@ public class HadoopKnowsGenerator {
         @Override
         public void reduce(BlockKey key, Iterable<Person> valueSet, Context context)
                 throws IOException, InterruptedException {
-            ArrayList<Person> persons = new ArrayList<>();
+            List<Person> persons = new ArrayList<>();
             for (Person p : valueSet) {
                 persons.add(new Person(p));
             }
@@ -129,7 +130,7 @@ public class HadoopKnowsGenerator {
     }
 
 
-    public HadoopKnowsGenerator(Configuration conf, String preKeySetterName, String postKeySetterName, ArrayList<Float> percentages, int step_index, String knowsGeneratorName) {
+    public HadoopKnowsGenerator(Configuration conf, String preKeySetterName, String postKeySetterName, List<Float> percentages, int step_index, String knowsGeneratorName) {
         this.conf = new Configuration(conf);
         this.preKeySetterName = preKeySetterName;
         this.postKeySetterName = postKeySetterName;

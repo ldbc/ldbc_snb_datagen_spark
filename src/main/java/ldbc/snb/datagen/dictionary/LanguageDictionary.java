@@ -42,6 +42,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
 import java.util.Random;
 
 
@@ -50,15 +52,15 @@ public class LanguageDictionary {
     private static final String SEPARATOR = "  ";
     private static final String ISO_ENGLISH_CODE = "en";
 
-    private ArrayList<String> languages;
+    private List<String> languages;
     /**
      * < @brief The array of languages. *
      */
-    private HashMap<Integer, ArrayList<Integer>> officalLanguagesByCountry;
+    private Map<Integer, List<Integer>> officalLanguagesByCountry;
     /**
      * < @brief The official languages by country. *
      */
-    private HashMap<Integer, ArrayList<Integer>> languagesByCountry;
+    private Map<Integer, List<Integer>> languagesByCountry;
     /**
      * < @brief The languages by country. *
      */
@@ -84,8 +86,8 @@ public class LanguageDictionary {
         this.probEnglish = probEnglish;
         this.probSecondLang = probSecondLang;
         this.languages = new ArrayList<>();
-        this.officalLanguagesByCountry = new HashMap<Integer, ArrayList<Integer>>();
-        this.languagesByCountry = new HashMap<Integer, ArrayList<Integer>>();
+        this.officalLanguagesByCountry = new HashMap<>();
+        this.languagesByCountry = new HashMap<>();
         load(DatagenParams.languageDictionaryFile);
     }
 
@@ -145,8 +147,8 @@ public class LanguageDictionary {
      * @return The set of randomly choosen languages.
      * @breif Gets a set of random languages from a country.
      */
-    public ArrayList<Integer> getLanguages(Random random, int country) {
-        ArrayList<Integer> langSet = new ArrayList<>();
+    public List<Integer> getLanguages(Random random, int country) {
+        List<Integer> langSet = new ArrayList<>();
         if (officalLanguagesByCountry.get(country).size() != 0) {
             int id = random.nextInt(officalLanguagesByCountry.get(country).size());
             langSet.add(officalLanguagesByCountry.get(country).get(id));

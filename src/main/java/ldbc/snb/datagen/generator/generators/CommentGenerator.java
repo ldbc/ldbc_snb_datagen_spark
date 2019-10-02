@@ -53,6 +53,7 @@ import ldbc.snb.datagen.vocabulary.SN;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 import java.util.TreeSet;
@@ -70,7 +71,7 @@ public class CommentGenerator {
 
     public long createComments(RandomGeneratorFarm randomFarm, final Forum forum, final Post post, long numComments, long startId, PersonActivityExporter exporter) throws IOException {
         long nextId = startId;
-        ArrayList<Message> replyCandidates = new ArrayList<>();
+        List<Message> replyCandidates = new ArrayList<>();
         replyCandidates.add(post);
 
         Properties prop = new Properties();
@@ -78,7 +79,7 @@ public class CommentGenerator {
         for (int i = 0; i < numComments; ++i) {
             int replyIndex = randomFarm.get(RandomGeneratorFarm.Aspect.REPLY_TO).nextInt(replyCandidates.size());
             Message replyTo = replyCandidates.get(replyIndex);
-            ArrayList<ForumMembership> validMemberships = new ArrayList<>();
+            List<ForumMembership> validMemberships = new ArrayList<>();
             for (ForumMembership fM : forum.memberships()) {
                 if (fM.creationDate() + DatagenParams.deltaTime <= replyTo.creationDate()) {
                     validMemberships.add(fM);
@@ -96,7 +97,7 @@ public class CommentGenerator {
             boolean isShort = false;
             if (randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT).nextDouble() > 0.6666) {
 
-                ArrayList<Integer> currentTags = new ArrayList<>();
+                List<Integer> currentTags = new ArrayList<>();
                 Iterator<Integer> it = replyTo.tags().iterator();
                 while (it.hasNext()) {
                     Integer tag = it.next();

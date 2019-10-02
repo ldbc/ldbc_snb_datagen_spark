@@ -40,6 +40,7 @@ import org.apache.hadoop.conf.Configuration;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class ZipfDistribution extends DegreeDistribution {
@@ -47,7 +48,7 @@ public class ZipfDistribution extends DegreeDistribution {
     private org.apache.commons.math3.distribution.ZipfDistribution zipf_;
     private double ALPHA_ = 2.0;
     private Random random = new Random();
-    private HashMap<Integer, Integer> histogram = new HashMap<>();
+    private Map<Integer, Integer> histogram = new HashMap<>();
     private double probabilities[];
     private Integer values[];
     private double mean_ = 0.0;
