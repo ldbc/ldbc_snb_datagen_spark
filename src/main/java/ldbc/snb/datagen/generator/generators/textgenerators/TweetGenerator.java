@@ -75,7 +75,7 @@ public class TweetGenerator extends TextGenerator {
         Double numsentences = Double.valueOf(lengthtweet.nextDouble(this.random));
         for (int i = 0; i < numsentences; ++i) {
             Double numwords = Double.valueOf(lengthsentence.nextDouble(this.random));
-            // the number of hashtages depends on the number of words in the
+            // the number of hashtags depends on the number of words in the
             // sentence
             int numhashtags = (int) (numwords * 0.4);
             for (int j = 0; j < numhashtags; ++j) {

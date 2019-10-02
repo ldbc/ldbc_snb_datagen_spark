@@ -195,7 +195,7 @@ public class UniversityDictionary {
     }
 
     /**
-     * @return The set of unviersity ids.
+     * @return The set of university ids.
      * @brief Gets all the university ids.
      */
     public Set<Long> getUniversities() {
