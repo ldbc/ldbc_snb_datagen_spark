@@ -140,30 +140,14 @@ public class HadoopKnowsGenerator {
     }
 
     public void run(String inputFileName, String outputFileName) throws Exception {
-
-
         FileSystem fs = FileSystem.get(conf);
-
-        /*String keyChangedFileName = inputFileName;
-        if(preKeySetterName != null) {
-            System.out.println("Changing key of persons");
-            long start = System.currentTimeMillis();
-            keyChangedFileName = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/key_changed";
-            HadoopFileKeyChanger keyChanger = new HadoopFileKeyChanger(conf, TupleKey.class, Person.class, preKeySetterName);
-            keyChanger.run(inputFileName, keyChangedFileName);
-            System.out.println("... Time to change keys: "+ (System.currentTimeMillis() - start)+" ms");
-        }
-        */
 
         System.out.println("Ranking persons");
         long start = System.currentTimeMillis();
         String rankedFileName = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/ranked";
         HadoopFileRanker hadoopFileRanker = new HadoopFileRanker(conf, TupleKey.class, Person.class, preKeySetterName);
         hadoopFileRanker.run(inputFileName, rankedFileName);
-/*        if(preKeySetterName != null ) {
-            fs.delete(new Path(keyChangedFileName), true);
-        }
-        */
+
         System.out.println("... Time to rank persons: " + (System.currentTimeMillis() - start) + " ms");
 
         conf.setInt("stepIndex", step_index);
