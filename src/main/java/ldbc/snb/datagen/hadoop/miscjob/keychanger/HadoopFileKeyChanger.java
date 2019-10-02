@@ -55,7 +55,7 @@ public class HadoopFileKeyChanger {
     private Class<?> V;
 
     public interface KeySetter<K> {
-        public K getKey(Object object);
+        K getKey(Object object);
     }
 
 

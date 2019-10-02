@@ -83,21 +83,4 @@ public class Photo extends Message {
         longt_ = longt;
     }
 
-
-    public double latt() {
-        return latt_;
-    }
-
-    public void latt(double l) {
-        latt_ = l;
-    }
-
-    public double longt() {
-        return longt_;
-    }
-
-    public void longt(double l) {
-        longt_ = l;
-    }
-
 }

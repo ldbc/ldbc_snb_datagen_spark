@@ -151,15 +151,7 @@ public class FlashmobPostGenerator extends PostGenerator {
         index = selectRandomTag(randomTag, forumFlashmobTags, index);
         FlashmobTag flashmobTag = forumFlashmobTags[index];
         postInfo.tags.add(flashmobTag.tag);
-        /*Set<Integer> extraTags = Dictionaries.tagMatrix.getSetofTagsCached(randomTag,randomTag,flashmobTag.tag, maxNumTagPerFlashmobPost - 1);
-	    Iterator<Integer> it = extraTags.iterator();
-	    while (it.hasNext()) {
-		    Integer value = it.next();
-		    if(randomTag.nextDouble() < 0.05) {
-			    postInfo.tags.add(value);
-		    }
-	    }
-	    */
+
         for (int i = 0; i < maxNumTagPerFlashmobPost - 1; ++i) {
             if (randomTag.nextDouble() < 0.05) {
                 int tag = Dictionaries.tagMatrix.getRandomRelated(randomTag, flashmobTag.tag);

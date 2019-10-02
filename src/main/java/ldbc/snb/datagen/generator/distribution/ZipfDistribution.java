@@ -90,7 +90,6 @@ public class ZipfDistribution extends DegreeDistribution {
     }
 
     public long nextDegree() {
-        //return zipf_.sample();
         int min = 0;
         int max = probabilities.length;
         double prob = random.nextDouble();
@@ -107,7 +106,6 @@ public class ZipfDistribution extends DegreeDistribution {
     }
 
     public double mean(long numPersons) {
-        //return zipf_.getNumericalMean();
         return mean_;
     }
 }

@@ -44,9 +44,7 @@ import java.io.IOException;
 public class IP implements Writable {
 
     public static final int BYTE_MASK = 0xFF;
-    public static final int BYTE_SIZE = 8;
     public static final int IP4_SIZE_BITS = 32;
-    public static final int IP4_SIZE_BYTES = IP4_SIZE_BITS / 8;
     public static final int BYTE1_SHIFT_POSITION = 24;
     public static final int BYTE2_SHIFT_POSITION = 16;
     public static final int BYTE3_SHIFT_POSITION = 8;

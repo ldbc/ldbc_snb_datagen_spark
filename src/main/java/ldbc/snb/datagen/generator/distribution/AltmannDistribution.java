@@ -48,7 +48,6 @@ public class AltmannDistribution extends CumulativeBasedDegreeDistribution {
 
 
     public ArrayList<CumulativeEntry> cumulativeProbability(Configuration conf) {
-        //throw new UnsupportedOperationException("Distribution not implemented");
         ALPHA_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.AltmannDistribution.alpha", ALPHA_);
         BETA_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.AltmannDistribution.beta", BETA_);
 

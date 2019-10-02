@@ -50,6 +50,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
+
 public class CsvCompositeMergeForeignDynamicPersonSerializer extends DynamicPersonSerializer<HdfsCsvWriter> implements CsvSerializer {
     @Override
     public List<FileName> getFileNames() {

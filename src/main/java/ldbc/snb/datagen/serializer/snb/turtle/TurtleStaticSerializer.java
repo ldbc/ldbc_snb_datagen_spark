@@ -58,7 +58,6 @@ import java.util.List;
 
 import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
 
-
 public class TurtleStaticSerializer extends StaticSerializer<HdfsWriter> implements TurtleSerializer {
 
     @Override

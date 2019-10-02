@@ -57,7 +57,6 @@ import java.util.List;
 
 import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
 
-
 public class TurtleDynamicActivitySerializer extends DynamicActivitySerializer<HdfsWriter> implements TurtleSerializer {
 
     private long membershipId = 0;

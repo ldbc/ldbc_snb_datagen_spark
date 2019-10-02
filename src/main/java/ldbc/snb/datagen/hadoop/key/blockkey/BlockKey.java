@@ -50,11 +50,6 @@ public class BlockKey implements WritableComparable<BlockKey> {
         tk = new TupleKey();
     }
 
-    public BlockKey(BlockKey bK) {
-        this.block = bK.block;
-        this.tk = new TupleKey(bK.tk);
-    }
-
     public BlockKey(long block, TupleKey tk) {
         this.block = block;
         this.tk = tk;

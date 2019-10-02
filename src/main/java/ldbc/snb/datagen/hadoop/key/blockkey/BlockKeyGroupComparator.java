@@ -46,7 +46,6 @@ public class BlockKeyGroupComparator extends WritableComparator {
 
     @Override
     public int compare(WritableComparable a, WritableComparable b) {
-        //return a.compareTo(b);
         BlockKey keyA = (BlockKey) a;
         BlockKey keyB = (BlockKey) b;
         if (keyA.block < keyB.block) return -1;

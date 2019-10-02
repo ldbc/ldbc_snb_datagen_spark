@@ -59,16 +59,8 @@ public class PopularPlace {
         return latt;
     }
 
-    public void setLatt(double latt) {
-        this.latt = latt;
-    }
-
     public double getLongt() {
         return longt;
-    }
-
-    public void setLongt(double longt) {
-        this.longt = longt;
     }
 
 }

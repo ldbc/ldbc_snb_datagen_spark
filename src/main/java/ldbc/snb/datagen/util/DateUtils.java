@@ -208,7 +208,6 @@ public class DateUtils {
     public long getWorkFromYear(Random random, long classYear, long birthday) {
         long workYear = 0;
         if (classYear == -1) {
-            //long workingage = (random.nextInt(10) + 25) * ONE_YEAR;
             long workingage = 18 * ONE_YEAR;
             long from = birthday + workingage;
             workYear = Math.min((long) (random.nextDouble() * (to_ - from)) + from, to_);

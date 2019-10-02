@@ -82,7 +82,6 @@ public class HadoopKnowsGenerator {
         private int numGeneratedEdges = 0;
 
         protected void setup(Context context) {
-            //this.knowsGenerator = new DistanceKnowsGenerator();
             this.conf = context.getConfiguration();
             LdbcDatagen.initializeContext(conf);
             try {

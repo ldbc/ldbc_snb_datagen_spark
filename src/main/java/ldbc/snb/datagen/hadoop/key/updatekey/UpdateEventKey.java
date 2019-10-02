@@ -50,12 +50,6 @@ public class UpdateEventKey implements WritableComparable<UpdateEventKey> {
     public UpdateEventKey() {
     }
 
-    public UpdateEventKey(UpdateEventKey key) {
-        this.date = key.date;
-        this.reducerId = key.reducerId;
-        this.partition = key.partition;
-    }
-
     public UpdateEventKey(long date, int reducerId, int partition) {
 
         this.date = date;

@@ -357,12 +357,6 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
                             .get(pI.index_) - 1) * (1 - probSameCommunity) * probTwoConnected;
                 }
 
-
-                //double degree = finalInternalDegree;
-                /*double degree = (cInfo.core_node_expected_core_degree_.get(pI.index_) +
-                        cInfo.core_node_expected_periphery_degree_.get(pI.index_) +
-                        cInfo.core_node_expected_external_degree_.get(pI.index_));*/
-
                 double degree = pI.original_degree_;
 
                 //System.out.println("Internal Triangles: "+internalTriangles+" , degree: "+degree);

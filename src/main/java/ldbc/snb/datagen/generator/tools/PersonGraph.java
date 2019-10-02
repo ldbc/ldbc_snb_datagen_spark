@@ -57,13 +57,6 @@ public class PersonGraph {
         }
     }
 
-    public PersonGraph(PersonGraph graph) {
-        adjacencies_ = new HashMap<Long, HashSet<Long>>();
-        for (Long l : graph.adjacencies_.keySet()) {
-            adjacencies_.put(l, new HashSet<Long>(graph.adjacencies_.get(l)));
-        }
-    }
-
     public Set<Long> persons() {
         return adjacencies_.keySet();
     }

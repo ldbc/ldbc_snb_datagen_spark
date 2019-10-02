@@ -119,19 +119,16 @@ public class PersonGenerator {
 
         int numEmails = randomFarm.get(RandomGeneratorFarm.Aspect.EXTRA_INFO).nextInt(DatagenParams.maxEmails) + 1;
         double prob = randomFarm.get(RandomGeneratorFarm.Aspect.EXTRA_INFO).nextDouble();
-        /*if (prob >= DatagenParams.missingRatio)*/
-        {
-            String base = person.firstName();
-            base = Normalizer.normalize(base, Normalizer.Form.NFD);
-            base = base.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
-            base = base.replaceAll(" ", ".");
-            base = base.replaceAll("[.]+", ".");
-            for (int i = 0; i < numEmails; i++) {
-                String email = base + "" + person.accountId() + "@" +
-                        Dictionaries.emails.getRandomEmail(randomFarm.get(RandomGeneratorFarm.Aspect.TOP_EMAIL),
-                                                           randomFarm.get(RandomGeneratorFarm.Aspect.EMAIL));
-                person.emails().add(email);
-            }
+        String base = person.firstName();
+        base = Normalizer.normalize(base, Normalizer.Form.NFD);
+        base = base.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+        base = base.replaceAll(" ", ".");
+        base = base.replaceAll("[.]+", ".");
+        for (int i = 0; i < numEmails; i++) {
+            String email = base + "" + person.accountId() + "@" +
+                    Dictionaries.emails.getRandomEmail(randomFarm.get(RandomGeneratorFarm.Aspect.TOP_EMAIL),
+                                                       randomFarm.get(RandomGeneratorFarm.Aspect.EMAIL));
+            person.emails().add(email);
         }
 
         // Set class year
@@ -199,7 +196,6 @@ public class PersonGenerator {
         block = new Person[blockSize];
         for (int j = 0; j < blockSize; ++j) {
             block[j] = generateUser();
-//            System.out.println(j);
         }
         return block;
     }

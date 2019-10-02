@@ -58,7 +58,7 @@ public class LdbcSnbTextGenerator extends TextGenerator {
     @Override
     public String generateText(PersonSummary member, TreeSet<Integer> tags, Properties prop) {
         String content = "";
-        if (prop.getProperty("type").equals("post")) {//si es post fer
+        if (prop.getProperty("type").equals("post")) {
 
             int textSize;
             if (member.isLargePoster() && this.random.nextDouble() > (1.0f - DatagenParams.ratioLargePost)) {
@@ -71,7 +71,7 @@ public class LdbcSnbTextGenerator extends TextGenerator {
                 assert textSize <= DatagenParams.maxTextSize && textSize >= DatagenParams.minTextSize : "Person creation date is larger than membership";
             }
             content = Dictionaries.tagText.generateText(this.random, tags, textSize);
-        } else {//si no es post fer
+        } else {
             int textSize;
             if (member.isLargePoster() && this.random.nextDouble() > (1.0f - DatagenParams.ratioLargeComment)) {
                 textSize = Dictionaries.tagText

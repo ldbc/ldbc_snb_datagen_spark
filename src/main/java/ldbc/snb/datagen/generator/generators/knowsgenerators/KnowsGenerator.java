@@ -41,7 +41,7 @@ import org.apache.hadoop.conf.Configuration;
 import java.util.ArrayList;
 
 public interface KnowsGenerator {
-    public void generateKnows(ArrayList<Person> persons, int seed, ArrayList<Float> percentages, int step_index);
+    void generateKnows(ArrayList<Person> persons, int seed, ArrayList<Float> percentages, int step_index);
 
-    public void initialize(Configuration conf);
+    void initialize(Configuration conf);
 }

@@ -137,7 +137,6 @@ public class HadoopMergeFriendshipFiles {
         job.setOutputKeyClass(TupleKey.class);
         job.setOutputValueClass(Person.class);
         job.setJarByClass(HadoopBlockMapper.class);
-        //job.setMapperClass(HadoopBlockMapper.class);
         job.setReducerClass(HadoopMergeFriendshipFilesReducer.class);
         job.setNumReduceTasks(numThreads);
         job.setInputFormatClass(SequenceFileInputFormat.class);

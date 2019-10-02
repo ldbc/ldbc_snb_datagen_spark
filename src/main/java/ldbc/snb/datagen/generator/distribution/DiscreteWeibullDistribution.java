@@ -42,11 +42,7 @@ import java.util.ArrayList;
 
 public class DiscreteWeibullDistribution extends CumulativeBasedDegreeDistribution {
 
-    //private double BETA_ = 0.7787;
-    //private double BETA_ = 0.8211;
     private double BETA_ = 0.8505;
-    //private double P_ = 0.062;
-    //private double P_ = 0.0448;
     private double P_ = 0.0205;
 
     public ArrayList<CumulativeEntry> cumulativeProbability(Configuration conf) {

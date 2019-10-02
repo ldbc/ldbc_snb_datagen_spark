@@ -56,7 +56,6 @@ import java.util.TreeMap;
 
 public class FactorTable {
 
-
     private HashMap<Long, PersonCounts> personCounts_;
     private HashMap<Integer, Long> postsPerCountry_;
     private HashMap<Integer, Long> tagClassCount_;

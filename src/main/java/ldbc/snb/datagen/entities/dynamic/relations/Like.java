@@ -37,7 +37,7 @@
 package ldbc.snb.datagen.entities.dynamic.relations;
 
 public class Like {
-    public static enum LikeType {
+    public enum LikeType {
         POST,
         COMMENT,
         PHOTO

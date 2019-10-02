@@ -115,10 +115,6 @@ public class Forum {
         return memberships_;
     }
 
-    public void membeships(ArrayList<ForumMembership> memberShips) {
-        memberships_ = memberShips;
-    }
-
     public int place() {
         return placeId_;
     }

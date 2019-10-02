@@ -123,10 +123,6 @@ abstract public class Message {
         return author_;
     }
 
-    public void authorId(PersonSummary person) {
-        author_.copy(person);
-    }
-
     public long forumId() {
         return forumId_;
     }

@@ -57,16 +57,11 @@ public abstract class TextGenerator {
     }
 
     /**
-     * @param fileName The tag text dictionary file name.
      * @brief Loads the dictionary.
      */
     protected abstract void load();
 
     /**
-     * @param randomTextSize The random number generator to generate the amount of text devoted to each tag.
-     * @param tags           The set of tags to generate the text from.
-     * @param textSize       The final text size.
-     * @return The final text.
      * @brief Generates a text given a set of tags.
      */
     //info extra

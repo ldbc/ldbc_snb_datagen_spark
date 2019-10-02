@@ -192,10 +192,7 @@ public class ForumGenerator {
                 Random random = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX);
                 date = Dictionaries.dates.randomDate(random, Math.max(forum.creationDate(), k.creationDate())
                         + DatagenParams.deltaTime);
-				/*if( date < Dictionaries.dates.getEndDateTime() )*/
-                {
-                    forum.addMember(new ForumMembership(forum.id(), date, k.to()));
-                }
+                forum.addMember(new ForumMembership(forum.id(), date, k.to()));
             }
         }
         return forum;

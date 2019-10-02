@@ -62,7 +62,6 @@ public class GraphUtils {
 
     public static ArrayList<Double> clusteringCoefficientList(PersonGraph graph) {
         ArrayList<Double> CC = new ArrayList<Double>();
-        int numEdges = 0;
         for (Long l : graph.persons()) {
             int triangles = 0;
             Set<Long> neighbors = graph.neighbors(l);
@@ -71,7 +70,6 @@ public class GraphUtils {
                 Set<Long> aux = new HashSet<Long>(neighbors);
                 aux.retainAll(neighbors2);
                 triangles += aux.size();
-                numEdges++;
             }
             int degree = neighbors.size();
             double localCC = 0;

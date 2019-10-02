@@ -38,9 +38,9 @@ package ldbc.snb.datagen.util.formatter;
 import org.apache.hadoop.conf.Configuration;
 
 public interface DateFormatter {
-    public void initialize(Configuration config);
+    void initialize(Configuration config);
 
-    public String formatDate(long date);
+    String formatDate(long date);
 
-    public String formatDateTime(long date);
+    String formatDateTime(long date);
 }
