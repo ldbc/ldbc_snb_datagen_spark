@@ -36,7 +36,7 @@
 package ldbc.snb.datagen.hadoop.generator;
 
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.LDBCDatagen;
+import ldbc.snb.datagen.LdbcDatagen;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.generator.generators.PersonGenerator;
 import ldbc.snb.datagen.hadoop.key.TupleKey;
@@ -85,7 +85,7 @@ public class HadoopPersonGenerator {
 
             int threadId = Integer.parseInt(value.toString());
             System.out.println("Generating user at mapper " + threadId);
-            LDBCDatagen.initializeContext(conf);
+            LdbcDatagen.initializeContext(conf);
             if (DatagenParams.numPersons % DatagenParams.cellSize != 0) {
                 throw new InterruptedException("Number of users should be a multiple of the cellsize");
             }

@@ -43,9 +43,9 @@ import ldbc.snb.datagen.entities.dynamic.messages.Photo;
 import ldbc.snb.datagen.entities.dynamic.messages.Post;
 import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.entities.dynamic.relations.Like;
-import ldbc.snb.datagen.hadoop.writer.HDFSCSVWriter;
+import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
-import ldbc.snb.datagen.serializer.snb.csv.CSVSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.CsvSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
 
 import java.util.List;
@@ -55,7 +55,7 @@ import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
 /**
  * Created by aprat on 17/02/15.
  */
-public class CSVMergeForeignDynamicActivitySerializer extends DynamicActivitySerializer<HDFSCSVWriter> implements CSVSerializer {
+public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySerializer<HdfsCsvWriter> implements CsvSerializer {
 
     @Override
     public List<FileName> getFileNames() {

@@ -41,11 +41,8 @@ import ldbc.snb.datagen.entities.statictype.Organisation;
 import ldbc.snb.datagen.entities.statictype.TagClass;
 import ldbc.snb.datagen.entities.statictype.place.Place;
 import ldbc.snb.datagen.entities.statictype.tag.Tag;
-import ldbc.snb.datagen.hadoop.writer.HDFSCSVWriter;
-import ldbc.snb.datagen.hadoop.writer.HDFSWriter;
-import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
+import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
 import ldbc.snb.datagen.serializer.StaticSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.CSVSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
 import ldbc.snb.datagen.vocabulary.DBP;
 import ldbc.snb.datagen.vocabulary.DBPOWL;
@@ -56,9 +53,7 @@ import ldbc.snb.datagen.vocabulary.SN;
 import ldbc.snb.datagen.vocabulary.SNTAG;
 import ldbc.snb.datagen.vocabulary.SNVOC;
 import ldbc.snb.datagen.vocabulary.XSD;
-import org.apache.hadoop.conf.Configuration;
 
-import java.io.IOException;
 import java.util.List;
 
 import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
@@ -67,7 +62,7 @@ import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
 /**
  * Created by aprat on 12/17/14.
  */
-public class TurtleStaticSerializer extends StaticSerializer<HDFSWriter> implements TurtleSerializer {
+public class TurtleStaticSerializer extends StaticSerializer<HdfsWriter> implements TurtleSerializer {
 
     @Override
     public List<FileName> getFileNames() {

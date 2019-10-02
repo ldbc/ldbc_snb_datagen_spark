@@ -36,7 +36,7 @@
 package ldbc.snb.datagen.hadoop.serializer;
 
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.LDBCDatagen;
+import ldbc.snb.datagen.LdbcDatagen;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.statictype.Organisation;
 import ldbc.snb.datagen.entities.statictype.TagClass;
@@ -64,7 +64,7 @@ public class HadoopStaticSerializer {
     public HadoopStaticSerializer(Configuration conf) {
         conf_ = new Configuration(conf);
         exportedClasses_ = new TreeSet<Integer>();
-        LDBCDatagen.initializeContext(conf_);
+        LdbcDatagen.initializeContext(conf_);
     }
 
     public void run() throws Exception {

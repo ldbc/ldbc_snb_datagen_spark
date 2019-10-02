@@ -1,7 +1,7 @@
 package ldbc.snb.datagen.test.dictionaries;
 
 import ldbc.snb.datagen.dictionary.PlaceDictionary;
-import ldbc.snb.datagen.LDBCDatagen;
+import ldbc.snb.datagen.LdbcDatagen;
 import ldbc.snb.datagen.util.ConfigParser;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
@@ -22,9 +22,9 @@ public class PlaceDictionaryTest {
         try {
             Configuration conf = ConfigParser.initialize();
             ConfigParser.readConfig(conf, "./test_params.ini");
-            ConfigParser.readConfig(conf, LDBCDatagen.class.getResourceAsStream("/params_default.ini"));
-            LDBCDatagen.prepareConfiguration(conf);
-            LDBCDatagen.initializeContext(conf);
+            ConfigParser.readConfig(conf, LdbcDatagen.class.getResourceAsStream("/params_default.ini"));
+            LdbcDatagen.prepareConfiguration(conf);
+            LdbcDatagen.initializeContext(conf);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

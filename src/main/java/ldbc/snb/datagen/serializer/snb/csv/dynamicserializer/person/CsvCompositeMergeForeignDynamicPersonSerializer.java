@@ -33,9 +33,6 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-
-
-
 package ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person;
 
 import com.google.common.collect.ImmutableList;
@@ -44,30 +41,27 @@ import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.entities.dynamic.relations.StudyAt;
 import ldbc.snb.datagen.entities.dynamic.relations.WorkAt;
-import ldbc.snb.datagen.hadoop.writer.HDFSCSVWriter;
+import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
 import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.CSVSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.CsvSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
 
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
-
-public class CSVBasicDynamicPersonSerializer extends DynamicPersonSerializer<HDFSCSVWriter> implements CSVSerializer {
-
+/**
+ * Created by aprat on 17/02/15.
+ */
+public class CsvCompositeMergeForeignDynamicPersonSerializer extends DynamicPersonSerializer<HdfsCsvWriter> implements CsvSerializer {
     @Override
     public List<FileName> getFileNames() {
-        return ImmutableList.of(PERSON,PERSON_SPEAKS_LANGUAGE,PERSON_HAS_EMAIL,PERSON_LOCATED_IN_PLACE,PERSON_HAS_INTEREST_TAG,PERSON_WORK_AT,PERSON_STUDY_AT,PERSON_KNOWS_PERSON);
+        return ImmutableList.of(PERSON,PERSON_HAS_INTEREST_TAG,PERSON_WORK_AT,PERSON_STUDY_AT,PERSON_KNOWS_PERSON);
     }
 
     @Override
     public void writeFileHeaders() {
-        writers.get(PERSON).writeHeader(ImmutableList.of("id","firstName","lastName","gender","birthday","creationDate","locationIP","browserUsed"));
-        writers.get(PERSON_SPEAKS_LANGUAGE).writeHeader(ImmutableList.of("Person.id","language"));
-        writers.get(PERSON_HAS_EMAIL).writeHeader(ImmutableList.of("Person.id","email"));
-        writers.get(PERSON_LOCATED_IN_PLACE).writeHeader(ImmutableList.of("Person.id","Place.id"));
+        writers.get(PERSON).writeHeader(ImmutableList.of("id","firstName","lastName","gender","birthday","creationDate","locationIP","browserUsed","place","language","email"));
         writers.get(PERSON_HAS_INTEREST_TAG).writeHeader(ImmutableList.of("Person.id","Tag.id"));
         writers.get(PERSON_WORK_AT).writeHeader(ImmutableList.of("Person.id","Organisation.id","workFrom"));
         writers.get(PERSON_STUDY_AT).writeHeader(ImmutableList.of("Person.id","Organisation.id","classYear"));
@@ -76,6 +70,7 @@ public class CSVBasicDynamicPersonSerializer extends DynamicPersonSerializer<HDF
 
     @Override
     protected void serialize(final Person p) {
+
         writers.get(PERSON).writeEntry(ImmutableList.of(
                 Long.toString(p.accountId()),
                 p.firstName(),
@@ -84,22 +79,17 @@ public class CSVBasicDynamicPersonSerializer extends DynamicPersonSerializer<HDF
                 Dictionaries.dates.formatDate(p.birthday()),
                 Dictionaries.dates.formatDateTime(p.creationDate()),
                 p.ipAddress().toString(),
-                Dictionaries.browsers.getName(p.browserId())
-            ));
-
-        for (Integer i:p.languages())
-            writers.get(PERSON_SPEAKS_LANGUAGE).writeEntry(ImmutableList.of(Long.toString(p.accountId()),Dictionaries.languages.getLanguageName(i)));
-
-        Iterator<String> itString = p.emails().iterator();
-        while (itString.hasNext())
-            writers.get(PERSON_HAS_EMAIL).writeEntry(ImmutableList.of(Long.toString(p.accountId()),itString.next()));
-
-
-        writers.get(PERSON_LOCATED_IN_PLACE).writeEntry(ImmutableList.of(Long.toString(p.accountId()),Integer.toString(p.cityId())));
+                Dictionaries.browsers.getName(p.browserId()),
+                Integer.toString(p.cityId()),
+                buildLanguages(p.languages()),
+                buildEmail(p.emails())
+                ));
 
         Iterator<Integer> itInteger = p.interests().iterator();
-        while (itInteger.hasNext())
-            writers.get(PERSON_HAS_INTEREST_TAG).writeEntry(ImmutableList.of(Long.toString(p.accountId()),Integer.toString(itInteger.next())));
+        while (itInteger.hasNext()) {
+            Integer interestIdx = itInteger.next();
+            writers.get(PERSON_HAS_INTEREST_TAG).writeEntry(ImmutableList.of(Long.toString(p.accountId()),Integer.toString(interestIdx)));
+        }
     }
 
     @Override
@@ -109,7 +99,7 @@ public class CSVBasicDynamicPersonSerializer extends DynamicPersonSerializer<HDF
 
     @Override
     protected void serialize(final WorkAt workAt) {
-        writers.get(PERSON_WORK_AT).writeEntry(ImmutableList.of(Long.toString(workAt.user),Long.toString(workAt.company), Dictionaries.dates.formatYear(workAt.year)));
+        writers.get(PERSON_WORK_AT).writeEntry(ImmutableList.of(Long.toString(workAt.user), Long.toString(workAt.company), Dictionaries.dates.formatYear(workAt.year)));
     }
 
     @Override

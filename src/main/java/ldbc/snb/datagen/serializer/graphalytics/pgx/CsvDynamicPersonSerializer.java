@@ -35,16 +35,15 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 
 
-package ldbc.snb.datagen.serializer.graphalytics;
+package ldbc.snb.datagen.serializer.graphalytics.pgx;
 
-import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.entities.dynamic.relations.StudyAt;
 import ldbc.snb.datagen.entities.dynamic.relations.WorkAt;
-import ldbc.snb.datagen.hadoop.writer.HDFSCSVWriter;
+import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
 import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.CSVSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.CsvSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
 import org.apache.hadoop.conf.Configuration;
 
@@ -52,12 +51,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CSVDynamicPersonSerializerExtended extends DynamicPersonSerializer<HDFSCSVWriter> implements CSVSerializer {
+public class CsvDynamicPersonSerializer extends DynamicPersonSerializer<HdfsCsvWriter> implements CsvSerializer {
 
-    private HDFSCSVWriter[] writers;
+    private HdfsCsvWriter[] writers;
 
     private enum FileNames {
-        PERSON("person"),
         PERSON_KNOWS_PERSON("person_knows_person");
 
         private final String name;
@@ -70,7 +68,6 @@ public class CSVDynamicPersonSerializerExtended extends DynamicPersonSerializer<
             return name;
         }
     }
-
 
     @Override
     public List<FileName> getFileNames() {
@@ -85,26 +82,13 @@ public class CSVDynamicPersonSerializerExtended extends DynamicPersonSerializer<
     @Override
     public void initialize(Configuration conf, int reducerId) throws IOException {
         int numFiles = FileNames.values().length;
-        writers = new HDFSCSVWriter[numFiles];
+        writers = new HdfsCsvWriter[numFiles];
         for (int i = 0; i < numFiles; ++i) {
-            writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"), FileNames
+            writers[i] = new HdfsCsvWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"), FileNames
                     .values()[i].toString() + "_" + reducerId, conf.getInt("ldbc.snb.datagen.numPartitions", 1), conf
-                                                   .getBoolean("ldbc.snb.datagen.serializer.compressed", false), "|", conf
+                                                   .getBoolean("ldbc.snb.datagen.serializer.compressed", false), " ", conf
                                                    .getBoolean("ldbc.snb.datagen.serializer.endlineSeparator", false));
         }
-
-        ArrayList<String> arguments = new ArrayList<String>();
-        arguments.add("id");
-        arguments.add("creationDate");
-        writers[FileNames.PERSON.ordinal()].writeHeader(arguments);
-
-        arguments.clear();
-        arguments.clear();
-        arguments.add("Person.id");
-        arguments.add("Person.id");
-        arguments.add("CreationDate");
-        arguments.add("Weight");
-        writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeHeader(arguments);
     }
 
     @Override
@@ -116,30 +100,25 @@ public class CSVDynamicPersonSerializerExtended extends DynamicPersonSerializer<
     }
 
     @Override
-    protected void serialize(Person p) {
-        ArrayList<String> arguments = new ArrayList<String>();
-        arguments.add(Long.toString(p.accountId()));
-        arguments.add(Dictionaries.dates.formatDateTime(p.creationDate()));
-        writers[FileNames.PERSON.ordinal()].writeEntry(arguments);
-    }
-
-    @Override
-    protected void serialize(StudyAt studyAt) {
+    protected void serialize(final Person p) {
         //Intentionally left empty
     }
 
     @Override
-    protected void serialize(WorkAt workAt) {
+    protected void serialize(final StudyAt studyAt) {
         //Intentionally left empty
     }
 
     @Override
-    protected void serialize(Person p, Knows knows) {
+    protected void serialize(final WorkAt workAt) {
+        //Intentionally left empty
+    }
+
+    @Override
+    protected void serialize(final Person p, Knows knows) {
         ArrayList<String> arguments = new ArrayList<String>();
         arguments.add(Long.toString(p.accountId()));
         arguments.add(Long.toString(knows.to().accountId()));
-        arguments.add(Dictionaries.dates.formatDateTime(knows.creationDate()));
-        arguments.add(Float.toString(knows.weight()));
         writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeEntry(arguments);
     }
 

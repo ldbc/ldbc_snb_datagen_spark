@@ -36,7 +36,7 @@
 package ldbc.snb.datagen.hadoop.generator;
 
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.LDBCDatagen;
+import ldbc.snb.datagen.LdbcDatagen;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
@@ -90,7 +90,7 @@ public class HadoopPersonActivityGenerator {
             System.out.println("Setting up reducer for person activity generation");
             Configuration conf = context.getConfiguration();
             reducerId = context.getTaskAttemptID().getTaskID().getId();
-            LDBCDatagen.initializeContext(conf);
+            LdbcDatagen.initializeContext(conf);
             try {
                 dynamicActivitySerializer_ = (DynamicActivitySerializer) Class
                         .forName(conf.get("ldbc.snb.datagen.serializer.dynamicActivitySerializer")).newInstance();

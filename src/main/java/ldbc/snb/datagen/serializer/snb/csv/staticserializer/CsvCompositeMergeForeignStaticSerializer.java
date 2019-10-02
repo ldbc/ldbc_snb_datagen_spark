@@ -38,4 +38,4 @@ package ldbc.snb.datagen.serializer.snb.csv.staticserializer;
 /**
  * Created by aprat on 17/02/15.
  */
-public class CSVCompositeMergeForeignStaticSerializer extends CSVMergeForeignStaticSerializer { }
+public class CsvCompositeMergeForeignStaticSerializer extends CsvMergeForeignStaticSerializer { }

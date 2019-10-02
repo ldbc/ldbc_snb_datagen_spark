@@ -35,7 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.util;
 
-import ldbc.snb.datagen.LDBCDatagen;
+import ldbc.snb.datagen.LdbcDatagen;
 import org.apache.hadoop.conf.Configuration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -100,7 +100,7 @@ public class ConfigParser {
             scaleFactors = new TreeMap<String, ScaleFactor>();
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(LDBCDatagen.class.getResourceAsStream("/" + SCALE_FACTORS_FILE));
+            Document doc = dBuilder.parse(LdbcDatagen.class.getResourceAsStream("/" + SCALE_FACTORS_FILE));
             doc.getDocumentElement().normalize();
 
             System.out.println("Reading scale factors..");

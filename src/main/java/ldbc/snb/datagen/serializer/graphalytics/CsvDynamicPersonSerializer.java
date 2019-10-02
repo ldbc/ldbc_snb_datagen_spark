@@ -41,10 +41,9 @@ import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.entities.dynamic.relations.StudyAt;
 import ldbc.snb.datagen.entities.dynamic.relations.WorkAt;
-import ldbc.snb.datagen.hadoop.writer.HDFSCSVWriter;
-import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
+import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
 import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.CSVSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.CsvSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
 import org.apache.hadoop.conf.Configuration;
 
@@ -52,9 +51,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CSVDynamicPersonSerializer extends DynamicPersonSerializer<HDFSCSVWriter> implements CSVSerializer {
+public class CsvDynamicPersonSerializer extends DynamicPersonSerializer<HdfsCsvWriter> implements CsvSerializer {
 
-    private HDFSCSVWriter[] writers;
+    private HdfsCsvWriter[] writers;
 
     private enum FileNames {
         PERSON_KNOWS_PERSON("person_knows_person");
@@ -83,9 +82,9 @@ public class CSVDynamicPersonSerializer extends DynamicPersonSerializer<HDFSCSVW
     @Override
     public void initialize(Configuration conf, int reducerId) throws IOException {
         int numFiles = FileNames.values().length;
-        writers = new HDFSCSVWriter[numFiles];
+        writers = new HdfsCsvWriter[numFiles];
         for (int i = 0; i < numFiles; ++i) {
-            writers[i] = new HDFSCSVWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"), FileNames
+            writers[i] = new HdfsCsvWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"), FileNames
                     .values()[i].toString() + "_" + reducerId, conf.getInt("ldbc.snb.datagen.numPartitions", 1), conf
                                                    .getBoolean("ldbc.snb.datagen.serializer.compressed", false), "|", conf
                                                    .getBoolean("ldbc.snb.datagen.serializer.endlineSeparator", false));

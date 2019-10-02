@@ -117,7 +117,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>ldbc.snb.datagen.LDBCDatagen</mainClass>
+              <mainClass>ldbc.snb.datagen.LdbcDatagen</mainClass>
             </manifest>
           </archive>
           <descriptorRefs>

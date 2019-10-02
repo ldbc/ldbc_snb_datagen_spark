@@ -38,4 +38,4 @@ package ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity;
 /**
  * Created by aprat on 17/02/15.
  */
-public class CSVCompositeMergeForeignDynamicActivitySerializer extends CSVMergeForeignDynamicActivitySerializer { }
+public class CsvCompositeMergeForeignDynamicActivitySerializer extends CsvMergeForeignDynamicActivitySerializer { }

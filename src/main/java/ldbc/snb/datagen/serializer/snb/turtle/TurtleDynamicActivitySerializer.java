@@ -43,7 +43,7 @@ import ldbc.snb.datagen.entities.dynamic.messages.Photo;
 import ldbc.snb.datagen.entities.dynamic.messages.Post;
 import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.entities.dynamic.relations.Like;
-import ldbc.snb.datagen.hadoop.writer.HDFSWriter;
+import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
 import ldbc.snb.datagen.vocabulary.DBP;
@@ -61,7 +61,7 @@ import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
 /**
  * @author aprat
  */
-public class TurtleDynamicActivitySerializer extends DynamicActivitySerializer<HDFSWriter> implements TurtleSerializer {
+public class TurtleDynamicActivitySerializer extends DynamicActivitySerializer<HdfsWriter> implements TurtleSerializer {
 
     private long membershipId = 0;
     private long likeId = 0;

@@ -35,7 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer.snb.turtle;
 
-import ldbc.snb.datagen.hadoop.writer.HDFSWriter;
+import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
 import ldbc.snb.datagen.vocabulary.DBP;
 import ldbc.snb.datagen.vocabulary.DBPOWL;
 import ldbc.snb.datagen.vocabulary.FOAF;
@@ -98,13 +98,13 @@ public class Turtle {
      * @param predicate: The RDF predicate.
      * @param object:    The RDF object.
      */
-    public static void writeDBPData(HDFSWriter writer, String subject, String predicate, String object) {
+    public static void writeDBPData(HdfsWriter writer, String subject, String predicate, String object) {
         StringBuffer result = new StringBuffer(150);
         createTripleSPO(result, subject, predicate, object);
         writer.write(result.toString());
     }
 
-    public static void writeDBPData(HDFSWriter writer, String data) {
+    public static void writeDBPData(HdfsWriter writer, String data) {
         writer.write(data);
     }
 

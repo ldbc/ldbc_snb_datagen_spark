@@ -43,7 +43,7 @@ import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.entities.dynamic.relations.StudyAt;
 import ldbc.snb.datagen.entities.dynamic.relations.WorkAt;
-import ldbc.snb.datagen.hadoop.writer.HDFSWriter;
+import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
 import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
 import ldbc.snb.datagen.vocabulary.DBP;
@@ -58,7 +58,7 @@ import java.util.List;
 import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
 
 
-public class TurtleDynamicPersonSerializer extends DynamicPersonSerializer<HDFSWriter> implements TurtleSerializer {
+public class TurtleDynamicPersonSerializer extends DynamicPersonSerializer<HdfsWriter> implements TurtleSerializer {
 
     private long workAtId = 0;
     private long studyAtId = 0;

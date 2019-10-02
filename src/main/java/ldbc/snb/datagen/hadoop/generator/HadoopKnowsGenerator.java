@@ -35,7 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop.generator;
 
-import ldbc.snb.datagen.LDBCDatagen;
+import ldbc.snb.datagen.LdbcDatagen;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.generator.generators.knowsgenerators.KnowsGenerator;
 import ldbc.snb.datagen.hadoop.HadoopBlockMapper;
@@ -87,7 +87,7 @@ public class HadoopKnowsGenerator {
         protected void setup(Context context) {
             //this.knowsGenerator = new DistanceKnowsGenerator();
             this.conf = context.getConfiguration();
-            LDBCDatagen.initializeContext(conf);
+            LdbcDatagen.initializeContext(conf);
             try {
                 this.knowsGenerator = (KnowsGenerator) Class.forName(conf.get("knowsGeneratorName")).newInstance();
                 this.knowsGenerator.initialize(conf);

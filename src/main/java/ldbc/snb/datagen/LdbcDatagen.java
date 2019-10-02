@@ -59,7 +59,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-public class LDBCDatagen {
+public class LdbcDatagen {
     private static boolean initialized = false;
 
     public static synchronized void initializeContext(Configuration conf) {
@@ -339,11 +339,11 @@ public class LDBCDatagen {
         try {
             Configuration conf = ConfigParser.initialize();
             ConfigParser.readConfig(conf, args[0]);
-            ConfigParser.readConfig(conf, LDBCDatagen.class.getResourceAsStream("/params_default.ini"));
+            ConfigParser.readConfig(conf, LdbcDatagen.class.getResourceAsStream("/params_default.ini"));
 
-            LDBCDatagen.prepareConfiguration(conf);
-            LDBCDatagen.initializeContext(conf);
-            LDBCDatagen datagen = new LDBCDatagen();
+            LdbcDatagen.prepareConfiguration(conf);
+            LdbcDatagen.initializeContext(conf);
+            LdbcDatagen datagen = new LdbcDatagen();
             datagen.runGenerateJob(conf);
         } catch (Exception e) {
             System.err.println("Error during execution");

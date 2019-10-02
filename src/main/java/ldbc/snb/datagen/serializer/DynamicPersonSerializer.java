@@ -41,7 +41,7 @@ import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.entities.dynamic.relations.StudyAt;
 import ldbc.snb.datagen.entities.dynamic.relations.WorkAt;
-import ldbc.snb.datagen.hadoop.writer.HDFSWriter;
+import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
 /**
  * Created by aprat on 10/15/14.
  */
-abstract public class DynamicPersonSerializer<TWriter extends HDFSWriter> extends LDBCSerializer<TWriter> {
+abstract public class DynamicPersonSerializer<TWriter extends HdfsWriter> extends LdbcSerializer<TWriter> {
 
     abstract protected void serialize(final Person p);
 

@@ -41,12 +41,12 @@ import ldbc.snb.datagen.entities.dynamic.messages.Photo;
 import ldbc.snb.datagen.entities.dynamic.messages.Post;
 import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.entities.dynamic.relations.Like;
-import ldbc.snb.datagen.hadoop.writer.HDFSWriter;
+import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
 
 /**
  * @author aprat
  */
-abstract public class DynamicActivitySerializer<TWriter extends HDFSWriter> extends LDBCSerializer<TWriter> {
+abstract public class DynamicActivitySerializer<TWriter extends HdfsWriter> extends LdbcSerializer<TWriter> {
 
     abstract protected void serialize(final Forum forum);
 

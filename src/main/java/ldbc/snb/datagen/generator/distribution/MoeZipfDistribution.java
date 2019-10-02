@@ -42,7 +42,7 @@ import java.util.Random;
 /**
  * Created by aprat on 4/03/15.
  */
-public class MOEZipfDistribution extends DegreeDistribution {
+public class MoeZipfDistribution extends DegreeDistribution {
 
     private org.apache.commons.math3.distribution.ZipfDistribution zipf_;
     private double ALPHA_ = 1.7;
@@ -50,8 +50,8 @@ public class MOEZipfDistribution extends DegreeDistribution {
     private Random random_;
 
     public void initialize(Configuration conf) {
-        ALPHA_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.MOEZipfDistribution.alpha", ALPHA_);
-        DELTA_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.MOEZipfDistribution.delta", DELTA_);
+        ALPHA_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.MoeZipfDistribution.alpha", ALPHA_);
+        DELTA_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.MoeZipfDistribution.delta", DELTA_);
         zipf_ = new org.apache.commons.math3.distribution.ZipfDistribution(5000, ALPHA_);
         random_ = new Random();
     }

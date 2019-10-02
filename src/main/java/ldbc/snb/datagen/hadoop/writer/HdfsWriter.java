@@ -43,14 +43,14 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.zip.GZIPOutputStream;
 
-public class HDFSWriter {
+public class HdfsWriter {
 
     private int numPartitions;
     private int currentPartition = 0;
     private StringBuffer buffer;
     private OutputStream[] fileOutputStream;
 
-    public HDFSWriter(String outputDir, String prefix, int numPartitions, boolean compressed, String extension) throws IOException {
+    public HdfsWriter(String outputDir, String prefix, int numPartitions, boolean compressed, String extension) throws IOException {
         this.numPartitions = numPartitions;
         try {
             Configuration conf = new Configuration();

@@ -36,7 +36,7 @@
 package ldbc.snb.datagen.hadoop.serializer;
 
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.LDBCDatagen;
+import ldbc.snb.datagen.LdbcDatagen;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
@@ -81,7 +81,7 @@ public class HadoopPersonSerializer {
         protected void setup(Context context) {
             Configuration conf = context.getConfiguration();
             reducerId = context.getTaskAttemptID().getTaskID().getId();
-            LDBCDatagen.initializeContext(conf);
+            LdbcDatagen.initializeContext(conf);
             try {
                 dynamicPersonSerializer_ = (DynamicPersonSerializer) Class
                         .forName(conf.get("ldbc.snb.datagen.serializer.dynamicPersonSerializer")).newInstance();

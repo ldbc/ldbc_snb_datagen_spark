@@ -56,7 +56,7 @@ import java.util.TreeMap;
 /**
  * Created by aprat on 12/07/16.
  */
-public class BTERKnowsGenerator implements KnowsGenerator {
+public class BterKnowsGenerator implements KnowsGenerator {
 
     private int graphSize = 0;
     private Random random;
@@ -176,7 +176,7 @@ public class BTERKnowsGenerator implements KnowsGenerator {
         try {
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(getClass()
-                                                  .getResourceAsStream(conf.get("ldbc.snb.datagen.generator.generators.knowsgenerators.BTERKnowsGenerator.ccDistribution")), "UTF-8"));
+                                                  .getResourceAsStream(conf.get("ldbc.snb.datagen.generator.generators.knowsgenerators.BterKnowsGenerator.ccDistribution")), "UTF-8"));
             String line;
             while ((line = reader.readLine()) != null) {
                 String data[] = line.split(" ");

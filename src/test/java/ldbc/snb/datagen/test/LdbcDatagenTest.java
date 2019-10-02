@@ -1,7 +1,7 @@
 package ldbc.snb.datagen.test;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.LDBCDatagen;
+import ldbc.snb.datagen.LdbcDatagen;
 import ldbc.snb.datagen.test.csv.*;
 import ldbc.snb.datagen.util.ConfigParser;
 import org.apache.hadoop.conf.Configuration;
@@ -17,7 +17,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Created by aprat on 18/12/15.
  */
-public class LDBCDatagenTest {
+public class LdbcDatagenTest {
 
     private final String dir = "./test_data/social_network";
     private final String sdir = "./test_data/substitution_parameters";
@@ -26,11 +26,11 @@ public class LDBCDatagenTest {
     public static void generateData() throws Exception {
         Configuration conf = ConfigParser.initialize();
         ConfigParser.readConfig(conf, "./test_params.ini");
-        ConfigParser.readConfig(conf, LDBCDatagen.class.getResourceAsStream("/params_default.ini"));
+        ConfigParser.readConfig(conf, LdbcDatagen.class.getResourceAsStream("/params_default.ini"));
         try {
-            LDBCDatagen.prepareConfiguration(conf);
-            LDBCDatagen.initializeContext(conf);
-            LDBCDatagen datagen = new LDBCDatagen();
+            LdbcDatagen.prepareConfiguration(conf);
+            LdbcDatagen.initializeContext(conf);
+            LdbcDatagen datagen = new LdbcDatagen();
             datagen.runGenerateJob(conf);
         } catch (Exception e) {
             e.printStackTrace();
