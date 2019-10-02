@@ -36,9 +36,6 @@
 
 package ldbc.snb.datagen.entities.dynamic.relations;
 
-/**
- * Created by aprat on 4/14/14.
- */
 public class Like {
     public static enum LikeType {
         POST,

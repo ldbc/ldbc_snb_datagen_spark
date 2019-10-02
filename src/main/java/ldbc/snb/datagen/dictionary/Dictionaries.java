@@ -41,9 +41,6 @@ import org.apache.hadoop.conf.Configuration;
 
 import java.util.GregorianCalendar;
 
-/**
- * @author aprat
- */
 public class Dictionaries {
 
     public static BrowserDictionary browsers = null;

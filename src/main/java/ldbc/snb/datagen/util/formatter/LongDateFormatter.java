@@ -41,9 +41,6 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
-/**
- * Created by aprat on 14/01/16.
- */
 public class LongDateFormatter implements DateFormatter {
     private GregorianCalendar calendar_;
     private int minHour;

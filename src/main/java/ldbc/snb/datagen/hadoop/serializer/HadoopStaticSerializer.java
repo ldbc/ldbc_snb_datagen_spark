@@ -50,9 +50,6 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
-/**
- * Created by aprat on 12/17/14.
- */
 public class HadoopStaticSerializer {
 
     private StaticSerializer[] staticSerializer_;

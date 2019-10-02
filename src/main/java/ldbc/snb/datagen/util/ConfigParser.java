@@ -54,9 +54,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
 
-/**
- * Created by aprat on 6/1/14.
- */
 public class ConfigParser {
 
     private static TreeMap<String, ScaleFactor> scaleFactors;

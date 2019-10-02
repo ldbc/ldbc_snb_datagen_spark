@@ -65,9 +65,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
-/**
- * @author aprat
- */
 public class HadoopPersonActivityGenerator {
 
     private Configuration conf;

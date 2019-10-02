@@ -40,9 +40,6 @@ import org.apache.hadoop.conf.Configuration;
 
 import java.util.ArrayList;
 
-/**
- * Created by aprat on 5/03/15.
- */
 public class DiscreteWeibullDistribution extends CumulativeBasedDegreeDistribution {
 
     //private double BETA_ = 0.7787;

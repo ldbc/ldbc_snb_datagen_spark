@@ -47,9 +47,6 @@ import ldbc.snb.datagen.util.FactorTable;
 
 import java.io.IOException;
 
-/**
- * Created by aprat on 3/01/16.
- */
 public class PersonActivityExporter {
     protected DynamicActivitySerializer dynamicActivitySerializer_;
     protected UpdateEventSerializer updateSerializer_;

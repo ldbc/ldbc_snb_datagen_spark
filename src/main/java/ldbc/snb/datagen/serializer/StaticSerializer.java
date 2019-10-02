@@ -41,9 +41,6 @@ import ldbc.snb.datagen.entities.statictype.place.Place;
 import ldbc.snb.datagen.entities.statictype.tag.Tag;
 import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
 
-/**
- * Created by aprat on 12/17/14.
- */
 abstract public class StaticSerializer<TWriter extends HdfsWriter> extends LdbcSerializer<TWriter> {
 
     abstract protected void serialize(final Place place);

@@ -40,9 +40,6 @@ import org.apache.commons.math3.util.Pair;
 
 import java.util.ArrayList;
 
-/**
- * Created by aprat on 3/03/15.
- */
 public class Bucket {
 
     private double min_;

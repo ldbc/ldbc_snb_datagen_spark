@@ -52,9 +52,6 @@ import java.util.List;
 
 import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
 
-/**
- * Created by aprat on 12/17/14.
- */
 public class CsvBasicStaticSerializer extends StaticSerializer<HdfsCsvWriter> implements CsvSerializer {
 
     @Override

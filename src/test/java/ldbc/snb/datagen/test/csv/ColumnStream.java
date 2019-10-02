@@ -4,9 +4,6 @@ package ldbc.snb.datagen.test.csv;
 import java.io.File;
 import java.util.Iterator;
 
-/**
- * Created by aprat on 22/12/15.
- */
 public class ColumnStream<T> extends Column<T>{
 
     protected File file = null;

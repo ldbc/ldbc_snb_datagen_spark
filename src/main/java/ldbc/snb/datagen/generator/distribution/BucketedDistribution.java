@@ -41,9 +41,6 @@ import org.apache.hadoop.conf.Configuration;
 import java.util.ArrayList;
 import java.util.Random;
 
-/**
- * Created by aprat on 3/03/15.
- */
 public abstract class BucketedDistribution extends DegreeDistribution {
 
     private ArrayList<Bucket> buckets_;

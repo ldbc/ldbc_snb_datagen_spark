@@ -40,9 +40,6 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Set;
 
-/**
- * Created by aprat on 17/06/15.
- */
 public class MinHash<T> {
 
     private int numHashes_ = 0;

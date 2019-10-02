@@ -53,9 +53,6 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.TreeSet;
 
-/**
- * @author aprat
- */
 public class PhotoGenerator {
     private LikeGenerator likeGenerator_;
     private Photo photo_;

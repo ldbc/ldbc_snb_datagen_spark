@@ -50,9 +50,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by aprat on 30/01/15.
- */
 public class EmptyDynamicActivitySerializer extends DynamicActivitySerializer {
 
     @Override

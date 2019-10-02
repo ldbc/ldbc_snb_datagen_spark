@@ -3,9 +3,6 @@ package ldbc.snb.datagen.test.csv;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by aprat on 18/12/15.
- */
 public class StringLengthCheck extends Check {
 
     private int length;

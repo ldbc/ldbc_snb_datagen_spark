@@ -40,9 +40,6 @@ import org.apache.hadoop.conf.Configuration;
 import java.util.ArrayList;
 import java.util.Random;
 
-/**
- * Created by aprat on 12/05/15.
- */
 public abstract class CumulativeBasedDegreeDistribution extends DegreeDistribution {
 
     private ArrayList<CumulativeEntry> cumulativeProbability_;

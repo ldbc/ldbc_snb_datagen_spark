@@ -35,9 +35,6 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.entities.dynamic.relations;
 
-/**
- * Created by aprat on 4/15/14.
- */
 public class WorkAt {
     public long user;
     public long company;

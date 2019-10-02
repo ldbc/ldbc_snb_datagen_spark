@@ -14,9 +14,6 @@ import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
-/**
- * Created by aprat on 18/12/15.
- */
 public class LdbcDatagenTest {
 
     private final String dir = "./test_data/social_network";

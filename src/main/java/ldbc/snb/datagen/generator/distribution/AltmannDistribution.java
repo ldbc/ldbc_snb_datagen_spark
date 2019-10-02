@@ -40,9 +40,6 @@ import org.apache.hadoop.conf.Configuration;
 
 import java.util.ArrayList;
 
-/**
- * Created by aprat on 26/02/15.
- */
 public class AltmannDistribution extends CumulativeBasedDegreeDistribution {
 
     private double normalization_factor_ = 0.0;

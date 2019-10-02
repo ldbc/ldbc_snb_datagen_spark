@@ -37,10 +37,6 @@ package ldbc.snb.datagen.util.formatter;
 
 import org.apache.hadoop.conf.Configuration;
 
-/**
- * Created by aprat on 14/01/16.
- */
-
 public interface DateFormatter {
     public void initialize(Configuration config);
 

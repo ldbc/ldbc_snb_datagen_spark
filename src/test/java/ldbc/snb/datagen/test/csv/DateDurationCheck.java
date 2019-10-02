@@ -5,9 +5,6 @@ import ldbc.snb.datagen.util.DateUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by aprat on 13/05/16.
- */
 public class DateDurationCheck extends Check {
 
     private Long val1;

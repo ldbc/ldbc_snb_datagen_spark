@@ -43,9 +43,6 @@ import org.apache.hadoop.conf.Configuration;
 
 import java.util.ArrayList;
 
-/**
- * Created by aprat on 11/15/14.
- */
 public class DistanceKnowsGenerator implements KnowsGenerator {
 
     private RandomGeneratorFarm randomFarm;

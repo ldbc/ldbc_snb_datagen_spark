@@ -39,9 +39,6 @@ import org.apache.commons.math3.distribution.GeometricDistribution;
 import org.apache.hadoop.conf.Configuration;
 
 
-/**
- * Created by aprat on 5/03/15.
- */
 public class GeoDistribution extends DegreeDistribution {
 
     private GeometricDistribution geo_;

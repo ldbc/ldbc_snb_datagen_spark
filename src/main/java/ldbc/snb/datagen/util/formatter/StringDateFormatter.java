@@ -41,9 +41,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-/**
- * Created by aprat on 14/01/16.
- */
 public class StringDateFormatter implements DateFormatter {
 
     private String formatDateTimeString_ = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";

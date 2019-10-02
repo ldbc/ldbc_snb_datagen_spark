@@ -44,9 +44,6 @@ import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
 
-/**
- * Created by aprat on 11/17/14.
- */
 public class HadoopBlockMapper extends Mapper<LongWritable, Person, BlockKey, Person> {
 
     private int blockSize = 0;

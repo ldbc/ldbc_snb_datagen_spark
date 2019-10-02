@@ -36,9 +36,6 @@
 
 package ldbc.snb.datagen.entities.statictype;
 
-/**
- * Created by aprat on 4/14/14.
- */
 public class TagClass {
     public int id;
     public String name;

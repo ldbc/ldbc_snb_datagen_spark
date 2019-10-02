@@ -40,9 +40,6 @@ import ldbc.snb.datagen.entities.dynamic.person.Person;
 import java.util.Set;
 import java.util.TreeSet;
 
-/**
- * Created by aprat on 22/01/16.
- */
 public class InterestsSimilarity implements Person.PersonSimilarity {
     public float similarity(Person personA, Person personB) {
         Set<Integer> union = new TreeSet<Integer>(personA.interests());

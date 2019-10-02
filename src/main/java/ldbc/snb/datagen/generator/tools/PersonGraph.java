@@ -43,9 +43,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Created by aprat on 18/06/15.
- */
 public class PersonGraph {
     private HashMap<Long, HashSet<Long>> adjacencies_;
 

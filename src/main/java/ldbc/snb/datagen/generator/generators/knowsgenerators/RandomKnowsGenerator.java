@@ -44,9 +44,6 @@ import java.util.Collections;
 import java.util.Random;
 
 
-/**
- * Created by aprat on 11/15/14.
- */
 public class RandomKnowsGenerator implements KnowsGenerator {
 
     private Random rand;

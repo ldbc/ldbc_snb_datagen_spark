@@ -53,9 +53,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
 
-/**
- * Created by aprat on 12/07/16.
- */
 public class BterKnowsGenerator implements KnowsGenerator {
 
     private int graphSize = 0;

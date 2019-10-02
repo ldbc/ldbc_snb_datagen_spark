@@ -65,9 +65,6 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Properties;
 
-/**
- * Created by aprat on 3/27/14.
- */
 public class UpdateEventSerializer {
 
 

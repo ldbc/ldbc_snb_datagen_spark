@@ -47,9 +47,6 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Random;
 
-/**
- * Created by aprat on 11/15/14.
- */
 public class ClusteringKnowsGenerator implements KnowsGenerator {
 
     private Random rand;

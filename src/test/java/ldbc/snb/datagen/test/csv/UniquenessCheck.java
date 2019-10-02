@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-/**
- * Created by aprat on 18/12/15.
- */
 public class UniquenessCheck extends Check {
 
     private HashSet<String> values = null;

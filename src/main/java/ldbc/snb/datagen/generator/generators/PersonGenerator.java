@@ -48,9 +48,6 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 
-/**
- * Created by aprat on 10/7/14.
- */
 public class PersonGenerator {
 
     private DegreeDistribution degreeDistribution_ = null;

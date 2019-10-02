@@ -47,9 +47,6 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 
 import java.io.IOException;
 
-/**
- * Created by aprat on 11/17/14.
- */
 public class HadoopFileKeyChanger {
 
     private String keySetterName;

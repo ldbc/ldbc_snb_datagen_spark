@@ -48,9 +48,6 @@ import java.util.Iterator;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-/**
- * Created by aprat on 10/15/14.
- */
 abstract public class DynamicPersonSerializer<TWriter extends HdfsWriter> extends LdbcSerializer<TWriter> {
 
     abstract protected void serialize(final Person p);

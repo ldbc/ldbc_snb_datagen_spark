@@ -2,9 +2,6 @@ package ldbc.snb.datagen.test.csv;
 
 import java.util.*;
 
-/**
- * Created by aprat on 18/12/15.
- */
 public class PairUniquenessCheck<T,S> extends Check {
 
 

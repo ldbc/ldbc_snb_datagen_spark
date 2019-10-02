@@ -41,9 +41,6 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-/**
- * Created by aprat on 5/01/16.
- */
 public class UpdateEventKey implements WritableComparable<UpdateEventKey> {
 
     public long date;

@@ -4,9 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by aprat on 18/12/15.
- */
 public class FileChecker {
 
     private String fileName = null;

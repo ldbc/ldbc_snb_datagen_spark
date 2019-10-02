@@ -53,9 +53,6 @@ import java.util.TreeSet;
 
 import static ldbc.snb.datagen.DatagenParams.*;
 
-/**
- * @author aprat
- */
 public class FlashmobPostGenerator extends PostGenerator {
     private Distribution dateDistribution_;
     private FlashmobTag[] forumFlashmobTags = null;

@@ -39,9 +39,6 @@ import org.apache.hadoop.conf.Configuration;
 
 import java.util.Random;
 
-/**
- * Created by aprat on 4/03/15.
- */
 public class MoeZipfDistribution extends DegreeDistribution {
 
     private org.apache.commons.math3.distribution.ZipfDistribution zipf_;

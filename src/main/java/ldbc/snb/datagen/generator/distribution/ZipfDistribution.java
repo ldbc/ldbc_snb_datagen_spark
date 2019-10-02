@@ -42,9 +42,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Random;
 
-/**
- * Created by aprat on 5/03/15.
- */
 public class ZipfDistribution extends DegreeDistribution {
 
     private org.apache.commons.math3.distribution.ZipfDistribution zipf_;

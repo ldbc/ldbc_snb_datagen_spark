@@ -10,9 +10,6 @@ import java.util.Arrays;
 import java.util.Random;
 
 import static org.junit.Assert.*;
-/**
- * Created by aprat on 27/07/17.
- */
 public class PlaceDictionaryTest {
 
     @Test

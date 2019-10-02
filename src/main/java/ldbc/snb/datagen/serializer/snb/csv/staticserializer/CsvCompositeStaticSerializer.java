@@ -35,7 +35,4 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer.snb.csv.staticserializer;
 
-/**
- * Created by aprat on 12/17/14.
- */
 public class CsvCompositeStaticSerializer extends CsvBasicStaticSerializer { }

@@ -5,9 +5,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-/**
- * Created by aprat on 22/12/15.
- */
 public class ColumnSet<T> extends Column<T> {
 
     protected Set<T> data = null;

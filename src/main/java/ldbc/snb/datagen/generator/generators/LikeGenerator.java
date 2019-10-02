@@ -49,9 +49,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
-/**
- * @author aprat
- */
 public class LikeGenerator {
     private final PowerDistribution likesGenerator_;
     private Like like;

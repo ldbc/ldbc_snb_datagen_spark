@@ -54,9 +54,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-/**
- * Created by aprat on 1/8/15.
- */
 public class FactorTable {
 
 

@@ -58,9 +58,6 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 
 import java.io.IOException;
 
-/**
- * Created by aprat on 10/15/14.
- */
 public class HadoopPersonSerializer {
 
     private Configuration conf;

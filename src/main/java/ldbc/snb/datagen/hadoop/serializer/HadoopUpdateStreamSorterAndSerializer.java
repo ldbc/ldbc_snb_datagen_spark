@@ -54,9 +54,6 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
-/**
- * Created by aprat on 10/15/14.
- */
 public class HadoopUpdateStreamSorterAndSerializer {
 
     private Configuration conf;

@@ -3,9 +3,6 @@ package ldbc.snb.datagen.test.csv;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by aprat on 23/12/15.
- */
 public abstract class NumericCheck<T extends Number > extends Check {
 
     public enum NumericCheckType {

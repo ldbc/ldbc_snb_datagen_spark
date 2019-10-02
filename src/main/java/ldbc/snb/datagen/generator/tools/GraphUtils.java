@@ -40,9 +40,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Created by aprat on 17/06/15.
- */
 public class GraphUtils {
 
     public static double clusteringCoefficient(PersonGraph graph) {

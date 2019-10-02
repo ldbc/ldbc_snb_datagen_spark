@@ -47,9 +47,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeSet;
 
-/**
- * Created by aprat on 10/8/14.
- */
 public class Person implements Writable {
 
 

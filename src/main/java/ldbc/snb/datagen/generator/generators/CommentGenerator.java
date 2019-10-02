@@ -57,9 +57,6 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.TreeSet;
 
-/**
- * @author aprat
- */
 public class CommentGenerator {
     private String[] shortComments_ = {"ok", "good", "great", "cool", "thx", "fine", "LOL", "roflol", "no way!", "I see", "right", "yes", "no", "duh", "thanks", "maybe"};
     private TextGenerator generator;

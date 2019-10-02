@@ -2,9 +2,6 @@ package ldbc.snb.datagen.test.csv;
 
 import java.util.List;
 
-/**
- * Created by aprat on 21/12/15.
- */
 public class ExistsCheck<T> extends Check {
 
     protected List<ColumnSet<T>> refColumns = null;

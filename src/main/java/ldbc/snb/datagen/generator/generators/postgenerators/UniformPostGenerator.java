@@ -47,9 +47,6 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.TreeSet;
 
-/**
- * @author aprat
- */
 public class UniformPostGenerator extends PostGenerator {
 
 

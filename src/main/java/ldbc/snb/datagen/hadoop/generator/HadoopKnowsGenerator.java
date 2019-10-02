@@ -59,9 +59,6 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import java.io.IOException;
 import java.util.ArrayList;
 
-/**
- * Created by aprat on 11/17/14.
- */
 public class HadoopKnowsGenerator {
 
     private Configuration conf;

@@ -42,10 +42,6 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-/**
- * Created by aprat on 11/9/14.
- */
-
 public class BlockKey implements WritableComparable<BlockKey> {
     public long block;
     public TupleKey tk;

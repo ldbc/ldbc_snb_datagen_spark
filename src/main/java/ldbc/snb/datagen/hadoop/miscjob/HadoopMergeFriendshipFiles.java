@@ -55,9 +55,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
-/**
- * Created by aprat on 29/07/15.
- */
 public class HadoopMergeFriendshipFiles {
 
     private Configuration conf;

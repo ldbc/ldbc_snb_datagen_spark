@@ -46,9 +46,6 @@ import ldbc.snb.datagen.vocabulary.SNTAG;
 import ldbc.snb.datagen.vocabulary.SNVOC;
 import ldbc.snb.datagen.vocabulary.XSD;
 
-/**
- * Created by aprat on 29/04/15.
- */
 public class Turtle {
 
     public static String getNamespaces() {

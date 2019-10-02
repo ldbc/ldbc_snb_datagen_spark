@@ -57,9 +57,6 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import java.io.IOException;
 import java.io.OutputStream;
 
-/**
- * Created by aprat on 8/8/14.
- */
 public class HadoopPersonGenerator {
 
     private Configuration conf = null;

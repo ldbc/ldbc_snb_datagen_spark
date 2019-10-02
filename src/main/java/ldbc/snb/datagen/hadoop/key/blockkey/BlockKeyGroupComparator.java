@@ -38,10 +38,6 @@ package ldbc.snb.datagen.hadoop.key.blockkey;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 
-/**
- * Created by aprat on 11/17/14.
- */
-
 public class BlockKeyGroupComparator extends WritableComparator {
 
     protected BlockKeyGroupComparator() {
