@@ -39,6 +39,7 @@ import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.entities.dynamic.messages.Comment;
 import ldbc.snb.datagen.entities.dynamic.messages.Photo;
 import ldbc.snb.datagen.entities.dynamic.messages.Post;
+import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.entities.dynamic.relations.Like;
 import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
