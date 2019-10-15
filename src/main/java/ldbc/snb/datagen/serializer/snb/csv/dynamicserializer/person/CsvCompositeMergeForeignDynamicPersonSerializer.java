@@ -91,12 +91,12 @@ public class CsvCompositeMergeForeignDynamicPersonSerializer extends DynamicPers
     }
 
     @Override
-    protected void serialize(final StudyAt studyAt) {
+    protected void serialize(final StudyAt studyAt,final Person person) {
         writers.get(PERSON_STUDY_AT).writeEntry(ImmutableList.of(Long.toString(studyAt.user),Long.toString(studyAt.university),Dictionaries.dates.formatYear(studyAt.year)));
     }
 
     @Override
-    protected void serialize(final WorkAt workAt) {
+    protected void serialize(final WorkAt workAt,final Person person) {
         writers.get(PERSON_WORK_AT).writeEntry(ImmutableList.of(Long.toString(workAt.user), Long.toString(workAt.company), Dictionaries.dates.formatYear(workAt.year)));
     }
 

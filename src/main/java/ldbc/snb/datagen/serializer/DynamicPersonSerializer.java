@@ -52,9 +52,9 @@ abstract public class DynamicPersonSerializer<TWriter extends HdfsWriter> extend
 
     abstract protected void serialize(final Person p);
 
-    abstract protected void serialize(final StudyAt studyAt);
+    abstract protected void serialize(final StudyAt studyAt,final Person person);
 
-    abstract protected void serialize(final WorkAt workAt);
+    abstract protected void serialize(final WorkAt workAt,final Person person);
 
     abstract protected void serialize(final Person p, final Knows knows);
 
@@ -67,7 +67,7 @@ abstract public class DynamicPersonSerializer<TWriter extends HdfsWriter> extend
             studyAt.year = person.classYear();
             studyAt.user = person.accountId();
             studyAt.university = universityId;
-            serialize(studyAt);
+            serialize(studyAt,person);
         }
 
         Iterator<Long> it = person.companies().keySet().iterator();
@@ -77,7 +77,7 @@ abstract public class DynamicPersonSerializer<TWriter extends HdfsWriter> extend
             workAt.company = companyId;
             workAt.user = person.accountId();
             workAt.year = person.companies().get(companyId);
-            serialize(workAt);
+            serialize(workAt,person);
         }
     }
 

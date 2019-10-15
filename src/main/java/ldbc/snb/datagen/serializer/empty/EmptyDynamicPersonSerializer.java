@@ -76,12 +76,12 @@ public class EmptyDynamicPersonSerializer extends DynamicPersonSerializer {
     }
 
     @Override
-    protected void serialize(final StudyAt studyAt) {
+    protected void serialize(final StudyAt studyAt,final Person person) {
         //Intentionally left empty
     }
 
     @Override
-    protected void serialize(final WorkAt workAt) {
+    protected void serialize(final WorkAt workAt,final Person person) {
         //Intentionally left empty
     }
 

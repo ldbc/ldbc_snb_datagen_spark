@@ -64,56 +64,90 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
     @Override
     public void writeFileHeaders() {
         writers.get(PERSON).writeHeader(ImmutableList.of("id","firstName","lastName","gender","birthday","creationDate","locationIP","browserUsed"));
-        writers.get(PERSON_SPEAKS_LANGUAGE).writeHeader(ImmutableList.of("Person.id","language"));
-        writers.get(PERSON_HAS_EMAIL).writeHeader(ImmutableList.of("Person.id","email"));
-        writers.get(PERSON_LOCATED_IN_PLACE).writeHeader(ImmutableList.of("Person.id","Place.id"));
-        writers.get(PERSON_HAS_INTEREST_TAG).writeHeader(ImmutableList.of("Person.id","Tag.id"));
-        writers.get(PERSON_WORK_AT).writeHeader(ImmutableList.of("Person.id","Organisation.id","workFrom"));
-        writers.get(PERSON_STUDY_AT).writeHeader(ImmutableList.of("Person.id","Organisation.id","classYear"));
+        writers.get(PERSON_SPEAKS_LANGUAGE).writeHeader(ImmutableList.of("Person.id","language","creationDate"));
+        writers.get(PERSON_HAS_EMAIL).writeHeader(ImmutableList.of("Person.id","email","creationDate"));
+        writers.get(PERSON_LOCATED_IN_PLACE).writeHeader(ImmutableList.of("Person.id","Place.id","creationDate"));
+        writers.get(PERSON_HAS_INTEREST_TAG).writeHeader(ImmutableList.of("Person.id","Tag.id","creationDate"));
+
+        writers.get(PERSON_STUDY_AT).writeHeader(ImmutableList.of("Person.id","Organisation.id","classYear","creationDate"));
+        writers.get(PERSON_WORK_AT).writeHeader(ImmutableList.of("Person.id","Organisation.id","workFrom","creationDate"));
+
         writers.get(PERSON_KNOWS_PERSON).writeHeader(ImmutableList.of("Person.id","Person.id","creationDate"));
     }
 
     @Override
     protected void serialize(final Person p) {
+        String dateString = Dictionaries.dates.formatDateTime(p.creationDate());
+        //"id","firstName","lastName","gender","birthday","creationDate","locationIP","browserUsed"
         writers.get(PERSON).writeEntry(ImmutableList.of(
                 Long.toString(p.accountId()),
                 p.firstName(),
                 p.lastName(),
                 getGender(p.gender()),
                 Dictionaries.dates.formatDate(p.birthday()),
-                Dictionaries.dates.formatDateTime(p.creationDate()),
+                dateString,
                 p.ipAddress().toString(),
                 Dictionaries.browsers.getName(p.browserId())
             ));
 
-        for (Integer i:p.languages())
-            writers.get(PERSON_SPEAKS_LANGUAGE).writeEntry(ImmutableList.of(Long.toString(p.accountId()),Dictionaries.languages.getLanguageName(i)));
-
+        for (Integer i:p.languages()) {
+            //"Person.id","language","creationDate"
+            writers.get(PERSON_SPEAKS_LANGUAGE).writeEntry(ImmutableList.of(
+                    Long.toString(p.accountId()),
+                    Dictionaries.languages.getLanguageName(i),
+                    dateString));
+        }
         Iterator<String> itString = p.emails().iterator();
-        while (itString.hasNext())
-            writers.get(PERSON_HAS_EMAIL).writeEntry(ImmutableList.of(Long.toString(p.accountId()),itString.next()));
-
-
-        writers.get(PERSON_LOCATED_IN_PLACE).writeEntry(ImmutableList.of(Long.toString(p.accountId()),Integer.toString(p.cityId())));
+        while (itString.hasNext()) {
+            //"Person.id","email","creationDate"
+            writers.get(PERSON_HAS_EMAIL).writeEntry(ImmutableList.of(
+                    Long.toString(p.accountId()),
+                    itString.next(),
+                    dateString));
+        }
+        //"Person.id","Place.id","creationDate"
+        writers.get(PERSON_LOCATED_IN_PLACE).writeEntry(ImmutableList.of(
+                Long.toString(p.accountId()),
+                Integer.toString(p.cityId()),
+                dateString));
 
         Iterator<Integer> itInteger = p.interests().iterator();
-        while (itInteger.hasNext())
-            writers.get(PERSON_HAS_INTEREST_TAG).writeEntry(ImmutableList.of(Long.toString(p.accountId()),Integer.toString(itInteger.next())));
+        while (itInteger.hasNext()) {
+            //"Person.id","Tag.id","creationDate"
+            writers.get(PERSON_HAS_INTEREST_TAG).writeEntry(ImmutableList.of(
+                    Long.toString(p.accountId()),
+                    Integer.toString(itInteger.next()),
+                    dateString));
+        }
     }
 
     @Override
-    protected void serialize(final StudyAt studyAt) {
-        writers.get(PERSON_STUDY_AT).writeEntry(ImmutableList.of(Long.toString(studyAt.user),Long.toString(studyAt.university),Dictionaries.dates.formatYear(studyAt.year)));
+    protected void serialize(final StudyAt studyAt,final Person person) {
+        //"Person.id","Organisation.id","classYear","creationDate"
+        writers.get(PERSON_STUDY_AT).writeEntry(ImmutableList.of(
+                Long.toString(studyAt.user),
+                Long.toString(studyAt.university),
+                Dictionaries.dates.formatYear(studyAt.year),
+                Dictionaries.dates.formatDateTime(person.creationDate())));
     }
 
     @Override
-    protected void serialize(final WorkAt workAt) {
-        writers.get(PERSON_WORK_AT).writeEntry(ImmutableList.of(Long.toString(workAt.user),Long.toString(workAt.company), Dictionaries.dates.formatYear(workAt.year)));
+    protected void serialize(final WorkAt workAt,final Person person) {
+        //"Person.id","Organisation.id","workFrom","creationDate"
+        writers.get(PERSON_WORK_AT).writeEntry(ImmutableList.of(
+                Long.toString(workAt.user),
+                Long.toString(workAt.company),
+                Dictionaries.dates.formatYear(workAt.year),
+                Dictionaries.dates.formatDateTime(person.creationDate())));
     }
 
     @Override
     protected void serialize(final Person p, Knows knows) {
-        writers.get(PERSON_KNOWS_PERSON).writeEntry(ImmutableList.of(Long.toString(p.accountId()),Long.toString(knows.to().accountId()),Dictionaries.dates.formatDateTime(knows.creationDate())));
+        //"Person.id","Person.id","creationDate"
+        writers.get(PERSON_KNOWS_PERSON).writeEntry(ImmutableList.of(
+                Long.toString(p.accountId()),
+                Long.toString(knows.to().accountId()),
+                Dictionaries.dates.formatDateTime(knows.creationDate())));
     }
 
 }

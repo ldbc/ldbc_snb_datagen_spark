@@ -124,12 +124,12 @@ public class CsvDynamicPersonSerializerExtended extends DynamicPersonSerializer<
     }
 
     @Override
-    protected void serialize(StudyAt studyAt) {
+    protected void serialize(StudyAt studyAt,final Person person) {
         //Intentionally left empty
     }
 
     @Override
-    protected void serialize(WorkAt workAt) {
+    protected void serialize(WorkAt workAt,final Person person) {
         //Intentionally left empty
     }
 
