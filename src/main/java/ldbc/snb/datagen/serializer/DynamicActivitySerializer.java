@@ -62,9 +62,7 @@ abstract public class DynamicActivitySerializer<TWriter extends HdfsWriter> exte
         serialize(forum);
     }
 
-    public void export(final ForumMembership forumMembership) {
-        serialize(forumMembership);
-    }
+    public void export(final ForumMembership forumMembership) { serialize(forumMembership); }
 
     public void export(final Post post) {
         serialize(post);
