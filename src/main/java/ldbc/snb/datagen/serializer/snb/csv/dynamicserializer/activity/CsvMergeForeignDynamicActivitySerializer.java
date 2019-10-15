@@ -86,14 +86,16 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
                 Long.toString(forum.id()),
                 forum.title(),
                 dateString,
-                Long.toString(forum.moderator().accountId())));
+                Long.toString(forum.moderator().accountId())
+        ));
 
         for (Integer i : forum.tags()) {
             //"Forum.id", "Tag.id,","creationDate"
             writers.get(FORUM_HASTAG_TAG).writeEntry(ImmutableList.of(
                     Long.toString(forum.id()),
                     Integer.toString(i),
-                    dateString));
+                    dateString
+            ));
         }
 
     }
@@ -121,7 +123,8 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
             writers.get(POST_HASTAG_TAG).writeEntry(ImmutableList.of(
                 Long.toString(post.messageId()),
                 Integer.toString(t),
-                dateString));
+                dateString
+            ));
         }
     }
 

@@ -85,7 +85,7 @@ public class CsvCompositeMergeForeignDynamicPersonSerializer extends DynamicPers
                 Integer.toString(p.cityId()),
                 buildLanguages(p.languages()),
                 buildEmail(p.emails())
-                ));
+        ));
 
         Iterator<Integer> itInteger = p.interests().iterator();
         while (itInteger.hasNext()) {
@@ -94,7 +94,8 @@ public class CsvCompositeMergeForeignDynamicPersonSerializer extends DynamicPers
             writers.get(PERSON_HAS_INTEREST_TAG).writeEntry(ImmutableList.of(
                     Long.toString(p.accountId()),
                     Integer.toString(interestIdx),
-                    dateString));
+                    dateString
+            ));
         }
     }
 
@@ -104,7 +105,8 @@ public class CsvCompositeMergeForeignDynamicPersonSerializer extends DynamicPers
         writers.get(PERSON_STUDY_AT).writeEntry(ImmutableList.of(Long.toString(studyAt.user),
                 Long.toString(studyAt.university),
                 Dictionaries.dates.formatYear(studyAt.year),
-                Dictionaries.dates.formatDateTime(person.creationDate())));
+                Dictionaries.dates.formatDateTime(person.creationDate())
+        ));
     }
 
     @Override
@@ -113,7 +115,8 @@ public class CsvCompositeMergeForeignDynamicPersonSerializer extends DynamicPers
         writers.get(PERSON_WORK_AT).writeEntry(ImmutableList.of(Long.toString(workAt.user),
                 Long.toString(workAt.company),
                 Dictionaries.dates.formatYear(workAt.year),
-                Dictionaries.dates.formatDateTime(person.creationDate())));
+                Dictionaries.dates.formatDateTime(person.creationDate())
+        ));
     }
 
     @Override
@@ -122,7 +125,8 @@ public class CsvCompositeMergeForeignDynamicPersonSerializer extends DynamicPers
         writers.get(PERSON_KNOWS_PERSON).writeEntry(ImmutableList.of(
                 Long.toString(p.accountId()),
                 Long.toString(knows.to().accountId()),
-                Dictionaries.dates.formatDateTime(knows.creationDate())));
+                Dictionaries.dates.formatDateTime(knows.creationDate())
+        ));
     }
 
 }

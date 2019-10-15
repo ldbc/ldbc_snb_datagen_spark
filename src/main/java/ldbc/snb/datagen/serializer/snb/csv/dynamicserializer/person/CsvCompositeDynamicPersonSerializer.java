@@ -89,13 +89,15 @@ public class CsvCompositeDynamicPersonSerializer extends DynamicPersonSerializer
                 p.ipAddress().toString(),
                 Dictionaries.browsers.getName(p.browserId()),
                 buildLanguages(p.languages()),
-                buildEmail(p.emails())));
+                buildEmail(p.emails())
+        ));
 
         //"Person.id","Place.id","creationDate"
         writers.get(PERSON_LOCATED_IN_PLACE).writeEntry(ImmutableList.of(
                 Long.toString(p.accountId()),
                 Integer.toString(p.cityId()),
-                dateString));
+                dateString
+        ));
 
         Iterator<Integer> itInteger = p.interests().iterator();
         while (itInteger.hasNext()) {
@@ -104,7 +106,8 @@ public class CsvCompositeDynamicPersonSerializer extends DynamicPersonSerializer
             writers.get(PERSON_HAS_INTEREST_TAG).writeEntry(ImmutableList.of(
                     Long.toString(p.accountId()),
                     Integer.toString(interestIdx),
-                    dateString));
+                    dateString
+            ));
         }
     }
 
@@ -115,7 +118,8 @@ public class CsvCompositeDynamicPersonSerializer extends DynamicPersonSerializer
                 Long.toString(studyAt.user),
                 Long.toString(studyAt.university),
                 Dictionaries.dates.formatYear(studyAt.year),
-                Dictionaries.dates.formatDateTime(person.creationDate())));
+                Dictionaries.dates.formatDateTime(person.creationDate())
+        ));
     }
 
     @Override
@@ -125,7 +129,8 @@ public class CsvCompositeDynamicPersonSerializer extends DynamicPersonSerializer
                 Long.toString(workAt.user),
                 Long.toString(workAt.company),
                 Dictionaries.dates.formatYear(workAt.year),
-                Dictionaries.dates.formatDateTime(person.creationDate())));
+                Dictionaries.dates.formatDateTime(person.creationDate())
+        ));
     }
 
     @Override
@@ -134,6 +139,7 @@ public class CsvCompositeDynamicPersonSerializer extends DynamicPersonSerializer
         writers.get(PERSON_KNOWS_PERSON).writeEntry(ImmutableList.of(
                 Long.toString(p.accountId()),
                 Long.toString(knows.to().accountId()),
-                Dictionaries.dates.formatDateTime(knows.creationDate())));
+                Dictionaries.dates.formatDateTime(knows.creationDate())
+        ));
     }
 }

@@ -97,19 +97,22 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
         writers.get(FORUM).writeEntry(ImmutableList.of(
                 Long.toString(forum.id()),
                 forum.title(),
-                dateString));
+                dateString
+        ));
         //"Forum.id","Person.id","joinDate"
         writers.get(FORUM_HASMODERATOR_PERSON).writeEntry(ImmutableList.of(
                 Long.toString(forum.id()),
                 Long.toString(forum.moderator().accountId()),
-                dateString));
+                dateString
+        ));
 
         for (Integer i : forum.tags()) {
             //"Forum.id","Tag.id","creationDate"
             writers.get(FORUM_HASTAG_TAG).writeEntry(ImmutableList.of(
                     Long.toString(forum.id()),
                     Integer.toString(i),
-                    dateString));
+                    dateString
+            ));
         }
     }
 
@@ -118,7 +121,8 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
         writers.get(FORUM_HASMEMBER_PERSON).writeEntry(ImmutableList.of(
                 Long.toString(membership.forumId()),
                 Long.toString(membership.person().accountId()),
-                Dictionaries.dates.formatDateTime(membership.creationDate())));
+                Dictionaries.dates.formatDateTime(membership.creationDate())
+        ));
     }
 
 
@@ -134,32 +138,37 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
                 Dictionaries.browsers.getName(post.browserId()),
                 Dictionaries.languages.getLanguageName(post.language()),
                 post.content(),
-                Integer.toString(post.content().length())));
+                Integer.toString(post.content().length())
+        ));
 
         //"Post.id","Person.id","creationDate"
         writers.get(POST_HASCREATOR_PERSON).writeEntry(ImmutableList.of(
                 Long.toString(post.messageId()),
                 Long.toString(post.author().accountId()),
-                datestring));
+                datestring
+        ));
 
         //"Post.id","Place.id","creationDate"
         writers.get(POST_ISLOCATEDIN_PLACE).writeEntry(ImmutableList.of(
                 Long.toString(post.messageId()),
                 Integer.toString(post.countryId()),
-                datestring));
+                datestring
+        ));
 
         //"Post.id","Tag.id","creationDate"
         for (Integer t : post.tags()) {
             writers.get(POST_HASTAG_TAG).writeEntry(ImmutableList.of(
                     Long.toString(post.messageId()),
                     Integer.toString(t),
-                    datestring));
+                    datestring
+            ));
         }
         //"Forum.id","Post.id","creationDate"
         writers.get(FORUM_CONTAINEROF_POST).writeEntry(ImmutableList.of(
                 Long.toString(post.forumId()),
                 Long.toString(post.messageId()),
-                datestring));
+                datestring
+        ));
 
     }
 
@@ -173,39 +182,45 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
                 comment.ipAddress().toString(),
                 Dictionaries.browsers.getName(comment.browserId()),
                 comment.content(),
-                Integer.toString(comment.content().length())));
+                Integer.toString(comment.content().length())
+        ));
 
         if (comment.replyOf() == comment.postId()) {
             //"Comment.id","Post.id","creationDate"
             writers.get(COMMENT_REPLYOF_POST).writeEntry(ImmutableList.of(
                     Long.toString(comment.messageId()),
                     Long.toString(comment.postId()),
-                    dateString));
+                    dateString
+            ));
         } else {
             //"Comment.id","Comment.id","creationDate"
             writers.get(COMMENT_REPLYOF_COMMENT).writeEntry(ImmutableList.of(
                     Long.toString(comment.messageId()),
                     Long.toString(comment.replyOf()),
-                    dateString));
+                    dateString
+            ));
         }
         //"Comment.id","Person.id","creationDate"
         writers.get(COMMENT_HASCREATOR_PERSON).writeEntry(ImmutableList.of(
                 Long.toString(comment.messageId()),
                 Long.toString(comment.author().accountId()),
-                dateString));
+                dateString
+        ));
 
         //"Comment.id","Place.id","creationDate"
         writers.get(COMMENT_ISLOCATEDIN_PLACE).writeEntry(ImmutableList.of(
                 Long.toString(comment.messageId()),
                 Integer.toString(comment.countryId()),
-                dateString));
+                dateString
+        ));
 
         for (Integer t : comment.tags()) {
             //"Comment.id","Tag.id","creationDate"
             writers.get(COMMENT_HASTAG_TAG).writeEntry(ImmutableList.of(
                     Long.toString(comment.messageId()),
                     Integer.toString(t),
-                    dateString));
+                    dateString
+            ));
         }
     }
 
@@ -220,33 +235,38 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
                 Dictionaries.browsers.getName(photo.browserId()),
                 "",
                 "",
-                Integer.toString(0)));
+                Integer.toString(0)
+        ));
 
         //"Post.id","Place.id","creationDate"
         writers.get(POST_ISLOCATEDIN_PLACE).writeEntry(ImmutableList.of(
                 Long.toString(photo.messageId()),
                 Integer.toString(photo.countryId()),
-                dateString));
+                dateString
+        ));
 
         //"Post.id","Tag.id","creationDate"
         writers.get(POST_HASCREATOR_PERSON).writeEntry(ImmutableList.of(
                 Long.toString(photo.messageId()),
                 Long.toString(photo.author().accountId()),
-                dateString));
+                dateString
+        ));
 
         //"Post.id","Tag.id","creationDate"
         for (Integer t : photo.tags()) {
             writers.get(POST_HASTAG_TAG).writeEntry(ImmutableList.of(
                     Long.toString(photo.messageId()),
                     Integer.toString(t),
-                    dateString));
+                    dateString
+            ));
         }
 
         //"Forum.id","Post.id","creationDate"
         writers.get(FORUM_CONTAINEROF_POST).writeEntry(ImmutableList.of(
                 Long.toString(photo.forumId()),
                 Long.toString(photo.messageId()),
-                dateString));
+                dateString
+        ));
     }
 
 
@@ -257,13 +277,15 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
             writers.get(PERSON_LIKES_POST).writeEntry(ImmutableList.of(
                     Long.toString(like.user),
                     Long.toString(like.messageId),
-                    Dictionaries.dates.formatDateTime(like.date)));
+                    Dictionaries.dates.formatDateTime(like.date)
+            ));
         } else {
             //"Person.id","Comment.id","creationDate"
             writers.get(PERSON_LIKES_COMMENT).writeEntry(ImmutableList.of(
                     Long.toString(like.user),
                     Long.toString(like.messageId),
-                    Dictionaries.dates.formatDateTime(like.date)));
+                    Dictionaries.dates.formatDateTime(like.date)
+            ));
         }
     }
 
