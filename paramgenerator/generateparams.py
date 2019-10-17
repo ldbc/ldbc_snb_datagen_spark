@@ -69,7 +69,12 @@ class CSVSerializer:
 def handlePersonParam(person):
 	return str(person)
 
-def handleTimeParam(timeParam):
+def handleMaxTimeParam(timeParam):
+	res =  str(timegm(date(year=int(timeParam.year),
+		month=int(timeParam.month), day=int(timeParam.day)).timetuple())*1000)
+	return res
+
+def handleMinTimeParam(timeParam):
 	res =  str(timegm(date(year=int(timeParam.year),
 		month=int(timeParam.month), day=int(timeParam.day)).timetuple())*1000)
 	return res
@@ -235,9 +240,9 @@ def main(argv=None):
 		if i==3 or i==4:
 			csvWriters[i].registerHandler(handleTimeDurationParam, selectedTimeParams[i], "startDate|durationDays")
 		elif i==2 or i==9:
-			csvWriters[i].registerHandler(handleTimeParam, selectedTimeParams[i], "maxDate")
+			csvWriters[i].registerHandler(handleMaxTimeParam, selectedTimeParams[i], "maxDate")
 		elif i==5:
-			csvWriters[i].registerHandler(handleTimeParam, selectedTimeParams[i], "minDate")
+			csvWriters[i].registerHandler(handleMinTimeParam, selectedTimeParams[i], "minDate")
 
 	# other, query-specific parameters
 	csvWriters[1].registerHandler(handleFirstNameParam, nameParams, "firstName")
