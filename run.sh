@@ -1,4 +1,10 @@
 #!/bin/bash
+
+if [ ! -f params.ini ]; then
+  echo "Parameters file (params.ini) not found."
+  exit 1
+fi
+
 DEFAULT_HADOOP_HOME=/home/user/hadoop-2.9.2 #change to your hadoop folder
 DEFAULT_LDBC_SNB_DATAGEN_HOME=`pwd` #change to your ldbc_snb_datagen folder
 
