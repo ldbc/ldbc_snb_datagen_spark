@@ -35,10 +35,10 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.generators.textgenerators;
 
+import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.dictionary.TagDictionary;
-import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.objects.dynamic.person.Person.PersonSummary;
+import ldbc.snb.datagen.entities.dynamic.person.Person.PersonSummary;
 
 import java.util.Properties;
 import java.util.Random;
@@ -58,7 +58,7 @@ public class LdbcSnbTextGenerator extends TextGenerator {
     @Override
     public String generateText(PersonSummary member, TreeSet<Integer> tags, Properties prop) {
         String content = "";
-        if (prop.getProperty("type").equals("post")) {//si es post fer
+        if (prop.getProperty("type").equals("post")) {
 
             int textSize;
             if (member.isLargePoster() && this.random.nextDouble() > (1.0f - DatagenParams.ratioLargePost)) {
@@ -71,7 +71,7 @@ public class LdbcSnbTextGenerator extends TextGenerator {
                 assert textSize <= DatagenParams.maxTextSize && textSize >= DatagenParams.minTextSize : "Person creation date is larger than membership";
             }
             content = Dictionaries.tagText.generateText(this.random, tags, textSize);
-        } else {//si no es post fer
+        } else {
             int textSize;
             if (member.isLargePoster() && this.random.nextDouble() > (1.0f - DatagenParams.ratioLargeComment)) {
                 textSize = Dictionaries.tagText

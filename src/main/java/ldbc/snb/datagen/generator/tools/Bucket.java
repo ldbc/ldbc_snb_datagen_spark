@@ -39,18 +39,16 @@ import ldbc.snb.datagen.DatagenParams;
 import org.apache.commons.math3.util.Pair;
 
 import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Created by aprat on 3/03/15.
- */
 public class Bucket {
 
     private double min_;
     private double max_;
 
-    public static ArrayList<Bucket> bucketizeHistogram(ArrayList<Pair<Integer, Integer>> histogram, int num_buckets) {
+    public static List<Bucket> bucketizeHistogram(List<Pair<Integer, Integer>> histogram, int num_buckets) {
 
-        ArrayList<Bucket> buckets = new ArrayList<Bucket>();
+        List<Bucket> buckets = new ArrayList<>();
         int population = 0;
         int num_edges = 0;
         for (Pair<Integer, Integer> i : histogram) {

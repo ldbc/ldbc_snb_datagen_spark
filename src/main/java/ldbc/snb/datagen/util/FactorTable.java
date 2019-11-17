@@ -35,32 +35,34 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.util;
 
-import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.objects.dynamic.messages.Comment;
-import ldbc.snb.datagen.objects.dynamic.messages.Message;
-import ldbc.snb.datagen.objects.dynamic.messages.Photo;
-import ldbc.snb.datagen.objects.dynamic.messages.Post;
-import ldbc.snb.datagen.objects.dynamic.person.Person;
-import ldbc.snb.datagen.objects.dynamic.relations.ForumMembership;
-import ldbc.snb.datagen.objects.dynamic.relations.Like;
+import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.entities.dynamic.messages.Comment;
+import ldbc.snb.datagen.entities.dynamic.messages.Message;
+import ldbc.snb.datagen.entities.dynamic.messages.Photo;
+import ldbc.snb.datagen.entities.dynamic.messages.Post;
+import ldbc.snb.datagen.entities.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
+import ldbc.snb.datagen.entities.dynamic.relations.Like;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
-/**
- * Created by aprat on 1/8/15.
- */
 public class FactorTable {
 
-
-    private HashMap<Long, PersonCounts> personCounts_;
-    private HashMap<Integer, Long> postsPerCountry_;
-    private HashMap<Integer, Long> tagClassCount_;
-    private HashMap<String, Long> firstNameCount_;
-    private HashMap<Integer, Long> tagCount_;
-    private HashMap<Long, String> medianFirstName_;
+    private Map<Long, PersonCounts> personCounts_;
+    private Map<Integer, Long> postsPerCountry_;
+    private Map<Integer, Long> tagClassCount_;
+    private Map<String, Long> firstNameCount_;
+    private Map<Integer, Long> tagCount_;
+    private Map<Long, String> medianFirstName_;
     private long minWorkFrom_ = Long.MAX_VALUE;
     private long maxWorkFrom_ = Long.MIN_VALUE;
 
@@ -74,15 +76,15 @@ public class FactorTable {
         private long numComments_ = 0;
         private int country_ = 0;
         private String name_ = null;
-        private ArrayList<Long> numMessagesPerMonth_ = null;
-        private ArrayList<Long> numForumsPerMonth_ = null;
+        private List<Long> numMessagesPerMonth_ = null;
+        private List<Long> numForumsPerMonth_ = null;
 
         public PersonCounts() {
-            numMessagesPerMonth_ = new ArrayList<Long>(36 + 1);
+            numMessagesPerMonth_ = new ArrayList<>(36 + 1);
             for (int i = 0; i < 36 + 1; ++i) {
                 numMessagesPerMonth_.add(new Long(0));
             }
-            numForumsPerMonth_ = new ArrayList<Long>(36 + 1);
+            numForumsPerMonth_ = new ArrayList<>(36 + 1);
             for (int i = 0; i < 36 + 1; ++i) {
                 numForumsPerMonth_.add(new Long(0));
             }
@@ -176,11 +178,11 @@ public class FactorTable {
             numComments_++;
         }
 
-        public ArrayList<Long> numMessagesPerMonth() {
+        public List<Long> numMessagesPerMonth() {
             return numMessagesPerMonth_;
         }
 
-        public void numMessagesPerMonth(ArrayList<Long> numMessagesPerMonth) {
+        public void numMessagesPerMonth(List<Long> numMessagesPerMonth) {
             numMessagesPerMonth_.clear();
             numMessagesPerMonth_.addAll(numMessagesPerMonth);
         }
@@ -190,11 +192,11 @@ public class FactorTable {
         }
 
 
-        public ArrayList<Long> numForumsPerMonth() {
+        public List<Long> numForumsPerMonth() {
             return numForumsPerMonth_;
         }
 
-        public void numGroupsPerMonth(ArrayList<Long> numForumsPerMonth) {
+        public void numGroupsPerMonth(List<Long> numForumsPerMonth) {
             numForumsPerMonth_.clear();
             numForumsPerMonth_ = numForumsPerMonth;
         }
@@ -206,12 +208,12 @@ public class FactorTable {
 
 
     public FactorTable() {
-        personCounts_ = new HashMap<Long, PersonCounts>();
-        postsPerCountry_ = new HashMap<Integer, Long>();
-        tagClassCount_ = new HashMap<Integer, Long>();
-        firstNameCount_ = new HashMap<String, Long>();
-        tagCount_ = new HashMap<Integer, Long>();
-        medianFirstName_ = new HashMap<Long, String>();
+        personCounts_ = new HashMap<>();
+        postsPerCountry_ = new HashMap<>();
+        tagClassCount_ = new HashMap<>();
+        firstNameCount_ = new HashMap<>();
+        tagCount_ = new HashMap<>();
+        medianFirstName_ = new HashMap<>();
     }
 
     private PersonCounts personCounts(Long id) {
@@ -341,18 +343,18 @@ public class FactorTable {
 
     public void writePersonFactors(OutputStream writer) {
         try {
-            Map<Integer, List<String>> countryNames = new TreeMap<Integer, List<String>>();
+            Map<Integer, List<String>> countryNames = new TreeMap<>();
             for (Map.Entry<Long, PersonCounts> c : personCounts_.entrySet()) {
                 if (c.getValue().name() != null) {
                     List<String> names = countryNames.get(c.getValue().country());
                     if (names == null) {
-                        names = new ArrayList<String>();
+                        names = new ArrayList<>();
                         countryNames.put(c.getValue().country(), names);
                     }
                     names.add(c.getValue().name());
                 }
             }
-            Map<Integer, String> medianNames = new TreeMap<Integer, String>();
+            Map<Integer, String> medianNames = new TreeMap<>();
             for (Map.Entry<Integer, List<String>> entry : countryNames.entrySet()) {
                 Collections.sort(entry.getValue());
                 medianNames.put(entry.getKey(), entry.getValue().get(entry.getValue().size() / 2));

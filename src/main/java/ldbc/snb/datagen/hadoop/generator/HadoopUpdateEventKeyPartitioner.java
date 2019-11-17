@@ -39,9 +39,6 @@ import ldbc.snb.datagen.hadoop.key.updatekey.UpdateEventKey;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Partitioner;
 
-/**
- * Created by aprat on 25/08/15.
- */
 public class HadoopUpdateEventKeyPartitioner extends Partitioner<UpdateEventKey, Text> {
 
     @Override

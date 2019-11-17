@@ -35,23 +35,24 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.generators.postgenerators;
 
-import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.generator.generators.CommentGenerator;
 import ldbc.snb.datagen.DatagenParams;
+import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.entities.dynamic.Forum;
+import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
+import ldbc.snb.datagen.entities.statictype.tag.FlashmobTag;
+import ldbc.snb.datagen.generator.generators.CommentGenerator;
 import ldbc.snb.datagen.generator.generators.LikeGenerator;
 import ldbc.snb.datagen.generator.generators.textgenerators.TextGenerator;
-import ldbc.snb.datagen.objects.statictype.tag.FlashmobTag;
-import ldbc.snb.datagen.objects.dynamic.Forum;
-import ldbc.snb.datagen.objects.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.util.Distribution;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
+import java.util.TreeSet;
 
-import static ldbc.snb.datagen.DatagenParams.maxNumTagPerFlashmobPost;
+import static ldbc.snb.datagen.DatagenParams.*;
 
-/**
- * @author aprat
- */
 public class FlashmobPostGenerator extends PostGenerator {
     private Distribution dateDistribution_;
     private FlashmobTag[] forumFlashmobTags = null;
@@ -112,11 +113,11 @@ public class FlashmobPostGenerator extends PostGenerator {
 
     private void populateForumFlashmobTags(Random randomNumPost, Forum forum) {
 
-        TreeSet<Integer> tags = new TreeSet<Integer>();
+        TreeSet<Integer> tags = new TreeSet<>();
         for (Integer tag : tags) {
             tags.add(tag);
         }
-        ArrayList<FlashmobTag> temp = Dictionaries.flashmobs.generateFlashmobTags(randomNumPost, tags, forum
+        List<FlashmobTag> temp = Dictionaries.flashmobs.generateFlashmobTags(randomNumPost, tags, forum
                 .creationDate());
         forumFlashmobTags = new FlashmobTag[temp.size()];
         Iterator<FlashmobTag> it = temp.iterator();
@@ -150,15 +151,7 @@ public class FlashmobPostGenerator extends PostGenerator {
         index = selectRandomTag(randomTag, forumFlashmobTags, index);
         FlashmobTag flashmobTag = forumFlashmobTags[index];
         postInfo.tags.add(flashmobTag.tag);
-        /*Set<Integer> extraTags = Dictionaries.tagMatrix.getSetofTagsCached(randomTag,randomTag,flashmobTag.tag, maxNumTagPerFlashmobPost - 1);
-	    Iterator<Integer> it = extraTags.iterator();
-	    while (it.hasNext()) {
-		    Integer value = it.next();
-		    if(randomTag.nextDouble() < 0.05) {
-			    postInfo.tags.add(value);
-		    }
-	    }
-	    */
+
         for (int i = 0; i < maxNumTagPerFlashmobPost - 1; ++i) {
             if (randomTag.nextDouble() < 0.05) {
                 int tag = Dictionaries.tagMatrix.getRandomRelated(randomTag, flashmobTag.tag);
@@ -167,7 +160,6 @@ public class FlashmobPostGenerator extends PostGenerator {
         }
         double prob = dateDistribution_.nextDouble(randomDate);
         postInfo.date = flashmobTag.date - flashmobSpan_ / 2 + (long) (prob * flashmobSpan_);
-        //if( postInfo.date > Dictionaries.dates.getEndDateTime() ) return null;
         return postInfo;
     }
 }

@@ -4,9 +4,6 @@ package ldbc.snb.datagen.test.csv;
 import java.io.File;
 import java.util.Iterator;
 
-/**
- * Created by aprat on 22/12/15.
- */
 public class ColumnStream<T> extends Column<T>{
 
     protected File file = null;
@@ -51,7 +48,7 @@ public class ColumnStream<T> extends Column<T>{
     public Iterator<T> iterator( ) {
         try {
             CsvFileReader reader = new CsvFileReader(file);
-            ColumnStreamIterator<T> iter =  new ColumnStreamIterator<T>(this,reader,index);
+            ColumnStreamIterator<T> iter =  new ColumnStreamIterator<>(this,reader,index);
             iter.advance(startIndex);
             return iter;
         } catch(Exception e) {

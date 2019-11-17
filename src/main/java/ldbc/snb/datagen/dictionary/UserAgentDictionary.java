@@ -41,12 +41,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 
 public class UserAgentDictionary {
 
-    private ArrayList<String> userAgents;
+    private List<String> userAgents;
     /**
      * < @brief The set of all user agents.
      */
@@ -67,7 +68,7 @@ public class UserAgentDictionary {
      */
     private void load(String fileName) {
         try {
-            userAgents = new ArrayList<String>();
+            userAgents = new ArrayList<>();
             BufferedReader agentFile = new BufferedReader(new InputStreamReader(getClass()
                                                                                         .getResourceAsStream(fileName), "UTF-8"));
             String line;

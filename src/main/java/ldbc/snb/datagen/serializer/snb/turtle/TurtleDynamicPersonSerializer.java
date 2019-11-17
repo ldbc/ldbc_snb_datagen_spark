@@ -37,65 +37,39 @@
 
 package ldbc.snb.datagen.serializer.snb.turtle;
 
+import com.google.common.collect.ImmutableList;
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.objects.dynamic.relations.Knows;
-import ldbc.snb.datagen.objects.dynamic.person.Person;
-import ldbc.snb.datagen.objects.dynamic.relations.StudyAt;
-import ldbc.snb.datagen.objects.dynamic.relations.WorkAt;
-import ldbc.snb.datagen.hadoop.writer.HDFSWriter;
+import ldbc.snb.datagen.entities.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.relations.Knows;
+import ldbc.snb.datagen.entities.dynamic.relations.StudyAt;
+import ldbc.snb.datagen.entities.dynamic.relations.WorkAt;
+import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
 import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
-import ldbc.snb.datagen.vocabulary.*;
-import org.apache.hadoop.conf.Configuration;
+import ldbc.snb.datagen.serializer.snb.csv.FileName;
+import ldbc.snb.datagen.vocabulary.DBP;
+import ldbc.snb.datagen.vocabulary.RDF;
+import ldbc.snb.datagen.vocabulary.SN;
+import ldbc.snb.datagen.vocabulary.SNTAG;
+import ldbc.snb.datagen.vocabulary.SNVOC;
+import ldbc.snb.datagen.vocabulary.XSD;
 
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
+import java.util.List;
 
+import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
 
-public class TurtleDynamicPersonSerializer extends DynamicPersonSerializer {
+public class TurtleDynamicPersonSerializer extends DynamicPersonSerializer<HdfsWriter> implements TurtleSerializer {
 
-    private HDFSWriter[] writers;
     private long workAtId = 0;
     private long studyAtId = 0;
     private long knowsId = 0;
-    private SimpleDateFormat dateTimeFormat = null;
 
-
-    private enum FileNames {
-        SOCIAL_NETWORK("social_network_person");
-
-        private final String name;
-
-        private FileNames(String name) {
-            this.name = name;
-        }
-
-        public String toString() {
-            return name;
-        }
-    }
-
-    public void initialize(Configuration conf, int reducerId) throws IOException {
-        dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-        dateTimeFormat .setTimeZone(TimeZone.getTimeZone("GMT"));
-        int numFiles = FileNames.values().length;
-        writers = new HDFSWriter[numFiles];
-        for (int i = 0; i < numFiles; ++i) {
-            writers[i] = new HDFSWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"), FileNames.values()[i]
-                    .toString() + "_" + reducerId, conf.getInt("ldbc.snb.datagen.numPartitions", 1), conf
-                                                .getBoolean("ldbc.snb.datagen.serializer.compressed", false), "ttl");
-            writers[i].writeAllPartitions(Turtle.getNamespaces());
-            writers[i].writeAllPartitions(Turtle.getStaticNamespaces());
-        }
+    @Override
+    public List<FileName> getFileNames() {
+        return ImmutableList.of(SOCIAL_NETWORK_PERSON);
     }
 
     @Override
-    public void close() {
-        int numFiles = FileNames.values().length;
-        for (int i = 0; i < numFiles; ++i) {
-            writers[i].close();
-        }
-    }
+    public void writeFileHeaders() { }
 
     @Override
     protected void serialize(final Person p) {
@@ -123,7 +97,7 @@ public class TurtleDynamicPersonSerializer extends DynamicPersonSerializer {
         Turtle.addTriple(result, false, false, prefix, SNVOC.browser,
                          Turtle.createLiteral(Dictionaries.browsers.getName(p.browserId())));
         Turtle.addTriple(result, false, true, prefix, SNVOC.creationDate,
-                         Turtle.createDataTypeLiteral(dateTimeFormat.format(p.creationDate()), XSD.DateTime));
+                         Turtle.createDataTypeLiteral(TurtleDateTimeFormat.get().format(p.creationDate()), XSD.DateTime));
 
         Turtle.createTripleSPO(result, prefix, SNVOC.locatedIn, DBP
                 .fullPrefixed(Dictionaries.places.getPlaceName(p.cityId())));
@@ -141,7 +115,7 @@ public class TurtleDynamicPersonSerializer extends DynamicPersonSerializer {
             String interest = Dictionaries.tags.getName(tag);
             Turtle.createTripleSPO(result, prefix, SNVOC.hasInterest, SNTAG.fullPrefixed(interest));
         }
-        writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
+        writers.get(SOCIAL_NETWORK_PERSON).write(result.toString());
     }
 
     @Override
@@ -156,7 +130,7 @@ public class TurtleDynamicPersonSerializer extends DynamicPersonSerializer {
         Turtle.createTripleSPO(result, SN.getStudyAtURI(id), SNVOC.classYear,
                                Turtle.createDataTypeLiteral(yearString, XSD.Integer));
         studyAtId++;
-        writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
+        writers.get(SOCIAL_NETWORK_PERSON).write(result.toString());
     }
 
     @Override
@@ -171,7 +145,7 @@ public class TurtleDynamicPersonSerializer extends DynamicPersonSerializer {
         Turtle.createTripleSPO(result, SN.getWorkAtURI(id), SNVOC.workFrom,
                                Turtle.createDataTypeLiteral(yearString, XSD.Integer));
         workAtId++;
-        writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
+        writers.get(SOCIAL_NETWORK_PERSON).write(result.toString());
     }
 
     @Override
@@ -184,16 +158,9 @@ public class TurtleDynamicPersonSerializer extends DynamicPersonSerializer {
                                SN.getPersonURI(knows.to().accountId()));
 
         Turtle.createTripleSPO(result, SN.getKnowsURI(id), SNVOC.creationDate,
-                               Turtle.createDataTypeLiteral(dateTimeFormat.format(knows.creationDate()), XSD.DateTime));
-        writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
+                               Turtle.createDataTypeLiteral(TurtleDateTimeFormat.get().format(knows.creationDate()), XSD.DateTime));
+        writers.get(SOCIAL_NETWORK_PERSON).write(result.toString());
         knowsId++;
-    }
-
-
-    public void reset() {
-        workAtId = 0;
-        studyAtId = 0;
-        knowsId = 0;
     }
 
 }

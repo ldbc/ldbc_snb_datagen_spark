@@ -35,21 +35,21 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer;
 
-import ldbc.snb.datagen.objects.statictype.Organisation;
-import ldbc.snb.datagen.objects.statictype.place.Place;
-import ldbc.snb.datagen.objects.statictype.tag.Tag;
-import ldbc.snb.datagen.objects.statictype.TagClass;
-import org.apache.hadoop.conf.Configuration;
+import ldbc.snb.datagen.entities.statictype.Organisation;
+import ldbc.snb.datagen.entities.statictype.TagClass;
+import ldbc.snb.datagen.entities.statictype.place.Place;
+import ldbc.snb.datagen.entities.statictype.tag.Tag;
+import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
 
-import java.io.IOException;
+abstract public class StaticSerializer<TWriter extends HdfsWriter> extends LdbcSerializer<TWriter> {
 
+    abstract protected void serialize(final Place place);
 
-/**
- * Created by aprat on 12/17/14.
- */
-abstract public class StaticSerializer {
+    abstract protected void serialize(final Organisation organisation);
 
-    abstract public void reset();
+    abstract protected void serialize(final TagClass tagClass);
+
+    abstract protected void serialize(final Tag tag);
 
     public void export(final TagClass tagclass) {
         serialize(tagclass);
@@ -67,15 +67,9 @@ abstract public class StaticSerializer {
         serialize(tag);
     }
 
-    abstract public void initialize(Configuration conf, int reducerId) throws IOException;
+    @Override
+    protected boolean isDynamic() {
+        return false;
+    }
 
-    abstract public void close();
-
-    abstract protected void serialize(final Place place);
-
-    abstract protected void serialize(final Organisation organisation);
-
-    abstract protected void serialize(final TagClass tagClass);
-
-    abstract protected void serialize(final Tag tag);
 }

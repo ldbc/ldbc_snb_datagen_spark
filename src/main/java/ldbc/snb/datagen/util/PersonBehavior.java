@@ -2,12 +2,8 @@ package ldbc.snb.datagen.util;
 
 import java.util.Random;
 
-import static ldbc.snb.datagen.DatagenParams.probDiffIPinTravelSeason;
-import static ldbc.snb.datagen.DatagenParams.probDiffIPnotTravelSeason;
+import static ldbc.snb.datagen.DatagenParams.*;
 
-/**
- * Created by aprat on 27/07/17.
- */
 public class PersonBehavior {
 
     public static boolean changeUsualCountry(Random random, long date) {

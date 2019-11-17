@@ -3,9 +3,6 @@ package ldbc.snb.datagen.test.csv;
 import java.io.File;
 import java.util.Iterator;
 
-/**
- * Created by aprat on 18/12/15.
- */
 public abstract class  Column <T> {
 
     protected Parser<T> parser = null;

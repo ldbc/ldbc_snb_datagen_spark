@@ -35,12 +35,9 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop.miscjob.keychanger;
 
+import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.hadoop.key.TupleKey;
-import ldbc.snb.datagen.objects.dynamic.person.Person;
 
-/**
- * Created by aprat on 11/17/14.
- */
 public class RandomKeySetter implements HadoopFileKeyChanger.KeySetter<TupleKey> {
 
     public TupleKey getKey(Object object) {

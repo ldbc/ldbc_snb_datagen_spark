@@ -35,23 +35,30 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer;
 
+import com.google.common.base.Joiner;
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.objects.dynamic.relations.Knows;
-import ldbc.snb.datagen.objects.dynamic.person.Person;
-import ldbc.snb.datagen.objects.dynamic.relations.StudyAt;
-import ldbc.snb.datagen.objects.dynamic.relations.WorkAt;
-import org.apache.hadoop.conf.Configuration;
+import ldbc.snb.datagen.entities.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.relations.Knows;
+import ldbc.snb.datagen.entities.dynamic.relations.StudyAt;
+import ldbc.snb.datagen.entities.dynamic.relations.WorkAt;
+import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
 
-import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
-/**
- * Created by aprat on 10/15/14.
- */
-abstract public class DynamicPersonSerializer {
+abstract public class DynamicPersonSerializer<TWriter extends HdfsWriter> extends LdbcSerializer<TWriter> {
+
+    abstract protected void serialize(final Person p);
+
+    abstract protected void serialize(final StudyAt studyAt);
+
+    abstract protected void serialize(final WorkAt workAt);
+
+    abstract protected void serialize(final Person p, final Knows knows);
 
     public void export(final Person person) {
-
         serialize(person);
 
         long universityId = Dictionaries.universities.getUniversityFromLocation(person.universityLocationId());
@@ -79,17 +86,27 @@ abstract public class DynamicPersonSerializer {
             serialize(p, k);
     }
 
-    abstract public void reset();
+    public String getGender(int gender) {
+        if (gender == 1) {
+            return "male";
+        } else {
+            return "female";
+        }
+    }
 
-    abstract public void initialize(Configuration conf, int reducerId) throws IOException;
+    public String buildLanguages(List<Integer> languages) {
+        return languages.stream()
+                .map(l -> Dictionaries.languages.getLanguageName(l))
+                .collect(Collectors.joining(";"));
+    }
 
-    abstract public void close();
+    public String buildEmail(TreeSet<String> emails) {
+        return Joiner.on(";").join(emails);
+    }
 
-    abstract protected void serialize(final Person p);
+    @Override
+    protected boolean isDynamic() {
+        return true;
+    }
 
-    abstract protected void serialize(final StudyAt studyAt);
-
-    abstract protected void serialize(final WorkAt workAt);
-
-    abstract protected void serialize(final Person p, final Knows knows);
 }

@@ -35,68 +35,40 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer.snb.turtle;
 
+import com.google.common.collect.ImmutableList;
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.hadoop.writer.HDFSWriter;
-import ldbc.snb.datagen.objects.dynamic.messages.Comment;
-import ldbc.snb.datagen.objects.dynamic.messages.Photo;
-import ldbc.snb.datagen.objects.dynamic.messages.Post;
-import ldbc.snb.datagen.objects.dynamic.relations.ForumMembership;
-import ldbc.snb.datagen.objects.dynamic.relations.Like;
-import ldbc.snb.datagen.objects.dynamic.Forum;
+import ldbc.snb.datagen.entities.dynamic.Forum;
+import ldbc.snb.datagen.entities.dynamic.messages.Comment;
+import ldbc.snb.datagen.entities.dynamic.messages.Photo;
+import ldbc.snb.datagen.entities.dynamic.messages.Post;
+import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
+import ldbc.snb.datagen.entities.dynamic.relations.Like;
+import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
-import ldbc.snb.datagen.vocabulary.*;
-import org.apache.hadoop.conf.Configuration;
+import ldbc.snb.datagen.serializer.snb.csv.FileName;
+import ldbc.snb.datagen.vocabulary.DBP;
+import ldbc.snb.datagen.vocabulary.RDF;
+import ldbc.snb.datagen.vocabulary.SN;
+import ldbc.snb.datagen.vocabulary.SNTAG;
+import ldbc.snb.datagen.vocabulary.SNVOC;
+import ldbc.snb.datagen.vocabulary.XSD;
 
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
+import java.util.List;
 
+import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
 
-/**
- * @author aprat
- */
-public class TurtleDynamicActivitySerializer extends DynamicActivitySerializer {
-    private HDFSWriter[] writers;
+public class TurtleDynamicActivitySerializer extends DynamicActivitySerializer<HdfsWriter> implements TurtleSerializer {
+
     private long membershipId = 0;
     private long likeId = 0;
-    private SimpleDateFormat dateTimeFormat = null;
 
-    private enum FileNames {
-        SOCIAL_NETWORK("social_network_activity");
-
-        private final String name;
-
-        private FileNames(String name) {
-            this.name = name;
-        }
-
-        public String toString() {
-            return name;
-        }
+    @Override
+    public List<FileName> getFileNames() {
+        return ImmutableList.of(SOCIAL_NETWORK_ACTIVITY);
     }
 
     @Override
-    public void initialize(Configuration conf, int reducerId) throws IOException {
-        dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-        dateTimeFormat .setTimeZone(TimeZone.getTimeZone("GMT"));
-        int numFiles = FileNames.values().length;
-        writers = new HDFSWriter[numFiles];
-        for (int i = 0; i < numFiles; ++i) {
-            writers[i] = new HDFSWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"), FileNames.values()[i]
-                    .toString() + "_" + reducerId, conf.getInt("ldbc.snb.datagen.numPartitions", 1), conf
-                                                .getBoolean("ldbc.snb.datagen.serializer.compressed", false), "ttl");
-            writers[i].writeAllPartitions(Turtle.getNamespaces());
-            writers[i].writeAllPartitions(Turtle.getStaticNamespaces());
-        }
-    }
-
-    @Override
-    public void close() {
-        int numFiles = FileNames.values().length;
-        for (int i = 0; i < numFiles; ++i) {
-            writers[i].close();
-        }
-    }
+    public void writeFileHeaders() { }
 
     protected void serialize(final Forum forum) {
 
@@ -111,7 +83,7 @@ public class TurtleDynamicActivitySerializer extends DynamicActivitySerializer {
         Turtle.addTriple(result, false, false, forumPrefix, SNVOC.title,
                          Turtle.createLiteral(forum.title()));
         Turtle.addTriple(result, false, true, forumPrefix, SNVOC.creationDate,
-                         Turtle.createDataTypeLiteral(dateTimeFormat.format(forum.creationDate()), XSD.DateTime));
+                         Turtle.createDataTypeLiteral(TurtleDateTimeFormat.get().format(forum.creationDate()), XSD.DateTime));
 
         Turtle.createTripleSPO(result, forumPrefix,
                                SNVOC.hasModerator, SN.getPersonURI(forum.moderator().accountId()));
@@ -120,7 +92,7 @@ public class TurtleDynamicActivitySerializer extends DynamicActivitySerializer {
             String topic = Dictionaries.tags.getName(tag);
             Turtle.createTripleSPO(result, forumPrefix, SNVOC.hasTag, SNTAG.fullPrefixed(topic));
         }
-        writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
+        writers.get(SOCIAL_NETWORK_ACTIVITY).write(result.toString());
     }
 
     protected void serialize(final Post post) {
@@ -135,7 +107,7 @@ public class TurtleDynamicActivitySerializer extends DynamicActivitySerializer {
                          Turtle.createDataTypeLiteral(Long.toString(post.messageId()), XSD.Long));
 
         Turtle.addTriple(result, false, false, prefix, SNVOC.creationDate,
-                         Turtle.createDataTypeLiteral(dateTimeFormat.format(post.creationDate()), XSD.DateTime));
+                         Turtle.createDataTypeLiteral(TurtleDateTimeFormat.get().format(post.creationDate()), XSD.DateTime));
 
         Turtle.addTriple(result, false, false, prefix, SNVOC.ipaddress,
                          Turtle.createLiteral(post.ipAddress().toString()));
@@ -160,7 +132,7 @@ public class TurtleDynamicActivitySerializer extends DynamicActivitySerializer {
             String topic = Dictionaries.tags.getName(tag);
             Turtle.createTripleSPO(result, prefix, SNVOC.hasTag, SNTAG.fullPrefixed(topic));
         }
-        writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
+        writers.get(SOCIAL_NETWORK_ACTIVITY).write(result.toString());
     }
 
     protected void serialize(final Comment comment) {
@@ -174,7 +146,7 @@ public class TurtleDynamicActivitySerializer extends DynamicActivitySerializer {
                          Turtle.createDataTypeLiteral(Long.toString(comment.messageId()), XSD.Long));
 
         Turtle.addTriple(result, false, false, prefix, SNVOC.creationDate,
-                         Turtle.createDataTypeLiteral(dateTimeFormat.format(comment.creationDate()), XSD.DateTime));
+                         Turtle.createDataTypeLiteral(TurtleDateTimeFormat.get().format(comment.creationDate()), XSD.DateTime));
         Turtle.addTriple(result, false, false, prefix, SNVOC.ipaddress,
                          Turtle.createLiteral(comment.ipAddress().toString()));
         Turtle.addTriple(result, false, false, prefix, SNVOC.browser,
@@ -197,7 +169,7 @@ public class TurtleDynamicActivitySerializer extends DynamicActivitySerializer {
             String topic = Dictionaries.tags.getName(tag);
             Turtle.createTripleSPO(result, prefix, SNVOC.hasTag, SNTAG.fullPrefixed(topic));
         }
-        writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
+        writers.get(SOCIAL_NETWORK_ACTIVITY).write(result.toString());
     }
 
     protected void serialize(final Photo photo) {
@@ -215,7 +187,7 @@ public class TurtleDynamicActivitySerializer extends DynamicActivitySerializer {
         Turtle.addTriple(result, false, false, prefix, SNVOC.browser,
                          Turtle.createLiteral(Dictionaries.browsers.getName(photo.browserId())));
         Turtle.addTriple(result, false, true, prefix, SNVOC.creationDate,
-                         Turtle.createDataTypeLiteral(dateTimeFormat.format(photo.creationDate()), XSD.DateTime));
+                         Turtle.createDataTypeLiteral(TurtleDateTimeFormat.get().format(photo.creationDate()), XSD.DateTime));
 
         Turtle.createTripleSPO(result, prefix, SNVOC.hasCreator, SN.getPersonURI(photo.author().accountId()));
         Turtle.createTripleSPO(result, SN.getForumURI(photo.forumId()), SNVOC.containerOf, prefix);
@@ -226,7 +198,7 @@ public class TurtleDynamicActivitySerializer extends DynamicActivitySerializer {
             String topic = Dictionaries.tags.getName(tag);
             Turtle.createTripleSPO(result, prefix, SNVOC.hasTag, SNTAG.fullPrefixed(topic));
         }
-        writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
+        writers.get(SOCIAL_NETWORK_ACTIVITY).write(result.toString());
     }
 
     protected void serialize(final ForumMembership membership) {
@@ -238,9 +210,9 @@ public class TurtleDynamicActivitySerializer extends DynamicActivitySerializer {
         Turtle.addTriple(result, true, false, memberhipPrefix, SNVOC.hasPerson, SN
                 .getPersonURI(membership.person().accountId()));
         Turtle.addTriple(result, false, true, memberhipPrefix, SNVOC.joinDate,
-                         Turtle.createDataTypeLiteral(dateTimeFormat.format(membership.creationDate()), XSD.DateTime));
+                         Turtle.createDataTypeLiteral(TurtleDateTimeFormat.get().format(membership.creationDate()), XSD.DateTime));
         membershipId++;
-        writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
+        writers.get(SOCIAL_NETWORK_ACTIVITY).write(result.toString());
     }
 
     protected void serialize(final Like like) {
@@ -258,15 +230,9 @@ public class TurtleDynamicActivitySerializer extends DynamicActivitySerializer {
             Turtle.addTriple(result, true, false, likePrefix, SNVOC.hasComment, prefix);
         }
         Turtle.addTriple(result, false, true, likePrefix, SNVOC.creationDate,
-                         Turtle.createDataTypeLiteral(dateTimeFormat.format(like.date), XSD.DateTime));
+                         Turtle.createDataTypeLiteral(TurtleDateTimeFormat.get().format(like.date), XSD.DateTime));
         likeId++;
-        writers[FileNames.SOCIAL_NETWORK.ordinal()].write(result.toString());
-    }
-
-    public void reset() {
-        likeId = 0;
-        membershipId = 0;
-
+        writers.get(SOCIAL_NETWORK_ACTIVITY).write(result.toString());
     }
 
 }

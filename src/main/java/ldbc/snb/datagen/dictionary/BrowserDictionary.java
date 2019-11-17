@@ -41,19 +41,20 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class BrowserDictionary {
 
     private static final String SEPARATOR_ = "  ";
-    private ArrayList<String> browsers_;
-    private ArrayList<Double> cumulativeDistribution_;
+    private List<String> browsers_;
+    private List<Double> cumulativeDistribution_;
     private double probAnotherBrowser_ = 0.0f;
 
     public BrowserDictionary(double probAnotherBrowser) {
         probAnotherBrowser_ = probAnotherBrowser;
-        browsers_ = new ArrayList<String>();
-        cumulativeDistribution_ = new ArrayList<Double>();
+        browsers_ = new ArrayList<>();
+        cumulativeDistribution_ = new ArrayList<>();
         load(DatagenParams.browserDictonryFile);
     }
 

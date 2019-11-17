@@ -35,9 +35,9 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.generators.textgenerators;
 
-import ldbc.snb.datagen.dictionary.TagDictionary;
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.objects.dynamic.person.Person.PersonSummary;
+import ldbc.snb.datagen.dictionary.TagDictionary;
+import ldbc.snb.datagen.entities.dynamic.person.Person.PersonSummary;
 import ldbc.snb.datagen.util.DistributionKey;
 
 import java.util.Properties;
@@ -75,7 +75,7 @@ public class TweetGenerator extends TextGenerator {
         Double numsentences = Double.valueOf(lengthtweet.nextDouble(this.random));
         for (int i = 0; i < numsentences; ++i) {
             Double numwords = Double.valueOf(lengthsentence.nextDouble(this.random));
-            // the number of hashtages depends on the number of words in the
+            // the number of hashtags depends on the number of words in the
             // sentence
             int numhashtags = (int) (numwords * 0.4);
             for (int j = 0; j < numhashtags; ++j) {

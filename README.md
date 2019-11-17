@@ -1,4 +1,4 @@
-gi![LDBC_LOGO](https://raw.githubusercontent.com/wiki/ldbc/ldbc_snb_datagen/images/ldbc-logo.png)
+![LDBC_LOGO](https://raw.githubusercontent.com/wiki/ldbc/ldbc_snb_datagen/images/ldbc-logo.png)
 
 LDBC-SNB Data Generator
 ----------------------
@@ -26,7 +26,7 @@ The LDBC-SNB Data Generator (Datagen) is the responsible of providing the data s
 Initialize the `params.ini` file as needed. For example, to generate the basic CSV files, issue:
 
 ```bash
-cp params-csv.ini params.ini
+cp params-csv-basic.ini params.ini
 ```
 
 There are three main ways to run Datagen, each using a different approach to configure the amount of memory available.
@@ -38,10 +38,10 @@ There are three main ways to run Datagen, each using a different approach to con
 ### Pseudo-distributed Hadoop node
 
 To configure the amount of memory available, set the `HADOOP_CLIENT_OPTS` environment variable.
-To grab Hadoop, extract it, and set the environment values to sensible defaults, and generate the data as specified in the `params-csv.ini` file, run the following script:
+To grab Hadoop, extract it, and set the environment values to sensible defaults, and generate the data as specified in the `params-csv-params.ini` template file, run the following script:
 
 ```bash
-cp params-csv.ini params.ini
+cp params-csv-basic.ini params.ini
 wget http://archive.apache.org/dist/hadoop/core/hadoop-3.2.1/hadoop-3.2.1.tar.gz
 tar xf hadoop-3.2.1.tar.gz
 export HADOOP_CLIENT_OPTS="-Xmx2G"
@@ -78,6 +78,12 @@ If you need to raise the memory limit, use the `-e HADOOP_CLIENT_OPTS="-Xmx..."`
 ### Hadoop cluster
 
 Instructions are currently not provided.
+
+### Graph schema
+
+The graph schema is as follows:
+
+![](https://raw.githubusercontent.com/ldbc/ldbc_snb_docs/dev/figures/schema-comfortable.png)
 
 ### Community provided tools
 

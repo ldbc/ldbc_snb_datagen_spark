@@ -41,9 +41,6 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-/**
- * Created by aprat on 12/17/14.
- */
 public class TupleKey implements WritableComparable<TupleKey> {
     public long key;
     public long id;

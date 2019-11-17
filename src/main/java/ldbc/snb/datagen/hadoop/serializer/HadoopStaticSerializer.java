@@ -35,13 +35,13 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop.serializer;
 
-import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.LDBCDatagen;
-import ldbc.snb.datagen.objects.statictype.Organisation;
-import ldbc.snb.datagen.objects.statictype.place.Place;
-import ldbc.snb.datagen.objects.statictype.tag.Tag;
-import ldbc.snb.datagen.objects.statictype.TagClass;
+import ldbc.snb.datagen.LdbcDatagen;
+import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.entities.statictype.Organisation;
+import ldbc.snb.datagen.entities.statictype.TagClass;
+import ldbc.snb.datagen.entities.statictype.place.Place;
+import ldbc.snb.datagen.entities.statictype.tag.Tag;
 import ldbc.snb.datagen.serializer.StaticSerializer;
 import ldbc.snb.datagen.util.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -50,9 +50,6 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
-/**
- * Created by aprat on 12/17/14.
- */
 public class HadoopStaticSerializer {
 
     private StaticSerializer[] staticSerializer_;
@@ -63,8 +60,8 @@ public class HadoopStaticSerializer {
 
     public HadoopStaticSerializer(Configuration conf) {
         conf_ = new Configuration(conf);
-        exportedClasses_ = new TreeSet<Integer>();
-        LDBCDatagen.initializeContext(conf_);
+        exportedClasses_ = new TreeSet<>();
+        LdbcDatagen.initializeContext(conf_);
     }
 
     public void run() throws Exception {

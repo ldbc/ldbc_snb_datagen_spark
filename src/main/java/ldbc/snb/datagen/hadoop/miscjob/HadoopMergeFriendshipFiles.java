@@ -35,13 +35,13 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop.miscjob;
 
-import ldbc.snb.datagen.LDBCDatagen;
+import ldbc.snb.datagen.LdbcDatagen;
+import ldbc.snb.datagen.entities.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.hadoop.HadoopBlockMapper;
 import ldbc.snb.datagen.hadoop.HadoopTuplePartitioner;
 import ldbc.snb.datagen.hadoop.key.TupleKey;
 import ldbc.snb.datagen.hadoop.miscjob.keychanger.HadoopFileKeyChanger;
-import ldbc.snb.datagen.objects.dynamic.relations.Knows;
-import ldbc.snb.datagen.objects.dynamic.person.Person;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
@@ -54,10 +54,8 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
-/**
- * Created by aprat on 29/07/15.
- */
 public class HadoopMergeFriendshipFiles {
 
     private Configuration conf;
@@ -71,7 +69,7 @@ public class HadoopMergeFriendshipFiles {
 
         protected void setup(Context context) {
             this.conf = context.getConfiguration();
-            LDBCDatagen.initializeContext(conf);
+            LdbcDatagen.initializeContext(conf);
             try {
                 this.keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(conf.get("postKeySetterName"))
                                                                        .newInstance();
@@ -85,7 +83,7 @@ public class HadoopMergeFriendshipFiles {
         public void reduce(TupleKey key, Iterable<Person> valueSet, Context context)
                 throws IOException, InterruptedException {
 
-            ArrayList<Knows> knows = new ArrayList<Knows>();
+            List<Knows> knows = new ArrayList<>();
             Person person = null;
             int index = 0;
             for (Person p : valueSet) {
@@ -130,7 +128,7 @@ public class HadoopMergeFriendshipFiles {
         this.postKeySetterName = postKeySetterName;
     }
 
-    public void run(String outputFileName, ArrayList<String> friendshipFileNames) throws Exception {
+    public void run(String outputFileName, List<String> friendshipFileNames) throws Exception {
 
         conf.set("postKeySetterName", postKeySetterName);
         int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads"));
@@ -140,7 +138,6 @@ public class HadoopMergeFriendshipFiles {
         job.setOutputKeyClass(TupleKey.class);
         job.setOutputValueClass(Person.class);
         job.setJarByClass(HadoopBlockMapper.class);
-        //job.setMapperClass(HadoopBlockMapper.class);
         job.setReducerClass(HadoopMergeFriendshipFilesReducer.class);
         job.setNumReduceTasks(numThreads);
         job.setInputFormatClass(SequenceFileInputFormat.class);

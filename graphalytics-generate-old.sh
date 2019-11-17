@@ -51,9 +51,9 @@ for VERSION in v0.2.1 v0.2.2 v0.2.3 v0.2.4 v0.2.5; do
     # vertices
     echo > params.ini
     echo ldbc.snb.datagen.generator.scaleFactor:graphalytics.$SCALE_FACTOR >> params.ini
-    echo ldbc.snb.datagen.serializer.dynamicPersonSerializer:ldbc.snb.datagen.serializer.snb.interactive.CSVDynamicPersonSerializer >> params.ini
-    echo ldbc.snb.datagen.serializer.staticSerializer:ldbc.snb.datagen.serializer.empty.EmptyStaticSerializer >> params.ini
-    echo ldbc.snb.datagen.serializer.dynamicActivitySerializer:ldbc.snb.datagen.serializer.empty.EmptyDynamicActivitySerializer >> params.ini
+    echo ldbc.snb.datagen.serializer.personSerializer:ldbc.snb.datagen.serializer.snb.interactive.CSVPersonSerializer >> params.ini
+    echo ldbc.snb.datagen.serializer.invariantSerializer:ldbc.snb.datagen.serializer.empty.EmptyInvariantSerializer >> params.ini
+    echo ldbc.snb.datagen.serializer.personActivitySerializer:ldbc.snb.datagen.serializer.empty.EmptyPersonActivitySerializer >> params.ini
 
     ./run.sh
     tail -n +2 social_network/person_0_0.csv | wc -l >> ../datagen-graphalytics.log
@@ -63,12 +63,12 @@ for VERSION in v0.2.1 v0.2.2 v0.2.3 v0.2.4 v0.2.5; do
     fi
 
     # edges
-    # from version 0.2.2, it's also possible to use the CSVDynamicPersonSerializerWithWeights serializer, which adds edge weights
+    # from version 0.2.2, it's also possible to use the CSVPersonSerializerWithWeights serializer, which adds edge weights
     echo > params.ini
     echo ldbc.snb.datagen.generator.scaleFactor:graphalytics.$SCALE_FACTOR >> params.ini
-    echo ldbc.snb.datagen.serializer.dynamicPersonSerializer:ldbc.snb.datagen.serializer.graphalytics.CSVDynamicPersonSerializer >> params.ini
-    echo ldbc.snb.datagen.serializer.staticSerializer:ldbc.snb.datagen.serializer.empty.EmptyStaticSerializer >> params.ini
-    echo ldbc.snb.datagen.serializer.dynamicActivitySerializer:ldbc.snb.datagen.serializer.empty.EmptyDynamicActivitySerializer >> params.ini
+    echo ldbc.snb.datagen.serializer.personSerializer:ldbc.snb.datagen.serializer.graphalytics.CSVPersonSerializer >> params.ini
+    echo ldbc.snb.datagen.serializer.invariantSerializer:ldbc.snb.datagen.serializer.empty.EmptyInvariantSerializer >> params.ini
+    echo ldbc.snb.datagen.serializer.personActivitySerializer:ldbc.snb.datagen.serializer.empty.EmptyPersonActivitySerializer >> params.ini
 
     ./run.sh
     tail -n +2 social_network/person_knows_person_0_0.csv | wc -l >> ../datagen-graphalytics.log
@@ -79,7 +79,7 @@ for VERSION in v0.2.1 v0.2.2 v0.2.3 v0.2.4 v0.2.5; do
 done
 
 # For versions 0.2.6-0.2.8, we only need a single run, which produces both the vertices and the edges
-# using the CSVDynamicPersonSerializerExtended class, which also produces edge weights
+# using the CSVPersonSerializerExtended class, which also produces edge weights
 for VERSION in v0.2.6 v0.2.7 v0.2.8; do
     echo $VERSION >> ../datagen-graphalytics.log
 
@@ -90,9 +90,9 @@ for VERSION in v0.2.6 v0.2.7 v0.2.8; do
     # vertices and edges
     echo > params.ini
     echo ldbc.snb.datagen.generator.scaleFactor:graphalytics.$SCALE_FACTOR >> params.ini
-    echo ldbc.snb.datagen.serializer.dynamicPersonSerializer:ldbc.snb.datagen.serializer.graphalytics.CSVDynamicPersonSerializerExtended >> params.ini
-    echo ldbc.snb.datagen.serializer.staticSerializer:ldbc.snb.datagen.serializer.empty.EmptyStaticSerializer >> params.ini
-    echo ldbc.snb.datagen.serializer.dynamicActivitySerializer:ldbc.snb.datagen.serializer.empty.EmptyDynamicActivitySerializer >> params.ini
+    echo ldbc.snb.datagen.serializer.personSerializer:ldbc.snb.datagen.serializer.graphalytics.CSVPersonSerializerExtended >> params.ini
+    echo ldbc.snb.datagen.serializer.invariantSerializer:ldbc.snb.datagen.serializer.empty.EmptyInvariantSerializer >> params.ini
+    echo ldbc.snb.datagen.serializer.personActivitySerializer:ldbc.snb.datagen.serializer.empty.EmptyPersonActivitySerializer >> params.ini
 
     ./run.sh
     tail -n +2 social_network/person_0_0.csv | wc -l >> ../datagen-graphalytics.log
