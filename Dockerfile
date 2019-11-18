@@ -1,4 +1,4 @@
-FROM ldbc/datagen-base:latest
+FROM ldbc/datagen-base:hadoop-3.2.1
 
 # Copy the project
 COPY . /opt/ldbc_snb_datagen
