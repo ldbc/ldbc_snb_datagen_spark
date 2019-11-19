@@ -43,25 +43,23 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Created by aprat on 27/06/16.
- */
 public class EmpiricalDistribution extends BucketedDistribution {
 
     private String fileName = null;
 
     @Override
-    public ArrayList<Bucket> getBuckets(Configuration conf) {
+    public List<Bucket> getBuckets(Configuration conf) {
         fileName = conf.get("ldbc.snb.datagen.generator.distribution.EmpiricalDistribution.fileName");
-        ArrayList<Pair<Integer, Integer>> histogram = new ArrayList<Pair<Integer, Integer>>();
+        List<Pair<Integer, Integer>> histogram = new ArrayList<>();
         try {
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));
             String line;
             while ((line = reader.readLine()) != null) {
                 String data[] = line.split(" ");
-                histogram.add(new Pair<Integer, Integer>(Integer.parseInt(data[0]), Integer.parseInt(data[1])));
+                histogram.add(new Pair<>(Integer.parseInt(data[0]), Integer.parseInt(data[1])));
             }
             reader.close();
             return Bucket.bucketizeHistogram(histogram, 1000);

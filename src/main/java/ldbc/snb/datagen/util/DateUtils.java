@@ -36,12 +36,15 @@
 package ldbc.snb.datagen.util;
 
 import ldbc.snb.datagen.DatagenParams;
+import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.generator.tools.PowerDistribution;
-import ldbc.snb.datagen.objects.dynamic.person.Person;
-import ldbc.snb.datagen.serializer.formatter.DateFormatter;
+import ldbc.snb.datagen.util.formatter.DateFormatter;
 import org.apache.hadoop.conf.Configuration;
 
-import java.util.*;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Random;
+import java.util.TimeZone;
 
 public class DateUtils {
 
@@ -205,7 +208,6 @@ public class DateUtils {
     public long getWorkFromYear(Random random, long classYear, long birthday) {
         long workYear = 0;
         if (classYear == -1) {
-            //long workingage = (random.nextInt(10) + 25) * ONE_YEAR;
             long workingage = 18 * ONE_YEAR;
             long from = birthday + workingage;
             workYear = Math.min((long) (random.nextDouble() * (to_ - from)) + from, to_);

@@ -35,32 +35,33 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.generators;
 
-import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.DatagenParams;
+import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.entities.dynamic.Forum;
+import ldbc.snb.datagen.entities.dynamic.messages.Comment;
+import ldbc.snb.datagen.entities.dynamic.messages.Message;
+import ldbc.snb.datagen.entities.dynamic.messages.Post;
+import ldbc.snb.datagen.entities.dynamic.person.IP;
+import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
+import ldbc.snb.datagen.entities.dynamic.relations.Like;
 import ldbc.snb.datagen.generator.generators.textgenerators.TextGenerator;
-import ldbc.snb.datagen.objects.dynamic.messages.Comment;
-import ldbc.snb.datagen.objects.dynamic.messages.Message;
-import ldbc.snb.datagen.objects.dynamic.messages.Post;
-import ldbc.snb.datagen.objects.dynamic.person.IP;
-import ldbc.snb.datagen.objects.dynamic.relations.ForumMembership;
-import ldbc.snb.datagen.objects.dynamic.relations.Like;
-import ldbc.snb.datagen.objects.dynamic.Forum;
 import ldbc.snb.datagen.serializer.PersonActivityExporter;
 import ldbc.snb.datagen.util.PersonBehavior;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.Random;
+import java.util.TreeSet;
 
-/**
- * @author aprat
- */
 public class CommentGenerator {
     private String[] shortComments_ = {"ok", "good", "great", "cool", "thx", "fine", "LOL", "roflol", "no way!", "I see", "right", "yes", "no", "duh", "thanks", "maybe"};
     private TextGenerator generator;
     private LikeGenerator likeGenerator_;
-    /* A set of random number generator for different purposes.*/
 
     public CommentGenerator(TextGenerator generator, LikeGenerator likeGenerator) {
         this.generator = generator;
@@ -69,7 +70,7 @@ public class CommentGenerator {
 
     public long createComments(RandomGeneratorFarm randomFarm, final Forum forum, final Post post, long numComments, long startId, PersonActivityExporter exporter) throws IOException {
         long nextId = startId;
-        ArrayList<Message> replyCandidates = new ArrayList<Message>();
+        List<Message> replyCandidates = new ArrayList<>();
         replyCandidates.add(post);
 
         Properties prop = new Properties();
@@ -77,7 +78,7 @@ public class CommentGenerator {
         for (int i = 0; i < numComments; ++i) {
             int replyIndex = randomFarm.get(RandomGeneratorFarm.Aspect.REPLY_TO).nextInt(replyCandidates.size());
             Message replyTo = replyCandidates.get(replyIndex);
-            ArrayList<ForumMembership> validMemberships = new ArrayList<ForumMembership>();
+            List<ForumMembership> validMemberships = new ArrayList<>();
             for (ForumMembership fM : forum.memberships()) {
                 if (fM.creationDate() + DatagenParams.deltaTime <= replyTo.creationDate()) {
                     validMemberships.add(fM);
@@ -88,14 +89,14 @@ public class CommentGenerator {
             }
             ForumMembership member = validMemberships.get(randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX)
                                                                     .nextInt(validMemberships.size()));
-            TreeSet<Integer> tags = new TreeSet<Integer>();
+            TreeSet<Integer> tags = new TreeSet<>();
             String content = "";
 
 
             boolean isShort = false;
             if (randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT).nextDouble() > 0.6666) {
 
-                ArrayList<Integer> currentTags = new ArrayList<Integer>();
+                List<Integer> currentTags = new ArrayList<>();
                 Iterator<Integer> it = replyTo.tags().iterator();
                 while (it.hasNext()) {
                     Integer tag = it.next();

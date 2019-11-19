@@ -42,6 +42,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
 
@@ -55,9 +56,9 @@ public class NamesDictionary {
     private static final int topN = 30;
 
     private PlaceDictionary locationDic;
-    private HashMap<Integer, Vector<String>> surNamesByLocations;
-    private Vector<HashMap<Integer, Vector<String>>> givenNamesByLocationsMale;    // Year / Location / Names
-    private Vector<HashMap<Integer, Vector<String>>> givenNamesByLocationsFemale;
+    private Map<Integer, Vector<String>> surNamesByLocations;
+    private Vector<Map<Integer, Vector<String>>> givenNamesByLocationsMale;    // Year / Location / Names
+    private Vector<Map<Integer, Vector<String>>> givenNamesByLocationsFemale;
     private GeometricDist geoDist;
 
     public NamesDictionary(PlaceDictionary locationDic) {
@@ -67,21 +68,21 @@ public class NamesDictionary {
     }
 
     private void init() {
-        surNamesByLocations = new HashMap<Integer, Vector<String>>();
+        surNamesByLocations = new HashMap<>();
         for (Integer id : locationDic.getCountries()) {
-            surNamesByLocations.put(id, new Vector<String>());
+            surNamesByLocations.put(id, new Vector<>());
         }
 
         //assume that there is only 2 periods of birthyears
         int birthYearPeriod = 2;
-        givenNamesByLocationsMale = new Vector<HashMap<Integer, Vector<String>>>(birthYearPeriod);
-        givenNamesByLocationsFemale = new Vector<HashMap<Integer, Vector<String>>>(birthYearPeriod);
+        givenNamesByLocationsMale = new Vector<>(birthYearPeriod);
+        givenNamesByLocationsFemale = new Vector<>(birthYearPeriod);
         for (int i = 0; i < birthYearPeriod; i++) {
-            givenNamesByLocationsMale.add(new HashMap<Integer, Vector<String>>());
-            givenNamesByLocationsFemale.add(new HashMap<Integer, Vector<String>>());
+            givenNamesByLocationsMale.add(new HashMap<>());
+            givenNamesByLocationsFemale.add(new HashMap<>());
             for (Integer id : locationDic.getCountries()) {
-                givenNamesByLocationsMale.lastElement().put(id, new Vector<String>());
-                givenNamesByLocationsFemale.lastElement().put(id, new Vector<String>());
+                givenNamesByLocationsMale.lastElement().put(id, new Vector<>());
+                givenNamesByLocationsFemale.lastElement().put(id, new Vector<>());
             }
         }
 
@@ -180,7 +181,7 @@ public class NamesDictionary {
     public String getRandomGivenName(Random random, int locationId, boolean isMale, int birthYear) {
         String name = "";
         int period = (birthYear < 1985) ? 0 : 1;
-        Vector<HashMap<Integer, Vector<String>>> target = (isMale) ? givenNamesByLocationsMale : givenNamesByLocationsFemale;
+        Vector<Map<Integer, Vector<String>>> target = (isMale) ? givenNamesByLocationsMale : givenNamesByLocationsFemale;
 
         // Note that, only vector of names for the first period contains list of names not in topN
         int nameId = getGeoDistRandomIdx(random, target.get(0).get(locationId).size());
@@ -199,7 +200,7 @@ public class NamesDictionary {
      */
     public String getMedianGivenName(int locationId, boolean isMale, int birthYear) {
         int period = 0;
-        Vector<HashMap<Integer, Vector<String>>> target = (isMale) ? givenNamesByLocationsMale : givenNamesByLocationsFemale;
+        Vector<Map<Integer, Vector<String>>> target = (isMale) ? givenNamesByLocationsMale : givenNamesByLocationsFemale;
         int size = target.get(period).get(locationId).size();
         String name = target.get(period).get(locationId).get(size / 2);
         return name;

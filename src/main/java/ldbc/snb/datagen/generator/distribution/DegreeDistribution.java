@@ -37,9 +37,6 @@ package ldbc.snb.datagen.generator.distribution;
 
 import org.apache.hadoop.conf.Configuration;
 
-/**
- * @author aprat
- */
 public abstract class DegreeDistribution {
 
     public abstract void initialize(Configuration conf);

@@ -35,19 +35,19 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop.generator;
 
-import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.LDBCDatagen;
+import ldbc.snb.datagen.LdbcDatagen;
+import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.entities.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.generator.generators.PersonActivityGenerator;
 import ldbc.snb.datagen.hadoop.HadoopBlockMapper;
 import ldbc.snb.datagen.hadoop.HadoopBlockPartitioner;
+import ldbc.snb.datagen.hadoop.key.TupleKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyComparator;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyGroupComparator;
-import ldbc.snb.datagen.hadoop.key.TupleKey;
 import ldbc.snb.datagen.hadoop.miscjob.HadoopFileRanker;
-import ldbc.snb.datagen.objects.dynamic.relations.Knows;
-import ldbc.snb.datagen.objects.dynamic.person.Person;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
 import ldbc.snb.datagen.serializer.UpdateEventSerializer;
 import org.apache.hadoop.conf.Configuration;
@@ -64,10 +64,8 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.List;
 
-/**
- * @author aprat
- */
 public class HadoopPersonActivityGenerator {
 
     private Configuration conf;
@@ -90,7 +88,7 @@ public class HadoopPersonActivityGenerator {
             System.out.println("Setting up reducer for person activity generation");
             Configuration conf = context.getConfiguration();
             reducerId = context.getTaskAttemptID().getTaskID().getId();
-            LDBCDatagen.initializeContext(conf);
+            LdbcDatagen.initializeContext(conf);
             try {
                 dynamicActivitySerializer_ = (DynamicActivitySerializer) Class
                         .forName(conf.get("ldbc.snb.datagen.serializer.dynamicActivitySerializer")).newInstance();
@@ -117,7 +115,7 @@ public class HadoopPersonActivityGenerator {
         public void reduce(BlockKey key, Iterable<Person> valueSet, Context context)
                 throws IOException, InterruptedException {
             System.out.println("Reducing block " + key.block);
-            ArrayList<Person> persons = new ArrayList<Person>();
+            List<Person> persons = new ArrayList<>();
             for (Person p : valueSet) {
                 persons.add(new Person(p));
 

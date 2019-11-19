@@ -35,22 +35,19 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.generators;
 
-import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.DatagenParams;
+import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.generator.distribution.DegreeDistribution;
 import ldbc.snb.datagen.generator.tools.PowerDistribution;
-import ldbc.snb.datagen.objects.dynamic.person.Person;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
 import org.apache.hadoop.conf.Configuration;
 
 import java.text.Normalizer;
-import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.List;
 
-/**
- * Created by aprat on 10/7/14.
- */
 public class PersonGenerator {
 
     private DegreeDistribution degreeDistribution_ = null;
@@ -122,19 +119,16 @@ public class PersonGenerator {
 
         int numEmails = randomFarm.get(RandomGeneratorFarm.Aspect.EXTRA_INFO).nextInt(DatagenParams.maxEmails) + 1;
         double prob = randomFarm.get(RandomGeneratorFarm.Aspect.EXTRA_INFO).nextDouble();
-        /*if (prob >= DatagenParams.missingRatio)*/
-        {
-            String base = person.firstName();
-            base = Normalizer.normalize(base, Normalizer.Form.NFD);
-            base = base.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
-            base = base.replaceAll(" ", ".");
-            base = base.replaceAll("[.]+", ".");
-            for (int i = 0; i < numEmails; i++) {
-                String email = base + "" + person.accountId() + "@" +
-                        Dictionaries.emails.getRandomEmail(randomFarm.get(RandomGeneratorFarm.Aspect.TOP_EMAIL),
-                                                           randomFarm.get(RandomGeneratorFarm.Aspect.EMAIL));
-                person.emails().add(email);
-            }
+        String base = person.firstName();
+        base = Normalizer.normalize(base, Normalizer.Form.NFD);
+        base = base.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+        base = base.replaceAll(" ", ".");
+        base = base.replaceAll("[.]+", ".");
+        for (int i = 0; i < numEmails; i++) {
+            String email = base + "" + person.accountId() + "@" +
+                    Dictionaries.emails.getRandomEmail(randomFarm.get(RandomGeneratorFarm.Aspect.TOP_EMAIL),
+                                                       randomFarm.get(RandomGeneratorFarm.Aspect.EMAIL));
+            person.emails().add(email);
         }
 
         // Set class year
@@ -162,7 +156,7 @@ public class PersonGenerator {
             }
         }
 
-        ArrayList<Integer> userLanguages = Dictionaries.languages.getLanguages(randomFarm
+        List<Integer> userLanguages = Dictionaries.languages.getLanguages(randomFarm
                                                                                        .get(RandomGeneratorFarm.Aspect.LANGUAGE),
                                                                                person.countryId());
         int internationalLang = Dictionaries.languages.getInternationlLanguage(randomFarm
@@ -202,7 +196,6 @@ public class PersonGenerator {
         block = new Person[blockSize];
         for (int j = 0; j < blockSize; ++j) {
             block[j] = generateUser();
-//            System.out.println(j);
         }
         return block;
     }

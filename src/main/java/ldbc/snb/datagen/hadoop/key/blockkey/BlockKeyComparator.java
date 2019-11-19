@@ -38,9 +38,6 @@ package ldbc.snb.datagen.hadoop.key.blockkey;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 
-/**
- * Created by aprat on 11/9/14.
- */
 public class BlockKeyComparator extends WritableComparator {
 
     protected BlockKeyComparator() {
@@ -49,7 +46,6 @@ public class BlockKeyComparator extends WritableComparator {
 
     @Override
     public int compare(WritableComparable a, WritableComparable b) {
-        //return a.compareTo(b);
         BlockKey keyA = (BlockKey) a;
         BlockKey keyB = (BlockKey) b;
         if (keyA.block < keyB.block) return -1;

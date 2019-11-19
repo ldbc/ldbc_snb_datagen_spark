@@ -35,16 +35,17 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop.generator;
 
+import ldbc.snb.datagen.LdbcDatagen;
+import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.generator.generators.knowsgenerators.KnowsGenerator;
-import ldbc.snb.datagen.LDBCDatagen;
-import ldbc.snb.datagen.hadoop.*;
+import ldbc.snb.datagen.hadoop.HadoopBlockMapper;
+import ldbc.snb.datagen.hadoop.HadoopBlockPartitioner;
+import ldbc.snb.datagen.hadoop.key.TupleKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyComparator;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyGroupComparator;
-import ldbc.snb.datagen.hadoop.key.TupleKey;
-import ldbc.snb.datagen.hadoop.miscjob.keychanger.HadoopFileKeyChanger;
 import ldbc.snb.datagen.hadoop.miscjob.HadoopFileRanker;
-import ldbc.snb.datagen.objects.dynamic.person.Person;
+import ldbc.snb.datagen.hadoop.miscjob.keychanger.HadoopFileKeyChanger;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -57,17 +58,15 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Created by aprat on 11/17/14.
- */
 public class HadoopKnowsGenerator {
 
     private Configuration conf;
     private String preKeySetterName;
     private String postKeySetterName;
     private String knowsGeneratorName;
-    private ArrayList<Float> percentages;
+    private List<Float> percentages;
     private int step_index;
 
 
@@ -79,21 +78,20 @@ public class HadoopKnowsGenerator {
          **/
         private Configuration conf;
         private HadoopFileKeyChanger.KeySetter<TupleKey> keySetter = null;
-        private ArrayList<Float> percentages;
+        private List<Float> percentages;
         private int step_index;
         private int numGeneratedEdges = 0;
 
         protected void setup(Context context) {
-            //this.knowsGenerator = new DistanceKnowsGenerator();
             this.conf = context.getConfiguration();
-            LDBCDatagen.initializeContext(conf);
+            LdbcDatagen.initializeContext(conf);
             try {
                 this.knowsGenerator = (KnowsGenerator) Class.forName(conf.get("knowsGeneratorName")).newInstance();
                 this.knowsGenerator.initialize(conf);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
-            this.percentages = new ArrayList<Float>();
+            this.percentages = new ArrayList<>();
             this.step_index = conf.getInt("stepIndex", 0);
             float p = conf.getFloat("percentage0", 0.0f);
             int index = 1;
@@ -114,7 +112,7 @@ public class HadoopKnowsGenerator {
         @Override
         public void reduce(BlockKey key, Iterable<Person> valueSet, Context context)
                 throws IOException, InterruptedException {
-            ArrayList<Person> persons = new ArrayList<Person>();
+            List<Person> persons = new ArrayList<>();
             for (Person p : valueSet) {
                 persons.add(new Person(p));
             }
@@ -132,7 +130,7 @@ public class HadoopKnowsGenerator {
     }
 
 
-    public HadoopKnowsGenerator(Configuration conf, String preKeySetterName, String postKeySetterName, ArrayList<Float> percentages, int step_index, String knowsGeneratorName) {
+    public HadoopKnowsGenerator(Configuration conf, String preKeySetterName, String postKeySetterName, List<Float> percentages, int step_index, String knowsGeneratorName) {
         this.conf = new Configuration(conf);
         this.preKeySetterName = preKeySetterName;
         this.postKeySetterName = postKeySetterName;
@@ -142,30 +140,14 @@ public class HadoopKnowsGenerator {
     }
 
     public void run(String inputFileName, String outputFileName) throws Exception {
-
-
         FileSystem fs = FileSystem.get(conf);
-
-        /*String keyChangedFileName = inputFileName;
-        if(preKeySetterName != null) {
-            System.out.println("Changing key of persons");
-            long start = System.currentTimeMillis();
-            keyChangedFileName = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/key_changed";
-            HadoopFileKeyChanger keyChanger = new HadoopFileKeyChanger(conf, TupleKey.class, Person.class, preKeySetterName);
-            keyChanger.run(inputFileName, keyChangedFileName);
-            System.out.println("... Time to change keys: "+ (System.currentTimeMillis() - start)+" ms");
-        }
-        */
 
         System.out.println("Ranking persons");
         long start = System.currentTimeMillis();
         String rankedFileName = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/ranked";
         HadoopFileRanker hadoopFileRanker = new HadoopFileRanker(conf, TupleKey.class, Person.class, preKeySetterName);
         hadoopFileRanker.run(inputFileName, rankedFileName);
-/*        if(preKeySetterName != null ) {
-            fs.delete(new Path(keyChangedFileName), true);
-        }
-        */
+
         System.out.println("... Time to rank persons: " + (System.currentTimeMillis() - start) + " ms");
 
         conf.setInt("stepIndex", step_index);

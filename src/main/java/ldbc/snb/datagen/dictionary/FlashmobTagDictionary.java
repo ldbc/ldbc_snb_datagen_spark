@@ -35,11 +35,18 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.dictionary;
 
-import ldbc.snb.datagen.util.DateUtils;
+import ldbc.snb.datagen.entities.statictype.tag.FlashmobTag;
 import ldbc.snb.datagen.generator.tools.PowerDistribution;
-import ldbc.snb.datagen.objects.statictype.tag.FlashmobTag;
+import ldbc.snb.datagen.util.DateUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
+import java.util.TreeSet;
 
 public class FlashmobTagDictionary {
 
@@ -59,7 +66,7 @@ public class FlashmobTagDictionary {
     /**
      * < @brief The tag dictionary used to create the flashmob tags.
      */
-    private HashMap<Integer, ArrayList<FlashmobTag>> flashmobTags;
+    private Map<Integer, List<FlashmobTag>> flashmobTags;
     /**
      * < @brief A map of identifiers of tags to flashmob tag instances.
      */
@@ -94,7 +101,7 @@ public class FlashmobTagDictionary {
         this.dateGen = dateGen;
         this.levelGenerator = new PowerDistribution(flashmobTagMinLevel, flashmobTagMaxLevel, flashmobTagDistExp);
         this.random = new Random(0);
-        this.flashmobTags = new HashMap<Integer, ArrayList<FlashmobTag>>();
+        this.flashmobTags = new HashMap<>();
         this.flashmobTagsPerMonth = flashmobTagsPerMonth;
         this.probInterestFlashmobTag = probInterestFlashmobTag;
         this.probRandomPerLevel = probRandomPerLevel;
@@ -110,9 +117,9 @@ public class FlashmobTagDictionary {
         flashmobTagCumDist = new FlashmobTag[numFlashmobTags];
         double sumLevels = 0;
         for (int i = 0; i < numFlashmobTags; ++i) {
-            ArrayList<FlashmobTag> instances = flashmobTags.get(tags[i]);
+            List<FlashmobTag> instances = flashmobTags.get(tags[i]);
             if (instances == null) {
-                instances = new ArrayList<FlashmobTag>();
+                instances = new ArrayList<>();
                 flashmobTags.put(tags[i], instances);
             }
             FlashmobTag flashmobTag = new FlashmobTag();
@@ -129,7 +136,7 @@ public class FlashmobTagDictionary {
         double currentProb = 0.0;
         for (int i = 0; i < size; ++i) {
             flashmobTagCumDist[i].prob = currentProb;
-            currentProb += (double) (flashmobTagCumDist[i].level) / (double) (sumLevels);
+            currentProb += (double) (flashmobTagCumDist[i].level) / sumLevels;
         }
     }
 
@@ -168,12 +175,12 @@ public class FlashmobTagDictionary {
      * @param[in] interests The set of interests.
      * @param[in] fromDate The date from which to consider the flashmob tags.
      */
-    public ArrayList<FlashmobTag> generateFlashmobTags(Random rand, TreeSet<Integer> interests, long fromDate) {
-        ArrayList<FlashmobTag> result = new ArrayList<FlashmobTag>();
+    public List<FlashmobTag> generateFlashmobTags(Random rand, TreeSet<Integer> interests, long fromDate) {
+        List<FlashmobTag> result = new ArrayList<>();
         Iterator<Integer> it = interests.iterator();
         while (it.hasNext()) {
             Integer tag = it.next();
-            ArrayList<FlashmobTag> instances = flashmobTags.get(tag);
+            List<FlashmobTag> instances = flashmobTags.get(tag);
             if (instances != null) {
                 Iterator<FlashmobTag> it2 = instances.iterator();
                 while (it2.hasNext()) {
@@ -193,7 +200,4 @@ public class FlashmobTagDictionary {
         return result;
     }
 
-    public FlashmobTag[] getFlashmobTags() {
-        return flashmobTagCumDist;
-    }
 }

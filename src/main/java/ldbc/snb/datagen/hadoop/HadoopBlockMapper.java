@@ -35,18 +35,15 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop;
 
-import ldbc.snb.datagen.hadoop.key.blockkey.BlockKey;
+import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.hadoop.key.TupleKey;
-import ldbc.snb.datagen.objects.dynamic.person.Person;
+import ldbc.snb.datagen.hadoop.key.blockkey.BlockKey;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
 
-/**
- * Created by aprat on 11/17/14.
- */
 public class HadoopBlockMapper extends Mapper<LongWritable, Person, BlockKey, Person> {
 
     private int blockSize = 0;

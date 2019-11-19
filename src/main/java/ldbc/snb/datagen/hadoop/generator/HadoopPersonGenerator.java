@@ -36,11 +36,11 @@
 package ldbc.snb.datagen.hadoop.generator;
 
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.LDBCDatagen;
+import ldbc.snb.datagen.LdbcDatagen;
+import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.generator.generators.PersonGenerator;
-import ldbc.snb.datagen.hadoop.miscjob.keychanger.HadoopFileKeyChanger;
 import ldbc.snb.datagen.hadoop.key.TupleKey;
-import ldbc.snb.datagen.objects.dynamic.person.Person;
+import ldbc.snb.datagen.hadoop.miscjob.keychanger.HadoopFileKeyChanger;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -57,9 +57,6 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import java.io.IOException;
 import java.io.OutputStream;
 
-/**
- * Created by aprat on 8/8/14.
- */
 public class HadoopPersonGenerator {
 
     private Configuration conf = null;
@@ -85,7 +82,7 @@ public class HadoopPersonGenerator {
 
             int threadId = Integer.parseInt(value.toString());
             System.out.println("Generating user at mapper " + threadId);
-            LDBCDatagen.initializeContext(conf);
+            LdbcDatagen.initializeContext(conf);
             if (DatagenParams.numPersons % DatagenParams.cellSize != 0) {
                 throw new InterruptedException("Number of users should be a multiple of the cellsize");
             }
@@ -154,7 +151,7 @@ public class HadoopPersonGenerator {
      */
     public void run(String outputFileName, String postKeySetterName) throws Exception {
 
-        String hadoopDir = new String(conf.get("ldbc.snb.datagen.serializer.hadoopDir"));
+        String hadoopDir = conf.get("ldbc.snb.datagen.serializer.hadoopDir");
         String tempFile = hadoopDir + "/mrInputFile";
 
         FileSystem dfs = FileSystem.get(conf);

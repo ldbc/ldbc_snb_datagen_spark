@@ -35,20 +35,25 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer;
 
-import ldbc.snb.datagen.hadoop.UpdateEvent;
-import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.DatagenParams;
+import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.entities.dynamic.Forum;
+import ldbc.snb.datagen.entities.dynamic.messages.Comment;
+import ldbc.snb.datagen.entities.dynamic.messages.Photo;
+import ldbc.snb.datagen.entities.dynamic.messages.Post;
+import ldbc.snb.datagen.entities.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
+import ldbc.snb.datagen.entities.dynamic.relations.Knows;
+import ldbc.snb.datagen.entities.dynamic.relations.Like;
+import ldbc.snb.datagen.hadoop.UpdateEvent;
 import ldbc.snb.datagen.hadoop.key.updatekey.UpdateEventKey;
-import ldbc.snb.datagen.objects.dynamic.messages.Comment;
-import ldbc.snb.datagen.objects.dynamic.messages.Photo;
-import ldbc.snb.datagen.objects.dynamic.messages.Post;
-import ldbc.snb.datagen.objects.dynamic.person.Person;
-import ldbc.snb.datagen.objects.dynamic.relations.ForumMembership;
-import ldbc.snb.datagen.objects.dynamic.relations.Knows;
-import ldbc.snb.datagen.objects.dynamic.relations.Like;
-import ldbc.snb.datagen.objects.dynamic.Forum;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.*;
+import org.apache.hadoop.fs.CreateFlag;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FileContext;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Options;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.SequenceFile.CompressionType;
 import org.apache.hadoop.io.Text;
@@ -58,17 +63,15 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Properties;
 
-/**
- * Created by aprat on 3/27/14.
- */
 public class UpdateEventSerializer {
 
 
     private SequenceFile.Writer streamWriter_[];
-    private ArrayList<String> data_;
-    private ArrayList<String> list_;
+    private List<String> data_;
+    private List<String> list_;
     private UpdateEvent currentEvent_;
     private int numPartitions_ = 1;
     private int nextPartition_ = 0;
@@ -89,8 +92,8 @@ public class UpdateEventSerializer {
         conf_ = conf;
         reducerId_ = reducerId;
         stringBuffer_ = new StringBuffer(512);
-        data_ = new ArrayList<String>();
-        list_ = new ArrayList<String>();
+        data_ = new ArrayList<>();
+        list_ = new ArrayList<>();
         currentEvent_ = new UpdateEvent(-1, -1, UpdateEvent.UpdateEventType.NO_EVENT, new String(""));
         numPartitions_ = numPartitions;
         stats_ = new UpdateStreamStats();
@@ -148,7 +151,7 @@ public class UpdateEventSerializer {
         }
     }
 
-    private String formatStringArray(ArrayList<String> array, String separator) {
+    private String formatStringArray(List<String> array, String separator) {
         if (array.size() == 0) return "";
         stringBuffer_.setLength(0);
         for (String s : array) {
@@ -253,7 +256,7 @@ public class UpdateEventSerializer {
         beginList();
         int universityId = person.universityLocationId();
         if (universityId != -1 && person.classYear() != -1) {
-            ArrayList<String> studyAtData = new ArrayList<String>();
+            List<String> studyAtData = new ArrayList<>();
             studyAtData.add(Long.toString(Dictionaries.universities.getUniversityFromLocation(universityId)));
             studyAtData.add(Dictionaries.dates.formatYear(person.classYear()));
             list_.add(formatStringArray(studyAtData, ","));
@@ -262,7 +265,7 @@ public class UpdateEventSerializer {
 
         beginList();
         for (Long companyId : person.companies().keySet()) {
-            ArrayList<String> workAtData = new ArrayList<String>();
+            List<String> workAtData = new ArrayList<>();
             workAtData.add(Long.toString(companyId));
             workAtData.add(Dictionaries.dates.formatYear(person.companies().get(companyId)));
             list_.add(formatStringArray(workAtData, ","));

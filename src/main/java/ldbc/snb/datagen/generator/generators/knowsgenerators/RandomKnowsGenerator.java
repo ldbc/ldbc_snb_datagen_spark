@@ -35,18 +35,16 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.generators.knowsgenerators;
 
-import ldbc.snb.datagen.objects.dynamic.relations.Knows;
-import ldbc.snb.datagen.objects.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import org.apache.hadoop.conf.Configuration;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 
-/**
- * Created by aprat on 11/15/14.
- */
 public class RandomKnowsGenerator implements KnowsGenerator {
 
     private Random rand;
@@ -55,10 +53,10 @@ public class RandomKnowsGenerator implements KnowsGenerator {
         rand = new Random();
     }
 
-    public void generateKnows(ArrayList<Person> persons, int seed, ArrayList<Float> percentages, int step_index) {
+    public void generateKnows(List<Person> persons, int seed, List<Float> percentages, int step_index) {
 
         rand.setSeed(seed);
-        ArrayList<Integer> stubs = new ArrayList<Integer>();
+        List<Integer> stubs = new ArrayList<>();
         int index = 0;
         for (Person p : persons) {
             long degree = Knows.targetEdges(p, percentages, step_index);

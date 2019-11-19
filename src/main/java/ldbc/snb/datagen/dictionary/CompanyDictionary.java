@@ -42,6 +42,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -60,7 +61,7 @@ public class CompanyDictionary {
     /**
      * < @brief A map containing the location of each company. *
      */
-    private TreeMap<Integer, ArrayList<Long>> companiesByCountry;
+    private TreeMap<Integer, List<Long>> companiesByCountry;
     /**
      * < @brief A map containing the companies of each country. *
      */
@@ -79,11 +80,11 @@ public class CompanyDictionary {
 
         this.placeDictionary = placeDictionary;
         this.probUnCorrelatedCompany = probUnCorrelatedCompany;
-        this.companyName = new TreeMap<Long, String>();
-        this.companyCountry = new TreeMap<Long, Integer>();
-        this.companiesByCountry = new TreeMap<Integer, ArrayList<Long>>();
+        this.companyName = new TreeMap<>();
+        this.companyCountry = new TreeMap<>();
+        this.companiesByCountry = new TreeMap<>();
         for (Integer id : placeDictionary.getCountries()) {
-            this.companiesByCountry.put(id, new ArrayList<Long>());
+            this.companiesByCountry.put(id, new ArrayList<>());
         }
         load(DatagenParams.companiesDictionaryFile);
     }
@@ -135,7 +136,7 @@ public class CompanyDictionary {
      */
     public long getRandomCompany(RandomGeneratorFarm randomFarm, int countryId) {
         int locId = countryId;
-        ArrayList<Integer> countries = placeDictionary.getCountries();
+        List<Integer> countries = placeDictionary.getCountries();
         if (randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_COMPANY).nextDouble() <= probUnCorrelatedCompany) {
             locId = countries.get(randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_COMPANY_LOCATION)
                                             .nextInt(countries.size()));
