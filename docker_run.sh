@@ -8,7 +8,7 @@ if [ ! -f /opt/ldbc_snb_datagen/params.ini ]; then
 fi
 
 # Running the generator
-/opt/hadoop-2.9.2/bin/hadoop jar /opt/ldbc_snb_datagen/target/ldbc_snb_datagen-0.4.0-SNAPSHOT-jar-with-dependencies.jar /opt/ldbc_snb_datagen/params.ini
+/opt/hadoop-3.2.1/bin/hadoop jar /opt/ldbc_snb_datagen/target/ldbc_snb_datagen-0.4.0-SNAPSHOT-jar-with-dependencies.jar /opt/ldbc_snb_datagen/params.ini
 
 # Cleanup
 rm -f m*personFactors*
