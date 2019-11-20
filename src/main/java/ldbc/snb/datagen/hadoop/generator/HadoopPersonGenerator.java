@@ -72,8 +72,7 @@ public class HadoopPersonGenerator {
             Configuration conf = context.getConfiguration();
 
             try {
-                this.keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(conf.get("postKeySetterName"))
-                                                                       .newInstance();
+                this.keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(conf.get("postKeySetterName")).newInstance();
             } catch (Exception e) {
                 System.err.println("Error when setting key setter");
                 System.err.println(e.getMessage());

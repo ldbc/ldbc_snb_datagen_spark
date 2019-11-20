@@ -334,7 +334,16 @@ public class LdbcDatagen {
 
     }
 
-    public static void main(String[] args) throws Exception {
+
+    public int sortDynamicData(Configuration conf) throws Exception {
+        String hadoopPrefix = conf.get("ldbc.snb.datagen.serializer.hadoopDir");
+        FileSystem fs = FileSystem.get(conf);
+        System.out.println(hadoopPrefix);
+        return 0;
+
+    }
+
+        public static void main(String[] args) throws Exception {
 
         try {
             Configuration conf = ConfigParser.initialize();
@@ -345,6 +354,7 @@ public class LdbcDatagen {
             LdbcDatagen.initializeContext(conf);
             LdbcDatagen datagen = new LdbcDatagen();
             datagen.runGenerateJob(conf);
+            datagen.sortDynamicData(conf);
         } catch (Exception e) {
             System.err.println("Error during execution");
             System.err.println(e.getMessage());
