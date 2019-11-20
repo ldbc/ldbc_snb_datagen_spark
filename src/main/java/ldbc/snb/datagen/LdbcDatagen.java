@@ -343,8 +343,7 @@ public class LdbcDatagen {
 
     }
 
-        public static void main(String[] args) throws Exception {
-
+    public static void main(String[] args) throws Exception {
         try {
             Configuration conf = ConfigParser.initialize();
             ConfigParser.readConfig(conf, args[0]);
