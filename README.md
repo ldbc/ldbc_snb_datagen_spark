@@ -42,11 +42,11 @@ To grab Hadoop, extract it, and set the environment values to sensible defaults,
 
 ```bash
 cp params-csv-basic.ini params.ini
-wget http://archive.apache.org/dist/hadoop/core/hadoop-2.9.2/hadoop-2.9.2.tar.gz
-tar xf hadoop-2.9.2.tar.gz
+wget http://archive.apache.org/dist/hadoop/core/hadoop-3.2.1/hadoop-3.2.1.tar.gz
+tar xf hadoop-3.2.1.tar.gz
 export HADOOP_CLIENT_OPTS="-Xmx2G"
-# set this to the Hadoop 2.9.2 directory
-export HADOOP_HOME=`pwd`/hadoop-2.9.2
+# set this to the Hadoop 3.2.1 directory
+export HADOOP_HOME=`pwd`/hadoop-3.2.1
 # set this to the repository's directory
 export LDBC_SNB_DATAGEN_HOME=`pwd`
 ./run.sh
@@ -66,10 +66,13 @@ docker build . --tag ldbc/datagen
 
 Set the `params.ini` in the repository as for the pseudo-distributed case. The file will be mounted in the container by the `--mount type=bind,source="$(pwd)/params.ini,target="/opt/ldbc_snb_datagen/params.ini"` option. If required, the source path can be set to a different path.
 
-The container outputs its results in the `/opt/ldbc_snb_datagen/out/` directory which contains two sub-directories, `social_network/` and `subsitution_parameters`. In order to save the results of the generation, a directory must be mounted in the container from the host. The driver requires the results be in the datagen repository directory. To generate the data, run the following command which includes changing the owner (`chown`) of the Docker-mounted volumes:
+The container outputs its results in the `/opt/ldbc_snb_datagen/out/` directory which contains two sub-directories, `social_network/` and `substitution_parameters`. In order to save the results of the generation, a directory must be mounted in the container from the host. The driver requires the results be in the datagen repository directory. To generate the data, run the following command which includes changing the owner (`chown`) of the Docker-mounted volumes.
+
+:warning: This removes the previously generated `social_network` directory:
 
 ```bash
-docker run --rm --mount type=bind,source="$(pwd)/",target="/opt/ldbc_snb_datagen/out" --mount type=bind,source="$(pwd)/params.ini",target="/opt/ldbc_snb_datagen/params.ini" ldbc/datagen && \
+rm -rf social_network/ substitution_parameters && \
+  docker run --rm --mount type=bind,source="$(pwd)/",target="/opt/ldbc_snb_datagen/out" --mount type=bind,source="$(pwd)/params.ini",target="/opt/ldbc_snb_datagen/params.ini" ldbc/datagen; \
   sudo chown -R $USER:$USER social_network/ substitution_parameters/
 ```
 
