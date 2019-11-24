@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script generates old versions of Graphalytics data sets.
+# This script generates old versions of Graphalytics datasets.
 # Beware that the script cleans the current git repository and discards any changes.
 
 # To run this script:

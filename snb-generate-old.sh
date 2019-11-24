@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script generates old versions of SNB data sets.
+# This script generates old versions of SNB datasets.
 # Beware that the script cleans the current git repository and discards any changes.
 
 # To run this script:
