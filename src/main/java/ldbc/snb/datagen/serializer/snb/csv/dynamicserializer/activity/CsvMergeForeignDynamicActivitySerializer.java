@@ -62,19 +62,19 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
 
     @Override
     public void writeFileHeaders() {
-        writers.get(FORUM).writeHeader(ImmutableList.of("id", "title", "creationDate", "moderator"));
-        writers.get(FORUM_HASTAG_TAG).writeHeader(ImmutableList.of("Forum.id", "Tag.id,","creationDate"));
+        writers.get(FORUM).writeHeader(ImmutableList.of("creationDate","id", "title", "moderator"));
+        writers.get(FORUM_HASTAG_TAG).writeHeader(ImmutableList.of("creationDate","Forum.id", "Tag.id,"));
 
-        writers.get(POST).writeHeader(ImmutableList.of("id", "imageFile", "creationDate", "locationIP", "browserUsed", "language", "content", "length", "creator", "Forum.id", "place"));
+        writers.get(POST).writeHeader(ImmutableList.of("creationDate","id", "imageFile", "locationIP", "browserUsed", "language", "content", "length", "creator", "Forum.id", "place"));
         writers.get(POST_HASTAG_TAG).writeHeader(ImmutableList.of("Post.id", "Tag.id","creationDate"));
 
-        writers.get(COMMENT).writeHeader(ImmutableList.of("id", "creationDate", "locationIP", "browserUsed", "content", "length", "creator", "place", "replyOfPost", "replyOfComment"));
-        writers.get(COMMENT_HASTAG_TAG).writeHeader(ImmutableList.of("Comment.id", "Tag.id","creationDate"));
+        writers.get(COMMENT).writeHeader(ImmutableList.of("creationDate","id", "locationIP", "browserUsed", "content", "length", "creator", "place", "replyOfPost", "replyOfComment"));
+        writers.get(COMMENT_HASTAG_TAG).writeHeader(ImmutableList.of("creationDate","Comment.id", "Tag.id"));
 
-        writers.get(FORUM_HASMEMBER_PERSON).writeHeader(ImmutableList.of("Forum.id", "Person.id", "joinDate"));
+        writers.get(FORUM_HASMEMBER_PERSON).writeHeader(ImmutableList.of("joinDate","Forum.id", "Person.id"));
 
-        writers.get(PERSON_LIKES_POST).writeHeader(ImmutableList.of("Person.id", "Post.id", "creationDate"));
-        writers.get(PERSON_LIKES_COMMENT).writeHeader(ImmutableList.of("Person.id", "Comment.id", "creationDate"));
+        writers.get(PERSON_LIKES_POST).writeHeader(ImmutableList.of( "creationDate","Person.id", "Post.id"));
+        writers.get(PERSON_LIKES_COMMENT).writeHeader(ImmutableList.of( "creationDate","Person.id", "Comment.id"));
 
     }
 
@@ -83,18 +83,18 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
 
         //"id", "title", "creationDate", "moderator"
         writers.get(FORUM).writeEntry(ImmutableList.of(
+                dateString,
                 Long.toString(forum.id()),
                 forum.title(),
-                dateString,
                 Long.toString(forum.moderator().accountId())
         ));
 
         for (Integer i : forum.tags()) {
             //"Forum.id", "Tag.id,","creationDate"
             writers.get(FORUM_HASTAG_TAG).writeEntry(ImmutableList.of(
+                    dateString,
                     Long.toString(forum.id()),
-                    Integer.toString(i),
-                    dateString
+                    Integer.toString(i)
             ));
         }
 
@@ -105,9 +105,9 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
 
         //"id", "imageFile", "creationDate", "locationIP", "browserUsed", "language", "content", "length", "creator", "Forum.id", "place"
         writers.get(POST).writeEntry(ImmutableList.of(
+            dateString,
             Long.toString(post.messageId()),
             "",
-            dateString,
             post.ipAddress().toString(),
             Dictionaries.browsers.getName(post.browserId()),
             Dictionaries.languages.getLanguageName(post.language()),
@@ -121,9 +121,9 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
         for (Integer t : post.tags()) {
             //"Post.id", "Tag.id","creationDate"
             writers.get(POST_HASTAG_TAG).writeEntry(ImmutableList.of(
+                dateString,
                 Long.toString(post.messageId()),
-                Integer.toString(t),
-                dateString
+                Integer.toString(t)
             ));
         }
     }
@@ -133,8 +133,8 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
 
         //"id", "creationDate", "locationIP", "browserUsed", "content", "length", "creator", "place", "replyOfPost", "replyOfComment"
         writers.get(COMMENT).writeEntry(ImmutableList.of(
-            Long.toString(comment.messageId()),
             dateString,
+            Long.toString(comment.messageId()),
             comment.ipAddress().toString(),
             Dictionaries.browsers.getName(comment.browserId()),
             comment.content(),
@@ -148,9 +148,9 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
         for (Integer t : comment.tags()) {
             //"Comment.id", "Tag.id","creationDate"
             writers.get(COMMENT_HASTAG_TAG).writeEntry(ImmutableList.of(
+                dateString,
                 Long.toString(comment.messageId()),
-                Integer.toString(t),
-                dateString
+                Integer.toString(t)
             ));
         }
     }
@@ -160,9 +160,9 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
 
         //"id", "imageFile", "creationDate", "locationIP", "browserUsed", "language", "content", "length", "creator", "Forum.id", "place"
         writers.get(POST).writeEntry(ImmutableList.of(
+            dateString,
             Long.toString(photo.messageId()),
             photo.content(),
-            dateString,
             photo.ipAddress().toString(),
             Dictionaries.browsers.getName(photo.browserId()),
             "",
@@ -176,9 +176,9 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
         for (Integer t : photo.tags()) {
             //"Post.id", "Tag.id","creationDate"
             writers.get(POST_HASTAG_TAG).writeEntry(ImmutableList.of(
+                dateString,
                 Long.toString(photo.messageId()),
-                Integer.toString(t),
-                dateString
+                Integer.toString(t)
             ));
         }
     }
@@ -186,18 +186,18 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
     protected void serialize(final ForumMembership membership) {
         //"Forum.id", "Person.id", "joinDate"
         writers.get(FORUM_HASMEMBER_PERSON).writeEntry(ImmutableList.of(
+            Dictionaries.dates.formatDateTime(membership.creationDate()),
             Long.toString(membership.forumId()),
-            Long.toString(membership.person().accountId()),
-            Dictionaries.dates.formatDateTime(membership.creationDate())
+            Long.toString(membership.person().accountId())
         ));
     }
 
     protected void serialize(final Like like) {
         //"Person.id", "Post.id"/"comment.id", "creationDate"
         List<String> arguments = ImmutableList.of(
+            Dictionaries.dates.formatDateTime(like.date),
             Long.toString(like.user),
-            Long.toString(like.messageId),
-            Dictionaries.dates.formatDateTime(like.date)
+            Long.toString(like.messageId)
         );
         if (like.type == Like.LikeType.POST || like.type == Like.LikeType.PHOTO) {
             writers.get(PERSON_LIKES_POST).writeEntry(arguments);

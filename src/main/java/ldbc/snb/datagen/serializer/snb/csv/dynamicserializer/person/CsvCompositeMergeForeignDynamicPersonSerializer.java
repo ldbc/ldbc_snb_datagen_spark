@@ -59,13 +59,13 @@ public class CsvCompositeMergeForeignDynamicPersonSerializer extends DynamicPers
 
     @Override
     public void writeFileHeaders() {
-        writers.get(PERSON).writeHeader(ImmutableList.of("id","firstName","lastName","gender","birthday","creationDate","locationIP","browserUsed","place","language","email"));
-        writers.get(PERSON_HAS_INTEREST_TAG).writeHeader(ImmutableList.of("Person.id","Tag.id","creationDate"));
+        writers.get(PERSON).writeHeader(ImmutableList.of("creationDate","id","firstName","lastName","gender","birthday","locationIP","browserUsed","place","language","email"));
+        writers.get(PERSON_HAS_INTEREST_TAG).writeHeader(ImmutableList.of("creationDate","Person.id","Tag.id"));
 
-        writers.get(PERSON_STUDY_AT).writeHeader(ImmutableList.of("Person.id","Organisation.id","classYear","creationDate"));
-        writers.get(PERSON_WORK_AT).writeHeader(ImmutableList.of("Person.id","Organisation.id","workFrom","creationDate"));
+        writers.get(PERSON_STUDY_AT).writeHeader(ImmutableList.of("creationDate","Person.id","Organisation.id","classYear"));
+        writers.get(PERSON_WORK_AT).writeHeader(ImmutableList.of("creationDate","Person.id","Organisation.id","workFrom"));
 
-        writers.get(PERSON_KNOWS_PERSON).writeHeader(ImmutableList.of("Person.id","Person.id","creationDate"));
+        writers.get(PERSON_KNOWS_PERSON).writeHeader(ImmutableList.of("creationDate","Person.id","Person.id"));
     }
 
     @Override
@@ -74,12 +74,12 @@ public class CsvCompositeMergeForeignDynamicPersonSerializer extends DynamicPers
 
         //"id","firstName","lastName","gender","birthday","creationDate","locationIP","browserUsed","place","language","email"
         writers.get(PERSON).writeEntry(ImmutableList.of(
+                dateString,
                 Long.toString(p.accountId()),
                 p.firstName(),
                 p.lastName(),
                 getGender(p.gender()),
                 Dictionaries.dates.formatDate(p.birthday()),
-                dateString,
                 p.ipAddress().toString(),
                 Dictionaries.browsers.getName(p.browserId()),
                 Integer.toString(p.cityId()),
@@ -92,9 +92,9 @@ public class CsvCompositeMergeForeignDynamicPersonSerializer extends DynamicPers
             Integer interestIdx = itInteger.next();
             //"Person.id","Tag.id","creationDate"
             writers.get(PERSON_HAS_INTEREST_TAG).writeEntry(ImmutableList.of(
+                    dateString,
                     Long.toString(p.accountId()),
-                    Integer.toString(interestIdx),
-                    dateString
+                    Integer.toString(interestIdx)
             ));
         }
     }
@@ -102,20 +102,22 @@ public class CsvCompositeMergeForeignDynamicPersonSerializer extends DynamicPers
     @Override
     protected void serialize(final StudyAt studyAt,final Person person) {
         //"Person.id","Organisation.id","classYear","creationDate"
-        writers.get(PERSON_STUDY_AT).writeEntry(ImmutableList.of(Long.toString(studyAt.user),
+        writers.get(PERSON_STUDY_AT).writeEntry(ImmutableList.of(
+                Dictionaries.dates.formatDateTime(person.creationDate()),
+                Long.toString(studyAt.user),
                 Long.toString(studyAt.university),
-                Dictionaries.dates.formatYear(studyAt.year),
-                Dictionaries.dates.formatDateTime(person.creationDate())
+                Dictionaries.dates.formatYear(studyAt.year)
         ));
     }
 
     @Override
     protected void serialize(final WorkAt workAt,final Person person) {
         //"Person.id","Organisation.id","workFrom","creationDate"
-        writers.get(PERSON_WORK_AT).writeEntry(ImmutableList.of(Long.toString(workAt.user),
+        writers.get(PERSON_WORK_AT).writeEntry(ImmutableList.of(
+                Dictionaries.dates.formatDateTime(person.creationDate()),
+                Long.toString(workAt.user),
                 Long.toString(workAt.company),
-                Dictionaries.dates.formatYear(workAt.year),
-                Dictionaries.dates.formatDateTime(person.creationDate())
+                Dictionaries.dates.formatYear(workAt.year)
         ));
     }
 
@@ -123,9 +125,9 @@ public class CsvCompositeMergeForeignDynamicPersonSerializer extends DynamicPers
     protected void serialize(final Person p, Knows knows) {
         //"Person.id","Person.id","creationDate"
         writers.get(PERSON_KNOWS_PERSON).writeEntry(ImmutableList.of(
+                Dictionaries.dates.formatDateTime(knows.creationDate()),
                 Long.toString(p.accountId()),
-                Long.toString(knows.to().accountId()),
-                Dictionaries.dates.formatDateTime(knows.creationDate())
+                Long.toString(knows.to().accountId())
         ));
     }
 

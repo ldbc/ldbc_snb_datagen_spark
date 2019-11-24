@@ -65,29 +65,29 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
     @Override
     public void writeFileHeaders() {
 
-        writers.get(FORUM).writeHeader(ImmutableList.of("id", "title", "creationDate")); //
-        writers.get(FORUM_HASMODERATOR_PERSON).writeHeader(ImmutableList.of("Forum.id","Person.id","joinDate")); //
-        writers.get(FORUM_HASTAG_TAG).writeHeader(ImmutableList.of("Forum.id","Tag.id","creationDate")); //
+        writers.get(FORUM).writeHeader(ImmutableList.of( "creationDate","id", "title")); //
+        writers.get(FORUM_HASMODERATOR_PERSON).writeHeader(ImmutableList.of("joinDate","Forum.id","Person.id")); //
+        writers.get(FORUM_HASTAG_TAG).writeHeader(ImmutableList.of("creationDate","Forum.id","Tag.id")); //
 
-        writers.get(FORUM_HASMEMBER_PERSON).writeHeader(ImmutableList.of("Forum.id","Person.id","joinDate"));//
+        writers.get(FORUM_HASMEMBER_PERSON).writeHeader(ImmutableList.of("joinDate","Forum.id","Person.id"));//
 
-        writers.get(POST).writeHeader(ImmutableList.of("id","imageFile","creationDate","locationIP","browserUsed","language","content","length")); //
-        writers.get(POST_HASCREATOR_PERSON).writeHeader(ImmutableList.of("Post.id","Person.id","creationDate"));
-        writers.get(POST_ISLOCATEDIN_PLACE).writeHeader(ImmutableList.of("Post.id","Place.id","creationDate"));
-        writers.get(POST_HASTAG_TAG).writeHeader(ImmutableList.of("Post.id","Tag.id","creationDate"));
-        writers.get(FORUM_CONTAINEROF_POST).writeHeader(ImmutableList.of("Forum.id","Post.id","creationDate"));
+        writers.get(POST).writeHeader(ImmutableList.of("creationDate","id","imageFile","locationIP","browserUsed","language","content","length")); //
+        writers.get(POST_HASCREATOR_PERSON).writeHeader(ImmutableList.of("creationDate","Post.id","Person.id"));
+        writers.get(POST_ISLOCATEDIN_PLACE).writeHeader(ImmutableList.of("creationDate","Post.id","Place.id"));
+        writers.get(POST_HASTAG_TAG).writeHeader(ImmutableList.of("creationDate","Post.id","Tag.id"));
+        writers.get(FORUM_CONTAINEROF_POST).writeHeader(ImmutableList.of("creationDate","Forum.id","Post.id"));
 
-        writers.get(COMMENT).writeHeader(ImmutableList.of("id","creationDate","locationIP","browserUsed","content","length"));
-        writers.get(COMMENT_REPLYOF_POST).writeHeader(ImmutableList.of("Comment.id","Post.id","creationDate"));
-        writers.get(COMMENT_REPLYOF_COMMENT).writeHeader(ImmutableList.of("Comment.id","Comment.id","creationDate"));
-        writers.get(COMMENT_HASCREATOR_PERSON).writeHeader(ImmutableList.of("Comment.id","Person.id","creationDate"));
-        writers.get(COMMENT_ISLOCATEDIN_PLACE).writeHeader(ImmutableList.of("Comment.id","Place.id","creationDate"));
-        writers.get(COMMENT_HASTAG_TAG).writeHeader(ImmutableList.of("Comment.id","Tag.id","creationDate"));
+        writers.get(COMMENT).writeHeader(ImmutableList.of("creationDate","id","locationIP","browserUsed","content","length"));
+        writers.get(COMMENT_REPLYOF_POST).writeHeader(ImmutableList.of("creationDate","Comment.id","Post.id"));
+        writers.get(COMMENT_REPLYOF_COMMENT).writeHeader(ImmutableList.of("creationDate","Comment.id","Comment.id"));
+        writers.get(COMMENT_HASCREATOR_PERSON).writeHeader(ImmutableList.of("creationDate","Comment.id","Person.id"));
+        writers.get(COMMENT_ISLOCATEDIN_PLACE).writeHeader(ImmutableList.of("creationDate","Comment.id","Place.id"));
+        writers.get(COMMENT_HASTAG_TAG).writeHeader(ImmutableList.of("creationDate","Comment.id","Tag.id"));
 
 
 
-        writers.get(PERSON_LIKES_POST).writeHeader(ImmutableList.of("Person.id","Post.id","creationDate"));
-        writers.get(PERSON_LIKES_COMMENT).writeHeader(ImmutableList.of("Person.id","Comment.id","creationDate"));
+        writers.get(PERSON_LIKES_POST).writeHeader(ImmutableList.of("creationDate","Person.id","Post.id"));
+        writers.get(PERSON_LIKES_COMMENT).writeHeader(ImmutableList.of("creationDate","Person.id","Comment.id"));
     }
 
     protected void serialize(final Forum forum) {
@@ -95,33 +95,33 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
 
         //"id", "title", "creationDate"
         writers.get(FORUM).writeEntry(ImmutableList.of(
+                dateString,
                 Long.toString(forum.id()),
-                forum.title(),
-                dateString
+                forum.title()
+
         ));
         //"Forum.id","Person.id","joinDate"
         writers.get(FORUM_HASMODERATOR_PERSON).writeEntry(ImmutableList.of(
+                dateString,
                 Long.toString(forum.id()),
-                Long.toString(forum.moderator().accountId()),
-                dateString
+                Long.toString(forum.moderator().accountId())
         ));
 
         for (Integer i : forum.tags()) {
             //"Forum.id","Tag.id","creationDate"
             writers.get(FORUM_HASTAG_TAG).writeEntry(ImmutableList.of(
+                    dateString,
                     Long.toString(forum.id()),
-                    Integer.toString(i),
-                    dateString
-            ));
+                    Integer.toString(i)));
         }
     }
 
     protected void serialize(final ForumMembership membership) {
         //"Forum.id","Person.id","joinDate"
         writers.get(FORUM_HASMEMBER_PERSON).writeEntry(ImmutableList.of(
+                Dictionaries.dates.formatDateTime(membership.creationDate()),
                 Long.toString(membership.forumId()),
-                Long.toString(membership.person().accountId()),
-                Dictionaries.dates.formatDateTime(membership.creationDate())
+                Long.toString(membership.person().accountId())
         ));
     }
 
@@ -131,9 +131,9 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
 
         //"id","imageFile","creationDate","locationIP","browserUsed","language","content","length"
         writers.get(POST).writeEntry(ImmutableList.of(
+                datestring,
                 Long.toString(post.messageId()),
                 "",
-                datestring,
                 post.ipAddress().toString(),
                 Dictionaries.browsers.getName(post.browserId()),
                 Dictionaries.languages.getLanguageName(post.language()),
@@ -143,31 +143,31 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
 
         //"Post.id","Person.id","creationDate"
         writers.get(POST_HASCREATOR_PERSON).writeEntry(ImmutableList.of(
+                datestring,
                 Long.toString(post.messageId()),
-                Long.toString(post.author().accountId()),
-                datestring
+                Long.toString(post.author().accountId())
         ));
 
         //"Post.id","Place.id","creationDate"
         writers.get(POST_ISLOCATEDIN_PLACE).writeEntry(ImmutableList.of(
+                datestring,
                 Long.toString(post.messageId()),
-                Integer.toString(post.countryId()),
-                datestring
+                Integer.toString(post.countryId())
         ));
 
         //"Post.id","Tag.id","creationDate"
         for (Integer t : post.tags()) {
             writers.get(POST_HASTAG_TAG).writeEntry(ImmutableList.of(
+                    datestring,
                     Long.toString(post.messageId()),
-                    Integer.toString(t),
-                    datestring
+                    Integer.toString(t)
             ));
         }
         //"Forum.id","Post.id","creationDate"
         writers.get(FORUM_CONTAINEROF_POST).writeEntry(ImmutableList.of(
+                datestring,
                 Long.toString(post.forumId()),
-                Long.toString(post.messageId()),
-                datestring
+                Long.toString(post.messageId())
         ));
 
     }
@@ -177,8 +177,8 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
 
         //"id","creationDate","locationIP","browserUsed","content","length"
         writers.get(COMMENT).writeEntry(ImmutableList.of(
-                Long.toString(comment.messageId()),
                 dateString,
+                Long.toString(comment.messageId()),
                 comment.ipAddress().toString(),
                 Dictionaries.browsers.getName(comment.browserId()),
                 comment.content(),
@@ -188,38 +188,38 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
         if (comment.replyOf() == comment.postId()) {
             //"Comment.id","Post.id","creationDate"
             writers.get(COMMENT_REPLYOF_POST).writeEntry(ImmutableList.of(
+                    dateString,
                     Long.toString(comment.messageId()),
-                    Long.toString(comment.postId()),
-                    dateString
+                    Long.toString(comment.postId())
             ));
         } else {
             //"Comment.id","Comment.id","creationDate"
             writers.get(COMMENT_REPLYOF_COMMENT).writeEntry(ImmutableList.of(
+                    dateString,
                     Long.toString(comment.messageId()),
-                    Long.toString(comment.replyOf()),
-                    dateString
+                    Long.toString(comment.replyOf())
             ));
         }
         //"Comment.id","Person.id","creationDate"
         writers.get(COMMENT_HASCREATOR_PERSON).writeEntry(ImmutableList.of(
+                dateString,
                 Long.toString(comment.messageId()),
-                Long.toString(comment.author().accountId()),
-                dateString
+                Long.toString(comment.author().accountId())
         ));
 
         //"Comment.id","Place.id","creationDate"
         writers.get(COMMENT_ISLOCATEDIN_PLACE).writeEntry(ImmutableList.of(
+                dateString,
                 Long.toString(comment.messageId()),
-                Integer.toString(comment.countryId()),
-                dateString
+                Integer.toString(comment.countryId())
         ));
 
         for (Integer t : comment.tags()) {
             //"Comment.id","Tag.id","creationDate"
             writers.get(COMMENT_HASTAG_TAG).writeEntry(ImmutableList.of(
+                    dateString,
                     Long.toString(comment.messageId()),
-                    Integer.toString(t),
-                    dateString
+                    Integer.toString(t)
             ));
         }
     }
@@ -228,9 +228,9 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
         String dateString = Dictionaries.dates.formatDateTime(photo.creationDate());
         //"id","imageFile","creationDate","locationIP","browserUsed","language","content","length"
         writers.get(POST).writeEntry(ImmutableList.of(
+                dateString,
                 Long.toString(photo.messageId()),
                 photo.content(),
-                dateString,
                 photo.ipAddress().toString(),
                 Dictionaries.browsers.getName(photo.browserId()),
                 "",
@@ -240,32 +240,32 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
 
         //"Post.id","Place.id","creationDate"
         writers.get(POST_ISLOCATEDIN_PLACE).writeEntry(ImmutableList.of(
+                dateString,
                 Long.toString(photo.messageId()),
-                Integer.toString(photo.countryId()),
-                dateString
+                Integer.toString(photo.countryId())
         ));
 
         //"Post.id","Tag.id","creationDate"
         writers.get(POST_HASCREATOR_PERSON).writeEntry(ImmutableList.of(
+                dateString,
                 Long.toString(photo.messageId()),
-                Long.toString(photo.author().accountId()),
-                dateString
+                Long.toString(photo.author().accountId())
         ));
 
         //"Post.id","Tag.id","creationDate"
         for (Integer t : photo.tags()) {
             writers.get(POST_HASTAG_TAG).writeEntry(ImmutableList.of(
+                    dateString,
                     Long.toString(photo.messageId()),
-                    Integer.toString(t),
-                    dateString
+                    Integer.toString(t)
             ));
         }
 
         //"Forum.id","Post.id","creationDate"
         writers.get(FORUM_CONTAINEROF_POST).writeEntry(ImmutableList.of(
+                dateString,
                 Long.toString(photo.forumId()),
-                Long.toString(photo.messageId()),
-                dateString
+                Long.toString(photo.messageId())
         ));
     }
 
@@ -275,16 +275,16 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
         if (like.type == Like.LikeType.POST || like.type == Like.LikeType.PHOTO) {
             //"Person.id","Post.id","creationDate"
             writers.get(PERSON_LIKES_POST).writeEntry(ImmutableList.of(
+                    Dictionaries.dates.formatDateTime(like.date),
                     Long.toString(like.user),
-                    Long.toString(like.messageId),
-                    Dictionaries.dates.formatDateTime(like.date)
+                    Long.toString(like.messageId)
             ));
         } else {
             //"Person.id","Comment.id","creationDate"
             writers.get(PERSON_LIKES_COMMENT).writeEntry(ImmutableList.of(
+                    Dictionaries.dates.formatDateTime(like.date),
                     Long.toString(like.user),
-                    Long.toString(like.messageId),
-                    Dictionaries.dates.formatDateTime(like.date)
+                    Long.toString(like.messageId)
             ));
         }
     }
