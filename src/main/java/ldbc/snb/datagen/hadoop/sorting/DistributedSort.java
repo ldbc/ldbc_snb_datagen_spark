@@ -19,7 +19,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-class WordCount {
+class DistributedSort {
 
   public static class SortMapper extends Mapper<Object, Text, LongWritable, Text>{
 
@@ -61,7 +61,7 @@ class WordCount {
   public static void main(String[] args) throws Exception {
     Configuration conf = new Configuration();
     Job job = Job.getInstance(conf, "word count");
-    job.setJarByClass(WordCount.class);
+    job.setJarByClass(DistributedSort.class);
     job.setMapperClass(SortMapper.class);
     job.setReducerClass(SortReducer.class);
     job.setOutputKeyClass(Text.class);
