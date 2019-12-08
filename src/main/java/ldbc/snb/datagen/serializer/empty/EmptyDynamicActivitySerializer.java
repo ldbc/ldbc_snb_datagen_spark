@@ -54,7 +54,7 @@ public class EmptyDynamicActivitySerializer extends DynamicActivitySerializer {
 
     @Override
     public List<FileName> getFileNames() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override

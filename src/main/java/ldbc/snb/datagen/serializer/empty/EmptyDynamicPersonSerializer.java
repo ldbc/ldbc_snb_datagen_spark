@@ -52,7 +52,7 @@ public class EmptyDynamicPersonSerializer extends DynamicPersonSerializer {
 
     @Override
     public List<FileName> getFileNames() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override

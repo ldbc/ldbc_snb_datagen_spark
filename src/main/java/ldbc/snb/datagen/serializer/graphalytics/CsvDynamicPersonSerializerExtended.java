@@ -50,6 +50,7 @@ import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class CsvDynamicPersonSerializerExtended extends DynamicPersonSerializer<HdfsCsvWriter> implements CsvSerializer {
@@ -74,7 +75,7 @@ public class CsvDynamicPersonSerializerExtended extends DynamicPersonSerializer<
 
     @Override
     public List<FileName> getFileNames() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override

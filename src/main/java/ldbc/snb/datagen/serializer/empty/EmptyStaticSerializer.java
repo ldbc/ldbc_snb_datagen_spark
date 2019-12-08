@@ -52,7 +52,7 @@ public class EmptyStaticSerializer extends StaticSerializer {
 
     @Override
     public List<FileName> getFileNames() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
