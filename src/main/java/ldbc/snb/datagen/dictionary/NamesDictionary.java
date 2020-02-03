@@ -110,7 +110,7 @@ public class NamesDictionary {
             surnameDictionary.close();
             System.out.println("Done ... " + totalSurNames + " surnames were extracted ");
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -140,7 +140,7 @@ public class NamesDictionary {
             givennameDictionary.close();
             System.out.println("Done ... " + totalGivenNames + " given names were extracted ");
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

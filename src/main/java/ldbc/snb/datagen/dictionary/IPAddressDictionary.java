@@ -119,7 +119,7 @@ public class IPAddressDictionary {
                 ipZoneFile.close();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

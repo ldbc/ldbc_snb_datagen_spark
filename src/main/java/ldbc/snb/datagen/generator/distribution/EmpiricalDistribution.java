@@ -64,10 +64,9 @@ public class EmpiricalDistribution extends BucketedDistribution {
             reader.close();
             return Bucket.bucketizeHistogram(histogram, 1000);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        return null;
     }
 }

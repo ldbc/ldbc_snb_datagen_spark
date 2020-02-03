@@ -107,7 +107,7 @@ public class PopularPlacesDictionary {
             }
             dicPopularPlace.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

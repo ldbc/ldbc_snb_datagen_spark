@@ -124,7 +124,7 @@ public class LanguageDictionary {
             }
             dictionary.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
