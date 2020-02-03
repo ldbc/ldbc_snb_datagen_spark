@@ -78,7 +78,6 @@ public class DatagenParams {
         BASE_CORRELATED("ldbc.snb.datagen.generator.baseProbCorrelated"),
         BEST_UNIVERSTY_RATIO("ldbc.snb.datagen.generator.probTopUniv"),
         BLOCK_SIZE("ldbc.snb.datagen.generator.blockSize"),
-        CELL_SIZE("ldbc.snb.datagen.generator.cellSize"),
         COMPANY_UNCORRELATED_RATIO("ldbc.snb.datagen.generator.probUnCorrelatedCompany"),
         DIFFERENT_IP_IN_TRAVEL_RATIO("ldbc.snb.datagen.generator.probDiffIPinTravelSeason"),
         DIFFERENT_IP_NOT_TRAVEL_RATIO("ldbc.snb.datagen.generator.probDiffIPnotTravelSeason"),
@@ -171,7 +170,6 @@ public class DatagenParams {
     public static double tagCountryCorrProb = 0.0;
     public static double updatePortion = 0.0;
     public static int blockSize = 0;
-    public static int cellSize = 0; // Number of user in one cell
     public static int flashmobTagsPerMonth = 0;
     public static int maxCommentSize = 0;
     public static int maxCompanies = 0;
@@ -234,7 +232,6 @@ public class DatagenParams {
                 }
             }
 
-            cellSize = Short.parseShort(conf.get(ParameterNames.CELL_SIZE.toString()));
             minNumFriends = Integer.parseInt(conf.get(ParameterNames.MIN_FRIENDS.toString()));
             maxNumFriends = Integer.parseInt(conf.get(ParameterNames.MAX_FRIENDS.toString()));
             friendRejectRatio = Double.parseDouble(conf.get(ParameterNames.FRIEND_REJECT.toString()));
