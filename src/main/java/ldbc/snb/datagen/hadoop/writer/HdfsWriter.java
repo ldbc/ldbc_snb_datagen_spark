@@ -81,7 +81,7 @@ public class HdfsWriter {
             currentPartition = ++currentPartition % numPartitions;
         } catch (IOException e) {
             System.out.println("Cannot write to output file ");
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -92,7 +92,7 @@ public class HdfsWriter {
             }
         } catch (IOException e) {
             System.out.println("Cannot write to output file ");
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

@@ -291,7 +291,7 @@ public class PlaceDictionary {
             }
             dictionary.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -331,7 +331,7 @@ public class PlaceDictionary {
             cumulativeDistribution = new Float[temporalCumulative.size()];
             cumulativeDistribution = temporalCumulative.toArray(cumulativeDistribution);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -372,7 +372,7 @@ public class PlaceDictionary {
             }
             dictionary.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

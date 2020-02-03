@@ -95,7 +95,7 @@ public class TagMatrix {
             }
             dictionary.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

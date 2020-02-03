@@ -403,11 +403,11 @@ public class FactorTable {
         } catch (AssertionError e) {
             System.err.println("Unable to write parameter counts");
             System.err.println(e.getMessage());
-            e.printStackTrace();
+            throw new RuntimeException(e);
         } catch (IOException e) {
             System.err.println("Unable to write parameter counts");
             System.err.println(e.getMessage());
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -474,7 +474,6 @@ public class FactorTable {
         } catch (IOException e) {
             System.err.println("Unable to write parameter counts");
             System.err.println(e.getMessage());
-            e.printStackTrace();
             throw e;
         }
     }

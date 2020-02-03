@@ -105,7 +105,7 @@ public class HadoopKnowsGenerator {
                                                                        .newInstance();
             } catch (Exception e) {
                 System.out.println(e.getMessage());
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }
 

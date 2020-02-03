@@ -107,7 +107,7 @@ public class HadoopPersonActivityGenerator {
 
             } catch (Exception e) {
                 System.err.println(e.getMessage());
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }
 
@@ -148,7 +148,6 @@ public class HadoopPersonActivityGenerator {
                 personFactors_.close();
                 friends_.close();
             } catch (IOException e) {
-                e.printStackTrace();
                 throw new RuntimeException(e);
             }
             dynamicActivitySerializer_.close();
@@ -217,7 +216,7 @@ public class HadoopPersonActivityGenerator {
             fs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/aux"), true);
         } catch (IOException e) {
             System.err.println(e.getMessage());
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

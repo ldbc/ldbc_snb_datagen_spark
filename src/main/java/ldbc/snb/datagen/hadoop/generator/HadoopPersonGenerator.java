@@ -77,7 +77,7 @@ public class HadoopPersonGenerator {
             } catch (Exception e) {
                 System.err.println("Error when setting key setter");
                 System.err.println(e.getMessage());
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
 
             int threadId = Integer.parseInt(value.toString());
@@ -135,7 +135,7 @@ public class HadoopPersonGenerator {
                 output.write((new String(i + "\n").getBytes()));
             output.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
