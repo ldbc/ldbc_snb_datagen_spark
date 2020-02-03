@@ -115,7 +115,6 @@ public class DatagenParams {
         MIN_LARGE_POST_SIZE("ldbc.snb.datagen.generator.minLargePostSize"),
         MIN_TEXT_SIZE("ldbc.snb.datagen.generator.minTextSize"),
         MISSING_RATIO("ldbc.snb.datagen.generator.missingRatio"),
-        NUM_CELL_WINDOW("ldbc.snb.datagen.generator.numberOfCellPerWindow"),
         OTHER_BROWSER_RATIO("ldbc.snb.datagen.generator.probAnotherBrowser"),
         POPULAR_PLACE_RATIO("ldbc.snb.datagen.generator.probPopularPlaces"),
         PROB_INTEREST_FLASHMOB_TAG("ldbc.snb.datagen.generator.probInterestFlashmobTag"),
@@ -200,7 +199,7 @@ public class DatagenParams {
     public static int minNumFriends = 0;
     public static int minNumTagsPerUser = 0;
     public static int minTextSize = 0;
-    public static int numberOfCellPerWindow = 0;
+
 
     public static final int startMonth = 0;
     public static final int startDate = 1;
@@ -236,7 +235,6 @@ public class DatagenParams {
             }
 
             cellSize = Short.parseShort(conf.get(ParameterNames.CELL_SIZE.toString()));
-            numberOfCellPerWindow = Integer.parseInt(conf.get(ParameterNames.NUM_CELL_WINDOW.toString()));
             minNumFriends = Integer.parseInt(conf.get(ParameterNames.MIN_FRIENDS.toString()));
             maxNumFriends = Integer.parseInt(conf.get(ParameterNames.MAX_FRIENDS.toString()));
             friendRejectRatio = Double.parseDouble(conf.get(ParameterNames.FRIEND_REJECT.toString()));
