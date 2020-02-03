@@ -86,8 +86,6 @@ public class DatagenParams {
         FLASHMOB_TAG_DIST_EXP("ldbc.snb.datagen.generator.flashmobTagDistExp"),
         FLASHMOB_TAG_MAX_LEVEL("ldbc.snb.datagen.generator.flashmobTagMaxLevel"),
         FLASHMOB_TAG_MIN_LEVEL("ldbc.snb.datagen.generator.flashmobTagMinLevel"),
-        FRIEND_REACCEPT("ldbc.snb.datagen.generator.friendReApproveRatio"),
-        FRIEND_REJECT("ldbc.snb.datagen.generator.friendRejectRatio"),
         GROUP_MAX_POST_MONTH("ldbc.snb.datagen.generator.maxNumGroupPostPerMonth"),
         GROUP_MODERATOR_RATIO("ldbc.snb.datagen.generator.groupModeratorProb"),
         LARGE_COMMENT_RATIO("ldbc.snb.datagen.generator.ratioLargeComment"),
@@ -109,7 +107,6 @@ public class DatagenParams {
         MAX_POPULAR_PLACES("ldbc.snb.datagen.generator.maxNumPopularPlaces"),
         MAX_TEXT_SIZE("ldbc.snb.datagen.generator.maxTextSize"),
         MIN_COMMENT_SIZE("ldbc.snb.datagen.generator.minCommentSize"),
-        MIN_FRIENDS("ldbc.snb.datagen.generator.minNumFriends"),
         MIN_LARGE_COMMENT_SIZE("ldbc.snb.datagen.generator.minLargeCommentSize"),
         MIN_LARGE_POST_SIZE("ldbc.snb.datagen.generator.minLargePostSize"),
         MIN_TEXT_SIZE("ldbc.snb.datagen.generator.minTextSize"),
@@ -120,8 +117,6 @@ public class DatagenParams {
         PROB_RANDOM_PER_LEVEL("ldbc.snb.datagen.generator.probRandomPerLevel"),
         REDUCE_TEXT_RATIO("ldbc.snb.datagen.generator.ratioReduceText"),
         SECOND_LANGUAGE_RATIO("ldbc.snb.datagen.generator.probSecondLang"),
-        STATUS_MISSING_RATIO("ldbc.snb.datagen.generator.missingStatusRatio"),
-        STATUS_SINGLE_RATIO("ldbc.snb.datagen.generator.probSingleStatus"),
         TAG_UNCORRELATED_COUNTRY("ldbc.snb.datagen.generator.tagCountryCorrProb"),
         UNIVERSITY_UNCORRELATED_RATIO("ldbc.snb.datagen.generator.probUnCorrelatedOrganization"),
         MAX_NUM_LIKE("ldbc.snb.datagen.generator.maxNumLike"),
@@ -146,12 +141,9 @@ public class DatagenParams {
     public static double flashmobTagDistExp = 0.0; // the flashmob tag distribution exponent
     public static double flashmobTagMaxLevel = 0.0; // the flashmob tag max activity volume level
     public static double flashmobTagMinLevel = 0.0; // the flashmob tag min activity volume level
-    public static double friendReApproveRatio = 0.0;
-    public static double friendRejectRatio = 0.0;
     public static double groupModeratorProb = 0.0;
     public static double limitProCorrelated = 0.0;
     public static double missingRatio = 0.0;
-    public static double missingStatusRatio = 0.0;
     public static double probAnotherBrowser = 0.0;
     public static double probDiffIPinTravelSeason = 0.0; // in travel season
     public static double probDiffIPnotTravelSeason = 0.0; // not in travel season
@@ -160,7 +152,6 @@ public class DatagenParams {
     public static double probPopularPlaces = 0.0; //probability of taking a photo at popular place
     public static double probRandomPerLevel = 0.0;
     public static double probSecondLang = 0.0;
-    public static double probSingleStatus = 0.0; // Status "Single" has more probability than others'
     public static double probTopUniv = 0.0; // 90% users go to top university
     public static double probUnCorrelatedCompany = 0.0;
     public static double probUnCorrelatedOrganization = 0.0;
@@ -194,7 +185,6 @@ public class DatagenParams {
     public static int minCommentSize = 0;
     public static int minLargeCommentSize = 0;
     public static int minLargePostSize = 0;
-    public static int minNumFriends = 0;
     public static int minNumTagsPerUser = 0;
     public static int minTextSize = 0;
 
@@ -232,10 +222,7 @@ public class DatagenParams {
                 }
             }
 
-            minNumFriends = Integer.parseInt(conf.get(ParameterNames.MIN_FRIENDS.toString()));
             maxNumFriends = Integer.parseInt(conf.get(ParameterNames.MAX_FRIENDS.toString()));
-            friendRejectRatio = Double.parseDouble(conf.get(ParameterNames.FRIEND_REJECT.toString()));
-            friendReApproveRatio = Double.parseDouble(conf.get(ParameterNames.FRIEND_REACCEPT.toString()));
             minNumTagsPerUser = Integer.parseInt(conf.get(ParameterNames.USER_MIN_TAGS.toString()));
             maxNumTagsPerUser = Integer.parseInt(conf.get(ParameterNames.USER_MAX_TAGS.toString()));
             maxNumPostPerMonth = Integer.parseInt(conf.get(ParameterNames.USER_MAX_POST_MONTH.toString()));
@@ -266,8 +253,6 @@ public class DatagenParams {
             groupModeratorProb = Double.parseDouble(conf.get(ParameterNames.GROUP_MODERATOR_RATIO.toString()));
             maxNumGroupPostPerMonth = Integer.parseInt(conf.get(ParameterNames.GROUP_MAX_POST_MONTH.toString()));
             missingRatio = Double.parseDouble(conf.get(ParameterNames.MISSING_RATIO.toString()));
-            missingStatusRatio = Double.parseDouble(conf.get(ParameterNames.STATUS_MISSING_RATIO.toString()));
-            probSingleStatus = Double.parseDouble(conf.get(ParameterNames.STATUS_SINGLE_RATIO.toString()));
             probDiffIPinTravelSeason = Double.parseDouble(conf.get(ParameterNames.DIFFERENT_IP_IN_TRAVEL_RATIO
                                                                            .toString()));
             probDiffIPnotTravelSeason = Double.parseDouble(conf.get(ParameterNames.DIFFERENT_IP_NOT_TRAVEL_RATIO
@@ -295,6 +280,7 @@ public class DatagenParams {
             flashmobTagDistExp = Double.parseDouble(conf.get(ParameterNames.FLASHMOB_TAG_DIST_EXP.toString()));
             updatePortion = Double.parseDouble(conf.get(ParameterNames.UPDATE_PORTION.toString()));
             blockSize = Integer.parseInt(conf.get(ParameterNames.BLOCK_SIZE.toString()));
+
         } catch (Exception e) {
             System.out.println("Error reading scale factors");
             System.err.println(e.getMessage());
