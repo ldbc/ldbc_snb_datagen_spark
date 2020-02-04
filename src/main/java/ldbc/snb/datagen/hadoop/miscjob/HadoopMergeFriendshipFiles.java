@@ -154,6 +154,6 @@ public class HadoopMergeFriendshipFiles {
         if (!job.waitForCompletion(true)) {
             throw new Exception();
         }
-        System.out.println("... time to merge edges: " + (System.currentTimeMillis() - start) + " ms");
+        System.out.println("... Time to merge edges: " + (System.currentTimeMillis() - start) + " ms");
     }
 }
