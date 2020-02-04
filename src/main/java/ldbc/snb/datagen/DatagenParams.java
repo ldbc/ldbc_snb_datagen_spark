@@ -209,83 +209,67 @@ public class DatagenParams {
     public static int numPartitions = 1;
     public static int numUpdatePartitions = 1;
 
+    private static Integer intConf(Configuration conf,ParameterNames param) { return Integer.parseInt(conf.get(param.toString())); }
+    private static Double doubleConf(Configuration conf,ParameterNames param) { return Double.parseDouble(conf.get(param.toString())); }
 
     public static void readConf(Configuration conf) {
         try {
-
             ParameterNames values[] = ParameterNames.values();
-            for (int i = 0; i < values.length; ++i) {
-                if (conf.get(values[i].toString()) == null) {
-                    throw new IllegalStateException("Missing " + values[i].toString() + " parameter");
-                }
-            }
+            for (ParameterNames value : values)
+                if (conf.get(value.toString()) == null)
+                    throw new IllegalStateException("Missing " + value.toString() + " parameter");
 
-            maxNumFriends = Integer.parseInt(conf.get(ParameterNames.MAX_FRIENDS.toString()));
-            minNumTagsPerUser = Integer.parseInt(conf.get(ParameterNames.USER_MIN_TAGS.toString()));
-            maxNumTagsPerUser = Integer.parseInt(conf.get(ParameterNames.USER_MAX_TAGS.toString()));
-            maxNumPostPerMonth = Integer.parseInt(conf.get(ParameterNames.USER_MAX_POST_MONTH.toString()));
-            maxNumComments = Integer.parseInt(conf.get(ParameterNames.MAX_COMMENT_POST.toString()));
-            limitProCorrelated = Double.parseDouble(conf.get(ParameterNames.LIMIT_CORRELATED.toString()));
-            baseProbCorrelated = Double.parseDouble(conf.get(ParameterNames.BASE_CORRELATED.toString()));
-            maxEmails = Integer.parseInt(conf.get(ParameterNames.MAX_EMAIL.toString()));
-            maxCompanies = Integer.parseInt(conf.get(ParameterNames.MAX_EMAIL.toString()));
-            probEnglish = Double.parseDouble(conf.get(ParameterNames.MAX_EMAIL.toString()));
-            probSecondLang = Double.parseDouble(conf.get(ParameterNames.MAX_EMAIL.toString()));
-            probAnotherBrowser = Double.parseDouble(conf.get(ParameterNames.OTHER_BROWSER_RATIO.toString()));
-            minTextSize = Integer.parseInt(conf.get(ParameterNames.MIN_TEXT_SIZE.toString()));
-            maxTextSize = Integer.parseInt(conf.get(ParameterNames.MAX_TEXT_SIZE.toString()));
-            minCommentSize = Integer.parseInt(conf.get(ParameterNames.MIN_COMMENT_SIZE.toString()));
-            maxCommentSize = Integer.parseInt(conf.get(ParameterNames.MAX_COMMENT_SIZE.toString()));
-            ratioReduceText = Double.parseDouble(conf.get(ParameterNames.REDUCE_TEXT_RATIO.toString()));
-            minLargePostSize = Integer.parseInt(conf.get(ParameterNames.MIN_LARGE_POST_SIZE.toString()));
-            maxLargePostSize = Integer.parseInt(conf.get(ParameterNames.MAX_LARGE_POST_SIZE.toString()));
-            minLargeCommentSize = Integer.parseInt(conf.get(ParameterNames.MIN_LARGE_COMMENT_SIZE.toString()));
-            maxLargeCommentSize = Integer.parseInt(conf.get(ParameterNames.MAX_LARGE_COMMENT_SIZE.toString()));
-            ratioLargePost = Double.parseDouble(conf.get(ParameterNames.LARGE_POST_RATIO.toString()));
-            ratioLargeComment = Double.parseDouble(conf.get(ParameterNames.LARGE_COMMENT_RATIO.toString()));
-            maxNumLike = Integer.parseInt(conf.get(ParameterNames.MAX_NUM_LIKE.toString()));
-            maxNumPhotoAlbumsPerMonth = Integer.parseInt(conf.get(ParameterNames.MAX_PHOTOALBUM.toString()));
-            maxNumPhotoPerAlbums = Integer.parseInt(conf.get(ParameterNames.MAX_PHOTO_PER_ALBUM.toString()));
-            maxNumGroupCreatedPerUser = Integer.parseInt(conf.get(ParameterNames.USER_MAX_GROUP.toString()));
-            maxNumMemberGroup = Integer.parseInt(conf.get(ParameterNames.MAX_GROUP_MEMBERS.toString()));
-            groupModeratorProb = Double.parseDouble(conf.get(ParameterNames.GROUP_MODERATOR_RATIO.toString()));
-            maxNumGroupPostPerMonth = Integer.parseInt(conf.get(ParameterNames.GROUP_MAX_POST_MONTH.toString()));
-            missingRatio = Double.parseDouble(conf.get(ParameterNames.MISSING_RATIO.toString()));
-            probDiffIPinTravelSeason = Double.parseDouble(conf.get(ParameterNames.DIFFERENT_IP_IN_TRAVEL_RATIO
-                                                                           .toString()));
-            probDiffIPnotTravelSeason = Double.parseDouble(conf.get(ParameterNames.DIFFERENT_IP_NOT_TRAVEL_RATIO
-                                                                            .toString()));
-            probUnCorrelatedCompany = Double.parseDouble(conf.get(ParameterNames.COMPANY_UNCORRELATED_RATIO
-                                                                          .toString()));
-            probUnCorrelatedOrganization = Double.parseDouble(conf.get(ParameterNames.UNIVERSITY_UNCORRELATED_RATIO
-                                                                               .toString()));
-            probTopUniv = Double.parseDouble(conf.get(ParameterNames.BEST_UNIVERSTY_RATIO.toString()));
-            maxNumPopularPlaces = Integer.parseInt(conf.get(ParameterNames.MAX_POPULAR_PLACES.toString()));
-            probPopularPlaces = Double.parseDouble(conf.get(ParameterNames.POPULAR_PLACE_RATIO.toString()));
-            tagCountryCorrProb = Double.parseDouble(conf.get(ParameterNames.TAG_UNCORRELATED_COUNTRY.toString()));
-            flashmobTagsPerMonth = Integer.parseInt(conf.get(ParameterNames.FLASHMOB_TAGS_PER_MONTH.toString()));
-            probInterestFlashmobTag = Double.parseDouble(conf.get(ParameterNames.PROB_INTEREST_FLASHMOB_TAG
-                                                                          .toString()));
-            probRandomPerLevel = Double.parseDouble(conf.get(ParameterNames.PROB_RANDOM_PER_LEVEL.toString()));
-            maxNumFlashmobPostPerMonth = Integer.parseInt(conf.get(ParameterNames.MAX_NUM_FLASHMOB_POST_PER_MONTH
-                                                                           .toString()));
-            maxNumGroupFlashmobPostPerMonth = Integer
-                    .parseInt(conf.get(ParameterNames.MAX_NUM_GROUP_FLASHMOB_POST_PER_MONTH.toString()));
-            maxNumTagPerFlashmobPost = Integer.parseInt(conf.get(ParameterNames.MAX_NUM_TAG_PER_FLASHMOB_POST
-                                                                         .toString()));
-            flashmobTagMinLevel = Double.parseDouble(conf.get(ParameterNames.FLASHMOB_TAG_MIN_LEVEL.toString()));
-            flashmobTagMaxLevel = Double.parseDouble(conf.get(ParameterNames.FLASHMOB_TAG_MAX_LEVEL.toString()));
-            flashmobTagDistExp = Double.parseDouble(conf.get(ParameterNames.FLASHMOB_TAG_DIST_EXP.toString()));
-            updatePortion = Double.parseDouble(conf.get(ParameterNames.UPDATE_PORTION.toString()));
-            blockSize = Integer.parseInt(conf.get(ParameterNames.BLOCK_SIZE.toString()));
+            maxNumFriends = intConf(conf,ParameterNames.MAX_FRIENDS);
+            minNumTagsPerUser = intConf(conf,ParameterNames.USER_MIN_TAGS);
+            maxNumTagsPerUser = intConf(conf,ParameterNames.USER_MAX_TAGS);
+            maxNumPostPerMonth = intConf(conf,ParameterNames.USER_MAX_POST_MONTH);
+            maxNumComments = intConf(conf,ParameterNames.MAX_COMMENT_POST);
+            limitProCorrelated = doubleConf(conf,ParameterNames.LIMIT_CORRELATED);
+            baseProbCorrelated = doubleConf(conf,ParameterNames.BASE_CORRELATED);
+            maxEmails = intConf(conf,ParameterNames.MAX_EMAIL);
+            maxCompanies = intConf(conf,ParameterNames.MAX_EMAIL);
+            probEnglish = doubleConf(conf,ParameterNames.MAX_EMAIL);
+            probSecondLang = doubleConf(conf,ParameterNames.MAX_EMAIL);
+            probAnotherBrowser = doubleConf(conf,ParameterNames.OTHER_BROWSER_RATIO);
+            minTextSize = intConf(conf,ParameterNames.MIN_TEXT_SIZE);
+            maxTextSize = intConf(conf,ParameterNames.MAX_TEXT_SIZE);
+            minCommentSize = intConf(conf,ParameterNames.MIN_COMMENT_SIZE);
+            maxCommentSize = intConf(conf,ParameterNames.MAX_COMMENT_SIZE);
+            ratioReduceText = doubleConf(conf,ParameterNames.REDUCE_TEXT_RATIO);
+            minLargePostSize = intConf(conf,ParameterNames.MIN_LARGE_POST_SIZE);
+            maxLargePostSize = intConf(conf,ParameterNames.MAX_LARGE_POST_SIZE);
+            minLargeCommentSize = intConf(conf,ParameterNames.MIN_LARGE_COMMENT_SIZE);
+            maxLargeCommentSize = intConf(conf,ParameterNames.MAX_LARGE_COMMENT_SIZE);
+            ratioLargePost = doubleConf(conf,ParameterNames.LARGE_POST_RATIO);
+            ratioLargeComment = doubleConf(conf,ParameterNames.LARGE_COMMENT_RATIO);
+            maxNumLike = intConf(conf,ParameterNames.MAX_NUM_LIKE);
+            maxNumPhotoAlbumsPerMonth = intConf(conf,ParameterNames.MAX_PHOTOALBUM);
+            maxNumPhotoPerAlbums = intConf(conf,ParameterNames.MAX_PHOTO_PER_ALBUM);
+            maxNumGroupCreatedPerUser = intConf(conf,ParameterNames.USER_MAX_GROUP);
+            maxNumMemberGroup = intConf(conf,ParameterNames.MAX_GROUP_MEMBERS);
+            groupModeratorProb = doubleConf(conf,ParameterNames.GROUP_MODERATOR_RATIO);
+            maxNumGroupPostPerMonth = intConf(conf,ParameterNames.GROUP_MAX_POST_MONTH);
+            missingRatio = doubleConf(conf,ParameterNames.MISSING_RATIO);
+            probDiffIPinTravelSeason = doubleConf(conf,ParameterNames.DIFFERENT_IP_IN_TRAVEL_RATIO);
+            probDiffIPnotTravelSeason = doubleConf(conf,ParameterNames.DIFFERENT_IP_NOT_TRAVEL_RATIO);
+            probUnCorrelatedCompany = doubleConf(conf,ParameterNames.COMPANY_UNCORRELATED_RATIO);
+            probUnCorrelatedOrganization = doubleConf(conf,ParameterNames.UNIVERSITY_UNCORRELATED_RATIO);
+            probTopUniv = doubleConf(conf,ParameterNames.BEST_UNIVERSTY_RATIO);
+            maxNumPopularPlaces = intConf(conf,ParameterNames.MAX_POPULAR_PLACES);
+            probPopularPlaces = doubleConf(conf,ParameterNames.POPULAR_PLACE_RATIO);
+            tagCountryCorrProb = doubleConf(conf,ParameterNames.TAG_UNCORRELATED_COUNTRY);
+            flashmobTagsPerMonth = intConf(conf,ParameterNames.FLASHMOB_TAGS_PER_MONTH);
+            probInterestFlashmobTag = doubleConf(conf,ParameterNames.PROB_INTEREST_FLASHMOB_TAG);
+            probRandomPerLevel = doubleConf(conf,ParameterNames.PROB_RANDOM_PER_LEVEL);
+            maxNumFlashmobPostPerMonth = intConf(conf,ParameterNames.MAX_NUM_FLASHMOB_POST_PER_MONTH);
+            maxNumGroupFlashmobPostPerMonth = intConf(conf,ParameterNames.MAX_NUM_GROUP_FLASHMOB_POST_PER_MONTH);
+            maxNumTagPerFlashmobPost = intConf(conf,ParameterNames.MAX_NUM_TAG_PER_FLASHMOB_POST);
+            flashmobTagMinLevel = doubleConf(conf,ParameterNames.FLASHMOB_TAG_MIN_LEVEL);
+            flashmobTagMaxLevel = doubleConf(conf,ParameterNames.FLASHMOB_TAG_MAX_LEVEL);
+            flashmobTagDistExp = doubleConf(conf,ParameterNames.FLASHMOB_TAG_DIST_EXP);
+            updatePortion = doubleConf(conf,ParameterNames.UPDATE_PORTION);
+            blockSize = intConf(conf,ParameterNames.BLOCK_SIZE);
 
-        } catch (Exception e) {
-            System.out.println("Error reading scale factors");
-            System.err.println(e.getMessage());
-            throw e;
-        }
-
-        try {
             numPersons = Long.parseLong(conf.get("ldbc.snb.datagen.generator.numPersons"));
             startYear = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.startYear"));
             numYears = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numYears"));
@@ -302,8 +286,7 @@ public class DatagenParams {
             if (conf.get("ldbc.snb.datagen.generator.gscale") != null) {
                 double scale = conf.getDouble("ldbc.snb.datagen.generator.gscale", 6.0);
                 String degreeDistributionName = conf.get("ldbc.snb.datagen.generator.distribution.degreeDistribution");
-                DegreeDistribution degreeDistribution = (DegreeDistribution) Class.forName(degreeDistributionName)
-                                                                                  .newInstance();
+                DegreeDistribution degreeDistribution = (DegreeDistribution) Class.forName(degreeDistributionName).newInstance();
                 degreeDistribution.initialize(conf);
                 numPersons = findNumPersonsFromGraphalyticsScale(degreeDistribution, scale);
             }
@@ -311,6 +294,8 @@ public class DatagenParams {
             System.out.println(" ... Start Year " + startYear);
             System.out.println(" ... Num Years " + numYears);
         } catch (Exception e) {
+            System.out.println("Error reading scale factors or conf");
+            System.err.println(e.getMessage());
             throw new RuntimeException(e);
         }
     }
@@ -322,23 +307,21 @@ public class DatagenParams {
     private static long findNumPersonsFromGraphalyticsScale(DegreeDistribution distribution, double scale) {
 
         long numPersonsMin = 1000000;
-        while (scale(numPersonsMin, distribution.mean(numPersonsMin)) > scale) {
+        while (scale(numPersonsMin, distribution.mean(numPersonsMin)) > scale)
             numPersonsMin /= 2;
-        }
 
         long numPersonsMax = 1000000;
-        while (scale(numPersonsMax, distribution.mean(numPersonsMax)) < scale) {
+        while (scale(numPersonsMax, distribution.mean(numPersonsMax)) < scale)
             numPersonsMax *= 2;
-        }
 
         long currentNumPersons = (numPersonsMax - numPersonsMin) / 2 + numPersonsMin;
         double currentScale = scale(currentNumPersons, distribution.mean(currentNumPersons));
         while (Math.abs(currentScale - scale) / scale > 0.001) {
-            if (currentScale < scale) {
+            if (currentScale < scale)
                 numPersonsMin = currentNumPersons;
-            } else {
+            else
                 numPersonsMax = currentNumPersons;
-            }
+
             currentNumPersons = (numPersonsMax - numPersonsMin) / 2 + numPersonsMin;
             currentScale = scale(currentNumPersons, distribution.mean(currentNumPersons));
             System.out.println(numPersonsMin + " " + numPersonsMax + " " + currentNumPersons + " " + currentScale);

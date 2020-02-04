@@ -55,89 +55,59 @@ public class SN {
      * Sets the machine id.
      * Used as a suffix in some SN entities' tp create unique IDs in parallel generation.
      */
-
     public static void initialize() {
         minDate = Dictionaries.dates.getStartDateTime();
         maxDate = Dictionaries.dates.getEndDateTime();
-        numBits = (int) Math
-                .ceil(Math.log10(Math.ceil(DatagenParams.numPersons / (double) DatagenParams.blockSize)) / Math
-                        .log10(2));
+        numBits = (int) Math.ceil(Math.log10(Math.ceil(DatagenParams.numPersons / (double) DatagenParams.blockSize)) / Math.log10(2));
         if (numBits > 20) System.out.print("WARNING: Possible id overlapp");
     }
 
-    /**
-     * Gets the LDBC social network data prefix version of the input.
-     */
-    public static String prefixed(String string) {
-        return PREFIX + string;
-    }
 
-    /**
-     * Gets the LDBC social network data URL version of the input.
-     */
-    public static String getUrl(String string) {
-        return NAMESPACE + string;
-    }
+     //Gets the LDBC social network data prefix version of the input.
+    public static String prefixed(String string) {return PREFIX + string;}
 
-    /**
-     * Gets the LDBC social network data RDF-URL version of the input.
-     */
+     //Gets the LDBC social network data URL version of the input.
+    public static String getUrl(String string) {return NAMESPACE + string; }
+
+     //Gets the LDBC social network data RDF-URL version of the input.
     public static String fullprefixed(String string) {
         return "<" + NAMESPACE + string + ">";
     }
 
-    /**
-     * Gets the person entity prefix.
-     */
+     //Gets the person entity prefix.
     public static String getPersonURI(long id) {
         return PREFIX + "pers" + String.format("%020d", id);
     }
 
-    /**
-     * Gets the forum entity prefix.
-     */
+     //Gets the forum entity prefix.
     public static String getForumURI(long id) {
         return PREFIX + "forum" + String.format("%020d", id);
     }
 
-    /**
-     * Gets the post entity prefix.
-     */
+    //Gets the post entity prefix.
     public static String getPostURI(long id) {
         return PREFIX + "post" + String.format("%020d", id);
     }
 
-    /**
-     * Gets the comment entity prefix.
-     */
+     //Gets the comment entity prefix.
     public static String getCommentURI(long id) {
         return PREFIX + "comm" + String.format("%020d", id);
     }
 
-    /**
-     * Gets the membership relation prefix.
-     */
+    //Gets the membership relation prefix.
     public static String getMembershipURI(long id) {
         return BLANK_NODE + "mbs" + String.format("%020d", id);
     }
 
-    /**
-     * Gets the like relation prefix.
-     */
-    public static String getLikeURI(long id) {
-        return BLANK_NODE + "like" + String.format("%020d", id);
-    }
+    //Gets the like relation prefix.
+    public static String getLikeURI(long id) { return BLANK_NODE + "like" + String.format("%020d", id); }
 
-    /**
-     * Gets the studyAt relation prefix.
-     */
+     //Gets the studyAt relation prefix.
     public static String getStudyAtURI(long id) {
         return BLANK_NODE + "study" + String.format("%020d", id);
     }
 
-    /**
-     * Gets the workAt relation prefix.
-     */
+     //Gets the workAt relation prefix.
     public static String getWorkAtURI(long id) {
         return BLANK_NODE + "work" + String.format("%020d", id);
     }
