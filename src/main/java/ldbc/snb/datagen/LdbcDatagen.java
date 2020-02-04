@@ -127,6 +127,25 @@ public class LdbcDatagen {
 
         return(System.currentTimeMillis()-startPersonSerializing);
     }
+    private void copyToLocal(FileSystem fs,String pathString) throws Exception {
+        fs.copyToLocalFile(false, new Path(pathString), new Path("./"));
+    }
+    private long personActivityJob(String hadoopPrefix, Configuration conf,FileSystem fs) throws Exception {
+        long startPersonActivity = System.currentTimeMillis();
+        if (conf.getBoolean("ldbc.snb.datagen.generator.activity", true)) {
+            printProgress("Generating and serializing person activity");
+            HadoopPersonActivityGenerator activityGenerator = new HadoopPersonActivityGenerator(conf);
+            activityGenerator.run(hadoopPrefix + "/mergedPersons");
+            for (int i = 0; i < DatagenParams.numThreads; ++i) {
+                if (i < (int) Math.ceil(DatagenParams.numPersons / (double) DatagenParams.blockSize)) { // i<number of blocks
+                    copyToLocal(fs,DatagenParams.hadoopDir + "/m" + i + "personFactors.txt");
+                    copyToLocal(fs,DatagenParams.hadoopDir + "/m" + i + "activityFactors.txt");
+                    copyToLocal(fs,DatagenParams.hadoopDir + "/m0friendList" + i + ".csv");
+                }
+            }
+        }
+        return(System.currentTimeMillis()-startPersonActivity);
+    }
 
     public int runGenerateJob(Configuration conf) throws Exception {
         String hadoopPrefix = conf.get("ldbc.snb.datagen.serializer.hadoopDir");
@@ -166,27 +185,9 @@ public class LdbcDatagen {
         long mergeKnowsTime = mergeKnows(hadoopPrefix,conf);
         //serialize persons
         long personSerializeTime = serializePersons(hadoopPrefix,conf);
+        //generate person activities
+        long personActivityTime = personActivityJob(hadoopPrefix,conf,fs);
 
-
-        long startPersonActivity = System.currentTimeMillis();
-        if (conf.getBoolean("ldbc.snb.datagen.generator.activity", true)) {
-            printProgress("Generating and serializing person activity");
-            HadoopPersonActivityGenerator activityGenerator = new HadoopPersonActivityGenerator(conf);
-            activityGenerator.run(hadoopPrefix + "/mergedPersons");
-
-            int numThreads = DatagenParams.numThreads;
-            int blockSize = DatagenParams.blockSize;
-            int numBlocks = (int) Math.ceil(DatagenParams.numPersons / (double) blockSize);
-
-            for (int i = 0; i < numThreads; ++i) {
-                if (i < numBlocks) {
-                    fs.copyToLocalFile(false, new Path(DatagenParams.hadoopDir + "/m" + i + "personFactors.txt"), new Path("./"));
-                    fs.copyToLocalFile(false, new Path(DatagenParams.hadoopDir + "/m" + i + "activityFactors.txt"), new Path("./"));
-                    fs.copyToLocalFile(false, new Path(DatagenParams.hadoopDir + "/m0friendList" + i + ".csv"), new Path("./"));
-                }
-            }
-        }
-        long endPersonActivity = System.currentTimeMillis();
 
         long startSortingUpdateStreams = System.currentTimeMillis();
         if (conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
@@ -278,7 +279,7 @@ public class LdbcDatagen {
         print("Random correlated edge generation time: " + (randomKnowsGenTime / 1000));
         print("Edges merge time: " + (mergeKnowsTime / 1000));
         print("Person serialization time: " + (personSerializeTime / 1000));
-        print("Person activity generation and serialization time: " + ((endPersonActivity - startPersonActivity) / 1000));
+        print("Person activity generation and serialization time: " + (personActivityTime / 1000));
         print("Sorting update streams time: " + ((endSortingUpdateStreams - startSortingUpdateStreams) / 1000));
         print("Invariant schema serialization time: " + ((endInvariantSerializing - startInvariantSerializing) / 1000));
         print("Total Execution time: " + ((end - start) / 1000));
