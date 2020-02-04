@@ -101,8 +101,7 @@ public class HadoopKnowsGenerator {
                 ++index;
             }
             try {
-                this.keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(conf.get("postKeySetterName"))
-                                                                       .newInstance();
+                this.keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(conf.get("postKeySetterName")).newInstance();
             } catch (Exception e) {
                 System.out.println(e.getMessage());
                 e.printStackTrace();

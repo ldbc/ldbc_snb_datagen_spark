@@ -59,7 +59,6 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
     private int numCorePeripheryEdges = 0;
     private int numCoreExternalEdges = 0;
     private float min_community_prob_ = 0.0f;
-
     private class PersonInfo {
         public int index_;
         public long degree_;
