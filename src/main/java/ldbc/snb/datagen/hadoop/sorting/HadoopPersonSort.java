@@ -38,10 +38,10 @@ public class HadoopPersonSort {
     }
 }
 
-  public static class SortReducer extends Reducer<LongWritable, Text,LongWritable,Text> {
+  public static class SortReducer extends Reducer<LongWritable, Text,Text,NullWritable> {
     public void reduce(LongWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
       for(Text value:values) { //for all values at this time
-        context.write(key, value); //just output
+        context.write(value,NullWritable.get()); //just output
       }
     }
   }
