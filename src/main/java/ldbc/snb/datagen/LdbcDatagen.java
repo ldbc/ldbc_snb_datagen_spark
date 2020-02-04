@@ -45,6 +45,7 @@ import ldbc.snb.datagen.hadoop.serializer.HadoopPersonSerializer;
 import ldbc.snb.datagen.hadoop.serializer.HadoopPersonSortAndSerializer;
 import ldbc.snb.datagen.hadoop.serializer.HadoopStaticSerializer;
 import ldbc.snb.datagen.hadoop.serializer.HadoopUpdateStreamSorterAndSerializer;
+import ldbc.snb.datagen.hadoop.sorting.HadoopPersonSort;
 import ldbc.snb.datagen.util.ConfigParser;
 import ldbc.snb.datagen.vocabulary.SN;
 import org.apache.commons.io.FileUtils;
@@ -56,11 +57,26 @@ import org.apache.hadoop.fs.Path;
 import java.io.File;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
 public class LdbcDatagen {
     private static boolean initialized = false;
+
+    public static void prepareConfiguration(Configuration conf) throws Exception {
+        conf.set("ldbc.snb.datagen.serializer.hadoopDir", conf
+                .get("ldbc.snb.datagen.serializer.outputDir") + "/hadoop");
+        conf.set("ldbc.snb.datagen.serializer.socialNetworkDir", conf
+                .get("ldbc.snb.datagen.serializer.outputDir") + "/social_network");
+        // Deleting existing files
+        FileSystem dfs = FileSystem.get(conf);
+        dfs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")), true);
+        //dfs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir")), true);
+        FileUtils.deleteDirectory(new File(conf.get("ldbc.snb.datagen.serializer.outputDir")
+                + "/substitution_parameters"));
+        ConfigParser.printConfig(conf);
+    }
 
     public static synchronized void initializeContext(Configuration conf) {
         if (!initialized) {
@@ -78,20 +94,11 @@ public class LdbcDatagen {
         }
     }
 
-    private void printProgress(String message) {
-        System.out.println("************************************************");
-        System.out.println("* " + message + " *");
-        System.out.println("************************************************");
-    }
-
     public int runGenerateJob(Configuration conf) throws Exception {
 
         String hadoopPrefix = conf.get("ldbc.snb.datagen.serializer.hadoopDir");
         FileSystem fs = FileSystem.get(conf);
-        List<Float> percentages = new ArrayList<>();
-        percentages.add(0.45f);
-        percentages.add(0.45f);
-        percentages.add(0.1f);
+        List<Float> percentages = new ArrayList<>(Arrays.asList(0.45f,0.45f,0.1f));
 
         long start = System.currentTimeMillis();
         printProgress("Starting: Person generation");
@@ -103,11 +110,11 @@ public class LdbcDatagen {
         printProgress("Creating university location correlated edges");
         long startUniversity = System.currentTimeMillis();
         HadoopKnowsGenerator knowsGenerator = new HadoopKnowsGenerator(conf,
-                                                                       "ldbc.snb.datagen.hadoop.miscjob.keychanger.UniversityKeySetter",
-                                                                       "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter",
-                                                                       percentages,
-                                                                       0,
-                                                                       conf.get("ldbc.snb.datagen.generator.knowsGenerator"));
+                "ldbc.snb.datagen.hadoop.miscjob.keychanger.UniversityKeySetter",
+                "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter",
+                percentages,
+                0,
+                conf.get("ldbc.snb.datagen.generator.knowsGenerator"));
 
         knowsGenerator.run(hadoopPrefix + "/persons", hadoopPrefix + "/universityEdges");
         long endUniversity = System.currentTimeMillis();
@@ -117,11 +124,11 @@ public class LdbcDatagen {
         long startInterest = System.currentTimeMillis();
 
         knowsGenerator = new HadoopKnowsGenerator(conf,
-                                                  "ldbc.snb.datagen.hadoop.miscjob.keychanger.InterestKeySetter",
-                                                  "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter",
-                                                  percentages,
-                                                  1,
-                                                  conf.get("ldbc.snb.datagen.generator.knowsGenerator"));
+                "ldbc.snb.datagen.hadoop.miscjob.keychanger.InterestKeySetter",
+                "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter",
+                percentages,
+                1,
+                conf.get("ldbc.snb.datagen.generator.knowsGenerator"));
 
         knowsGenerator.run(hadoopPrefix + "/persons", hadoopPrefix + "/interestEdges");
         long endInterest = System.currentTimeMillis();
@@ -131,11 +138,11 @@ public class LdbcDatagen {
         long startRandom = System.currentTimeMillis();
 
         knowsGenerator = new HadoopKnowsGenerator(conf,
-                                                  "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter",
-                                                  "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter",
-                                                  percentages,
-                                                  2,
-                                                  "ldbc.snb.datagen.generator.generators.knowsgenerators.RandomKnowsGenerator");
+                "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter",
+                "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter",
+                percentages,
+                2,
+                "ldbc.snb.datagen.generator.generators.knowsgenerators.RandomKnowsGenerator");
 
         knowsGenerator.run(hadoopPrefix + "/persons", hadoopPrefix + "/randomEdges");
         long endRandom = System.currentTimeMillis();
@@ -248,11 +255,11 @@ public class LdbcDatagen {
             OutputStream output = fs
                     .create(new Path(DatagenParams.socialNetworkDir + "/updateStream" + ".properties"), true);
             output.write(new String("ldbc.snb.interactive.gct_delta_duration:" + DatagenParams.deltaTime + "\n")
-                                 .getBytes());
+                    .getBytes());
             output.write(new String("ldbc.snb.interactive.min_write_event_start_time:" + minDate + "\n").getBytes());
             output.write(new String("ldbc.snb.interactive.max_write_event_start_time:" + maxDate + "\n").getBytes());
             output.write(new String("ldbc.snb.interactive.update_interleave:" + (maxDate - minDate) / count + "\n")
-                                 .getBytes());
+                    .getBytes());
             output.write(new String("ldbc.snb.interactive.num_events:" + count).getBytes());
             output.close();
         }
@@ -268,7 +275,7 @@ public class LdbcDatagen {
         long end = System.currentTimeMillis();
 
         System.out.println(((end - start) / 1000)
-                                   + " total seconds");
+                + " total seconds");
         System.out.println("Person generation time: " + ((endPerson - startPerson) / 1000));
         System.out.println("University correlated edge generation time: " + ((endUniversity - startUniversity) / 1000));
         System.out.println("Interest correlated edge generation time: " + ((endInterest - startInterest) / 1000));
@@ -316,32 +323,18 @@ public class LdbcDatagen {
         return 0;
     }
 
-    public static void prepareConfiguration(Configuration conf) throws Exception {
-
-        conf.set("ldbc.snb.datagen.serializer.hadoopDir", conf
-                .get("ldbc.snb.datagen.serializer.outputDir") + "/hadoop");
-        conf.set("ldbc.snb.datagen.serializer.socialNetworkDir", conf
-                .get("ldbc.snb.datagen.serializer.outputDir") + "/social_network");
-
-        // Deleting existing files
-        FileSystem dfs = FileSystem.get(conf);
-        dfs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")), true);
-        dfs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir")), true);
-        FileUtils.deleteDirectory(new File(conf.get("ldbc.snb.datagen.serializer.outputDir")
-                                                   + "/substitution_parameters"));
-
-        ConfigParser.printConfig(conf);
-
-    }
-
-
-    public int sortDynamicData(Configuration conf) throws Exception {
+    public int runSortJob(Configuration conf) throws Exception {
         String hadoopPrefix = conf.get("ldbc.snb.datagen.serializer.hadoopDir");
-        FileSystem fs = FileSystem.get(conf);
-        System.out.println(hadoopPrefix);
+        printProgress("Starting: Person Sorting");
+        long startSort = System.currentTimeMillis();
+        HadoopPersonSort personSort = new HadoopPersonSort();
+        personSort.run("social_network/dynamic","person_0_0.csv",hadoopPrefix + "/personSorted");
+        long endSort = System.currentTimeMillis();
+        System.out.println("Person generation time: " + ((endSort - startSort) / 1000));
         return 0;
-
     }
+
+
 
     public static void main(String[] args) throws Exception {
         try {
@@ -352,13 +345,20 @@ public class LdbcDatagen {
             LdbcDatagen.prepareConfiguration(conf);
             LdbcDatagen.initializeContext(conf);
             LdbcDatagen datagen = new LdbcDatagen();
-            datagen.runGenerateJob(conf);
-            datagen.sortDynamicData(conf);
+        //    datagen.runGenerateJob(conf);
+            datagen.runSortJob(conf);
         } catch (Exception e) {
             System.err.println("Error during execution");
             System.err.println(e.getMessage());
-            e.printStackTrace();
             throw e;
         }
     }
+
+
+    private void printProgress(String message) {
+        System.out.println("************************************************");
+        System.out.println("* " + message + " *");
+        System.out.println("************************************************");
+    }
+
 }
