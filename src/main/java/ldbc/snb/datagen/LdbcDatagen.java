@@ -96,7 +96,7 @@ public class LdbcDatagen {
         long startPerson = System.currentTimeMillis();
         new HadoopPersonGenerator(conf)
                 .run(hadoopPrefix + "/persons",
-                     "ldbc.snb.datagen.hadoop.miscjob.keychanger.UniversityKeySetter");
+                        "ldbc.snb.datagen.hadoop.miscjob.keychanger.UniversityKeySetter");
         return(System.currentTimeMillis()-startPerson);
     }
 
@@ -147,53 +147,10 @@ public class LdbcDatagen {
         return(System.currentTimeMillis()-startPersonActivity);
     }
 
-    public int runGenerateJob(Configuration conf) throws Exception {
-        String hadoopPrefix = conf.get("ldbc.snb.datagen.serializer.hadoopDir");
-        FileSystem fs = FileSystem.get(conf);
-        long start = System.currentTimeMillis();
-
-        //create all people in the graph
-        long personGenTime = personGenerateJob(hadoopPrefix,conf);
-        //generate friendships based on going to the same uni
-        long uniKnowsGenTime = knowsGenerateJob(hadoopPrefix, conf,
-                "Creating university location correlated edges",
-                "ldbc.snb.datagen.hadoop.miscjob.keychanger.UniversityKeySetter",
-                "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter",
-                0,
-                 conf.get("ldbc.snb.datagen.generator.knowsGenerator"),
-                "/universityEdges");
-        //generate second set of friendships based on similar interests
-        long interestKnowsGenTime = knowsGenerateJob(hadoopPrefix, conf,
-                "Creating main interest correlated edges",
-                "ldbc.snb.datagen.hadoop.miscjob.keychanger.InterestKeySetter",
-                "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter",
-                1,
-                 conf.get("ldbc.snb.datagen.generator.knowsGenerator"),
-                "/interestEdges");
-        //generate final set of friendships based on randomness
-        long randomKnowsGenTime = knowsGenerateJob(hadoopPrefix, conf,
-                "Creating random correlated edges",
-                "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter",
-                "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter",
-                2,
-                "ldbc.snb.datagen.generator.generators.knowsgenerators.RandomKnowsGenerator",
-                "/randomEdges");
-
-        //delete old persons file as now merged persons is going to be used
-        fs.delete(new Path(DatagenParams.hadoopDir + "/persons"), true);
-        //merge all friendship edges into a single file
-        long mergeKnowsTime = mergeKnows(hadoopPrefix,conf);
-        //serialize persons
-        long personSerializeTime = serializePersons(hadoopPrefix,conf);
-        //generate person activities
-        long personActivityTime = personActivityJob(hadoopPrefix,conf,fs);
-
-
+    private long updateStreamSort(Configuration conf,FileSystem fs) throws Exception {
         long startSortingUpdateStreams = System.currentTimeMillis();
         if (conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
-
             printProgress("Sorting update streams ");
-
             List<String> personStreamsFileNames = new ArrayList<>();
             List<String> forumStreamsFileNames = new ArrayList<>();
             for (int i = 0; i < DatagenParams.numThreads; ++i) {
@@ -208,13 +165,10 @@ public class LdbcDatagen {
             HadoopUpdateStreamSorterAndSerializer updateSorterAndSerializer = new HadoopUpdateStreamSorterAndSerializer(conf);
             updateSorterAndSerializer.run(personStreamsFileNames, "person");
             updateSorterAndSerializer.run(forumStreamsFileNames, "forum");
-            for (String file : personStreamsFileNames) {
+            for (String file : personStreamsFileNames)
                 fs.delete(new Path(file), true);
-            }
-
-            for (String file : forumStreamsFileNames) {
+            for (String file : forumStreamsFileNames)
                 fs.delete(new Path(file), true);
-            }
 
             long minDate = Long.MAX_VALUE;
             long maxDate = Long.MIN_VALUE;
@@ -250,29 +204,103 @@ public class LdbcDatagen {
                 }
             }
 
-            OutputStream output = fs
-                    .create(new Path(DatagenParams.socialNetworkDir + "/updateStream" + ".properties"), true);
-            output.write(new String("ldbc.snb.interactive.gct_delta_duration:" + DatagenParams.deltaTime + "\n")
-                    .getBytes());
+            OutputStream output = fs.create(new Path(DatagenParams.socialNetworkDir + "/updateStream" + ".properties"), true);
+            output.write(new String("ldbc.snb.interactive.gct_delta_duration:" + DatagenParams.deltaTime + "\n").getBytes());
             output.write(new String("ldbc.snb.interactive.min_write_event_start_time:" + minDate + "\n").getBytes());
             output.write(new String("ldbc.snb.interactive.max_write_event_start_time:" + maxDate + "\n").getBytes());
-            output.write(new String("ldbc.snb.interactive.update_interleave:" + (maxDate - minDate) / count + "\n")
-                    .getBytes());
+            output.write(new String("ldbc.snb.interactive.update_interleave:" + (maxDate - minDate) / count + "\n").getBytes());
             output.write(new String("ldbc.snb.interactive.num_events:" + count).getBytes());
             output.close();
         }
+        return (System.currentTimeMillis()-startSortingUpdateStreams);
+    }
 
-        long endSortingUpdateStreams = System.currentTimeMillis();
-
+    private long serializeStaticGraph(Configuration conf) throws Exception {
         printProgress("Serializing static graph ");
         long startInvariantSerializing = System.currentTimeMillis();
         HadoopStaticSerializer staticSerializer = new HadoopStaticSerializer(conf);
         staticSerializer.run();
-        long endInvariantSerializing = System.currentTimeMillis();
+        return(System.currentTimeMillis()-startInvariantSerializing);
+    }
 
-        long end = System.currentTimeMillis();
+    private void generateBIParameters(Configuration conf) throws Exception {
+        print("Generating BI Parameters");
+        ProcessBuilder pb = new ProcessBuilder(conf.get("ldbc.snb.datagen.parametergenerator.python"), "paramgenerator/generateparamsbi.py", "./", conf.get("ldbc.snb.datagen.serializer.outputDir") + "/substitution_parameters");
+        pb.directory(new File("./"));
+        File logBi = new File("parameters_bi.log");
+        pb.redirectErrorStream(true);
+        pb.redirectOutput(ProcessBuilder.Redirect.appendTo(logBi));
+        Process p = pb.start();
+        p.waitFor();
+        print("Finished BI Parameter Generation");
+    }
 
-        print(((end - start) / 1000) + " total seconds");
+    private void generateInteractiveParameters(Configuration conf) throws Exception{
+
+        print("Running Parameter Generation");
+        print("Generating Interactive Parameters");
+        ProcessBuilder pb = new ProcessBuilder("mkdir", "-p", conf.get("ldbc.snb.datagen.serializer.outputDir") + "/substitution_parameters");
+        pb.directory(new File("./"));
+        Process p = pb.start();
+        p.waitFor();
+
+        pb = new ProcessBuilder(conf.get("ldbc.snb.datagen.parametergenerator.python"), "paramgenerator/generateparams.py", "./", conf.get("ldbc.snb.datagen.serializer.outputDir") + "/substitution_parameters");
+        pb.directory(new File("./"));
+        File logInteractive = new File("parameters_interactive.log");
+        pb.redirectErrorStream(true);
+        pb.redirectOutput(ProcessBuilder.Redirect.appendTo(logInteractive));
+        p = pb.start();
+        p.waitFor();
+        print("Finished Interactive Parameter Generation");
+
+
+    }
+
+
+    public int runGenerateJob(Configuration conf) throws Exception {
+        String hadoopPrefix = conf.get("ldbc.snb.datagen.serializer.hadoopDir");
+        FileSystem fs = FileSystem.get(conf);
+        long start = System.currentTimeMillis();
+
+        //create all people in the graph
+        long personGenTime = personGenerateJob(hadoopPrefix,conf);
+        //generate friendships based on going to the same uni
+        long uniKnowsGenTime = knowsGenerateJob(hadoopPrefix, conf,
+                "Creating university location correlated edges",
+                "ldbc.snb.datagen.hadoop.miscjob.keychanger.UniversityKeySetter",
+                "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter",
+                0,
+                conf.get("ldbc.snb.datagen.generator.knowsGenerator"),
+                "/universityEdges");
+        //generate second set of friendships based on similar interests
+        long interestKnowsGenTime = knowsGenerateJob(hadoopPrefix, conf,
+                "Creating main interest correlated edges",
+                "ldbc.snb.datagen.hadoop.miscjob.keychanger.InterestKeySetter",
+                "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter",
+                1,
+                conf.get("ldbc.snb.datagen.generator.knowsGenerator"),
+                "/interestEdges");
+        //generate final set of friendships based on randomness
+        long randomKnowsGenTime = knowsGenerateJob(hadoopPrefix, conf,
+                "Creating random correlated edges",
+                "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter",
+                "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter",
+                2,
+                "ldbc.snb.datagen.generator.generators.knowsgenerators.RandomKnowsGenerator",
+                "/randomEdges");
+        //delete old persons file as now merged persons is going to be used
+        fs.delete(new Path(DatagenParams.hadoopDir + "/persons"), true);
+        //merge all friendship edges into a single file
+        long mergeKnowsTime = mergeKnows(hadoopPrefix,conf);
+        //serialize persons
+        long personSerializeTime = serializePersons(hadoopPrefix,conf);
+        //generate person activities
+        long personActivityTime = personActivityJob(hadoopPrefix,conf,fs);
+        //sort update stream (last 10% of generated data)
+        long updateSortingTime = updateStreamSort(conf,fs);
+        //serialize static graph
+        long serializeStaticTime = serializeStaticGraph(conf);
+        //total time taken
         print("Person generation time: " + (personGenTime / 1000));
         print("University correlated edge generation time: " + (uniKnowsGenTime / 1000));
         print("Interest correlated edge generation time: " + (interestKnowsGenTime / 1000));
@@ -280,40 +308,17 @@ public class LdbcDatagen {
         print("Edges merge time: " + (mergeKnowsTime / 1000));
         print("Person serialization time: " + (personSerializeTime / 1000));
         print("Person activity generation and serialization time: " + (personActivityTime / 1000));
-        print("Sorting update streams time: " + ((endSortingUpdateStreams - startSortingUpdateStreams) / 1000));
-        print("Invariant schema serialization time: " + ((endInvariantSerializing - startInvariantSerializing) / 1000));
-        print("Total Execution time: " + ((end - start) / 1000));
+        print("Sorting update streams time: " + (updateSortingTime / 1000));
+        print("Invariant schema serialization time: " + (serializeStaticTime / 1000));
+        print("Total Execution time: " + ((System.currentTimeMillis() - start) / 1000));
 
-        if (conf.getBoolean("ldbc.snb.datagen.parametergenerator.parameters", false) && conf
-                .getBoolean("ldbc.snb.datagen.generator.activity", false)) {
-            print("Running Parameter Generation");
-            print("Generating Interactive Parameters");
-            ProcessBuilder pb = new ProcessBuilder("mkdir", "-p", conf
-                    .get("ldbc.snb.datagen.serializer.outputDir") + "/substitution_parameters");
-            pb.directory(new File("./"));
-            Process p = pb.start();
-            p.waitFor();
-
-            pb = new ProcessBuilder(conf.get("ldbc.snb.datagen.parametergenerator.python"), "paramgenerator/generateparams.py", "./", conf
-                    .get("ldbc.snb.datagen.serializer.outputDir") + "/substitution_parameters");
-            pb.directory(new File("./"));
-            File logInteractive = new File("parameters_interactive.log");
-            pb.redirectErrorStream(true);
-            pb.redirectOutput(ProcessBuilder.Redirect.appendTo(logInteractive));
-            p = pb.start();
-            p.waitFor();
-
-            print("Generating BI Parameters");
-            pb = new ProcessBuilder(conf.get("ldbc.snb.datagen.parametergenerator.python"), "paramgenerator/generateparamsbi.py", "./", conf
-                    .get("ldbc.snb.datagen.serializer.outputDir") + "/substitution_parameters");
-            pb.directory(new File("./"));
-            File logBi = new File("parameters_bi.log");
-            pb.redirectErrorStream(true);
-            pb.redirectOutput(ProcessBuilder.Redirect.appendTo(logBi));
-            p = pb.start();
-            p.waitFor();
-            print("Finished Parameter Generation");
+        //are we generating paramerters
+        if (conf.getBoolean("ldbc.snb.datagen.parametergenerator.parameters", false) &&
+                conf.getBoolean("ldbc.snb.datagen.generator.activity", false)) {
+            generateInteractiveParameters(conf);
+            generateBIParameters(conf);
         }
+
         return 0;
     }
 
