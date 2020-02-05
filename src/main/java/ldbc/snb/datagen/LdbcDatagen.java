@@ -94,12 +94,14 @@ public class LdbcDatagen {
         percentages.add(0.1f);
 
         long start = System.currentTimeMillis();
+        // Person ----------------------------------------------------------------------------------------------------
         printProgress("Starting: Person generation");
         long startPerson = System.currentTimeMillis();
         HadoopPersonGenerator personGenerator = new HadoopPersonGenerator(conf);
         personGenerator.run(hadoopPrefix + "/persons", "ldbc.snb.datagen.hadoop.miscjob.keychanger.UniversityKeySetter");
         long endPerson = System.currentTimeMillis();
 
+        // Person / Knows / University dimension ---------------------------------------------------------------------
         printProgress("Creating university location correlated edges");
         long startUniversity = System.currentTimeMillis();
         HadoopKnowsGenerator knowsGenerator = new HadoopKnowsGenerator(conf,
@@ -113,6 +115,7 @@ public class LdbcDatagen {
         long endUniversity = System.currentTimeMillis();
 
 
+        // Person / Knows / interest dimension -----------------------------------------------------------------------
         printProgress("Creating main interest correlated edges");
         long startInterest = System.currentTimeMillis();
 
@@ -126,7 +129,7 @@ public class LdbcDatagen {
         knowsGenerator.run(hadoopPrefix + "/persons", hadoopPrefix + "/interestEdges");
         long endInterest = System.currentTimeMillis();
 
-
+        // Person / Knows / random dimension -------------------------------------------------------------------------
         printProgress("Creating random correlated edges");
         long startRandom = System.currentTimeMillis();
 
@@ -147,11 +150,14 @@ public class LdbcDatagen {
         edgeFileNames.add(hadoopPrefix + "/universityEdges");
         edgeFileNames.add(hadoopPrefix + "/interestEdges");
         edgeFileNames.add(hadoopPrefix + "/randomEdges");
+
+        // Person / Knows / merge ------------------------------------------------------------------------------------
         long startMerge = System.currentTimeMillis();
         HadoopMergeFriendshipFiles merger = new HadoopMergeFriendshipFiles(conf, "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter");
         merger.run(hadoopPrefix + "/mergedPersons", edgeFileNames);
         long endMerge = System.currentTimeMillis();
 
+        // Person / serializing --------------------------------------------------------------------------------------
         printProgress("Serializing persons");
         long startPersonSerializing = System.currentTimeMillis();
         if (conf.getBoolean("ldbc.snb.datagen.serializer.persons.sort", true)) {
@@ -163,6 +169,7 @@ public class LdbcDatagen {
         }
         long endPersonSerializing = System.currentTimeMillis();
 
+        // Person activity -------------------------------------------------------------------------------------------
         long startPersonActivity = System.currentTimeMillis();
         if (conf.getBoolean("ldbc.snb.datagen.generator.activity", true)) {
             printProgress("Generating and serializing person activity");
