@@ -93,7 +93,9 @@ public class LdbcDatagen {
         percentages.add(0.45f);
         percentages.add(0.1f);
 
+        // Start generation process ----------------------------------------------------------------------------------
         long start = System.currentTimeMillis();
+
         // Person ----------------------------------------------------------------------------------------------------
         printProgress("Starting: Person generation");
         long startPerson = System.currentTimeMillis();
@@ -190,6 +192,7 @@ public class LdbcDatagen {
         }
         long endPersonActivity = System.currentTimeMillis();
 
+        // Sort update streams ---------------------------------------------------------------------------------------
         long startSortingUpdateStreams = System.currentTimeMillis();
 
         if (conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
@@ -266,6 +269,7 @@ public class LdbcDatagen {
 
         long endSortingUpdateStreams = System.currentTimeMillis();
 
+        // Serializing static graph ----------------------------------------------------------------------------------
         printProgress("Serializing static graph ");
         long startInvariantSerializing = System.currentTimeMillis();
         HadoopStaticSerializer staticSerializer = new HadoopStaticSerializer(conf);
@@ -273,21 +277,18 @@ public class LdbcDatagen {
         long endInvariantSerializing = System.currentTimeMillis();
 
         long end = System.currentTimeMillis();
+        // End of generation process ---------------------------------------------------------------------------------
 
-        System.out.println(((end - start) / 1000)
-                                   + " total seconds");
+        System.out.println(((end - start) / 1000) + " total seconds");
         System.out.println("Person generation time: " + ((endPerson - startPerson) / 1000));
         System.out.println("University correlated edge generation time: " + ((endUniversity - startUniversity) / 1000));
         System.out.println("Interest correlated edge generation time: " + ((endInterest - startInterest) / 1000));
         System.out.println("Random correlated edge generation time: " + ((endRandom - startRandom) / 1000));
         System.out.println("Edges merge time: " + ((endMerge - startMerge) / 1000));
         System.out.println("Person serialization time: " + ((endPersonSerializing - startPersonSerializing) / 1000));
-        System.out
-                .println("Person activity generation and serialization time: " + ((endPersonActivity - startPersonActivity) / 1000));
-        System.out
-                .println("Sorting update streams time: " + ((endSortingUpdateStreams - startSortingUpdateStreams) / 1000));
-        System.out
-                .println("Invariant schema serialization time: " + ((endInvariantSerializing - startInvariantSerializing) / 1000));
+        System.out.println("Person activity generation and serialization time: " + ((endPersonActivity - startPersonActivity) / 1000));
+        System.out.println("Sorting update streams time: " + ((endSortingUpdateStreams - startSortingUpdateStreams) / 1000));
+        System.out.println("Invariant schema serialization time: " + ((endInvariantSerializing - startInvariantSerializing) / 1000));
         System.out.println("Total Execution time: " + ((end - start) / 1000));
 
         if (conf.getBoolean("ldbc.snb.datagen.parametergenerator.parameters", false) && conf
