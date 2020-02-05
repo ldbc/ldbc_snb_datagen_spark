@@ -45,7 +45,7 @@ import ldbc.snb.datagen.hadoop.serializer.HadoopPersonSerializer;
 import ldbc.snb.datagen.hadoop.serializer.HadoopPersonSortAndSerializer;
 import ldbc.snb.datagen.hadoop.serializer.HadoopStaticSerializer;
 import ldbc.snb.datagen.hadoop.serializer.HadoopUpdateStreamSorterAndSerializer;
-import ldbc.snb.datagen.hadoop.sorting.HadoopPersonSort;
+import ldbc.snb.datagen.hadoop.sorting.HadoopSorter;
 import ldbc.snb.datagen.util.ConfigParser;
 import ldbc.snb.datagen.vocabulary.SN;
 import org.apache.commons.io.FileUtils;
@@ -56,10 +56,13 @@ import org.apache.hadoop.fs.Path;
 
 import java.io.File;
 import java.io.OutputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class LdbcDatagen {
     private static boolean initialized = false;
@@ -70,8 +73,8 @@ public class LdbcDatagen {
         conf.set("ldbc.snb.datagen.serializer.socialNetworkDir", conf.get("ldbc.snb.datagen.serializer.outputDir") + "/social_network");
         // Deleting existing files
         FileSystem dfs = FileSystem.get(conf);
-        dfs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")), true);
-        dfs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir")), true);
+        //dfs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")), true);
+        //dfs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir")), true);
         FileUtils.deleteDirectory(new File(conf.get("ldbc.snb.datagen.serializer.outputDir") + "/substitution_parameters"));
         ConfigParser.printConfig(conf);
     }
@@ -252,10 +255,7 @@ public class LdbcDatagen {
         p = pb.start();
         p.waitFor();
         print("Finished Interactive Parameter Generation");
-
-
     }
-
 
     public int runGenerateJob(Configuration conf) throws Exception {
         String hadoopPrefix = conf.get("ldbc.snb.datagen.serializer.hadoopDir");
@@ -322,14 +322,39 @@ public class LdbcDatagen {
         return 0;
     }
 
-    public int runSortJob(Configuration conf) throws Exception {
-        String hadoopPrefix = conf.get("ldbc.snb.datagen.serializer.hadoopDir");
-        printProgress("Starting: Person Sorting");
-        long startSort = System.currentTimeMillis();
-        HadoopPersonSort personSort = new HadoopPersonSort();
-        personSort.run("social_network/dynamic","person_0_0.csv",hadoopPrefix + "/personSorted");
-        long endSort = System.currentTimeMillis();
-        print("Person generation time: " + ((endSort - startSort) / 1000));
+    public void individualSortJob(String filename, Configuration conf) {
+        try {
+            print("HELLO " + filename);
+            String hadoopPrefix = conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted";
+            HadoopSorter hadoopSorter = new HadoopSorter();
+            long startSort = System.currentTimeMillis();
+            printProgress("Starting: " + filename + " Sorting");
+            hadoopSorter.run("social_network/dynamic/", filename + "_[0-9]*_[0-9]*.csv", hadoopPrefix + "/" + filename);
+            print(filename + " sorting time: " + ((System.currentTimeMillis() - startSort) / 1000));
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public int runSortJob(Configuration conf)  {
+        try {
+            FileSystem.get(conf).mkdirs(new Path(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted"));
+
+            String[] fileNames = {"comment", "comment_hasCreator_person", "comment_hasTag_tag", "comment_isLocatedIn_place",
+                    "comment_replyOf_comment", "comment_replyOf_post", "forum", "forum_containerOf_post", "forum_hasMember_person",
+                    "forum_hasModerator_person", "forum_hasTag_tag", "person_email_emailaddress", "person", "person_hasInterest_tag",
+                    "person_isLocatedIn_place", "person_knows_person", "person_likes_comment", "person_likes_post",
+                    "person_speaks_language", "person_studyAt_organisation", "person_workAt_organisation", "post",
+                    "post_hasCreator_person", "post_hasTag_tag", "post_isLocatedIn_place"};
+            for (int i = 0; i < fileNames.length; i++) {
+                print("AHHHHHH" + fileNames[i]);
+                individualSortJob(fileNames[i], conf);
+            }
+            individualSortJob("person", conf);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return 0;
     }
 
@@ -344,7 +369,11 @@ public class LdbcDatagen {
             LdbcDatagen.prepareConfiguration(conf);
             LdbcDatagen.initializeContext(conf);
             LdbcDatagen datagen = new LdbcDatagen();
-            datagen.runGenerateJob(conf);
+            Logger root = Logger.getLogger("");
+            org.apache.log4j.Logger.getLogger("").setLevel(org.apache.log4j.Level.ERROR);
+            root.setLevel(Level.OFF);
+            //datagen.runGenerateJob(conf);
+
             datagen.runSortJob(conf);
         } catch (Exception e) {
             System.err.println("Error during execution");

@@ -7,7 +7,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.PathFilter;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
@@ -23,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class HadoopPersonSort {
+public class HadoopSorter {
 
   public static class SortMapper extends Mapper<Object, Text, LongWritable, Text>{
 
@@ -67,7 +66,7 @@ public class HadoopPersonSort {
     Configuration conf = new Configuration();
     Job job = Job.getInstance(conf, "LDBCSort");
 
-    job.setJarByClass(HadoopPersonSort.class);
+    job.setJarByClass(HadoopSorter.class);
     job.setMapperClass(SortMapper.class);
     job.setReducerClass(SortReducer.class);
     job.setMapOutputKeyClass(LongWritable.class);
