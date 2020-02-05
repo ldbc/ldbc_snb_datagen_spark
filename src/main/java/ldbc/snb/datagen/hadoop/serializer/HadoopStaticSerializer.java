@@ -75,7 +75,7 @@ public class HadoopStaticSerializer {
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
 
         exportPlaces();

@@ -183,7 +183,7 @@ public class BterKnowsGenerator implements KnowsGenerator {
             }
             reader.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
 
         p[0] = 0.0;

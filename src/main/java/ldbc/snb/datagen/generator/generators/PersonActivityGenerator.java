@@ -98,7 +98,6 @@ public class PersonActivityGenerator {
         } catch (AssertionError e) {
             System.out.println("Assertion error when generating activity!");
             System.out.println(e.getMessage());
-            e.printStackTrace();
             throw e;
         }
     }

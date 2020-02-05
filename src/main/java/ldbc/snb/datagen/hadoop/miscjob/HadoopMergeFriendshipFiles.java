@@ -75,7 +75,7 @@ public class HadoopMergeFriendshipFiles {
                                                                        .newInstance();
             } catch (Exception e) {
                 System.out.println(e.getMessage());
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }
 

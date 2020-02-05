@@ -83,7 +83,7 @@ public class TagTextDictionary {
             }
             dictionary.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

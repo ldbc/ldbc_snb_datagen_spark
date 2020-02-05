@@ -348,7 +348,6 @@ public class LdbcDatagen {
         } catch (Exception e) {
             System.err.println("Error during execution");
             System.err.println(e.getMessage());
-            e.printStackTrace();
             throw e;
         }
     }
