@@ -63,7 +63,7 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
 
     @Override
     public void writeFileHeaders() {
-        writers.get(PERSON).writeHeader(ImmutableList.of("id","firstName","lastName","gender","birthday","creationDate","locationIP","browserUsed"));
+        writers.get(PERSON).writeHeader(ImmutableList.of("id","firstName","lastName","gender","birthday","creationDate","deletionDate","locationIP","browserUsed"));
         writers.get(PERSON_SPEAKS_LANGUAGE).writeHeader(ImmutableList.of("Person.id","language"));
         writers.get(PERSON_HAS_EMAIL).writeHeader(ImmutableList.of("Person.id","email"));
         writers.get(PERSON_LOCATED_IN_PLACE).writeHeader(ImmutableList.of("Person.id","Place.id"));
@@ -82,6 +82,7 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
                 getGender(p.gender()),
                 Dictionaries.dates.formatDate(p.birthday()),
                 Dictionaries.dates.formatDateTime(p.creationDate()),
+                Dictionaries.dates.formatDateTime(p.deletionDate()),
                 p.ipAddress().toString(),
                 Dictionaries.browsers.getName(p.browserId())
             ));

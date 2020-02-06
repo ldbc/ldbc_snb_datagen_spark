@@ -88,6 +88,7 @@ public class PersonGenerator {
         int countryId = Dictionaries.places.getCountryForUser(randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY));
         Person person = new Person();
         person.creationDate(creationDate);
+
         person.gender((randomFarm.get(RandomGeneratorFarm.Aspect.GENDER).nextDouble() > 0.5) ? (byte) 1 : (byte) 0);
         person.birthday(Dictionaries.dates
                                 .getBirthDay(randomFarm.get(RandomGeneratorFarm.Aspect.BIRTH_DAY), creationDate));
@@ -96,6 +97,12 @@ public class PersonGenerator {
         person.cityId(Dictionaries.places.getRandomCity(randomFarm.get(RandomGeneratorFarm.Aspect.CITY), countryId));
         person.ipAddress(Dictionaries.ips.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), countryId));
         person.maxNumKnows(Math.min(degreeDistribution_.nextDegree(), DatagenParams.numPersons));
+
+        long deletionDate = Dictionaries.dates.randomPersonDeletionDate(randomFarm
+                .get(RandomGeneratorFarm.Aspect.DELETION_DATE), creationDate, person.maxNumKnows());
+        person.deletionDate(deletionDate);
+
+
         person.accountId(composeUserId(nextId++, creationDate));
         person.mainInterest(Dictionaries.tags.getaTagByCountry(randomFarm
                                                                        .get(RandomGeneratorFarm.Aspect.TAG_OTHER_COUNTRY), randomFarm

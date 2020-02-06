@@ -99,7 +99,15 @@ public class DateUtils {
      * Date between from and to
      */
     public Long randomPersonCreationDate(Random random) {
-        return (long) (random.nextDouble() * (to_ - from_) + from_);
+        return (long) (from_ + random.nextDouble() * (to_ - from_));
+    }
+
+    /*
+     * Date between from and to
+     */
+    public Long randomPersonDeletionDate(Random random, long creationDate, long maxNumKnows) {
+        // TODO: use maxNumKnows to determine when a user's deleted
+        return (long) (creationDate + random.nextDouble() * (to_ - creationDate));
     }
 
     /*

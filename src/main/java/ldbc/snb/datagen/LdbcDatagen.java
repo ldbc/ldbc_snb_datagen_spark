@@ -279,7 +279,6 @@ public class LdbcDatagen {
         long end = System.currentTimeMillis();
         // End of generation process ---------------------------------------------------------------------------------
 
-        System.out.println(((end - start) / 1000) + " total seconds");
         System.out.println("Person generation time: " + ((endPerson - startPerson) / 1000));
         System.out.println("University correlated edge generation time: " + ((endUniversity - startUniversity) / 1000));
         System.out.println("Interest correlated edge generation time: " + ((endInterest - startInterest) / 1000));

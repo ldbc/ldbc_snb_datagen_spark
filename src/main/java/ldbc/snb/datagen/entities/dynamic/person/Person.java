@@ -54,6 +54,7 @@ public class Person implements Writable {
 
     private long accountId_;
     private long creationDate_;
+    private long deletionDate_;
     private long maxNumKnows_;
     private TreeSet<Knows> knows_;
     private int browserId_;
@@ -83,6 +84,7 @@ public class Person implements Writable {
     public static class PersonSummary implements Writable {
         private long accountId_;
         private long creationDate_;
+        private long deletionDate_;
         private int browserId_;
         private int country_;
         private IP ipAddress_;
@@ -95,6 +97,7 @@ public class Person implements Writable {
         public PersonSummary(Person p) {
             accountId_ = p.accountId();
             creationDate_ = p.creationDate();
+            deletionDate_ = p.deletionDate();
             browserId_ = p.browserId();
             country_ = p.countryId();
             ipAddress_ = new IP(p.ipAddress());
@@ -104,6 +107,7 @@ public class Person implements Writable {
         public PersonSummary(PersonSummary p) {
             accountId_ = p.accountId();
             creationDate_ = p.creationDate();
+            deletionDate_ = p.deletionDate();
             browserId_ = p.browserId();
             country_ = p.countryId();
             ipAddress_ = new IP(p.ipAddress());
@@ -113,6 +117,7 @@ public class Person implements Writable {
         public void copy(PersonSummary p) {
             accountId_ = p.accountId();
             creationDate_ = p.creationDate();
+            deletionDate_ = p.deletionDate();
             browserId_ = p.browserId();
             country_ = p.countryId();
             ipAddress_ = new IP(p.ipAddress());
@@ -123,40 +128,24 @@ public class Person implements Writable {
             return accountId_;
         }
 
-        public void accountId(long id) {
-            accountId_ = id;
-        }
-
         public long creationDate() {
             return creationDate_;
         }
 
-        public void creationDate(long creationDate) {
-            creationDate_ = creationDate;
+        public long deletionDate() {
+            return deletionDate_;
         }
 
         public int browserId() {
             return browserId_;
         }
 
-        public void browserId(int browserId) {
-            browserId_ = browserId;
-        }
-
         public int countryId() {
             return country_;
         }
 
-        public void countryId(int countryId) {
-            country_ = countryId;
-        }
-
         public IP ipAddress() {
             return ipAddress_;
-        }
-
-        public void ipAddress(IP ipAddress) {
-            ipAddress_ = ipAddress;
         }
 
         public boolean isLargePoster() {
@@ -166,6 +155,7 @@ public class Person implements Writable {
         public void readFields(DataInput arg0) throws IOException {
             accountId_ = arg0.readLong();
             creationDate_ = arg0.readLong();
+            deletionDate_ = arg0.readLong();
             browserId_ = arg0.readInt();
             country_ = arg0.readInt();
             ipAddress_.readFields(arg0);
@@ -175,6 +165,7 @@ public class Person implements Writable {
         public void write(DataOutput arg0) throws IOException {
             arg0.writeLong(accountId_);
             arg0.writeLong(creationDate_);
+            arg0.writeLong(deletionDate_);
             arg0.writeInt(browserId_);
             arg0.writeInt(country_);
             ipAddress_.write(arg0);
@@ -200,6 +191,7 @@ public class Person implements Writable {
 
         accountId_ = p.accountId();
         creationDate_ = p.creationDate();
+        deletionDate_ = p.deletionDate();
         maxNumKnows_ = p.maxNumKnows();
         for (Knows k : p.knows()) {
             knows_.add(new Knows(k));
@@ -251,8 +243,16 @@ public class Person implements Writable {
         return creationDate_;
     }
 
+    public long deletionDate() {
+        return deletionDate_;
+    }
+
     public void creationDate(long creationDate) {
         creationDate_ = creationDate;
+    }
+
+    public void deletionDate(long deletionDate) {
+        deletionDate_ = deletionDate;
     }
 
     public long maxNumKnows() {
@@ -414,6 +414,7 @@ public class Person implements Writable {
     public void readFields(DataInput arg0) throws IOException {
         accountId_ = arg0.readLong();
         creationDate_ = arg0.readLong();
+        deletionDate_ = arg0.readLong();
         maxNumKnows_ = arg0.readLong();
         int numFriends = arg0.readShort();
         knows_ = new TreeSet<>();
@@ -467,6 +468,7 @@ public class Person implements Writable {
     public void write(DataOutput arg0) throws IOException {
         arg0.writeLong(accountId_);
         arg0.writeLong(creationDate_);
+        arg0.writeLong(deletionDate_);
         arg0.writeLong(maxNumKnows_);
         arg0.writeShort(knows_.size());
 
