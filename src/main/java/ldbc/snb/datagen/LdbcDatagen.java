@@ -73,8 +73,8 @@ public class LdbcDatagen {
         conf.set("ldbc.snb.datagen.serializer.socialNetworkDir", conf.get("ldbc.snb.datagen.serializer.outputDir") + "/social_network");
         // Deleting existing files
         FileSystem dfs = FileSystem.get(conf);
-        //dfs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")), true);
-        //dfs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir")), true);
+        dfs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")), true);
+        dfs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir")), true);
         FileUtils.deleteDirectory(new File(conf.get("ldbc.snb.datagen.serializer.outputDir") + "/substitution_parameters"));
         ConfigParser.printConfig(conf);
     }
