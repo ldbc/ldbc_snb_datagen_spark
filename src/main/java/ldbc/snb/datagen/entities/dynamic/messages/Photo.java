@@ -42,9 +42,6 @@ import java.util.TreeSet;
 
 public class Photo extends Message {
 
-    private double latt_;
-    private double longt_;
-
     public Photo() {
         super();
     }
@@ -57,13 +54,11 @@ public class Photo extends Message {
                  TreeSet<Integer> tags,
                  int countryId,
                  IP ipAddress,
-                 int browserId,
-                 double latt,
-                 double longt
+                 int browserId
+
     ) {
         super(messageId, creationDate, author, forumId, content, tags, countryId, ipAddress, browserId);
-        latt_ = latt;
-        longt_ = longt;
+
     }
 
     public void initialize(long messageId,
@@ -74,13 +69,10 @@ public class Photo extends Message {
                            TreeSet<Integer> tags,
                            int countryId,
                            IP ipAddress,
-                           int browserId,
-                           double latt,
-                           double longt
+                           int browserId
+
     ) {
         super.initialize(messageId, creationDate, author, forumId, content, tags, countryId, ipAddress, browserId);
-        latt_ = latt;
-        longt_ = longt;
     }
 
 }
