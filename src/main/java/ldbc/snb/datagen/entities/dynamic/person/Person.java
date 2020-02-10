@@ -51,7 +51,6 @@ import java.util.TreeSet;
 
 public class Person implements Writable {
 
-
     private long accountId_;
     private long creationDate_;
     private long deletionDate_;
@@ -61,7 +60,6 @@ public class Person implements Writable {
     private IP ipAddress_;
     private int countryId_;
     private int cityId_;
-    private long wallId_;
     private TreeSet<Integer> interests_;
     private int mainInterest_;
     private int universityLocationId_;
@@ -202,7 +200,6 @@ public class Person implements Writable {
 
         countryId_ = p.countryId();
         cityId_ = p.cityId();
-        wallId_ = p.wallId();
         for (Integer t : p.interests().descendingSet()) {
             interests_.add(t);
         }
@@ -304,9 +301,6 @@ public class Person implements Writable {
         cityId_ = cityId;
     }
 
-    public long wallId() {
-        return wallId_;
-    }
 
     public TreeSet<Integer> interests() {
         return interests_;
@@ -430,7 +424,6 @@ public class Person implements Writable {
 
         countryId_ = arg0.readInt();
         cityId_ = arg0.readInt();
-        wallId_ = arg0.readLong();
 
         byte numTags = arg0.readByte();
         interests_ = new TreeSet<>();
@@ -481,7 +474,6 @@ public class Person implements Writable {
 
         arg0.writeInt(countryId_);
         arg0.writeInt(cityId_);
-        arg0.writeLong(wallId_);
 
         arg0.writeByte((byte) interests_.size());
         Iterator<Integer> iter2 = interests_.iterator();
