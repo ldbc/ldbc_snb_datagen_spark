@@ -38,29 +38,23 @@ package ldbc.snb.datagen.entities.statictype.place;
 public class PopularPlace {
 
     private String name;
-    private double latt;
-    private double longt;
+    private double latitude;
+    private double longitude;
 
-    public PopularPlace(String _name, double _latt, double _longt) {
-        this.name = _name;
-        this.latt = _latt;
-        this.longt = _longt;
+    public PopularPlace(String name, double latitude, double longitude) {
+        this.name = name;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
-    public String getName() {
-        return name;
-    }
+    public String getName() { return name; }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public double getLatt() {
-        return latt;
-    }
+    public double getLatitude() { return latitude; }
 
-    public double getLongt() {
-        return longt;
-    }
+    public double getLongitude() { return longitude; }
 
 }

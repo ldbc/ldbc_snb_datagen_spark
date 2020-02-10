@@ -51,61 +51,68 @@ import java.util.Random;
 import java.util.Set;
 
 /**
- * This class reads the files containing the country data and city data used in the ldbc socialnet generation and
- * provides access methods to get such data.
+ * This class reads the files containing the country data and city data used in the LDBC soical network generation and
+ * provides access methods to the data.
  * Most of the users has the prerequisite of requiring a valid location id.
  */
 public class PlaceDictionary {
 
-    public static final int INVALID_LOCATION = -1;
+    static final int INVALID_LOCATION = -1;
     private static final String SEPARATOR = " ";
     private static final String SEPARATOR_CITY = " ";
 
     private PlaceZOrder[] sortedPlace;
-    private Float cumulativeDistribution[];
+    private Float[] cumulativeDistribution;
 
-    private List<Integer> countries;
     /**
-     * < @brief The set of countries. *
+     * The set of countries. *
+     */
+    private List<Integer> countries;
+
+    /**
+     * The places by id. *
      */
     private Map<Integer, Place> places;
+
     /**
-     * < @brief The places by id. *
+     * The location hierarchy. *
      */
     private Map<Integer, Integer> isPartOf;
+
     /**
-     * < @brief The location hierarchy. *
+     * The cities by country. *
      */
     private Map<Integer, List<Integer>> citiesByCountry;
+
     /**
-     * < @brief The cities by country. *
+     * The city names. *
      */
     private Map<String, Integer> cityNames;
     /**
-     * < @brief The city names. *
-     */
-    private Map<String, Integer> countryNames;       /**< @brief The country names. **/
+     * The country names. *
+     * */
+    private Map<String, Integer> countryNames;
 
     /**
      * Private class used to sort countries by their z-order value.
      */
-    private class PlaceZOrder implements Comparable<PlaceZOrder> {
+    private static class PlaceZOrder implements Comparable<PlaceZOrder> {
 
         public int id;
-        public Integer zvalue;
+        public Integer zValue;
 
-        public PlaceZOrder(int id, int zvalue) {
+        public PlaceZOrder(int id, int zValue) {
             this.id = id;
-            this.zvalue = zvalue;
+            this.zValue = zValue;
         }
 
         public int compareTo(PlaceZOrder obj) {
-            return zvalue.compareTo(obj.zvalue);
+            return zValue.compareTo(obj.zValue);
         }
     }
 
     /**
-     * @brief Creator.
+     * Create place dictionary
      */
     public PlaceDictionary() {
         this.countryNames = new HashMap<>();
@@ -114,12 +121,12 @@ public class PlaceDictionary {
         this.isPartOf = new HashMap<>();
         this.countries = new ArrayList<>();
         this.citiesByCountry = new HashMap<>();
-        load(DatagenParams.cityDictionaryFile, DatagenParams.countryDictionaryFile);
+        load();
     }
 
     /**
      * @return The set of places.
-     * @brief Gets the set of places.
+     * Gets the set of places.
      */
     public Set<Integer> getPlaces() {
         return places.keySet();
@@ -165,8 +172,8 @@ public class PlaceDictionary {
      * @return The lattitude of the place.
      * @brief Gets the lattitude of a place.
      */
-    public double getLatt(int placeId) {
-        return places.get(placeId).getLatt();
+    public double getLatitude(int placeId) {
+        return places.get(placeId).getLatitude();
     }
 
     /**
@@ -174,8 +181,8 @@ public class PlaceDictionary {
      * @return The longitude of the place.
      * @brief Gets the longitude of a place.
      */
-    public double getLongt(int placeId) {
-        return places.get(placeId).getLongt();
+    public double getLongitude(int placeId) {
+        return places.get(placeId).getLongitude();
     }
 
     /**
@@ -246,16 +253,15 @@ public class PlaceDictionary {
     }
 
     /**
-     * @param citiesFileName    The cities file name.
-     * @param countriesFileName The countries file name.
-     * @brief Loads the dictionary files.
+     * Loads the dictionary files
      */
-    private void load(String citiesFileName, String countriesFileName) {
+    private void load() {
 
-        readCountries(countriesFileName);
+        readCountries(DatagenParams.countryDictionaryFile);
         orderByZ();
-        readCities(citiesFileName);
-        readContinents(countriesFileName);
+        readCities(DatagenParams.cityDictionaryFile);
+        readContinents(DatagenParams.countryDictionaryFile);
+
     }
 
     /**
@@ -276,8 +282,8 @@ public class PlaceDictionary {
                         Place placeId = new Place();
                         placeId.setId(places.size());
                         placeId.setName(data[1]);
-                        placeId.setLatt(places.get(countryId).getLatt());
-                        placeId.setLongt(places.get(countryId).getLongt());
+                        placeId.setLatitude(places.get(countryId).getLatitude());
+                        placeId.setLongitude(places.get(countryId).getLongitude());
                         placeId.setPopulation(-1);
                         placeId.setType(Place.CITY);
 
@@ -314,8 +320,8 @@ public class PlaceDictionary {
                 Place place = new Place();
                 place.setId(places.size());
                 place.setName(placeName);
-                place.setLatt(Double.parseDouble(data[2]));
-                place.setLongt(Double.parseDouble(data[3]));
+                place.setLatitude(Double.parseDouble(data[2]));
+                place.setLongitude(Double.parseDouble(data[3]));
                 place.setPopulation(Integer.parseInt(data[4]));
                 place.setType(Place.COUNTRY);
 
@@ -357,8 +363,8 @@ public class PlaceDictionary {
                     Place continent = new Place();
                     continent.setId(places.size());
                     continent.setName(data[0]);
-                    continent.setLatt(Double.parseDouble(data[2]));
-                    continent.setLongt(Double.parseDouble(data[3]));
+                    continent.setLatitude(Double.parseDouble(data[2]));
+                    continent.setLongitude(Double.parseDouble(data[3]));
                     continent.setPopulation(0);
                     continent.setType(Place.CONTINENT);
 
@@ -397,7 +403,7 @@ public class PlaceDictionary {
     }
 
     /**
-     * @brief Sorts places by Z order.
+     * Sorts places by Z order.
      */
     private void orderByZ() {
         ZOrder zorder = new ZOrder(8);
@@ -405,14 +411,14 @@ public class PlaceDictionary {
 
         for (int i = 0; i < countries.size(); i++) {
             Place loc = places.get(countries.get(i));
-            int zvalue = zorder.getZValue(((int) Math.round(loc.getLongt()) + 180) / 2, ((int) Math
-                    .round(loc.getLatt()) + 180) / 2);
+            int zvalue = zorder.getZValue(((int) Math.round(loc.getLongitude()) + 180) / 2, ((int) Math
+                    .round(loc.getLatitude()) + 180) / 2);
             sortedPlace[i] = new PlaceZOrder(loc.getId(), zvalue);
         }
 
         Arrays.sort(sortedPlace);
         for (int i = 0; i < sortedPlace.length; i++) {
-            places.get(sortedPlace[i].id).setzId(i);
+            places.get(sortedPlace[i].id).setZId(i);
         }
     }
 
@@ -422,7 +428,7 @@ public class PlaceDictionary {
      * @brief Gets the z order of a place.
      */
     public int getZorderID(int placeId) {
-        return places.get(placeId).getzId();
+        return places.get(placeId).getZId();
     }
 
     /**
