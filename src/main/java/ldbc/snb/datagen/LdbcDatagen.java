@@ -314,7 +314,6 @@ public class LdbcDatagen {
 
     public void individualSortJob(String filename, Configuration conf) {
         try {
-            print("HELLO " + filename);
             String hadoopPrefix = conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted";
             HadoopSorter hadoopSorter = new HadoopSorter();
             long startSort = System.currentTimeMillis();
@@ -337,11 +336,10 @@ public class LdbcDatagen {
                     "person_isLocatedIn_place", "person_knows_person", "person_likes_comment", "person_likes_post",
                     "person_speaks_language", "person_studyAt_organisation", "person_workAt_organisation", "post",
                     "post_hasCreator_person", "post_hasTag_tag", "post_isLocatedIn_place"};
+
             for (int i = 0; i < fileNames.length; i++) {
-                print("AHHHHHH" + fileNames[i]);
                 individualSortJob(fileNames[i], conf);
             }
-            individualSortJob("person", conf);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -362,8 +360,7 @@ public class LdbcDatagen {
             Logger root = Logger.getLogger("");
             org.apache.log4j.Logger.getLogger("").setLevel(org.apache.log4j.Level.ERROR);
             root.setLevel(Level.OFF);
-            //datagen.runGenerateJob(conf);
-
+            datagen.runGenerateJob(conf);
             datagen.runSortJob(conf);
         } catch (Exception e) {
             System.err.println("Error during execution");
