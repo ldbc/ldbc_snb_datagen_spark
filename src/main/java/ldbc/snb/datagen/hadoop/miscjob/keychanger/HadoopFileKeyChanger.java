@@ -77,13 +77,13 @@ public class HadoopFileKeyChanger {
                 keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(className).newInstance();
             } catch (ClassNotFoundException e) {
                 System.out.print(e.getMessage());
-                e.printStackTrace();
+                throw new RuntimeException(e);
             } catch (IllegalAccessException e) {
                 System.out.print(e.getMessage());
-                e.printStackTrace();
+                throw new RuntimeException(e);
             } catch (InstantiationException e) {
                 System.out.print(e.getMessage());
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }
 

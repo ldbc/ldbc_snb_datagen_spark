@@ -51,16 +51,15 @@ import java.util.TreeSet;
 
 public class Person implements Writable {
 
-
     private long accountId_;
     private long creationDate_;
+    private long deletionDate_;
     private long maxNumKnows_;
     private TreeSet<Knows> knows_;
     private int browserId_;
     private IP ipAddress_;
     private int countryId_;
     private int cityId_;
-    private long wallId_;
     private TreeSet<Integer> interests_;
     private int mainInterest_;
     private int universityLocationId_;
@@ -83,6 +82,7 @@ public class Person implements Writable {
     public static class PersonSummary implements Writable {
         private long accountId_;
         private long creationDate_;
+        private long deletionDate_;
         private int browserId_;
         private int country_;
         private IP ipAddress_;
@@ -95,6 +95,7 @@ public class Person implements Writable {
         public PersonSummary(Person p) {
             accountId_ = p.accountId();
             creationDate_ = p.creationDate();
+            deletionDate_ = p.deletionDate();
             browserId_ = p.browserId();
             country_ = p.countryId();
             ipAddress_ = new IP(p.ipAddress());
@@ -104,6 +105,7 @@ public class Person implements Writable {
         public PersonSummary(PersonSummary p) {
             accountId_ = p.accountId();
             creationDate_ = p.creationDate();
+            deletionDate_ = p.deletionDate();
             browserId_ = p.browserId();
             country_ = p.countryId();
             ipAddress_ = new IP(p.ipAddress());
@@ -113,6 +115,7 @@ public class Person implements Writable {
         public void copy(PersonSummary p) {
             accountId_ = p.accountId();
             creationDate_ = p.creationDate();
+            deletionDate_ = p.deletionDate();
             browserId_ = p.browserId();
             country_ = p.countryId();
             ipAddress_ = new IP(p.ipAddress());
@@ -123,40 +126,24 @@ public class Person implements Writable {
             return accountId_;
         }
 
-        public void accountId(long id) {
-            accountId_ = id;
-        }
-
         public long creationDate() {
             return creationDate_;
         }
 
-        public void creationDate(long creationDate) {
-            creationDate_ = creationDate;
+        public long deletionDate() {
+            return deletionDate_;
         }
 
         public int browserId() {
             return browserId_;
         }
 
-        public void browserId(int browserId) {
-            browserId_ = browserId;
-        }
-
         public int countryId() {
             return country_;
         }
 
-        public void countryId(int countryId) {
-            country_ = countryId;
-        }
-
         public IP ipAddress() {
             return ipAddress_;
-        }
-
-        public void ipAddress(IP ipAddress) {
-            ipAddress_ = ipAddress;
         }
 
         public boolean isLargePoster() {
@@ -166,6 +153,7 @@ public class Person implements Writable {
         public void readFields(DataInput arg0) throws IOException {
             accountId_ = arg0.readLong();
             creationDate_ = arg0.readLong();
+            deletionDate_ = arg0.readLong();
             browserId_ = arg0.readInt();
             country_ = arg0.readInt();
             ipAddress_.readFields(arg0);
@@ -175,6 +163,7 @@ public class Person implements Writable {
         public void write(DataOutput arg0) throws IOException {
             arg0.writeLong(accountId_);
             arg0.writeLong(creationDate_);
+            arg0.writeLong(deletionDate_);
             arg0.writeInt(browserId_);
             arg0.writeInt(country_);
             ipAddress_.write(arg0);
@@ -200,6 +189,7 @@ public class Person implements Writable {
 
         accountId_ = p.accountId();
         creationDate_ = p.creationDate();
+        deletionDate_ = p.deletionDate();
         maxNumKnows_ = p.maxNumKnows();
         for (Knows k : p.knows()) {
             knows_.add(new Knows(k));
@@ -210,7 +200,6 @@ public class Person implements Writable {
 
         countryId_ = p.countryId();
         cityId_ = p.cityId();
-        wallId_ = p.wallId();
         for (Integer t : p.interests().descendingSet()) {
             interests_.add(t);
         }
@@ -251,8 +240,16 @@ public class Person implements Writable {
         return creationDate_;
     }
 
+    public long deletionDate() {
+        return deletionDate_;
+    }
+
     public void creationDate(long creationDate) {
         creationDate_ = creationDate;
+    }
+
+    public void deletionDate(long deletionDate) {
+        deletionDate_ = deletionDate;
     }
 
     public long maxNumKnows() {
@@ -304,9 +301,6 @@ public class Person implements Writable {
         cityId_ = cityId;
     }
 
-    public long wallId() {
-        return wallId_;
-    }
 
     public TreeSet<Integer> interests() {
         return interests_;
@@ -414,6 +408,7 @@ public class Person implements Writable {
     public void readFields(DataInput arg0) throws IOException {
         accountId_ = arg0.readLong();
         creationDate_ = arg0.readLong();
+        deletionDate_ = arg0.readLong();
         maxNumKnows_ = arg0.readLong();
         int numFriends = arg0.readShort();
         knows_ = new TreeSet<>();
@@ -429,7 +424,6 @@ public class Person implements Writable {
 
         countryId_ = arg0.readInt();
         cityId_ = arg0.readInt();
-        wallId_ = arg0.readLong();
 
         byte numTags = arg0.readByte();
         interests_ = new TreeSet<>();
@@ -467,6 +461,7 @@ public class Person implements Writable {
     public void write(DataOutput arg0) throws IOException {
         arg0.writeLong(accountId_);
         arg0.writeLong(creationDate_);
+        arg0.writeLong(deletionDate_);
         arg0.writeLong(maxNumKnows_);
         arg0.writeShort(knows_.size());
 
@@ -479,7 +474,6 @@ public class Person implements Writable {
 
         arg0.writeInt(countryId_);
         arg0.writeInt(cityId_);
-        arg0.writeLong(wallId_);
 
         arg0.writeByte((byte) interests_.size());
         Iterator<Integer> iter2 = interests_.iterator();

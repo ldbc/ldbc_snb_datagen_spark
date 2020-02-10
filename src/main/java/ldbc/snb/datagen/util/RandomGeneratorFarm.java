@@ -108,6 +108,7 @@ public class RandomGeneratorFarm {
         MEMBERSHIP_POST_CREATOR,
         REPLY_TO,
         TOPIC,
+        DELETION_DATE,
         NUM_ASPECT                  // This must be always the last one.
     }
 

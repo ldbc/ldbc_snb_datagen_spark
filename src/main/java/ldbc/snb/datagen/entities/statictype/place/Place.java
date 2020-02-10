@@ -43,35 +43,34 @@ public class Place implements Serializable {
     public static final String CITY = "city";
     public static final String COUNTRY = "country";
     public static final String CONTINENT = "continent";
-    public static final String AREA = "world";
+//    public static final String AREA = "world";
 
     private int id;
     private int zId;
-
     private String name;
-    private double latt;
-    private double longt;
+    private double latitude;
+    private double longitude;
     private long population;
     private String type;
-
-    public int getzId() {
-        return zId;
-    }
-
-    public void setzId(int zId) {
-        this.zId = zId;
-    }
 
     public Place() {
     }
 
-    public Place(int _id, String _name, double _longt, double _latt, int _population, String _type) {
-        this.id = _id;
-        this.name = _name;
-        this.longt = _longt;
-        this.latt = _latt;
-        this.population = _population;
-        this.type = _type;
+    public Place(int id, String name, double longitude, double latitude, int population, String type) {
+        this.id = id;
+        this.name = name;
+        this.longitude = longitude;
+        this.latitude = latitude;
+        this.population = population;
+        this.type = type;
+    }
+
+    public int getZId() {
+        return zId;
+    }
+
+    public void setZId(int zId) {
+        this.zId = zId;
     }
 
     public int getId() {
@@ -90,20 +89,20 @@ public class Place implements Serializable {
         this.name = name;
     }
 
-    public double getLongt() {
-        return longt;
+    public double getLongitude() {
+        return longitude;
     }
 
-    public void setLongt(double longt) {
-        this.longt = longt;
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
     }
 
-    public double getLatt() {
-        return latt;
+    public double getLatitude() {
+        return latitude;
     }
 
-    public void setLatt(double latt) {
-        this.latt = latt;
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
     }
 
     public long getPopulation() {

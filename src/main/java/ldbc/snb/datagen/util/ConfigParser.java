@@ -162,8 +162,7 @@ public class ConfigParser {
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());
-            e.printStackTrace();
-            System.exit(-1);
+            throw new RuntimeException(e);
         }
         return conf;
     }

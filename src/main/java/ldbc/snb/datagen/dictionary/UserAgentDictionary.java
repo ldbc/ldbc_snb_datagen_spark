@@ -77,7 +77,7 @@ public class UserAgentDictionary {
             }
             agentFile.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

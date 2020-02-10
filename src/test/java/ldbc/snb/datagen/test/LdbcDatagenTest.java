@@ -41,7 +41,6 @@ public class LdbcDatagenTest {
             LdbcDatagen datagen = new LdbcDatagen();
             datagen.runGenerateJob(conf);
         } catch (Exception e) {
-            e.printStackTrace();
             throw e;
         }
     }

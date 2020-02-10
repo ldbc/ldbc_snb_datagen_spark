@@ -54,14 +54,18 @@ import java.util.List;
 import java.util.Random;
 import java.util.TreeSet;
 
+/**
+ * This class generates a photo which are used in posts.
+ */
 public class PhotoGenerator {
-    private LikeGenerator likeGenerator_;
-    private Photo photo_;
+
+    private LikeGenerator likeGenerator;
+    private Photo photo;
 
 
     public PhotoGenerator(LikeGenerator likeGenerator) {
-        this.likeGenerator_ = likeGenerator;
-        this.photo_ = new Photo();
+        this.likeGenerator = likeGenerator;
+        this.photo = new Photo();
     }
 
     public long createPhotos(RandomGeneratorFarm randomFarm, final Forum album, final List<ForumMembership> memberships, long numPhotos, long startId, PersonActivityExporter exporter) throws IOException {
@@ -78,36 +82,7 @@ public class PhotoGenerator {
             }
         }
         for (int i = 0; i < numPhotos; ++i) {
-            int locationId = album.place();
-            double latt = 0;
-            double longt = 0;
-            if (popularPlaces.size() == 0) {
-                latt = Dictionaries.places.getLatt(locationId);
-                longt = Dictionaries.places.getLongt(locationId);
-            } else {
-                int popularPlaceId;
-                PopularPlace popularPlace;
-                if (randomFarm.get(RandomGeneratorFarm.Aspect.POPULAR).nextDouble() < DatagenParams.probPopularPlaces) {
-                    // Generate photo information from user's popular place
-                    int popularIndex = randomFarm.get(RandomGeneratorFarm.Aspect.POPULAR).nextInt(popularPlaces.size());
-                    popularPlaceId = popularPlaces.get(popularIndex);
-                    popularPlace = Dictionaries.popularPlaces.getPopularPlace(album.place(), popularPlaceId);
-                    latt = popularPlace.getLatt();
-                    longt = popularPlace.getLongt();
-                } else {
-                    // Randomly select one places from Album location idx
-                    popularPlaceId = Dictionaries.popularPlaces.getPopularPlace(randomFarm
-                                                                                        .get(RandomGeneratorFarm.Aspect.POPULAR), locationId);
-                    if (popularPlaceId != -1) {
-                        popularPlace = Dictionaries.popularPlaces.getPopularPlace(locationId, popularPlaceId);
-                        latt = popularPlace.getLatt();
-                        longt = popularPlace.getLongt();
-                    } else {
-                        latt = Dictionaries.places.getLatt(locationId);
-                        longt = Dictionaries.places.getLongt(locationId);
-                    }
-                }
-            }
+
             TreeSet<Integer> tags = new TreeSet<>();
             long date = album.creationDate() + DatagenParams.deltaTime + 1000 * (i + 1);
             int country = album.moderator().countryId();
@@ -121,7 +96,7 @@ public class PhotoGenerator {
             }
 
             long id = SN.formId(SN.composeId(nextId++, date));
-            photo_.initialize(id,
+            photo.initialize(id,
                               date,
                               album.moderator(),
                               album.id(),
@@ -129,13 +104,12 @@ public class PhotoGenerator {
                               tags,
                               country,
                               ip,
-                              album.moderator().browserId(),
-                              latt,
-                              longt);
-            exporter.export(photo_);
+                              album.moderator().browserId()
+            );
+            exporter.export(photo);
             if (randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1) {
-                likeGenerator_.generateLikes(randomFarm
-                                                     .get(RandomGeneratorFarm.Aspect.NUM_LIKE), album, photo_, Like.LikeType.PHOTO, exporter);
+                likeGenerator.generateLikes(randomFarm
+                                                     .get(RandomGeneratorFarm.Aspect.NUM_LIKE), album, photo, Like.LikeType.PHOTO, exporter);
             }
         }
         return nextId;

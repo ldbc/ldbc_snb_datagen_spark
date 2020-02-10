@@ -90,13 +90,13 @@ public class HadoopFileRanker {
                 keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(className).newInstance();
             } catch (ClassNotFoundException e) {
                 System.out.print(e.getMessage());
-                e.printStackTrace();
+                throw new RuntimeException(e);
             } catch (IllegalAccessException e) {
                 System.out.print(e.getMessage());
-                e.printStackTrace();
+                throw new RuntimeException(e);
             } catch (InstantiationException e) {
                 System.out.print(e.getMessage());
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }
 
@@ -194,7 +194,7 @@ public class HadoopFileRanker {
                 }
             } catch (IOException e) {
                 System.err.println(e.getMessage());
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
 
             counters[0] = 0;
