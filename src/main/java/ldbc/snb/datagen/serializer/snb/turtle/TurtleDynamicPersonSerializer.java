@@ -158,7 +158,7 @@ public class TurtleDynamicPersonSerializer extends DynamicPersonSerializer<HdfsW
                                SN.getPersonURI(knows.to().accountId()));
 
         Turtle.createTripleSPO(result, SN.getKnowsURI(id), SNVOC.creationDate,
-                               Turtle.createDataTypeLiteral(TurtleDateTimeFormat.get().format(knows.creationDate()), XSD.DateTime));
+                               Turtle.createDataTypeLiteral(TurtleDateTimeFormat.get().format(knows.getCreationDate()), XSD.DateTime));
         writers.get(SOCIAL_NETWORK_PERSON).write(result.toString());
         knowsId++;
     }

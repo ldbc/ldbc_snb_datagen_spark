@@ -104,7 +104,7 @@ public class HadoopPersonSerializer {
                 }
 
                 for (Knows k : p.knows()) {
-                    if (k.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
+                    if (k.getCreationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
                         dynamicPersonSerializer_.export(p, k);
                     }
                 }

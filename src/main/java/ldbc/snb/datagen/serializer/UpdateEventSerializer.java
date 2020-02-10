@@ -273,10 +273,10 @@ public class UpdateEventSerializer {
     public void export(Person p, Knows k) throws IOException {
         if (p.accountId() < k.to().accountId()) {
             currentDependantDate_ = Math.max(p.creationDate(), k.to().creationDate());
-            beginEvent(k.creationDate(), UpdateEvent.UpdateEventType.ADD_FRIENDSHIP);
+            beginEvent(k.getCreationDate(), UpdateEvent.UpdateEventType.ADD_FRIENDSHIP);
             data_.add(Long.toString(p.accountId()));
             data_.add(Long.toString(k.to().accountId()));
-            data_.add(Long.toString(k.creationDate()));
+            data_.add(Long.toString(k.getCreationDate()));
             endEvent();
         }
     }

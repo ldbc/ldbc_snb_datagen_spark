@@ -72,10 +72,10 @@ public class ForumGenerator {
 
         TreeSet<Knows> knows = person.knows();
         for (Knows k : knows) {
-            long date = Math.max(k.creationDate(), forum.creationDate()) + DatagenParams.deltaTime;
+            long date = Math.max(k.getCreationDate(), forum.creationDate()) + DatagenParams.deltaTime;
             assert (forum
                     .creationDate() + DatagenParams.deltaTime) <= date : "Forum creation date is larger than knows in wall " + forum
-                    .creationDate() + " " + k.creationDate();
+                    .creationDate() + " " + k.getCreationDate();
             forum.addMember(new ForumMembership(forum.id(), date, k.to()));
         }
         return forum;
@@ -124,7 +124,7 @@ public class ForumGenerator {
                 if (!added.contains(k.to().accountId())) {
                     Random random = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX);
                     date = Dictionaries.dates.randomDate(random, Math
-                            .max(forum.creationDate(), k.creationDate() + DatagenParams.deltaTime));
+                            .max(forum.creationDate(), k.getCreationDate() + DatagenParams.deltaTime));
                     assert forum
                             .creationDate() + DatagenParams.deltaTime <= date : "Forum creation date larger than membership date for knows based members";
                     forum.addMember(new ForumMembership(forum.id(), date, k.to()));
@@ -184,7 +184,7 @@ public class ForumGenerator {
             double prob = randomFarm.get(RandomGeneratorFarm.Aspect.ALBUM_MEMBERSHIP).nextDouble();
             if (prob < 0.7) {
                 Random random = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX);
-                date = Dictionaries.dates.randomDate(random, Math.max(forum.creationDate(), k.creationDate())
+                date = Dictionaries.dates.randomDate(random, Math.max(forum.creationDate(), k.getCreationDate())
                         + DatagenParams.deltaTime);
                 forum.addMember(new ForumMembership(forum.id(), date, k.to()));
             }

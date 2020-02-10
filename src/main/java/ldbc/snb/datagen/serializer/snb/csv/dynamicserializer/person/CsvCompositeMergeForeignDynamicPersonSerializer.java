@@ -125,7 +125,7 @@ public class CsvCompositeMergeForeignDynamicPersonSerializer extends DynamicPers
     protected void serialize(final Person p, Knows knows) {
         //"Person.id","Person.id","creationDate"
         writers.get(PERSON_KNOWS_PERSON).writeEntry(ImmutableList.of(
-                Dictionaries.dates.formatDateTime(knows.creationDate()),
+                Dictionaries.dates.formatDateTime(knows.getCreationDate()),
                 Long.toString(p.accountId()),
                 Long.toString(knows.to().accountId())
         ));

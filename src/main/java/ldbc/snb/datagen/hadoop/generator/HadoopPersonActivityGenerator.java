@@ -124,7 +124,7 @@ public class HadoopPersonActivityGenerator {
                 for (Knows k : p.knows()) {
                     strbuf.append(",");
                     strbuf.append(k.to().accountId());
-                    if (k.creationDate() > Dictionaries.dates.getUpdateThreshold() && DatagenParams.updateStreams) {
+                    if (k.getCreationDate() > Dictionaries.dates.getUpdateThreshold() && DatagenParams.updateStreams) {
                         updateSerializer_.export(p, k);
                     }
                 }
