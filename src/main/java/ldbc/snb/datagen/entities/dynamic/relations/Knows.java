@@ -50,65 +50,78 @@ import java.util.Random;
 
 public class Knows implements Writable, Comparable<Knows> {
 
-    private long creationDate_;
-    private Person.PersonSummary to_ = null;
-    private float weight_ = 0.0f;
+    private Person.PersonSummary to = null;
+    private long creationDate;
+    private long deletionDate;
+    private float weight = 0.0f;
     public static int num = 0;
 
     public Knows() {
-        to_ = new Person.PersonSummary();
+        to = new Person.PersonSummary();
     }
 
     public Knows(Knows k) {
-        to_ = new Person.PersonSummary(k.to());
-        creationDate_ = k.creationDate();
-        weight_ = k.weight();
+        to = new Person.PersonSummary(k.to());
+        creationDate = k.getCreationDate();
+        deletionDate = k.getDeletionDate();
+        weight = k.getWeight();
     }
 
-    public Knows(Person to, long creationDate, float weight) {
-        to_ = new Person.PersonSummary(to);
-        creationDate_ = creationDate;
-        weight_ = weight;
+    public Knows(Person to, long creationDate, long deletionDate, float weight) {
+        this.to = new Person.PersonSummary(to);
+        this.creationDate = creationDate;
+        this.deletionDate = deletionDate;
+        this.weight = weight;
     }
 
     public Person.PersonSummary to() {
-        return to_;
+        return to;
     }
 
     public void to(Person.PersonSummary to) {
-        to_.copy(to);
+        this.to.copy(to);
     }
 
-    public long creationDate() {
-        return creationDate_;
+    public long getCreationDate() {
+        return creationDate;
     }
 
-    public void creationDate(long creationDate) {
-        creationDate_ = creationDate;
+    public void setCreationDate(long creationDate) {
+        this.creationDate = creationDate;
     }
 
-    public void weight(float weight) {
-        weight_ = weight;
+    public long getDeletionDate() {
+        return deletionDate;
     }
 
-    public float weight() {
-        return weight_;
+    public void setDeletionDate(long deletionDate) {
+        this.deletionDate = deletionDate;
+    }
+
+    public void setWeight(float weight) {
+        this.weight = weight;
+    }
+
+    public float getWeight() {
+        return weight;
     }
 
     public void readFields(DataInput arg0) throws IOException {
-        to_.readFields(arg0);
-        creationDate_ = arg0.readLong();
-        weight_ = arg0.readFloat();
+        to.readFields(arg0);
+        creationDate = arg0.readLong();
+        deletionDate = arg0.readLong();
+        weight = arg0.readFloat();
     }
 
     public void write(DataOutput arg0) throws IOException {
-        to_.write(arg0);
-        arg0.writeLong(creationDate_);
-        arg0.writeFloat(weight_);
+        to.write(arg0);
+        arg0.writeLong(creationDate);
+        arg0.writeLong(deletionDate);
+        arg0.writeFloat(weight);
     }
 
     public int compareTo(Knows k) {
-        long res = (to_.accountId() - k.to().accountId());
+        long res = (to.accountId() - k.to().accountId());
         if (res > 0) return 1;
         if (res < 0) return -1;
         return 0;
@@ -117,10 +130,10 @@ public class Knows implements Writable, Comparable<Knows> {
     static public class FullComparator implements Comparator<Knows> {
 
         public int compare(Knows a, Knows b) {
-            long res = (a.to_.accountId() - b.to().accountId());
+            long res = (a.to.accountId() - b.to().accountId());
             if (res > 0) return 1;
             if (res < 0) return -1;
-            long res2 = a.creationDate_ - b.creationDate();
+            long res2 = a.creationDate - b.getCreationDate();
             if (res2 > 0) return 1;
             if (res2 < 0) return -1;
             return 0;
@@ -139,9 +152,10 @@ public class Knows implements Writable, Comparable<Knows> {
         creationDate = creationDate - personB
                 .creationDate() >= DatagenParams.deltaTime ? creationDate : creationDate + (DatagenParams.deltaTime - (creationDate - personB
                 .creationDate()));
+        long deletionDate = Math.min(personA.deletionDate(),personB.deletionDate()); // inherit from first person who leaves the network
         float similarity = Person.personSimilarity.similarity(personA, personB);
-        return personB.knows().add(new Knows(personA, creationDate, similarity)) &&
-                personA.knows().add(new Knows(personB, creationDate, similarity));
+        return personB.knows().add(new Knows(personA, creationDate, deletionDate, similarity)) &&
+                personA.knows().add(new Knows(personB, creationDate, deletionDate, similarity));
     }
 
     public static long targetEdges(Person person, List<Float> percentages, int step_index) {
@@ -150,8 +164,7 @@ public class Knows implements Writable, Comparable<Knows> {
             generated_edges += Math.ceil(percentages.get(i) * person.maxNumKnows());
         }
         generated_edges = Math.min(generated_edges, (int) person.maxNumKnows());
-        int to_generate = Math.min((int) person.maxNumKnows() - generated_edges, (int) Math
+        return Math.min((int) person.maxNumKnows() - generated_edges, (int) Math
                 .ceil(percentages.get(step_index) * person.maxNumKnows()));
-        return to_generate;
     }
 }

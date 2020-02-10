@@ -53,11 +53,12 @@ public class DateUtils {
     public static final long THIRTY_DAYS = 30L * ONE_DAY;
     public static final long ONE_YEAR = 365L * ONE_DAY;
     public static final long TWO_YEARS = 2L * ONE_YEAR;
+    public static final long THREE_YEARS = ONE_YEAR + TWO_YEARS;
     public static final long TEN_YEARS = 10L * ONE_YEAR;
     public static final long THIRTY_YEARS = 30L * ONE_YEAR;
 
-    private long from_;
-    private long to_;
+    private long simulationStart;
+    private long simulationEnd;
     private long fromBirthDay_;
     private long toBirthDay_;
     private GregorianCalendar calendar_;
@@ -66,12 +67,12 @@ public class DateUtils {
     private DateFormatter dateFormatter_;
 
     // This constructor is for the case of friendship's created date generator
-    public DateUtils(Configuration conf, GregorianCalendar from, GregorianCalendar to,
+    public DateUtils(Configuration conf, GregorianCalendar simulationStartYear, GregorianCalendar simulationEndYear,
                      double alpha) {
-        to.setTimeZone(TimeZone.getTimeZone("GMT"));
-        from.setTimeZone(TimeZone.getTimeZone("GMT"));
-        from_ = from.getTimeInMillis();
-        to_ = to.getTimeInMillis();
+        simulationEndYear.setTimeZone(TimeZone.getTimeZone("GMT"));
+        simulationStartYear.setTimeZone(TimeZone.getTimeZone("GMT"));
+        simulationStart = simulationStartYear.getTimeInMillis();
+        simulationEnd = simulationEndYear.getTimeInMillis();
         powerDist_ = new PowerDistribution(0.0, 1.0, alpha);
 
         // For birthday from 1980 to 1990
@@ -99,15 +100,19 @@ public class DateUtils {
      * Date between from and to
      */
     public Long randomPersonCreationDate(Random random) {
-        return (long) (from_ + random.nextDouble() * (to_ - from_));
+        return (long) (simulationStart + random.nextDouble() * (simulationEnd - simulationStart));
     }
 
     /*
      * Date between from and to
      */
     public Long randomPersonDeletionDate(Random random, long creationDate, long maxNumKnows) {
+
         // TODO: use maxNumKnows to determine when a user's deleted
-        return (long) (creationDate + random.nextDouble() * (to_ - creationDate));
+        long fromDate = creationDate + DatagenParams.deltaTime;
+        long toDate = simulationStart + TEN_YEARS;
+        return randomDate(random, fromDate, toDate);
+
     }
 
     /*
@@ -153,20 +158,26 @@ public class DateUtils {
     }
 
     public long randomKnowsCreationDate(Random random, Person personA, Person personB) {
+
+//        long fromDate = Math.max(personA.creationDate(), personB.creationDate()) + DatagenParams.deltaTime;
+//        return randomDate(random, fromDate, fromDate + THIRTY_DAYS);
+
         long fromDate = Math.max(personA.creationDate(), personB.creationDate()) + DatagenParams.deltaTime;
-        return randomDate(random, fromDate, fromDate + THIRTY_DAYS);
+        long toDate = Math.min(personA.deletionDate(),personB.deletionDate());
+        return randomDate(random, fromDate, toDate);
+
     }
 
-    public long numberOfMonths(Person user) {
-        return numberOfMonths(user.creationDate());
+    public long numberOfMonths(Person person) {
+        return numberOfMonths(person.creationDate());
     }
 
     public long numberOfMonths(long fromDate) {
-        return (to_ - fromDate) / THIRTY_DAYS;
+        return (simulationEnd - fromDate) / THIRTY_DAYS;
     }
 
     public long randomDate(Random random, long minDate) {
-        long to = Math.max(minDate + THIRTY_DAYS, to_);
+        long to = Math.max(minDate + THIRTY_DAYS, simulationEnd);
         return (long) (random.nextDouble() * (to - minDate) + minDate);
     }
 
@@ -209,7 +220,7 @@ public class DateUtils {
     public long getClassYear(Random random, long userCreatedDate, long birthday) {
         long graduateage = (random.nextInt(5) + 18) * ONE_YEAR;
         long classYear = birthday + graduateage;
-        if (classYear > this.to_) return -1;
+        if (classYear > this.simulationEnd) return -1;
         return classYear;
     }
 
@@ -218,7 +229,7 @@ public class DateUtils {
         if (classYear == -1) {
             long workingage = 18 * ONE_YEAR;
             long from = birthday + workingage;
-            workYear = Math.min((long) (random.nextDouble() * (to_ - from)) + from, to_);
+            workYear = Math.min((long) (random.nextDouble() * (simulationEnd - from)) + from, simulationEnd);
         } else {
             workYear = (classYear + (long) (random.nextDouble() * TWO_YEARS));
         }
@@ -226,11 +237,11 @@ public class DateUtils {
     }
 
     public long getStartDateTime() {
-        return from_;
+        return simulationStart;
     }
 
     public long getEndDateTime() {
-        return to_;
+        return simulationEnd;
     }
 
     public long getUpdateThreshold() {
