@@ -84,6 +84,5 @@ public class HadoopSorter {
     }
     FileInputFormat.setInputPaths(job, (Path[]) inputhPaths.toArray(new Path[inputhPaths.size()]));
     FileOutputFormat.setOutputPath(job, new Path(outputFileName));
-    System.exit(job.waitForCompletion(true) ? 0 : 1);
   }
 }

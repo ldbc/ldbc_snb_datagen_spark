@@ -150,6 +150,22 @@ public class LdbcDatagen {
         return(System.currentTimeMillis()-startPersonActivity);
     }
 
+
+    private long updateStreamHelper(FileSystem fs,int fileNum,long[] minMaxDate,String path) throws Exception{
+        Path propertiesFile = new Path(DatagenParams.hadoopDir + path + fileNum + ".properties");
+        FSDataInputStream file = fs.open(propertiesFile);
+        Properties properties = new Properties();
+        properties.load(file);
+        long aux;
+        aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.min_write_event_start_time"));
+        minMaxDate[0]= aux < minMaxDate[0] ? aux : minMaxDate[0];
+        aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.max_write_event_start_time"));
+        minMaxDate[1] = aux > minMaxDate[1] ? aux : minMaxDate[1];
+        aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.num_events"));
+        file.close();
+        fs.delete(propertiesFile, true);
+        return(aux); //sending back aux to be added to count
+    }
     private long updateStreamSort(Configuration conf,FileSystem fs) throws Exception {
         long startSortingUpdateStreams = System.currentTimeMillis();
         if (conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
@@ -173,46 +189,20 @@ public class LdbcDatagen {
             for (String file : forumStreamsFileNames)
                 fs.delete(new Path(file), true);
 
-            long minDate = Long.MAX_VALUE;
-            long maxDate = Long.MIN_VALUE;
+            long[] minMaxDate = new long[] {Long.MAX_VALUE,Long.MIN_VALUE};
             long count = 0;
             for (int i = 0; i < DatagenParams.numThreads; ++i) {
-                Path propertiesFile = new Path(DatagenParams.hadoopDir + "/temp_updateStream_person_" + i + ".properties");
-                FSDataInputStream file = fs.open(propertiesFile);
-                Properties properties = new Properties();
-                properties.load(file);
-                long aux;
-                aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.min_write_event_start_time"));
-                minDate = aux < minDate ? aux : minDate;
-                aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.max_write_event_start_time"));
-                maxDate = aux > maxDate ? aux : maxDate;
-                aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.num_events"));
-                count += aux;
-                file.close();
-                fs.delete(propertiesFile, true);
-
-                if (conf.getBoolean("ldbc.snb.datagen.generator.activity", false)) {
-                    propertiesFile = new Path(DatagenParams.hadoopDir + "/temp_updateStream_forum_" + i + ".properties");
-                    file = fs.open(propertiesFile);
-                    properties = new Properties();
-                    properties.load(file);
-                    aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.min_write_event_start_time"));
-                    minDate = aux < minDate ? aux : minDate;
-                    aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.max_write_event_start_time"));
-                    maxDate = aux > maxDate ? aux : maxDate;
-                    aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.num_events"));
-                    count += aux;
-                    file.close();
-                    fs.delete(propertiesFile, true);
-                }
+                count += updateStreamHelper(fs,i,minMaxDate,"/temp_updateStream_person_");
+                if (conf.getBoolean("ldbc.snb.datagen.generator.activity", false))
+                    count += updateStreamHelper(fs,i,minMaxDate,"/temp_updateStream_forum_");
             }
 
             OutputStream output = fs.create(new Path(DatagenParams.socialNetworkDir + "/updateStream" + ".properties"), true);
-            output.write(new String("ldbc.snb.interactive.gct_delta_duration:" + DatagenParams.deltaTime + "\n").getBytes());
-            output.write(new String("ldbc.snb.interactive.min_write_event_start_time:" + minDate + "\n").getBytes());
-            output.write(new String("ldbc.snb.interactive.max_write_event_start_time:" + maxDate + "\n").getBytes());
-            output.write(new String("ldbc.snb.interactive.update_interleave:" + (maxDate - minDate) / count + "\n").getBytes());
-            output.write(new String("ldbc.snb.interactive.num_events:" + count).getBytes());
+            output.write(("ldbc.snb.interactive.gct_delta_duration:" + DatagenParams.deltaTime + "\n").getBytes());
+            output.write(("ldbc.snb.interactive.min_write_event_start_time:" + minMaxDate[0] + "\n").getBytes());
+            output.write(("ldbc.snb.interactive.max_write_event_start_time:" + minMaxDate[1] + "\n").getBytes());
+            output.write(("ldbc.snb.interactive.update_interleave:" + (minMaxDate[1] - minMaxDate[0]) / count + "\n").getBytes());
+            output.write(("ldbc.snb.interactive.num_events:" + count).getBytes());
             output.close();
         }
         return (System.currentTimeMillis()-startSortingUpdateStreams);
