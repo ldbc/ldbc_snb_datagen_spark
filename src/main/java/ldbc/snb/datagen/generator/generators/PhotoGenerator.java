@@ -82,36 +82,7 @@ public class PhotoGenerator {
             }
         }
         for (int i = 0; i < numPhotos; ++i) {
-            int locationId = album.place();
-            double latt = 0;
-            double longt = 0;
-            if (popularPlaces.size() == 0) {
-                latt = Dictionaries.places.getLatitude(locationId);
-                longt = Dictionaries.places.getLongitude(locationId);
-            } else {
-                int popularPlaceId;
-                PopularPlace popularPlace;
-                if (randomFarm.get(RandomGeneratorFarm.Aspect.POPULAR).nextDouble() < DatagenParams.probPopularPlaces) {
-                    // Generate photo information from user's popular place
-                    int popularIndex = randomFarm.get(RandomGeneratorFarm.Aspect.POPULAR).nextInt(popularPlaces.size());
-                    popularPlaceId = popularPlaces.get(popularIndex);
-                    popularPlace = Dictionaries.popularPlaces.getPopularPlace(album.place(), popularPlaceId);
-                    latt = popularPlace.getLatitude();
-                    longt = popularPlace.getLongitude();
-                } else {
-                    // Randomly select one places from Album location idx
-                    popularPlaceId = Dictionaries.popularPlaces.getPopularPlace(randomFarm
-                                                                                        .get(RandomGeneratorFarm.Aspect.POPULAR), locationId);
-                    if (popularPlaceId != -1) {
-                        popularPlace = Dictionaries.popularPlaces.getPopularPlace(locationId, popularPlaceId);
-                        latt = popularPlace.getLatitude();
-                        longt = popularPlace.getLongitude();
-                    } else {
-                        latt = Dictionaries.places.getLatitude(locationId);
-                        longt = Dictionaries.places.getLongitude(locationId);
-                    }
-                }
-            }
+
             TreeSet<Integer> tags = new TreeSet<>();
             long date = album.creationDate() + DatagenParams.deltaTime + 1000 * (i + 1);
             int country = album.moderator().countryId();
