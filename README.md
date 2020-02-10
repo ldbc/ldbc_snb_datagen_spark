@@ -49,6 +49,8 @@ export HADOOP_CLIENT_OPTS="-Xmx2G"
 export HADOOP_HOME=`pwd`/hadoop-3.2.1
 # set this to the repository's directory
 export LDBC_SNB_DATAGEN_HOME=`pwd`
+# limit Hadoop's log to error messages
+export HADOOP_LOGLEVEL=ERROR
 ./run.sh
 ```
 
