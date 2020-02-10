@@ -357,9 +357,6 @@ public class LdbcDatagen {
             LdbcDatagen.prepareConfiguration(conf);
             LdbcDatagen.initializeContext(conf);
             LdbcDatagen datagen = new LdbcDatagen();
-            Logger root = Logger.getLogger("");
-            org.apache.log4j.Logger.getLogger("").setLevel(org.apache.log4j.Level.ERROR);
-            root.setLevel(Level.OFF);
             datagen.runGenerateJob(conf);
             datagen.runSortJob(conf);
         } catch (Exception e) {
