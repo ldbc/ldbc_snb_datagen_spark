@@ -219,8 +219,8 @@ public class Person implements Writable {
             languages_.add(i);
         }
 
-        firstName_ = new String(p.firstName());
-        lastName_ = new String(p.lastName());
+        firstName_ = p.firstName();
+        lastName_ = p.lastName();
         for (Map.Entry<Long, Long> c : p.companies().entrySet()) {
             companies_.put(c.getKey(), c.getValue());
         }

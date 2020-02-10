@@ -131,7 +131,7 @@ public class HadoopPersonGenerator {
             FileSystem dfs = FileSystem.get(conf);
             OutputStream output = dfs.create(new Path(filename));
             for (int i = 0; i < numMaps; i++)
-                output.write((new String(i + "\n").getBytes()));
+                output.write((i + "\n").getBytes());
             output.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
