@@ -46,6 +46,7 @@ public class BlockKey implements WritableComparable<BlockKey> {
     public long block;
     public TupleKey tk;
 
+    // required for instantiation by the framework
     public BlockKey() {
         tk = new TupleKey();
     }
