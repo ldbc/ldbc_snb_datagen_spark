@@ -103,14 +103,14 @@ public class HadoopPersonSortAndSerializer {
                 throws IOException {
             SN.machineId = key.block;
             for (Person p : valueSet) {
-                if (p.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
+                if (p.getCreationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
                     dynamicPersonSerializer_.export(p);
                 } else {
                     updateSerializer_.export(p);
                     updateSerializer_.changePartition();
                 }
 
-                for (Knows k : p.knows()) {
+                for (Knows k : p.getKnows()) {
                     if (k.getCreationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
                         dynamicPersonSerializer_.export(p, k);
                     }

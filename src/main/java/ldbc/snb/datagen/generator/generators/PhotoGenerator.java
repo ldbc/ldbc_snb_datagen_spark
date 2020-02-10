@@ -42,7 +42,6 @@ import ldbc.snb.datagen.entities.dynamic.messages.Photo;
 import ldbc.snb.datagen.entities.dynamic.person.IP;
 import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.entities.dynamic.relations.Like;
-import ldbc.snb.datagen.entities.statictype.place.PopularPlace;
 import ldbc.snb.datagen.serializer.PersonActivityExporter;
 import ldbc.snb.datagen.util.PersonBehavior;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
@@ -76,7 +75,7 @@ public class PhotoGenerator {
         for (int i = 0; i < numPopularPlaces; i++) {
             short aux = Dictionaries.popularPlaces.getPopularPlace(randomFarm
                                                                            .get(RandomGeneratorFarm.Aspect.POPULAR), album
-                                                                           .place());
+                                                                           .getPlace());
             if (aux != -1) {
                 popularPlaces.add(aux);
             }
@@ -84,9 +83,9 @@ public class PhotoGenerator {
         for (int i = 0; i < numPhotos; ++i) {
 
             TreeSet<Integer> tags = new TreeSet<>();
-            long date = album.creationDate() + DatagenParams.deltaTime + 1000 * (i + 1);
-            int country = album.moderator().countryId();
-            IP ip = album.moderator().ipAddress();
+            long date = album.getCreationDate() + DatagenParams.deltaTime + 1000 * (i + 1);
+            int country = album.getModerator().getCountryId();
+            IP ip = album.getModerator().getIpAddress();
             Random random = randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER);
             if (PersonBehavior.changeUsualCountry(random, date)) {
                 random = randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY);
@@ -98,13 +97,13 @@ public class PhotoGenerator {
             long id = SN.formId(SN.composeId(nextId++, date));
             photo.initialize(id,
                               date,
-                              album.moderator(),
-                              album.id(),
+                              album.getModerator(),
+                              album.getId(),
                               "photo" + id + ".jpg",
                               tags,
                               country,
                               ip,
-                              album.moderator().browserId()
+                              album.getModerator().getBrowserId()
             );
             exporter.export(photo);
             if (randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1) {

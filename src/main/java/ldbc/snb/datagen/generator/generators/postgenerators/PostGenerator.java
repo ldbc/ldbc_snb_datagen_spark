@@ -112,8 +112,8 @@ abstract public class PostGenerator {
                     String content = "";
                     content = this.generator_.generateText(member.person(), postInfo.tags, prop);
 
-                    int country = member.person().countryId();
-                    IP ip = member.person().ipAddress();
+                    int country = member.person().getCountryId();
+                    IP ip = member.person().getIpAddress();
                     Random random = randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER);
                     if (PersonBehavior.changeUsualCountry(random, postInfo.date)) {
                         random = randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY);
@@ -125,7 +125,7 @@ abstract public class PostGenerator {
                     post_.initialize(SN.formId(SN.composeId(postId++, postInfo.date)),
                                      postInfo.date,
                                      member.person(),
-                                     forum.id(),
+                                     forum.getId(),
                                      content,
                                      postInfo.tags,
                                      country,
@@ -133,8 +133,8 @@ abstract public class PostGenerator {
                                      Dictionaries.browsers.getPostBrowserId(randomFarm
                                                                                     .get(RandomGeneratorFarm.Aspect.DIFF_BROWSER), randomFarm
                                                                                     .get(RandomGeneratorFarm.Aspect.BROWSER), member
-                                                                                    .person().browserId()),
-                                     forum.language());
+                                                                                    .person().getBrowserId()),
+                                     forum.getLanguage());
                     exporter.export(post_);
 
                     if (randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1) {

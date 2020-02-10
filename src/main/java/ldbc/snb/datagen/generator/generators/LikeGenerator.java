@@ -60,10 +60,10 @@ public class LikeGenerator {
     }
 
     public void generateLikes(Random random, final Forum forum, final Message message, LikeType type, PersonActivityExporter exporter) throws IOException {
-        int numMembers = forum.memberships().size();
+        int numMembers = forum.getMemberships().size();
         int numLikes = likesGenerator_.getValue(random);
         numLikes = numLikes >= numMembers ? numMembers : numLikes;
-        List<ForumMembership> memberships = forum.memberships();
+        List<ForumMembership> memberships = forum.getMemberships();
         int startIndex = 0;
         if (numLikes < numMembers) {
             startIndex = random.nextInt(numMembers - numLikes);
@@ -74,9 +74,9 @@ public class LikeGenerator {
                     .creationDate() : membership.creationDate();
             long date = Dictionaries.dates.randomDate(random, minDate, Dictionaries.dates
                     .randomSevenDays(random) + minDate);
-            assert ((membership.person().creationDate() + DatagenParams.deltaTime) < date);
-            like.user = membership.person().accountId();
-            like.userCreationDate = membership.person().creationDate();
+            assert ((membership.person().getCreationDate() + DatagenParams.deltaTime) < date);
+            like.user = membership.person().getAccountId();
+            like.userCreationDate = membership.person().getCreationDate();
             like.messageId = message.messageId();
             like.date = date;
             like.type = type;

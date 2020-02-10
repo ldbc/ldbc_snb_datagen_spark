@@ -90,22 +90,22 @@ public class HadoopMergeFriendshipFiles {
                 if (index == 0) {
                     person = new Person(p);
                 }
-                for (Knows k : p.knows()) {
+                for (Knows k : p.getKnows()) {
                     knows.add(k);
                 }
                 index++;
             }
-            person.knows().clear();
+            person.getKnows().clear();
             Knows.FullComparator comparator = new Knows.FullComparator();
             Collections.sort(knows, comparator);
             if (knows.size() > 0) {
-                long currentTo = knows.get(0).to().accountId();
-                person.knows().add(knows.get(0));
+                long currentTo = knows.get(0).to().getAccountId();
+                person.getKnows().add(knows.get(0));
                 for (index = 1; index < knows.size(); ++index) {
                     Knows nextKnows = knows.get(index);
-                    if (currentTo != knows.get(index).to().accountId()) {
-                        person.knows().add(nextKnows);
-                        currentTo = nextKnows.to().accountId();
+                    if (currentTo != knows.get(index).to().getAccountId()) {
+                        person.getKnows().add(nextKnows);
+                        currentTo = nextKnows.to().getAccountId();
                     } else {
                         numRepeated++;
                     }

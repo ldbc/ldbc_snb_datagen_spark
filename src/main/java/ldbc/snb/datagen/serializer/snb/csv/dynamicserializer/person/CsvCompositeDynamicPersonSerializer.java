@@ -77,35 +77,35 @@ public class CsvCompositeDynamicPersonSerializer extends DynamicPersonSerializer
 
     @Override
     protected void serialize(final Person p) {
-        String dateString = Dictionaries.dates.formatDateTime(p.creationDate());
+        String dateString = Dictionaries.dates.formatDateTime(p.getCreationDate());
         //"id","firstName","lastName","gender", "birthday","creationDate","locationIP","browserUsed","language","email"
         writers.get(PERSON).writeEntry(ImmutableList.of(
                 dateString,
-                Long.toString(p.accountId()),
-                p.firstName(),
-                p.lastName(),
-                getGender(p.gender()),
-                Dictionaries.dates.formatDate(p.birthday()),
-                p.ipAddress().toString(),
-                Dictionaries.browsers.getName(p.browserId()),
-                buildLanguages(p.languages()),
-                buildEmail(p.emails())
+                Long.toString(p.getAccountId()),
+                p.getFirstName(),
+                p.getLastName(),
+                getGender(p.getGender()),
+                Dictionaries.dates.formatDate(p.getBirthday()),
+                p.getIpAddress().toString(),
+                Dictionaries.browsers.getName(p.getBrowserId()),
+                buildLanguages(p.getLanguages()),
+                buildEmail(p.getEmails())
         ));
 
         //"Person.id","Place.id","creationDate"
         writers.get(PERSON_LOCATED_IN_PLACE).writeEntry(ImmutableList.of(
                 dateString,
-                Long.toString(p.accountId()),
-                Integer.toString(p.cityId())
+                Long.toString(p.getAccountId()),
+                Integer.toString(p.getCityId())
         ));
 
-        Iterator<Integer> itInteger = p.interests().iterator();
+        Iterator<Integer> itInteger = p.getInterests().iterator();
         while (itInteger.hasNext()) {
             Integer interestIdx = itInteger.next();
             //"Person.id","Tag.id","creationDate"
             writers.get(PERSON_HAS_INTEREST_TAG).writeEntry(ImmutableList.of(
                     dateString,
-                    Long.toString(p.accountId()),
+                    Long.toString(p.getAccountId()),
                     Integer.toString(interestIdx)
             ));
         }
@@ -115,7 +115,7 @@ public class CsvCompositeDynamicPersonSerializer extends DynamicPersonSerializer
     protected void serialize(final StudyAt studyAt,final Person person) {
         //"Person.id","Organisation.id","classYear","creationDate"
         writers.get(PERSON_STUDY_AT).writeEntry(ImmutableList.of(
-                Dictionaries.dates.formatDateTime(person.creationDate()),
+                Dictionaries.dates.formatDateTime(person.getCreationDate()),
                 Long.toString(studyAt.user),
                 Long.toString(studyAt.university),
                 Dictionaries.dates.formatYear(studyAt.year)
@@ -126,7 +126,7 @@ public class CsvCompositeDynamicPersonSerializer extends DynamicPersonSerializer
     protected void serialize(final WorkAt workAt,final Person person) {
         //"Person.id","Organisation.id","workFrom","creationDate"
         writers.get(PERSON_WORK_AT).writeEntry(ImmutableList.of(
-                Dictionaries.dates.formatDateTime(person.creationDate()),
+                Dictionaries.dates.formatDateTime(person.getCreationDate()),
                 Long.toString(workAt.user),
                 Long.toString(workAt.company),
                 Dictionaries.dates.formatYear(workAt.year)
@@ -138,8 +138,8 @@ public class CsvCompositeDynamicPersonSerializer extends DynamicPersonSerializer
         //"Person.id","Person.id","creationDate"
         writers.get(PERSON_KNOWS_PERSON).writeEntry(ImmutableList.of(
                 Dictionaries.dates.formatDateTime(knows.getCreationDate()),
-                Long.toString(p.accountId()),
-                Long.toString(knows.to().accountId())
+                Long.toString(p.getAccountId()),
+                Long.toString(knows.to().getAccountId())
         ));
     }
 }

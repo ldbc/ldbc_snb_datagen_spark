@@ -61,28 +61,28 @@ abstract public class DynamicPersonSerializer<TWriter extends HdfsWriter> extend
     public void export(final Person person) {
         serialize(person);
 
-        long universityId = Dictionaries.universities.getUniversityFromLocation(person.universityLocationId());
-        if ((universityId != -1) && (person.classYear() != -1)) {
+        long universityId = Dictionaries.universities.getUniversityFromLocation(person.getUniversityLocationId());
+        if ((universityId != -1) && (person.getClassYear() != -1)) {
             StudyAt studyAt = new StudyAt();
-            studyAt.year = person.classYear();
-            studyAt.user = person.accountId();
+            studyAt.year = person.getClassYear();
+            studyAt.user = person.getAccountId();
             studyAt.university = universityId;
             serialize(studyAt,person);
         }
 
-        Iterator<Long> it = person.companies().keySet().iterator();
+        Iterator<Long> it = person.getCompanies().keySet().iterator();
         while (it.hasNext()) {
             long companyId = it.next();
             WorkAt workAt = new WorkAt();
             workAt.company = companyId;
-            workAt.user = person.accountId();
-            workAt.year = person.companies().get(companyId);
+            workAt.user = person.getAccountId();
+            workAt.year = person.getCompanies().get(companyId);
             serialize(workAt,person);
         }
     }
 
     public void export(final Person p, final Knows k) {
-        if (p.accountId() < k.to().accountId())
+        if (p.getAccountId() < k.to().getAccountId())
             serialize(p, k);
     }
 

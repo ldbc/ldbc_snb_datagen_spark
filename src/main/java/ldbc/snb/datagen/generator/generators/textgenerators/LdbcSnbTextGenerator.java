@@ -61,7 +61,7 @@ public class LdbcSnbTextGenerator extends TextGenerator {
         if (prop.getProperty("type").equals("post")) {
 
             int textSize;
-            if (member.isLargePoster() && this.random.nextDouble() > (1.0f - DatagenParams.ratioLargePost)) {
+            if (member.getIsLargePoster() && this.random.nextDouble() > (1.0f - DatagenParams.ratioLargePost)) {
                 textSize = Dictionaries.tagText
                         .getRandomLargeTextSize(this.random, DatagenParams.minLargePostSize, DatagenParams.maxLargePostSize);
                 assert textSize <= DatagenParams.maxLargePostSize && textSize >= DatagenParams.minLargePostSize : "Person creation date is larger than membership";
@@ -73,7 +73,7 @@ public class LdbcSnbTextGenerator extends TextGenerator {
             content = Dictionaries.tagText.generateText(this.random, tags, textSize);
         } else {
             int textSize;
-            if (member.isLargePoster() && this.random.nextDouble() > (1.0f - DatagenParams.ratioLargeComment)) {
+            if (member.getIsLargePoster() && this.random.nextDouble() > (1.0f - DatagenParams.ratioLargeComment)) {
                 textSize = Dictionaries.tagText
                         .getRandomLargeTextSize(this.random, DatagenParams.minLargeCommentSize, DatagenParams.maxLargeCommentSize);
                 assert textSize <= DatagenParams.maxLargeCommentSize && textSize >= DatagenParams.minLargeCommentSize : "Person creation date is larger than membership";

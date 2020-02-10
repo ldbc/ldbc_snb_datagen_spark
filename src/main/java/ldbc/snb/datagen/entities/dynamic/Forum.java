@@ -44,87 +44,97 @@ import java.util.List;
 
 public class Forum {
 
-    private long id_;
-    private Person.PersonSummary moderator_;
-    private long creationDate_;
-    private String title_;
-    private List<Integer> tags_;
-    private int placeId_;
-    private int language_;
-    private List<ForumMembership> memberships_;
+    private long id;
+    private Person.PersonSummary moderator;
+    private long creationDate;
+    private long deletionDate;
+    private String title;
+    private List<Integer> tags;
+    private int placeId;
+    private int language;
+    private List<ForumMembership> memberships;
 
 
-    public Forum(long id, long creationDate, Person.PersonSummary moderator, String title, int placeId, int language) {
+    public Forum(long id, long creationDate, long deletionDate, Person.PersonSummary moderator, String title, int placeId, int language) {
         assert (moderator
-                .creationDate() + DatagenParams.deltaTime) <= creationDate : "Moderator creation date is larger than message creation date";
-        memberships_ = new ArrayList<>();
-        tags_ = new ArrayList<>();
-        id_ = id;
-        creationDate_ = creationDate;
-        title_ = title;
-        placeId_ = placeId;
-        moderator_ = new Person.PersonSummary(moderator);
-        language_ = language;
+                .getCreationDate() + DatagenParams.deltaTime) <= creationDate : "Moderator's creation date is less than or equal to the Forum creation date";
+        memberships = new ArrayList<>();
+        tags = new ArrayList<>();
+        this.id = id;
+        this.creationDate = creationDate;
+        this.deletionDate = deletionDate;
+        this.title = title;
+        this.placeId = placeId;
+        this.moderator = new Person.PersonSummary(moderator);
+        this.language = language;
     }
 
     public void addMember(ForumMembership member) {
-        memberships_.add(member);
+        memberships.add(member);
     }
 
-    public long id() {
-        return id_;
+    public long getId() {
+        return id;
     }
 
-    public void id(long id) {
-        id_ = id;
+    public void setId(long id) {
+        this.id = id;
     }
 
-    public Person.PersonSummary moderator() {
-        return moderator_;
+    public Person.PersonSummary getModerator() {
+        return moderator;
     }
 
-    public long creationDate() {
-        return creationDate_;
+    public long getCreationDate() {
+        return creationDate;
     }
 
-    public void creationDate(long creationDate) {
-        creationDate_ = creationDate;
+    public void setCreationDate(long creationDate) {
+        this.creationDate = creationDate;
     }
 
-    public List<Integer> tags() {
-        return tags_;
+    public long getDeletionDate() {
+        return deletionDate;
     }
 
-    public void tags(List<Integer> tags) {
-        tags_.clear();
-        tags_.addAll(tags);
+    public void setDeletionDate(long deletionDate) {
+        this.deletionDate = deletionDate;
     }
 
-    public String title() {
-        return title_;
+    public List<Integer> getTags() {
+        return tags;
     }
 
-    public void title(String title) {
-        this.title_ = title;
+    public void setTags(List<Integer> tags) {
+        this.tags.clear();
+        this.tags.addAll(tags);
     }
 
-    public List<ForumMembership> memberships() {
-        return memberships_;
+    public String getTitle() {
+        return title;
     }
 
-    public int place() {
-        return placeId_;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
-    public void place(int placeId) {
-        placeId_ = placeId;
+    public List<ForumMembership> getMemberships() {
+        return memberships;
     }
 
-    public int language() {
-        return language_;
+    public int getPlace() {
+        return placeId;
     }
 
-    public void language(int l) {
-        language_ = l;
+    public void setPlace(int placeId) {
+        this.placeId = placeId;
+    }
+
+    public int getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(int language) {
+        this.language = language;
     }
 }

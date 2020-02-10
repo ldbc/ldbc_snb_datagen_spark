@@ -57,6 +57,6 @@ public class HadoopBlockMapper extends Mapper<LongWritable, Person, BlockKey, Pe
     @Override
     public void map(LongWritable key, Person value, Mapper.Context context)
             throws IOException, InterruptedException {
-        context.write(new BlockKey(key.get() / blockSize, new TupleKey(key.get(), value.accountId())), value);
+        context.write(new BlockKey(key.get() / blockSize, new TupleKey(key.get(), value.getAccountId())), value);
     }
 }

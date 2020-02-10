@@ -215,55 +215,55 @@ public class UpdateEventSerializer {
     public void export(Person person) throws IOException {
 
         currentDependantDate_ = 0;
-        beginEvent(person.creationDate(), UpdateEvent.UpdateEventType.ADD_PERSON);
-        data_.add(Long.toString(person.accountId()));
-        data_.add(person.firstName());
-        data_.add(person.lastName());
+        beginEvent(person.getCreationDate(), UpdateEvent.UpdateEventType.ADD_PERSON);
+        data_.add(Long.toString(person.getAccountId()));
+        data_.add(person.getFirstName());
+        data_.add(person.getLastName());
 
-        if (person.gender() == 1) {
+        if (person.getGender() == 1) {
             data_.add("male");
         } else {
             data_.add("female");
         }
-        data_.add(Long.toString(person.birthday()));
-        data_.add(Long.toString(person.creationDate()));
-        data_.add(person.ipAddress().toString());
-        data_.add(Dictionaries.browsers.getName(person.browserId()));
-        data_.add(Integer.toString(person.cityId()));
+        data_.add(Long.toString(person.getBirthday()));
+        data_.add(Long.toString(person.getCreationDate()));
+        data_.add(person.getIpAddress().toString());
+        data_.add(Dictionaries.browsers.getName(person.getBrowserId()));
+        data_.add(Integer.toString(person.getCityId()));
 
         beginList();
-        for (Integer l : person.languages()) {
+        for (Integer l : person.getLanguages()) {
             list_.add(Dictionaries.languages.getLanguageName(l));
         }
         endList();
 
         beginList();
-        for (String e : person.emails()) {
+        for (String e : person.getEmails()) {
             list_.add(e);
         }
         endList();
 
         beginList();
-        for (Integer tag : person.interests()) {
+        for (Integer tag : person.getInterests()) {
             list_.add(Integer.toString(tag));
         }
         endList();
 
         beginList();
-        int universityId = person.universityLocationId();
-        if (universityId != -1 && person.classYear() != -1) {
+        int universityId = person.getUniversityLocationId();
+        if (universityId != -1 && person.getClassYear() != -1) {
             List<String> studyAtData = new ArrayList<>();
             studyAtData.add(Long.toString(Dictionaries.universities.getUniversityFromLocation(universityId)));
-            studyAtData.add(Dictionaries.dates.formatYear(person.classYear()));
+            studyAtData.add(Dictionaries.dates.formatYear(person.getClassYear()));
             list_.add(formatStringArray(studyAtData, ","));
         }
         endList();
 
         beginList();
-        for (Long companyId : person.companies().keySet()) {
+        for (Long companyId : person.getCompanies().keySet()) {
             List<String> workAtData = new ArrayList<>();
             workAtData.add(Long.toString(companyId));
-            workAtData.add(Dictionaries.dates.formatYear(person.companies().get(companyId)));
+            workAtData.add(Dictionaries.dates.formatYear(person.getCompanies().get(companyId)));
             list_.add(formatStringArray(workAtData, ","));
         }
         endList();
@@ -271,18 +271,18 @@ public class UpdateEventSerializer {
     }
 
     public void export(Person p, Knows k) throws IOException {
-        if (p.accountId() < k.to().accountId()) {
-            currentDependantDate_ = Math.max(p.creationDate(), k.to().creationDate());
+        if (p.getAccountId() < k.to().getAccountId()) {
+            currentDependantDate_ = Math.max(p.getCreationDate(), k.to().getCreationDate());
             beginEvent(k.getCreationDate(), UpdateEvent.UpdateEventType.ADD_FRIENDSHIP);
-            data_.add(Long.toString(p.accountId()));
-            data_.add(Long.toString(k.to().accountId()));
+            data_.add(Long.toString(p.getAccountId()));
+            data_.add(Long.toString(k.to().getAccountId()));
             data_.add(Long.toString(k.getCreationDate()));
             endEvent();
         }
     }
 
     public void export(Post post) throws IOException {
-        currentDependantDate_ = post.author().creationDate();
+        currentDependantDate_ = post.author().getCreationDate();
         beginEvent(post.creationDate(), UpdateEvent.UpdateEventType.ADD_POST);
         String empty = "";
         data_.add(Long.toString(post.messageId()));
@@ -293,7 +293,7 @@ public class UpdateEventSerializer {
         data_.add(Dictionaries.languages.getLanguageName(post.language()));
         data_.add(post.content());
         data_.add(Long.toString(post.content().length()));
-        data_.add(Long.toString(post.author().accountId()));
+        data_.add(Long.toString(post.author().getAccountId()));
         data_.add(Long.toString(post.forumId()));
         data_.add(Long.toString(post.countryId()));
 
@@ -320,7 +320,7 @@ public class UpdateEventSerializer {
 
     public void export(Photo photo) throws IOException {
 
-        currentDependantDate_ = photo.author().creationDate();
+        currentDependantDate_ = photo.author().getCreationDate();
         beginEvent(photo.creationDate(), UpdateEvent.UpdateEventType.ADD_POST);
         String empty = "";
         data_.add(Long.toString(photo.messageId()));
@@ -331,7 +331,7 @@ public class UpdateEventSerializer {
         data_.add(empty);
         data_.add(empty);
         data_.add("0");
-        data_.add(Long.toString(photo.author().accountId()));
+        data_.add(Long.toString(photo.author().getAccountId()));
         data_.add(Long.toString(photo.forumId()));
         data_.add(Long.toString(photo.countryId()));
 
@@ -345,7 +345,7 @@ public class UpdateEventSerializer {
 
     public void export(Comment comment) throws IOException {
 
-        currentDependantDate_ = comment.author().creationDate();
+        currentDependantDate_ = comment.author().getCreationDate();
         beginEvent(comment.creationDate(), UpdateEvent.UpdateEventType.ADD_COMMENT);
         data_.add(Long.toString(comment.messageId()));
         data_.add(Long.toString(comment.creationDate()));
@@ -353,7 +353,7 @@ public class UpdateEventSerializer {
         data_.add(Dictionaries.browsers.getName(comment.browserId()));
         data_.add(comment.content());
         data_.add(Integer.toString(comment.content().length()));
-        data_.add(Long.toString(comment.author().accountId()));
+        data_.add(Long.toString(comment.author().getAccountId()));
         data_.add(Long.toString(comment.countryId()));
         if (comment.replyOf() == comment.postId()) {
             data_.add(Long.toString(comment.postId()));
@@ -371,15 +371,15 @@ public class UpdateEventSerializer {
     }
 
     public void export(Forum forum) throws IOException {
-        currentDependantDate_ = forum.moderator().creationDate();
-        beginEvent(forum.creationDate(), UpdateEvent.UpdateEventType.ADD_FORUM);
-        data_.add(Long.toString(forum.id()));
-        data_.add(forum.title());
-        data_.add(Long.toString(forum.creationDate()));
-        data_.add(Long.toString(forum.moderator().accountId()));
+        currentDependantDate_ = forum.getModerator().getCreationDate();
+        beginEvent(forum.getCreationDate(), UpdateEvent.UpdateEventType.ADD_FORUM);
+        data_.add(Long.toString(forum.getId()));
+        data_.add(forum.getTitle());
+        data_.add(Long.toString(forum.getCreationDate()));
+        data_.add(Long.toString(forum.getModerator().getAccountId()));
 
         beginList();
-        for (int tag : forum.tags()) {
+        for (int tag : forum.getTags()) {
             list_.add(Integer.toString(tag));
         }
         endList();
@@ -387,10 +387,10 @@ public class UpdateEventSerializer {
     }
 
     public void export(ForumMembership membership) throws IOException {
-        currentDependantDate_ = membership.person().creationDate();
+        currentDependantDate_ = membership.person().getCreationDate();
         beginEvent(membership.creationDate(), UpdateEvent.UpdateEventType.ADD_FORUM_MEMBERSHIP);
         data_.add(Long.toString(membership.forumId()));
-        data_.add(Long.toString(membership.person().accountId()));
+        data_.add(Long.toString(membership.person().getAccountId()));
         data_.add(Long.toString(membership.creationDate()));
         endEvent();
     }

@@ -142,7 +142,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
             PersonInfo pInfo = new PersonInfo();
             pInfo.index_ = i;
             pInfo.degree_ = Knows.targetEdges(p, percentages, stepIndex);
-            pInfo.original_degree_ = p.maxNumKnows();
+            pInfo.original_degree_ = p.getMaxNumKnows();
             nodes.add(pInfo);
         }
 
@@ -491,7 +491,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         }
 
         for (PersonInfo pI : c.periphery_) {
-            if (persons.get(pI.index_).knows().size() > pI.degree_) {
+            if (persons.get(pI.index_).getKnows().size() > pI.degree_) {
                 System.out.println("ERROR");
             }
         }
@@ -503,7 +503,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         Integer ii = 0;
         for (Community c : communities) {
             for (PersonInfo pI : c.core_) {
-                long diff = pI.degree_ - persons.get(pI.index_).knows().size();
+                long diff = pI.degree_ - persons.get(pI.index_).getKnows().size();
                 if (diff > 0) {
                     for (int i = 0; i < diff; ++i) {
                         stubs.add(pI);
@@ -610,8 +610,8 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
             List<Double> clusteringCoefficient = GraphUtils.clusteringCoefficientList(graph);
             int i = 0;
             for (Person p : persons) {
-                long degree = graph.neighbors(p.accountId()).size();
-                long originalDegree = p.maxNumKnows();
+                long degree = graph.neighbors(p.getAccountId()).size();
+                long originalDegree = p.getMaxNumKnows();
                 if (originalDegree > 1)
                     finalCC += clusteringCoefficient
                             .get(i) * degree * (degree - 1) / (originalDegree * (originalDegree - 1));
@@ -624,7 +624,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
             if (Math.abs(delta) > 0.001) {
                 resetStatistics();
                 for (Person person : persons) {
-                    person.knows().clear();
+                    person.getKnows().clear();
                 }
                 if (delta > 0)
                     fakeTargetCC += Math.abs(delta) * 0.5f;
@@ -646,15 +646,15 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         for (Person p : persons) {
             if (cInfo.is_core_.get(index)) {
                 long target = Knows.targetEdges(p, percentages, step_index);
-                if (p.knows().size() > target) {
-                    sumMore += -target + p.knows().size();
+                if (p.getKnows().size() > target) {
+                    sumMore += -target + p.getKnows().size();
                     countMore++;
-                } else if (p.knows().size() < target) {
-                    sumLess += target - p.knows().size();
+                } else if (p.getKnows().size() < target) {
+                    sumLess += target - p.getKnows().size();
                     countLess++;
                 }
             }
-            if (p.knows().size() == 0) countDegreeZero++;
+            if (p.getKnows().size() == 0) countDegreeZero++;
             ++index;
         }
 

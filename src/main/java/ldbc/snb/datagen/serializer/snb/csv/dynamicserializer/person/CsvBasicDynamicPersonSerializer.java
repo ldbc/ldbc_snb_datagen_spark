@@ -79,47 +79,47 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
     protected void serialize(final Person p) {
         //"creationDate","deletionDate","id","firstName","lastName","gender","birthday","locationIP","browserUsed"
         writers.get(PERSON).writeEntry(ImmutableList.of(
-                Dictionaries.dates.formatDateTime(p.creationDate()),
-                Dictionaries.dates.formatDateTime(p.deletionDate()),
-                Long.toString(p.accountId()),
-                p.firstName(),
-                p.lastName(),
-                getGender(p.gender()),
-                Dictionaries.dates.formatDate(p.birthday()),
-                p.ipAddress().toString(),
-                Dictionaries.browsers.getName(p.browserId())
+                Dictionaries.dates.formatDateTime(p.getCreationDate()),
+                Dictionaries.dates.formatDateTime(p.getDeletionDate()),
+                Long.toString(p.getAccountId()),
+                p.getFirstName(),
+                p.getLastName(),
+                getGender(p.getGender()),
+                Dictionaries.dates.formatDate(p.getBirthday()),
+                p.getIpAddress().toString(),
+                Dictionaries.browsers.getName(p.getBrowserId())
             ));
 
-        for (Integer i: p.languages()) {
+        for (Integer i: p.getLanguages()) {
             //"creationDate","Person.id","language"
             writers.get(PERSON_SPEAKS_LANGUAGE).writeEntry(ImmutableList.of(
-                    Dictionaries.dates.formatDateTime(p.creationDate()),
-                    Long.toString(p.accountId()),
+                    Dictionaries.dates.formatDateTime(p.getCreationDate()),
+                    Long.toString(p.getAccountId()),
                     Dictionaries.languages.getLanguageName(i)
             ));
         }
-        Iterator<String> itString = p.emails().iterator();
+        Iterator<String> itString = p.getEmails().iterator();
         while (itString.hasNext()) {
             //"creationDate","Person.id","email"
             writers.get(PERSON_HAS_EMAIL).writeEntry(ImmutableList.of(
-                    Dictionaries.dates.formatDateTime(p.creationDate()),
-                    Long.toString(p.accountId()),
+                    Dictionaries.dates.formatDateTime(p.getCreationDate()),
+                    Long.toString(p.getAccountId()),
                     itString.next()
             ));
         }
         //"creationDate","Person.id","Place.id"
         writers.get(PERSON_LOCATED_IN_PLACE).writeEntry(ImmutableList.of(
-                Dictionaries.dates.formatDateTime(p.creationDate()),
-                Long.toString(p.accountId()),
-                Integer.toString(p.cityId())
+                Dictionaries.dates.formatDateTime(p.getCreationDate()),
+                Long.toString(p.getAccountId()),
+                Integer.toString(p.getCityId())
         ));
 
-        Iterator<Integer> itInteger = p.interests().iterator();
+        Iterator<Integer> itInteger = p.getInterests().iterator();
         while (itInteger.hasNext()) {
             //"creationDate","Person.id","Tag.id"
             writers.get(PERSON_HAS_INTEREST_TAG).writeEntry(ImmutableList.of(
-                    Dictionaries.dates.formatDateTime(p.creationDate()),
-                    Long.toString(p.accountId()),
+                    Dictionaries.dates.formatDateTime(p.getCreationDate()),
+                    Long.toString(p.getAccountId()),
                     Integer.toString(itInteger.next())
             ));
         }
@@ -129,7 +129,7 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
     protected void serialize(final StudyAt studyAt,final Person person) {
         //"creationDate","Person.id","Organisation.id","classYear"
         writers.get(PERSON_STUDY_AT).writeEntry(ImmutableList.of(
-                Dictionaries.dates.formatDateTime(person.creationDate()),
+                Dictionaries.dates.formatDateTime(person.getCreationDate()),
                 Long.toString(studyAt.user),
                 Long.toString(studyAt.university),
                 Dictionaries.dates.formatYear(studyAt.year)
@@ -140,7 +140,7 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
     protected void serialize(final WorkAt workAt,final Person person) {
         //"creationDate","Person.id","Organisation.id","workFrom"
         writers.get(PERSON_WORK_AT).writeEntry(ImmutableList.of(
-                Dictionaries.dates.formatDateTime(person.creationDate()),
+                Dictionaries.dates.formatDateTime(person.getCreationDate()),
                 Long.toString(workAt.user),
                 Long.toString(workAt.company),
                 Dictionaries.dates.formatYear(workAt.year)
@@ -153,8 +153,8 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
         writers.get(PERSON_KNOWS_PERSON).writeEntry(ImmutableList.of(
                 Dictionaries.dates.formatDateTime(knows.getCreationDate()),
                 Dictionaries.dates.formatDateTime(knows.getDeletionDate()),
-                Long.toString(p.accountId()),
-                Long.toString(knows.to().accountId())
+                Long.toString(p.getAccountId()),
+                Long.toString(knows.to().getAccountId())
         ));
     }
 

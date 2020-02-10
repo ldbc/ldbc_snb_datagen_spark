@@ -121,7 +121,7 @@ public class Knows implements Writable, Comparable<Knows> {
     }
 
     public int compareTo(Knows k) {
-        long res = (to.accountId() - k.to().accountId());
+        long res = (to.getAccountId() - k.to().getAccountId());
         if (res > 0) return 1;
         if (res < 0) return -1;
         return 0;
@@ -130,7 +130,7 @@ public class Knows implements Writable, Comparable<Knows> {
     static public class FullComparator implements Comparator<Knows> {
 
         public int compare(Knows a, Knows b) {
-            long res = (a.to.accountId() - b.to().accountId());
+            long res = (a.to.getAccountId() - b.to().getAccountId());
             if (res > 0) return 1;
             if (res < 0) return -1;
             long res2 = a.creationDate - b.getCreationDate();
@@ -147,24 +147,24 @@ public class Knows implements Writable, Comparable<Knows> {
                 personA,
                 personB);
         creationDate = creationDate - personA
-                .creationDate() >= DatagenParams.deltaTime ? creationDate : creationDate + (DatagenParams.deltaTime - (creationDate - personA
-                .creationDate()));
+                .getCreationDate() >= DatagenParams.deltaTime ? creationDate : creationDate + (DatagenParams.deltaTime - (creationDate - personA
+                .getCreationDate()));
         creationDate = creationDate - personB
-                .creationDate() >= DatagenParams.deltaTime ? creationDate : creationDate + (DatagenParams.deltaTime - (creationDate - personB
-                .creationDate()));
-        long deletionDate = Math.min(personA.deletionDate(),personB.deletionDate()); // inherit from first person who leaves the network
+                .getCreationDate() >= DatagenParams.deltaTime ? creationDate : creationDate + (DatagenParams.deltaTime - (creationDate - personB
+                .getCreationDate()));
+        long deletionDate = Math.min(personA.getDeletionDate(),personB.getDeletionDate()); // inherit from first person who leaves the network
         float similarity = Person.personSimilarity.similarity(personA, personB);
-        return personB.knows().add(new Knows(personA, creationDate, deletionDate, similarity)) &&
-                personA.knows().add(new Knows(personB, creationDate, deletionDate, similarity));
+        return personB.getKnows().add(new Knows(personA, creationDate, deletionDate, similarity)) &&
+                personA.getKnows().add(new Knows(personB, creationDate, deletionDate, similarity));
     }
 
     public static long targetEdges(Person person, List<Float> percentages, int step_index) {
         int generated_edges = 0;
         for (int i = 0; i < step_index; ++i) {
-            generated_edges += Math.ceil(percentages.get(i) * person.maxNumKnows());
+            generated_edges += Math.ceil(percentages.get(i) * person.getMaxNumKnows());
         }
-        generated_edges = Math.min(generated_edges, (int) person.maxNumKnows());
-        return Math.min((int) person.maxNumKnows() - generated_edges, (int) Math
-                .ceil(percentages.get(step_index) * person.maxNumKnows()));
+        generated_edges = Math.min(generated_edges, (int) person.getMaxNumKnows());
+        return Math.min((int) person.getMaxNumKnows() - generated_edges, (int) Math
+                .ceil(percentages.get(step_index) * person.getMaxNumKnows()));
     }
 }

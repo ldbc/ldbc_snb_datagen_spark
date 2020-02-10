@@ -51,10 +51,10 @@ public class PersonGraph {
         adjacencies_ = new HashMap<>();
         for (Person p : persons) {
             HashSet<Long> neighbors = new HashSet<>();
-            for (Knows k : p.knows()) {
-                neighbors.add(k.to().accountId());
+            for (Knows k : p.getKnows()) {
+                neighbors.add(k.to().getAccountId());
             }
-            adjacencies_.put(p.accountId(), neighbors);
+            adjacencies_.put(p.getAccountId(), neighbors);
         }
     }
 

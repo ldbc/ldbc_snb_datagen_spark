@@ -79,21 +79,21 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
     }
 
     protected void serialize(final Forum forum) {
-        String dateString = Dictionaries.dates.formatDateTime(forum.creationDate());
+        String dateString = Dictionaries.dates.formatDateTime(forum.getCreationDate());
 
         //"id", "title", "creationDate", "moderator"
         writers.get(FORUM).writeEntry(ImmutableList.of(
                 dateString,
-                Long.toString(forum.id()),
-                forum.title(),
-                Long.toString(forum.moderator().accountId())
+                Long.toString(forum.getId()),
+                forum.getTitle(),
+                Long.toString(forum.getModerator().getAccountId())
         ));
 
-        for (Integer i : forum.tags()) {
+        for (Integer i : forum.getTags()) {
             //"Forum.id", "Tag.id,","creationDate"
             writers.get(FORUM_HASTAG_TAG).writeEntry(ImmutableList.of(
                     dateString,
-                    Long.toString(forum.id()),
+                    Long.toString(forum.getId()),
                     Integer.toString(i)
             ));
         }
@@ -113,7 +113,7 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
             Dictionaries.languages.getLanguageName(post.language()),
             post.content(),
             Integer.toString(post.content().length()),
-            Long.toString(post.author().accountId()),
+            Long.toString(post.author().getAccountId()),
             Long.toString(post.forumId()),
             Integer.toString(post.countryId())
         ));
@@ -139,7 +139,7 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
             Dictionaries.browsers.getName(comment.browserId()),
             comment.content(),
             Integer.toString(comment.content().length()),
-            Long.toString(comment.author().accountId()),
+            Long.toString(comment.author().getAccountId()),
             Integer.toString(comment.countryId()),
             comment.replyOf() == comment.postId() ? Long.toString(comment.postId()) : "",
             comment.replyOf() == comment.postId() ? "" : Long.toString(comment.replyOf())
@@ -168,7 +168,7 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
             "",
             "",
             Integer.toString(0),
-            Long.toString(photo.author().accountId()),
+            Long.toString(photo.author().getAccountId()),
             Long.toString(photo.forumId()),
             Integer.toString(photo.countryId())
         ));
@@ -188,7 +188,7 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
         writers.get(FORUM_HASMEMBER_PERSON).writeEntry(ImmutableList.of(
             Dictionaries.dates.formatDateTime(membership.creationDate()),
             Long.toString(membership.forumId()),
-            Long.toString(membership.person().accountId())
+            Long.toString(membership.person().getAccountId())
         ));
     }
 

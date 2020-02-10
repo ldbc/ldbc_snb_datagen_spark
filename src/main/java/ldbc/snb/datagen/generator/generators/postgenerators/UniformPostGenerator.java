@@ -58,7 +58,7 @@ public class UniformPostGenerator extends PostGenerator {
     protected PostInfo generatePostInfo(Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership) {
         PostInfo postInfo = new PostInfo();
         postInfo.tags = new TreeSet<>();
-        Iterator<Integer> it = forum.tags().iterator();
+        Iterator<Integer> it = forum.getTags().iterator();
         while (it.hasNext()) {
             Integer value = it.next();
             if (postInfo.tags.isEmpty()) {

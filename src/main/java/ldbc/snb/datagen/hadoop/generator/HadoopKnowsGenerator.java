@@ -118,7 +118,7 @@ public class HadoopKnowsGenerator {
             this.knowsGenerator.generateKnows(persons, (int) key.block, percentages, step_index);
             for (Person p : persons) {
                 context.write(keySetter.getKey(p), p);
-                numGeneratedEdges += p.knows().size();
+                numGeneratedEdges += p.getKnows().size();
             }
         }
 

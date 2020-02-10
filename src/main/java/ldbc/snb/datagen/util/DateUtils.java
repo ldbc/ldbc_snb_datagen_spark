@@ -162,14 +162,14 @@ public class DateUtils {
 //        long fromDate = Math.max(personA.creationDate(), personB.creationDate()) + DatagenParams.deltaTime;
 //        return randomDate(random, fromDate, fromDate + THIRTY_DAYS);
 
-        long fromDate = Math.max(personA.creationDate(), personB.creationDate()) + DatagenParams.deltaTime;
-        long toDate = Math.min(personA.deletionDate(),personB.deletionDate());
+        long fromDate = Math.max(personA.getCreationDate(), personB.getCreationDate()) + DatagenParams.deltaTime;
+        long toDate = Math.min(personA.getDeletionDate(),personB.getDeletionDate());
         return randomDate(random, fromDate, toDate);
 
     }
 
     public long numberOfMonths(Person person) {
-        return numberOfMonths(person.creationDate());
+        return numberOfMonths(person.getCreationDate());
     }
 
     public long numberOfMonths(long fromDate) {

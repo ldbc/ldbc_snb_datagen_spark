@@ -87,65 +87,65 @@ public class PersonGenerator {
                                                                                 .get(RandomGeneratorFarm.Aspect.DATE));
         int countryId = Dictionaries.places.getCountryForUser(randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY));
         Person person = new Person();
-        person.creationDate(creationDate);
+        person.setCreationDate(creationDate);
 
-        person.gender((randomFarm.get(RandomGeneratorFarm.Aspect.GENDER).nextDouble() > 0.5) ? (byte) 1 : (byte) 0);
-        person.birthday(Dictionaries.dates
+        person.setGender((randomFarm.get(RandomGeneratorFarm.Aspect.GENDER).nextDouble() > 0.5) ? (byte) 1 : (byte) 0);
+        person.setBirthday(Dictionaries.dates
                                 .getBirthDay(randomFarm.get(RandomGeneratorFarm.Aspect.BIRTH_DAY), creationDate));
-        person.browserId(Dictionaries.browsers.getRandomBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER)));
-        person.countryId(countryId);
-        person.cityId(Dictionaries.places.getRandomCity(randomFarm.get(RandomGeneratorFarm.Aspect.CITY), countryId));
-        person.ipAddress(Dictionaries.ips.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), countryId));
-        person.maxNumKnows(Math.min(degreeDistribution_.nextDegree(), DatagenParams.numPersons));
+        person.setBrowserId(Dictionaries.browsers.getRandomBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER)));
+        person.setCountryId(countryId);
+        person.setCityId(Dictionaries.places.getRandomCity(randomFarm.get(RandomGeneratorFarm.Aspect.CITY), countryId));
+        person.setIpAddress(Dictionaries.ips.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), countryId));
+        person.setMaxNumKnows(Math.min(degreeDistribution_.nextDegree(), DatagenParams.numPersons));
 
         long deletionDate = Dictionaries.dates.randomPersonDeletionDate(randomFarm
-                .get(RandomGeneratorFarm.Aspect.DELETION_DATE), creationDate, person.maxNumKnows());
-        person.deletionDate(deletionDate);
+                .get(RandomGeneratorFarm.Aspect.DELETION_DATE), creationDate, person.getMaxNumKnows());
+        person.setDeletionDate(deletionDate);
 
 
-        person.accountId(composeUserId(nextId++, creationDate));
-        person.mainInterest(Dictionaries.tags.getaTagByCountry(randomFarm
+        person.setAccountId(composeUserId(nextId++, creationDate));
+        person.setMainInterest(Dictionaries.tags.getaTagByCountry(randomFarm
                                                                        .get(RandomGeneratorFarm.Aspect.TAG_OTHER_COUNTRY), randomFarm
                                                                        .get(RandomGeneratorFarm.Aspect.TAG), person
-                                                                       .countryId()));
+                                                                       .getCountryId()));
         short numTags = ((short) randomTagPowerLaw.getValue(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_TAG)));
-        person.interests(Dictionaries.tagMatrix
+        person.setInterests(Dictionaries.tagMatrix
                                  .getSetofTags(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), randomFarm
                                          .get(RandomGeneratorFarm.Aspect.TAG_OTHER_COUNTRY), person
-                                                       .mainInterest(), numTags));
-        person.universityLocationId(Dictionaries.universities.getRandomUniversity(randomFarm, person.countryId()));
-        person.randomId(randomFarm.get(RandomGeneratorFarm.Aspect.RANDOM).nextInt(Integer.MAX_VALUE) % 100);
+                                                       .getMainInterest(), numTags));
+        person.setUniversityLocationId(Dictionaries.universities.getRandomUniversity(randomFarm, person.getCountryId()));
+        person.setRandomId(randomFarm.get(RandomGeneratorFarm.Aspect.RANDOM).nextInt(Integer.MAX_VALUE) % 100);
 
-        person.firstName(Dictionaries.names.getRandomGivenName(randomFarm.get(RandomGeneratorFarm.Aspect.NAME),
-                                                               person.countryId(),
-                                                               person.gender() == 1,
-                                                               Dictionaries.dates.getBirthYear(person.birthday())));
+        person.setFirstName(Dictionaries.names.getRandomGivenName(randomFarm.get(RandomGeneratorFarm.Aspect.NAME),
+                                                               person.getCountryId(),
+                                                               person.getGender() == 1,
+                                                               Dictionaries.dates.getBirthYear(person.getBirthday())));
 
-        person.lastName(Dictionaries.names.getRandomSurname(randomFarm.get(RandomGeneratorFarm.Aspect.SURNAME), person
-                .countryId()));
+        person.setLastName(Dictionaries.names.getRandomSurname(randomFarm.get(RandomGeneratorFarm.Aspect.SURNAME), person
+                .getCountryId()));
 
         int numEmails = randomFarm.get(RandomGeneratorFarm.Aspect.EXTRA_INFO).nextInt(DatagenParams.maxEmails) + 1;
         double prob = randomFarm.get(RandomGeneratorFarm.Aspect.EXTRA_INFO).nextDouble();
-        String base = person.firstName();
+        String base = person.getFirstName();
         base = Normalizer.normalize(base, Normalizer.Form.NFD);
         base = base.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
         base = base.replaceAll(" ", ".");
         base = base.replaceAll("[.]+", ".");
         for (int i = 0; i < numEmails; i++) {
-            String email = base + "" + person.accountId() + "@" +
+            String email = base + "" + person.getAccountId() + "@" +
                     Dictionaries.emails.getRandomEmail(randomFarm.get(RandomGeneratorFarm.Aspect.TOP_EMAIL),
                                                        randomFarm.get(RandomGeneratorFarm.Aspect.EMAIL));
-            person.emails().add(email);
+            person.getEmails().add(email);
         }
 
         // Set class year
         prob = randomFarm.get(RandomGeneratorFarm.Aspect.EXTRA_INFO).nextDouble();
-        if ((prob < DatagenParams.missingRatio) || person.universityLocationId() == -1) {
-            person.classYear(-1);
+        if ((prob < DatagenParams.missingRatio) || person.getUniversityLocationId() == -1) {
+            person.setClassYear(-1);
         } else {
-            person.classYear(Dictionaries.dates.getClassYear(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),
-                                                             person.creationDate(),
-                                                             person.birthday()));
+            person.setClassYear(Dictionaries.dates.getClassYear(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),
+                                                             person.getCreationDate(),
+                                                             person.getBirthday()));
         }
 
         // Set company and workFrom
@@ -156,31 +156,31 @@ public class PersonGenerator {
             for (int i = 0; i < numCompanies; i++) {
                 long workFrom;
                 workFrom = Dictionaries.dates.getWorkFromYear(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),
-                                                              person.classYear(),
-                                                              person.birthday());
-                long company = Dictionaries.companies.getRandomCompany(randomFarm, person.countryId());
-                person.companies().put(company, workFrom);
+                                                              person.getClassYear(),
+                                                              person.getBirthday());
+                long company = Dictionaries.companies.getRandomCompany(randomFarm, person.getCountryId());
+                person.getCompanies().put(company, workFrom);
             }
         }
 
         List<Integer> userLanguages = Dictionaries.languages.getLanguages(randomFarm
                                                                                        .get(RandomGeneratorFarm.Aspect.LANGUAGE),
-                                                                               person.countryId());
+                                                                               person.getCountryId());
         int internationalLang = Dictionaries.languages.getInternationlLanguage(randomFarm
                                                                                        .get(RandomGeneratorFarm.Aspect.LANGUAGE));
         if (internationalLang != -1 && userLanguages.indexOf(internationalLang) == -1) {
             userLanguages.add(internationalLang);
         }
-        person.languages().addAll(userLanguages);
+        person.getLanguages().addAll(userLanguages);
 
 
         // Set activity characteristics
-        person.isLargePoster(isLargePoster(person));
+        person.setIsLargePoster(isLargePoster(person));
         return person;
     }
 
     private boolean isLargePoster(Person p) {
-        return Dictionaries.dates.getBirthMonth(p.birthday()) == GregorianCalendar.JANUARY;
+        return Dictionaries.dates.getBirthMonth(p.getBirthday()) == GregorianCalendar.JANUARY;
     }
 
     private void resetState(int blockId) {

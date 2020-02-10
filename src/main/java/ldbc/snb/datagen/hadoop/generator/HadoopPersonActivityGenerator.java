@@ -120,10 +120,10 @@ public class HadoopPersonActivityGenerator {
                 persons.add(new Person(p));
 
                 StringBuilder strbuf = new StringBuilder();
-                strbuf.append(p.accountId());
-                for (Knows k : p.knows()) {
+                strbuf.append(p.getAccountId());
+                for (Knows k : p.getKnows()) {
                     strbuf.append(",");
-                    strbuf.append(k.to().accountId());
+                    strbuf.append(k.to().getAccountId());
                     if (k.getCreationDate() > Dictionaries.dates.getUpdateThreshold() && DatagenParams.updateStreams) {
                         updateSerializer_.export(p, k);
                     }
@@ -202,12 +202,8 @@ public class HadoopPersonActivityGenerator {
         FileInputFormat.setInputPaths(job, new Path(rankedFileName));
         FileOutputFormat.setOutputPath(job, new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/aux"));
         long start = System.currentTimeMillis();
-        try {
-            if (!job.waitForCompletion(true)) {
-                throw new Exception();
-            }
-        } catch (AssertionError e) {
-            throw e;
+        if (!job.waitForCompletion(true)) {
+            throw new Exception("Job Failed");
         }
         System.out.println("Real time to generate activity: " + (System.currentTimeMillis() - start) / 1000.0f);
 

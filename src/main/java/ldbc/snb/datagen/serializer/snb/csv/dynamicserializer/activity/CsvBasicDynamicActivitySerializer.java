@@ -65,7 +65,7 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
     @Override
     public void writeFileHeaders() {
 
-        writers.get(FORUM).writeHeader(ImmutableList.of( "creationDate","id", "title")); //
+        writers.get(FORUM).writeHeader(ImmutableList.of( "creationDate", "deletionDate", "id", "title")); //
         writers.get(FORUM_HASMODERATOR_PERSON).writeHeader(ImmutableList.of("joinDate","Forum.id","Person.id")); //
         writers.get(FORUM_HASTAG_TAG).writeHeader(ImmutableList.of("creationDate","Forum.id","Tag.id")); //
 
@@ -91,27 +91,29 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
     }
 
     protected void serialize(final Forum forum) {
-        String dateString = Dictionaries.dates.formatDateTime(forum.creationDate());
+        String forumCreationDate = Dictionaries.dates.formatDateTime(forum.getCreationDate());
+        String forumDeletionDate = Dictionaries.dates.formatDateTime(forum.getDeletionDate());
 
         //"id", "title", "creationDate"
         writers.get(FORUM).writeEntry(ImmutableList.of(
-                dateString,
-                Long.toString(forum.id()),
-                forum.title()
+                forumCreationDate,
+                forumDeletionDate,
+                Long.toString(forum.getId()),
+                forum.getTitle()
 
         ));
         //"Forum.id","Person.id","joinDate"
         writers.get(FORUM_HASMODERATOR_PERSON).writeEntry(ImmutableList.of(
-                dateString,
-                Long.toString(forum.id()),
-                Long.toString(forum.moderator().accountId())
+                forumCreationDate,
+                Long.toString(forum.getId()),
+                Long.toString(forum.getModerator().getAccountId())
         ));
 
-        for (Integer i : forum.tags()) {
+        for (Integer i : forum.getTags()) {
             //"Forum.id","Tag.id","creationDate"
             writers.get(FORUM_HASTAG_TAG).writeEntry(ImmutableList.of(
-                    dateString,
-                    Long.toString(forum.id()),
+                    forumCreationDate,
+                    Long.toString(forum.getId()),
                     Integer.toString(i)));
         }
     }
@@ -121,7 +123,7 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
         writers.get(FORUM_HASMEMBER_PERSON).writeEntry(ImmutableList.of(
                 Dictionaries.dates.formatDateTime(membership.creationDate()),
                 Long.toString(membership.forumId()),
-                Long.toString(membership.person().accountId())
+                Long.toString(membership.person().getAccountId())
         ));
     }
 
@@ -145,7 +147,7 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
         writers.get(POST_HASCREATOR_PERSON).writeEntry(ImmutableList.of(
                 datestring,
                 Long.toString(post.messageId()),
-                Long.toString(post.author().accountId())
+                Long.toString(post.author().getAccountId())
         ));
 
         //"Post.id","Place.id","creationDate"
@@ -204,7 +206,7 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
         writers.get(COMMENT_HASCREATOR_PERSON).writeEntry(ImmutableList.of(
                 dateString,
                 Long.toString(comment.messageId()),
-                Long.toString(comment.author().accountId())
+                Long.toString(comment.author().getAccountId())
         ));
 
         //"Comment.id","Place.id","creationDate"
@@ -249,7 +251,7 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
         writers.get(POST_HASCREATOR_PERSON).writeEntry(ImmutableList.of(
                 dateString,
                 Long.toString(photo.messageId()),
-                Long.toString(photo.author().accountId())
+                Long.toString(photo.author().getAccountId())
         ));
 
         //"Post.id","Tag.id","creationDate"

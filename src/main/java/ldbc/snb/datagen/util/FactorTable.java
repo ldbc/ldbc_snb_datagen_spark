@@ -52,7 +52,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 
 public class FactorTable {
@@ -258,26 +257,26 @@ public class FactorTable {
     }
 
     public void extractFactors(Person person) {
-        if (person.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
-            personCounts(person.accountId()).country(person.countryId());
-            personCounts(person.accountId()).name(person.firstName());
-            personCounts(person.accountId()).numFriends(person.knows().size());
-            personCounts(person.accountId()).numWorkPlaces(person.companies().size());
-            for (Map.Entry<Long, Long> e : person.companies().entrySet()) {
+        if (person.getCreationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
+            personCounts(person.getAccountId()).country(person.getCountryId());
+            personCounts(person.getAccountId()).name(person.getFirstName());
+            personCounts(person.getAccountId()).numFriends(person.getKnows().size());
+            personCounts(person.getAccountId()).numWorkPlaces(person.getCompanies().size());
+            for (Map.Entry<Long, Long> e : person.getCompanies().entrySet()) {
                 if (minWorkFrom_ > e.getValue()) minWorkFrom_ = e.getValue();
                 if (maxWorkFrom_ < e.getValue()) maxWorkFrom_ = e.getValue();
             }
-            incrFirstNameCount(person.firstName());
-            String medianName = Dictionaries.names.getMedianGivenName(person.countryId(), person.gender() == 1,
+            incrFirstNameCount(person.getFirstName());
+            String medianName = Dictionaries.names.getMedianGivenName(person.getCountryId(), person.getGender() == 1,
                                                                       Dictionaries.dates
-                                                                              .getBirthYear(person.birthday()));
-            medianFirstName_.put(person.accountId(), medianName);
+                                                                              .getBirthYear(person.getBirthday()));
+            medianFirstName_.put(person.getAccountId(), medianName);
         }
     }
 
     public void extractFactors(ForumMembership member) {
         if (member.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
-            long memberId = member.person().accountId();
+            long memberId = member.person().getAccountId();
             personCounts(memberId).incrNumForums();
             int bucket = Dictionaries.dates
                     .getNumberOfMonths(member.creationDate(), DatagenParams.startMonth, DatagenParams.startYear);
@@ -289,35 +288,35 @@ public class FactorTable {
     public void extractFactors(Comment comment) {
         if (comment.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
             assert personCounts_.get(comment.author()
-                                            .accountId()) != null : "Person counts does not exist when extracting factors from comment";
+                                            .getAccountId()) != null : "Person counts does not exist when extracting factors from comment";
             extractFactors((Message) comment);
-            personCounts(comment.author().accountId()).incrNumComments();
+            personCounts(comment.author().getAccountId()).incrNumComments();
         }
     }
 
     public void extractFactors(Post post) {
         if (post.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
             assert (personCounts_.get(post.author()
-                                          .accountId()) != null) : "Person counts does not exist when extracting factors from post";
+                                          .getAccountId()) != null) : "Person counts does not exist when extracting factors from post";
             extractFactors((Message) post);
-            personCounts(post.author().accountId()).incrNumPosts();
+            personCounts(post.author().getAccountId()).incrNumPosts();
         }
     }
 
     public void extractFactors(Photo photo) {
         if (photo.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
             assert (personCounts_.get(photo.author()
-                                           .accountId()) != null) : "Person counts does not exist when extracting factors from photo";
+                                           .getAccountId()) != null) : "Person counts does not exist when extracting factors from photo";
             extractFactors((Message) photo);
-            personCounts(photo.author().accountId()).incrNumPosts();
+            personCounts(photo.author().getAccountId()).incrNumPosts();
         }
     }
 
     private void extractFactors(Message message) {
         if (message.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
             assert (personCounts_.get(message.author()
-                                             .accountId()) != null) : "Person counts does not exist when extracting factors from message";
-            long authorId = message.author().accountId();
+                                             .getAccountId()) != null) : "Person counts does not exist when extracting factors from message";
+            long authorId = message.author().getAccountId();
             long current = personCounts(authorId).numTagsOfMessages();
             personCounts(authorId).numTagsOfMessages(current + message.tags().size());
             int bucket = Dictionaries.dates

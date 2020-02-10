@@ -106,13 +106,13 @@ public class PersonActivityGenerator {
         // generate wall
         Forum wall = forumGenerator_.createWall(randomFarm_, forumId++, person);
         exporter_.export(wall);
-        for (ForumMembership fm : wall.memberships()) {
+        for (ForumMembership fm : wall.getMemberships()) {
             exporter_.export(fm);
         }
 
         // generate wall posts
-        ForumMembership personMembership = new ForumMembership(wall.id(),
-                                                               wall.creationDate() + DatagenParams.deltaTime, new Person.PersonSummary(person)
+        ForumMembership personMembership = new ForumMembership(wall.getId(),
+                                                               wall.getCreationDate() + DatagenParams.deltaTime, new Person.PersonSummary(person)
         );
         List<ForumMembership> fakeMembers = new ArrayList<>();
         fakeMembers.add(personMembership);
@@ -132,15 +132,15 @@ public class PersonActivityGenerator {
                 Forum group = forumGenerator_.createGroup(randomFarm_, forumId++, person, block);
                 exporter_.export(group);
 
-                for (ForumMembership fm : group.memberships()) {
+                for (ForumMembership fm : group.getMemberships()) {
                     exporter_.export(fm);
                 }
 
                 // generate uniform posts/comments
                 messageId = uniformPostGenerator_.createPosts(randomFarm_, group, group
-                        .memberships(), numPostsPerGroup(randomFarm_, group, DatagenParams.maxNumGroupPostPerMonth, DatagenParams.maxNumMemberGroup), messageId, exporter_);
+                        .getMemberships(), numPostsPerGroup(randomFarm_, group, DatagenParams.maxNumGroupPostPerMonth, DatagenParams.maxNumMemberGroup), messageId, exporter_);
                 messageId = flashmobPostGenerator_.createPosts(randomFarm_, group, group
-                        .memberships(), numPostsPerGroup(randomFarm_, group, DatagenParams.maxNumGroupFlashmobPostPerMonth, DatagenParams.maxNumMemberGroup), messageId, exporter_);
+                        .getMemberships(), numPostsPerGroup(randomFarm_, group, DatagenParams.maxNumGroupFlashmobPostPerMonth, DatagenParams.maxNumMemberGroup), messageId, exporter_);
             }
         }
 
@@ -158,12 +158,12 @@ public class PersonActivityGenerator {
             Forum album = forumGenerator_.createAlbum(randomFarm_, forumId++, person, i);
             exporter_.export(album);
 
-            for (ForumMembership fm : album.memberships()) {
+            for (ForumMembership fm : album.getMemberships()) {
                 exporter_.export(fm);
             }
 
-            ForumMembership personMembership = new ForumMembership(album.id(),
-                                                                   album.creationDate() + DatagenParams.deltaTime, new Person.PersonSummary(person)
+            ForumMembership personMembership = new ForumMembership(album.getId(),
+                                                                   album.getCreationDate() + DatagenParams.deltaTime, new Person.PersonSummary(person)
             );
             List<ForumMembership> fakeMembers = new ArrayList<>();
             fakeMembers.add(personMembership);
@@ -175,14 +175,14 @@ public class PersonActivityGenerator {
 
     private int numPostsPerGroup(RandomGeneratorFarm randomFarm, Forum forum, int maxPostsPerMonth, int maxMembersPerForum) {
         Random random = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_POST);
-        int numOfmonths = (int) Dictionaries.dates.numberOfMonths(forum.creationDate());
+        int numOfmonths = (int) Dictionaries.dates.numberOfMonths(forum.getCreationDate());
         int numberPost = 0;
         if (numOfmonths == 0) {
             numberPost = random.nextInt(maxPostsPerMonth + 1);
         } else {
             numberPost = random.nextInt(maxPostsPerMonth * numOfmonths + 1);
         }
-        return (numberPost * forum.memberships().size()) / maxMembersPerForum;
+        return (numberPost * forum.getMemberships().size()) / maxMembersPerForum;
     }
 
     public void generateActivityForBlock(int seed, List<Person> block, Context context) throws IOException {

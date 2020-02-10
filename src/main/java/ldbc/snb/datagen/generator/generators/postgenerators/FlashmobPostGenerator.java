@@ -118,7 +118,7 @@ public class FlashmobPostGenerator extends PostGenerator {
             tags.add(tag);
         }
         List<FlashmobTag> temp = Dictionaries.flashmobs.generateFlashmobTags(randomNumPost, tags, forum
-                .creationDate());
+                .getCreationDate());
         forumFlashmobTags = new FlashmobTag[temp.size()];
         Iterator<FlashmobTag> it = temp.iterator();
         int index = 0;
@@ -140,9 +140,9 @@ public class FlashmobPostGenerator extends PostGenerator {
     }
 
     protected PostGenerator.PostInfo generatePostInfo(Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership) {
-        if (currentForum != forum.id()) {
+        if (currentForum != forum.getId()) {
             populateForumFlashmobTags(randomTag, forum);
-            currentForum = forum.id();
+            currentForum = forum.getId();
         }
         if (forumFlashmobTags.length < 1) return null;
         PostInfo postInfo = new PostInfo();

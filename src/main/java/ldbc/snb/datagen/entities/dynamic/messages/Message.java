@@ -69,7 +69,7 @@ abstract public class Message {
                    int browserId
     ) {
 
-        assert ((author.creationDate() + DatagenParams.deltaTime) <= creationDate);
+        assert ((author.getCreationDate() + DatagenParams.deltaTime) <= creationDate);
         messageId_ = messageId;
         creationDate_ = creationDate;
         author_ = new PersonSummary(author);

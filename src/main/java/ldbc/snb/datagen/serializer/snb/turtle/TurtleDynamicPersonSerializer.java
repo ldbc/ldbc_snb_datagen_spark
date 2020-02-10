@@ -74,16 +74,16 @@ public class TurtleDynamicPersonSerializer extends DynamicPersonSerializer<HdfsW
     @Override
     protected void serialize(final Person p) {
         StringBuffer result = new StringBuffer(19000);
-        String prefix = SN.getPersonURI(p.accountId());
+        String prefix = SN.getPersonURI(p.getAccountId());
         Turtle.addTriple(result, true, false, prefix, RDF.type, SNVOC.Person);
         Turtle.addTriple(result, false, false, prefix, SNVOC.id,
-                         Turtle.createDataTypeLiteral(Long.toString(p.accountId()), XSD.Long));
+                         Turtle.createDataTypeLiteral(Long.toString(p.getAccountId()), XSD.Long));
         Turtle.addTriple(result, false, false, prefix, SNVOC.firstName,
-                         Turtle.createLiteral(p.firstName()));
+                         Turtle.createLiteral(p.getFirstName()));
         Turtle.addTriple(result, false, false, prefix, SNVOC.lastName,
-                         Turtle.createLiteral(p.lastName()));
+                         Turtle.createLiteral(p.getLastName()));
 
-        if (p.gender() == 1) {
+        if (p.getGender() == 1) {
             Turtle.addTriple(result, false, false, prefix, SNVOC.gender,
                              Turtle.createLiteral("male"));
         } else {
@@ -91,27 +91,27 @@ public class TurtleDynamicPersonSerializer extends DynamicPersonSerializer<HdfsW
                              Turtle.createLiteral("female"));
         }
         Turtle.addTriple(result, false, false, prefix, SNVOC.birthday,
-                         Turtle.createDataTypeLiteral(Dictionaries.dates.formatDate(p.birthday()), XSD.Date));
+                         Turtle.createDataTypeLiteral(Dictionaries.dates.formatDate(p.getBirthday()), XSD.Date));
         Turtle.addTriple(result, false, false, prefix, SNVOC.ipaddress,
-                         Turtle.createLiteral(p.ipAddress().toString()));
+                         Turtle.createLiteral(p.getIpAddress().toString()));
         Turtle.addTriple(result, false, false, prefix, SNVOC.browser,
-                         Turtle.createLiteral(Dictionaries.browsers.getName(p.browserId())));
+                         Turtle.createLiteral(Dictionaries.browsers.getName(p.getBrowserId())));
         Turtle.addTriple(result, false, true, prefix, SNVOC.creationDate,
-                         Turtle.createDataTypeLiteral(TurtleDateTimeFormat.get().format(p.creationDate()), XSD.DateTime));
+                         Turtle.createDataTypeLiteral(TurtleDateTimeFormat.get().format(p.getCreationDate()), XSD.DateTime));
 
         Turtle.createTripleSPO(result, prefix, SNVOC.locatedIn, DBP
-                .fullPrefixed(Dictionaries.places.getPlaceName(p.cityId())));
+                .fullPrefixed(Dictionaries.places.getPlaceName(p.getCityId())));
 
-        for (Integer i : p.languages()) {
+        for (Integer i : p.getLanguages()) {
             Turtle.createTripleSPO(result, prefix, SNVOC.speaks,
                                    Turtle.createLiteral(Dictionaries.languages.getLanguageName(i)));
         }
 
-        for (String email : p.emails()) {
+        for (String email : p.getEmails()) {
             Turtle.createTripleSPO(result, prefix, SNVOC.email, Turtle.createLiteral(email));
         }
 
-        for (Integer tag : p.interests()) {
+        for (Integer tag : p.getInterests()) {
             String interest = Dictionaries.tags.getName(tag);
             Turtle.createTripleSPO(result, prefix, SNVOC.hasInterest, SNTAG.fullPrefixed(interest));
         }
@@ -150,12 +150,12 @@ public class TurtleDynamicPersonSerializer extends DynamicPersonSerializer<HdfsW
 
     @Override
     protected void serialize(final Person p, Knows knows) {
-        String prefix = SN.getPersonURI(p.accountId());
+        String prefix = SN.getPersonURI(p.getAccountId());
         StringBuffer result = new StringBuffer(19000);
         long id = SN.formId(knowsId);
         Turtle.createTripleSPO(result, prefix, SNVOC.knows, SN.getKnowsURI(id));
         Turtle.createTripleSPO(result, SN.getKnowsURI(id), SNVOC.hasPerson,
-                               SN.getPersonURI(knows.to().accountId()));
+                               SN.getPersonURI(knows.to().getAccountId()));
 
         Turtle.createTripleSPO(result, SN.getKnowsURI(id), SNVOC.creationDate,
                                Turtle.createDataTypeLiteral(TurtleDateTimeFormat.get().format(knows.getCreationDate()), XSD.DateTime));

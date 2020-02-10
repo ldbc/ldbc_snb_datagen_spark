@@ -119,8 +119,8 @@ public class CsvDynamicPersonSerializerExtended extends DynamicPersonSerializer<
     @Override
     protected void serialize(Person p) {
         List<String> arguments = new ArrayList<>();
-        arguments.add(Long.toString(p.accountId()));
-        arguments.add(Dictionaries.dates.formatDateTime(p.creationDate()));
+        arguments.add(Long.toString(p.getAccountId()));
+        arguments.add(Dictionaries.dates.formatDateTime(p.getCreationDate()));
         writers[FileNames.PERSON.ordinal()].writeEntry(arguments);
     }
 
@@ -137,8 +137,8 @@ public class CsvDynamicPersonSerializerExtended extends DynamicPersonSerializer<
     @Override
     protected void serialize(Person p, Knows knows) {
         List<String> arguments = new ArrayList<>();
-        arguments.add(Long.toString(p.accountId()));
-        arguments.add(Long.toString(knows.to().accountId()));
+        arguments.add(Long.toString(p.getAccountId()));
+        arguments.add(Long.toString(knows.to().getAccountId()));
         arguments.add(Dictionaries.dates.formatDateTime(knows.getCreationDate()));
         arguments.add(Float.toString(knows.getWeight()));
         writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeEntry(arguments);

@@ -45,7 +45,7 @@ public class ForumMembership {
 
     public ForumMembership(long forumId, long creationDate, Person.PersonSummary p) {
         assert (p
-                .creationDate() + DatagenParams.deltaTime) <= creationDate : "Person creation date is larger than membership";
+                .getCreationDate() + DatagenParams.deltaTime) <= creationDate : "Person creation date is larger than membership";
         forumId_ = forumId;
         creationDate_ = creationDate;
         person_ = new Person.PersonSummary(p);
