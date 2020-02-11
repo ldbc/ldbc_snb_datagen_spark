@@ -37,6 +37,7 @@ package ldbc.snb.datagen.util;
 
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.generator.tools.PowerDistribution;
 import ldbc.snb.datagen.util.formatter.DateFormatter;
 import org.apache.hadoop.conf.Configuration;
@@ -172,6 +173,14 @@ public class DateUtils {
         long toDate = Math.min(personA.getDeletionDate(),personB.getDeletionDate());
         return randomDate(random, fromDate, toDate);
 
+    }
+
+    public long randomKnowsDeletionDate(Random random, Person personA, Person personB, long knowsCreationDate) {
+
+        long fromDate = knowsCreationDate + DatagenParams.deltaTime;
+        long toDate = Math.min(personA.getDeletionDate(),personB.getDeletionDate());
+
+        return randomDate(random, fromDate, toDate);
     }
 
     public long numberOfMonths(Person person) {

@@ -50,7 +50,7 @@ import java.util.Random;
 
 public class Knows implements Writable, Comparable<Knows> {
 
-    private Person.PersonSummary to = null;
+    private Person.PersonSummary to;
     private long creationDate;
     private long deletionDate;
     private float weight = 0.0f;
@@ -142,17 +142,16 @@ public class Knows implements Writable, Comparable<Knows> {
     }
 
     public static boolean createKnow(Random random, Person personA, Person personB) {
-        long creationDate = Dictionaries.dates.randomKnowsCreationDate(
-                random,
-                personA,
-                personB);
+        long creationDate = Dictionaries.dates.randomKnowsCreationDate(random, personA, personB);
+        // TODO: check if this is needed
         creationDate = creationDate - personA
                 .getCreationDate() >= DatagenParams.deltaTime ? creationDate : creationDate + (DatagenParams.deltaTime - (creationDate - personA
                 .getCreationDate()));
         creationDate = creationDate - personB
                 .getCreationDate() >= DatagenParams.deltaTime ? creationDate : creationDate + (DatagenParams.deltaTime - (creationDate - personB
                 .getCreationDate()));
-        long deletionDate = Math.min(personA.getDeletionDate(),personB.getDeletionDate()); // inherit from first person who leaves the network
+        long deletionDate = Dictionaries.dates.randomKnowsDeletionDate(random, personA, personB, creationDate);
+
         float similarity = Person.personSimilarity.similarity(personA, personB);
         return personB.getKnows().add(new Knows(personA, creationDate, deletionDate, similarity)) &&
                 personA.getKnows().add(new Knows(personB, creationDate, deletionDate, similarity));
