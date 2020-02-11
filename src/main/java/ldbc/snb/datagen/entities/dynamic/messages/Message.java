@@ -43,19 +43,20 @@ import java.util.TreeSet;
 
 abstract public class Message {
 
-    private long messageId_;
-    private long creationDate_;
-    private PersonSummary author_;
-    private long forumId_;
-    private String content_;
-    private TreeSet<Integer> tags_;
-    private IP ipAddress_;
-    private int browserId_;
-    private int countryId_;
+    private long messageId;
+    private long creationDate;
+    private long deletionDate;
+    private PersonSummary author;
+    private long forumId;
+    private String content;
+    private TreeSet<Integer> tags;
+    private IP ipAddress;
+    private int browserId;
+    private int countryId;
 
     public Message() {
-        tags_ = new TreeSet<>();
-        ipAddress_ = new IP();
+        tags = new TreeSet<>();
+        ipAddress = new IP();
     }
 
     public Message(long messageId,
@@ -70,15 +71,15 @@ abstract public class Message {
     ) {
 
         assert ((author.getCreationDate() + DatagenParams.deltaTime) <= creationDate);
-        messageId_ = messageId;
-        creationDate_ = creationDate;
-        author_ = new PersonSummary(author);
-        forumId_ = forumId;
-        content_ = content;
-        tags_ = new TreeSet<>(tags);
-        countryId_ = countryId;
-        ipAddress_ = new IP(ipAddress);
-        browserId_ = browserId;
+        this.messageId = messageId;
+        this.creationDate = creationDate;
+        this.author = new PersonSummary(author);
+        this.forumId = forumId;
+        this.content = content;
+        this.tags = new TreeSet<>(tags);
+        this.countryId = countryId;
+        this.ipAddress = new IP(ipAddress);
+        this.browserId = browserId;
     }
 
     public void initialize(long messageId,
@@ -91,84 +92,80 @@ abstract public class Message {
                            IP ipAddress,
                            int browserId
     ) {
-        messageId_ = messageId;
-        creationDate_ = creationDate;
-        author_ = new PersonSummary(author);
-        forumId_ = forumId;
-        content_ = content;
-        tags_.clear();
-        tags_.addAll(tags);
-        countryId_ = countryId;
-        ipAddress_.copy(ipAddress);
-        browserId_ = browserId;
+        this.messageId = messageId;
+        this.creationDate = creationDate;
+        this.author = new PersonSummary(author);
+        this.forumId = forumId;
+        this.content = content;
+        this.tags.clear();
+        this.tags.addAll(tags);
+        this.countryId = countryId;
+        this.ipAddress.copy(ipAddress);
+        this.browserId = browserId;
     }
 
-    public long messageId() {
-        return messageId_;
+    public long getMessageId() {
+        return messageId;
     }
 
-    public void messageId(long id) {
-        messageId_ = id;
+    public long getCreationDate() {
+        return creationDate;
     }
 
-    public long creationDate() {
-        return creationDate_;
+    public void setCreationDate(long date) {
+        creationDate = date;
     }
 
-    public void creationDate(long date) {
-        creationDate_ = date;
+    public long getDeletionDate() {
+        return deletionDate;
     }
 
-    public PersonSummary author() {
-        return author_;
+    public void setDeletionDate(long deletionDate) {
+        this.deletionDate = deletionDate;
     }
 
-    public long forumId() {
-        return forumId_;
+    public PersonSummary getAuthor() {
+        return author;
     }
 
-    public void forumId(long id) {
-        forumId_ = id;
+    public long getForumId() {
+        return forumId;
     }
 
-    public String content() {
-        return content_;
+    public void setForumId(long id) {
+        forumId = id;
     }
 
-    public void content(String s) {
-        content_ = s;
+    public String getContent() {
+        return content;
     }
 
-    public TreeSet<Integer> tags() {
-        return tags_;
+    public void setContent(String s) {
+        content = s;
     }
 
-    public void tags(TreeSet<Integer> tags) {
-        tags_.clear();
-        tags_.addAll(tags);
+    public TreeSet<Integer> getTags() {
+        return tags;
     }
 
-    public IP ipAddress() {
-        return ipAddress_;
+    public void setTags(TreeSet<Integer> tags) {
+        this.tags.clear();
+        this.tags.addAll(tags);
     }
 
-    public void ipAddress(IP ip) {
-        ipAddress_.copy(ip);
+    public IP getIpAddress() {
+        return ipAddress;
     }
 
-    public int browserId() {
-        return browserId_;
+    public int getBrowserId() {
+        return browserId;
     }
 
-    public void browserId(int browser) {
-        browserId_ = browser;
+    public int getCountryId() {
+        return countryId;
     }
 
-    public int countryId() {
-        return countryId_;
-    }
-
-    public void countryId(int l) {
-        countryId_ = l;
+    public void setCountryId(int countryId) {
+        this.countryId = countryId;
     }
 }

@@ -60,16 +60,18 @@ import java.util.TreeSet;
 
 abstract public class PostGenerator {
 
-    private TextGenerator generator_;
-    private CommentGenerator commentGenerator_;
-    private LikeGenerator likeGenerator_;
-    private Post post_;
+    private TextGenerator generator;
+    private CommentGenerator commentGenerator;
+    private LikeGenerator likeGenerator;
+    private Post post;
+
 
     static protected class PostInfo {
+
         public TreeSet<Integer> tags;
         public long date;
 
-        public PostInfo() {
+        PostInfo() {
             this.tags = new TreeSet<>();
         }
     }
@@ -77,15 +79,15 @@ abstract public class PostGenerator {
 	
 	/* A set of random number generator for different purposes.*/
 
-    public PostGenerator(TextGenerator generator, CommentGenerator commentGenerator, LikeGenerator likeGenerator) {
-        this.generator_ = generator;
-        this.commentGenerator_ = commentGenerator;
-        this.likeGenerator_ = likeGenerator;
-        this.post_ = new Post();
+    PostGenerator(TextGenerator generator, CommentGenerator commentGenerator, LikeGenerator likeGenerator) {
+        this.generator = generator;
+        this.commentGenerator = commentGenerator;
+        this.likeGenerator = likeGenerator;
+        this.post = new Post();
     }
 
     /**
-     * @brief Initializes the post generator.
+     * Initializes the post generator.
      */
     public void initialize() {
         // Intentionally left empty
@@ -109,8 +111,8 @@ abstract public class PostGenerator {
                         .get(RandomGeneratorFarm.Aspect.DATE), forum, member);
                 if (postInfo != null) {
 
-                    String content = "";
-                    content = this.generator_.generateText(member.person(), postInfo.tags, prop);
+                    String content;
+                    content = this.generator.generateText(member.person(), postInfo.tags, prop);
 
                     int country = member.person().getCountryId();
                     IP ip = member.person().getIpAddress();
@@ -122,7 +124,7 @@ abstract public class PostGenerator {
                         ip = Dictionaries.ips.getIP(random, country);
                     }
 
-                    post_.initialize(SN.formId(SN.composeId(postId++, postInfo.date)),
+                    post.initialize(SN.formId(SN.composeId(postId++, postInfo.date)),
                                      postInfo.date,
                                      member.person(),
                                      forum.getId(),
@@ -135,17 +137,17 @@ abstract public class PostGenerator {
                                                                                     .get(RandomGeneratorFarm.Aspect.BROWSER), member
                                                                                     .person().getBrowserId()),
                                      forum.getLanguage());
-                    exporter.export(post_);
+                    exporter.export(post);
 
                     if (randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1) {
-                        likeGenerator_.generateLikes(randomFarm
-                                                             .get(RandomGeneratorFarm.Aspect.NUM_LIKE), forum, post_, Like.LikeType.POST, exporter);
+                        likeGenerator.generateLikes(randomFarm
+                                                             .get(RandomGeneratorFarm.Aspect.NUM_LIKE), forum, post, Like.LikeType.POST, exporter);
                     }
 
                     // generate comments
                     int numComments = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT)
                                                 .nextInt(DatagenParams.maxNumComments + 1);
-                    postId = commentGenerator_.createComments(randomFarm, forum, post_, numComments, postId, exporter);
+                    postId = commentGenerator.createComments(randomFarm, forum, post, numComments, postId, exporter);
                 }
             }
         }

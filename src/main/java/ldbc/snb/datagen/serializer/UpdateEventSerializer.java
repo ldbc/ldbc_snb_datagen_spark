@@ -282,23 +282,23 @@ public class UpdateEventSerializer {
     }
 
     public void export(Post post) throws IOException {
-        currentDependantDate_ = post.author().getCreationDate();
-        beginEvent(post.creationDate(), UpdateEvent.UpdateEventType.ADD_POST);
+        currentDependantDate_ = post.getAuthor().getCreationDate();
+        beginEvent(post.getCreationDate(), UpdateEvent.UpdateEventType.ADD_POST);
         String empty = "";
-        data_.add(Long.toString(post.messageId()));
+        data_.add(Long.toString(post.getMessageId()));
         data_.add(empty);
-        data_.add(Long.toString(post.creationDate()));
-        data_.add(post.ipAddress().toString());
-        data_.add(Dictionaries.browsers.getName(post.browserId()));
+        data_.add(Long.toString(post.getCreationDate()));
+        data_.add(post.getIpAddress().toString());
+        data_.add(Dictionaries.browsers.getName(post.getBrowserId()));
         data_.add(Dictionaries.languages.getLanguageName(post.getLanguage()));
-        data_.add(post.content());
-        data_.add(Long.toString(post.content().length()));
-        data_.add(Long.toString(post.author().getAccountId()));
-        data_.add(Long.toString(post.forumId()));
-        data_.add(Long.toString(post.countryId()));
+        data_.add(post.getContent());
+        data_.add(Long.toString(post.getContent().length()));
+        data_.add(Long.toString(post.getAuthor().getAccountId()));
+        data_.add(Long.toString(post.getForumId()));
+        data_.add(Long.toString(post.getCountryId()));
 
         beginList();
-        for (int tag : post.tags()) {
+        for (int tag : post.getTags()) {
             list_.add(Integer.toString(tag));
         }
         endList();
@@ -320,23 +320,23 @@ public class UpdateEventSerializer {
 
     public void export(Photo photo) throws IOException {
 
-        currentDependantDate_ = photo.author().getCreationDate();
-        beginEvent(photo.creationDate(), UpdateEvent.UpdateEventType.ADD_POST);
+        currentDependantDate_ = photo.getAuthor().getCreationDate();
+        beginEvent(photo.getCreationDate(), UpdateEvent.UpdateEventType.ADD_POST);
         String empty = "";
-        data_.add(Long.toString(photo.messageId()));
-        data_.add(photo.content());
-        data_.add(Long.toString(photo.creationDate()));
-        data_.add(photo.ipAddress().toString());
-        data_.add(Dictionaries.browsers.getName(photo.browserId()));
+        data_.add(Long.toString(photo.getMessageId()));
+        data_.add(photo.getContent());
+        data_.add(Long.toString(photo.getCreationDate()));
+        data_.add(photo.getIpAddress().toString());
+        data_.add(Dictionaries.browsers.getName(photo.getBrowserId()));
         data_.add(empty);
         data_.add(empty);
         data_.add("0");
-        data_.add(Long.toString(photo.author().getAccountId()));
-        data_.add(Long.toString(photo.forumId()));
-        data_.add(Long.toString(photo.countryId()));
+        data_.add(Long.toString(photo.getAuthor().getAccountId()));
+        data_.add(Long.toString(photo.getForumId()));
+        data_.add(Long.toString(photo.getCountryId()));
 
         beginList();
-        for (int tag : photo.tags()) {
+        for (int tag : photo.getTags()) {
             list_.add(Integer.toString(tag));
         }
         endList();
@@ -345,16 +345,16 @@ public class UpdateEventSerializer {
 
     public void export(Comment comment) throws IOException {
 
-        currentDependantDate_ = comment.author().getCreationDate();
-        beginEvent(comment.creationDate(), UpdateEvent.UpdateEventType.ADD_COMMENT);
-        data_.add(Long.toString(comment.messageId()));
-        data_.add(Long.toString(comment.creationDate()));
-        data_.add(comment.ipAddress().toString());
-        data_.add(Dictionaries.browsers.getName(comment.browserId()));
-        data_.add(comment.content());
-        data_.add(Integer.toString(comment.content().length()));
-        data_.add(Long.toString(comment.author().getAccountId()));
-        data_.add(Long.toString(comment.countryId()));
+        currentDependantDate_ = comment.getAuthor().getCreationDate();
+        beginEvent(comment.getCreationDate(), UpdateEvent.UpdateEventType.ADD_COMMENT);
+        data_.add(Long.toString(comment.getMessageId()));
+        data_.add(Long.toString(comment.getCreationDate()));
+        data_.add(comment.getIpAddress().toString());
+        data_.add(Dictionaries.browsers.getName(comment.getBrowserId()));
+        data_.add(comment.getContent());
+        data_.add(Integer.toString(comment.getContent().length()));
+        data_.add(Long.toString(comment.getAuthor().getAccountId()));
+        data_.add(Long.toString(comment.getCountryId()));
         if (comment.replyOf() == comment.postId()) {
             data_.add(Long.toString(comment.postId()));
             data_.add("-1");
@@ -363,7 +363,7 @@ public class UpdateEventSerializer {
             data_.add(Long.toString(comment.replyOf()));
         }
         beginList();
-        for (int tag : comment.tags()) {
+        for (int tag : comment.getTags()) {
             list_.add(Integer.toString(tag));
         }
         endList();

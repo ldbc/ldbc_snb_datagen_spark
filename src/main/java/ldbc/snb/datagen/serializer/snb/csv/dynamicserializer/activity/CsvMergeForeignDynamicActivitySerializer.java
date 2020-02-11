@@ -101,83 +101,83 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
     }
 
     protected void serialize(final Post post) {
-        String dateString = Dictionaries.dates.formatDateTime(post.creationDate());
+        String dateString = Dictionaries.dates.formatDateTime(post.getCreationDate());
 
         //"id", "imageFile", "creationDate", "locationIP", "browserUsed", "language", "content", "length", "creator", "Forum.id", "place"
         writers.get(POST).writeEntry(ImmutableList.of(
             dateString,
-            Long.toString(post.messageId()),
+            Long.toString(post.getMessageId()),
             "",
-            post.ipAddress().toString(),
-            Dictionaries.browsers.getName(post.browserId()),
+            post.getIpAddress().toString(),
+            Dictionaries.browsers.getName(post.getBrowserId()),
             Dictionaries.languages.getLanguageName(post.getLanguage()),
-            post.content(),
-            Integer.toString(post.content().length()),
-            Long.toString(post.author().getAccountId()),
-            Long.toString(post.forumId()),
-            Integer.toString(post.countryId())
+            post.getContent(),
+            Integer.toString(post.getContent().length()),
+            Long.toString(post.getAuthor().getAccountId()),
+            Long.toString(post.getForumId()),
+            Integer.toString(post.getCountryId())
         ));
 
-        for (Integer t : post.tags()) {
+        for (Integer t : post.getTags()) {
             //"Post.id", "Tag.id","creationDate"
             writers.get(POST_HASTAG_TAG).writeEntry(ImmutableList.of(
                 dateString,
-                Long.toString(post.messageId()),
+                Long.toString(post.getMessageId()),
                 Integer.toString(t)
             ));
         }
     }
 
     protected void serialize(final Comment comment) {
-        String dateString = Dictionaries.dates.formatDateTime(comment.creationDate());
+        String dateString = Dictionaries.dates.formatDateTime(comment.getCreationDate());
 
         //"id", "creationDate", "locationIP", "browserUsed", "content", "length", "creator", "place", "replyOfPost", "replyOfComment"
         writers.get(COMMENT).writeEntry(ImmutableList.of(
             dateString,
-            Long.toString(comment.messageId()),
-            comment.ipAddress().toString(),
-            Dictionaries.browsers.getName(comment.browserId()),
-            comment.content(),
-            Integer.toString(comment.content().length()),
-            Long.toString(comment.author().getAccountId()),
-            Integer.toString(comment.countryId()),
+            Long.toString(comment.getMessageId()),
+            comment.getIpAddress().toString(),
+            Dictionaries.browsers.getName(comment.getBrowserId()),
+            comment.getContent(),
+            Integer.toString(comment.getContent().length()),
+            Long.toString(comment.getAuthor().getAccountId()),
+            Integer.toString(comment.getCountryId()),
             comment.replyOf() == comment.postId() ? Long.toString(comment.postId()) : "",
             comment.replyOf() == comment.postId() ? "" : Long.toString(comment.replyOf())
         ));
 
-        for (Integer t : comment.tags()) {
+        for (Integer t : comment.getTags()) {
             //"Comment.id", "Tag.id","creationDate"
             writers.get(COMMENT_HASTAG_TAG).writeEntry(ImmutableList.of(
                 dateString,
-                Long.toString(comment.messageId()),
+                Long.toString(comment.getMessageId()),
                 Integer.toString(t)
             ));
         }
     }
 
     protected void serialize(final Photo photo) {
-        String dateString = Dictionaries.dates.formatDateTime(photo.creationDate());
+        String dateString = Dictionaries.dates.formatDateTime(photo.getCreationDate());
 
         //"id", "imageFile", "creationDate", "locationIP", "browserUsed", "language", "content", "length", "creator", "Forum.id", "place"
         writers.get(POST).writeEntry(ImmutableList.of(
             dateString,
-            Long.toString(photo.messageId()),
-            photo.content(),
-            photo.ipAddress().toString(),
-            Dictionaries.browsers.getName(photo.browserId()),
+            Long.toString(photo.getMessageId()),
+            photo.getContent(),
+            photo.getIpAddress().toString(),
+            Dictionaries.browsers.getName(photo.getBrowserId()),
             "",
             "",
             Integer.toString(0),
-            Long.toString(photo.author().getAccountId()),
-            Long.toString(photo.forumId()),
-            Integer.toString(photo.countryId())
+            Long.toString(photo.getAuthor().getAccountId()),
+            Long.toString(photo.getForumId()),
+            Integer.toString(photo.getCountryId())
         ));
 
-        for (Integer t : photo.tags()) {
+        for (Integer t : photo.getTags()) {
             //"Post.id", "Tag.id","creationDate"
             writers.get(POST_HASTAG_TAG).writeEntry(ImmutableList.of(
                 dateString,
-                Long.toString(photo.messageId()),
+                Long.toString(photo.getMessageId()),
                 Integer.toString(t)
             ));
         }

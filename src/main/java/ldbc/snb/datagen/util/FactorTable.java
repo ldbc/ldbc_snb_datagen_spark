@@ -286,45 +286,45 @@ public class FactorTable {
     }
 
     public void extractFactors(Comment comment) {
-        if (comment.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
-            assert personCounts_.get(comment.author()
+        if (comment.getCreationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
+            assert personCounts_.get(comment.getAuthor()
                                             .getAccountId()) != null : "Person counts does not exist when extracting factors from comment";
             extractFactors((Message) comment);
-            personCounts(comment.author().getAccountId()).incrNumComments();
+            personCounts(comment.getAuthor().getAccountId()).incrNumComments();
         }
     }
 
     public void extractFactors(Post post) {
-        if (post.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
-            assert (personCounts_.get(post.author()
+        if (post.getCreationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
+            assert (personCounts_.get(post.getAuthor()
                                           .getAccountId()) != null) : "Person counts does not exist when extracting factors from post";
             extractFactors((Message) post);
-            personCounts(post.author().getAccountId()).incrNumPosts();
+            personCounts(post.getAuthor().getAccountId()).incrNumPosts();
         }
     }
 
     public void extractFactors(Photo photo) {
-        if (photo.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
-            assert (personCounts_.get(photo.author()
+        if (photo.getCreationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
+            assert (personCounts_.get(photo.getAuthor()
                                            .getAccountId()) != null) : "Person counts does not exist when extracting factors from photo";
             extractFactors((Message) photo);
-            personCounts(photo.author().getAccountId()).incrNumPosts();
+            personCounts(photo.getAuthor().getAccountId()).incrNumPosts();
         }
     }
 
     private void extractFactors(Message message) {
-        if (message.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
-            assert (personCounts_.get(message.author()
+        if (message.getCreationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
+            assert (personCounts_.get(message.getAuthor()
                                              .getAccountId()) != null) : "Person counts does not exist when extracting factors from message";
-            long authorId = message.author().getAccountId();
+            long authorId = message.getAuthor().getAccountId();
             long current = personCounts(authorId).numTagsOfMessages();
-            personCounts(authorId).numTagsOfMessages(current + message.tags().size());
+            personCounts(authorId).numTagsOfMessages(current + message.getTags().size());
             int bucket = Dictionaries.dates
-                    .getNumberOfMonths(message.creationDate(), DatagenParams.startMonth, DatagenParams.startYear);
+                    .getNumberOfMonths(message.getCreationDate(), DatagenParams.startMonth, DatagenParams.startYear);
             if (bucket < 36 + 1)
                 personCounts(authorId).incrNumMessagesPerMonth(bucket);
-            incrPostPerCountry(message.countryId());
-            for (Integer t : message.tags()) {
+            incrPostPerCountry(message.getCountryId());
+            for (Integer t : message.getTags()) {
                 Integer tagClass = Dictionaries.tags.getTagClass(t);
                 incrTagClassCount(tagClass);
                 incrTagCount(t);

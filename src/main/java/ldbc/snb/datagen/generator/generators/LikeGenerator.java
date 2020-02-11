@@ -70,14 +70,14 @@ public class LikeGenerator {
         }
         for (int i = 0; i < numLikes; i++) {
             ForumMembership membership = memberships.get(startIndex + i);
-            long minDate = message.creationDate() > memberships.get(startIndex + i).creationDate() ? message
-                    .creationDate() : membership.creationDate();
+            long minDate = message.getCreationDate() > memberships.get(startIndex + i).creationDate() ? message
+                    .getCreationDate() : membership.creationDate();
             long date = Dictionaries.dates.randomDate(random, minDate, Dictionaries.dates
                     .randomSevenDays(random) + minDate);
             assert ((membership.person().getCreationDate() + DatagenParams.deltaTime) < date);
             like.user = membership.person().getAccountId();
             like.userCreationDate = membership.person().getCreationDate();
-            like.messageId = message.messageId();
+            like.messageId = message.getMessageId();
             like.date = date;
             like.type = type;
             exporter.export(like);

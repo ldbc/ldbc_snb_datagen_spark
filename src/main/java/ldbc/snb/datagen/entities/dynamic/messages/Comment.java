@@ -51,8 +51,8 @@ public class Comment extends Message {
     }
 
     public Comment(Comment comment) {
-        super(comment.messageId(), comment.creationDate(), comment.author(), comment.forumId(), comment.content(),
-              comment.tags(), comment.countryId(), comment.ipAddress(), comment.browserId());
+        super(comment.getMessageId(), comment.getCreationDate(), comment.getAuthor(), comment.getForumId(), comment.getContent(),
+              comment.getTags(), comment.getCountryId(), comment.getIpAddress(), comment.getBrowserId());
         postId_ = comment.postId();
         replyOf_ = comment.replyOf();
     }

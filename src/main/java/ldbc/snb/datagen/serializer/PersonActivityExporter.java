@@ -67,7 +67,7 @@ public class PersonActivityExporter {
     }
 
     public void export(final Post post) throws IOException {
-        if (post.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
+        if (post.getCreationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
             dynamicActivitySerializer_.export(post);
             factorTable_.extractFactors(post);
         } else {
@@ -76,7 +76,7 @@ public class PersonActivityExporter {
     }
 
     public void export(final Comment comment) throws IOException {
-        if (comment.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
+        if (comment.getCreationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
             dynamicActivitySerializer_.export(comment);
             factorTable_.extractFactors(comment);
         } else {
@@ -85,7 +85,7 @@ public class PersonActivityExporter {
     }
 
     public void export(final Photo photo) throws IOException {
-        if (photo.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
+        if (photo.getCreationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
             dynamicActivitySerializer_.export(photo);
             factorTable_.extractFactors(photo);
         } else {

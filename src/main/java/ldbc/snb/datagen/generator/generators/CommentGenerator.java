@@ -80,7 +80,7 @@ public class CommentGenerator {
             Message replyTo = replyCandidates.get(replyIndex);
             List<ForumMembership> validMemberships = new ArrayList<>();
             for (ForumMembership fM : forum.getMemberships()) {
-                if (fM.creationDate() + DatagenParams.deltaTime <= replyTo.creationDate()) {
+                if (fM.creationDate() + DatagenParams.deltaTime <= replyTo.getCreationDate()) {
                     validMemberships.add(fM);
                 }
             }
@@ -97,7 +97,7 @@ public class CommentGenerator {
             if (randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT).nextDouble() > 0.6666) {
 
                 List<Integer> currentTags = new ArrayList<>();
-                Iterator<Integer> it = replyTo.tags().iterator();
+                Iterator<Integer> it = replyTo.getTags().iterator();
                 while (it.hasNext()) {
                     Integer tag = it.next();
                     if (randomFarm.get(RandomGeneratorFarm.Aspect.TAG).nextDouble() > 0.5) {
@@ -106,7 +106,7 @@ public class CommentGenerator {
                     currentTags.add(tag);
                 }
 
-                for (int j = 0; j < (int) Math.ceil(replyTo.tags().size() / 2.0); ++j) {
+                for (int j = 0; j < (int) Math.ceil(replyTo.getTags().size() / 2.0); ++j) {
                     int randomTag = currentTags.get(randomFarm.get(RandomGeneratorFarm.Aspect.TAG)
                                                               .nextInt(currentTags.size()));
                     tags.add(Dictionaries.tagMatrix
@@ -119,7 +119,7 @@ public class CommentGenerator {
                 content = shortComments_[index];
             }
 
-            long baseDate = Math.max(replyTo.creationDate(), member.creationDate()) + DatagenParams.deltaTime;
+            long baseDate = Math.max(replyTo.getCreationDate(), member.creationDate()) + DatagenParams.deltaTime;
             long creationDate = Dictionaries.dates.powerlawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect
                                                                                               .DATE), baseDate);
             int country = member.person().getCountryId();
@@ -144,11 +144,11 @@ public class CommentGenerator {
                                                                                          .get(RandomGeneratorFarm.Aspect.DIFF_BROWSER), randomFarm
                                                                                          .get(RandomGeneratorFarm.Aspect.BROWSER), member
                                                                                          .person().getBrowserId()),
-                                          post.messageId(),
-                                          replyTo.messageId());
+                                          post.getMessageId(),
+                                          replyTo.getMessageId());
             if (!isShort) replyCandidates.add(new Comment(comment));
             exporter.export(comment);
-            if (comment.content().length() > 10 && randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE)
+            if (comment.getContent().length() > 10 && randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE)
                                                              .nextDouble() <= 0.1) {
                 likeGenerator_.generateLikes(randomFarm
                                                      .get(RandomGeneratorFarm.Aspect.NUM_LIKE), forum, comment, Like.LikeType.COMMENT, exporter);

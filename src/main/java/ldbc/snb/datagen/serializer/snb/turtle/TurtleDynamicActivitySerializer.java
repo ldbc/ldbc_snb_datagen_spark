@@ -99,36 +99,36 @@ public class TurtleDynamicActivitySerializer extends DynamicActivitySerializer<H
 
         StringBuffer result = new StringBuffer(2500);
 
-        String prefix = SN.getPostURI(post.messageId());
+        String prefix = SN.getPostURI(post.getMessageId());
 
         Turtle.addTriple(result, true, false, prefix, RDF.type, SNVOC.Post);
 
         Turtle.addTriple(result, false, false, prefix, SNVOC.id,
-                         Turtle.createDataTypeLiteral(Long.toString(post.messageId()), XSD.Long));
+                         Turtle.createDataTypeLiteral(Long.toString(post.getMessageId()), XSD.Long));
 
         Turtle.addTriple(result, false, false, prefix, SNVOC.creationDate,
-                         Turtle.createDataTypeLiteral(TurtleDateTimeFormat.get().format(post.creationDate()), XSD.DateTime));
+                         Turtle.createDataTypeLiteral(TurtleDateTimeFormat.get().format(post.getCreationDate()), XSD.DateTime));
 
         Turtle.addTriple(result, false, false, prefix, SNVOC.ipaddress,
-                         Turtle.createLiteral(post.ipAddress().toString()));
+                         Turtle.createLiteral(post.getIpAddress().toString()));
         Turtle.addTriple(result, false, false, prefix, SNVOC.browser,
-                         Turtle.createLiteral(Dictionaries.browsers.getName(post.browserId())));
+                         Turtle.createLiteral(Dictionaries.browsers.getName(post.getBrowserId())));
 
         Turtle.addTriple(result, false, false, prefix, SNVOC.content,
-                         Turtle.createLiteral(post.content()));
+                         Turtle.createLiteral(post.getContent()));
         Turtle.addTriple(result, false, true, prefix, SNVOC.length,
-                         Turtle.createDataTypeLiteral(Integer.toString(post.content().length()), XSD.Int));
+                         Turtle.createDataTypeLiteral(Integer.toString(post.getContent().length()), XSD.Int));
 
         Turtle.createTripleSPO(result, prefix, SNVOC.language,
                                Turtle.createLiteral(Dictionaries.languages.getLanguageName(post.getLanguage())));
 
         Turtle.createTripleSPO(result, prefix, SNVOC.locatedIn,
-                               DBP.fullPrefixed(Dictionaries.places.getPlaceName(post.countryId())));
+                               DBP.fullPrefixed(Dictionaries.places.getPlaceName(post.getCountryId())));
 
-        Turtle.createTripleSPO(result, SN.getForumURI(post.forumId()), SNVOC.containerOf, prefix);
-        Turtle.createTripleSPO(result, prefix, SNVOC.hasCreator, SN.getPersonURI(post.author().getAccountId()));
+        Turtle.createTripleSPO(result, SN.getForumURI(post.getForumId()), SNVOC.containerOf, prefix);
+        Turtle.createTripleSPO(result, prefix, SNVOC.hasCreator, SN.getPersonURI(post.getAuthor().getAccountId()));
 
-        for (Integer tag : post.tags()) {
+        for (Integer tag : post.getTags()) {
             String topic = Dictionaries.tags.getName(tag);
             Turtle.createTripleSPO(result, prefix, SNVOC.hasTag, SNTAG.fullPrefixed(topic));
         }
@@ -138,34 +138,34 @@ public class TurtleDynamicActivitySerializer extends DynamicActivitySerializer<H
     protected void serialize(final Comment comment) {
         StringBuffer result = new StringBuffer(2000);
 
-        String prefix = SN.getCommentURI(comment.messageId());
+        String prefix = SN.getCommentURI(comment.getMessageId());
 
         Turtle.addTriple(result, true, false, prefix, RDF.type, SNVOC.Comment);
 
         Turtle.addTriple(result, false, false, prefix, SNVOC.id,
-                         Turtle.createDataTypeLiteral(Long.toString(comment.messageId()), XSD.Long));
+                         Turtle.createDataTypeLiteral(Long.toString(comment.getMessageId()), XSD.Long));
 
         Turtle.addTriple(result, false, false, prefix, SNVOC.creationDate,
-                         Turtle.createDataTypeLiteral(TurtleDateTimeFormat.get().format(comment.creationDate()), XSD.DateTime));
+                         Turtle.createDataTypeLiteral(TurtleDateTimeFormat.get().format(comment.getCreationDate()), XSD.DateTime));
         Turtle.addTriple(result, false, false, prefix, SNVOC.ipaddress,
-                         Turtle.createLiteral(comment.ipAddress().toString()));
+                         Turtle.createLiteral(comment.getIpAddress().toString()));
         Turtle.addTriple(result, false, false, prefix, SNVOC.browser,
-                         Turtle.createLiteral(Dictionaries.browsers.getName(comment.browserId())));
+                         Turtle.createLiteral(Dictionaries.browsers.getName(comment.getBrowserId())));
         Turtle.addTriple(result, false, false, prefix, SNVOC.content,
-                         Turtle.createLiteral(comment.content()));
+                         Turtle.createLiteral(comment.getContent()));
         Turtle.addTriple(result, false, true, prefix, SNVOC.length,
-                         Turtle.createDataTypeLiteral(Integer.toString(comment.content().length()), XSD.Int));
+                         Turtle.createDataTypeLiteral(Integer.toString(comment.getContent().length()), XSD.Int));
 
         String replied = (comment.replyOf() == comment.postId()) ? SN.getPostURI(comment.postId()) :
                 SN.getCommentURI(comment.replyOf());
         Turtle.createTripleSPO(result, prefix, SNVOC.replyOf, replied);
         Turtle.createTripleSPO(result, prefix, SNVOC.locatedIn,
-                               DBP.fullPrefixed(Dictionaries.places.getPlaceName(comment.countryId())));
+                               DBP.fullPrefixed(Dictionaries.places.getPlaceName(comment.getCountryId())));
 
         Turtle.createTripleSPO(result, prefix, SNVOC.hasCreator,
-                               SN.getPersonURI(comment.author().getAccountId()));
+                               SN.getPersonURI(comment.getAuthor().getAccountId()));
 
-        for (Integer tag : comment.tags()) {
+        for (Integer tag : comment.getTags()) {
             String topic = Dictionaries.tags.getName(tag);
             Turtle.createTripleSPO(result, prefix, SNVOC.hasTag, SNTAG.fullPrefixed(topic));
         }
@@ -175,26 +175,26 @@ public class TurtleDynamicActivitySerializer extends DynamicActivitySerializer<H
     protected void serialize(final Photo photo) {
         StringBuffer result = new StringBuffer(2500);
 
-        String prefix = SN.getPostURI(photo.messageId());
+        String prefix = SN.getPostURI(photo.getMessageId());
         Turtle.addTriple(result, true, false, prefix, RDF.type, SNVOC.Post);
 
         Turtle.addTriple(result, false, false, prefix, SNVOC.id,
-                         Turtle.createDataTypeLiteral(Long.toString(photo.messageId()), XSD.Long));
+                         Turtle.createDataTypeLiteral(Long.toString(photo.getMessageId()), XSD.Long));
 
-        Turtle.addTriple(result, false, false, prefix, SNVOC.hasImage, Turtle.createLiteral(photo.content()));
+        Turtle.addTriple(result, false, false, prefix, SNVOC.hasImage, Turtle.createLiteral(photo.getContent()));
         Turtle.addTriple(result, false, false, prefix, SNVOC.ipaddress,
-                         Turtle.createLiteral(photo.ipAddress().toString()));
+                         Turtle.createLiteral(photo.getIpAddress().toString()));
         Turtle.addTriple(result, false, false, prefix, SNVOC.browser,
-                         Turtle.createLiteral(Dictionaries.browsers.getName(photo.browserId())));
+                         Turtle.createLiteral(Dictionaries.browsers.getName(photo.getBrowserId())));
         Turtle.addTriple(result, false, true, prefix, SNVOC.creationDate,
-                         Turtle.createDataTypeLiteral(TurtleDateTimeFormat.get().format(photo.creationDate()), XSD.DateTime));
+                         Turtle.createDataTypeLiteral(TurtleDateTimeFormat.get().format(photo.getCreationDate()), XSD.DateTime));
 
-        Turtle.createTripleSPO(result, prefix, SNVOC.hasCreator, SN.getPersonURI(photo.author().getAccountId()));
-        Turtle.createTripleSPO(result, SN.getForumURI(photo.forumId()), SNVOC.containerOf, prefix);
+        Turtle.createTripleSPO(result, prefix, SNVOC.hasCreator, SN.getPersonURI(photo.getAuthor().getAccountId()));
+        Turtle.createTripleSPO(result, SN.getForumURI(photo.getForumId()), SNVOC.containerOf, prefix);
         Turtle.createTripleSPO(result, prefix, SNVOC.locatedIn,
-                               DBP.fullPrefixed(Dictionaries.places.getPlaceName(photo.countryId())));
+                               DBP.fullPrefixed(Dictionaries.places.getPlaceName(photo.getCountryId())));
 
-        for (Integer tag : photo.tags()) {
+        for (Integer tag : photo.getTags()) {
             String topic = Dictionaries.tags.getName(tag);
             Turtle.createTripleSPO(result, prefix, SNVOC.hasTag, SNTAG.fullPrefixed(topic));
         }
