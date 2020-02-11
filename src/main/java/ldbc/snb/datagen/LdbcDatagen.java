@@ -369,7 +369,7 @@ public class LdbcDatagen {
     private static void print(String message) {System.out.println(message);}
     private void printProgress(String message) {
         print("************************************************");
-        print("* " + message + " *");
+        print("* " + String.format("%1$-44s", message)    + " *");
         print("************************************************");
     }
 
