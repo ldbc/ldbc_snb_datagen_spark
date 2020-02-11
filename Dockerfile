@@ -10,5 +10,5 @@ RUN mvn -DskipTests clean assembly:assembly
 
 ENV HADOOP_CLIENT_OPTS '-Xmx8G'
 ENV PATH "/opt/julia-1.2.0/bin:${PATH}"
-ENV HADOOP_LOGLEVEL ERROR
+ENV HADOOP_LOGLEVEL WARN
 CMD /opt/ldbc_snb_datagen/docker_run.sh
