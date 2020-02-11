@@ -65,7 +65,9 @@ abstract public class PostGenerator {
     private LikeGenerator likeGenerator;
     private Post post;
 
-
+    /**
+     * Purpose unclear!
+     */
     static protected class PostInfo {
 
         public TreeSet<Integer> tags;
@@ -76,8 +78,6 @@ abstract public class PostGenerator {
         }
     }
 
-	
-	/* A set of random number generator for different purposes.*/
 
     PostGenerator(TextGenerator generator, CommentGenerator commentGenerator, LikeGenerator likeGenerator) {
         this.generator = generator;
@@ -86,36 +86,49 @@ abstract public class PostGenerator {
         this.post = new Post();
     }
 
-    /**
-     * Initializes the post generator.
-     */
+
     public void initialize() {
         // Intentionally left empty
     }
 
-
+    /**
+     * Create posts
+     * @param randomFarm random farm
+     * @param forum forum posts are created in
+     * @param memberships list of members of forum
+     * @param numPosts number of posts
+     * @param startId start id
+     * @param exporter exporter
+     * @return
+     * @throws IOException
+     */
     public long createPosts(RandomGeneratorFarm randomFarm, final Forum forum, final List<ForumMembership> memberships, long numPosts, long startId, PersonActivityExporter exporter) throws IOException {
         long postId = startId;
         Properties prop = new Properties();
         prop.setProperty("type", "post");
+
+        //
         for (ForumMembership member : memberships) {
-            double numPostsMember = numPosts / (double) memberships.size();
+            double numPostsMember = numPosts / (double) memberships.size(); // number of posts per member
             if (numPostsMember < 1.0) {
                 double prob = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_POST).nextDouble();
                 if (prob < numPostsMember) numPostsMember = 1.0;
             } else {
                 numPostsMember = Math.ceil(numPostsMember);
             }
+
             for (int i = 0; i < (int) (numPostsMember); ++i) {
+
                 PostInfo postInfo = generatePostInfo(randomFarm.get(RandomGeneratorFarm.Aspect.TAG), randomFarm
                         .get(RandomGeneratorFarm.Aspect.DATE), forum, member);
+
                 if (postInfo != null) {
 
                     String content;
-                    content = this.generator.generateText(member.person(), postInfo.tags, prop);
+                    content = this.generator.generateText(member.getPerson(), postInfo.tags, prop);
 
-                    int country = member.person().getCountryId();
-                    IP ip = member.person().getIpAddress();
+                    int country = member.getPerson().getCountryId();
+                    IP ip = member.getPerson().getIpAddress();
                     Random random = randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER);
                     if (PersonBehavior.changeUsualCountry(random, postInfo.date)) {
                         random = randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY);
@@ -124,9 +137,11 @@ abstract public class PostGenerator {
                         ip = Dictionaries.ips.getIP(random, country);
                     }
 
+//                    long deletionDate = postInfo.date; // placeholder
+
                     post.initialize(SN.formId(SN.composeId(postId++, postInfo.date)),
                                      postInfo.date,
-                                     member.person(),
+                                     member.getPerson(),
                                      forum.getId(),
                                      content,
                                      postInfo.tags,
@@ -135,7 +150,7 @@ abstract public class PostGenerator {
                                      Dictionaries.browsers.getPostBrowserId(randomFarm
                                                                                     .get(RandomGeneratorFarm.Aspect.DIFF_BROWSER), randomFarm
                                                                                     .get(RandomGeneratorFarm.Aspect.BROWSER), member
-                                                                                    .person().getBrowserId()),
+                                                                                    .getPerson().getBrowserId()),
                                      forum.getLanguage());
                     exporter.export(post);
 
