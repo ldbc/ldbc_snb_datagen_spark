@@ -96,22 +96,28 @@ public class DateUtils {
         }
     }
 
-    /*
-     * Date between from and to
+    /**
+     * Generate random Person creation date
+     * @param random random number generator
+     * @return a random value on the interval [2010,2013]
      */
     public Long randomPersonCreationDate(Random random) {
         return (long) (simulationStart + random.nextDouble() * (simulationEnd - simulationStart));
     }
 
-    /*
-     * Date between from and to
+    /**
+     * Generate random Person deletion date
+     * @param random random number generator
+     * @param creationDate Person creation date
+     * @param maxNumKnows maximum number of knows connections, influences the probability of leaving the network
+     * @return a random value on the interval [person creation + Delta , 2020]
      */
     public Long randomPersonDeletionDate(Random random, long creationDate, long maxNumKnows) {
 
         // TODO: use maxNumKnows to determine when a user's deleted
-        long fromDate = creationDate + DatagenParams.deltaTime;
-        long toDate = simulationStart + TEN_YEARS;
-        return randomDate(random, fromDate, toDate);
+        long personCreationDate = creationDate + DatagenParams.deltaTime;
+        long networkCollapse = simulationStart + TEN_YEARS;
+        return randomDate(random, personCreationDate, networkCollapse);
 
     }
 
@@ -173,7 +179,8 @@ public class DateUtils {
     }
 
     public long numberOfMonths(long fromDate) {
-        return (simulationEnd - fromDate) / THIRTY_DAYS;
+        long l = (simulationEnd - fromDate) / THIRTY_DAYS;
+        return l;
     }
 
     public long randomDate(Random random, long minDate) {
@@ -247,4 +254,5 @@ public class DateUtils {
     public long getUpdateThreshold() {
         return updateThreshold_;
     }
+
 }
