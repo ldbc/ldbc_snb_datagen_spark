@@ -38,41 +38,50 @@ package ldbc.snb.datagen.entities.dynamic.relations;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 
+/**
+ * This class represents a hasMember edge between a Person and a Forum
+ */
 public class ForumMembership {
-    private long forumId_;
-    private long creationDate_;
-    private Person.PersonSummary person_;
 
-    public ForumMembership(long forumId, long creationDate, Person.PersonSummary p) {
-        assert (p
-                .getCreationDate() + DatagenParams.deltaTime) <= creationDate : "Person creation date is larger than membership";
-        forumId_ = forumId;
-        creationDate_ = creationDate;
-        person_ = new Person.PersonSummary(p);
+    private long forumId;
+    private long creationDate;
+    private long deletionDate;
+    private Person.PersonSummary person;
+
+    public ForumMembership(long forumId, long creationDate, long deletionDate, Person.PersonSummary p) {
+        assert (p.getCreationDate() + DatagenParams.deltaTime) <= creationDate : "Person creation date is larger than membership";
+        this.forumId = forumId;
+        this.creationDate = creationDate;
+        this.deletionDate = deletionDate;
+        person = new Person.PersonSummary(p);
     }
 
-    public long forumId() {
-        return forumId_;
+    public long getForumId() {
+        return forumId;
     }
 
-    public void forumId(long forumId) {
-        this.forumId_ = forumId;
+    public long getCreationDate() {
+        return creationDate;
     }
 
-    public long creationDate() {
-        return creationDate_;
+    public void setCreationDate(long creationDate) {
+        this.creationDate = creationDate;
     }
 
-    public void creationDate(long creationDate) {
-        creationDate_ = creationDate;
+    public long getDeletionDate() {
+        return deletionDate;
     }
 
-    public Person.PersonSummary person() {
-        return person_;
+    public void setDeletionDate(long deletionDate) {
+        this.deletionDate = deletionDate;
     }
 
-    public void person(Person.PersonSummary p) {
-        person_ = p;
+    public Person.PersonSummary getPerson() {
+        return person;
+    }
+
+    public void setPerson(Person.PersonSummary p) {
+        person = p;
     }
 
 }

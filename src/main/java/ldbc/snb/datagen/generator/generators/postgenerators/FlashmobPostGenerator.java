@@ -95,7 +95,7 @@ public class FlashmobPostGenerator extends PostGenerator {
      * @brief Selects the earliest flashmob tag index from a given date.
      */
     private int searchEarliest(FlashmobTag[] tags, ForumMembership membership) {
-        long fromDate = membership.creationDate() + flashmobSpan_ / 2 + DatagenParams.deltaTime;
+        long fromDate = membership.getCreationDate() + flashmobSpan_ / 2 + DatagenParams.deltaTime;
         int lowerBound = 0;
         int upperBound = tags.length - 1;
         int midPoint = (upperBound + lowerBound) / 2;

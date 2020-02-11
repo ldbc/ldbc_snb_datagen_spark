@@ -203,14 +203,14 @@ public class TurtleDynamicActivitySerializer extends DynamicActivitySerializer<H
 
     protected void serialize(final ForumMembership membership) {
         String memberhipPrefix = SN.getMembershipURI(SN.formId(membershipId));
-        String forumPrefix = SN.getForumURI(membership.forumId());
+        String forumPrefix = SN.getForumURI(membership.getForumId());
         StringBuffer result = new StringBuffer(19000);
         Turtle.createTripleSPO(result, forumPrefix, SNVOC.hasMember, memberhipPrefix);
 
         Turtle.addTriple(result, true, false, memberhipPrefix, SNVOC.hasPerson, SN
-                .getPersonURI(membership.person().getAccountId()));
+                .getPersonURI(membership.getPerson().getAccountId()));
         Turtle.addTriple(result, false, true, memberhipPrefix, SNVOC.joinDate,
-                         Turtle.createDataTypeLiteral(TurtleDateTimeFormat.get().format(membership.creationDate()), XSD.DateTime));
+                         Turtle.createDataTypeLiteral(TurtleDateTimeFormat.get().format(membership.getCreationDate()), XSD.DateTime));
         membershipId++;
         writers.get(SOCIAL_NETWORK_ACTIVITY).write(result.toString());
     }

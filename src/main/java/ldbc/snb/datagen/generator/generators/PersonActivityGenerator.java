@@ -61,38 +61,41 @@ import java.util.Random;
 
 public class PersonActivityGenerator {
 
-    private ForumGenerator forumGenerator_ = null;
-    private RandomGeneratorFarm randomFarm_ = null;
-    private UniformPostGenerator uniformPostGenerator_ = null;
-    private FlashmobPostGenerator flashmobPostGenerator_ = null;
-    private PhotoGenerator photoGenerator_ = null;
-    private DynamicActivitySerializer dynamicActivitySerializer_ = null;
-    private UpdateEventSerializer updateSerializer_ = null;
     private long forumId = 0;
     private long messageId = 0;
-    private FactorTable factorTable_;
-    private PersonActivityExporter exporter_;
 
-    public PersonActivityGenerator(DynamicActivitySerializer serializer, UpdateEventSerializer updateSerializer) {
-        randomFarm_ = new RandomGeneratorFarm();
-        dynamicActivitySerializer_ = serializer;
-        updateSerializer_ = updateSerializer;
-        forumGenerator_ = new ForumGenerator();
-        TextGenerator generator = new LdbcSnbTextGenerator(randomFarm_
-                                                                   .get(RandomGeneratorFarm.Aspect.LARGE_TEXT), Dictionaries.tags);
-        LikeGenerator likeGenerator_ = new LikeGenerator();
-        CommentGenerator commentGenerator = new CommentGenerator(generator, likeGenerator_);
-        uniformPostGenerator_ = new UniformPostGenerator(generator, commentGenerator, likeGenerator_);
-        flashmobPostGenerator_ = new FlashmobPostGenerator(generator, commentGenerator, likeGenerator_);
-        photoGenerator_ = new PhotoGenerator(likeGenerator_);
-        factorTable_ = new FactorTable();
-        exporter_ = new PersonActivityExporter(dynamicActivitySerializer_, updateSerializer_, factorTable_);
+    private RandomGeneratorFarm randomFarm;
+    private ForumGenerator forumGenerator;
+    private UniformPostGenerator uniformPostGenerator;
+    private FlashmobPostGenerator flashmobPostGenerator;
+    private PhotoGenerator photoGenerator;
+    private DynamicActivitySerializer dynamicActivitySerializer;
+    private UpdateEventSerializer updateSerializer;
+    private FactorTable factorTable;
+    private PersonActivityExporter exporter;
+
+    public PersonActivityGenerator(DynamicActivitySerializer dynamicActivitySerializer, UpdateEventSerializer updateSerializer) {
+
+        randomFarm = new RandomGeneratorFarm();
+        forumGenerator = new ForumGenerator();
+
+        TextGenerator generator = new LdbcSnbTextGenerator(randomFarm.get(RandomGeneratorFarm.Aspect.LARGE_TEXT), Dictionaries.tags);
+        LikeGenerator likeGenerator = new LikeGenerator();
+        CommentGenerator commentGenerator = new CommentGenerator(generator, likeGenerator);
+        uniformPostGenerator = new UniformPostGenerator(generator, commentGenerator, likeGenerator);
+        flashmobPostGenerator = new FlashmobPostGenerator(generator, commentGenerator, likeGenerator);
+        photoGenerator = new PhotoGenerator(likeGenerator);
+        this.dynamicActivitySerializer = dynamicActivitySerializer;
+        this.updateSerializer = updateSerializer;
+
+        factorTable = new FactorTable();
+        exporter = new PersonActivityExporter(dynamicActivitySerializer, this.updateSerializer, factorTable);
     }
 
     private void generateActivity(Person person, List<Person> block) throws AssertionError, IOException {
         try {
-            factorTable_.extractFactors(person);
-            generateWall(person, block);
+            factorTable.extractFactors(person);
+            generateWall(person);
             generateGroups(person, block);
             generateAlbums(person);
         } catch (AssertionError e) {
@@ -102,74 +105,96 @@ public class PersonActivityGenerator {
         }
     }
 
-    private void generateWall(Person person, List<Person> block) throws IOException {
-        // generate wall
-        Forum wall = forumGenerator_.createWall(randomFarm_, forumId++, person);
-        exporter_.export(wall);
+    /**
+     * Generates the personal wall for a Person. Note, only this Person creates Posts in the wall.
+     * @param person Person
+     * @throws IOException IOException
+     */
+    private void generateWall(Person person) throws IOException {
+
+        // Generate wall
+        Forum wall = forumGenerator.createWall(randomFarm, forumId++, person);
+        exporter.export(wall);
+
         for (ForumMembership fm : wall.getMemberships()) {
-            exporter_.export(fm);
+            exporter.export(fm);
         }
 
-        // generate wall posts
+        // creates a forum membership for the moderator
+        // only moderator can post on their wall
         ForumMembership personMembership = new ForumMembership(wall.getId(),
-                                                               wall.getCreationDate() + DatagenParams.deltaTime, new Person.PersonSummary(person)
-        );
+                                                wall.getCreationDate() + DatagenParams.deltaTime,
+                                                            wall.getDeletionDate(),
+                                                            new Person.PersonSummary(person));
         List<ForumMembership> fakeMembers = new ArrayList<>();
         fakeMembers.add(personMembership);
-        messageId = uniformPostGenerator_
-                .createPosts(randomFarm_, wall, fakeMembers, numPostsPerGroup(randomFarm_, wall, DatagenParams.maxNumPostPerMonth, DatagenParams.maxNumFriends), messageId, exporter_);
-        messageId = flashmobPostGenerator_
-                .createPosts(randomFarm_, wall, fakeMembers, numPostsPerGroup(randomFarm_, wall, DatagenParams.maxNumFlashmobPostPerMonth, DatagenParams.maxNumFriends), messageId, exporter_);
+
+        // create posts
+        messageId = uniformPostGenerator
+                .createPosts(randomFarm, wall, fakeMembers, numPostsPerGroup(randomFarm, wall, DatagenParams.maxNumPostPerMonth, DatagenParams.maxNumFriends), messageId, exporter);
+        messageId = flashmobPostGenerator
+                .createPosts(randomFarm, wall, fakeMembers, numPostsPerGroup(randomFarm, wall, DatagenParams.maxNumFlashmobPostPerMonth, DatagenParams.maxNumFriends), messageId, exporter);
     }
 
+    /**
+     * Generates the Groups for a Person. Has 5% chance of becoming a moderator of some group(s).
+     * @param person persons
+     * @param block block fo persons
+     * @throws IOException IOException
+     */
     private void generateGroups(Person person, List<Person> block) throws IOException {
         // generate user created groups
-        double moderatorProb = randomFarm_.get(RandomGeneratorFarm.Aspect.FORUM_MODERATOR).nextDouble();
+        double moderatorProb = randomFarm.get(RandomGeneratorFarm.Aspect.FORUM_MODERATOR).nextDouble();
         if (moderatorProb <= DatagenParams.groupModeratorProb) {
-            int numGroup = randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_FORUM)
+            int numGroup = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_FORUM)
                                       .nextInt(DatagenParams.maxNumGroupCreatedPerUser) + 1;
             for (int j = 0; j < numGroup; j++) {
-                Forum group = forumGenerator_.createGroup(randomFarm_, forumId++, person, block);
-                exporter_.export(group);
+                Forum group = forumGenerator.createGroup(randomFarm, forumId++, person, block);
+                exporter.export(group);
 
                 for (ForumMembership fm : group.getMemberships()) {
-                    exporter_.export(fm);
+                    exporter.export(fm);
                 }
 
                 // generate uniform posts/comments
-                messageId = uniformPostGenerator_.createPosts(randomFarm_, group, group
-                        .getMemberships(), numPostsPerGroup(randomFarm_, group, DatagenParams.maxNumGroupPostPerMonth, DatagenParams.maxNumMemberGroup), messageId, exporter_);
-                messageId = flashmobPostGenerator_.createPosts(randomFarm_, group, group
-                        .getMemberships(), numPostsPerGroup(randomFarm_, group, DatagenParams.maxNumGroupFlashmobPostPerMonth, DatagenParams.maxNumMemberGroup), messageId, exporter_);
+                messageId = uniformPostGenerator.createPosts(randomFarm, group, group
+                        .getMemberships(), numPostsPerGroup(randomFarm, group, DatagenParams.maxNumGroupPostPerMonth, DatagenParams.maxGroupSize), messageId, exporter);
+                messageId = flashmobPostGenerator.createPosts(randomFarm, group, group
+                        .getMemberships(), numPostsPerGroup(randomFarm, group, DatagenParams.maxNumGroupFlashmobPostPerMonth, DatagenParams.maxGroupSize), messageId, exporter);
             }
         }
 
     }
 
+    /**
+     * Generates the albums for a Person.
+     * @param person person
+     * @throws IOException IOException
+     */
     private void generateAlbums(Person person) throws IOException {
-        // generate albums
-        int numOfmonths = (int) Dictionaries.dates.numberOfMonths(person);
-        int numPhotoAlbums = randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_PHOTO_ALBUM)
-                                        .nextInt(DatagenParams.maxNumPhotoAlbumsPerMonth + 1);
-        if (numOfmonths != 0) {
-            numPhotoAlbums = numOfmonths * numPhotoAlbums;
+
+        // work out number of albums to generate
+        int numberOfMonths = (int) Dictionaries.dates.numberOfMonths(person);
+        int numberOfPhotoAlbums = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_PHOTO_ALBUM).nextInt(DatagenParams.maxNumPhotoAlbumsPerMonth + 1);
+        if (numberOfMonths != 0) {
+            numberOfPhotoAlbums = numberOfMonths * numberOfPhotoAlbums;
         }
-        for (int i = 0; i < numPhotoAlbums; i++) {
-            Forum album = forumGenerator_.createAlbum(randomFarm_, forumId++, person, i);
-            exporter_.export(album);
+
+        //  create albums
+        for (int i = 0; i < numberOfPhotoAlbums; i++) {
+
+            Forum album = forumGenerator.createAlbum(randomFarm, forumId++, person, i);
+            exporter.export(album);
 
             for (ForumMembership fm : album.getMemberships()) {
-                exporter_.export(fm);
+                exporter.export(fm);
             }
 
-            ForumMembership personMembership = new ForumMembership(album.getId(),
-                                                                   album.getCreationDate() + DatagenParams.deltaTime, new Person.PersonSummary(person)
-            );
-            List<ForumMembership> fakeMembers = new ArrayList<>();
-            fakeMembers.add(personMembership);
-            int numPhotos = randomFarm_.get(RandomGeneratorFarm.Aspect.NUM_PHOTO)
+            // number of photos to generate
+            int numPhotos = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_PHOTO)
                                        .nextInt(DatagenParams.maxNumPhotoPerAlbums + 1);
-            messageId = photoGenerator_.createPhotos(randomFarm_, album, fakeMembers, numPhotos, messageId, exporter_);
+            // create photos
+            messageId = photoGenerator.createPhotos(randomFarm, album, numPhotos, messageId, exporter);
         }
     }
 
@@ -186,7 +211,7 @@ public class PersonActivityGenerator {
     }
 
     public void generateActivityForBlock(int seed, List<Person> block, Context context) throws IOException {
-        randomFarm_.resetRandomGenerators(seed);
+        randomFarm.resetRandomGenerators(seed);
         forumId = 0;
         messageId = 0;
         SN.machineId = seed;
@@ -196,7 +221,7 @@ public class PersonActivityGenerator {
             long start = System.currentTimeMillis();
             generateActivity(p, block);
             if (DatagenParams.updateStreams) {
-                updateSerializer_.changePartition();
+                updateSerializer.changePartition();
             }
             if (counter % 1000 == 0) {
                 context.setStatus("Generating activity of person " + counter + " of block" + seed);
@@ -209,12 +234,11 @@ public class PersonActivityGenerator {
         System.out.println("Average person activity generation time " + personGenerationTime / (float) block.size());
     }
 
-
     public void writeActivityFactors(OutputStream writer) throws IOException {
-        factorTable_.writeActivityFactors(writer);
+        factorTable.writeActivityFactors(writer);
     }
 
     public void writePersonFactors(OutputStream writer) {
-        factorTable_.writePersonFactors(writer);
+        factorTable.writePersonFactors(writer);
     }
 }

@@ -186,9 +186,9 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
     protected void serialize(final ForumMembership membership) {
         //"Forum.id", "Person.id", "joinDate"
         writers.get(FORUM_HASMEMBER_PERSON).writeEntry(ImmutableList.of(
-            Dictionaries.dates.formatDateTime(membership.creationDate()),
-            Long.toString(membership.forumId()),
-            Long.toString(membership.person().getAccountId())
+            Dictionaries.dates.formatDateTime(membership.getCreationDate()),
+            Long.toString(membership.getForumId()),
+            Long.toString(membership.getPerson().getAccountId())
         ));
     }
 

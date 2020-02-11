@@ -94,7 +94,7 @@ public class PersonActivityExporter {
     }
 
     public void export(final ForumMembership member) throws IOException {
-        if (member.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
+        if (member.getCreationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
             dynamicActivitySerializer_.export(member);
             factorTable_.extractFactors(member);
         } else {

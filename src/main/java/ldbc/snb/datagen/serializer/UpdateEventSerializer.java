@@ -387,11 +387,11 @@ public class UpdateEventSerializer {
     }
 
     public void export(ForumMembership membership) throws IOException {
-        currentDependantDate_ = membership.person().getCreationDate();
-        beginEvent(membership.creationDate(), UpdateEvent.UpdateEventType.ADD_FORUM_MEMBERSHIP);
-        data_.add(Long.toString(membership.forumId()));
-        data_.add(Long.toString(membership.person().getAccountId()));
-        data_.add(Long.toString(membership.creationDate()));
+        currentDependantDate_ = membership.getPerson().getCreationDate();
+        beginEvent(membership.getCreationDate(), UpdateEvent.UpdateEventType.ADD_FORUM_MEMBERSHIP);
+        data_.add(Long.toString(membership.getForumId()));
+        data_.add(Long.toString(membership.getPerson().getAccountId()));
+        data_.add(Long.toString(membership.getCreationDate()));
         endEvent();
     }
 

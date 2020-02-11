@@ -54,12 +54,19 @@ import java.util.Random;
 import java.util.TreeSet;
 
 /**
- * This class generates Forums.
+ * This class generates Forums (Walls, Groups and Albums).
  */
 public class ForumGenerator {
 
+    /**
+     * Creates a personal wall for a given Person. All friends become members
+     * @param randomFarm randomFarm
+     * @param forumId forumID
+     * @param person Person
+     * @return Forum
+     */
+    Forum createWall(RandomGeneratorFarm randomFarm, long forumId, Person person) {
 
-    public Forum createWall(RandomGeneratorFarm randomFarm, long forumId, Person person) {
         int language = randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE).nextInt(person.getLanguages().size());
 
         Forum forum = new Forum(SN.formId(SN.composeId(forumId, person.getCreationDate() + DatagenParams.deltaTime)),
@@ -71,26 +78,40 @@ public class ForumGenerator {
                                 language
         );
 
+        // wall inherits tags from person
         List<Integer> forumTags = new ArrayList<>(person.getInterests());
         forum.setTags(forumTags);
 
+        // adds all friends as members of wall
         TreeSet<Knows> knows = person.getKnows();
-        for (Knows k : knows) {
-            long date = Math.max(k.getCreationDate(), forum.getCreationDate()) + DatagenParams.deltaTime;
-            assert (forum
-                    .getCreationDate() + DatagenParams.deltaTime) <= date : "Forum creation date is larger than knows in wall " + forum
-                    .getCreationDate() + " " + k.getCreationDate();
-            forum.addMember(new ForumMembership(forum.getId(), date, k.to()));
+
+        // for each friend generate hasMember edge
+        for (Knows know : knows) {
+
+            long hasMemberCreationDate = know.getCreationDate() + DatagenParams.deltaTime;
+            long hasMemberDeletionDate = Math.min(know.getDeletionDate(), forum.getDeletionDate());
+
+            forum.addMember(new ForumMembership(forum.getId(), hasMemberCreationDate, hasMemberDeletionDate ,know.to()));
         }
         return forum;
     }
 
-    public Forum createGroup(RandomGeneratorFarm randomFarm, long forumId, Person person, List<Person> persons) {
+    /**
+     * Creates a Group with the Person as the moderator. 30% membership come from friends the rest are random.
+     * @param randomFarm
+     * @param forumId forumID
+     * @param person moderator
+     * @param block person block
+     * @return Group
+     */
+    Forum createGroup(RandomGeneratorFarm randomFarm, long forumId, Person person, List<Person> block) {
 
+        // creation date
         long groupCreationLowerBound = person.getCreationDate() + DatagenParams.deltaTime;
         long groupCreationUpperBound = Math.min(person.getDeletionDate(), Dictionaries.dates.getEndDateTime());
         long groupCreationDate = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), groupCreationLowerBound , groupCreationUpperBound);
 
+        // deletion date
         long groupDeletionLowerBound = groupCreationDate + DatagenParams.deltaTime;
         long groupDeletionUpperBound = Dictionaries.dates.getStartDateTime() + DateUtils.TEN_YEARS;
         long groupDeletionDate = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), groupDeletionLowerBound , groupDeletionUpperBound);
@@ -101,6 +122,7 @@ public class ForumGenerator {
         }
 
         int language = randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE).nextInt(person.getLanguages().size());
+
         Iterator<Integer> iter = person.getInterests().iterator();
         int idx = randomFarm.get(RandomGeneratorFarm.Aspect.FORUM_INTEREST).nextInt(person.getInterests().size());
         for (int i = 0; i < idx; i++) {
@@ -126,41 +148,51 @@ public class ForumGenerator {
         forum.setTags(interest);
 
         // Add members
-        // TODO: lifespan managment
-        TreeSet<Long> added = new TreeSet<>();
-        List<Knows> friends = new ArrayList<>(person.getKnows());
-        int numMembers = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_USERS_PER_FORUM).nextInt(DatagenParams.maxNumMemberGroup);
+        TreeSet<Long> groupMembers = new TreeSet<>();
+        List<Knows> moderatorKnows = new ArrayList<>(person.getKnows());
+        int groupSize = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_USERS_PER_FORUM).nextInt(DatagenParams.maxGroupSize);
         int numLoop = 0;
-        while ((forum.getMemberships().size() < numMembers) && (numLoop < DatagenParams.blockSize)) {
-            double prob = randomFarm.get(RandomGeneratorFarm.Aspect.KNOWS_LEVEL).nextDouble();
+        while ((forum.getMemberships().size() < groupSize) && (numLoop < DatagenParams.blockSize)) {
+            double prob = randomFarm.get(RandomGeneratorFarm.Aspect.KNOWS_LEVEL).nextDouble(); // controls the proportion of members that are friends
             if (prob < 0.3 && person.getKnows().size() > 0) {
-                int friendId = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX).nextInt(person.getKnows()
-                                                                                                         .size());
-                Knows k = friends.get(friendId);
-                if (!added.contains(k.to().getAccountId())) {
+                // pick random knows edge from friends
+                int knowsIndex = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX).nextInt(person.getKnows().size());
+                Knows knows = moderatorKnows.get(knowsIndex);
+                if (!groupMembers.contains(knows.to().getAccountId())) { // if friend not already member of group
                     Random random = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX);
-                    long date = Dictionaries.dates.randomDate(random, Math
-                            .max(forum.getCreationDate(), k.getCreationDate() + DatagenParams.deltaTime));
-                    assert forum
-                            .getCreationDate() + DatagenParams.deltaTime <= date : "Forum creation date larger than membership date for knows based members";
-                    forum.addMember(new ForumMembership(forum.getId(), date, k.to()));
-                    added.add(k.to().getAccountId());
+
+                    long creationDateLowerBound = Math.max(forum.getCreationDate(), knows.to().getCreationDate()) + DatagenParams.deltaTime;
+                    long creationDateUpperBound = Math.min(forum.getDeletionDate(), knows.to().getDeletionDate());
+                    creationDateUpperBound = Math.min(creationDateUpperBound,Dictionaries.dates.getEndDateTime());
+                    long hasMemberCreationDate = Dictionaries.dates.randomDate(random, creationDateLowerBound, creationDateUpperBound);
+
+                    long deletionDateLowerBound = hasMemberCreationDate + DatagenParams.deltaTime;
+                    long deletionDateUpperBound = Math.min(knows.to().getDeletionDate(),forum.getDeletionDate());
+                    long hasMemberDeletionDate =  Dictionaries.dates.randomDate(random, deletionDateLowerBound, deletionDateUpperBound);
+
+                    forum.addMember(new ForumMembership(forum.getId(), hasMemberCreationDate, hasMemberDeletionDate, knows.to()));
+                    groupMembers.add(knows.to().getAccountId());
                 }
-            } else {
+            } else { // pick from the person block
                 int candidateIndex = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX)
-                                               .nextInt(persons.size());
-                Person member = persons.get(candidateIndex);
+                                               .nextInt(block.size());
+                Person member = block.get(candidateIndex);
                 prob = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP).nextDouble();
-                if ((prob < 0.1) && !added.contains(member.getAccountId())) {
-                    added.add(member.getAccountId());
+                if ((prob < 0.1) && !groupMembers.contains(member.getAccountId())) {
+                    groupMembers.add(member.getAccountId());
                     Random random = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX);
-                    long date = Dictionaries.dates.randomDate(random,
-                                                         Math.max(forum.getCreationDate(), member
-                                                                 .getCreationDate()) + DatagenParams.deltaTime);
-                    assert forum
-                            .getCreationDate() + DatagenParams.deltaTime <= date : "Forum creation date larger than membership date for block based members";
-                    forum.addMember(new ForumMembership(forum.getId(), date, new Person.PersonSummary(member)));
-                    added.add(member.getAccountId());
+
+                    long creationDateLowerBound = Math.max(forum.getCreationDate(), member.getCreationDate()) + DatagenParams.deltaTime;
+                    long creationDateUpperBound = Math.min(forum.getDeletionDate(), member.getDeletionDate());
+                    creationDateUpperBound = Math.min(creationDateUpperBound,Dictionaries.dates.getEndDateTime());
+                    long hasMemberCreationDate = Dictionaries.dates.randomDate(random, creationDateLowerBound, creationDateUpperBound);
+
+                    long deletionDateLowerBound = hasMemberCreationDate + DatagenParams.deltaTime;
+                    long deletionDateUpperBound = Math.min(member.getDeletionDate(),forum.getDeletionDate());
+                    long hasMemberDeletionDate =  Dictionaries.dates.randomDate(random, deletionDateLowerBound, deletionDateUpperBound);
+
+                    forum.addMember(new ForumMembership(forum.getId(), hasMemberCreationDate, hasMemberDeletionDate, new Person.PersonSummary(member)));
+                    groupMembers.add(member.getAccountId());
                 }
             }
             numLoop++;
@@ -168,17 +200,20 @@ public class ForumGenerator {
         return forum;
     }
 
-    public Forum createAlbum(RandomGeneratorFarm randomFarm, long forumId, Person person, int numAlbum) {
-//        long date = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), person
-//                .getCreationDate() + DatagenParams.deltaTime);
+    /**
+     * Creates an album for a given Person.
+     * @param randomFarm random farm
+     * @param forumId forumId
+     * @param person Person who the album belongs it
+     * @param numAlbum number of album e.g. Album 10
+     * @return Album
+     */
+    Forum createAlbum(RandomGeneratorFarm randomFarm, long forumId, Person person, int numAlbum) {
 
         long albumCreationLowerBound = person.getCreationDate() + DatagenParams.deltaTime;
         long albumCreationUpperBound = Math.min(person.getDeletionDate(), Dictionaries.dates.getEndDateTime());
         long albumCreationDate = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), albumCreationLowerBound , albumCreationUpperBound);
-
         long albumDeletionDate = person.getDeletionDate();
-
-
 
         int language = randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE).nextInt(person.getLanguages().size());
         Forum forum = new Forum(SN.formId(SN.composeId(forumId, albumCreationDate)),
@@ -204,14 +239,16 @@ public class ForumGenerator {
         List<Integer> countries = Dictionaries.places.getCountries();
         int randomCountry = randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY).nextInt(countries.size());
         forum.setPlace(countries.get(randomCountry));
+
         List<Knows> friends = new ArrayList<>(person.getKnows());
-        for (Knows k : friends) {
+        for (Knows knows : friends) {
             double prob = randomFarm.get(RandomGeneratorFarm.Aspect.ALBUM_MEMBERSHIP).nextDouble();
-            if (prob < 0.7) {
-                Random random = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX);
-                long date = Dictionaries.dates.randomDate(random, Math.max(forum.getCreationDate(), k.getCreationDate())
-                        + DatagenParams.deltaTime);
-                forum.addMember(new ForumMembership(forum.getId(), date, k.to()));
+            if (prob < 0.7) { // add friends with prob
+
+                long hasMemberCreationDate = Math.max(knows.to().getCreationDate(), forum.getCreationDate()) + DatagenParams.deltaTime;
+                long hasMemberDeletionDate = Math.min(knows.to().getDeletionDate(), forum.getDeletionDate());
+
+                forum.addMember(new ForumMembership(forum.getId(), hasMemberCreationDate, hasMemberDeletionDate, knows.to()));
             }
         }
         return forum;

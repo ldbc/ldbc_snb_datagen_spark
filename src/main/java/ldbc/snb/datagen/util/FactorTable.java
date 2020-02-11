@@ -275,11 +275,11 @@ public class FactorTable {
     }
 
     public void extractFactors(ForumMembership member) {
-        if (member.creationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
-            long memberId = member.person().getAccountId();
+        if (member.getCreationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
+            long memberId = member.getPerson().getAccountId();
             personCounts(memberId).incrNumForums();
             int bucket = Dictionaries.dates
-                    .getNumberOfMonths(member.creationDate(), DatagenParams.startMonth, DatagenParams.startYear);
+                    .getNumberOfMonths(member.getCreationDate(), DatagenParams.startMonth, DatagenParams.startYear);
             if (bucket < 36 + 1)
                 personCounts(memberId).incrNumForumsPerMonth(bucket);
         }

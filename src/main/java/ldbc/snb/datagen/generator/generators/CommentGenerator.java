@@ -80,7 +80,7 @@ public class CommentGenerator {
             Message replyTo = replyCandidates.get(replyIndex);
             List<ForumMembership> validMemberships = new ArrayList<>();
             for (ForumMembership fM : forum.getMemberships()) {
-                if (fM.creationDate() + DatagenParams.deltaTime <= replyTo.getCreationDate()) {
+                if (fM.getCreationDate() + DatagenParams.deltaTime <= replyTo.getCreationDate()) {
                     validMemberships.add(fM);
                 }
             }
@@ -112,18 +112,18 @@ public class CommentGenerator {
                     tags.add(Dictionaries.tagMatrix
                                      .getRandomRelated(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), randomTag));
                 }
-                content = this.generator.generateText(member.person(), tags, prop);
+                content = this.generator.generateText(member.getPerson(), tags, prop);
             } else {
                 isShort = true;
                 int index = randomFarm.get(RandomGeneratorFarm.Aspect.TEXT_SIZE).nextInt(shortComments_.length);
                 content = shortComments_[index];
             }
 
-            long baseDate = Math.max(replyTo.getCreationDate(), member.creationDate()) + DatagenParams.deltaTime;
+            long baseDate = Math.max(replyTo.getCreationDate(), member.getCreationDate()) + DatagenParams.deltaTime;
             long creationDate = Dictionaries.dates.powerlawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect
                                                                                               .DATE), baseDate);
-            int country = member.person().getCountryId();
-            IP ip = member.person().getIpAddress();
+            int country = member.getPerson().getCountryId();
+            IP ip = member.getPerson().getIpAddress();
             Random random = randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER);
             if (PersonBehavior.changeUsualCountry(random, creationDate)) {
                 random = randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY);
@@ -134,7 +134,7 @@ public class CommentGenerator {
 
             Comment comment = new Comment(SN.formId(SN.composeId(nextId++, creationDate)),
                                           creationDate,
-                                          member.person(),
+                                          member.getPerson(),
                                           forum.getId(),
                                           content,
                                           tags,
@@ -143,7 +143,7 @@ public class CommentGenerator {
                                           Dictionaries.browsers.getPostBrowserId(randomFarm
                                                                                          .get(RandomGeneratorFarm.Aspect.DIFF_BROWSER), randomFarm
                                                                                          .get(RandomGeneratorFarm.Aspect.BROWSER), member
-                                                                                         .person().getBrowserId()),
+                                                                                         .getPerson().getBrowserId()),
                                           post.getMessageId(),
                                           replyTo.getMessageId());
             if (!isShort) replyCandidates.add(new Comment(comment));

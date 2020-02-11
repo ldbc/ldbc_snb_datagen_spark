@@ -54,20 +54,19 @@ import java.util.Random;
 import java.util.TreeSet;
 
 /**
- * This class generates a photo which are used in posts.
+ * This class generates photos which are used in posts.
  */
-public class PhotoGenerator {
+class PhotoGenerator {
 
     private LikeGenerator likeGenerator;
     private Photo photo;
 
-
-    public PhotoGenerator(LikeGenerator likeGenerator) {
+    PhotoGenerator(LikeGenerator likeGenerator) {
         this.likeGenerator = likeGenerator;
         this.photo = new Photo();
     }
 
-    public long createPhotos(RandomGeneratorFarm randomFarm, final Forum album, final List<ForumMembership> memberships, long numPhotos, long startId, PersonActivityExporter exporter) throws IOException {
+    long createPhotos(RandomGeneratorFarm randomFarm, final Forum album, long numPhotos, long startId, PersonActivityExporter exporter) throws IOException {
         long nextId = startId;
         int numPopularPlaces = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_POPULAR)
                                          .nextInt(DatagenParams.maxNumPopularPlaces + 1);

@@ -43,12 +43,10 @@ import ldbc.snb.datagen.generator.generators.CommentGenerator;
 import ldbc.snb.datagen.generator.generators.LikeGenerator;
 import ldbc.snb.datagen.generator.generators.textgenerators.TextGenerator;
 
-import java.util.Iterator;
 import java.util.Random;
 import java.util.TreeSet;
 
 public class UniformPostGenerator extends PostGenerator {
-
 
     public UniformPostGenerator(TextGenerator generator, CommentGenerator commentGenerator, LikeGenerator likeGenerator) {
         super(generator, commentGenerator, likeGenerator);
@@ -67,7 +65,7 @@ public class UniformPostGenerator extends PostGenerator {
                 }
             }
         }
-        postInfo.date = Dictionaries.dates.randomDate(randomDate, membership.creationDate() + DatagenParams.deltaTime);
+        postInfo.date = Dictionaries.dates.randomDate(randomDate, membership.getCreationDate() + DatagenParams.deltaTime);
         return postInfo;
     }
 }

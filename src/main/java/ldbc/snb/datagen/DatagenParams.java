@@ -171,7 +171,7 @@ public class DatagenParams {
     public static int maxNumGroupCreatedPerUser = 0;
     public static int maxNumGroupFlashmobPostPerMonth = 0;
     public static int maxNumGroupPostPerMonth = 0;
-    public static int maxNumMemberGroup = 0;
+    public static int maxGroupSize = 0;
     public static int maxNumLike = 0;
     public static int maxNumPhotoAlbumsPerMonth = 0;
     public static int maxNumPhotoPerAlbums = 0;
@@ -247,7 +247,7 @@ public class DatagenParams {
             maxNumPhotoAlbumsPerMonth = intConf(conf,ParameterNames.MAX_PHOTOALBUM);
             maxNumPhotoPerAlbums = intConf(conf,ParameterNames.MAX_PHOTO_PER_ALBUM);
             maxNumGroupCreatedPerUser = intConf(conf,ParameterNames.USER_MAX_GROUP);
-            maxNumMemberGroup = intConf(conf,ParameterNames.MAX_GROUP_MEMBERS);
+            maxGroupSize = intConf(conf,ParameterNames.MAX_GROUP_MEMBERS);
             groupModeratorProb = doubleConf(conf,ParameterNames.GROUP_MODERATOR_RATIO);
             maxNumGroupPostPerMonth = intConf(conf,ParameterNames.GROUP_MAX_POST_MONTH);
             missingRatio = doubleConf(conf,ParameterNames.MISSING_RATIO);
