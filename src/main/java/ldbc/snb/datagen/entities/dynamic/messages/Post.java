@@ -44,10 +44,6 @@ public class Post extends Message {
 
     private int language;
 
-    /**
-     *  The language used in the post.
-     */
-
     public Post() {
         super();
     }
@@ -82,11 +78,11 @@ public class Post extends Message {
         this.language = language;
     }
 
-    public int language() {
+    public int getLanguage() {
         return language;
     }
 
-    public void language(int l) {
+    public void setLanguage(int l) {
         language = l;
     }
 

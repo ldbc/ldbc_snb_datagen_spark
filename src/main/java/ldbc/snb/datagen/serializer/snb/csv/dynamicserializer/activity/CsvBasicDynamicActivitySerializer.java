@@ -138,7 +138,7 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
                 "",
                 post.ipAddress().toString(),
                 Dictionaries.browsers.getName(post.browserId()),
-                Dictionaries.languages.getLanguageName(post.language()),
+                Dictionaries.languages.getLanguageName(post.getLanguage()),
                 post.content(),
                 Integer.toString(post.content().length())
         ));

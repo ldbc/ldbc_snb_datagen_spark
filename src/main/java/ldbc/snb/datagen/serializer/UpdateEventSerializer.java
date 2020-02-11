@@ -290,7 +290,7 @@ public class UpdateEventSerializer {
         data_.add(Long.toString(post.creationDate()));
         data_.add(post.ipAddress().toString());
         data_.add(Dictionaries.browsers.getName(post.browserId()));
-        data_.add(Dictionaries.languages.getLanguageName(post.language()));
+        data_.add(Dictionaries.languages.getLanguageName(post.getLanguage()));
         data_.add(post.content());
         data_.add(Long.toString(post.content().length()));
         data_.add(Long.toString(post.author().getAccountId()));

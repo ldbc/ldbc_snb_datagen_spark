@@ -120,7 +120,7 @@ public class TurtleDynamicActivitySerializer extends DynamicActivitySerializer<H
                          Turtle.createDataTypeLiteral(Integer.toString(post.content().length()), XSD.Int));
 
         Turtle.createTripleSPO(result, prefix, SNVOC.language,
-                               Turtle.createLiteral(Dictionaries.languages.getLanguageName(post.language())));
+                               Turtle.createLiteral(Dictionaries.languages.getLanguageName(post.getLanguage())));
 
         Turtle.createTripleSPO(result, prefix, SNVOC.locatedIn,
                                DBP.fullPrefixed(Dictionaries.places.getPlaceName(post.countryId())));
