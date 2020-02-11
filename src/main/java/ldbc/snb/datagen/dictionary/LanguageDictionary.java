@@ -54,25 +54,25 @@ public class LanguageDictionary {
 
     private List<String> languages;
     /**
-     * < @brief The array of languages. *
+     *  The array of languages. *
      */
     private Map<Integer, List<Integer>> officalLanguagesByCountry;
     /**
-     * < @brief The official languages by country. *
+     *  The official languages by country. *
      */
     private Map<Integer, List<Integer>> languagesByCountry;
     /**
-     * < @brief The languages by country. *
+     *  The languages by country. *
      */
     private PlaceDictionary placeDictionary;
     /**
-     * < @brief The location dictionary. *
+     *  The location dictionary. *
      */
     private double probEnglish;
     /**
-     * < @brief The probability to speak english. *
+     *  The probability to speak english. *
      */
-    private double probSecondLang;                 /**< @brief The probability of speaking a second language. **/
+    private double probSecondLang;                 /** The probability of speaking a second language. **/
 
     /**
      * @param locationDic    The location dictionary.

@@ -55,21 +55,21 @@ public class CompanyDictionary {
     private static final String SEPARATOR = "  ";
     private TreeMap<Long, String> companyName;
     /**
-     * < @brief A map containing the name of each company.*
+     *  A map containing the name of each company.*
      */
     private TreeMap<Long, Integer> companyCountry;
     /**
-     * < @brief A map containing the location of each company. *
+     *  A map containing the location of each company. *
      */
     private TreeMap<Integer, List<Long>> companiesByCountry;
     /**
-     * < @brief A map containing the companies of each country. *
+     *  A map containing the companies of each country. *
      */
     private PlaceDictionary placeDictionary;
     /**
-     * < @brief The location dictionary.*
+     *  The location dictionary.*
      */
-    private double probUnCorrelatedCompany;    /**< @brief The probability of working in a uncorrelated company.**/
+    private double probUnCorrelatedCompany;    /** The probability of working in a uncorrelated company.**/
 
     /**
      * @param probUnCorrelatedCompany: Probability of selecting a country unrelated company.

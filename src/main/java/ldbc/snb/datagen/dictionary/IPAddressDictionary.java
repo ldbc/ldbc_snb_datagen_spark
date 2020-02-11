@@ -57,12 +57,12 @@ public class IPAddressDictionary {
     private static final int MAX_IP_COUNTRY = 100;
     private TreeMap<Integer, List<IP>> ipsByCountry;
     /**
-     * < @brief The country of ips. *
+     *  The country of ips. *
      */
     private PlaceDictionary placeDictionary;
 
     /**
-     * < @brief The location dictionary. *
+     *  The location dictionary. *
      */
 
     public IPAddressDictionary(PlaceDictionary locationDic) {

@@ -49,9 +49,9 @@ public class UserAgentDictionary {
 
     private List<String> userAgents;
     /**
-     * < @brief The set of all user agents.
+     *  The set of all user agents.
      */
-    private double probSentFromAgent;      /**< @brief The probability to used a different agent.*/
+    private double probSentFromAgent;      /** The probability to used a different agent.*/
 
     /**
      * @param probSentFromAgent The probability to use a different agent.

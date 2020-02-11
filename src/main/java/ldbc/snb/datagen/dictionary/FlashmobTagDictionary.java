@@ -52,40 +52,40 @@ public class FlashmobTagDictionary {
 
     private DateUtils dateGen;
     /**
-     * < @brief The date generator used to generate dates.
+     *  The date generator used to generate dates.
      */
     private PowerDistribution levelGenerator;
     /**
-     * < @brief The powerlaw distribution generator used to generate the levels.
+     *  The powerlaw distribution generator used to generate the levels.
      */
     private Random random;
     /**
-     * < @brief A uniform random genereator.
+     *  A uniform random genereator.
      */
     private TagDictionary tagDictionary;
     /**
-     * < @brief The tag dictionary used to create the flashmob tags.
+     *  The tag dictionary used to create the flashmob tags.
      */
     private Map<Integer, List<FlashmobTag>> flashmobTags;
     /**
-     * < @brief A map of identifiers of tags to flashmob tag instances.
+     *  A map of identifiers of tags to flashmob tag instances.
      */
     private FlashmobTag[] flashmobTagCumDist;
     /**
-     * < @brief The cumulative distribution of flashmob tags sorted by date.
+     *  The cumulative distribution of flashmob tags sorted by date.
      */
     private double flashmobTagsPerMonth;
     /**
-     * < @brief The number of flashmob tags per month.
+     *  The number of flashmob tags per month.
      */
     private double probInterestFlashmobTag;
     /**
-     * < @brief The probability to take an interest flashmob tag.
+     *  The probability to take an interest flashmob tag.
      */
     private double probRandomPerLevel;
 
     /**
-     * < @brief The probability per level to take a flashmob tag.
+     *  The probability per level to take a flashmob tag.
      */
 
     public FlashmobTagDictionary(TagDictionary tagDictionary,

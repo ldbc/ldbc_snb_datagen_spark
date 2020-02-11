@@ -49,11 +49,11 @@ public class TagTextDictionary {
     private static final String SEPARATOR = "  ";
     private TagDictionary tagDic;
     /**
-     * < @brief The tag dictionary. *
+     *  The tag dictionary. *
      */
     private Map<Integer, String> tagText;
     /**
-     * < @brief The tag text. *
+     *  The tag text. *
      */
     private double reducedTextRatio;
 

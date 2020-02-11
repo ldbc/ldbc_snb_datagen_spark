@@ -42,10 +42,10 @@ import java.util.TreeSet;
 
 public class Post extends Message {
 
-    private int language_;
+    private int language;
 
     /**
-     * < @brief The language used in the post.
+     *  The language used in the post.
      */
 
     public Post() {
@@ -64,7 +64,7 @@ public class Post extends Message {
                 int language
     ) {
         super(postId, creationDate, author, forumId, content, tags, countryId, ipAddress, browserId);
-        language_ = language;
+        this.language = language;
     }
 
     public void initialize(long postId,
@@ -79,15 +79,15 @@ public class Post extends Message {
                            int language
     ) {
         super.initialize(postId, creationDate, author, forumId, content, tags, countryId, ipAddress, browserId);
-        language_ = language;
+        this.language = language;
     }
 
     public int language() {
-        return language_;
+        return language;
     }
 
     public void language(int l) {
-        language_ = l;
+        language = l;
     }
 
 }

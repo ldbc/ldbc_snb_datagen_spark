@@ -51,29 +51,29 @@ public class UniversityDictionary {
     private static final String SEPARATOR = "  ";
     private TreeMap<Long, String> universityName;
     /**
-     * < @brief The university names.
+     *  The university names.
      */
     private TreeMap<Long, Integer> universityCity;
     /**
-     * < @brief The university city.
+     *  The university city.
      */
     private TreeMap<Integer, List<Long>> universitiesByCountry;
     /**
-     * < @brief The universities by country .
+     *  The universities by country .
      */
     private double probTopUniv;
     /**
-     * < @brief The probability to get a top university.
+     *  The probability to get a top university.
      */
     private double probUncorrelatedUniversity;
     /**
-     * < @brief The probability to get an uncorrelated university.
+     *  The probability to get an uncorrelated university.
      */
     private PlaceDictionary locationDic;
     /**
-     * < @brief The location dictionary.
+     *  The location dictionary.
      */
-    private long startIndex = 0;             /**< @brief The first index to assign to university ids. */
+    private long startIndex = 0;             /** The first index to assign to university ids. */
 
     /**
      * @param locationDic                The location dictionary.

@@ -48,7 +48,7 @@ public abstract class TextGenerator {
 
 
     /**
-     * < @brief The probability to retrieve an small text.
+     *  The probability to retrieve an small text.
      */
 
     public TextGenerator(Random random, TagDictionary tagDic) {

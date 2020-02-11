@@ -53,42 +53,42 @@ public class TagDictionary {
     private static final String SEPARATOR = "\t";
     private int numPopularTags;
     /**
-     * < @brief The number of popular tags. *
+     *  The number of popular tags. *
      */
     private double tagCountryCorrProb;
     /**
-     * < @brief The probability to choose another country when asking for a tag.
+     *  The probability to choose another country when asking for a tag.
      */
 
     private List<List<Integer>> tagsByCountry;
     /**
-     * < @brief The tags by country map.
+     *  The tags by country map.
      */
     private List<List<Double>> tagCummulativeDist;
     /**
-     * < @brief The tags by country cumulative distribution.
+     *  The tags by country cumulative distribution.
      */
     private Map<Integer, String> tagClassName;
     /**
-     * < @brief The tag class names.
+     *  The tag class names.
      */
     private Map<Integer, String> tagClassLabel;
     /**
-     * < @brief The tag class labels.
+     *  The tag class labels.
      */
     private Map<Integer, Integer> tagClassHierarchy;
     /**
-     * < @brief The tag class hierarchy.
+     *  The tag class hierarchy.
      */
     private Map<Integer, Integer> tagTagClass;
     /**
-     * < @brief The tag tag classes.
+     *  The tag tag classes.
      */
     private Map<Integer, String> tagNames;
     /**
-     * < @brief the tag names.
+     *  the tag names.
      */
-    private Map<Integer, String> tagDescription;         /**< @brief the tag descriptions.*/
+    private Map<Integer, String> tagDescription;         /** the tag descriptions.*/
 
     /**
      * @param numCountries       The number of countries.

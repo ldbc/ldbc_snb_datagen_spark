@@ -51,14 +51,14 @@ public class TagMatrix {
 
     private TreeMap<Integer, List<Integer>> relatedTags;
     /**
-     * < @brief An array of related tags per tag.
+     *  An array of related tags per tag.
      */
     private TreeMap<Integer, List<Double>> cumulative;
 
     private List<Integer> nonZeroTags;
 
     /**
-     * < @brief The list of tags.
+     *  The list of tags.
      */
 
     public TagMatrix() {

@@ -52,9 +52,9 @@ public class PopularPlacesDictionary {
 
     private PlaceDictionary placeDictionary;
     /**
-     * < @brief The location dictionary. *
+     *  The location dictionary. *
      */
-    private Map<Integer, List<PopularPlace>> popularPlacesByCountry;   /**< @brief The popular places by country .**/
+    private Map<Integer, List<PopularPlace>> popularPlacesByCountry;   /** The popular places by country .**/
 
     /**
      * @param locationDic The location dictionary.
