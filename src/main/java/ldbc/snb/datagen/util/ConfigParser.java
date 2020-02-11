@@ -143,6 +143,9 @@ public class ConfigParser {
             properties.load(new InputStreamReader(paramStream, "UTF-8"));
             String val = (String) properties.get("ldbc.snb.datagen.generator.scaleFactor");
             if (val != null) {
+                if (!scaleFactors.containsKey(val)) {
+                    throw new IllegalArgumentException("Scale factor " + val + " does not exist");
+                }
                 ScaleFactor scaleFactor = scaleFactors.get(val);
                 System.out.println("Applied configuration of scale factor " + val);
                 for (Map.Entry<String, String> e : scaleFactor.properties.entrySet()) {
