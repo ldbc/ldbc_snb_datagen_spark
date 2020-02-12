@@ -116,7 +116,7 @@ public class DatagenParams {
         REDUCE_TEXT_RATIO("ldbc.snb.datagen.generator.ratioReduceText"),
         SECOND_LANGUAGE_RATIO("ldbc.snb.datagen.generator.probSecondLang"),
         TAG_UNCORRELATED_COUNTRY("ldbc.snb.datagen.generator.tagCountryCorrProb"),
-        UNIVERSITY_UNCORRELATED_RATIO("ldbc.snb.datagen.generator.probUnCorrelatedOrganization"),
+        UNIVERSITY_UNCORRELATED_RATIO("ldbc.snb.datagen.generator.probUnCorrelatedOrganisation"),
         MAX_NUM_LIKE("ldbc.snb.datagen.generator.maxNumLike"),
         UPDATE_PORTION("ldbc.snb.datagen.serializer.updatePortion"),
         USER_MAX_GROUP("ldbc.snb.datagen.generator.maxNumGroupCreatedPerUser"),
@@ -152,7 +152,7 @@ public class DatagenParams {
     public static double probSecondLang = 0.0;
     public static double probTopUniv = 0.0; // 90% persons go to top university
     public static double probUnCorrelatedCompany = 0.0;
-    public static double probUnCorrelatedOrganization = 0.0;
+    public static double probUnCorrelatedOrganisation = 0.0;
     public static double ratioLargeComment = 0.0;
     public static double ratioLargePost = 0.0;
     public static double ratioReduceText = 0.0; // 80% text has size less than 1/2 max size
@@ -254,7 +254,7 @@ public class DatagenParams {
             probDiffIPinTravelSeason = doubleConf(conf,ParameterNames.DIFFERENT_IP_IN_TRAVEL_RATIO);
             probDiffIPnotTravelSeason = doubleConf(conf,ParameterNames.DIFFERENT_IP_NOT_TRAVEL_RATIO);
             probUnCorrelatedCompany = doubleConf(conf,ParameterNames.COMPANY_UNCORRELATED_RATIO);
-            probUnCorrelatedOrganization = doubleConf(conf,ParameterNames.UNIVERSITY_UNCORRELATED_RATIO);
+            probUnCorrelatedOrganisation = doubleConf(conf,ParameterNames.UNIVERSITY_UNCORRELATED_RATIO);
             probTopUniv = doubleConf(conf,ParameterNames.BEST_UNIVERSTY_RATIO);
             maxNumPopularPlaces = intConf(conf,ParameterNames.MAX_POPULAR_PLACES);
             probPopularPlaces = doubleConf(conf,ParameterNames.POPULAR_PLACE_RATIO);

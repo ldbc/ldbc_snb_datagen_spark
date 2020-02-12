@@ -96,7 +96,7 @@ public class Dictionaries {
         companies = new CompanyDictionary(places, DatagenParams.probUnCorrelatedCompany);
 
         universities = new UniversityDictionary(places,
-                                                DatagenParams.probUnCorrelatedOrganization,
+                                                DatagenParams.probUnCorrelatedOrganisation,
                                                 DatagenParams.probTopUniv,
                                                 companies.getNumCompanies());
 

@@ -80,7 +80,7 @@ public class HadoopStaticSerializer {
 
         exportPlaces();
         exportTags();
-        exportOrganizations();
+        exportOrganisations();
 
         for (int i = 0; i < DatagenParams.numThreads; ++i) {
             staticSerializer_[i].close();
@@ -116,7 +116,7 @@ public class HadoopStaticSerializer {
         }
     }
 
-    public void exportOrganizations() {
+    public void exportOrganisations() {
         Set<Long> companies = Dictionaries.companies.getCompanies();
         Iterator<Long> it = companies.iterator();
         while (it.hasNext()) {
