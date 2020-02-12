@@ -47,6 +47,7 @@ import ldbc.snb.datagen.entities.dynamic.relations.Like;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -78,7 +79,7 @@ public class FactorTable {
         private List<Long> numMessagesPerMonth;
         private List<Long> numForumsPerMonth;
 
-        public PersonCounts() {
+        PersonCounts() {
             numMessagesPerMonth = new ArrayList<>(36 + 1);
             for (int i = 0; i < 36 + 1; ++i) {
                 numMessagesPerMonth.add(0L);
@@ -105,102 +106,76 @@ public class FactorTable {
             this.name = name;
         }
 
-        public long numFriends() {
+        long numFriends() {
             return numFriends;
         }
 
-        public void numFriends(long numFriends) {
+        void numFriends(long numFriends) {
             this.numFriends = numFriends;
         }
 
-        public long numPosts() {
+        long numPosts() {
             return numPosts;
         }
 
-        public void numPosts(long numPosts) {
-            this.numPosts = numPosts;
-        }
-
-        public void incrNumPosts() {
+        void incrNumPosts() {
             numPosts++;
         }
 
-        public long numLikes() {
+        long numLikes() {
             return numLikes;
         }
 
-        public void numLikes(long numLikes) {
-            this.numLikes = numLikes;
-        }
-
-        public void incrNumLikes() {
+        void incrNumLikes() {
             numLikes++;
         }
 
-        public long numTagsOfMessages() {
+        long numTagsOfMessages() {
             return numTagsOfMessages;
         }
 
-        public void numTagsOfMessages(long numTagsOfMessages) {
+        void numTagsOfMessages(long numTagsOfMessages) {
             this.numTagsOfMessages = numTagsOfMessages;
         }
 
-        public long numForums() {
+        long numForums() {
             return numForums;
         }
 
-        public void incrNumForums() {
+        void incrNumForums() {
             numForums++;
         }
 
-        public void numForums(long numForums) {
-            this.numForums = numForums;
-        }
-
-        public long numWorkPlaces() {
+        long numWorkPlaces() {
             return numWorkPlaces;
         }
 
-        public void numWorkPlaces(long numWorkPlaces) {
+        void numWorkPlaces(long numWorkPlaces) {
             this.numWorkPlaces = numWorkPlaces;
         }
 
-        public long numComments() {
+        long numComments() {
             return numComments;
         }
 
-        public void numComments(long numComments) {
-            this.numComments = numComments;
-        }
-
-        public void incrNumComments() {
+        void incrNumComments() {
             numComments++;
         }
 
-        public List<Long> numMessagesPerMonth() {
+        List<Long> numMessagesPerMonth() {
             return numMessagesPerMonth;
         }
 
-        public void numMessagesPerMonth(List<Long> numMessagesPerMonth) {
-            this.numMessagesPerMonth.clear();
-            this.numMessagesPerMonth.addAll(numMessagesPerMonth);
-        }
-
-        public void incrNumMessagesPerMonth(int month) {
+        void incrNumMessagesPerMonth(int month) {
             numMessagesPerMonth.set(month, numMessagesPerMonth.get(month) + 1);
         }
 
 
-        public List<Long> numForumsPerMonth() {
+        List<Long> numForumsPerMonth() {
             return numForumsPerMonth;
         }
 
-        public void numGroupsPerMonth(List<Long> numForumsPerMonth) {
-            this.numForumsPerMonth.clear();
-            this.numForumsPerMonth = numForumsPerMonth;
-        }
-
-        public void incrNumForumsPerMonth(int month) {
+        void incrNumForumsPerMonth(int month) {
             numForumsPerMonth.set(month, numForumsPerMonth.get(month) + 1);
         }
     }
@@ -234,7 +209,7 @@ public class FactorTable {
     private void incrTagClassCount(int tagClass) {
         Long num = tagClassCount.get(tagClass);
         if (num == null) {
-            num = new Long(0);
+            num = 0L;
         }
         tagClassCount.put(tagClass, ++num);
     }
@@ -350,11 +325,7 @@ public class FactorTable {
             Map<Integer, List<String>> countryNames = new TreeMap<>();
             for (Map.Entry<Long, PersonCounts> c : personCounts.entrySet()) {
                 if (c.getValue().name() != null) {
-                    List<String> names = countryNames.get(c.getValue().country());
-                    if (names == null) {
-                        names = new ArrayList<>();
-                        countryNames.put(c.getValue().country(), names);
-                    }
+                    List<String> names = countryNames.computeIfAbsent(c.getValue().country(), k -> new ArrayList<>());
                     names.add(c.getValue().name());
                 }
             }
@@ -366,11 +337,9 @@ public class FactorTable {
             for (Map.Entry<Long, PersonCounts> c : personCounts.entrySet()) {
                 PersonCounts count = c.getValue();
                 // correct the group counts
-                //count.numberOfGroups += count.numberOfFriends;
-                //String name = medianFirstName_.get(c.getKey());
                 String name = medianNames.get(c.getValue().country());
                 if (name != null) {
-                    StringBuffer strbuf = new StringBuffer();
+                    StringBuilder strbuf = new StringBuilder();
                     strbuf.append(c.getKey());
                     strbuf.append(",");
                     strbuf.append(name);
@@ -399,16 +368,12 @@ public class FactorTable {
                         strbuf.append(",");
                     }
                     strbuf.setCharAt(strbuf.length() - 1, '\n');
-                    writer.write(strbuf.toString().getBytes("UTF8"));
+                    writer.write(strbuf.toString().getBytes(StandardCharsets.UTF_8));
                 }
             }
             personCounts.clear();
             medianFirstName.clear();
-        } catch (AssertionError e) {
-            System.err.println("Unable to write parameter counts");
-            System.err.println(e.getMessage());
-            throw new RuntimeException(e);
-        } catch (IOException e) {
+        } catch (AssertionError | IOException e) {
             System.err.println("Unable to write parameter counts");
             System.err.println(e.getMessage());
             throw new RuntimeException(e);
@@ -417,62 +382,55 @@ public class FactorTable {
 
     public void writeActivityFactors(OutputStream writer) throws IOException {
         try {
-            writer.write(Integer.toString(postsPerCountry.size()).getBytes("UTF8"));
-            writer.write("\n".getBytes("UTF8"));
+            writer.write(Integer.toString(postsPerCountry.size()).getBytes(StandardCharsets.UTF_8));
+            writer.write("\n".getBytes(StandardCharsets.UTF_8));
             for (Map.Entry<Integer, Long> c : postsPerCountry.entrySet()) {
-                StringBuffer strbuf = new StringBuffer();
-                strbuf.append(Dictionaries.places.getPlaceName(c.getKey()));
-                strbuf.append(",");
-                strbuf.append(c.getValue());
-                strbuf.append("\n");
-                writer.write(strbuf.toString().getBytes("UTF8"));
+                String strbuf = Dictionaries.places.getPlaceName(c.getKey()) +
+                        "," +
+                        c.getValue() +
+                        "\n";
+                writer.write(strbuf.getBytes(StandardCharsets.UTF_8));
             }
 
-            writer.write(Integer.toString(tagClassCount.size()).getBytes("UTF8"));
-            writer.write("\n".getBytes("UTF8"));
+            writer.write(Integer.toString(tagClassCount.size()).getBytes(StandardCharsets.UTF_8));
+            writer.write("\n".getBytes(StandardCharsets.UTF_8));
             for (Map.Entry<Integer, Long> c : tagClassCount.entrySet()) {
-                StringBuffer strbuf = new StringBuffer();
-                strbuf.append(Dictionaries.tags.getClassName(c.getKey()));
-                strbuf.append(",");
-                strbuf.append(Dictionaries.tags.getClassName(c.getKey()));
-                strbuf.append(",");
-                strbuf.append(c.getValue());
-                strbuf.append("\n");
-                writer.write(strbuf.toString().getBytes("UTF8"));
+                String strbuf = Dictionaries.tags.getClassName(c.getKey()) +
+                        "," +
+                        Dictionaries.tags.getClassName(c.getKey()) +
+                        "," +
+                        c.getValue() +
+                        "\n";
+                writer.write(strbuf.getBytes(StandardCharsets.UTF_8));
             }
-            writer.write(Integer.toString(tagCount.size()).getBytes("UTF8"));
-            writer.write("\n".getBytes("UTF8"));
+            writer.write(Integer.toString(tagCount.size()).getBytes(StandardCharsets.UTF_8));
+            writer.write("\n".getBytes(StandardCharsets.UTF_8));
             for (Map.Entry<Integer, Long> c : tagCount.entrySet()) {
-                StringBuffer strbuf = new StringBuffer();
-                strbuf.append(Dictionaries.tags.getName(c.getKey()));
-                strbuf.append(",");
-                //strbuf.append(tagDictionary.getClassName(c.getKey()));
-                //strbuf.append(",");
-                strbuf.append(c.getValue());
-                strbuf.append("\n");
-                writer.write(strbuf.toString().getBytes("UTF8"));
+                String strbuf = Dictionaries.tags.getName(c.getKey()) +
+                        "," +
+                        c.getValue() +
+                        "\n";
+                writer.write(strbuf.getBytes(StandardCharsets.UTF_8));
             }
 
-            writer.write(Integer.toString(firstNameCount.size()).getBytes("UTF8"));
-            writer.write("\n".getBytes("UTF8"));
+            writer.write(Integer.toString(firstNameCount.size()).getBytes(StandardCharsets.UTF_8));
+            writer.write("\n".getBytes(StandardCharsets.UTF_8));
             for (Map.Entry<String, Long> c : firstNameCount.entrySet()) {
-                StringBuffer strbuf = new StringBuffer();
-                strbuf.append(c.getKey());
-                strbuf.append(",");
-                strbuf.append(c.getValue());
-                strbuf.append("\n");
-                writer.write(strbuf.toString().getBytes("UTF8"));
+                String strbuf = c.getKey() +
+                        "," +
+                        c.getValue() +
+                        "\n";
+                writer.write(strbuf.getBytes(StandardCharsets.UTF_8));
             }
-            StringBuffer strbuf = new StringBuffer();
-            strbuf.append(DatagenParams.startMonth);
-            strbuf.append("\n");
-            strbuf.append(DatagenParams.startYear);
-            strbuf.append("\n");
-            strbuf.append(Dictionaries.dates.formatYear(minWorkFrom));
-            strbuf.append("\n");
-            strbuf.append(Dictionaries.dates.formatYear(maxWorkFrom));
-            strbuf.append("\n");
-            writer.write(strbuf.toString().getBytes("UTF8"));
+            String strbuf = DatagenParams.startMonth +
+                    "\n" +
+                    DatagenParams.startYear +
+                    "\n" +
+                    Dictionaries.dates.formatYear(minWorkFrom) +
+                    "\n" +
+                    Dictionaries.dates.formatYear(maxWorkFrom) +
+                    "\n";
+            writer.write(strbuf.getBytes(StandardCharsets.UTF_8));
             writer.flush();
             writer.close();
         } catch (IOException e) {
