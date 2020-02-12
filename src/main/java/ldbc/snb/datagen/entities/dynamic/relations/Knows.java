@@ -143,8 +143,14 @@ public class Knows implements Writable, Comparable<Knows> {
 
     public static boolean createKnow(Random random, Person personA, Person personB) {
 
+        if (personA.getCreationDate() + DatagenParams.deltaTime > personB.getDeletionDate() ||
+            personB.getCreationDate() + DatagenParams.deltaTime > personA.getDeletionDate()) {
+            return false;
+        }
+
         long creationDate = Dictionaries.dates.randomKnowsCreationDate(random, personA, personB);
         long deletionDate = Dictionaries.dates.randomKnowsDeletionDate(random, personA, personB, creationDate);
+
         assert (creationDate <= deletionDate) : "Knows creation date is larger than knows deletion date";
 
         float similarity = Person.personSimilarity.similarity(personA, personB);
