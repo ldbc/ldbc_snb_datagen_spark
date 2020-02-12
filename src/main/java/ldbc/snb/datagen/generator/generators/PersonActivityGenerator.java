@@ -216,12 +216,12 @@ public class PersonActivityGenerator {
 
     private int numPostsPerGroup(RandomGeneratorFarm randomFarm, Forum forum, int maxPostsPerMonth, int maxMembersPerForum) {
         Random random = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_POST);
-        int numOfmonths = (int) Dictionaries.dates.numberOfMonths(forum.getCreationDate());
+        int numOfMonths = (int) Dictionaries.dates.numberOfMonths(forum.getCreationDate());
         int numberPost = 0;
-        if (numOfmonths == 0) {
+        if (numOfMonths == 0) {
             numberPost = random.nextInt(maxPostsPerMonth + 1);
         } else {
-            numberPost = random.nextInt(maxPostsPerMonth * numOfmonths + 1);
+            numberPost = random.nextInt(maxPostsPerMonth * numOfMonths + 1);
         }
         return (numberPost * forum.getMemberships().size()) / maxMembersPerForum;
     }
