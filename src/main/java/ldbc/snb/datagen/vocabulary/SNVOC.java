@@ -43,7 +43,6 @@ public class SNVOC {
     public static final String NAMESPACE = "http://www.ldbc.eu/ldbc_socialnet/1.0/vocabulary/";
     public static final String PREFIX = "snvoc:";
 
-
     //person
     public static final String Person = PREFIX + "Person";
     public static final String creationDate = PREFIX + "creationDate";
@@ -85,7 +84,6 @@ public class SNVOC {
     public static final String content = PREFIX + "content";
     public static final String language = PREFIX + "language";
     public static final String hasImage = PREFIX + "imageFile";
-    public static final String retweet = PREFIX + "retweet";
     public static final String replyOf = PREFIX + "replyOf";
     public static final String length = PREFIX + "length";
 
@@ -115,7 +113,7 @@ public class SNVOC {
     /**
      * Gets the LDBC social network vocabulary RDF-URL version of the input.
      */
-    public static String fullprefixed(String string) {
+    public static String fullPrefixed(String string) {
         return "<" + NAMESPACE + string + ">";
     }
 }
