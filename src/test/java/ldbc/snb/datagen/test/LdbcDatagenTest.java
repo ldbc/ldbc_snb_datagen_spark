@@ -246,7 +246,7 @@ public class LdbcDatagenTest {
 
     @Test
     public void personEmailAddressCheck() {
-        testIdExistance(dir+"/dynamic/person_0_0.csv",2,dir+"/dynamic/person_email_emailaddress_0_0.csv",2);
+        testIdExistence(dir+"/dynamic/person_0_0.csv",2,dir+"/dynamic/person_email_emailaddress_0_0.csv",2);
         testStringLength(dir+"/dynamic/person_email_emailaddress_0_0.csv", 1, 256);
         assertTrue("Everything ok",true);
     }
@@ -457,24 +457,24 @@ public class LdbcDatagenTest {
         assertTrue("ERROR PASSING "+relationFileName+" TEST",fileChecker.run(1));
     }
 
-    public void testIdExistance(String fileToCheckExistanceOf, int columnToCheckExistanceOf, String fileToCheckExistanceAgainst, int columnToCheckExistanceAgainst) {
+    public void testIdExistence(String fileToCheckExistenceOf, int columnToCheckExistenceOf, String fileToCheckExistenceAgainst, int columnToCheckExistenceAgainst) {
         LongParser parser = new LongParser();
-        ColumnSet<Long> checkAgainstEntities = new ColumnSet<>(parser,new File(fileToCheckExistanceAgainst),columnToCheckExistanceAgainst,1);
-        FileChecker fileChecker = new FileChecker(fileToCheckExistanceOf);
+        ColumnSet<Long> checkAgainstEntities = new ColumnSet<>(parser,new File(fileToCheckExistenceAgainst),columnToCheckExistenceAgainst,1);
+        FileChecker fileChecker = new FileChecker(fileToCheckExistenceOf);
         List<ColumnSet<Long>> refcolumns = new ArrayList<>();
         refcolumns.add(checkAgainstEntities);
         List<Integer> columnIndices = new ArrayList<>();
-        columnIndices.add(columnToCheckExistanceOf);
+        columnIndices.add(columnToCheckExistenceOf);
         ExistsCheck existsCheck = new ExistsCheck<>(parser,columnIndices, refcolumns);
         fileChecker.addCheck(existsCheck);
-        assertTrue("ERROR PASSING "+fileToCheckExistanceOf+" ID EXISTANCE TEST",fileChecker.run(1));
+        assertTrue("ERROR PASSING "+fileToCheckExistenceOf+" ID Existence TEST",fileChecker.run(1));
     }
 
-    public void testStringLength(String fileToCheckExistanceOf, int columnToCheckExistanceOf, int length) {
-        FileChecker fileChecker = new FileChecker(fileToCheckExistanceOf);
-        StringLengthCheck lengthCheck = new StringLengthCheck(columnToCheckExistanceOf, length);
+    public void testStringLength(String fileToCheckExistenceOf, int columnToCheckExistenceOf, int length) {
+        FileChecker fileChecker = new FileChecker(fileToCheckExistenceOf);
+        StringLengthCheck lengthCheck = new StringLengthCheck(columnToCheckExistenceOf, length);
         fileChecker.addCheck(lengthCheck);
-        assertTrue("ERROR PASSING "+fileToCheckExistanceOf+" ID EXISTANCE TEST",fileChecker.run(1));
+        assertTrue("ERROR PASSING "+fileToCheckExistenceOf+" ID Existence TEST",fileChecker.run(1));
     }
 
 }
