@@ -42,9 +42,10 @@ import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.generator.generators.CommentGenerator;
 import ldbc.snb.datagen.generator.generators.LikeGenerator;
 import ldbc.snb.datagen.generator.generators.textgenerators.TextGenerator;
+import ldbc.snb.datagen.util.DateUtils;
 
 import java.util.Random;
-import java.util.TreeSet;
+
 
 public class UniformPostGenerator extends PostGenerator {
 
@@ -54,18 +55,27 @@ public class UniformPostGenerator extends PostGenerator {
 
     @Override
     protected PostInfo generatePostInfo(Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership) {
+
         PostInfo postInfo = new PostInfo();
-        postInfo.tags = new TreeSet<>();
+
+        // add creation date
+        long minimumCreationDate = membership.getCreationDate() + DatagenParams.deltaTime;
+        long maximumCreationDate = Math.min(forum.getDeletionDate(),membership.getPerson().getDeletionDate());
+        maximumCreationDate = Math.min(maximumCreationDate, Dictionaries.dates.getEndDateTime());
+        long postCreationDate = Dictionaries.dates.randomDate(randomDate, minimumCreationDate, maximumCreationDate);
+        postInfo.setCreationDate(postCreationDate);
+
+
+        // add tags to post
         for (Integer value : forum.getTags()) {
-            if (postInfo.tags.isEmpty()) {
-                postInfo.tags.add(value);
+            if (postInfo.getTags().isEmpty()) {
+                postInfo.getTags().add(value);
             } else {
                 if (randomTag.nextDouble() < 0.05) {
-                    postInfo.tags.add(value);
+                    postInfo.getTags().add(value);
                 }
             }
         }
-        postInfo.date = Dictionaries.dates.randomDate(randomDate, membership.getCreationDate() + DatagenParams.deltaTime);
         return postInfo;
     }
 }

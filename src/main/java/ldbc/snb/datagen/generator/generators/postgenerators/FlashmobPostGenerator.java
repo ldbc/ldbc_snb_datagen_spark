@@ -150,16 +150,16 @@ public class FlashmobPostGenerator extends PostGenerator {
         if (index < 0) return null;
         index = selectRandomTag(randomTag, forumFlashmobTags, index);
         FlashmobTag flashmobTag = forumFlashmobTags[index];
-        postInfo.tags.add(flashmobTag.tag);
+        postInfo.getTags().add(flashmobTag.tag);
 
         for (int i = 0; i < maxNumTagPerFlashmobPost - 1; ++i) {
             if (randomTag.nextDouble() < 0.05) {
                 int tag = Dictionaries.tagMatrix.getRandomRelated(randomTag, flashmobTag.tag);
-                postInfo.tags.add(tag);
+                postInfo.getTags().add(tag);
             }
         }
         double prob = dateDistribution_.nextDouble(randomDate);
-        postInfo.date = flashmobTag.date - flashmobSpan_ / 2 + (long) (prob * flashmobSpan_);
+        postInfo.setCreationDate(flashmobTag.date - flashmobSpan_ / 2 + (long) (prob * flashmobSpan_));
         return postInfo;
     }
 }
