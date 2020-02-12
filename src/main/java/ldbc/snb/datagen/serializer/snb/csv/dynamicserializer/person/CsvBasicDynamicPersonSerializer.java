@@ -63,16 +63,14 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
 
     @Override
     public void writeFileHeaders() {
-        writers.get(PERSON).writeHeader(ImmutableList.of("creationDate","deletionDate","id","firstName","lastName","gender","birthday","locationIP","browserUsed"));
-        writers.get(PERSON_SPEAKS_LANGUAGE).writeHeader(ImmutableList.of("creationDate","deletionDate","Person.id","language"));
-        writers.get(PERSON_HAS_EMAIL).writeHeader(ImmutableList.of("creationDate","deletionDate","Person.id","email"));
+        writers.get(PERSON)                 .writeHeader(ImmutableList.of("creationDate","deletionDate","id","firstName","lastName","gender","birthday","locationIP","browserUsed"));
+        writers.get(PERSON_SPEAKS_LANGUAGE) .writeHeader(ImmutableList.of("creationDate","deletionDate","Person.id","language"));
+        writers.get(PERSON_HAS_EMAIL)       .writeHeader(ImmutableList.of("creationDate","deletionDate","Person.id","email"));
         writers.get(PERSON_LOCATED_IN_PLACE).writeHeader(ImmutableList.of("creationDate","deletionDate","Person.id","Place.id"));
         writers.get(PERSON_HAS_INTEREST_TAG).writeHeader(ImmutableList.of("creationDate","deletionDate","Person.id","Tag.id"));
-
-        writers.get(PERSON_STUDY_AT).writeHeader(ImmutableList.of("creationDate","deletionDate","Person.id","Organisation.id","classYear"));
-        writers.get(PERSON_WORK_AT).writeHeader(ImmutableList.of("creationDate","deletionDate","Person.id","Organisation.id","workFrom"));
-
-        writers.get(PERSON_KNOWS_PERSON).writeHeader(ImmutableList.of("creationDate","deletionDate","Person.id","Person.id"));
+        writers.get(PERSON_STUDY_AT)        .writeHeader(ImmutableList.of("creationDate","deletionDate","Person.id","Organisation.id","classYear"));
+        writers.get(PERSON_WORK_AT)         .writeHeader(ImmutableList.of("creationDate","deletionDate","Person.id","Organisation.id","workFrom"));
+        writers.get(PERSON_KNOWS_PERSON)    .writeHeader(ImmutableList.of("creationDate","deletionDate","Person.id","Person.id"));
     }
 
     @Override
