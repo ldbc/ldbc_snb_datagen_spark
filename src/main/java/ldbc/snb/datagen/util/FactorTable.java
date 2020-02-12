@@ -56,204 +56,203 @@ import java.util.TreeMap;
 
 public class FactorTable {
 
-    private Map<Long, PersonCounts> personCounts_;
-    private Map<Integer, Long> postsPerCountry_;
-    private Map<Integer, Long> tagClassCount_;
-    private Map<String, Long> firstNameCount_;
-    private Map<Integer, Long> tagCount_;
-    private Map<Long, String> medianFirstName_;
-    private long minWorkFrom_ = Long.MAX_VALUE;
-    private long maxWorkFrom_ = Long.MIN_VALUE;
+    private Map<Long, PersonCounts> personCounts;
+    private Map<Integer, Long> postsPerCountry;
+    private Map<Integer, Long> tagClassCount;
+    private Map<String, Long> firstNameCount;
+    private Map<Integer, Long> tagCount;
+    private Map<Long, String> medianFirstName;
+    private long minWorkFrom = Long.MAX_VALUE;
+    private long maxWorkFrom = Long.MIN_VALUE;
 
     static public class PersonCounts {
-        private long numFriends_ = 0;
-        private long numPosts_ = 0;
-        private long numLikes_ = 0;
-        private long numTagsOfMessages_ = 0;
-        private long numForums_ = 0;
-        private long numWorkPlaces_ = 0;
-        private long numComments_ = 0;
-        private int country_ = 0;
-        private String name_ = null;
-        private List<Long> numMessagesPerMonth_ = null;
-        private List<Long> numForumsPerMonth_ = null;
+        private long numFriends = 0;
+        private long numPosts = 0;
+        private long numLikes = 0;
+        private long numTagsOfMessages = 0;
+        private long numForums = 0;
+        private long numWorkPlaces = 0;
+        private long numComments = 0;
+        private int country = 0;
+        private String name = null;
+        private List<Long> numMessagesPerMonth;
+        private List<Long> numForumsPerMonth;
 
         public PersonCounts() {
-            numMessagesPerMonth_ = new ArrayList<>(36 + 1);
+            numMessagesPerMonth = new ArrayList<>(36 + 1);
             for (int i = 0; i < 36 + 1; ++i) {
-                numMessagesPerMonth_.add(new Long(0));
+                numMessagesPerMonth.add(0L);
             }
-            numForumsPerMonth_ = new ArrayList<>(36 + 1);
+            numForumsPerMonth = new ArrayList<>(36 + 1);
             for (int i = 0; i < 36 + 1; ++i) {
-                numForumsPerMonth_.add(new Long(0));
+                numForumsPerMonth.add(0L);
             }
         }
 
         public int country() {
-            return country_;
+            return country;
         }
 
         public String name() {
-            return name_;
+            return name;
         }
 
         public void country(int country) {
-            this.country_ = country;
+            this.country = country;
         }
 
         public void name(String name) {
-            this.name_ = name;
+            this.name = name;
         }
 
         public long numFriends() {
-            return numFriends_;
+            return numFriends;
         }
 
         public void numFriends(long numFriends) {
-            numFriends_ = numFriends;
+            this.numFriends = numFriends;
         }
 
         public long numPosts() {
-            return numPosts_;
+            return numPosts;
         }
 
         public void numPosts(long numPosts) {
-            numPosts_ = numPosts;
+            this.numPosts = numPosts;
         }
 
         public void incrNumPosts() {
-            numPosts_++;
+            numPosts++;
         }
 
         public long numLikes() {
-            return numLikes_;
+            return numLikes;
         }
 
         public void numLikes(long numLikes) {
-            numLikes_ = numLikes;
+            this.numLikes = numLikes;
         }
 
         public void incrNumLikes() {
-            numLikes_++;
+            numLikes++;
         }
 
         public long numTagsOfMessages() {
-            return numTagsOfMessages_;
+            return numTagsOfMessages;
         }
 
         public void numTagsOfMessages(long numTagsOfMessages) {
-            numTagsOfMessages_ = numTagsOfMessages;
+            this.numTagsOfMessages = numTagsOfMessages;
         }
 
         public long numForums() {
-            return numForums_;
+            return numForums;
         }
 
         public void incrNumForums() {
-            numForums_++;
+            numForums++;
         }
 
         public void numForums(long numForums) {
-            numForums_ = numForums;
+            this.numForums = numForums;
         }
 
         public long numWorkPlaces() {
-            return numWorkPlaces_;
+            return numWorkPlaces;
         }
 
         public void numWorkPlaces(long numWorkPlaces) {
-            numWorkPlaces_ = numWorkPlaces;
+            this.numWorkPlaces = numWorkPlaces;
         }
 
         public long numComments() {
-            return numComments_;
+            return numComments;
         }
 
         public void numComments(long numComments) {
-            numComments_ = numComments;
+            this.numComments = numComments;
         }
 
         public void incrNumComments() {
-            numComments_++;
+            numComments++;
         }
 
         public List<Long> numMessagesPerMonth() {
-            return numMessagesPerMonth_;
+            return numMessagesPerMonth;
         }
 
         public void numMessagesPerMonth(List<Long> numMessagesPerMonth) {
-            numMessagesPerMonth_.clear();
-            numMessagesPerMonth_.addAll(numMessagesPerMonth);
+            this.numMessagesPerMonth.clear();
+            this.numMessagesPerMonth.addAll(numMessagesPerMonth);
         }
 
         public void incrNumMessagesPerMonth(int month) {
-            numMessagesPerMonth_.set(month, numMessagesPerMonth_.get(month) + 1);
+            numMessagesPerMonth.set(month, numMessagesPerMonth.get(month) + 1);
         }
 
 
         public List<Long> numForumsPerMonth() {
-            return numForumsPerMonth_;
+            return numForumsPerMonth;
         }
 
         public void numGroupsPerMonth(List<Long> numForumsPerMonth) {
-            numForumsPerMonth_.clear();
-            numForumsPerMonth_ = numForumsPerMonth;
+            this.numForumsPerMonth.clear();
+            this.numForumsPerMonth = numForumsPerMonth;
         }
 
         public void incrNumForumsPerMonth(int month) {
-            numForumsPerMonth_.set(month, numForumsPerMonth_.get(month) + 1);
+            numForumsPerMonth.set(month, numForumsPerMonth.get(month) + 1);
         }
     }
 
-
     public FactorTable() {
-        personCounts_ = new HashMap<>();
-        postsPerCountry_ = new HashMap<>();
-        tagClassCount_ = new HashMap<>();
-        firstNameCount_ = new HashMap<>();
-        tagCount_ = new HashMap<>();
-        medianFirstName_ = new HashMap<>();
+        personCounts = new HashMap<>();
+        postsPerCountry = new HashMap<>();
+        tagClassCount = new HashMap<>();
+        firstNameCount = new HashMap<>();
+        tagCount = new HashMap<>();
+        medianFirstName = new HashMap<>();
     }
 
     private PersonCounts personCounts(Long id) {
-        PersonCounts ret = personCounts_.get(id);
+        PersonCounts ret = personCounts.get(id);
         if (ret == null) {
             ret = new FactorTable.PersonCounts();
-            personCounts_.put(id, ret);
+            personCounts.put(id, ret);
         }
         return ret;
     }
 
     private void incrPostPerCountry(int country) {
-        Long num = postsPerCountry_.get(country);
+        Long num = postsPerCountry.get(country);
         if (num == null) {
-            num = new Long(0);
+            num = 0L;
         }
-        postsPerCountry_.put(country, ++num);
+        postsPerCountry.put(country, ++num);
     }
 
     private void incrTagClassCount(int tagClass) {
-        Long num = tagClassCount_.get(tagClass);
+        Long num = tagClassCount.get(tagClass);
         if (num == null) {
             num = new Long(0);
         }
-        tagClassCount_.put(tagClass, ++num);
+        tagClassCount.put(tagClass, ++num);
     }
 
     private void incrTagCount(int tag) {
-        Long num = tagCount_.get(tag);
+        Long num = tagCount.get(tag);
         if (num == null) {
-            num = new Long(0);
+            num = 0L;
         }
-        tagCount_.put(tag, ++num);
+        tagCount.put(tag, ++num);
     }
 
     private void incrFirstNameCount(String name) {
-        Long num = firstNameCount_.get(name);
+        Long num = firstNameCount.get(name);
         if (num == null) {
-            num = new Long(0);
+            num = 0L;
         }
-        firstNameCount_.put(name, ++num);
+        firstNameCount.put(name, ++num);
     }
 
     public void extractFactors(Person person) {
@@ -263,14 +262,14 @@ public class FactorTable {
             personCounts(person.getAccountId()).numFriends(person.getKnows().size());
             personCounts(person.getAccountId()).numWorkPlaces(person.getCompanies().size());
             for (Map.Entry<Long, Long> e : person.getCompanies().entrySet()) {
-                if (minWorkFrom_ > e.getValue()) minWorkFrom_ = e.getValue();
-                if (maxWorkFrom_ < e.getValue()) maxWorkFrom_ = e.getValue();
+                if (minWorkFrom > e.getValue()) minWorkFrom = e.getValue();
+                if (maxWorkFrom < e.getValue()) maxWorkFrom = e.getValue();
             }
             incrFirstNameCount(person.getFirstName());
             String medianName = Dictionaries.names.getMedianGivenName(person.getCountryId(), person.getGender() == 1,
                                                                       Dictionaries.dates
                                                                               .getBirthYear(person.getBirthday()));
-            medianFirstName_.put(person.getAccountId(), medianName);
+            medianFirstName.put(person.getAccountId(), medianName);
         }
     }
 
@@ -287,7 +286,7 @@ public class FactorTable {
 
     public void extractFactors(Comment comment) {
         if (comment.getCreationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
-            assert personCounts_.get(comment.getAuthor()
+            assert personCounts.get(comment.getAuthor()
                                             .getAccountId()) != null : "Person counts does not exist when extracting factors from comment";
             extractFactors((Message) comment);
             personCounts(comment.getAuthor().getAccountId()).incrNumComments();
@@ -296,7 +295,7 @@ public class FactorTable {
 
     public void extractFactors(Post post) {
         if (post.getCreationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
-            assert (personCounts_.get(post.getAuthor()
+            assert (personCounts.get(post.getAuthor()
                                           .getAccountId()) != null) : "Person counts does not exist when extracting factors from post";
             extractFactors((Message) post);
             personCounts(post.getAuthor().getAccountId()).incrNumPosts();
@@ -305,7 +304,7 @@ public class FactorTable {
 
     public void extractFactors(Photo photo) {
         if (photo.getCreationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
-            assert (personCounts_.get(photo.getAuthor()
+            assert (personCounts.get(photo.getAuthor()
                                            .getAccountId()) != null) : "Person counts does not exist when extracting factors from photo";
             extractFactors((Message) photo);
             personCounts(photo.getAuthor().getAccountId()).incrNumPosts();
@@ -314,15 +313,21 @@ public class FactorTable {
 
     private void extractFactors(Message message) {
         if (message.getCreationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
-            assert (personCounts_.get(message.getAuthor()
+            assert (personCounts.get(message.getAuthor()
                                              .getAccountId()) != null) : "Person counts does not exist when extracting factors from message";
             long authorId = message.getAuthor().getAccountId();
             long current = personCounts(authorId).numTagsOfMessages();
             personCounts(authorId).numTagsOfMessages(current + message.getTags().size());
-            int bucket = Dictionaries.dates
-                    .getNumberOfMonths(message.getCreationDate(), DatagenParams.startMonth, DatagenParams.startYear);
+
+            int bucket = Dictionaries.dates.getNumberOfMonths(
+                                                    message.getCreationDate(),
+                                                    DatagenParams.startMonth,
+                                                    DatagenParams.startYear);
+
             if (bucket < 36 + 1)
                 personCounts(authorId).incrNumMessagesPerMonth(bucket);
+
+
             incrPostPerCountry(message.getCountryId());
             for (Integer t : message.getTags()) {
                 Integer tagClass = Dictionaries.tags.getTagClass(t);
@@ -334,7 +339,7 @@ public class FactorTable {
 
     public void extractFactors(Like like) {
         if (like.date < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
-            assert (personCounts_
+            assert (personCounts
                     .get(like.user) != null) : "Person counts does not exist when extracting factors from like";
             personCounts(like.user).incrNumLikes();
         }
@@ -343,7 +348,7 @@ public class FactorTable {
     public void writePersonFactors(OutputStream writer) {
         try {
             Map<Integer, List<String>> countryNames = new TreeMap<>();
-            for (Map.Entry<Long, PersonCounts> c : personCounts_.entrySet()) {
+            for (Map.Entry<Long, PersonCounts> c : personCounts.entrySet()) {
                 if (c.getValue().name() != null) {
                     List<String> names = countryNames.get(c.getValue().country());
                     if (names == null) {
@@ -358,7 +363,7 @@ public class FactorTable {
                 Collections.sort(entry.getValue());
                 medianNames.put(entry.getKey(), entry.getValue().get(entry.getValue().size() / 2));
             }
-            for (Map.Entry<Long, PersonCounts> c : personCounts_.entrySet()) {
+            for (Map.Entry<Long, PersonCounts> c : personCounts.entrySet()) {
                 PersonCounts count = c.getValue();
                 // correct the group counts
                 //count.numberOfGroups += count.numberOfFriends;
@@ -397,8 +402,8 @@ public class FactorTable {
                     writer.write(strbuf.toString().getBytes("UTF8"));
                 }
             }
-            personCounts_.clear();
-            medianFirstName_.clear();
+            personCounts.clear();
+            medianFirstName.clear();
         } catch (AssertionError e) {
             System.err.println("Unable to write parameter counts");
             System.err.println(e.getMessage());
@@ -412,9 +417,9 @@ public class FactorTable {
 
     public void writeActivityFactors(OutputStream writer) throws IOException {
         try {
-            writer.write(Integer.toString(postsPerCountry_.size()).getBytes("UTF8"));
+            writer.write(Integer.toString(postsPerCountry.size()).getBytes("UTF8"));
             writer.write("\n".getBytes("UTF8"));
-            for (Map.Entry<Integer, Long> c : postsPerCountry_.entrySet()) {
+            for (Map.Entry<Integer, Long> c : postsPerCountry.entrySet()) {
                 StringBuffer strbuf = new StringBuffer();
                 strbuf.append(Dictionaries.places.getPlaceName(c.getKey()));
                 strbuf.append(",");
@@ -423,9 +428,9 @@ public class FactorTable {
                 writer.write(strbuf.toString().getBytes("UTF8"));
             }
 
-            writer.write(Integer.toString(tagClassCount_.size()).getBytes("UTF8"));
+            writer.write(Integer.toString(tagClassCount.size()).getBytes("UTF8"));
             writer.write("\n".getBytes("UTF8"));
-            for (Map.Entry<Integer, Long> c : tagClassCount_.entrySet()) {
+            for (Map.Entry<Integer, Long> c : tagClassCount.entrySet()) {
                 StringBuffer strbuf = new StringBuffer();
                 strbuf.append(Dictionaries.tags.getClassName(c.getKey()));
                 strbuf.append(",");
@@ -435,9 +440,9 @@ public class FactorTable {
                 strbuf.append("\n");
                 writer.write(strbuf.toString().getBytes("UTF8"));
             }
-            writer.write(Integer.toString(tagCount_.size()).getBytes("UTF8"));
+            writer.write(Integer.toString(tagCount.size()).getBytes("UTF8"));
             writer.write("\n".getBytes("UTF8"));
-            for (Map.Entry<Integer, Long> c : tagCount_.entrySet()) {
+            for (Map.Entry<Integer, Long> c : tagCount.entrySet()) {
                 StringBuffer strbuf = new StringBuffer();
                 strbuf.append(Dictionaries.tags.getName(c.getKey()));
                 strbuf.append(",");
@@ -448,9 +453,9 @@ public class FactorTable {
                 writer.write(strbuf.toString().getBytes("UTF8"));
             }
 
-            writer.write(Integer.toString(firstNameCount_.size()).getBytes("UTF8"));
+            writer.write(Integer.toString(firstNameCount.size()).getBytes("UTF8"));
             writer.write("\n".getBytes("UTF8"));
-            for (Map.Entry<String, Long> c : firstNameCount_.entrySet()) {
+            for (Map.Entry<String, Long> c : firstNameCount.entrySet()) {
                 StringBuffer strbuf = new StringBuffer();
                 strbuf.append(c.getKey());
                 strbuf.append(",");
@@ -463,9 +468,9 @@ public class FactorTable {
             strbuf.append("\n");
             strbuf.append(DatagenParams.startYear);
             strbuf.append("\n");
-            strbuf.append(Dictionaries.dates.formatYear(minWorkFrom_));
+            strbuf.append(Dictionaries.dates.formatYear(minWorkFrom));
             strbuf.append("\n");
-            strbuf.append(Dictionaries.dates.formatYear(maxWorkFrom_));
+            strbuf.append(Dictionaries.dates.formatYear(maxWorkFrom));
             strbuf.append("\n");
             writer.write(strbuf.toString().getBytes("UTF8"));
             writer.flush();
