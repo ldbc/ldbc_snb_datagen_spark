@@ -83,8 +83,8 @@ public class PersonGenerator {
 
     private Person generateUser() {
 
-        long creationDate = Dictionaries.dates.randomPersonCreationDate(randomFarm
-                                                                                .get(RandomGeneratorFarm.Aspect.DATE));
+        long creationDate = Dictionaries.dates.randomPersonCreationDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE));
+
         int countryId = Dictionaries.places.getCountryForUser(randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY));
         Person person = new Person();
         person.setCreationDate(creationDate);
@@ -102,6 +102,7 @@ public class PersonGenerator {
                 .get(RandomGeneratorFarm.Aspect.DELETION_DATE), creationDate, person.getMaxNumKnows());
         person.setDeletionDate(deletionDate);
 
+        assert (person.getCreationDate() + DatagenParams.deltaTime <= person.getDeletionDate()) : "Person creation date is larger than person deletion date";
 
         person.setAccountId(composeUserId(nextId++, creationDate));
         person.setMainInterest(Dictionaries.tags.getaTagByCountry(randomFarm
