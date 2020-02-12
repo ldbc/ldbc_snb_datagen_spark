@@ -91,7 +91,7 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
         String forumCreationDate = Dictionaries.dates.formatDateTime(forum.getCreationDate());
         String forumDeletionDate = Dictionaries.dates.formatDateTime(forum.getDeletionDate());
 
-        //"id", "title", "creationDate"
+        //"creationDate","deletionDate","id", "title",
         writers.get(FORUM).writeEntry(ImmutableList.of(
                 forumCreationDate,
                 forumDeletionDate,
@@ -108,9 +108,10 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
         ));
 
         for (Integer i : forum.getTags()) {
-            //"Forum.id","Tag.id","creationDate"
+            //"creationDate","deletionDate","Forum.id","Tag.id",
             writers.get(FORUM_HASTAG_TAG).writeEntry(ImmutableList.of(
                     forumCreationDate,
+                    forumDeletionDate,
                     Long.toString(forum.getId()),
                     Integer.toString(i)));
         }

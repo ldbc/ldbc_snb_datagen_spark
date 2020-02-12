@@ -74,52 +74,52 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
     }
 
     @Override
-    protected void serialize(final Person p) {
+    protected void serialize(final Person person) {
         //"creationDate","deletionDate","id","firstName","lastName","gender","birthday","locationIP","browserUsed"
         writers.get(PERSON).writeEntry(ImmutableList.of(
-                Dictionaries.dates.formatDateTime(p.getCreationDate()),
-                Dictionaries.dates.formatDateTime(p.getDeletionDate()),
-                Long.toString(p.getAccountId()),
-                p.getFirstName(),
-                p.getLastName(),
-                getGender(p.getGender()),
-                Dictionaries.dates.formatDate(p.getBirthday()),
-                p.getIpAddress().toString(),
-                Dictionaries.browsers.getName(p.getBrowserId())
+                Dictionaries.dates.formatDateTime(person.getCreationDate()),
+                Dictionaries.dates.formatDateTime(person.getDeletionDate()),
+                Long.toString(person.getAccountId()),
+                person.getFirstName(),
+                person.getLastName(),
+                getGender(person.getGender()),
+                Dictionaries.dates.formatDate(person.getBirthday()),
+                person.getIpAddress().toString(),
+                Dictionaries.browsers.getName(person.getBrowserId())
             ));
 
-        for (Integer i: p.getLanguages()) {
+        for (Integer i: person.getLanguages()) {
             //"creationDate","deletionDate","Person.id","language"
             writers.get(PERSON_SPEAKS_LANGUAGE).writeEntry(ImmutableList.of(
-                    Dictionaries.dates.formatDateTime(p.getCreationDate()),
-                    Dictionaries.dates.formatDateTime(p.getDeletionDate()),
-                    Long.toString(p.getAccountId()),
+                    Dictionaries.dates.formatDateTime(person.getCreationDate()),
+                    Dictionaries.dates.formatDateTime(person.getDeletionDate()),
+                    Long.toString(person.getAccountId()),
                     Dictionaries.languages.getLanguageName(i)
             ));
         }
-        for (String s : p.getEmails()) {
+        for (String s : person.getEmails()) {
             //"creationDate","deletionDate","Person.id","email"
             writers.get(PERSON_HAS_EMAIL).writeEntry(ImmutableList.of(
-                    Dictionaries.dates.formatDateTime(p.getCreationDate()),
-                    Dictionaries.dates.formatDateTime(p.getDeletionDate()),
-                    Long.toString(p.getAccountId()),
+                    Dictionaries.dates.formatDateTime(person.getCreationDate()),
+                    Dictionaries.dates.formatDateTime(person.getDeletionDate()),
+                    Long.toString(person.getAccountId()),
                     s
             ));
         }
         //"creationDate","deletionDate","Person.id","Place.id"
         writers.get(PERSON_LOCATED_IN_PLACE).writeEntry(ImmutableList.of(
-                Dictionaries.dates.formatDateTime(p.getCreationDate()),
-                Dictionaries.dates.formatDateTime(p.getDeletionDate()),
-                Long.toString(p.getAccountId()),
-                Integer.toString(p.getCityId())
+                Dictionaries.dates.formatDateTime(person.getCreationDate()),
+                Dictionaries.dates.formatDateTime(person.getDeletionDate()),
+                Long.toString(person.getAccountId()),
+                Integer.toString(person.getCityId())
         ));
 
-        for (Integer integer : p.getInterests()) {
+        for (Integer integer : person.getInterests()) {
             //"creationDate","deletionDate","Person.id","Tag.id"
             writers.get(PERSON_HAS_INTEREST_TAG).writeEntry(ImmutableList.of(
-                    Dictionaries.dates.formatDateTime(p.getCreationDate()),
-                    Dictionaries.dates.formatDateTime(p.getDeletionDate()),
-                    Long.toString(p.getAccountId()),
+                    Dictionaries.dates.formatDateTime(person.getCreationDate()),
+                    Dictionaries.dates.formatDateTime(person.getDeletionDate()),
+                    Long.toString(person.getAccountId()),
                     Integer.toString(integer)
             ));
         }
@@ -127,9 +127,10 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
 
     @Override
     protected void serialize(final StudyAt studyAt,final Person person) {
-        //"creationDate","Person.id","Organisation.id","classYear"
+        //"creationDate","deletionDate","Person.id","Organisation.id","classYear"
         writers.get(PERSON_STUDY_AT).writeEntry(ImmutableList.of(
                 Dictionaries.dates.formatDateTime(person.getCreationDate()),
+                Dictionaries.dates.formatDateTime(person.getDeletionDate()),
                 Long.toString(studyAt.user),
                 Long.toString(studyAt.university),
                 Dictionaries.dates.formatYear(studyAt.year)
@@ -138,9 +139,10 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
 
     @Override
     protected void serialize(final WorkAt workAt,final Person person) {
-        //"creationDate","Person.id","Organisation.id","workFrom"
+        //"creationDate","deletionDate","Person.id","Organisation.id","workFrom"
         writers.get(PERSON_WORK_AT).writeEntry(ImmutableList.of(
                 Dictionaries.dates.formatDateTime(person.getCreationDate()),
+                Dictionaries.dates.formatDateTime(person.getDeletionDate()),
                 Long.toString(workAt.user),
                 Long.toString(workAt.company),
                 Dictionaries.dates.formatYear(workAt.year)
@@ -148,12 +150,12 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
     }
 
     @Override
-    protected void serialize(final Person p, Knows knows) {
+    protected void serialize(final Person person, Knows knows) {
         //"creationDate","deletionDate","Person.id","Person.id"
         writers.get(PERSON_KNOWS_PERSON).writeEntry(ImmutableList.of(
                 Dictionaries.dates.formatDateTime(knows.getCreationDate()),
                 Dictionaries.dates.formatDateTime(knows.getDeletionDate()),
-                Long.toString(p.getAccountId()),
+                Long.toString(person.getAccountId()),
                 Long.toString(knows.to().getAccountId())
         ));
     }
