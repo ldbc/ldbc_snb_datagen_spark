@@ -120,7 +120,7 @@ public class TurtleDynamicPersonSerializer extends DynamicPersonSerializer<HdfsW
 
     @Override
     protected void serialize(final StudyAt studyAt,final Person person) {
-        String prefix = SN.getPersonURI(studyAt.user);
+        String prefix = SN.getPersonURI(studyAt.person);
         StringBuffer result = new StringBuffer(19000);
         long id = SN.formId(studyAtId);
         Turtle.createTripleSPO(result, prefix, SNVOC.studyAt, SN.getStudyAtURI(id));
@@ -135,7 +135,7 @@ public class TurtleDynamicPersonSerializer extends DynamicPersonSerializer<HdfsW
 
     @Override
     protected void serialize(final WorkAt workAt,final Person person) {
-        String prefix = SN.getPersonURI(workAt.user);
+        String prefix = SN.getPersonURI(workAt.person);
         StringBuffer result = new StringBuffer(19000);
         long id = SN.formId(workAtId);
         Turtle.createTripleSPO(result, prefix, SNVOC.workAt, SN.getWorkAtURI(id));

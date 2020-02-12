@@ -313,10 +313,10 @@ public class FactorTable {
     }
 
     public void extractFactors(Like like) {
-        if (like.date < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
+        if (like.creationDate < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
             assert (personCounts
-                    .get(like.user) != null) : "Person counts does not exist when extracting factors from like";
-            personCounts(like.user).incrNumLikes();
+                    .get(like.person) != null) : "Person counts does not exist when extracting factors from like";
+            personCounts(like.person).incrNumLikes();
         }
     }
 

@@ -61,11 +61,11 @@ import java.util.TreeSet;
 public class CommentGenerator {
     private String[] shortComments_ = {"ok", "good", "great", "cool", "thx", "fine", "LOL", "roflol", "no way!", "I see", "right", "yes", "no", "duh", "thanks", "maybe"};
     private TextGenerator generator;
-    private LikeGenerator likeGenerator_;
+    private LikeGenerator likeGenerator;
 
-    public CommentGenerator(TextGenerator generator, LikeGenerator likeGenerator) {
+    CommentGenerator(TextGenerator generator, LikeGenerator likeGenerator) {
         this.generator = generator;
-        this.likeGenerator_ = likeGenerator;
+        this.likeGenerator = likeGenerator;
     }
 
     public long createComments(RandomGeneratorFarm randomFarm, final Forum forum, final Post post, long numComments, long startId, PersonActivityExporter exporter) throws IOException {
@@ -90,16 +90,14 @@ public class CommentGenerator {
             ForumMembership member = validMemberships.get(randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX)
                                                                     .nextInt(validMemberships.size()));
             TreeSet<Integer> tags = new TreeSet<>();
-            String content = "";
+            String content;
 
 
             boolean isShort = false;
             if (randomFarm.get(RandomGeneratorFarm.Aspect.REDUCED_TEXT).nextDouble() > 0.6666) {
 
                 List<Integer> currentTags = new ArrayList<>();
-                Iterator<Integer> it = replyTo.getTags().iterator();
-                while (it.hasNext()) {
-                    Integer tag = it.next();
+                for (Integer tag : replyTo.getTags()) {
                     if (randomFarm.get(RandomGeneratorFarm.Aspect.TAG).nextDouble() > 0.5) {
                         tags.add(tag);
                     }
@@ -150,7 +148,7 @@ public class CommentGenerator {
             exporter.export(comment);
             if (comment.getContent().length() > 10 && randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE)
                                                              .nextDouble() <= 0.1) {
-                likeGenerator_.generateLikes(randomFarm
+                likeGenerator.generateLikes(randomFarm
                                                      .get(RandomGeneratorFarm.Aspect.NUM_LIKE), forum, comment, Like.LikeType.COMMENT, exporter);
             }
         }

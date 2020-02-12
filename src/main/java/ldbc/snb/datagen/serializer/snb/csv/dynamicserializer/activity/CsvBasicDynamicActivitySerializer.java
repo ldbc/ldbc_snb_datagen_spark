@@ -293,17 +293,17 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
         if (like.type == Like.LikeType.POST || like.type == Like.LikeType.PHOTO) {
             //"creationDate","deletionDate","Person.id","Post.id"
             writers.get(PERSON_LIKES_POST).writeEntry(ImmutableList.of(
-                    Dictionaries.dates.formatDateTime(like.date),
+                    Dictionaries.dates.formatDateTime(like.creationDate),
                     deletionDate,
-                    Long.toString(like.user),
+                    Long.toString(like.person),
                     Long.toString(like.messageId)
             ));
         } else {
             //"creationDate","deletionDate","Person.id","Comment.id"
             writers.get(PERSON_LIKES_COMMENT).writeEntry(ImmutableList.of(
-                    Dictionaries.dates.formatDateTime(like.date),
+                    Dictionaries.dates.formatDateTime(like.creationDate),
                     deletionDate,
-                    Long.toString(like.user),
+                    Long.toString(like.person),
                     Long.toString(like.messageId)
             ));
         }

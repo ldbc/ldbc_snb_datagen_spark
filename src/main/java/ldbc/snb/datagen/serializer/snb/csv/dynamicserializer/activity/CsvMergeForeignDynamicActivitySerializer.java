@@ -195,8 +195,8 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
     protected void serialize(final Like like) {
         //"Person.id", "Post.id"/"comment.id", "creationDate"
         List<String> arguments = ImmutableList.of(
-            Dictionaries.dates.formatDateTime(like.date),
-            Long.toString(like.user),
+            Dictionaries.dates.formatDateTime(like.creationDate),
+            Long.toString(like.person),
             Long.toString(like.messageId)
         );
         if (like.type == Like.LikeType.POST || like.type == Like.LikeType.PHOTO) {

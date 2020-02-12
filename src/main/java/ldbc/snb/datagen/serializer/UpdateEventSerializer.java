@@ -306,15 +306,15 @@ public class UpdateEventSerializer {
     }
 
     public void export(Like like) throws IOException {
-        currentDependantDate_ = like.userCreationDate;
+        currentDependantDate_ = like.personCreationDate;
         if (like.type == Like.LikeType.COMMENT) {
-            beginEvent(like.date, UpdateEvent.UpdateEventType.ADD_LIKE_COMMENT);
+            beginEvent(like.creationDate, UpdateEvent.UpdateEventType.ADD_LIKE_COMMENT);
         } else {
-            beginEvent(like.date, UpdateEvent.UpdateEventType.ADD_LIKE_POST);
+            beginEvent(like.creationDate, UpdateEvent.UpdateEventType.ADD_LIKE_POST);
         }
-        data_.add(Long.toString(like.user));
+        data_.add(Long.toString(like.person));
         data_.add(Long.toString(like.messageId));
-        data_.add(Long.toString(like.date));
+        data_.add(Long.toString(like.creationDate));
         endEvent();
     }
 

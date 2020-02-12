@@ -103,7 +103,7 @@ public class PersonActivityExporter {
     }
 
     public void export(final Like like) throws IOException {
-        if (like.date < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
+        if (like.creationDate < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
             dynamicActivitySerializer_.export(like);
             factorTable_.extractFactors(like);
         } else {

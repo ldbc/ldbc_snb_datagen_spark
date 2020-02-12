@@ -43,9 +43,9 @@ public class Like {
         PHOTO
     }
 
-    public long user;
-    public long userCreationDate;
+    public long person;
+    public long personCreationDate;
     public long messageId;
-    public long date;
+    public long creationDate;
     public LikeType type;
 }

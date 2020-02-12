@@ -65,7 +65,7 @@ abstract public class DynamicPersonSerializer<TWriter extends HdfsWriter> extend
         if ((universityId != -1) && (person.getClassYear() != -1)) {
             StudyAt studyAt = new StudyAt();
             studyAt.year = person.getClassYear();
-            studyAt.user = person.getAccountId();
+            studyAt.person = person.getAccountId();
             studyAt.university = universityId;
             serialize(studyAt,person);
         }
@@ -75,7 +75,7 @@ abstract public class DynamicPersonSerializer<TWriter extends HdfsWriter> extend
             long companyId = it.next();
             WorkAt workAt = new WorkAt();
             workAt.company = companyId;
-            workAt.user = person.getAccountId();
+            workAt.person = person.getAccountId();
             workAt.year = person.getCompanies().get(companyId);
             serialize(workAt,person);
         }

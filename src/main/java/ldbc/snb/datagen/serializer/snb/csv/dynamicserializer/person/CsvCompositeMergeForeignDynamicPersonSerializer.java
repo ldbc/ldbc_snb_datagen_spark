@@ -104,7 +104,7 @@ public class CsvCompositeMergeForeignDynamicPersonSerializer extends DynamicPers
         //"Person.id","Organisation.id","classYear","creationDate"
         writers.get(PERSON_STUDY_AT).writeEntry(ImmutableList.of(
                 Dictionaries.dates.formatDateTime(person.getCreationDate()),
-                Long.toString(studyAt.user),
+                Long.toString(studyAt.person),
                 Long.toString(studyAt.university),
                 Dictionaries.dates.formatYear(studyAt.year)
         ));
@@ -115,7 +115,7 @@ public class CsvCompositeMergeForeignDynamicPersonSerializer extends DynamicPers
         //"Person.id","Organisation.id","workFrom","creationDate"
         writers.get(PERSON_WORK_AT).writeEntry(ImmutableList.of(
                 Dictionaries.dates.formatDateTime(person.getCreationDate()),
-                Long.toString(workAt.user),
+                Long.toString(workAt.person),
                 Long.toString(workAt.company),
                 Dictionaries.dates.formatYear(workAt.year)
         ));

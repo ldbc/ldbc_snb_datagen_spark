@@ -50,19 +50,19 @@ import java.util.List;
 import java.util.Random;
 
 public class LikeGenerator {
-    private final PowerDistribution likesGenerator_;
+    private final PowerDistribution likesGenerator;
     private Like like;
 
 
-    public LikeGenerator() {
-        likesGenerator_ = new PowerDistribution(1, DatagenParams.maxNumLike, 0.07);
+    LikeGenerator() {
+        likesGenerator = new PowerDistribution(1, DatagenParams.maxNumLike, 0.07);
         this.like = new Like();
     }
 
     public void generateLikes(Random random, final Forum forum, final Message message, LikeType type, PersonActivityExporter exporter) throws IOException {
         int numMembers = forum.getMemberships().size();
-        int numLikes = likesGenerator_.getValue(random);
-        numLikes = numLikes >= numMembers ? numMembers : numLikes;
+        int numLikes = likesGenerator.getValue(random);
+        numLikes = Math.min(numLikes, numMembers);
         List<ForumMembership> memberships = forum.getMemberships();
         int startIndex = 0;
         if (numLikes < numMembers) {
@@ -75,10 +75,10 @@ public class LikeGenerator {
             long date = Dictionaries.dates.randomDate(random, minDate, Dictionaries.dates
                     .randomSevenDays(random) + minDate);
             assert ((membership.getPerson().getCreationDate() + DatagenParams.deltaTime) < date);
-            like.user = membership.getPerson().getAccountId();
-            like.userCreationDate = membership.getPerson().getCreationDate();
+            like.person = membership.getPerson().getAccountId();
+            like.personCreationDate = membership.getPerson().getCreationDate();
             like.messageId = message.getMessageId();
-            like.date = date;
+            like.creationDate = date;
             like.type = type;
             exporter.export(like);
         }

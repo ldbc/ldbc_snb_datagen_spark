@@ -49,7 +49,6 @@ import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.CsvSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
 
-import java.util.Iterator;
 import java.util.List;
 
 import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
@@ -131,7 +130,7 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
         writers.get(PERSON_STUDY_AT).writeEntry(ImmutableList.of(
                 Dictionaries.dates.formatDateTime(person.getCreationDate()),
                 Dictionaries.dates.formatDateTime(person.getDeletionDate()),
-                Long.toString(studyAt.user),
+                Long.toString(studyAt.person),
                 Long.toString(studyAt.university),
                 Dictionaries.dates.formatYear(studyAt.year)
         ));
@@ -143,7 +142,7 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
         writers.get(PERSON_WORK_AT).writeEntry(ImmutableList.of(
                 Dictionaries.dates.formatDateTime(person.getCreationDate()),
                 Dictionaries.dates.formatDateTime(person.getDeletionDate()),
-                Long.toString(workAt.user),
+                Long.toString(workAt.person),
                 Long.toString(workAt.company),
                 Dictionaries.dates.formatYear(workAt.year)
         ));
