@@ -78,7 +78,7 @@ public class LdbcDatagenTest {
     @Test
     public void commentTest() {
         testIdUniqueness(dir+"/dynamic/comment_0_0.csv", 2);
-        testLongBetween(dir+"/dynamic/comment_0_0.csv",5,0,2001);
+        testLongBetween(dir+"/dynamic/comment_0_0.csv",6,0,2001);
         testStringLength(dir+"/dynamic/comment_0_0.csv", 3, 40);
         testStringLength(dir+"/dynamic/comment_0_0.csv", 4, 40);
         assertTrue("Everything ok",true);
@@ -114,7 +114,7 @@ public class LdbcDatagenTest {
 
     @Test
     public void personKnowsPersonTest() {
-        testPairUniquenessPlusExistence(dir+"/dynamic/person_knows_person_0_0.csv",2,0,dir+"/dynamic/person_0_0.csv",2); // TODO: double check
+        testPairUniquenessPlusExistence(dir+"/dynamic/person_knows_person_0_0.csv",2,3,dir+"/dynamic/person_0_0.csv",2); // TODO: double check
         assertTrue("Everything ok",true);
     }
 
@@ -144,109 +144,109 @@ public class LdbcDatagenTest {
 
     @Test
     public void personStudyAtOrganisationCheck() {
-        testPairUniquenessPlusExistence(dir+"/dynamic/person_studyAt_organisation_0_0.csv",2,3,dir+"/dynamic/person_0_0.csv",0,dir+"/static/organisation_0_0.csv",0);
+        testPairUniquenessPlusExistence(dir+"/dynamic/person_studyAt_organisation_0_0.csv",2,3,dir+"/dynamic/person_0_0.csv",2,dir+"/static/organisation_0_0.csv",0);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void personWorkAtOrganisationCheck() {
-        testPairUniquenessPlusExistence(dir+"/dynamic/person_workAt_organisation_0_0.csv",2,3,dir+"/dynamic/person_0_0.csv",0,dir+"/static/organisation_0_0.csv",0);
+        testPairUniquenessPlusExistence(dir+"/dynamic/person_workAt_organisation_0_0.csv",2,3,dir+"/dynamic/person_0_0.csv",2,dir+"/static/organisation_0_0.csv",0);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void personHasInterestTagCheck() {
-        testPairUniquenessPlusExistence(dir+"/dynamic/person_hasInterest_tag_0_0.csv",2,3,dir+"/dynamic/person_0_0.csv",0,dir+"/static/tag_0_0.csv",0);
+        testPairUniquenessPlusExistence(dir+"/dynamic/person_hasInterest_tag_0_0.csv",2,3,dir+"/dynamic/person_0_0.csv",2,dir+"/static/tag_0_0.csv",0);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void personIsLocatedInPlaceCheck() {
-        testPairUniquenessPlusExistence(dir+"/dynamic/person_isLocatedIn_place_0_0.csv",2,3,dir+"/dynamic/person_0_0.csv",0,dir+"/static/place_0_0.csv",0);
+        testPairUniquenessPlusExistence(dir+"/dynamic/person_isLocatedIn_place_0_0.csv",2,3,dir+"/dynamic/person_0_0.csv",2,dir+"/static/place_0_0.csv",0);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void forumHasTagCheck() {
-        testPairUniquenessPlusExistence(dir+"/dynamic/forum_hasTag_tag_0_0.csv",2,3,dir+"/dynamic/forum_0_0.csv",0,dir+"/static/tag_0_0.csv",0);
+        testPairUniquenessPlusExistence(dir+"/dynamic/forum_hasTag_tag_0_0.csv",2,3,dir+"/dynamic/forum_0_0.csv",2,dir+"/static/tag_0_0.csv",0);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void forumHasModeratorPersonCheck() {
-        testPairUniquenessPlusExistence(dir+"/dynamic/forum_hasModerator_person_0_0.csv",2,3,dir+"/dynamic/forum_0_0.csv",0,dir+"/dynamic/person_0_0.csv",0);
+        testPairUniquenessPlusExistence(dir+"/dynamic/forum_hasModerator_person_0_0.csv",2,3,dir+"/dynamic/forum_0_0.csv",2,dir+"/dynamic/person_0_0.csv",2);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void forumHasMemberPersonCheck() {
-        testPairUniquenessPlusExistence(dir+"/dynamic/forum_hasMember_person_0_0.csv",2,3,dir+"/dynamic/forum_0_0.csv",0,dir+"/dynamic/person_0_0.csv",0);
+        testPairUniquenessPlusExistence(dir+"/dynamic/forum_hasMember_person_0_0.csv",2,3,dir+"/dynamic/forum_0_0.csv",2,dir+"/dynamic/person_0_0.csv",2);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void forumContainerOfPostCheck() {
-        testPairUniquenessPlusExistence(dir+"/dynamic/forum_containerOf_post_0_0.csv",2,3,dir+"/dynamic/forum_0_0.csv",0,dir+"/dynamic/post_0_0.csv",0);
+        testPairUniquenessPlusExistence(dir+"/dynamic/forum_containerOf_post_0_0.csv",2,3,dir+"/dynamic/forum_0_0.csv",2,dir+"/dynamic/post_0_0.csv",2);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void commentHasCreatorPersonCheck() {
-        testPairUniquenessPlusExistence(dir+"/dynamic/comment_hasCreator_person_0_0.csv",2,3,dir+"/dynamic/comment_0_0.csv",0,dir+"/dynamic/person_0_0.csv",0);
+        testPairUniquenessPlusExistence(dir+"/dynamic/comment_hasCreator_person_0_0.csv",2,3,dir+"/dynamic/comment_0_0.csv",2,dir+"/dynamic/person_0_0.csv",2);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void commentHasTagTagCheck() {
-        testPairUniquenessPlusExistence(dir+"/dynamic/comment_hasTag_tag_0_0.csv",2,3,dir+"/dynamic/comment_0_0.csv",0,dir+"/static/tag_0_0.csv",0);
+        testPairUniquenessPlusExistence(dir+"/dynamic/comment_hasTag_tag_0_0.csv",2,3,dir+"/dynamic/comment_0_0.csv",2,dir+"/static/tag_0_0.csv",0);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void commentIsLocatedInPlaceCheck() {
-        testPairUniquenessPlusExistence(dir+"/dynamic/comment_isLocatedIn_place_0_0.csv",2,3,dir+"/dynamic/comment_0_0.csv",0,dir+"/static/place_0_0.csv",0);
+        testPairUniquenessPlusExistence(dir+"/dynamic/comment_isLocatedIn_place_0_0.csv",2,3,dir+"/dynamic/comment_0_0.csv",2,dir+"/static/place_0_0.csv",0);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void commentReplyOfCommentCheck() {
-        testPairUniquenessPlusExistence(dir+"/dynamic/comment_replyOf_comment_0_0.csv",2,3,dir+"/dynamic/comment_0_0.csv",0,dir+"/dynamic/comment_0_0.csv",0);
+        testPairUniquenessPlusExistence(dir+"/dynamic/comment_replyOf_comment_0_0.csv",2,3,dir+"/dynamic/comment_0_0.csv",2,dir+"/dynamic/comment_0_0.csv",2);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void commentReplyOfPostCheck() {
-        testPairUniquenessPlusExistence(dir+"/dynamic/comment_replyOf_post_0_0.csv",2,3,dir+"/dynamic/comment_0_0.csv",0,dir+"/dynamic/post_0_0.csv",0);
+        testPairUniquenessPlusExistence(dir+"/dynamic/comment_replyOf_post_0_0.csv",2,3,dir+"/dynamic/comment_0_0.csv",2,dir+"/dynamic/post_0_0.csv",2);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void postHasCreatorPersonCheck() {
-        testPairUniquenessPlusExistence(dir+"/dynamic/post_hasCreator_person_0_0.csv",2,3,dir+"/dynamic/post_0_0.csv",0,dir+"/dynamic/person_0_0.csv",0);
+        testPairUniquenessPlusExistence(dir+"/dynamic/post_hasCreator_person_0_0.csv",2,3,dir+"/dynamic/post_0_0.csv",2,dir+"/dynamic/person_0_0.csv",2);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void postIsLocatedInPlaceCheck() {
-        testPairUniquenessPlusExistence(dir+"/dynamic/post_isLocatedIn_place_0_0.csv",2,3,dir+"/dynamic/post_0_0.csv",0,dir+"/static/place_0_0.csv",0);
+        testPairUniquenessPlusExistence(dir+"/dynamic/post_isLocatedIn_place_0_0.csv",2,3,dir+"/dynamic/post_0_0.csv",2,dir+"/static/place_0_0.csv",0);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void personLikesCommentCheck() {
-        testPairUniquenessPlusExistence(dir+"/dynamic/person_likes_comment_0_0.csv",2,3,dir+"/dynamic/person_0_0.csv",0,dir+"/dynamic/comment_0_0.csv",0);
+        testPairUniquenessPlusExistence(dir+"/dynamic/person_likes_comment_0_0.csv",2,3,dir+"/dynamic/person_0_0.csv",2,dir+"/dynamic/comment_0_0.csv",2);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void personLikesPostCheck() {
-        testPairUniquenessPlusExistence(dir+"/dynamic/person_likes_post_0_0.csv",2,3,dir+"/dynamic/person_0_0.csv",0,dir+"/dynamic/post_0_0.csv",0);
+        testPairUniquenessPlusExistence(dir+"/dynamic/person_likes_post_0_0.csv",2,3,dir+"/dynamic/person_0_0.csv",2,dir+"/dynamic/post_0_0.csv",2);
         assertTrue("Everything ok",true);
     }
 
     @Test
     public void personEmailAddressCheck() {
-        testIdExistance(dir+"/dynamic/person_0_0.csv",0,dir+"/dynamic/person_email_emailaddress_0_0.csv",0);
+        testIdExistance(dir+"/dynamic/person_0_0.csv",2,dir+"/dynamic/person_email_emailaddress_0_0.csv",2);
         testStringLength(dir+"/dynamic/person_email_emailaddress_0_0.csv", 1, 256);
         assertTrue("Everything ok",true);
     }
@@ -262,7 +262,7 @@ public class LdbcDatagenTest {
     public void queryParamsTest() {
         //Creating person id check
         LongParser parser = new LongParser();
-        ColumnSet<Long> persons = new ColumnSet<>(parser,new File(dir+"/dynamic/person_0_0.csv"),0,1);
+        ColumnSet<Long> persons = new ColumnSet<>(parser,new File(dir+"/dynamic/person_0_0.csv"),2,1);
         List<ColumnSet<Long>> personsRef = new ArrayList<>();
         personsRef.add(persons);
         List<Integer> personIndex = new ArrayList<>();
@@ -271,7 +271,7 @@ public class LdbcDatagenTest {
 
         //Creating name check
         StringParser strParser = new StringParser();
-        ColumnSet<String> names = new ColumnSet<>(strParser,new File(dir+"/dynamic/person_0_0.csv"),1,1);
+        ColumnSet<String> names = new ColumnSet<>(strParser,new File(dir+"/dynamic/person_0_0.csv"),3,1);
         List<ColumnSet<String>> namesRef = new ArrayList<>();
         namesRef.add(names);
         List<Integer> namesIndex = new ArrayList<>();
@@ -285,7 +285,7 @@ public class LdbcDatagenTest {
         fileChecker.addCheck(existsNameCheck);
         assertTrue("ERROR PASSING TEST QUERY 1 PERSON AND NAME EXISTS ",fileChecker.run(1));
 
-        //Crating date interval check
+        //Creating date interval check
         fileChecker = new FileChecker(sdir+"/interactive_2_param.txt");
         fileChecker.addCheck(existsPersonCheck);
         assertTrue("ERROR PASSING TEST QUERY 2 PERSON EXISTS ",fileChecker.run(1));
