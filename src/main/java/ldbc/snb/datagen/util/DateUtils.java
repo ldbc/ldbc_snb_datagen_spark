@@ -188,23 +188,20 @@ public class DateUtils {
     }
 
     public long numberOfMonths(long fromDate) {
-        long l = (simulationEnd - fromDate) / THIRTY_DAYS;
-        return l;
+        return (simulationEnd - fromDate) / THIRTY_DAYS;
     }
 
     public long randomDate(Random random, long minDate) {
-        long to = Math.max(minDate + THIRTY_DAYS, simulationEnd);
-        return (long) (random.nextDouble() * (to - minDate) + minDate);
+        long maxDate = Math.max(minDate + THIRTY_DAYS, simulationEnd);
+        return randomDate(random, minDate, maxDate);
     }
-
     public long randomDate(Random random, long minDate, long maxDate) {
-        long to = maxDate;
-        return (long) (random.nextDouble() * (to - minDate) + minDate);
+        assert (minDate < maxDate): "Invalid interval bounds. Upper bound should be larger than lower bound";
+        return (long) (random.nextDouble() * (maxDate - minDate) + minDate);
     }
 
     public long powerlawCommDateDay(Random random, long lastCommentCreatedDate) {
-        long date = (long) (powerDist_.getDouble(random) * ONE_DAY + lastCommentCreatedDate);
-        return date;
+        return (long) (powerDist_.getDouble(random) * ONE_DAY + lastCommentCreatedDate);
     }
 
     public long randomSevenDays(Random random) {
