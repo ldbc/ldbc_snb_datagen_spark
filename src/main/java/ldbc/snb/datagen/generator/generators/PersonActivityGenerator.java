@@ -149,7 +149,7 @@ public class PersonActivityGenerator {
      */
     private void generateGroups(Person person, List<Person> block) throws IOException {
 
-        // generate user created groups
+        // generate person created groups
         double moderatorProb = randomFarm.get(RandomGeneratorFarm.Aspect.FORUM_MODERATOR).nextDouble();
         if (moderatorProb <= DatagenParams.groupModeratorProb) {
             int numGroup = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_FORUM)

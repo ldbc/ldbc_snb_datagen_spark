@@ -115,7 +115,7 @@ public class DateUtils {
      */
     public Long randomPersonDeletionDate(Random random, long creationDate, long maxNumKnows) {
 
-        // TODO: use maxNumKnows to determine when a user's deleted
+        // TODO: use maxNumKnows to determine when a person's deleted
         long personCreationDate = creationDate + DatagenParams.deltaTime;
         long networkCollapse = simulationStart + TEN_YEARS;
         return randomDate(random, personCreationDate, networkCollapse);
@@ -209,7 +209,7 @@ public class DateUtils {
     }
 
     // The birthday is fixed during 1980 --> 1990
-    public long getBirthDay(Random random, long userCreatedDate) {
+    public long getBirthDay(Random random) {
         calendar_.setTimeInMillis(((long) (random.nextDouble() * (toBirthDay_ - fromBirthDay_)) + fromBirthDay_));
         GregorianCalendar aux_calendar = new GregorianCalendar(calendar_.get(Calendar.YEAR), calendar_
                 .get(Calendar.MONTH), calendar_.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
@@ -226,19 +226,19 @@ public class DateUtils {
         calendar_.setTimeInMillis(birthday);
         return calendar_.get(GregorianCalendar.MONTH);
     }
-    //If do not know the birthday, first randomly guess the age of user
-    //Randomly get the age when user graduate
-    //User's age for graduating is from 20 to 30
+    //If do not know the birthday, first randomly guess the age of person
+    //Randomly get the age when person graduate
+    //person's age for graduating is from 20 to 30
 
-    public long getClassYear(Random random, long userCreatedDate, long birthday) {
-        long graduateage = (random.nextInt(5) + 18) * ONE_YEAR;
-        long classYear = birthday + graduateage;
+    public long getClassYear(Random random, long birthday) {
+        long graduateAge = (random.nextInt(5) + 18) * ONE_YEAR;
+        long classYear = birthday + graduateAge;
         if (classYear > this.simulationEnd) return -1;
         return classYear;
     }
 
     public long getWorkFromYear(Random random, long classYear, long birthday) {
-        long workYear = 0;
+        long workYear;
         if (classYear == -1) {
             long workingage = 18 * ONE_YEAR;
             long from = birthday + workingage;

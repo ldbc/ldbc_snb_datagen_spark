@@ -80,7 +80,7 @@ public class HadoopPersonGenerator {
             }
 
             int threadId = Integer.parseInt(value.toString());
-            System.out.println("Generating user at mapper " + threadId);
+            System.out.println("Generating person at mapper " + threadId);
             LdbcDatagen.initializeContext(conf);
 
             // Here we determine the blocks in the "block space" that this mapper is responsible for.
@@ -91,7 +91,7 @@ public class HadoopPersonGenerator {
             PersonGenerator personGenerator = new PersonGenerator(conf, conf
                     .get("ldbc.snb.datagen.generator.distribution.degreeDistribution"));
             for (int i = initBlock; i < endBlock; ++i) {
-                Person[] block = personGenerator.generateUserBlock(i, DatagenParams.blockSize);
+                Person[] block = personGenerator.generatePersonBlock(i, DatagenParams.blockSize);
                 int size = block.length;
                 for (int j = 0; j < size && DatagenParams.blockSize * i + j < DatagenParams.numPersons; ++j) {
                     try {
@@ -157,7 +157,7 @@ public class HadoopPersonGenerator {
         int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads"));
         conf.setInt("mapreduce.input.lineinputformat.linespermap", 1);
         conf.set("postKeySetterName", postKeySetterName);
-        Job job = Job.getInstance(conf, "SIB Generate Users & 1st Dimension");
+        Job job = Job.getInstance(conf, "SIB Generate Persons & 1st Dimension");
         job.setMapOutputKeyClass(TupleKey.class);
         job.setMapOutputValueClass(Person.class);
         job.setOutputKeyClass(TupleKey.class);

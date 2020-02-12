@@ -50,10 +50,10 @@ import java.util.List;
  * This class generates Facebook-like social degree distribution
  * <p/>
  * A. Preparation
- * For a specific social network size (total number of users)
+ * For a specific social network size (total number of persons)
  * 1) compute the mean value of social degree
  * 2) compute the range of each bucket (100 buckets) using the data from facebookBucket100.dat
- * B. Generate social degree for each user
+ * B. Generate social degree for each person
  * 1) Determine the bucket (Take a random number from 0-99)
  * 2) Randomly select a social degree in the range of that bucket
  */

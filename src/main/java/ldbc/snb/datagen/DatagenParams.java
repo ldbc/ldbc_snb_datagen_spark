@@ -150,7 +150,7 @@ public class DatagenParams {
     public static double probPopularPlaces = 0.0; //probability of taking a photo at popular place
     public static double probRandomPerLevel = 0.0;
     public static double probSecondLang = 0.0;
-    public static double probTopUniv = 0.0; // 90% users go to top university
+    public static double probTopUniv = 0.0; // 90% persons go to top university
     public static double probUnCorrelatedCompany = 0.0;
     public static double probUnCorrelatedOrganization = 0.0;
     public static double ratioLargeComment = 0.0;

@@ -81,17 +81,17 @@ public class PersonGenerator {
     }
 
 
-    private Person generateUser() {
+    private Person generatePerson() {
 
         long creationDate = Dictionaries.dates.randomPersonCreationDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE));
 
-        int countryId = Dictionaries.places.getCountryForUser(randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY));
+        int countryId = Dictionaries.places.getCountryForPerson(randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY));
         Person person = new Person();
         person.setCreationDate(creationDate);
 
         person.setGender((randomFarm.get(RandomGeneratorFarm.Aspect.GENDER).nextDouble() > 0.5) ? (byte) 1 : (byte) 0);
         person.setBirthday(Dictionaries.dates
-                                .getBirthDay(randomFarm.get(RandomGeneratorFarm.Aspect.BIRTH_DAY), creationDate));
+                                .getBirthDay(randomFarm.get(RandomGeneratorFarm.Aspect.BIRTH_DAY)));
         person.setBrowserId(Dictionaries.browsers.getRandomBrowserId(randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER)));
         person.setCountryId(countryId);
         person.setCityId(Dictionaries.places.getRandomCity(randomFarm.get(RandomGeneratorFarm.Aspect.CITY), countryId));
@@ -145,8 +145,7 @@ public class PersonGenerator {
             person.setClassYear(-1);
         } else {
             person.setClassYear(Dictionaries.dates.getClassYear(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),
-                                                             person.getCreationDate(),
-                                                             person.getBirthday()));
+                    person.getBirthday()));
         }
 
         // Set company and workFrom
@@ -164,15 +163,15 @@ public class PersonGenerator {
             }
         }
 
-        List<Integer> userLanguages = Dictionaries.languages.getLanguages(randomFarm
+        List<Integer> personLanguages = Dictionaries.languages.getLanguages(randomFarm
                                                                                        .get(RandomGeneratorFarm.Aspect.LANGUAGE),
                                                                                person.getCountryId());
         int internationalLang = Dictionaries.languages.getInternationlLanguage(randomFarm
                                                                                        .get(RandomGeneratorFarm.Aspect.LANGUAGE));
-        if (internationalLang != -1 && userLanguages.indexOf(internationalLang) == -1) {
-            userLanguages.add(internationalLang);
+        if (internationalLang != -1 && personLanguages.indexOf(internationalLang) == -1) {
+            personLanguages.add(internationalLang);
         }
-        person.getLanguages().addAll(userLanguages);
+        person.getLanguages().addAll(personLanguages);
 
 
         // Set activity characteristics
@@ -194,16 +193,16 @@ public class PersonGenerator {
      *
      * @param seed      The seed to feed the pseudo-random number generators.
      * @param blockSize The size of the block of persons to generate.
-     * @return
+     * @return block of persons
      */
-    public Person[] generateUserBlock(int seed, int blockSize) {
+    public Person[] generatePersonBlock(int seed, int blockSize) {
         resetState(seed);
         nextId = seed * blockSize;
         SN.machineId = seed;
         Person[] block;
         block = new Person[blockSize];
         for (int j = 0; j < blockSize; ++j) {
-            block[j] = generateUser();
+            block[j] = generatePerson();
         }
         return block;
     }

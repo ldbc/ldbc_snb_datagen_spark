@@ -98,8 +98,8 @@ public class BrowserDictionary {
         return maxIdx;
     }
 
-    public int getPostBrowserId(Random randomDiffBrowser, Random randomBrowser, int userBrowserId) {
+    public int getPostBrowserId(Random randomDiffBrowser, Random randomBrowser, int personBrowserId) {
         double prob = randomDiffBrowser.nextDouble();
-        return (prob < probAnotherBrowser_) ? getRandomBrowserId(randomBrowser) : userBrowserId;
+        return (prob < probAnotherBrowser_) ? getRandomBrowserId(randomBrowser) : personBrowserId;
     }
 }

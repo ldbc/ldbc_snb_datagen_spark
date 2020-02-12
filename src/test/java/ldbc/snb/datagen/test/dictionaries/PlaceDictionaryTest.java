@@ -31,7 +31,7 @@ public class PlaceDictionaryTest {
         Arrays.fill(countryFreqs, 0);
         Random random = new Random(123456789);
         for (int i = 0; i < numPersons; ++i) {
-            int nextCountry = placeDictionary.getCountryForUser(random);
+            int nextCountry = placeDictionary.getCountryForPerson(random);
             countryFreqs[nextCountry]++;
         }
 
