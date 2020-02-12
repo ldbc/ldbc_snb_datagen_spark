@@ -65,17 +65,31 @@ abstract public class PostGenerator {
     private LikeGenerator likeGenerator;
     private Post post;
 
-    /**
-     * Purpose unclear!
-     */
     static protected class PostInfo {
 
-        public TreeSet<Integer> tags;
-        public long date;
+        private TreeSet<Integer> tags;
+        private long creationDate;
 
         PostInfo() {
             this.tags = new TreeSet<>();
         }
+
+        public TreeSet<Integer> getTags() {
+            return tags;
+        }
+
+        public void setTags(TreeSet<Integer> tags) {
+            this.tags = tags;
+        }
+
+        public long getCreationDate() {
+            return creationDate;
+        }
+
+        public void setCreationDate(long creationDate) {
+            this.creationDate = creationDate;
+        }
+
     }
 
 
@@ -91,67 +105,60 @@ abstract public class PostGenerator {
         // Intentionally left empty
     }
 
-    /**
-     * Create posts
-     * @param randomFarm random farm
-     * @param forum forum posts are created in
-     * @param memberships list of members of forum
-     * @param numPosts number of posts
-     * @param startId start id
-     * @param exporter exporter
-     * @return
-     * @throws IOException
-     */
-    public long createPosts(RandomGeneratorFarm randomFarm, final Forum forum, final List<ForumMembership> memberships, long numPosts, long startId, PersonActivityExporter exporter) throws IOException {
-        long postId = startId;
-        Properties prop = new Properties();
-        prop.setProperty("type", "post");
+    public long createPosts(RandomGeneratorFarm randomFarm, final Forum forum, final List<ForumMembership> memberships,
+                            long numPostsInForum, long startPostId, PersonActivityExporter exporter) throws IOException {
 
-        //
+        long postIdCounter = startPostId;
+        Properties properties = new Properties();
+        properties.setProperty("type", "post");
+
         for (ForumMembership member : memberships) {
-            double numPostsMember = numPosts / (double) memberships.size(); // number of posts per member
-            if (numPostsMember < 1.0) {
+
+            // generate number of posts by this member
+            double numPostsPerMember = numPostsInForum / (double) memberships.size();
+
+            if (numPostsPerMember < 1.0) {
                 double prob = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_POST).nextDouble();
-                if (prob < numPostsMember) numPostsMember = 1.0;
+                if (prob < numPostsPerMember) numPostsPerMember = 1.0;
             } else {
-                numPostsMember = Math.ceil(numPostsMember);
+                numPostsPerMember = Math.ceil(numPostsPerMember);
             }
 
-            for (int i = 0; i < (int) (numPostsMember); ++i) {
+            // create each post for member
+            for (int i = 0; i < (int) (numPostsPerMember); ++i) {
 
-                PostInfo postInfo = generatePostInfo(randomFarm.get(RandomGeneratorFarm.Aspect.TAG), randomFarm
-                        .get(RandomGeneratorFarm.Aspect.DATE), forum, member);
+                PostInfo postInfo = generatePostInfo(randomFarm.get(RandomGeneratorFarm.Aspect.TAG),
+                        randomFarm.get(RandomGeneratorFarm.Aspect.DATE), forum, member);
 
                 if (postInfo != null) {
 
-                    String content;
-                    content = this.generator.generateText(member.getPerson(), postInfo.tags, prop);
-
+                    // create content, county, ip - sometimes randomise
+                    String content = this.generator.generateText(member.getPerson(), postInfo.tags, properties);
                     int country = member.getPerson().getCountryId();
                     IP ip = member.getPerson().getIpAddress();
                     Random random = randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER);
-                    if (PersonBehavior.changeUsualCountry(random, postInfo.date)) {
+                    if (PersonBehavior.changeUsualCountry(random, postInfo.getCreationDate())) {
                         random = randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY);
                         country = Dictionaries.places.getRandomCountryUniform(random);
                         random = randomFarm.get(RandomGeneratorFarm.Aspect.IP);
                         ip = Dictionaries.ips.getIP(random, country);
                     }
 
-//                    long deletionDate = postInfo.date; // placeholder
-
-                    post.initialize(SN.formId(SN.composeId(postId++, postInfo.date)),
-                                     postInfo.date,
+                    // create post with above information and from post info
+                    post.initialize(SN.formId(SN.composeId(postIdCounter++, postInfo.getCreationDate())),
+                                     postInfo.getCreationDate(),
                                      member.getPerson(),
                                      forum.getId(),
                                      content,
                                      postInfo.tags,
                                      country,
                                      ip,
-                                     Dictionaries.browsers.getPostBrowserId(randomFarm
-                                                                                    .get(RandomGeneratorFarm.Aspect.DIFF_BROWSER), randomFarm
-                                                                                    .get(RandomGeneratorFarm.Aspect.BROWSER), member
-                                                                                    .getPerson().getBrowserId()),
+                                     Dictionaries.browsers.getPostBrowserId(
+                                             randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),
+                                             randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER),
+                                             member.getPerson().getBrowserId()),
                                      forum.getLanguage());
+
                     exporter.export(post);
 
                     if (randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1) {
@@ -162,11 +169,11 @@ abstract public class PostGenerator {
                     // generate comments
                     int numComments = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT)
                                                 .nextInt(DatagenParams.maxNumComments + 1);
-                    postId = commentGenerator.createComments(randomFarm, forum, post, numComments, postId, exporter);
+                    postIdCounter = commentGenerator.createComments(randomFarm, forum, post, numComments, postIdCounter, exporter);
                 }
             }
         }
-        return postId;
+        return postIdCounter;
     }
 
     protected abstract PostInfo generatePostInfo(Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership);
