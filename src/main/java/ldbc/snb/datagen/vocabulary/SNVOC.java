@@ -75,7 +75,6 @@ public class SNVOC {
     public static final String hasMember = PREFIX + "hasMember";
     public static final String containerOf = PREFIX + "containerOf";
     public static final String hasPerson = PREFIX + "hasPerson";
-    public static final String joinDate = PREFIX + "joinDate";
 
     //Post & Comment
     public static final String Post = PREFIX + "Post";

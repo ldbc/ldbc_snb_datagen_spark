@@ -209,7 +209,7 @@ public class TurtleDynamicActivitySerializer extends DynamicActivitySerializer<H
 
         Turtle.addTriple(result, true, false, memberhipPrefix, SNVOC.hasPerson, SN
                 .getPersonURI(membership.getPerson().getAccountId()));
-        Turtle.addTriple(result, false, true, memberhipPrefix, SNVOC.joinDate,
+        Turtle.addTriple(result, false, true, memberhipPrefix, SNVOC.creationDate,
                          Turtle.createDataTypeLiteral(TurtleDateTimeFormat.get().format(membership.getCreationDate()), XSD.DateTime));
         membershipId++;
         writers.get(SOCIAL_NETWORK_ACTIVITY).write(result.toString());

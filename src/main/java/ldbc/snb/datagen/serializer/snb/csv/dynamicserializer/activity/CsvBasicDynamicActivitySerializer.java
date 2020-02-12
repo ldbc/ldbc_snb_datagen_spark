@@ -66,9 +66,9 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
     public void writeFileHeaders() {
 
         writers.get(FORUM)                      .writeHeader(ImmutableList.of("creationDate","deletionDate","id","title"));
-        writers.get(FORUM_HASMODERATOR_PERSON)  .writeHeader(ImmutableList.of("joinDate","deletionDate","Forum.id","Person.id"));
+        writers.get(FORUM_HASMODERATOR_PERSON)  .writeHeader(ImmutableList.of("creationDate","deletionDate","Forum.id","Person.id"));
         writers.get(FORUM_HASTAG_TAG)           .writeHeader(ImmutableList.of("creationDate","deletionDate","Forum.id","Tag.id"));
-        writers.get(FORUM_HASMEMBER_PERSON)     .writeHeader(ImmutableList.of("joinDate","deletionDate","Forum.id","Person.id"));
+        writers.get(FORUM_HASMEMBER_PERSON)     .writeHeader(ImmutableList.of("creationDate","deletionDate","Forum.id","Person.id"));
 
         writers.get(POST)                       .writeHeader(ImmutableList.of("creationDate","deletionDate","id","imageFile","locationIP","browserUsed","language","content","length"));
         writers.get(POST_HASCREATOR_PERSON)     .writeHeader(ImmutableList.of("creationDate","deletionDate","Post.id","Person.id"));
@@ -99,7 +99,7 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
                 forum.getTitle()
 
         ));
-        //"joinDate","deletionDate","Forum.id","Person.id"
+        //"creationDate","deletionDate","Forum.id","Person.id"
         writers.get(FORUM_HASMODERATOR_PERSON).writeEntry(ImmutableList.of(
                 forumCreationDate,
                 forumDeletionDate,
@@ -118,7 +118,7 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
     }
 
     protected void serialize(final ForumMembership membership) {
-        //"joinDate","deletionDate","Forum.id","Person.id",
+        //"creationDate","deletionDate","Forum.id","Person.id",
         writers.get(FORUM_HASMEMBER_PERSON).writeEntry(ImmutableList.of(
                 Dictionaries.dates.formatDateTime(membership.getCreationDate()),
                 Dictionaries.dates.formatDateTime(membership.getDeletionDate()),

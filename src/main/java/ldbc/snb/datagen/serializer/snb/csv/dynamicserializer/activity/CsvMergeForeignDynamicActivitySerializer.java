@@ -71,7 +71,7 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
         writers.get(COMMENT).writeHeader(ImmutableList.of("creationDate","id", "locationIP", "browserUsed", "content", "length", "creator", "place", "replyOfPost", "replyOfComment"));
         writers.get(COMMENT_HASTAG_TAG).writeHeader(ImmutableList.of("creationDate","Comment.id", "Tag.id"));
 
-        writers.get(FORUM_HASMEMBER_PERSON).writeHeader(ImmutableList.of("joinDate","Forum.id", "Person.id"));
+        writers.get(FORUM_HASMEMBER_PERSON).writeHeader(ImmutableList.of("creationDate","Forum.id", "Person.id"));
 
         writers.get(PERSON_LIKES_POST).writeHeader(ImmutableList.of( "creationDate","Person.id", "Post.id"));
         writers.get(PERSON_LIKES_COMMENT).writeHeader(ImmutableList.of( "creationDate","Person.id", "Comment.id"));
@@ -184,7 +184,7 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
     }
 
     protected void serialize(final ForumMembership membership) {
-        //"Forum.id", "Person.id", "joinDate"
+        //"Forum.id", "Person.id", "creationDate"
         writers.get(FORUM_HASMEMBER_PERSON).writeEntry(ImmutableList.of(
             Dictionaries.dates.formatDateTime(membership.getCreationDate()),
             Long.toString(membership.getForumId()),
