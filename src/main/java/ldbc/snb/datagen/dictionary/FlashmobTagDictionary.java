@@ -35,7 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.dictionary;
 
-import ldbc.snb.datagen.entities.statictype.tag.FlashmobTag;
+import ldbc.snb.datagen.entities.statictype.tag.FlashMobTag;
 import ldbc.snb.datagen.generator.tools.PowerDistribution;
 import ldbc.snb.datagen.util.DateUtils;
 
@@ -66,11 +66,11 @@ public class FlashmobTagDictionary {
     /**
      *  The tag dictionary used to create the flashmob tags.
      */
-    private Map<Integer, List<FlashmobTag>> flashmobTags;
+    private Map<Integer, List<FlashMobTag>> flashmobTags;
     /**
      *  A map of identifiers of tags to flashmob tag instances.
      */
-    private FlashmobTag[] flashmobTagCumDist;
+    private FlashMobTag[] flashmobTagCumDist;
     /**
      *  The cumulative distribution of flashmob tags sorted by date.
      */
@@ -114,15 +114,15 @@ public class FlashmobTagDictionary {
     private void initialize() {
         int numFlashmobTags = (int) (flashmobTagsPerMonth * dateGen.numberOfMonths(dateGen.getStartDateTime()));
         Integer[] tags = tagDictionary.getRandomTags(random, numFlashmobTags);
-        flashmobTagCumDist = new FlashmobTag[numFlashmobTags];
+        flashmobTagCumDist = new FlashMobTag[numFlashmobTags];
         double sumLevels = 0;
         for (int i = 0; i < numFlashmobTags; ++i) {
-            List<FlashmobTag> instances = flashmobTags.get(tags[i]);
+            List<FlashMobTag> instances = flashmobTags.get(tags[i]);
             if (instances == null) {
                 instances = new ArrayList<>();
                 flashmobTags.put(tags[i], instances);
             }
-            FlashmobTag flashmobTag = new FlashmobTag();
+            FlashMobTag flashmobTag = new FlashMobTag();
             flashmobTag.date = dateGen.randomDate(random, dateGen.getStartDateTime());
             flashmobTag.level = levelGenerator.getValue(random);
             sumLevels += flashmobTag.level;
@@ -175,16 +175,16 @@ public class FlashmobTagDictionary {
      * @param[in] interests The set of interests.
      * @param[in] fromDate The date from which to consider the flashmob tags.
      */
-    public List<FlashmobTag> generateFlashmobTags(Random rand, TreeSet<Integer> interests, long fromDate) {
-        List<FlashmobTag> result = new ArrayList<>();
+    public List<FlashMobTag> generateFlashmobTags(Random rand, TreeSet<Integer> interests, long fromDate) {
+        List<FlashMobTag> result = new ArrayList<>();
         Iterator<Integer> it = interests.iterator();
         while (it.hasNext()) {
             Integer tag = it.next();
-            List<FlashmobTag> instances = flashmobTags.get(tag);
+            List<FlashMobTag> instances = flashmobTags.get(tag);
             if (instances != null) {
-                Iterator<FlashmobTag> it2 = instances.iterator();
+                Iterator<FlashMobTag> it2 = instances.iterator();
                 while (it2.hasNext()) {
-                    FlashmobTag instance = it2.next();
+                    FlashMobTag instance = it2.next();
                     if ((instance.date >= fromDate) && (rand.nextDouble() > 1 - probInterestFlashmobTag)) {
                         result.add(instance);
                     }
