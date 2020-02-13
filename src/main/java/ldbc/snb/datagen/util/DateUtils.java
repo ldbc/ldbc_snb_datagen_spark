@@ -37,7 +37,6 @@ package ldbc.snb.datagen.util;
 
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
-import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.generator.tools.PowerDistribution;
 import ldbc.snb.datagen.util.formatter.DateFormatter;
 import org.apache.hadoop.conf.Configuration;
@@ -64,7 +63,7 @@ public class DateUtils {
     private long toBirthDay_;
     private GregorianCalendar calendar_;
     private long updateThreshold_;
-    private PowerDistribution powerDist_;
+    private PowerDistribution powerDist;
     private DateFormatter dateFormatter_;
 
     // This constructor is for the case of friendship's created date generator
@@ -74,7 +73,7 @@ public class DateUtils {
         simulationStartYear.setTimeZone(TimeZone.getTimeZone("GMT"));
         simulationStart = simulationStartYear.getTimeInMillis();
         simulationEnd = simulationEndYear.getTimeInMillis();
-        powerDist_ = new PowerDistribution(0.0, 1.0, alpha);
+        powerDist = new PowerDistribution(0.0, 1.0, alpha);
 
         // For birthday from 1980 to 1990
         GregorianCalendar frombirthCalendar = new GregorianCalendar(1980, 1, 1);
@@ -200,8 +199,8 @@ public class DateUtils {
         return (long) (random.nextDouble() * (maxDate - minDate) + minDate);
     }
 
-    public long powerlawCommDateDay(Random random, long lastCommentCreatedDate) {
-        return (long) (powerDist_.getDouble(random) * ONE_DAY + lastCommentCreatedDate);
+    public long powerLawCommDateDay(Random random, long lastCommentCreatedDate) {
+        return (long) (powerDist.getDouble(random) * ONE_DAY + lastCommentCreatedDate);
     }
 
     public long randomSevenDays(Random random) {

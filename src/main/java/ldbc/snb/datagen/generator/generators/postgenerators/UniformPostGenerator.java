@@ -67,6 +67,11 @@ public class UniformPostGenerator extends PostGenerator {
         // add deletion date
         long minimumDeletionDate = postCreationDate + DatagenParams.deltaTime;
         long maximumDeletionDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getStartDateTime() + DateUtils.TEN_YEARS);
+
+        if (maximumDeletionDate - minimumDeletionDate < 0) {
+            return null;
+        }
+
         long postDeletionDate = Dictionaries.dates.randomDate(randomDate, minimumDeletionDate, maximumDeletionDate);
         postCore.setDeletionDate(postDeletionDate);
 

@@ -80,19 +80,13 @@ public class CommentGenerator {
 
             List<ForumMembership> validMemberships = new ArrayList<>(); // memberships that overlap with the existence of the parent message
 
-            for (ForumMembership membership : forum.getMemberships()) { // checks that become members before post was created
+            for (ForumMembership membership : forum.getMemberships()) { // parent and membership lifespans overlap
 
                 if ((membership.getCreationDate() < parentMessage.getCreationDate() && membership.getDeletionDate() > parentMessage.getCreationDate()) ||
-                membership.getCreationDate() > parentMessage.getCreationDate() && membership.getCreationDate() < parentMessage.getDeletionDate()) {
+                membership.getCreationDate() < parentMessage.getDeletionDate() && membership.getDeletionDate() > parentMessage.getDeletionDate()) {
                     validMemberships.add(membership);
-
                 }
 
-
-//                  old condition
-//                if (membership.getCreationDate() + DatagenParams.deltaTime <= parent.getCreationDate() ) {
-//                validMemberships.add(membership);
-//                }
             }
 
             if (validMemberships.size() == 0) { // skip if no valid membership
@@ -132,11 +126,15 @@ public class CommentGenerator {
 
             // creation date TODO: check this
             long baseDate = Math.max(parentMessage.getCreationDate(), membership.getCreationDate()) + DatagenParams.deltaTime;
-            long creationDate = Dictionaries.dates.powerlawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), baseDate);
+            long creationDate = Dictionaries.dates.powerLawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), baseDate);
 
             long minDeletionDate = creationDate + DatagenParams.deltaTime;
             long maxDeletionDate = Collections.min(Arrays.asList(parentMessage.getDeletionDate(), membership.getDeletionDate(),Dictionaries.dates.getStartDateTime() + DateUtils.TEN_YEARS));
-            long deletionDate = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),minDeletionDate,maxDeletionDate);
+
+            if (maxDeletionDate - minDeletionDate < 0) {
+                break;
+            }
+            long deletionDate = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), minDeletionDate, maxDeletionDate);
 
             int country = membership.getPerson().getCountryId();
             IP ip = membership.getPerson().getIpAddress();
