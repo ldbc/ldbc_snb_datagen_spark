@@ -69,7 +69,6 @@ public class PersonActivityGenerator {
     private UniformPostGenerator uniformPostGenerator;
     private FlashmobPostGenerator flashmobPostGenerator;
     private PhotoGenerator photoGenerator;
-    private DynamicActivitySerializer dynamicActivitySerializer;
     private UpdateEventSerializer updateSerializer;
     private FactorTable factorTable;
     private PersonActivityExporter exporter;
@@ -85,11 +84,10 @@ public class PersonActivityGenerator {
         uniformPostGenerator = new UniformPostGenerator(generator, commentGenerator, likeGenerator);
         flashmobPostGenerator = new FlashmobPostGenerator(generator, commentGenerator, likeGenerator);
         photoGenerator = new PhotoGenerator(likeGenerator);
-        this.dynamicActivitySerializer = dynamicActivitySerializer;
         this.updateSerializer = updateSerializer;
 
         factorTable = new FactorTable();
-        exporter = new PersonActivityExporter(dynamicActivitySerializer, this.updateSerializer, factorTable);
+        exporter = new PersonActivityExporter(dynamicActivitySerializer, updateSerializer, factorTable);
     }
 
     private void generateActivity(Person person, List<Person> block) throws AssertionError, IOException {
