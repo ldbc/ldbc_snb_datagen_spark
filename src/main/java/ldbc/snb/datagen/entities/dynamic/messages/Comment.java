@@ -43,22 +43,23 @@ import java.util.TreeSet;
 
 public class Comment extends Message {
 
-    private long postId_;
-    private long replyOf_;
+    private long postId;
+    private long replyOf;
 
     public Comment() {
         super();
     }
 
     public Comment(Comment comment) {
-        super(comment.getMessageId(), comment.getCreationDate(), comment.getAuthor(), comment.getForumId(), comment.getContent(),
+        super(comment.getMessageId(), comment.getCreationDate(), comment.getDeletionDate(), comment.getAuthor(), comment.getForumId(), comment.getContent(),
               comment.getTags(), comment.getCountryId(), comment.getIpAddress(), comment.getBrowserId());
-        postId_ = comment.postId();
-        replyOf_ = comment.replyOf();
+        postId = comment.postId();
+        replyOf = comment.replyOf();
     }
 
     public Comment(long commentId,
                    long creationDate,
+                   long deletionDate,
                    PersonSummary author,
                    long forumId,
                    String content,
@@ -70,13 +71,14 @@ public class Comment extends Message {
                    long replyOf
     ) {
 
-        super(commentId, creationDate, author, forumId, content, tags, countryId, ipAddress, browserId);
-        postId_ = postId;
-        replyOf_ = replyOf;
+        super(commentId, creationDate, deletionDate, author, forumId, content, tags, countryId, ipAddress, browserId);
+        this.postId = postId;
+        this.replyOf = replyOf;
     }
 
     public void initialize(long commentId,
                            long creationDate,
+                           long deletionDate,
                            PersonSummary author,
                            long forumId,
                            String content,
@@ -86,25 +88,18 @@ public class Comment extends Message {
                            int browserId,
                            long postId,
                            long replyOf) {
-        super.initialize(commentId, creationDate, author, forumId, content, tags, countryId, ipAddress, browserId);
-        postId_ = postId;
-        replyOf_ = replyOf;
+        super.initialize(commentId, creationDate, deletionDate, author, forumId, content, tags, countryId, ipAddress, browserId);
+        this.postId = postId;
+        this.replyOf = replyOf;
     }
 
     public long postId() {
-        return postId_;
-    }
-
-    public void postId(long id) {
-        postId_ = id;
+        return postId;
     }
 
     public long replyOf() {
-        return replyOf_;
+        return replyOf;
     }
 
-    public void replyOf(long id) {
-        replyOf_ = id;
-    }
 
 }

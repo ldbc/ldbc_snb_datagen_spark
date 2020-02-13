@@ -65,12 +65,13 @@ abstract public class PostGenerator {
     private LikeGenerator likeGenerator;
     private Post post;
 
-    static protected class PostInfo {
+    static class PostCore {
 
         private TreeSet<Integer> tags;
         private long creationDate;
+        private long deletionDate;
 
-        PostInfo() {
+        PostCore() {
             this.tags = new TreeSet<>();
         }
 
@@ -90,6 +91,13 @@ abstract public class PostGenerator {
             this.creationDate = creationDate;
         }
 
+        public long getDeletionDate() {
+            return deletionDate;
+        }
+
+        public void setDeletionDate(long deletionDate) {
+            this.deletionDate = deletionDate;
+        }
     }
 
 
@@ -127,17 +135,18 @@ abstract public class PostGenerator {
             // create each post for member
             for (int i = 0; i < (int) (numPostsPerMember); ++i) {
 
-                PostInfo postInfo = generatePostInfo(randomFarm.get(RandomGeneratorFarm.Aspect.TAG),
+                // create post core
+                PostCore postCore = generatePostInfo(randomFarm.get(RandomGeneratorFarm.Aspect.TAG),
                         randomFarm.get(RandomGeneratorFarm.Aspect.DATE), forum, member);
 
-                if (postInfo != null) {
+                if (postCore != null) {
 
                     // create content, county, ip - sometimes randomise
-                    String content = this.generator.generateText(member.getPerson(), postInfo.tags, properties);
+                    String content = this.generator.generateText(member.getPerson(), postCore.tags, properties);
                     int country = member.getPerson().getCountryId();
                     IP ip = member.getPerson().getIpAddress();
                     Random random = randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER);
-                    if (PersonBehavior.changeUsualCountry(random, postInfo.getCreationDate())) {
+                    if (PersonBehavior.changeUsualCountry(random, postCore.getCreationDate())) {
                         random = randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY);
                         country = Dictionaries.places.getRandomCountryUniform(random);
                         random = randomFarm.get(RandomGeneratorFarm.Aspect.IP);
@@ -145,12 +154,13 @@ abstract public class PostGenerator {
                     }
 
                     // create post with above information and from post info
-                    post.initialize(SN.formId(SN.composeId(postIdCounter++, postInfo.getCreationDate())),
-                                     postInfo.getCreationDate(),
+                    post.initialize(SN.formId(SN.composeId(postIdCounter++, postCore.getCreationDate())),
+                                     postCore.getCreationDate(),
+                                     postCore.getDeletionDate(),
                                      member.getPerson(),
                                      forum.getId(),
                                      content,
-                                     postInfo.tags,
+                                     postCore.tags,
                                      country,
                                      ip,
                                      Dictionaries.browsers.getPostBrowserId(
@@ -161,14 +171,14 @@ abstract public class PostGenerator {
 
                     exporter.export(post);
 
+                    // generate likes
                     if (randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1) {
                         likeGenerator.generateLikes(randomFarm
                                                              .get(RandomGeneratorFarm.Aspect.NUM_LIKE), forum, post, Like.LikeType.POST, exporter);
                     }
 
                     // generate comments
-                    int numComments = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT)
-                                                .nextInt(DatagenParams.maxNumComments + 1);
+                    int numComments = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(DatagenParams.maxNumComments + 1);
                     postIdCounter = commentGenerator.createComments(randomFarm, forum, post, numComments, postIdCounter, exporter);
                 }
             }
@@ -176,5 +186,5 @@ abstract public class PostGenerator {
         return postIdCounter;
     }
 
-    protected abstract PostInfo generatePostInfo(Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership);
+    protected abstract PostCore generatePostInfo(Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership);
 }

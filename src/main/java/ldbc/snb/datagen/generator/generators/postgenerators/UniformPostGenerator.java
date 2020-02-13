@@ -54,28 +54,32 @@ public class UniformPostGenerator extends PostGenerator {
     }
 
     @Override
-    protected PostInfo generatePostInfo(Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership) {
+    protected PostCore generatePostInfo(Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership) {
 
-        PostInfo postInfo = new PostInfo();
+        PostCore postCore = new PostCore();
 
         // add creation date
         long minimumCreationDate = membership.getCreationDate() + DatagenParams.deltaTime;
-        long maximumCreationDate = Math.min(forum.getDeletionDate(),membership.getPerson().getDeletionDate());
-        maximumCreationDate = Math.min(maximumCreationDate, Dictionaries.dates.getEndDateTime());
+        long maximumCreationDate = Math.min(membership.getDeletionDate(),Dictionaries.dates.getEndDateTime());
         long postCreationDate = Dictionaries.dates.randomDate(randomDate, minimumCreationDate, maximumCreationDate);
-        postInfo.setCreationDate(postCreationDate);
+        postCore.setCreationDate(postCreationDate);
 
+        // add deletion date
+        long minimumDeletionDate = postCreationDate + DatagenParams.deltaTime;
+        long maximumDeletionDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getStartDateTime() + DateUtils.TEN_YEARS);
+        long postDeletionDate = Dictionaries.dates.randomDate(randomDate, minimumDeletionDate, maximumDeletionDate);
+        postCore.setDeletionDate(postDeletionDate);
 
         // add tags to post
         for (Integer value : forum.getTags()) {
-            if (postInfo.getTags().isEmpty()) {
-                postInfo.getTags().add(value);
+            if (postCore.getTags().isEmpty()) {
+                postCore.getTags().add(value);
             } else {
                 if (randomTag.nextDouble() < 0.05) {
-                    postInfo.getTags().add(value);
+                    postCore.getTags().add(value);
                 }
             }
         }
-        return postInfo;
+        return postCore;
     }
 }

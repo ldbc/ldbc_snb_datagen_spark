@@ -40,9 +40,11 @@ import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.entities.dynamic.messages.Photo;
 import ldbc.snb.datagen.entities.dynamic.person.IP;
+import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.entities.dynamic.relations.Like;
 import ldbc.snb.datagen.serializer.PersonActivityExporter;
+import ldbc.snb.datagen.util.DateUtils;
 import ldbc.snb.datagen.util.PersonBehavior;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
@@ -66,7 +68,7 @@ class PhotoGenerator {
         this.photo = new Photo();
     }
 
-    long createPhotos(RandomGeneratorFarm randomFarm, final Forum album, long numPhotos, long startId, PersonActivityExporter exporter) throws IOException {
+    long createPhotos(RandomGeneratorFarm randomFarm, final Forum album, long numPhotosInAlbum, long startId, PersonActivityExporter exporter) throws IOException {
         long nextId = startId;
         int numPopularPlaces = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_POPULAR)
                                          .nextInt(DatagenParams.maxNumPopularPlaces + 1);
@@ -79,23 +81,38 @@ class PhotoGenerator {
                 popularPlaces.add(aux);
             }
         }
-        for (int i = 0; i < numPhotos; ++i) {
+        for (int i = 0; i < numPhotosInAlbum; ++i) {
 
             TreeSet<Integer> tags = new TreeSet<>();
-            long date = album.getCreationDate() + DatagenParams.deltaTime + 1000 * (i + 1);
+
+            // creates photo
+            long creationDate = album.getCreationDate() + DatagenParams.deltaTime + 1000 * (i + 1);
+            if (creationDate >= album.getDeletionDate()) {
+                break;
+            }
+
+            Random randomDate = randomFarm.get(RandomGeneratorFarm.Aspect.DATE);
+            long minDeletionDate = creationDate + DatagenParams.deltaTime;
+            long maxDeletionDate = Math.min(album.getDeletionDate(),Dictionaries.dates.getStartDateTime() + DateUtils.TEN_YEARS);
+            long deletionDate = Dictionaries.dates.randomDate(randomDate,minDeletionDate, maxDeletionDate);
+
+
             int country = album.getModerator().getCountryId();
             IP ip = album.getModerator().getIpAddress();
             Random random = randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER);
-            if (PersonBehavior.changeUsualCountry(random, date)) {
+
+
+            if (PersonBehavior.changeUsualCountry(random, creationDate)) {
                 random = randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY);
                 country = Dictionaries.places.getRandomCountryUniform(random);
                 random = randomFarm.get(RandomGeneratorFarm.Aspect.IP);
                 ip = Dictionaries.ips.getIP(random, country);
             }
 
-            long id = SN.formId(SN.composeId(nextId++, date));
+            long id = SN.formId(SN.composeId(nextId++, creationDate));
             photo.initialize(id,
-                              date,
+                              creationDate,
+                              deletionDate,
                               album.getModerator(),
                               album.getId(),
                               "photo" + id + ".jpg",

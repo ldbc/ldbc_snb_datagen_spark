@@ -48,17 +48,26 @@ public class Post extends Message {
         super();
     }
 
-    public Post(long postId, long creationDate, PersonSummary author, long forumId, String content,
-                TreeSet<Integer> tags, int countryId, IP ipAddress, int browserId, int language
+    public Post(long postId,
+                long creationDate,
+                long deletionDate,
+                PersonSummary author,
+                long forumId,
+                String content,
+                TreeSet<Integer> tags,
+                int countryId,
+                IP ipAddress,
+                int browserId,
+                int language
     ) {
-        super(postId, creationDate, author, forumId, content, tags, countryId, ipAddress, browserId);
+        super(postId, creationDate, deletionDate, author, forumId, content, tags, countryId, ipAddress, browserId);
         this.language = language;
     }
 
-    public void initialize(long postId, long creationDate, PersonSummary author, long forumId,
+    public void initialize(long postId, long creationDate, long deletionDate, PersonSummary author, long forumId,
                            String content, TreeSet<Integer> tags, int countryId, IP ipAddress, int browserId, int language
     ) {
-        super.initialize(postId, creationDate, author, forumId, content, tags, countryId, ipAddress, browserId);
+        super.initialize(postId, creationDate, deletionDate, author, forumId, content, tags, countryId, ipAddress, browserId);
         this.language = language;
     }
 

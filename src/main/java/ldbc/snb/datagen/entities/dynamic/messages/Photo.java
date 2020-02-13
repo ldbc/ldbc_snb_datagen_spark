@@ -40,6 +40,9 @@ import ldbc.snb.datagen.entities.dynamic.person.Person.PersonSummary;
 
 import java.util.TreeSet;
 
+/**
+ * In the schema photo extends post. For conciseness it is treated as a message.
+ */
 public class Photo extends Message {
 
     public Photo() {
@@ -48,6 +51,7 @@ public class Photo extends Message {
 
     public Photo(long messageId,
                  long creationDate,
+                 long deletionDate,
                  PersonSummary author,
                  long forumId,
                  String content,
@@ -55,24 +59,7 @@ public class Photo extends Message {
                  int countryId,
                  IP ipAddress,
                  int browserId
-
     ) {
-        super(messageId, creationDate, author, forumId, content, tags, countryId, ipAddress, browserId);
-
+        super(messageId, creationDate, deletionDate, author, forumId, content, tags, countryId, ipAddress, browserId);
     }
-
-    public void initialize(long messageId,
-                           long creationDate,
-                           PersonSummary author,
-                           long forumId,
-                           String content,
-                           TreeSet<Integer> tags,
-                           int countryId,
-                           IP ipAddress,
-                           int browserId
-
-    ) {
-        super.initialize(messageId, creationDate, author, forumId, content, tags, countryId, ipAddress, browserId);
-    }
-
 }

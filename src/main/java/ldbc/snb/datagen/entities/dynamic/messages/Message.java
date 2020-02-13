@@ -45,7 +45,7 @@ abstract public class Message {
 
     private long messageId;
     private long creationDate;
-//    private long deletionDate;
+    private long deletionDate;
     private PersonSummary author;
     private long forumId;
     private String content;
@@ -59,13 +59,13 @@ abstract public class Message {
         ipAddress = new IP();
     }
 
-    public Message(long messageId, long creationDate, PersonSummary author, long forumId,
+    public Message(long messageId, long creationDate, long deletionDate, PersonSummary author, long forumId,
                    String content, TreeSet<Integer> tags, int countryId, IP ipAddress, int browserId
     ) {
         assert ((author.getCreationDate() + DatagenParams.deltaTime) <= creationDate);
         this.messageId = messageId;
         this.creationDate = creationDate;
-//        this.deletionDate = deletionDate;
+        this.deletionDate = deletionDate;
         this.author = new PersonSummary(author);
         this.forumId = forumId;
         this.content = content;
@@ -75,12 +75,12 @@ abstract public class Message {
         this.browserId = browserId;
     }
 
-    public void initialize(long messageId, long creationDate, PersonSummary author, long forumId,
+    public void initialize(long messageId, long creationDate, long deletionDate, PersonSummary author, long forumId,
                            String content, TreeSet<Integer> tags, int countryId, IP ipAddress, int browserId
     ) {
         this.messageId = messageId;
         this.creationDate = creationDate;
-//        this.deletionDate = deletionDate;
+        this.deletionDate = deletionDate;
         this.author = new PersonSummary(author);
         this.forumId = forumId;
         this.content = content;
@@ -103,13 +103,13 @@ abstract public class Message {
         creationDate = date;
     }
 
-//    public long getDeletionDate() {
-//        return deletionDate;
-//    }
+    public long getDeletionDate() {
+        return deletionDate;
+    }
 
-//    public void setDeletionDate(long deletionDate) {
-//        this.deletionDate = deletionDate;
-//    }
+    public void setDeletionDate(long deletionDate) {
+        this.deletionDate = deletionDate;
+    }
 
     public PersonSummary getAuthor() {
         return author;
@@ -117,10 +117,6 @@ abstract public class Message {
 
     public long getForumId() {
         return forumId;
-    }
-
-    public void setForumId(long id) {
-        forumId = id;
     }
 
     public String getContent() {

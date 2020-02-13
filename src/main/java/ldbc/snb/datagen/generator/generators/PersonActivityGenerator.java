@@ -205,10 +205,10 @@ c
             }
 
             // number of photos to generate
-            int numPhotos = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_PHOTO)
+            int numPhotosInAlbum = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_PHOTO)
                                        .nextInt(DatagenParams.maxNumPhotoPerAlbums + 1);
             // create photos
-            startMessageId = photoGenerator.createPhotos(randomFarm, album, numPhotos, startMessageId, exporter);
+            startMessageId = photoGenerator.createPhotos(randomFarm, album, numPhotosInAlbum, startMessageId, exporter);
         }
     }
 

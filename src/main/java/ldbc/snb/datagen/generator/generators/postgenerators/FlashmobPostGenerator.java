@@ -39,7 +39,7 @@ import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
-import ldbc.snb.datagen.entities.statictype.tag.FlashmobTag;
+import ldbc.snb.datagen.entities.statictype.tag.FlashMobTag;
 import ldbc.snb.datagen.generator.generators.CommentGenerator;
 import ldbc.snb.datagen.generator.generators.LikeGenerator;
 import ldbc.snb.datagen.generator.generators.textgenerators.TextGenerator;
@@ -54,17 +54,17 @@ import java.util.TreeSet;
 import static ldbc.snb.datagen.DatagenParams.*;
 
 public class FlashmobPostGenerator extends PostGenerator {
-    private Distribution dateDistribution_;
-    private FlashmobTag[] forumFlashmobTags = null;
-    private long flashmobSpan_;
+    private Distribution dateDistribution;
+    private FlashMobTag[] forumFlashmobTags = null;
+    private long flashmobSpan;
     private long currentForum = -1;
 
     public FlashmobPostGenerator(TextGenerator generator, CommentGenerator commentGenerator, LikeGenerator likeGenerator) {
         super(generator, commentGenerator, likeGenerator);
-        dateDistribution_ = new Distribution(DatagenParams.flashmobDistFile);
+        dateDistribution = new Distribution(DatagenParams.flashmobDistFile);
         long hoursToMillis_ = 60 * 60 * 1000;
-        flashmobSpan_ = 72 * hoursToMillis_;
-        dateDistribution_.initialize();
+        flashmobSpan = 72 * hoursToMillis_;
+        dateDistribution.initialize();
     }
 
     /**
@@ -73,7 +73,7 @@ public class FlashmobPostGenerator extends PostGenerator {
      * @param[in] tags The array of sorted tags to select from.
      * @param[in] index The first tag to consider.
      */
-    private int selectRandomTag(Random randomFlashmobTag, FlashmobTag[] tags, int index) {
+    private int selectRandomTag(Random randomFlashmobTag, FlashMobTag[] tags, int index) {
         int upperBound = tags.length - 1;
         int lowerBound = index;
         double prob = randomFlashmobTag
@@ -94,8 +94,8 @@ public class FlashmobPostGenerator extends PostGenerator {
      * @return The index to the earliest flashmob tag.
      * @brief Selects the earliest flashmob tag index from a given date.
      */
-    private int searchEarliest(FlashmobTag[] tags, ForumMembership membership) {
-        long fromDate = membership.getCreationDate() + flashmobSpan_ / 2 + DatagenParams.deltaTime;
+    private int searchEarliest(FlashMobTag[] tags, ForumMembership membership) {
+        long fromDate = membership.getCreationDate() + flashmobSpan / 2 + DatagenParams.deltaTime;
         int lowerBound = 0;
         int upperBound = tags.length - 1;
         int midPoint = (upperBound + lowerBound) / 2;
@@ -114,52 +114,49 @@ public class FlashmobPostGenerator extends PostGenerator {
     private void populateForumFlashmobTags(Random randomNumPost, Forum forum) {
 
         TreeSet<Integer> tags = new TreeSet<>();
-        for (Integer tag : tags) {
-            tags.add(tag);
-        }
-        List<FlashmobTag> temp = Dictionaries.flashmobs.generateFlashmobTags(randomNumPost, tags, forum
+        tags.addAll(tags);
+        List<FlashMobTag> temp = Dictionaries.flashmobs.generateFlashmobTags(randomNumPost, tags, forum
                 .getCreationDate());
-        forumFlashmobTags = new FlashmobTag[temp.size()];
-        Iterator<FlashmobTag> it = temp.iterator();
+        forumFlashmobTags = new FlashMobTag[temp.size()];
+        Iterator<FlashMobTag> it = temp.iterator();
         int index = 0;
         int sumLevels = 0;
         while (it.hasNext()) {
-            FlashmobTag flashmobTag = new FlashmobTag();
+            FlashMobTag flashmobTag = new FlashMobTag();
             it.next().copyTo(flashmobTag);
             forumFlashmobTags[index] = flashmobTag;
             sumLevels += flashmobTag.level;
             ++index;
         }
         Arrays.sort(forumFlashmobTags);
-        int size = forumFlashmobTags.length;
         double currentProb = 0.0;
-        for (int i = 0; i < size; ++i) {
-            forumFlashmobTags[i].prob = currentProb;
-            currentProb += (double) (forumFlashmobTags[i].level) / (double) (sumLevels);
+        for (FlashMobTag forumFlashmobTag : forumFlashmobTags) {
+            forumFlashmobTag.prob = currentProb;
+            currentProb += (double) (forumFlashmobTag.level) / (double) (sumLevels);
         }
     }
 
-    protected PostGenerator.PostInfo generatePostInfo(Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership) {
+    protected PostCore generatePostInfo(Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership) {
         if (currentForum != forum.getId()) {
             populateForumFlashmobTags(randomTag, forum);
             currentForum = forum.getId();
         }
         if (forumFlashmobTags.length < 1) return null;
-        PostInfo postInfo = new PostInfo();
+        PostCore postCore = new PostCore();
         int index = searchEarliest(forumFlashmobTags, membership);
         if (index < 0) return null;
         index = selectRandomTag(randomTag, forumFlashmobTags, index);
-        FlashmobTag flashmobTag = forumFlashmobTags[index];
-        postInfo.getTags().add(flashmobTag.tag);
+        FlashMobTag flashmobTag = forumFlashmobTags[index];
+        postCore.getTags().add(flashmobTag.tag);
 
         for (int i = 0; i < maxNumTagPerFlashmobPost - 1; ++i) {
             if (randomTag.nextDouble() < 0.05) {
                 int tag = Dictionaries.tagMatrix.getRandomRelated(randomTag, flashmobTag.tag);
-                postInfo.getTags().add(tag);
+                postCore.getTags().add(tag);
             }
         }
-        double prob = dateDistribution_.nextDouble(randomDate);
-        postInfo.setCreationDate(flashmobTag.date - flashmobSpan_ / 2 + (long) (prob * flashmobSpan_));
-        return postInfo;
+        double prob = dateDistribution.nextDouble(randomDate);
+        postCore.setCreationDate(flashmobTag.date - flashmobSpan / 2 + (long) (prob * flashmobSpan));
+        return postCore;
     }
 }
