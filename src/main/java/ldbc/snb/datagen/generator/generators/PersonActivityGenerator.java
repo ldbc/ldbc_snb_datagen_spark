@@ -196,7 +196,7 @@ public class PersonActivityGenerator {
 
         //  create albums
         for (int i = 0; i < numberOfPhotoAlbums; i++) {
-c
+
             Forum album = forumGenerator.createAlbum(randomFarm, startForumId++, person, i);
             exporter.export(album);
 
