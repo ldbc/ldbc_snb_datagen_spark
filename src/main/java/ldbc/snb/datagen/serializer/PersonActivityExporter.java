@@ -48,66 +48,66 @@ import ldbc.snb.datagen.util.FactorTable;
 import java.io.IOException;
 
 public class PersonActivityExporter {
-    protected DynamicActivitySerializer dynamicActivitySerializer_;
-    protected UpdateEventSerializer updateSerializer_;
-    protected FactorTable factorTable_;
+    protected DynamicActivitySerializer dynamicActivitySerializer;
+    protected UpdateEventSerializer updateSerializer;
+    protected FactorTable factorTable;
 
     public PersonActivityExporter(DynamicActivitySerializer dynamicActivitySerializer, UpdateEventSerializer updateEventSerializer, FactorTable factorTable) {
-        this.dynamicActivitySerializer_ = dynamicActivitySerializer;
-        this.updateSerializer_ = updateEventSerializer;
-        this.factorTable_ = factorTable;
+        this.dynamicActivitySerializer = dynamicActivitySerializer;
+        this.updateSerializer = updateEventSerializer;
+        this.factorTable = factorTable;
     }
 
     public void export(final Forum forum) throws IOException {
         if (forum.getCreationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
-            dynamicActivitySerializer_.export(forum);
+            dynamicActivitySerializer.export(forum);
         } else {
-            updateSerializer_.export(forum);
+            updateSerializer.export(forum);
         }
     }
 
     public void export(final Post post) throws IOException {
         if (post.getCreationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
-            dynamicActivitySerializer_.export(post);
-            factorTable_.extractFactors(post);
+            dynamicActivitySerializer.export(post);
+            factorTable.extractFactors(post);
         } else {
-            updateSerializer_.export(post);
+            updateSerializer.export(post);
         }
     }
 
     public void export(final Comment comment) throws IOException {
         if (comment.getCreationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
-            dynamicActivitySerializer_.export(comment);
-            factorTable_.extractFactors(comment);
+            dynamicActivitySerializer.export(comment);
+            factorTable.extractFactors(comment);
         } else {
-            updateSerializer_.export(comment);
+            updateSerializer.export(comment);
         }
     }
 
     public void export(final Photo photo) throws IOException {
         if (photo.getCreationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
-            dynamicActivitySerializer_.export(photo);
-            factorTable_.extractFactors(photo);
+            dynamicActivitySerializer.export(photo);
+            factorTable.extractFactors(photo);
         } else {
-            updateSerializer_.export(photo);
+            updateSerializer.export(photo);
         }
     }
 
     public void export(final ForumMembership member) throws IOException {
         if (member.getCreationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
-            dynamicActivitySerializer_.export(member);
-            factorTable_.extractFactors(member);
+            dynamicActivitySerializer.export(member);
+            factorTable.extractFactors(member);
         } else {
-            updateSerializer_.export(member);
+            updateSerializer.export(member);
         }
     }
 
     public void export(final Like like) throws IOException {
         if (like.creationDate < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
-            dynamicActivitySerializer_.export(like);
-            factorTable_.extractFactors(like);
+            dynamicActivitySerializer.export(like);
+            factorTable.extractFactors(like);
         } else {
-            updateSerializer_.export(like);
+            updateSerializer.export(like);
         }
     }
 }
