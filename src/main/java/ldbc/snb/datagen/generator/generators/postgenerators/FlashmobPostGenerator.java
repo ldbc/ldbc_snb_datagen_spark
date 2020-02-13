@@ -39,7 +39,7 @@ import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
-import ldbc.snb.datagen.entities.statictype.tag.FlashMobTag;
+import ldbc.snb.datagen.entities.statictype.tag.FlashmobTag;
 import ldbc.snb.datagen.generator.generators.CommentGenerator;
 import ldbc.snb.datagen.generator.generators.LikeGenerator;
 import ldbc.snb.datagen.generator.generators.textgenerators.TextGenerator;
@@ -55,7 +55,7 @@ import static ldbc.snb.datagen.DatagenParams.*;
 
 public class FlashmobPostGenerator extends PostGenerator {
     private Distribution dateDistribution;
-    private FlashMobTag[] forumFlashmobTags = null;
+    private FlashmobTag[] forumFlashmobTags = null;
     private long flashmobSpan;
     private long currentForum = -1;
 
@@ -73,7 +73,7 @@ public class FlashmobPostGenerator extends PostGenerator {
      * @param[in] tags The array of sorted tags to select from.
      * @param[in] index The first tag to consider.
      */
-    private int selectRandomTag(Random randomFlashmobTag, FlashMobTag[] tags, int index) {
+    private int selectRandomTag(Random randomFlashmobTag, FlashmobTag[] tags, int index) {
         int upperBound = tags.length - 1;
         int lowerBound = index;
         double prob = randomFlashmobTag
@@ -94,7 +94,7 @@ public class FlashmobPostGenerator extends PostGenerator {
      * @return The index to the earliest flashmob tag.
      * @brief Selects the earliest flashmob tag index from a given date.
      */
-    private int searchEarliest(FlashMobTag[] tags, ForumMembership membership) {
+    private int searchEarliest(FlashmobTag[] tags, ForumMembership membership) {
         long fromDate = membership.getCreationDate() + flashmobSpan / 2 + DatagenParams.deltaTime;
         int lowerBound = 0;
         int upperBound = tags.length - 1;
@@ -115,14 +115,14 @@ public class FlashmobPostGenerator extends PostGenerator {
 
         TreeSet<Integer> tags = new TreeSet<>();
         tags.addAll(tags);
-        List<FlashMobTag> temp = Dictionaries.flashmobs.generateFlashmobTags(randomNumPost, tags, forum
+        List<FlashmobTag> temp = Dictionaries.flashmobs.generateFlashmobTags(randomNumPost, tags, forum
                 .getCreationDate());
-        forumFlashmobTags = new FlashMobTag[temp.size()];
-        Iterator<FlashMobTag> it = temp.iterator();
+        forumFlashmobTags = new FlashmobTag[temp.size()];
+        Iterator<FlashmobTag> it = temp.iterator();
         int index = 0;
         int sumLevels = 0;
         while (it.hasNext()) {
-            FlashMobTag flashmobTag = new FlashMobTag();
+            FlashmobTag flashmobTag = new FlashmobTag();
             it.next().copyTo(flashmobTag);
             forumFlashmobTags[index] = flashmobTag;
             sumLevels += flashmobTag.level;
@@ -130,7 +130,7 @@ public class FlashmobPostGenerator extends PostGenerator {
         }
         Arrays.sort(forumFlashmobTags);
         double currentProb = 0.0;
-        for (FlashMobTag forumFlashmobTag : forumFlashmobTags) {
+        for (FlashmobTag forumFlashmobTag : forumFlashmobTags) {
             forumFlashmobTag.prob = currentProb;
             currentProb += (double) (forumFlashmobTag.level) / (double) (sumLevels);
         }
@@ -146,7 +146,7 @@ public class FlashmobPostGenerator extends PostGenerator {
         int index = searchEarliest(forumFlashmobTags, membership);
         if (index < 0) return null;
         index = selectRandomTag(randomTag, forumFlashmobTags, index);
-        FlashMobTag flashmobTag = forumFlashmobTags[index];
+        FlashmobTag flashmobTag = forumFlashmobTags[index];
         postCore.getTags().add(flashmobTag.tag);
 
         for (int i = 0; i < maxNumTagPerFlashmobPost - 1; ++i) {
