@@ -114,7 +114,6 @@ public class FlashmobPostGenerator extends PostGenerator {
     private void populateForumFlashmobTags(Random randomNumPost, Forum forum) {
 
         TreeSet<Integer> tags = new TreeSet<>();
-        tags.addAll(tags);
         List<FlashMobTag> temp = Dictionaries.flashmobs.generateFlashmobTags(randomNumPost, tags, forum
                 .getCreationDate());
         forumFlashmobTags = new FlashMobTag[temp.size()];

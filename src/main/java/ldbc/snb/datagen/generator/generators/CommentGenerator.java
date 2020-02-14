@@ -73,11 +73,11 @@ public class CommentGenerator {
         Properties prop = new Properties();
         prop.setProperty("type", "comment");
 
+        // each iteration adds a new leaf node, for the first iteration this is a child of root Post
         for (int i = 0; i < numComments; ++i) {
+
             int parentIndex = randomFarm.get(RandomGeneratorFarm.Aspect.REPLY_TO).nextInt(parentCandidates.size()); // pick from parent candidates
             Message parentMessage = parentCandidates.get(parentIndex);
-
-
             List<ForumMembership> validMemberships = new ArrayList<>(); // memberships that overlap with the existence of the parent message
 
             for (ForumMembership membership : forum.getMemberships()) { // parent and membership lifespans overlap
@@ -114,8 +114,7 @@ public class CommentGenerator {
                 for (int j = 0; j < (int) Math.ceil(parentMessage.getTags().size() / 2.0); ++j) {
                     int randomTag = currentTags.get(randomFarm.get(RandomGeneratorFarm.Aspect.TAG)
                                                               .nextInt(currentTags.size()));
-                    tags.add(Dictionaries.tagMatrix
-                                     .getRandomRelated(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), randomTag));
+                    tags.add(Dictionaries.tagMatrix.getRandomRelated(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), randomTag));
                 }
                 content = this.generator.generateText(membership.getPerson(), tags, prop);
             } else {
@@ -124,7 +123,7 @@ public class CommentGenerator {
                 content = shortComments[index];
             }
 
-            // creation date TODO: check this
+            // creation date
             long baseDate = Math.max(parentMessage.getCreationDate(), membership.getCreationDate()) + DatagenParams.deltaTime;
             long creationDate = Dictionaries.dates.powerLawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), baseDate);
 
@@ -165,8 +164,7 @@ public class CommentGenerator {
             exporter.export(comment);
             if (comment.getContent().length() > 10 && randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE)
                                                              .nextDouble() <= 0.1) {
-                likeGenerator.generateLikes(randomFarm
-                                                     .get(RandomGeneratorFarm.Aspect.NUM_LIKE), forum, comment, Like.LikeType.COMMENT, exporter);
+                likeGenerator.generateLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), forum, comment, Like.LikeType.COMMENT, exporter);
             }
         }
         parentCandidates.clear();
