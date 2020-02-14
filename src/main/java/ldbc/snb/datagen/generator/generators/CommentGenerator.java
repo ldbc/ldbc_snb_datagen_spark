@@ -131,7 +131,7 @@ public class CommentGenerator {
             long maxDeletionDate = Collections.min(Arrays.asList(parentMessage.getDeletionDate(), membership.getDeletionDate(),Dictionaries.dates.getStartDateTime() + DateUtils.TEN_YEARS));
 
             if (maxDeletionDate - minDeletionDate < 0) {
-                break;
+                continue;
             }
             long deletionDate = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), minDeletionDate, maxDeletionDate);
 
