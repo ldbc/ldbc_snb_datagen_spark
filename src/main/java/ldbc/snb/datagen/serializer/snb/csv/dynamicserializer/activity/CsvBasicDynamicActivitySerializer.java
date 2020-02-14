@@ -129,7 +129,7 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
 
     protected void serialize(final Post post) {
         String creationDate = Dictionaries.dates.formatDateTime(post.getCreationDate());
-        String deletionDate = "1234"; // placeholder for deletion date
+        String deletionDate = Dictionaries.dates.formatDateTime(post.getDeletionDate());
 
         //"creationDate","deletionDate","id","imageFile","locationIP","browserUsed","language","content","length"
         writers.get(POST).writeEntry(ImmutableList.of(
@@ -181,7 +181,7 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
 
     protected void serialize(final Comment comment) {
         String creationDate = Dictionaries.dates.formatDateTime(comment.getCreationDate());
-        String deletionDate = "1234";
+        String deletionDate = Dictionaries.dates.formatDateTime(comment.getDeletionDate());
         //"creationDate","deletionDate","id","locationIP","browserUsed","content","length"
         writers.get(COMMENT).writeEntry(ImmutableList.of(
                 creationDate,
@@ -239,7 +239,7 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
 
     protected void serialize(final Photo photo) {
         String creationDate = Dictionaries.dates.formatDateTime(photo.getCreationDate());
-        String deletionDate = "1234";
+        String deletionDate = Dictionaries.dates.formatDateTime(photo.getDeletionDate());
         //"creationDate","deletionDate","id","imageFile","locationIP","browserUsed","language","content","length"
         writers.get(POST).writeEntry(ImmutableList.of(
                 creationDate,
@@ -289,12 +289,11 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
     }
 
     protected void serialize(final Like like) {
-        String deletionDate = "1234";
         if (like.type == Like.LikeType.POST || like.type == Like.LikeType.PHOTO) {
             //"creationDate","deletionDate","Person.id","Post.id"
             writers.get(PERSON_LIKES_POST).writeEntry(ImmutableList.of(
                     Dictionaries.dates.formatDateTime(like.likeCreationDate),
-                    deletionDate,
+                    Dictionaries.dates.formatDateTime(like.likeDeletionDate),
                     Long.toString(like.person),
                     Long.toString(like.messageId)
             ));
@@ -302,7 +301,7 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
             //"creationDate","deletionDate","Person.id","Comment.id"
             writers.get(PERSON_LIKES_COMMENT).writeEntry(ImmutableList.of(
                     Dictionaries.dates.formatDateTime(like.likeCreationDate),
-                    deletionDate,
+                    Dictionaries.dates.formatDateTime(like.likeDeletionDate),
                     Long.toString(like.person),
                     Long.toString(like.messageId)
             ));
