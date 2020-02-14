@@ -230,7 +230,7 @@ public class TurtleDynamicActivitySerializer extends DynamicActivitySerializer<H
             Turtle.addTriple(result, true, false, likePrefix, SNVOC.hasComment, prefix);
         }
         Turtle.addTriple(result, false, true, likePrefix, SNVOC.creationDate,
-                         Turtle.createDataTypeLiteral(TurtleDateTimeFormat.get().format(like.creationDate), XSD.DateTime));
+                         Turtle.createDataTypeLiteral(TurtleDateTimeFormat.get().format(like.likeCreationDate), XSD.DateTime));
         likeId++;
         writers.get(SOCIAL_NETWORK_ACTIVITY).write(result.toString());
     }

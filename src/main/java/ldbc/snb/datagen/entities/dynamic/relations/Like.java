@@ -46,6 +46,7 @@ public class Like {
     public long person;
     public long personCreationDate;
     public long messageId;
-    public long creationDate;
+    public long likeCreationDate;
+    public long likeDeletionDate;
     public LikeType type;
 }

@@ -44,8 +44,11 @@ import ldbc.snb.datagen.entities.dynamic.relations.Like;
 import ldbc.snb.datagen.entities.dynamic.relations.Like.LikeType;
 import ldbc.snb.datagen.generator.tools.PowerDistribution;
 import ldbc.snb.datagen.serializer.PersonActivityExporter;
+import ldbc.snb.datagen.util.DateUtils;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -70,16 +73,43 @@ public class LikeGenerator {
         }
         for (int i = 0; i < numLikes; i++) {
             ForumMembership membership = memberships.get(startIndex + i);
-            long minDate = message.getCreationDate() > memberships.get(startIndex + i).getCreationDate() ? message
-                    .getCreationDate() : membership.getCreationDate();
-            long date = Dictionaries.dates.randomDate(random, minDate, Dictionaries.dates
-                    .randomSevenDays(random) + minDate);
-            assert ((membership.getPerson().getCreationDate() + DatagenParams.deltaTime) < date);
+
+            long minCreationDate = Math.max(membership.getPerson().getCreationDate(),message.getCreationDate()) + DatagenParams.deltaTime;
+            long maxCreationDate = Collections.min(Arrays.asList(
+                                                        membership.getPerson().getDeletionDate(),
+                                                        message.getCreationDate(),
+                                                        Dictionaries.dates.getEndDateTime(),
+                                                        Dictionaries.dates.randomSevenDays(random) + minCreationDate
+                                                        ));
+            if (maxCreationDate - minCreationDate < 0 ){
+                continue;
+            }
+
+            long likeCreationDate = Dictionaries.dates.randomDate(random,minCreationDate, maxCreationDate);
+
+            long minDeletionDate = minCreationDate + DatagenParams.deltaTime;
+            long maxDeletionDate = Collections.min(Arrays.asList(
+                                                        membership.getPerson().getDeletionDate(),
+                                                        message.getDeletionDate(),
+                                                        Dictionaries.dates.getStartDateTime() + DateUtils.TEN_YEARS
+            ));
+
+            if (maxDeletionDate - minDeletionDate < 0 ){
+                continue;
+            }
+
+            long likeDeletionDate = Dictionaries.dates.randomDate(random,minDeletionDate, maxDeletionDate);
+
+
+
+
             like.person = membership.getPerson().getAccountId();
             like.personCreationDate = membership.getPerson().getCreationDate();
             like.messageId = message.getMessageId();
-            like.creationDate = date;
+            like.likeCreationDate = likeCreationDate;
+            like.likeDeletionDate = likeDeletionDate;
             like.type = type;
+
             exporter.export(like);
         }
     }
