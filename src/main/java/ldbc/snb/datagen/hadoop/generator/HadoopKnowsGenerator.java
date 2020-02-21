@@ -84,8 +84,8 @@ public class HadoopKnowsGenerator {
 
         protected void setup(Context context) {
             this.conf = context.getConfiguration();
-            LdbcDatagen.initializeContext(conf);
             try {
+                LdbcDatagen.initializeContext(conf);
                 this.knowsGenerator = (KnowsGenerator) Class.forName(conf.get("knowsGeneratorName")).newInstance();
                 this.knowsGenerator.initialize(conf);
             } catch (Exception e) {

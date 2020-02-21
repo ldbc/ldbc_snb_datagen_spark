@@ -55,6 +55,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -80,17 +81,16 @@ public class LdbcDatagen {
     }
 
     public static synchronized void initializeContext(Configuration conf) {
-        if (!initialized) {
-            DatagenParams.readConf(conf);
-            Dictionaries.loadDictionaries(conf);
-            SN.initialize();
-            try {
+        try {
+            if (!initialized) {
+                DatagenParams.readConf(conf);
+                Dictionaries.loadDictionaries(conf);
+                SN.initialize();
                 Person.personSimilarity = (Person.PersonSimilarity) Class.forName(conf.get("ldbc.snb.datagen.generator.person.similarity")).newInstance();
-            } catch (Exception e) {
-                System.err.println("Error while loading person similarity class");
-                System.err.println(e.getMessage());
+                initialized = true;
             }
-            initialized = true;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -312,36 +312,27 @@ public class LdbcDatagen {
         return 0;
     }
 
-    public void individualSortJob(String filename, Configuration conf) {
-        try {
-            String hadoopPrefix = conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted";
-            HadoopSorter hadoopSorter = new HadoopSorter();
-            long startSort = System.currentTimeMillis();
-            printProgress("Starting: " + filename + " Sorting");
-            hadoopSorter.run("social_network/dynamic/", filename + "_[0-9]*_[0-9]*.csv", hadoopPrefix + "/" + filename);
-            print(filename + " sorting time: " + ((System.currentTimeMillis() - startSort) / 1000));
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
+    public void individualSortJob(String filename, Configuration conf) throws Exception {
+        String hadoopPrefix = conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted";
+        HadoopSorter hadoopSorter = new HadoopSorter();
+        long startSort = System.currentTimeMillis();
+        printProgress("Starting: " + filename + " sorting");
+        hadoopSorter.run("social_network/dynamic/", filename + "_[0-9]*_[0-9]*.csv", hadoopPrefix + "/" + filename);
+        print(filename + " sorting time: " + ((System.currentTimeMillis() - startSort) / 1000));
     }
 
-    public int runSortJob(Configuration conf)  {
-        try {
-            FileSystem.get(conf).mkdirs(new Path(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted"));
+    public int runSortJob(Configuration conf) throws Exception {
+        FileSystem.get(conf).mkdirs(new Path(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted"));
 
-            String[] fileNames = {"comment", "comment_hasCreator_person", "comment_hasTag_tag", "comment_isLocatedIn_place",
-                    "comment_replyOf_comment", "comment_replyOf_post", "forum", "forum_containerOf_post", "forum_hasMember_person",
-                    "forum_hasModerator_person", "forum_hasTag_tag", "person_email_emailaddress", "person", "person_hasInterest_tag",
-                    "person_isLocatedIn_place", "person_knows_person", "person_likes_comment", "person_likes_post",
-                    "person_speaks_language", "person_studyAt_organisation", "person_workAt_organisation", "post",
-                    "post_hasCreator_person", "post_hasTag_tag", "post_isLocatedIn_place"};
+        String[] fileNames = {"comment", "comment_hasCreator_person", "comment_hasTag_tag", "comment_isLocatedIn_place",
+                "comment_replyOf_comment", "comment_replyOf_post", "forum", "forum_containerOf_post", "forum_hasMember_person",
+                "forum_hasModerator_person", "forum_hasTag_tag", "person_email_emailaddress", "person", "person_hasInterest_tag",
+                "person_isLocatedIn_place", "person_knows_person", "person_likes_comment", "person_likes_post",
+                "person_speaks_language", "person_studyAt_organisation", "person_workAt_organisation", "post",
+                "post_hasCreator_person", "post_hasTag_tag", "post_isLocatedIn_place"};
 
-            for (int i = 0; i < fileNames.length; i++) {
-                individualSortJob(fileNames[i], conf);
-            }
-        }catch (Exception e){
-            e.printStackTrace();
+        for (int i = 0; i < fileNames.length; i++) {
+            individualSortJob(fileNames[i], conf);
         }
         return 0;
     }
@@ -349,21 +340,15 @@ public class LdbcDatagen {
 
 
     public static void main(String[] args) throws Exception {
-        try {
-            Configuration conf = ConfigParser.initialize();
-            ConfigParser.readConfig(conf, args[0]);
-            ConfigParser.readConfig(conf, LdbcDatagen.class.getResourceAsStream("/params_default.ini"));
+        Configuration conf = ConfigParser.initialize();
+        ConfigParser.readConfig(conf, args[0]);
+        ConfigParser.readConfig(conf, LdbcDatagen.class.getResourceAsStream("/params_default.ini"));
 
-            LdbcDatagen.prepareConfiguration(conf);
-            LdbcDatagen.initializeContext(conf);
-            LdbcDatagen datagen = new LdbcDatagen();
-            datagen.runGenerateJob(conf);
-            datagen.runSortJob(conf);
-        } catch (Exception e) {
-            System.err.println("Error during execution");
-            System.err.println(e.getMessage());
-            throw e;
-        }
+        LdbcDatagen.prepareConfiguration(conf);
+        LdbcDatagen.initializeContext(conf);
+        LdbcDatagen datagen = new LdbcDatagen();
+        datagen.runGenerateJob(conf);
+        datagen.runSortJob(conf);
     }
 
     private static void print(String message) {System.out.println(message);}
