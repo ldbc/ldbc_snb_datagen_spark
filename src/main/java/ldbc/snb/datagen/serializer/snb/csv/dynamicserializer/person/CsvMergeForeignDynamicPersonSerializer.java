@@ -55,19 +55,19 @@ public class CsvMergeForeignDynamicPersonSerializer extends DynamicPersonSeriali
 
     @Override
     public List<FileName> getFileNames() {
-        return ImmutableList.of(PERSON, PERSON_SPEAKS_LANGUAGE, PERSON_HAS_EMAIL, PERSON_HAS_INTEREST_TAG,
-                PERSON_WORK_AT, PERSON_STUDY_AT, PERSON_KNOWS_PERSON);
+        return ImmutableList.of(PERSON, PERSON_SPEAKS_LANGUAGE, PERSON_EMAIL_EMAILADDRESS, PERSON_HASINTEREST_TAG,
+                PERSON_WORKAT_ORGANISATION, PERSON_STUDYAT_ORGANISATION, PERSON_KNOWS_PERSON);
     }
 
     @Override
     public void writeFileHeaders() {
         writers.get(PERSON).writeHeader(ImmutableList.of("creationDate","id", "firstName", "lastName", "gender", "birthday",  "locationIP", "browserUsed", "place"));
         writers.get(PERSON_SPEAKS_LANGUAGE).writeHeader(ImmutableList.of("creationDate","Person.id", "language"));
-        writers.get(PERSON_HAS_EMAIL).writeHeader(ImmutableList.of("creationDate","Person.id", "email"));
-        writers.get(PERSON_HAS_INTEREST_TAG).writeHeader(ImmutableList.of("creationDate","Person.id", "Tag.id"));
+        writers.get(PERSON_EMAIL_EMAILADDRESS).writeHeader(ImmutableList.of("creationDate","Person.id", "email"));
+        writers.get(PERSON_HASINTEREST_TAG).writeHeader(ImmutableList.of("creationDate","Person.id", "Tag.id"));
 
-        writers.get(PERSON_STUDY_AT).writeHeader(ImmutableList.of("creationDate","Person.id", "Organisation.id", "classYear"));
-        writers.get(PERSON_WORK_AT).writeHeader(ImmutableList.of("creationDate","Person.id", "Organisation.id", "workFrom"));
+        writers.get(PERSON_STUDYAT_ORGANISATION).writeHeader(ImmutableList.of("creationDate","Person.id", "Organisation.id", "classYear"));
+        writers.get(PERSON_WORKAT_ORGANISATION).writeHeader(ImmutableList.of("creationDate","Person.id", "Organisation.id", "workFrom"));
 
         writers.get(PERSON_KNOWS_PERSON).writeHeader(ImmutableList.of("creationDate","Person.id", "Person.id"));
     }
@@ -102,7 +102,7 @@ public class CsvMergeForeignDynamicPersonSerializer extends DynamicPersonSeriali
         Iterator<String> emails = p.getEmails().iterator();
         while (emails.hasNext()) {
             //"Person.id", "email", "creationDate"
-            writers.get(PERSON_HAS_EMAIL).writeEntry(ImmutableList.of(
+            writers.get(PERSON_EMAIL_EMAILADDRESS).writeEntry(ImmutableList.of(
                 dateString,
                 Long.toString(p.getAccountId()),
                 emails.next()
@@ -112,7 +112,7 @@ public class CsvMergeForeignDynamicPersonSerializer extends DynamicPersonSeriali
         Iterator<Integer> interests = p.getInterests().iterator();
         while (interests.hasNext()) {
             //"Person.id", "Tag.id", "creationDate"
-            writers.get(PERSON_HAS_INTEREST_TAG).writeEntry(ImmutableList.of(
+            writers.get(PERSON_HASINTEREST_TAG).writeEntry(ImmutableList.of(
                 dateString,
                 Long.toString(p.getAccountId()),
                 Integer.toString(interests.next())
@@ -123,7 +123,7 @@ public class CsvMergeForeignDynamicPersonSerializer extends DynamicPersonSeriali
     @Override
     protected void serialize(final StudyAt studyAt,final Person person) {
         //"Person.id", "Organisation.id", "classYear", "creationDate"
-        writers.get(PERSON_STUDY_AT).writeEntry(ImmutableList.of(
+        writers.get(PERSON_STUDYAT_ORGANISATION).writeEntry(ImmutableList.of(
             Dictionaries.dates.formatDateTime(person.getCreationDate()),
             Long.toString(studyAt.person),
             Long.toString(studyAt.university),
@@ -134,7 +134,7 @@ public class CsvMergeForeignDynamicPersonSerializer extends DynamicPersonSeriali
     @Override
     protected void serialize(final WorkAt workAt,final Person person) {
         //"Person.id", "Organisation.id", "workFrom", "creationDate"
-        writers.get(PERSON_WORK_AT).writeEntry(ImmutableList.of(
+        writers.get(PERSON_WORKAT_ORGANISATION).writeEntry(ImmutableList.of(
             Dictionaries.dates.formatDateTime(person.getCreationDate()),
             Long.toString(workAt.person),
             Long.toString(workAt.company),

@@ -4,13 +4,13 @@ public enum FileName {
 
     // static
     TAG("tag"),
-    TAG_HAS_TYPE_TAGCLASS("tag_hasType_tagclass"),
+    TAG_HASTYPE_TAGCLASS("tag_hasType_tagclass"),
     TAGCLASS("tagclass"),
-    TAGCLASS_IS_SUBCLASS_OF_TAGCLASS("tagclass_isSubclassOf_tagclass"),
+    TAGCLASS_ISSUBCLASSOF_TAGCLASS("tagclass_isSubclassOf_tagclass"),
     PLACE("place"),
-    PLACE_IS_PART_OF_PLACE("place_isPartOf_place"),
+    PLACE_ISPARTOF_PLACE("place_isPartOf_place"),
     ORGANISATION("organisation"),
-    ORGANISATION_IS_LOCATED_IN_PLACE("organisation_isLocatedIn_place"),
+    ORGANISATION_ISLOCATEDIN_PLACE("organisation_isLocatedIn_place"),
 
     // dynamic activity
     FORUM("forum"),
@@ -34,11 +34,11 @@ public enum FileName {
     // dynamic person
     PERSON("person"),
     PERSON_SPEAKS_LANGUAGE("person_speaks_language"),
-    PERSON_HAS_EMAIL("person_email_emailaddress"),
-    PERSON_LOCATED_IN_PLACE("person_isLocatedIn_place"),
-    PERSON_HAS_INTEREST_TAG("person_hasInterest_tag"),
-    PERSON_WORK_AT("person_workAt_organisation"),
-    PERSON_STUDY_AT("person_studyAt_organisation"),
+    PERSON_EMAIL_EMAILADDRESS("person_email_emailaddress"),
+    PERSON_ISLOCATEDIN_PLACE("person_isLocatedIn_place"),
+    PERSON_HASINTEREST_TAG("person_hasInterest_tag"),
+    PERSON_WORKAT_ORGANISATION("person_workAt_organisation"),
+    PERSON_STUDYAT_ORGANISATION("person_studyAt_organisation"),
     PERSON_KNOWS_PERSON("person_knows_person"),
 
     // single file for each
