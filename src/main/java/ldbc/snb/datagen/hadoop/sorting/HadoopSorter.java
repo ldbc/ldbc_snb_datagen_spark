@@ -76,13 +76,17 @@ public class HadoopSorter {
     job.setPartitionerClass(SortPartitioner.class);
     job.setNumReduceTasks(4);
 
-    List<Path> inputhPaths = new ArrayList<Path>();
+    List<Path> inputPaths = new ArrayList<>();
     FileSystem fs = FileSystem.get(conf);
-    FileStatus[] listStatus = fs.globStatus(new Path(basePath + "/"+toSort));
-    for (FileStatus fstat : listStatus) {
-      inputhPaths.add(fstat.getPath());
+    Path path = new Path(basePath + "/" + toSort);
+    if (!fs.exists(path)) {
+      return;
     }
-    FileInputFormat.setInputPaths(job, (Path[]) inputhPaths.toArray(new Path[inputhPaths.size()]));
+    FileStatus[] listStatus = fs.globStatus(path);
+    for (FileStatus fstat : listStatus) {
+      inputPaths.add(fstat.getPath());
+    }
+    FileInputFormat.setInputPaths(job, inputPaths.toArray(new Path[inputPaths.size()]));
     FileOutputFormat.setOutputPath(job, new Path(outputFileName));
   }
 }
