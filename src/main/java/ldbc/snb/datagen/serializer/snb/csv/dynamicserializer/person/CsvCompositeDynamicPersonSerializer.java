@@ -64,23 +64,21 @@ public class CsvCompositeDynamicPersonSerializer extends DynamicPersonSerializer
 
     @Override
     public void writeFileHeaders() {
-        writers.get(PERSON).writeHeader(ImmutableList.of("creationDate","id","firstName","lastName","gender", "birthday","locationIP","browserUsed","language","email"));
-        writers.get(PERSON_ISLOCATEDIN_PLACE).writeHeader(ImmutableList.of("creationDate","Person.id","Place.id"));
-        writers.get(PERSON_HASINTEREST_TAG).writeHeader(ImmutableList.of("creationDate","Person.id","Tag.id"));
-
-        writers.get(PERSON_STUDYAT_ORGANISATION).writeHeader(ImmutableList.of("creationDate","Person.id","Organisation.id","classYear"));
-        writers.get(PERSON_WORKAT_ORGANISATION).writeHeader(ImmutableList.of("creationDate","Person.id","Organisation.id","workFrom"));
-
-        writers.get(PERSON_KNOWS_PERSON).writeHeader(ImmutableList.of("creationDate","Person.id","Person.id"));
+        writers.get(PERSON)                     .writeHeader(ImmutableList.of("creationDate", "deletionDate", "id", "firstName", "lastName", "gender", "birthday", "locationIP", "browserUsed", "language", "email"));
+        writers.get(PERSON_ISLOCATEDIN_PLACE)   .writeHeader(ImmutableList.of("creationDate", "deletionDate", "Person.id", "Place.id"));
+        writers.get(PERSON_HASINTEREST_TAG)     .writeHeader(ImmutableList.of("creationDate", "deletionDate", "Person.id", "Tag.id"));
+        writers.get(PERSON_STUDYAT_ORGANISATION).writeHeader(ImmutableList.of("creationDate", "deletionDate", "Person.id", "Organisation.id", "classYear"));
+        writers.get(PERSON_WORKAT_ORGANISATION) .writeHeader(ImmutableList.of("creationDate", "deletionDate", "Person.id", "Organisation.id", "workFrom"));
+        writers.get(PERSON_KNOWS_PERSON)        .writeHeader(ImmutableList.of("creationDate", "deletionDate", "Person.id", "Person.id"));
 
     }
 
     @Override
     protected void serialize(final Person p) {
-        String dateString = Dictionaries.dates.formatDateTime(p.getCreationDate());
-        //"id","firstName","lastName","gender", "birthday","creationDate","locationIP","browserUsed","language","email"
+        //"creationDate", "deletionDate", "id", "firstName", "lastName", "gender", "birthday", "locationIP", "browserUsed", "language", "email"
         writers.get(PERSON).writeEntry(ImmutableList.of(
-                dateString,
+                Dictionaries.dates.formatDateTime(p.getCreationDate()),
+                Dictionaries.dates.formatDateTime(p.getDeletionDate()),
                 Long.toString(p.getAccountId()),
                 p.getFirstName(),
                 p.getLastName(),
@@ -92,9 +90,10 @@ public class CsvCompositeDynamicPersonSerializer extends DynamicPersonSerializer
                 buildEmail(p.getEmails())
         ));
 
-        //"Person.id","Place.id","creationDate"
+        //"creationDate", "deletionDate", "Person.id", "Place.id"
         writers.get(PERSON_ISLOCATEDIN_PLACE).writeEntry(ImmutableList.of(
-                dateString,
+                Dictionaries.dates.formatDateTime(p.getCreationDate()),
+                Dictionaries.dates.formatDateTime(p.getDeletionDate()),
                 Long.toString(p.getAccountId()),
                 Integer.toString(p.getCityId())
         ));
@@ -102,9 +101,10 @@ public class CsvCompositeDynamicPersonSerializer extends DynamicPersonSerializer
         Iterator<Integer> itInteger = p.getInterests().iterator();
         while (itInteger.hasNext()) {
             Integer interestIdx = itInteger.next();
-            //"Person.id","Tag.id","creationDate"
+            //"creationDate", "deletionDate", "Person.id", "Tag.id"
             writers.get(PERSON_HASINTEREST_TAG).writeEntry(ImmutableList.of(
-                    dateString,
+                    Dictionaries.dates.formatDateTime(p.getCreationDate()),
+                    Dictionaries.dates.formatDateTime(p.getDeletionDate()),
                     Long.toString(p.getAccountId()),
                     Integer.toString(interestIdx)
             ));
@@ -113,9 +113,10 @@ public class CsvCompositeDynamicPersonSerializer extends DynamicPersonSerializer
 
     @Override
     protected void serialize(final StudyAt studyAt,final Person person) {
-        //"Person.id","Organisation.id","classYear","creationDate"
+        //"creationDate", "deletionDate", "Person.id", "Organisation.id", "classYear"
         writers.get(PERSON_STUDYAT_ORGANISATION).writeEntry(ImmutableList.of(
                 Dictionaries.dates.formatDateTime(person.getCreationDate()),
+                Dictionaries.dates.formatDateTime(person.getDeletionDate()),
                 Long.toString(studyAt.person),
                 Long.toString(studyAt.university),
                 Dictionaries.dates.formatYear(studyAt.year)
@@ -124,9 +125,10 @@ public class CsvCompositeDynamicPersonSerializer extends DynamicPersonSerializer
 
     @Override
     protected void serialize(final WorkAt workAt,final Person person) {
-        //"Person.id","Organisation.id","workFrom","creationDate"
+        //"creationDate", "deletionDate", "Person.id", "Organisation.id", "workFrom"
         writers.get(PERSON_WORKAT_ORGANISATION).writeEntry(ImmutableList.of(
                 Dictionaries.dates.formatDateTime(person.getCreationDate()),
+                Dictionaries.dates.formatDateTime(person.getDeletionDate()),
                 Long.toString(workAt.person),
                 Long.toString(workAt.company),
                 Dictionaries.dates.formatYear(workAt.year)
@@ -135,9 +137,10 @@ public class CsvCompositeDynamicPersonSerializer extends DynamicPersonSerializer
 
     @Override
     protected void serialize(final Person p, Knows knows) {
-        //"Person.id","Person.id","creationDate"
+        //"creationDate", "deletionDate", "Person.id", "Person.id"
         writers.get(PERSON_KNOWS_PERSON).writeEntry(ImmutableList.of(
                 Dictionaries.dates.formatDateTime(knows.getCreationDate()),
+                Dictionaries.dates.formatDateTime(knows.getDeletionDate()),
                 Long.toString(p.getAccountId()),
                 Long.toString(knows.to().getAccountId())
         ));

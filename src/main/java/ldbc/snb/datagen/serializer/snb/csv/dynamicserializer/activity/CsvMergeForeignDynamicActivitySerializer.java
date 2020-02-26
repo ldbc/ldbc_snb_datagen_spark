@@ -62,37 +62,33 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
 
     @Override
     public void writeFileHeaders() {
-        writers.get(FORUM).writeHeader(ImmutableList.of("creationDate","id", "title", "moderator"));
-        writers.get(FORUM_HASTAG_TAG).writeHeader(ImmutableList.of("creationDate","Forum.id", "Tag.id,"));
-
-        writers.get(POST).writeHeader(ImmutableList.of("creationDate","id", "imageFile", "locationIP", "browserUsed", "language", "content", "length", "creator", "Forum.id", "place"));
-        writers.get(POST_HASTAG_TAG).writeHeader(ImmutableList.of("Post.id", "Tag.id","creationDate"));
-
-        writers.get(COMMENT).writeHeader(ImmutableList.of("creationDate","id", "locationIP", "browserUsed", "content", "length", "creator", "place", "replyOfPost", "replyOfComment"));
-        writers.get(COMMENT_HASTAG_TAG).writeHeader(ImmutableList.of("creationDate","Comment.id", "Tag.id"));
-
-        writers.get(FORUM_HASMEMBER_PERSON).writeHeader(ImmutableList.of("creationDate","Forum.id", "Person.id"));
-
-        writers.get(PERSON_LIKES_POST).writeHeader(ImmutableList.of( "creationDate","Person.id", "Post.id"));
-        writers.get(PERSON_LIKES_COMMENT).writeHeader(ImmutableList.of( "creationDate","Person.id", "Comment.id"));
+        writers.get(FORUM)                 .writeHeader(ImmutableList.of("creationDate", "deletionDate", "id", "title", "moderator"));
+        writers.get(FORUM_HASTAG_TAG)      .writeHeader(ImmutableList.of("creationDate", "deletionDate", "Forum.id", "Tag.id,"));
+        writers.get(POST)                  .writeHeader(ImmutableList.of("creationDate", "deletionDate", "id", "imageFile", "locationIP", "browserUsed", "language", "content", "length", "creator", "Forum.id", "place"));
+        writers.get(POST_HASTAG_TAG)       .writeHeader(ImmutableList.of("creationDate", "deletionDate", "Post.id", "Tag.id"));
+        writers.get(COMMENT)               .writeHeader(ImmutableList.of("creationDate", "deletionDate", "id", "locationIP", "browserUsed", "content", "length", "creator", "place", "replyOfPost", "replyOfComment"));
+        writers.get(COMMENT_HASTAG_TAG)    .writeHeader(ImmutableList.of("creationDate", "deletionDate", "Comment.id", "Tag.id"));
+        writers.get(FORUM_HASMEMBER_PERSON).writeHeader(ImmutableList.of("creationDate", "deletionDate", "Forum.id", "Person.id"));
+        writers.get(PERSON_LIKES_POST)     .writeHeader(ImmutableList.of("creationDate", "deletionDate", "Person.id", "Post.id"));
+        writers.get(PERSON_LIKES_COMMENT)  .writeHeader(ImmutableList.of("creationDate", "deletionDate", "Person.id", "Comment.id"));
 
     }
 
     protected void serialize(final Forum forum) {
-        String dateString = Dictionaries.dates.formatDateTime(forum.getCreationDate());
-
-        //"id", "title", "creationDate", "moderator"
+        //"creationDate", "deletionDate", "id", "title", "creationDate", "moderator"
         writers.get(FORUM).writeEntry(ImmutableList.of(
-                dateString,
+                Dictionaries.dates.formatDateTime(forum.getCreationDate()),
+                Dictionaries.dates.formatDateTime(forum.getDeletionDate()),
                 Long.toString(forum.getId()),
                 forum.getTitle(),
                 Long.toString(forum.getModerator().getAccountId())
         ));
 
         for (Integer i : forum.getTags()) {
-            //"Forum.id", "Tag.id,","creationDate"
+            //"creationDate", "deletionDate", "Forum.id", "Tag.id,", "creationDate"
             writers.get(FORUM_HASTAG_TAG).writeEntry(ImmutableList.of(
-                    dateString,
+                    Dictionaries.dates.formatDateTime(forum.getCreationDate()),
+                    Dictionaries.dates.formatDateTime(forum.getDeletionDate()),
                     Long.toString(forum.getId()),
                     Integer.toString(i)
             ));
@@ -101,11 +97,10 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
     }
 
     protected void serialize(final Post post) {
-        String dateString = Dictionaries.dates.formatDateTime(post.getCreationDate());
-
-        //"id", "imageFile", "creationDate", "locationIP", "browserUsed", "language", "content", "length", "creator", "Forum.id", "place"
+        //"creationDate", "deletionDate", "id", "imageFile", "creationDate", "locationIP", "browserUsed", "language", "content", "length", "creator", "Forum.id", "place"
         writers.get(POST).writeEntry(ImmutableList.of(
-            dateString,
+            Dictionaries.dates.formatDateTime(post.getCreationDate()),
+            Dictionaries.dates.formatDateTime(post.getDeletionDate()),
             Long.toString(post.getMessageId()),
             "",
             post.getIpAddress().toString(),
@@ -119,9 +114,10 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
         ));
 
         for (Integer t : post.getTags()) {
-            //"Post.id", "Tag.id","creationDate"
+            //"creationDate", "deletionDate", "Post.id", "Tag.id", "creationDate"
             writers.get(POST_HASTAG_TAG).writeEntry(ImmutableList.of(
-                dateString,
+                Dictionaries.dates.formatDateTime(post.getCreationDate()),
+                Dictionaries.dates.formatDateTime(post.getDeletionDate()),
                 Long.toString(post.getMessageId()),
                 Integer.toString(t)
             ));
@@ -129,11 +125,10 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
     }
 
     protected void serialize(final Comment comment) {
-        String dateString = Dictionaries.dates.formatDateTime(comment.getCreationDate());
-
-        //"id", "creationDate", "locationIP", "browserUsed", "content", "length", "creator", "place", "replyOfPost", "replyOfComment"
+        //"creationDate", "deletionDate", "id", "creationDate", "locationIP", "browserUsed", "content", "length", "creator", "place", "replyOfPost", "replyOfComment"
         writers.get(COMMENT).writeEntry(ImmutableList.of(
-            dateString,
+            Dictionaries.dates.formatDateTime(comment.getCreationDate()),
+            Dictionaries.dates.formatDateTime(comment.getDeletionDate()),
             Long.toString(comment.getMessageId()),
             comment.getIpAddress().toString(),
             Dictionaries.browsers.getName(comment.getBrowserId()),
@@ -146,9 +141,10 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
         ));
 
         for (Integer t : comment.getTags()) {
-            //"Comment.id", "Tag.id","creationDate"
+            //"creationDate", "deletionDate", "Comment.id", "Tag.id", "creationDate"
             writers.get(COMMENT_HASTAG_TAG).writeEntry(ImmutableList.of(
-                dateString,
+                Dictionaries.dates.formatDateTime(comment.getCreationDate()),
+                Dictionaries.dates.formatDateTime(comment.getDeletionDate()),
                 Long.toString(comment.getMessageId()),
                 Integer.toString(t)
             ));
@@ -156,11 +152,10 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
     }
 
     protected void serialize(final Photo photo) {
-        String dateString = Dictionaries.dates.formatDateTime(photo.getCreationDate());
-
-        //"id", "imageFile", "creationDate", "locationIP", "browserUsed", "language", "content", "length", "creator", "Forum.id", "place"
+        //"creationDate", "deletionDate", "id", "imageFile", "creationDate", "locationIP", "browserUsed", "language", "content", "length", "creator", "Forum.id", "place"
         writers.get(POST).writeEntry(ImmutableList.of(
-            dateString,
+            Dictionaries.dates.formatDateTime(photo.getCreationDate()),
+            Dictionaries.dates.formatDateTime(photo.getDeletionDate()),
             Long.toString(photo.getMessageId()),
             photo.getContent(),
             photo.getIpAddress().toString(),
@@ -174,9 +169,10 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
         ));
 
         for (Integer t : photo.getTags()) {
-            //"Post.id", "Tag.id","creationDate"
+            //"creationDate", "deletionDate", "Post.id", "Tag.id", "creationDate"
             writers.get(POST_HASTAG_TAG).writeEntry(ImmutableList.of(
-                dateString,
+                Dictionaries.dates.formatDateTime(photo.getCreationDate()),
+                Dictionaries.dates.formatDateTime(photo.getDeletionDate()),
                 Long.toString(photo.getMessageId()),
                 Integer.toString(t)
             ));
@@ -184,18 +180,20 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
     }
 
     protected void serialize(final ForumMembership membership) {
-        //"Forum.id", "Person.id", "creationDate"
+        //"creationDate", "deletionDate", "Forum.id", "Person.id"
         writers.get(FORUM_HASMEMBER_PERSON).writeEntry(ImmutableList.of(
             Dictionaries.dates.formatDateTime(membership.getCreationDate()),
+            Dictionaries.dates.formatDateTime(membership.getDeletionDate()),
             Long.toString(membership.getForumId()),
             Long.toString(membership.getPerson().getAccountId())
         ));
     }
 
     protected void serialize(final Like like) {
-        //"Person.id", "Post.id"/"comment.id", "creationDate"
+        //"creationDate", "deletionDate", "Person.id", "Post.id"/"comment.id"
         List<String> arguments = ImmutableList.of(
             Dictionaries.dates.formatDateTime(like.likeCreationDate),
+            Dictionaries.dates.formatDateTime(like.likeDeletionDate),
             Long.toString(like.person),
             Long.toString(like.messageId)
         );
