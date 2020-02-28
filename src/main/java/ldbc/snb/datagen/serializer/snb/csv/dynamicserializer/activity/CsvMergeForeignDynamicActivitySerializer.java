@@ -1,4 +1,4 @@
-/* 
+/*
  Copyright (c) 2013 LDBC
  Linked Data Benchmark Council (http://www.ldbcouncil.org)
  
@@ -190,7 +190,7 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
     }
 
     protected void serialize(final Like like) {
-        //"creationDate", "deletionDate", "Person.id", "Post.id"/"comment.id"
+        //"creationDate", "deletionDate", "Person.id", "Post.id"/"Comment.id"
         List<String> arguments = ImmutableList.of(
             Dictionaries.dates.formatDateTime(like.likeCreationDate),
             Dictionaries.dates.formatDateTime(like.likeDeletionDate),
