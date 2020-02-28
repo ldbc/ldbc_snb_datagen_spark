@@ -62,7 +62,6 @@ public class DateUtils {
     private long fromBirthDay_;
     private long toBirthDay_;
     private GregorianCalendar calendar_;
-    private long updateThreshold_;
     private PowerDistribution powerDist;
     private DateFormatter dateFormatter_;
 
@@ -84,7 +83,6 @@ public class DateUtils {
         toBirthDay_ = tobirthCalendar.getTimeInMillis();
         calendar_ = new GregorianCalendar();
         calendar_.setTimeZone(TimeZone.getTimeZone("GMT"));
-        updateThreshold_ = getEndDateTime() - (long) ((getEndDateTime() - getStartDateTime()) * (DatagenParams.updatePortion));
 
         try {
             dateFormatter_ = (DateFormatter) Class.forName(conf.get("ldbc.snb.datagen.serializer.dateFormatter"))
@@ -113,12 +111,9 @@ public class DateUtils {
      * @return a random value on the interval [person creation + Delta , 2020]
      */
     public Long randomPersonDeletionDate(Random random, long creationDate, long maxNumKnows) {
-
         // TODO: use maxNumKnows to determine when a person's deleted
         long personCreationDate = creationDate + DatagenParams.deltaTime;
-        long networkCollapse = simulationStart + TEN_YEARS;
-        return randomDate(random, personCreationDate, networkCollapse);
-
+        return randomDate(random, personCreationDate, getNetworkCollapse());
     }
 
     /*
@@ -256,8 +251,8 @@ public class DateUtils {
         return simulationEnd;
     }
 
-    public long getUpdateThreshold() {
-        return updateThreshold_;
+    public Long getNetworkCollapse() {
+        return getStartDateTime() + DateUtils.TEN_YEARS;
     }
 
 }

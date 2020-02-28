@@ -49,65 +49,39 @@ import java.io.IOException;
 
 public class PersonActivityExporter {
     protected DynamicActivitySerializer dynamicActivitySerializer;
-    protected UpdateEventSerializer updateSerializer;
     protected FactorTable factorTable;
 
-    public PersonActivityExporter(DynamicActivitySerializer dynamicActivitySerializer, UpdateEventSerializer updateEventSerializer, FactorTable factorTable) {
+    public PersonActivityExporter(DynamicActivitySerializer dynamicActivitySerializer, FactorTable factorTable) {
         this.dynamicActivitySerializer = dynamicActivitySerializer;
-        this.updateSerializer = updateEventSerializer;
         this.factorTable = factorTable;
     }
 
-    public void export(final Forum forum) throws IOException {
-        if (forum.getCreationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
-            dynamicActivitySerializer.export(forum);
-        } else {
-            updateSerializer.export(forum);
-        }
+    public void export(final Forum forum) {
+        dynamicActivitySerializer.export(forum);
     }
 
-    public void export(final Post post) throws IOException {
-        if (post.getCreationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
-            dynamicActivitySerializer.export(post);
-            factorTable.extractFactors(post);
-        } else {
-            updateSerializer.export(post);
-        }
+    public void export(final Post post) {
+        dynamicActivitySerializer.export(post);
+        factorTable.extractFactors(post);
     }
 
-    public void export(final Comment comment) throws IOException {
-        if (comment.getCreationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
-            dynamicActivitySerializer.export(comment);
-            factorTable.extractFactors(comment);
-        } else {
-            updateSerializer.export(comment);
-        }
+    public void export(final Comment comment) {
+        dynamicActivitySerializer.export(comment);
+        factorTable.extractFactors(comment);
     }
 
-    public void export(final Photo photo) throws IOException {
-        if (photo.getCreationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
-            dynamicActivitySerializer.export(photo);
-            factorTable.extractFactors(photo);
-        } else {
-            updateSerializer.export(photo);
-        }
+    public void export(final Photo photo) {
+        dynamicActivitySerializer.export(photo);
+        factorTable.extractFactors(photo);
     }
 
-    public void export(final ForumMembership member) throws IOException {
-        if (member.getCreationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
-            dynamicActivitySerializer.export(member);
-            factorTable.extractFactors(member);
-        } else {
-            updateSerializer.export(member);
-        }
+    public void export(final ForumMembership member) {
+        dynamicActivitySerializer.export(member);
+        factorTable.extractFactors(member);
     }
 
-    public void export(final Like like) throws IOException {
-        if (like.likeCreationDate < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
-            dynamicActivitySerializer.export(like);
-            factorTable.extractFactors(like);
-        } else {
-            updateSerializer.export(like);
-        }
+    public void export(final Like like) {
+        dynamicActivitySerializer.export(like);
+        factorTable.extractFactors(like);
     }
 }

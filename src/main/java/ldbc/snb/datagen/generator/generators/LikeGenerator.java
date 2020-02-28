@@ -90,7 +90,7 @@ public class LikeGenerator {
             long maxDeletionDate = Collections.min(Arrays.asList(
                                                         membership.getPerson().getDeletionDate(),
                                                         message.getDeletionDate(),
-                                                        Dictionaries.dates.getEndDateTime()
+                                                        Dictionaries.dates.getNetworkCollapse()
             ));
             if (maxDeletionDate - minDeletionDate < 0) {
                 continue;

@@ -44,7 +44,6 @@ import ldbc.snb.datagen.hadoop.miscjob.HadoopMergeFriendshipFiles;
 import ldbc.snb.datagen.hadoop.serializer.HadoopPersonSerializer;
 import ldbc.snb.datagen.hadoop.serializer.HadoopPersonSortAndSerializer;
 import ldbc.snb.datagen.hadoop.serializer.HadoopStaticSerializer;
-import ldbc.snb.datagen.hadoop.serializer.HadoopUpdateStreamSorterAndSerializer;
 import ldbc.snb.datagen.hadoop.sorting.HadoopSorter;
 import ldbc.snb.datagen.util.ConfigParser;
 import ldbc.snb.datagen.vocabulary.SN;
@@ -55,15 +54,11 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class LdbcDatagen {
     private static boolean initialized = false;
@@ -166,47 +161,6 @@ public class LdbcDatagen {
         fs.delete(propertiesFile, true);
         return(aux); //sending back aux to be added to count
     }
-    private long updateStreamSort(Configuration conf,FileSystem fs) throws Exception {
-        long startSortingUpdateStreams = System.currentTimeMillis();
-        if (conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
-            printProgress("Sorting update streams ");
-            List<String> personStreamsFileNames = new ArrayList<>();
-            List<String> forumStreamsFileNames = new ArrayList<>();
-            for (int i = 0; i < DatagenParams.numThreads; ++i) {
-                int numPartitions = conf.getInt("ldbc.snb.datagen.serializer.numUpdatePartitions", 1);
-                for (int j = 0; j < numPartitions; ++j) {
-                    personStreamsFileNames.add(DatagenParams.hadoopDir + "/temp_updateStream_person_" + i + "_" + j);
-                    if (conf.getBoolean("ldbc.snb.datagen.generator.activity", false)) {
-                        forumStreamsFileNames.add(DatagenParams.hadoopDir + "/temp_updateStream_forum_" + i + "_" + j);
-                    }
-                }
-            }
-            HadoopUpdateStreamSorterAndSerializer updateSorterAndSerializer = new HadoopUpdateStreamSorterAndSerializer(conf);
-            updateSorterAndSerializer.run(personStreamsFileNames, "person");
-            updateSorterAndSerializer.run(forumStreamsFileNames, "forum");
-            for (String file : personStreamsFileNames)
-                fs.delete(new Path(file), true);
-            for (String file : forumStreamsFileNames)
-                fs.delete(new Path(file), true);
-
-            long[] minMaxDate = new long[] {Long.MAX_VALUE,Long.MIN_VALUE};
-            long count = 0;
-            for (int i = 0; i < DatagenParams.numThreads; ++i) {
-                count += updateStreamHelper(fs,i,minMaxDate,"/temp_updateStream_person_");
-                if (conf.getBoolean("ldbc.snb.datagen.generator.activity", false))
-                    count += updateStreamHelper(fs,i,minMaxDate,"/temp_updateStream_forum_");
-            }
-
-            OutputStream output = fs.create(new Path(DatagenParams.socialNetworkDir + "/updateStream" + ".properties"), true);
-            output.write(("ldbc.snb.interactive.gct_delta_duration:" + DatagenParams.deltaTime + "\n").getBytes());
-            output.write(("ldbc.snb.interactive.min_write_event_start_time:" + minMaxDate[0] + "\n").getBytes());
-            output.write(("ldbc.snb.interactive.max_write_event_start_time:" + minMaxDate[1] + "\n").getBytes());
-            output.write(("ldbc.snb.interactive.update_interleave:" + (minMaxDate[1] - minMaxDate[0]) / count + "\n").getBytes());
-            output.write(("ldbc.snb.interactive.num_events:" + count).getBytes());
-            output.close();
-        }
-        return (System.currentTimeMillis()-startSortingUpdateStreams);
-    }
 
     private long serializeStaticGraph(Configuration conf) throws Exception {
         printProgress("Serializing static graph ");
@@ -286,8 +240,6 @@ public class LdbcDatagen {
         long personSerializeTime = serializePersons(hadoopPrefix,conf);
         //generate person activities
         long personActivityTime = personActivityJob(hadoopPrefix,conf,fs);
-        //sort update stream (last 10% of generated data)
-        long updateSortingTime = updateStreamSort(conf,fs);
         //serialize static graph
         long serializeStaticTime = serializeStaticGraph(conf);
         //total time taken
@@ -298,7 +250,6 @@ public class LdbcDatagen {
         print("Edges merge time: " + (mergeKnowsTime / 1000));
         print("Person serialization time: " + (personSerializeTime / 1000));
         print("Person activity generation and serialization time: " + (personActivityTime / 1000));
-        print("Sorting update streams time: " + (updateSortingTime / 1000));
         print("Invariant schema serialization time: " + (serializeStaticTime / 1000));
         print("Total Execution time: " + ((System.currentTimeMillis() - start) / 1000));
 

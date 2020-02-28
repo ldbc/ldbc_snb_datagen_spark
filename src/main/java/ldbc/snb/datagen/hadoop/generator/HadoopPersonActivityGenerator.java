@@ -37,7 +37,6 @@ package ldbc.snb.datagen.hadoop.generator;
 
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.LdbcDatagen;
-import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.generator.generators.PersonActivityGenerator;
@@ -49,7 +48,6 @@ import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyComparator;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyGroupComparator;
 import ldbc.snb.datagen.hadoop.miscjob.HadoopFileRanker;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
-import ldbc.snb.datagen.serializer.UpdateEventSerializer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -78,7 +76,6 @@ public class HadoopPersonActivityGenerator {
          **/
         private DynamicActivitySerializer dynamicActivitySerializer_;
         private PersonActivityGenerator personActivityGenerator_;
-        private UpdateEventSerializer updateSerializer_;
         private OutputStream personFactors_;
         private OutputStream activityFactors_;
         private OutputStream friends_;
@@ -93,10 +90,7 @@ public class HadoopPersonActivityGenerator {
                 dynamicActivitySerializer_ = (DynamicActivitySerializer) Class
                         .forName(conf.get("ldbc.snb.datagen.serializer.dynamicActivitySerializer")).newInstance();
                 dynamicActivitySerializer_.initialize(conf, reducerId);
-                if (DatagenParams.updateStreams) {
-                    updateSerializer_ = new UpdateEventSerializer(conf, DatagenParams.hadoopDir + "/temp_updateStream_forum_" + reducerId, reducerId, DatagenParams.numUpdatePartitions);
-                }
-                personActivityGenerator_ = new PersonActivityGenerator(dynamicActivitySerializer_, updateSerializer_);
+                personActivityGenerator_ = new PersonActivityGenerator(dynamicActivitySerializer_);
 
                 fs_ = FileSystem.get(context.getConfiguration());
                 personFactors_ = fs_
@@ -124,12 +118,6 @@ public class HadoopPersonActivityGenerator {
                 for (Knows k : p.getKnows()) {
                     strbuf.append(",");
                     strbuf.append(k.to().getAccountId());
-                    if (k.getCreationDate() > Dictionaries.dates.getUpdateThreshold() && DatagenParams.updateStreams) {
-                        updateSerializer_.export(p, k);
-                    }
-                }
-                if (DatagenParams.updateStreams) {
-                    updateSerializer_.changePartition();
                 }
                 strbuf.append("\n");
                 friends_.write(strbuf.toString().getBytes("UTF8"));
@@ -151,13 +139,6 @@ public class HadoopPersonActivityGenerator {
                 throw new RuntimeException(e);
             }
             dynamicActivitySerializer_.close();
-            if (DatagenParams.updateStreams) {
-                try {
-                    updateSerializer_.close();
-                } catch (IOException e) {
-                    throw new RuntimeException(e.getMessage());
-                }
-            }
         }
     }
 

@@ -47,7 +47,6 @@ import ldbc.snb.datagen.generator.generators.textgenerators.LdbcSnbTextGenerator
 import ldbc.snb.datagen.generator.generators.textgenerators.TextGenerator;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
 import ldbc.snb.datagen.serializer.PersonActivityExporter;
-import ldbc.snb.datagen.serializer.UpdateEventSerializer;
 import ldbc.snb.datagen.util.FactorTable;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
@@ -69,11 +68,10 @@ public class PersonActivityGenerator {
     private UniformPostGenerator uniformPostGenerator;
     private FlashmobPostGenerator flashmobPostGenerator;
     private PhotoGenerator photoGenerator;
-    private UpdateEventSerializer updateSerializer;
     private FactorTable factorTable;
     private PersonActivityExporter exporter;
 
-    public PersonActivityGenerator(DynamicActivitySerializer dynamicActivitySerializer, UpdateEventSerializer updateSerializer) {
+    public PersonActivityGenerator(DynamicActivitySerializer dynamicActivitySerializer) {
 
         randomFarm = new RandomGeneratorFarm();
         forumGenerator = new ForumGenerator();
@@ -84,10 +82,9 @@ public class PersonActivityGenerator {
         uniformPostGenerator = new UniformPostGenerator(generator, commentGenerator, likeGenerator);
         flashmobPostGenerator = new FlashmobPostGenerator(generator, commentGenerator, likeGenerator);
         photoGenerator = new PhotoGenerator(likeGenerator);
-        this.updateSerializer = updateSerializer;
 
         factorTable = new FactorTable();
-        exporter = new PersonActivityExporter(dynamicActivitySerializer, updateSerializer, factorTable);
+        exporter = new PersonActivityExporter(dynamicActivitySerializer, factorTable);
     }
 
     private void generateActivity(Person person, List<Person> block) throws AssertionError, IOException {
@@ -234,9 +231,6 @@ public class PersonActivityGenerator {
         for (Person p : block) {
             long start = System.currentTimeMillis();
             generateActivity(p, block);
-            if (DatagenParams.updateStreams) {
-                updateSerializer.changePartition();
-            }
             if (counter % 1000 == 0) {
                 context.setStatus("Generating activity of person " + counter + " of block" + seed);
                 context.progress();

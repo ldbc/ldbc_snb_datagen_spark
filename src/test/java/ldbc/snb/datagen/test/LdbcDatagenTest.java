@@ -251,13 +251,6 @@ public class LdbcDatagenTest {
         assertTrue("Everything ok",true);
     }
 
-    // test update stream time consistency
-    @Test
-    public void updateStreamForumsConsistencyCheck() {
-        testLongPair(dir+"/updateStream_0_0_forum.csv",0,1, NumericPairCheck.NumericCheckType.GE, -10000,0);
-        assertTrue("Everything ok",true);
-    }
-
     @Test
     public void queryParamsTest() {
         //Creating person id check
