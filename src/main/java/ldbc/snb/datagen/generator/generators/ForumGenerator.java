@@ -109,7 +109,7 @@ public class ForumGenerator {
 
         // deletion date
         long groupDeletionLowerBound = groupCreationDate + DatagenParams.deltaTime;
-        long groupDeletionUpperBound = Dictionaries.dates.getStartDateTime() + DateUtils.TEN_YEARS;
+        long groupDeletionUpperBound = Dictionaries.dates.getNetworkCollapse();
         long groupDeletionDate = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), groupDeletionLowerBound, groupDeletionUpperBound);
 
         // push to network collapse for readability

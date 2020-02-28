@@ -128,7 +128,7 @@ public class CommentGenerator {
             long creationDate = Dictionaries.dates.powerLawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), baseDate);
 
             long minDeletionDate = creationDate + DatagenParams.deltaTime;
-            long maxDeletionDate = Collections.min(Arrays.asList(parentMessage.getDeletionDate(), membership.getDeletionDate(),Dictionaries.dates.getStartDateTime() + DateUtils.TEN_YEARS));
+            long maxDeletionDate = Collections.min(Arrays.asList(parentMessage.getDeletionDate(), membership.getDeletionDate(), Dictionaries.dates.getNetworkCollapse()));
 
             if (maxDeletionDate - minDeletionDate < 0) {
                 continue;

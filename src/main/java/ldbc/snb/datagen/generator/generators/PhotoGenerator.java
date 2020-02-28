@@ -93,8 +93,8 @@ class PhotoGenerator {
 
             Random randomDate = randomFarm.get(RandomGeneratorFarm.Aspect.DATE);
             long minDeletionDate = creationDate + DatagenParams.deltaTime;
-            long maxDeletionDate = Math.min(album.getDeletionDate(),Dictionaries.dates.getStartDateTime() + DateUtils.TEN_YEARS);
-            long deletionDate = Dictionaries.dates.randomDate(randomDate,minDeletionDate, maxDeletionDate);
+            long maxDeletionDate = Math.min(album.getDeletionDate(), Dictionaries.dates.getNetworkCollapse());
+            long deletionDate = Dictionaries.dates.randomDate(randomDate, minDeletionDate, maxDeletionDate);
 
 
             int country = album.getModerator().getCountryId();

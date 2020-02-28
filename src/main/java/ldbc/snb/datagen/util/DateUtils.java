@@ -111,12 +111,9 @@ public class DateUtils {
      * @return a random value on the interval [person creation + Delta , 2020]
      */
     public Long randomPersonDeletionDate(Random random, long creationDate, long maxNumKnows) {
-
         // TODO: use maxNumKnows to determine when a person's deleted
         long personCreationDate = creationDate + DatagenParams.deltaTime;
-        long networkCollapse = simulationStart + TEN_YEARS;
-        return randomDate(random, personCreationDate, networkCollapse);
-
+        return randomDate(random, personCreationDate, getNetworkCollapse());
     }
 
     /*
@@ -252,6 +249,10 @@ public class DateUtils {
 
     public long getEndDateTime() {
         return simulationEnd;
+    }
+
+    public Long getNetworkCollapse() {
+        return getStartDateTime() + DateUtils.TEN_YEARS;
     }
 
 }
