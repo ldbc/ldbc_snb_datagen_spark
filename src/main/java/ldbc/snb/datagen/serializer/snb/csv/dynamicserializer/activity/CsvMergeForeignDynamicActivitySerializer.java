@@ -63,7 +63,7 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
     @Override
     public void writeFileHeaders() {
         writers.get(FORUM)                 .writeHeader(ImmutableList.of("creationDate", "deletionDate", "id", "title", "moderator"));
-        writers.get(FORUM_HASTAG_TAG)      .writeHeader(ImmutableList.of("creationDate", "deletionDate", "Forum.id", "Tag.id,"));
+        writers.get(FORUM_HASTAG_TAG)      .writeHeader(ImmutableList.of("creationDate", "deletionDate", "Forum.id", "Tag.id"));
         writers.get(POST)                  .writeHeader(ImmutableList.of("creationDate", "deletionDate", "id", "imageFile", "locationIP", "browserUsed", "language", "content", "length", "creator", "Forum.id", "place"));
         writers.get(POST_HASTAG_TAG)       .writeHeader(ImmutableList.of("creationDate", "deletionDate", "Post.id", "Tag.id"));
         writers.get(COMMENT)               .writeHeader(ImmutableList.of("creationDate", "deletionDate", "id", "locationIP", "browserUsed", "content", "length", "creator", "place", "replyOfPost", "replyOfComment"));
