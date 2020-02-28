@@ -49,7 +49,6 @@ import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyComparator;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyGroupComparator;
 import ldbc.snb.datagen.hadoop.miscjob.HadoopFileRanker;
 import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
-import ldbc.snb.datagen.serializer.UpdateEventSerializer;
 import ldbc.snb.datagen.vocabulary.SN;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -71,14 +70,7 @@ public class HadoopPersonSortAndSerializer {
     public static class HadoopDynamicPersonSerializerReducer extends Reducer<BlockKey, Person, LongWritable, Person> {
 
         private int reducerId;
-        /**
-         * The id of the reducer.
-         **/
         private DynamicPersonSerializer dynamicPersonSerializer_;
-        /**
-         * The person serializer
-         **/
-        private UpdateEventSerializer updateSerializer_;
 
         @Override
         protected void setup(Context context) {
@@ -89,9 +81,6 @@ public class HadoopPersonSortAndSerializer {
                 dynamicPersonSerializer_ = (DynamicPersonSerializer) Class
                         .forName(conf.get("ldbc.snb.datagen.serializer.dynamicPersonSerializer")).newInstance();
                 dynamicPersonSerializer_.initialize(conf, reducerId);
-                if (DatagenParams.updateStreams) {
-                    updateSerializer_ = new UpdateEventSerializer(conf, DatagenParams.hadoopDir + "/temp_updateStream_person_" + reducerId, reducerId, DatagenParams.numUpdatePartitions);
-                }
             } catch (Exception e) {
                 System.err.println(e.getMessage());
                 throw new RuntimeException(e);
@@ -103,32 +92,17 @@ public class HadoopPersonSortAndSerializer {
                 throws IOException {
             SN.machineId = key.block;
             for (Person p : valueSet) {
-                if (p.getCreationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
-                    dynamicPersonSerializer_.export(p);
-                } else {
-                    updateSerializer_.export(p);
-                    updateSerializer_.changePartition();
-                }
+                dynamicPersonSerializer_.export(p);
 
                 for (Knows k : p.getKnows()) {
-                    if (k.getCreationDate() < Dictionaries.dates.getUpdateThreshold() || !DatagenParams.updateStreams) {
-                        dynamicPersonSerializer_.export(p, k);
-                    }
+                    dynamicPersonSerializer_.export(p, k);
                 }
             }
-
         }
 
         @Override
         protected void cleanup(Context context) {
             dynamicPersonSerializer_.close();
-            if (DatagenParams.updateStreams) {
-                try {
-                    updateSerializer_.close();
-                } catch (IOException e) {
-                    throw new RuntimeException(e.getMessage());
-                }
-            }
         }
     }
 
