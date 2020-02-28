@@ -288,22 +288,17 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
     }
 
     protected void serialize(final Like like) {
+        //"creationDate", "deletionDate", "Person.id", "Post.id"/"Comment.id"
+        List<String> arguments = ImmutableList.of(
+                Dictionaries.dates.formatDateTime(like.likeCreationDate),
+                Dictionaries.dates.formatDateTime(like.likeDeletionDate),
+                Long.toString(like.person),
+                Long.toString(like.messageId)
+        );
         if (like.type == Like.LikeType.POST || like.type == Like.LikeType.PHOTO) {
-            //"creationDate", "deletionDate", "Person.id", "Post.id"
-            writers.get(PERSON_LIKES_POST).writeEntry(ImmutableList.of(
-                    Dictionaries.dates.formatDateTime(like.likeCreationDate),
-                    Dictionaries.dates.formatDateTime(like.likeDeletionDate),
-                    Long.toString(like.person),
-                    Long.toString(like.messageId)
-            ));
+            writers.get(PERSON_LIKES_POST).writeEntry(arguments);
         } else {
-            //"creationDate", "deletionDate", "Person.id", "Comment.id"
-            writers.get(PERSON_LIKES_COMMENT).writeEntry(ImmutableList.of(
-                    Dictionaries.dates.formatDateTime(like.likeCreationDate),
-                    Dictionaries.dates.formatDateTime(like.likeDeletionDate),
-                    Long.toString(like.person),
-                    Long.toString(like.messageId)
-            ));
+            writers.get(PERSON_LIKES_COMMENT).writeEntry(arguments);
         }
     }
 
