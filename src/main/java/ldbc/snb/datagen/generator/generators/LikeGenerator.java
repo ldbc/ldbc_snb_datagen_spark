@@ -74,34 +74,28 @@ public class LikeGenerator {
         for (int i = 0; i < numLikes; i++) {
             ForumMembership membership = memberships.get(startIndex + i);
 
-            long minCreationDate = Math.max(membership.getPerson().getCreationDate(),message.getCreationDate()) + DatagenParams.deltaTime;
+            long minCreationDate = Math.max(membership.getPerson().getCreationDate(), message.getCreationDate()) + DatagenParams.deltaTime;
             long maxCreationDate = Collections.min(Arrays.asList(
+                                                        message.getCreationDate() + DateUtils.SEVEN_DAYS,
                                                         membership.getPerson().getDeletionDate(),
-                                                        message.getCreationDate(),
-                                                        Dictionaries.dates.getEndDateTime(),
-                                                        Dictionaries.dates.randomSevenDays(random) + minCreationDate
-                                                        ));
-            if (maxCreationDate - minCreationDate < 0 ){
+                                                        message.getDeletionDate(),
+                                                        Dictionaries.dates.getEndDateTime()
+                                                  ));
+            if (maxCreationDate - minCreationDate < 0) {
                 continue;
             }
+            long likeCreationDate = Dictionaries.dates.randomDate(random, minCreationDate, maxCreationDate);
 
-            long likeCreationDate = Dictionaries.dates.randomDate(random,minCreationDate, maxCreationDate);
-
-            long minDeletionDate = minCreationDate + DatagenParams.deltaTime;
+            long minDeletionDate = likeCreationDate + DatagenParams.deltaTime;
             long maxDeletionDate = Collections.min(Arrays.asList(
                                                         membership.getPerson().getDeletionDate(),
                                                         message.getDeletionDate(),
-                                                        Dictionaries.dates.getStartDateTime() + DateUtils.TEN_YEARS
+                                                        Dictionaries.dates.getEndDateTime()
             ));
-
-            if (maxDeletionDate - minDeletionDate < 0 ){
+            if (maxDeletionDate - minDeletionDate < 0) {
                 continue;
             }
-
-            long likeDeletionDate = Dictionaries.dates.randomDate(random,minDeletionDate, maxDeletionDate);
-
-
-
+            long likeDeletionDate = Dictionaries.dates.randomDate(random, minDeletionDate, maxDeletionDate);
 
             like.person = membership.getPerson().getAccountId();
             like.personCreationDate = membership.getPerson().getCreationDate();
