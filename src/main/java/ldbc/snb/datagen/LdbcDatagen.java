@@ -145,23 +145,6 @@ public class LdbcDatagen {
         return(System.currentTimeMillis()-startPersonActivity);
     }
 
-
-    private long updateStreamHelper(FileSystem fs,int fileNum,long[] minMaxDate,String path) throws Exception{
-        Path propertiesFile = new Path(DatagenParams.hadoopDir + path + fileNum + ".properties");
-        FSDataInputStream file = fs.open(propertiesFile);
-        Properties properties = new Properties();
-        properties.load(file);
-        long aux;
-        aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.min_write_event_start_time"));
-        minMaxDate[0]= aux < minMaxDate[0] ? aux : minMaxDate[0];
-        aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.max_write_event_start_time"));
-        minMaxDate[1] = aux > minMaxDate[1] ? aux : minMaxDate[1];
-        aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.num_events"));
-        file.close();
-        fs.delete(propertiesFile, true);
-        return(aux); //sending back aux to be added to count
-    }
-
     private long serializeStaticGraph(Configuration conf) throws Exception {
         printProgress("Serializing static graph ");
         long startInvariantSerializing = System.currentTimeMillis();
