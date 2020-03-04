@@ -2,7 +2,6 @@ package ldbc.snb.datagen.hadoop.sorting;
 
 import java.io.IOException;
 
-import ldbc.snb.datagen.DatagenParams;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -12,8 +11,6 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Partitioner;
-import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
@@ -22,9 +19,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class HadoopSorter {
+public class HadoopCreationTimeSorter {
 
-  public static class SortMapper extends Mapper<Object, Text, LongWritable, Text>{
+  public static class CreationSortMapper extends Mapper<Object, Text, LongWritable, Text>{
 
     public void map(Object key, Text line, Context context) throws IOException, InterruptedException {
       try{
@@ -37,37 +34,12 @@ public class HadoopSorter {
     }
 }
 
-  public static class SortReducer extends Reducer<LongWritable, Text,Text,NullWritable> {
-    public void reduce(LongWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-      for(Text value:values) { //for all values at this time
-        context.write(value,NullWritable.get()); //just output
-      }
-    }
-  }
-
-  public static class SortPartitioner extends Partitioner<LongWritable,Text> {
-    String startyear = "01/01/"+DatagenParams.startYear; //get the starting year as specified in the params
-    int numberOfYears = DatagenParams.numYears; //get the number of years
-    long roughmsPerYear = 31536000000L; //rough number of milliseconds in a year
-    public int getPartition(LongWritable key, Text value, int numReduceTasks){
-      try{
-        Long startTime=new SimpleDateFormat("DD/MM/YYYY").parse(startyear).getTime(); //convert the start year to a Epoch
-        long increment = (numberOfYears*roughmsPerYear)/numReduceTasks; //define the size of increments by the
-        int reducer = (int) ((key.get()-startTime)/increment); //get the chosen reducer by integer divide
-        if(reducer > numReduceTasks-1) //just here to make sure that I haven't messed up
-          return(numReduceTasks-1);
-        else return reducer;
-      }
-      catch(Exception e) {System.out.println("hello");return 0;} //block has to be here, should never run
-    }
-  }
-
   public void run(String basePath, String toSort, String outputFileName) throws Exception {
     Configuration conf = new Configuration();
     Job job = Job.getInstance(conf, "LDBCSort");
 
-    job.setJarByClass(HadoopSorter.class);
-    job.setMapperClass(SortMapper.class);
+    job.setJarByClass(HadoopCreationTimeSorter.class);
+    job.setMapperClass(CreationSortMapper.class);
     job.setReducerClass(SortReducer.class);
     job.setMapOutputKeyClass(LongWritable.class);
     job.setMapOutputValueClass(Text.class);

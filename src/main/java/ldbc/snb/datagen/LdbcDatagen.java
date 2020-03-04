@@ -44,7 +44,8 @@ import ldbc.snb.datagen.hadoop.miscjob.HadoopMergeFriendshipFiles;
 import ldbc.snb.datagen.hadoop.serializer.HadoopPersonSerializer;
 import ldbc.snb.datagen.hadoop.serializer.HadoopPersonSortAndSerializer;
 import ldbc.snb.datagen.hadoop.serializer.HadoopStaticSerializer;
-import ldbc.snb.datagen.hadoop.sorting.HadoopSorter;
+import ldbc.snb.datagen.hadoop.sorting.HadoopCreationTimeSorter;
+import ldbc.snb.datagen.hadoop.sorting.HadoopDeletionTimeSorter;
 import ldbc.snb.datagen.util.ConfigParser;
 import ldbc.snb.datagen.vocabulary.SN;
 import org.apache.commons.io.FileUtils;
@@ -54,7 +55,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
 import java.io.File;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -264,11 +264,14 @@ public class LdbcDatagen {
     }
 
     public void individualSortJob(String filename, Configuration conf) throws Exception {
-        String hadoopPrefix = conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted";
-        HadoopSorter hadoopSorter = new HadoopSorter();
+        String creationPrefix = conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted/creation";
+        String deletionPrefix = conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted/deletion";
+        HadoopCreationTimeSorter creationSorter = new HadoopCreationTimeSorter();
+        HadoopDeletionTimeSorter deletionSorter = new HadoopDeletionTimeSorter();
         long startSort = System.currentTimeMillis();
         printProgress("Starting: " + filename + " sorting");
-        hadoopSorter.run("social_network/dynamic/", filename + "_[0-9]*_[0-9]*.csv", hadoopPrefix + "/" + filename);
+        creationSorter.run("social_network/dynamic/", filename + "_[0-9]*_[0-9]*.csv", creationPrefix + "/" + filename);
+        deletionSorter.run("social_network/dynamic/", filename + "_[0-9]*_[0-9]*.csv", deletionPrefix + "/" + filename);
         print(filename + " sorting time: " + ((System.currentTimeMillis() - startSort) / 1000));
     }
 

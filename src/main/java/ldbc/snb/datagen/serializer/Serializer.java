@@ -9,7 +9,5 @@ import java.util.List;
 import java.util.Map;
 
 public interface Serializer<THDFSWriter extends HdfsWriter> {
-
     Map<FileName, THDFSWriter> initialize(Configuration conf, int reducerId, boolean dynamic, List<FileName> fileNames) throws IOException;
-
 }
