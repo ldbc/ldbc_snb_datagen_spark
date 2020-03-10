@@ -254,7 +254,7 @@ public class LdbcDatagen {
         long startSort = System.currentTimeMillis();
         printProgress("Starting: " + filename + " sorting");
         creationSorter.run("social_network/dynamic/", filename + "_[0-9]*_[0-9]*.csv", creationPrefix + "/" + filename);
-        //deletionSorter.run("social_network/dynamic/", filename + "_[0-9]*_[0-9]*.csv", deletionPrefix + "/" + filename);
+        deletionSorter.run("social_network/dynamic/", filename + "_[0-9]*_[0-9]*.csv", deletionPrefix + "/" + filename);
         print(filename + " sorting time: " + ((System.currentTimeMillis() - startSort) / 1000));
     }
 

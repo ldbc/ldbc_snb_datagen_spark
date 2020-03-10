@@ -18,7 +18,8 @@ public class SortPartitioner extends Partitioner<LongWritable,Text> {
             int reducer = (int) ((key.get()-startTime)/increment); //get the chosen reducer by integer divide
             if(reducer > numReduceTasks-1) //just here to make sure that I haven't messed up
                 return(numReduceTasks-1);
-            else return reducer;
+            else
+                return reducer;
         }
         catch(Exception e) {System.out.println("hello");return 0;} //block has to be here, should never run
     }

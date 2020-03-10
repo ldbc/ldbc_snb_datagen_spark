@@ -23,14 +23,16 @@ import java.util.List;
 public class HadoopDeletionTimeSorter {
 
     public static class DeletionSortMapper extends Mapper<Object, Text, LongWritable, Text> {
+        String lastDate = "01-01-" + (DatagenParams.startYear + DatagenParams.numYears)+"00:00:00";
 
+        String firstDate = "01-01-" + (DatagenParams.startYear + DatagenParams.numYears)+"00:00:00";
         public void map(Object key, Text line, Context context) throws IOException, InterruptedException {
             try {
                 String date = line.toString().substring(30, 40) + line.toString().substring(41, 53); //extract the day of the event
                 Date updateDate = new SimpleDateFormat("yyyy-MM-ddHH:mm:ss.SSS").parse(date);// and convert it into a date object
-                String lastDate = "01-01-" + (DatagenParams.startYear + DatagenParams.numYears)+"00:00:00";
                 Date lastAllowedDate = new SimpleDateFormat("dd-MM-yyyyHH:mm:ss").parse(lastDate);// and convert it into a date object
-                if(updateDate.before(lastAllowedDate))
+                Date firstAllowedDate = new SimpleDateFormat("dd-MM-yyyyHH:mm:ss").parse(lastDate);// and convert it into a date object
+                if(updateDate.before(lastAllowedDate) && updateDate.after(firstAllowedDate))
                     context.write(new LongWritable(updateDate.getTime()), line); //write the original data along with the epoch for the day
             } catch (Exception e) {
                 System.out.println(e.getMessage());
