@@ -26,12 +26,11 @@ public class HadoopDeletionTimeSorter {
 
         public void map(Object key, Text line, Context context) throws IOException, InterruptedException {
             try {
-                String date = line.toString().split(",")[1].substring(0, 10) +
-                        line.toString().split(",")[0].substring(11, 23); //extract the day of the event
+                String date = line.toString().substring(30, 40) + line.toString().substring(41, 53); //extract the day of the event
                 Date updateDate = new SimpleDateFormat("yyyy-MM-ddHH:mm:ss.SSS").parse(date);// and convert it into a date object
-                String lastDate = "01/01/" + (DatagenParams.startYear + DatagenParams.numYears);
-                Date lastAllowedDate = new SimpleDateFormat("dd-MM-yyyy").parse(lastDate);// and convert it into a date object
-                if(updateDate.compareTo(lastAllowedDate) == 1)
+                String lastDate = "01-01-" + (DatagenParams.startYear + DatagenParams.numYears)+"00:00:00";
+                Date lastAllowedDate = new SimpleDateFormat("dd-MM-yyyyHH:mm:ss").parse(lastDate);// and convert it into a date object
+                if(updateDate.before(lastAllowedDate))
                     context.write(new LongWritable(updateDate.getTime()), line); //write the original data along with the epoch for the day
             } catch (Exception e) {
                 System.out.println(e.getMessage());
@@ -56,14 +55,12 @@ public class HadoopDeletionTimeSorter {
         List<Path> inputPaths = new ArrayList<>();
         FileSystem fs = FileSystem.get(conf);
         Path path = new Path(basePath + "/" + toSort);
-        if (!fs.exists(path)) {
-            return;
-        }
         FileStatus[] listStatus = fs.globStatus(path);
         for (FileStatus fstat : listStatus) {
             inputPaths.add(fstat.getPath());
         }
         FileInputFormat.setInputPaths(job, inputPaths.toArray(new Path[inputPaths.size()]));
         FileOutputFormat.setOutputPath(job, new Path(outputFileName));
+        job.waitForCompletion(true);
     }
 }

@@ -25,8 +25,7 @@ public class HadoopCreationTimeSorter {
 
     public void map(Object key, Text line, Context context) throws IOException, InterruptedException {
       try{
-        String date = line.toString().split(",")[0].substring(0,10)+
-                line.toString().split(",")[0].substring(11,23); //extract the day of the event
+        String date = line.toString().substring(0,10)+line.toString().substring(11,23); //extract the day of the event
         Date date1=new SimpleDateFormat("yyyy-MM-ddHH:mm:ss.SSS").parse(date);// and convert it into a date object
         context.write(new LongWritable(date1.getTime()), line); //write the original data along with the epoch for the day
       }
@@ -47,18 +46,16 @@ public class HadoopCreationTimeSorter {
     job.setOutputValueClass(NullWritable.class);
     job.setPartitionerClass(SortPartitioner.class);
     job.setNumReduceTasks(4);
-
     List<Path> inputPaths = new ArrayList<>();
     FileSystem fs = FileSystem.get(conf);
     Path path = new Path(basePath + "/" + toSort);
-    if (!fs.exists(path)) {
-      return;
-    }
     FileStatus[] listStatus = fs.globStatus(path);
     for (FileStatus fstat : listStatus) {
+      System.out.println(fstat.getPath());
       inputPaths.add(fstat.getPath());
     }
     FileInputFormat.setInputPaths(job, inputPaths.toArray(new Path[inputPaths.size()]));
     FileOutputFormat.setOutputPath(job, new Path(outputFileName));
+    job.waitForCompletion(true);
   }
 }
