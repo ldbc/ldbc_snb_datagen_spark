@@ -35,6 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen;
 
+import com.google.common.collect.Lists;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.hadoop.generator.HadoopKnowsGenerator;
@@ -46,6 +47,9 @@ import ldbc.snb.datagen.hadoop.serializer.HadoopPersonSortAndSerializer;
 import ldbc.snb.datagen.hadoop.serializer.HadoopStaticSerializer;
 import ldbc.snb.datagen.hadoop.sorting.HadoopCreationTimeSorter;
 import ldbc.snb.datagen.hadoop.sorting.HadoopDeletionTimeSorter;
+import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
+import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.FileName;
 import ldbc.snb.datagen.util.ConfigParser;
 import ldbc.snb.datagen.vocabulary.SN;
 import org.apache.commons.io.FileUtils;
@@ -259,45 +263,21 @@ public class LdbcDatagen {
         print(filename + " sorting time: " + ((System.currentTimeMillis() - startSort) / 1000));
     }
 
-    public int runSortJob(Configuration conf) throws Exception {
+    public void runSortJob(Configuration conf) throws Exception {
         FileSystem.get(conf).mkdirs(new Path(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted"));
         FileSystem.get(conf).mkdirs(new Path(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted/creation"));
         FileSystem.get(conf).mkdirs(new Path(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted/deletion"));
 
-        String[] fileNames = {
-                "comment",
-                "comment_hasCreator_person",
-                "comment_hasTag_tag",
-                "comment_isLocatedIn_place",
-                "comment_replyOf_comment",
-                "comment_replyOf_post",
+        DynamicActivitySerializer dynamicActivitySerializer = (DynamicActivitySerializer) Class.forName(conf.get("ldbc.snb.datagen.serializer.dynamicActivitySerializer")).getDeclaredConstructor().newInstance();
+        DynamicPersonSerializer dynamicPersonSerializer = (DynamicPersonSerializer) Class.forName(conf.get("ldbc.snb.datagen.serializer.dynamicPersonSerializer")).getDeclaredConstructor().newInstance();
 
-                "forum",
-                "forum_containerOf_post",
-                "forum_hasMember_person",
-                "forum_hasModerator_person",
-                "forum_hasTag_tag",
+        List<FileName> filenames = Lists.newArrayList();
+        filenames.addAll(dynamicActivitySerializer.getFileNames());
+        filenames.addAll(dynamicPersonSerializer.getFileNames());
 
-                "person",
-                "person_email_emailaddress",
-                "person_hasInterest_tag",
-                "person_isLocatedIn_place",
-                "person_knows_person",
-                "person_likes_comment",
-                "person_likes_post",
-                "person_speaks_language",
-                "person_studyAt_organisation",
-                "person_workAt_organisation",
-
-                "post",
-                "post_hasCreator_person",
-                "post_hasTag_tag",
-                "post_isLocatedIn_place"};
-
-        for (int i = 0; i < fileNames.length; i++) {
-            individualSortJob(fileNames[i], conf);
+        for (FileName f : filenames) {
+            individualSortJob(f.toString(), conf);
         }
-        return 0;
     }
 
     public static void main(String[] args) throws Exception {
