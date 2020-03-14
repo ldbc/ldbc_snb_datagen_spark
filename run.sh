@@ -27,6 +27,21 @@ echo HADOOP_HOME: $HADOOP_HOME
 echo HADOOP_CLIENT_OPTS: $HADOOP_CLIENT_OPTS
 echo ===============================================================================
 
+if [ ! -d $LDBC_SNB_DATAGEN_HOME ]; then
+  echo LDBC_SNB_DATAGEN_HOME $LDBC_SNB_DATAGEN_HOME does not exist
+  exit 1
+fi
+
+if [ ! -d $JAVA_HOME ]; then
+  echo JAVA_HOME $JAVA_HOME does not exist
+  exit 1
+fi
+
+if [ ! -d $HADOOP_HOME ]; then
+  echo HADOOP_HOME $HADOOP_HOME does not exist
+  exit 1
+fi
+
 mvn clean
 mvn -DskipTests assembly:assembly
 
