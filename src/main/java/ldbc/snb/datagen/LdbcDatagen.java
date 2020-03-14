@@ -118,10 +118,11 @@ public class LdbcDatagen {
     private long serializePersons(String hadoopPrefix, Configuration conf) throws Exception {
         printProgress("Serializing persons");
         long startPersonSerializing = System.currentTimeMillis();
-        if (conf.getBoolean("ldbc.snb.datagen.serializer.persons.sort", true))
+        if (conf.getBoolean("ldbc.snb.datagen.serializer.persons.sort", true)) {
             new HadoopPersonSortAndSerializer(conf).run(hadoopPrefix + "/mergedPersons");
-        else
+        } else {
             new HadoopPersonSerializer(conf).run(hadoopPrefix + "/mergedPersons");
+        }
 
         return(System.currentTimeMillis()-startPersonSerializing);
     }
@@ -263,20 +264,41 @@ public class LdbcDatagen {
         FileSystem.get(conf).mkdirs(new Path(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted/creation"));
         FileSystem.get(conf).mkdirs(new Path(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted/deletion"));
 
-        String[] fileNames = {"comment", "comment_hasCreator_person", "comment_hasTag_tag", "comment_isLocatedIn_place",
-                "comment_replyOf_comment", "comment_replyOf_post", "forum", "forum_containerOf_post", "forum_hasMember_person",
-                "forum_hasModerator_person", "forum_hasTag_tag", "person_email_emailaddress", "person", "person_hasInterest_tag",
-                "person_isLocatedIn_place", "person_knows_person", "person_likes_comment", "person_likes_post",
-                "person_speaks_language", "person_studyAt_organisation", "person_workAt_organisation", "post",
-                "post_hasCreator_person", "post_hasTag_tag", "post_isLocatedIn_place"};
+        String[] fileNames = {
+                "comment",
+                "comment_hasCreator_person",
+                "comment_hasTag_tag",
+                "comment_isLocatedIn_place",
+                "comment_replyOf_comment",
+                "comment_replyOf_post",
+
+                "forum",
+                "forum_containerOf_post",
+                "forum_hasMember_person",
+                "forum_hasModerator_person",
+                "forum_hasTag_tag",
+
+                "person",
+                "person_email_emailaddress",
+                "person_hasInterest_tag",
+                "person_isLocatedIn_place",
+                "person_knows_person",
+                "person_likes_comment",
+                "person_likes_post",
+                "person_speaks_language",
+                "person_studyAt_organisation",
+                "person_workAt_organisation",
+
+                "post",
+                "post_hasCreator_person",
+                "post_hasTag_tag",
+                "post_isLocatedIn_place"};
 
         for (int i = 0; i < fileNames.length; i++) {
             individualSortJob(fileNames[i], conf);
         }
         return 0;
     }
-
-
 
     public static void main(String[] args) throws Exception {
         Configuration conf = ConfigParser.initialize();

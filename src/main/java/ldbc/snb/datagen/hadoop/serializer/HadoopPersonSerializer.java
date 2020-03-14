@@ -85,13 +85,13 @@ public class HadoopPersonSerializer {
         @Override
         public void reduce(TupleKey key, Iterable<Person> valueSet, Context context)
                 throws IOException {
+
             for (Person p : valueSet) {
                 dynamicPersonSerializer_.export(p);
                 for (Knows k : p.getKnows()) {
                     dynamicPersonSerializer_.export(p, k);
                 }
             }
-
         }
 
         @Override
@@ -105,7 +105,6 @@ public class HadoopPersonSerializer {
     }
 
     public void run(String inputFileName) throws Exception {
-
         FileSystem fs = FileSystem.get(conf);
 
         int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads"));
