@@ -57,6 +57,9 @@ public class HadoopDeletionTimeSorter {
         List<Path> inputPaths = new ArrayList<>();
         FileSystem fs = FileSystem.get(conf);
         Path path = new Path(basePath + "/" + toSort);
+        if (!fs.exists(path)) {
+            return;
+        }
         FileStatus[] listStatus = fs.globStatus(path);
         for (FileStatus fstat : listStatus) {
             inputPaths.add(fstat.getPath());
