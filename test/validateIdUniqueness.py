@@ -1,5 +1,5 @@
 
-import sys, os
+import sys
 from sets import Set
 
 

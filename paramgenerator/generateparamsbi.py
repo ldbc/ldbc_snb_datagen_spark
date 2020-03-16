@@ -4,10 +4,9 @@ import calendar
 import codecs
 import os
 import random
-import time
-from datetime import datetime,timedelta
-
 import readfactors
+import time
+from datetime import datetime, timedelta
 from timeparameters import *
 
 START_DATE=datetime.strptime("2010-01-01", "%Y-%m-%d")

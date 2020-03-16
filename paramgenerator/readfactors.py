@@ -1,8 +1,7 @@
 #!/usr/bin/env python2
 
-import sys
-import getopt
 import codecs
+import sys
 
 FACTORS = ["f", "ff", "fp", "fpt", "ffg", "p", "pl", "pt", "pr", "g", "w", "ffw", "ffp", "fw", "fg", "ffpt", "fpr", "org"]
 

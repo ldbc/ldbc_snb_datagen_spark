@@ -1,13 +1,13 @@
 #!/usr/bin/env python2
 
-import discoverparams
-import readfactors
-import random
-import os
 import codecs
+import discoverparams
+import os
+import random
+import readfactors
+from calendar import timegm
 from datetime import date
 from timeparameters import *
-from calendar import timegm
 
 SEED = 1
 

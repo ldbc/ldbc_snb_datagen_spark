@@ -2,9 +2,9 @@ package ldbc.snb.datagen.test.csv;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class PairUniquenessCheck<T,S> extends Check {

@@ -1,10 +1,7 @@
 #!/usr/bin/env python2
 
-import sys
-import getopt
 import math
 #import numpy as np
-import random
 from operator import itemgetter
 
 # amount of parameters to be mined (as a percentage to the domain size, i.e. total number of persons)

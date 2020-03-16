@@ -1,5 +1,5 @@
 
-import sys, os
+import sys
 
 input_file = open(sys.argv[1])
 

@@ -1,6 +1,5 @@
 
-import sys, os
-
+import sys
 
 if( len(sys.argv) < 4):
     print("Validates that a pair of columns never appear repeated.")

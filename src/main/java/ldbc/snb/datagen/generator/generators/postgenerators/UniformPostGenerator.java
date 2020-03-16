@@ -42,7 +42,6 @@ import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.generator.generators.CommentGenerator;
 import ldbc.snb.datagen.generator.generators.LikeGenerator;
 import ldbc.snb.datagen.generator.generators.textgenerators.TextGenerator;
-import ldbc.snb.datagen.util.DateUtils;
 
 import java.util.Random;
 

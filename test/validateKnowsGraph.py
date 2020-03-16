@@ -1,7 +1,6 @@
 
-import sys, os
 import glob
-
+import sys
 
 if( len(sys.argv) == 1):
     print("Validates the correcness of the knows graph.")

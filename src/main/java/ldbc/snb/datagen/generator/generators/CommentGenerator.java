@@ -46,13 +46,18 @@ import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.entities.dynamic.relations.Like;
 import ldbc.snb.datagen.generator.generators.textgenerators.TextGenerator;
 import ldbc.snb.datagen.serializer.PersonActivityExporter;
-import ldbc.snb.datagen.util.DateUtils;
 import ldbc.snb.datagen.util.PersonBehavior;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
+import java.util.Random;
+import java.util.TreeSet;
 
 public class CommentGenerator {
     private String[] shortComments = {"ok", "good", "great", "cool", "thx", "fine", "LOL", "roflol", "no way!", "I see", "right", "yes", "no", "duh", "thanks", "maybe"};
