@@ -46,6 +46,10 @@ public class PowerDistribution {
         powerDist = new PowerDist(a, b, alpha);
     }
 
+    public PowerDist getPowerDist() {
+        return powerDist;
+    }
+
     public int getValue(Random random) {
         return (int) powerDist.inverseF(random.nextDouble());
     }
@@ -53,4 +57,6 @@ public class PowerDistribution {
     public double getDouble(Random random) {
         return powerDist.inverseF(random.nextDouble());
     }
+
+
 }
