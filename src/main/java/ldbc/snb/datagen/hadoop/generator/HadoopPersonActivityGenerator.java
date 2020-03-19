@@ -74,12 +74,12 @@ public class HadoopPersonActivityGenerator {
         /**
          * The id of the reducer.
          **/
-        private DynamicActivitySerializer dynamicActivitySerializer_;
-        private PersonActivityGenerator personActivityGenerator_;
-        private OutputStream personFactors_;
-        private OutputStream activityFactors_;
-        private OutputStream friends_;
-        private FileSystem fs_;
+        private DynamicActivitySerializer dynamicActivitySerializer;
+        private PersonActivityGenerator personActivityGenerator;
+        private OutputStream personFactors;
+        private OutputStream activityFactors;
+        private OutputStream friends;
+        private FileSystem fs;
 
         protected void setup(Context context) {
             System.out.println("Setting up reducer for person activity generation");
@@ -87,17 +87,17 @@ public class HadoopPersonActivityGenerator {
             reducerId = context.getTaskAttemptID().getTaskID().getId();
             LdbcDatagen.initializeContext(conf);
             try {
-                dynamicActivitySerializer_ = (DynamicActivitySerializer) Class
+                dynamicActivitySerializer = (DynamicActivitySerializer) Class
                         .forName(conf.get("ldbc.snb.datagen.serializer.dynamicActivitySerializer")).newInstance();
-                dynamicActivitySerializer_.initialize(conf, reducerId);
-                personActivityGenerator_ = new PersonActivityGenerator(dynamicActivitySerializer_);
+                dynamicActivitySerializer.initialize(conf, reducerId);
+                personActivityGenerator = new PersonActivityGenerator(dynamicActivitySerializer);
 
-                fs_ = FileSystem.get(context.getConfiguration());
-                personFactors_ = fs_
+                fs = FileSystem.get(context.getConfiguration());
+                personFactors = fs
                         .create(new Path(DatagenParams.hadoopDir + "/" + "m" + reducerId + DatagenParams.PERSON_COUNTS_FILE));
-                activityFactors_ = fs_
+                activityFactors = fs
                         .create(new Path(DatagenParams.hadoopDir + "/" + "m" + reducerId + DatagenParams.ACTIVITY_FILE));
-                friends_ = fs_.create(new Path(DatagenParams.hadoopDir + "/" + "m0friendList" + reducerId + ".csv"));
+                friends = fs.create(new Path(DatagenParams.hadoopDir + "/" + "m0friendList" + reducerId + ".csv"));
 
             } catch (Exception e) {
                 System.err.println(e.getMessage());
@@ -120,25 +120,25 @@ public class HadoopPersonActivityGenerator {
                     strbuf.append(k.to().getAccountId());
                 }
                 strbuf.append("\n");
-                friends_.write(strbuf.toString().getBytes("UTF8"));
+                friends.write(strbuf.toString().getBytes("UTF8"));
             }
             System.out.println("Starting generation of block: " + key.block);
-            personActivityGenerator_.generateActivityForBlock((int) key.block, persons, context);
+            personActivityGenerator.generateActivityForBlock((int) key.block, persons, context);
             System.out.println("Writing person factors for block: " + key.block);
-            personActivityGenerator_.writePersonFactors(personFactors_);
+            personActivityGenerator.writePersonFactors(personFactors);
         }
 
         protected void cleanup(Context context) {
             try {
                 System.out.println("Cleaning up");
-                personActivityGenerator_.writeActivityFactors(activityFactors_);
-                activityFactors_.close();
-                personFactors_.close();
-                friends_.close();
+                personActivityGenerator.writeActivityFactors(activityFactors);
+                activityFactors.close();
+                personFactors.close();
+                friends.close();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            dynamicActivitySerializer_.close();
+            dynamicActivitySerializer.close();
         }
     }
 
