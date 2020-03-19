@@ -90,7 +90,7 @@ public class ConfigParser {
         conf.set("ldbc.snb.datagen.parametergenerator.python", "python");
         conf.set("ldbc.snb.datagen.parametergenerator.parameters", "true");
         conf.set("ldbc.snb.datagen.serializer.persons.sort", "true");
-
+        conf.set("ldbc.snb.datagen.runsort","true");
         /** Loading predefined Scale Factors **/
 
         try {

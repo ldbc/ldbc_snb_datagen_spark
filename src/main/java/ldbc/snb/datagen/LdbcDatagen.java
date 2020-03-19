@@ -287,7 +287,12 @@ public class LdbcDatagen {
         LdbcDatagen.initializeContext(conf);
         LdbcDatagen datagen = new LdbcDatagen();
         datagen.runGenerateJob(conf);
-        datagen.runSortJob(conf);
+
+        //do we want to sort?
+        if (conf.getBoolean("ldbc.snb.datagen.runsort", false)) {
+            datagen.runSortJob(conf);
+        }
+
     }
 
     private static void print(String message) {System.out.println(message);}
