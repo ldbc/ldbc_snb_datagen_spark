@@ -42,7 +42,6 @@ import ldbc.snb.datagen.util.DateUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -50,43 +49,50 @@ import java.util.TreeSet;
 
 public class FlashmobTagDictionary {
 
-    private DateUtils dateGen;
     /**
      *  The date generator used to generate dates.
      */
-    private PowerDistribution levelGenerator;
+    private DateUtils dateGen;
+
     /**
      *  The powerlaw distribution generator used to generate the levels.
      */
-    private Random random;
+    private PowerDistribution levelGenerator;
+
     /**
-     *  A uniform random genereator.
+     *  A uniform random generator.
      */
-    private TagDictionary tagDictionary;
+    private Random random;
+
     /**
      *  The tag dictionary used to create the flashmob tags.
      */
-    private Map<Integer, List<FlashMobTag>> flashmobTags;
+    private TagDictionary tagDictionary;
+
     /**
      *  A map of identifiers of tags to flashmob tag instances.
      */
-    private FlashMobTag[] flashmobTagCumDist;
+    private Map<Integer, List<FlashMobTag>> flashmobTags;
+
     /**
      *  The cumulative distribution of flashmob tags sorted by date.
      */
-    private double flashmobTagsPerMonth;
+    private FlashMobTag[] flashmobTagCumDist;
+
     /**
      *  The number of flashmob tags per month.
      */
-    private double probInterestFlashmobTag;
+    private double flashmobTagsPerMonth;
+
     /**
      *  The probability to take an interest flashmob tag.
      */
-    private double probRandomPerLevel;
+    private double probInterestFlashmobTag;
 
     /**
      *  The probability per level to take a flashmob tag.
      */
+    private double probRandomPerLevel;
 
     public FlashmobTagDictionary(TagDictionary tagDictionary,
                                  DateUtils dateGen,
@@ -109,7 +115,7 @@ public class FlashmobTagDictionary {
     }
 
     /**
-     * @brief Initializes the flashmob tag dictionary, by selecting a set of tags as flashmob tags.
+     * Initializes the flashmob tag dictionary, by selecting a set of tags as flashmob tags.
      */
     private void initialize() {
         int numFlashmobTags = (int) (flashmobTagsPerMonth * dateGen.numberOfMonths(dateGen.getStartDateTime()));
@@ -117,11 +123,7 @@ public class FlashmobTagDictionary {
         flashmobTagCumDist = new FlashMobTag[numFlashmobTags];
         double sumLevels = 0;
         for (int i = 0; i < numFlashmobTags; ++i) {
-            List<FlashMobTag> instances = flashmobTags.get(tags[i]);
-            if (instances == null) {
-                instances = new ArrayList<>();
-                flashmobTags.put(tags[i], instances);
-            }
+            List<FlashMobTag> instances = flashmobTags.computeIfAbsent(tags[i], k -> new ArrayList<>());
             FlashMobTag flashmobTag = new FlashMobTag();
             flashmobTag.date = dateGen.randomDate(random, dateGen.getStartDateTime());
             flashmobTag.level = levelGenerator.getValue(random);
@@ -129,21 +131,19 @@ public class FlashmobTagDictionary {
             flashmobTag.tag = tags[i];
             instances.add(flashmobTag);
             flashmobTagCumDist[i] = flashmobTag;
-//            if(tags[i] == 1761) System.out.println(flashmobTag);
         }
         Arrays.sort(flashmobTagCumDist);
-        int size = flashmobTagCumDist.length;
         double currentProb = 0.0;
-        for (int i = 0; i < size; ++i) {
-            flashmobTagCumDist[i].prob = currentProb;
-            currentProb += (double) (flashmobTagCumDist[i].level) / sumLevels;
+        for (FlashMobTag flashMobTag : flashmobTagCumDist) {
+            flashMobTag.prob = currentProb;
+            currentProb += (double) (flashMobTag.level) / sumLevels;
         }
     }
 
     /**
+     * Selects the earliest flashmob tag index from a given date.
+     * @param fromDate The minimum date to consider.
      * @return The index to the earliest flashmob tag.
-     * @brief Selects the earliest flashmob tag index from a given date.
-     * @param[in] fromDate The minimum date to consider.
      */
     private int searchEarliestIndex(long fromDate) {
         int lowerBound = 0;
@@ -161,30 +161,29 @@ public class FlashmobTagDictionary {
     }
 
     /**
+     * Makes a decision of selecting or not a flashmob tag.
+     * @param rand random number generator
+     * @param index The index of the flashmob tag to select.
      * @return true if the flashmob tag is selected. false otherwise.
-     * @brief Makes a decision of selecting or not a flashmob tag.
-     * @param[in] index The index of the flashmob tag to select.
      */
     private boolean selectFlashmobTag(Random rand, int index) {
         return rand.nextDouble() > (1 - probRandomPerLevel * flashmobTagCumDist[index].level);
     }
 
+
     /**
+     * Given a set of interests and a date, generates a set of flashmob tags.
+     * @param rand random number generator
+     * @param interests The set of interests.
+     * @param fromDate The date from which to consider the flashmob tags.
      * @return A vector containing the selected flashmob tags.
-     * @brief Given a set of interests and a date, generates a set of flashmob tags.
-     * @param[in] interests The set of interests.
-     * @param[in] fromDate The date from which to consider the flashmob tags.
      */
     public List<FlashMobTag> generateFlashmobTags(Random rand, TreeSet<Integer> interests, long fromDate) {
         List<FlashMobTag> result = new ArrayList<>();
-        Iterator<Integer> it = interests.iterator();
-        while (it.hasNext()) {
-            Integer tag = it.next();
+        for (Integer tag : interests) {
             List<FlashMobTag> instances = flashmobTags.get(tag);
             if (instances != null) {
-                Iterator<FlashMobTag> it2 = instances.iterator();
-                while (it2.hasNext()) {
-                    FlashMobTag instance = it2.next();
+                for (FlashMobTag instance : instances) {
                     if ((instance.date >= fromDate) && (rand.nextDouble() > 1 - probInterestFlashmobTag)) {
                         result.add(instance);
                     }
