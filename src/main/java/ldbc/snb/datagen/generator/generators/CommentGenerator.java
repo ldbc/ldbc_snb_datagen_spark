@@ -129,16 +129,24 @@ public class CommentGenerator {
             }
 
             // creation date
-            long baseDate = Math.max(parentMessage.getCreationDate(), membership.getCreationDate()) + DatagenParams.deltaTime;
-            long creationDate = Dictionaries.dates.powerLawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), baseDate);
+            long minCreationDate = Math.max(parentMessage.getCreationDate(),membership.getCreationDate()) + DatagenParams.deltaTime;
+            long maxCreationDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getEndDateTime());
+            if (maxCreationDate - minCreationDate < 0) {
+                continue;
+            }
+            // powerlaw distribtion
+            long creationDate = Dictionaries.dates.powerLawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), minCreationDate);
+            if (creationDate > maxCreationDate) {
+                continue;
+            }
 
             long minDeletionDate = creationDate + DatagenParams.deltaTime;
             long maxDeletionDate = Collections.min(Arrays.asList(parentMessage.getDeletionDate(), membership.getDeletionDate(), Dictionaries.dates.getNetworkCollapse()));
-
             if (maxDeletionDate - minDeletionDate < 0) {
                 continue;
             }
             long deletionDate = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), minDeletionDate, maxDeletionDate);
+
 
             int country = membership.getPerson().getCountryId();
             IP ip = membership.getPerson().getIpAddress();
