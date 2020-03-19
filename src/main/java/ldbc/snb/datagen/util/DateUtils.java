@@ -50,12 +50,10 @@ public class DateUtils {
 
     public static final long ONE_DAY = 24L * 60L * 60L * 1000L;
     public static final long SEVEN_DAYS = 7L * ONE_DAY;
-    public static final long THIRTY_DAYS = 30L * ONE_DAY;
-    public static final long ONE_YEAR = 365L * ONE_DAY;
-    public static final long TWO_YEARS = 2L * ONE_YEAR;
-    public static final long THREE_YEARS = ONE_YEAR + TWO_YEARS;
-    public static final long TEN_YEARS = 10L * ONE_YEAR;
-    public static final long THIRTY_YEARS = 30L * ONE_YEAR;
+    private static final long THIRTY_DAYS = 30L * ONE_DAY;
+    private static final long ONE_YEAR = 365L * ONE_DAY;
+    private static final long TWO_YEARS = 2L * ONE_YEAR;
+    private static final long TEN_YEARS = 10L * ONE_YEAR;
 
     private long simulationStart;
     private long simulationEnd;
@@ -75,12 +73,12 @@ public class DateUtils {
         powerDist = new PowerDistribution(0.0, 1.0, alpha);
 
         // For birthday from 1980 to 1990
-        GregorianCalendar frombirthCalendar = new GregorianCalendar(1980, 1, 1);
-        frombirthCalendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        GregorianCalendar tobirthCalendar = new GregorianCalendar(1990, 1, 1);
-        tobirthCalendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        fromBirthDay = frombirthCalendar.getTimeInMillis();
-        toBirthDay = tobirthCalendar.getTimeInMillis();
+        GregorianCalendar fromBirthCalendar = new GregorianCalendar(1980, 1, 1);
+        fromBirthCalendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+        GregorianCalendar toBirthCalendar = new GregorianCalendar(1990, 1, 1);
+        toBirthCalendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+        fromBirthDay = fromBirthCalendar.getTimeInMillis();
+        toBirthDay = toBirthCalendar.getTimeInMillis();
         calendar = new GregorianCalendar();
         calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
 
@@ -160,9 +158,6 @@ public class DateUtils {
 
     public long randomKnowsCreationDate(Random random, Person personA, Person personB) {
 
-//        long fromDate = Math.max(personA.creationDate(), personB.creationDate()) + DatagenParams.deltaTime;
-//        return randomDate(random, fromDate, fromDate + THIRTY_DAYS);
-
         long fromDate = Math.max(personA.getCreationDate(), personB.getCreationDate()) + DatagenParams.deltaTime;
         long toDate = Math.min(personA.getDeletionDate(),personB.getDeletionDate());
         return randomDate(random, fromDate, toDate);
@@ -194,12 +189,14 @@ public class DateUtils {
         return (long) (random.nextDouble() * (maxDate - minDate) + minDate);
     }
 
+    /**
+     * Returns the creation date of a comment following a power law distribution.
+     * @param random random number generator
+     * @param lastCommentCreatedDate parent message creation date
+     * @return creation date of replies
+     */
     public long powerLawCommDateDay(Random random, long lastCommentCreatedDate) {
         return (long) (powerDist.getDouble(random) * ONE_DAY + lastCommentCreatedDate);
-    }
-
-    public long randomSevenDays(Random random) {
-        return (long) (random.nextDouble() * DateUtils.SEVEN_DAYS);
     }
 
     // The birthday is fixed during 1980 --> 1990
@@ -234,8 +231,8 @@ public class DateUtils {
     public long getWorkFromYear(Random random, long classYear, long birthday) {
         long workYear;
         if (classYear == -1) {
-            long workingage = 18 * ONE_YEAR;
-            long from = birthday + workingage;
+            long workingAge = 18 * ONE_YEAR;
+            long from = birthday + workingAge;
             workYear = Math.min((long) (random.nextDouble() * (simulationEnd - from)) + from, simulationEnd);
         } else {
             workYear = (classYear + (long) (random.nextDouble() * TWO_YEARS));
