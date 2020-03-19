@@ -59,11 +59,11 @@ public class DateUtils {
 
     private long simulationStart;
     private long simulationEnd;
-    private long fromBirthDay_;
-    private long toBirthDay_;
-    private GregorianCalendar calendar_;
+    private long fromBirthDay;
+    private long toBirthDay;
+    private GregorianCalendar calendar;
     private PowerDistribution powerDist;
-    private DateFormatter dateFormatter_;
+    private DateFormatter dateFormatter;
 
     // This constructor is for the case of friendship's created date generator
     public DateUtils(Configuration conf, GregorianCalendar simulationStartYear, GregorianCalendar simulationEndYear,
@@ -79,15 +79,15 @@ public class DateUtils {
         frombirthCalendar.setTimeZone(TimeZone.getTimeZone("GMT"));
         GregorianCalendar tobirthCalendar = new GregorianCalendar(1990, 1, 1);
         tobirthCalendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        fromBirthDay_ = frombirthCalendar.getTimeInMillis();
-        toBirthDay_ = tobirthCalendar.getTimeInMillis();
-        calendar_ = new GregorianCalendar();
-        calendar_.setTimeZone(TimeZone.getTimeZone("GMT"));
+        fromBirthDay = frombirthCalendar.getTimeInMillis();
+        toBirthDay = tobirthCalendar.getTimeInMillis();
+        calendar = new GregorianCalendar();
+        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
 
         try {
-            dateFormatter_ = (DateFormatter) Class.forName(conf.get("ldbc.snb.datagen.serializer.dateFormatter"))
+            dateFormatter = (DateFormatter) Class.forName(conf.get("ldbc.snb.datagen.serializer.dateFormatter"))
                                                   .newInstance();
-            dateFormatter_.initialize(conf);
+            dateFormatter.initialize(conf);
         } catch (Exception e) {
             System.err.println("Error when initializing date formatter");
             System.err.println(e.getMessage());
@@ -120,12 +120,12 @@ public class DateUtils {
      * format the date
      */
     public String formatDate(long date) {
-        return dateFormatter_.formatDate(date);
+        return dateFormatter.formatDate(date);
     }
 
     public String formatYear(long date) {
-        calendar_.setTimeInMillis(date);
-        int year = calendar_.get(Calendar.YEAR);
+        calendar.setTimeInMillis(date);
+        int year = calendar.get(Calendar.YEAR);
         return year + "";
     }
 
@@ -133,7 +133,7 @@ public class DateUtils {
      * format the date with hours and minutes
      */
     public String formatDateTime(long date) {
-        return dateFormatter_.formatDateTime(date);
+        return dateFormatter.formatDateTime(date);
     }
 
 
@@ -152,9 +152,9 @@ public class DateUtils {
     }
 
     public int getNumberOfMonths(long date, int startMonth, int startYear) {
-        calendar_.setTimeInMillis(date);
-        int month = calendar_.get(Calendar.MONTH) + 1;
-        int year = calendar_.get(Calendar.YEAR);
+        calendar.setTimeInMillis(date);
+        int month = calendar.get(Calendar.MONTH) + 1;
+        int year = calendar.get(Calendar.YEAR);
         return (year - startYear) * 12 + month - startMonth;
     }
 
@@ -204,21 +204,21 @@ public class DateUtils {
 
     // The birthday is fixed during 1980 --> 1990
     public long getBirthDay(Random random) {
-        calendar_.setTimeInMillis(((long) (random.nextDouble() * (toBirthDay_ - fromBirthDay_)) + fromBirthDay_));
-        GregorianCalendar aux_calendar = new GregorianCalendar(calendar_.get(Calendar.YEAR), calendar_
-                .get(Calendar.MONTH), calendar_.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
+        calendar.setTimeInMillis(((long) (random.nextDouble() * (toBirthDay - fromBirthDay)) + fromBirthDay));
+        GregorianCalendar aux_calendar = new GregorianCalendar(calendar.get(Calendar.YEAR), calendar
+                .get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
         aux_calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
         return aux_calendar.getTimeInMillis();
     }
 
     public int getBirthYear(long birthday) {
-        calendar_.setTimeInMillis(birthday);
-        return calendar_.get(GregorianCalendar.YEAR);
+        calendar.setTimeInMillis(birthday);
+        return calendar.get(GregorianCalendar.YEAR);
     }
 
     public int getBirthMonth(long birthday) {
-        calendar_.setTimeInMillis(birthday);
-        return calendar_.get(GregorianCalendar.MONTH);
+        calendar.setTimeInMillis(birthday);
+        return calendar.get(GregorianCalendar.MONTH);
     }
     //If do not know the birthday, first randomly guess the age of person
     //Randomly get the age when person graduate
