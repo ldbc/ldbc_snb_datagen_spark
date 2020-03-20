@@ -139,7 +139,7 @@ public class HadoopPersonSortAndSerializer {
         FileInputFormat.setInputPaths(job, new Path(rankedFileName));
         FileOutputFormat.setOutputPath(job, new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/aux"));
         if (!job.waitForCompletion(true)) {
-            throw new Exception();
+            throw new IllegalStateException("HadoopPersonSerializer failed");
         }
 
 

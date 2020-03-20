@@ -98,7 +98,6 @@ public class HadoopPersonGenerator {
                         context.write(keySetter.getKey(block[j]), block[j]);
                     } catch (IOException ioE) {
                         System.err.println("Input/Output Exception when writing to context.");
-                        System.err.println(ioE.getMessage());
                         ioE.printStackTrace();
                     } catch (InterruptedException iE) {
                         System.err.println("Interrupted Exception when writing to context.");
@@ -171,7 +170,7 @@ public class HadoopPersonGenerator {
         FileInputFormat.setInputPaths(job, new Path(tempFile));
         FileOutputFormat.setOutputPath(job, new Path(outputFileName));
         if (!job.waitForCompletion(true)) {
-            throw new Exception();
+            throw new IllegalStateException("HadoopPersonGenerator failed");
         }
     }
 }

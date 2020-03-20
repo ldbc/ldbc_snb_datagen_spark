@@ -184,7 +184,7 @@ public class HadoopPersonActivityGenerator {
         FileOutputFormat.setOutputPath(job, new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/aux"));
         long start = System.currentTimeMillis();
         if (!job.waitForCompletion(true)) {
-            throw new Exception("Job Failed");
+            throw new IllegalStateException("HadoopPersonActivityGenerator failed");
         }
         System.out.println("Real time to generate activity: " + (System.currentTimeMillis() - start) / 1000.0f);
 

@@ -254,7 +254,7 @@ public class HadoopFileRanker {
         InputSampler.writePartitionFile(jobSort, sampler);
         jobSort.setPartitionerClass(TotalOrderPartitioner.class);
         if (!jobSort.waitForCompletion(true)) {
-            throw new Exception();
+            throw new IllegalStateException("HadoopFileRanker / SortReducer failed");
         }
 
         /** Second Job to assign the rank to each element.**/
@@ -275,7 +275,7 @@ public class HadoopFileRanker {
         jobRank.setOutputFormatClass(SequenceFileOutputFormat.class);
         jobRank.setPartitionerClass(HadoopFileRankerPartitioner.class);
         if (!jobRank.waitForCompletion(true)) {
-            throw new Exception();
+            throw new IllegalStateException("HadoopFileRanker / FinelReducer failed");
         }
 
         try {

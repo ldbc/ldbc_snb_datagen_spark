@@ -74,7 +74,6 @@ public class HadoopMergeFriendshipFiles {
                 this.keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(conf.get("postKeySetterName"))
                                                                        .newInstance();
             } catch (Exception e) {
-                System.out.println(e.getMessage());
                 throw new RuntimeException(e);
             }
         }
@@ -152,7 +151,7 @@ public class HadoopMergeFriendshipFiles {
         System.out.println("Merging edges");
         long start = System.currentTimeMillis();
         if (!job.waitForCompletion(true)) {
-            throw new Exception();
+            throw new IllegalStateException("HadoopMergeFriendshipFiles failed");
         }
         System.out.println("... Time to merge edges: " + (System.currentTimeMillis() - start) + " ms");
     }
