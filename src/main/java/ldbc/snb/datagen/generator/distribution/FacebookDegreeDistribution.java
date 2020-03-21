@@ -43,6 +43,7 @@ import org.apache.hadoop.conf.Configuration;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,45 +60,43 @@ import java.util.List;
  */
 
 public class FacebookDegreeDistribution extends BucketedDistribution {
-    private int mean_ = 0;
-    private static final int FB_MEAN_ = 190;
-    private List<Bucket> buckets_;
+    private int mean = 0;
+    private static final int FB_MEAN = 190;
+    private List<Bucket> buckets;
 
     @Override
     public List<Bucket> getBuckets(Configuration conf) {
-        mean_ = (int) mean(DatagenParams.numPersons);
-        buckets_ = new ArrayList<>();
+        mean = (int) mean(DatagenParams.numPersons);
+        buckets = new ArrayList<>();
         loadFBBuckets();
         rebuildBucketRange();
-        return buckets_;
+        return buckets;
     }
 
-    public void loadFBBuckets() {
+    private void loadFBBuckets() {
         try {
             BufferedReader fbDataReader = new BufferedReader(
-                    new InputStreamReader(getClass().getResourceAsStream(DatagenParams.fbSocialDegreeFile), "UTF-8"));
+                    new InputStreamReader(getClass().getResourceAsStream(DatagenParams.fbSocialDegreeFile), StandardCharsets.UTF_8));
             String line;
             while ((line = fbDataReader.readLine()) != null) {
-                String data[] = line.split(" ");
-                buckets_.add(new Bucket(Float.parseFloat(data[0]), Float.parseFloat(data[1])));
+                String[] data = line.split(" ");
+                buckets.add(new Bucket(Float.parseFloat(data[0]), Float.parseFloat(data[1])));
             }
             fbDataReader.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void rebuildBucketRange() {
+    private void rebuildBucketRange() {
         double newMin;
         double newMax;
-        for (int i = 0; i < buckets_.size(); i++) {
-            newMin = buckets_.get(i).min() * mean_ / FB_MEAN_;
-            newMax = buckets_.get(i).max() * mean_ / FB_MEAN_;
+        for (Bucket bucket : buckets) {
+            newMin = bucket.min() * mean / FB_MEAN;
+            newMax = bucket.max() * mean / FB_MEAN;
             if (newMax < newMin) newMax = newMin;
-            buckets_.get(i).min(newMin);
-            buckets_.get(i).max(newMax);
+            bucket.min(newMin);
+            bucket.max(newMax);
         }
     }
 

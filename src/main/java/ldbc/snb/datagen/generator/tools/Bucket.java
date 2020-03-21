@@ -43,8 +43,8 @@ import java.util.List;
 
 public class Bucket {
 
-    private double min_;
-    private double max_;
+    private double min;
+    private double max;
 
     public static List<Bucket> bucketizeHistogram(List<Pair<Integer, Integer>> histogram, int num_buckets) {
 
@@ -97,23 +97,23 @@ public class Bucket {
 
 
     public Bucket(double min, double max) {
-        this.min_ = min;
-        this.max_ = max;
+        this.min = min;
+        this.max = max;
     }
 
     public double min() {
-        return min_;
+        return min;
     }
 
     public void min(double min) {
-        min_ = min;
+        this.min = min;
     }
 
     public double max() {
-        return max_;
+        return max;
     }
 
     public void max(double max) {
-        max_ = max;
+        this.max = max;
     }
 }
