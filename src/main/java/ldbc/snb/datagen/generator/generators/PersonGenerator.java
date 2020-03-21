@@ -50,20 +50,16 @@ import java.util.List;
 
 public class PersonGenerator {
 
-    private DegreeDistribution degreeDistribution_ = null;
-    private PowerDistribution randomTagPowerLaw = null;
-    private RandomGeneratorFarm randomFarm = null;
+    private DegreeDistribution degreeDistribution = null;
+    private PowerDistribution randomTagPowerLaw;
+    private RandomGeneratorFarm randomFarm;
     private int nextId = 0;
 
     public PersonGenerator(Configuration conf, String degreeDistribution) {
         try {
-            degreeDistribution_ = (DegreeDistribution) Class.forName(degreeDistribution).newInstance();
-            degreeDistribution_.initialize(conf);
-        } catch (ClassNotFoundException e) {
-            System.out.print(e.getMessage());
-        } catch (IllegalAccessException e) {
-            System.out.print(e.getMessage());
-        } catch (InstantiationException e) {
+            this.degreeDistribution = (DegreeDistribution) Class.forName(degreeDistribution).newInstance();
+            this.degreeDistribution.initialize(conf);
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
             System.out.print(e.getMessage());
         }
 
@@ -96,7 +92,7 @@ public class PersonGenerator {
         person.setCountryId(countryId);
         person.setCityId(Dictionaries.places.getRandomCity(randomFarm.get(RandomGeneratorFarm.Aspect.CITY), countryId));
         person.setIpAddress(Dictionaries.ips.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), countryId));
-        person.setMaxNumKnows(Math.min(degreeDistribution_.nextDegree(), DatagenParams.numPersons));
+        person.setMaxNumKnows(Math.min(degreeDistribution.nextDegree(), DatagenParams.numPersons));
 
         long deletionDate = Dictionaries.dates.randomPersonDeletionDate(randomFarm
                 .get(RandomGeneratorFarm.Aspect.DELETION_DATE), creationDate, person.getMaxNumKnows());
@@ -184,13 +180,12 @@ public class PersonGenerator {
     }
 
     private void resetState(int blockId) {
-        degreeDistribution_.reset(blockId);
+        degreeDistribution.reset(blockId);
         randomFarm.resetRandomGenerators((long) blockId);
     }
 
     /**
      * Generates a block of persons
-     *
      * @param seed      The seed to feed the pseudo-random number generators.
      * @param blockSize The size of the block of persons to generate.
      * @return block of persons
