@@ -40,6 +40,7 @@ import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.person.PersonSummary;
 import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
@@ -73,7 +74,7 @@ public class ForumGenerator {
         Forum forum = new Forum(SN.formId(SN.composeId(forumId, person.getCreationDate() + DatagenParams.deltaTime)),
                                 person.getCreationDate() + DatagenParams.deltaTime,
                                 person.getDeletionDate(),
-                                new Person.PersonSummary(person),
+                                new PersonSummary(person),
                                 StringUtils.clampString("Wall of " + person.getFirstName() + " " + person.getLastName(), 256),
                                 person.getCityId(),
                                 language
@@ -137,7 +138,7 @@ public class ForumGenerator {
         Forum forum = new Forum(SN.formId(SN.composeId(forumId, groupCreationDate)),
                                 groupCreationDate,
                                 groupDeletionDate,
-                                new Person.PersonSummary(moderator),
+                                new PersonSummary(moderator),
                                 StringUtils.clampString("Group for " + Dictionaries.tags.getName(interestId)
                                                                                         .replace("\"", "\\\"") + " in " + Dictionaries.places
                                         .getPlaceName(moderator.getCityId()), 256),
@@ -198,7 +199,7 @@ public class ForumGenerator {
                         long maxHasMemberDeletionDate = Math.min(member.getDeletionDate(), forum.getDeletionDate());
                         long hasMemberDeletionDate = Dictionaries.dates.randomDate(random, minHasMemberDeletionDate, maxHasMemberDeletionDate);
 
-                        forum.addMember(new ForumMembership(forum.getId(), hasMemberCreationDate, hasMemberDeletionDate, new Person.PersonSummary(member)));
+                        forum.addMember(new ForumMembership(forum.getId(), hasMemberCreationDate, hasMemberDeletionDate, new PersonSummary(member)));
                         groupMembers.add(member.getAccountId());
                     }
                 }
@@ -227,7 +228,7 @@ public class ForumGenerator {
         Forum forum = new Forum(SN.formId(SN.composeId(forumId, albumCreationDate)),
                                 albumCreationDate,
                                 albumDeletionDate,
-                                new Person.PersonSummary(person),
+                                new PersonSummary(person),
                                 StringUtils.clampString("Album " + numAlbum + " of " + person.getFirstName() + " " + person
                                         .getLastName(), 256),
                                 person.getCityId(),

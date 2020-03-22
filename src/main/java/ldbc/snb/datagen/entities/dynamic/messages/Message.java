@@ -37,7 +37,7 @@ package ldbc.snb.datagen.entities.dynamic.messages;
 
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.entities.dynamic.person.IP;
-import ldbc.snb.datagen.entities.dynamic.person.Person.PersonSummary;
+import ldbc.snb.datagen.entities.dynamic.person.PersonSummary;
 
 import java.util.TreeSet;
 

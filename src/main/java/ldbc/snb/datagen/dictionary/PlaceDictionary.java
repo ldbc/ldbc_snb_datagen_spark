@@ -94,24 +94,6 @@ public class PlaceDictionary {
     private Map<String, Integer> countryNames;
 
     /**
-     * Private class used to sort countries by their z-order value.
-     */
-    private static class PlaceZOrder implements Comparable<PlaceZOrder> {
-
-        public int id;
-        Integer zValue;
-
-        PlaceZOrder(int id, int zValue) {
-            this.id = id;
-            this.zValue = zValue;
-        }
-
-        public int compareTo(PlaceZOrder obj) {
-            return zValue.compareTo(obj.zValue);
-        }
-    }
-
-    /**
      * Create place dictionary
      */
     public PlaceDictionary() {

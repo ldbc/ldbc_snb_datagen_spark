@@ -47,33 +47,6 @@ public class DistributionKey {
     private List<Pair> distribution;
     private String distributionFile;
 
-    static class Pair {
-        private double l;
-        private String r;
-
-        public Pair(double l, String r) {
-            this.l = l;
-            this.r = r;
-        }
-
-        public double getL() {
-            return l;
-        }
-
-        public String getR() {
-            return r;
-        }
-
-        public void setL(double l) {
-            this.l = l;
-        }
-
-        public void setR(String r) {
-            this.r = r;
-        }
-
-    }
-
     public DistributionKey(String distributionFile) {
         this.distributionFile = distributionFile;
     }

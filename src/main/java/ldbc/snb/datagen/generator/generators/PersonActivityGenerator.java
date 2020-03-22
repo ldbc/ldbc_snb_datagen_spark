@@ -40,6 +40,7 @@ import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.person.PersonSummary;
 import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.generator.generators.postgenerators.FlashmobPostGenerator;
 import ldbc.snb.datagen.generator.generators.postgenerators.UniformPostGenerator;
@@ -120,7 +121,7 @@ public class PersonActivityGenerator {
         ForumMembership moderator = new ForumMembership(wall.getId(),
                                                 wall.getCreationDate() + DatagenParams.deltaTime,
                                                             wall.getDeletionDate(),
-                                                            new Person.PersonSummary(person));
+                                                            new PersonSummary(person));
         // list of members who can post on the wall - only moderator of wall can post on it
         List<ForumMembership> memberships = new ArrayList<>();
         memberships.add(moderator);
