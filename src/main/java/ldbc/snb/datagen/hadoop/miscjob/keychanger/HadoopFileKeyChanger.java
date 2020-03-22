@@ -118,7 +118,7 @@ public class HadoopFileKeyChanger {
         job.setInputFormatClass(SequenceFileInputFormat.class);
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
         if (!job.waitForCompletion(true)) {
-            throw new Exception();
+            throw new IllegalStateException("HadoopFileKeyChanger failed");
         }
     }
 }

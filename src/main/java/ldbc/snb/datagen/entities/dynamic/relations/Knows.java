@@ -38,6 +38,7 @@ package ldbc.snb.datagen.entities.dynamic.relations;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.person.PersonSummary;
 import org.apache.hadoop.io.Writable;
 
 import java.io.DataInput;
@@ -50,35 +51,35 @@ import java.util.Random;
 
 public class Knows implements Writable, Comparable<Knows> {
 
-    private Person.PersonSummary to;
+    private PersonSummary to;
     private long creationDate;
     private long deletionDate;
     private float weight = 0.0f;
     public static int num = 0;
 
     public Knows() {
-        to = new Person.PersonSummary();
+        to = new PersonSummary();
     }
 
     public Knows(Knows k) {
-        to = new Person.PersonSummary(k.to());
+        to = new PersonSummary(k.to());
         creationDate = k.getCreationDate();
         deletionDate = k.getDeletionDate();
         weight = k.getWeight();
     }
 
     public Knows(Person to, long creationDate, long deletionDate, float weight) {
-        this.to = new Person.PersonSummary(to);
+        this.to = new PersonSummary(to);
         this.creationDate = creationDate;
         this.deletionDate = deletionDate;
         this.weight = weight;
     }
 
-    public Person.PersonSummary to() {
+    public PersonSummary to() {
         return to;
     }
 
-    public void to(Person.PersonSummary to) {
+    public void to(PersonSummary to) {
         this.to.copy(to);
     }
 

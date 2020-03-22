@@ -36,7 +36,7 @@
 package ldbc.snb.datagen.entities.dynamic.relations;
 
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.entities.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.person.PersonSummary;
 
 /**
  * This class represents a hasMember edge between a Person and a Forum
@@ -46,14 +46,14 @@ public class ForumMembership {
     private long forumId;
     private long creationDate;
     private long deletionDate;
-    private Person.PersonSummary person;
+    private PersonSummary person;
 
-    public ForumMembership(long forumId, long creationDate, long deletionDate, Person.PersonSummary p) {
+    public ForumMembership(long forumId, long creationDate, long deletionDate, PersonSummary p) {
         assert (p.getCreationDate() + DatagenParams.deltaTime) <= creationDate : "Person creation date is larger than membership";
         this.forumId = forumId;
         this.creationDate = creationDate;
         this.deletionDate = deletionDate;
-        person = new Person.PersonSummary(p);
+        person = new PersonSummary(p);
     }
 
     public long getForumId() {
@@ -76,11 +76,11 @@ public class ForumMembership {
         this.deletionDate = deletionDate;
     }
 
-    public Person.PersonSummary getPerson() {
+    public PersonSummary getPerson() {
         return person;
     }
 
-    public void setPerson(Person.PersonSummary p) {
+    public void setPerson(PersonSummary p) {
         person = p;
     }
 

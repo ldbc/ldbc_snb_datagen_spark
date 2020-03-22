@@ -36,7 +36,7 @@
 package ldbc.snb.datagen.entities.dynamic;
 
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.entities.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.person.PersonSummary;
 import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 
 import java.util.ArrayList;
@@ -45,7 +45,7 @@ import java.util.List;
 public class Forum {
 
     private long id;
-    private Person.PersonSummary moderator;
+    private PersonSummary moderator;
     private long creationDate;
     private long deletionDate;
     private String title;
@@ -55,7 +55,7 @@ public class Forum {
     private List<ForumMembership> memberships;
 
 
-    public Forum(long id, long creationDate, long deletionDate, Person.PersonSummary moderator, String title, int placeId, int language) {
+    public Forum(long id, long creationDate, long deletionDate, PersonSummary moderator, String title, int placeId, int language) {
         assert (moderator.getCreationDate() + DatagenParams.deltaTime) <= creationDate : "Moderator's creation date is less than or equal to the Forum creation date";
         memberships = new ArrayList<>();
         tags = new ArrayList<>();
@@ -64,7 +64,7 @@ public class Forum {
         this.deletionDate = deletionDate;
         this.title = title;
         this.placeId = placeId;
-        this.moderator = new Person.PersonSummary(moderator);
+        this.moderator = new PersonSummary(moderator);
         this.language = language;
     }
 
@@ -80,7 +80,7 @@ public class Forum {
         this.id = id;
     }
 
-    public Person.PersonSummary getModerator() {
+    public PersonSummary getModerator() {
         return moderator;
     }
 

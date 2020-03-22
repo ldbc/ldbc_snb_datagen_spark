@@ -36,7 +36,7 @@
 package ldbc.snb.datagen.generator.generators.textgenerators;
 
 import ldbc.snb.datagen.dictionary.TagDictionary;
-import ldbc.snb.datagen.entities.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.person.PersonSummary;
 
 import java.util.Properties;
 import java.util.Random;
@@ -64,6 +64,6 @@ public abstract class TextGenerator {
     /**
      * @brief Generates a text given a set of tags.
      */
-    public abstract String generateText(Person.PersonSummary person, TreeSet<Integer> tags, Properties prop);
+    public abstract String generateText(PersonSummary person, TreeSet<Integer> tags, Properties prop);
 
 }

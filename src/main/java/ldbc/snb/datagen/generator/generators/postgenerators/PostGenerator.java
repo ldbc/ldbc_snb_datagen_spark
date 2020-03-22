@@ -55,7 +55,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
-import java.util.TreeSet;
 
 
 abstract public class PostGenerator {
@@ -64,41 +63,6 @@ abstract public class PostGenerator {
     private CommentGenerator commentGenerator;
     private LikeGenerator likeGenerator;
     private Post post;
-
-    static class PostCore {
-
-        private TreeSet<Integer> tags;
-        private long creationDate;
-        private long deletionDate;
-
-        PostCore() {
-            this.tags = new TreeSet<>();
-        }
-
-        public TreeSet<Integer> getTags() {
-            return tags;
-        }
-
-        public void setTags(TreeSet<Integer> tags) {
-            this.tags = tags;
-        }
-
-        public long getCreationDate() {
-            return creationDate;
-        }
-
-        public void setCreationDate(long creationDate) {
-            this.creationDate = creationDate;
-        }
-
-        public long getDeletionDate() {
-            return deletionDate;
-        }
-
-        public void setDeletionDate(long deletionDate) {
-            this.deletionDate = deletionDate;
-        }
-    }
 
 
     PostGenerator(TextGenerator generator, CommentGenerator commentGenerator, LikeGenerator likeGenerator) {
@@ -142,7 +106,7 @@ abstract public class PostGenerator {
                 if (postCore != null) {
 
                     // create content, county, ip - sometimes randomise
-                    String content = this.generator.generateText(member.getPerson(), postCore.tags, properties);
+                    String content = this.generator.generateText(member.getPerson(), postCore.getTags(), properties);
                     int country = member.getPerson().getCountryId();
                     IP ip = member.getPerson().getIpAddress();
                     Random random = randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER);
@@ -160,7 +124,7 @@ abstract public class PostGenerator {
                                      member.getPerson(),
                                      forum.getId(),
                                      content,
-                                     postCore.tags,
+                                     postCore.getTags(),
                                      country,
                                      ip,
                                      Dictionaries.browsers.getPostBrowserId(

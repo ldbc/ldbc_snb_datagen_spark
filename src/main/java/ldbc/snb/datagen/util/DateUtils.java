@@ -41,7 +41,9 @@ import ldbc.snb.datagen.generator.tools.PowerDistribution;
 import ldbc.snb.datagen.util.formatter.DateFormatter;
 import org.apache.hadoop.conf.Configuration;
 
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.Random;
 import java.util.TimeZone;
@@ -157,18 +159,14 @@ public class DateUtils {
     }
 
     public long randomKnowsCreationDate(Random random, Person personA, Person personB) {
-
         long fromDate = Math.max(personA.getCreationDate(), personB.getCreationDate()) + DatagenParams.deltaTime;
-        long toDate = Math.min(personA.getDeletionDate(),personB.getDeletionDate());
+        long toDate = Collections.min(Arrays.asList(personA.getDeletionDate(), personB.getDeletionDate(), simulationEnd));
         return randomDate(random, fromDate, toDate);
-
     }
 
     public long randomKnowsDeletionDate(Random random, Person personA, Person personB, long knowsCreationDate) {
-
         long fromDate = knowsCreationDate + DatagenParams.deltaTime;
-        long toDate = Math.min(personA.getDeletionDate(),personB.getDeletionDate());
-
+        long toDate = Collections.min(Arrays.asList(personA.getDeletionDate(), personB.getDeletionDate(), getNetworkCollapse()));
         return randomDate(random, fromDate, toDate);
     }
 

@@ -297,9 +297,9 @@ public class LdbcDatagen {
 
     private static void print(String message) {System.out.println(message);}
     private void printProgress(String message) {
-        print("************************************************");
-        print("* " + String.format("%1$-44s", message)    + " *");
-        print("************************************************");
+        print("*************************************************");
+        print("* " + String.format("%1$-45s", message)     + " *");
+        print("*************************************************");
     }
 
 }

@@ -75,7 +75,6 @@ public class HadoopPersonSerializer {
                         .forName(conf.get("ldbc.snb.datagen.serializer.dynamicPersonSerializer")).newInstance();
                 dynamicPersonSerializer_.initialize(conf, reducerId);
             } catch (Exception e) {
-                System.err.println(e.getMessage());
                 throw new RuntimeException(e);
             }
         }
@@ -122,7 +121,7 @@ public class HadoopPersonSerializer {
         FileInputFormat.setInputPaths(job, new Path(inputFileName));
         FileOutputFormat.setOutputPath(job, new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/aux"));
         if (!job.waitForCompletion(true)) {
-            throw new Exception();
+            throw new IllegalStateException("HadoopPersonSerializer failed");
         }
 
         try {
