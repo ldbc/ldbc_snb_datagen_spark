@@ -97,12 +97,12 @@ public class LikeGenerator {
             }
             long likeDeletionDate = Dictionaries.dates.randomDate(random, minDeletionDate, maxDeletionDate);
 
-            like.person = membership.getPerson().getAccountId();
-            like.personCreationDate = membership.getPerson().getCreationDate();
-            like.messageId = message.getMessageId();
-            like.likeCreationDate = likeCreationDate;
-            like.likeDeletionDate = likeDeletionDate;
-            like.type = type;
+            like.setPerson(membership.getPerson().getAccountId());
+            like.setPersonCreationDate(membership.getPerson().getCreationDate());
+            like.setMessageId(message.getMessageId());
+            like.setLikeCreationDate(likeCreationDate);
+            like.setLikeDeletionDate(likeDeletionDate);
+            like.setType(type);
 
             exporter.export(like);
         }

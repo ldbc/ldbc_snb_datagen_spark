@@ -43,10 +43,58 @@ public class Like {
         PHOTO
     }
 
-    public long person;
-    public long personCreationDate;
-    public long messageId;
-    public long likeCreationDate;
-    public long likeDeletionDate;
-    public LikeType type;
+    private long person;
+    private long personCreationDate;
+    private long messageId;
+    private long likeCreationDate;
+    private long likeDeletionDate;
+    private LikeType type;
+
+    public long getPerson() {
+        return person;
+    }
+
+    public long getPersonCreationDate() {
+        return personCreationDate;
+    }
+
+    public long getMessageId() {
+        return messageId;
+    }
+
+    public long getLikeCreationDate() {
+        return likeCreationDate;
+    }
+
+    public long getLikeDeletionDate() {
+        return likeDeletionDate;
+    }
+
+    public LikeType getType() {
+        return type;
+    }
+
+    public void setPerson(long person) {
+        this.person = person;
+    }
+
+    public void setPersonCreationDate(long personCreationDate) {
+        this.personCreationDate = personCreationDate;
+    }
+
+    public void setMessageId(long messageId) {
+        this.messageId = messageId;
+    }
+
+    public void setLikeCreationDate(long likeCreationDate) {
+        this.likeCreationDate = likeCreationDate;
+    }
+
+    public void setLikeDeletionDate(long likeDeletionDate) {
+        this.likeDeletionDate = likeDeletionDate;
+    }
+
+    public void setType(LikeType type) {
+        this.type = type;
+    }
 }
