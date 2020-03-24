@@ -219,18 +219,18 @@ public class TurtleDynamicActivitySerializer extends DynamicActivitySerializer<H
         StringBuffer result = new StringBuffer(2500);
         long id = SN.formId(likeId);
         String likePrefix = SN.getLikeURI(id);
-        Turtle.createTripleSPO(result, SN.getPersonURI(like.person),
+        Turtle.createTripleSPO(result, SN.getPersonURI(like.getPerson()),
                                SNVOC.like, likePrefix);
 
-        if (like.type == Like.LikeType.POST || like.type == Like.LikeType.PHOTO) {
-            String prefix = SN.getPostURI(like.messageId);
+        if (like.getType() == Like.LikeType.POST || like.getType() == Like.LikeType.PHOTO) {
+            String prefix = SN.getPostURI(like.getMessageId());
             Turtle.addTriple(result, true, false, likePrefix, SNVOC.hasPost, prefix);
         } else {
-            String prefix = SN.getCommentURI(like.messageId);
+            String prefix = SN.getCommentURI(like.getMessageId());
             Turtle.addTriple(result, true, false, likePrefix, SNVOC.hasComment, prefix);
         }
         Turtle.addTriple(result, false, true, likePrefix, SNVOC.creationDate,
-                         Turtle.createDataTypeLiteral(TurtleDateTimeFormat.get().format(like.likeCreationDate), XSD.DateTime));
+                         Turtle.createDataTypeLiteral(TurtleDateTimeFormat.get().format(like.getLikeCreationDate()), XSD.DateTime));
         likeId++;
         writers.get(SOCIAL_NETWORK_ACTIVITY).write(result.toString());
     }

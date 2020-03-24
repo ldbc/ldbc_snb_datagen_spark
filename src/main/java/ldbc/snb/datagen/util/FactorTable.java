@@ -293,7 +293,7 @@ public class FactorTable {
     }
 
     public void extractFactors(Like like) {
-        personCounts(like.person).incrNumLikes();
+        personCounts(like.getPerson()).incrNumLikes();
     }
 
     public void writePersonFactors(OutputStream writer) {
