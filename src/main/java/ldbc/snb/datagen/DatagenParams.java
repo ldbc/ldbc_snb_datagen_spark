@@ -122,7 +122,17 @@ public class DatagenParams {
         USER_MAX_GROUP("ldbc.snb.datagen.generator.maxNumGroupCreatedPerUser"),
         USER_MAX_POST_MONTH("ldbc.snb.datagen.generator.maxNumPostPerMonth"),
         USER_MAX_TAGS("ldbc.snb.datagen.generator.maxNumTagsPerUser"),
-        USER_MIN_TAGS("ldbc.snb.datagen.generator.minNumTagsPerUser");
+        USER_MIN_TAGS("ldbc.snb.datagen.generator.minNumTagsPerUser"),
+
+        PROB_PERSON_DELETED("ldbc.snb.datagen.generator.probPersonDeleted"),
+        PROB_FORUM_DELETED("ldbc.snb.datagen.generator.probForumDeleted"),
+        PROB_POST_DELETED("ldbc.snb.datagen.generator.probPostDeleted"),
+        PROB_COMMENT_DELETED("ldbc.snb.datagen.generator.probCommentDeleted"),
+        PROB_KNOWS_DELETED("ldbc.snb.datagen.generator.probKnowsDeleted"),
+        PROB_MEMB_DELETED("ldbc.snb.datagen.generator.probMembDeleted"),
+        PROB_POST_LIKE_DELETED("ldbc.snb.datagen.generator.probPostLikeDeleted"),
+        PROB_COMMENT_LIKE_DELETED("ldbc.snb.datagen.generator.probPostCommentDeleted");
+
 
         private final String name;
 
@@ -186,6 +196,16 @@ public class DatagenParams {
     public static int minNumTagsPerUser = 0;
     public static int minTextSize = 0;
 
+    // deletion probs.
+    public static double probPersonDeleted = 0.0;
+    public static double probForumDeleted = 0.0;
+    public static double probPostDeleted = 0.0;
+    public static double probCommentDeleted = 0.0;
+    public static double probKnowsDeleted = 0.0;
+    public static double probMembDeleted = 0.0;
+    public static double probPostLikeDeleted = 0.0;
+    public static double probCommentLikeDeleted = 0.0;
+
     // Gregorian calendar uses 0-based months
     public static final int startMonth = 0;
     public static final int endMonth = 0;
@@ -214,10 +234,19 @@ public class DatagenParams {
 
     public static void readConf(Configuration conf) {
         try {
-            ParameterNames values[] = ParameterNames.values();
+            ParameterNames[] values = ParameterNames.values();
             for (ParameterNames value : values)
                 if (conf.get(value.toString()) == null)
                     throw new IllegalStateException("Missing " + value.toString() + " parameter");
+
+            probPersonDeleted = doubleConf(conf, ParameterNames.PROB_PERSON_DELETED);
+            probForumDeleted = doubleConf(conf, ParameterNames.PROB_FORUM_DELETED);
+            probPostDeleted = doubleConf(conf, ParameterNames.PROB_POST_DELETED);
+            probCommentDeleted = doubleConf(conf, ParameterNames.PROB_COMMENT_DELETED);
+            probKnowsDeleted = doubleConf(conf, ParameterNames.PROB_KNOWS_DELETED);
+            probMembDeleted = doubleConf(conf, ParameterNames.PROB_MEMB_DELETED);
+            probPostLikeDeleted = doubleConf(conf, ParameterNames.PROB_POST_LIKE_DELETED);
+            probCommentLikeDeleted = doubleConf(conf, ParameterNames.PROB_COMMENT_DELETED);
 
             maxNumFriends = intConf(conf,ParameterNames.MAX_FRIENDS);
             minNumTagsPerUser = intConf(conf,ParameterNames.USER_MIN_TAGS);
