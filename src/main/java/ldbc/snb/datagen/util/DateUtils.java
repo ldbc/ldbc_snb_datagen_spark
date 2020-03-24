@@ -238,16 +238,16 @@ public class DateUtils {
         return workYear;
     }
 
-    public long getStartDateTime() {
+    public long getSimulationStart() {
         return simulationStart;
     }
 
-    public long getEndDateTime() {
+    public long getSimulationEnd() {
         return simulationEnd;
     }
 
     public Long getNetworkCollapse() {
-        return getStartDateTime() + DateUtils.TEN_YEARS;
+        return getSimulationStart() + DateUtils.TEN_YEARS;
     }
 
 }

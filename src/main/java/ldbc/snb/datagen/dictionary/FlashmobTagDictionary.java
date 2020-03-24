@@ -118,14 +118,14 @@ public class FlashmobTagDictionary {
      * Initializes the flashmob tag dictionary, by selecting a set of tags as flashmob tags.
      */
     private void initialize() {
-        int numFlashmobTags = (int) (flashmobTagsPerMonth * dateGen.numberOfMonths(dateGen.getStartDateTime()));
+        int numFlashmobTags = (int) (flashmobTagsPerMonth * dateGen.numberOfMonths(dateGen.getSimulationStart()));
         Integer[] tags = tagDictionary.getRandomTags(random, numFlashmobTags);
         flashmobTagCumDist = new FlashMobTag[numFlashmobTags];
         double sumLevels = 0;
         for (int i = 0; i < numFlashmobTags; ++i) {
             List<FlashMobTag> instances = flashmobTags.computeIfAbsent(tags[i], k -> new ArrayList<>());
             FlashMobTag flashmobTag = new FlashMobTag();
-            flashmobTag.date = dateGen.randomDate(random, dateGen.getStartDateTime());
+            flashmobTag.date = dateGen.randomDate(random, dateGen.getSimulationStart());
             flashmobTag.level = levelGenerator.getValue(random);
             sumLevels += flashmobTag.level;
             flashmobTag.tag = tags[i];

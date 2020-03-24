@@ -71,8 +71,8 @@ public class PersonGenerator {
 
     private long composeUserId(long id, long date) {
         long idMask = ~(0xFFFFFFFFFFFFFFFFL << 41);
-        long bucket = (long) (256 * (date - Dictionaries.dates.getStartDateTime()) / (double) Dictionaries.dates
-                .getEndDateTime());
+        long bucket = (long) (256 * (date - Dictionaries.dates.getSimulationStart()) / (double) Dictionaries.dates
+                .getSimulationEnd());
         return (bucket << 41) | ((id & idMask));
     }
 

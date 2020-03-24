@@ -59,7 +59,7 @@ public class UniformPostGenerator extends PostGenerator {
 
         // add creation date
         long minCreationDate = membership.getCreationDate() + DatagenParams.deltaTime;
-        long maxCreationDate = Math.min(membership.getDeletionDate(),Dictionaries.dates.getEndDateTime());
+        long maxCreationDate = Math.min(membership.getDeletionDate(),Dictionaries.dates.getSimulationEnd());
         long postCreationDate = Dictionaries.dates.randomDate(randomDate, minCreationDate, maxCreationDate);
         postCore.setCreationDate(postCreationDate);
 

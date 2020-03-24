@@ -79,7 +79,7 @@ public class LikeGenerator {
                                                         message.getCreationDate() + DateUtils.SEVEN_DAYS,
                                                         membership.getPerson().getDeletionDate(),
                                                         message.getDeletionDate(),
-                                                        Dictionaries.dates.getEndDateTime()
+                                                        Dictionaries.dates.getSimulationEnd()
                                                   ));
             if (maxCreationDate - minCreationDate < 0) {
                 continue;
