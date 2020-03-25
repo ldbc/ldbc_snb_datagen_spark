@@ -89,10 +89,15 @@ class PhotoGenerator {
             }
 
             Random randomDate = randomFarm.get(RandomGeneratorFarm.Aspect.DATE);
-            long minDeletionDate = creationDate + DatagenParams.deltaTime;
-            long maxDeletionDate = Math.min(album.getDeletionDate(), Dictionaries.dates.getNetworkCollapse());
-            long deletionDate = Dictionaries.dates.randomDate(randomDate, minDeletionDate, maxDeletionDate);
 
+            long deletionDate;
+            if (randomDate.nextDouble() < DatagenParams.probPostDeleted) {
+                long minDeletionDate = creationDate + DatagenParams.deltaTime;
+                long maxDeletionDate = Math.min(album.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
+                deletionDate = Dictionaries.dates.randomDate(randomDate, minDeletionDate, maxDeletionDate);
+            } else {
+                deletionDate = Dictionaries.dates.getNetworkCollapse();
+            }
 
             int country = album.getModerator().getCountryId();
             IP ip = album.getModerator().getIpAddress();

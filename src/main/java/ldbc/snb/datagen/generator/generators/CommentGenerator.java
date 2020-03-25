@@ -140,12 +140,17 @@ public class CommentGenerator {
                 continue;
             }
 
-            long minDeletionDate = creationDate + DatagenParams.deltaTime;
-            long maxDeletionDate = Collections.min(Arrays.asList(parentMessage.getDeletionDate(), membership.getDeletionDate(), Dictionaries.dates.getNetworkCollapse()));
-            if (maxDeletionDate - minDeletionDate < 0) {
-                continue;
+            long deletionDate;
+            if (randomFarm.get(RandomGeneratorFarm.Aspect.NUM_ASPECT).nextDouble() < DatagenParams.probCommentDeleted) {
+                long minDeletionDate = creationDate + DatagenParams.deltaTime;
+                long maxDeletionDate = Collections.min(Arrays.asList(parentMessage.getDeletionDate(), membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd()));
+                if (maxDeletionDate - minDeletionDate < 0) {
+                    continue;
+                }
+                deletionDate = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), minDeletionDate, maxDeletionDate);
+            } else {
+                deletionDate = Dictionaries.dates.getNetworkCollapse();
             }
-            long deletionDate = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), minDeletionDate, maxDeletionDate);
 
 
             int country = membership.getPerson().getCountryId();

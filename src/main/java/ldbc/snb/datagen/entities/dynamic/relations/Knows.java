@@ -39,6 +39,7 @@ import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.person.PersonSummary;
+import ldbc.snb.datagen.util.DateUtils;
 import org.apache.hadoop.io.Writable;
 
 import java.io.DataInput;
@@ -150,8 +151,12 @@ public class Knows implements Writable, Comparable<Knows> {
         }
 
         long creationDate = Dictionaries.dates.randomKnowsCreationDate(random, personA, personB);
-        long deletionDate = Dictionaries.dates.randomKnowsDeletionDate(random, personA, personB, creationDate);
-
+        long deletionDate;
+        if (random.nextDouble() < DatagenParams.probKnowsDeleted) {
+             deletionDate = Dictionaries.dates.randomKnowsDeletionDate(random, personA, personB, creationDate);
+        } else {
+            deletionDate = Dictionaries.dates.getNetworkCollapse();
+        }
         assert (creationDate <= deletionDate) : "Knows creation date is larger than knows deletion date";
 
         float similarity = Person.personSimilarity.similarity(personA, personB);

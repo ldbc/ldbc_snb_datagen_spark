@@ -64,14 +64,19 @@ public class UniformPostGenerator extends PostGenerator {
         postCore.setCreationDate(postCreationDate);
 
         // add deletion date
-        long minDeletionDate = postCreationDate + DatagenParams.deltaTime;
-        long maxDeletionDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getNetworkCollapse());
+        long postDeletionDate;
+        if (randomDate.nextDouble() < DatagenParams.probPostDeleted) {
+            long minDeletionDate = postCreationDate + DatagenParams.deltaTime;
+            long maxDeletionDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
 
-        if (maxDeletionDate - minDeletionDate < 0) {
-            return null;
+            if (maxDeletionDate - minDeletionDate < 0) {
+                return null;
+            }
+            postDeletionDate = Dictionaries.dates.randomDate(randomDate, minDeletionDate, maxDeletionDate);
+        } else {
+            postDeletionDate = Dictionaries.dates.getNetworkCollapse();
         }
 
-        long postDeletionDate = Dictionaries.dates.randomDate(randomDate, minDeletionDate, maxDeletionDate);
         postCore.setDeletionDate(postDeletionDate);
 
         // add tags to post
