@@ -92,7 +92,7 @@ public class PersonGenerator {
         person.setCountryId(countryId);
         person.setCityId(Dictionaries.places.getRandomCity(randomFarm.get(RandomGeneratorFarm.Aspect.CITY), countryId));
         person.setIpAddress(Dictionaries.ips.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), countryId));
-        person.setMaxNumKnows(Math.min(degreeDistribution.nextDegree(), DatagenParams.numPersons));
+        person.setMaxNumKnows(Math.min(degreeDistribution.nextDegree(), DatagenParams.maxNumFriends));
 
         long deletionDate = Dictionaries.dates.randomPersonDeletionDate(randomFarm
                 .get(RandomGeneratorFarm.Aspect.DELETION_DATE), creationDate, person.getMaxNumKnows());
