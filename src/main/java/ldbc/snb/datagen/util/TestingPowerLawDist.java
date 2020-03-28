@@ -19,14 +19,14 @@ public class TestingPowerLawDist {
         // alpha = 0.4
         PowerDistribution powerDistribution = new PowerDistribution(0.0, 1.0, DatagenParams.alpha);
         Random random = new Random();
-        int N = 1000;
+        int N = 10000;
         double[] results = new double[N];
         for (int i = 0; i < N; i++) {
             results[i] = powerDistribution.getPowerDist().inverseF(random.nextDouble());
         }
         BufferedWriter out;
         try {
-            out = new BufferedWriter(new FileWriter("power_law_cdf.csv"));
+            out = new BufferedWriter(new FileWriter("./tools/data/comments_cdf.csv"));
             StringBuilder sb = new StringBuilder();
             for (int j = 0; j < N - 1; j++) {
                 sb.append(results[j]);
