@@ -191,12 +191,23 @@ public class PersonGenerator {
      * @return block of persons
      */
     public Person[] generatePersonBlock(int seed, int blockSize) {
+        return generatePersonBlock(seed, blockSize, blockSize);
+    }
+
+    /**
+     * Generates a block of persons
+     * @param seed      The seed to feed the pseudo-random number generators.
+     * @param blockSize The size of the block of persons to generate.
+     * @param size      The size of persons to generate for this block.
+     * @return block of persons
+     */
+    public Person[] generatePersonBlock(int seed, int blockSize, int size) {
         resetState(seed);
         nextId = seed * blockSize;
         SN.machineId = seed;
         Person[] block;
-        block = new Person[blockSize];
-        for (int j = 0; j < blockSize; ++j) {
+        block = new Person[size];
+        for (int j = 0; j < size; ++j) {
             block[j] = generatePerson();
         }
         return block;
