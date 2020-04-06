@@ -92,7 +92,7 @@ public class HadoopPersonGenerator {
                     .get("ldbc.snb.datagen.generator.distribution.degreeDistribution"));
             for (int i = initBlock; i < endBlock; ++i) {
                 int size = (int) Math.min(DatagenParams.numPersons - DatagenParams.blockSize * i, DatagenParams.blockSize);
-                Person[] block = personGenerator.generatePersonBlock(i, size);
+                Person[] block = personGenerator.generatePersonBlock(i, DatagenParams.blockSize, size);
                 for (int j = 0; j < size; ++j) {
                     try {
                         context.write(keySetter.getKey(block[j]), block[j]);
