@@ -56,6 +56,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.spark.SparkContext;
+import org.apache.spark.api.java.JavaSparkContext;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -91,10 +93,10 @@ public class LdbcDatagen {
         }
     }
 
-    private long personGenerateJob(String hadoopPrefix, Configuration conf) throws Exception {
+    private long personGenerateJob(String hadoopPrefix, JavaSparkContext ctx) throws Exception {
         printProgress("Starting: Person generation");
         long startPerson = System.currentTimeMillis();
-        new HadoopPersonGenerator(conf)
+        new HadoopPersonGenerator(ctx)
                 .run(hadoopPrefix + "/persons",
                         "ldbc.snb.datagen.hadoop.miscjob.keychanger.UniversityKeySetter");
         return(System.currentTimeMillis()-startPerson);
@@ -187,13 +189,14 @@ public class LdbcDatagen {
         print("Finished Interactive Parameter Generation");
     }
 
-    public int runGenerateJob(Configuration conf) throws Exception {
+    public int runGenerateJob(JavaSparkContext ctx) throws Exception {
+        Configuration conf = ctx.hadoopConfiguration();
         String hadoopPrefix = conf.get("ldbc.snb.datagen.serializer.hadoopDir");
         FileSystem fs = FileSystem.get(conf);
         long start = System.currentTimeMillis();
 
         //create all people in the graph
-        long personGenTime = personGenerateJob(hadoopPrefix,conf);
+        long personGenTime = personGenerateJob(hadoopPrefix,ctx);
         //generate friendships based on going to the same uni
         long uniKnowsGenTime = knowsGenerateJob(hadoopPrefix, conf,
                 "Creating university location correlated edges",
@@ -286,7 +289,9 @@ public class LdbcDatagen {
         LdbcDatagen.prepareConfiguration(conf);
         LdbcDatagen.initializeContext(conf);
         LdbcDatagen datagen = new LdbcDatagen();
-        datagen.runGenerateJob(conf);
+        // TODO configure properly
+        JavaSparkContext ctx = JavaSparkContext.fromSparkContext(SparkContext.getOrCreate());
+        datagen.runGenerateJob(ctx);
 
         //do we want to sort?
         if (conf.getBoolean("ldbc.snb.datagen.runsort", false)) {

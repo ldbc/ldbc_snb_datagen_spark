@@ -16,6 +16,8 @@ import ldbc.snb.datagen.test.csv.StringParser;
 import ldbc.snb.datagen.test.csv.UniquenessCheck;
 import ldbc.snb.datagen.util.ConfigParser;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.spark.SparkContext;
+import org.apache.spark.api.java.JavaSparkContext;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -39,7 +41,9 @@ public class LdbcDatagenTest {
             LdbcDatagen.prepareConfiguration(conf);
             LdbcDatagen.initializeContext(conf);
             LdbcDatagen datagen = new LdbcDatagen();
-            datagen.runGenerateJob(conf);
+            // TODO configure properly
+            JavaSparkContext ctx = JavaSparkContext.fromSparkContext(SparkContext.getOrCreate());
+            datagen.runGenerateJob(ctx);
         } catch (Exception e) {
             throw e;
         }

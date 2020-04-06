@@ -40,9 +40,11 @@ import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.generator.distribution.DegreeDistribution;
 import ldbc.snb.datagen.generator.tools.PowerDistribution;
+import ldbc.snb.datagen.hadoop.key.TupleKey;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
 import org.apache.hadoop.conf.Configuration;
+import scala.Tuple2;
 
 import java.text.Normalizer;
 import java.util.GregorianCalendar;
@@ -190,14 +192,27 @@ public class PersonGenerator {
      * @param blockSize The size of the block of persons to generate.
      * @return block of persons
      */
-    public Person[] generatePersonBlock(int seed, int blockSize) {
+    public Tuple2<TupleKey, Person>[] generatePersonBlock(int seed, int blockSize) {
+        Tuple2<TupleKey, Person>[] block = new Tuple2[blockSize];
+        return generatePersonBlock(seed, blockSize, block);
+    }
+
+    public Tuple2<TupleKey, Person>[] generatePersonBlock(int seed, int blockSize, Tuple2<TupleKey, Person>[] block) {
+        return generatePersonBlock(seed, blockSize, block, 0);
+    }
+
+    public Tuple2<TupleKey, Person>[] generatePersonBlock(int seed, int blockSize, Tuple2<TupleKey, Person>[] block, int offset) {
+        if (offset < 0 || offset >= block.length) {
+            throw new RuntimeException("Offset out of bounds");
+        }
+        if (offset + blockSize > block.length) {
+            throw new RuntimeException("End out of bounds");
+        }
         resetState(seed);
         nextId = seed * blockSize;
         SN.machineId = seed;
-        Person[] block;
-        block = new Person[blockSize];
         for (int j = 0; j < blockSize; ++j) {
-            block[j] = generatePerson();
+            block[j + offset] = new Tuple2<TupleKey, Person>(null, generatePerson());
         }
         return block;
     }
