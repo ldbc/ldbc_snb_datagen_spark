@@ -46,6 +46,7 @@ import org.apache.hadoop.conf.Configuration;
 
 import java.text.Normalizer;
 import java.util.GregorianCalendar;
+import java.util.Iterator;
 import java.util.List;
 
 public class PersonGenerator {
@@ -185,31 +186,28 @@ public class PersonGenerator {
     }
 
     /**
-     * Generates a block of persons
+     * Creates a generator for a block of persons
      * @param seed      The seed to feed the pseudo-random number generators.
      * @param blockSize The size of the block of persons to generate.
-     * @return block of persons
+     * @return person generator for at most blockSize persons.
      */
-    public Person[] generatePersonBlock(int seed, int blockSize) {
-        return generatePersonBlock(seed, blockSize, blockSize);
-    }
-
-    /**
-     * Generates a block of persons
-     * @param seed      The seed to feed the pseudo-random number generators.
-     * @param blockSize The size of the block of persons to generate.
-     * @param size      The size of persons to generate for this block.
-     * @return block of persons
-     */
-    public Person[] generatePersonBlock(int seed, int blockSize, int size) {
+    public Iterator<Person> generatePersonBlock(int seed, int blockSize) {
         resetState(seed);
         nextId = seed * blockSize;
         SN.machineId = seed;
-        Person[] block;
-        block = new Person[size];
-        for (int j = 0; j < size; ++j) {
-            block[j] = generatePerson();
-        }
-        return block;
+        return new Iterator<Person>() {
+            private int i = 0;
+
+            @Override
+            public boolean hasNext() {
+                return i < blockSize;
+            }
+
+            @Override
+            public Person next() {
+                ++i;
+                return generatePerson();
+            }
+        };
     }
 }
