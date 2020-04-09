@@ -43,6 +43,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Forum {
+    public enum ForumType {
+        WALL,
+        ALBUM,
+        GROUP
+    }
 
     private long id;
     private PersonSummary moderator;
@@ -53,9 +58,10 @@ public class Forum {
     private int placeId;
     private int language;
     private List<ForumMembership> memberships;
+    private ForumType forumType;
 
 
-    public Forum(long id, long creationDate, long deletionDate, PersonSummary moderator, String title, int placeId, int language) {
+    public Forum(long id, long creationDate, long deletionDate, PersonSummary moderator, String title, int placeId, int language, ForumType forumType) {
         assert (moderator.getCreationDate() + DatagenParams.deltaTime) <= creationDate : "Moderator's creation date is less than or equal to the Forum creation date";
         memberships = new ArrayList<>();
         tags = new ArrayList<>();
@@ -66,6 +72,7 @@ public class Forum {
         this.placeId = placeId;
         this.moderator = new PersonSummary(moderator);
         this.language = language;
+        this.forumType = forumType;
     }
 
     public void addMember(ForumMembership member) {
@@ -135,5 +142,9 @@ public class Forum {
 
     public void setLanguage(int language) {
         this.language = language;
+    }
+
+    public ForumType getForumType() {
+        return forumType;
     }
 }

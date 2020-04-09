@@ -86,16 +86,28 @@ public class LikeGenerator {
             }
             long likeCreationDate = Dictionaries.dates.randomDate(random, minCreationDate, maxCreationDate);
 
-            long minDeletionDate = likeCreationDate + DatagenParams.deltaTime;
-            long maxDeletionDate = Collections.min(Arrays.asList(
-                                                        membership.getPerson().getDeletionDate(),
-                                                        message.getDeletionDate(),
-                                                        Dictionaries.dates.getNetworkCollapse()
-            ));
-            if (maxDeletionDate - minDeletionDate < 0) {
-                continue;
+
+            long likeDeletionDate;
+            double prob;
+            if (type == LikeType.COMMENT) {
+                prob = DatagenParams.probCommentLikeDeleted;
+            } else { // treating photo and posts as the same
+                prob = DatagenParams.probPostLikeDeleted;
             }
-            long likeDeletionDate = Dictionaries.dates.randomDate(random, minDeletionDate, maxDeletionDate);
+            if(random.nextDouble() < prob) {
+
+                long minDeletionDate = likeCreationDate + DatagenParams.deltaTime;
+                long maxDeletionDate = Collections.min(Arrays.asList(
+                        membership.getPerson().getDeletionDate(),
+                        message.getDeletionDate(),
+                        Dictionaries.dates.getSimulationEnd()));
+                if (maxDeletionDate - minDeletionDate < 0) {
+                    continue;
+                }
+                likeDeletionDate = Dictionaries.dates.randomDate(random, minDeletionDate, maxDeletionDate);
+            } else {
+                likeDeletionDate = Dictionaries.dates.getNetworkCollapse();
+            }
 
             like.setPerson(membership.getPerson().getAccountId());
             like.setPersonCreationDate(membership.getPerson().getCreationDate());

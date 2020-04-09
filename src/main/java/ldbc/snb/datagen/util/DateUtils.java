@@ -108,12 +108,18 @@ public class DateUtils {
      * @param random random number generator
      * @param creationDate Person creation date
      * @param maxNumKnows maximum number of knows connections, influences the probability of leaving the network
-     * @return a random value on the interval [person creation + Delta , 2020]
+     * @return a value on the interval [SS,SE]
      */
     public Long randomPersonDeletionDate(Random random, long creationDate, long maxNumKnows) {
         // TODO: use maxNumKnows to determine when a person's deleted
-        long personCreationDate = creationDate + DatagenParams.deltaTime;
-        return randomDate(random, personCreationDate, getNetworkCollapse());
+        long deletionDate;
+        if (random.nextDouble() < DatagenParams.probPersonDeleted) {
+            long personCreationDate = creationDate + DatagenParams.deltaTime;
+            deletionDate = randomDate(random, personCreationDate, simulationEnd);
+        } else { // push to network collapse
+            deletionDate = getNetworkCollapse();
+        }
+        return deletionDate;
     }
 
     /*
@@ -166,7 +172,7 @@ public class DateUtils {
 
     public long randomKnowsDeletionDate(Random random, Person personA, Person personB, long knowsCreationDate) {
         long fromDate = knowsCreationDate + DatagenParams.deltaTime;
-        long toDate = Collections.min(Arrays.asList(personA.getDeletionDate(), personB.getDeletionDate(), getNetworkCollapse()));
+        long toDate = Collections.min(Arrays.asList(personA.getDeletionDate(), personB.getDeletionDate(), simulationEnd));
         return randomDate(random, fromDate, toDate);
     }
 

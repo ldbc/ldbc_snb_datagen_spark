@@ -64,10 +64,10 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
 
     @Override
     public void writeFileHeaders() {
-        writers.get(FORUM)                      .writeHeader(ImmutableList.of("creationDate", "deletionDate", "id", "title"));
+        writers.get(FORUM)                      .writeHeader(ImmutableList.of("creationDate", "deletionDate", "id", "title","type"));
         writers.get(FORUM_HASMODERATOR_PERSON)  .writeHeader(ImmutableList.of("creationDate", "deletionDate", "Forum.id", "Person.id"));
         writers.get(FORUM_HASTAG_TAG)           .writeHeader(ImmutableList.of("creationDate", "deletionDate", "Forum.id", "Tag.id"));
-        writers.get(FORUM_HASMEMBER_PERSON)     .writeHeader(ImmutableList.of("creationDate", "deletionDate", "Forum.id", "Person.id"));
+        writers.get(FORUM_HASMEMBER_PERSON)     .writeHeader(ImmutableList.of("creationDate", "deletionDate", "Forum.id", "Person.id","type"));
 
         writers.get(POST)                       .writeHeader(ImmutableList.of("creationDate", "deletionDate", "id", "imageFile", "locationIP", "browserUsed", "language", "content", "length"));
         writers.get(POST_HASCREATOR_PERSON)     .writeHeader(ImmutableList.of("creationDate", "deletionDate", "Post.id", "Person.id"));
@@ -95,8 +95,8 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
                 forumCreationDate,
                 forumDeletionDate,
                 Long.toString(forum.getId()),
-                forum.getTitle()
-
+                forum.getTitle(),
+                forum.getForumType().toString()
         ));
         //"creationDate", "deletionDate", "Forum.id", "Person.id"
         writers.get(FORUM_HASMODERATOR_PERSON).writeEntry(ImmutableList.of(
@@ -122,8 +122,8 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
                 Dictionaries.dates.formatDateTime(membership.getCreationDate()),
                 Dictionaries.dates.formatDateTime(membership.getDeletionDate()),
                 Long.toString(membership.getForumId()),
-                Long.toString(membership.getPerson().getAccountId())
-        ));
+                Long.toString(membership.getPerson().getAccountId()),
+                membership.getForumType().toString()));
     }
 
     protected void serialize(final Post post) {

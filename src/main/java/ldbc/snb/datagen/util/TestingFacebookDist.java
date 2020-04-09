@@ -24,6 +24,7 @@ public class TestingFacebookDist {
 
         degreeDistribution.initialize(conf);
 
+
         double[] scaleFactors = {0.1,0.3,1.0,3.0,10.0,30.0,100.0,300.0,1000.0};
         int[] personScaleFactors = {1500, 3500, 11000, 27000, 73000, 182000, 499000, 1250000, 3600000};
         double[] avDegree = new double[scaleFactors.length];
@@ -52,7 +53,6 @@ public class TestingFacebookDist {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         for (double scaleFactor : scaleFactors) {
 
             conf.set("ldbc.snb.datagen.generator.numPersons", String.valueOf(scaleFactor));
