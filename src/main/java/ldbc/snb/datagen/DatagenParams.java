@@ -246,7 +246,7 @@ public class DatagenParams {
             probKnowsDeleted = doubleConf(conf, ParameterNames.PROB_KNOWS_DELETED);
             probMembDeleted = doubleConf(conf, ParameterNames.PROB_MEMB_DELETED);
             probPostLikeDeleted = doubleConf(conf, ParameterNames.PROB_POST_LIKE_DELETED);
-            probCommentLikeDeleted = doubleConf(conf, ParameterNames.PROB_COMMENT_DELETED);
+            probCommentLikeDeleted = doubleConf(conf, ParameterNames.PROB_COMMENT_LIKE_DELETED);
 
             maxNumFriends = intConf(conf,ParameterNames.MAX_FRIENDS);
             minNumTagsPerUser = intConf(conf,ParameterNames.USER_MIN_TAGS);

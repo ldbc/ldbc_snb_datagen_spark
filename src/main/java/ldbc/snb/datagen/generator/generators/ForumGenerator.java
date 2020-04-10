@@ -93,6 +93,7 @@ public class ForumGenerator {
 
             long hasMemberCreationDate = know.getCreationDate() + DatagenParams.deltaTime;
             //long hasMemberDeletionDate = Math.min(forum.getDeletionDate(),know.getDeletionDate());
+            // walls can never be explicitly deleted
             long hasMemberDeletionDate = Dictionaries.dates.getNetworkCollapse();
 
             forum.addMember(new ForumMembership(forum.getId(), hasMemberCreationDate, hasMemberDeletionDate ,know.to(), Forum.ForumType.WALL));
@@ -118,7 +119,7 @@ public class ForumGenerator {
         // deletion date
         long groupMinDeletionDate = groupCreationDate + DatagenParams.deltaTime;
         long groupDeletionDate;
-        if (randomFarm.get(RandomGeneratorFarm.Aspect.NUM_ASPECT).nextDouble() < DatagenParams.probForumDeleted) {
+        if (randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_FORUM).nextDouble() < DatagenParams.probForumDeleted) {
             long groupMaxDeletionDate = Dictionaries.dates.getSimulationEnd();
             groupDeletionDate = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), groupMinDeletionDate, groupMaxDeletionDate);
         } else {
@@ -132,7 +133,7 @@ public class ForumGenerator {
         for (int i = 0; i < idx; i++) {
             iter.next();
         }
-        int interestId = iter.next().intValue();
+        int interestId = iter.next();
         List<Integer> interest = new ArrayList<>();
         interest.add(interestId);
 
@@ -175,7 +176,7 @@ public class ForumGenerator {
                         long hasMemberCreationDate = Dictionaries.dates.randomDate(random, minCreationDate, maxCreationDate);
 
                         long hasMemberDeletionDate;
-                        if (random.nextDouble() < DatagenParams.probMembDeleted) {
+                        if (randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_MEMB).nextDouble() < DatagenParams.probMembDeleted) {
                             long minDeletionDate = hasMemberCreationDate + DatagenParams.deltaTime;
                             long maxDeletionDate = Collections.min(Arrays.asList(knows.to().getDeletionDate(), forum.getDeletionDate(),Dictionaries.dates.getSimulationEnd()));
                             hasMemberDeletionDate = Dictionaries.dates.randomDate(random, minDeletionDate, maxDeletionDate);
@@ -202,10 +203,15 @@ public class ForumGenerator {
                         Random random = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX);
                         long hasMemberCreationDate = Dictionaries.dates.randomDate(random, minHasMemberCreationDate, maxHasMemberCreationDate);
 
-                        long minHasMemberDeletionDate = hasMemberCreationDate + DatagenParams.deltaTime;
-                        long maxHasMemberDeletionDate = Math.min(member.getDeletionDate(), forum.getDeletionDate());
-                        long hasMemberDeletionDate = Dictionaries.dates.randomDate(random, minHasMemberDeletionDate, maxHasMemberDeletionDate);
+                        long hasMemberDeletionDate;
+                        if (randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_MEMB).nextDouble() < DatagenParams.probMembDeleted) {
+                            long minHasMemberDeletionDate = hasMemberCreationDate + DatagenParams.deltaTime;
+                            long maxHasMemberDeletionDate = Collections.min(Arrays.asList(member.getDeletionDate(), forum.getDeletionDate(),Dictionaries.dates.getSimulationEnd()));
+                             hasMemberDeletionDate = Dictionaries.dates.randomDate(random, minHasMemberDeletionDate, maxHasMemberDeletionDate);
+                        } else {
+                            hasMemberDeletionDate = Dictionaries.dates.getNetworkCollapse();
 
+                        }
                         forum.addMember(new ForumMembership(forum.getId(), hasMemberCreationDate, hasMemberDeletionDate, new PersonSummary(member), Forum.ForumType.GROUP));
                         groupMembers.add(member.getAccountId());
                     }
@@ -233,12 +239,10 @@ public class ForumGenerator {
 
         long albumDeletionDate;
 
-        if (randomFarm.get(RandomGeneratorFarm.Aspect.NUM_ASPECT).nextDouble() < DatagenParams.probForumDeleted) {
-//        if (0.005 < DatagenParams.probForumDeleted) {
+        if (randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_FORUM).nextDouble() < DatagenParams.probForumDeleted) {
 
             long minAlbumDeletionDate = albumCreationDate + DatagenParams.deltaTime;
             long maxAlbumDeletionDate = Math.min(person.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
-
             albumDeletionDate = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), minAlbumDeletionDate, maxAlbumDeletionDate);
 
         } else {
@@ -278,9 +282,10 @@ public class ForumGenerator {
                 long hasMemberCreationDate = Math.max(knows.to().getCreationDate(), forum.getCreationDate()) + DatagenParams.deltaTime;
 
                 long hasMemberDeletionDate;
-                if (randomFarm.get(RandomGeneratorFarm.Aspect.NUM_ASPECT).nextDouble() < DatagenParams.probMembDeleted) {
-                    hasMemberDeletionDate = Collections.min(Arrays.asList(knows.to().getDeletionDate(), forum.getDeletionDate(),Dictionaries.dates.getSimulationEnd()));
+                if (randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_MEMB).nextDouble() < DatagenParams.probMembDeleted) {
 
+                    // TODO: do we include SE??
+                    hasMemberDeletionDate = Collections.min(Arrays.asList(knows.to().getDeletionDate(), forum.getDeletionDate(),Dictionaries.dates.getSimulationEnd()));
                 } else {
                     hasMemberDeletionDate = Dictionaries.dates.getNetworkCollapse();
                 }

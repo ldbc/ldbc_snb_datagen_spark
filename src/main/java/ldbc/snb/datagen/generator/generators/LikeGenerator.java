@@ -62,7 +62,7 @@ public class LikeGenerator {
         this.like = new Like();
     }
 
-    public void generateLikes(Random random, final Forum forum, final Message message, LikeType type, PersonActivityExporter exporter) throws IOException {
+    public void generateLikes(Random randomDeleteLike, Random random, final Forum forum, final Message message, LikeType type, PersonActivityExporter exporter) {
         int numMembers = forum.getMemberships().size();
         int numLikes = likesGenerator.getValue(random);
         numLikes = Math.min(numLikes, numMembers);
@@ -94,7 +94,7 @@ public class LikeGenerator {
             } else { // treating photo and posts as the same
                 prob = DatagenParams.probPostLikeDeleted;
             }
-            if(random.nextDouble() < prob) {
+            if(randomDeleteLike.nextDouble() < prob) {
 
                 long minDeletionDate = likeCreationDate + DatagenParams.deltaTime;
                 long maxDeletionDate = Collections.min(Arrays.asList(

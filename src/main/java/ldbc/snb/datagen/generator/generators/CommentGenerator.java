@@ -141,7 +141,7 @@ public class CommentGenerator {
             }
 
             long deletionDate;
-            if (randomFarm.get(RandomGeneratorFarm.Aspect.NUM_ASPECT).nextDouble() < DatagenParams.probCommentDeleted) {
+            if (randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_COMM).nextDouble() < DatagenParams.probCommentDeleted) {
                 long minDeletionDate = creationDate + DatagenParams.deltaTime;
                 long maxDeletionDate = Collections.min(Arrays.asList(parentMessage.getDeletionDate(), membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd()));
                 if (maxDeletionDate - minDeletionDate < 0) {
@@ -184,7 +184,7 @@ public class CommentGenerator {
             // generate likes
             if (comment.getContent().length() > 10 && randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE)
                                                              .nextDouble() <= 0.1) {
-                likeGenerator.generateLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), forum, comment, Like.LikeType.COMMENT, exporter);
+                likeGenerator.generateLikes(randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_LIKES),randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), forum, comment, Like.LikeType.COMMENT, exporter);
             }
         }
         parentCandidates.clear();

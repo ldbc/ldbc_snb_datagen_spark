@@ -89,9 +89,9 @@ class PhotoGenerator {
             }
 
             Random randomDate = randomFarm.get(RandomGeneratorFarm.Aspect.DATE);
-
+            Random randomDeletePost = randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_POST);
             long deletionDate;
-            if (randomDate.nextDouble() < DatagenParams.probPostDeleted) {
+            if (randomDeletePost.nextDouble() < DatagenParams.probPostDeleted) {
                 long minDeletionDate = creationDate + DatagenParams.deltaTime;
                 long maxDeletionDate = Math.min(album.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
                 deletionDate = Dictionaries.dates.randomDate(randomDate, minDeletionDate, maxDeletionDate);
@@ -125,8 +125,10 @@ class PhotoGenerator {
             );
             exporter.export(photo);
             if (randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1) {
-                likeGenerator.generateLikes(randomFarm
-                                                     .get(RandomGeneratorFarm.Aspect.NUM_LIKE), album, photo, Like.LikeType.PHOTO, exporter);
+                likeGenerator.generateLikes(
+                        randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_LIKES),
+                        randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE),
+                        album, photo, Like.LikeType.PHOTO, exporter);
             }
         }
         return nextId;

@@ -143,17 +143,40 @@ public class Knows implements Writable, Comparable<Knows> {
 
     }
 
-    public static boolean createKnow(Random random, Person personA, Person personB) {
+    // TODO: fix other knows generators
+    public static boolean createKnow(Random dateRandom,Person personA, Person personB) {
+
+        if (personA.getCreationDate() + DatagenParams.deltaTime > personB.getDeletionDate() ||
+                personB.getCreationDate() + DatagenParams.deltaTime > personA.getDeletionDate()) {
+            return false;
+        }
+
+        long creationDate = Dictionaries.dates.randomKnowsCreationDate(dateRandom, personA, personB);
+        long deletionDate;
+        if (dateRandom.nextDouble() < DatagenParams.probKnowsDeleted) {
+            deletionDate = Dictionaries.dates.randomKnowsDeletionDate(dateRandom, personA, personB, creationDate);
+        } else {
+            deletionDate = Dictionaries.dates.getNetworkCollapse();
+        }
+        assert (creationDate <= deletionDate) : "Knows creation date is larger than knows deletion date";
+
+        float similarity = Person.personSimilarity.similarity(personA, personB);
+        return personB.getKnows().add(new Knows(personA, creationDate, deletionDate, similarity)) &&
+                personA.getKnows().add(new Knows(personB, creationDate, deletionDate, similarity));
+    }
+
+
+    public static boolean createKnow(Random dateRandom, Random deletionRandom,Person personA, Person personB) {
 
         if (personA.getCreationDate() + DatagenParams.deltaTime > personB.getDeletionDate() ||
             personB.getCreationDate() + DatagenParams.deltaTime > personA.getDeletionDate()) {
             return false;
         }
 
-        long creationDate = Dictionaries.dates.randomKnowsCreationDate(random, personA, personB);
+        long creationDate = Dictionaries.dates.randomKnowsCreationDate(dateRandom, personA, personB);
         long deletionDate;
-        if (random.nextDouble() < DatagenParams.probKnowsDeleted) {
-             deletionDate = Dictionaries.dates.randomKnowsDeletionDate(random, personA, personB, creationDate);
+        if (deletionRandom.nextDouble() < DatagenParams.probKnowsDeleted) {
+             deletionDate = Dictionaries.dates.randomKnowsDeletionDate(dateRandom, personA, personB, creationDate);
         } else {
             deletionDate = Dictionaries.dates.getNetworkCollapse();
         }

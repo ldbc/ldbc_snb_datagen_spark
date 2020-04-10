@@ -53,7 +53,7 @@ public class UniformPostGenerator extends PostGenerator {
     }
 
     @Override
-    protected PostCore generatePostInfo(Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership) {
+    protected PostCore generatePostInfo(Random randomDeletePost, Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership) {
 
         PostCore postCore = new PostCore();
 
@@ -65,7 +65,7 @@ public class UniformPostGenerator extends PostGenerator {
 
         // add deletion date
         long postDeletionDate;
-        if (randomDate.nextDouble() < DatagenParams.probPostDeleted) {
+        if (randomDeletePost.nextDouble() < DatagenParams.probPostDeleted) {
             long minDeletionDate = postCreationDate + DatagenParams.deltaTime;
             long maxDeletionDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
 

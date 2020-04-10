@@ -95,7 +95,7 @@ public class PersonGenerator {
         person.setMaxNumKnows(Math.min(degreeDistribution.nextDegree(), DatagenParams.maxNumFriends));
 
         long deletionDate = Dictionaries.dates.randomPersonDeletionDate(randomFarm
-                .get(RandomGeneratorFarm.Aspect.DELETION_DATE), creationDate, person.getMaxNumKnows());
+                .get(RandomGeneratorFarm.Aspect.DELETION_PERSON), creationDate, person.getMaxNumKnows());
         person.setDeletionDate(deletionDate);
 
         assert (person.getCreationDate() + DatagenParams.deltaTime <= person.getDeletionDate()) : "Person creation date is larger than person deletion date";
@@ -122,7 +122,7 @@ public class PersonGenerator {
                 .getCountryId()));
 
         int numEmails = randomFarm.get(RandomGeneratorFarm.Aspect.EXTRA_INFO).nextInt(DatagenParams.maxEmails) + 1;
-        double prob = randomFarm.get(RandomGeneratorFarm.Aspect.EXTRA_INFO).nextDouble();
+        double prob;
         String base = person.getFirstName();
         base = Normalizer.normalize(base, Normalizer.Form.NFD);
         base = base.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
@@ -181,7 +181,7 @@ public class PersonGenerator {
 
     private void resetState(int blockId) {
         degreeDistribution.reset(blockId);
-        randomFarm.resetRandomGenerators((long) blockId);
+        randomFarm.resetRandomGenerators(blockId);
     }
 
     /**

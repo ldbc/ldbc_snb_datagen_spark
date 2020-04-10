@@ -155,7 +155,7 @@ public class FlashmobPostGenerator extends PostGenerator {
      * @param membership forum member
      * @return core information for a post during a flashmob
      */
-    protected PostCore generatePostInfo(Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership) {
+    protected PostCore generatePostInfo(Random randomDeletePost, Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership) {
 
         if (currentForum != forum.getId()) {
             populateForumFlashmobTags(randomTag, forum);
@@ -192,13 +192,12 @@ public class FlashmobPostGenerator extends PostGenerator {
 
         // add deletion date
         long postDeletionDate;
-        if (randomDate.nextDouble() < probPostDeleted) {
+        if (randomDeletePost.nextDouble() < probPostDeleted) {
             long minDeletionDate = creationDate + DatagenParams.deltaTime;
             long maxDeletionDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
             if (maxDeletionDate - minDeletionDate < 0) {
                 return null;
             }
-
             postDeletionDate = Dictionaries.dates.randomDate(randomDate, minDeletionDate, maxDeletionDate);
         } else {
             postDeletionDate = Dictionaries.dates.getNetworkCollapse();
