@@ -62,7 +62,9 @@ abstract public class DynamicPersonSerializer<TWriter extends HdfsWriter> extend
 
     public void export(final Person person) {
 
-        if (!(person.getDeletionDate() < Dictionaries.dates.getUpdateThreshold())) {
+
+// TODO: implement everywhere and hopefully won't break tests
+//  if (!(person.getDeletionDate() < Dictionaries.dates.getUpdateThreshold())) {
 
             serialize(person);
 
@@ -82,7 +84,7 @@ abstract public class DynamicPersonSerializer<TWriter extends HdfsWriter> extend
                 workAt.year = person.getCompanies().get(companyId);
                 serialize(workAt, person);
             }
-        }
+//        }
 
     }
 
