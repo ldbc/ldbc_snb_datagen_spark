@@ -62,6 +62,7 @@ public class DateUtils {
     private long fromBirthDay;
     private long toBirthDay;
     private GregorianCalendar calendar;
+    private long updateThreshold;
     private PowerDistribution powerDist;
     private DateFormatter dateFormatter;
 
@@ -83,6 +84,8 @@ public class DateUtils {
         toBirthDay = toBirthCalendar.getTimeInMillis();
         calendar = new GregorianCalendar();
         calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+        updateThreshold = getSimulationEnd() - (long) ((getSimulationEnd() - getSimulationStart()) * (DatagenParams.bulkLoadPortion));
+
 
         try {
             dateFormatter = (DateFormatter) Class.forName(conf.get("ldbc.snb.datagen.serializer.dateFormatter"))
@@ -254,6 +257,10 @@ public class DateUtils {
 
     public Long getNetworkCollapse() {
         return getSimulationStart() + DateUtils.TEN_YEARS;
+    }
+
+    public long getUpdateThreshold() {
+        return updateThreshold;
     }
 
 }

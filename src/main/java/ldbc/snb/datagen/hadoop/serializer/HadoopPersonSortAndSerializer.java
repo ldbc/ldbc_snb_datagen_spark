@@ -68,7 +68,7 @@ public class HadoopPersonSortAndSerializer {
     public static class HadoopDynamicPersonSerializerReducer extends Reducer<BlockKey, Person, LongWritable, Person> {
 
         private int reducerId;
-        private DynamicPersonSerializer dynamicPersonSerializer_;
+        private DynamicPersonSerializer dynamicPersonSerializer;
 
         @Override
         protected void setup(Context context) {
@@ -76,9 +76,9 @@ public class HadoopPersonSortAndSerializer {
             reducerId = context.getTaskAttemptID().getTaskID().getId();
             try {
                 LdbcDatagen.initializeContext(conf);
-                dynamicPersonSerializer_ = (DynamicPersonSerializer) Class
+                dynamicPersonSerializer = (DynamicPersonSerializer) Class
                         .forName(conf.get("ldbc.snb.datagen.serializer.dynamicPersonSerializer")).newInstance();
-                dynamicPersonSerializer_.initialize(conf, reducerId);
+                dynamicPersonSerializer.initialize(conf, reducerId);
             } catch (Exception e) {
                 System.err.println(e.getMessage());
                 throw new RuntimeException(e);
@@ -86,21 +86,20 @@ public class HadoopPersonSortAndSerializer {
         }
 
         @Override
-        public void reduce(BlockKey key, Iterable<Person> valueSet, Context context)
-                throws IOException {
+        public void reduce(BlockKey key, Iterable<Person> valueSet, Context context) {
             SN.machineId = key.block;
             for (Person p : valueSet) {
-                dynamicPersonSerializer_.export(p);
+                dynamicPersonSerializer.export(p);
 
                 for (Knows k : p.getKnows()) {
-                    dynamicPersonSerializer_.export(p, k);
+                    dynamicPersonSerializer.export(p, k);
                 }
             }
         }
 
         @Override
         protected void cleanup(Context context) {
-            dynamicPersonSerializer_.close();
+            dynamicPersonSerializer.close();
         }
     }
 

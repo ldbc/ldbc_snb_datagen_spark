@@ -118,7 +118,7 @@ public class DatagenParams {
         TAG_UNCORRELATED_COUNTRY("ldbc.snb.datagen.generator.tagCountryCorrProb"),
         UNIVERSITY_UNCORRELATED_RATIO("ldbc.snb.datagen.generator.probUnCorrelatedOrganisation"),
         MAX_NUM_LIKE("ldbc.snb.datagen.generator.maxNumLike"),
-        UPDATE_PORTION("ldbc.snb.datagen.serializer.updatePortion"),
+        BULK_LOAD_PORTION("ldbc.snb.datagen.serializer.bulkLoadPortion"),
         USER_MAX_GROUP("ldbc.snb.datagen.generator.maxNumGroupCreatedPerUser"),
         USER_MAX_POST_MONTH("ldbc.snb.datagen.generator.maxNumPostPerMonth"),
         USER_MAX_TAGS("ldbc.snb.datagen.generator.maxNumTagsPerUser"),
@@ -167,7 +167,7 @@ public class DatagenParams {
     public static double ratioLargePost = 0.0;
     public static double ratioReduceText = 0.0; // 80% text has size less than 1/2 max size
     public static double tagCountryCorrProb = 0.0;
-    public static double updatePortion = 0.0;
+    public static double bulkLoadPortion = 0.0;
     public static int blockSize = 0;
     public static int flashmobTagsPerMonth = 0;
     public static int maxCommentSize = 0;
@@ -224,6 +224,7 @@ public class DatagenParams {
     public static int startYear = 2010;
     public static int endYear = 2013;
     public static int numYears = 3;
+    public static boolean updateStreams = false;
     public static boolean exportText = true;
     public static boolean compressed = false;
     public static int numPartitions = 1;
@@ -296,7 +297,7 @@ public class DatagenParams {
             flashmobTagMinLevel = doubleConf(conf,ParameterNames.FLASHMOB_TAG_MIN_LEVEL);
             flashmobTagMaxLevel = doubleConf(conf,ParameterNames.FLASHMOB_TAG_MAX_LEVEL);
             flashmobTagDistExp = doubleConf(conf,ParameterNames.FLASHMOB_TAG_DIST_EXP);
-            updatePortion = doubleConf(conf,ParameterNames.UPDATE_PORTION);
+            bulkLoadPortion = doubleConf(conf,ParameterNames.BULK_LOAD_PORTION);
             blockSize = intConf(conf,ParameterNames.BLOCK_SIZE);
 
             numPersons = Long.parseLong(conf.get("ldbc.snb.datagen.generator.numPersons"));
@@ -306,6 +307,7 @@ public class DatagenParams {
             compressed = conf.getBoolean("ldbc.snb.datagen.serializer.compressed", false);
             numThreads = conf.getInt("ldbc.snb.datagen.generator.numThreads", 1);
             numPartitions = conf.getInt("ldbc.snb.datagen.serializer.numPartitions", 1);
+            updateStreams = conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false);
             numUpdatePartitions = conf.getInt("ldbc.snb.datagen.serializer.numUpdatePartitions", 1);
             deltaTime = conf.getInt("ldbc.snb.datagen.generator.deltaTime", 10000);
             outputDir = conf.get("ldbc.snb.datagen.serializer.outputDir");
