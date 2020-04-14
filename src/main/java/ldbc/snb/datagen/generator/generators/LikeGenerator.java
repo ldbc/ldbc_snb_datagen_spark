@@ -53,16 +53,16 @@ import java.util.List;
 import java.util.Random;
 
 public class LikeGenerator {
+
     private final PowerDistribution likesGenerator;
     private Like like;
-
 
     LikeGenerator() {
         likesGenerator = new PowerDistribution(1, DatagenParams.maxNumLike, 0.07);
         this.like = new Like();
     }
 
-    public void generateLikes(Random randomDeleteLike, Random random, final Forum forum, final Message message, LikeType type, PersonActivityExporter exporter) {
+    public void generateLikes(Random randomDeleteLike, Random random, final Forum forum, final Message message, LikeType type, PersonActivityExporter exporter) throws IOException {
         int numMembers = forum.getMemberships().size();
         int numLikes = likesGenerator.getValue(random);
         numLikes = Math.min(numLikes, numMembers);

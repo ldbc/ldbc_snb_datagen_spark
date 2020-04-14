@@ -35,13 +35,16 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop.serializer;
 
+import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.LdbcDatagen;
+import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.hadoop.HadoopBlockMapper;
 import ldbc.snb.datagen.hadoop.HadoopTuplePartitioner;
 import ldbc.snb.datagen.hadoop.key.TupleKey;
 import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
+import ldbc.snb.datagen.serializer.InsertEventSerializer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -61,39 +64,62 @@ public class HadoopPersonSerializer {
 
     public static class HadoopDynamicPersonSerializerReducer extends Reducer<TupleKey, Person, LongWritable, Person> {
 
-        private int reducerId;
-        private DynamicPersonSerializer dynamicPersonSerializer_;
-
+        private DynamicPersonSerializer dynamicPersonSerializer;
+        private InsertEventSerializer insertEventSerializer;
 
         @Override
         protected void setup(Context context) {
             Configuration conf = context.getConfiguration();
-            reducerId = context.getTaskAttemptID().getTaskID().getId();
+            int reducerId = context.getTaskAttemptID().getTaskID().getId();
             LdbcDatagen.initializeContext(conf);
             try {
-                dynamicPersonSerializer_ = (DynamicPersonSerializer) Class
+                dynamicPersonSerializer = (DynamicPersonSerializer) Class
                         .forName(conf.get("ldbc.snb.datagen.serializer.dynamicPersonSerializer")).newInstance();
-                dynamicPersonSerializer_.initialize(conf, reducerId);
+                dynamicPersonSerializer.initialize(conf, reducerId);
+                if (DatagenParams.updateStreams) {
+                    insertEventSerializer = new InsertEventSerializer(conf, DatagenParams.hadoopDir + "/temp_insertStream_person_" + reducerId, reducerId, DatagenParams.numUpdatePartitions);
+                }
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
 
         @Override
-        public void reduce(TupleKey key, Iterable<Person> valueSet, Context context)
-                throws IOException {
+        public void reduce(TupleKey key, Iterable<Person> valueSet, Context context) throws IOException {
 
             for (Person p : valueSet) {
-                dynamicPersonSerializer_.export(p);
-                for (Knows k : p.getKnows()) {
-                    dynamicPersonSerializer_.export(p, k);
+
+                if ((p.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold() &&
+                        p.getDeletionDate() < Dictionaries.dates.getBulkLoadThreshold())
+                        || !DatagenParams.updateStreams) {
+                    dynamicPersonSerializer.export(p);
+                } else if (p.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()) {
+                    insertEventSerializer.export(p);
+                    insertEventSerializer.changePartition();
                 }
+
+                //TODO: check why knows export is split between here and PersonActivityGenerator
+                for (Knows k : p.getKnows()) {
+                    if ((p.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold() &&
+                            p.getDeletionDate() < Dictionaries.dates.getBulkLoadThreshold())
+                            || !DatagenParams.updateStreams) {
+                        dynamicPersonSerializer.export(p, k);
+                    }
+                }
+
             }
         }
 
         @Override
         protected void cleanup(Context context) {
-            dynamicPersonSerializer_.close();
+            dynamicPersonSerializer.close();
+            if (DatagenParams.updateStreams) {
+                try {
+                    insertEventSerializer.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e.getMessage());
+                }
+            }
         }
     }
 

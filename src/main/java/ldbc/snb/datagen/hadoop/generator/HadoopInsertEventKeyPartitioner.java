@@ -35,14 +35,14 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop.generator;
 
-import ldbc.snb.datagen.hadoop.key.updatekey.UpdateEventKey;
+import ldbc.snb.datagen.hadoop.key.updatekey.InsertEventKey;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Partitioner;
 
-public class HadoopUpdateEventKeyPartitioner extends Partitioner<UpdateEventKey, Text> {
+public class HadoopInsertEventKeyPartitioner extends Partitioner<InsertEventKey, Text> {
 
     @Override
-    public int getPartition(UpdateEventKey key, Text text, int numReduceTasks) {
+    public int getPartition(InsertEventKey key, Text text, int numReduceTasks) {
         return (key.reducerId);
     }
 }

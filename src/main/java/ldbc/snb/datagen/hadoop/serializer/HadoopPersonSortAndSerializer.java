@@ -35,7 +35,9 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop.serializer;
 
+import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.LdbcDatagen;
+import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.hadoop.HadoopBlockMapper;
@@ -46,7 +48,9 @@ import ldbc.snb.datagen.hadoop.key.blockkey.BlockKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyComparator;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyGroupComparator;
 import ldbc.snb.datagen.hadoop.miscjob.HadoopFileRanker;
+import ldbc.snb.datagen.serializer.DeleteEventSerializer;
 import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
+import ldbc.snb.datagen.serializer.InsertEventSerializer;
 import ldbc.snb.datagen.vocabulary.SN;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -67,18 +71,23 @@ public class HadoopPersonSortAndSerializer {
 
     public static class HadoopDynamicPersonSerializerReducer extends Reducer<BlockKey, Person, LongWritable, Person> {
 
-        private int reducerId;
         private DynamicPersonSerializer dynamicPersonSerializer;
+        private InsertEventSerializer insertEventSerializer;
+        private DeleteEventSerializer deleteEventSerializer;
 
         @Override
         protected void setup(Context context) {
             Configuration conf = context.getConfiguration();
-            reducerId = context.getTaskAttemptID().getTaskID().getId();
+            int reducerId = context.getTaskAttemptID().getTaskID().getId();
             try {
                 LdbcDatagen.initializeContext(conf);
                 dynamicPersonSerializer = (DynamicPersonSerializer) Class
                         .forName(conf.get("ldbc.snb.datagen.serializer.dynamicPersonSerializer")).newInstance();
                 dynamicPersonSerializer.initialize(conf, reducerId);
+                if (DatagenParams.updateStreams) {
+                    insertEventSerializer = new InsertEventSerializer(conf, DatagenParams.hadoopDir + "/temp_insertStream_person_" + reducerId, reducerId, DatagenParams.numUpdatePartitions);
+                    deleteEventSerializer = new DeleteEventSerializer(conf, DatagenParams.hadoopDir + "/temp_deleteStream_person_" + reducerId, reducerId, DatagenParams.numUpdatePartitions);
+                }
             } catch (Exception e) {
                 System.err.println(e.getMessage());
                 throw new RuntimeException(e);
@@ -86,13 +95,35 @@ public class HadoopPersonSortAndSerializer {
         }
 
         @Override
-        public void reduce(BlockKey key, Iterable<Person> valueSet, Context context) {
+        public void reduce(BlockKey key, Iterable<Person> valueSet, Context context) throws IOException {
             SN.machineId = key.block;
-            for (Person p : valueSet) {
-                dynamicPersonSerializer.export(p);
 
+            for (Person p : valueSet) {
+
+                if ((p.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold() &&
+                        p.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold())
+                        || !DatagenParams.updateStreams) {
+                    dynamicPersonSerializer.export(p);
+                    if (p.getDeletionDate() == Dictionaries.dates.getNetworkCollapse()) {
+                        deleteEventSerializer.export(p);
+                        deleteEventSerializer.changePartition();
+                    }
+                } else if (p.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()) {
+                    insertEventSerializer.export(p);
+                    insertEventSerializer.changePartition();
+                    deleteEventSerializer.export(p);
+                    deleteEventSerializer.changePartition();
+                }
+
+                //TODO: check why knows export is split between here and PersonActivityGenerator
                 for (Knows k : p.getKnows()) {
-                    dynamicPersonSerializer.export(p, k);
+                    if ((p.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold() &&
+                            p.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold())
+                            || !DatagenParams.updateStreams) {
+                        dynamicPersonSerializer.export(p, k);
+                        deleteEventSerializer.export(p);
+                        deleteEventSerializer.changePartition();
+                    }
                 }
             }
         }
@@ -100,6 +131,14 @@ public class HadoopPersonSortAndSerializer {
         @Override
         protected void cleanup(Context context) {
             dynamicPersonSerializer.close();
+            if (DatagenParams.updateStreams) {
+                try {
+                    insertEventSerializer.close();
+                    deleteEventSerializer.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e.getMessage());
+                }
+            }
         }
     }
 

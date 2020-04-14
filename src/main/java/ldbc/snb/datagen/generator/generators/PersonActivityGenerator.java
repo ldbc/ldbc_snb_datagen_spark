@@ -46,8 +46,10 @@ import ldbc.snb.datagen.generator.generators.postgenerators.FlashmobPostGenerato
 import ldbc.snb.datagen.generator.generators.postgenerators.UniformPostGenerator;
 import ldbc.snb.datagen.generator.generators.textgenerators.LdbcSnbTextGenerator;
 import ldbc.snb.datagen.generator.generators.textgenerators.TextGenerator;
+import ldbc.snb.datagen.serializer.DeleteEventSerializer;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
 import ldbc.snb.datagen.serializer.PersonActivityExporter;
+import ldbc.snb.datagen.serializer.InsertEventSerializer;
 import ldbc.snb.datagen.util.FactorTable;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
@@ -72,7 +74,8 @@ public class PersonActivityGenerator {
     private FactorTable factorTable;
     private PersonActivityExporter exporter;
 
-    public PersonActivityGenerator(DynamicActivitySerializer dynamicActivitySerializer) {
+
+    public PersonActivityGenerator(DynamicActivitySerializer dynamicActivitySerializer, InsertEventSerializer insertEventSerializer, DeleteEventSerializer deleteEventSerializer) {
 
         randomFarm = new RandomGeneratorFarm();
         forumGenerator = new ForumGenerator();
@@ -85,7 +88,7 @@ public class PersonActivityGenerator {
         photoGenerator = new PhotoGenerator(likeGenerator);
 
         factorTable = new FactorTable();
-        exporter = new PersonActivityExporter(dynamicActivitySerializer, factorTable);
+        exporter = new PersonActivityExporter(dynamicActivitySerializer, insertEventSerializer, deleteEventSerializer, factorTable);
     }
 
     private void generateActivity(Person person, List<Person> block) throws AssertionError, IOException {
@@ -214,7 +217,7 @@ public class PersonActivityGenerator {
     private int numPostsPerGroup(RandomGeneratorFarm randomFarm, Forum forum, int maxPostsPerMonth, int maxMembersPerForum) {
         Random random = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_POST);
         int numOfMonths = (int) Dictionaries.dates.numberOfMonths(forum.getCreationDate());
-        int numberPost = 0;
+        int numberPost;
         if (numOfMonths == 0) {
             numberPost = random.nextInt(maxPostsPerMonth + 1);
         } else {

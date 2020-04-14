@@ -59,15 +59,14 @@ import java.io.OutputStream;
 
 public class HadoopPersonGenerator {
 
-    private Configuration conf = null;
+    private Configuration conf;
 
     public static class HadoopPersonGeneratorMapper extends Mapper<LongWritable, Text, TupleKey, Person> {
 
         private HadoopFileKeyChanger.KeySetter<TupleKey> keySetter = null;
 
         @Override
-        public void map(LongWritable key, Text value, Context context)
-                throws IOException, InterruptedException {
+        public void map(LongWritable key, Text value, Context context) {
 
             Configuration conf = context.getConfiguration();
 
@@ -138,11 +137,11 @@ public class HadoopPersonGenerator {
     }
 
     /**
-     * Generates a Person hadoop sequence file containing key-value paiers
+     * Generates a Person hadoop sequence file containing key-value pairs
      * where the key is the person id and the value is the person itself.
      *
      * @param outputFileName The name of the file to store the persons.
-     * @throws Exception
+     * @throws Exception exception
      */
     public void run(String outputFileName, String postKeySetterName) throws Exception {
 

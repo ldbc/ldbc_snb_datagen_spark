@@ -35,6 +35,8 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer;
 
+import ldbc.snb.datagen.DatagenParams;
+import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.entities.dynamic.messages.Comment;
 import ldbc.snb.datagen.entities.dynamic.messages.Photo;
@@ -43,41 +45,104 @@ import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.entities.dynamic.relations.Like;
 import ldbc.snb.datagen.util.FactorTable;
 
+import java.io.IOException;
+
 public class PersonActivityExporter {
     protected DynamicActivitySerializer dynamicActivitySerializer;
+    protected InsertEventSerializer insertEventSerializer;
+    protected DeleteEventSerializer deleteEventSerializer;
     protected FactorTable factorTable;
 
-    public PersonActivityExporter(DynamicActivitySerializer dynamicActivitySerializer, FactorTable factorTable) {
+    public PersonActivityExporter(DynamicActivitySerializer dynamicActivitySerializer, InsertEventSerializer insertEventSerializer, DeleteEventSerializer deleteEventSerializer, FactorTable factorTable) {
         this.dynamicActivitySerializer = dynamicActivitySerializer;
         this.factorTable = factorTable;
+        this.insertEventSerializer = insertEventSerializer;
+        this.deleteEventSerializer = deleteEventSerializer;
     }
 
-    public void export(final Forum forum) {
-        dynamicActivitySerializer.export(forum);
+    public void export(final Forum forum) throws IOException {
+
+        if ((forum.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold() &&
+                forum.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold())
+                || !DatagenParams.updateStreams) {
+            dynamicActivitySerializer.export(forum);
+            deleteEventSerializer.export(forum);
+        } else if (forum.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()) {
+            insertEventSerializer.export(forum);
+            deleteEventSerializer.export(forum);
+        }
+
     }
 
-    public void export(final Post post) {
-        dynamicActivitySerializer.export(post);
-        factorTable.extractFactors(post);
+    public void export(final Post post) throws IOException {
+
+        if ((post.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold() &&
+                post.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold())
+                || !DatagenParams.updateStreams) {
+            dynamicActivitySerializer.export(post);
+            factorTable.extractFactors(post);
+            deleteEventSerializer.export(post);
+        } else if (post.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()) {
+            insertEventSerializer.export(post);
+            deleteEventSerializer.export(post);
+        }
+
     }
 
-    public void export(final Comment comment) {
-        dynamicActivitySerializer.export(comment);
-        factorTable.extractFactors(comment);
+    public void export(final Comment comment) throws IOException {
+        if ((comment.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold() &&
+                comment.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold())
+                || !DatagenParams.updateStreams) {
+            dynamicActivitySerializer.export(comment);
+            factorTable.extractFactors(comment);
+            deleteEventSerializer.export(comment);
+
+        } else if (comment.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()) {
+            insertEventSerializer.export(comment);
+            deleteEventSerializer.export(comment);
+        }
     }
 
-    public void export(final Photo photo) {
-        dynamicActivitySerializer.export(photo);
-        factorTable.extractFactors(photo);
+    public void export(final Photo photo) throws IOException {
+
+        if ((photo.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold() &&
+                photo.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold())
+                || !DatagenParams.updateStreams) {
+            dynamicActivitySerializer.export(photo);
+            factorTable.extractFactors(photo);
+            deleteEventSerializer.export(photo);
+        } else if (photo.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()) {
+            insertEventSerializer.export(photo);
+            deleteEventSerializer.export(photo);
+        }
+
     }
 
-    public void export(final ForumMembership member) {
-        dynamicActivitySerializer.export(member);
-        factorTable.extractFactors(member);
+    public void export(final ForumMembership member) throws IOException {
+
+        if ((member.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold() &&
+                member.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold())
+                || !DatagenParams.updateStreams) {
+            dynamicActivitySerializer.export(member);
+            factorTable.extractFactors(member);
+            deleteEventSerializer.export(member);
+        } else if (member.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()) {
+            insertEventSerializer.export(member);
+            deleteEventSerializer.export(member);
+        }
     }
 
-    public void export(final Like like) {
-        dynamicActivitySerializer.export(like);
-        factorTable.extractFactors(like);
+    public void export(final Like like) throws IOException {
+
+        if ((like.getLikeCreationDate() < Dictionaries.dates.getBulkLoadThreshold() &&
+                like.getLikeDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold())
+                || !DatagenParams.updateStreams) {
+            dynamicActivitySerializer.export(like);
+            factorTable.extractFactors(like);
+            deleteEventSerializer.export(like);
+        } else if (like.getLikeCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()) {
+            insertEventSerializer.export(like);
+            deleteEventSerializer.export(like);
+        }
     }
 }
