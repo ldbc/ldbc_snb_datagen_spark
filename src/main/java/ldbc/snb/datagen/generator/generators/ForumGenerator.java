@@ -116,6 +116,9 @@ public class ForumGenerator {
         long groupMaxCreationDate = Math.min(moderator.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
         long groupCreationDate = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), groupMinCreationDate, groupMaxCreationDate);
 
+        //TODO: Currently if the group moderator is deleted before the forum then no new moderator is installed.
+        // This breaks the schema.
+
         // deletion date
         long groupMinDeletionDate = groupCreationDate + DatagenParams.deltaTime;
         long groupDeletionDate;
