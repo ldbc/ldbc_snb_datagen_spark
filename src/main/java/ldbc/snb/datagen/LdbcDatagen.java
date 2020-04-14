@@ -192,7 +192,7 @@ public class LdbcDatagen {
         print("Finished Interactive Parameter Generation");
     }
 
-    public int runGenerateJob(Configuration conf) throws Exception {
+    public void runGenerateJob(Configuration conf) throws Exception {
         String hadoopPrefix = conf.get("ldbc.snb.datagen.serializer.hadoopDir");
         FileSystem fs = FileSystem.get(conf);
         long start = System.currentTimeMillis();
@@ -244,7 +244,6 @@ public class LdbcDatagen {
         print("Invariant schema serialization time: " + (serializeStaticTime / 1000));
         print("Total Execution time: " + ((System.currentTimeMillis() - start) / 1000));
 
-        return 0;
     }
 
     public void individualSortJob(String filename, Configuration conf) throws Exception {
