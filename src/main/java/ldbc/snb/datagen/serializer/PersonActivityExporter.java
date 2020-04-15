@@ -66,10 +66,17 @@ public class PersonActivityExporter {
                 forum.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold())
                 || !DatagenParams.updateStreams) {
             dynamicActivitySerializer.export(forum);
-            deleteEventSerializer.export(forum);
+            if (forum.getDeletionDate() != Dictionaries.dates.getNetworkCollapse()) {
+                deleteEventSerializer.export(forum);
+                deleteEventSerializer.changePartition();
+            }
         } else if (forum.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()) {
             insertEventSerializer.export(forum);
-            deleteEventSerializer.export(forum);
+            insertEventSerializer.changePartition();
+            if (forum.getDeletionDate() != Dictionaries.dates.getNetworkCollapse()) {
+                deleteEventSerializer.export(forum);
+                deleteEventSerializer.changePartition();
+            }
         }
 
     }
@@ -81,10 +88,17 @@ public class PersonActivityExporter {
                 || !DatagenParams.updateStreams) {
             dynamicActivitySerializer.export(post);
             factorTable.extractFactors(post);
-            deleteEventSerializer.export(post);
+            if (post.getDeletionDate() != Dictionaries.dates.getNetworkCollapse()) {
+                deleteEventSerializer.export(post);
+                deleteEventSerializer.changePartition();
+            }
         } else if (post.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()) {
             insertEventSerializer.export(post);
-            deleteEventSerializer.export(post);
+            insertEventSerializer.changePartition();
+            if (post.getDeletionDate() != Dictionaries.dates.getNetworkCollapse()) {
+                deleteEventSerializer.export(post);
+                deleteEventSerializer.changePartition();
+            }
         }
 
     }
@@ -95,11 +109,17 @@ public class PersonActivityExporter {
                 || !DatagenParams.updateStreams) {
             dynamicActivitySerializer.export(comment);
             factorTable.extractFactors(comment);
-            deleteEventSerializer.export(comment);
-
+            if (comment.getDeletionDate() != Dictionaries.dates.getNetworkCollapse()) {
+                deleteEventSerializer.export(comment);
+                deleteEventSerializer.changePartition();
+            }
         } else if (comment.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()) {
             insertEventSerializer.export(comment);
-            deleteEventSerializer.export(comment);
+            insertEventSerializer.changePartition();
+            if (comment.getDeletionDate() != Dictionaries.dates.getNetworkCollapse()) {
+                deleteEventSerializer.export(comment);
+                deleteEventSerializer.changePartition();
+            }
         }
     }
 
@@ -110,10 +130,17 @@ public class PersonActivityExporter {
                 || !DatagenParams.updateStreams) {
             dynamicActivitySerializer.export(photo);
             factorTable.extractFactors(photo);
-            deleteEventSerializer.export(photo);
+            if (photo.getDeletionDate() != Dictionaries.dates.getNetworkCollapse()) {
+                deleteEventSerializer.export(photo);
+                deleteEventSerializer.changePartition();
+            }
         } else if (photo.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()) {
             insertEventSerializer.export(photo);
-            deleteEventSerializer.export(photo);
+            insertEventSerializer.changePartition();
+            if (photo.getDeletionDate() != Dictionaries.dates.getNetworkCollapse()) {
+                deleteEventSerializer.export(photo);
+                deleteEventSerializer.changePartition();
+            }
         }
 
     }
@@ -125,10 +152,17 @@ public class PersonActivityExporter {
                 || !DatagenParams.updateStreams) {
             dynamicActivitySerializer.export(member);
             factorTable.extractFactors(member);
-            deleteEventSerializer.export(member);
+            if (member.getDeletionDate() != Dictionaries.dates.getNetworkCollapse()) {
+                deleteEventSerializer.export(member);
+                deleteEventSerializer.changePartition();
+            }
         } else if (member.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()) {
             insertEventSerializer.export(member);
-            deleteEventSerializer.export(member);
+            insertEventSerializer.changePartition();
+            if (member.getDeletionDate() != Dictionaries.dates.getNetworkCollapse()) {
+                deleteEventSerializer.export(member);
+                deleteEventSerializer.changePartition();
+            }
         }
     }
 
@@ -139,10 +173,17 @@ public class PersonActivityExporter {
                 || !DatagenParams.updateStreams) {
             dynamicActivitySerializer.export(like);
             factorTable.extractFactors(like);
-            deleteEventSerializer.export(like);
+            if (like.getLikeDeletionDate() != Dictionaries.dates.getNetworkCollapse()) {
+                deleteEventSerializer.export(like);
+                deleteEventSerializer.changePartition();
+            }
         } else if (like.getLikeCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()) {
             insertEventSerializer.export(like);
-            deleteEventSerializer.export(like);
+            insertEventSerializer.changePartition();
+            if (like.getLikeDeletionDate() != Dictionaries.dates.getNetworkCollapse()) {
+                deleteEventSerializer.export(like);
+                deleteEventSerializer.changePartition();
+            }
         }
     }
 }

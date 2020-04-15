@@ -126,6 +126,7 @@ public class LdbcDatagen {
             // set true in config parser
             new HadoopPersonSortAndSerializer(conf).run(hadoopPrefix + "/mergedPersons");
         } else {
+            // TODO: check if this is ever needed
             new HadoopPersonSerializer(conf).run(hadoopPrefix + "/mergedPersons");
         }
 

@@ -104,26 +104,40 @@ public class HadoopPersonSortAndSerializer {
                         p.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold())
                         || !DatagenParams.updateStreams) {
                     dynamicPersonSerializer.export(p);
-                    if (p.getDeletionDate() == Dictionaries.dates.getNetworkCollapse()) {
+                    if (p.getDeletionDate() != Dictionaries.dates.getNetworkCollapse()) {
                         deleteEventSerializer.export(p);
                         deleteEventSerializer.changePartition();
                     }
                 } else if (p.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()) {
                     insertEventSerializer.export(p);
                     insertEventSerializer.changePartition();
-                    deleteEventSerializer.export(p);
-                    deleteEventSerializer.changePartition();
+                    if (p.getDeletionDate() != Dictionaries.dates.getNetworkCollapse()) {
+                        deleteEventSerializer.export(p);
+                        deleteEventSerializer.changePartition();
+                    }
                 }
 
-                //TODO: check why knows export is split between here and PersonActivityGenerator
+                //TODO: export was split between here and HadoopPersonActivityGenerator, not sure why
+                // moved all here
                 for (Knows k : p.getKnows()) {
+
                     if ((p.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold() &&
                             p.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold())
                             || !DatagenParams.updateStreams) {
                         dynamicPersonSerializer.export(p, k);
-                        deleteEventSerializer.export(p);
-                        deleteEventSerializer.changePartition();
+                        if (p.getDeletionDate() != Dictionaries.dates.getNetworkCollapse()) {
+                            deleteEventSerializer.export(p, k);
+                            deleteEventSerializer.changePartition();
+                        }
+                    } else if (p.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()) {
+                        insertEventSerializer.export(p,k);
+                        insertEventSerializer.changePartition();
+                        if (p.getDeletionDate() != Dictionaries.dates.getNetworkCollapse()) {
+                            deleteEventSerializer.export(p,k);
+                            deleteEventSerializer.changePartition();
+                        }
                     }
+
                 }
             }
         }

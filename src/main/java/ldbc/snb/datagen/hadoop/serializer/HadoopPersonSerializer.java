@@ -43,6 +43,7 @@ import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.hadoop.HadoopBlockMapper;
 import ldbc.snb.datagen.hadoop.HadoopTuplePartitioner;
 import ldbc.snb.datagen.hadoop.key.TupleKey;
+import ldbc.snb.datagen.serializer.DeleteEventSerializer;
 import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
 import ldbc.snb.datagen.serializer.InsertEventSerializer;
 import org.apache.hadoop.conf.Configuration;
@@ -66,6 +67,7 @@ public class HadoopPersonSerializer {
 
         private DynamicPersonSerializer dynamicPersonSerializer;
         private InsertEventSerializer insertEventSerializer;
+        private DeleteEventSerializer deleteEventSerializer;
 
         @Override
         protected void setup(Context context) {
@@ -78,6 +80,8 @@ public class HadoopPersonSerializer {
                 dynamicPersonSerializer.initialize(conf, reducerId);
                 if (DatagenParams.updateStreams) {
                     insertEventSerializer = new InsertEventSerializer(conf, DatagenParams.hadoopDir + "/temp_insertStream_person_" + reducerId, reducerId, DatagenParams.numUpdatePartitions);
+                    deleteEventSerializer = new DeleteEventSerializer(conf, DatagenParams.hadoopDir + "/temp_deleteStream_person_" + reducerId, reducerId, DatagenParams.numUpdatePartitions);
+
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -90,23 +94,41 @@ public class HadoopPersonSerializer {
             for (Person p : valueSet) {
 
                 if ((p.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold() &&
-                        p.getDeletionDate() < Dictionaries.dates.getBulkLoadThreshold())
+                        p.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold())
                         || !DatagenParams.updateStreams) {
                     dynamicPersonSerializer.export(p);
+                    if (p.getDeletionDate() != Dictionaries.dates.getNetworkCollapse()) {
+                        deleteEventSerializer.export(p);
+                        deleteEventSerializer.changePartition();
+                    }
                 } else if (p.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()) {
                     insertEventSerializer.export(p);
                     insertEventSerializer.changePartition();
-                }
-
-                //TODO: check why knows export is split between here and PersonActivityGenerator
-                for (Knows k : p.getKnows()) {
-                    if ((p.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold() &&
-                            p.getDeletionDate() < Dictionaries.dates.getBulkLoadThreshold())
-                            || !DatagenParams.updateStreams) {
-                        dynamicPersonSerializer.export(p, k);
+                    if (p.getDeletionDate() != Dictionaries.dates.getNetworkCollapse()) {
+                        deleteEventSerializer.export(p);
+                        deleteEventSerializer.changePartition();
                     }
                 }
 
+                //TODO: moved knows export here was split with HadoopPersonActivityGenerator
+                for (Knows k : p.getKnows()) {
+                    if ((p.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold() &&
+                            p.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold())
+                            || !DatagenParams.updateStreams) {
+                        dynamicPersonSerializer.export(p, k);
+                        if (p.getDeletionDate() != Dictionaries.dates.getNetworkCollapse()) {
+                            deleteEventSerializer.export(p, k);
+                            deleteEventSerializer.changePartition();
+                        }
+                    } else if (p.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()) {
+                        insertEventSerializer.export(p,k);
+                        insertEventSerializer.changePartition();
+                        if (p.getDeletionDate() != Dictionaries.dates.getNetworkCollapse()) {
+                            deleteEventSerializer.export(p,k);
+                            deleteEventSerializer.changePartition();
+                        }
+                    }
+                }
             }
         }
 
@@ -116,6 +138,7 @@ public class HadoopPersonSerializer {
             if (DatagenParams.updateStreams) {
                 try {
                     insertEventSerializer.close();
+                    deleteEventSerializer.close();
                 } catch (IOException e) {
                     throw new RuntimeException(e.getMessage());
                 }
