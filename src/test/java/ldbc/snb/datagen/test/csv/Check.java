@@ -4,8 +4,8 @@ import java.util.List;
 
 public abstract class Check {
 
-    protected String checkName = null;
-    protected List<Integer> columns = null;
+    protected String checkName;
+    protected List<Integer> columns;
 
     public String getCheckName() {
         return checkName;

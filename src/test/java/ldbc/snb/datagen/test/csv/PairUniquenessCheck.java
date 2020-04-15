@@ -10,9 +10,9 @@ import java.util.Set;
 public class PairUniquenessCheck<T,S> extends Check {
 
 
-    protected Map< T,Set<S>> values = null;
-    protected Parser<T> parserA = null;
-    protected Parser<S> parserB = null;
+    protected Map< T,Set<S>> values;
+    protected Parser<T> parserA;
+    protected Parser<S> parserB;
 
 
     public PairUniquenessCheck(Parser<T> parserA, Parser<S> parserB, int columnA, int columnB) {
