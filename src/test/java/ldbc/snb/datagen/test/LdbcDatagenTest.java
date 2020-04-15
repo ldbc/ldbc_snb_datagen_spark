@@ -29,16 +29,20 @@ public class LdbcDatagenTest {
 
     private final String dataDir = "./test_data/social_network";
 
-//    @BeforeClass
-//    public static void generateData() throws Exception {
-//        Configuration conf = ConfigParser.initialize();
-//        ConfigParser.readConfig(conf, "./test_params.ini");
-//        ConfigParser.readConfig(conf, LdbcDatagen.class.getResourceAsStream("/params_default.ini"));
-//        LdbcDatagen.prepareConfiguration(conf);
-//        LdbcDatagen.initializeContext(conf);
-//        LdbcDatagen datagen = new LdbcDatagen();
-//        datagen.runGenerateJob(conf);
-//    }
+    @BeforeClass
+    public static void generateData() throws Exception {
+        Configuration conf = ConfigParser.initialize();
+        ConfigParser.readConfig(conf, "./test_params.ini");
+        ConfigParser.readConfig(conf, LdbcDatagen.class.getResourceAsStream("/params_default.ini"));
+        LdbcDatagen.prepareConfiguration(conf);
+        LdbcDatagen.initializeContext(conf);
+        LdbcDatagen datagen = new LdbcDatagen();
+        datagen.runGenerateJob(conf);
+        if (conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
+            datagen.runSortInsertStream(conf);
+            datagen.runSortDeleteStream(conf);
+        }
+    }
 
     @Test
     public void personTest() {
@@ -114,7 +118,6 @@ public class LdbcDatagenTest {
                 dataDir + "/dynamic/person_0_0.csv", 1); // TODO: double check
         assertTrue("Everything ok", true);
     }
-
     @Test
     public void organisationIsLocatedInPlaceTest() {
         testPairUniquenessPlusExistence(dataDir + "/static/organisation_isLocatedIn_place_0_0.csv", 0, 1, dataDir + "/static/organisation_0_0.csv", 0, dataDir + "/static/place_0_0.csv", 0);

@@ -121,18 +121,18 @@ public class HadoopPersonSortAndSerializer {
                 // moved all here
                 for (Knows k : p.getKnows()) {
 
-                    if ((p.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold() &&
-                            p.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold())
+                    if ((k.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold() &&
+                            k.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold())
                             || !DatagenParams.updateStreams) {
-                        dynamicPersonSerializer.export(p, k);
-                        if (p.getDeletionDate() != Dictionaries.dates.getNetworkCollapse()) {
+                    dynamicPersonSerializer.export(p, k);
+                        if (k.getDeletionDate() != Dictionaries.dates.getNetworkCollapse()) {
                             deleteEventSerializer.export(p, k);
                             deleteEventSerializer.changePartition();
                         }
-                    } else if (p.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()) {
+                    } else if (k.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()) {
                         insertEventSerializer.export(p,k);
                         insertEventSerializer.changePartition();
-                        if (p.getDeletionDate() != Dictionaries.dates.getNetworkCollapse()) {
+                        if (k.getDeletionDate() != Dictionaries.dates.getNetworkCollapse()) {
                             deleteEventSerializer.export(p,k);
                             deleteEventSerializer.changePartition();
                         }

@@ -44,9 +44,7 @@ import org.apache.hadoop.io.Writable;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 
 public class Knows implements Writable, Comparable<Knows> {
@@ -143,7 +141,7 @@ public class Knows implements Writable, Comparable<Knows> {
     }
 
     // TODO: fix other knows generators
-    public static boolean createKnow(Random dateRandom,Person personA, Person personB) {
+    public static boolean createKnow(Random dateRandom, Person personA, Person personB) {
 
         if (personA.getCreationDate() + DatagenParams.deltaTime > personB.getDeletionDate() ||
                 personB.getCreationDate() + DatagenParams.deltaTime > personA.getDeletionDate()) {
@@ -155,7 +153,15 @@ public class Knows implements Writable, Comparable<Knows> {
         if (dateRandom.nextDouble() < DatagenParams.probKnowsDeleted) {
             deletionDate = Dictionaries.dates.randomKnowsDeletionDate(dateRandom, personA, personB, creationDate);
         } else {
-            deletionDate = Dictionaries.dates.getNetworkCollapse();
+
+            long maxDeletionDate = Collections.min(Arrays.asList(personA.getDeletionDate(), personB.getDeletionDate(), Dictionaries.dates.getSimulationEnd()));
+            if (maxDeletionDate <= Dictionaries.dates.getSimulationEnd()) {
+                deletionDate = maxDeletionDate;
+            }
+            else {
+                deletionDate = Dictionaries.dates.getNetworkCollapse();
+            }
+
         }
         assert (creationDate <= deletionDate) : "Knows creation date is larger than knows deletion date";
 
@@ -168,16 +174,23 @@ public class Knows implements Writable, Comparable<Knows> {
     public static void createKnow(Random dateRandom, Random deletionRandom, Person personA, Person personB) {
 
         if (personA.getCreationDate() + DatagenParams.deltaTime > personB.getDeletionDate() ||
-            personB.getCreationDate() + DatagenParams.deltaTime > personA.getDeletionDate()) {
+                personB.getCreationDate() + DatagenParams.deltaTime > personA.getDeletionDate()) {
             return;
         }
 
         long creationDate = Dictionaries.dates.randomKnowsCreationDate(dateRandom, personA, personB);
         long deletionDate;
+
         if (deletionRandom.nextDouble() < DatagenParams.probKnowsDeleted) {
-             deletionDate = Dictionaries.dates.randomKnowsDeletionDate(dateRandom, personA, personB, creationDate);
+            deletionDate = Dictionaries.dates.randomKnowsDeletionDate(dateRandom, personA, personB, creationDate);
         } else {
-            deletionDate = Dictionaries.dates.getNetworkCollapse();
+            long maxDeletionDate = Collections.min(Arrays.asList(personA.getDeletionDate(), personB.getDeletionDate(), Dictionaries.dates.getSimulationEnd()));
+            if (maxDeletionDate <= Dictionaries.dates.getSimulationEnd()) {
+                deletionDate = maxDeletionDate;
+            }
+            else {
+                deletionDate = Dictionaries.dates.getNetworkCollapse();
+            }
         }
         assert (creationDate <= deletionDate) : "Knows creation date is larger than knows deletion date";
 

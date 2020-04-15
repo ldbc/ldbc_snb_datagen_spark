@@ -81,8 +81,9 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
                 getGender(person.getGender()),
                 Dictionaries.dates.formatDate(person.getBirthday()),
                 person.getIpAddress().toString(),
-                Dictionaries.browsers.getName(person.getBrowserId())
-        ));
+                Dictionaries.browsers.getName(person.getBrowserId()),
+                Dictionaries.dates.formatDateTime(person.getDeletionDate())
+                ));
 
         for (Integer i : person.getLanguages()) {
             //"creationDate",  "Person.id", "language"
@@ -145,8 +146,9 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
         writers.get(PERSON_KNOWS_PERSON).writeEntry(ImmutableList.of(
                 Dictionaries.dates.formatDateTime(knows.getCreationDate()),
                 Long.toString(person.getAccountId()),
-                Long.toString(knows.to().getAccountId())
-        ));
+                Long.toString(knows.to().getAccountId()),
+                Dictionaries.dates.formatDateTime(knows.getDeletionDate())
+                ));
     }
 
 }
