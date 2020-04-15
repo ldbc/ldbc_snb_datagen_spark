@@ -29,20 +29,20 @@ public class LdbcDatagenTest {
 
     private final String dataDir = "./test_data/social_network";
 
-    @BeforeClass
-    public static void generateData() throws Exception {
-        Configuration conf = ConfigParser.initialize();
-        ConfigParser.readConfig(conf, "./test_params.ini");
-        ConfigParser.readConfig(conf, LdbcDatagen.class.getResourceAsStream("/params_default.ini"));
-        LdbcDatagen.prepareConfiguration(conf);
-        LdbcDatagen.initializeContext(conf);
-        LdbcDatagen datagen = new LdbcDatagen();
-        datagen.runGenerateJob(conf);
-        if (conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
-            datagen.runSortInsertStream(conf);
-            datagen.runSortDeleteStream(conf);
-        }
-    }
+//    @BeforeClass
+//    public static void generateData() throws Exception {
+//        Configuration conf = ConfigParser.initialize();
+//        ConfigParser.readConfig(conf, "./test_params.ini");
+//        ConfigParser.readConfig(conf, LdbcDatagen.class.getResourceAsStream("/params_default.ini"));
+//        LdbcDatagen.prepareConfiguration(conf);
+//        LdbcDatagen.initializeContext(conf);
+//        LdbcDatagen datagen = new LdbcDatagen();
+//        datagen.runGenerateJob(conf);
+//        if (conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
+//            datagen.runSortInsertStream(conf);
+//            datagen.runSortDeleteStream(conf);
+//        }
+//    }
 
     @Test
     public void personTest() {
@@ -197,7 +197,10 @@ public class LdbcDatagenTest {
 
     @Test
     public void forumHasMemberPersonCheck() {
-        testPairUniquenessPlusExistence(dataDir + "/dynamic/forum_hasMember_person_0_0.csv", 2, 3, dataDir + "/dynamic/forum_0_0.csv", 2, dataDir + "/dynamic/person_0_0.csv", 2);
+        testPairUniquenessPlusExistence(
+                dataDir + "/dynamic/forum_hasMember_person_0_0.csv", 1, 2,
+                dataDir + "/dynamic/forum_0_0.csv", 1,
+                dataDir + "/dynamic/person_0_0.csv", 1);
         assertTrue("Everything ok", true);
     }
 
@@ -249,15 +252,18 @@ public class LdbcDatagenTest {
     @Test
     public void commentReplyOfPostCheck() {
         testPairUniquenessPlusExistence(
-                dataDir + "/dynamic/comment_replyOf_post_0_0.csv", 2, 3,
-                dataDir + "/dynamic/comment_0_0.csv", 2,
-                dataDir + "/dynamic/post_0_0.csv", 2);
+                dataDir + "/dynamic/comment_replyOf_post_0_0.csv", 1, 2,
+                dataDir + "/dynamic/comment_0_0.csv", 1,
+                dataDir + "/dynamic/post_0_0.csv", 1);
         assertTrue("Everything ok", true);
     }
 
     @Test
     public void postHasCreatorPersonCheck() {
-        testPairUniquenessPlusExistence(dataDir + "/dynamic/post_hasCreator_person_0_0.csv", 2, 3, dataDir + "/dynamic/post_0_0.csv", 2, dataDir + "/dynamic/person_0_0.csv", 2);
+        testPairUniquenessPlusExistence(
+                dataDir + "/dynamic/post_hasCreator_person_0_0.csv", 1, 2,
+                dataDir + "/dynamic/post_0_0.csv", 1,
+                dataDir + "/dynamic/person_0_0.csv", 1);
         assertTrue("Everything ok", true);
     }
 
@@ -281,7 +287,10 @@ public class LdbcDatagenTest {
 
     @Test
     public void personLikesPostCheck() {
-        testPairUniquenessPlusExistence(dataDir + "/dynamic/person_likes_post_0_0.csv", 2, 3, dataDir + "/dynamic/person_0_0.csv", 2, dataDir + "/dynamic/post_0_0.csv", 2);
+        testPairUniquenessPlusExistence(
+                dataDir + "/dynamic/person_likes_post_0_0.csv", 1, 2,
+                dataDir + "/dynamic/person_0_0.csv", 1,
+                dataDir + "/dynamic/post_0_0.csv", 1);
         assertTrue("Everything ok", true);
     }
 

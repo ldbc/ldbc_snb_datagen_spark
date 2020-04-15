@@ -49,6 +49,7 @@ public class Forum {
         GROUP
     }
 
+    private boolean isExplicitlyDeleted;
     private long id;
     private PersonSummary moderator;
     private long creationDate;
@@ -61,7 +62,7 @@ public class Forum {
     private ForumType forumType;
 
 
-    public Forum(long id, long creationDate, long deletionDate, PersonSummary moderator, String title, int placeId, int language, ForumType forumType) {
+    public Forum(long id, long creationDate, long deletionDate, PersonSummary moderator, String title, int placeId, int language, ForumType forumType, boolean isExplicitlyDeleted) {
         assert (moderator.getCreationDate() + DatagenParams.deltaTime) <= creationDate : "Moderator's creation date is less than or equal to the Forum creation date";
         memberships = new ArrayList<>();
         tags = new ArrayList<>();
@@ -73,6 +74,15 @@ public class Forum {
         this.moderator = new PersonSummary(moderator);
         this.language = language;
         this.forumType = forumType;
+        this.isExplicitlyDeleted = isExplicitlyDeleted;
+    }
+
+    public boolean isExplicitlyDeleted() {
+        return isExplicitlyDeleted;
+    }
+
+    public void setExplicitlyDeleted(boolean explicitlyDeleted) {
+        isExplicitlyDeleted = explicitlyDeleted;
     }
 
     public void addMember(ForumMembership member) {

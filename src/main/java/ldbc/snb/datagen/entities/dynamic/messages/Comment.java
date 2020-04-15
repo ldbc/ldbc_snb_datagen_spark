@@ -52,7 +52,7 @@ public class Comment extends Message {
 
     public Comment(Comment comment) {
         super(comment.getMessageId(), comment.getCreationDate(), comment.getDeletionDate(), comment.getAuthor(), comment.getForumId(), comment.getContent(),
-              comment.getTags(), comment.getCountryId(), comment.getIpAddress(), comment.getBrowserId());
+              comment.getTags(), comment.getCountryId(), comment.getIpAddress(), comment.getBrowserId(),comment.isExplicitlyDeleted());
         postId = comment.postId();
         replyOf = comment.replyOf();
     }
@@ -68,10 +68,11 @@ public class Comment extends Message {
                    IP ipAddress,
                    int browserId,
                    long postId,
-                   long replyOf
+                   long replyOf,
+                   boolean isExplicitlyDeleted
     ) {
 
-        super(commentId, creationDate, deletionDate, author, forumId, content, tags, countryId, ipAddress, browserId);
+        super(commentId, creationDate, deletionDate, author, forumId, content, tags, countryId, ipAddress, browserId,isExplicitlyDeleted);
         this.postId = postId;
         this.replyOf = replyOf;
     }
@@ -87,8 +88,9 @@ public class Comment extends Message {
                            IP ipAddress,
                            int browserId,
                            long postId,
-                           long replyOf) {
-        super.initialize(commentId, creationDate, deletionDate, author, forumId, content, tags, countryId, ipAddress, browserId);
+                           long replyOf,
+                           boolean isExplicitlyDeleted) {
+        super.initialize(commentId, creationDate, deletionDate, author, forumId, content, tags, countryId, ipAddress, browserId,isExplicitlyDeleted);
         this.postId = postId;
         this.replyOf = replyOf;
     }

@@ -66,6 +66,7 @@ public class UniformPostGenerator extends PostGenerator {
         // add deletion date
         long postDeletionDate;
         if (randomDeletePost.nextDouble() < DatagenParams.probPostDeleted) {
+            postCore.setExplicitlyDeleted(true);
             long minDeletionDate = postCreationDate + DatagenParams.deltaTime;
             long maxDeletionDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
 
@@ -74,7 +75,8 @@ public class UniformPostGenerator extends PostGenerator {
             }
             postDeletionDate = Dictionaries.dates.randomDate(randomDate, minDeletionDate, maxDeletionDate);
         } else {
-            postDeletionDate = Dictionaries.dates.getNetworkCollapse();
+            postCore.setExplicitlyDeleted(false);
+            postDeletionDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
         }
 
         postCore.setDeletionDate(postDeletionDate);

@@ -126,7 +126,8 @@ public class PersonActivityGenerator {
                 wall.getCreationDate() + DatagenParams.deltaTime,
                 wall.getDeletionDate(),
                 new PersonSummary(person),
-                Forum.ForumType.WALL);
+                Forum.ForumType.WALL,
+                false);
         // list of members who can post on the wall - only moderator of wall can post on it
         List<ForumMembership> memberships = new ArrayList<>();
         memberships.add(moderator);

@@ -48,6 +48,8 @@ import java.text.Normalizer;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import static org.apache.commons.lang3.RandomUtils.nextDouble;
+
 public class PersonGenerator {
 
     private DegreeDistribution degreeDistribution = null;
@@ -94,9 +96,21 @@ public class PersonGenerator {
         person.setIpAddress(Dictionaries.ips.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), countryId));
         person.setMaxNumKnows(Math.min(degreeDistribution.nextDegree(), DatagenParams.maxNumFriends));
 
-        long deletionDate = Dictionaries.dates.randomPersonDeletionDate(randomFarm
-                .get(RandomGeneratorFarm.Aspect.DELETION_PERSON), creationDate, person.getMaxNumKnows());
+
+        long deletionDate;
+        if (randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_PERSON).nextDouble() < DatagenParams.probPersonDeleted) {
+            person.setExplicitlyDeleted(true);
+            long maxDeletionDate = Dictionaries.dates.getSimulationEnd();
+            deletionDate = Dictionaries.dates.randomPersonDeletionDate(
+                    randomFarm.get(RandomGeneratorFarm.Aspect.DATE), creationDate, person.getMaxNumKnows(), maxDeletionDate);
+        } else {
+            person.setExplicitlyDeleted(false);
+            long maxDeletionDate = Dictionaries.dates.getNetworkCollapse();
+            deletionDate = Dictionaries.dates.randomPersonDeletionDate(
+                    randomFarm.get(RandomGeneratorFarm.Aspect.DATE), creationDate, person.getMaxNumKnows(), maxDeletionDate);
+        }
         person.setDeletionDate(deletionDate);
+
 
         assert (person.getCreationDate() + DatagenParams.deltaTime <= person.getDeletionDate()) : "Person creation date is larger than person deletion date";
 
