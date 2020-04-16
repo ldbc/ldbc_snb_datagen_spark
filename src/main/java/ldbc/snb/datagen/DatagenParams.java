@@ -38,7 +38,25 @@
 package ldbc.snb.datagen;
 
 import ldbc.snb.datagen.generator.distribution.DegreeDistribution;
+import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
+import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
+import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
+import ldbc.snb.datagen.serializer.StaticSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvBasicDynamicActivitySerializer;
+import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvCompositeDynamicActivitySerializer;
+import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvCompositeMergeForeignDynamicActivitySerializer;
+import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvMergeForeignDynamicActivitySerializer;
+import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CsvBasicDynamicPersonSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CsvCompositeDynamicPersonSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CsvCompositeMergeForeignDynamicPersonSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CsvMergeForeignDynamicPersonSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvBasicStaticSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvCompositeMergeForeignStaticSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvCompositeStaticSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvMergeForeignStaticSerializer;
 import org.apache.hadoop.conf.Configuration;
+
+import static ldbc.snb.datagen.DatagenMode.*;
 
 public class DatagenParams {
 
@@ -218,20 +236,29 @@ public class DatagenParams {
     public static String outputDir = "./";
     public static String hadoopDir = "./";
     public static String socialNetworkDir = "./";
+    public static String dynamicActivitySerializer;
+    public static String dynamicPersonSerializer;
+    public static String staticSerializer;
+    public static String datagenMode;
     public static int numThreads = 1;
     public static int deltaTime = 10000;
     public static long numPersons = 10000;
     public static int startYear = 2010;
     public static int endYear = 2013;
     public static int numYears = 3;
-    public static boolean updateStreams = false;
+//    public static boolean updateStreams = false;
     public static boolean exportText = true;
     public static boolean compressed = false;
     public static int numPartitions = 1;
     public static int numUpdatePartitions = 1;
 
-    private static Integer intConf(Configuration conf,ParameterNames param) { return Integer.parseInt(conf.get(param.toString())); }
-    private static Double doubleConf(Configuration conf,ParameterNames param) { return Double.parseDouble(conf.get(param.toString())); }
+    private static Integer intConf(Configuration conf, ParameterNames param) {
+        return Integer.parseInt(conf.get(param.toString()));
+    }
+
+    private static Double doubleConf(Configuration conf, ParameterNames param) {
+        return Double.parseDouble(conf.get(param.toString()));
+    }
 
     public static void readConf(Configuration conf) {
         try {
@@ -249,56 +276,56 @@ public class DatagenParams {
             probPostLikeDeleted = doubleConf(conf, ParameterNames.PROB_POST_LIKE_DELETED);
             probCommentLikeDeleted = doubleConf(conf, ParameterNames.PROB_COMMENT_LIKE_DELETED);
 
-            maxNumFriends = intConf(conf,ParameterNames.MAX_FRIENDS);
-            minNumTagsPerUser = intConf(conf,ParameterNames.USER_MIN_TAGS);
-            maxNumTagsPerUser = intConf(conf,ParameterNames.USER_MAX_TAGS);
-            maxNumPostPerMonth = intConf(conf,ParameterNames.USER_MAX_POST_MONTH);
-            maxNumComments = intConf(conf,ParameterNames.MAX_COMMENT_POST);
-            limitProCorrelated = doubleConf(conf,ParameterNames.LIMIT_CORRELATED);
-            baseProbCorrelated = doubleConf(conf,ParameterNames.BASE_CORRELATED);
-            maxEmails = intConf(conf,ParameterNames.MAX_EMAIL);
-            maxCompanies = intConf(conf,ParameterNames.MAX_EMAIL);
-            probEnglish = doubleConf(conf,ParameterNames.MAX_EMAIL);
-            probSecondLang = doubleConf(conf,ParameterNames.MAX_EMAIL);
-            probAnotherBrowser = doubleConf(conf,ParameterNames.OTHER_BROWSER_RATIO);
-            minTextSize = intConf(conf,ParameterNames.MIN_TEXT_SIZE);
-            maxTextSize = intConf(conf,ParameterNames.MAX_TEXT_SIZE);
-            minCommentSize = intConf(conf,ParameterNames.MIN_COMMENT_SIZE);
-            maxCommentSize = intConf(conf,ParameterNames.MAX_COMMENT_SIZE);
-            ratioReduceText = doubleConf(conf,ParameterNames.REDUCE_TEXT_RATIO);
-            minLargePostSize = intConf(conf,ParameterNames.MIN_LARGE_POST_SIZE);
-            maxLargePostSize = intConf(conf,ParameterNames.MAX_LARGE_POST_SIZE);
-            minLargeCommentSize = intConf(conf,ParameterNames.MIN_LARGE_COMMENT_SIZE);
-            maxLargeCommentSize = intConf(conf,ParameterNames.MAX_LARGE_COMMENT_SIZE);
-            ratioLargePost = doubleConf(conf,ParameterNames.LARGE_POST_RATIO);
-            ratioLargeComment = doubleConf(conf,ParameterNames.LARGE_COMMENT_RATIO);
-            maxNumLike = intConf(conf,ParameterNames.MAX_NUM_LIKE);
-            maxNumPhotoAlbumsPerMonth = intConf(conf,ParameterNames.MAX_PHOTOALBUM);
-            maxNumPhotoPerAlbums = intConf(conf,ParameterNames.MAX_PHOTO_PER_ALBUM);
-            maxNumGroupCreatedPerUser = intConf(conf,ParameterNames.USER_MAX_GROUP);
-            maxGroupSize = intConf(conf,ParameterNames.MAX_GROUP_MEMBERS);
-            groupModeratorProb = doubleConf(conf,ParameterNames.GROUP_MODERATOR_RATIO);
-            maxNumGroupPostPerMonth = intConf(conf,ParameterNames.GROUP_MAX_POST_MONTH);
-            missingRatio = doubleConf(conf,ParameterNames.MISSING_RATIO);
-            probDiffIPinTravelSeason = doubleConf(conf,ParameterNames.DIFFERENT_IP_IN_TRAVEL_RATIO);
-            probDiffIPnotTravelSeason = doubleConf(conf,ParameterNames.DIFFERENT_IP_NOT_TRAVEL_RATIO);
-            probUnCorrelatedCompany = doubleConf(conf,ParameterNames.COMPANY_UNCORRELATED_RATIO);
-            probUnCorrelatedOrganisation = doubleConf(conf,ParameterNames.UNIVERSITY_UNCORRELATED_RATIO);
-            probTopUniv = doubleConf(conf,ParameterNames.BEST_UNIVERSTY_RATIO);
-            maxNumPopularPlaces = intConf(conf,ParameterNames.MAX_POPULAR_PLACES);
-            probPopularPlaces = doubleConf(conf,ParameterNames.POPULAR_PLACE_RATIO);
-            tagCountryCorrProb = doubleConf(conf,ParameterNames.TAG_UNCORRELATED_COUNTRY);
-            flashmobTagsPerMonth = intConf(conf,ParameterNames.FLASHMOB_TAGS_PER_MONTH);
-            probInterestFlashmobTag = doubleConf(conf,ParameterNames.PROB_INTEREST_FLASHMOB_TAG);
-            probRandomPerLevel = doubleConf(conf,ParameterNames.PROB_RANDOM_PER_LEVEL);
-            maxNumFlashmobPostPerMonth = intConf(conf,ParameterNames.MAX_NUM_FLASHMOB_POST_PER_MONTH);
-            maxNumGroupFlashmobPostPerMonth = intConf(conf,ParameterNames.MAX_NUM_GROUP_FLASHMOB_POST_PER_MONTH);
-            maxNumTagPerFlashmobPost = intConf(conf,ParameterNames.MAX_NUM_TAG_PER_FLASHMOB_POST);
-            flashmobTagMinLevel = doubleConf(conf,ParameterNames.FLASHMOB_TAG_MIN_LEVEL);
-            flashmobTagMaxLevel = doubleConf(conf,ParameterNames.FLASHMOB_TAG_MAX_LEVEL);
-            flashmobTagDistExp = doubleConf(conf,ParameterNames.FLASHMOB_TAG_DIST_EXP);
-            bulkLoadPortion = doubleConf(conf,ParameterNames.BULK_LOAD_PORTION);
-            blockSize = intConf(conf,ParameterNames.BLOCK_SIZE);
+            maxNumFriends = intConf(conf, ParameterNames.MAX_FRIENDS);
+            minNumTagsPerUser = intConf(conf, ParameterNames.USER_MIN_TAGS);
+            maxNumTagsPerUser = intConf(conf, ParameterNames.USER_MAX_TAGS);
+            maxNumPostPerMonth = intConf(conf, ParameterNames.USER_MAX_POST_MONTH);
+            maxNumComments = intConf(conf, ParameterNames.MAX_COMMENT_POST);
+            limitProCorrelated = doubleConf(conf, ParameterNames.LIMIT_CORRELATED);
+            baseProbCorrelated = doubleConf(conf, ParameterNames.BASE_CORRELATED);
+            maxEmails = intConf(conf, ParameterNames.MAX_EMAIL);
+            maxCompanies = intConf(conf, ParameterNames.MAX_EMAIL);
+            probEnglish = doubleConf(conf, ParameterNames.MAX_EMAIL);
+            probSecondLang = doubleConf(conf, ParameterNames.MAX_EMAIL);
+            probAnotherBrowser = doubleConf(conf, ParameterNames.OTHER_BROWSER_RATIO);
+            minTextSize = intConf(conf, ParameterNames.MIN_TEXT_SIZE);
+            maxTextSize = intConf(conf, ParameterNames.MAX_TEXT_SIZE);
+            minCommentSize = intConf(conf, ParameterNames.MIN_COMMENT_SIZE);
+            maxCommentSize = intConf(conf, ParameterNames.MAX_COMMENT_SIZE);
+            ratioReduceText = doubleConf(conf, ParameterNames.REDUCE_TEXT_RATIO);
+            minLargePostSize = intConf(conf, ParameterNames.MIN_LARGE_POST_SIZE);
+            maxLargePostSize = intConf(conf, ParameterNames.MAX_LARGE_POST_SIZE);
+            minLargeCommentSize = intConf(conf, ParameterNames.MIN_LARGE_COMMENT_SIZE);
+            maxLargeCommentSize = intConf(conf, ParameterNames.MAX_LARGE_COMMENT_SIZE);
+            ratioLargePost = doubleConf(conf, ParameterNames.LARGE_POST_RATIO);
+            ratioLargeComment = doubleConf(conf, ParameterNames.LARGE_COMMENT_RATIO);
+            maxNumLike = intConf(conf, ParameterNames.MAX_NUM_LIKE);
+            maxNumPhotoAlbumsPerMonth = intConf(conf, ParameterNames.MAX_PHOTOALBUM);
+            maxNumPhotoPerAlbums = intConf(conf, ParameterNames.MAX_PHOTO_PER_ALBUM);
+            maxNumGroupCreatedPerUser = intConf(conf, ParameterNames.USER_MAX_GROUP);
+            maxGroupSize = intConf(conf, ParameterNames.MAX_GROUP_MEMBERS);
+            groupModeratorProb = doubleConf(conf, ParameterNames.GROUP_MODERATOR_RATIO);
+            maxNumGroupPostPerMonth = intConf(conf, ParameterNames.GROUP_MAX_POST_MONTH);
+            missingRatio = doubleConf(conf, ParameterNames.MISSING_RATIO);
+            probDiffIPinTravelSeason = doubleConf(conf, ParameterNames.DIFFERENT_IP_IN_TRAVEL_RATIO);
+            probDiffIPnotTravelSeason = doubleConf(conf, ParameterNames.DIFFERENT_IP_NOT_TRAVEL_RATIO);
+            probUnCorrelatedCompany = doubleConf(conf, ParameterNames.COMPANY_UNCORRELATED_RATIO);
+            probUnCorrelatedOrganisation = doubleConf(conf, ParameterNames.UNIVERSITY_UNCORRELATED_RATIO);
+            probTopUniv = doubleConf(conf, ParameterNames.BEST_UNIVERSTY_RATIO);
+            maxNumPopularPlaces = intConf(conf, ParameterNames.MAX_POPULAR_PLACES);
+            probPopularPlaces = doubleConf(conf, ParameterNames.POPULAR_PLACE_RATIO);
+            tagCountryCorrProb = doubleConf(conf, ParameterNames.TAG_UNCORRELATED_COUNTRY);
+            flashmobTagsPerMonth = intConf(conf, ParameterNames.FLASHMOB_TAGS_PER_MONTH);
+            probInterestFlashmobTag = doubleConf(conf, ParameterNames.PROB_INTEREST_FLASHMOB_TAG);
+            probRandomPerLevel = doubleConf(conf, ParameterNames.PROB_RANDOM_PER_LEVEL);
+            maxNumFlashmobPostPerMonth = intConf(conf, ParameterNames.MAX_NUM_FLASHMOB_POST_PER_MONTH);
+            maxNumGroupFlashmobPostPerMonth = intConf(conf, ParameterNames.MAX_NUM_GROUP_FLASHMOB_POST_PER_MONTH);
+            maxNumTagPerFlashmobPost = intConf(conf, ParameterNames.MAX_NUM_TAG_PER_FLASHMOB_POST);
+            flashmobTagMinLevel = doubleConf(conf, ParameterNames.FLASHMOB_TAG_MIN_LEVEL);
+            flashmobTagMaxLevel = doubleConf(conf, ParameterNames.FLASHMOB_TAG_MAX_LEVEL);
+            flashmobTagDistExp = doubleConf(conf, ParameterNames.FLASHMOB_TAG_DIST_EXP);
+            bulkLoadPortion = doubleConf(conf, ParameterNames.BULK_LOAD_PORTION);
+            blockSize = intConf(conf, ParameterNames.BLOCK_SIZE);
 
             numPersons = Long.parseLong(conf.get("ldbc.snb.datagen.generator.numPersons"));
             startYear = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.startYear"));
@@ -307,12 +334,17 @@ public class DatagenParams {
             compressed = conf.getBoolean("ldbc.snb.datagen.serializer.compressed", false);
             numThreads = conf.getInt("ldbc.snb.datagen.generator.numThreads", 1);
             numPartitions = conf.getInt("ldbc.snb.datagen.serializer.numPartitions", 1);
-            updateStreams = conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false);
+//            updateStreams = conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false);
             numUpdatePartitions = conf.getInt("ldbc.snb.datagen.serializer.numUpdatePartitions", 1);
             deltaTime = conf.getInt("ldbc.snb.datagen.generator.deltaTime", 10000);
             outputDir = conf.get("ldbc.snb.datagen.serializer.outputDir");
             hadoopDir = outputDir + "/hadoop";
             socialNetworkDir = outputDir + "social_network";
+            dynamicActivitySerializer = conf.get("ldbc.snb.datagen.serializer.dynamicActivitySerializer");
+            dynamicPersonSerializer = conf.get("ldbc.snb.datagen.serializer.dynamicPersonSerializer");
+            staticSerializer = conf.get("ldbc.snb.datagen.serializer.staticSerializer");
+            datagenMode = conf.get("ldbc.snb.datagen.mode");
+
             if (conf.get("ldbc.snb.datagen.generator.gscale") != null) {
                 double scale = conf.getDouble("ldbc.snb.datagen.generator.gscale", 6.0);
                 String degreeDistributionName = conf.get("ldbc.snb.datagen.generator.distribution.degreeDistribution");
@@ -320,6 +352,7 @@ public class DatagenParams {
                 degreeDistribution.initialize(conf);
                 numPersons = findNumPersonsFromGraphalyticsScale(degreeDistribution, scale);
             }
+            System.out.println(" ... Datagen Mode " + datagenMode);
             System.out.println(" ... Num Persons " + numPersons);
             System.out.println(" ... Start Year " + startYear);
             System.out.println(" ... Num Years " + numYears);
@@ -329,6 +362,100 @@ public class DatagenParams {
             throw new RuntimeException(e);
         }
     }
+
+
+    public static DynamicPersonSerializer<HdfsCsvWriter> getDynamicPersonSerializer() {
+
+        DynamicPersonSerializer<HdfsCsvWriter> output;
+        switch (dynamicPersonSerializer) {
+            case "ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CsvBasicDynamicPersonSerializer":
+                output = new CsvBasicDynamicPersonSerializer();
+                break;
+            case "ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CsvMergeForeignDynamicPersonSerializer":
+                output = new CsvMergeForeignDynamicPersonSerializer();
+                break;
+            case "ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CsvCompositeDynamicPersonSerializer":
+                output = new CsvCompositeDynamicPersonSerializer();
+                break;
+            case "ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CsvCompositeMergeForeignDynamicPersonSerializer":
+                output = new CsvCompositeMergeForeignDynamicPersonSerializer();
+                break;
+            default:
+                throw new IllegalStateException("Unexpected person serializer: " + dynamicPersonSerializer);
+        }
+
+        return output;
+    }
+
+    public static DynamicActivitySerializer<HdfsCsvWriter> getDynamicActivitySerializer() {
+
+        DynamicActivitySerializer<HdfsCsvWriter> output;
+        switch (dynamicActivitySerializer) {
+            case "ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvBasicDynamicActivitySerializer":
+                output = new CsvBasicDynamicActivitySerializer();
+                break;
+            case "ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvMergeForeignDynamicActivitySerializer":
+                output = new CsvMergeForeignDynamicActivitySerializer();
+                break;
+            case "ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvCompositeDynamicActivitySerializer":
+                output = new CsvCompositeDynamicActivitySerializer();
+                break;
+            case "ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvCompositeMergeForeignDynamicActivitySerializer":
+                output = new CsvCompositeMergeForeignDynamicActivitySerializer();
+                break;
+            default:
+                throw new IllegalStateException("Unexpected activity serializer: " + dynamicActivitySerializer);
+        }
+
+        return output;
+    }
+
+    public static StaticSerializer<HdfsCsvWriter> getStaticSerializer() {
+
+        StaticSerializer<HdfsCsvWriter> output;
+        switch (staticSerializer) {
+            case "ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvBasicStaticSerializer":
+                output = new CsvBasicStaticSerializer();
+                break;
+            case "ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvCompositeStaticSerializer":
+                output = new CsvCompositeStaticSerializer();
+                break;
+            case "ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvCompositeMergeForeignStaticSerializer":
+                output = new CsvCompositeMergeForeignStaticSerializer();
+                break;
+            case "ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvMergeForeignStaticSerializer":
+                output = new CsvMergeForeignStaticSerializer();
+                break;
+            default:
+                throw new IllegalStateException("Unexpected static serializer: " + staticSerializer);
+        }
+
+        return output;
+    }
+
+    public static DatagenMode getDatagenMode() {
+
+        DatagenMode mode;
+        switch (datagenMode) {
+            case "interactive":
+                mode = INTERACTIVE;
+                break;
+            case "bi":
+                mode = BI;
+                break;
+            case "graphalytics":
+                mode = GRAPHALYTICS;
+                break;
+            case "rawdata":
+                mode = RAW_DATA;
+                break;
+            default:
+                throw new IllegalStateException("Unexpected datagen mode: " + datagenMode);
+        }
+
+        return mode;
+    }
+
 
     private static double scale(long numPersons, double mean) {
         return Math.log10(mean * numPersons / 2 + numPersons);

@@ -45,6 +45,7 @@ import ldbc.snb.datagen.hadoop.miscjob.HadoopMergeFriendshipFiles;
 import ldbc.snb.datagen.hadoop.serializer.*;
 import ldbc.snb.datagen.hadoop.sorting.HadoopCreationTimeSorter;
 import ldbc.snb.datagen.hadoop.sorting.HadoopDeletionTimeSorter;
+import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
 import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
@@ -62,6 +63,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+
+import static ldbc.snb.datagen.DatagenMode.*;
+import static ldbc.snb.datagen.DatagenMode.RAW_DATA;
 
 public class LdbcDatagen {
     private static boolean initialized = false;
@@ -125,10 +129,11 @@ public class LdbcDatagen {
         if (conf.getBoolean("ldbc.snb.datagen.serializer.persons.sort", true)) {
             // set true in config parser
             new HadoopPersonSortAndSerializer(conf).run(hadoopPrefix + "/mergedPersons");
-        } else {
-            // TODO: check if this is ever needed
-            new HadoopPersonSerializer(conf).run(hadoopPrefix + "/mergedPersons");
         }
+        // TODO: check if this is ever needed
+//        else {
+//            new HadoopPersonSerializer(conf).run(hadoopPrefix + "/mergedPersons");
+//        }
 
         return (System.currentTimeMillis() - startPersonSerializing);
     }
@@ -139,7 +144,7 @@ public class LdbcDatagen {
 
     private long personActivityJob(String hadoopPrefix, Configuration conf, FileSystem fs) throws Exception {
         long startPersonActivity = System.currentTimeMillis();
-        if (conf.getBoolean("ldbc.snb.datagen.generator.activity", true)) {
+        if (!conf.get("ldbc.snb.datagen.mode").equals("graphalytics")) {
             printProgress("Generating and serializing person activity");
             HadoopPersonActivityGenerator activityGenerator = new HadoopPersonActivityGenerator(conf);
             activityGenerator.run(hadoopPrefix + "/mergedPersons");
@@ -154,7 +159,7 @@ public class LdbcDatagen {
         return (System.currentTimeMillis() - startPersonActivity);
     }
 
-    private long serializeStaticGraph(Configuration conf) throws Exception {
+    private long serializeStaticGraph(Configuration conf) {
         printProgress("Serializing static graph ");
         long startInvariantSerializing = System.currentTimeMillis();
         HadoopStaticSerializer staticSerializer = new HadoopStaticSerializer(conf);
@@ -264,8 +269,9 @@ public class LdbcDatagen {
         FileSystem.get(conf).mkdirs(new Path(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted/creation"));
         FileSystem.get(conf).mkdirs(new Path(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted/deletion"));
 
-        DynamicActivitySerializer dynamicActivitySerializer = (DynamicActivitySerializer) Class.forName(conf.get("ldbc.snb.datagen.serializer.dynamicActivitySerializer")).getDeclaredConstructor().newInstance();
-        DynamicPersonSerializer dynamicPersonSerializer = (DynamicPersonSerializer) Class.forName(conf.get("ldbc.snb.datagen.serializer.dynamicPersonSerializer")).getDeclaredConstructor().newInstance();
+        DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer = DatagenParams.getDynamicActivitySerializer();
+        DynamicPersonSerializer<HdfsCsvWriter> dynamicPersonSerializer = DatagenParams.getDynamicPersonSerializer();
+
 
         List<FileName> filenames = Lists.newArrayList();
         filenames.addAll(dynamicActivitySerializer.getFileNames());
@@ -446,25 +452,27 @@ public class LdbcDatagen {
         LdbcDatagen datagen = new LdbcDatagen();
         datagen.runGenerateJob(conf);
 
-
         // sorting update streams - needed to actual produce the streams in social_network/
-        if (conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
+//        if (conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
+        if (conf.get("ldbc.snb.datagen.mode").equals("interactive")) {
+
             datagen.runSortInsertStream(conf);
             datagen.runSortDeleteStream(conf);
-        }
-
-        //are we generating paramerters
-        if (conf.getBoolean("ldbc.snb.datagen.parametergenerator.parameters", false) &&
-                conf.getBoolean("ldbc.snb.datagen.generator.activity", false)) {
             datagen.generateInteractiveParameters(conf);
-            datagen.generateBIParameters(conf);
+
         }
 
         // [JACK] this sort should merge all insert/delete streams, sort by event time then divide into a specified
         // number of refresh data sets
-        if (conf.getBoolean("ldbc.snb.datagen.runsort", false)) {
+        if (conf.get("ldbc.snb.datagen.mode").equals("bi")) {
+            // TODO: functionality can be merged in places
+            datagen.generateBIParameters(conf);
+            datagen.runSortInsertStream(conf);
+            datagen.runSortDeleteStream(conf);
             datagen.runBiSortJob(conf);
+
         }
+
 
     }
 

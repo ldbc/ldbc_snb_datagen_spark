@@ -1,5 +1,7 @@
 package ldbc.snb.datagen.test;
 
+import ldbc.snb.datagen.DatagenMode;
+import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.LdbcDatagen;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.test.csv.ColumnSet;
@@ -19,6 +21,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.beans.BeanInfo;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,20 +32,20 @@ public class LdbcDatagenTest {
 
     private final String dataDir = "./test_data/social_network";
 
-//    @BeforeClass
-//    public static void generateData() throws Exception {
-//        Configuration conf = ConfigParser.initialize();
-//        ConfigParser.readConfig(conf, "./test_params.ini");
-//        ConfigParser.readConfig(conf, LdbcDatagen.class.getResourceAsStream("/params_default.ini"));
-//        LdbcDatagen.prepareConfiguration(conf);
-//        LdbcDatagen.initializeContext(conf);
-//        LdbcDatagen datagen = new LdbcDatagen();
-//        datagen.runGenerateJob(conf);
-//        if (conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
-//            datagen.runSortInsertStream(conf);
-//            datagen.runSortDeleteStream(conf);
-//        }
-//    }
+    @BeforeClass
+    public static void generateData() throws Exception {
+        Configuration conf = ConfigParser.initialize();
+        ConfigParser.readConfig(conf, "./test_params.ini");
+        ConfigParser.readConfig(conf, LdbcDatagen.class.getResourceAsStream("/params_default.ini"));
+        LdbcDatagen.prepareConfiguration(conf);
+        LdbcDatagen.initializeContext(conf);
+        LdbcDatagen datagen = new LdbcDatagen();
+        datagen.runGenerateJob(conf);
+        if (DatagenParams.getDatagenMode() == DatagenMode.BI || DatagenParams.getDatagenMode() == DatagenMode.INTERACTIVE) {
+            datagen.runSortInsertStream(conf);
+            datagen.runSortDeleteStream(conf);
+        }
+    }
 
     @Test
     public void personTest() {

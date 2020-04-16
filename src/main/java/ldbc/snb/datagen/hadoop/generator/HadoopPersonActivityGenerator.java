@@ -35,6 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop.generator;
 
+import ldbc.snb.datagen.DatagenMode;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.LdbcDatagen;
 import ldbc.snb.datagen.dictionary.Dictionaries;
@@ -48,6 +49,7 @@ import ldbc.snb.datagen.hadoop.key.blockkey.BlockKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyComparator;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyGroupComparator;
 import ldbc.snb.datagen.hadoop.miscjob.HadoopFileRanker;
+import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
 import ldbc.snb.datagen.serializer.DeleteEventSerializer;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
 import ldbc.snb.datagen.serializer.InsertEventSerializer;
@@ -77,7 +79,7 @@ public class HadoopPersonActivityGenerator {
         /**
          * The id of the reducer.
          **/
-        private DynamicActivitySerializer dynamicActivitySerializer;
+        private DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer;
         private PersonActivityGenerator personActivityGenerator;
         private InsertEventSerializer insertEventSerializer;
         private DeleteEventSerializer deleteEventSerializer;
@@ -91,13 +93,12 @@ public class HadoopPersonActivityGenerator {
             int reducerId = context.getTaskAttemptID().getTaskID().getId();
             LdbcDatagen.initializeContext(conf);
             try {
-                dynamicActivitySerializer = (DynamicActivitySerializer) Class
-                        .forName(conf.get("ldbc.snb.datagen.serializer.dynamicActivitySerializer")).newInstance();
+
+                dynamicActivitySerializer = DatagenParams.getDynamicActivitySerializer();
                 dynamicActivitySerializer.initialize(conf, reducerId);
-                if (DatagenParams.updateStreams) {
+                if (DatagenParams.getDatagenMode() != DatagenMode.RAW_DATA) {
                     insertEventSerializer = new InsertEventSerializer(conf, DatagenParams.hadoopDir + "/temp_insertStream_forum_" + reducerId, reducerId, DatagenParams.numUpdatePartitions);
                     deleteEventSerializer = new DeleteEventSerializer(conf, DatagenParams.hadoopDir + "/temp_deleteStream_forum_" + reducerId, reducerId, DatagenParams.numUpdatePartitions);
-
                 }
                 personActivityGenerator = new PersonActivityGenerator(dynamicActivitySerializer, insertEventSerializer, deleteEventSerializer);
 
@@ -158,7 +159,7 @@ public class HadoopPersonActivityGenerator {
                 throw new RuntimeException(e);
             }
             dynamicActivitySerializer.close();
-            if (DatagenParams.updateStreams) {
+            if (DatagenParams.getDatagenMode() != DatagenMode.RAW_DATA) {
                 try {
                     insertEventSerializer.close();
                     deleteEventSerializer.close();
