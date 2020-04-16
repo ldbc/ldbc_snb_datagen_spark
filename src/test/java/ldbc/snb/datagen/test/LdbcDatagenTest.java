@@ -189,14 +189,14 @@ public class LdbcDatagenTest {
         assertTrue("Everything ok", true);
     }
 
-    @Test
-    public void forumHasModeratorPersonCheck() {
-        testPairUniquenessPlusExistence(
-                dataDir + "/dynamic/forum_hasModerator_person_0_0.csv", 1, 2,
-                dataDir + "/dynamic/forum_0_0.csv", 1,
-                dataDir + "/dynamic/person_0_0.csv", 1);
-        assertTrue("Everything ok", true);
-    }
+//    @Test
+//    public void forumHasModeratorPersonCheck() {
+//        testPairUniquenessPlusExistence(
+//                dataDir + "/dynamic/forum_hasModerator_person_0_0.csv", 1, 2,
+//                dataDir + "/dynamic/forum_0_0.csv", 1,
+//                dataDir + "/dynamic/person_0_0.csv", 1);
+//        assertTrue("Everything ok", true);
+//    }
 
     @Test
     public void forumHasMemberPersonCheck() {
@@ -306,134 +306,134 @@ public class LdbcDatagenTest {
         assertTrue("Everything ok", true);
     }
 
-    @Test
-    public void queryParamsTest() {
-        //Creating person id check
-        LongParser parser = new LongParser();
-        ColumnSet<Long> persons = new ColumnSet<>(parser, new File(dataDir + "/dynamic/person_0_0.csv"), 2, 1);
-        List<ColumnSet<Long>> personsRef = new ArrayList<>();
-        personsRef.add(persons);
-        List<Integer> personIndex = new ArrayList<>();
-        personIndex.add(0);
-        ExistsCheck<Long> existsPersonCheck = new ExistsCheck<>(parser, personIndex, personsRef);
-
-        //Creating name check
-        StringParser strParser = new StringParser();
-        ColumnSet<String> names = new ColumnSet<>(strParser, new File(dataDir + "/dynamic/person_0_0.csv"), 3, 1);
-        List<ColumnSet<String>> namesRef = new ArrayList<>();
-        namesRef.add(names);
-        List<Integer> namesIndex = new ArrayList<>();
-        namesIndex.add(1);
-        ExistsCheck<String> existsNameCheck = new ExistsCheck<>(strParser, namesIndex, namesRef);
-
-
-        String subParamsDir = "./test_data/substitution_parameters";
-        FileChecker fileChecker = new FileChecker(subParamsDir + "/interactive_1_param.txt");
-        fileChecker.addCheck(existsPersonCheck);
-        fileChecker.addCheck(existsNameCheck);
-        assertTrue("ERROR PASSING TEST QUERY 1 PERSON AND NAME EXISTS ", fileChecker.run(1));
-
-        //Creating date interval check
-        fileChecker = new FileChecker(subParamsDir + "/interactive_2_param.txt");
-        fileChecker.addCheck(existsPersonCheck);
-        assertTrue("ERROR PASSING TEST QUERY 2 PERSON EXISTS ", fileChecker.run(1));
-        testLongGE(subParamsDir + "/interactive_2_param.txt", 1, Dictionaries.dates.getSimulationStart());
-
-        //Creating country check
-        ColumnSet<String> places = new ColumnSet<>(strParser, new File(dataDir + "/static/place_0_0.csv"), 1, 1);
-        List<ColumnSet<String>> placesRef = new ArrayList<>();
-        placesRef.add(places);
-        List<Integer> countriesIndex = new ArrayList<>();
-        countriesIndex.add(3);
-        countriesIndex.add(4);
-        ExistsCheck<String> countryExists = new ExistsCheck<>(strParser, countriesIndex, placesRef);
-
-        //Date duration check
-        //DateDurationCheck dateDurationCheck = new DateDurationCheck("Date duration check",1,2,Dictionaries.dates
-        //       .getStartDateTime(), Dictionaries.dates.getEndDateTime());
-
-        fileChecker = new FileChecker(subParamsDir + "/interactive_3_param.txt");
-        fileChecker.addCheck(existsPersonCheck);
-        fileChecker.addCheck(countryExists);
-        assertTrue("ERROR PASSING TEST QUERY 3 PERSON EXISTS ", fileChecker.run(1));
-        testLongGE(subParamsDir + "/interactive_3_param.txt", 1, Dictionaries.dates.getSimulationStart());
-
-        fileChecker = new FileChecker(subParamsDir + "/interactive_4_param.txt");
-        fileChecker.addCheck(existsPersonCheck);
-        assertTrue("ERROR PASSING TEST QUERY 4 PERSON EXISTS ", fileChecker.run(1));
-        testLongGE(subParamsDir + "/interactive_4_param.txt", 1, Dictionaries.dates.getSimulationStart());
-
-        fileChecker = new FileChecker(subParamsDir + "/interactive_5_param.txt");
-        fileChecker.addCheck(existsPersonCheck);
-        assertTrue("ERROR PASSING TEST QUERY 5 PERSON EXISTS ", fileChecker.run(1));
-        testLongGE(subParamsDir + "/interactive_5_param.txt", 1, Dictionaries.dates.getSimulationStart());
-
-        //Creating tag check
-        ColumnSet<String> tags = new ColumnSet<>(strParser, new File(dataDir + "/static/tag_0_0.csv"), 1, 1);
-        List<ColumnSet<String>> tagsRef = new ArrayList<>();
-        tagsRef.add(tags);
-        List<Integer> tagsIndex = new ArrayList<>();
-        tagsIndex.add(1);
-        ExistsCheck<String> tagExists = new ExistsCheck<>(strParser, tagsIndex, tagsRef);
-
-        fileChecker = new FileChecker(subParamsDir + "/interactive_6_param.txt");
-        fileChecker.addCheck(existsPersonCheck);
-        fileChecker.addCheck(tagExists);
-        assertTrue("ERROR PASSING TEST QUERY 6 PERSON EXISTS ", fileChecker.run(1));
-
-        fileChecker = new FileChecker(subParamsDir + "/interactive_7_param.txt");
-        fileChecker.addCheck(existsPersonCheck);
-        assertTrue("ERROR PASSING TEST QUERY 7 PERSON EXISTS ", fileChecker.run(1));
-
-        fileChecker = new FileChecker(subParamsDir + "/interactive_8_param.txt");
-        fileChecker.addCheck(existsPersonCheck);
-        assertTrue("ERROR PASSING TEST QUERY 8 PERSON EXISTS ", fileChecker.run(1));
-
-        fileChecker = new FileChecker(subParamsDir + "/interactive_9_param.txt");
-        fileChecker.addCheck(existsPersonCheck);
-        assertTrue("ERROR PASSING TEST QUERY 9 PERSON EXISTS ", fileChecker.run(1));
-        testLongGE(subParamsDir + "/interactive_9_param.txt", 1, Dictionaries.dates.getSimulationStart());
-
-        fileChecker = new FileChecker(subParamsDir + "/interactive_10_param.txt");
-        fileChecker.addCheck(existsPersonCheck);
-        assertTrue("ERROR PASSING TEST QUERY 10 PERSON EXISTS ", fileChecker.run(1));
-        testLongBetween(subParamsDir + "/interactive_10_param.txt", 1, 1, 13);
-
-        //Creating country check
-        countriesIndex.clear();
-        countriesIndex.add(1);
-        countryExists = new ExistsCheck<>(strParser, countriesIndex, placesRef);
-
-        fileChecker = new FileChecker(subParamsDir + "/interactive_11_param.txt");
-        fileChecker.addCheck(existsPersonCheck);
-        fileChecker.addCheck(countryExists);
-        assertTrue("ERROR PASSING TEST QUERY 11 PERSON EXISTS ", fileChecker.run(1));
-
-        //Creating tagClass check
-        ColumnSet<String> tagClass = new ColumnSet<>(strParser, new File(dataDir + "/static/tagclass_0_0.csv"), 1, 1);
-        List<ColumnSet<String>> tagClassRef = new ArrayList<>();
-        tagClassRef.add(tagClass);
-        List<Integer> tagClassIndex = new ArrayList<>();
-        tagClassIndex.add(1);
-        ExistsCheck<String> tagClassExists = new ExistsCheck<>(strParser, tagClassIndex, tagClassRef);
-
-        fileChecker = new FileChecker(subParamsDir + "/interactive_12_param.txt");
-        fileChecker.addCheck(existsPersonCheck);
-        fileChecker.addCheck(tagClassExists);
-        assertTrue("ERROR PASSING TEST QUERY 12 PERSON EXISTS ", fileChecker.run(1));
-
-        personIndex.add(1);
-        ExistsCheck<Long> exists2PersonCheck = new ExistsCheck<>(parser, personIndex, personsRef);
-
-        fileChecker = new FileChecker(subParamsDir + "/interactive_13_param.txt");
-        fileChecker.addCheck(exists2PersonCheck);
-        assertTrue("ERROR PASSING TEST QUERY 13 PERSON EXISTS ", fileChecker.run(1));
-
-        fileChecker = new FileChecker(subParamsDir + "/interactive_14_param.txt");
-        fileChecker.addCheck(exists2PersonCheck);
-        assertTrue("ERROR PASSING TEST QUERY 14 PERSON EXISTS ", fileChecker.run(1));
-
-    }
+//    @Test
+//    public void queryParamsTest() {
+//        //Creating person id check
+//        LongParser parser = new LongParser();
+//        ColumnSet<Long> persons = new ColumnSet<>(parser, new File(dataDir + "/dynamic/person_0_0.csv"), 2, 1);
+//        List<ColumnSet<Long>> personsRef = new ArrayList<>();
+//        personsRef.add(persons);
+//        List<Integer> personIndex = new ArrayList<>();
+//        personIndex.add(0);
+//        ExistsCheck<Long> existsPersonCheck = new ExistsCheck<>(parser, personIndex, personsRef);
+//
+//        //Creating name check
+//        StringParser strParser = new StringParser();
+//        ColumnSet<String> names = new ColumnSet<>(strParser, new File(dataDir + "/dynamic/person_0_0.csv"), 3, 1);
+//        List<ColumnSet<String>> namesRef = new ArrayList<>();
+//        namesRef.add(names);
+//        List<Integer> namesIndex = new ArrayList<>();
+//        namesIndex.add(1);
+//        ExistsCheck<String> existsNameCheck = new ExistsCheck<>(strParser, namesIndex, namesRef);
+//
+//
+//        String subParamsDir = "./test_data/substitution_parameters";
+//        FileChecker fileChecker = new FileChecker(subParamsDir + "/interactive_1_param.txt");
+//        fileChecker.addCheck(existsPersonCheck);
+//        fileChecker.addCheck(existsNameCheck);
+//        assertTrue("ERROR PASSING TEST QUERY 1 PERSON AND NAME EXISTS ", fileChecker.run(1));
+//
+//        //Creating date interval check
+//        fileChecker = new FileChecker(subParamsDir + "/interactive_2_param.txt");
+//        fileChecker.addCheck(existsPersonCheck);
+//        assertTrue("ERROR PASSING TEST QUERY 2 PERSON EXISTS ", fileChecker.run(1));
+//        testLongGE(subParamsDir + "/interactive_2_param.txt", 1, Dictionaries.dates.getSimulationStart());
+//
+//        //Creating country check
+//        ColumnSet<String> places = new ColumnSet<>(strParser, new File(dataDir + "/static/place_0_0.csv"), 1, 1);
+//        List<ColumnSet<String>> placesRef = new ArrayList<>();
+//        placesRef.add(places);
+//        List<Integer> countriesIndex = new ArrayList<>();
+//        countriesIndex.add(3);
+//        countriesIndex.add(4);
+//        ExistsCheck<String> countryExists = new ExistsCheck<>(strParser, countriesIndex, placesRef);
+//
+//        //Date duration check
+//        //DateDurationCheck dateDurationCheck = new DateDurationCheck("Date duration check",1,2,Dictionaries.dates
+//        //       .getStartDateTime(), Dictionaries.dates.getEndDateTime());
+//
+//        fileChecker = new FileChecker(subParamsDir + "/interactive_3_param.txt");
+//        fileChecker.addCheck(existsPersonCheck);
+//        fileChecker.addCheck(countryExists);
+//        assertTrue("ERROR PASSING TEST QUERY 3 PERSON EXISTS ", fileChecker.run(1));
+//        testLongGE(subParamsDir + "/interactive_3_param.txt", 1, Dictionaries.dates.getSimulationStart());
+//
+//        fileChecker = new FileChecker(subParamsDir + "/interactive_4_param.txt");
+//        fileChecker.addCheck(existsPersonCheck);
+//        assertTrue("ERROR PASSING TEST QUERY 4 PERSON EXISTS ", fileChecker.run(1));
+//        testLongGE(subParamsDir + "/interactive_4_param.txt", 1, Dictionaries.dates.getSimulationStart());
+//
+//        fileChecker = new FileChecker(subParamsDir + "/interactive_5_param.txt");
+//        fileChecker.addCheck(existsPersonCheck);
+//        assertTrue("ERROR PASSING TEST QUERY 5 PERSON EXISTS ", fileChecker.run(1));
+//        testLongGE(subParamsDir + "/interactive_5_param.txt", 1, Dictionaries.dates.getSimulationStart());
+//
+//        //Creating tag check
+//        ColumnSet<String> tags = new ColumnSet<>(strParser, new File(dataDir + "/static/tag_0_0.csv"), 1, 1);
+//        List<ColumnSet<String>> tagsRef = new ArrayList<>();
+//        tagsRef.add(tags);
+//        List<Integer> tagsIndex = new ArrayList<>();
+//        tagsIndex.add(1);
+//        ExistsCheck<String> tagExists = new ExistsCheck<>(strParser, tagsIndex, tagsRef);
+//
+//        fileChecker = new FileChecker(subParamsDir + "/interactive_6_param.txt");
+//        fileChecker.addCheck(existsPersonCheck);
+//        fileChecker.addCheck(tagExists);
+//        assertTrue("ERROR PASSING TEST QUERY 6 PERSON EXISTS ", fileChecker.run(1));
+//
+//        fileChecker = new FileChecker(subParamsDir + "/interactive_7_param.txt");
+//        fileChecker.addCheck(existsPersonCheck);
+//        assertTrue("ERROR PASSING TEST QUERY 7 PERSON EXISTS ", fileChecker.run(1));
+//
+//        fileChecker = new FileChecker(subParamsDir + "/interactive_8_param.txt");
+//        fileChecker.addCheck(existsPersonCheck);
+//        assertTrue("ERROR PASSING TEST QUERY 8 PERSON EXISTS ", fileChecker.run(1));
+//
+//        fileChecker = new FileChecker(subParamsDir + "/interactive_9_param.txt");
+//        fileChecker.addCheck(existsPersonCheck);
+//        assertTrue("ERROR PASSING TEST QUERY 9 PERSON EXISTS ", fileChecker.run(1));
+//        testLongGE(subParamsDir + "/interactive_9_param.txt", 1, Dictionaries.dates.getSimulationStart());
+//
+//        fileChecker = new FileChecker(subParamsDir + "/interactive_10_param.txt");
+//        fileChecker.addCheck(existsPersonCheck);
+//        assertTrue("ERROR PASSING TEST QUERY 10 PERSON EXISTS ", fileChecker.run(1));
+//        testLongBetween(subParamsDir + "/interactive_10_param.txt", 1, 1, 13);
+//
+//        //Creating country check
+//        countriesIndex.clear();
+//        countriesIndex.add(1);
+//        countryExists = new ExistsCheck<>(strParser, countriesIndex, placesRef);
+//
+//        fileChecker = new FileChecker(subParamsDir + "/interactive_11_param.txt");
+//        fileChecker.addCheck(existsPersonCheck);
+//        fileChecker.addCheck(countryExists);
+//        assertTrue("ERROR PASSING TEST QUERY 11 PERSON EXISTS ", fileChecker.run(1));
+//
+//        //Creating tagClass check
+//        ColumnSet<String> tagClass = new ColumnSet<>(strParser, new File(dataDir + "/static/tagclass_0_0.csv"), 1, 1);
+//        List<ColumnSet<String>> tagClassRef = new ArrayList<>();
+//        tagClassRef.add(tagClass);
+//        List<Integer> tagClassIndex = new ArrayList<>();
+//        tagClassIndex.add(1);
+//        ExistsCheck<String> tagClassExists = new ExistsCheck<>(strParser, tagClassIndex, tagClassRef);
+//
+//        fileChecker = new FileChecker(subParamsDir + "/interactive_12_param.txt");
+//        fileChecker.addCheck(existsPersonCheck);
+//        fileChecker.addCheck(tagClassExists);
+//        assertTrue("ERROR PASSING TEST QUERY 12 PERSON EXISTS ", fileChecker.run(1));
+//
+//        personIndex.add(1);
+//        ExistsCheck<Long> exists2PersonCheck = new ExistsCheck<>(parser, personIndex, personsRef);
+//
+//        fileChecker = new FileChecker(subParamsDir + "/interactive_13_param.txt");
+//        fileChecker.addCheck(exists2PersonCheck);
+//        assertTrue("ERROR PASSING TEST QUERY 13 PERSON EXISTS ", fileChecker.run(1));
+//
+//        fileChecker = new FileChecker(subParamsDir + "/interactive_14_param.txt");
+//        fileChecker.addCheck(exists2PersonCheck);
+//        assertTrue("ERROR PASSING TEST QUERY 14 PERSON EXISTS ", fileChecker.run(1));
+//
+//    }
 
     public void testLongPair(String fileName, Integer columnA, Integer columnB, NumericPairCheck.NumericCheckType type, long offsetA, long offsetB) {
         FileChecker fileChecker = new FileChecker(fileName);
