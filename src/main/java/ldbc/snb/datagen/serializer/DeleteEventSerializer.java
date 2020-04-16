@@ -1,5 +1,6 @@
 package ldbc.snb.datagen.serializer;
 
+import ldbc.snb.datagen.DatagenMode;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.Forum;
@@ -157,7 +158,7 @@ public class DeleteEventSerializer {
                 streamWriter[i].close();
             }
 
-            if (DatagenParams.updateStreams) {
+            if (DatagenParams.getDatagenMode() == DatagenMode.INTERACTIVE || DatagenParams.getDatagenMode() == DatagenMode.BI) {
                 OutputStream output = fs.create(new Path(fileNamePrefix + ".properties"), true);
                 output.write(("ldbc.snb.interactive.delete.gct_delta_duration:" + DatagenParams.deltaTime + "\n")
                         .getBytes());

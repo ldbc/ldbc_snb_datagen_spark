@@ -193,6 +193,7 @@ public class FlashmobPostGenerator extends PostGenerator {
         // add deletion date
         long postDeletionDate;
         if (randomDeletePost.nextDouble() < probPostDeleted) {
+            postCore.setExplicitlyDeleted(true);
             long minDeletionDate = creationDate + DatagenParams.deltaTime;
             long maxDeletionDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
             if (maxDeletionDate - minDeletionDate < 0) {
@@ -200,7 +201,8 @@ public class FlashmobPostGenerator extends PostGenerator {
             }
             postDeletionDate = Dictionaries.dates.randomDate(randomDate, minDeletionDate, maxDeletionDate);
         } else {
-            postDeletionDate = Dictionaries.dates.getNetworkCollapse();
+            postCore.setExplicitlyDeleted(false);
+            postDeletionDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
         }
         postCore.setDeletionDate(postDeletionDate);
 

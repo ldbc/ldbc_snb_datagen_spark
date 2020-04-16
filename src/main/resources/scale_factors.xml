@@ -188,14 +188,14 @@
             <name>ldbc.snb.datagen.generator.distribution.degreeDistribution</name>
             <value>ldbc.snb.datagen.generator.distribution.FacebookDegreeDistribution</value>
         </property>
-        <property>
-            <name>ldbc.snb.datagen.generator.activity</name>
-            <value>false</value>
-        </property>
-        <property>
-            <name>ldbc.snb.datagen.serializer.updateStreams</name>
-            <value>false</value>
-        </property>
+<!--        <property>-->
+<!--            <name>ldbc.snb.datagen.generator.activity</name>-->
+<!--            <value>false</value>-->
+<!--        </property>-->
+<!--        <property>-->
+<!--            <name>ldbc.snb.datagen.serializer.updateStreams</name>-->
+<!--            <value>false</value>-->
+<!--        </property>-->
     </scale_factor>
 
     <scale_factor name="graphalytics.3" >
@@ -215,14 +215,14 @@
             <name>ldbc.snb.datagen.generator.distribution.degreeDistribution</name>
             <value>ldbc.snb.datagen.generator.distribution.FacebookDegreeDistribution</value>
         </property>
-        <property>
-            <name>ldbc.snb.datagen.generator.activity</name>
-            <value>false</value>
-        </property>
-        <property>
-            <name>ldbc.snb.datagen.serializer.updateStreams</name>
-            <value>false</value>
-        </property>
+<!--        <property>-->
+<!--            <name>ldbc.snb.datagen.generator.activity</name>-->
+<!--            <value>false</value>-->
+<!--        </property>-->
+<!--        <property>-->
+<!--            <name>ldbc.snb.datagen.serializer.updateStreams</name>-->
+<!--            <value>false</value>-->
+<!--        </property>-->
     </scale_factor>
 
     <scale_factor name="graphalytics.10" >
@@ -242,14 +242,14 @@
             <name>ldbc.snb.datagen.generator.distribution.degreeDistribution</name>
             <value>ldbc.snb.datagen.generator.distribution.FacebookDegreeDistribution</value>
         </property>
-        <property>
-            <name>ldbc.snb.datagen.generator.activity</name>
-            <value>false</value>
-        </property>
-        <property>
-            <name>ldbc.snb.datagen.serializer.updateStreams</name>
-            <value>false</value>
-        </property>
+<!--        <property>-->
+<!--            <name>ldbc.snb.datagen.generator.activity</name>-->
+<!--            <value>false</value>-->
+<!--        </property>-->
+<!--        <property>-->
+<!--            <name>ldbc.snb.datagen.serializer.updateStreams</name>-->
+<!--            <value>false</value>-->
+<!--        </property>-->
     </scale_factor>
 
     <scale_factor name="graphalytics.30" >
@@ -269,14 +269,14 @@
             <name>ldbc.snb.datagen.generator.distribution.degreeDistribution</name>
             <value>ldbc.snb.datagen.generator.distribution.FacebookDegreeDistribution</value>
         </property>
-        <property>
-            <name>ldbc.snb.datagen.generator.activity</name>
-            <value>false</value>
-        </property>
-        <property>
-            <name>ldbc.snb.datagen.serializer.updateStreams</name>
-            <value>false</value>
-        </property>
+<!--        <property>-->
+<!--            <name>ldbc.snb.datagen.generator.activity</name>-->
+<!--            <value>false</value>-->
+<!--        </property>-->
+<!--        <property>-->
+<!--            <name>ldbc.snb.datagen.serializer.updateStreams</name>-->
+<!--            <value>false</value>-->
+<!--        </property>-->
     </scale_factor>
 
     <scale_factor name="graphalytics.100" >
@@ -296,14 +296,14 @@
             <name>ldbc.snb.datagen.generator.distribution.degreeDistribution</name>
             <value>ldbc.snb.datagen.generator.distribution.FacebookDegreeDistribution</value>
         </property>
-        <property>
-            <name>ldbc.snb.datagen.generator.activity</name>
-            <value>false</value>
-        </property>
-        <property>
-            <name>ldbc.snb.datagen.serializer.updateStreams</name>
-            <value>false</value>
-        </property>
+<!--        <property>-->
+<!--            <name>ldbc.snb.datagen.generator.activity</name>-->
+<!--            <value>false</value>-->
+<!--        </property>-->
+<!--        <property>-->
+<!--            <name>ldbc.snb.datagen.serializer.updateStreams</name>-->
+<!--            <value>false</value>-->
+<!--        </property>-->
     </scale_factor>
 
     <scale_factor name="graphalytics.300" >
@@ -323,14 +323,14 @@
             <name>ldbc.snb.datagen.generator.distribution.degreeDistribution</name>
             <value>ldbc.snb.datagen.generator.distribution.FacebookDegreeDistribution</value>
         </property>
-        <property>
-            <name>ldbc.snb.datagen.generator.activity</name>
-            <value>false</value>
-        </property>
-        <property>
-            <name>ldbc.snb.datagen.serializer.updateStreams</name>
-            <value>false</value>
-        </property>
+<!--        <property>-->
+<!--            <name>ldbc.snb.datagen.generator.activity</name>-->
+<!--            <value>false</value>-->
+<!--        </property>-->
+<!--        <property>-->
+<!--            <name>ldbc.snb.datagen.serializer.updateStreams</name>-->
+<!--            <value>false</value>-->
+<!--        </property>-->
     </scale_factor>
 
     <scale_factor name="graphalytics.1000" >
@@ -350,14 +350,14 @@
             <name>ldbc.snb.datagen.generator.distribution.degreeDistribution</name>
             <value>ldbc.snb.datagen.generator.distribution.FacebookDegreeDistribution</value>
         </property>
-        <property>
-            <name>ldbc.snb.datagen.generator.activity</name>
-            <value>false</value>
-        </property>
-        <property>
-            <name>ldbc.snb.datagen.serializer.updateStreams</name>
-            <value>false</value>
-        </property>
+<!--        <property>-->
+<!--            <name>ldbc.snb.datagen.generator.activity</name>-->
+<!--            <value>false</value>-->
+<!--        </property>-->
+<!--        <property>-->
+<!--            <name>ldbc.snb.datagen.serializer.updateStreams</name>-->
+<!--            <value>false</value>-->
+<!--        </property>-->
     </scale_factor>
 
     <scale_factor name="graphalytics.3000" >
@@ -377,14 +377,14 @@
             <name>ldbc.snb.datagen.generator.distribution.degreeDistribution</name>
             <value>ldbc.snb.datagen.generator.distribution.FacebookDegreeDistribution</value>
         </property>
-        <property>
-            <name>ldbc.snb.datagen.generator.activity</name>
-            <value>false</value>
-        </property>
-        <property>
-            <name>ldbc.snb.datagen.serializer.updateStreams</name>
-            <value>false</value>
-        </property>
+<!--        <property>-->
+<!--            <name>ldbc.snb.datagen.generator.activity</name>-->
+<!--            <value>false</value>-->
+<!--        </property>-->
+<!--        <property>-->
+<!--            <name>ldbc.snb.datagen.serializer.updateStreams</name>-->
+<!--            <value>false</value>-->
+<!--        </property>-->
     </scale_factor>
     <scale_factor name="graphalytics.10000" >
         <property>
@@ -403,14 +403,14 @@
             <name>ldbc.snb.datagen.generator.distribution.degreeDistribution</name>
             <value>ldbc.snb.datagen.generator.distribution.FacebookDegreeDistribution</value>
         </property>
-        <property>
-            <name>ldbc.snb.datagen.generator.activity</name>
-            <value>false</value>
-        </property>
-        <property>
-            <name>ldbc.snb.datagen.serializer.updateStreams</name>
-            <value>false</value>
-        </property>
+<!--        <property>-->
+<!--            <name>ldbc.snb.datagen.generator.activity</name>-->
+<!--            <value>false</value>-->
+<!--        </property>-->
+<!--        <property>-->
+<!--            <name>ldbc.snb.datagen.serializer.updateStreams</name>-->
+<!--            <value>false</value>-->
+<!--        </property>-->
     </scale_factor>
     <scale_factor name="graphalytics.30000" >
         <property>
@@ -429,13 +429,13 @@
             <name>ldbc.snb.datagen.generator.distribution.degreeDistribution</name>
             <value>ldbc.snb.datagen.generator.distribution.FacebookDegreeDistribution</value>
         </property>
-        <property>
-            <name>ldbc.snb.datagen.generator.activity</name>
-            <value>false</value>
-        </property>
-        <property>
-            <name>ldbc.snb.datagen.serializer.updateStreams</name>
-            <value>false</value>
-        </property>
+<!--        <property>-->
+<!--            <name>ldbc.snb.datagen.generator.activity</name>-->
+<!--            <value>false</value>-->
+<!--        </property>-->
+<!--        <property>-->
+<!--            <name>ldbc.snb.datagen.serializer.updateStreams</name>-->
+<!--            <value>false</value>-->
+<!--        </property>-->
     </scale_factor>
 </scale_factors>

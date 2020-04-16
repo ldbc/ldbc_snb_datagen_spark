@@ -110,7 +110,6 @@ public class HadoopPersonGenerator {
         }
     }
 
-
     public static class HadoopPersonGeneratorReducer extends Reducer<TupleKey, Person, TupleKey, Person> {
 
         @Override
@@ -121,7 +120,6 @@ public class HadoopPersonGenerator {
             }
         }
     }
-
 
     public HadoopPersonGenerator(Configuration conf) {
         this.conf = new Configuration(conf);

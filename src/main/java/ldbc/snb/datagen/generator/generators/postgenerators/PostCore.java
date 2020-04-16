@@ -7,6 +7,7 @@ class PostCore {
     private TreeSet<Integer> tags;
     private long creationDate;
     private long deletionDate;
+    private boolean isExplicitlyDeleted;
 
     PostCore() {
         this.tags = new TreeSet<>();
@@ -14,6 +15,14 @@ class PostCore {
 
     public TreeSet<Integer> getTags() {
         return tags;
+    }
+
+    public boolean isExplicitlyDeleted() {
+        return isExplicitlyDeleted;
+    }
+
+    public void setExplicitlyDeleted(boolean explicitlyDeleted) {
+        isExplicitlyDeleted = explicitlyDeleted;
     }
 
     public void setTags(TreeSet<Integer> tags) {

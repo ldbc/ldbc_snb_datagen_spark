@@ -35,6 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer;
 
+import ldbc.snb.datagen.DatagenMode;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.Forum;
@@ -182,7 +183,7 @@ public class InsertEventSerializer {
                 streamWriter[i].close();
             }
 
-            if (DatagenParams.updateStreams) {
+            if (DatagenParams.getDatagenMode() == DatagenMode.INTERACTIVE || DatagenParams.getDatagenMode() == DatagenMode.BI) {
                 OutputStream output = fs.create(new Path(fileNamePrefix + ".properties"), true);
                 output.write(("ldbc.snb.interactive.insert.gct_delta_duration:" + DatagenParams.deltaTime + "\n")
                         .getBytes());

@@ -50,6 +50,7 @@ import java.util.TreeSet;
 
 public class Person implements Writable {
 
+    private boolean isExplicitlyDeleted;
     private long accountId;
     private long creationDate;
     private long deletionDate;
@@ -88,6 +89,8 @@ public class Person implements Writable {
     }
 
     public Person(Person p) {
+
+        isExplicitlyDeleted = p.isExplicitlyDeleted;
         knows = new TreeSet<>();
         emails = new TreeSet<>();
         interests = new TreeSet<>();
@@ -127,6 +130,14 @@ public class Person implements Writable {
         }
         classYear = p.getClassYear();
 
+    }
+
+    public boolean isExplicitlyDeleted() {
+        return isExplicitlyDeleted;
+    }
+
+    public void setExplicitlyDeleted(boolean explicitlyDeleted) {
+        isExplicitlyDeleted = explicitlyDeleted;
     }
 
     public long getAccountId() {
@@ -376,9 +387,8 @@ public class Person implements Writable {
         arg0.writeInt(cityId);
 
         arg0.writeByte((byte) interests.size());
-        Iterator<Integer> iter2 = interests.iterator();
-        while (iter2.hasNext()) {
-            arg0.writeInt(iter2.next());
+        for (Integer interest : interests) {
+            arg0.writeInt(interest);
         }
         arg0.writeInt(mainInterest);
         arg0.writeInt(universityLocationId);

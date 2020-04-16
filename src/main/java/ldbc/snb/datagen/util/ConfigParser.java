@@ -88,7 +88,7 @@ public class ConfigParser {
 
     public static void printConfig(HashMap<String, String> conf) {
         System.out.println("********* Configuration *********");
-        conf.forEach((key, value) -> System.out.println(key + " " + value));
+        conf.forEach((key, value) -> System.out.println(key + ": " + value));
         System.out.println("*********************************");
     }
 
@@ -99,29 +99,26 @@ public class ConfigParser {
         conf.put("ldbc.snb.datagen.generator.startYear", "2010");
         conf.put("ldbc.snb.datagen.generator.numYears", "3");
         conf.put("ldbc.snb.datagen.generator.numThreads", Integer.toString(1));
-        conf.put("ldbc.snb.datagen.serializer.dynamicActivitySerializer", "ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvBasicDynamicActivitySerializer");
-        conf.put("ldbc.snb.datagen.serializer.dynamicPersonSerializer", "ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CsvBasicDynamicPersonSerializer");
-        conf.put("ldbc.snb.datagen.serializer.staticSerializer", "ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvBasicStaticSerializer");
+        conf.put("ldbc.snb.datagen.generator.deltaTime", "10000");
         conf.put("ldbc.snb.datagen.generator.distribution.degreeDistribution", "ldbc.snb.datagen.generator.distribution.FacebookDegreeDistribution");
         conf.put("ldbc.snb.datagen.generator.knowsGenerator", "ldbc.snb.datagen.generator.generators.knowsgenerators.DistanceKnowsGenerator");
+        conf.put("ldbc.snb.datagen.generator.person.similarity", "ldbc.snb.datagen.entities.dynamic.person.similarity.GeoDistanceSimilarity");
+        conf.put("ldbc.snb.datagen.serializer.format","CsvBasic"); // CsvBasic, CsvMergeForeign, CsvComposite, CsvCompositeMergeForeign
         conf.put("ldbc.snb.datagen.serializer.compressed", Boolean.toString(false));
-        conf.put("ldbc.snb.datagen.serializer.updateStreams", Boolean.toString(true));
-        conf.put("ldbc.snb.datagen.serializer.numPartitions", "1");
-        conf.put("ldbc.snb.datagen.serializer.numUpdatePartitions", "1");
         conf.put("ldbc.snb.datagen.serializer.outputDir", "./");
         conf.put("ldbc.snb.datagen.serializer.socialNetworkDir", "./social_network");
         conf.put("ldbc.snb.datagen.serializer.hadoopDir", "./hadoop");
         conf.put("ldbc.snb.datagen.serializer.endlineSeparator", Boolean.toString(false));
-        conf.put("ldbc.snb.datagen.generator.deltaTime", "10000");
-        conf.put("ldbc.snb.datagen.generator.activity", "true");
         conf.put("ldbc.snb.datagen.serializer.dateFormatter", "ldbc.snb.datagen.util.formatter.StringDateFormatter");
         conf.put("ldbc.snb.datagen.util.formatter.StringDateFormatter.dateTimeFormat", "yyyy-MM-dd'T'HH:mm:ss.SSS+00:00");
         conf.put("ldbc.snb.datagen.util.formatter.StringDateFormatter.dateFormat", "yyyy-MM-dd");
-        conf.put("ldbc.snb.datagen.generator.person.similarity", "ldbc.snb.datagen.entities.dynamic.person.similarity.GeoDistanceSimilarity");
         conf.put("ldbc.snb.datagen.parametergenerator.python", "python");
         conf.put("ldbc.snb.datagen.parametergenerator.parameters", "true");
-        conf.put("ldbc.snb.datagen.serializer.persons.sort", "true");
-        conf.put("ldbc.snb.datagen.runsort","true");
+        conf.put("ldbc.snb.datagen.mode", "interactive"); // interactive, bi, graphalytics, rawdata
+        conf.put("ldbc.snb.datagen.mode.bi.deleteType", "simple"); // simple or smart
+        conf.put("ldbc.snb.datagen.mode.bi.batches", "1");
+        conf.put("ldbc.snb.datagen.mode.interactive.numUpdateStreams", "1");
+
         return conf;
     }
 }

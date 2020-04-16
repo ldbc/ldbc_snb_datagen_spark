@@ -88,7 +88,7 @@ public class DateUtils {
 
         try {
             dateFormatter = (DateFormatter) Class.forName(conf.get("ldbc.snb.datagen.serializer.dateFormatter"))
-                                                  .newInstance();
+                    .newInstance();
             dateFormatter.initialize(conf);
         } catch (Exception e) {
             System.err.println("Error when initializing date formatter");
@@ -98,6 +98,7 @@ public class DateUtils {
 
     /**
      * Generate random Person creation date
+     *
      * @param random random number generator
      * @return a random value on the interval [2010,2013]
      */
@@ -107,21 +108,16 @@ public class DateUtils {
 
     /**
      * Generate random Person deletion date
-     * @param random random number generator
+     *
+     * @param random       random number generator
      * @param creationDate Person creation date
-     * @param maxNumKnows maximum number of knows connections, influences the probability of leaving the network
+     * @param maxNumKnows  maximum number of knows connections, influences the probability of leaving the network
      * @return a value on the interval [SS,SE]
      */
-    public Long randomPersonDeletionDate(Random random, long creationDate, long maxNumKnows) {
+    public Long randomPersonDeletionDate(Random random, long creationDate, long maxNumKnows,long maxDeletionDate) {
         // TODO: use maxNumKnows to determine when a person's deleted
-        long deletionDate;
-        if (random.nextDouble() < DatagenParams.probPersonDeleted) {
-            long personCreationDate = creationDate + DatagenParams.deltaTime;
-            deletionDate = randomDate(random, personCreationDate, simulationEnd);
-        } else { // push to network collapse
-            deletionDate = getNetworkCollapse();
-        }
-        return deletionDate;
+        long personCreationDate = creationDate + DatagenParams.deltaTime;
+        return randomDate(random, personCreationDate, maxDeletionDate);
     }
 
     /*
@@ -190,14 +186,16 @@ public class DateUtils {
         long maxDate = Math.max(minDate + THIRTY_DAYS, simulationEnd);
         return randomDate(random, minDate, maxDate);
     }
+
     public long randomDate(Random random, long minDate, long maxDate) {
-        assert (minDate < maxDate): "Invalid interval bounds. Upper bound should be larger than lower bound";
+        assert (minDate < maxDate) : "Invalid interval bounds. maxDate (" + maxDate + ") should be larger than minDate(" + minDate +")";
         return (long) (random.nextDouble() * (maxDate - minDate) + minDate);
     }
 
     /**
      * Returns the creation date of a comment following a power law distribution.
-     * @param random random number generator
+     *
+     * @param random                 random number generator
      * @param lastCommentCreatedDate parent message creation date
      * @return creation date of replies
      */

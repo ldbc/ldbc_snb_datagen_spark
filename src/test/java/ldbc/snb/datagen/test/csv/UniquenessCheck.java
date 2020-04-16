@@ -6,7 +6,7 @@ import java.util.List;
 
 public class UniquenessCheck extends Check {
 
-    private HashSet<String> values = null;
+    private HashSet<String> values;
 
     public UniquenessCheck(int column) {
         super( "Uniqueness check", (new ArrayList<>()));

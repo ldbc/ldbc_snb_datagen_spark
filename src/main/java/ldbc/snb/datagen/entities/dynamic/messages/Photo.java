@@ -58,8 +58,9 @@ public class Photo extends Message {
                  TreeSet<Integer> tags,
                  int countryId,
                  IP ipAddress,
-                 int browserId
+                 int browserId,
+                 boolean isExplicitlyDeleted
     ) {
-        super(messageId, creationDate, deletionDate, author, forumId, content, tags, countryId, ipAddress, browserId);
+        super(messageId, creationDate, deletionDate, author, forumId, content, tags, countryId, ipAddress, browserId,isExplicitlyDeleted);
     }
 }

@@ -88,6 +88,7 @@ public class LikeGenerator {
 
 
             long likeDeletionDate;
+            boolean isExplicitlyDeleted;
             double prob;
             if (type == LikeType.COMMENT) {
                 prob = DatagenParams.probCommentLikeDeleted;
@@ -95,7 +96,7 @@ public class LikeGenerator {
                 prob = DatagenParams.probPostLikeDeleted;
             }
             if(randomDeleteLike.nextDouble() < prob) {
-
+                isExplicitlyDeleted = true;
                 long minDeletionDate = likeCreationDate + DatagenParams.deltaTime;
                 long maxDeletionDate = Collections.min(Arrays.asList(
                         membership.getPerson().getDeletionDate(),
@@ -106,9 +107,13 @@ public class LikeGenerator {
                 }
                 likeDeletionDate = Dictionaries.dates.randomDate(random, minDeletionDate, maxDeletionDate);
             } else {
-                likeDeletionDate = Dictionaries.dates.getNetworkCollapse();
+                isExplicitlyDeleted = false;
+                likeDeletionDate = Collections.min(Arrays.asList(
+                        membership.getPerson().getDeletionDate(),
+                        message.getDeletionDate()));
             }
 
+            like.setExplicitlyDeleted(isExplicitlyDeleted);
             like.setPerson(membership.getPerson().getAccountId());
             like.setPersonCreationDate(membership.getPerson().getCreationDate());
             like.setMessageId(message.getMessageId());

@@ -90,13 +90,17 @@ class PhotoGenerator {
 
             Random randomDate = randomFarm.get(RandomGeneratorFarm.Aspect.DATE);
             Random randomDeletePost = randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_POST);
+
             long deletionDate;
+            boolean isExplicitlyDeleted;
             if (randomDeletePost.nextDouble() < DatagenParams.probPostDeleted) {
+                isExplicitlyDeleted = true;
                 long minDeletionDate = creationDate + DatagenParams.deltaTime;
                 long maxDeletionDate = Math.min(album.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
                 deletionDate = Dictionaries.dates.randomDate(randomDate, minDeletionDate, maxDeletionDate);
             } else {
-                deletionDate = Dictionaries.dates.getNetworkCollapse();
+                isExplicitlyDeleted = false;
+                deletionDate = album.getDeletionDate();
             }
 
             int country = album.getModerator().getCountryId();
@@ -121,7 +125,8 @@ class PhotoGenerator {
                               tags,
                               country,
                               ip,
-                              album.getModerator().getBrowserId()
+                              album.getModerator().getBrowserId(),
+                    isExplicitlyDeleted
             );
             exporter.export(photo);
             if (randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1) {

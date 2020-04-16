@@ -37,6 +37,7 @@ package ldbc.snb.datagen.generator.generators.knowsgenerators;
 
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
+import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.util.Config;
 
 import java.util.ArrayList;
@@ -47,10 +48,12 @@ import java.util.Random;
 
 public class RandomKnowsGenerator implements KnowsGenerator {
 
+    private RandomGeneratorFarm randomFarm;
     private Random rand;
 
     public RandomKnowsGenerator() {
         rand = new Random();
+        randomFarm = new RandomGeneratorFarm();
     }
 
     public void generateKnows(List<Person> persons, int seed, List<Float> percentages, int step_index) {
@@ -77,7 +80,10 @@ public class RandomKnowsGenerator implements KnowsGenerator {
                 if (first_index != second_index) {
                     Person p1 = persons.get(first_index);
                     Person p2 = persons.get(second_index);
-                    Knows.createKnow(rand, p1, p2);
+                    Knows.createKnow(  randomFarm.get(RandomGeneratorFarm.Aspect.DATE),
+                            randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_KNOWS),
+                            p1,
+                            p2, true);
                 }
             }
         }

@@ -39,6 +39,7 @@ import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.generator.tools.GraphUtils;
 import ldbc.snb.datagen.generator.tools.PersonGraph;
+import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.util.Config;
 
 import java.util.ArrayList;
@@ -51,6 +52,7 @@ import java.util.Random;
 public class ClusteringKnowsGenerator implements KnowsGenerator {
 
     private Random rand;
+    private RandomGeneratorFarm randomFarm;
     private List<Float> percentages = null;
     private int stepIndex = 0;
     private float targetCC = 0.0f;
@@ -457,7 +459,8 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
                     float prob = rand.nextFloat();
                     if (prob <= c.p_) {
                         // create edge
-                        if (Knows.createKnow(rand, persons.get(pI.index_), persons.get(other.index_)))
+                        if (Knows.createKnow(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),
+                                randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_KNOWS), persons.get(pI.index_), persons.get(other.index_),true))
                             numCoreCoreEdges++;
                         else
                             numMisses++;
@@ -482,7 +485,8 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
                 if (peripheryBudget[index] != 0 && pDegree < maxDegree) {
                     pDegree++;
                     peripheryBudget[index]--;
-                    if (Knows.createKnow(rand, persons.get(pI.index_), persons.get(c.periphery_.get(index).index_)))
+                    if (Knows.createKnow( randomFarm.get(RandomGeneratorFarm.Aspect.DATE),
+                            randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_KNOWS), persons.get(pI.index_), persons.get(c.periphery_.get(index).index_),true))
                         numCorePeripheryEdges++;
                     else
                         numMisses++;
@@ -527,7 +531,8 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
                     numMisses++;
                     continue;
                 }
-                if (Knows.createKnow(rand, persons.get(first.index_), persons.get(second.index_)))
+                if (Knows.createKnow( randomFarm.get(RandomGeneratorFarm.Aspect.DATE),
+                        randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_KNOWS), persons.get(first.index_), persons.get(second.index_),true))
                     numCoreExternalEdges++;
                 else
                     numMisses++;
