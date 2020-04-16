@@ -189,7 +189,7 @@ public class DateUtils {
     }
 
     public long randomDate(Random random, long minDate, long maxDate) {
-        assert (minDate < maxDate) : "Invalid interval bounds. maxDate should be larger than minDate";
+        assert (minDate < maxDate) : "Invalid interval bounds. maxDate (" + maxDate + ") should be larger than minDate(" + minDate +")";
         return (long) (random.nextDouble() * (maxDate - minDate) + minDate);
     }
 
