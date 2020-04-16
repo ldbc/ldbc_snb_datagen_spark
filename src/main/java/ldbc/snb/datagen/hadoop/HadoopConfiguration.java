@@ -1,6 +1,7 @@
 package ldbc.snb.datagen.hadoop;
 
 import ldbc.snb.datagen.util.Config;
+import ldbc.snb.datagen.util.ConfigParser;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -33,6 +34,8 @@ public class HadoopConfiguration {
 
         conf.put("ldbc.snb.datagen.serializer.hadoopDir", conf.get("ldbc.snb.datagen.serializer.outputDir") + "/hadoop");
         conf.put("ldbc.snb.datagen.serializer.socialNetworkDir", conf.get("ldbc.snb.datagen.serializer.outputDir") + "/social_network");
+
+        ConfigParser.printConfig(conf);
 
         mergeLdbcIntoHadoop(new Config(conf), hadoopConf);
         FileSystem dfs = FileSystem.get(hadoopConf);

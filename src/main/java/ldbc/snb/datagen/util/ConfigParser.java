@@ -86,7 +86,7 @@ public class ConfigParser {
         return conf;
     }
 
-    public static void printConfig(HashMap<String, String> conf) {
+    public static void printConfig(Map<String, String> conf) {
         System.out.println("********* Configuration *********");
         conf.forEach((key, value) -> System.out.println(key + ": " + value));
         System.out.println("*********************************");
