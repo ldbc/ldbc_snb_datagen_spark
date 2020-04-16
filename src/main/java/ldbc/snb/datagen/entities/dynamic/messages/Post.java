@@ -58,16 +58,18 @@ public class Post extends Message {
                 int countryId,
                 IP ipAddress,
                 int browserId,
-                int language
+                int language,
+                boolean isExplicitlyDeleted
     ) {
-        super(postId, creationDate, deletionDate, author, forumId, content, tags, countryId, ipAddress, browserId);
+        super(postId, creationDate, deletionDate, author, forumId, content, tags, countryId, ipAddress, browserId,isExplicitlyDeleted);
         this.language = language;
     }
 
     public void initialize(long postId, long creationDate, long deletionDate, PersonSummary author, long forumId,
-                           String content, TreeSet<Integer> tags, int countryId, IP ipAddress, int browserId, int language
+                           String content, TreeSet<Integer> tags, int countryId, IP ipAddress, int browserId, int language,
+                           boolean isExplicitlyDeleted
     ) {
-        super.initialize(postId, creationDate, deletionDate, author, forumId, content, tags, countryId, ipAddress, browserId);
+        super.initialize(postId, creationDate, deletionDate, author, forumId, content, tags, countryId, ipAddress, browserId,isExplicitlyDeleted);
         this.language = language;
     }
 

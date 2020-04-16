@@ -6,4 +6,5 @@ public class LongParser extends Parser<Long> {
     public Long parse(String s) {
         return Long.parseLong(s);
     }
+
 }

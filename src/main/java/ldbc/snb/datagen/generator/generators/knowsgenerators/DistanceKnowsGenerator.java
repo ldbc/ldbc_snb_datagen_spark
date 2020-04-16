@@ -58,7 +58,11 @@ public class DistanceKnowsGenerator implements KnowsGenerator {
             for (int j = i + 1; (Knows.targetEdges(p, percentages, step_index) > p.getKnows().size()) && (j < persons
                     .size()); ++j) {
                 if (know(p, persons.get(j), j - i, percentages, step_index)) {
-                    Knows.createKnow(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), p, persons.get(j));
+                    Knows.createKnow(
+                            randomFarm.get(RandomGeneratorFarm.Aspect.DATE),
+                            randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_KNOWS),
+                            p,
+                            persons.get(j));
                 }
             }
         }

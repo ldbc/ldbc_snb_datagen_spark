@@ -89,10 +89,19 @@ class PhotoGenerator {
             }
 
             Random randomDate = randomFarm.get(RandomGeneratorFarm.Aspect.DATE);
-            long minDeletionDate = creationDate + DatagenParams.deltaTime;
-            long maxDeletionDate = Math.min(album.getDeletionDate(), Dictionaries.dates.getNetworkCollapse());
-            long deletionDate = Dictionaries.dates.randomDate(randomDate, minDeletionDate, maxDeletionDate);
+            Random randomDeletePost = randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_POST);
 
+            long deletionDate;
+            boolean isExplicitlyDeleted;
+            if (randomDeletePost.nextDouble() < DatagenParams.probPostDeleted) {
+                isExplicitlyDeleted = true;
+                long minDeletionDate = creationDate + DatagenParams.deltaTime;
+                long maxDeletionDate = Math.min(album.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
+                deletionDate = Dictionaries.dates.randomDate(randomDate, minDeletionDate, maxDeletionDate);
+            } else {
+                isExplicitlyDeleted = false;
+                deletionDate = album.getDeletionDate();
+            }
 
             int country = album.getModerator().getCountryId();
             IP ip = album.getModerator().getIpAddress();
@@ -116,12 +125,15 @@ class PhotoGenerator {
                               tags,
                               country,
                               ip,
-                              album.getModerator().getBrowserId()
+                              album.getModerator().getBrowserId(),
+                    isExplicitlyDeleted
             );
             exporter.export(photo);
             if (randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1) {
-                likeGenerator.generateLikes(randomFarm
-                                                     .get(RandomGeneratorFarm.Aspect.NUM_LIKE), album, photo, Like.LikeType.PHOTO, exporter);
+                likeGenerator.generateLikes(
+                        randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_LIKES),
+                        randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE),
+                        album, photo, Like.LikeType.PHOTO, exporter);
             }
         }
         return nextId;

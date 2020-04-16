@@ -47,6 +47,7 @@ import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.util.StringUtils;
 import ldbc.snb.datagen.vocabulary.SN;
 
+import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -62,9 +63,10 @@ public class ForumGenerator {
 
     /**
      * Creates a personal wall for a given Person. All friends become members
+     *
      * @param randomFarm randomFarm
-     * @param forumId forumID
-     * @param person Person
+     * @param forumId    forumID
+     * @param person     Person
      * @return Forum
      */
     Forum createWall(RandomGeneratorFarm randomFarm, long forumId, Person person) {
@@ -72,13 +74,14 @@ public class ForumGenerator {
         int language = randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE).nextInt(person.getLanguages().size());
 
         Forum forum = new Forum(SN.formId(SN.composeId(forumId, person.getCreationDate() + DatagenParams.deltaTime)),
-                                person.getCreationDate() + DatagenParams.deltaTime,
-                                person.getDeletionDate(),
-                                new PersonSummary(person),
-                                StringUtils.clampString("Wall of " + person.getFirstName() + " " + person.getLastName(), 256),
-                                person.getCityId(),
-                                language
-        );
+                person.getCreationDate() + DatagenParams.deltaTime,
+                person.getDeletionDate(),
+                new PersonSummary(person),
+                StringUtils.clampString("Wall of " + person.getFirstName() + " " + person.getLastName(), 256),
+                person.getCityId(),
+                language,
+                Forum.ForumType.WALL,
+                false);
 
         // wall inherits tags from person
         List<Integer> forumTags = new ArrayList<>(person.getInterests());
@@ -89,21 +92,20 @@ public class ForumGenerator {
 
         // for each friend generate hasMember edge
         for (Knows know : knows) {
-
             long hasMemberCreationDate = know.getCreationDate() + DatagenParams.deltaTime;
-            long hasMemberDeletionDate = Math.min(forum.getDeletionDate(),know.getDeletionDate());
-
-            forum.addMember(new ForumMembership(forum.getId(), hasMemberCreationDate, hasMemberDeletionDate ,know.to()));
+            long hasMemberDeletionDate = Math.min(forum.getDeletionDate(), know.getDeletionDate());
+            forum.addMember(new ForumMembership(forum.getId(), hasMemberCreationDate, hasMemberDeletionDate, know.to(), Forum.ForumType.WALL, false));
         }
         return forum;
     }
 
     /**
      * Creates a Group with the Person as the moderator. 30% membership come from friends the rest are random.
-     * @param randomFarm
-     * @param forumId forumID
-     * @param moderator moderator
-     * @param block person block
+     *
+     * @param randomFarm random number generator
+     * @param forumId    forumID
+     * @param moderator  moderator
+     * @param block      person block
      * @return Group
      */
     Forum createGroup(RandomGeneratorFarm randomFarm, long forumId, Person moderator, List<Person> block) {
@@ -113,14 +115,19 @@ public class ForumGenerator {
         long groupMaxCreationDate = Math.min(moderator.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
         long groupCreationDate = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), groupMinCreationDate, groupMaxCreationDate);
 
-        // deletion date
-        long groupMinDeletionDate = groupCreationDate + DatagenParams.deltaTime;
-        long groupMaxDeletionDate = Dictionaries.dates.getNetworkCollapse();
-        long groupDeletionDate = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), groupMinDeletionDate, groupMaxDeletionDate);
+        //TODO: Currently if the group moderator is deleted before the forum then no new moderator is installed. This breaks the schema.
 
-        // push to network collapse for readability
-        if (groupDeletionDate > Dictionaries.dates.getSimulationEnd()) {
-            groupDeletionDate = groupMaxDeletionDate;
+        // deletion date
+        long groupDeletionDate;
+        boolean isExplicitlyDeleted;
+        if (randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_FORUM).nextDouble() < DatagenParams.probForumDeleted) {
+            isExplicitlyDeleted = true;
+            long groupMinDeletionDate = groupCreationDate + DatagenParams.deltaTime;
+            long groupMaxDeletionDate = Dictionaries.dates.getSimulationEnd();
+            groupDeletionDate = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), groupMinDeletionDate, groupMaxDeletionDate);
+        } else {
+            isExplicitlyDeleted = false;
+            groupDeletionDate = Dictionaries.dates.getNetworkCollapse();
         }
 
         int language = randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE).nextInt(moderator.getLanguages().size());
@@ -130,20 +137,22 @@ public class ForumGenerator {
         for (int i = 0; i < idx; i++) {
             iter.next();
         }
-        int interestId = iter.next().intValue();
+        int interestId = iter.next();
         List<Integer> interest = new ArrayList<>();
         interest.add(interestId);
 
         // Create group
         Forum forum = new Forum(SN.formId(SN.composeId(forumId, groupCreationDate)),
-                                groupCreationDate,
-                                groupDeletionDate,
-                                new PersonSummary(moderator),
-                                StringUtils.clampString("Group for " + Dictionaries.tags.getName(interestId)
-                                                                                        .replace("\"", "\\\"") + " in " + Dictionaries.places
-                                        .getPlaceName(moderator.getCityId()), 256),
-                                moderator.getCityId(),
-                                language
+                groupCreationDate,
+                groupDeletionDate,
+                new PersonSummary(moderator),
+                StringUtils.clampString("Group for " + Dictionaries.tags.getName(interestId)
+                        .replace("\"", "\\\"") + " in " + Dictionaries.places
+                        .getPlaceName(moderator.getCityId()), 256),
+                moderator.getCityId(),
+                language,
+                Forum.ForumType.GROUP,
+                isExplicitlyDeleted
         );
 
         // Set tags of this forum
@@ -164,25 +173,32 @@ public class ForumGenerator {
                 if (!groupMembers.contains(knows.to().getAccountId())) { // if friend not already member of group
 
                     long minCreationDate = Math.max(forum.getCreationDate(), knows.to().getCreationDate()) + DatagenParams.deltaTime;
-                    long maxCreationDate = Collections.min(Arrays.asList(forum.getDeletionDate(), knows.to().getDeletionDate(),Dictionaries.dates.getSimulationEnd()));
+                    long maxCreationDate = Collections.min(Arrays.asList(forum.getDeletionDate(), knows.to().getDeletionDate(), Dictionaries.dates.getSimulationEnd()));
 
                     if (maxCreationDate - minCreationDate > 0) {
 
                         Random random = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX);
                         long hasMemberCreationDate = Dictionaries.dates.randomDate(random, minCreationDate, maxCreationDate);
 
-                        long minDeletionDate = hasMemberCreationDate + DatagenParams.deltaTime;
-                        long maxDeletionDate = Math.min(knows.to().getDeletionDate(), forum.getDeletionDate());
-                        long hasMemberDeletionDate = Dictionaries.dates.randomDate(random, minDeletionDate, maxDeletionDate);
-
-                        ForumMembership hasMember = new ForumMembership(forum.getId(), hasMemberCreationDate, hasMemberDeletionDate, knows.to());
+                        long hasMemberDeletionDate;
+                        boolean isHasMemberExplicitlyDeleted;
+                        if (randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_MEMB).nextDouble() < DatagenParams.probMembDeleted) {
+                            isHasMemberExplicitlyDeleted = true;
+                            long minDeletionDate = hasMemberCreationDate + DatagenParams.deltaTime;
+                            long maxDeletionDate = Collections.min(Arrays.asList(knows.to().getDeletionDate(), forum.getDeletionDate(), Dictionaries.dates.getSimulationEnd()));
+                            hasMemberDeletionDate = Dictionaries.dates.randomDate(random, minDeletionDate, maxDeletionDate);
+                        } else {
+                            isHasMemberExplicitlyDeleted = false;
+                            hasMemberDeletionDate = Collections.min(Arrays.asList(knows.to().getDeletionDate(), forum.getDeletionDate()));
+                        }
+                        ForumMembership hasMember = new ForumMembership(forum.getId(), hasMemberCreationDate, hasMemberDeletionDate, knows.to(), Forum.ForumType.GROUP, isHasMemberExplicitlyDeleted);
                         forum.addMember(hasMember);
                         groupMembers.add(knows.to().getAccountId());
                     }
                 }
             } else { // pick from the person block
                 int candidateIndex = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX)
-                                               .nextInt(block.size());
+                        .nextInt(block.size());
                 Person member = block.get(candidateIndex);
                 prob = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP).nextDouble();
                 if ((prob < 0.1) && !groupMembers.contains(member.getAccountId())) {
@@ -195,11 +211,18 @@ public class ForumGenerator {
                         Random random = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX);
                         long hasMemberCreationDate = Dictionaries.dates.randomDate(random, minHasMemberCreationDate, maxHasMemberCreationDate);
 
-                        long minHasMemberDeletionDate = hasMemberCreationDate + DatagenParams.deltaTime;
-                        long maxHasMemberDeletionDate = Math.min(member.getDeletionDate(), forum.getDeletionDate());
-                        long hasMemberDeletionDate = Dictionaries.dates.randomDate(random, minHasMemberDeletionDate, maxHasMemberDeletionDate);
-
-                        forum.addMember(new ForumMembership(forum.getId(), hasMemberCreationDate, hasMemberDeletionDate, new PersonSummary(member)));
+                        long hasMemberDeletionDate;
+                        boolean isHasMemberExplicitlyDeleted;
+                        if (randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_MEMB).nextDouble() < DatagenParams.probMembDeleted) {
+                            isHasMemberExplicitlyDeleted = true;
+                            long minHasMemberDeletionDate = hasMemberCreationDate + DatagenParams.deltaTime;
+                            long maxHasMemberDeletionDate = Collections.min(Arrays.asList(member.getDeletionDate(), forum.getDeletionDate(), Dictionaries.dates.getSimulationEnd()));
+                            hasMemberDeletionDate = Dictionaries.dates.randomDate(random, minHasMemberDeletionDate, maxHasMemberDeletionDate);
+                        } else {
+                            isHasMemberExplicitlyDeleted = false;
+                            hasMemberDeletionDate = Collections.min(Arrays.asList(member.getDeletionDate(), forum.getDeletionDate()));
+                        }
+                        forum.addMember(new ForumMembership(forum.getId(), hasMemberCreationDate, hasMemberDeletionDate, new PersonSummary(member), Forum.ForumType.GROUP, isHasMemberExplicitlyDeleted));
                         groupMembers.add(member.getAccountId());
                     }
                 }
@@ -211,10 +234,11 @@ public class ForumGenerator {
 
     /**
      * Creates an album for a given Person.
+     *
      * @param randomFarm random farm
-     * @param forumId forumId
-     * @param person Person who the album belongs it
-     * @param numAlbum number of album e.g. Album 10
+     * @param forumId    forumId
+     * @param person     Person who the album belongs it
+     * @param numAlbum   number of album e.g. Album 10
      * @return Album
      */
     Forum createAlbum(RandomGeneratorFarm randomFarm, long forumId, Person person, int numAlbum) {
@@ -222,17 +246,31 @@ public class ForumGenerator {
         long minAlbumCreationDate = person.getCreationDate() + DatagenParams.deltaTime;
         long maxAlbumCreationDate = Math.min(person.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
         long albumCreationDate = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), minAlbumCreationDate, maxAlbumCreationDate);
-        long albumDeletionDate = person.getDeletionDate();
+
+        long albumDeletionDate;
+        boolean isExplicitlyDeleted;
+        if (randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_FORUM).nextDouble() < DatagenParams.probForumDeleted) {
+            isExplicitlyDeleted = true;
+            long minAlbumDeletionDate = albumCreationDate + DatagenParams.deltaTime;
+            long maxAlbumDeletionDate = Math.min(person.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
+            albumDeletionDate = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), minAlbumDeletionDate, maxAlbumDeletionDate);
+        } else {
+            isExplicitlyDeleted = false;
+            albumDeletionDate = person.getDeletionDate();
+        }
+
 
         int language = randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE).nextInt(person.getLanguages().size());
         Forum forum = new Forum(SN.formId(SN.composeId(forumId, albumCreationDate)),
-                                albumCreationDate,
-                                albumDeletionDate,
-                                new PersonSummary(person),
-                                StringUtils.clampString("Album " + numAlbum + " of " + person.getFirstName() + " " + person
-                                        .getLastName(), 256),
-                                person.getCityId(),
-                                language
+                albumCreationDate,
+                albumDeletionDate,
+                new PersonSummary(person),
+                StringUtils.clampString("Album " + numAlbum + " of " + person.getFirstName() + " " + person
+                        .getLastName(), 256),
+                person.getCityId(),
+                language,
+                Forum.ForumType.ALBUM,
+                isExplicitlyDeleted
         );
 
         Iterator<Integer> iter = person.getInterests().iterator();
@@ -252,12 +290,11 @@ public class ForumGenerator {
         List<Knows> friends = new ArrayList<>(person.getKnows());
         for (Knows knows : friends) {
             double prob = randomFarm.get(RandomGeneratorFarm.Aspect.ALBUM_MEMBERSHIP).nextDouble();
-            if (prob < 0.7) { // add friends with prob
-
+            if (prob < 0.7) {
                 long hasMemberCreationDate = Math.max(knows.to().getCreationDate(), forum.getCreationDate()) + DatagenParams.deltaTime;
-                long hasMemberDeletionDate = Math.min(knows.to().getDeletionDate(), forum.getDeletionDate());
-
-                forum.addMember(new ForumMembership(forum.getId(), hasMemberCreationDate, hasMemberDeletionDate, knows.to()));
+                long hasMemberDeletionDate = Collections.min(Arrays.asList(knows.to().getDeletionDate(), forum.getDeletionDate()));
+                forum.addMember(new ForumMembership(forum.getId(), hasMemberCreationDate, hasMemberDeletionDate, knows.to(), Forum.ForumType.ALBUM, false
+                ));
             }
         }
         return forum;

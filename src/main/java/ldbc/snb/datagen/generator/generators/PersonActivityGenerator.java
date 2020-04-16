@@ -46,8 +46,11 @@ import ldbc.snb.datagen.generator.generators.postgenerators.FlashmobPostGenerato
 import ldbc.snb.datagen.generator.generators.postgenerators.UniformPostGenerator;
 import ldbc.snb.datagen.generator.generators.textgenerators.LdbcSnbTextGenerator;
 import ldbc.snb.datagen.generator.generators.textgenerators.TextGenerator;
+import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
+import ldbc.snb.datagen.serializer.DeleteEventSerializer;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
 import ldbc.snb.datagen.serializer.PersonActivityExporter;
+import ldbc.snb.datagen.serializer.InsertEventSerializer;
 import ldbc.snb.datagen.util.FactorTable;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
@@ -72,7 +75,8 @@ public class PersonActivityGenerator {
     private FactorTable factorTable;
     private PersonActivityExporter exporter;
 
-    public PersonActivityGenerator(DynamicActivitySerializer dynamicActivitySerializer) {
+
+    public PersonActivityGenerator(DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer, InsertEventSerializer insertEventSerializer, DeleteEventSerializer deleteEventSerializer) {
 
         randomFarm = new RandomGeneratorFarm();
         forumGenerator = new ForumGenerator();
@@ -85,7 +89,7 @@ public class PersonActivityGenerator {
         photoGenerator = new PhotoGenerator(likeGenerator);
 
         factorTable = new FactorTable();
-        exporter = new PersonActivityExporter(dynamicActivitySerializer, factorTable);
+        exporter = new PersonActivityExporter(dynamicActivitySerializer, insertEventSerializer, deleteEventSerializer, factorTable);
     }
 
     private void generateActivity(Person person, List<Person> block) throws AssertionError, IOException {
@@ -103,6 +107,7 @@ public class PersonActivityGenerator {
 
     /**
      * Generates the personal wall for a Person. Note, only this Person creates Posts in the wall.
+     *
      * @param person Person
      * @throws IOException IOException
      */
@@ -119,9 +124,11 @@ public class PersonActivityGenerator {
         // creates a forum membership for the moderator
         // only the moderator can post on their wall
         ForumMembership moderator = new ForumMembership(wall.getId(),
-                                                wall.getCreationDate() + DatagenParams.deltaTime,
-                                                            wall.getDeletionDate(),
-                                                            new PersonSummary(person));
+                wall.getCreationDate() + DatagenParams.deltaTime,
+                wall.getDeletionDate(),
+                new PersonSummary(person),
+                Forum.ForumType.WALL,
+                false);
         // list of members who can post on the wall - only moderator of wall can post on it
         List<ForumMembership> memberships = new ArrayList<>();
         memberships.add(moderator);
@@ -139,19 +146,21 @@ public class PersonActivityGenerator {
 
     /**
      * Generates the Groups for a Person. Has 5% chance of becoming a moderator of some group(s).
+     *
      * @param person persons
-     * @param block block for persons
+     * @param block  block for persons
      * @throws IOException IOException
      */
     private void generateGroups(Person person, List<Person> block) throws IOException {
 
         // generate person created groups
         double moderatorProb = randomFarm.get(RandomGeneratorFarm.Aspect.FORUM_MODERATOR).nextDouble();
-        if (moderatorProb <= DatagenParams.groupModeratorProb) {
             int numGroup = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_FORUM)
-                                      .nextInt(DatagenParams.maxNumGroupCreatedPerUser) + 1;
+                    .nextInt(DatagenParams.maxNumGroupCreatedPerUser) + 1;
             for (int j = 0; j < numGroup; j++) {
-                Forum group = forumGenerator.createGroup(randomFarm, startForumId++, person, block);
+                if (moderatorProb < DatagenParams.groupModeratorProb) {
+
+                    Forum group = forumGenerator.createGroup(randomFarm, startForumId++, person, block);
                 exporter.export(group);
 
                 for (ForumMembership fm : group.getMemberships()) {
@@ -180,6 +189,7 @@ public class PersonActivityGenerator {
 
     /**
      * Generates the albums for a Person.
+     *
      * @param person person
      * @throws IOException IOException
      */
@@ -204,7 +214,7 @@ public class PersonActivityGenerator {
 
             // number of photos to generate
             int numPhotosInAlbum = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_PHOTO)
-                                       .nextInt(DatagenParams.maxNumPhotoPerAlbums + 1);
+                    .nextInt(DatagenParams.maxNumPhotoPerAlbums + 1);
             // create photos
             startMessageId = photoGenerator.createPhotos(randomFarm, album, numPhotosInAlbum, startMessageId, exporter);
         }
@@ -213,7 +223,7 @@ public class PersonActivityGenerator {
     private int numPostsPerGroup(RandomGeneratorFarm randomFarm, Forum forum, int maxPostsPerMonth, int maxMembersPerForum) {
         Random random = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_POST);
         int numOfMonths = (int) Dictionaries.dates.numberOfMonths(forum.getCreationDate());
-        int numberPost = 0;
+        int numberPost;
         if (numOfMonths == 0) {
             numberPost = random.nextInt(maxPostsPerMonth + 1);
         } else {

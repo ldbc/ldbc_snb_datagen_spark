@@ -88,7 +88,7 @@ public class CommentGenerator {
             for (ForumMembership membership : forum.getMemberships()) { // parent and membership lifespans overlap
 
                 if ((membership.getCreationDate() < parentMessage.getCreationDate() && membership.getDeletionDate() > parentMessage.getCreationDate()) ||
-                membership.getCreationDate() < parentMessage.getDeletionDate() && membership.getDeletionDate() > parentMessage.getDeletionDate()) {
+                        membership.getCreationDate() < parentMessage.getDeletionDate() && membership.getDeletionDate() > parentMessage.getDeletionDate()) {
                     validMemberships.add(membership);
                 }
 
@@ -118,7 +118,7 @@ public class CommentGenerator {
 
                 for (int j = 0; j < (int) Math.ceil(parentMessage.getTags().size() / 2.0); ++j) {
                     int randomTag = currentTags.get(randomFarm.get(RandomGeneratorFarm.Aspect.TAG)
-                                                              .nextInt(currentTags.size()));
+                            .nextInt(currentTags.size()));
                     tags.add(Dictionaries.tagMatrix.getRandomRelated(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), randomTag));
                 }
                 content = this.generator.generateText(membership.getPerson(), tags, prop);
@@ -129,7 +129,7 @@ public class CommentGenerator {
             }
 
             // creation date
-            long minCreationDate = Math.max(parentMessage.getCreationDate(),membership.getCreationDate()) + DatagenParams.deltaTime;
+            long minCreationDate = Math.max(parentMessage.getCreationDate(), membership.getCreationDate()) + DatagenParams.deltaTime;
             long maxCreationDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
             if (maxCreationDate - minCreationDate < 0) {
                 continue;
@@ -140,12 +140,20 @@ public class CommentGenerator {
                 continue;
             }
 
-            long minDeletionDate = creationDate + DatagenParams.deltaTime;
-            long maxDeletionDate = Collections.min(Arrays.asList(parentMessage.getDeletionDate(), membership.getDeletionDate(), Dictionaries.dates.getNetworkCollapse()));
-            if (maxDeletionDate - minDeletionDate < 0) {
-                continue;
+            long deletionDate;
+            boolean isExplicitlyDeleted;
+            if (randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_COMM).nextDouble() < DatagenParams.probCommentDeleted) {
+                isExplicitlyDeleted = true;
+                long minDeletionDate = creationDate + DatagenParams.deltaTime;
+                long maxDeletionDate = Collections.min(Arrays.asList(parentMessage.getDeletionDate(), membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd()));
+                if (maxDeletionDate - minDeletionDate < 0) {
+                    continue;
+                }
+                deletionDate = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), minDeletionDate, maxDeletionDate);
+            } else {
+                isExplicitlyDeleted = false;
+                deletionDate = Collections.min(Arrays.asList(parentMessage.getDeletionDate(), membership.getDeletionDate()));
             }
-            long deletionDate = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), minDeletionDate, maxDeletionDate);
 
 
             int country = membership.getPerson().getCountryId();
@@ -159,27 +167,28 @@ public class CommentGenerator {
             }
 
             Comment comment = new Comment(SN.formId(SN.composeId(nextId++, creationDate)),
-                                          creationDate,
-                                          deletionDate,
-                                          membership.getPerson(),
-                                          forum.getId(),
-                                          content,
-                                          tags,
-                                          country,
-                                          ip,
-                                          Dictionaries.browsers.getPostBrowserId(randomFarm
-                                                                                         .get(RandomGeneratorFarm.Aspect.DIFF_BROWSER), randomFarm
-                                                                                         .get(RandomGeneratorFarm.Aspect.BROWSER), membership
-                                                                                         .getPerson().getBrowserId()),
-                                          post.getMessageId(),
-                                          parentMessage.getMessageId());
+                    creationDate,
+                    deletionDate,
+                    membership.getPerson(),
+                    forum.getId(),
+                    content,
+                    tags,
+                    country,
+                    ip,
+                    Dictionaries.browsers.getPostBrowserId(randomFarm
+                            .get(RandomGeneratorFarm.Aspect.DIFF_BROWSER), randomFarm
+                            .get(RandomGeneratorFarm.Aspect.BROWSER), membership
+                            .getPerson().getBrowserId()),
+                    post.getMessageId(),
+                    parentMessage.getMessageId(),
+                    isExplicitlyDeleted);
             if (!isShort) parentCandidates.add(new Comment(comment));
             exporter.export(comment);
 
             // generate likes
             if (comment.getContent().length() > 10 && randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE)
-                                                             .nextDouble() <= 0.1) {
-                likeGenerator.generateLikes(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), forum, comment, Like.LikeType.COMMENT, exporter);
+                    .nextDouble() <= 0.1) {
+                likeGenerator.generateLikes(randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_LIKES), randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), forum, comment, Like.LikeType.COMMENT, exporter);
             }
         }
         parentCandidates.clear();

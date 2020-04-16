@@ -53,16 +53,16 @@ import java.util.List;
 import java.util.Random;
 
 public class LikeGenerator {
+
     private final PowerDistribution likesGenerator;
     private Like like;
-
 
     LikeGenerator() {
         likesGenerator = new PowerDistribution(1, DatagenParams.maxNumLike, 0.07);
         this.like = new Like();
     }
 
-    public void generateLikes(Random random, final Forum forum, final Message message, LikeType type, PersonActivityExporter exporter) throws IOException {
+    public void generateLikes(Random randomDeleteLike, Random random, final Forum forum, final Message message, LikeType type, PersonActivityExporter exporter) throws IOException {
         int numMembers = forum.getMemberships().size();
         int numLikes = likesGenerator.getValue(random);
         numLikes = Math.min(numLikes, numMembers);
@@ -86,17 +86,34 @@ public class LikeGenerator {
             }
             long likeCreationDate = Dictionaries.dates.randomDate(random, minCreationDate, maxCreationDate);
 
-            long minDeletionDate = likeCreationDate + DatagenParams.deltaTime;
-            long maxDeletionDate = Collections.min(Arrays.asList(
-                                                        membership.getPerson().getDeletionDate(),
-                                                        message.getDeletionDate(),
-                                                        Dictionaries.dates.getNetworkCollapse()
-            ));
-            if (maxDeletionDate - minDeletionDate < 0) {
-                continue;
-            }
-            long likeDeletionDate = Dictionaries.dates.randomDate(random, minDeletionDate, maxDeletionDate);
 
+            long likeDeletionDate;
+            boolean isExplicitlyDeleted;
+            double prob;
+            if (type == LikeType.COMMENT) {
+                prob = DatagenParams.probCommentLikeDeleted;
+            } else { // treating photo and posts as the same
+                prob = DatagenParams.probPostLikeDeleted;
+            }
+            if(randomDeleteLike.nextDouble() < prob) {
+                isExplicitlyDeleted = true;
+                long minDeletionDate = likeCreationDate + DatagenParams.deltaTime;
+                long maxDeletionDate = Collections.min(Arrays.asList(
+                        membership.getPerson().getDeletionDate(),
+                        message.getDeletionDate(),
+                        Dictionaries.dates.getSimulationEnd()));
+                if (maxDeletionDate - minDeletionDate < 0) {
+                    continue;
+                }
+                likeDeletionDate = Dictionaries.dates.randomDate(random, minDeletionDate, maxDeletionDate);
+            } else {
+                isExplicitlyDeleted = false;
+                likeDeletionDate = Collections.min(Arrays.asList(
+                        membership.getPerson().getDeletionDate(),
+                        message.getDeletionDate()));
+            }
+
+            like.setExplicitlyDeleted(isExplicitlyDeleted);
             like.setPerson(membership.getPerson().getAccountId());
             like.setPersonCreationDate(membership.getPerson().getCreationDate());
             like.setMessageId(message.getMessageId());

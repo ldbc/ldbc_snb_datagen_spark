@@ -44,13 +44,12 @@ import org.apache.hadoop.io.Writable;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 
 public class Knows implements Writable, Comparable<Knows> {
 
+    private boolean isExplicitlyDeleted;
     private PersonSummary to;
     private long creationDate;
     private long deletionDate;
@@ -68,11 +67,20 @@ public class Knows implements Writable, Comparable<Knows> {
         weight = k.getWeight();
     }
 
-    public Knows(Person to, long creationDate, long deletionDate, float weight) {
+    public Knows(Person to, long creationDate, long deletionDate, float weight, boolean isExplicitlyDeleted) {
         this.to = new PersonSummary(to);
         this.creationDate = creationDate;
         this.deletionDate = deletionDate;
         this.weight = weight;
+        this.isExplicitlyDeleted = isExplicitlyDeleted;
+    }
+
+    public boolean isExplicitlyDeleted() {
+        return isExplicitlyDeleted;
+    }
+
+    public void setExplicitlyDeleted(boolean explicitlyDeleted) {
+        isExplicitlyDeleted = explicitlyDeleted;
     }
 
     public PersonSummary to() {
@@ -142,21 +150,57 @@ public class Knows implements Writable, Comparable<Knows> {
 
     }
 
-    public static boolean createKnow(Random random, Person personA, Person personB) {
+//     TODO: used for random dimension in knows gen
+    public static boolean createKnow(Random dateRandom, Random deletionRandom, Person personA, Person personB, Boolean ignore) {
 
         if (personA.getCreationDate() + DatagenParams.deltaTime > personB.getDeletionDate() ||
-            personB.getCreationDate() + DatagenParams.deltaTime > personA.getDeletionDate()) {
+                personB.getCreationDate() + DatagenParams.deltaTime > personA.getDeletionDate()) {
             return false;
         }
 
-        long creationDate = Dictionaries.dates.randomKnowsCreationDate(random, personA, personB);
-        long deletionDate = Dictionaries.dates.randomKnowsDeletionDate(random, personA, personB, creationDate);
+        long creationDate = Dictionaries.dates.randomKnowsCreationDate(dateRandom, personA, personB);
+        long deletionDate;
+        boolean isExplicitlyDeleted;
 
+        if (deletionRandom.nextDouble() < DatagenParams.probKnowsDeleted) {
+            isExplicitlyDeleted = true;
+            deletionDate = Dictionaries.dates.randomKnowsDeletionDate(dateRandom, personA, personB, creationDate);
+        } else {
+            isExplicitlyDeleted = false;
+            deletionDate = Collections.min(Arrays.asList(personA.getDeletionDate(), personB.getDeletionDate()));
+        }
         assert (creationDate <= deletionDate) : "Knows creation date is larger than knows deletion date";
 
         float similarity = Person.personSimilarity.similarity(personA, personB);
-        return personB.getKnows().add(new Knows(personA, creationDate, deletionDate, similarity)) &&
-                personA.getKnows().add(new Knows(personB, creationDate, deletionDate, similarity));
+        return personB.getKnows().add(new Knows(personA, creationDate, deletionDate, similarity,isExplicitlyDeleted)) &&
+                personA.getKnows().add(new Knows(personB, creationDate, deletionDate, similarity,isExplicitlyDeleted));
+    }
+
+    //     TODO: used for uni and interest dimension in knows gen
+    public static void createKnow(Random dateRandom, Random deletionRandom, Person personA, Person personB) {
+
+        if (personA.getCreationDate() + DatagenParams.deltaTime > personB.getDeletionDate() ||
+                personB.getCreationDate() + DatagenParams.deltaTime > personA.getDeletionDate()) {
+            return;
+        }
+
+        long creationDate = Dictionaries.dates.randomKnowsCreationDate(dateRandom, personA, personB);
+        long deletionDate;
+        boolean isExplicitlyDeleted;
+
+        if (deletionRandom.nextDouble() < DatagenParams.probKnowsDeleted) {
+            isExplicitlyDeleted = true;
+            deletionDate = Dictionaries.dates.randomKnowsDeletionDate(dateRandom, personA, personB, creationDate);
+        } else {
+            isExplicitlyDeleted = false;
+            deletionDate = Collections.min(Arrays.asList(personA.getDeletionDate(), personB.getDeletionDate()));
+        }
+        assert (creationDate <= deletionDate) : "Knows creation date is larger than knows deletion date";
+
+        float similarity = Person.personSimilarity.similarity(personA, personB);
+        if (personB.getKnows().add(new Knows(personA, creationDate, deletionDate, similarity,isExplicitlyDeleted))) {
+            personA.getKnows().add(new Knows(personB, creationDate, deletionDate, similarity,isExplicitlyDeleted));
+        }
     }
 
     public static long targetEdges(Person person, List<Float> percentages, int step_index) {

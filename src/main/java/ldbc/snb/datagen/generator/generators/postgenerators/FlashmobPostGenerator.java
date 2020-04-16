@@ -155,7 +155,7 @@ public class FlashmobPostGenerator extends PostGenerator {
      * @param membership forum member
      * @return core information for a post during a flashmob
      */
-    protected PostCore generatePostInfo(Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership) {
+    protected PostCore generatePostInfo(Random randomDeletePost, Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership) {
 
         if (currentForum != forum.getId()) {
             populateForumFlashmobTags(randomTag, forum);
@@ -191,14 +191,21 @@ public class FlashmobPostGenerator extends PostGenerator {
         postCore.setCreationDate(creationDate);
 
         // add deletion date
-        long minDeletionDate = creationDate + DatagenParams.deltaTime;
-        long maxDeletionDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getNetworkCollapse());
-        if (maxDeletionDate - minDeletionDate < 0) {
-            return null;
+        long postDeletionDate;
+        if (randomDeletePost.nextDouble() < probPostDeleted) {
+            postCore.setExplicitlyDeleted(true);
+            long minDeletionDate = creationDate + DatagenParams.deltaTime;
+            long maxDeletionDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
+            if (maxDeletionDate - minDeletionDate < 0) {
+                return null;
+            }
+            postDeletionDate = Dictionaries.dates.randomDate(randomDate, minDeletionDate, maxDeletionDate);
+        } else {
+            postCore.setExplicitlyDeleted(false);
+            postDeletionDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
         }
-
-        long postDeletionDate = Dictionaries.dates.randomDate(randomDate, minDeletionDate, maxDeletionDate);
         postCore.setDeletionDate(postDeletionDate);
+
 
         return postCore;
     }

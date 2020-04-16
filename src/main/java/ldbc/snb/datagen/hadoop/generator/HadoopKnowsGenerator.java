@@ -67,7 +67,7 @@ public class HadoopKnowsGenerator {
     private String postKeySetterName;
     private String knowsGeneratorName;
     private List<Float> percentages;
-    private int step_index;
+    private int stepIndex;
 
 
     public static class HadoopKnowsGeneratorReducer extends Reducer<BlockKey, Person, TupleKey, Person> {
@@ -129,12 +129,12 @@ public class HadoopKnowsGenerator {
     }
 
 
-    public HadoopKnowsGenerator(Configuration conf, String preKeySetterName, String postKeySetterName, List<Float> percentages, int step_index, String knowsGeneratorName) {
+    public HadoopKnowsGenerator(Configuration conf, String preKeySetterName, String postKeySetterName, List<Float> percentages, int stepIndex, String knowsGeneratorName) {
         this.conf = new Configuration(conf);
         this.preKeySetterName = preKeySetterName;
         this.postKeySetterName = postKeySetterName;
         this.percentages = percentages;
-        this.step_index = step_index;
+        this.stepIndex = stepIndex;
         this.knowsGeneratorName = knowsGeneratorName;
     }
 
@@ -149,7 +149,7 @@ public class HadoopKnowsGenerator {
 
         System.out.println("... Time to rank persons: " + (System.currentTimeMillis() - start) + " ms");
 
-        conf.setInt("stepIndex", step_index);
+        conf.setInt("stepIndex", stepIndex);
         int index = 0;
         for (float p : percentages) {
             conf.setFloat("percentage" + index, p);

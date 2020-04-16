@@ -35,7 +35,10 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop.serializer;
 
+import ldbc.snb.datagen.DatagenMode;
+import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.LdbcDatagen;
+import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.hadoop.HadoopBlockMapper;
@@ -46,7 +49,10 @@ import ldbc.snb.datagen.hadoop.key.blockkey.BlockKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyComparator;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyGroupComparator;
 import ldbc.snb.datagen.hadoop.miscjob.HadoopFileRanker;
+import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
+import ldbc.snb.datagen.serializer.DeleteEventSerializer;
 import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
+import ldbc.snb.datagen.serializer.InsertEventSerializer;
 import ldbc.snb.datagen.vocabulary.SN;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -67,18 +73,22 @@ public class HadoopPersonSortAndSerializer {
 
     public static class HadoopDynamicPersonSerializerReducer extends Reducer<BlockKey, Person, LongWritable, Person> {
 
-        private int reducerId;
-        private DynamicPersonSerializer dynamicPersonSerializer_;
+        private DynamicPersonSerializer<HdfsCsvWriter> dynamicPersonSerializer;
+        private InsertEventSerializer insertEventSerializer;
+        private DeleteEventSerializer deleteEventSerializer;
 
         @Override
         protected void setup(Context context) {
             Configuration conf = context.getConfiguration();
-            reducerId = context.getTaskAttemptID().getTaskID().getId();
+            int reducerId = context.getTaskAttemptID().getTaskID().getId();
             try {
                 LdbcDatagen.initializeContext(conf);
-                dynamicPersonSerializer_ = (DynamicPersonSerializer) Class
-                        .forName(conf.get("ldbc.snb.datagen.serializer.dynamicPersonSerializer")).newInstance();
-                dynamicPersonSerializer_.initialize(conf, reducerId);
+                dynamicPersonSerializer = DatagenParams.getDynamicPersonSerializer();
+                dynamicPersonSerializer.initialize(conf, reducerId);
+                if (DatagenParams.getDatagenMode() == DatagenMode.INTERACTIVE || DatagenParams.getDatagenMode() == DatagenMode.BI) {
+                    insertEventSerializer = new InsertEventSerializer(conf, DatagenParams.hadoopDir + "/temp_insertStream_person_" + reducerId, reducerId, DatagenParams.numUpdatePartitions);
+                    deleteEventSerializer = new DeleteEventSerializer(conf, DatagenParams.hadoopDir + "/temp_deleteStream_person_" + reducerId, reducerId, DatagenParams.numUpdatePartitions);
+                }
             } catch (Exception e) {
                 System.err.println(e.getMessage());
                 throw new RuntimeException(e);
@@ -86,24 +96,94 @@ public class HadoopPersonSortAndSerializer {
         }
 
         @Override
-        public void reduce(BlockKey key, Iterable<Person> valueSet, Context context)
-                throws IOException {
+        public void reduce(BlockKey key, Iterable<Person> valueSet, Context context) throws IOException {
             SN.machineId = key.block;
-            for (Person p : valueSet) {
-                dynamicPersonSerializer_.export(p);
 
-                for (Knows k : p.getKnows()) {
-                    dynamicPersonSerializer_.export(p, k);
+            for (Person p : valueSet) {
+
+                if (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA || DatagenParams.getDatagenMode() == DatagenMode.GRAPHALYTICS) {
+                    dynamicPersonSerializer.export(p);
+                    for (Knows k : p.getKnows()) {
+                        dynamicPersonSerializer.export(p, k);
+
+                    }
+                } else {
+                    if ((p.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold() &&
+                            (p.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold() &&
+                                    p.getDeletionDate() <= Dictionaries.dates.getSimulationEnd()))) {
+                        dynamicPersonSerializer.export(p);
+                        if (p.isExplicitlyDeleted()) {
+                            deleteEventSerializer.export(p);
+                            deleteEventSerializer.changePartition();
+                        }
+                    } else if (p.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold()
+                            && p.getDeletionDate() > Dictionaries.dates.getSimulationEnd()) {
+                        dynamicPersonSerializer.export(p);
+                    } else if (p.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()
+                            && (p.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold()) &&
+                            p.getDeletionDate() <= Dictionaries.dates.getSimulationEnd()) {
+                        insertEventSerializer.export(p);
+                        insertEventSerializer.changePartition();
+                        if (p.isExplicitlyDeleted()) {
+                            deleteEventSerializer.export(p);
+                            deleteEventSerializer.changePartition();
+                        }
+                    } else if (p.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()
+                            && p.getDeletionDate() > Dictionaries.dates.getSimulationEnd()) {
+                        insertEventSerializer.export(p);
+                        insertEventSerializer.changePartition();
+                    }
+
+                    //TODO: export was split between here and HadoopPersonActivityGenerator, not sure why
+                    // moved all here
+                    for (Knows k : p.getKnows()) {
+
+                       if ((k.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold() &&
+                                (k.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold() &&
+                                        k.getDeletionDate() <= Dictionaries.dates.getSimulationEnd())
+                        )) {
+                            dynamicPersonSerializer.export(p, k);
+                            if (k.isExplicitlyDeleted()) {
+                                deleteEventSerializer.export(p, k);
+                                deleteEventSerializer.changePartition();
+                            }
+                        } else if (k.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold()
+                                && k.getDeletionDate() > Dictionaries.dates.getSimulationEnd()
+                        ) {
+                            dynamicPersonSerializer.export(p, k);
+                        } else if (k.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()
+                                && (k.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold()) &&
+                                k.getDeletionDate() <= Dictionaries.dates.getSimulationEnd()) {
+                            insertEventSerializer.export(p, k);
+                            insertEventSerializer.changePartition();
+                            if (k.isExplicitlyDeleted()) {
+                                deleteEventSerializer.export(p, k);
+                                deleteEventSerializer.changePartition();
+                            }
+                        } else if (k.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()
+                                && k.getDeletionDate() > Dictionaries.dates.getSimulationEnd()) {
+                            insertEventSerializer.export(p, k);
+                            insertEventSerializer.changePartition();
+                        }
+
+                    }
                 }
             }
         }
 
         @Override
         protected void cleanup(Context context) {
-            dynamicPersonSerializer_.close();
+            dynamicPersonSerializer.close();
+            if (DatagenParams.getDatagenMode() == DatagenMode.INTERACTIVE || DatagenParams.getDatagenMode() == DatagenMode.BI) {
+                try {
+                    insertEventSerializer.close();
+                    deleteEventSerializer.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e.getMessage());
+                }
+            }
         }
     }
-
 
     public HadoopPersonSortAndSerializer(Configuration conf) {
         this.conf = new Configuration(conf);

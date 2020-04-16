@@ -43,6 +43,7 @@ import java.util.TreeSet;
 
 abstract public class Message {
 
+    private boolean isExplicitlyDeleted;
     private long messageId;
     private long creationDate;
     private long deletionDate;
@@ -60,7 +61,8 @@ abstract public class Message {
     }
 
     public Message(long messageId, long creationDate, long deletionDate, PersonSummary author, long forumId,
-                   String content, TreeSet<Integer> tags, int countryId, IP ipAddress, int browserId
+                   String content, TreeSet<Integer> tags, int countryId, IP ipAddress, int browserId,
+                   boolean isExplicitlyDeleted
     ) {
         assert ((author.getCreationDate() + DatagenParams.deltaTime) <= creationDate);
         this.messageId = messageId;
@@ -73,10 +75,12 @@ abstract public class Message {
         this.countryId = countryId;
         this.ipAddress = new IP(ipAddress);
         this.browserId = browserId;
+        this.isExplicitlyDeleted = isExplicitlyDeleted;
     }
 
     public void initialize(long messageId, long creationDate, long deletionDate, PersonSummary author, long forumId,
-                           String content, TreeSet<Integer> tags, int countryId, IP ipAddress, int browserId
+                           String content, TreeSet<Integer> tags, int countryId, IP ipAddress, int browserId,
+                           boolean isExplicitlyDeleted
     ) {
         this.messageId = messageId;
         this.creationDate = creationDate;
@@ -89,6 +93,15 @@ abstract public class Message {
         this.countryId = countryId;
         this.ipAddress.copy(ipAddress);
         this.browserId = browserId;
+        this.isExplicitlyDeleted = isExplicitlyDeleted;
+    }
+
+    public boolean isExplicitlyDeleted() {
+        return isExplicitlyDeleted;
+    }
+
+    public void setExplicitlyDeleted(boolean explicitlyDeleted) {
+        isExplicitlyDeleted = explicitlyDeleted;
     }
 
     public long getMessageId() {

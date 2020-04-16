@@ -41,16 +41,16 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public class UpdateEventKey implements WritableComparable<UpdateEventKey> {
+public class InsertEventKey implements WritableComparable<InsertEventKey> {
 
     public long date;
     public int reducerId;
     public int partition;
 
-    public UpdateEventKey() {
+    public InsertEventKey() {
     }
 
-    public UpdateEventKey(long date, int reducerId, int partition) {
+    public InsertEventKey(long date, int reducerId, int partition) {
 
         this.date = date;
         this.reducerId = reducerId;
@@ -69,11 +69,9 @@ public class UpdateEventKey implements WritableComparable<UpdateEventKey> {
         partition = in.readInt();
     }
 
-    public int compareTo(UpdateEventKey key) {
+    public int compareTo(InsertEventKey key) {
         if (reducerId != key.reducerId) return reducerId - key.reducerId;
         if (partition != key.partition) return partition - key.partition;
-        if (date < key.date) return -1;
-        if (date > key.date) return 1;
-        return 0;
+        return Long.compare(date, key.date);
     }
 }

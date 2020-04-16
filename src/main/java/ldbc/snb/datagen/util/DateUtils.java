@@ -62,6 +62,7 @@ public class DateUtils {
     private long fromBirthDay;
     private long toBirthDay;
     private GregorianCalendar calendar;
+    private long bulkLoadThreshold;
     private PowerDistribution powerDist;
     private DateFormatter dateFormatter;
 
@@ -83,10 +84,12 @@ public class DateUtils {
         toBirthDay = toBirthCalendar.getTimeInMillis();
         calendar = new GregorianCalendar();
         calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+        bulkLoadThreshold = getSimulationEnd() - (long) ((getSimulationEnd() - getSimulationStart()) * (DatagenParams.bulkLoadPortion));
+
 
         try {
             dateFormatter = (DateFormatter) Class.forName(conf.get("ldbc.snb.datagen.serializer.dateFormatter"))
-                                                  .newInstance();
+                    .newInstance();
             dateFormatter.initialize(conf);
         } catch (Exception e) {
             System.err.println("Error when initializing date formatter");
@@ -96,6 +99,7 @@ public class DateUtils {
 
     /**
      * Generate random Person creation date
+     *
      * @param random random number generator
      * @return a random value on the interval [2010,2013]
      */
@@ -105,15 +109,16 @@ public class DateUtils {
 
     /**
      * Generate random Person deletion date
-     * @param random random number generator
+     *
+     * @param random       random number generator
      * @param creationDate Person creation date
-     * @param maxNumKnows maximum number of knows connections, influences the probability of leaving the network
-     * @return a random value on the interval [person creation + Delta , 2020]
+     * @param maxNumKnows  maximum number of knows connections, influences the probability of leaving the network
+     * @return a value on the interval [SS,SE]
      */
-    public Long randomPersonDeletionDate(Random random, long creationDate, long maxNumKnows) {
+    public Long randomPersonDeletionDate(Random random, long creationDate, long maxNumKnows,long maxDeletionDate) {
         // TODO: use maxNumKnows to determine when a person's deleted
         long personCreationDate = creationDate + DatagenParams.deltaTime;
-        return randomDate(random, personCreationDate, getNetworkCollapse());
+        return randomDate(random, personCreationDate, maxDeletionDate);
     }
 
     /*
@@ -166,7 +171,7 @@ public class DateUtils {
 
     public long randomKnowsDeletionDate(Random random, Person personA, Person personB, long knowsCreationDate) {
         long fromDate = knowsCreationDate + DatagenParams.deltaTime;
-        long toDate = Collections.min(Arrays.asList(personA.getDeletionDate(), personB.getDeletionDate(), getNetworkCollapse()));
+        long toDate = Collections.min(Arrays.asList(personA.getDeletionDate(), personB.getDeletionDate(), simulationEnd));
         return randomDate(random, fromDate, toDate);
     }
 
@@ -182,14 +187,16 @@ public class DateUtils {
         long maxDate = Math.max(minDate + THIRTY_DAYS, simulationEnd);
         return randomDate(random, minDate, maxDate);
     }
+
     public long randomDate(Random random, long minDate, long maxDate) {
-        assert (minDate < maxDate): "Invalid interval bounds. Upper bound should be larger than lower bound";
+        assert (minDate < maxDate) : "Invalid interval bounds. maxDate should be larger than minDate";
         return (long) (random.nextDouble() * (maxDate - minDate) + minDate);
     }
 
     /**
      * Returns the creation date of a comment following a power law distribution.
-     * @param random random number generator
+     *
+     * @param random                 random number generator
      * @param lastCommentCreatedDate parent message creation date
      * @return creation date of replies
      */
@@ -248,6 +255,10 @@ public class DateUtils {
 
     public Long getNetworkCollapse() {
         return getSimulationStart() + DateUtils.TEN_YEARS;
+    }
+
+    public long getBulkLoadThreshold() {
+        return bulkLoadThreshold;
     }
 
 }

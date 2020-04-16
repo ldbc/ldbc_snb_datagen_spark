@@ -53,7 +53,7 @@ public class UniformPostGenerator extends PostGenerator {
     }
 
     @Override
-    protected PostCore generatePostInfo(Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership) {
+    protected PostCore generatePostInfo(Random randomDeletePost, Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership) {
 
         PostCore postCore = new PostCore();
 
@@ -64,14 +64,21 @@ public class UniformPostGenerator extends PostGenerator {
         postCore.setCreationDate(postCreationDate);
 
         // add deletion date
-        long minDeletionDate = postCreationDate + DatagenParams.deltaTime;
-        long maxDeletionDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getNetworkCollapse());
+        long postDeletionDate;
+        if (randomDeletePost.nextDouble() < DatagenParams.probPostDeleted) {
+            postCore.setExplicitlyDeleted(true);
+            long minDeletionDate = postCreationDate + DatagenParams.deltaTime;
+            long maxDeletionDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
 
-        if (maxDeletionDate - minDeletionDate < 0) {
-            return null;
+            if (maxDeletionDate - minDeletionDate < 0) {
+                return null;
+            }
+            postDeletionDate = Dictionaries.dates.randomDate(randomDate, minDeletionDate, maxDeletionDate);
+        } else {
+            postCore.setExplicitlyDeleted(false);
+            postDeletionDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
         }
 
-        long postDeletionDate = Dictionaries.dates.randomDate(randomDate, minDeletionDate, maxDeletionDate);
         postCore.setDeletionDate(postDeletionDate);
 
         // add tags to post

@@ -43,12 +43,21 @@ public class Like {
         PHOTO
     }
 
+    private boolean isExplicitlyDeleted;
     private long person;
     private long personCreationDate;
     private long messageId;
     private long likeCreationDate;
     private long likeDeletionDate;
     private LikeType type;
+
+    public boolean isExplicitlyDeleted() {
+        return isExplicitlyDeleted;
+    }
+
+    public void setExplicitlyDeleted(boolean explicitlyDeleted) {
+        isExplicitlyDeleted = explicitlyDeleted;
+    }
 
     public long getPerson() {
         return person;

@@ -100,7 +100,7 @@ abstract public class PostGenerator {
             for (int i = 0; i < (int) (numPostsPerMember); ++i) {
 
                 // create post core
-                PostCore postCore = generatePostInfo(randomFarm.get(RandomGeneratorFarm.Aspect.TAG),
+                PostCore postCore = generatePostInfo(randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_POST), randomFarm.get(RandomGeneratorFarm.Aspect.TAG),
                         randomFarm.get(RandomGeneratorFarm.Aspect.DATE), forum, member);
 
                 if (postCore != null) {
@@ -119,26 +119,29 @@ abstract public class PostGenerator {
 
                     // create post with above information and from post info
                     post.initialize(SN.formId(SN.composeId(postIdCounter++, postCore.getCreationDate())),
-                                     postCore.getCreationDate(),
-                                     postCore.getDeletionDate(),
-                                     member.getPerson(),
-                                     forum.getId(),
-                                     content,
-                                     postCore.getTags(),
-                                     country,
-                                     ip,
-                                     Dictionaries.browsers.getPostBrowserId(
-                                             randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),
-                                             randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER),
-                                             member.getPerson().getBrowserId()),
-                                     forum.getLanguage());
+                            postCore.getCreationDate(),
+                            postCore.getDeletionDate(),
+                            member.getPerson(),
+                            forum.getId(),
+                            content,
+                            postCore.getTags(),
+                            country,
+                            ip,
+                            Dictionaries.browsers.getPostBrowserId(
+                                    randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),
+                                    randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER),
+                                    member.getPerson().getBrowserId()),
+                            forum.getLanguage(),
+                            forum.isExplicitlyDeleted());
 
                     exporter.export(post);
 
                     // generate likes
                     if (randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1) {
-                        likeGenerator.generateLikes(randomFarm
-                                                             .get(RandomGeneratorFarm.Aspect.NUM_LIKE), forum, post, Like.LikeType.POST, exporter);
+                        likeGenerator.generateLikes(
+                                randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_LIKES),
+                                randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE),
+                                forum, post, Like.LikeType.POST, exporter);
                     }
 
                     // generate comments
@@ -150,5 +153,5 @@ abstract public class PostGenerator {
         return postIdCounter;
     }
 
-    protected abstract PostCore generatePostInfo(Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership);
+    protected abstract PostCore generatePostInfo(Random randonDeletePost, Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership);
 }

@@ -36,12 +36,14 @@
 package ldbc.snb.datagen.serializer;
 
 import com.google.common.base.Joiner;
+import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.entities.dynamic.relations.StudyAt;
 import ldbc.snb.datagen.entities.dynamic.relations.WorkAt;
 import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
+import ldbc.snb.datagen.util.DateUtils;
 
 import java.util.Iterator;
 import java.util.List;
@@ -52,33 +54,32 @@ abstract public class DynamicPersonSerializer<TWriter extends HdfsWriter> extend
 
     abstract protected void serialize(final Person p);
 
-    abstract protected void serialize(final StudyAt studyAt,final Person person);
+    abstract protected void serialize(final StudyAt studyAt, final Person person);
 
-    abstract protected void serialize(final WorkAt workAt,final Person person);
+    abstract protected void serialize(final WorkAt workAt, final Person person);
 
     abstract protected void serialize(final Person p, final Knows knows);
 
     public void export(final Person person) {
-        serialize(person);
 
-        long universityId = Dictionaries.universities.getUniversityFromLocation(person.getUniversityLocationId());
-        if ((universityId != -1) && (person.getClassYear() != -1)) {
-            StudyAt studyAt = new StudyAt();
-            studyAt.year = person.getClassYear();
-            studyAt.person = person.getAccountId();
-            studyAt.university = universityId;
-            serialize(studyAt,person);
-        }
+            serialize(person);
 
-        Iterator<Long> it = person.getCompanies().keySet().iterator();
-        while (it.hasNext()) {
-            long companyId = it.next();
-            WorkAt workAt = new WorkAt();
-            workAt.company = companyId;
-            workAt.person = person.getAccountId();
-            workAt.year = person.getCompanies().get(companyId);
-            serialize(workAt,person);
-        }
+            long universityId = Dictionaries.universities.getUniversityFromLocation(person.getUniversityLocationId());
+            if ((universityId != -1) && (person.getClassYear() != -1)) {
+                StudyAt studyAt = new StudyAt();
+                studyAt.year = person.getClassYear();
+                studyAt.person = person.getAccountId();
+                studyAt.university = universityId;
+                serialize(studyAt, person);
+            }
+
+            for (long companyId : person.getCompanies().keySet()) {
+                WorkAt workAt = new WorkAt();
+                workAt.company = companyId;
+                workAt.person = person.getAccountId();
+                workAt.year = person.getCompanies().get(companyId);
+                serialize(workAt, person);
+            }
     }
 
     public void export(final Person p, final Knows k) {
