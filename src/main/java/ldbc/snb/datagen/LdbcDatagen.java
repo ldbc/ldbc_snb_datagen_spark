@@ -447,7 +447,6 @@ public class LdbcDatagen {
         datagen.runGenerateJob(conf);
 
         // sorting update streams - needed to actual produce the streams in social_network/
-//        if (conf.getBoolean("ldbc.snb.datagen.serializer.updateStreams", false)) {
         if (conf.get("ldbc.snb.datagen.mode").equals("interactive")) {
 
             datagen.runSortInsertStream(conf);
