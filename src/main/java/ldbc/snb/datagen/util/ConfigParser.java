@@ -74,9 +74,7 @@ public class ConfigParser {
         conf.set("ldbc.snb.datagen.generator.distribution.degreeDistribution", "ldbc.snb.datagen.generator.distribution.FacebookDegreeDistribution");
         conf.set("ldbc.snb.datagen.generator.knowsGenerator", "ldbc.snb.datagen.generator.generators.knowsgenerators.DistanceKnowsGenerator");
         conf.set("ldbc.snb.datagen.generator.person.similarity", "ldbc.snb.datagen.entities.dynamic.person.similarity.GeoDistanceSimilarity");
-        conf.set("ldbc.snb.datagen.serializer.dynamicActivitySerializer", "ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvBasicDynamicActivitySerializer");
-        conf.set("ldbc.snb.datagen.serializer.dynamicPersonSerializer", "ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CsvBasicDynamicPersonSerializer");
-        conf.set("ldbc.snb.datagen.serializer.staticSerializer", "ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvBasicStaticSerializer");
+        conf.set("ldbc.snb.datagen.serializer.format","CsvBasic"); // CsvBasic, CsvMergeForeign, CsvComposite, CsvCompositeMergeForeign
         conf.set("ldbc.snb.datagen.serializer.compressed", Boolean.toString(false));
         conf.set("ldbc.snb.datagen.serializer.outputDir", "./");
         conf.set("ldbc.snb.datagen.serializer.socialNetworkDir", "./social_network");
@@ -87,19 +85,10 @@ public class ConfigParser {
         conf.set("ldbc.snb.datagen.util.formatter.StringDateFormatter.dateFormat", "yyyy-MM-dd");
         conf.set("ldbc.snb.datagen.parametergenerator.python", "python");
         conf.set("ldbc.snb.datagen.parametergenerator.parameters", "true");
-//        conf.set("ldbc.snb.datagen.serializer.persons.sort", "true");
-//        conf.set("ldbc.snb.datagen.runsort", "true");
-//        conf.set("ldbc.snb.datagen.serializer.updateStreams", Boolean.toString(true));
-
         conf.set("ldbc.snb.datagen.mode", "interactive"); // interactive, bi, graphalytics, rawdata
         conf.set("ldbc.snb.datagen.mode.bi.deleteType", "simple"); // simple or smart
-        conf.set("ldbc.snb.datagen.mode.bi.batchsize", "month");
+        conf.set("ldbc.snb.datagen.mode.bi.batches", "1");
         conf.set("ldbc.snb.datagen.mode.interactive.numUpdateStreams", "1");
-
-
-//        conf.set("ldbc.snb.datagen.serializer.numPartitions", "1");
-//        conf.set("ldbc.snb.datagen.serializer.numUpdatePartitions", "1");
-        conf.set("ldbc.snb.datagen.generator.activity", "true"); // graphalytics mode should set this
 
         // Loading predefined Scale Factors
         scaleFactors = new TreeMap<>();
@@ -176,7 +165,7 @@ public class ConfigParser {
         System.out.println("********* Configuration *********");
         Map<String, String> map = conf.getValByRegex("^(ldbc.snb.datagen).*$");
         for (Map.Entry<String, String> e : map.entrySet()) {
-            System.out.println(e.getKey() + " " + e.getValue());
+            System.out.println(e.getKey() + ": " + e.getValue());
         }
         System.out.println("*********************************");
     }
