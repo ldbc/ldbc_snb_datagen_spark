@@ -47,13 +47,11 @@ import java.util.Properties;
 public class ConfigParser {
 
     public static Map<String, String> readConfig(String paramsFile) {
-        Map<String, String> conf = new HashMap<>();
         try {
-            readConfig(new FileInputStream(paramsFile));
+            return readConfig(new FileInputStream(paramsFile));
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
-        return conf;
     }
 
     public static Map<String, String> readConfig(InputStream paramStream) {
