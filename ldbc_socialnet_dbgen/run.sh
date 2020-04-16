@@ -20,3 +20,4 @@ cp $LDBC_SOCIALNET_DBGEN_HOME/target/ldbc_socialnet_dbgen.jar $LDBC_SOCIALNET_DB
 rm $LDBC_SOCIALNET_DBGEN_HOME/target/ldbc_socialnet_dbgen.jar
 
 $HADOOP_HOME/bin/hadoop jar $LDBC_SOCIALNET_DBGEN_HOME/ldbc_socialnet_dbgen.jar $SIB_INPUT_DIR $SIB_OUTPUT_DIR $NUM_MACHINES $LDBC_SOCIALNET_DBGEN_HOME/ $DATA_OUTPUT_DIR
+
