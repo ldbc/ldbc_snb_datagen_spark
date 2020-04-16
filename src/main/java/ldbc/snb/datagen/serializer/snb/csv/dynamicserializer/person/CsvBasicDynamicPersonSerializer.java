@@ -37,6 +37,8 @@
 package ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person;
 
 import com.google.common.collect.ImmutableList;
+import ldbc.snb.datagen.DatagenMode;
+import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
@@ -60,95 +62,186 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
 
     @Override
     public void writeFileHeaders() {
-        writers.get(PERSON).writeHeader(ImmutableList.of("creationDate", "id", "firstName", "lastName", "gender", "birthday", "locationIP", "browserUsed"));
-        writers.get(PERSON_SPEAKS_LANGUAGE).writeHeader(ImmutableList.of("creationDate", "Person.id", "language"));
-        writers.get(PERSON_EMAIL_EMAILADDRESS).writeHeader(ImmutableList.of("creationDate", "Person.id", "email"));
-        writers.get(PERSON_ISLOCATEDIN_PLACE).writeHeader(ImmutableList.of("creationDate", "Person.id", "Place.id"));
-        writers.get(PERSON_HASINTEREST_TAG).writeHeader(ImmutableList.of("creationDate", "Person.id", "Tag.id"));
-        writers.get(PERSON_STUDYAT_ORGANISATION).writeHeader(ImmutableList.of("creationDate", "Person.id", "Organisation.id", "classYear"));
-        writers.get(PERSON_WORKAT_ORGANISATION).writeHeader(ImmutableList.of("creationDate", "Person.id", "Organisation.id", "workFrom"));
-        writers.get(PERSON_KNOWS_PERSON).writeHeader(ImmutableList.of("creationDate", "Person.id", "Person.id"));
+        if (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) {
+            writers.get(PERSON).writeHeader(ImmutableList.of("creationDate", "id", "firstName", "lastName", "gender", "birthday", "locationIP", "browserUsed","deletionDate"));
+            writers.get(PERSON_SPEAKS_LANGUAGE).writeHeader(ImmutableList.of("creationDate", "Person.id", "language","deletionDate"));
+            writers.get(PERSON_EMAIL_EMAILADDRESS).writeHeader(ImmutableList.of("creationDate", "Person.id", "email","deletionDate"));
+            writers.get(PERSON_ISLOCATEDIN_PLACE).writeHeader(ImmutableList.of("creationDate", "Person.id", "Place.id","deletionDate"));
+            writers.get(PERSON_HASINTEREST_TAG).writeHeader(ImmutableList.of("creationDate", "Person.id", "Tag.id","deletionDate"));
+            writers.get(PERSON_STUDYAT_ORGANISATION).writeHeader(ImmutableList.of("creationDate", "Person.id", "Organisation.id", "classYear","deletionDate"));
+            writers.get(PERSON_WORKAT_ORGANISATION).writeHeader(ImmutableList.of("creationDate", "Person.id", "Organisation.id", "workFrom","deletionDate"));
+            writers.get(PERSON_KNOWS_PERSON).writeHeader(ImmutableList.of("creationDate", "Person.id", "Person.id"));
+        } else {
+            writers.get(PERSON).writeHeader(ImmutableList.of("creationDate", "id", "firstName", "lastName", "gender", "birthday", "locationIP", "browserUsed"));
+            writers.get(PERSON_SPEAKS_LANGUAGE).writeHeader(ImmutableList.of("creationDate", "Person.id", "language"));
+            writers.get(PERSON_EMAIL_EMAILADDRESS).writeHeader(ImmutableList.of("creationDate", "Person.id", "email"));
+            writers.get(PERSON_ISLOCATEDIN_PLACE).writeHeader(ImmutableList.of("creationDate", "Person.id", "Place.id"));
+            writers.get(PERSON_HASINTEREST_TAG).writeHeader(ImmutableList.of("creationDate", "Person.id", "Tag.id"));
+            writers.get(PERSON_STUDYAT_ORGANISATION).writeHeader(ImmutableList.of("creationDate", "Person.id", "Organisation.id", "classYear"));
+            writers.get(PERSON_WORKAT_ORGANISATION).writeHeader(ImmutableList.of("creationDate", "Person.id", "Organisation.id", "workFrom"));
+            writers.get(PERSON_KNOWS_PERSON).writeHeader(ImmutableList.of("creationDate", "Person.id", "Person.id"));
+        }
     }
 
     @Override
     protected void serialize(final Person person) {
-        //"creationDate",  "id", "firstName", "lastName", "gender", "birthday", "locationIP", "browserUsed"
-        writers.get(PERSON).writeEntry(ImmutableList.of(
-                Dictionaries.dates.formatDateTime(person.getCreationDate()),
-                Long.toString(person.getAccountId()),
-                person.getFirstName(),
-                person.getLastName(),
-                getGender(person.getGender()),
-                Dictionaries.dates.formatDate(person.getBirthday()),
-                person.getIpAddress().toString(),
-                Dictionaries.browsers.getName(person.getBrowserId()),
-                Dictionaries.dates.formatDateTime(person.getDeletionDate())
+        if (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) {
+            //"creationDate",  "id", "firstName", "lastName", "gender", "birthday", "locationIP", "browserUsed", "deletionDate"
+            writers.get(PERSON).writeEntry(ImmutableList.of(
+                    Dictionaries.dates.formatDateTime(person.getCreationDate()),
+                    Long.toString(person.getAccountId()),
+                    person.getFirstName(),
+                    person.getLastName(),
+                    getGender(person.getGender()),
+                    Dictionaries.dates.formatDate(person.getBirthday()),
+                    person.getIpAddress().toString(),
+                    Dictionaries.browsers.getName(person.getBrowserId()),
+                    Dictionaries.dates.formatDateTime(person.getDeletionDate())
+            ));
+
+            for (Integer i : person.getLanguages()) {
+                //"creationDate",  "Person.id", "language", "deletionDate"
+                writers.get(PERSON_SPEAKS_LANGUAGE).writeEntry(ImmutableList.of(
+                        Dictionaries.dates.formatDateTime(person.getCreationDate()),
+                        Long.toString(person.getAccountId()),
+                        Dictionaries.languages.getLanguageName(i),
+                        Dictionaries.dates.formatDateTime(person.getDeletionDate())));
+            }
+            for (String s : person.getEmails()) {
+                //"creationDate",  "Person.id", "email", "deletionDate"
+                writers.get(PERSON_EMAIL_EMAILADDRESS).writeEntry(ImmutableList.of(
+                        Dictionaries.dates.formatDateTime(person.getCreationDate()),
+                        Long.toString(person.getAccountId()),
+                        s,
+                        Dictionaries.dates.formatDateTime(person.getDeletionDate())
                 ));
+            }
+            //"creationDate",  "Person.id", "Place.id", "deletionDate"
+            writers.get(PERSON_ISLOCATEDIN_PLACE).writeEntry(ImmutableList.of(
+                    Dictionaries.dates.formatDateTime(person.getCreationDate()),
+                    Long.toString(person.getAccountId()),
+                    Integer.toString(person.getCityId()),
+                    Dictionaries.dates.formatDateTime(person.getDeletionDate())
+            ));
 
-        for (Integer i : person.getLanguages()) {
-            //"creationDate",  "Person.id", "language"
-            writers.get(PERSON_SPEAKS_LANGUAGE).writeEntry(ImmutableList.of(
+            for (Integer integer : person.getInterests()) {
+                //"creationDate",  "Person.id", "Tag.id", "deletionDate"
+                writers.get(PERSON_HASINTEREST_TAG).writeEntry(ImmutableList.of(
+                        Dictionaries.dates.formatDateTime(person.getCreationDate()),
+                        Long.toString(person.getAccountId()),
+                        Integer.toString(integer),
+                        Dictionaries.dates.formatDateTime(person.getDeletionDate())
+                ));
+            }
+        } else {
+            //"creationDate",  "id", "firstName", "lastName", "gender", "birthday", "locationIP", "browserUsed"
+            writers.get(PERSON).writeEntry(ImmutableList.of(
                     Dictionaries.dates.formatDateTime(person.getCreationDate()),
                     Long.toString(person.getAccountId()),
-                    Dictionaries.languages.getLanguageName(i)
+                    person.getFirstName(),
+                    person.getLastName(),
+                    getGender(person.getGender()),
+                    Dictionaries.dates.formatDate(person.getBirthday()),
+                    person.getIpAddress().toString(),
+                    Dictionaries.browsers.getName(person.getBrowserId())
             ));
-        }
-        for (String s : person.getEmails()) {
-            //"creationDate",  "Person.id", "email"
-            writers.get(PERSON_EMAIL_EMAILADDRESS).writeEntry(ImmutableList.of(
-                    Dictionaries.dates.formatDateTime(person.getCreationDate()),
-                    Long.toString(person.getAccountId()),
-                    s
-            ));
-        }
-        //"creationDate",  "Person.id", "Place.id"
-        writers.get(PERSON_ISLOCATEDIN_PLACE).writeEntry(ImmutableList.of(
-                Dictionaries.dates.formatDateTime(person.getCreationDate()),
-                Long.toString(person.getAccountId()),
-                Integer.toString(person.getCityId())
-        ));
 
-        for (Integer integer : person.getInterests()) {
-            //"creationDate",  "Person.id", "Tag.id"
-            writers.get(PERSON_HASINTEREST_TAG).writeEntry(ImmutableList.of(
+            for (Integer i : person.getLanguages()) {
+                //"creationDate",  "Person.id", "language"
+                writers.get(PERSON_SPEAKS_LANGUAGE).writeEntry(ImmutableList.of(
+                        Dictionaries.dates.formatDateTime(person.getCreationDate()),
+                        Long.toString(person.getAccountId()),
+                        Dictionaries.languages.getLanguageName(i)
+                ));
+            }
+            for (String s : person.getEmails()) {
+                //"creationDate",  "Person.id", "email"
+                writers.get(PERSON_EMAIL_EMAILADDRESS).writeEntry(ImmutableList.of(
+                        Dictionaries.dates.formatDateTime(person.getCreationDate()),
+                        Long.toString(person.getAccountId()),
+                        s
+                ));
+            }
+            //"creationDate",  "Person.id", "Place.id"
+            writers.get(PERSON_ISLOCATEDIN_PLACE).writeEntry(ImmutableList.of(
                     Dictionaries.dates.formatDateTime(person.getCreationDate()),
                     Long.toString(person.getAccountId()),
-                    Integer.toString(integer)
+                    Integer.toString(person.getCityId())
             ));
+
+            for (Integer integer : person.getInterests()) {
+                //"creationDate",  "Person.id", "Tag.id"
+                writers.get(PERSON_HASINTEREST_TAG).writeEntry(ImmutableList.of(
+                        Dictionaries.dates.formatDateTime(person.getCreationDate()),
+                        Long.toString(person.getAccountId()),
+                        Integer.toString(integer)
+                ));
+            }
         }
     }
 
     @Override
     protected void serialize(final StudyAt studyAt, final Person person) {
-        //"creationDate",  "Person.id", "Organisation.id", "classYear"
-        writers.get(PERSON_STUDYAT_ORGANISATION).writeEntry(ImmutableList.of(
-                Dictionaries.dates.formatDateTime(person.getCreationDate()),
-                Long.toString(studyAt.person),
-                Long.toString(studyAt.university),
-                Dictionaries.dates.formatYear(studyAt.year)
-        ));
+        if (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) {
+            //"creationDate",  "Person.id", "Organisation.id", "classYear","deletionDate"
+            writers.get(PERSON_STUDYAT_ORGANISATION).writeEntry(ImmutableList.of(
+                    Dictionaries.dates.formatDateTime(person.getCreationDate()),
+                    Long.toString(studyAt.person),
+                    Long.toString(studyAt.university),
+                    Dictionaries.dates.formatYear(studyAt.year),
+                    Dictionaries.dates.formatDateTime(person.getDeletionDate())
+                    ));
+        } else {
+            //"creationDate",  "Person.id", "Organisation.id", "classYear"
+            writers.get(PERSON_STUDYAT_ORGANISATION).writeEntry(ImmutableList.of(
+                    Dictionaries.dates.formatDateTime(person.getCreationDate()),
+                    Long.toString(studyAt.person),
+                    Long.toString(studyAt.university),
+                    Dictionaries.dates.formatYear(studyAt.year)
+            ));
+        }
     }
 
     @Override
     protected void serialize(final WorkAt workAt, final Person person) {
-        //"creationDate",  "Person.id", "Organisation.id", "workFrom"
-        writers.get(PERSON_WORKAT_ORGANISATION).writeEntry(ImmutableList.of(
-                Dictionaries.dates.formatDateTime(person.getCreationDate()),
-                Long.toString(workAt.person),
-                Long.toString(workAt.company),
-                Dictionaries.dates.formatYear(workAt.year)
-        ));
+        if (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) {
+            //"creationDate",  "Person.id", "Organisation.id", "workFrom","deletionDate"
+            writers.get(PERSON_WORKAT_ORGANISATION).writeEntry(ImmutableList.of(
+                    Dictionaries.dates.formatDateTime(person.getCreationDate()),
+                    Long.toString(workAt.person),
+                    Long.toString(workAt.company),
+                    Dictionaries.dates.formatYear(workAt.year),
+                    Dictionaries.dates.formatDateTime(person.getDeletionDate())
+                    ));
+        } else {
+            //"creationDate",  "Person.id", "Organisation.id", "workFrom"
+            writers.get(PERSON_WORKAT_ORGANISATION).writeEntry(ImmutableList.of(
+                    Dictionaries.dates.formatDateTime(person.getCreationDate()),
+                    Long.toString(workAt.person),
+                    Long.toString(workAt.company),
+                    Dictionaries.dates.formatYear(workAt.year)
+            ));
+        }
     }
 
     @Override
     protected void serialize(final Person person, Knows knows) {
-        //"creationDate",  "Person.id", "Person.id"
-        writers.get(PERSON_KNOWS_PERSON).writeEntry(ImmutableList.of(
-                Dictionaries.dates.formatDateTime(knows.getCreationDate()),
-                Long.toString(person.getAccountId()),
-                Long.toString(knows.to().getAccountId()),
-                Dictionaries.dates.formatDateTime(knows.getDeletionDate())
-                ));
+        if (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) {
+            //"creationDate",  "Person.id", "Person.id","deletionDate"
+            writers.get(PERSON_KNOWS_PERSON).writeEntry(ImmutableList.of(
+                    Dictionaries.dates.formatDateTime(knows.getCreationDate()),
+                    Long.toString(person.getAccountId()),
+                    Long.toString(knows.to().getAccountId()),
+                    Dictionaries.dates.formatDateTime(knows.getDeletionDate())
+            ));
+        } else {
+            //"creationDate",  "Person.id", "Person.id"
+            writers.get(PERSON_KNOWS_PERSON).writeEntry(ImmutableList.of(
+                    Dictionaries.dates.formatDateTime(knows.getCreationDate()),
+                    Long.toString(person.getAccountId()),
+                    Long.toString(knows.to().getAccountId())
+            ));
+        }
     }
 
 }
