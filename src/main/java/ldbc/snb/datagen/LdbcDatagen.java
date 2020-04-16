@@ -294,9 +294,7 @@ public class LdbcDatagen {
             int numPartitions = conf.getInt("ldbc.snb.datagen.serializer.numUpdatePartitions", 1);
             for (int j = 0; j < numPartitions; ++j) {
                 personStreamsFileNames.add(DatagenParams.hadoopDir + "/temp_insertStream_person_" + i + "_" + j);
-                if (conf.getBoolean("ldbc.snb.datagen.generator.activity", false)) {
-                    forumStreamsFileNames.add(DatagenParams.hadoopDir + "/temp_insertStream_forum_" + i + "_" + j);
-                }
+                forumStreamsFileNames.add(DatagenParams.hadoopDir + "/temp_insertStream_forum_" + i + "_" + j);
             }
         }
 
@@ -329,20 +327,19 @@ public class LdbcDatagen {
             file.close();
             FileSystem.get(conf).delete(propertiesFile, true);
 
-            if (conf.getBoolean("ldbc.snb.datagen.generator.activity", false)) {
-                propertiesFile = new Path(DatagenParams.hadoopDir + "/temp_insertStream_forum_" + i + ".properties");
-                file = FileSystem.get(conf).open(propertiesFile);
-                properties = new Properties();
-                properties.load(file);
-                aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.insert.min_write_event_start_time"));
-                minDate = Math.min(aux, minDate);
-                aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.insert.max_write_event_start_time"));
-                maxDate = Math.max(aux, maxDate);
-                aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.insert.num_events"));
-                count += aux;
-                file.close();
-                FileSystem.get(conf).delete(propertiesFile, true);
-            }
+            propertiesFile = new Path(DatagenParams.hadoopDir + "/temp_insertStream_forum_" + i + ".properties");
+            file = FileSystem.get(conf).open(propertiesFile);
+            properties = new Properties();
+            properties.load(file);
+            aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.insert.min_write_event_start_time"));
+            minDate = Math.min(aux, minDate);
+            aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.insert.max_write_event_start_time"));
+            maxDate = Math.max(aux, maxDate);
+            aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.insert.num_events"));
+            count += aux;
+            file.close();
+            FileSystem.get(conf).delete(propertiesFile, true);
+
         }
 
         OutputStream output = FileSystem.get(conf)
@@ -375,9 +372,7 @@ public class LdbcDatagen {
             int numPartitions = conf.getInt("ldbc.snb.datagen.serializer.numUpdatePartitions", 1);
             for (int j = 0; j < numPartitions; ++j) {
                 personStreamsFileNames.add(DatagenParams.hadoopDir + "/temp_deleteStream_person_" + i + "_" + j);
-                if (conf.getBoolean("ldbc.snb.datagen.generator.activity", false)) {
-                    forumStreamsFileNames.add(DatagenParams.hadoopDir + "/temp_deleteStream_forum_" + i + "_" + j);
-                }
+                forumStreamsFileNames.add(DatagenParams.hadoopDir + "/temp_deleteStream_forum_" + i + "_" + j);
             }
         }
 
@@ -410,20 +405,19 @@ public class LdbcDatagen {
             file.close();
             FileSystem.get(conf).delete(propertiesFile, true);
 
-            if (conf.getBoolean("ldbc.snb.datagen.generator.activity", false)) {
-                propertiesFile = new Path(DatagenParams.hadoopDir + "/temp_deleteStream_forum_" + i + ".properties");
-                file = FileSystem.get(conf).open(propertiesFile);
-                properties = new Properties();
-                properties.load(file);
-                aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.delete.min_write_event_start_time"));
-                minDate = Math.min(aux, minDate);
-                aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.delete.max_write_event_start_time"));
-                maxDate = Math.max(aux, maxDate);
-                aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.delete.num_events"));
-                count += aux;
-                file.close();
-                FileSystem.get(conf).delete(propertiesFile, true);
-            }
+            propertiesFile = new Path(DatagenParams.hadoopDir + "/temp_deleteStream_forum_" + i + ".properties");
+            file = FileSystem.get(conf).open(propertiesFile);
+            properties = new Properties();
+            properties.load(file);
+            aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.delete.min_write_event_start_time"));
+            minDate = Math.min(aux, minDate);
+            aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.delete.max_write_event_start_time"));
+            maxDate = Math.max(aux, maxDate);
+            aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.delete.num_events"));
+            count += aux;
+            file.close();
+            FileSystem.get(conf).delete(propertiesFile, true);
+
         }
 
         OutputStream output = FileSystem.get(conf)
