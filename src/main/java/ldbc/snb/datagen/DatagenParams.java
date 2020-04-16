@@ -38,7 +38,7 @@
 package ldbc.snb.datagen;
 
 import ldbc.snb.datagen.generator.distribution.DegreeDistribution;
-import org.apache.hadoop.conf.Configuration;
+import ldbc.snb.datagen.util.Config;
 
 public class DatagenParams {
 
@@ -230,10 +230,15 @@ public class DatagenParams {
     public static int numPartitions = 1;
     public static int numUpdatePartitions = 1;
 
-    private static Integer intConf(Configuration conf,ParameterNames param) { return Integer.parseInt(conf.get(param.toString())); }
-    private static Double doubleConf(Configuration conf,ParameterNames param) { return Double.parseDouble(conf.get(param.toString())); }
+    private static Integer intConf(Config conf, ParameterNames param) {
+        return Integer.parseInt(conf.get(param.toString()));
+    }
 
-    public static void readConf(Configuration conf) {
+    private static Double doubleConf(Config conf, ParameterNames param) {
+        return Double.parseDouble(conf.get(param.toString()));
+    }
+
+    public static void readConf(Config conf) {
         try {
             ParameterNames[] values = ParameterNames.values();
             for (ParameterNames value : values)

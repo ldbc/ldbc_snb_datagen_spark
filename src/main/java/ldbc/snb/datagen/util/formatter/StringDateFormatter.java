@@ -35,7 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.util.formatter;
 
-import org.apache.hadoop.conf.Configuration;
+import ldbc.snb.datagen.util.Config;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -50,7 +50,7 @@ public class StringDateFormatter implements DateFormatter {
     private SimpleDateFormat gmtDateFormatter_;
     private Date date_;
 
-    public void initialize(Configuration conf) {
+    public void initialize(Config conf) {
 
         formatDateTimeString_ = conf
                 .get("ldbc.snb.datagen.util.formatter.StringDateFormatter.dateTimeFormat", formatDateTimeString_);

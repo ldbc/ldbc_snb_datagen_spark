@@ -39,7 +39,7 @@ import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.generator.tools.GraphUtils;
 import ldbc.snb.datagen.generator.tools.PersonGraph;
-import org.apache.hadoop.conf.Configuration;
+import ldbc.snb.datagen.util.Config;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -667,7 +667,7 @@ public class ClusteringKnowsGenerator implements KnowsGenerator {
         printStatistics();
     }
 
-    public void initialize(Configuration conf) {
+    public void initialize(Config conf) {
         targetCC = conf.getFloat("ldbc.snb.datagen.generator.generators.knowsgenerators.ClusteringKnowsGenerator.clusteringCoefficient", 0.1f);
         System.out.println("Initialized clustering coefficient to " + targetCC);
         targetCC /= 2.0f;

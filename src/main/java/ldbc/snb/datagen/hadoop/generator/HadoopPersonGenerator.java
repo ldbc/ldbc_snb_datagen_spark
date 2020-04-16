@@ -36,9 +36,10 @@
 package ldbc.snb.datagen.hadoop.generator;
 
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.LdbcDatagen;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.generator.generators.PersonGenerator;
+import ldbc.snb.datagen.hadoop.HadoopConfiguration;
+import ldbc.snb.datagen.hadoop.LdbcDatagen;
 import ldbc.snb.datagen.hadoop.key.TupleKey;
 import ldbc.snb.datagen.hadoop.miscjob.keychanger.HadoopFileKeyChanger;
 import org.apache.hadoop.conf.Configuration;
@@ -68,10 +69,10 @@ public class HadoopPersonGenerator {
         @Override
         public void map(LongWritable key, Text value, Context context) {
 
-            Configuration conf = context.getConfiguration();
+            Configuration hadoopConf = context.getConfiguration();
 
             try {
-                this.keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(conf.get("postKeySetterName")).newInstance();
+                this.keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(hadoopConf.get("postKeySetterName")).newInstance();
             } catch (Exception e) {
                 System.err.println("Error when setting key setter");
                 System.err.println(e.getMessage());
@@ -80,15 +81,17 @@ public class HadoopPersonGenerator {
 
             int threadId = Integer.parseInt(value.toString());
             System.out.println("Generating person at mapper " + threadId);
-            LdbcDatagen.initializeContext(conf);
+            LdbcDatagen.initializeContext(hadoopConf);
 
             // Here we determine the blocks in the "block space" that this mapper is responsible for.
             int numBlocks = (int) (Math.ceil(DatagenParams.numPersons / (double) DatagenParams.blockSize));
             int initBlock = (int) (Math.ceil((numBlocks / (double) DatagenParams.numThreads) * threadId));
             int endBlock = (int) (Math.ceil((numBlocks / (double) DatagenParams.numThreads) * (threadId + 1)));
 
-            PersonGenerator personGenerator = new PersonGenerator(conf, conf
-                    .get("ldbc.snb.datagen.generator.distribution.degreeDistribution"));
+            PersonGenerator personGenerator = new PersonGenerator(
+                    HadoopConfiguration.extractLdbcConfig(hadoopConf),
+                    hadoopConf.get("ldbc.snb.datagen.generator.distribution.degreeDistribution")
+            );
             for (int i = initBlock; i < endBlock; ++i) {
                 Person[] block = personGenerator.generatePersonBlock(i, DatagenParams.blockSize);
                 int size = block.length;

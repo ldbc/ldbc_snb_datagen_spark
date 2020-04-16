@@ -35,7 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.distribution;
 
-import org.apache.hadoop.conf.Configuration;
+import ldbc.snb.datagen.util.Config;
 
 import java.util.List;
 import java.util.Random;
@@ -50,7 +50,7 @@ public abstract class CumulativeBasedDegreeDistribution extends DegreeDistributi
         public int value_;
     }
 
-    public void initialize(Configuration conf) {
+    public void initialize(Config conf) {
         cumulativeProbability_ = cumulativeProbability(conf);
         random_ = new Random();
     }
@@ -80,5 +80,5 @@ public abstract class CumulativeBasedDegreeDistribution extends DegreeDistributi
         return midPoint;
     }
 
-    public abstract List<CumulativeEntry> cumulativeProbability(Configuration conf);
+    public abstract List<CumulativeEntry> cumulativeProbability(Config conf);
 }

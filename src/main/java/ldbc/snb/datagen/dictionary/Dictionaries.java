@@ -36,8 +36,8 @@
 package ldbc.snb.datagen.dictionary;
 
 import ldbc.snb.datagen.DatagenParams;
+import ldbc.snb.datagen.util.Config;
 import ldbc.snb.datagen.util.DateUtils;
-import org.apache.hadoop.conf.Configuration;
 
 import java.util.GregorianCalendar;
 
@@ -59,7 +59,7 @@ public class Dictionaries {
     public static FlashmobTagDictionary flashmobs = null;
 
 
-    public static void loadDictionaries(Configuration conf) {
+    public static void loadDictionaries(Config conf) {
 
         browsers = new BrowserDictionary(DatagenParams.probAnotherBrowser);
 

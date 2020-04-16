@@ -37,7 +37,7 @@ package ldbc.snb.datagen.generator.generators.knowsgenerators;
 
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
-import org.apache.hadoop.conf.Configuration;
+import ldbc.snb.datagen.util.Config;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -84,7 +84,7 @@ public class RandomKnowsGenerator implements KnowsGenerator {
     }
 
     @Override
-    public void initialize(Configuration conf) {
+    public void initialize(Config conf) {
         // Method inherited from Knows Generator. This specialization is empty because it does not require initizalization
     }
 }

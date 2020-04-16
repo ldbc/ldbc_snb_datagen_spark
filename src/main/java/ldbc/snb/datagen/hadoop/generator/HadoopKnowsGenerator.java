@@ -35,17 +35,19 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop.generator;
 
-import ldbc.snb.datagen.LdbcDatagen;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.generator.generators.knowsgenerators.KnowsGenerator;
 import ldbc.snb.datagen.hadoop.HadoopBlockMapper;
 import ldbc.snb.datagen.hadoop.HadoopBlockPartitioner;
+import ldbc.snb.datagen.hadoop.HadoopConfiguration;
+import ldbc.snb.datagen.hadoop.LdbcDatagen;
 import ldbc.snb.datagen.hadoop.key.TupleKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyComparator;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyGroupComparator;
 import ldbc.snb.datagen.hadoop.miscjob.HadoopFileRanker;
 import ldbc.snb.datagen.hadoop.miscjob.keychanger.HadoopFileKeyChanger;
+import ldbc.snb.datagen.util.Config;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -76,32 +78,33 @@ public class HadoopKnowsGenerator {
         /**
          * The person serializer
          **/
-        private Configuration conf;
+        private Configuration hadoopConf;
         private HadoopFileKeyChanger.KeySetter<TupleKey> keySetter = null;
         private List<Float> percentages;
         private int step_index;
         private int numGeneratedEdges = 0;
 
         protected void setup(Context context) {
-            this.conf = context.getConfiguration();
+            this.hadoopConf = context.getConfiguration();
             try {
-                LdbcDatagen.initializeContext(conf);
-                this.knowsGenerator = (KnowsGenerator) Class.forName(conf.get("knowsGeneratorName")).newInstance();
+                LdbcDatagen.initializeContext(hadoopConf);
+                Config conf = HadoopConfiguration.extractLdbcConfig(hadoopConf);
+                this.knowsGenerator = (KnowsGenerator) Class.forName(hadoopConf.get("knowsGeneratorName")).newInstance();
                 this.knowsGenerator.initialize(conf);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
             this.percentages = new ArrayList<>();
-            this.step_index = conf.getInt("stepIndex", 0);
-            float p = conf.getFloat("percentage0", 0.0f);
+            this.step_index = hadoopConf.getInt("stepIndex", 0);
+            float p = hadoopConf.getFloat("percentage0", 0.0f);
             int index = 1;
             while (p != 0.0f) {
                 this.percentages.add(p);
-                p = conf.getFloat("percentage" + index, 0.0f);
+                p = hadoopConf.getFloat("percentage" + index, 0.0f);
                 ++index;
             }
             try {
-                this.keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(conf.get("postKeySetterName")).newInstance();
+                this.keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(hadoopConf.get("postKeySetterName")).newInstance();
             } catch (Exception e) {
                 System.out.println(e.getMessage());
                 throw new RuntimeException(e);
