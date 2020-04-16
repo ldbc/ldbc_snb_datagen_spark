@@ -46,6 +46,7 @@ import org.apache.hadoop.conf.Configuration;
 
 import java.text.Normalizer;
 import java.util.GregorianCalendar;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.apache.commons.lang3.RandomUtils.nextDouble;
@@ -203,17 +204,25 @@ public class PersonGenerator {
      *
      * @param seed      The seed to feed the pseudo-random number generators.
      * @param blockSize The size of the block of persons to generate.
-     * @return block of persons
+     * @return person generator for at most blockSize persons.
      */
-    public Person[] generatePersonBlock(int seed, int blockSize) {
+    public Iterator<Person> generatePersonBlock(int seed, int blockSize) {
         resetState(seed);
         nextId = seed * blockSize;
         SN.machineId = seed;
-        Person[] block;
-        block = new Person[blockSize];
-        for (int j = 0; j < blockSize; ++j) {
-            block[j] = generatePerson();
-        }
-        return block;
+        return new Iterator<Person>() {
+            private int i = 0;
+
+            @Override
+            public boolean hasNext() {
+                return i < blockSize;
+            }
+
+            @Override
+            public Person next() {
+                ++i;
+                return generatePerson();
+            }
+        };
     }
 }

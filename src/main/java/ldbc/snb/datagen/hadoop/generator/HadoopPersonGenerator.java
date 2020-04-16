@@ -56,6 +56,7 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Iterator;
 
 public class HadoopPersonGenerator {
 
@@ -90,11 +91,12 @@ public class HadoopPersonGenerator {
             PersonGenerator personGenerator = new PersonGenerator(conf, conf
                     .get("ldbc.snb.datagen.generator.distribution.degreeDistribution"));
             for (int i = initBlock; i < endBlock; ++i) {
-                Person[] block = personGenerator.generatePersonBlock(i, DatagenParams.blockSize);
-                int size = block.length;
-                for (int j = 0; j < size && DatagenParams.blockSize * i + j < DatagenParams.numPersons; ++j) {
+                int size = (int) Math.min(DatagenParams.numPersons - DatagenParams.blockSize * i, DatagenParams.blockSize);
+                Iterator<Person> personIterator = personGenerator.generatePersonBlock(i, DatagenParams.blockSize);
+                for (int j = 0; j < size; ++j) {
                     try {
-                        context.write(keySetter.getKey(block[j]), block[j]);
+                        Person p = personIterator.next();
+                        context.write(keySetter.getKey(p), p);
                     } catch (IOException ioE) {
                         System.err.println("Input/Output Exception when writing to context.");
                         ioE.printStackTrace();
