@@ -181,7 +181,9 @@ public class FlashmobPostGenerator extends PostGenerator {
         // add creation date
         long minCreationDate = membership.getCreationDate() + DatagenParams.deltaTime;
         long maxCreationDate = Math.min(membership.getDeletionDate(),Dictionaries.dates.getSimulationEnd());
-
+        if (maxCreationDate - minCreationDate < 0) {
+            return null;
+        }
         double prob = dateDistribution.nextDouble(randomDate);
         long creationDate = flashmobTag.date - flashmobSpan / 2 + (long) (prob * flashmobSpan);
 

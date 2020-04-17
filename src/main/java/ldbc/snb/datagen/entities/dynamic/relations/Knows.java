@@ -150,7 +150,6 @@ public class Knows implements Writable, Comparable<Knows> {
 
     }
 
-//     TODO: used for random dimension in knows gen
     public static boolean createKnow(Random dateRandom, Random deletionRandom, Person personA, Person personB, Boolean ignore) {
 
         if (personA.getCreationDate() + DatagenParams.deltaTime > personB.getDeletionDate() ||

@@ -115,33 +115,36 @@ public class PersonActivityGenerator {
 
         // Generate wall
         Forum wall = forumGenerator.createWall(randomFarm, startForumId++, person);
-        exporter.export(wall);
+        // Could be null is moderator can't be added
+        if(wall != null) {
+            exporter.export(wall);
 
-        for (ForumMembership fm : wall.getMemberships()) {
-            exporter.export(fm);
+            for (ForumMembership fm : wall.getMemberships()) {
+                exporter.export(fm);
+            }
+
+            // creates a forum membership for the moderator
+            // only the moderator can post on their wall
+            ForumMembership moderator = new ForumMembership(wall.getId(),
+                    wall.getCreationDate() + DatagenParams.deltaTime,
+                    wall.getDeletionDate(),
+                    new PersonSummary(person),
+                    Forum.ForumType.WALL,
+                    false);
+            // list of members who can post on the wall - only moderator of wall can post on it
+            List<ForumMembership> memberships = new ArrayList<>();
+            memberships.add(moderator);
+
+            // create posts
+            startMessageId = uniformPostGenerator.createPosts(
+                    randomFarm, wall, memberships,
+                    numPostsPerGroup(randomFarm, wall, DatagenParams.maxNumPostPerMonth, DatagenParams.maxNumFriends),
+                    startMessageId, exporter);
+            startMessageId = flashmobPostGenerator.createPosts(
+                    randomFarm, wall, memberships,
+                    numPostsPerGroup(randomFarm, wall, DatagenParams.maxNumFlashmobPostPerMonth, DatagenParams.maxNumFriends),
+                    startMessageId, exporter);
         }
-
-        // creates a forum membership for the moderator
-        // only the moderator can post on their wall
-        ForumMembership moderator = new ForumMembership(wall.getId(),
-                wall.getCreationDate() + DatagenParams.deltaTime,
-                wall.getDeletionDate(),
-                new PersonSummary(person),
-                Forum.ForumType.WALL,
-                false);
-        // list of members who can post on the wall - only moderator of wall can post on it
-        List<ForumMembership> memberships = new ArrayList<>();
-        memberships.add(moderator);
-
-        // create posts
-        startMessageId = uniformPostGenerator.createPosts(
-                randomFarm, wall, memberships,
-                numPostsPerGroup(randomFarm, wall, DatagenParams.maxNumPostPerMonth, DatagenParams.maxNumFriends),
-                startMessageId, exporter);
-        startMessageId = flashmobPostGenerator.createPosts(
-                randomFarm, wall, memberships,
-                numPostsPerGroup(randomFarm, wall, DatagenParams.maxNumFlashmobPostPerMonth, DatagenParams.maxNumFriends),
-                startMessageId, exporter);
     }
 
     /**
@@ -206,6 +209,9 @@ public class PersonActivityGenerator {
         for (int i = 0; i < numberOfPhotoAlbums; i++) {
 
             Forum album = forumGenerator.createAlbum(randomFarm, startForumId++, person, i);
+            if (album != null) {
+                continue;
+            }
             exporter.export(album);
 
             for (ForumMembership fm : album.getMemberships()) {

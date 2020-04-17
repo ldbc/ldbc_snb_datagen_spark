@@ -73,6 +73,12 @@ public class ForumGenerator {
 
         int language = randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE).nextInt(person.getLanguages().size());
 
+        // Check moderator can be added
+        if (person.getDeletionDate() - person.getCreationDate() + DatagenParams.deltaTime < 0){
+            // what to return?
+            return null;
+        }
+
         Forum forum = new Forum(SN.formId(SN.composeId(forumId, person.getCreationDate() + DatagenParams.deltaTime)),
                 person.getCreationDate() + DatagenParams.deltaTime,
                 person.getDeletionDate(),
@@ -94,6 +100,9 @@ public class ForumGenerator {
         for (Knows know : knows) {
             long hasMemberCreationDate = know.getCreationDate() + DatagenParams.deltaTime;
             long hasMemberDeletionDate = Math.min(forum.getDeletionDate(), know.getDeletionDate());
+            if (hasMemberDeletionDate - hasMemberCreationDate < 0){
+                continue;
+            }
             forum.addMember(new ForumMembership(forum.getId(), hasMemberCreationDate, hasMemberDeletionDate, know.to(), Forum.ForumType.WALL, false));
         }
         return forum;
@@ -186,6 +195,9 @@ public class ForumGenerator {
                             isHasMemberExplicitlyDeleted = true;
                             long minDeletionDate = hasMemberCreationDate + DatagenParams.deltaTime;
                             long maxDeletionDate = Collections.min(Arrays.asList(knows.to().getDeletionDate(), forum.getDeletionDate(), Dictionaries.dates.getSimulationEnd()));
+                            if (maxDeletionDate - minDeletionDate < 0) {
+                                continue;
+                            }
                             hasMemberDeletionDate = Dictionaries.dates.randomDate(random, minDeletionDate, maxDeletionDate);
                         } else {
                             isHasMemberExplicitlyDeleted = false;
@@ -217,6 +229,9 @@ public class ForumGenerator {
                             isHasMemberExplicitlyDeleted = true;
                             long minHasMemberDeletionDate = hasMemberCreationDate + DatagenParams.deltaTime;
                             long maxHasMemberDeletionDate = Collections.min(Arrays.asList(member.getDeletionDate(), forum.getDeletionDate(), Dictionaries.dates.getSimulationEnd()));
+                            if (maxHasMemberCreationDate - minHasMemberDeletionDate < 0) {
+                                continue;
+                            }
                             hasMemberDeletionDate = Dictionaries.dates.randomDate(random, minHasMemberDeletionDate, maxHasMemberDeletionDate);
                         } else {
                             isHasMemberExplicitlyDeleted = false;
@@ -253,6 +268,9 @@ public class ForumGenerator {
             isExplicitlyDeleted = true;
             long minAlbumDeletionDate = albumCreationDate + DatagenParams.deltaTime;
             long maxAlbumDeletionDate = Math.min(person.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
+            if (maxAlbumDeletionDate - minAlbumCreationDate < 0){
+                return null;
+            }
             albumDeletionDate = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), minAlbumDeletionDate, maxAlbumDeletionDate);
         } else {
             isExplicitlyDeleted = false;
@@ -293,8 +311,9 @@ public class ForumGenerator {
             if (prob < 0.7) {
                 long hasMemberCreationDate = Math.max(knows.to().getCreationDate(), forum.getCreationDate()) + DatagenParams.deltaTime;
                 long hasMemberDeletionDate = Collections.min(Arrays.asList(knows.to().getDeletionDate(), forum.getDeletionDate()));
-                forum.addMember(new ForumMembership(forum.getId(), hasMemberCreationDate, hasMemberDeletionDate, knows.to(), Forum.ForumType.ALBUM, false
-                ));
+                if (hasMemberDeletionDate - hasMemberCreationDate > 0) {
+                    forum.addMember(new ForumMembership(forum.getId(), hasMemberCreationDate, hasMemberDeletionDate, knows.to(), Forum.ForumType.ALBUM, false));
+                }
             }
         }
         return forum;
