@@ -38,6 +38,7 @@
 package ldbc.snb.datagen;
 
 import ldbc.snb.datagen.generator.distribution.DegreeDistribution;
+import ldbc.snb.datagen.util.Config;
 import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
 import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
@@ -247,15 +248,15 @@ public class DatagenParams {
     public static boolean compressed = false;
     public static int numUpdatePartitions = 1;
 
-    private static Integer intConf(Configuration conf, ParameterNames param) {
+    private static Integer intConf(Config conf, ParameterNames param) {
         return Integer.parseInt(conf.get(param.toString()));
     }
 
-    private static Double doubleConf(Configuration conf, ParameterNames param) {
+    private static Double doubleConf(Config conf, ParameterNames param) {
         return Double.parseDouble(conf.get(param.toString()));
     }
 
-    public static void readConf(Configuration conf) {
+    public static void readConf(Config conf) {
         try {
             ParameterNames[] values = ParameterNames.values();
             for (ParameterNames value : values)

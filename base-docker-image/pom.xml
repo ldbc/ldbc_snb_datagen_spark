@@ -117,7 +117,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>ldbc.snb.datagen.LdbcDatagen</mainClass>
+              <mainClass>ldbc.snb.datagen.hadoop.LdbcDatagen</mainClass>
             </manifest>
           </archive>
           <descriptorRefs>

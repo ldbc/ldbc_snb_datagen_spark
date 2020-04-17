@@ -40,9 +40,9 @@ import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.generator.distribution.DegreeDistribution;
 import ldbc.snb.datagen.generator.tools.PowerDistribution;
+import ldbc.snb.datagen.util.Config;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
-import org.apache.hadoop.conf.Configuration;
 
 import java.text.Normalizer;
 import java.util.GregorianCalendar;
@@ -58,7 +58,7 @@ public class PersonGenerator {
     private RandomGeneratorFarm randomFarm;
     private int nextId = 0;
 
-    public PersonGenerator(Configuration conf, String degreeDistribution) {
+    public PersonGenerator(Config conf, String degreeDistribution) {
         try {
             this.degreeDistribution = (DegreeDistribution) Class.forName(degreeDistribution).newInstance();
             this.degreeDistribution.initialize(conf);

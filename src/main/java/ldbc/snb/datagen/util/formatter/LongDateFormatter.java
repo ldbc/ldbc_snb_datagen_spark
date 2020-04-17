@@ -35,7 +35,8 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.util.formatter;
 
-import org.apache.hadoop.conf.Configuration;
+
+import ldbc.snb.datagen.util.Config;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -48,7 +49,7 @@ public class LongDateFormatter implements DateFormatter {
     private int minSecond;
     private int minMillisecond;
 
-    public void initialize(Configuration config) {
+    public void initialize(Config config) {
         calendar_ = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
         minHour = calendar_.getActualMinimum(Calendar.HOUR);
         minMinute = calendar_.getActualMinimum(Calendar.MINUTE);

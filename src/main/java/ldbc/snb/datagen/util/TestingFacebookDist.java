@@ -1,28 +1,34 @@
 package ldbc.snb.datagen.util;
 
-import ldbc.snb.datagen.LdbcDatagen;
+import ldbc.snb.datagen.hadoop.HadoopConfiguration;
+import ldbc.snb.datagen.hadoop.LdbcDatagen;
 import ldbc.snb.datagen.generator.distribution.DegreeDistribution;
 import org.apache.hadoop.conf.Configuration;
+
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Map;
 
 public class TestingFacebookDist {
 
     public static void main(String[] args) throws Exception {
 
         // init config.
-        Configuration conf = ConfigParser.initialize();
-        ConfigParser.readConfig(conf, LdbcDatagen.class.getResourceAsStream("/params_default.ini"));
-        LdbcDatagen.prepareConfiguration(conf);
-        LdbcDatagen.initializeContext(conf);
+        Map<String, String> confMap = ConfigParser.defaultConfiguration();
 
-        String string = conf.get("ldbc.snb.datagen.generator.distribution.degreeDistribution");
+        confMap.putAll(ConfigParser.readConfig(LdbcDatagen.class.getResourceAsStream("/params_default.ini")));
+
+        Configuration hadoopConf = HadoopConfiguration.prepare(confMap);
+
+        LdbcDatagen.initializeContext(hadoopConf);
+
+        String string = hadoopConf.get("ldbc.snb.datagen.generator.distribution.degreeDistribution");
         DegreeDistribution degreeDistribution = (DegreeDistribution) Class.forName(string).newInstance();
 
-        degreeDistribution.initialize(conf);
+        degreeDistribution.initialize(HadoopConfiguration.extractLdbcConfig(hadoopConf));
 
 
         double[] scaleFactors = {0.1,0.3,1.0,3.0,10.0,30.0,100.0,300.0,1000.0};
@@ -55,10 +61,10 @@ public class TestingFacebookDist {
         }
         for (double scaleFactor : scaleFactors) {
 
-            conf.set("ldbc.snb.datagen.generator.numPersons", String.valueOf(scaleFactor));
+            hadoopConf.set("ldbc.snb.datagen.generator.numPersons", String.valueOf(scaleFactor));
             DegreeDistribution degreeDistribution2 = (DegreeDistribution) Class.forName(string).newInstance();
 
-            degreeDistribution2.initialize(conf);
+            degreeDistribution2.initialize(HadoopConfiguration.extractLdbcConfig(hadoopConf));
             int N = 1000;
             double[] results = new double[N];
             for (int j = 0; j < N; j++) {

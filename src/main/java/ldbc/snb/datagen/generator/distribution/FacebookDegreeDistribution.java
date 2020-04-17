@@ -38,10 +38,9 @@ package ldbc.snb.datagen.generator.distribution;
 
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.generator.tools.Bucket;
-import org.apache.hadoop.conf.Configuration;
+import ldbc.snb.datagen.util.Config;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -65,7 +64,7 @@ public class FacebookDegreeDistribution extends BucketedDistribution {
     private List<Bucket> buckets;
 
     @Override
-    public List<Bucket> getBuckets(Configuration conf) {
+    public List<Bucket> getBuckets(Config conf) {
         mean = (int) mean(DatagenParams.numPersons);
         buckets = new ArrayList<>();
         loadFBBuckets();

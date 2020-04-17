@@ -33,9 +33,10 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen;
+package ldbc.snb.datagen.hadoop;
 
 import com.google.common.collect.Lists;
+import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.hadoop.generator.HadoopKnowsGenerator;
@@ -49,9 +50,9 @@ import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
 import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
+import ldbc.snb.datagen.util.Config;
 import ldbc.snb.datagen.util.ConfigParser;
 import ldbc.snb.datagen.vocabulary.SN;
-import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -59,10 +60,7 @@ import org.apache.hadoop.fs.Path;
 
 import java.io.File;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 import static ldbc.snb.datagen.DatagenMode.*;
 import static ldbc.snb.datagen.DatagenMode.RAW_DATA;
@@ -70,25 +68,14 @@ import static ldbc.snb.datagen.DatagenMode.RAW_DATA;
 public class LdbcDatagen {
     private static boolean initialized = false;
 
-    public static void prepareConfiguration(Configuration conf) throws Exception {
-        //set the temp directory to outputdir/hadoop and the final directory to outputdir/social_network
-        conf.set("ldbc.snb.datagen.serializer.hadoopDir", conf.get("ldbc.snb.datagen.serializer.outputDir") + "/hadoop");
-        conf.set("ldbc.snb.datagen.serializer.socialNetworkDir", conf.get("ldbc.snb.datagen.serializer.outputDir") + "/social_network");
-        // Deleting existing files
-        FileSystem dfs = FileSystem.get(conf);
-        dfs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")), true);
-        dfs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir")), true);
-        FileUtils.deleteDirectory(new File(conf.get("ldbc.snb.datagen.serializer.outputDir") + "/substitution_parameters"));
-        ConfigParser.printConfig(conf);
-    }
-
-    public static synchronized void initializeContext(Configuration conf) {
+    public static synchronized void initializeContext(Configuration hadoopConf) {
         try {
             if (!initialized) {
+                Config conf = HadoopConfiguration.extractLdbcConfig(hadoopConf);
                 DatagenParams.readConf(conf);
                 Dictionaries.loadDictionaries(conf);
                 SN.initialize();
-                Person.personSimilarity = (Person.PersonSimilarity) Class.forName(conf.get("ldbc.snb.datagen.generator.person.similarity")).newInstance();
+                Person.personSimilarity = (Person.PersonSimilarity) Class.forName(hadoopConf.get("ldbc.snb.datagen.generator.person.similarity")).newInstance();
                 initialized = true;
             }
         } catch (Exception e) {
@@ -437,21 +424,25 @@ public class LdbcDatagen {
     }
 
     public static void main(String[] args) throws Exception {
-        Configuration conf = ConfigParser.initialize();
-        ConfigParser.readConfig(conf, args[0]);
-        ConfigParser.readConfig(conf, LdbcDatagen.class.getResourceAsStream("/params_default.ini"));
+        Map<String, String> conf = ConfigParser.defaultConfiguration();
 
-        LdbcDatagen.prepareConfiguration(conf);
-        LdbcDatagen.initializeContext(conf);
+        conf.putAll(ConfigParser.readConfig(args[0]));
+        conf.putAll(ConfigParser.readConfig(LdbcDatagen.class.getResourceAsStream("/params_default.ini")));
+
+        Configuration hadoopConf = HadoopConfiguration.prepare(conf);
+
+        LdbcDatagen.initializeContext(hadoopConf);
+
         LdbcDatagen datagen = new LdbcDatagen();
-        datagen.runGenerateJob(conf);
+
+        datagen.runGenerateJob(hadoopConf);
 
         // sorting update streams - needed to actual produce the streams in social_network/
         if (conf.get("ldbc.snb.datagen.mode").equals("interactive")) {
 
-            datagen.runSortInsertStream(conf);
-            datagen.runSortDeleteStream(conf);
-            datagen.generateInteractiveParameters(conf);
+            datagen.runSortInsertStream(hadoopConf);
+            datagen.runSortDeleteStream(hadoopConf);
+            datagen.generateInteractiveParameters(hadoopConf);
 
         }
 
@@ -459,10 +450,10 @@ public class LdbcDatagen {
         // number of refresh data sets
         if (conf.get("ldbc.snb.datagen.mode").equals("bi")) {
             // TODO: functionality can be merged in places
-            datagen.generateBIParameters(conf);
-            datagen.runSortInsertStream(conf);
-            datagen.runSortDeleteStream(conf);
-            datagen.runBiSortJob(conf);
+            datagen.generateBIParameters(hadoopConf);
+            datagen.runSortInsertStream(hadoopConf);
+            datagen.runSortDeleteStream(hadoopConf);
+            datagen.runBiSortJob(hadoopConf);
 
         }
 

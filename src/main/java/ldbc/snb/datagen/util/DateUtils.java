@@ -39,7 +39,6 @@ import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.generator.tools.PowerDistribution;
 import ldbc.snb.datagen.util.formatter.DateFormatter;
-import org.apache.hadoop.conf.Configuration;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -67,7 +66,7 @@ public class DateUtils {
     private DateFormatter dateFormatter;
 
     // This constructor is for the case of friendship's created date generator
-    public DateUtils(Configuration conf, GregorianCalendar simulationStartYear, GregorianCalendar simulationEndYear,
+    public DateUtils(Config conf, GregorianCalendar simulationStartYear, GregorianCalendar simulationEndYear,
                      double alpha) {
         simulationEndYear.setTimeZone(TimeZone.getTimeZone("GMT"));
         simulationStartYear.setTimeZone(TimeZone.getTimeZone("GMT"));

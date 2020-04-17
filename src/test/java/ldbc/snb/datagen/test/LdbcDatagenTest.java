@@ -2,7 +2,8 @@ package ldbc.snb.datagen.test;
 
 import ldbc.snb.datagen.DatagenMode;
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.LdbcDatagen;
+import ldbc.snb.datagen.hadoop.HadoopConfiguration;
+import ldbc.snb.datagen.hadoop.LdbcDatagen;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.test.csv.ColumnSet;
 import ldbc.snb.datagen.test.csv.ExistsCheck;
@@ -25,6 +26,7 @@ import java.beans.BeanInfo;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -34,16 +36,16 @@ public class LdbcDatagenTest {
 
     @BeforeClass
     public static void generateData() throws Exception {
-        Configuration conf = ConfigParser.initialize();
-        ConfigParser.readConfig(conf, "./test_params.ini");
-        ConfigParser.readConfig(conf, LdbcDatagen.class.getResourceAsStream("/params_default.ini"));
-        LdbcDatagen.prepareConfiguration(conf);
-        LdbcDatagen.initializeContext(conf);
+        Map<String, String> confMap = ConfigParser.defaultConfiguration();
+        confMap.putAll(ConfigParser.readConfig("./test_params.ini"));
+        confMap.putAll(ConfigParser.readConfig(LdbcDatagen.class.getResourceAsStream("/params_default.ini")));
+        Configuration hadoopConf = HadoopConfiguration.prepare(confMap);
+        LdbcDatagen.initializeContext(hadoopConf);
         LdbcDatagen datagen = new LdbcDatagen();
-        datagen.runGenerateJob(conf);
+        datagen.runGenerateJob(hadoopConf);
         if (DatagenParams.getDatagenMode() == DatagenMode.BI || DatagenParams.getDatagenMode() == DatagenMode.INTERACTIVE) {
-            datagen.runSortInsertStream(conf);
-            datagen.runSortDeleteStream(conf);
+            datagen.runSortInsertStream(hadoopConf);
+            datagen.runSortDeleteStream(hadoopConf);
         }
     }
 
