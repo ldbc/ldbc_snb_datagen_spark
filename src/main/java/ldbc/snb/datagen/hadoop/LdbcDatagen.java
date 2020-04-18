@@ -50,7 +50,7 @@ import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
 import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
-import ldbc.snb.datagen.util.Config;
+import ldbc.snb.datagen.util.LdbcConfiguration;
 import ldbc.snb.datagen.util.ConfigParser;
 import ldbc.snb.datagen.vocabulary.SN;
 import org.apache.hadoop.conf.Configuration;
@@ -70,7 +70,7 @@ public class LdbcDatagen {
     public static synchronized void initializeContext(Configuration hadoopConf) {
         try {
             if (!initialized) {
-                Config conf = HadoopConfiguration.extractLdbcConfig(hadoopConf);
+                LdbcConfiguration conf = HadoopConfiguration.extractLdbcConfig(hadoopConf);
                 DatagenParams.readConf(conf);
                 Dictionaries.loadDictionaries(conf);
                 SN.initialize();
@@ -136,9 +136,9 @@ public class LdbcDatagen {
             activityGenerator.run(hadoopPrefix + "/mergedPersons");
             for (int i = 0; i < HadoopConfiguration.getNumThreads(conf); ++i) {
                 if (i < (int) Math.ceil(DatagenParams.numPersons / (double) DatagenParams.blockSize)) { // i<number of blocks
-                    copyToLocal(fs, HadoopConfiguration.getHadoopDir(conf)  + "/m" + i + "personFactors.txt");
-                    copyToLocal(fs, HadoopConfiguration.getHadoopDir(conf)  + "/m" + i + "activityFactors.txt");
-                    copyToLocal(fs, HadoopConfiguration.getHadoopDir(conf)  + "/m0friendList" + i + ".csv");
+                    copyToLocal(fs, HadoopConfiguration.getHadoopDir(conf) + "/m" + i + "personFactors.txt");
+                    copyToLocal(fs, HadoopConfiguration.getHadoopDir(conf) + "/m" + i + "activityFactors.txt");
+                    copyToLocal(fs, HadoopConfiguration.getHadoopDir(conf) + "/m0friendList" + i + ".csv");
                 }
             }
         }
@@ -216,7 +216,7 @@ public class LdbcDatagen {
                 "ldbc.snb.datagen.generator.generators.knowsgenerators.RandomKnowsGenerator",
                 "/randomEdges");
         //delete old persons file as now merged persons is going to be used
-        fs.delete(new Path(HadoopConfiguration.getHadoopDir(conf)  + "/persons"), true);
+        fs.delete(new Path(HadoopConfiguration.getHadoopDir(conf) + "/persons"), true);
         //merge all friendship edges into a single file
         long mergeKnowsTime = mergeKnows(hadoopPrefix, conf);
         //serialize persons
@@ -225,6 +225,25 @@ public class LdbcDatagen {
         long personActivityTime = personActivityJob(hadoopPrefix, conf, fs);
         //serialize static graph
         long serializeStaticTime = serializeStaticGraph(conf);
+        // interative generate update stream
+        long serializeUpdatesTime = 0;
+        if (DatagenParams.getDatagenMode() == INTERACTIVE) {
+            printProgress("Serializing update streams and generating parameters");
+            serializeUpdatesTime = runSortInsertStream(conf);
+            serializeUpdatesTime = serializeUpdatesTime + runSortDeleteStream(conf);
+            generateInteractiveParameters(conf);
+        }
+
+        // [JACK] ni this sort should merge all insert/delete streams, sort by event time then divide into a specified
+        // number of refresh data sets. Also some redundant sorting here I think.
+        if (DatagenParams.getDatagenMode() == BI) {
+            printProgress("Serializing batches and generating parameters");
+            runSortInsertStream(conf);
+            runSortDeleteStream(conf);
+            runBiSortJob(conf);
+            generateBIParameters(conf);
+        }
+
         //total time taken
         print("Person generation time: " + (personGenTime / 1000));
         print("University correlated edge generation time: " + (uniKnowsGenTime / 1000));
@@ -233,7 +252,9 @@ public class LdbcDatagen {
         print("Edges merge time: " + (mergeKnowsTime / 1000));
         print("Person serialization time: " + (personSerializeTime / 1000));
         print("Person activity generation and serialization time: " + (personActivityTime / 1000));
-        print("Invariant schema serialization time: " + (serializeStaticTime / 1000));
+        print("Static schema serialization time: " + (serializeStaticTime / 1000));
+        print("Insert stream serialization time: " + (serializeUpdatesTime / 1000));
+
         print("Total Execution time: " + ((System.currentTimeMillis() - start) / 1000));
 
     }
@@ -268,9 +289,7 @@ public class LdbcDatagen {
         }
     }
 
-    public void runSortInsertStream(Configuration conf) throws Exception {
-
-        printProgress("Sorting insert streams ");
+    public long runSortInsertStream(Configuration conf) throws Exception {
 
         long startSortingInsertStreams = System.currentTimeMillis();
 
@@ -279,8 +298,8 @@ public class LdbcDatagen {
         for (int i = 0; i < HadoopConfiguration.getNumThreads(conf); ++i) {
             int numPartitions = DatagenParams.numUpdateStreams;
             for (int j = 0; j < numPartitions; ++j) {
-                personStreamsFileNames.add(HadoopConfiguration.getHadoopDir(conf)  + "/temp_insertStream_person_" + i + "_" + j);
-                forumStreamsFileNames.add(HadoopConfiguration.getHadoopDir(conf)  + "/temp_insertStream_forum_" + i + "_" + j);
+                personStreamsFileNames.add(HadoopConfiguration.getHadoopDir(conf) + "/temp_insertStream_person_" + i + "_" + j);
+                forumStreamsFileNames.add(HadoopConfiguration.getHadoopDir(conf) + "/temp_insertStream_forum_" + i + "_" + j);
             }
         }
 
@@ -299,7 +318,7 @@ public class LdbcDatagen {
         long maxDate = Long.MIN_VALUE;
         long count = 0;
         for (int i = 0; i < HadoopConfiguration.getNumThreads(conf); ++i) {
-            Path propertiesFile = new Path(HadoopConfiguration.getHadoopDir(conf)  + "/temp_insertStream_person_" + i + ".properties");
+            Path propertiesFile = new Path(HadoopConfiguration.getHadoopDir(conf) + "/temp_insertStream_person_" + i + ".properties");
             FSDataInputStream file = FileSystem.get(conf).open(propertiesFile);
             Properties properties = new Properties();
             properties.load(file);
@@ -329,7 +348,7 @@ public class LdbcDatagen {
         }
 
         OutputStream output = FileSystem.get(conf)
-                .create(new Path(HadoopConfiguration.getSocialNetworkDir(conf)+ "/insertStream" + ".properties"), true);
+                .create(new Path(HadoopConfiguration.getSocialNetworkDir(conf) + "/insertStream" + ".properties"), true);
         output.write(("ldbc.snb.interactive.insert.gct_delta_duration:" + DatagenParams.delta + "\n")
                 .getBytes());
         output.write(("ldbc.snb.interactive.insert.min_write_event_start_time:" + minDate + "\n").getBytes());
@@ -341,12 +360,10 @@ public class LdbcDatagen {
 
         long endSortingInsertStreams = System.currentTimeMillis();
 
-
-        System.out
-                .println("Sorting insert streams time: " + ((endSortingInsertStreams - startSortingInsertStreams) / 1000));
+        return ((endSortingInsertStreams - startSortingInsertStreams) / 1000);
     }
 
-    public void runSortDeleteStream(Configuration conf) throws Exception {
+    public long runSortDeleteStream(Configuration conf) throws Exception {
 
         printProgress("Sorting delete streams ");
 
@@ -358,7 +375,7 @@ public class LdbcDatagen {
             int numPartitions = DatagenParams.numUpdateStreams;
             for (int j = 0; j < numPartitions; ++j) {
                 personStreamsFileNames.add(HadoopConfiguration.getHadoopDir(conf) + "/temp_deleteStream_person_" + i + "_" + j);
-                forumStreamsFileNames.add(HadoopConfiguration.getHadoopDir(conf)  + "/temp_deleteStream_forum_" + i + "_" + j);
+                forumStreamsFileNames.add(HadoopConfiguration.getHadoopDir(conf) + "/temp_deleteStream_forum_" + i + "_" + j);
             }
         }
 
@@ -377,7 +394,7 @@ public class LdbcDatagen {
         long maxDate = Long.MIN_VALUE;
         long count = 0;
         for (int i = 0; i < HadoopConfiguration.getNumThreads(conf); ++i) {
-            Path propertiesFile = new Path(HadoopConfiguration.getHadoopDir(conf)  + "/temp_deleteStream_person_" + i + ".properties");
+            Path propertiesFile = new Path(HadoopConfiguration.getHadoopDir(conf) + "/temp_deleteStream_person_" + i + ".properties");
             FSDataInputStream file = FileSystem.get(conf).open(propertiesFile);
             Properties properties = new Properties();
             properties.load(file);
@@ -419,7 +436,7 @@ public class LdbcDatagen {
 
         long endSortingDeleteStreams = System.currentTimeMillis();
 
-        System.out.println("Sorting delete streams time: " + ((endSortingDeleteStreams - startSortingDeleteStreams) / 1000));
+        return ((endSortingDeleteStreams - startSortingDeleteStreams) / 1000);
     }
 
     public static void main(String[] args) throws Exception {
@@ -429,33 +446,14 @@ public class LdbcDatagen {
         conf.putAll(ConfigParser.readConfig(LdbcDatagen.class.getResourceAsStream("/params_default.ini")));
 
         Configuration hadoopConf = HadoopConfiguration.prepare(conf);
+        System.out.println(HadoopConfiguration.getHadoopDir(hadoopConf));
+        System.out.println(HadoopConfiguration.getSocialNetworkDir(hadoopConf));
+        System.out.println(HadoopConfiguration.getOutputDir(hadoopConf));
 
         LdbcDatagen.initializeContext(hadoopConf);
-
         LdbcDatagen datagen = new LdbcDatagen();
 
         datagen.runGenerateJob(hadoopConf);
-
-        // sorting update streams - needed to actual produce the streams in social_network/
-        if (DatagenParams.getDatagenMode() == INTERACTIVE) {
-
-            datagen.runSortInsertStream(hadoopConf);
-            datagen.runSortDeleteStream(hadoopConf);
-            datagen.generateInteractiveParameters(hadoopConf);
-
-        }
-
-        // [JACK] this sort should merge all insert/delete streams, sort by event time then divide into a specified
-        // number of refresh data sets
-        if (DatagenParams.getDatagenMode() == BI) {
-            // TODO: functionality can be merged in places
-            datagen.generateBIParameters(hadoopConf);
-            datagen.runSortInsertStream(hadoopConf);
-            datagen.runSortDeleteStream(hadoopConf);
-            datagen.runBiSortJob(hadoopConf);
-
-        }
-
 
     }
 
