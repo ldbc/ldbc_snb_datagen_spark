@@ -80,6 +80,7 @@ public class HadoopPersonSortAndSerializer {
             int reducerId = context.getTaskAttemptID().getTaskID().getId();
             try {
                 LdbcDatagen.initializeContext(conf);
+//                dynamicPersonSerializer = DatagenParams.getDynamicPersonSerializer();
                 dynamicPersonSerializer = HadoopConfiguration.getDynamicPersonSerializer(conf);
                 dynamicPersonSerializer.initialize(conf, reducerId);
                 if (DatagenParams.getDatagenMode() == DatagenMode.INTERACTIVE || DatagenParams.getDatagenMode() == DatagenMode.BI) {

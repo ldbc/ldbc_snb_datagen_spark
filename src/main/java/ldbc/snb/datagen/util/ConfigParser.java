@@ -102,7 +102,7 @@ public class ConfigParser {
         conf.put("ldbc.snb.datagen.generator.knowsGenerator", "ldbc.snb.datagen.generator.generators.knowsgenerators.DistanceKnowsGenerator");
         conf.put("ldbc.snb.datagen.generator.person.similarity", "ldbc.snb.datagen.entities.dynamic.person.similarity.GeoDistanceSimilarity");
         conf.put("serializer.format","CsvBasic"); // CsvBasic, CsvMergeForeign, CsvComposite, CsvCompositeMergeForeign
-        conf.put("serializer.compressed", "false");
+        conf.put("ldbc.snb.datagen.serializer.compressed", Boolean.toString(false));
         conf.put("ldbc.snb.datagen.serializer.outputDir", "./");
         conf.put("ldbc.snb.datagen.serializer.socialNetworkDir", "./social_network");
         conf.put("ldbc.snb.datagen.serializer.hadoopDir", "./hadoop");

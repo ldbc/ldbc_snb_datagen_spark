@@ -245,6 +245,7 @@ public class DatagenParams {
     public static int endYear = 2013;
     public static int numYears = 3;
     public static boolean exportText = true;
+    public static boolean compressed = false;
     public static int numUpdatePartitions = 1;
 
     private static Integer intConf(Config conf, ParameterNames param) {
@@ -326,6 +327,7 @@ public class DatagenParams {
             startYear = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.startYear"));
             numYears = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numYears"));
             endYear = startYear + numYears;
+            compressed = conf.getBoolean("ldbc.snb.datagen.serializer.compressed", false);
             numThreads = conf.getInt("ldbc.snb.datagen.generator.numThreads", 1);
             numUpdatePartitions = conf.getInt("ldbc.snb.datagen.serializer.numUpdatePartitions", 1);
             deltaTime = conf.getInt("ldbc.snb.datagen.generator.deltaTime", 10000);
