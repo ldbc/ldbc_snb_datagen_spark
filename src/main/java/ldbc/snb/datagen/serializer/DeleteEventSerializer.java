@@ -160,7 +160,7 @@ public class DeleteEventSerializer {
 
             if (DatagenParams.getDatagenMode() == DatagenMode.INTERACTIVE || DatagenParams.getDatagenMode() == DatagenMode.BI) {
                 OutputStream output = fs.create(new Path(fileNamePrefix + ".properties"), true);
-                output.write(("ldbc.snb.interactive.delete.gct_delta_duration:" + DatagenParams.delta + "\n")
+                output.write(("ldbc.snb.interactive.delete.gct_delta_duration:" + DatagenParams.deltaTime + "\n")
                         .getBytes());
                 output.write(("ldbc.snb.interactive.delete.min_write_event_start_time:" + stats.getMinDate() + "\n")
                         .getBytes());

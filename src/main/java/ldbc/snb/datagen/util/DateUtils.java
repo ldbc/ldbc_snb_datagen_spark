@@ -87,7 +87,8 @@ public class DateUtils {
 
 
         try {
-            dateFormatter = DatagenParams.getDateFormatter();
+            dateFormatter = (DateFormatter) Class.forName(conf.get("ldbc.snb.datagen.serializer.dateFormatter"))
+                    .newInstance();
             dateFormatter.initialize(conf);
         } catch (Exception e) {
             System.err.println("Error when initializing date formatter");
@@ -115,7 +116,7 @@ public class DateUtils {
      */
     public Long randomPersonDeletionDate(Random random, long creationDate, long maxNumKnows,long maxDeletionDate) {
         // TODO: use maxNumKnows to determine when a person's deleted
-        long personCreationDate = creationDate + DatagenParams.delta;
+        long personCreationDate = creationDate + DatagenParams.deltaTime;
         return randomDate(random, personCreationDate, maxDeletionDate);
     }
 
@@ -162,13 +163,13 @@ public class DateUtils {
     }
 
     public long randomKnowsCreationDate(Random random, Person personA, Person personB) {
-        long fromDate = Math.max(personA.getCreationDate(), personB.getCreationDate()) + DatagenParams.delta;
+        long fromDate = Math.max(personA.getCreationDate(), personB.getCreationDate()) + DatagenParams.deltaTime;
         long toDate = Collections.min(Arrays.asList(personA.getDeletionDate(), personB.getDeletionDate(), simulationEnd));
         return randomDate(random, fromDate, toDate);
     }
 
     public long randomKnowsDeletionDate(Random random, Person personA, Person personB, long knowsCreationDate) {
-        long fromDate = knowsCreationDate + DatagenParams.delta;
+        long fromDate = knowsCreationDate + DatagenParams.deltaTime;
         long toDate = Collections.min(Arrays.asList(personA.getDeletionDate(), personB.getDeletionDate(), simulationEnd));
         return randomDate(random, fromDate, toDate);
     }

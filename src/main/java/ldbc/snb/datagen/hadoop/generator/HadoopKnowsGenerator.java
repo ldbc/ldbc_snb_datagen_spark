@@ -35,7 +35,6 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop.generator;
 
-import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.generator.generators.knowsgenerators.KnowsGenerator;
 import ldbc.snb.datagen.hadoop.HadoopBlockMapper;
@@ -147,7 +146,7 @@ public class HadoopKnowsGenerator {
 
         System.out.println("Ranking persons");
         long start = System.currentTimeMillis();
-        String rankedFileName = HadoopConfiguration.getHadoopDir(conf) + "/ranked";
+        String rankedFileName = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/ranked";
         HadoopFileRanker hadoopFileRanker = new HadoopFileRanker(conf, TupleKey.class, Person.class, preKeySetterName);
         hadoopFileRanker.run(inputFileName, rankedFileName);
 
@@ -161,7 +160,7 @@ public class HadoopKnowsGenerator {
         }
         conf.set("postKeySetterName", postKeySetterName);
         conf.set("knowsGeneratorName", knowsGeneratorName);
-        int numThreads = HadoopConfiguration.getNumThreads(conf);
+        int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads"));
         Job job = Job.getInstance(conf, "Knows generator");
         job.setMapOutputKeyClass(BlockKey.class);
         job.setMapOutputValueClass(Person.class);

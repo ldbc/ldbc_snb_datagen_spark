@@ -52,7 +52,7 @@ public class ForumMembership {
     private Forum.ForumType forumType;
 
     public ForumMembership(long forumId, long creationDate, long deletionDate, PersonSummary p, Forum.ForumType forumType, boolean isExplicitlyDeleted) {
-        assert (p.getCreationDate() + DatagenParams.delta) <= creationDate : "Person creation date is larger than membership";
+        assert (p.getCreationDate() + DatagenParams.deltaTime) <= creationDate : "Person creation date is larger than membership";
         this.forumId = forumId;
         this.creationDate = creationDate;
         this.deletionDate = deletionDate;

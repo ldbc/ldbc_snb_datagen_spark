@@ -63,7 +63,7 @@ public class Forum {
 
 
     public Forum(long id, long creationDate, long deletionDate, PersonSummary moderator, String title, int placeId, int language, ForumType forumType, boolean isExplicitlyDeleted) {
-        assert (moderator.getCreationDate() + DatagenParams.delta) <= creationDate : "Moderator's creation date is less than or equal to the Forum creation date";
+        assert (moderator.getCreationDate() + DatagenParams.deltaTime) <= creationDate : "Moderator's creation date is less than or equal to the Forum creation date";
         memberships = new ArrayList<>();
         tags = new ArrayList<>();
         this.id = id;

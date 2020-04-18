@@ -35,7 +35,6 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop.miscjob;
 
-import ldbc.snb.datagen.hadoop.HadoopConfiguration;
 import ldbc.snb.datagen.hadoop.LdbcDatagen;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
@@ -90,12 +89,14 @@ public class HadoopMergeFriendshipFiles {
                 if (index == 0) {
                     person = new Person(p);
                 }
-                knows.addAll(p.getKnows());
+                for (Knows k : p.getKnows()) {
+                    knows.add(k);
+                }
                 index++;
             }
             person.getKnows().clear();
             Knows.FullComparator comparator = new Knows.FullComparator();
-            knows.sort(comparator);
+            Collections.sort(knows, comparator);
             if (knows.size() > 0) {
                 long currentTo = knows.get(0).to().getAccountId();
                 person.getKnows().add(knows.get(0));
@@ -129,7 +130,7 @@ public class HadoopMergeFriendshipFiles {
     public void run(String outputFileName, List<String> friendshipFileNames) throws Exception {
 
         conf.set("postKeySetterName", postKeySetterName);
-        int numThreads = HadoopConfiguration.getNumThreads(conf);
+        int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads"));
         Job job = Job.getInstance(conf, "Edges merger generator");
         job.setMapOutputKeyClass(TupleKey.class);
         job.setMapOutputValueClass(Person.class);

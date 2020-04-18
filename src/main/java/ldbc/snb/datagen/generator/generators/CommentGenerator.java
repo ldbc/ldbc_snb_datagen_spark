@@ -129,7 +129,7 @@ public class CommentGenerator {
             }
 
             // creation date
-            long minCreationDate = Math.max(parentMessage.getCreationDate(), membership.getCreationDate()) + DatagenParams.delta;
+            long minCreationDate = Math.max(parentMessage.getCreationDate(), membership.getCreationDate()) + DatagenParams.deltaTime;
             long maxCreationDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
             if (maxCreationDate - minCreationDate < 0) {
                 continue;
@@ -144,7 +144,7 @@ public class CommentGenerator {
             boolean isExplicitlyDeleted;
             if (randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_COMM).nextDouble() < DatagenParams.probCommentDeleted) {
                 isExplicitlyDeleted = true;
-                long minDeletionDate = creationDate + DatagenParams.delta;
+                long minDeletionDate = creationDate + DatagenParams.deltaTime;
                 long maxDeletionDate = Collections.min(Arrays.asList(parentMessage.getDeletionDate(), membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd()));
                 if (maxDeletionDate - minDeletionDate < 0) {
                     continue;

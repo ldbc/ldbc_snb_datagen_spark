@@ -35,7 +35,6 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop.miscjob.keychanger;
 
-import ldbc.snb.datagen.hadoop.HadoopConfiguration;
 import ldbc.snb.datagen.hadoop.key.TupleKey;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -76,7 +75,13 @@ public class HadoopFileKeyChanger {
             try {
                 String className = context.getConfiguration().get("keySetterClassName");
                 keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(className).newInstance();
-            } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+            } catch (ClassNotFoundException e) {
+                System.out.print(e.getMessage());
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                System.out.print(e.getMessage());
+                throw new RuntimeException(e);
+            } catch (InstantiationException e) {
                 System.out.print(e.getMessage());
                 throw new RuntimeException(e);
             }
@@ -93,11 +98,11 @@ public class HadoopFileKeyChanger {
 
     public void run(String inputFileName, String outputFileName) throws Exception {
 
-        int numThreads = HadoopConfiguration.getNumThreads(conf);
+        int numThreads = conf.getInt("ldbc.snb.datagen.generator.numThreads", 1);
         System.out.println("***************" + numThreads);
         conf.set("keySetterClassName", keySetterName);
 
-        // First Job to sort the key-value pairs and to count the number of elements processed by each reducer.
+        /** First Job to sort the key-value pairs and to count the number of elements processed by each reducer.**/
         Job job = Job.getInstance(conf, "Sorting " + inputFileName);
 
         FileInputFormat.setInputPaths(job, new Path(inputFileName));

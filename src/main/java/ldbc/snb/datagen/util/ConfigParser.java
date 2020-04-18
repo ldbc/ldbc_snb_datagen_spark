@@ -93,32 +93,28 @@ public class ConfigParser {
     public static Map<String, String> defaultConfiguration() {
         Map<String, String> conf = new HashMap<>();
         conf.put("", Integer.toString(1));
-        conf.put("generator.numPersons", "10000");
-        conf.put("generator.startYear", "2010");
-        conf.put("generator.numYears", "3");
-        conf.put("generator.delta", "10000");
-        conf.put("generator.mode", "interactive");
-        conf.put("generator.mode.bi.deleteType", "simple");
-        conf.put("generator.mode.bi.batches", "1");
-        conf.put("generator.mode.interactive.numUpdateStreams", "1");
-        conf.put("generator.degreeDistribution", "Facebook");
-        conf.put("generator.knowsGenerator", "Distance");
-        conf.put("generator.person.similarity", "GeoDistance");
-        conf.put("generator.dateFormatter", "StringDate");
-        conf.put("generator.StringDate.dateTimeFormat", "yyyy-MM-dd'T'HH:mm:ss.SSS+00:00");
-        conf.put("generator.StringDate.dateFormat", "yyyy-MM-dd");
-
-
-        conf.put("hadoop.numThreads", "1");
-        conf.put("hadoop.serializer.format","CsvBasic");
-        conf.put("hadoop.serializer.compressed", "false");
-        conf.put("hadoop.serializer.endlineSeparator", "false");
-        conf.put("hadoop.serializer.outputDir", "./");
-        conf.put("hadoop.serializer.socialNetworkDir", "./social_network");
-        conf.put("hadoop.serializer.hadoopDir", "./hadoop");
-
+        conf.put("ldbc.snb.datagen.generator.numPersons", "10000");
+        conf.put("ldbc.snb.datagen.generator.startYear", "2010");
+        conf.put("ldbc.snb.datagen.generator.numYears", "3");
+        conf.put("ldbc.snb.datagen.generator.numThreads", Integer.toString(1));
+        conf.put("ldbc.snb.datagen.generator.deltaTime", "10000");
+        conf.put("ldbc.snb.datagen.generator.distribution.degreeDistribution", "ldbc.snb.datagen.generator.distribution.FacebookDegreeDistribution");
+        conf.put("ldbc.snb.datagen.generator.knowsGenerator", "ldbc.snb.datagen.generator.generators.knowsgenerators.DistanceKnowsGenerator");
+        conf.put("ldbc.snb.datagen.generator.person.similarity", "ldbc.snb.datagen.entities.dynamic.person.similarity.GeoDistanceSimilarity");
+        conf.put("serializer.format","CsvBasic"); // CsvBasic, CsvMergeForeign, CsvComposite, CsvCompositeMergeForeign
+        conf.put("serializer.compressed", "false");
+        conf.put("ldbc.snb.datagen.serializer.outputDir", "./");
+        conf.put("ldbc.snb.datagen.serializer.socialNetworkDir", "./social_network");
+        conf.put("ldbc.snb.datagen.serializer.hadoopDir", "./hadoop");
+        conf.put("ldbc.snb.datagen.serializer.endlineSeparator", Boolean.toString(false));
+        conf.put("ldbc.snb.datagen.serializer.dateFormatter", "ldbc.snb.datagen.util.formatter.StringDateFormatter");
+        conf.put("ldbc.snb.datagen.util.formatter.StringDateFormatter.dateTimeFormat", "yyyy-MM-dd'T'HH:mm:ss.SSS+00:00");
+        conf.put("ldbc.snb.datagen.util.formatter.StringDateFormatter.dateFormat", "yyyy-MM-dd");
+        conf.put("ldbc.snb.datagen.mode", "interactive"); // interactive, bi, graphalytics, rawdata
+        conf.put("ldbc.snb.datagen.mode.bi.deleteType", "simple"); // simple or smart
+        conf.put("ldbc.snb.datagen.mode.bi.batches", "1");
+        conf.put("ldbc.snb.datagen.mode.interactive.numUpdateStreams", "1");
 
         return conf;
     }
-
 }

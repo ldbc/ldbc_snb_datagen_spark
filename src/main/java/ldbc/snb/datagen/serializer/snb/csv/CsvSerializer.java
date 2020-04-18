@@ -1,6 +1,5 @@
 package ldbc.snb.datagen.serializer.snb.csv;
 
-import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.hadoop.HadoopConfiguration;
 import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
 import ldbc.snb.datagen.serializer.Serializer;
@@ -20,9 +19,9 @@ public interface CsvSerializer extends Serializer<HdfsCsvWriter> {
             writers.put(f, new HdfsCsvWriter(
                     conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + (dynamic ? "/dynamic/" : "/static/"),
                     f.toString() + "_" + reducerId,
-                    DatagenParams.numUpdateStreams,
+                    conf.getInt("ldbc.snb.datagen.numPartitions", 1),
                     HadoopConfiguration.isCompressed(conf), "|",
-                    HadoopConfiguration.getEndLineSeparator(conf)
+                    conf.getBoolean("ldbc.snb.datagen.serializer.endlineSeparator", false)
                 )
             );
         }

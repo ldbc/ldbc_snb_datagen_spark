@@ -65,7 +65,6 @@ public class Knows implements Writable, Comparable<Knows> {
         creationDate = k.getCreationDate();
         deletionDate = k.getDeletionDate();
         weight = k.getWeight();
-        isExplicitlyDeleted = k.isExplicitlyDeleted();
     }
 
     public Knows(Person to, long creationDate, long deletionDate, float weight, boolean isExplicitlyDeleted) {
@@ -153,8 +152,8 @@ public class Knows implements Writable, Comparable<Knows> {
 
     public static boolean createKnow(Random dateRandom, Random deletionRandom, Person personA, Person personB, Boolean ignore) {
 
-        if (personA.getCreationDate() + DatagenParams.delta > personB.getDeletionDate() ||
-                personB.getCreationDate() + DatagenParams.delta > personA.getDeletionDate()) {
+        if (personA.getCreationDate() + DatagenParams.deltaTime > personB.getDeletionDate() ||
+                personB.getCreationDate() + DatagenParams.deltaTime > personA.getDeletionDate()) {
             return false;
         }
 
@@ -179,8 +178,8 @@ public class Knows implements Writable, Comparable<Knows> {
     //     TODO: used for uni and interest dimension in knows gen
     public static void createKnow(Random dateRandom, Random deletionRandom, Person personA, Person personB) {
 
-        if (personA.getCreationDate() + DatagenParams.delta > personB.getDeletionDate() ||
-                personB.getCreationDate() + DatagenParams.delta > personA.getDeletionDate()) {
+        if (personA.getCreationDate() + DatagenParams.deltaTime > personB.getDeletionDate() ||
+                personB.getCreationDate() + DatagenParams.deltaTime > personA.getDeletionDate()) {
             return;
         }
 

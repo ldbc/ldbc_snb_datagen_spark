@@ -70,7 +70,7 @@ public class HadoopDeleteStreamSorterAndSerializer {
 
     public void run(List<String> inputFileNames, String type) throws Exception {
 
-        int numThreads = HadoopConfiguration.getNumThreads(conf);
+        int numThreads = conf.getInt("ldbc.snb.datagen.generator.numThreads", 1);
         conf.set("streamType", type);
 
         Job job = Job.getInstance(conf, "Delete Stream Serializer");
@@ -90,7 +90,7 @@ public class HadoopDeleteStreamSorterAndSerializer {
         for (String s : inputFileNames) {
             FileInputFormat.addInputPath(job, new Path(s));
         }
-        FileOutputFormat.setOutputPath(job, new Path(HadoopConfiguration.getHadoopDir(conf) + "/aux"));
+        FileOutputFormat.setOutputPath(job, new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/aux"));
         if (!job.waitForCompletion(true)) {
             throw new Exception();
         }
@@ -98,7 +98,7 @@ public class HadoopDeleteStreamSorterAndSerializer {
 
         try {
             FileSystem fs = FileSystem.get(conf);
-            fs.delete(new Path(HadoopConfiguration.getHadoopDir(conf) + "/aux"), true);
+            fs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/aux"), true);
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }

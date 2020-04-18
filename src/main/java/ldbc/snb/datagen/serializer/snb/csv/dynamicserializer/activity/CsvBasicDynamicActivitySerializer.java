@@ -139,7 +139,7 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
 
             //"creationDate",  "Forum.id", "Person.id", "deletionDate"
             writers.get(FORUM_HASMODERATOR_PERSON).writeEntry(ImmutableList.of(
-                    Long.toString(forum.getModerator().getCreationDate() + DatagenParams.delta),
+                    Long.toString(forum.getModerator().getCreationDate() + DatagenParams.deltaTime),
                     Long.toString(forum.getId()),
                     Long.toString(forum.getModerator().getAccountId()),
                     Long.toString(forum.getModerator().getDeletionDate())

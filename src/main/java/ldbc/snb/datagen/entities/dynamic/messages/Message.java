@@ -64,7 +64,7 @@ abstract public class Message {
                    String content, TreeSet<Integer> tags, int countryId, IP ipAddress, int browserId,
                    boolean isExplicitlyDeleted
     ) {
-        assert ((author.getCreationDate() + DatagenParams.delta) <= creationDate);
+        assert ((author.getCreationDate() + DatagenParams.deltaTime) <= creationDate);
         this.messageId = messageId;
         this.creationDate = creationDate;
         this.deletionDate = deletionDate;
