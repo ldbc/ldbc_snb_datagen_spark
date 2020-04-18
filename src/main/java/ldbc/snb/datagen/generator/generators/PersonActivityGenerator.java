@@ -126,7 +126,7 @@ public class PersonActivityGenerator {
             // creates a forum membership for the moderator
             // only the moderator can post on their wall
             ForumMembership moderator = new ForumMembership(wall.getId(),
-                    wall.getCreationDate() + DatagenParams.deltaTime,
+                    wall.getCreationDate() + DatagenParams.delta,
                     wall.getDeletionDate(),
                     new PersonSummary(person),
                     Forum.ForumType.WALL,

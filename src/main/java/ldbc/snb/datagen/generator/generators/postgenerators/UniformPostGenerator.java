@@ -58,7 +58,7 @@ public class UniformPostGenerator extends PostGenerator {
         PostCore postCore = new PostCore();
 
         // add creation date
-        long minCreationDate = membership.getCreationDate() + DatagenParams.deltaTime;
+        long minCreationDate = membership.getCreationDate() + DatagenParams.delta;
         long maxCreationDate = Math.min(membership.getDeletionDate(),Dictionaries.dates.getSimulationEnd());
         if (maxCreationDate - minCreationDate < 0) {
             return null;
@@ -70,7 +70,7 @@ public class UniformPostGenerator extends PostGenerator {
         long postDeletionDate;
         if (randomDeletePost.nextDouble() < DatagenParams.probPostDeleted) {
             postCore.setExplicitlyDeleted(true);
-            long minDeletionDate = postCreationDate + DatagenParams.deltaTime;
+            long minDeletionDate = postCreationDate + DatagenParams.delta;
             long maxDeletionDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
 
             if (maxDeletionDate - minDeletionDate < 0) {

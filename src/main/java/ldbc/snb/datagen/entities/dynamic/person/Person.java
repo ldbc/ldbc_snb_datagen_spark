@@ -75,8 +75,8 @@ public class Person implements Writable {
     private Map<Long, Long> companies;
     private long classYear;
 
-    public static interface PersonSimilarity {
-        public float similarity(Person personA, Person personB);
+    public interface PersonSimilarity {
+        float similarity(Person personA, Person personB);
     }
 
     public Person() {

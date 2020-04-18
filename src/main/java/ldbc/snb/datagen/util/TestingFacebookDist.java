@@ -61,7 +61,7 @@ public class TestingFacebookDist {
         }
         for (double scaleFactor : scaleFactors) {
 
-            hadoopConf.set("ldbc.snb.datagen.generator.numPersons", String.valueOf(scaleFactor));
+            hadoopConf.set("generator.numPersons", String.valueOf(scaleFactor));
             DegreeDistribution degreeDistribution2 = (DegreeDistribution) Class.forName(string).newInstance();
 
             degreeDistribution2.initialize(HadoopConfiguration.extractLdbcConfig(hadoopConf));

@@ -37,6 +37,7 @@
 
 package ldbc.snb.datagen.serializer.graphalytics;
 
+import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.entities.dynamic.relations.StudyAt;
@@ -87,8 +88,10 @@ public class CsvDynamicPersonSerializer extends DynamicPersonSerializer<HdfsCsvW
         writers = new HdfsCsvWriter[numFiles];
         for (int i = 0; i < numFiles; ++i) {
             writers[i] = new HdfsCsvWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"), FileNames
-                    .values()[i].toString() + "_" + reducerId, conf.getInt("ldbc.snb.datagen.numPartitions", 1), HadoopConfiguration.isCompressed(conf), "|", conf
-                                                   .getBoolean("ldbc.snb.datagen.serializer.endlineSeparator", false));
+                    .values()[i].toString() + "_" + reducerId,
+                    DatagenParams.numUpdateStreams,
+                    HadoopConfiguration.isCompressed(conf), "|",
+                    HadoopConfiguration.getEndLineSeparator(conf));
         }
 
         List<String> arguments = new ArrayList<>();
@@ -112,12 +115,12 @@ public class CsvDynamicPersonSerializer extends DynamicPersonSerializer<HdfsCsvW
     }
 
     @Override
-    protected void serialize(final StudyAt studyAt,final Person person) {
+    protected void serialize(final StudyAt studyAt, final Person person) {
         //Intentionally left empty
     }
 
     @Override
-    protected void serialize(final WorkAt workAt,final Person person) {
+    protected void serialize(final WorkAt workAt, final Person person) {
         //Intentionally left empty
     }
 
