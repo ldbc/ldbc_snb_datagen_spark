@@ -40,7 +40,10 @@ import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
-import ldbc.snb.datagen.hadoop.*;
+import ldbc.snb.datagen.hadoop.HadoopBlockMapper;
+import ldbc.snb.datagen.hadoop.HadoopBlockPartitioner;
+import ldbc.snb.datagen.hadoop.HadoopTuplePartitioner;
+import ldbc.snb.datagen.hadoop.LdbcDatagen;
 import ldbc.snb.datagen.hadoop.key.TupleKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyComparator;
@@ -80,8 +83,7 @@ public class HadoopPersonSortAndSerializer {
             int reducerId = context.getTaskAttemptID().getTaskID().getId();
             try {
                 LdbcDatagen.initializeContext(conf);
-//                dynamicPersonSerializer = DatagenParams.getDynamicPersonSerializer();
-                dynamicPersonSerializer = HadoopConfiguration.getDynamicPersonSerializer(conf);
+                dynamicPersonSerializer = DatagenParams.getDynamicPersonSerializer();
                 dynamicPersonSerializer.initialize(conf, reducerId);
                 if (DatagenParams.getDatagenMode() == DatagenMode.INTERACTIVE || DatagenParams.getDatagenMode() == DatagenMode.BI) {
                     insertEventSerializer = new InsertEventSerializer(conf, DatagenParams.hadoopDir + "/temp_insertStream_person_" + reducerId, reducerId, DatagenParams.numUpdatePartitions);

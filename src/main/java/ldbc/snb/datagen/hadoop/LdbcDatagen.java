@@ -256,8 +256,8 @@ public class LdbcDatagen {
         FileSystem.get(conf).mkdirs(new Path(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted/creation"));
         FileSystem.get(conf).mkdirs(new Path(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted/deletion"));
 
-        DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer = HadoopConfiguration.getDynamicActivitySerializer(conf);
-        DynamicPersonSerializer<HdfsCsvWriter> dynamicPersonSerializer = HadoopConfiguration.getDynamicPersonSerializer(conf);
+        DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer = DatagenParams.getDynamicActivitySerializer();
+        DynamicPersonSerializer<HdfsCsvWriter> dynamicPersonSerializer = DatagenParams.getDynamicPersonSerializer();
 
 
         List<FileName> filenames = Lists.newArrayList();
