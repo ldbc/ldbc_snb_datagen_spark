@@ -54,7 +54,6 @@ import ldbc.snb.datagen.util.FactorTable;
 import ldbc.snb.datagen.util.Iterators;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
-import org.apache.hadoop.mapreduce.Reducer.Context;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
@@ -94,12 +93,15 @@ public class PersonActivityGenerator {
         messageIdIterator = Iterators.numbers(0);
     }
 
-    private void generateActivity(Person person, List<Person> block) throws AssertionError {
+    private CoActivity generateActivity(Person person, List<Person> block) throws AssertionError {
         try {
             factorTable.extractFactors(person);
-            generateWall(person);
-            generateGroups(person, block);
-            generateAlbums(person);
+            return new CoActivity(
+                    generateWall(person),
+                    generateGroups(person, block),
+                    generateAlbums(person)
+            );
+
         } catch (AssertionError e) {
             System.out.println("Assertion error when generating activity!");
             System.out.println(e.getMessage());
@@ -231,25 +233,12 @@ public class PersonActivityGenerator {
         return (numberPost * forum.getMemberships().size()) / maxMembersPerForum;
     }
 
-    public void generateActivityForBlock(int seed, List<Person> block, Context context) throws IOException {
+    public Iterator<CoActivity> generateActivityForBlock(int seed, List<Person> block) {
         randomFarm.resetRandomGenerators(seed);
         startForumId = 0;
         messageIdIterator = Iterators.numbers(0);
         SN.machineId = seed;
-        int counter = 0;
-        float personGenerationTime = 0.0f;
-        for (Person p : block) {
-            long start = System.currentTimeMillis();
-            generateActivity(p, block);
-            if (counter % 1000 == 0) {
-                context.setStatus("Generating activity of person " + counter + " of block" + seed);
-                context.progress();
-            }
-            float time = (System.currentTimeMillis() - start) / 1000.0f;
-            personGenerationTime += time;
-            counter++;
-        }
-        System.out.println("Average person activity generation time " + personGenerationTime / (float) block.size());
+        return block.stream().map(p -> generateActivity(p, block)).iterator();
     }
 
     public void writeActivityFactors(OutputStream writer) throws IOException {

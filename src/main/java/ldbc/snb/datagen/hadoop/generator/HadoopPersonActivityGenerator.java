@@ -39,6 +39,7 @@ import ldbc.snb.datagen.DatagenMode;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
+import ldbc.snb.datagen.generator.generators.CoActivity;
 import ldbc.snb.datagen.generator.generators.PersonActivityGenerator;
 import ldbc.snb.datagen.hadoop.HadoopBlockMapper;
 import ldbc.snb.datagen.hadoop.HadoopBlockPartitioner;
@@ -53,6 +54,7 @@ import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
 import ldbc.snb.datagen.serializer.DeleteEventSerializer;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
 import ldbc.snb.datagen.serializer.InsertEventSerializer;
+import ldbc.snb.datagen.serializer.PersonActivityExporter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -68,6 +70,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class HadoopPersonActivityGenerator {
@@ -143,7 +146,27 @@ public class HadoopPersonActivityGenerator {
                 friends.write(strbuf.toString().getBytes(StandardCharsets.UTF_8));
             }
             System.out.println("Starting generation of block: " + key.block);
-            personActivityGenerator.generateActivityForBlock((int) key.block, persons, context);
+            final int[] counter = { 0 };
+            final float[] personGenerationTime = { 0.0f };
+            Iterator<CoActivity> coActivities = personActivityGenerator.generateActivityForBlock((int) key.block, persons);
+
+            PersonActivityExporter personActivityExporter =
+                    new PersonActivityExporter(dynamicActivitySerializer, insertEventSerializer, deleteEventSerializer);
+
+            coActivities.forEachRemaining(coActivity -> {
+                long start = System.currentTimeMillis();
+                personActivityExporter.export(coActivity);
+                if (counter[0] % 1000 == 0) {
+                    context.setStatus("Generating activity of person " + counter[0] + " of block" + key.block);
+                    context.progress();
+                }
+                float time = (System.currentTimeMillis() - start) / 1000.0f;
+                personGenerationTime[0] += time;
+                counter[0]++;
+            });
+
+            System.out.println("Average person activity generation time " + personGenerationTime[0] / (float) persons.size());
+
             System.out.println("Writing person factors for block: " + key.block);
             personActivityGenerator.writePersonFactors(personFactors);
         }

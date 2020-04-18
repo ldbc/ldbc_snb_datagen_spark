@@ -45,25 +45,69 @@ import ldbc.snb.datagen.entities.dynamic.messages.Photo;
 import ldbc.snb.datagen.entities.dynamic.messages.Post;
 import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.entities.dynamic.relations.Like;
+import ldbc.snb.datagen.generator.generators.CoActivity;
+import ldbc.snb.datagen.generator.generators.CoWall;
 import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
-import ldbc.snb.datagen.util.FactorTable;
+import org.javatuples.Pair;
+import org.javatuples.Triplet;
 
 import java.io.IOException;
+import java.util.Iterator;
+
+import static ldbc.snb.datagen.util.functional.Thunk.wrapException;
 
 public class PersonActivityExporter {
     protected DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer;
     protected InsertEventSerializer insertEventSerializer;
     protected DeleteEventSerializer deleteEventSerializer;
-    protected FactorTable factorTable;
 
-    public PersonActivityExporter(DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer, InsertEventSerializer insertEventSerializer, DeleteEventSerializer deleteEventSerializer, FactorTable factorTable) {
+    public PersonActivityExporter(DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer, InsertEventSerializer insertEventSerializer, DeleteEventSerializer deleteEventSerializer) {
         this.dynamicActivitySerializer = dynamicActivitySerializer;
-        this.factorTable = factorTable;
         this.insertEventSerializer = insertEventSerializer;
         this.deleteEventSerializer = deleteEventSerializer;
     }
 
-    public void export(final Forum forum) throws IOException {
+    private void exportPostWall(final CoWall<Triplet<Post, Iterator<Like>, Iterator<Pair<Comment, Iterator<Like>>>>> coWall) {
+        coWall.forEachRemaining(forum -> {
+            wrapException(() -> this.export(forum.getValue0()));
+            Iterator<ForumMembership> genForumMembership = forum.getValue1();
+            genForumMembership.forEachRemaining(m -> wrapException(() -> this.export(m)));
+            Iterator<Triplet<Post, Iterator<Like>, Iterator<Pair<Comment, Iterator<Like>>>>> thread = forum.getValue2();
+            thread.forEachRemaining(t -> {
+                wrapException(() -> this.export(t.getValue0()));
+                Iterator<Like> genLike = t.getValue1();
+                genLike.forEachRemaining(l -> wrapException(() -> this.export(l)));
+                Iterator<Pair<Comment, Iterator<Like>>> genComment = t.getValue2();
+                genComment.forEachRemaining(c -> {
+                    wrapException(() -> this.export(c.getValue0()));
+                    Iterator<Like> genLike1 = c.getValue1();
+                    genLike1.forEachRemaining(l -> wrapException(() -> this.export(l)));
+                });
+            });
+        });
+    }
+
+    private void exportAlbumWall(final CoWall<Pair<Photo, Iterator<Like>>> coAlbums) {
+        coAlbums.forEachRemaining(forum -> {
+            wrapException(() -> this.export(forum.getValue0()));
+            Iterator<ForumMembership> genForumMembership = forum.getValue1();
+            genForumMembership.forEachRemaining(m -> wrapException(() -> this.export(m)));
+            Iterator<Pair<Photo, Iterator<Like>>> thread = forum.getValue2();
+            thread.forEachRemaining(t -> {
+                wrapException(() -> this.export(t.getValue0()));
+                Iterator<Like> genLike = t.getValue1();
+                genLike.forEachRemaining(l -> wrapException(() -> this.export(l)));
+            });
+        });
+    }
+
+    public void export(final CoActivity coActivity) {
+        this.exportPostWall(coActivity.coWall);
+        coActivity.coGroups.forEachRemaining(this::exportPostWall);
+        this.exportAlbumWall(coActivity.coAlbums);
+    }
+
+    public void export(final Forum forum) throws Exception {
 
         if (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA){
             dynamicActivitySerializer.export(forum);
