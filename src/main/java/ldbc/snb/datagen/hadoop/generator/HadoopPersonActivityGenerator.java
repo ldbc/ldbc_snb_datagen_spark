@@ -97,17 +97,17 @@ public class HadoopPersonActivityGenerator {
                 dynamicActivitySerializer = HadoopConfiguration.getDynamicActivitySerializer(conf);
                 dynamicActivitySerializer.initialize(conf, reducerId);
                 if (DatagenParams.getDatagenMode() != DatagenMode.RAW_DATA) {
-                    insertEventSerializer = new InsertEventSerializer(conf, DatagenParams.hadoopDir + "/temp_insertStream_forum_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
-                    deleteEventSerializer = new DeleteEventSerializer(conf, DatagenParams.hadoopDir + "/temp_deleteStream_forum_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
+                    insertEventSerializer = new InsertEventSerializer(conf, HadoopConfiguration.getHadoopDir(conf)  + "/temp_insertStream_forum_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
+                    deleteEventSerializer = new DeleteEventSerializer(conf, HadoopConfiguration.getHadoopDir(conf)  + "/temp_deleteStream_forum_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
                 }
                 personActivityGenerator = new PersonActivityGenerator(dynamicActivitySerializer, insertEventSerializer, deleteEventSerializer);
 
                 FileSystem fs = FileSystem.get(context.getConfiguration());
                 personFactors = fs
-                        .create(new Path(DatagenParams.hadoopDir + "/" + "m" + reducerId + DatagenParams.PERSON_COUNTS_FILE));
+                        .create(new Path(HadoopConfiguration.getHadoopDir(conf)  + "/" + "m" + reducerId + DatagenParams.PERSON_COUNTS_FILE));
                 activityFactors = fs
-                        .create(new Path(DatagenParams.hadoopDir + "/" + "m" + reducerId + DatagenParams.ACTIVITY_FILE));
-                friends = fs.create(new Path(DatagenParams.hadoopDir + "/" + "m0friendList" + reducerId + ".csv"));
+                        .create(new Path(HadoopConfiguration.getHadoopDir(conf)  + "/" + "m" + reducerId + DatagenParams.ACTIVITY_FILE));
+                friends = fs.create(new Path(HadoopConfiguration.getHadoopDir(conf)  + "/" + "m0friendList" + reducerId + ".csv"));
 
             } catch (Exception e) {
                 System.err.println(e.getMessage());
@@ -179,12 +179,12 @@ public class HadoopPersonActivityGenerator {
         FileSystem fs = FileSystem.get(conf);
 
         System.out.println("Ranking Persons");
-        String rankedFileName = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/ranked";
+        String rankedFileName = HadoopConfiguration.getHadoopDir(conf) + "/ranked";
         HadoopFileRanker hadoopFileRanker = new HadoopFileRanker(conf, TupleKey.class, Person.class, null);
         hadoopFileRanker.run(inputFileName, rankedFileName);
 
         System.out.println("Running activity generator");
-        int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads"));
+        int numThreads = HadoopConfiguration.getNumThreads(conf);
         Job job = Job.getInstance(conf, "Person Activity Generator/Serializer");
         job.setMapOutputKeyClass(BlockKey.class);
         job.setMapOutputValueClass(Person.class);
@@ -209,7 +209,7 @@ public class HadoopPersonActivityGenerator {
         //
 
         FileInputFormat.setInputPaths(job, new Path(rankedFileName));
-        FileOutputFormat.setOutputPath(job, new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/aux"));
+        FileOutputFormat.setOutputPath(job, new Path(HadoopConfiguration.getHadoopDir(conf) + "/aux"));
         long start = System.currentTimeMillis();
         if (!job.waitForCompletion(true)) {
             throw new IllegalStateException("HadoopPersonActivityGenerator failed");
@@ -218,7 +218,7 @@ public class HadoopPersonActivityGenerator {
 
         try {
             fs.delete(new Path(rankedFileName), true);
-            fs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/aux"), true);
+            fs.delete(new Path(HadoopConfiguration.getHadoopDir(conf) + "/aux"), true);
         } catch (IOException e) {
             System.err.println(e.getMessage());
             throw new RuntimeException(e);

@@ -185,7 +185,7 @@ public class InsertEventSerializer {
 
             if (DatagenParams.getDatagenMode() == DatagenMode.INTERACTIVE || DatagenParams.getDatagenMode() == DatagenMode.BI) {
                 OutputStream output = fs.create(new Path(fileNamePrefix + ".properties"), true);
-                output.write(("ldbc.snb.interactive.insert.gct_delta_duration:" + DatagenParams.deltaTime + "\n")
+                output.write(("ldbc.snb.interactive.insert.gct_delta_duration:" + DatagenParams.delta + "\n")
                         .getBytes());
                 output.write(("ldbc.snb.interactive.insert.min_write_event_start_time:" + stats.minDate + "\n")
                         .getBytes());

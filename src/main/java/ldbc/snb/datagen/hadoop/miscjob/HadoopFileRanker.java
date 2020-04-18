@@ -35,6 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop.miscjob;
 
+import ldbc.snb.datagen.hadoop.HadoopConfiguration;
 import ldbc.snb.datagen.hadoop.LdbcDatagen;
 import ldbc.snb.datagen.hadoop.key.TupleKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKey;
@@ -88,13 +89,7 @@ public class HadoopFileRanker {
                 LdbcDatagen.initializeContext(context.getConfiguration());
                 String className = context.getConfiguration().get("keySetterClassName");
                 keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(className).newInstance();
-            } catch (ClassNotFoundException e) {
-                System.out.print(e.getMessage());
-                throw new RuntimeException(e);
-            } catch (IllegalAccessException e) {
-                System.out.print(e.getMessage());
-                throw new RuntimeException(e);
-            } catch (InstantiationException e) {
+            } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
                 System.out.print(e.getMessage());
                 throw new RuntimeException(e);
             }
@@ -139,7 +134,7 @@ public class HadoopFileRanker {
             try {
                 FileSystem fs = FileSystem.get(conf);
                 DataOutputStream output = fs
-                        .create(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/rank_" + reducerId));
+                        .create(new Path(HadoopConfiguration.getHadoopDir(conf) + "/rank_" + reducerId));
                 output.writeLong(counter);
                 output.close();
             } catch (IOException e) {
@@ -167,7 +162,7 @@ public class HadoopFileRanker {
         /**
          * The number of reducer tasks.
          **/
-        private long counters[];
+        private long[] counters;
         /**
          * The number of elements processed by each reducer in the previous step.
          **/
@@ -188,7 +183,7 @@ public class HadoopFileRanker {
                 FileSystem fs = FileSystem.get(conf);
                 for (int i = 0; i < (numReduceTasks - 1); ++i) {
                     DataInputStream inputFile = fs
-                            .open(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/rank_" + i));
+                            .open(new Path(HadoopConfiguration.getHadoopDir(conf)+ "/rank_" + i));
                     counters[i + 1] = inputFile.readLong();
                     inputFile.close();
                 }
@@ -221,21 +216,21 @@ public class HadoopFileRanker {
      *
      * @param inputFileName  The name of the file to sort.
      * @param outputFileName The name of the sorted file.
-     * @throws Exception
+     * @throws Exception exception
      */
     public void run(String inputFileName, String outputFileName) throws Exception {
-        int numThreads = conf.getInt("ldbc.snb.datagen.generator.numThreads", 1);
+        int numThreads = HadoopConfiguration.getNumThreads(conf);
 
         if (keySetterName != null) {
             conf.set("keySetterClassName", keySetterName);
         }
 
-        /** First Job to sort the key-value pairs and to count the number of elements processed by each reducer.**/
+        // First Job to sort the key-value pairs and to count the number of elements processed by each reducer.
         Job jobSort = Job.getInstance(conf, "Sorting " + inputFileName);
 
         FileInputFormat.setInputPaths(jobSort, new Path(inputFileName));
         FileOutputFormat
-                .setOutputPath(jobSort, new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/rankIntermediate"));
+                .setOutputPath(jobSort, new Path(HadoopConfiguration.getHadoopDir(conf) + "/rankIntermediate"));
 
         if (keySetterName != null) {
             jobSort.setMapperClass(HadoopFileRankerSortMapper.class);
@@ -257,10 +252,10 @@ public class HadoopFileRanker {
             throw new IllegalStateException("HadoopFileRanker / SortReducer failed");
         }
 
-        /** Second Job to assign the rank to each element.**/
+        // Second Job to assign the rank to each element.
         Job jobRank = Job.getInstance(conf, "Sorting " + inputFileName);
         FileInputFormat
-                .setInputPaths(jobRank, new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/rankIntermediate"));
+                .setInputPaths(jobRank, new Path(HadoopConfiguration.getHadoopDir(conf) + "/rankIntermediate"));
         FileOutputFormat.setOutputPath(jobRank, new Path(outputFileName));
 
         jobRank.setMapOutputKeyClass(BlockKey.class);
@@ -281,9 +276,9 @@ public class HadoopFileRanker {
         try {
             FileSystem fs = FileSystem.get(conf);
             for (int i = 0; i < numThreads; ++i) {
-                fs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/rank_" + i), true);
+                fs.delete(new Path(HadoopConfiguration.getHadoopDir(conf) + "/rank_" + i), true);
             }
-            fs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/rankIntermediate"), true);
+            fs.delete(new Path(HadoopConfiguration.getHadoopDir(conf) + "/rankIntermediate"), true);
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }

@@ -74,7 +74,7 @@ public class LikeGenerator {
         for (int i = 0; i < numLikes; i++) {
             ForumMembership membership = memberships.get(startIndex + i);
 
-            long minCreationDate = Math.max(membership.getPerson().getCreationDate(), message.getCreationDate()) + DatagenParams.deltaTime;
+            long minCreationDate = Math.max(membership.getPerson().getCreationDate(), message.getCreationDate()) + DatagenParams.delta;
             long maxCreationDate = Collections.min(Arrays.asList(
                                                         message.getCreationDate() + DateUtils.SEVEN_DAYS,
                                                         membership.getPerson().getDeletionDate(),
@@ -97,7 +97,7 @@ public class LikeGenerator {
             }
             if(randomDeleteLike.nextDouble() < prob) {
                 isExplicitlyDeleted = true;
-                long minDeletionDate = likeCreationDate + DatagenParams.deltaTime;
+                long minDeletionDate = likeCreationDate + DatagenParams.delta;
                 long maxDeletionDate = Collections.min(Arrays.asList(
                         membership.getPerson().getDeletionDate(),
                         message.getDeletionDate(),

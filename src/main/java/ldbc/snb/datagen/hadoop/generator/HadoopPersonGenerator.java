@@ -86,12 +86,12 @@ public class HadoopPersonGenerator {
 
             // Here we determine the blocks in the "block space" that this mapper is responsible for.
             int numBlocks = (int) (Math.ceil(DatagenParams.numPersons / (double) DatagenParams.blockSize));
-            int initBlock = (int) (Math.ceil((numBlocks / (double) DatagenParams.numThreads) * threadId));
-            int endBlock = (int) (Math.ceil((numBlocks / (double) DatagenParams.numThreads) * (threadId + 1)));
+            int initBlock = (int) (Math.ceil((numBlocks / (double) HadoopConfiguration.getNumThreads(hadoopConf)) * threadId));
+            int endBlock = (int) (Math.ceil((numBlocks / (double) HadoopConfiguration.getNumThreads(hadoopConf)) * (threadId + 1)));
 
             PersonGenerator personGenerator = new PersonGenerator(
                     HadoopConfiguration.extractLdbcConfig(hadoopConf),
-                    hadoopConf.get("ldbc.snb.datagen.generator.distribution.degreeDistribution")
+                    DatagenParams.getDegreeDistribution().getClass().getName()
             );
             for (int i = initBlock; i < endBlock; ++i) {
                 int size = (int) Math.min(DatagenParams.numPersons - DatagenParams.blockSize * i, DatagenParams.blockSize);
@@ -148,14 +148,14 @@ public class HadoopPersonGenerator {
      */
     public void run(String outputFileName, String postKeySetterName) throws Exception {
 
-        String hadoopDir = conf.get("ldbc.snb.datagen.serializer.hadoopDir");
+        String hadoopDir = conf.get("hadoop.serializer.hadoopDir");
         String tempFile = hadoopDir + "/mrInputFile";
 
         FileSystem dfs = FileSystem.get(conf);
         dfs.delete(new Path(tempFile), true);
-        writeToOutputFile(tempFile, Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads")), conf);
+        writeToOutputFile(tempFile, HadoopConfiguration.getNumThreads(conf), conf);
 
-        int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads"));
+        int numThreads = HadoopConfiguration.getNumThreads(conf);
         conf.setInt("mapreduce.input.lineinputformat.linespermap", 1);
         conf.set("postKeySetterName", postKeySetterName);
         Job job = Job.getInstance(conf, "SIB Generate Persons & 1st Dimension");

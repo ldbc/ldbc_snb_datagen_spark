@@ -31,7 +31,7 @@ import java.util.Map;
 public class HadoopConfiguration {
 
     public static Config extractLdbcConfig(Configuration hadoop) {
-        return new Config(hadoop.getValByRegex("^(ldbc.snb.datagen).*$"));
+        return new Config(hadoop.getValByRegex("^(generator).*$"));
     }
 
     public static void mergeLdbcIntoHadoop(Config config, Configuration hadoop) {
@@ -45,26 +45,26 @@ public class HadoopConfiguration {
 
         if (hadoopConf.get("fs.defaultFS").compareTo("file:///") == 0) {
             System.out.println("Running in standalone mode. Setting numThreads to 1");
-            conf.put("ldbc.snb.datagen.generator.numThreads", "1");
+            conf.put("hadoop.numThreads", "1");
         }
 
-        conf.put("ldbc.snb.datagen.serializer.hadoopDir", conf.get("ldbc.snb.datagen.serializer.outputDir") + "/hadoop");
-        conf.put("ldbc.snb.datagen.serializer.socialNetworkDir", conf.get("ldbc.snb.datagen.serializer.outputDir") + "/social_network");
+        conf.put("hadoop.serializer.hadoopDir", conf.get("hadoop.serializer.outputDir") + "hadoop");
+        conf.put("hadoop.serializer.socialNetworkDir", conf.get("hadoop.serializer.outputDir") + "social_network");
 
         ConfigParser.printConfig(conf);
 
         mergeLdbcIntoHadoop(new Config(conf), hadoopConf);
         FileSystem dfs = FileSystem.get(hadoopConf);
 
-        dfs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir")), true);
-        dfs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir")), true);
-        FileUtils.deleteDirectory(new File(conf.get("ldbc.snb.datagen.serializer.outputDir") + "/substitution_parameters"));
+        dfs.delete(new Path(conf.get("hadoop.serializer.hadoopDir")), true);
+        dfs.delete(new Path(conf.get("hadoop.serializer.socialNetworkDir")), true);
+        FileUtils.deleteDirectory(new File(conf.get("hadoop.serializer.outputDir") + "/substitution_parameters"));
         return hadoopConf;
     }
 
     public static DynamicPersonSerializer<HdfsCsvWriter> getDynamicPersonSerializer(Configuration hadoopConf) {
 
-        String serializerFormat = hadoopConf.get("serializer.format");
+        String serializerFormat = hadoopConf.get("hadoop.serializer.format");
 
         DynamicPersonSerializer<HdfsCsvWriter> output;
         switch (serializerFormat) {
@@ -89,7 +89,7 @@ public class HadoopConfiguration {
 
     public static DynamicActivitySerializer<HdfsCsvWriter> getDynamicActivitySerializer(Configuration hadoopConf) {
 
-        String serializerFormat = hadoopConf.get("serializer.format");
+        String serializerFormat = hadoopConf.get("hadoop.serializer.format");
 
 
         DynamicActivitySerializer<HdfsCsvWriter> output;
@@ -115,7 +115,7 @@ public class HadoopConfiguration {
 
     public static StaticSerializer<HdfsCsvWriter> getStaticSerializer(Configuration hadoopConf) {
 
-        String serializerFormat = hadoopConf.get("serializer.format");
+        String serializerFormat = hadoopConf.get("hadoop.serializer.format");
 
 
         StaticSerializer<HdfsCsvWriter> output;
@@ -141,8 +141,29 @@ public class HadoopConfiguration {
 
     public static boolean isCompressed(Configuration hadoopConf) {
 
-        return Boolean.parseBoolean(hadoopConf.get("serializer.compressed"));
+        return Boolean.parseBoolean(hadoopConf.get("hadoop.serializer.compressed"));
 
+    }
+
+    public static boolean getEndLineSeparator(Configuration hadoopConf) {
+        return Boolean.parseBoolean(hadoopConf.get("hadoop.serializer.endlineSeparator"));
+
+    }
+
+    public static int getNumThreads(Configuration hadoopConf) {
+        return Integer.parseInt(hadoopConf.get("hadoop.numThreads"));
+    }
+
+    public static String getOutputDir(Configuration hadoopConf){
+        return hadoopConf.get("hadoop.serializer.outputDir");
+    }
+
+    public static String getHadoopDir(Configuration hadoopConf){
+        return hadoopConf.get("hadoop.serializer.hadoopDir");
+    }
+
+    public static String getSocialNetworkDir(Configuration hadoopConf){
+        return hadoopConf.get("hadoop.serializer.socialNetworkDir");
     }
 
 }
