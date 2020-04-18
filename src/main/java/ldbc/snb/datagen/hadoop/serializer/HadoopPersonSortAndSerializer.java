@@ -83,8 +83,8 @@ public class HadoopPersonSortAndSerializer {
                 dynamicPersonSerializer = HadoopConfiguration.getDynamicPersonSerializer(conf);
                 dynamicPersonSerializer.initialize(conf, reducerId);
                 if (DatagenParams.getDatagenMode() == DatagenMode.INTERACTIVE || DatagenParams.getDatagenMode() == DatagenMode.BI) {
-                    insertEventSerializer = new InsertEventSerializer(conf, DatagenParams.hadoopDir + "/temp_insertStream_person_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
-                    deleteEventSerializer = new DeleteEventSerializer(conf, DatagenParams.hadoopDir + "/temp_deleteStream_person_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
+                    insertEventSerializer = new InsertEventSerializer(conf, DatagenParams.hadoopDir + "/temp_insertStream_person_" + reducerId, reducerId, DatagenParams.numUpdatePartitions);
+                    deleteEventSerializer = new DeleteEventSerializer(conf, DatagenParams.hadoopDir + "/temp_deleteStream_person_" + reducerId, reducerId, DatagenParams.numUpdatePartitions);
                 }
             } catch (Exception e) {
                 System.err.println(e.getMessage());
