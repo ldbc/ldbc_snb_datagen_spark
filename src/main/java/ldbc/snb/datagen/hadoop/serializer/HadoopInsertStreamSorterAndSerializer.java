@@ -82,12 +82,11 @@ public class HadoopInsertStreamSorterAndSerializer {
             try {
                 FileSystem fs = FileSystem.get(conf);
                 if (compressed) {
-                    Path outFile = new Path(context.getConfiguration()
-                            .get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/insertStream_" + key.reducerId + "_" + key.partition + "_" + streamType + ".csv.gz");
+                    Path outFile = new Path(
+                            HadoopConfiguration.getSocialNetworkDir(conf) + "/insertStream_" + key.reducerId + "_" + key.partition + "_" + streamType + ".csv.gz");
                     out = new GZIPOutputStream(fs.create(outFile));
                 } else {
-                    Path outFile = new Path(context.getConfiguration()
-                            .get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/insertStream_" + key.reducerId + "_" + key.partition + "_" + streamType + ".csv");
+                    Path outFile = new Path(HadoopConfiguration.getSocialNetworkDir(conf) + "/insertStream_" + key.reducerId + "_" + key.partition + "_" + streamType + ".csv");
                     out = fs.create(outFile);
                 }
                 for (Text t : valueSet) {
