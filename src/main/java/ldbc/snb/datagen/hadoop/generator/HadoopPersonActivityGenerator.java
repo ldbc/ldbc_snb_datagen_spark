@@ -37,7 +37,6 @@ package ldbc.snb.datagen.hadoop.generator;
 
 import ldbc.snb.datagen.DatagenMode;
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.generator.generators.PersonActivityGenerator;
@@ -98,8 +97,8 @@ public class HadoopPersonActivityGenerator {
                 dynamicActivitySerializer = HadoopConfiguration.getDynamicActivitySerializer(conf);
                 dynamicActivitySerializer.initialize(conf, reducerId);
                 if (DatagenParams.getDatagenMode() != DatagenMode.RAW_DATA) {
-                    insertEventSerializer = new InsertEventSerializer(conf, DatagenParams.hadoopDir + "/temp_insertStream_forum_" + reducerId, reducerId, DatagenParams.numUpdatePartitions);
-                    deleteEventSerializer = new DeleteEventSerializer(conf, DatagenParams.hadoopDir + "/temp_deleteStream_forum_" + reducerId, reducerId, DatagenParams.numUpdatePartitions);
+                    insertEventSerializer = new InsertEventSerializer(conf, DatagenParams.hadoopDir + "/temp_insertStream_forum_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
+                    deleteEventSerializer = new DeleteEventSerializer(conf, DatagenParams.hadoopDir + "/temp_deleteStream_forum_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
                 }
                 personActivityGenerator = new PersonActivityGenerator(dynamicActivitySerializer, insertEventSerializer, deleteEventSerializer);
 
