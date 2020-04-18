@@ -153,7 +153,7 @@ public class LdbcDatagen {
 
     private void generateBIParameters(Configuration conf) throws Exception {
         print("Generating BI Parameters");
-        ProcessBuilder pb = new ProcessBuilder(conf.get("ldbc.snb.datagen.parametergenerator.python"), "paramgenerator/generateparamsbi.py", "./", conf.get("ldbc.snb.datagen.serializer.outputDir") + "/substitution_parameters");
+        ProcessBuilder pb = new ProcessBuilder("python", "paramgenerator/generateparamsbi.py", "./", conf.get("ldbc.snb.datagen.serializer.outputDir") + "/substitution_parameters");
         pb.directory(new File("./"));
         File logBi = new File("parameters_bi.log");
         pb.redirectErrorStream(true);
@@ -172,7 +172,7 @@ public class LdbcDatagen {
         Process p = pb.start();
         p.waitFor();
 
-        pb = new ProcessBuilder(conf.get("ldbc.snb.datagen.parametergenerator.python"), "paramgenerator/generateparams.py", "./", conf.get("ldbc.snb.datagen.serializer.outputDir") + "/substitution_parameters");
+        pb = new ProcessBuilder("python", "paramgenerator/generateparams.py", "./", conf.get("ldbc.snb.datagen.serializer.outputDir") + "/substitution_parameters");
         pb.directory(new File("./"));
         File logInteractive = new File("parameters_interactive.log");
         pb.redirectErrorStream(true);
