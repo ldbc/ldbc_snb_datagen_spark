@@ -101,7 +101,7 @@ public class ConfigParser {
         conf.put("ldbc.snb.datagen.generator.distribution.degreeDistribution", "ldbc.snb.datagen.generator.distribution.FacebookDegreeDistribution");
         conf.put("ldbc.snb.datagen.generator.knowsGenerator", "ldbc.snb.datagen.generator.generators.knowsgenerators.DistanceKnowsGenerator");
         conf.put("ldbc.snb.datagen.generator.person.similarity", "ldbc.snb.datagen.entities.dynamic.person.similarity.GeoDistanceSimilarity");
-        conf.put("ldbc.snb.datagen.serializer.format","CsvBasic"); // CsvBasic, CsvMergeForeign, CsvComposite, CsvCompositeMergeForeign
+        conf.put("serializer.format","CsvBasic"); // CsvBasic, CsvMergeForeign, CsvComposite, CsvCompositeMergeForeign
         conf.put("ldbc.snb.datagen.serializer.compressed", Boolean.toString(false));
         conf.put("ldbc.snb.datagen.serializer.outputDir", "./");
         conf.put("ldbc.snb.datagen.serializer.socialNetworkDir", "./social_network");
