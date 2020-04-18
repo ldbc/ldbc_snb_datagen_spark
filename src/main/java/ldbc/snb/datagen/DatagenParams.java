@@ -39,23 +39,6 @@ package ldbc.snb.datagen;
 
 import ldbc.snb.datagen.generator.distribution.DegreeDistribution;
 import ldbc.snb.datagen.util.Config;
-import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
-import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
-import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
-import ldbc.snb.datagen.serializer.StaticSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvBasicDynamicActivitySerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvCompositeDynamicActivitySerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvCompositeMergeForeignDynamicActivitySerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvMergeForeignDynamicActivitySerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CsvBasicDynamicPersonSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CsvCompositeDynamicPersonSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CsvCompositeMergeForeignDynamicPersonSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CsvMergeForeignDynamicPersonSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvBasicStaticSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvCompositeMergeForeignStaticSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvCompositeStaticSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvMergeForeignStaticSerializer;
-import org.apache.hadoop.conf.Configuration;
 
 import static ldbc.snb.datagen.DatagenMode.*;
 
@@ -236,7 +219,6 @@ public class DatagenParams {
     public static String outputDir = "./";
     public static String hadoopDir = "./";
     public static String socialNetworkDir = "./";
-    public static String serializerFormat;
     public static String datagenMode;
     public static int numThreads = 1;
     public static int deltaTime = 10000;
@@ -245,7 +227,7 @@ public class DatagenParams {
     public static int endYear = 2013;
     public static int numYears = 3;
     public static boolean exportText = true;
-    public static int numUpdatePartitions = 1;
+    public static int numUpdateStreams = 1;
 
     private static Integer intConf(Config conf, ParameterNames param) {
         return Integer.parseInt(conf.get(param.toString()));
@@ -327,12 +309,11 @@ public class DatagenParams {
             numYears = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numYears"));
             endYear = startYear + numYears;
             numThreads = conf.getInt("ldbc.snb.datagen.generator.numThreads", 1);
-            numUpdatePartitions = conf.getInt("ldbc.snb.datagen.serializer.numUpdatePartitions", 1);
+            numUpdateStreams = conf.getInt("ldbc.snb.datagen.mode.interactive.numUpdateStreams", 1);
             deltaTime = conf.getInt("ldbc.snb.datagen.generator.deltaTime", 10000);
             outputDir = conf.get("ldbc.snb.datagen.serializer.outputDir");
             hadoopDir = outputDir + "/hadoop";
             socialNetworkDir = outputDir + "social_network";
-            serializerFormat = conf.get("serializer.format");
             datagenMode = conf.get("ldbc.snb.datagen.mode");
 
             if (conf.get("ldbc.snb.datagen.generator.gscale") != null) {
