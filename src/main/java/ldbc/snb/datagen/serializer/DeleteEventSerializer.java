@@ -207,11 +207,11 @@ public class DeleteEventSerializer {
     }
 
     public void export(Like like) throws IOException {
-        currentDependantDate = like.getLikeCreationDate();
+        currentDependantDate = like.getCreationDate();
         if (like.getType() == COMMENT) {
-            beginEvent(like.getLikeDeletionDate(), REMOVE_LIKE_COMMENT);
+            beginEvent(like.getDeletionDate(), REMOVE_LIKE_COMMENT);
         } else {
-            beginEvent(like.getLikeDeletionDate(), REMOVE_LIKE_POST);
+            beginEvent(like.getDeletionDate(), REMOVE_LIKE_POST);
         }
         data.add(Long.toString(like.getPerson()));
         data.add(Long.toString(like.getMessageId()));

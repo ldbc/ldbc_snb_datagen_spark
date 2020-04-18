@@ -100,7 +100,7 @@ public class HadoopPersonActivityGenerator {
                     insertEventSerializer = new InsertEventSerializer(conf, DatagenParams.hadoopDir + "/temp_insertStream_forum_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
                     deleteEventSerializer = new DeleteEventSerializer(conf, DatagenParams.hadoopDir + "/temp_deleteStream_forum_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
                 }
-                personActivityGenerator = new PersonActivityGenerator(dynamicActivitySerializer, insertEventSerializer, deleteEventSerializer);
+                personActivityGenerator = new PersonActivityGenerator();
 
                 FileSystem fs = FileSystem.get(context.getConfiguration());
                 personFactors = fs

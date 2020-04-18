@@ -38,6 +38,7 @@ package ldbc.snb.datagen.serializer;
 import ldbc.snb.datagen.DatagenMode;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.entities.dynamic.DynamicActivity;
 import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.entities.dynamic.messages.Comment;
 import ldbc.snb.datagen.entities.dynamic.messages.Photo;
@@ -240,30 +241,30 @@ public class PersonActivityExporter {
         if (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA){
             dynamicActivitySerializer.export(like);
         } else {
-           if ((like.getLikeCreationDate() < Dictionaries.dates.getBulkLoadThreshold() &&
-                    (like.getLikeDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold() &&
-                            like.getLikeDeletionDate() <= Dictionaries.dates.getSimulationEnd())
+           if ((like.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold() &&
+                    (like.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold() &&
+                            like.getDeletionDate() <= Dictionaries.dates.getSimulationEnd())
             )) {
                 dynamicActivitySerializer.export(like);
                 if (like.isExplicitlyDeleted()) {
                     deleteEventSerializer.export(like);
                     deleteEventSerializer.changePartition();
                 }
-            } else if (like.getLikeCreationDate() < Dictionaries.dates.getBulkLoadThreshold()
-                    && like.getLikeDeletionDate() > Dictionaries.dates.getSimulationEnd()
+            } else if (like.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold()
+                    && like.getDeletionDate() > Dictionaries.dates.getSimulationEnd()
             ) {
                 dynamicActivitySerializer.export(like);
-            } else if (like.getLikeCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()
-                    && (like.getLikeDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold()) &&
-                    like.getLikeDeletionDate() <= Dictionaries.dates.getSimulationEnd()) {
+            } else if (like.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()
+                    && (like.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold()) &&
+                    like.getDeletionDate() <= Dictionaries.dates.getSimulationEnd()) {
                 insertEventSerializer.export(like);
                 insertEventSerializer.changePartition();
                 if (like.isExplicitlyDeleted()) {
                     deleteEventSerializer.export(like);
                     deleteEventSerializer.changePartition();
                 }
-            } else if (like.getLikeCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()
-                    && like.getLikeDeletionDate() > Dictionaries.dates.getSimulationEnd()) {
+            } else if (like.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()
+                    && like.getDeletionDate() > Dictionaries.dates.getSimulationEnd()) {
                 insertEventSerializer.export(like);
                 insertEventSerializer.changePartition();
             }
