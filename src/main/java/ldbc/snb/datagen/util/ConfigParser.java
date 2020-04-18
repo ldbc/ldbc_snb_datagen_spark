@@ -110,8 +110,6 @@ public class ConfigParser {
         conf.put("ldbc.snb.datagen.serializer.dateFormatter", "ldbc.snb.datagen.util.formatter.StringDateFormatter");
         conf.put("ldbc.snb.datagen.util.formatter.StringDateFormatter.dateTimeFormat", "yyyy-MM-dd'T'HH:mm:ss.SSS+00:00");
         conf.put("ldbc.snb.datagen.util.formatter.StringDateFormatter.dateFormat", "yyyy-MM-dd");
-        conf.put("ldbc.snb.datagen.parametergenerator.python", "python");
-        conf.put("ldbc.snb.datagen.parametergenerator.parameters", "true");
         conf.put("ldbc.snb.datagen.mode", "interactive"); // interactive, bi, graphalytics, rawdata
         conf.put("ldbc.snb.datagen.mode.bi.deleteType", "simple"); // simple or smart
         conf.put("ldbc.snb.datagen.mode.bi.batches", "1");
