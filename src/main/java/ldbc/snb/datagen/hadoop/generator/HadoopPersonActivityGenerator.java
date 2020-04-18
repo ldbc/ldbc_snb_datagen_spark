@@ -43,6 +43,7 @@ import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.generator.generators.PersonActivityGenerator;
 import ldbc.snb.datagen.hadoop.HadoopBlockMapper;
 import ldbc.snb.datagen.hadoop.HadoopBlockPartitioner;
+import ldbc.snb.datagen.hadoop.HadoopConfiguration;
 import ldbc.snb.datagen.hadoop.LdbcDatagen;
 import ldbc.snb.datagen.hadoop.key.TupleKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKey;
@@ -94,7 +95,7 @@ public class HadoopPersonActivityGenerator {
             LdbcDatagen.initializeContext(conf);
             try {
 
-                dynamicActivitySerializer = DatagenParams.getDynamicActivitySerializer();
+                dynamicActivitySerializer = HadoopConfiguration.getDynamicActivitySerializer(conf);
                 dynamicActivitySerializer.initialize(conf, reducerId);
                 if (DatagenParams.getDatagenMode() != DatagenMode.RAW_DATA) {
                     insertEventSerializer = new InsertEventSerializer(conf, DatagenParams.hadoopDir + "/temp_insertStream_forum_" + reducerId, reducerId, DatagenParams.numUpdatePartitions);
