@@ -35,6 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop.serializer;
 
+import ldbc.snb.datagen.hadoop.HadoopConfiguration;
 import ldbc.snb.datagen.hadoop.generator.HadoopInsertEventKeyPartitioner;
 import ldbc.snb.datagen.hadoop.key.updatekey.InsertEventKey;
 import ldbc.snb.datagen.hadoop.key.updatekey.InsertEventKeyGroupComparator;
@@ -69,7 +70,7 @@ public class HadoopInsertStreamSorterAndSerializer {
             conf = context.getConfiguration();
             streamType = conf.get("streamType");
             try {
-                compressed = Boolean.parseBoolean(conf.get("ldbc.snb.datagen.serializer.compressed"));
+                compressed = HadoopConfiguration.isCompressed(conf);
             } catch (Exception e) {
                 System.err.println(e.getMessage());
             }

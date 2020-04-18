@@ -139,4 +139,10 @@ public class HadoopConfiguration {
         return output;
     }
 
+    public static boolean isCompressed(Configuration hadoopConf) {
+
+        return Boolean.parseBoolean(hadoopConf.get("serializer.compressed"));
+
+    }
+
 }
