@@ -36,7 +36,7 @@
 package ldbc.snb.datagen.util.formatter;
 
 
-import ldbc.snb.datagen.util.LdbcConfiguration;
+import ldbc.snb.datagen.util.Config;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -49,7 +49,7 @@ public class LongDateFormatter implements DateFormatter {
     private int minSecond;
     private int minMillisecond;
 
-    public void initialize(LdbcConfiguration ldbcConfiguration) {
+    public void initialize(Config config) {
         calendar_ = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
         minHour = calendar_.getActualMinimum(Calendar.HOUR);
         minMinute = calendar_.getActualMinimum(Calendar.MINUTE);

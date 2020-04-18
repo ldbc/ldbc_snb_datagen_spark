@@ -46,11 +46,12 @@ public class HadoopDeleteStreamSorterAndSerializer {
             try {
                 FileSystem fs = FileSystem.get(conf);
                 if (compressed) {
-                    Path outFile = new Path(
-                            HadoopConfiguration.getSocialNetworkDir(conf) + "/deleteStream_" + key.reducerId + "_" + key.partition + "_" + streamType + ".csv.gz");
+                    Path outFile = new Path(context.getConfiguration()
+                            .get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/deleteStream_" + key.reducerId + "_" + key.partition + "_" + streamType + ".csv.gz");
                     out = new GZIPOutputStream(fs.create(outFile));
                 } else {
-                    Path outFile = new Path(HadoopConfiguration.getSocialNetworkDir(conf) + "/deleteStream_" + key.reducerId + "_" + key.partition + "_" + streamType + ".csv");
+                    Path outFile = new Path(context.getConfiguration()
+                            .get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/deleteStream_" + key.reducerId + "_" + key.partition + "_" + streamType + ".csv");
                     out = fs.create(outFile);
                 }
                 for (Text t : valueSet) {
@@ -77,8 +78,8 @@ public class HadoopDeleteStreamSorterAndSerializer {
         job.setMapOutputValueClass(Text.class);
         job.setOutputKeyClass(DeleteEventKey.class);
         job.setOutputValueClass(Text.class);
-        job.setJarByClass(HadoopDeleteStreamSorterAndSerializerReducer.class);
-        job.setReducerClass(HadoopDeleteStreamSorterAndSerializerReducer.class);
+        job.setJarByClass(HadoopDeleteStreamSorterAndSerializer.HadoopDeleteStreamSorterAndSerializerReducer.class);
+        job.setReducerClass(HadoopDeleteStreamSorterAndSerializer.HadoopDeleteStreamSorterAndSerializerReducer.class);
         job.setNumReduceTasks(numThreads);
         job.setInputFormatClass(SequenceFileInputFormat.class);
         job.setOutputFormatClass(SequenceFileOutputFormat.class);

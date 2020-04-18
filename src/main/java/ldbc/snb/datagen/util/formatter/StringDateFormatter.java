@@ -36,7 +36,7 @@
 package ldbc.snb.datagen.util.formatter;
 
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.util.LdbcConfiguration;
+import ldbc.snb.datagen.util.Config;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -51,7 +51,7 @@ public class StringDateFormatter implements DateFormatter {
     private SimpleDateFormat gmtDateFormatter;
     private Date date;
 
-    public void initialize(LdbcConfiguration conf) {
+    public void initialize(Config conf) {
 
         formatDateTimeString = DatagenParams.getDateTimeFormat();
         gmtDateTimeFormatter = new SimpleDateFormat(formatDateTimeString);

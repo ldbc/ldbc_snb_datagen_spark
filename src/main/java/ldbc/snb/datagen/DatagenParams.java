@@ -40,13 +40,25 @@ package ldbc.snb.datagen;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.person.similarity.GeoDistanceSimilarity;
 import ldbc.snb.datagen.entities.dynamic.person.similarity.InterestsSimilarity;
+import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.generator.distribution.DegreeDistribution;
 import ldbc.snb.datagen.generator.distribution.FacebookDegreeDistribution;
 import ldbc.snb.datagen.generator.distribution.ZipfDistribution;
-import ldbc.snb.datagen.util.LdbcConfiguration;
+import ldbc.snb.datagen.generator.generators.knowsgenerators.BterKnowsGenerator;
+import ldbc.snb.datagen.generator.generators.knowsgenerators.ClusteringKnowsGenerator;
+import ldbc.snb.datagen.generator.generators.knowsgenerators.DistanceKnowsGenerator;
+import ldbc.snb.datagen.generator.generators.knowsgenerators.KnowsGenerator;
+import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
+import ldbc.snb.datagen.serializer.StaticSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvBasicStaticSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvCompositeMergeForeignStaticSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvCompositeStaticSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvMergeForeignStaticSerializer;
+import ldbc.snb.datagen.util.Config;
 import ldbc.snb.datagen.util.formatter.DateFormatter;
 import ldbc.snb.datagen.util.formatter.LongDateFormatter;
 import ldbc.snb.datagen.util.formatter.StringDateFormatter;
+import org.apache.hadoop.conf.Configuration;
 
 import static ldbc.snb.datagen.DatagenMode.*;
 
@@ -240,15 +252,15 @@ public class DatagenParams {
     public static boolean exportText = true;
     public static int numUpdateStreams = 1;
 
-    private static Integer intConf(LdbcConfiguration conf, ParameterNames param) {
+    private static Integer intConf(Config conf, ParameterNames param) {
         return Integer.parseInt(conf.get(param.toString()));
     }
 
-    private static Double doubleConf(LdbcConfiguration conf, ParameterNames param) {
+    private static Double doubleConf(Config conf, ParameterNames param) {
         return Double.parseDouble(conf.get(param.toString()));
     }
 
-    public static void readConf(LdbcConfiguration conf) {
+    public static void readConf(Config conf) {
         try {
             ParameterNames[] values = ParameterNames.values();
             for (ParameterNames value : values)

@@ -35,7 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.distribution;
 
-import ldbc.snb.datagen.util.LdbcConfiguration;
+import ldbc.snb.datagen.util.Config;
 import org.apache.commons.math3.distribution.GeometricDistribution;
 
 
@@ -44,7 +44,7 @@ public class GeoDistribution extends DegreeDistribution {
     private GeometricDistribution geo_;
     private double ALPHA_ = 0.12;
 
-    public void initialize(LdbcConfiguration conf) {
+    public void initialize(Config conf) {
         ALPHA_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.GeoDistribution.alpha", ALPHA_);
         geo_ = new GeometricDistribution(ALPHA_);
     }

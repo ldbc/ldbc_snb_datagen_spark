@@ -38,7 +38,7 @@ package ldbc.snb.datagen.generator.generators.knowsgenerators;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
-import ldbc.snb.datagen.util.LdbcConfiguration;
+import ldbc.snb.datagen.util.Config;
 import org.apache.commons.math3.util.Pair;
 import org.roaringbitmap.RoaringBitmap;
 
@@ -60,7 +60,7 @@ public class BterKnowsGenerator implements KnowsGenerator {
     private RandomGeneratorFarm randomFarm;
     private int graphSize = 0;
     private Random random;
-    private LdbcConfiguration conf;
+    private Config conf;
     private long[] expectedDegree;
     private double[] p;
     private Map<Long, RoaringBitmap> openCommunities = new HashMap<>();
@@ -260,7 +260,7 @@ public class BterKnowsGenerator implements KnowsGenerator {
     }
 
     @Override
-    public void initialize(LdbcConfiguration conf) {
+    public void initialize(Config conf) {
         this.conf = conf;
     }
 }

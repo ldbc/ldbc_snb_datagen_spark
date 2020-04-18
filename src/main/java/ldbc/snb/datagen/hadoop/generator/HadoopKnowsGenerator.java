@@ -35,6 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop.generator;
 
+import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.generator.generators.knowsgenerators.KnowsGenerator;
 import ldbc.snb.datagen.hadoop.HadoopBlockMapper;
@@ -47,7 +48,7 @@ import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyComparator;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyGroupComparator;
 import ldbc.snb.datagen.hadoop.miscjob.HadoopFileRanker;
 import ldbc.snb.datagen.hadoop.miscjob.keychanger.HadoopFileKeyChanger;
-import ldbc.snb.datagen.util.LdbcConfiguration;
+import ldbc.snb.datagen.util.Config;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -88,7 +89,7 @@ public class HadoopKnowsGenerator {
             this.hadoopConf = context.getConfiguration();
             try {
                 LdbcDatagen.initializeContext(hadoopConf);
-                LdbcConfiguration conf = HadoopConfiguration.extractLdbcConfig(hadoopConf);
+                Config conf = HadoopConfiguration.extractLdbcConfig(hadoopConf);
                 this.knowsGenerator = (KnowsGenerator) Class.forName(hadoopConf.get("knowsGeneratorName")).newInstance();
                 this.knowsGenerator.initialize(conf);
             } catch (Exception e) {

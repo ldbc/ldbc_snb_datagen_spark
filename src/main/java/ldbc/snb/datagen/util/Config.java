@@ -5,10 +5,10 @@ import org.apache.hadoop.util.StringUtils;
 import java.util.Iterator;
 import java.util.Map;
 
-public class LdbcConfiguration implements Iterable<Map.Entry<String, String>> {
+public class Config implements Iterable<Map.Entry<String, String>> {
     public final Map<String, String> map;
 
-    public LdbcConfiguration(Map<String, String> map) {
+    public Config(Map<String, String> map) {
         this.map = map;
     }
 
@@ -56,7 +56,7 @@ public class LdbcConfiguration implements Iterable<Map.Entry<String, String>> {
     private String getHexDigits(String value) {
         boolean negative = false;
         String str = value;
-        String hexString;
+        String hexString = null;
         if (value.startsWith("-")) {
             negative = true;
             str = value.substring(1);

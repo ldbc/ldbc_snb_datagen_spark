@@ -36,7 +36,7 @@
 package ldbc.snb.datagen.generator.distribution;
 
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.util.LdbcConfiguration;
+import ldbc.snb.datagen.util.Config;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +46,7 @@ public class DiscreteWeibullDistribution extends CumulativeBasedDegreeDistributi
     private double BETA_ = 0.8505;
     private double P_ = 0.0205;
 
-    public List<CumulativeEntry> cumulativeProbability(LdbcConfiguration conf) {
+    public List<CumulativeEntry> cumulativeProbability(Config conf) {
         BETA_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.DiscreteWeibullDistribution.beta", BETA_);
         P_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.DiscreteWeibullDistribution.p", P_);
         List<CumulativeEntry> cumulative = new ArrayList<>();

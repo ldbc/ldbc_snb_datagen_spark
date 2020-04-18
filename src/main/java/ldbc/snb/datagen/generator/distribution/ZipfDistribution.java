@@ -35,7 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.distribution;
 
-import ldbc.snb.datagen.util.LdbcConfiguration;
+import ldbc.snb.datagen.util.Config;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -45,21 +45,21 @@ import java.util.Random;
 
 public class ZipfDistribution extends DegreeDistribution {
 
-    private org.apache.commons.math3.distribution.ZipfDistribution zipf;
-    private double ALPHA = 2.0;
+    private org.apache.commons.math3.distribution.ZipfDistribution zipf_;
+    private double ALPHA_ = 2.0;
     private Random random = new Random();
     private Map<Integer, Integer> histogram = new HashMap<>();
-    private double[] probabilities;
-    private Integer[] values;
-    private double mean = 0.0;
+    private double probabilities[];
+    private Integer values[];
+    private double mean_ = 0.0;
     private int maxDegree = 1000;
     private int numSamples = 10000;
 
-    public void initialize(LdbcConfiguration conf) {
-        ALPHA = conf.getDouble("ldbc.snb.datagen.generator.distribution.ZipfDistribution.alpha", ALPHA);
-        zipf = new org.apache.commons.math3.distribution.ZipfDistribution(maxDegree, ALPHA);
+    public void initialize(Config conf) {
+        ALPHA_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.ZipfDistribution.alpha", ALPHA_);
+        zipf_ = new org.apache.commons.math3.distribution.ZipfDistribution(maxDegree, ALPHA_);
         for (int i = 0; i < numSamples; ++i) {
-            int next = zipf.sample();
+            int next = zipf_.sample();
             Integer currentValue = histogram.put(next, 1);
             if (currentValue != null) {
                 histogram.put(next, currentValue + 1);
@@ -75,13 +75,13 @@ public class ZipfDistribution extends DegreeDistribution {
         for (int i = 1; i < numDifferentValues; ++i) {
             int occurrences = histogram.get(values[i]);
             double prob = occurrences / (double) numSamples;
-            mean += prob * values[i];
+            mean_ += prob * values[i];
             probabilities[i] = probabilities[i - 1] + prob;
         }
     }
 
     public void reset(long seed) {
-        zipf.reseedRandomGenerator(seed);
+        zipf_.reseedRandomGenerator(seed);
         random.setSeed(seed);
     }
 
@@ -102,6 +102,6 @@ public class ZipfDistribution extends DegreeDistribution {
     }
 
     public double mean(long numPersons) {
-        return mean;
+        return mean_;
     }
 }

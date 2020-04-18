@@ -66,7 +66,7 @@ public class DateUtils {
     private DateFormatter dateFormatter;
 
     // This constructor is for the case of friendship's created date generator
-    public DateUtils(LdbcConfiguration conf, GregorianCalendar simulationStartYear, GregorianCalendar simulationEndYear,
+    public DateUtils(Config conf, GregorianCalendar simulationStartYear, GregorianCalendar simulationEndYear,
                      double alpha) {
         simulationEndYear.setTimeZone(TimeZone.getTimeZone("GMT"));
         simulationStartYear.setTimeZone(TimeZone.getTimeZone("GMT"));

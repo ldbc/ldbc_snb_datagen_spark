@@ -16,7 +16,7 @@ import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvBasicStaticSerial
 import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvCompositeMergeForeignStaticSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvCompositeStaticSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvMergeForeignStaticSerializer;
-import ldbc.snb.datagen.util.LdbcConfiguration;
+import ldbc.snb.datagen.util.Config;
 import ldbc.snb.datagen.util.ConfigParser;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -30,12 +30,12 @@ import java.util.Map;
 
 public class HadoopConfiguration {
 
-    public static LdbcConfiguration extractLdbcConfig(Configuration hadoop) {
-        return new LdbcConfiguration(hadoop.getValByRegex("^(generator).*$"));
+    public static Config extractLdbcConfig(Configuration hadoop) {
+        return new Config(hadoop.getValByRegex("^(generator).*$"));
     }
 
-    public static void mergeLdbcIntoHadoop(LdbcConfiguration ldbcConfiguration, Configuration hadoop) {
-        for (Map.Entry<String, String> entry : ldbcConfiguration.map.entrySet()) {
+    public static void mergeLdbcIntoHadoop(Config config, Configuration hadoop) {
+        for (Map.Entry<String, String> entry : config.map.entrySet()) {
             hadoop.set(entry.getKey(), entry.getValue());
         }
     }
@@ -48,14 +48,13 @@ public class HadoopConfiguration {
             conf.put("hadoop.numThreads", "1");
         }
 
-//        conf.put("hadoop.serializer.hadoopDir", conf.get("hadoop.serializer.outputDir") + "hadoop");
-//        conf.put("hadoop.serializer.socialNetworkDir", conf.get("hadoop.serializer.outputDir") + "social_network");
+        conf.put("hadoop.serializer.hadoopDir", conf.get("hadoop.serializer.outputDir") + "hadoop");
+        conf.put("hadoop.serializer.socialNetworkDir", conf.get("hadoop.serializer.outputDir") + "social_network");
 
         ConfigParser.printConfig(conf);
 
-        mergeLdbcIntoHadoop(new LdbcConfiguration(conf), hadoopConf);
+        mergeLdbcIntoHadoop(new Config(conf), hadoopConf);
         FileSystem dfs = FileSystem.get(hadoopConf);
-
 
         dfs.delete(new Path(conf.get("hadoop.serializer.hadoopDir")), true);
         dfs.delete(new Path(conf.get("hadoop.serializer.socialNetworkDir")), true);

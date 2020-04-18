@@ -35,11 +35,11 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.distribution;
 
-import ldbc.snb.datagen.util.LdbcConfiguration;
+import ldbc.snb.datagen.util.Config;
 
 public abstract class DegreeDistribution {
 
-    public abstract void initialize(LdbcConfiguration conf);
+    public abstract void initialize(Config conf);
 
     public abstract void reset(long seed);
 
