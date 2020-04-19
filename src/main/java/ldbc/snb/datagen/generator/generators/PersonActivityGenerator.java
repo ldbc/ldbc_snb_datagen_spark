@@ -93,10 +93,10 @@ public class PersonActivityGenerator {
         messageIdIterator = Iterators.numbers(0);
     }
 
-    private CoActivity generateActivity(Person person, List<Person> block) throws AssertionError {
+    private GenActivity generateActivity(Person person, List<Person> block) throws AssertionError {
         try {
             factorTable.extractFactors(person);
-            return new CoActivity(
+            return new GenActivity(
                     generateWall(person),
                     generateGroups(person, block),
                     generateAlbums(person)
@@ -114,14 +114,14 @@ public class PersonActivityGenerator {
      *
      * @param person Person
      */
-    private CoWall<Triplet<Post, Iterator<Like>, Iterator<Pair<Comment, Iterator<Like>>>>> generateWall(Person person) {
+    private GenWall<Triplet<Post, Iterator<Like>, Iterator<Pair<Comment, Iterator<Like>>>>> generateWall(Person person) {
 
         // Generate wall
         Forum wall = forumGenerator.createWall(randomFarm, startForumId++, person);
 
         // Could be null is moderator can't be added
         if (wall == null)
-            return new CoWall<>(Iterators.emptyIterator());
+            return new GenWall<>(Iterators.emptyIterator());
 
         // creates a forum membership for the moderator
         // only the moderator can post on their wall
@@ -145,7 +145,7 @@ public class PersonActivityGenerator {
                 numPostsPerGroup(randomFarm, wall, DatagenParams.maxNumFlashmobPostPerMonth, DatagenParams.maxNumFriends),
                 messageIdIterator);
 
-        return new CoWall<>(Iterators.singletonIterator(
+        return new GenWall<>(Iterators.singletonIterator(
                 new Triplet<>(wall, wall.getMemberships().iterator(), Iterators.concat(uniform, flashMob)))
         );
     }
@@ -156,7 +156,7 @@ public class PersonActivityGenerator {
      * @param person persons
      * @param block  block for persons
      */
-    private Iterator<CoWall<Triplet<Post, Iterator<Like>, Iterator<Pair<Comment, Iterator<Like>>>>>> generateGroups(Person person, List<Person> block) {
+    private Iterator<GenWall<Triplet<Post, Iterator<Like>, Iterator<Pair<Comment, Iterator<Like>>>>>> generateGroups(Person person, List<Person> block) {
 
         // generate person created groups
         double moderatorProb = randomFarm.get(RandomGeneratorFarm.Aspect.FORUM_MODERATOR).nextDouble();
@@ -182,7 +182,7 @@ public class PersonActivityGenerator {
                     numPostsPerGroup(randomFarm, group, DatagenParams.maxNumGroupFlashmobPostPerMonth, DatagenParams.maxGroupSize),
                     messageIdIterator);
 
-            return Iterators.ForIterator.RETURN(new CoWall<>(Iterators.singletonIterator(
+            return Iterators.ForIterator.RETURN(new GenWall<>(Iterators.singletonIterator(
                     new Triplet<>(group, group.getMemberships().iterator(), Iterators.concat(uniform, flashMob)))
             ));
         });
@@ -193,7 +193,7 @@ public class PersonActivityGenerator {
      *
      * @param person person
      */
-    private CoWall<Pair<Photo, Iterator<Like>>> generateAlbums(Person person) {
+    private GenWall<Pair<Photo, Iterator<Like>>> generateAlbums(Person person) {
 
         // work out number of albums to generate
         int numberOfMonths = (int) Dictionaries.dates.numberOfMonths(person);
@@ -202,7 +202,7 @@ public class PersonActivityGenerator {
                 ? numberOfPhotoAlbums
                 : numberOfMonths * numberOfPhotoAlbums;
 
-        return new CoWall<>(Iterators.forIterator(0, i -> i < numberOfPhotoAlbumsForMonths, i -> ++i, i -> {
+        return new GenWall<>(Iterators.forIterator(0, i -> i < numberOfPhotoAlbumsForMonths, i -> ++i, i -> {
             Forum album = forumGenerator.createAlbum(randomFarm, startForumId++, person, i);
             if (album != null) {
                 return Iterators.ForIterator.CONTINUE();
@@ -233,7 +233,7 @@ public class PersonActivityGenerator {
         return (numberPost * forum.getMemberships().size()) / maxMembersPerForum;
     }
 
-    public Iterator<CoActivity> generateActivityForBlock(int seed, List<Person> block) {
+    public Iterator<GenActivity> generateActivityForBlock(int seed, List<Person> block) {
         randomFarm.resetRandomGenerators(seed);
         startForumId = 0;
         messageIdIterator = Iterators.numbers(0);

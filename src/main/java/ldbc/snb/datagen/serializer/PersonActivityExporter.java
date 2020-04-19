@@ -38,15 +38,14 @@ package ldbc.snb.datagen.serializer;
 import ldbc.snb.datagen.DatagenMode;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.entities.dynamic.DynamicActivity;
 import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.entities.dynamic.messages.Comment;
 import ldbc.snb.datagen.entities.dynamic.messages.Photo;
 import ldbc.snb.datagen.entities.dynamic.messages.Post;
 import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.entities.dynamic.relations.Like;
-import ldbc.snb.datagen.generator.generators.CoActivity;
-import ldbc.snb.datagen.generator.generators.CoWall;
+import ldbc.snb.datagen.generator.generators.GenActivity;
+import ldbc.snb.datagen.generator.generators.GenWall;
 import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
@@ -67,8 +66,8 @@ public class PersonActivityExporter {
         this.deleteEventSerializer = deleteEventSerializer;
     }
 
-    private void exportPostWall(final CoWall<Triplet<Post, Iterator<Like>, Iterator<Pair<Comment, Iterator<Like>>>>> coWall) {
-        coWall.forEachRemaining(forum -> {
+    private void exportPostWall(final GenWall<Triplet<Post, Iterator<Like>, Iterator<Pair<Comment, Iterator<Like>>>>> genWall) {
+        genWall.forEachRemaining(forum -> {
             wrapException(() -> this.export(forum.getValue0()));
             Iterator<ForumMembership> genForumMembership = forum.getValue1();
             genForumMembership.forEachRemaining(m -> wrapException(() -> this.export(m)));
@@ -87,7 +86,7 @@ public class PersonActivityExporter {
         });
     }
 
-    private void exportAlbumWall(final CoWall<Pair<Photo, Iterator<Like>>> coAlbums) {
+    private void exportAlbumWall(final GenWall<Pair<Photo, Iterator<Like>>> coAlbums) {
         coAlbums.forEachRemaining(forum -> {
             wrapException(() -> this.export(forum.getValue0()));
             Iterator<ForumMembership> genForumMembership = forum.getValue1();
@@ -101,10 +100,10 @@ public class PersonActivityExporter {
         });
     }
 
-    public void export(final CoActivity coActivity) {
-        this.exportPostWall(coActivity.coWall);
-        coActivity.coGroups.forEachRemaining(this::exportPostWall);
-        this.exportAlbumWall(coActivity.coAlbums);
+    public void export(final GenActivity genActivity) {
+        this.exportPostWall(genActivity.genWall);
+        genActivity.genGroups.forEachRemaining(this::exportPostWall);
+        this.exportAlbumWall(genActivity.genAlbums);
     }
 
     public void export(final Forum forum) throws Exception {

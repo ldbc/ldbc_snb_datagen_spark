@@ -14,7 +14,6 @@ import static org.mockito.Mockito.*;
 
 public class IteratorsTest {
 
-
     @Test
     public void testForIterator_1() {
         Function.FunctionIT mock = mock(Function.FunctionIT.class);

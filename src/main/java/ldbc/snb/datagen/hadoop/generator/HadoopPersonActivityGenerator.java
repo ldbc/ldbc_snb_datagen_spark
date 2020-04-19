@@ -39,7 +39,7 @@ import ldbc.snb.datagen.DatagenMode;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
-import ldbc.snb.datagen.generator.generators.CoActivity;
+import ldbc.snb.datagen.generator.generators.GenActivity;
 import ldbc.snb.datagen.generator.generators.PersonActivityGenerator;
 import ldbc.snb.datagen.hadoop.HadoopBlockMapper;
 import ldbc.snb.datagen.hadoop.HadoopBlockPartitioner;
@@ -148,14 +148,14 @@ public class HadoopPersonActivityGenerator {
             System.out.println("Starting generation of block: " + key.block);
             final int[] counter = { 0 };
             final float[] personGenerationTime = { 0.0f };
-            Iterator<CoActivity> coActivities = personActivityGenerator.generateActivityForBlock((int) key.block, persons);
+            Iterator<GenActivity> coActivities = personActivityGenerator.generateActivityForBlock((int) key.block, persons);
 
             PersonActivityExporter personActivityExporter =
                     new PersonActivityExporter(dynamicActivitySerializer, insertEventSerializer, deleteEventSerializer);
 
-            coActivities.forEachRemaining(coActivity -> {
+            coActivities.forEachRemaining(genActivity -> {
                 long start = System.currentTimeMillis();
-                personActivityExporter.export(coActivity);
+                personActivityExporter.export(genActivity);
                 if (counter[0] % 1000 == 0) {
                     context.setStatus("Generating activity of person " + counter[0] + " of block" + key.block);
                     context.progress();

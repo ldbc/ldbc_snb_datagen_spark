@@ -6,7 +6,7 @@ import org.javatuples.Triplet;
 
 import java.util.Iterator;
 
-public class CoWall<T> implements Iterator<Triplet<
+public class GenWall<T> implements Iterator<Triplet<
         Forum,
         Iterator<ForumMembership>,
         Iterator<T>
@@ -17,7 +17,7 @@ public class CoWall<T> implements Iterator<Triplet<
                 Iterator<T>
                 >> inner;
 
-    public CoWall(Iterator<Triplet<
+    public GenWall(Iterator<Triplet<
             Forum,
             Iterator<ForumMembership>,
             Iterator<T>
