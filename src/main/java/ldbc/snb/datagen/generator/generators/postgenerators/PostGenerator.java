@@ -106,8 +106,7 @@ abstract public class PostGenerator {
                         randomFarm.get(RandomGeneratorFarm.Aspect.DATE), forum, member);
 
                 if (postCore == null)
-                    return Iterators.ForIterator.BREAK();
-
+                    return Iterators.ForIterator.CONTINUE();
 
                 // create content, county, ip - sometimes randomise
                 String content = this.generator.generateText(member.getPerson(), postCore.getTags(), properties);
