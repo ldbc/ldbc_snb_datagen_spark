@@ -55,7 +55,7 @@ import java.util.Iterator;
 
 import static ldbc.snb.datagen.util.functional.Thunk.wrapException;
 
-public class PersonActivityExporter {
+public class PersonActivityExporter implements AutoCloseable {
     protected DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer;
     protected InsertEventSerializer insertEventSerializer;
     protected DeleteEventSerializer deleteEventSerializer;
@@ -311,6 +311,19 @@ public class PersonActivityExporter {
                 insertEventSerializer.export(like);
                 insertEventSerializer.changePartition();
             }
+        }
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (dynamicActivitySerializer != null) {
+            dynamicActivitySerializer.close();
+        }
+        if (insertEventSerializer != null) {
+            insertEventSerializer.close();
+        }
+        if (deleteEventSerializer != null) {
+            deleteEventSerializer.close();
         }
     }
 }

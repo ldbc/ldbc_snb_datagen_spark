@@ -82,10 +82,8 @@ public class HadoopPersonActivityGenerator {
         /**
          * The id of the reducer.
          **/
-        private DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer;
         private PersonActivityGenerator personActivityGenerator;
-        private InsertEventSerializer insertEventSerializer;
-        private DeleteEventSerializer deleteEventSerializer;
+        private PersonActivityExporter personActivityExporter;
         private OutputStream personFactors;
         private OutputStream activityFactors;
         private OutputStream friends;
@@ -97,13 +95,17 @@ public class HadoopPersonActivityGenerator {
             LdbcDatagen.initializeContext(conf);
             try {
 
-                dynamicActivitySerializer = HadoopConfiguration.getDynamicActivitySerializer(conf);
+                DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer = HadoopConfiguration.getDynamicActivitySerializer(conf);
                 dynamicActivitySerializer.initialize(conf, reducerId);
+                InsertEventSerializer insertEventSerializer = null;
+                DeleteEventSerializer deleteEventSerializer = null;
                 if (DatagenParams.getDatagenMode() != DatagenMode.RAW_DATA) {
                     insertEventSerializer = new InsertEventSerializer(conf, DatagenParams.hadoopDir + "/temp_insertStream_forum_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
                     deleteEventSerializer = new DeleteEventSerializer(conf, DatagenParams.hadoopDir + "/temp_deleteStream_forum_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
                 }
                 personActivityGenerator = new PersonActivityGenerator();
+                personActivityExporter =
+                        new PersonActivityExporter(dynamicActivitySerializer, insertEventSerializer, deleteEventSerializer);
 
                 FileSystem fs = FileSystem.get(context.getConfiguration());
                 personFactors = fs
@@ -150,9 +152,6 @@ public class HadoopPersonActivityGenerator {
             final float[] personGenerationTime = { 0.0f };
             Iterator<GenActivity> coActivities = personActivityGenerator.generateActivityForBlock((int) key.block, persons);
 
-            PersonActivityExporter personActivityExporter =
-                    new PersonActivityExporter(dynamicActivitySerializer, insertEventSerializer, deleteEventSerializer);
-
             coActivities.forEachRemaining(genActivity -> {
                 long start = System.currentTimeMillis();
                 personActivityExporter.export(genActivity);
@@ -171,25 +170,13 @@ public class HadoopPersonActivityGenerator {
             personActivityGenerator.writePersonFactors(personFactors);
         }
 
-        protected void cleanup(Context context) {
-            try {
-                System.out.println("Cleaning up");
-                personActivityGenerator.writeActivityFactors(activityFactors);
-                activityFactors.close();
-                personFactors.close();
-                friends.close();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            dynamicActivitySerializer.close();
-            if (DatagenParams.getDatagenMode() != DatagenMode.RAW_DATA) {
-                try {
-                    insertEventSerializer.close();
-                    deleteEventSerializer.close();
-                } catch (IOException e) {
-                    throw new RuntimeException(e.getMessage());
-                }
-            }
+        protected void cleanup(Context context) throws IOException {
+            System.out.println("Cleaning up");
+            personActivityGenerator.writeActivityFactors(activityFactors);
+            activityFactors.close();
+            personFactors.close();
+            friends.close();
+            personActivityExporter.close();
         }
     }
 
