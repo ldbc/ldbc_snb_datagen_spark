@@ -66,14 +66,11 @@ abstract public class PostGenerator {
     private TextGenerator generator;
     private CommentGenerator commentGenerator;
     private LikeGenerator likeGenerator;
-    private Post post;
-
 
     PostGenerator(TextGenerator generator, CommentGenerator commentGenerator, LikeGenerator likeGenerator) {
         this.generator = generator;
         this.commentGenerator = commentGenerator;
         this.likeGenerator = likeGenerator;
-        this.post = new Post();
     }
 
 
@@ -119,6 +116,8 @@ abstract public class PostGenerator {
                     random = randomFarm.get(RandomGeneratorFarm.Aspect.IP);
                     ip = Dictionaries.ips.getIP(random, country);
                 }
+
+                Post post = new Post();
 
                 // create post with above information and from post info
                 post.initialize(SN.formId(SN.composeId(idIterator.next(), postCore.getCreationDate())),
