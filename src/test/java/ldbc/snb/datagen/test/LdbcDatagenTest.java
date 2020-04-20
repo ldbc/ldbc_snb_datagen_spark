@@ -1,10 +1,7 @@
 package ldbc.snb.datagen.test;
 
-import ldbc.snb.datagen.DatagenMode;
-import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.hadoop.HadoopConfiguration;
 import ldbc.snb.datagen.hadoop.LdbcDatagen;
-import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.test.csv.ColumnSet;
 import ldbc.snb.datagen.test.csv.ExistsCheck;
 import ldbc.snb.datagen.test.csv.FileChecker;
@@ -15,14 +12,12 @@ import ldbc.snb.datagen.test.csv.NumericCheck;
 import ldbc.snb.datagen.test.csv.NumericPairCheck;
 import ldbc.snb.datagen.test.csv.PairUniquenessCheck;
 import ldbc.snb.datagen.test.csv.StringLengthCheck;
-import ldbc.snb.datagen.test.csv.StringParser;
 import ldbc.snb.datagen.test.csv.UniquenessCheck;
 import ldbc.snb.datagen.util.ConfigParser;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.beans.BeanInfo;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +27,7 @@ import static org.junit.Assert.*;
 
 public class LdbcDatagenTest {
 
-    private final String dataDir = "./test_data/social_network";
+    private final String dataDir = "./social_network";
 
     @BeforeClass
     public static void generateData() throws Exception {
