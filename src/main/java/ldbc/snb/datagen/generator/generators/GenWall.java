@@ -4,34 +4,20 @@ import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import org.javatuples.Triplet;
 
-import java.util.Iterator;
+import java.util.stream.Stream;
 
-public class GenWall<T> implements Iterator<Triplet<
-        Forum,
-        Iterator<ForumMembership>,
-        Iterator<T>
-        >> {
-    public Iterator<Triplet<
+public class GenWall<T> {
+    public Stream<Triplet<
                 Forum,
-                Iterator<ForumMembership>,
-                Iterator<T>
+                Stream<ForumMembership>,
+                Stream<T>
                 >> inner;
 
-    public GenWall(Iterator<Triplet<
+    public GenWall(Stream<Triplet<
             Forum,
-            Iterator<ForumMembership>,
-            Iterator<T>
+            Stream<ForumMembership>,
+            Stream<T>
             >> inner) {
         this.inner = inner;
-    }
-
-    @Override
-    public boolean hasNext() {
-        return inner.hasNext();
-    }
-
-    @Override
-    public Triplet<Forum, Iterator<ForumMembership>, Iterator<T>> next() {
-        return inner.next();
     }
 }

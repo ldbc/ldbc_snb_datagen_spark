@@ -51,7 +51,7 @@ import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
 import java.io.IOException;
-import java.util.Iterator;
+import java.util.stream.Stream;
 
 import static ldbc.snb.datagen.util.functional.Thunk.wrapException;
 
@@ -66,43 +66,43 @@ public class PersonActivityExporter implements AutoCloseable {
         this.deleteEventSerializer = deleteEventSerializer;
     }
 
-    private void exportPostWall(final GenWall<Triplet<Post, Iterator<Like>, Iterator<Pair<Comment, Iterator<Like>>>>> genWall) {
-        genWall.forEachRemaining(forum -> {
+    private void exportPostWall(final GenWall<Triplet<Post, Stream<Like>, Stream<Pair<Comment, Stream<Like>>>>> genWall) {
+        genWall.inner.forEach(forum -> {
             wrapException(() -> this.export(forum.getValue0()));
-            Iterator<ForumMembership> genForumMembership = forum.getValue1();
-            genForumMembership.forEachRemaining(m -> wrapException(() -> this.export(m)));
-            Iterator<Triplet<Post, Iterator<Like>, Iterator<Pair<Comment, Iterator<Like>>>>> thread = forum.getValue2();
-            thread.forEachRemaining(t -> {
+            Stream<ForumMembership> genForumMembership = forum.getValue1();
+            genForumMembership.forEach(m -> wrapException(() -> this.export(m)));
+            Stream<Triplet<Post, Stream<Like>, Stream<Pair<Comment, Stream<Like>>>>> thread = forum.getValue2();
+            thread.forEach(t -> {
                 wrapException(() -> this.export(t.getValue0()));
-                Iterator<Like> genLike = t.getValue1();
-                genLike.forEachRemaining(l -> wrapException(() -> this.export(l)));
-                Iterator<Pair<Comment, Iterator<Like>>> genComment = t.getValue2();
-                genComment.forEachRemaining(c -> {
+                Stream<Like> genLike = t.getValue1();
+                genLike.forEach(l -> wrapException(() -> this.export(l)));
+                Stream<Pair<Comment, Stream<Like>>> genComment = t.getValue2();
+                genComment.forEach(c -> {
                     wrapException(() -> this.export(c.getValue0()));
-                    Iterator<Like> genLike1 = c.getValue1();
-                    genLike1.forEachRemaining(l -> wrapException(() -> this.export(l)));
+                    Stream<Like> genLike1 = c.getValue1();
+                    genLike1.forEach(l -> wrapException(() -> this.export(l)));
                 });
             });
         });
     }
 
-    private void exportAlbumWall(final GenWall<Pair<Photo, Iterator<Like>>> coAlbums) {
-        coAlbums.forEachRemaining(forum -> {
+    private void exportAlbumWall(final GenWall<Pair<Photo, Stream<Like>>> genAlbums) {
+        genAlbums.inner.forEach(forum -> {
             wrapException(() -> this.export(forum.getValue0()));
-            Iterator<ForumMembership> genForumMembership = forum.getValue1();
-            genForumMembership.forEachRemaining(m -> wrapException(() -> this.export(m)));
-            Iterator<Pair<Photo, Iterator<Like>>> thread = forum.getValue2();
-            thread.forEachRemaining(t -> {
+            Stream<ForumMembership> genForumMembership = forum.getValue1();
+            genForumMembership.forEach(m -> wrapException(() -> this.export(m)));
+            Stream<Pair<Photo, Stream<Like>>> thread = forum.getValue2();
+            thread.forEach(t -> {
                 wrapException(() -> this.export(t.getValue0()));
-                Iterator<Like> genLike = t.getValue1();
-                genLike.forEachRemaining(l -> wrapException(() -> this.export(l)));
+                Stream<Like> genLike = t.getValue1();
+                genLike.forEach(l -> wrapException(() -> this.export(l)));
             });
         });
     }
 
     public void export(final GenActivity genActivity) {
         this.exportPostWall(genActivity.genWall);
-        genActivity.genGroups.forEachRemaining(this::exportPostWall);
+        genActivity.genGroups.forEach(this::exportPostWall);
         this.exportAlbumWall(genActivity.genAlbums);
     }
 

@@ -59,6 +59,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
+import java.util.stream.Stream;
 
 
 abstract public class PostGenerator {
@@ -73,13 +74,12 @@ abstract public class PostGenerator {
         this.likeGenerator = likeGenerator;
     }
 
-
     public void initialize() {
         // Intentionally left empty
     }
 
-    public Iterator<Triplet<Post, Iterator<Like>, Iterator<Pair<Comment, Iterator<Like>>>>> createPosts(RandomGeneratorFarm randomFarm, final Forum forum, final List<ForumMembership> memberships,
-                                        long numPostsInForum, Iterator<Long> idIterator) {
+    public Stream<Triplet<Post, Stream<Like>, Stream<Pair<Comment, Stream<Like>>>>> createPosts(RandomGeneratorFarm randomFarm, final Forum forum, final List<ForumMembership> memberships,
+                                                                                                long numPostsInForum, Iterator<Long> idIterator) {
 
         Properties properties = new Properties();
         properties.setProperty("type", "post");
@@ -136,20 +136,20 @@ abstract public class PostGenerator {
                         forum.getLanguage(),
                         forum.isExplicitlyDeleted());
 
-                Iterator<Like> likeIterator = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1
+                Stream<Like> likeStream = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1
                     ? likeGenerator.generateLikes(
                         randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_LIKES),
                         randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE),
                         forum, post, Like.LikeType.POST)
-                        : Iterators.emptyIterator();
+                        : Stream.empty();
 
                 int numComments = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(DatagenParams.maxNumComments + 1);
 
-                Iterator<Pair<Comment, Iterator<Like>>> commentIterator = commentGenerator.createComments(randomFarm, forum, post, numComments, idIterator);
+                Stream<Pair<Comment, Stream<Like>>> commentStream = commentGenerator.createComments(randomFarm, forum, post, numComments, idIterator);
 
-                return Iterators.ForIterator.RETURN(new Triplet<>(post, likeIterator, commentIterator));
+                return Iterators.ForIterator.RETURN(new Triplet<>(post, likeStream, commentStream));
             }));
-        }).iterator();
+        });
     }
 
     protected abstract PostCore generatePostInfo(Random randonDeletePost, Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership);

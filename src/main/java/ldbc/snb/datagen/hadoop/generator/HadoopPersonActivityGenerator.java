@@ -71,6 +71,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class HadoopPersonActivityGenerator {
 
@@ -149,9 +150,9 @@ public class HadoopPersonActivityGenerator {
             System.out.println("Starting generation of block: " + key.block);
             final int[] counter = { 0 };
             final float[] personGenerationTime = { 0.0f };
-            Iterator<GenActivity> coActivities = personActivityGenerator.generateActivityForBlock((int) key.block, persons);
+            Stream<GenActivity> genActivities = personActivityGenerator.generateActivityForBlock((int) key.block, persons);
 
-            coActivities.forEachRemaining(genActivity -> {
+            genActivities.forEach(genActivity -> {
                 long start = System.currentTimeMillis();
                 personActivityExporter.export(genActivity);
                 if (counter[0] % 1000 == 0) {

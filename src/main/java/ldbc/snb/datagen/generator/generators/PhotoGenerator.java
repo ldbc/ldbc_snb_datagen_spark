@@ -35,6 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.generators;
 
+import com.google.common.collect.Streams;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.Forum;
@@ -48,6 +49,7 @@ import ldbc.snb.datagen.vocabulary.SN;
 import org.javatuples.Pair;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * This class generates photos which are used in posts.
@@ -62,7 +64,7 @@ class PhotoGenerator {
         this.photo = new Photo();
     }
 
-    Iterator<Pair<Photo, Iterator<Like>>> createPhotos(RandomGeneratorFarm randomFarm, final Forum album, long numPhotosInAlbum, Iterator<Long> idIterator) {
+    Stream<Pair<Photo, Stream<Like>>> createPhotos(RandomGeneratorFarm randomFarm, final Forum album, long numPhotosInAlbum, Iterator<Long> idIterator) {
         int numPopularPlaces = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_POPULAR)
                 .nextInt(DatagenParams.maxNumPopularPlaces + 1);
         List<Short> popularPlaces = new ArrayList<>();
@@ -75,7 +77,7 @@ class PhotoGenerator {
             }
         }
 
-        return Iterators.forIterator(0, i -> i < numPhotosInAlbum, i -> ++i, i -> {
+        return Streams.stream(Iterators.forIterator(0, i -> i < numPhotosInAlbum, i -> ++i, i -> {
             TreeSet<Integer> tags = new TreeSet<>();
 
             // creates photo
@@ -125,15 +127,15 @@ class PhotoGenerator {
                     isExplicitlyDeleted
             );
 
-            Iterator<Like> likeIterator = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1
+            Stream<Like> likeStream = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1
                     ? likeGenerator.generateLikes(
                             randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_LIKES),
                             randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE),
                             album, photo, Like.LikeType.PHOTO)
-                    : Iterators.emptyIterator();
+                    : Stream.empty();
 
-            return Iterators.ForIterator.RETURN(new Pair<>(photo, likeIterator)); // (photo, likeIterator)
-        });
+            return Iterators.ForIterator.RETURN(new Pair<>(photo, likeStream)); // (photo, likeStream)
+        }));
     }
 
 }

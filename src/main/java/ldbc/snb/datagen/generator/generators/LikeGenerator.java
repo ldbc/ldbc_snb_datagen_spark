@@ -35,6 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.generators;
 
+import com.google.common.collect.Streams;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.Forum;
@@ -47,6 +48,7 @@ import ldbc.snb.datagen.util.DateUtils;
 import ldbc.snb.datagen.util.Iterators;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 public class LikeGenerator {
 
@@ -58,13 +60,13 @@ public class LikeGenerator {
         this.like = new Like();
     }
 
-    public Iterator<Like> generateLikes(Random randomDeleteLike, Random random, final Forum forum, final Message message, LikeType type) {
+    public Stream<Like> generateLikes(Random randomDeleteLike, Random random, final Forum forum, final Message message, LikeType type) {
         final int numMembers = forum.getMemberships().size();
         final int numLikes = Math.min(likesGenerator.getValue(random), numMembers);
         List<ForumMembership> memberships = forum.getMemberships();
         final int startIndex = numLikes < numMembers ? random.nextInt(numMembers - numLikes) : 0;
 
-        return Iterators.forIterator(0, i -> i < numLikes, i -> ++i, i -> {
+        return Streams.stream(Iterators.forIterator(0, i -> i < numLikes, i -> ++i, i -> {
             ForumMembership membership = memberships.get(startIndex + i);
 
             long minCreationDate = Math.max(membership.getPerson().getCreationDate(), message.getCreationDate()) + DatagenParams.deltaTime;
@@ -113,6 +115,6 @@ public class LikeGenerator {
             like.setDeletionDate(likeDeletionDate);
             like.setType(type);
             return Iterators.ForIterator.RETURN(like);
-        });
+        }));
     }
 }
