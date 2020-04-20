@@ -43,10 +43,6 @@ public class LdbcDatagenTest {
         LdbcDatagen.initializeContext(hadoopConf);
         LdbcDatagen datagen = new LdbcDatagen();
         datagen.runGenerateJob(hadoopConf);
-        if (DatagenParams.getDatagenMode() == DatagenMode.BI || DatagenParams.getDatagenMode() == DatagenMode.INTERACTIVE) {
-            datagen.runSortInsertStream(hadoopConf);
-            datagen.runSortDeleteStream(hadoopConf);
-        }
     }
 
     @Test
