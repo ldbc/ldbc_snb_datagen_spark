@@ -41,7 +41,6 @@ import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.entities.dynamic.relations.StudyAt;
 import ldbc.snb.datagen.entities.dynamic.relations.WorkAt;
-import ldbc.snb.datagen.hadoop.HadoopConfiguration;
 import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
 import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.CsvSerializer;
@@ -87,11 +86,13 @@ public class CsvDynamicPersonSerializer extends DynamicPersonSerializer<HdfsCsvW
         writers = new HdfsCsvWriter[numFiles];
         for (int i = 0; i < numFiles; ++i) {
             writers[i] = new HdfsCsvWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"), FileNames
-                    .values()[i].toString() + "_" + reducerId, conf.getInt("ldbc.snb.datagen.numPartitions", 1), HadoopConfiguration.isCompressed(conf), "|", conf
+                    .values()[i].toString() + "_" + reducerId, conf.getInt("ldbc.snb.datagen.numPartitions", 1), conf
+                                                   .getBoolean("ldbc.snb.datagen.serializer.compressed", false), "|", conf
                                                    .getBoolean("ldbc.snb.datagen.serializer.endlineSeparator", false));
         }
 
         List<String> arguments = new ArrayList<>();
+        arguments.clear();
         arguments.add("Person.id");
         arguments.add("Person.id");
         writers[FileNames.PERSON_KNOWS_PERSON.ordinal()].writeHeader(arguments);

@@ -41,7 +41,6 @@ import ldbc.snb.datagen.entities.statictype.Organisation;
 import ldbc.snb.datagen.entities.statictype.TagClass;
 import ldbc.snb.datagen.entities.statictype.place.Place;
 import ldbc.snb.datagen.entities.statictype.tag.Tag;
-import ldbc.snb.datagen.hadoop.HadoopConfiguration;
 import ldbc.snb.datagen.hadoop.LdbcDatagen;
 import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
 import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
@@ -72,7 +71,7 @@ public class HadoopStaticSerializer {
         try {
             staticSerializer = new StaticSerializer[DatagenParams.numThreads];
             for (int i = 0; i < DatagenParams.numThreads; ++i) {
-                staticSerializer[i] = HadoopConfiguration.getStaticSerializer(conf);
+                staticSerializer[i] = DatagenParams.getStaticSerializer();
                 staticSerializer[i].initialize(conf, i);
             }
         } catch (Exception e) {

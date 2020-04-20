@@ -62,6 +62,9 @@ import java.io.File;
 import java.io.OutputStream;
 import java.util.*;
 
+import static ldbc.snb.datagen.DatagenMode.*;
+import static ldbc.snb.datagen.DatagenMode.RAW_DATA;
+
 public class LdbcDatagen {
     private static boolean initialized = false;
 
@@ -253,8 +256,8 @@ public class LdbcDatagen {
         FileSystem.get(conf).mkdirs(new Path(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted/creation"));
         FileSystem.get(conf).mkdirs(new Path(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted/deletion"));
 
-        DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer = HadoopConfiguration.getDynamicActivitySerializer(conf);
-        DynamicPersonSerializer<HdfsCsvWriter> dynamicPersonSerializer = HadoopConfiguration.getDynamicPersonSerializer(conf);
+        DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer = DatagenParams.getDynamicActivitySerializer();
+        DynamicPersonSerializer<HdfsCsvWriter> dynamicPersonSerializer = DatagenParams.getDynamicPersonSerializer();
 
 
         List<FileName> filenames = Lists.newArrayList();
@@ -275,7 +278,7 @@ public class LdbcDatagen {
         List<String> personStreamsFileNames = new ArrayList<>();
         List<String> forumStreamsFileNames = new ArrayList<>();
         for (int i = 0; i < DatagenParams.numThreads; ++i) {
-            int numPartitions = DatagenParams.numUpdateStreams;
+            int numPartitions = conf.getInt("ldbc.snb.datagen.serializer.numUpdatePartitions", 1);
             for (int j = 0; j < numPartitions; ++j) {
                 personStreamsFileNames.add(DatagenParams.hadoopDir + "/temp_insertStream_person_" + i + "_" + j);
                 forumStreamsFileNames.add(DatagenParams.hadoopDir + "/temp_insertStream_forum_" + i + "_" + j);
@@ -353,7 +356,7 @@ public class LdbcDatagen {
         List<String> personStreamsFileNames = new ArrayList<>();
         List<String> forumStreamsFileNames = new ArrayList<>();
         for (int i = 0; i < DatagenParams.numThreads; ++i) {
-            int numPartitions = DatagenParams.numUpdateStreams;
+            int numPartitions = conf.getInt("ldbc.snb.datagen.serializer.numUpdatePartitions", 1);
             for (int j = 0; j < numPartitions; ++j) {
                 personStreamsFileNames.add(DatagenParams.hadoopDir + "/temp_deleteStream_person_" + i + "_" + j);
                 forumStreamsFileNames.add(DatagenParams.hadoopDir + "/temp_deleteStream_forum_" + i + "_" + j);

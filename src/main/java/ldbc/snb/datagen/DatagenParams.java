@@ -39,6 +39,23 @@ package ldbc.snb.datagen;
 
 import ldbc.snb.datagen.generator.distribution.DegreeDistribution;
 import ldbc.snb.datagen.util.Config;
+import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
+import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
+import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
+import ldbc.snb.datagen.serializer.StaticSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvBasicDynamicActivitySerializer;
+import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvCompositeDynamicActivitySerializer;
+import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvCompositeMergeForeignDynamicActivitySerializer;
+import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvMergeForeignDynamicActivitySerializer;
+import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CsvBasicDynamicPersonSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CsvCompositeDynamicPersonSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CsvCompositeMergeForeignDynamicPersonSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CsvMergeForeignDynamicPersonSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvBasicStaticSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvCompositeMergeForeignStaticSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvCompositeStaticSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvMergeForeignStaticSerializer;
+import org.apache.hadoop.conf.Configuration;
 
 import static ldbc.snb.datagen.DatagenMode.*;
 
@@ -219,6 +236,7 @@ public class DatagenParams {
     public static String outputDir = "./";
     public static String hadoopDir = "./";
     public static String socialNetworkDir = "./";
+    public static String serializerFormat;
     public static String datagenMode;
     public static int numThreads = 1;
     public static int deltaTime = 10000;
@@ -227,7 +245,8 @@ public class DatagenParams {
     public static int endYear = 2013;
     public static int numYears = 3;
     public static boolean exportText = true;
-    public static int numUpdateStreams = 1;
+    public static boolean compressed = false;
+    public static int numUpdatePartitions = 1;
 
     private static Integer intConf(Config conf, ParameterNames param) {
         return Integer.parseInt(conf.get(param.toString()));
@@ -308,12 +327,14 @@ public class DatagenParams {
             startYear = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.startYear"));
             numYears = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numYears"));
             endYear = startYear + numYears;
+            compressed = conf.getBoolean("ldbc.snb.datagen.serializer.compressed", false);
             numThreads = conf.getInt("ldbc.snb.datagen.generator.numThreads", 1);
-            numUpdateStreams = conf.getInt("ldbc.snb.datagen.mode.interactive.numUpdateStreams", 1);
+            numUpdatePartitions = conf.getInt("ldbc.snb.datagen.serializer.numUpdatePartitions", 1);
             deltaTime = conf.getInt("ldbc.snb.datagen.generator.deltaTime", 10000);
             outputDir = conf.get("ldbc.snb.datagen.serializer.outputDir");
             hadoopDir = outputDir + "/hadoop";
             socialNetworkDir = outputDir + "social_network";
+            serializerFormat = conf.get("ldbc.snb.datagen.serializer.format");
             datagenMode = conf.get("ldbc.snb.datagen.mode");
 
             if (conf.get("ldbc.snb.datagen.generator.gscale") != null) {
@@ -334,6 +355,75 @@ public class DatagenParams {
         }
     }
 
+
+    public static DynamicPersonSerializer<HdfsCsvWriter> getDynamicPersonSerializer() {
+
+        DynamicPersonSerializer<HdfsCsvWriter> output;
+        switch (serializerFormat) {
+            case "CsvBasic":
+                output = new CsvBasicDynamicPersonSerializer();
+                break;
+            case "CsvMergeForeign":
+                output = new CsvMergeForeignDynamicPersonSerializer();
+                break;
+            case "CsvComposite":
+                output = new CsvCompositeDynamicPersonSerializer();
+                break;
+            case "CsvCompositeMergeForeign":
+                output = new CsvCompositeMergeForeignDynamicPersonSerializer();
+                break;
+            default:
+                throw new IllegalStateException("Unexpected person serializer: " + serializerFormat);
+        }
+
+        return output;
+    }
+
+    public static DynamicActivitySerializer<HdfsCsvWriter> getDynamicActivitySerializer() {
+
+        DynamicActivitySerializer<HdfsCsvWriter> output;
+        switch (serializerFormat) {
+            case "CsvBasic":
+                output = new CsvBasicDynamicActivitySerializer();
+                break;
+            case "CsvMergeForeign":
+                output = new CsvMergeForeignDynamicActivitySerializer();
+                break;
+            case "CsvComposite":
+                output = new CsvCompositeDynamicActivitySerializer();
+                break;
+            case "CsvCompositeMergeForeign":
+                output = new CsvCompositeMergeForeignDynamicActivitySerializer();
+                break;
+            default:
+                throw new IllegalStateException("Unexpected activity serializer: " + serializerFormat);
+        }
+
+        return output;
+    }
+
+    public static StaticSerializer<HdfsCsvWriter> getStaticSerializer() {
+
+        StaticSerializer<HdfsCsvWriter> output;
+        switch (serializerFormat) {
+            case "CsvBasic":
+                output = new CsvBasicStaticSerializer();
+                break;
+            case "CsvComposite":
+                output = new CsvCompositeStaticSerializer();
+                break;
+            case "CsvCompositeMergeForeign":
+                output = new CsvCompositeMergeForeignStaticSerializer();
+                break;
+            case "CsvMergeForeign":
+                output = new CsvMergeForeignStaticSerializer();
+                break;
+            default:
+                throw new IllegalStateException("Unexpected static serializer: " + serializerFormat);
+        }
+
+        return output;
+    }
 
     public static DatagenMode getDatagenMode() {
 

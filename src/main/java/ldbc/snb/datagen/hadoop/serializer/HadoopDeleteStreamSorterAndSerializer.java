@@ -1,6 +1,5 @@
 package ldbc.snb.datagen.hadoop.serializer;
 
-import ldbc.snb.datagen.hadoop.HadoopConfiguration;
 import ldbc.snb.datagen.hadoop.generator.HadoopDeleteEventKeyPartitioner;
 import ldbc.snb.datagen.hadoop.key.updatekey.DeleteEventKey;
 import ldbc.snb.datagen.hadoop.key.updatekey.DeleteEventKeyGroupComparator;
@@ -34,7 +33,7 @@ public class HadoopDeleteStreamSorterAndSerializer {
             conf = context.getConfiguration();
             streamType = conf.get("streamType");
             try {
-                compressed = HadoopConfiguration.isCompressed(conf);
+                compressed = Boolean.parseBoolean(conf.get("ldbc.snb.datagen.serializer.compressed"));
             } catch (Exception e) {
                 System.err.println(e.getMessage());
             }
