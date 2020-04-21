@@ -209,7 +209,7 @@ public class PersonActivityGenerator {
         for (int i = 0; i < numberOfPhotoAlbums; i++) {
 
             Forum album = forumGenerator.createAlbum(randomFarm, startForumId++, person, i);
-            if (album != null) {
+            if (album == null) {
                 continue;
             }
             exporter.export(album);
