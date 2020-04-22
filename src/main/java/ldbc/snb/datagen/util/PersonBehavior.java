@@ -2,7 +2,8 @@ package ldbc.snb.datagen.util;
 
 import java.util.Random;
 
-import static ldbc.snb.datagen.DatagenParams.*;
+import static ldbc.snb.datagen.DatagenParams.probDiffIPinTravelSeason;
+import static ldbc.snb.datagen.DatagenParams.probDiffIPnotTravelSeason;
 
 public class PersonBehavior {
 

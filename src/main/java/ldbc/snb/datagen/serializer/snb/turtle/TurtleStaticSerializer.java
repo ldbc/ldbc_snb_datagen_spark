@@ -44,19 +44,11 @@ import ldbc.snb.datagen.entities.statictype.tag.Tag;
 import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
 import ldbc.snb.datagen.serializer.StaticSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
-import ldbc.snb.datagen.vocabulary.DBP;
-import ldbc.snb.datagen.vocabulary.DBPOWL;
-import ldbc.snb.datagen.vocabulary.FOAF;
-import ldbc.snb.datagen.vocabulary.RDF;
-import ldbc.snb.datagen.vocabulary.RDFS;
-import ldbc.snb.datagen.vocabulary.SN;
-import ldbc.snb.datagen.vocabulary.SNTAG;
-import ldbc.snb.datagen.vocabulary.SNVOC;
-import ldbc.snb.datagen.vocabulary.XSD;
+import ldbc.snb.datagen.vocabulary.*;
 
 import java.util.List;
 
-import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
+import static ldbc.snb.datagen.serializer.snb.csv.FileName.SOCIAL_NETWORK_STATIC;
 
 public class TurtleStaticSerializer extends StaticSerializer<HdfsWriter> implements TurtleSerializer {
 

@@ -35,12 +35,16 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop.serializer;
 
+import ldbc.snb.datagen.DatagenContext;
 import ldbc.snb.datagen.DatagenMode;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
-import ldbc.snb.datagen.hadoop.*;
+import ldbc.snb.datagen.hadoop.HadoopBlockMapper;
+import ldbc.snb.datagen.hadoop.HadoopBlockPartitioner;
+import ldbc.snb.datagen.hadoop.HadoopConfiguration;
+import ldbc.snb.datagen.hadoop.HadoopTuplePartitioner;
 import ldbc.snb.datagen.hadoop.key.TupleKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyComparator;
@@ -50,6 +54,7 @@ import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
 import ldbc.snb.datagen.serializer.DeleteEventSerializer;
 import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
 import ldbc.snb.datagen.serializer.InsertEventSerializer;
+import ldbc.snb.datagen.util.LdbcConfiguration;
 import ldbc.snb.datagen.vocabulary.SN;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -76,15 +81,16 @@ public class HadoopPersonSortAndSerializer {
 
         @Override
         protected void setup(Context context) {
-            Configuration conf = context.getConfiguration();
+            Configuration hadoopConf = context.getConfiguration();
+            LdbcConfiguration conf = HadoopConfiguration.extractLdbcConfig(hadoopConf);
             int reducerId = context.getTaskAttemptID().getTaskID().getId();
             try {
-                LdbcDatagen.initializeContext(conf);
-                dynamicPersonSerializer = HadoopConfiguration.getDynamicPersonSerializer(conf);
-                dynamicPersonSerializer.initialize(conf, reducerId);
+                DatagenContext.initialize(conf);
+                dynamicPersonSerializer = HadoopConfiguration.getDynamicPersonSerializer(hadoopConf);
+                dynamicPersonSerializer.initialize(hadoopConf, reducerId);
                 if (DatagenParams.getDatagenMode() == DatagenMode.INTERACTIVE || DatagenParams.getDatagenMode() == DatagenMode.BI) {
-                    insertEventSerializer = new InsertEventSerializer(conf, HadoopConfiguration.getHadoopDir(conf) + "/temp_insertStream_person_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
-                    deleteEventSerializer = new DeleteEventSerializer(conf, HadoopConfiguration.getHadoopDir(conf)  + "/temp_deleteStream_person_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
+                    insertEventSerializer = new InsertEventSerializer(hadoopConf, HadoopConfiguration.getHadoopDir(hadoopConf) + "/temp_insertStream_person_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
+                    deleteEventSerializer = new DeleteEventSerializer(hadoopConf, HadoopConfiguration.getHadoopDir(hadoopConf)  + "/temp_deleteStream_person_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
                 }
             } catch (Exception e) {
                 System.err.println(e.getMessage());

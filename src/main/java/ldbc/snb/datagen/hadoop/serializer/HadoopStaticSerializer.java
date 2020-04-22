@@ -35,16 +35,13 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop.serializer;
 
-import ldbc.snb.datagen.DatagenParams;
+import ldbc.snb.datagen.DatagenContext;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.statictype.Organisation;
 import ldbc.snb.datagen.entities.statictype.TagClass;
 import ldbc.snb.datagen.entities.statictype.place.Place;
 import ldbc.snb.datagen.entities.statictype.tag.Tag;
 import ldbc.snb.datagen.hadoop.HadoopConfiguration;
-import ldbc.snb.datagen.hadoop.LdbcDatagen;
-import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
-import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
 import ldbc.snb.datagen.serializer.StaticSerializer;
 import ldbc.snb.datagen.util.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -64,7 +61,7 @@ public class HadoopStaticSerializer {
     public HadoopStaticSerializer(Configuration conf) {
         this.conf = new Configuration(conf);
         exportedClasses = new TreeSet<>();
-        LdbcDatagen.initializeContext(this.conf);
+        DatagenContext.initialize(HadoopConfiguration.extractLdbcConfig(this.conf));
     }
 
     public void run() {

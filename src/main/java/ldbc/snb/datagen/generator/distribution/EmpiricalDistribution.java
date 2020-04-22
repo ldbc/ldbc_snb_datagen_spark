@@ -40,7 +40,6 @@ import ldbc.snb.datagen.util.LdbcConfiguration;
 import org.apache.commons.math3.util.Pair;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;

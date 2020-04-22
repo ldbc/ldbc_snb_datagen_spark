@@ -47,13 +47,7 @@ import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.util.StringUtils;
 import ldbc.snb.datagen.vocabulary.SN;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * This class generates Forums (Walls, Groups and Albums).

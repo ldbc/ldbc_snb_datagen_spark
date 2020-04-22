@@ -35,11 +35,11 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop.miscjob;
 
-import ldbc.snb.datagen.hadoop.HadoopConfiguration;
-import ldbc.snb.datagen.hadoop.LdbcDatagen;
+import ldbc.snb.datagen.DatagenContext;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.hadoop.HadoopBlockMapper;
+import ldbc.snb.datagen.hadoop.HadoopConfiguration;
 import ldbc.snb.datagen.hadoop.HadoopTuplePartitioner;
 import ldbc.snb.datagen.hadoop.key.TupleKey;
 import ldbc.snb.datagen.hadoop.miscjob.keychanger.HadoopFileKeyChanger;
@@ -54,7 +54,6 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class HadoopMergeFriendshipFiles {
@@ -70,7 +69,7 @@ public class HadoopMergeFriendshipFiles {
 
         protected void setup(Context context) {
             this.conf = context.getConfiguration();
-            LdbcDatagen.initializeContext(conf);
+            DatagenContext.initialize(HadoopConfiguration.extractLdbcConfig(conf));
             try {
                 this.keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(conf.get("postKeySetterName"))
                                                                        .newInstance();

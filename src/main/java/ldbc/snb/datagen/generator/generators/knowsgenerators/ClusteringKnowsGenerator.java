@@ -39,15 +39,10 @@ import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.generator.tools.GraphUtils;
 import ldbc.snb.datagen.generator.tools.PersonGraph;
-import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.util.LdbcConfiguration;
+import ldbc.snb.datagen.util.RandomGeneratorFarm;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class ClusteringKnowsGenerator implements KnowsGenerator {
 

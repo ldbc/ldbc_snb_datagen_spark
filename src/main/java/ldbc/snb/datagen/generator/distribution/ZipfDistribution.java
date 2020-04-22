@@ -37,11 +37,7 @@ package ldbc.snb.datagen.generator.distribution;
 
 import ldbc.snb.datagen.util.LdbcConfiguration;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class ZipfDistribution extends DegreeDistribution {
 

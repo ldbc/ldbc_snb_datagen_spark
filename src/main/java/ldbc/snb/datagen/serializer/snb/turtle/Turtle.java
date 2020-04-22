@@ -36,15 +36,7 @@
 package ldbc.snb.datagen.serializer.snb.turtle;
 
 import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
-import ldbc.snb.datagen.vocabulary.DBP;
-import ldbc.snb.datagen.vocabulary.DBPOWL;
-import ldbc.snb.datagen.vocabulary.FOAF;
-import ldbc.snb.datagen.vocabulary.RDF;
-import ldbc.snb.datagen.vocabulary.RDFS;
-import ldbc.snb.datagen.vocabulary.SN;
-import ldbc.snb.datagen.vocabulary.SNTAG;
-import ldbc.snb.datagen.vocabulary.SNVOC;
-import ldbc.snb.datagen.vocabulary.XSD;
+import ldbc.snb.datagen.vocabulary.*;
 
 public class Turtle {
 
