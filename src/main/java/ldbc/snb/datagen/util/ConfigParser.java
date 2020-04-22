@@ -35,10 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.util;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,41 +44,45 @@ import java.util.Properties;
 public class ConfigParser {
 
     public static Map<String, String> readConfig(String paramsFile) {
-        try {
-            return readConfig(new FileInputStream(paramsFile));
-        } catch (FileNotFoundException e) {
+        try(FileInputStream fis = new FileInputStream(paramsFile)) {
+            return readConfig(fis);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static Map<String, String> readConfig(InputStream paramStream) {
+    public static Map<String, String> readConfig(Properties properties) {
         Map<String, String> conf = new HashMap<>();
-        try {
-            ScaleFactors scaleFactors = ScaleFactors.INSTANCE;
-            Properties properties = new Properties();
-            properties.load(new InputStreamReader(paramStream, StandardCharsets.UTF_8));
-            String val = (String) properties.get("ldbc.snb.datagen.generator.scaleFactor");
-            if (val != null) {
-                if (!scaleFactors.value.containsKey(val)) {
-                    throw new IllegalArgumentException("Scale factor " + val + " does not exist");
-                }
-                ScaleFactor scaleFactor = scaleFactors.value.get(val);
-                System.out.println("Applied configuration of scale factor " + val);
-                for (Map.Entry<String, String> e : scaleFactor.properties.entrySet()) {
-                    conf.put(e.getKey(), e.getValue());
-                }
+        ScaleFactors scaleFactors = ScaleFactors.INSTANCE;
+        String val = (String) properties.get("ldbc.snb.datagen.generator.scaleFactor");
+        if (val != null) {
+            if (!scaleFactors.value.containsKey(val)) {
+                throw new IllegalArgumentException("Scale factor " + val + " does not exist");
             }
+            ScaleFactor scaleFactor = scaleFactors.value.get(val);
+            System.out.println("Applied configuration of scale factor " + val);
+            for (Map.Entry<String, String> e : scaleFactor.properties.entrySet()) {
+                conf.put(e.getKey(), e.getValue());
+            }
+        }
 
-            for (String s : properties.stringPropertyNames()) {
-                if (s.compareTo("ldbc.snb.datagen.generator.scaleFactor") != 0) {
-                    conf.put(s, properties.getProperty(s));
-                }
+        for (String s : properties.stringPropertyNames()) {
+            if (s.compareTo("ldbc.snb.datagen.generator.scaleFactor") != 0) {
+                conf.put(s, properties.getProperty(s));
             }
-        } catch (Exception e) {
+        }
+        return conf;
+    }
+
+    public static Map<String, String> readConfig(InputStream paramStream) {
+        Properties properties = new Properties();
+        try {
+            properties.load(new InputStreamReader(paramStream, StandardCharsets.UTF_8));
+            return readConfig(properties);
+        } catch (IOException e) {
             System.err.println(e.getMessage());
             throw new RuntimeException(e);
         }
-        return conf;
     }
 
     public static void printConfig(Map<String, String> conf) {
