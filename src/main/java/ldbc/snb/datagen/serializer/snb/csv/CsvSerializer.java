@@ -1,5 +1,7 @@
 package ldbc.snb.datagen.serializer.snb.csv;
 
+import ldbc.snb.datagen.DatagenParams;
+import ldbc.snb.datagen.hadoop.HadoopConfiguration;
 import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
 import ldbc.snb.datagen.serializer.Serializer;
 import org.apache.hadoop.conf.Configuration;
@@ -12,14 +14,15 @@ import java.util.Map;
 public interface CsvSerializer extends Serializer<HdfsCsvWriter> {
 
     default Map<FileName, HdfsCsvWriter> initialize(Configuration conf, int reducerId, boolean dynamic, List<FileName> fileNames) throws IOException {
+
         Map<FileName, HdfsCsvWriter> writers = new HashMap<>();
         for (FileName f : fileNames) {
             writers.put(f, new HdfsCsvWriter(
-                    conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + (dynamic ? "/dynamic/" : "/static/"),
+                    HadoopConfiguration.getSocialNetworkDir(conf) + (dynamic ? "/dynamic/" : "/static/"),
                     f.toString() + "_" + reducerId,
-                    conf.getInt("ldbc.snb.datagen.numPartitions", 1),
-                    conf.getBoolean("ldbc.snb.datagen.serializer.compressed", false), "|",
-                    conf.getBoolean("ldbc.snb.datagen.serializer.endlineSeparator", false)
+                    DatagenParams.numUpdateStreams,
+                    HadoopConfiguration.isCompressed(conf), "|",
+                    HadoopConfiguration.getEndLineSeparator(conf)
                 )
             );
         }

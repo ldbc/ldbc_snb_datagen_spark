@@ -1,5 +1,7 @@
 package ldbc.snb.datagen.serializer.snb.turtle;
 
+import ldbc.snb.datagen.DatagenParams;
+import ldbc.snb.datagen.hadoop.HadoopConfiguration;
 import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
 import ldbc.snb.datagen.serializer.Serializer;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
@@ -16,9 +18,11 @@ public interface TurtleSerializer extends Serializer<HdfsWriter> {
         Map<FileName, HdfsWriter> writers = new HashMap<>();
 
         for (FileName f : fileNames) {
-            HdfsWriter w = new HdfsWriter(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"),
-                    f.toString() + "_" + reducerId, conf.getInt("ldbc.snb.datagen.numPartitions", 1),
-                    conf.getBoolean("ldbc.snb.datagen.serializer.compressed", false), "ttl");
+            HdfsWriter w = new HdfsWriter(
+                    conf.get("ldbc.snb.datagen.serializer.socialNetworkDir"),
+                    f.toString() + "_" + reducerId,
+                    DatagenParams.numUpdateStreams,
+                    HadoopConfiguration.isCompressed(conf), "ttl");
             writers.put(f, w);
 
             w.writeAllPartitions(Turtle.getNamespaces());

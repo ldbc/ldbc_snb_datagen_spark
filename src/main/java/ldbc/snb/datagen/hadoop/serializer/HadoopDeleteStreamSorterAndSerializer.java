@@ -1,5 +1,6 @@
 package ldbc.snb.datagen.hadoop.serializer;
 
+import ldbc.snb.datagen.hadoop.HadoopConfiguration;
 import ldbc.snb.datagen.hadoop.generator.HadoopDeleteEventKeyPartitioner;
 import ldbc.snb.datagen.hadoop.key.updatekey.DeleteEventKey;
 import ldbc.snb.datagen.hadoop.key.updatekey.DeleteEventKeyGroupComparator;
@@ -33,7 +34,7 @@ public class HadoopDeleteStreamSorterAndSerializer {
             conf = context.getConfiguration();
             streamType = conf.get("streamType");
             try {
-                compressed = Boolean.parseBoolean(conf.get("ldbc.snb.datagen.serializer.compressed"));
+                compressed = HadoopConfiguration.isCompressed(conf);
             } catch (Exception e) {
                 System.err.println(e.getMessage());
             }
@@ -45,12 +46,11 @@ public class HadoopDeleteStreamSorterAndSerializer {
             try {
                 FileSystem fs = FileSystem.get(conf);
                 if (compressed) {
-                    Path outFile = new Path(context.getConfiguration()
-                            .get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/deleteStream_" + key.reducerId + "_" + key.partition + "_" + streamType + ".csv.gz");
+                    Path outFile = new Path(
+                            HadoopConfiguration.getSocialNetworkDir(conf) + "/deleteStream_" + key.reducerId + "_" + key.partition + "_" + streamType + ".csv.gz");
                     out = new GZIPOutputStream(fs.create(outFile));
                 } else {
-                    Path outFile = new Path(context.getConfiguration()
-                            .get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/deleteStream_" + key.reducerId + "_" + key.partition + "_" + streamType + ".csv");
+                    Path outFile = new Path(HadoopConfiguration.getSocialNetworkDir(conf) + "/deleteStream_" + key.reducerId + "_" + key.partition + "_" + streamType + ".csv");
                     out = fs.create(outFile);
                 }
                 for (Text t : valueSet) {
@@ -69,7 +69,7 @@ public class HadoopDeleteStreamSorterAndSerializer {
 
     public void run(List<String> inputFileNames, String type) throws Exception {
 
-        int numThreads = conf.getInt("ldbc.snb.datagen.generator.numThreads", 1);
+        int numThreads = HadoopConfiguration.getNumThreads(conf);
         conf.set("streamType", type);
 
         Job job = Job.getInstance(conf, "Delete Stream Serializer");
@@ -77,8 +77,8 @@ public class HadoopDeleteStreamSorterAndSerializer {
         job.setMapOutputValueClass(Text.class);
         job.setOutputKeyClass(DeleteEventKey.class);
         job.setOutputValueClass(Text.class);
-        job.setJarByClass(HadoopDeleteStreamSorterAndSerializer.HadoopDeleteStreamSorterAndSerializerReducer.class);
-        job.setReducerClass(HadoopDeleteStreamSorterAndSerializer.HadoopDeleteStreamSorterAndSerializerReducer.class);
+        job.setJarByClass(HadoopDeleteStreamSorterAndSerializerReducer.class);
+        job.setReducerClass(HadoopDeleteStreamSorterAndSerializerReducer.class);
         job.setNumReduceTasks(numThreads);
         job.setInputFormatClass(SequenceFileInputFormat.class);
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
@@ -89,7 +89,7 @@ public class HadoopDeleteStreamSorterAndSerializer {
         for (String s : inputFileNames) {
             FileInputFormat.addInputPath(job, new Path(s));
         }
-        FileOutputFormat.setOutputPath(job, new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/aux"));
+        FileOutputFormat.setOutputPath(job, new Path(HadoopConfiguration.getHadoopDir(conf) + "/aux"));
         if (!job.waitForCompletion(true)) {
             throw new Exception();
         }
@@ -97,7 +97,7 @@ public class HadoopDeleteStreamSorterAndSerializer {
 
         try {
             FileSystem fs = FileSystem.get(conf);
-            fs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/aux"), true);
+            fs.delete(new Path(HadoopConfiguration.getHadoopDir(conf) + "/aux"), true);
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }

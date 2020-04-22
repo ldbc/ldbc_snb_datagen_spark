@@ -47,7 +47,7 @@ import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyComparator;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyGroupComparator;
 import ldbc.snb.datagen.hadoop.miscjob.HadoopFileRanker;
 import ldbc.snb.datagen.hadoop.miscjob.keychanger.HadoopFileKeyChanger;
-import ldbc.snb.datagen.util.Config;
+import ldbc.snb.datagen.util.LdbcConfiguration;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -88,7 +88,7 @@ public class HadoopKnowsGenerator {
             this.hadoopConf = context.getConfiguration();
             try {
                 LdbcDatagen.initializeContext(hadoopConf);
-                Config conf = HadoopConfiguration.extractLdbcConfig(hadoopConf);
+                LdbcConfiguration conf = HadoopConfiguration.extractLdbcConfig(hadoopConf);
                 this.knowsGenerator = (KnowsGenerator) Class.forName(hadoopConf.get("knowsGeneratorName")).newInstance();
                 this.knowsGenerator.initialize(conf);
             } catch (Exception e) {
@@ -146,7 +146,7 @@ public class HadoopKnowsGenerator {
 
         System.out.println("Ranking persons");
         long start = System.currentTimeMillis();
-        String rankedFileName = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/ranked";
+        String rankedFileName = HadoopConfiguration.getHadoopDir(conf) + "/ranked";
         HadoopFileRanker hadoopFileRanker = new HadoopFileRanker(conf, TupleKey.class, Person.class, preKeySetterName);
         hadoopFileRanker.run(inputFileName, rankedFileName);
 
@@ -160,7 +160,7 @@ public class HadoopKnowsGenerator {
         }
         conf.set("postKeySetterName", postKeySetterName);
         conf.set("knowsGeneratorName", knowsGeneratorName);
-        int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads"));
+        int numThreads = HadoopConfiguration.getNumThreads(conf);
         Job job = Job.getInstance(conf, "Knows generator");
         job.setMapOutputKeyClass(BlockKey.class);
         job.setMapOutputValueClass(Person.class);

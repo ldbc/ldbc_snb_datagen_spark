@@ -101,7 +101,7 @@ public class FlashmobPostGenerator extends PostGenerator {
      * @return The index to the earliest flashmob tag.
      */
     private int searchEarliest(FlashMobTag[] tags, ForumMembership membership) {
-        long fromDate = membership.getCreationDate() + flashmobSpan / 2 + DatagenParams.deltaTime;
+        long fromDate = membership.getCreationDate() + flashmobSpan / 2 + DatagenParams.delta;
         int lowerBound = 0;
         int upperBound = tags.length - 1;
         int midPoint = (upperBound + lowerBound) / 2;
@@ -179,7 +179,7 @@ public class FlashmobPostGenerator extends PostGenerator {
         }
 
         // add creation date
-        long minCreationDate = membership.getCreationDate() + DatagenParams.deltaTime;
+        long minCreationDate = membership.getCreationDate() + DatagenParams.delta;
         long maxCreationDate = Math.min(membership.getDeletionDate(),Dictionaries.dates.getSimulationEnd());
         if (maxCreationDate - minCreationDate < 0) {
             return null;
@@ -196,7 +196,7 @@ public class FlashmobPostGenerator extends PostGenerator {
         long postDeletionDate;
         if (randomDeletePost.nextDouble() < probPostDeleted) {
             postCore.setExplicitlyDeleted(true);
-            long minDeletionDate = creationDate + DatagenParams.deltaTime;
+            long minDeletionDate = creationDate + DatagenParams.delta;
             long maxDeletionDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
             if (maxDeletionDate - minDeletionDate < 0) {
                 return null;

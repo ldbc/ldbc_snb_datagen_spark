@@ -37,25 +37,16 @@
 
 package ldbc.snb.datagen;
 
+import ldbc.snb.datagen.entities.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.person.similarity.GeoDistanceSimilarity;
+import ldbc.snb.datagen.entities.dynamic.person.similarity.InterestsSimilarity;
 import ldbc.snb.datagen.generator.distribution.DegreeDistribution;
-import ldbc.snb.datagen.util.Config;
-import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
-import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
-import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
-import ldbc.snb.datagen.serializer.StaticSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvBasicDynamicActivitySerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvCompositeDynamicActivitySerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvCompositeMergeForeignDynamicActivitySerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvMergeForeignDynamicActivitySerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CsvBasicDynamicPersonSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CsvCompositeDynamicPersonSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CsvCompositeMergeForeignDynamicPersonSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CsvMergeForeignDynamicPersonSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvBasicStaticSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvCompositeMergeForeignStaticSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvCompositeStaticSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvMergeForeignStaticSerializer;
-import org.apache.hadoop.conf.Configuration;
+import ldbc.snb.datagen.generator.distribution.FacebookDegreeDistribution;
+import ldbc.snb.datagen.generator.distribution.ZipfDistribution;
+import ldbc.snb.datagen.util.LdbcConfiguration;
+import ldbc.snb.datagen.util.formatter.DateFormatter;
+import ldbc.snb.datagen.util.formatter.LongDateFormatter;
+import ldbc.snb.datagen.util.formatter.StringDateFormatter;
 
 import static ldbc.snb.datagen.DatagenMode.*;
 
@@ -92,65 +83,65 @@ public class DatagenParams {
 
     //private parameters
     private enum ParameterNames {
-        BASE_CORRELATED("ldbc.snb.datagen.generator.baseProbCorrelated"),
-        BEST_UNIVERSTY_RATIO("ldbc.snb.datagen.generator.probTopUniv"),
-        BLOCK_SIZE("ldbc.snb.datagen.generator.blockSize"),
-        COMPANY_UNCORRELATED_RATIO("ldbc.snb.datagen.generator.probUnCorrelatedCompany"),
-        DIFFERENT_IP_IN_TRAVEL_RATIO("ldbc.snb.datagen.generator.probDiffIPinTravelSeason"),
-        DIFFERENT_IP_NOT_TRAVEL_RATIO("ldbc.snb.datagen.generator.probDiffIPnotTravelSeason"),
-        ENGLISH_RATIO("ldbc.snb.datagen.generator.probEnglish"),
-        FLASHMOB_TAGS_PER_MONTH("ldbc.snb.datagen.generator.flashmobTagsPerMonth"),
-        FLASHMOB_TAG_DIST_EXP("ldbc.snb.datagen.generator.flashmobTagDistExp"),
-        FLASHMOB_TAG_MAX_LEVEL("ldbc.snb.datagen.generator.flashmobTagMaxLevel"),
-        FLASHMOB_TAG_MIN_LEVEL("ldbc.snb.datagen.generator.flashmobTagMinLevel"),
-        GROUP_MAX_POST_MONTH("ldbc.snb.datagen.generator.maxNumGroupPostPerMonth"),
-        GROUP_MODERATOR_RATIO("ldbc.snb.datagen.generator.groupModeratorProb"),
-        LARGE_COMMENT_RATIO("ldbc.snb.datagen.generator.ratioLargeComment"),
-        LARGE_POST_RATIO("ldbc.snb.datagen.generator.ratioLargePost"),
-        LIMIT_CORRELATED("ldbc.snb.datagen.generator.limitProCorrelated"),
-        MAX_COMMENT_POST("ldbc.snb.datagen.generator.maxNumComments"),
-        MAX_COMMENT_SIZE("ldbc.snb.datagen.generator.maxCommentSize"),
-        MAX_COMPANIES("ldbc.snb.datagen.generator.maxCompanies"),
-        MAX_EMAIL("ldbc.snb.datagen.generator.maxEmails"),
-        MAX_FRIENDS("ldbc.snb.datagen.generator.maxNumFriends"),
-        MAX_GROUP_MEMBERS("ldbc.snb.datagen.generator.maxNumMemberGroup"),
-        MAX_LARGE_COMMENT_SIZE("ldbc.snb.datagen.generator.maxLargeCommentSize"),
-        MAX_LARGE_POST_SIZE("ldbc.snb.datagen.generator.maxLargePostSize"),
-        MAX_NUM_FLASHMOB_POST_PER_MONTH("ldbc.snb.datagen.generator.maxNumFlashmobPostPerMonth"),
-        MAX_NUM_GROUP_FLASHMOB_POST_PER_MONTH("ldbc.snb.datagen.generator.maxNumGroupFlashmobPostPerMonth"),
-        MAX_NUM_TAG_PER_FLASHMOB_POST("ldbc.snb.datagen.generator.maxNumTagPerFlashmobPost"),
-        MAX_PHOTOALBUM("ldbc.snb.datagen.generator.maxNumPhotoAlbumsPerMonth"),
-        MAX_PHOTO_PER_ALBUM("ldbc.snb.datagen.generator.maxNumPhotoPerAlbums"),
-        MAX_POPULAR_PLACES("ldbc.snb.datagen.generator.maxNumPopularPlaces"),
-        MAX_TEXT_SIZE("ldbc.snb.datagen.generator.maxTextSize"),
-        MIN_COMMENT_SIZE("ldbc.snb.datagen.generator.minCommentSize"),
-        MIN_LARGE_COMMENT_SIZE("ldbc.snb.datagen.generator.minLargeCommentSize"),
-        MIN_LARGE_POST_SIZE("ldbc.snb.datagen.generator.minLargePostSize"),
-        MIN_TEXT_SIZE("ldbc.snb.datagen.generator.minTextSize"),
-        MISSING_RATIO("ldbc.snb.datagen.generator.missingRatio"),
-        OTHER_BROWSER_RATIO("ldbc.snb.datagen.generator.probAnotherBrowser"),
-        POPULAR_PLACE_RATIO("ldbc.snb.datagen.generator.probPopularPlaces"),
-        PROB_INTEREST_FLASHMOB_TAG("ldbc.snb.datagen.generator.probInterestFlashmobTag"),
-        PROB_RANDOM_PER_LEVEL("ldbc.snb.datagen.generator.probRandomPerLevel"),
-        REDUCE_TEXT_RATIO("ldbc.snb.datagen.generator.ratioReduceText"),
-        SECOND_LANGUAGE_RATIO("ldbc.snb.datagen.generator.probSecondLang"),
-        TAG_UNCORRELATED_COUNTRY("ldbc.snb.datagen.generator.tagCountryCorrProb"),
-        UNIVERSITY_UNCORRELATED_RATIO("ldbc.snb.datagen.generator.probUnCorrelatedOrganisation"),
-        MAX_NUM_LIKE("ldbc.snb.datagen.generator.maxNumLike"),
-        BULK_LOAD_PORTION("ldbc.snb.datagen.serializer.bulkLoadPortion"),
-        USER_MAX_GROUP("ldbc.snb.datagen.generator.maxNumGroupCreatedPerUser"),
-        USER_MAX_POST_MONTH("ldbc.snb.datagen.generator.maxNumPostPerMonth"),
-        USER_MAX_TAGS("ldbc.snb.datagen.generator.maxNumTagsPerUser"),
-        USER_MIN_TAGS("ldbc.snb.datagen.generator.minNumTagsPerUser"),
+        BASE_CORRELATED("generator.baseProbCorrelated"),
+        BEST_UNIVERSTY_RATIO("generator.probTopUniv"),
+        BLOCK_SIZE("generator.blockSize"),
+        COMPANY_UNCORRELATED_RATIO("generator.probUnCorrelatedCompany"),
+        DIFFERENT_IP_IN_TRAVEL_RATIO("generator.probDiffIPinTravelSeason"),
+        DIFFERENT_IP_NOT_TRAVEL_RATIO("generator.probDiffIPnotTravelSeason"),
+        ENGLISH_RATIO("generator.probEnglish"),
+        FLASHMOB_TAGS_PER_MONTH("generator.flashmobTagsPerMonth"),
+        FLASHMOB_TAG_DIST_EXP("generator.flashmobTagDistExp"),
+        FLASHMOB_TAG_MAX_LEVEL("generator.flashmobTagMaxLevel"),
+        FLASHMOB_TAG_MIN_LEVEL("generator.flashmobTagMinLevel"),
+        GROUP_MAX_POST_MONTH("generator.maxNumGroupPostPerMonth"),
+        GROUP_MODERATOR_RATIO("generator.groupModeratorProb"),
+        LARGE_COMMENT_RATIO("generator.ratioLargeComment"),
+        LARGE_POST_RATIO("generator.ratioLargePost"),
+        LIMIT_CORRELATED("generator.limitProCorrelated"),
+        MAX_COMMENT_POST("generator.maxNumComments"),
+        MAX_COMMENT_SIZE("generator.maxCommentSize"),
+        MAX_COMPANIES("generator.maxCompanies"),
+        MAX_EMAIL("generator.maxEmails"),
+        MAX_FRIENDS("generator.maxNumFriends"),
+        MAX_GROUP_MEMBERS("generator.maxNumMemberGroup"),
+        MAX_LARGE_COMMENT_SIZE("generator.maxLargeCommentSize"),
+        MAX_LARGE_POST_SIZE("generator.maxLargePostSize"),
+        MAX_NUM_FLASHMOB_POST_PER_MONTH("generator.maxNumFlashmobPostPerMonth"),
+        MAX_NUM_GROUP_FLASHMOB_POST_PER_MONTH("generator.maxNumGroupFlashmobPostPerMonth"),
+        MAX_NUM_TAG_PER_FLASHMOB_POST("generator.maxNumTagPerFlashmobPost"),
+        MAX_PHOTOALBUM("generator.maxNumPhotoAlbumsPerMonth"),
+        MAX_PHOTO_PER_ALBUM("generator.maxNumPhotoPerAlbums"),
+        MAX_POPULAR_PLACES("generator.maxNumPopularPlaces"),
+        MAX_TEXT_SIZE("generator.maxTextSize"),
+        MIN_COMMENT_SIZE("generator.minCommentSize"),
+        MIN_LARGE_COMMENT_SIZE("generator.minLargeCommentSize"),
+        MIN_LARGE_POST_SIZE("generator.minLargePostSize"),
+        MIN_TEXT_SIZE("generator.minTextSize"),
+        MISSING_RATIO("generator.missingRatio"),
+        OTHER_BROWSER_RATIO("generator.probAnotherBrowser"),
+        POPULAR_PLACE_RATIO("generator.probPopularPlaces"),
+        PROB_INTEREST_FLASHMOB_TAG("generator.probInterestFlashmobTag"),
+        PROB_RANDOM_PER_LEVEL("generator.probRandomPerLevel"),
+        REDUCE_TEXT_RATIO("generator.ratioReduceText"),
+        SECOND_LANGUAGE_RATIO("generator.probSecondLang"),
+        TAG_UNCORRELATED_COUNTRY("generator.tagCountryCorrProb"),
+        UNIVERSITY_UNCORRELATED_RATIO("generator.probUnCorrelatedOrganisation"),
+        MAX_NUM_LIKE("generator.maxNumLike"),
+        BULK_LOAD_PORTION("generator.bulkLoadPortion"),
+        USER_MAX_GROUP("generator.maxNumGroupCreatedPerUser"),
+        USER_MAX_POST_MONTH("generator.maxNumPostPerMonth"),
+        USER_MAX_TAGS("generator.maxNumTagsPerUser"),
+        USER_MIN_TAGS("generator.minNumTagsPerUser"),
 
-        PROB_PERSON_DELETED("ldbc.snb.datagen.generator.probPersonDeleted"),
-        PROB_FORUM_DELETED("ldbc.snb.datagen.generator.probForumDeleted"),
-        PROB_POST_DELETED("ldbc.snb.datagen.generator.probPostDeleted"),
-        PROB_COMMENT_DELETED("ldbc.snb.datagen.generator.probCommentDeleted"),
-        PROB_KNOWS_DELETED("ldbc.snb.datagen.generator.probKnowsDeleted"),
-        PROB_MEMB_DELETED("ldbc.snb.datagen.generator.probMembDeleted"),
-        PROB_POST_LIKE_DELETED("ldbc.snb.datagen.generator.probPostLikeDeleted"),
-        PROB_COMMENT_LIKE_DELETED("ldbc.snb.datagen.generator.probPostCommentDeleted");
+        PROB_PERSON_DELETED("generator.probPersonDeleted"),
+        PROB_FORUM_DELETED("generator.probForumDeleted"),
+        PROB_POST_DELETED("generator.probPostDeleted"),
+        PROB_COMMENT_DELETED("generator.probCommentDeleted"),
+        PROB_KNOWS_DELETED("generator.probKnowsDeleted"),
+        PROB_MEMB_DELETED("generator.probMembDeleted"),
+        PROB_POST_LIKE_DELETED("generator.probPostLikeDeleted"),
+        PROB_COMMENT_LIKE_DELETED("generator.probPostCommentDeleted");
 
 
         private final String name;
@@ -233,30 +224,31 @@ public class DatagenParams {
     public static final int endDate = 1;
     public static final double alpha = 0.4;
 
-    public static String outputDir = "./";
-    public static String hadoopDir = "./";
-    public static String socialNetworkDir = "./";
-    public static String serializerFormat;
     public static String datagenMode;
-    public static int numThreads = 1;
-    public static int deltaTime = 10000;
+    public static String degreeDistributionName;
+    public static String knowsGeneratorName;
+    public static String personSimularity;
+    public static String dateFormatter;
+    public static String dateFormat;
+    public static String dateTimeFormat;
+
+    public static int delta = 10000;
     public static long numPersons = 10000;
     public static int startYear = 2010;
     public static int endYear = 2013;
     public static int numYears = 3;
     public static boolean exportText = true;
-    public static boolean compressed = false;
-    public static int numUpdatePartitions = 1;
+    public static int numUpdateStreams = 1;
 
-    private static Integer intConf(Config conf, ParameterNames param) {
+    private static Integer intConf(LdbcConfiguration conf, ParameterNames param) {
         return Integer.parseInt(conf.get(param.toString()));
     }
 
-    private static Double doubleConf(Config conf, ParameterNames param) {
+    private static Double doubleConf(LdbcConfiguration conf, ParameterNames param) {
         return Double.parseDouble(conf.get(param.toString()));
     }
 
-    public static void readConf(Config conf) {
+    public static void readConf(LdbcConfiguration conf) {
         try {
             ParameterNames[] values = ParameterNames.values();
             for (ParameterNames value : values)
@@ -323,24 +315,23 @@ public class DatagenParams {
             bulkLoadPortion = doubleConf(conf, ParameterNames.BULK_LOAD_PORTION);
             blockSize = intConf(conf, ParameterNames.BLOCK_SIZE);
 
-            numPersons = Long.parseLong(conf.get("ldbc.snb.datagen.generator.numPersons"));
-            startYear = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.startYear"));
-            numYears = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numYears"));
+            datagenMode = conf.get("generator.mode");
+            numPersons = Long.parseLong(conf.get("generator.numPersons"));
+            startYear = Integer.parseInt(conf.get("generator.startYear"));
+            numYears = Integer.parseInt(conf.get("generator.numYears"));
+            delta = Integer.parseInt(conf.get("generator.delta"));
+            numUpdateStreams = Integer.parseInt(conf.get("generator.mode.interactive.numUpdateStreams"));
+            knowsGeneratorName = conf.get("generator.knowsGenerator");
+            personSimularity = conf.get("generator.person.similarity");
+            degreeDistributionName = conf.get("generator.degreeDistribution");
+            dateFormatter = conf.get("generator.dateFormatter");
+            dateTimeFormat = conf.get("generator.StringDate.dateTimeFormat");
+            dateFormat = conf.get("generator.StringDate.dateFormat");
             endYear = startYear + numYears;
-            compressed = conf.getBoolean("ldbc.snb.datagen.serializer.compressed", false);
-            numThreads = conf.getInt("ldbc.snb.datagen.generator.numThreads", 1);
-            numUpdatePartitions = conf.getInt("ldbc.snb.datagen.serializer.numUpdatePartitions", 1);
-            deltaTime = conf.getInt("ldbc.snb.datagen.generator.deltaTime", 10000);
-            outputDir = conf.get("ldbc.snb.datagen.serializer.outputDir");
-            hadoopDir = outputDir + "/hadoop";
-            socialNetworkDir = outputDir + "social_network";
-            serializerFormat = conf.get("ldbc.snb.datagen.serializer.format");
-            datagenMode = conf.get("ldbc.snb.datagen.mode");
 
             if (conf.get("ldbc.snb.datagen.generator.gscale") != null) {
                 double scale = conf.getDouble("ldbc.snb.datagen.generator.gscale", 6.0);
-                String degreeDistributionName = conf.get("ldbc.snb.datagen.generator.distribution.degreeDistribution");
-                DegreeDistribution degreeDistribution = (DegreeDistribution) Class.forName(degreeDistributionName).newInstance();
+                DegreeDistribution degreeDistribution = getDegreeDistribution();
                 degreeDistribution.initialize(conf);
                 numPersons = findNumPersonsFromGraphalyticsScale(degreeDistribution, scale);
             }
@@ -355,75 +346,6 @@ public class DatagenParams {
         }
     }
 
-
-    public static DynamicPersonSerializer<HdfsCsvWriter> getDynamicPersonSerializer() {
-
-        DynamicPersonSerializer<HdfsCsvWriter> output;
-        switch (serializerFormat) {
-            case "CsvBasic":
-                output = new CsvBasicDynamicPersonSerializer();
-                break;
-            case "CsvMergeForeign":
-                output = new CsvMergeForeignDynamicPersonSerializer();
-                break;
-            case "CsvComposite":
-                output = new CsvCompositeDynamicPersonSerializer();
-                break;
-            case "CsvCompositeMergeForeign":
-                output = new CsvCompositeMergeForeignDynamicPersonSerializer();
-                break;
-            default:
-                throw new IllegalStateException("Unexpected person serializer: " + serializerFormat);
-        }
-
-        return output;
-    }
-
-    public static DynamicActivitySerializer<HdfsCsvWriter> getDynamicActivitySerializer() {
-
-        DynamicActivitySerializer<HdfsCsvWriter> output;
-        switch (serializerFormat) {
-            case "CsvBasic":
-                output = new CsvBasicDynamicActivitySerializer();
-                break;
-            case "CsvMergeForeign":
-                output = new CsvMergeForeignDynamicActivitySerializer();
-                break;
-            case "CsvComposite":
-                output = new CsvCompositeDynamicActivitySerializer();
-                break;
-            case "CsvCompositeMergeForeign":
-                output = new CsvCompositeMergeForeignDynamicActivitySerializer();
-                break;
-            default:
-                throw new IllegalStateException("Unexpected activity serializer: " + serializerFormat);
-        }
-
-        return output;
-    }
-
-    public static StaticSerializer<HdfsCsvWriter> getStaticSerializer() {
-
-        StaticSerializer<HdfsCsvWriter> output;
-        switch (serializerFormat) {
-            case "CsvBasic":
-                output = new CsvBasicStaticSerializer();
-                break;
-            case "CsvComposite":
-                output = new CsvCompositeStaticSerializer();
-                break;
-            case "CsvCompositeMergeForeign":
-                output = new CsvCompositeMergeForeignStaticSerializer();
-                break;
-            case "CsvMergeForeign":
-                output = new CsvMergeForeignStaticSerializer();
-                break;
-            default:
-                throw new IllegalStateException("Unexpected static serializer: " + serializerFormat);
-        }
-
-        return output;
-    }
 
     public static DatagenMode getDatagenMode() {
 
@@ -477,4 +399,84 @@ public class DatagenParams {
         }
         return currentNumPersons;
     }
+
+    //TODO: add remaining degree distributions
+    public static DegreeDistribution getDegreeDistribution() {
+
+        DegreeDistribution output;
+        switch (degreeDistributionName) {
+            case "Facebook":
+                output = new FacebookDegreeDistribution();
+                break;
+            case "Zipf":
+                output = new ZipfDistribution();
+                break;
+            default:
+                throw new IllegalStateException("Unexpected degree distribution: " + degreeDistributionName);
+        }
+
+        return output;
+    }
+
+    public static String getKnowsGenerator() {
+        String output;
+        switch (knowsGeneratorName) {
+            case "Distance":
+                output = "ldbc.snb.datagen.generator.generators.knowsgenerators.DistanceKnowsGenerator";
+                break;
+            case "Clustering":
+                output = "ldbc.snb.datagen.generator.generators.knowsgenerators.ClusteringKnowsGenerator";
+                break;
+            case "Bter":
+                output = "ldbc.snb.datagen.generator.generators.knowsgenerators.BterKnowsGenerator";
+                break;
+            default:
+                throw new IllegalStateException("Unexpected degree distribution: " + knowsGeneratorName);
+        }
+
+        return output;
+    }
+
+    public static Person.PersonSimilarity getPersonSimularity() {
+
+        Person.PersonSimilarity output;
+        switch (personSimularity) {
+            case "GeoDistance":
+                output = new GeoDistanceSimilarity();
+                break;
+            case "Interests":
+                output = new InterestsSimilarity();
+                break;
+            default:
+                throw new IllegalStateException("Unexpected person simularity: " + personSimularity);
+        }
+
+        return output;
+    }
+
+    public static DateFormatter getDateFormatter() {
+        DateFormatter output;
+        switch (dateFormatter) {
+            case "LongDate":
+                output = new LongDateFormatter();
+                break;
+            case "StringDate":
+                output = new StringDateFormatter();
+                break;
+            default:
+                throw new IllegalStateException("Unexpected date formatter: " + dateFormatter);
+        }
+
+        return output;
+    }
+
+    public static String getDateFormat() {
+        return dateFormat;
+    }
+
+    public static String getDateTimeFormat(){
+        return dateTimeFormat;
+
+    }
+
 }

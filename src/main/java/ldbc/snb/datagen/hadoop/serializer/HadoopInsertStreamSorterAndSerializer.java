@@ -35,6 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop.serializer;
 
+import ldbc.snb.datagen.hadoop.HadoopConfiguration;
 import ldbc.snb.datagen.hadoop.generator.HadoopInsertEventKeyPartitioner;
 import ldbc.snb.datagen.hadoop.key.updatekey.InsertEventKey;
 import ldbc.snb.datagen.hadoop.key.updatekey.InsertEventKeyGroupComparator;
@@ -69,7 +70,7 @@ public class HadoopInsertStreamSorterAndSerializer {
             conf = context.getConfiguration();
             streamType = conf.get("streamType");
             try {
-                compressed = Boolean.parseBoolean(conf.get("ldbc.snb.datagen.serializer.compressed"));
+                compressed = HadoopConfiguration.isCompressed(conf);
             } catch (Exception e) {
                 System.err.println(e.getMessage());
             }
@@ -81,12 +82,11 @@ public class HadoopInsertStreamSorterAndSerializer {
             try {
                 FileSystem fs = FileSystem.get(conf);
                 if (compressed) {
-                    Path outFile = new Path(context.getConfiguration()
-                            .get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/insertStream_" + key.reducerId + "_" + key.partition + "_" + streamType + ".csv.gz");
+                    Path outFile = new Path(
+                            HadoopConfiguration.getSocialNetworkDir(conf) + "/insertStream_" + key.reducerId + "_" + key.partition + "_" + streamType + ".csv.gz");
                     out = new GZIPOutputStream(fs.create(outFile));
                 } else {
-                    Path outFile = new Path(context.getConfiguration()
-                            .get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/insertStream_" + key.reducerId + "_" + key.partition + "_" + streamType + ".csv");
+                    Path outFile = new Path(HadoopConfiguration.getSocialNetworkDir(conf) + "/insertStream_" + key.reducerId + "_" + key.partition + "_" + streamType + ".csv");
                     out = fs.create(outFile);
                 }
                 for (Text t : valueSet) {
@@ -105,7 +105,7 @@ public class HadoopInsertStreamSorterAndSerializer {
 
     public void run(List<String> inputFileNames, String type) throws Exception {
 
-        int numThreads = conf.getInt("ldbc.snb.datagen.generator.numThreads", 1);
+        int numThreads = HadoopConfiguration.getNumThreads(conf);
         conf.set("streamType", type);
 
         Job job = Job.getInstance(conf, "Insert Stream Serializer");
@@ -125,7 +125,7 @@ public class HadoopInsertStreamSorterAndSerializer {
         for (String s : inputFileNames) {
             FileInputFormat.addInputPath(job, new Path(s));
         }
-        FileOutputFormat.setOutputPath(job, new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/aux"));
+        FileOutputFormat.setOutputPath(job, new Path(HadoopConfiguration.getHadoopDir(conf) + "/aux"));
         if (!job.waitForCompletion(true)) {
             throw new Exception();
         }
@@ -133,7 +133,7 @@ public class HadoopInsertStreamSorterAndSerializer {
 
         try {
             FileSystem fs = FileSystem.get(conf);
-            fs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/aux"), true);
+            fs.delete(new Path(HadoopConfiguration.getHadoopDir(conf) + "/aux"), true);
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }

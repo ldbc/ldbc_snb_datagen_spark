@@ -81,7 +81,7 @@ class PhotoGenerator {
             TreeSet<Integer> tags = new TreeSet<>();
 
             // creates photo
-            long creationDate = album.getCreationDate() + DatagenParams.deltaTime + 1000 * (i + 1);
+            long creationDate = album.getCreationDate() + DatagenParams.delta + 1000 * (i + 1);
             if (creationDate >= album.getDeletionDate()) {
                 return Iterators.ForIterator.BREAK();
             }
@@ -93,7 +93,7 @@ class PhotoGenerator {
             boolean isExplicitlyDeleted;
             if (randomDeletePost.nextDouble() < DatagenParams.probPostDeleted) {
                 isExplicitlyDeleted = true;
-                long minDeletionDate = creationDate + DatagenParams.deltaTime;
+                long minDeletionDate = creationDate + DatagenParams.delta;
                 long maxDeletionDate = Math.min(album.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
                 deletionDate = Dictionaries.dates.randomDate(randomDate, minDeletionDate, maxDeletionDate);
             } else {

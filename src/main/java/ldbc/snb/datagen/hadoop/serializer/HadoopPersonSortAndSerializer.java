@@ -40,10 +40,7 @@ import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
-import ldbc.snb.datagen.hadoop.HadoopBlockMapper;
-import ldbc.snb.datagen.hadoop.HadoopBlockPartitioner;
-import ldbc.snb.datagen.hadoop.HadoopTuplePartitioner;
-import ldbc.snb.datagen.hadoop.LdbcDatagen;
+import ldbc.snb.datagen.hadoop.*;
 import ldbc.snb.datagen.hadoop.key.TupleKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyComparator;
@@ -83,11 +80,11 @@ public class HadoopPersonSortAndSerializer {
             int reducerId = context.getTaskAttemptID().getTaskID().getId();
             try {
                 LdbcDatagen.initializeContext(conf);
-                dynamicPersonSerializer = DatagenParams.getDynamicPersonSerializer();
+                dynamicPersonSerializer = HadoopConfiguration.getDynamicPersonSerializer(conf);
                 dynamicPersonSerializer.initialize(conf, reducerId);
                 if (DatagenParams.getDatagenMode() == DatagenMode.INTERACTIVE || DatagenParams.getDatagenMode() == DatagenMode.BI) {
-                    insertEventSerializer = new InsertEventSerializer(conf, DatagenParams.hadoopDir + "/temp_insertStream_person_" + reducerId, reducerId, DatagenParams.numUpdatePartitions);
-                    deleteEventSerializer = new DeleteEventSerializer(conf, DatagenParams.hadoopDir + "/temp_deleteStream_person_" + reducerId, reducerId, DatagenParams.numUpdatePartitions);
+                    insertEventSerializer = new InsertEventSerializer(conf, HadoopConfiguration.getHadoopDir(conf) + "/temp_insertStream_person_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
+                    deleteEventSerializer = new DeleteEventSerializer(conf, HadoopConfiguration.getHadoopDir(conf)  + "/temp_deleteStream_person_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
                 }
             } catch (Exception e) {
                 System.err.println(e.getMessage());
@@ -193,11 +190,11 @@ public class HadoopPersonSortAndSerializer {
 
         FileSystem fs = FileSystem.get(conf);
 
-        String rankedFileName = conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/ranked";
+        String rankedFileName = HadoopConfiguration.getHadoopDir(conf) + "/ranked";
         HadoopFileRanker hadoopFileRanker = new HadoopFileRanker(conf, TupleKey.class, Person.class, null);
         hadoopFileRanker.run(inputFileName, rankedFileName);
 
-        int numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads"));
+        int numThreads = HadoopConfiguration.getNumThreads(conf);
         Job job = Job.getInstance(conf, "Person Serializer");
         job.setMapOutputKeyClass(BlockKey.class);
         job.setMapOutputValueClass(Person.class);
@@ -217,7 +214,7 @@ public class HadoopPersonSortAndSerializer {
         job.setPartitionerClass(HadoopBlockPartitioner.class);
 
         FileInputFormat.setInputPaths(job, new Path(rankedFileName));
-        FileOutputFormat.setOutputPath(job, new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/aux"));
+        FileOutputFormat.setOutputPath(job, new Path(HadoopConfiguration.getHadoopDir(conf) + "/aux"));
         if (!job.waitForCompletion(true)) {
             throw new IllegalStateException("HadoopPersonSerializer failed");
         }
@@ -225,7 +222,7 @@ public class HadoopPersonSortAndSerializer {
 
         try {
             fs.delete(new Path(rankedFileName), true);
-            fs.delete(new Path(conf.get("ldbc.snb.datagen.serializer.hadoopDir") + "/aux"), true);
+            fs.delete(new Path(HadoopConfiguration.getHadoopDir(conf) + "/aux"), true);
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }

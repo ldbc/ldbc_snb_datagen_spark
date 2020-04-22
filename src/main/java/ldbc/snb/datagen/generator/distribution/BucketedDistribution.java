@@ -36,7 +36,7 @@
 package ldbc.snb.datagen.generator.distribution;
 
 import ldbc.snb.datagen.generator.tools.Bucket;
-import ldbc.snb.datagen.util.Config;
+import ldbc.snb.datagen.util.LdbcConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,9 +48,9 @@ public abstract class BucketedDistribution extends DegreeDistribution {
     private List<Random> randomDegree;
     private Random randomPercentile;
 
-    public abstract List<Bucket> getBuckets(Config conf);
+    public abstract List<Bucket> getBuckets(LdbcConfiguration conf);
 
-    public void initialize(Config conf) {
+    public void initialize(LdbcConfiguration conf) {
         buckets = this.getBuckets(conf);
         randomPercentile = new Random(0);
         randomDegree = new ArrayList<>();

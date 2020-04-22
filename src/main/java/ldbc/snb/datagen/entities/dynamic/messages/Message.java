@@ -65,7 +65,7 @@ abstract public class Message implements DynamicActivity {
                    String content, TreeSet<Integer> tags, int countryId, IP ipAddress, int browserId,
                    boolean isExplicitlyDeleted
     ) {
-        assert ((author.getCreationDate() + DatagenParams.deltaTime) <= creationDate);
+        assert ((author.getCreationDate() + DatagenParams.delta) <= creationDate);
         this.messageId = messageId;
         this.creationDate = creationDate;
         this.deletionDate = deletionDate;

@@ -41,6 +41,7 @@ import ldbc.snb.datagen.entities.statictype.Organisation;
 import ldbc.snb.datagen.entities.statictype.TagClass;
 import ldbc.snb.datagen.entities.statictype.place.Place;
 import ldbc.snb.datagen.entities.statictype.tag.Tag;
+import ldbc.snb.datagen.hadoop.HadoopConfiguration;
 import ldbc.snb.datagen.hadoop.LdbcDatagen;
 import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
 import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
@@ -69,9 +70,9 @@ public class HadoopStaticSerializer {
     public void run() {
 
         try {
-            staticSerializer = new StaticSerializer[DatagenParams.numThreads];
-            for (int i = 0; i < DatagenParams.numThreads; ++i) {
-                staticSerializer[i] = DatagenParams.getStaticSerializer();
+            staticSerializer = new StaticSerializer[HadoopConfiguration.getNumThreads(conf)];
+            for (int i = 0; i < HadoopConfiguration.getNumThreads(conf); ++i) {
+                staticSerializer[i] = HadoopConfiguration.getStaticSerializer(conf);
                 staticSerializer[i].initialize(conf, i);
             }
         } catch (Exception e) {
@@ -83,14 +84,14 @@ public class HadoopStaticSerializer {
         exportTags();
         exportOrganisations();
 
-        for (int i = 0; i < DatagenParams.numThreads; ++i) {
+        for (int i = 0; i < HadoopConfiguration.getNumThreads(conf); ++i) {
             staticSerializer[i].close();
         }
     }
 
     private int nextFile() {
         int ret = currentFile;
-        currentFile = (++currentFile) % DatagenParams.numThreads;
+        currentFile = (++currentFile) % HadoopConfiguration.getNumThreads(conf);
         return ret;
     }
 

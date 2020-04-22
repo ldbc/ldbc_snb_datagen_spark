@@ -40,7 +40,7 @@ import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.generator.distribution.DegreeDistribution;
 import ldbc.snb.datagen.generator.tools.PowerDistribution;
-import ldbc.snb.datagen.util.Config;
+import ldbc.snb.datagen.util.LdbcConfiguration;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
 
@@ -51,18 +51,19 @@ import java.util.List;
 
 public class PersonGenerator {
 
-    private DegreeDistribution degreeDistribution = null;
+    private DegreeDistribution degreeDistribution;
     private PowerDistribution randomTagPowerLaw;
     private RandomGeneratorFarm randomFarm;
     private int nextId = 0;
 
-    public PersonGenerator(Config conf, String degreeDistribution) {
-        try {
-            this.degreeDistribution = (DegreeDistribution) Class.forName(degreeDistribution).newInstance();
+    public PersonGenerator(LdbcConfiguration conf, String degreeDistribution) {
+//        try {
+//            this.degreeDistribution = (DegreeDistribution) Class.forName(degreeDistribution).newInstance();
+            this.degreeDistribution = DatagenParams.getDegreeDistribution();
             this.degreeDistribution.initialize(conf);
-        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
-            System.out.print(e.getMessage());
-        }
+//        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+//            System.out.print(e.getMessage());
+//        }
 
         randomTagPowerLaw = new PowerDistribution(DatagenParams.minNumTagsPerUser,
                 DatagenParams.maxNumTagsPerUser + 1,
@@ -111,7 +112,7 @@ public class PersonGenerator {
         person.setDeletionDate(deletionDate);
 
 
-        assert (person.getCreationDate() + DatagenParams.deltaTime <= person.getDeletionDate()) : "Person creation date is larger than person deletion date";
+        assert (person.getCreationDate() + DatagenParams.delta <= person.getDeletionDate()) : "Person creation date is larger than person deletion date";
 
         person.setAccountId(composeUserId(nextId++, creationDate));
         person.setMainInterest(Dictionaries.tags.getaTagByCountry(randomFarm

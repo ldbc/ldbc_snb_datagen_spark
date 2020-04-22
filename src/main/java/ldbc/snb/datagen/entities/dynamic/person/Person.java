@@ -75,8 +75,8 @@ public class Person implements Writable {
     private Map<Long, Long> companies;
     private long classYear;
 
-    public static interface PersonSimilarity {
-        public float similarity(Person personA, Person personB);
+    public interface PersonSimilarity {
+        float similarity(Person personA, Person personB);
     }
 
     public Person() {
@@ -90,7 +90,7 @@ public class Person implements Writable {
 
     public Person(Person p) {
 
-        isExplicitlyDeleted = p.isExplicitlyDeleted;
+        isExplicitlyDeleted = p.isExplicitlyDeleted();
         knows = new TreeSet<>();
         emails = new TreeSet<>();
         interests = new TreeSet<>();
@@ -321,6 +321,7 @@ public class Person implements Writable {
         accountId = arg0.readLong();
         creationDate = arg0.readLong();
         deletionDate = arg0.readLong();
+        isExplicitlyDeleted = arg0.readBoolean();
         maxNumKnows = arg0.readLong();
         int numFriends = arg0.readShort();
         knows = new TreeSet<>();
@@ -375,6 +376,7 @@ public class Person implements Writable {
         arg0.writeLong(accountId);
         arg0.writeLong(creationDate);
         arg0.writeLong(deletionDate);
+        arg0.writeBoolean(isExplicitlyDeleted);
         arg0.writeLong(maxNumKnows);
         arg0.writeShort(knows.size());
 
