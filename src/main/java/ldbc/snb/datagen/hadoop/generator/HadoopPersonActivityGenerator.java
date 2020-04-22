@@ -95,8 +95,7 @@ public class HadoopPersonActivityGenerator {
             int reducerId = context.getTaskAttemptID().getTaskID().getId();
             LdbcDatagen.initializeContext(conf);
             try {
-
-                dynamicActivitySerializer = HadoopConfiguration.getDynamicActivitySerializer(conf);
+                DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer = HadoopConfiguration.getDynamicActivitySerializer(conf);
                 dynamicActivitySerializer.initialize(conf, reducerId);
                 InsertEventSerializer insertEventSerializer = null;
                 DeleteEventSerializer deleteEventSerializer = null;
