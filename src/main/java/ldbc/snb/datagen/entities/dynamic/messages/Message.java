@@ -36,12 +36,13 @@
 package ldbc.snb.datagen.entities.dynamic.messages;
 
 import ldbc.snb.datagen.DatagenParams;
+import ldbc.snb.datagen.entities.dynamic.DynamicActivity;
 import ldbc.snb.datagen.entities.dynamic.person.IP;
 import ldbc.snb.datagen.entities.dynamic.person.PersonSummary;
 
 import java.util.TreeSet;
 
-abstract public class Message {
+abstract public class Message implements DynamicActivity {
 
     private boolean isExplicitlyDeleted;
     private long messageId;

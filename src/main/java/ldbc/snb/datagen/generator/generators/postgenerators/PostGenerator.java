@@ -36,9 +36,11 @@
 
 package ldbc.snb.datagen.generator.generators.postgenerators;
 
+import com.google.common.collect.Streams;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.Forum;
+import ldbc.snb.datagen.entities.dynamic.messages.Comment;
 import ldbc.snb.datagen.entities.dynamic.messages.Post;
 import ldbc.snb.datagen.entities.dynamic.person.IP;
 import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
@@ -46,15 +48,18 @@ import ldbc.snb.datagen.entities.dynamic.relations.Like;
 import ldbc.snb.datagen.generator.generators.CommentGenerator;
 import ldbc.snb.datagen.generator.generators.LikeGenerator;
 import ldbc.snb.datagen.generator.generators.textgenerators.TextGenerator;
-import ldbc.snb.datagen.serializer.PersonActivityExporter;
+import ldbc.snb.datagen.util.Iterators;
 import ldbc.snb.datagen.util.PersonBehavior;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
+import org.javatuples.Pair;
+import org.javatuples.Triplet;
 
-import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
+import java.util.stream.Stream;
 
 
 abstract public class PostGenerator {
@@ -62,30 +67,24 @@ abstract public class PostGenerator {
     private TextGenerator generator;
     private CommentGenerator commentGenerator;
     private LikeGenerator likeGenerator;
-    private Post post;
-
 
     PostGenerator(TextGenerator generator, CommentGenerator commentGenerator, LikeGenerator likeGenerator) {
         this.generator = generator;
         this.commentGenerator = commentGenerator;
         this.likeGenerator = likeGenerator;
-        this.post = new Post();
     }
-
 
     public void initialize() {
         // Intentionally left empty
     }
 
-    public long createPosts(RandomGeneratorFarm randomFarm, final Forum forum, final List<ForumMembership> memberships,
-                            long numPostsInForum, long startPostId, PersonActivityExporter exporter) throws IOException {
+    public Stream<Triplet<Post, Stream<Like>, Stream<Pair<Comment, Stream<Like>>>>> createPosts(RandomGeneratorFarm randomFarm, final Forum forum, final List<ForumMembership> memberships,
+                                                                                                long numPostsInForum, Iterator<Long> idIterator) {
 
-        long postIdCounter = startPostId;
         Properties properties = new Properties();
         properties.setProperty("type", "post");
 
-        for (ForumMembership member : memberships) {
-
+        return memberships.stream().flatMap(member -> {
             // generate number of posts by this member
             double numPostsPerMember = numPostsInForum / (double) memberships.size();
 
@@ -96,61 +95,61 @@ abstract public class PostGenerator {
                 numPostsPerMember = Math.ceil(numPostsPerMember);
             }
 
-            // create each post for member
-            for (int i = 0; i < (int) (numPostsPerMember); ++i) {
+            final int numPostsPerMemberInt = (int) numPostsPerMember;
 
+            return Streams.stream(Iterators.forIterator(0, i -> i < numPostsPerMemberInt, i -> ++i, i -> {
                 // create post core
                 PostCore postCore = generatePostInfo(randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_POST), randomFarm.get(RandomGeneratorFarm.Aspect.TAG),
                         randomFarm.get(RandomGeneratorFarm.Aspect.DATE), forum, member);
 
-                if (postCore != null) {
+                if (postCore == null)
+                    return Iterators.ForIterator.CONTINUE();
 
-                    // create content, county, ip - sometimes randomise
-                    String content = this.generator.generateText(member.getPerson(), postCore.getTags(), properties);
-                    int country = member.getPerson().getCountryId();
-                    IP ip = member.getPerson().getIpAddress();
-                    Random random = randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER);
-                    if (PersonBehavior.changeUsualCountry(random, postCore.getCreationDate())) {
-                        random = randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY);
-                        country = Dictionaries.places.getRandomCountryUniform(random);
-                        random = randomFarm.get(RandomGeneratorFarm.Aspect.IP);
-                        ip = Dictionaries.ips.getIP(random, country);
-                    }
-
-                    // create post with above information and from post info
-                    post.initialize(SN.formId(SN.composeId(postIdCounter++, postCore.getCreationDate())),
-                            postCore.getCreationDate(),
-                            postCore.getDeletionDate(),
-                            member.getPerson(),
-                            forum.getId(),
-                            content,
-                            postCore.getTags(),
-                            country,
-                            ip,
-                            Dictionaries.browsers.getPostBrowserId(
-                                    randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),
-                                    randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER),
-                                    member.getPerson().getBrowserId()),
-                            forum.getLanguage(),
-                            forum.isExplicitlyDeleted());
-
-                    exporter.export(post);
-
-                    // generate likes
-                    if (randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1) {
-                        likeGenerator.generateLikes(
-                                randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_LIKES),
-                                randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE),
-                                forum, post, Like.LikeType.POST, exporter);
-                    }
-
-                    // generate comments
-                    int numComments = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(DatagenParams.maxNumComments + 1);
-                    postIdCounter = commentGenerator.createComments(randomFarm, forum, post, numComments, postIdCounter, exporter);
+                // create content, county, ip - sometimes randomise
+                String content = this.generator.generateText(member.getPerson(), postCore.getTags(), properties);
+                int country = member.getPerson().getCountryId();
+                IP ip = member.getPerson().getIpAddress();
+                Random random = randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER);
+                if (PersonBehavior.changeUsualCountry(random, postCore.getCreationDate())) {
+                    random = randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY);
+                    country = Dictionaries.places.getRandomCountryUniform(random);
+                    random = randomFarm.get(RandomGeneratorFarm.Aspect.IP);
+                    ip = Dictionaries.ips.getIP(random, country);
                 }
-            }
-        }
-        return postIdCounter;
+
+                Post post = new Post();
+
+                // create post with above information and from post info
+                post.initialize(SN.formId(SN.composeId(idIterator.next(), postCore.getCreationDate())),
+                        postCore.getCreationDate(),
+                        postCore.getDeletionDate(),
+                        member.getPerson(),
+                        forum.getId(),
+                        content,
+                        postCore.getTags(),
+                        country,
+                        ip,
+                        Dictionaries.browsers.getPostBrowserId(
+                                randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_BROWSER),
+                                randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER),
+                                member.getPerson().getBrowserId()),
+                        forum.getLanguage(),
+                        forum.isExplicitlyDeleted());
+
+                Stream<Like> likeStream = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1
+                    ? likeGenerator.generateLikes(
+                        randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_LIKES),
+                        randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE),
+                        forum, post, Like.LikeType.POST)
+                        : Stream.empty();
+
+                int numComments = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(DatagenParams.maxNumComments + 1);
+
+                Stream<Pair<Comment, Stream<Like>>> commentStream = commentGenerator.createComments(randomFarm, forum, post, numComments, idIterator);
+
+                return Iterators.ForIterator.RETURN(new Triplet<>(post, likeStream, commentStream));
+            }));
+        });
     }
 
     protected abstract PostCore generatePostInfo(Random randonDeletePost, Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership);

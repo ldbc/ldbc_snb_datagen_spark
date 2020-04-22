@@ -504,10 +504,10 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
         if (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) {
             //"creationDate",  "Person.id", "Post.id"/"Comment.id","deletionDate"
             List<String> arguments = ImmutableList.of(
-                    Dictionaries.dates.formatDateTime(like.getLikeCreationDate()),
+                    Dictionaries.dates.formatDateTime(like.getCreationDate()),
                     Long.toString(like.getPerson()),
                     Long.toString(like.getMessageId()),
-                    Dictionaries.dates.formatDateTime(like.getLikeDeletionDate()));
+                    Dictionaries.dates.formatDateTime(like.getDeletionDate()));
             if (like.getType() == Like.LikeType.POST || like.getType() == Like.LikeType.PHOTO) {
                 writers.get(PERSON_LIKES_POST).writeEntry(arguments);
             } else {
@@ -516,7 +516,7 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
         }  else {
             //"creationDate",  "Person.id", "Post.id"/"Comment.id"
             List<String> arguments = ImmutableList.of(
-                    Dictionaries.dates.formatDateTime(like.getLikeCreationDate()),
+                    Dictionaries.dates.formatDateTime(like.getCreationDate()),
                     Long.toString(like.getPerson()),
                     Long.toString(like.getMessageId())
             );

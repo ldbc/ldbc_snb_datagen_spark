@@ -42,7 +42,7 @@ import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Forum {
+public class Forum implements DynamicActivity {
     public enum ForumType {
         WALL,
         ALBUM,

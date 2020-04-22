@@ -49,8 +49,6 @@ import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.apache.commons.lang3.RandomUtils.nextDouble;
-
 public class PersonGenerator {
 
     private DegreeDistribution degreeDistribution;

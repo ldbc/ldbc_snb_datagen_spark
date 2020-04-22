@@ -44,25 +44,69 @@ import ldbc.snb.datagen.entities.dynamic.messages.Photo;
 import ldbc.snb.datagen.entities.dynamic.messages.Post;
 import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.entities.dynamic.relations.Like;
+import ldbc.snb.datagen.generator.generators.GenActivity;
+import ldbc.snb.datagen.generator.generators.GenWall;
 import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
-import ldbc.snb.datagen.util.FactorTable;
+import org.javatuples.Pair;
+import org.javatuples.Triplet;
 
 import java.io.IOException;
+import java.util.stream.Stream;
 
-public class PersonActivityExporter {
+import static ldbc.snb.datagen.util.functional.Thunk.wrapException;
+
+public class PersonActivityExporter implements AutoCloseable {
     protected DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer;
     protected InsertEventSerializer insertEventSerializer;
     protected DeleteEventSerializer deleteEventSerializer;
-    protected FactorTable factorTable;
 
-    public PersonActivityExporter(DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer, InsertEventSerializer insertEventSerializer, DeleteEventSerializer deleteEventSerializer, FactorTable factorTable) {
+    public PersonActivityExporter(DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer, InsertEventSerializer insertEventSerializer, DeleteEventSerializer deleteEventSerializer) {
         this.dynamicActivitySerializer = dynamicActivitySerializer;
-        this.factorTable = factorTable;
         this.insertEventSerializer = insertEventSerializer;
         this.deleteEventSerializer = deleteEventSerializer;
     }
 
-    public void export(final Forum forum) throws IOException {
+    private void exportPostWall(final GenWall<Triplet<Post, Stream<Like>, Stream<Pair<Comment, Stream<Like>>>>> genWall) {
+        genWall.inner.forEach(forum -> {
+            wrapException(() -> this.export(forum.getValue0()));
+            Stream<ForumMembership> genForumMembership = forum.getValue1();
+            genForumMembership.forEach(m -> wrapException(() -> this.export(m)));
+            Stream<Triplet<Post, Stream<Like>, Stream<Pair<Comment, Stream<Like>>>>> thread = forum.getValue2();
+            thread.forEach(t -> {
+                wrapException(() -> this.export(t.getValue0()));
+                Stream<Like> genLike = t.getValue1();
+                genLike.forEach(l -> wrapException(() -> this.export(l)));
+                Stream<Pair<Comment, Stream<Like>>> genComment = t.getValue2();
+                genComment.forEach(c -> {
+                    wrapException(() -> this.export(c.getValue0()));
+                    Stream<Like> genLike1 = c.getValue1();
+                    genLike1.forEach(l -> wrapException(() -> this.export(l)));
+                });
+            });
+        });
+    }
+
+    private void exportAlbumWall(final GenWall<Pair<Photo, Stream<Like>>> genAlbums) {
+        genAlbums.inner.forEach(forum -> {
+            wrapException(() -> this.export(forum.getValue0()));
+            Stream<ForumMembership> genForumMembership = forum.getValue1();
+            genForumMembership.forEach(m -> wrapException(() -> this.export(m)));
+            Stream<Pair<Photo, Stream<Like>>> thread = forum.getValue2();
+            thread.forEach(t -> {
+                wrapException(() -> this.export(t.getValue0()));
+                Stream<Like> genLike = t.getValue1();
+                genLike.forEach(l -> wrapException(() -> this.export(l)));
+            });
+        });
+    }
+
+    public void export(final GenActivity genActivity) {
+        this.exportPostWall(genActivity.genWall);
+        genActivity.genGroups.forEach(this::exportPostWall);
+        this.exportAlbumWall(genActivity.genAlbums);
+    }
+
+    public void export(final Forum forum) throws Exception {
 
         if (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA){
             dynamicActivitySerializer.export(forum);
@@ -240,33 +284,46 @@ public class PersonActivityExporter {
         if (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA){
             dynamicActivitySerializer.export(like);
         } else {
-           if ((like.getLikeCreationDate() < Dictionaries.dates.getBulkLoadThreshold() &&
-                    (like.getLikeDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold() &&
-                            like.getLikeDeletionDate() <= Dictionaries.dates.getSimulationEnd())
+           if ((like.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold() &&
+                    (like.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold() &&
+                            like.getDeletionDate() <= Dictionaries.dates.getSimulationEnd())
             )) {
                 dynamicActivitySerializer.export(like);
                 if (like.isExplicitlyDeleted()) {
                     deleteEventSerializer.export(like);
                     deleteEventSerializer.changePartition();
                 }
-            } else if (like.getLikeCreationDate() < Dictionaries.dates.getBulkLoadThreshold()
-                    && like.getLikeDeletionDate() > Dictionaries.dates.getSimulationEnd()
+            } else if (like.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold()
+                    && like.getDeletionDate() > Dictionaries.dates.getSimulationEnd()
             ) {
                 dynamicActivitySerializer.export(like);
-            } else if (like.getLikeCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()
-                    && (like.getLikeDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold()) &&
-                    like.getLikeDeletionDate() <= Dictionaries.dates.getSimulationEnd()) {
+            } else if (like.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()
+                    && (like.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold()) &&
+                    like.getDeletionDate() <= Dictionaries.dates.getSimulationEnd()) {
                 insertEventSerializer.export(like);
                 insertEventSerializer.changePartition();
                 if (like.isExplicitlyDeleted()) {
                     deleteEventSerializer.export(like);
                     deleteEventSerializer.changePartition();
                 }
-            } else if (like.getLikeCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()
-                    && like.getLikeDeletionDate() > Dictionaries.dates.getSimulationEnd()) {
+            } else if (like.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()
+                    && like.getDeletionDate() > Dictionaries.dates.getSimulationEnd()) {
                 insertEventSerializer.export(like);
                 insertEventSerializer.changePartition();
             }
+        }
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (dynamicActivitySerializer != null) {
+            dynamicActivitySerializer.close();
+        }
+        if (insertEventSerializer != null) {
+            insertEventSerializer.close();
+        }
+        if (deleteEventSerializer != null) {
+            deleteEventSerializer.close();
         }
     }
 }

@@ -317,6 +317,7 @@ public class Person implements Writable {
     }
 
     public void readFields(DataInput arg0) throws IOException {
+        isExplicitlyDeleted = arg0.readBoolean();
         accountId = arg0.readLong();
         creationDate = arg0.readLong();
         deletionDate = arg0.readLong();
@@ -371,6 +372,7 @@ public class Person implements Writable {
     }
 
     public void write(DataOutput arg0) throws IOException {
+        arg0.writeBoolean(isExplicitlyDeleted);
         arg0.writeLong(accountId);
         arg0.writeLong(creationDate);
         arg0.writeLong(deletionDate);
