@@ -36,9 +36,8 @@
 package ldbc.snb.datagen.hadoop;
 
 import com.google.common.collect.Lists;
+import ldbc.snb.datagen.DatagenContext;
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.hadoop.generator.HadoopKnowsGenerator;
 import ldbc.snb.datagen.hadoop.generator.HadoopPersonActivityGenerator;
 import ldbc.snb.datagen.hadoop.generator.HadoopPersonGenerator;
@@ -52,7 +51,6 @@ import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
 import ldbc.snb.datagen.util.LdbcConfiguration;
 import ldbc.snb.datagen.util.ConfigParser;
-import ldbc.snb.datagen.vocabulary.SN;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -65,23 +63,6 @@ import java.util.*;
 import static ldbc.snb.datagen.DatagenMode.*;
 
 public class LdbcDatagen {
-    private static boolean initialized = false;
-
-    public static synchronized void initializeContext(Configuration hadoopConf) {
-        try {
-            if (!initialized) {
-                LdbcConfiguration conf = HadoopConfiguration.extractLdbcConfig(hadoopConf);
-                DatagenParams.readConf(conf);
-                Dictionaries.loadDictionaries(conf);
-                SN.initialize();
-                Person.personSimilarity = DatagenParams.getPersonSimularity();
-                initialized = true;
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private long personGenerateJob(String hadoopPrefix, Configuration conf) throws Exception {
         printProgress("Starting: Person generation");
         long startPerson = System.currentTimeMillis();
@@ -184,15 +165,16 @@ public class LdbcDatagen {
         print("Finished Interactive Parameter Generation");
     }
 
-    public void runGenerateJob(Configuration conf) throws Exception {
-        String hadoopPrefix = HadoopConfiguration.getHadoopDir(conf);
-        FileSystem fs = FileSystem.get(conf);
+    public void runGenerateJob(Configuration hadoopConf) throws Exception {
+        String hadoopPrefix = HadoopConfiguration.getHadoopDir(hadoopConf);
+        LdbcConfiguration conf = HadoopConfiguration.extractLdbcConfig(hadoopConf);
+        FileSystem fs = FileSystem.get(hadoopConf);
         long start = System.currentTimeMillis();
 
         //create all people in the graph
-        long personGenTime = personGenerateJob(hadoopPrefix, conf);
+        long personGenTime = personGenerateJob(hadoopPrefix, hadoopConf);
         //generate friendships based on going to the same uni
-        long uniKnowsGenTime = knowsGenerateJob(hadoopPrefix, conf,
+        long uniKnowsGenTime = knowsGenerateJob(hadoopPrefix, hadoopConf,
                 "Creating university location correlated edges",
                 "ldbc.snb.datagen.hadoop.miscjob.keychanger.UniversityKeySetter",
                 "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter",
@@ -200,7 +182,7 @@ public class LdbcDatagen {
                 DatagenParams.getKnowsGenerator(),
                 "/universityEdges");
         //generate second set of friendships based on similar interests
-        long interestKnowsGenTime = knowsGenerateJob(hadoopPrefix, conf,
+        long interestKnowsGenTime = knowsGenerateJob(hadoopPrefix, hadoopConf,
                 "Creating main interest correlated edges",
                 "ldbc.snb.datagen.hadoop.miscjob.keychanger.InterestKeySetter",
                 "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter",
@@ -208,7 +190,7 @@ public class LdbcDatagen {
                 DatagenParams.getKnowsGenerator(),
                 "/interestEdges");
         //generate final set of friendships based on randomness
-        long randomKnowsGenTime = knowsGenerateJob(hadoopPrefix, conf,
+        long randomKnowsGenTime = knowsGenerateJob(hadoopPrefix, hadoopConf,
                 "Creating random correlated edges",
                 "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter",
                 "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter",
@@ -216,32 +198,32 @@ public class LdbcDatagen {
                 "ldbc.snb.datagen.generator.generators.knowsgenerators.RandomKnowsGenerator",
                 "/randomEdges");
         //delete old persons file as now merged persons is going to be used
-        fs.delete(new Path(HadoopConfiguration.getHadoopDir(conf) + "/persons"), true);
+        fs.delete(new Path(HadoopConfiguration.getHadoopDir(hadoopConf) + "/persons"), true);
         //merge all friendship edges into a single file
-        long mergeKnowsTime = mergeKnows(hadoopPrefix, conf);
+        long mergeKnowsTime = mergeKnows(hadoopPrefix, hadoopConf);
         //serialize persons
-        long personSerializeTime = serializePersons(hadoopPrefix, conf);
+        long personSerializeTime = serializePersons(hadoopPrefix, hadoopConf);
         //generate person activities
-        long personActivityTime = personActivityJob(hadoopPrefix, conf, fs);
+        long personActivityTime = personActivityJob(hadoopPrefix, hadoopConf, fs);
         //serialize static graph
-        long serializeStaticTime = serializeStaticGraph(conf);
+        long serializeStaticTime = serializeStaticGraph(hadoopConf);
         // interative generate update stream
         long serializeUpdatesTime = 0;
         if (DatagenParams.getDatagenMode() == INTERACTIVE) {
             printProgress("Serializing update streams and generating parameters");
-            serializeUpdatesTime = runSortInsertStream(conf);
-            serializeUpdatesTime = serializeUpdatesTime + runSortDeleteStream(conf);
-            generateInteractiveParameters(conf);
+            serializeUpdatesTime = runSortInsertStream(hadoopConf);
+            serializeUpdatesTime = serializeUpdatesTime + runSortDeleteStream(hadoopConf);
+            generateInteractiveParameters(hadoopConf);
         }
 
         // [JACK] ni this sort should merge all insert/delete streams, sort by event time then divide into a specified
         // number of refresh data sets. Also some redundant sorting here I think.
         if (DatagenParams.getDatagenMode() == BI) {
             printProgress("Serializing batches and generating parameters");
-            runSortInsertStream(conf);
-            runSortDeleteStream(conf);
-            runBiSortJob(conf);
-            generateBIParameters(conf);
+            runSortInsertStream(hadoopConf);
+            runSortDeleteStream(hadoopConf);
+            runBiSortJob(hadoopConf);
+            generateBIParameters(hadoopConf);
         }
 
         //total time taken
@@ -450,7 +432,7 @@ public class LdbcDatagen {
         System.out.println(HadoopConfiguration.getSocialNetworkDir(hadoopConf));
         System.out.println(HadoopConfiguration.getOutputDir(hadoopConf));
 
-        LdbcDatagen.initializeContext(hadoopConf);
+        DatagenContext.initialize(HadoopConfiguration.extractLdbcConfig(hadoopConf));
         LdbcDatagen datagen = new LdbcDatagen();
 
         datagen.runGenerateJob(hadoopConf);

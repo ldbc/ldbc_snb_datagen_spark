@@ -35,12 +35,14 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop.miscjob;
 
+import ldbc.snb.datagen.DatagenContext;
 import ldbc.snb.datagen.hadoop.HadoopConfiguration;
 import ldbc.snb.datagen.hadoop.LdbcDatagen;
 import ldbc.snb.datagen.hadoop.key.TupleKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyComparator;
 import ldbc.snb.datagen.hadoop.miscjob.keychanger.HadoopFileKeyChanger;
+import ldbc.snb.datagen.hadoop.serializer.HadoopPersonSortAndSerializer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -84,9 +86,9 @@ public class HadoopFileRanker {
 
         @Override
         public void setup(Context context) {
-
+            Configuration hadoopConf = context.getConfiguration();
             try {
-                LdbcDatagen.initializeContext(context.getConfiguration());
+                DatagenContext.initialize(HadoopConfiguration.extractLdbcConfig(hadoopConf));
                 String className = context.getConfiguration().get("keySetterClassName");
                 keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(className).newInstance();
             } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
@@ -178,7 +180,7 @@ public class HadoopFileRanker {
             reducerId = context.getTaskAttemptID().getTaskID().getId();
             numReduceTasks = context.getNumReduceTasks();
             counters = new long[numReduceTasks];
-            LdbcDatagen.initializeContext(conf);
+            DatagenContext.initialize(HadoopConfiguration.extractLdbcConfig(conf));
             try {
                 FileSystem fs = FileSystem.get(conf);
                 for (int i = 0; i < (numReduceTasks - 1); ++i) {

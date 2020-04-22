@@ -35,6 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop.miscjob;
 
+import ldbc.snb.datagen.DatagenContext;
 import ldbc.snb.datagen.hadoop.HadoopConfiguration;
 import ldbc.snb.datagen.hadoop.LdbcDatagen;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
@@ -70,7 +71,7 @@ public class HadoopMergeFriendshipFiles {
 
         protected void setup(Context context) {
             this.conf = context.getConfiguration();
-            LdbcDatagen.initializeContext(conf);
+            DatagenContext.initialize(HadoopConfiguration.extractLdbcConfig(conf));
             try {
                 this.keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(conf.get("postKeySetterName"))
                                                                        .newInstance();

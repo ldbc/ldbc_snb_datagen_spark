@@ -35,6 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop.generator;
 
+import ldbc.snb.datagen.DatagenContext;
 import ldbc.snb.datagen.DatagenMode;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
@@ -55,6 +56,7 @@ import ldbc.snb.datagen.serializer.DeleteEventSerializer;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
 import ldbc.snb.datagen.serializer.InsertEventSerializer;
 import ldbc.snb.datagen.serializer.PersonActivityExporter;
+import ldbc.snb.datagen.util.LdbcConfiguration;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -91,17 +93,18 @@ public class HadoopPersonActivityGenerator {
 
         protected void setup(Context context) {
             System.out.println("Setting up reducer for person activity generation");
-            Configuration conf = context.getConfiguration();
+            Configuration hadoopConf = context.getConfiguration();
+            LdbcConfiguration conf = HadoopConfiguration.extractLdbcConfig(hadoopConf);
             int reducerId = context.getTaskAttemptID().getTaskID().getId();
-            LdbcDatagen.initializeContext(conf);
+            DatagenContext.initialize(conf);
             try {
-                DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer = HadoopConfiguration.getDynamicActivitySerializer(conf);
-                dynamicActivitySerializer.initialize(conf, reducerId);
+                DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer = HadoopConfiguration.getDynamicActivitySerializer(hadoopConf);
+                dynamicActivitySerializer.initialize(hadoopConf, reducerId);
                 InsertEventSerializer insertEventSerializer = null;
                 DeleteEventSerializer deleteEventSerializer = null;
                 if (DatagenParams.getDatagenMode() != DatagenMode.RAW_DATA) {
-                    insertEventSerializer = new InsertEventSerializer(conf, HadoopConfiguration.getHadoopDir(conf)  + "/temp_insertStream_forum_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
-                    deleteEventSerializer = new DeleteEventSerializer(conf, HadoopConfiguration.getHadoopDir(conf)  + "/temp_deleteStream_forum_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
+                    insertEventSerializer = new InsertEventSerializer(hadoopConf, HadoopConfiguration.getHadoopDir(hadoopConf)  + "/temp_insertStream_forum_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
+                    deleteEventSerializer = new DeleteEventSerializer(hadoopConf, HadoopConfiguration.getHadoopDir(hadoopConf)  + "/temp_deleteStream_forum_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
                 }
                 personActivityGenerator = new PersonActivityGenerator();
                 personActivityExporter =
@@ -109,10 +112,10 @@ public class HadoopPersonActivityGenerator {
 
                 FileSystem fs = FileSystem.get(context.getConfiguration());
                 personFactors = fs
-                        .create(new Path(HadoopConfiguration.getHadoopDir(conf)  + "/" + "m" + reducerId + DatagenParams.PERSON_COUNTS_FILE));
+                        .create(new Path(HadoopConfiguration.getHadoopDir(hadoopConf)  + "/" + "m" + reducerId + DatagenParams.PERSON_COUNTS_FILE));
                 activityFactors = fs
-                        .create(new Path(HadoopConfiguration.getHadoopDir(conf)  + "/" + "m" + reducerId + DatagenParams.ACTIVITY_FILE));
-                friends = fs.create(new Path(HadoopConfiguration.getHadoopDir(conf)  + "/" + "m0friendList" + reducerId + ".csv"));
+                        .create(new Path(HadoopConfiguration.getHadoopDir(hadoopConf)  + "/" + "m" + reducerId + DatagenParams.ACTIVITY_FILE));
+                friends = fs.create(new Path(HadoopConfiguration.getHadoopDir(hadoopConf)  + "/" + "m0friendList" + reducerId + ".csv"));
 
             } catch (Exception e) {
                 System.err.println(e.getMessage());

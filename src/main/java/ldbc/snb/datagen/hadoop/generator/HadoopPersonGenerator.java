@@ -35,6 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop.generator;
 
+import ldbc.snb.datagen.DatagenContext;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.generator.generators.PersonGenerator;
@@ -42,6 +43,7 @@ import ldbc.snb.datagen.hadoop.HadoopConfiguration;
 import ldbc.snb.datagen.hadoop.LdbcDatagen;
 import ldbc.snb.datagen.hadoop.key.TupleKey;
 import ldbc.snb.datagen.hadoop.miscjob.keychanger.HadoopFileKeyChanger;
+import ldbc.snb.datagen.util.LdbcConfiguration;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -71,6 +73,7 @@ public class HadoopPersonGenerator {
         public void map(LongWritable key, Text value, Context context) {
 
             Configuration hadoopConf = context.getConfiguration();
+            LdbcConfiguration conf = HadoopConfiguration.extractLdbcConfig(hadoopConf);
 
             try {
                 this.keySetter = (HadoopFileKeyChanger.KeySetter) Class.forName(hadoopConf.get("postKeySetterName")).newInstance();
@@ -82,7 +85,7 @@ public class HadoopPersonGenerator {
 
             int threadId = Integer.parseInt(value.toString());
             System.out.println("Generating person at mapper " + threadId);
-            LdbcDatagen.initializeContext(hadoopConf);
+            DatagenContext.initialize(conf);
 
             // Here we determine the blocks in the "block space" that this mapper is responsible for.
             int numBlocks = (int) (Math.ceil(DatagenParams.numPersons / (double) DatagenParams.blockSize));
@@ -90,7 +93,7 @@ public class HadoopPersonGenerator {
             int endBlock = (int) (Math.ceil((numBlocks / (double) HadoopConfiguration.getNumThreads(hadoopConf)) * (threadId + 1)));
 
             PersonGenerator personGenerator = new PersonGenerator(
-                    HadoopConfiguration.extractLdbcConfig(hadoopConf),
+                    conf,
                     DatagenParams.getDegreeDistribution().getClass().getName()
             );
             for (int i = initBlock; i < endBlock; ++i) {

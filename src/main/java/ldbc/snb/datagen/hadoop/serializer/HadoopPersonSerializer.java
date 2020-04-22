@@ -75,7 +75,7 @@
 //        protected void setup(Context context) {
 //            Configuration conf = context.getConfiguration();
 //            int reducerId = context.getTaskAttemptID().getTaskID().getId();
-//            LdbcDatagen.initializeContext(conf);
+//            DatagenContext.initialize(conf);
 //            try {
 //                dynamicPersonSerializer = DatagenParams.getDynamicPersonSerializer();
 //                dynamicPersonSerializer.initialize(conf, reducerId);
