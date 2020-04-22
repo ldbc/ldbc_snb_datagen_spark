@@ -11,14 +11,13 @@ import scala.collection.JavaConverters._
 
 object SparkPersonGenerator {
 
-  def apply(conf: LdbcConfiguration)(implicit spark: SparkSession): RDD[Person] = {
+  def apply(conf: LdbcConfiguration, numPartitions: Option[Int] = None)(implicit spark: SparkSession): RDD[Person] = {
     val numBlocks = Math.ceil(DatagenParams.numPersons / DatagenParams.blockSize.toDouble).toInt
-    val numThreads = Integer.parseInt(conf.get("ldbc.snb.datagen.generator.numThreads"))
 
     val personPartitionGenerator = (blocks: Iterator[Int]) => {
       DatagenContext.initialize(conf)
 
-      val personGenerator = new PersonGenerator(conf, conf.get("ldbc.snb.datagen.generator.distribution.degreeDistribution"))
+      val personGenerator = new PersonGenerator(conf, conf.get("generator.distribution.degreeDistribution"))
 
       for {
         i <- blocks
@@ -27,8 +26,10 @@ object SparkPersonGenerator {
       } yield person
     }
 
+    val partitions = numPartitions.fold(spark.sparkContext.defaultParallelism)(identity)
+
     spark.sparkContext
-      .parallelize(0 until numBlocks, numThreads)
+      .parallelize(0 until numBlocks, partitions)
       .mapPartitions(personPartitionGenerator, preservesPartitioning = true)
   }
 }

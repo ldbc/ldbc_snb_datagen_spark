@@ -41,9 +41,10 @@ import org.apache.hadoop.io.Writable;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 
-public class Person implements Writable {
+public final class Person implements Writable, Serializable {
 
     private boolean isExplicitlyDeleted;
     private long accountId;
@@ -69,6 +70,41 @@ public class Person implements Writable {
     private String lastName;
     private Map<Long, Long> companies;
     private long classYear;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Person person = (Person) o;
+        return isExplicitlyDeleted == person.isExplicitlyDeleted &&
+                accountId == person.accountId &&
+                creationDate == person.creationDate &&
+                deletionDate == person.deletionDate &&
+                maxNumKnows == person.maxNumKnows &&
+                browserId == person.browserId &&
+                countryId == person.countryId &&
+                cityId == person.cityId &&
+                mainInterest == person.mainInterest &&
+                universityLocationId == person.universityLocationId &&
+                gender == person.gender &&
+                birthday == person.birthday &&
+                isLargePoster == person.isLargePoster &&
+                randomId == person.randomId &&
+                classYear == person.classYear &&
+                Objects.equals(knows, person.knows) &&
+                Objects.equals(ipAddress, person.ipAddress) &&
+                Objects.equals(interests, person.interests) &&
+                Objects.equals(emails, person.emails) &&
+                Objects.equals(languages, person.languages) &&
+                Objects.equals(firstName, person.firstName) &&
+                Objects.equals(lastName, person.lastName) &&
+                Objects.equals(companies, person.companies);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(isExplicitlyDeleted, accountId, creationDate, deletionDate, maxNumKnows, knows, browserId, ipAddress, countryId, cityId, interests, mainInterest, universityLocationId, gender, birthday, isLargePoster, randomId, emails, languages, firstName, lastName, companies, classYear);
+    }
 
     public interface PersonSimilarity {
         float similarity(Person personA, Person personB);
