@@ -45,7 +45,6 @@ import ldbc.snb.datagen.generator.generators.PersonActivityGenerator;
 import ldbc.snb.datagen.hadoop.HadoopBlockMapper;
 import ldbc.snb.datagen.hadoop.HadoopBlockPartitioner;
 import ldbc.snb.datagen.hadoop.HadoopConfiguration;
-import ldbc.snb.datagen.hadoop.LdbcDatagen;
 import ldbc.snb.datagen.hadoop.key.TupleKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyComparator;
@@ -72,7 +71,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 

@@ -36,16 +36,12 @@
 package ldbc.snb.datagen.hadoop.serializer;
 
 import ldbc.snb.datagen.DatagenContext;
-import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.statictype.Organisation;
 import ldbc.snb.datagen.entities.statictype.TagClass;
 import ldbc.snb.datagen.entities.statictype.place.Place;
 import ldbc.snb.datagen.entities.statictype.tag.Tag;
 import ldbc.snb.datagen.hadoop.HadoopConfiguration;
-import ldbc.snb.datagen.hadoop.LdbcDatagen;
-import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
-import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
 import ldbc.snb.datagen.serializer.StaticSerializer;
 import ldbc.snb.datagen.util.StringUtils;
 import org.apache.hadoop.conf.Configuration;

@@ -1,11 +1,9 @@
 package ldbc.snb.datagen.util;
 
 import ldbc.snb.datagen.DatagenContext;
-import ldbc.snb.datagen.hadoop.HadoopConfiguration;
-import ldbc.snb.datagen.hadoop.LdbcDatagen;
 import ldbc.snb.datagen.generator.distribution.DegreeDistribution;
+import ldbc.snb.datagen.hadoop.HadoopConfiguration;
 import org.apache.hadoop.conf.Configuration;
-
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;

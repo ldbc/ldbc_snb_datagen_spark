@@ -37,12 +37,10 @@ package ldbc.snb.datagen.hadoop.miscjob;
 
 import ldbc.snb.datagen.DatagenContext;
 import ldbc.snb.datagen.hadoop.HadoopConfiguration;
-import ldbc.snb.datagen.hadoop.LdbcDatagen;
 import ldbc.snb.datagen.hadoop.key.TupleKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyComparator;
 import ldbc.snb.datagen.hadoop.miscjob.keychanger.HadoopFileKeyChanger;
-import ldbc.snb.datagen.hadoop.serializer.HadoopPersonSortAndSerializer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;

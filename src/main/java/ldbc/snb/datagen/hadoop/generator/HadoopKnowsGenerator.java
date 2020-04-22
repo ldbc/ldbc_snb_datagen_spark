@@ -41,7 +41,6 @@ import ldbc.snb.datagen.generator.generators.knowsgenerators.KnowsGenerator;
 import ldbc.snb.datagen.hadoop.HadoopBlockMapper;
 import ldbc.snb.datagen.hadoop.HadoopBlockPartitioner;
 import ldbc.snb.datagen.hadoop.HadoopConfiguration;
-import ldbc.snb.datagen.hadoop.LdbcDatagen;
 import ldbc.snb.datagen.hadoop.key.TupleKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyComparator;

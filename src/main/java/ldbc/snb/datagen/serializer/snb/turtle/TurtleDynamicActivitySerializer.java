@@ -46,16 +46,11 @@ import ldbc.snb.datagen.entities.dynamic.relations.Like;
 import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
-import ldbc.snb.datagen.vocabulary.DBP;
-import ldbc.snb.datagen.vocabulary.RDF;
-import ldbc.snb.datagen.vocabulary.SN;
-import ldbc.snb.datagen.vocabulary.SNTAG;
-import ldbc.snb.datagen.vocabulary.SNVOC;
-import ldbc.snb.datagen.vocabulary.XSD;
+import ldbc.snb.datagen.vocabulary.*;
 
 import java.util.List;
 
-import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
+import static ldbc.snb.datagen.serializer.snb.csv.FileName.SOCIAL_NETWORK_ACTIVITY;
 
 public class TurtleDynamicActivitySerializer extends DynamicActivitySerializer<HdfsWriter> implements TurtleSerializer {
 

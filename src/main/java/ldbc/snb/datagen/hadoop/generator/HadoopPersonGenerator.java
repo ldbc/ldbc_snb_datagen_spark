@@ -40,7 +40,6 @@ import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.generator.generators.PersonGenerator;
 import ldbc.snb.datagen.hadoop.HadoopConfiguration;
-import ldbc.snb.datagen.hadoop.LdbcDatagen;
 import ldbc.snb.datagen.hadoop.key.TupleKey;
 import ldbc.snb.datagen.hadoop.miscjob.keychanger.HadoopFileKeyChanger;
 import ldbc.snb.datagen.util.LdbcConfiguration;

@@ -36,8 +36,8 @@
 package ldbc.snb.datagen.dictionary;
 
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.util.LdbcConfiguration;
 import ldbc.snb.datagen.util.DateUtils;
+import ldbc.snb.datagen.util.LdbcConfiguration;
 
 import java.util.GregorianCalendar;
 
