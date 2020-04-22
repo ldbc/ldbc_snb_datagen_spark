@@ -206,7 +206,7 @@ public class PersonActivityGenerator {
 
         return new GenWall<>(Streams.stream(Iterators.forIterator(0, i -> i < numberOfPhotoAlbumsForMonths, i -> ++i, i -> {
             Forum album = forumGenerator.createAlbum(randomFarm, startForumId++, person, i);
-            if (album != null) {
+            if (album == null) {
                 return Iterators.ForIterator.CONTINUE();
             }
 
