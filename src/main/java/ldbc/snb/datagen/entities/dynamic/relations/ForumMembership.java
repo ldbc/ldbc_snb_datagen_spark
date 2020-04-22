@@ -36,13 +36,14 @@
 package ldbc.snb.datagen.entities.dynamic.relations;
 
 import ldbc.snb.datagen.DatagenParams;
+import ldbc.snb.datagen.entities.dynamic.DynamicActivity;
 import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.entities.dynamic.person.PersonSummary;
 
 /**
  * This class represents a hasMember edge between a Person and a Forum
  */
-public class ForumMembership {
+public class ForumMembership implements DynamicActivity {
 
     private boolean isExplicitlyDeleted;
     private long forumId;

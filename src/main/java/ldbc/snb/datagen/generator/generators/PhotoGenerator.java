@@ -35,22 +35,21 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.generators;
 
+import com.google.common.collect.Streams;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.entities.dynamic.messages.Photo;
 import ldbc.snb.datagen.entities.dynamic.person.IP;
 import ldbc.snb.datagen.entities.dynamic.relations.Like;
-import ldbc.snb.datagen.serializer.PersonActivityExporter;
+import ldbc.snb.datagen.util.Iterators;
 import ldbc.snb.datagen.util.PersonBehavior;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
+import org.javatuples.Pair;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.TreeSet;
+import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * This class generates photos which are used in posts.
@@ -65,27 +64,26 @@ class PhotoGenerator {
         this.photo = new Photo();
     }
 
-    long createPhotos(RandomGeneratorFarm randomFarm, final Forum album, long numPhotosInAlbum, long startId, PersonActivityExporter exporter) throws IOException {
-        long nextId = startId;
+    Stream<Pair<Photo, Stream<Like>>> createPhotos(RandomGeneratorFarm randomFarm, final Forum album, long numPhotosInAlbum, Iterator<Long> idIterator) {
         int numPopularPlaces = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_POPULAR)
-                                         .nextInt(DatagenParams.maxNumPopularPlaces + 1);
+                .nextInt(DatagenParams.maxNumPopularPlaces + 1);
         List<Short> popularPlaces = new ArrayList<>();
         for (int i = 0; i < numPopularPlaces; i++) {
             short aux = Dictionaries.popularPlaces.getPopularPlace(randomFarm
-                                                                           .get(RandomGeneratorFarm.Aspect.POPULAR), album
-                                                                           .getPlace());
+                    .get(RandomGeneratorFarm.Aspect.POPULAR), album
+                    .getPlace());
             if (aux != -1) {
                 popularPlaces.add(aux);
             }
         }
-        for (int i = 0; i < numPhotosInAlbum; ++i) {
 
+        return Streams.stream(Iterators.forIterator(0, i -> i < numPhotosInAlbum, i -> ++i, i -> {
             TreeSet<Integer> tags = new TreeSet<>();
 
             // creates photo
             long creationDate = album.getCreationDate() + DatagenParams.deltaTime + 1000 * (i + 1);
             if (creationDate >= album.getDeletionDate()) {
-                break;
+                return Iterators.ForIterator.BREAK();
             }
 
             Random randomDate = randomFarm.get(RandomGeneratorFarm.Aspect.DATE);
@@ -115,28 +113,29 @@ class PhotoGenerator {
                 ip = Dictionaries.ips.getIP(random, country);
             }
 
-            long id = SN.formId(SN.composeId(nextId++, creationDate));
+            long id = SN.formId(SN.composeId(idIterator.next(), creationDate));
             photo.initialize(id,
-                              creationDate,
-                              deletionDate,
-                              album.getModerator(),
-                              album.getId(),
-                              "photo" + id + ".jpg",
-                              tags,
-                              country,
-                              ip,
-                              album.getModerator().getBrowserId(),
+                    creationDate,
+                    deletionDate,
+                    album.getModerator(),
+                    album.getId(),
+                    "photo" + id + ".jpg",
+                    tags,
+                    country,
+                    ip,
+                    album.getModerator().getBrowserId(),
                     isExplicitlyDeleted
             );
-            exporter.export(photo);
-            if (randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1) {
-                likeGenerator.generateLikes(
-                        randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_LIKES),
-                        randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE),
-                        album, photo, Like.LikeType.PHOTO, exporter);
-            }
-        }
-        return nextId;
+
+            Stream<Like> likeStream = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1
+                    ? likeGenerator.generateLikes(
+                            randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_LIKES),
+                            randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE),
+                            album, photo, Like.LikeType.PHOTO)
+                    : Stream.empty();
+
+            return Iterators.ForIterator.RETURN(new Pair<>(photo, likeStream)); // (photo, likeStream)
+        }));
     }
 
 }

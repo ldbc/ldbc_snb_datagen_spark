@@ -300,13 +300,13 @@ public class InsertEventSerializer {
     public void export(Like like) throws IOException {
         currentDependantDate = like.getPersonCreationDate();
         if (like.getType() == Like.LikeType.COMMENT) {
-            beginEvent(like.getLikeCreationDate(), InsertEvent.InsertEventType.ADD_LIKE_COMMENT);
+            beginEvent(like.getCreationDate(), InsertEvent.InsertEventType.ADD_LIKE_COMMENT);
         } else {
-            beginEvent(like.getLikeCreationDate(), InsertEvent.InsertEventType.ADD_LIKE_POST);
+            beginEvent(like.getCreationDate(), InsertEvent.InsertEventType.ADD_LIKE_POST);
         }
         data.add(Long.toString(like.getPerson()));
         data.add(Long.toString(like.getMessageId()));
-        data.add(Long.toString(like.getLikeCreationDate()));
+        data.add(Long.toString(like.getCreationDate()));
         endEvent();
     }
 

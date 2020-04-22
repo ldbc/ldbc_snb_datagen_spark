@@ -37,9 +37,9 @@ package ldbc.snb.datagen.hadoop.generator;
 
 import ldbc.snb.datagen.DatagenMode;
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
+import ldbc.snb.datagen.generator.generators.GenActivity;
 import ldbc.snb.datagen.generator.generators.PersonActivityGenerator;
 import ldbc.snb.datagen.hadoop.HadoopBlockMapper;
 import ldbc.snb.datagen.hadoop.HadoopBlockPartitioner;
@@ -53,6 +53,7 @@ import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
 import ldbc.snb.datagen.serializer.DeleteEventSerializer;
 import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
 import ldbc.snb.datagen.serializer.InsertEventSerializer;
+import ldbc.snb.datagen.serializer.PersonActivityExporter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -68,7 +69,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class HadoopPersonActivityGenerator {
 
@@ -79,10 +82,8 @@ public class HadoopPersonActivityGenerator {
         /**
          * The id of the reducer.
          **/
-        private DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer;
         private PersonActivityGenerator personActivityGenerator;
-        private InsertEventSerializer insertEventSerializer;
-        private DeleteEventSerializer deleteEventSerializer;
+        private PersonActivityExporter personActivityExporter;
         private OutputStream personFactors;
         private OutputStream activityFactors;
         private OutputStream friends;
@@ -94,13 +95,17 @@ public class HadoopPersonActivityGenerator {
             LdbcDatagen.initializeContext(conf);
             try {
 
-                dynamicActivitySerializer = DatagenParams.getDynamicActivitySerializer();
+                DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer = DatagenParams.getDynamicActivitySerializer();
                 dynamicActivitySerializer.initialize(conf, reducerId);
+                InsertEventSerializer insertEventSerializer = null;
+                DeleteEventSerializer deleteEventSerializer = null;
                 if (DatagenParams.getDatagenMode() != DatagenMode.RAW_DATA) {
                     insertEventSerializer = new InsertEventSerializer(conf, DatagenParams.hadoopDir + "/temp_insertStream_forum_" + reducerId, reducerId, DatagenParams.numUpdatePartitions);
                     deleteEventSerializer = new DeleteEventSerializer(conf, DatagenParams.hadoopDir + "/temp_deleteStream_forum_" + reducerId, reducerId, DatagenParams.numUpdatePartitions);
                 }
-                personActivityGenerator = new PersonActivityGenerator(dynamicActivitySerializer, insertEventSerializer, deleteEventSerializer);
+                personActivityGenerator = new PersonActivityGenerator();
+                personActivityExporter =
+                        new PersonActivityExporter(dynamicActivitySerializer, insertEventSerializer, deleteEventSerializer);
 
                 FileSystem fs = FileSystem.get(context.getConfiguration());
                 personFactors = fs
@@ -143,30 +148,35 @@ public class HadoopPersonActivityGenerator {
                 friends.write(strbuf.toString().getBytes(StandardCharsets.UTF_8));
             }
             System.out.println("Starting generation of block: " + key.block);
-            personActivityGenerator.generateActivityForBlock((int) key.block, persons, context);
+            final int[] counter = { 0 };
+            final float[] personGenerationTime = { 0.0f };
+            Stream<GenActivity> genActivities = personActivityGenerator.generateActivityForBlock((int) key.block, persons);
+
+            genActivities.forEach(genActivity -> {
+                long start = System.currentTimeMillis();
+                personActivityExporter.export(genActivity);
+                if (counter[0] % 1000 == 0) {
+                    context.setStatus("Generating activity of person " + counter[0] + " of block" + key.block);
+                    context.progress();
+                }
+                float time = (System.currentTimeMillis() - start) / 1000.0f;
+                personGenerationTime[0] += time;
+                counter[0]++;
+            });
+
+            System.out.println("Average person activity generation time " + personGenerationTime[0] / (float) persons.size());
+
             System.out.println("Writing person factors for block: " + key.block);
             personActivityGenerator.writePersonFactors(personFactors);
         }
 
-        protected void cleanup(Context context) {
-            try {
-                System.out.println("Cleaning up");
-                personActivityGenerator.writeActivityFactors(activityFactors);
-                activityFactors.close();
-                personFactors.close();
-                friends.close();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            dynamicActivitySerializer.close();
-            if (DatagenParams.getDatagenMode() != DatagenMode.RAW_DATA) {
-                try {
-                    insertEventSerializer.close();
-                    deleteEventSerializer.close();
-                } catch (IOException e) {
-                    throw new RuntimeException(e.getMessage());
-                }
-            }
+        protected void cleanup(Context context) throws IOException {
+            System.out.println("Cleaning up");
+            personActivityGenerator.writeActivityFactors(activityFactors);
+            activityFactors.close();
+            personFactors.close();
+            friends.close();
+            personActivityExporter.close();
         }
     }
 

@@ -36,7 +36,9 @@
 
 package ldbc.snb.datagen.entities.dynamic.relations;
 
-public class Like {
+import ldbc.snb.datagen.entities.dynamic.DynamicActivity;
+
+public class Like implements DynamicActivity {
     public enum LikeType {
         POST,
         COMMENT,
@@ -47,8 +49,8 @@ public class Like {
     private long person;
     private long personCreationDate;
     private long messageId;
-    private long likeCreationDate;
-    private long likeDeletionDate;
+    private long creationDate;
+    private long deletionDate;
     private LikeType type;
 
     public boolean isExplicitlyDeleted() {
@@ -71,12 +73,12 @@ public class Like {
         return messageId;
     }
 
-    public long getLikeCreationDate() {
-        return likeCreationDate;
+    public long getCreationDate() {
+        return creationDate;
     }
 
-    public long getLikeDeletionDate() {
-        return likeDeletionDate;
+    public long getDeletionDate() {
+        return deletionDate;
     }
 
     public LikeType getType() {
@@ -95,12 +97,12 @@ public class Like {
         this.messageId = messageId;
     }
 
-    public void setLikeCreationDate(long likeCreationDate) {
-        this.likeCreationDate = likeCreationDate;
+    public void setCreationDate(long creationDate) {
+        this.creationDate = creationDate;
     }
 
-    public void setLikeDeletionDate(long likeDeletionDate) {
-        this.likeDeletionDate = likeDeletionDate;
+    public void setDeletionDate(long deletionDate) {
+        this.deletionDate = deletionDate;
     }
 
     public void setType(LikeType type) {

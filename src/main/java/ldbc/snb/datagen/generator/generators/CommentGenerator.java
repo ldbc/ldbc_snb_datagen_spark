@@ -35,6 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.generators;
 
+import com.google.common.collect.Streams;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.Forum;
@@ -45,19 +46,14 @@ import ldbc.snb.datagen.entities.dynamic.person.IP;
 import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.entities.dynamic.relations.Like;
 import ldbc.snb.datagen.generator.generators.textgenerators.TextGenerator;
-import ldbc.snb.datagen.serializer.PersonActivityExporter;
+import ldbc.snb.datagen.util.Iterators;
 import ldbc.snb.datagen.util.PersonBehavior;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.vocabulary.SN;
+import org.javatuples.Pair;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
-import java.util.Random;
-import java.util.TreeSet;
+import java.util.*;
+import java.util.stream.Stream;
 
 public class CommentGenerator {
     private String[] shortComments = {"ok", "good", "great", "cool", "thx", "fine", "LOL", "roflol", "no way!", "I see", "right", "yes", "no", "duh", "thanks", "maybe"};
@@ -69,9 +65,8 @@ public class CommentGenerator {
         this.likeGenerator = likeGenerator;
     }
 
-    public long createComments(RandomGeneratorFarm randomFarm, final Forum forum, final Post post, long numComments, long startId, PersonActivityExporter exporter) throws IOException {
+    public Stream<Pair<Comment, Stream<Like>>> createComments(RandomGeneratorFarm randomFarm, final Forum forum, final Post post, long numComments, Iterator<Long> idIterator) {
 
-        long nextId = startId;
         List<Message> parentCandidates = new ArrayList<>();
         parentCandidates.add(post);
 
@@ -79,8 +74,7 @@ public class CommentGenerator {
         prop.setProperty("type", "comment");
 
         // each iteration adds a new leaf node, for the first iteration this is a child of root Post
-        for (int i = 0; i < numComments; ++i) {
-
+        return Streams.stream(Iterators.forIterator(0, i -> i < numComments, i -> ++i, i -> {
             int parentIndex = randomFarm.get(RandomGeneratorFarm.Aspect.REPLY_TO).nextInt(parentCandidates.size()); // pick from parent candidates
             Message parentMessage = parentCandidates.get(parentIndex);
             List<ForumMembership> validMemberships = new ArrayList<>(); // memberships that overlap with the existence of the parent message
@@ -95,7 +89,7 @@ public class CommentGenerator {
             }
 
             if (validMemberships.size() == 0) { // skip if no valid membership
-                return nextId;
+                return Iterators.ForIterator.BREAK();
             }
 
             // get random membership from valid memberships - picking who created the comment
@@ -132,12 +126,12 @@ public class CommentGenerator {
             long minCreationDate = Math.max(parentMessage.getCreationDate(), membership.getCreationDate()) + DatagenParams.deltaTime;
             long maxCreationDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
             if (maxCreationDate - minCreationDate < 0) {
-                continue;
+                return Iterators.ForIterator.CONTINUE();
             }
             // powerlaw distribtion
             long creationDate = Dictionaries.dates.powerLawCommDateDay(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), minCreationDate);
             if (creationDate > maxCreationDate) {
-                continue;
+                return Iterators.ForIterator.CONTINUE();
             }
 
             long deletionDate;
@@ -147,14 +141,13 @@ public class CommentGenerator {
                 long minDeletionDate = creationDate + DatagenParams.deltaTime;
                 long maxDeletionDate = Collections.min(Arrays.asList(parentMessage.getDeletionDate(), membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd()));
                 if (maxDeletionDate - minDeletionDate < 0) {
-                    continue;
+                    return Iterators.ForIterator.CONTINUE();
                 }
                 deletionDate = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), minDeletionDate, maxDeletionDate);
             } else {
                 isExplicitlyDeleted = false;
                 deletionDate = Collections.min(Arrays.asList(parentMessage.getDeletionDate(), membership.getDeletionDate()));
             }
-
 
             int country = membership.getPerson().getCountryId();
             IP ip = membership.getPerson().getIpAddress();
@@ -166,7 +159,7 @@ public class CommentGenerator {
                 ip = Dictionaries.ips.getIP(random, country);
             }
 
-            Comment comment = new Comment(SN.formId(SN.composeId(nextId++, creationDate)),
+            Comment comment = new Comment(SN.formId(SN.composeId(idIterator.next(), creationDate)),
                     creationDate,
                     deletionDate,
                     membership.getPerson(),
@@ -183,16 +176,16 @@ public class CommentGenerator {
                     parentMessage.getMessageId(),
                     isExplicitlyDeleted);
             if (!isShort) parentCandidates.add(new Comment(comment));
-            exporter.export(comment);
 
-            // generate likes
-            if (comment.getContent().length() > 10 && randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE)
-                    .nextDouble() <= 0.1) {
-                likeGenerator.generateLikes(randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_LIKES), randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), forum, comment, Like.LikeType.COMMENT, exporter);
-            }
-        }
-        parentCandidates.clear();
-        return nextId;
+            Stream<Like> likeStream = comment.getContent().length() > 10
+                    && randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1
+                    ? likeGenerator.generateLikes(
+                            randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_LIKES),
+                    randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), forum, comment, Like.LikeType.COMMENT)
+                    : Stream.empty();
+
+            return Iterators.ForIterator.RETURN(new Pair<>(comment, likeStream));
+        }));
     }
 
 }
