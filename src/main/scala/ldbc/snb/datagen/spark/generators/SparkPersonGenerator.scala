@@ -14,22 +14,23 @@ object SparkPersonGenerator {
   def apply(conf: LdbcConfiguration, numPartitions: Option[Int] = None)(implicit spark: SparkSession): RDD[Person] = {
     val numBlocks = Math.ceil(DatagenParams.numPersons / DatagenParams.blockSize.toDouble).toInt
 
-    val personPartitionGenerator = (blocks: Iterator[Int]) => {
+    val personPartitionGenerator = (blocks: Iterator[Long]) => {
       DatagenContext.initialize(conf)
 
       val personGenerator = new PersonGenerator(conf, conf.get("generator.distribution.degreeDistribution"))
 
       for {
         i <- blocks
+        _ = println(s"Processing person block $i (${DatagenParams.blockSize})")
         size = Math.min(DatagenParams.numPersons - DatagenParams.blockSize * i, DatagenParams.blockSize).toInt
-        person <- personGenerator.generatePersonBlock(i, DatagenParams.blockSize).asScala.take(size)
+        person <- personGenerator.generatePersonBlock(i.toInt, DatagenParams.blockSize).asScala.take(size)
       } yield person
     }
 
-    val partitions = numPartitions.fold(spark.sparkContext.defaultParallelism)(identity)
+    val partitions = numPartitions.getOrElse(spark.sparkContext.defaultParallelism)
 
     spark.sparkContext
-      .parallelize(0 until numBlocks, partitions)
-      .mapPartitions(personPartitionGenerator, preservesPartitioning = true)
+      .range(0, numBlocks, step = 1, numSlices = partitions)
+      .mapPartitions(personPartitionGenerator)
   }
 }

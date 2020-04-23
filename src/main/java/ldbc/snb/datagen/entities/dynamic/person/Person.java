@@ -106,6 +106,35 @@ public final class Person implements Writable, Serializable {
         return Objects.hash(isExplicitlyDeleted, accountId, creationDate, deletionDate, maxNumKnows, knows, browserId, ipAddress, countryId, cityId, interests, mainInterest, universityLocationId, gender, birthday, isLargePoster, randomId, emails, languages, firstName, lastName, companies, classYear);
     }
 
+    @Override
+    public String toString() {
+        return "Person{" +
+                "isExplicitlyDeleted=" + isExplicitlyDeleted +
+                ", accountId=" + accountId +
+                ", creationDate=" + creationDate +
+                ", deletionDate=" + deletionDate +
+                ", maxNumKnows=" + maxNumKnows +
+                ", knows=" + knows +
+                ", browserId=" + browserId +
+                ", ipAddress=" + ipAddress +
+                ", countryId=" + countryId +
+                ", cityId=" + cityId +
+                ", interests=" + interests +
+                ", mainInterest=" + mainInterest +
+                ", universityLocationId=" + universityLocationId +
+                ", gender=" + gender +
+                ", birthday=" + birthday +
+                ", isLargePoster=" + isLargePoster +
+                ", randomId=" + randomId +
+                ", emails=" + emails +
+                ", languages=" + languages +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", companies=" + companies +
+                ", classYear=" + classYear +
+                '}';
+    }
+
     public interface PersonSimilarity {
         float similarity(Person personA, Person personB);
     }

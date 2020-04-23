@@ -1,7 +1,8 @@
 package ldbc.snb.datagen.spark
 
+import java.io.{PrintStream, PrintWriter}
 import java.util
-import java.util.{Map, Properties}
+import java.util.Properties
 
 import ldbc.snb.datagen._
 import ldbc.snb.datagen.entities.dynamic.person.Person
@@ -64,7 +65,13 @@ class LdbcDatagenTest extends FunSuite with BeforeAndAfterAll with Matchers {
     val expected = spark.sparkContext.hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](hadoopPrefix + "/persons")
     val actual = SparkPersonGenerator(conf, numPartitions = Some(Integer.parseInt(hadoopConf.get("hadoop.numThreads"))))(spark)
 
-    expected.map { case (_, v) => v.getAccountId }.collect() should contain theSameElementsAs actual.map(_.getAccountId()).collect()
+    //new PrintWriter("expected.txt") { write(expected.collectAsMap().values.mkString("\n")); close() }
+
+    val expecteds = expected.map { case (_, p) => p.hashCode() }.collect().toSet
+    val actuals = actual.map(_.hashCode()).collect().toSet
+
+    actuals should have size 1700
+    actuals shouldBe expecteds
   }
 
   def timed[A](name: String, thunk: => A): A = {

@@ -43,7 +43,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Objects;
 
-public final class IP implements Writable, Serializable {
+public final class IP implements Writable, Serializable, Cloneable {
 
     public static final int BYTE_MASK = 0xFF;
     public static final int IP4_SIZE_BITS = 32;
@@ -94,14 +94,6 @@ public final class IP implements Writable, Serializable {
         return network;
     }
 
-
-    public String toString() {
-        return ((ip >>> BYTE1_SHIFT_POSITION) & BYTE_MASK) + "." +
-                ((ip >>> BYTE2_SHIFT_POSITION) & BYTE_MASK) + "." +
-                ((ip >>> BYTE3_SHIFT_POSITION) & BYTE_MASK) + "." +
-                (ip & BYTE_MASK);
-    }
-
     public void copy(IP ip) {
         this.ip = ip.ip;
         this.mask = ip.mask;
@@ -133,5 +125,21 @@ public final class IP implements Writable, Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(ip, mask, network);
+    }
+
+    @Override
+    public String toString() {
+        return "IP{" +
+                "ip=" + ipToString(ip) +
+                ", mask=" + ipToString(mask) +
+                ", network=" + ipToString(network) +
+                '}';
+    }
+
+    private static String ipToString(int ip) {
+        return ((ip >>> BYTE1_SHIFT_POSITION) & BYTE_MASK) + "." +
+                ((ip >>> BYTE2_SHIFT_POSITION) & BYTE_MASK) + "." +
+                ((ip >>> BYTE3_SHIFT_POSITION) & BYTE_MASK) + "." +
+                (ip & BYTE_MASK);
     }
 }
