@@ -54,7 +54,7 @@ public class ConfigParser {
     public static Map<String, String> readConfig(Properties properties) {
         Map<String, String> conf = new HashMap<>();
         ScaleFactors scaleFactors = ScaleFactors.INSTANCE;
-        String val = (String) properties.get("ldbc.snb.datagen.generator.scaleFactor");
+        String val = (String) properties.get("generator.scaleFactor");
         if (val != null) {
             if (!scaleFactors.value.containsKey(val)) {
                 throw new IllegalArgumentException("Scale factor " + val + " does not exist");
@@ -67,7 +67,7 @@ public class ConfigParser {
         }
 
         for (String s : properties.stringPropertyNames()) {
-            if (s.compareTo("ldbc.snb.datagen.generator.scaleFactor") != 0) {
+            if (s.compareTo("generator.scaleFactor") != 0) {
                 conf.put(s, properties.getProperty(s));
             }
         }
