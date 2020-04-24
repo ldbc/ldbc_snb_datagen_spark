@@ -1,6 +1,26 @@
 <?xml version="1.0"?>
 <scale_factors>
-    <scale_factor name="snb.interactive.0.1" >
+
+    <scale_factor name="0.003" >
+        <property>
+            <name>generator.numPersons</name>
+            <value>50</value>
+        </property>
+        <property>
+            <name>generator.startYear</name>
+            <value>2010</value>
+        </property>
+        <property>
+            <name>generator.numYears</name>
+            <value>3</value>
+        </property>
+        <property>
+            <name>generator.degreeDistribution</name>
+            <value>Facebook</value>
+        </property>
+    </scale_factor>
+
+    <scale_factor name="0.1" >
         <property>
             <name>generator.numPersons</name>
             <value>1700</value>
@@ -19,7 +39,7 @@
         </property>
     </scale_factor>
 
-    <scale_factor name="snb.interactive.0.3" >
+    <scale_factor name="0.3" >
         <property>
             <name>generator.numPersons</name>
             <value>3900</value>
@@ -38,7 +58,7 @@
         </property>
     </scale_factor>
 
-    <scale_factor name="snb.interactive.1" >
+    <scale_factor name="1" >
         <property>
             <name>generator.numPersons</name>
             <value>11000</value>
@@ -57,7 +77,7 @@
         </property>
     </scale_factor>
 
-    <scale_factor name="snb.interactive.3" >
+    <scale_factor name="3" >
         <property>
             <name>generator.numPersons</name>
             <value>27000</value>
@@ -76,7 +96,7 @@
         </property>
     </scale_factor>
 
-    <scale_factor name="snb.interactive.10" >
+    <scale_factor name="10" >
         <property>
             <name>generator.numPersons</name>
             <value>73000</value>
@@ -95,7 +115,7 @@
         </property>
     </scale_factor>
 
-    <scale_factor name="snb.interactive.30" >
+    <scale_factor name="30" >
         <property>
             <name>generator.numPersons</name>
             <value>184000</value>
@@ -114,7 +134,7 @@
         </property>
     </scale_factor>
 
-    <scale_factor name="snb.interactive.100" >
+    <scale_factor name="100" >
         <property>
             <name>generator.numPersons</name>
             <value>499000</value>
@@ -133,7 +153,7 @@
         </property>
     </scale_factor>
 
-    <scale_factor name="snb.interactive.300" >
+    <scale_factor name="300" >
         <property>
             <name>generator.numPersons</name>
             <value>1254000</value>
@@ -152,7 +172,7 @@
         </property>
     </scale_factor>
 
-    <scale_factor name="snb.interactive.1000" >
+    <scale_factor name="1000" >
         <property>
             <name>generator.numPersons</name>
             <value>3600000</value>
