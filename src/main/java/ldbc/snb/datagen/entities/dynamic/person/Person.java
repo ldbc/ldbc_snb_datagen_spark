@@ -37,6 +37,7 @@ package ldbc.snb.datagen.entities.dynamic.person;
 
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableComparable;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -44,7 +45,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
-public final class Person implements Writable, Serializable {
+public final class Person implements Writable, Serializable, Cloneable, WritableComparable {
 
     private boolean isExplicitlyDeleted;
     private long accountId;
@@ -133,6 +134,13 @@ public final class Person implements Writable, Serializable {
                 ", companies=" + companies +
                 ", classYear=" + classYear +
                 '}';
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        Person other = (Person) o;
+        return Long.compare(this.getAccountId(), other.getAccountId());
+
     }
 
     public interface PersonSimilarity {

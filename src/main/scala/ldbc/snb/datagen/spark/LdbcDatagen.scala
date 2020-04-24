@@ -2,7 +2,7 @@ package ldbc.snb.datagen.spark
 
 import ldbc.snb.datagen.DatagenContext
 import ldbc.snb.datagen.entities.dynamic.person.Person
-import ldbc.snb.datagen.spark.generators.SparkPersonGenerator
+import ldbc.snb.datagen.spark.generators.{SparkKnowsGenerator, SparkPersonGenerator}
 import ldbc.snb.datagen.util.{ConfigParser, LdbcConfiguration}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
@@ -45,7 +45,10 @@ object LdbcDatagen {
     SparkPersonGenerator(conf)
   }
 
-  def genUniKnows(conf: LdbcConfiguration)(implicit spark: SparkSession): RDD[Person] = {
-    ??? // SparkKnowsGenerator(spark, conf)
-  }
+//  def genUniKnows(conf: LdbcConfiguration)(implicit spark: SparkSession): RDD[Person] = {
+//    PersonSparkKnowsGenerator(spark, conf)
+//  }
 }
+
+
+
