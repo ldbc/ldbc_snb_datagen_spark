@@ -42,13 +42,7 @@ import ldbc.snb.datagen.util.ZOrder;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This class reads the files containing the country data and city data used in the LDBC soical network generation and

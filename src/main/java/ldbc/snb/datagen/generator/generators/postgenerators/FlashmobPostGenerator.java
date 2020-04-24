@@ -45,13 +45,10 @@ import ldbc.snb.datagen.generator.generators.LikeGenerator;
 import ldbc.snb.datagen.generator.generators.textgenerators.TextGenerator;
 import ldbc.snb.datagen.util.Distribution;
 
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
-import java.util.TreeSet;
+import java.util.*;
 
-import static ldbc.snb.datagen.DatagenParams.*;
+import static ldbc.snb.datagen.DatagenParams.maxNumTagPerFlashmobPost;
+import static ldbc.snb.datagen.DatagenParams.probPostDeleted;
 
 public class FlashmobPostGenerator extends PostGenerator {
 

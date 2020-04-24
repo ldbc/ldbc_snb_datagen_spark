@@ -39,13 +39,7 @@ import ldbc.snb.datagen.entities.statictype.tag.FlashMobTag;
 import ldbc.snb.datagen.generator.tools.PowerDistribution;
 import ldbc.snb.datagen.util.DateUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.TreeSet;
+import java.util.*;
 
 public class FlashmobTagDictionary {
 

@@ -1,10 +1,9 @@
 package ldbc.snb.datagen.util;
 
-import ldbc.snb.datagen.hadoop.HadoopConfiguration;
-import ldbc.snb.datagen.hadoop.LdbcDatagen;
+import ldbc.snb.datagen.DatagenContext;
 import ldbc.snb.datagen.generator.distribution.DegreeDistribution;
+import ldbc.snb.datagen.hadoop.HadoopConfiguration;
 import org.apache.hadoop.conf.Configuration;
-
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -19,16 +18,17 @@ public class TestingFacebookDist {
         // init config.
         Map<String, String> confMap = ConfigParser.defaultConfiguration();
 
-        confMap.putAll(ConfigParser.readConfig(LdbcDatagen.class.getResourceAsStream("/params_default.ini")));
+        confMap.putAll(ConfigParser.readConfig(TestingFacebookDist.class.getResourceAsStream("/params_default.ini")));
 
         Configuration hadoopConf = HadoopConfiguration.prepare(confMap);
+        LdbcConfiguration conf = HadoopConfiguration.extractLdbcConfig(hadoopConf);
 
-        LdbcDatagen.initializeContext(hadoopConf);
+        DatagenContext.initialize(conf);
 
         String string = hadoopConf.get("ldbc.snb.datagen.generator.distribution.degreeDistribution");
         DegreeDistribution degreeDistribution = (DegreeDistribution) Class.forName(string).newInstance();
 
-        degreeDistribution.initialize(HadoopConfiguration.extractLdbcConfig(hadoopConf));
+        degreeDistribution.initialize(conf);
 
 
         double[] scaleFactors = {0.1,0.3,1.0,3.0,10.0,30.0,100.0,300.0,1000.0};

@@ -1,5 +1,6 @@
 package ldbc.snb.datagen.test;
 
+import ldbc.snb.datagen.DatagenContext;
 import ldbc.snb.datagen.hadoop.HadoopConfiguration;
 import ldbc.snb.datagen.hadoop.LdbcDatagen;
 import ldbc.snb.datagen.test.csv.ColumnSet;
@@ -35,7 +36,7 @@ public class LdbcDatagenTest {
         confMap.putAll(ConfigParser.readConfig("./test_params.ini"));
         confMap.putAll(ConfigParser.readConfig(LdbcDatagen.class.getResourceAsStream("/params_default.ini")));
         Configuration hadoopConf = HadoopConfiguration.prepare(confMap);
-        LdbcDatagen.initializeContext(hadoopConf);
+        DatagenContext.initialize(HadoopConfiguration.extractLdbcConfig(hadoopConf));
         LdbcDatagen datagen = new LdbcDatagen();
         datagen.runGenerateJob(hadoopConf);
     }

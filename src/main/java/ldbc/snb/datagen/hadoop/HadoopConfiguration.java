@@ -16,8 +16,8 @@ import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvBasicStaticSerial
 import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvCompositeMergeForeignStaticSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvCompositeStaticSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvMergeForeignStaticSerializer;
-import ldbc.snb.datagen.util.LdbcConfiguration;
 import ldbc.snb.datagen.util.ConfigParser;
+import ldbc.snb.datagen.util.LdbcConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
