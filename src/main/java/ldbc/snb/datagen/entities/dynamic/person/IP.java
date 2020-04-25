@@ -129,11 +129,7 @@ public final class IP implements Writable, Serializable, Cloneable {
 
     @Override
     public String toString() {
-        return "IP{" +
-                "ip=" + ipToString(ip) +
-                ", mask=" + ipToString(mask) +
-                ", network=" + ipToString(network) +
-                '}';
+        return ipToString(ip);
     }
 
     private static String ipToString(int ip) {
