@@ -40,8 +40,10 @@ import org.apache.hadoop.io.Writable;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.Objects;
 
-public class IP implements Writable {
+public final class IP implements Writable, Serializable, Cloneable {
 
     public static final int BYTE_MASK = 0xFF;
     public static final int IP4_SIZE_BITS = 32;
@@ -92,20 +94,6 @@ public class IP implements Writable {
         return network;
     }
 
-
-    public String toString() {
-        return ((ip >>> BYTE1_SHIFT_POSITION) & BYTE_MASK) + "." +
-                ((ip >>> BYTE2_SHIFT_POSITION) & BYTE_MASK) + "." +
-                ((ip >>> BYTE3_SHIFT_POSITION) & BYTE_MASK) + "." +
-                (ip & BYTE_MASK);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        IP a = (IP) obj;
-        return this.ip == a.ip && this.mask == a.mask;
-    }
-
     public void copy(IP ip) {
         this.ip = ip.ip;
         this.mask = ip.mask;
@@ -124,7 +112,34 @@ public class IP implements Writable {
         arg0.writeInt(network);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        IP ip1 = (IP) o;
+        return ip == ip1.ip &&
+                mask == ip1.mask &&
+                network == ip1.network;
+    }
+
+    @Override
     public int hashCode() {
-        return super.hashCode();
+        return Objects.hash(ip, mask, network);
+    }
+
+    @Override
+    public String toString() {
+        return "IP{" +
+                "ip=" + ipToString(ip) +
+                ", mask=" + ipToString(mask) +
+                ", network=" + ipToString(network) +
+                '}';
+    }
+
+    private static String ipToString(int ip) {
+        return ((ip >>> BYTE1_SHIFT_POSITION) & BYTE_MASK) + "." +
+                ((ip >>> BYTE2_SHIFT_POSITION) & BYTE_MASK) + "." +
+                ((ip >>> BYTE3_SHIFT_POSITION) & BYTE_MASK) + "." +
+                (ip & BYTE_MASK);
     }
 }

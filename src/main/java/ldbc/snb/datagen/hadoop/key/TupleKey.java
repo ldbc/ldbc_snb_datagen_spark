@@ -40,8 +40,9 @@ import org.apache.hadoop.io.WritableComparable;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.io.Serializable;
 
-public class TupleKey implements WritableComparable<TupleKey> {
+public class TupleKey implements WritableComparable<TupleKey>, Serializable {
     public long key;
     public long id;
 

@@ -193,9 +193,9 @@ public class PersonGenerator {
         return Dictionaries.dates.getBirthMonth(p.getBirthday()) == GregorianCalendar.JANUARY;
     }
 
-    private void resetState(int blockId) {
-        degreeDistribution.reset(blockId);
-        randomFarm.resetRandomGenerators(blockId);
+    private void resetState(int seed) {
+        degreeDistribution.reset(seed);
+        randomFarm.resetRandomGenerators(seed);
     }
 
     /**
