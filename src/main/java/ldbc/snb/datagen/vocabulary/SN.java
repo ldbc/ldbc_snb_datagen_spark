@@ -43,11 +43,13 @@ import ldbc.snb.datagen.dictionary.Dictionaries;
  */
 public class SN {
 
-    public static long machineId;
-    private static long numBits;
+
     public static final String NAMESPACE = "http://www.ldbc.eu/ldbc_socialnet/1.0/data/";
     public static final String PREFIX = "sn:";
     public static final String BLANK_NODE = "_:";
+
+    public static long machineId;
+    private static long numBits;
     private static long minDate;
     private static long maxDate;
 

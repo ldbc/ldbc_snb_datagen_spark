@@ -2,10 +2,11 @@ package ldbc.snb.datagen.util;
 
 import org.apache.hadoop.util.StringUtils;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map;
 
-public class LdbcConfiguration implements Iterable<Map.Entry<String, String>> {
+public class LdbcConfiguration implements Iterable<Map.Entry<String, String>>, Serializable {
     public final Map<String, String> map;
 
     public LdbcConfiguration(Map<String, String> map) {
