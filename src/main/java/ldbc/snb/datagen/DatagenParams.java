@@ -420,18 +420,10 @@ public class DatagenParams {
 
     public static String getKnowsGenerator() {
         String output;
-        switch (knowsGeneratorName) {
-            case "Distance":
-                output = "ldbc.snb.datagen.generator.generators.knowsgenerators.DistanceKnowsGenerator";
-                break;
-            case "Clustering":
-                output = "ldbc.snb.datagen.generator.generators.knowsgenerators.ClusteringKnowsGenerator";
-                break;
-            case "Bter":
-                output = "ldbc.snb.datagen.generator.generators.knowsgenerators.BterKnowsGenerator";
-                break;
-            default:
-                throw new IllegalStateException("Unexpected degree distribution: " + knowsGeneratorName);
+        if ("Distance".equals(knowsGeneratorName)) {
+            output = "ldbc.snb.datagen.generator.generators.knowsgenerators.DistanceKnowsGenerator";
+        } else {
+            throw new IllegalStateException("Unexpected degree distribution: " + knowsGeneratorName);
         }
 
         return output;
