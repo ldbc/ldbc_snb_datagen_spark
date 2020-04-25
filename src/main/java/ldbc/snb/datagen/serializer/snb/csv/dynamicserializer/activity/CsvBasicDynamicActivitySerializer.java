@@ -143,7 +143,7 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
                     Long.toString(forum.getId()),
                     Long.toString(forum.getModerator().getAccountId()),
                     Long.toString(forum.getModerator().getDeletionDate())
-                    ));
+            ));
 
             for (Integer i : forum.getTags()) {
                 //"creationDate",  "Forum.id", "Tag.id", "deletionDate"
@@ -162,12 +162,14 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
                     forum.getForumType().toString()
             ));
 
-            //"creationDate",  "Forum.id", "Person.id"
-            writers.get(FORUM_HASMODERATOR_PERSON).writeEntry(ImmutableList.of(
-                    forumCreationDate,
-                    Long.toString(forum.getId()),
-                    Long.toString(forum.getModerator().getAccountId())
-            ));
+            if (forum.getModerator().getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold()) {
+                //"creationDate",  "Forum.id", "Person.id"
+                writers.get(FORUM_HASMODERATOR_PERSON).writeEntry(ImmutableList.of(
+                        forumCreationDate,
+                        Long.toString(forum.getId()),
+                        Long.toString(forum.getModerator().getAccountId())
+                ));
+            }
 
             for (Integer i : forum.getTags()) {
                 //"creationDate",  "Forum.id", "Tag.id",
