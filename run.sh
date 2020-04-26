@@ -45,10 +45,6 @@ fi
 mvn clean
 mvn -DskipTests assembly:assembly
 
-#if [ "$(uname)" == "Darwin" ]; then
-  #zip -d $LDBC_SNB_DATAGEN_HOME/target/ldbc_snb_datagen-0.4.0-SNAPSHOT-jar-with-dependencies.jar META-INF/LICENSE
-#fi
-
 $HADOOP_HOME/bin/hadoop jar $LDBC_SNB_DATAGEN_HOME/target/ldbc_snb_datagen-0.4.0-SNAPSHOT-jar-with-dependencies.jar $LDBC_SNB_DATAGEN_HOME/params.ini
 
 rm -f m*personFactors*
