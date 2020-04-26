@@ -118,10 +118,23 @@ public class HadoopKnowsGenerator {
             for (Person p : valueSet) {
                 persons.add(new Person(p));
             }
-            System.out.println("Generating block " + key.block +
+
+            System.out.println("1: Generating block " + key.block +
                     " percentages: " + percentages + " step index: " + step_index + " person hash:" + persons.hashCode());
             this.knowsGenerator.generateKnows(persons, (int) key.block, percentages, step_index);
-            System.out.println("Output hash: " + persons.hashCode());
+            System.out.println("1: Output hash: " + persons.hashCode());
+
+            List<Person> persons2 = new ArrayList<>();
+            for (Person p : valueSet) {
+                persons2.add(new Person(p));
+            }
+
+            System.out.println("2: Generating block " + key.block +
+                    " percentages: " + percentages + " step index: " + step_index + " person hash:" + persons2.hashCode());
+            this.knowsGenerator.generateKnows(persons2, (int) key.block, percentages, step_index);
+            System.out.println("2: Output hash: " + persons.hashCode());
+
+
             for (Person p : persons) {
                 context.write(keySetter.getKey(p), p);
                 numGeneratedEdges += p.getKnows().size();

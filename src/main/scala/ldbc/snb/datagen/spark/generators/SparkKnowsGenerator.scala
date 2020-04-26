@@ -60,21 +60,30 @@ object SparkKnowsGenerator {
         )
       .mapPartitions(groups => {
         DatagenContext.initialize(conf)
-        val knowsGenerator = Class
-          .forName(knowsGeneratorClassName)
-          .newInstance()
-          .asInstanceOf[KnowsGenerator]
-
-        knowsGenerator.initialize(conf)
+        val knowsGeneratorClass = Class.forName(knowsGeneratorClassName)
 
         val personGroups = for { (block, persons) <- groups } yield {
           val clonedPersons = new util.ArrayList[Person]
           for (p <- persons.values) {
             clonedPersons.add(new Person(p))
           }
+          val knowsGenerator = knowsGeneratorClass.newInstance().asInstanceOf[KnowsGenerator]
+          knowsGenerator.initialize(conf)
+
           val hashCode = clonedPersons.hashCode
+
           knowsGenerator.generateKnows(clonedPersons, block.toInt, percentagesJava, stepIndex)
-          println("Generating block " + block.toInt + " percentages: " + percentagesJava + " step index: " + stepIndex + " person hash:" + hashCode + " output hash: " + clonedPersons.hashCode)
+          println("1: Generating block " + block.toInt + " percentages: " + percentagesJava + " step index: " + stepIndex + " person hash:" + hashCode + " output hash: " + clonedPersons.hashCode)
+
+          val clonedPersons2 = new util.ArrayList[Person]
+          for (p <- persons.values) {
+            clonedPersons2.add(new Person(p))
+          }
+
+          val hashCode2 = clonedPersons2.hashCode
+
+          knowsGenerator.generateKnows(clonedPersons2, block.toInt, percentagesJava, stepIndex)
+          println("2: Generating block " + block.toInt + " percentages: " + percentagesJava + " step index: " + stepIndex + " person hash:" + hashCode2 + " output hash: " + clonedPersons2.hashCode)
           clonedPersons
         }
 
