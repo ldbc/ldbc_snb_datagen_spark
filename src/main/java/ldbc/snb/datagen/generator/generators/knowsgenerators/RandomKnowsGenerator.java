@@ -56,9 +56,9 @@ public class RandomKnowsGenerator implements KnowsGenerator {
         randomFarm = new RandomGeneratorFarm();
     }
 
-    public void generateKnows(List<Person> persons, int seed, List<Float> percentages, int step_index) {
+    public void generateKnows(List<Person> persons, int blockId, List<Float> percentages, int step_index) {
 
-        rand.setSeed(seed);
+        rand.setSeed(blockId);
         List<Integer> stubs = new ArrayList<>();
         int index = 0;
         for (Person p : persons) {
