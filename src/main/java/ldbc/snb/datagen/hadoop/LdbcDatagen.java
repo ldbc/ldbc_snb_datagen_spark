@@ -114,16 +114,14 @@ public class LdbcDatagen {
 
     private long personActivityJob(String hadoopPrefix, Configuration conf, FileSystem fs) throws Exception {
         long startPersonActivity = System.currentTimeMillis();
-        if (DatagenParams.getDatagenMode() != GRAPHALYTICS) {
-            printProgress("Generating and serializing person activity");
-            HadoopPersonActivityGenerator activityGenerator = new HadoopPersonActivityGenerator(conf);
-            activityGenerator.run(hadoopPrefix + "/mergedPersons");
-            for (int i = 0; i < HadoopConfiguration.getNumThreads(conf); ++i) {
-                if (i < (int) Math.ceil(DatagenParams.numPersons / (double) DatagenParams.blockSize)) { // i<number of blocks
-                    copyToLocal(fs, HadoopConfiguration.getHadoopDir(conf) + "/m" + i + "personFactors.txt");
-                    copyToLocal(fs, HadoopConfiguration.getHadoopDir(conf) + "/m" + i + "activityFactors.txt");
-                    copyToLocal(fs, HadoopConfiguration.getHadoopDir(conf) + "/m0friendList" + i + ".csv");
-                }
+        printProgress("Generating and serializing person activity");
+        HadoopPersonActivityGenerator activityGenerator = new HadoopPersonActivityGenerator(conf);
+        activityGenerator.run(hadoopPrefix + "/mergedPersons");
+        for (int i = 0; i < HadoopConfiguration.getNumThreads(conf); ++i) {
+            if (i < (int) Math.ceil(DatagenParams.numPersons / (double) DatagenParams.blockSize)) { // i<number of blocks
+                copyToLocal(fs, HadoopConfiguration.getHadoopDir(conf) + "/m" + i + "personFactors.txt");
+                copyToLocal(fs, HadoopConfiguration.getHadoopDir(conf) + "/m" + i + "activityFactors.txt");
+                copyToLocal(fs, HadoopConfiguration.getHadoopDir(conf) + "/m0friendList" + i + ".csv");
             }
         }
         return (System.currentTimeMillis() - startPersonActivity);
