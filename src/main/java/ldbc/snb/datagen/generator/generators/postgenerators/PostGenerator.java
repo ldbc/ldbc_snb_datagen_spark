@@ -79,7 +79,7 @@ abstract public class PostGenerator {
     }
 
     public Stream<Triplet<Post, Stream<Like>, Stream<Pair<Comment, Stream<Like>>>>> createPosts(RandomGeneratorFarm randomFarm, final Forum forum, final List<ForumMembership> memberships,
-                                                                                                long numPostsInForum, Iterator<Long> idIterator) {
+                                                                                                long numPostsInForum, Iterator<Long> idIterator, long blockId) {
 
         Properties properties = new Properties();
         properties.setProperty("type", "post");
@@ -120,7 +120,7 @@ abstract public class PostGenerator {
                 Post post = new Post();
 
                 // create post with above information and from post info
-                post.initialize(SN.formId(SN.composeId(idIterator.next(), postCore.getCreationDate())),
+                post.initialize(SN.formId(SN.composeId(idIterator.next(), postCore.getCreationDate(), blockId), blockId),
                         postCore.getCreationDate(),
                         postCore.getDeletionDate(),
                         member.getPerson(),
@@ -145,7 +145,7 @@ abstract public class PostGenerator {
 
                 int numComments = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_COMMENT).nextInt(DatagenParams.maxNumComments + 1);
 
-                Stream<Pair<Comment, Stream<Like>>> commentStream = commentGenerator.createComments(randomFarm, forum, post, numComments, idIterator);
+                Stream<Pair<Comment, Stream<Like>>> commentStream = commentGenerator.createComments(randomFarm, forum, post, numComments, idIterator, blockId);
 
                 return Iterators.ForIterator.RETURN(new Triplet<>(post, likeStream, commentStream));
             }));

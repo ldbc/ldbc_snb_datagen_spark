@@ -100,8 +100,6 @@ public class HadoopPersonSortAndSerializer {
 
         @Override
         public void reduce(BlockKey key, Iterable<Person> valueSet, Context context) throws IOException {
-            SN.machineId = key.block;
-
             for (Person p : valueSet) {
 
                 if (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) {

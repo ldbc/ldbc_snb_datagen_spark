@@ -201,14 +201,13 @@ public class PersonGenerator {
     /**
      * Generates a block of persons
      *
-     * @param seed      The seed to feed the pseudo-random number generators.
+     * @param blockId   Used as a seed to feed the pseudo-random number generators.
      * @param blockSize The size of the block of persons to generate.
      * @return person generator for at most blockSize persons.
      */
-    public Iterator<Person> generatePersonBlock(int seed, int blockSize) {
-        resetState(seed);
-        nextId = seed * blockSize;
-        SN.machineId = seed;
+    public Iterator<Person> generatePersonBlock(int blockId, int blockSize) {
+        resetState(blockId);
+        nextId = blockId * blockSize;
         return new Iterator<Person>() {
             private int i = 0;
 

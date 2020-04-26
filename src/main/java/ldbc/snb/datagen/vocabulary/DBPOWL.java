@@ -52,23 +52,10 @@ public class DBPOWL {
     public static final String Company = PREFIX + "Company";
 
     /**
-     * Gets the dbpedia ontology prefix version of the input.
-     */
-    public static String prefixed(String string) {
-        return PREFIX + string;
-    }
-
-    /**
      * Gets the dbpedia ontology URL version of the input.
      */
     public static String getUrl(String string) {
         return NAMESPACE + string;
     }
 
-    /**
-     * Gets the dbpedia ontology RDF-URL version of the input.
-     */
-    public static String fullprefixed(String string) {
-        return "<" + NAMESPACE + string + ">";
-    }
 }

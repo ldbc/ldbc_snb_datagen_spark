@@ -43,12 +43,6 @@ import ldbc.snb.datagen.dictionary.Dictionaries;
  */
 public class SN {
 
-
-    public static final String NAMESPACE = "http://www.ldbc.eu/ldbc_socialnet/1.0/data/";
-    public static final String PREFIX = "sn:";
-    public static final String BLANK_NODE = "_:";
-
-    public static long machineId;
     private static long numBits;
     private static long minDate;
     private static long maxDate;
@@ -64,83 +58,18 @@ public class SN {
         if (numBits > 20) System.out.print("WARNING: Possible id overlapp");
     }
 
-
-     //Gets the LDBC social network data prefix version of the input.
-    public static String prefixed(String string) {return PREFIX + string;}
-
-     //Gets the LDBC social network data URL version of the input.
-    public static String getUrl(String string) {return NAMESPACE + string; }
-
-     //Gets the LDBC social network data RDF-URL version of the input.
-    public static String fullprefixed(String string) {
-        return "<" + NAMESPACE + string + ">";
-    }
-
-     //Gets the person entity prefix.
-    public static String getPersonURI(long id) {
-        return PREFIX + "pers" + String.format("%020d", id);
-    }
-
-     //Gets the forum entity prefix.
-    public static String getForumURI(long id) {
-        return PREFIX + "forum" + String.format("%020d", id);
-    }
-
-    //Gets the post entity prefix.
-    public static String getPostURI(long id) {
-        return PREFIX + "post" + String.format("%020d", id);
-    }
-
-     //Gets the comment entity prefix.
-    public static String getCommentURI(long id) {
-        return PREFIX + "comm" + String.format("%020d", id);
-    }
-
-    //Gets the membership relation prefix.
-    public static String getMembershipURI(long id) {
-        return BLANK_NODE + "mbs" + String.format("%020d", id);
-    }
-
-    //Gets the like relation prefix.
-    public static String getLikeURI(long id) { return BLANK_NODE + "like" + String.format("%020d", id); }
-
-     //Gets the studyAt relation prefix.
-    public static String getStudyAtURI(long id) {
-        return BLANK_NODE + "study" + String.format("%020d", id);
-    }
-
-     //Gets the workAt relation prefix.
-    public static String getWorkAtURI(long id) {
-        return BLANK_NODE + "work" + String.format("%020d", id);
-    }
-
-    public static String getUnivURI(long id) {
-        return PREFIX + "uni" + String.format("%06d", id);
-    }
-
-    public static String getCompURI(long id) {
-        return PREFIX + "com" + String.format("%06d", id);
-    }
-
-    public static String getKnowsURI(long id) {
-        return BLANK_NODE + "knows" + String.format("%020d", id);
-    }
-
-    public static String getTagClassURI(long id) {
-        return BLANK_NODE + "tagclass" + String.format("%06d", id);
-    }
-
-    public static Long formId(long id) {
+    public static Long formId(long id, long blockId) {
         long lowMask = 0x0FFFFF;                                // This mask is used to get the lowest 20 bits.
         long lowerPart = (lowMask & id);
-        long machinePart = machineId << 20;
+        long machinePart = blockId << 20;
         long upperPart = (id >> 20) << (20 + numBits);
         return upperPart | machinePart | lowerPart;
     }
 
-    public static long composeId(long id, long creationDate) {
+    public static long composeId(long id, long creationDate, long blockId) {
         long bucket = (long) (256 * (creationDate - minDate) / (double) maxDate);
         long idMask = ~(0xFFFFFFFFFFFFFFFFL << 36);
         return (bucket << 36) | (id & idMask);
     }
+
 }
