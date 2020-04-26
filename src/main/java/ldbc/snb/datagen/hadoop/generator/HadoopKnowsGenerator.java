@@ -36,6 +36,7 @@
 package ldbc.snb.datagen.hadoop.generator;
 
 import ldbc.snb.datagen.DatagenContext;
+import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.generator.generators.knowsgenerators.KnowsGenerator;
 import ldbc.snb.datagen.hadoop.HadoopBlockMapper;
@@ -83,6 +84,7 @@ public class HadoopKnowsGenerator {
         private List<Float> percentages;
         private int step_index;
         private int numGeneratedEdges = 0;
+        private Person.PersonSimilarity personSimilarity;
 
         protected void setup(Context context) {
             this.hadoopConf = context.getConfiguration();
@@ -91,6 +93,7 @@ public class HadoopKnowsGenerator {
                 DatagenContext.initialize(conf);
                 this.knowsGenerator = (KnowsGenerator) Class.forName(hadoopConf.get("knowsGeneratorName")).newInstance();
                 this.knowsGenerator.initialize(conf);
+                personSimilarity = DatagenParams.getPersonSimularity();
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
@@ -118,7 +121,7 @@ public class HadoopKnowsGenerator {
             for (Person p : valueSet) {
                 persons.add(new Person(p));
             }
-            this.knowsGenerator.generateKnows(persons, (int) key.block, percentages, step_index);
+            this.knowsGenerator.generateKnows(persons, (int) key.block, percentages, step_index, personSimilarity);
             for (Person p : persons) {
                 context.write(keySetter.getKey(p), p);
                 numGeneratedEdges += p.getKnows().size();

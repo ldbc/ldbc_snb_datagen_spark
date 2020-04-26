@@ -56,7 +56,7 @@ public class RandomKnowsGenerator implements KnowsGenerator {
         randomFarm = new RandomGeneratorFarm();
     }
 
-    public void generateKnows(List<Person> persons, int seed, List<Float> percentages, int step_index) {
+    public void generateKnows(List<Person> persons, int seed, List<Float> percentages, int step_index, Person.PersonSimilarity personSimilarity) {
 
         rand.setSeed(seed);
         List<Integer> stubs = new ArrayList<>();
@@ -83,7 +83,7 @@ public class RandomKnowsGenerator implements KnowsGenerator {
                     Knows.createKnow(  randomFarm.get(RandomGeneratorFarm.Aspect.DATE),
                             randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_KNOWS),
                             p1,
-                            p2, true);
+                            p2, personSimilarity, true);
                 }
             }
         }

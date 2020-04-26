@@ -478,6 +478,4 @@ public final class Person implements Writable, Serializable {
         }
         arg0.writeLong(classYear);
     }
-
-    public static PersonSimilarity personSimilarity;
 }

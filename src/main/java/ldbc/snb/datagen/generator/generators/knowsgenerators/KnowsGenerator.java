@@ -41,7 +41,7 @@ import ldbc.snb.datagen.util.LdbcConfiguration;
 import java.util.List;
 
 public interface KnowsGenerator {
-    void generateKnows(List<Person> persons, int seed, List<Float> percentages, int step_index);
+    void generateKnows(List<Person> persons, int seed, List<Float> percentages, int step_index, Person.PersonSimilarity personSimilarity);
 
     void initialize(LdbcConfiguration conf);
 }

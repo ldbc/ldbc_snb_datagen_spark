@@ -51,7 +51,7 @@ public class DistanceKnowsGenerator implements KnowsGenerator {
         this.randomFarm = new RandomGeneratorFarm();
     }
 
-    public void generateKnows(List<Person> persons, int seed, List<Float> percentages, int step_index) {
+    public void generateKnows(List<Person> persons, int seed, List<Float> percentages, int step_index, Person.PersonSimilarity personSimilarity) {
         randomFarm.resetRandomGenerators(seed);
         for (int i = 0; i < persons.size(); ++i) {
             Person p = persons.get(i);
@@ -62,7 +62,7 @@ public class DistanceKnowsGenerator implements KnowsGenerator {
                             randomFarm.get(RandomGeneratorFarm.Aspect.DATE),
                             randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_KNOWS),
                             p,
-                            persons.get(j));
+                            persons.get(j), personSimilarity);
                 }
             }
         }

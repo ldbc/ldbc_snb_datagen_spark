@@ -151,7 +151,7 @@ public class Knows implements Writable, Comparable<Knows> {
 
     }
 
-    public static boolean createKnow(Random dateRandom, Random deletionRandom, Person personA, Person personB, Boolean ignore) {
+    public static boolean createKnow(Random dateRandom, Random deletionRandom, Person personA, Person personB, Person.PersonSimilarity personSimilarity, Boolean ignore) {
 
         if (personA.getCreationDate() + DatagenParams.delta > personB.getDeletionDate() ||
                 personB.getCreationDate() + DatagenParams.delta > personA.getDeletionDate()) {
@@ -171,13 +171,13 @@ public class Knows implements Writable, Comparable<Knows> {
         }
         assert (creationDate <= deletionDate) : "Knows creation date is larger than knows deletion date";
 
-        float similarity = Person.personSimilarity.similarity(personA, personB);
+        float similarity = personSimilarity.similarity(personA, personB);
         return personB.getKnows().add(new Knows(personA, creationDate, deletionDate, similarity,isExplicitlyDeleted)) &&
                 personA.getKnows().add(new Knows(personB, creationDate, deletionDate, similarity,isExplicitlyDeleted));
     }
 
     //     TODO: used for uni and interest dimension in knows gen
-    public static void createKnow(Random dateRandom, Random deletionRandom, Person personA, Person personB) {
+    public static void createKnow(Random dateRandom, Random deletionRandom, Person personA, Person personB, Person.PersonSimilarity personSimilarity) {
 
         if (personA.getCreationDate() + DatagenParams.delta > personB.getDeletionDate() ||
                 personB.getCreationDate() + DatagenParams.delta > personA.getDeletionDate()) {
@@ -197,7 +197,7 @@ public class Knows implements Writable, Comparable<Knows> {
         }
         assert (creationDate <= deletionDate) : "Knows creation date is larger than knows deletion date";
 
-        float similarity = Person.personSimilarity.similarity(personA, personB);
+        float similarity = personSimilarity.similarity(personA, personB);
         if (personB.getKnows().add(new Knows(personA, creationDate, deletionDate, similarity,isExplicitlyDeleted))) {
             personA.getKnows().add(new Knows(personB, creationDate, deletionDate, similarity,isExplicitlyDeleted));
         }
