@@ -104,7 +104,7 @@ public class HadoopPersonSortAndSerializer {
 
             for (Person p : valueSet) {
 
-                if (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA || DatagenParams.getDatagenMode() == DatagenMode.GRAPHALYTICS) {
+                if (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) {
                     dynamicPersonSerializer.export(p);
                     for (Knows k : p.getKnows()) {
                         dynamicPersonSerializer.export(p, k);
