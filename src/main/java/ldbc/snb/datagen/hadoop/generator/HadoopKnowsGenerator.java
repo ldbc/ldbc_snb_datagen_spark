@@ -115,8 +115,10 @@ public class HadoopKnowsGenerator {
         public void reduce(BlockKey key, Iterable<Person> valueSet, Context context)
                 throws IOException, InterruptedException {
             List<Person> persons = new ArrayList<>();
+            List<Person> persons2 = new ArrayList<>();
             for (Person p : valueSet) {
                 persons.add(new Person(p));
+                persons2.add(new Person(p));
             }
 
             System.out.println("1: Generating block " + key.block +
@@ -124,15 +126,10 @@ public class HadoopKnowsGenerator {
             this.knowsGenerator.generateKnows(persons, (int) key.block, percentages, step_index);
             System.out.println("1: Output hash: " + persons.hashCode());
 
-            List<Person> persons2 = new ArrayList<>();
-            for (Person p : valueSet) {
-                persons2.add(new Person(p));
-            }
-
             System.out.println("2: Generating block " + key.block +
                     " percentages: " + percentages + " step index: " + step_index + " person hash:" + persons2.hashCode());
             this.knowsGenerator.generateKnows(persons2, (int) key.block, percentages, step_index);
-            System.out.println("2: Output hash: " + persons.hashCode());
+            System.out.println("2: Output hash: " + persons2.hashCode());
 
 
             for (Person p : persons) {
