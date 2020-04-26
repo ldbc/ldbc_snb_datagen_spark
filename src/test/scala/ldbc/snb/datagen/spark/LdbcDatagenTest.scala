@@ -33,7 +33,7 @@ class LdbcDatagenTest extends FunSuite with BeforeAndAfterAll with Matchers {
     confMap.putAll(ConfigParser.readConfig(getClass.getResourceAsStream("/params_default.ini")))
 
     val props = new Properties();
-    props.setProperty("ldbc.snb.datagen.generator.scaleFactor", "snb.interactive.0.1")
+    props.setProperty("generator.scaleFactor", "0.1")
     props.setProperty("generator.mode", "interactive")
     props.setProperty("generator.blockSize", "100")
     props.setProperty("generator.interactive.numUpdateStreams", "1")
