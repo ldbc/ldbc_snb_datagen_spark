@@ -95,13 +95,13 @@ public class PersonActivityGenerator {
         messageIdIterator = Iterators.numbers(0);
     }
 
-    private GenActivity generateActivity(Person person, List<Person> block, long machineId) throws AssertionError {
+    private GenActivity generateActivity(Person person, List<Person> block, long blockId) throws AssertionError {
         try {
             factorTable.extractFactors(person);
             return new GenActivity(
-                    generateWall(person, machineId),
-                    generateGroups(person, block, machineId),
-                    generateAlbums(person, machineId)
+                    generateWall(person, blockId),
+                    generateGroups(person, block, blockId),
+                    generateAlbums(person, blockId)
             );
 
         } catch (AssertionError e) {
@@ -116,10 +116,10 @@ public class PersonActivityGenerator {
      *
      * @param person Person
      */
-    private GenWall<Triplet<Post, Stream<Like>, Stream<Pair<Comment, Stream<Like>>>>> generateWall(Person person, long machineId) {
+    private GenWall<Triplet<Post, Stream<Like>, Stream<Pair<Comment, Stream<Like>>>>> generateWall(Person person, long blockId) {
 
         // Generate wall
-        Forum wall = forumGenerator.createWall(randomFarm, startForumId++, person, machineId);
+        Forum wall = forumGenerator.createWall(randomFarm, startForumId++, person, blockId);
 
         // Could be null is moderator can't be added
         if (wall == null)
@@ -140,12 +140,12 @@ public class PersonActivityGenerator {
         Stream<Triplet<Post, Stream<Like>, Stream<Pair<Comment, Stream<Like>>>>> uniform = uniformPostGenerator.createPosts(
                 randomFarm, wall, memberships,
                 numPostsPerGroup(randomFarm, wall, DatagenParams.maxNumPostPerMonth, DatagenParams.maxNumFriends),
-                messageIdIterator, machineId);
+                messageIdIterator, blockId);
 
         Stream<Triplet<Post, Stream<Like>, Stream<Pair<Comment, Stream<Like>>>>> flashMob = flashmobPostGenerator.createPosts(
                 randomFarm, wall, memberships,
                 numPostsPerGroup(randomFarm, wall, DatagenParams.maxNumFlashmobPostPerMonth, DatagenParams.maxNumFriends),
-                messageIdIterator, machineId);
+                messageIdIterator, blockId);
 
         return new GenWall<>(Stream.of(
                 new Triplet<>(wall, wall.getMemberships().stream(), Stream.concat(uniform, flashMob)))
@@ -158,7 +158,7 @@ public class PersonActivityGenerator {
      * @param person persons
      * @param block  block for persons
      */
-    private Stream<GenWall<Triplet<Post, Stream<Like>, Stream<Pair<Comment, Stream<Like>>>>>> generateGroups(Person person, List<Person> block, long machineId) {
+    private Stream<GenWall<Triplet<Post, Stream<Like>, Stream<Pair<Comment, Stream<Like>>>>>> generateGroups(Person person, List<Person> block, long blockId) {
 
         // generate person created groups
         double moderatorProb = randomFarm.get(RandomGeneratorFarm.Aspect.FORUM_MODERATOR).nextDouble();
@@ -169,20 +169,20 @@ public class PersonActivityGenerator {
             if (moderatorProb >= DatagenParams.groupModeratorProb)
                 return Iterators.ForIterator.CONTINUE();
 
-            Forum group = forumGenerator.createGroup(randomFarm, startForumId++, person, block, machineId);
+            Forum group = forumGenerator.createGroup(randomFarm, startForumId++, person, block, blockId);
 
             Stream<Triplet<Post, Stream<Like>, Stream<Pair<Comment, Stream<Like>>>>> uniform = uniformPostGenerator.createPosts(
                     randomFarm,
                     group,
                     group.getMemberships(),
                     numPostsPerGroup(randomFarm, group, DatagenParams.maxNumGroupPostPerMonth, DatagenParams.maxGroupSize),
-                    messageIdIterator, machineId);
+                    messageIdIterator, blockId);
             Stream<Triplet<Post, Stream<Like>, Stream<Pair<Comment, Stream<Like>>>>> flashMob  = flashmobPostGenerator.createPosts(
                     randomFarm,
                     group,
                     group.getMemberships(),
                     numPostsPerGroup(randomFarm, group, DatagenParams.maxNumGroupFlashmobPostPerMonth, DatagenParams.maxGroupSize),
-                    messageIdIterator, machineId);
+                    messageIdIterator, blockId);
 
             return Iterators.ForIterator.RETURN(new GenWall<>(Stream.of(
                     new Triplet<>(group, group.getMemberships().stream(), Stream.concat(uniform, flashMob)))
@@ -195,7 +195,7 @@ public class PersonActivityGenerator {
      *
      * @param person person
      */
-    private GenWall<Pair<Photo, Stream<Like>>> generateAlbums(Person person, long machineId) {
+    private GenWall<Pair<Photo, Stream<Like>>> generateAlbums(Person person, long blockId) {
 
         // work out number of albums to generate
         int numberOfMonths = (int) Dictionaries.dates.numberOfMonths(person);
@@ -205,7 +205,7 @@ public class PersonActivityGenerator {
                 : numberOfMonths * numberOfPhotoAlbums;
 
         return new GenWall<>(Streams.stream(Iterators.forIterator(0, i -> i < numberOfPhotoAlbumsForMonths, i -> ++i, i -> {
-            Forum album = forumGenerator.createAlbum(randomFarm, startForumId++, person, i, machineId);
+            Forum album = forumGenerator.createAlbum(randomFarm, startForumId++, person, i, blockId);
             if (album == null) {
                 return Iterators.ForIterator.CONTINUE();
             }
@@ -215,7 +215,7 @@ public class PersonActivityGenerator {
                     .nextInt(DatagenParams.maxNumPhotoPerAlbums + 1);
             // create photos
 
-            Stream<Pair<Photo, Stream<Like>>> photos = photoGenerator.createPhotos(randomFarm, album, numPhotosInAlbum, messageIdIterator, machineId);
+            Stream<Pair<Photo, Stream<Like>>> photos = photoGenerator.createPhotos(randomFarm, album, numPhotosInAlbum, messageIdIterator, blockId);
 
             return Iterators.ForIterator.RETURN(new Triplet<>(
                  album, album.getMemberships().stream(), photos
@@ -235,12 +235,11 @@ public class PersonActivityGenerator {
         return (numberPost * forum.getMemberships().size()) / maxMembersPerForum;
     }
 
-    public Stream<GenActivity> generateActivityForBlock(int seed, List<Person> block) {
-        randomFarm.resetRandomGenerators(seed);
+    public Stream<GenActivity> generateActivityForBlock(int blockId, List<Person> block) {
+        randomFarm.resetRandomGenerators(blockId);
         startForumId = 0;
         messageIdIterator = Iterators.numbers(0);
-        long machineId = seed;
-        return block.stream().map(p -> generateActivity(p, block, machineId));
+        return block.stream().map(p -> generateActivity(p, block, blockId));
     }
 
     public void writeActivityFactors(OutputStream writer) throws IOException {

@@ -58,15 +58,15 @@ public class SN {
         if (numBits > 20) System.out.print("WARNING: Possible id overlapp");
     }
 
-    public static Long formId(long id, long machineId) {
+    public static Long formId(long id, long blockId) {
         long lowMask = 0x0FFFFF;                                // This mask is used to get the lowest 20 bits.
         long lowerPart = (lowMask & id);
-        long machinePart = machineId << 20;
+        long machinePart = blockId << 20;
         long upperPart = (id >> 20) << (20 + numBits);
         return upperPart | machinePart | lowerPart;
     }
 
-    public static long composeId(long id, long creationDate, long machineId) {
+    public static long composeId(long id, long creationDate, long blockId) {
         long bucket = (long) (256 * (creationDate - minDate) / (double) maxDate);
         long idMask = ~(0xFFFFFFFFFFFFFFFFL << 36);
         return (bucket << 36) | (id & idMask);
