@@ -64,7 +64,7 @@ class PhotoGenerator {
         this.photo = new Photo();
     }
 
-    Stream<Pair<Photo, Stream<Like>>> createPhotos(RandomGeneratorFarm randomFarm, final Forum album, long numPhotosInAlbum, Iterator<Long> idIterator) {
+    Stream<Pair<Photo, Stream<Like>>> createPhotos(RandomGeneratorFarm randomFarm, final Forum album, long numPhotosInAlbum, Iterator<Long> idIterator, long machineId) {
         int numPopularPlaces = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_POPULAR)
                 .nextInt(DatagenParams.maxNumPopularPlaces + 1);
         List<Short> popularPlaces = new ArrayList<>();
@@ -113,7 +113,7 @@ class PhotoGenerator {
                 ip = Dictionaries.ips.getIP(random, country);
             }
 
-            long id = SN.formId(SN.composeId(idIterator.next(), creationDate));
+            long id = SN.formId(SN.composeId(idIterator.next(), creationDate, machineId), machineId);
             photo.initialize(id,
                     creationDate,
                     deletionDate,

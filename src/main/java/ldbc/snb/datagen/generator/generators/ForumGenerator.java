@@ -62,7 +62,7 @@ public class ForumGenerator {
      * @param person     Person
      * @return Forum
      */
-    Forum createWall(RandomGeneratorFarm randomFarm, long forumId, Person person) {
+    Forum createWall(RandomGeneratorFarm randomFarm, long forumId, Person person, long machineId) {
 
         int language = randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE).nextInt(person.getLanguages().size());
 
@@ -72,7 +72,7 @@ public class ForumGenerator {
             return null;
         }
 
-        Forum forum = new Forum(SN.formId(SN.composeId(forumId, person.getCreationDate() + DatagenParams.delta)),
+        Forum forum = new Forum(SN.formId(SN.composeId(forumId, person.getCreationDate() + DatagenParams.delta, machineId), machineId),
                 person.getCreationDate() + DatagenParams.delta,
                 person.getDeletionDate(),
                 new PersonSummary(person),
@@ -110,7 +110,7 @@ public class ForumGenerator {
      * @param block      person block
      * @return Group
      */
-    Forum createGroup(RandomGeneratorFarm randomFarm, long forumId, Person moderator, List<Person> block) {
+    Forum createGroup(RandomGeneratorFarm randomFarm, long forumId, Person moderator, List<Person> block, long machineId) {
 
         // creation date
         long groupMinCreationDate = moderator.getCreationDate() + DatagenParams.delta;
@@ -144,7 +144,7 @@ public class ForumGenerator {
         interest.add(interestId);
 
         // Create group
-        Forum forum = new Forum(SN.formId(SN.composeId(forumId, groupCreationDate)),
+        Forum forum = new Forum(SN.formId(SN.composeId(forumId, groupCreationDate, machineId), machineId),
                 groupCreationDate,
                 groupDeletionDate,
                 new PersonSummary(moderator),
@@ -249,7 +249,7 @@ public class ForumGenerator {
      * @param numAlbum   number of album e.g. Album 10
      * @return Album
      */
-    Forum createAlbum(RandomGeneratorFarm randomFarm, long forumId, Person person, int numAlbum) {
+    Forum createAlbum(RandomGeneratorFarm randomFarm, long forumId, Person person, int numAlbum, long machineId) {
 
         long minAlbumCreationDate = person.getCreationDate() + DatagenParams.delta;
         long maxAlbumCreationDate = Math.min(person.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
@@ -272,7 +272,7 @@ public class ForumGenerator {
 
 
         int language = randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE).nextInt(person.getLanguages().size());
-        Forum forum = new Forum(SN.formId(SN.composeId(forumId, albumCreationDate)),
+        Forum forum = new Forum(SN.formId(SN.composeId(forumId, albumCreationDate, machineId), machineId),
                 albumCreationDate,
                 albumDeletionDate,
                 new PersonSummary(person),

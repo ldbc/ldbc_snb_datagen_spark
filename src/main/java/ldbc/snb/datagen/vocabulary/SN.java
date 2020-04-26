@@ -43,7 +43,6 @@ import ldbc.snb.datagen.dictionary.Dictionaries;
  */
 public class SN {
 
-    public static long machineId;
     private static long numBits;
     private static long minDate;
     private static long maxDate;
@@ -59,7 +58,7 @@ public class SN {
         if (numBits > 20) System.out.print("WARNING: Possible id overlapp");
     }
 
-    public static Long formId(long id) {
+    public static Long formId(long id, long machineId) {
         long lowMask = 0x0FFFFF;                                // This mask is used to get the lowest 20 bits.
         long lowerPart = (lowMask & id);
         long machinePart = machineId << 20;
@@ -67,9 +66,10 @@ public class SN {
         return upperPart | machinePart | lowerPart;
     }
 
-    public static long composeId(long id, long creationDate) {
+    public static long composeId(long id, long creationDate, long machineId) {
         long bucket = (long) (256 * (creationDate - minDate) / (double) maxDate);
         long idMask = ~(0xFFFFFFFFFFFFFFFFL << 36);
         return (bucket << 36) | (id & idMask);
     }
+
 }

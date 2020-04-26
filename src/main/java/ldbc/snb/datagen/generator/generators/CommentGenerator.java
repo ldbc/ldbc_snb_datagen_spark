@@ -65,7 +65,7 @@ public class CommentGenerator {
         this.likeGenerator = likeGenerator;
     }
 
-    public Stream<Pair<Comment, Stream<Like>>> createComments(RandomGeneratorFarm randomFarm, final Forum forum, final Post post, long numComments, Iterator<Long> idIterator) {
+    public Stream<Pair<Comment, Stream<Like>>> createComments(RandomGeneratorFarm randomFarm, final Forum forum, final Post post, long numComments, Iterator<Long> idIterator, long machineId) {
 
         List<Message> parentCandidates = new ArrayList<>();
         parentCandidates.add(post);
@@ -159,7 +159,7 @@ public class CommentGenerator {
                 ip = Dictionaries.ips.getIP(random, country);
             }
 
-            Comment comment = new Comment(SN.formId(SN.composeId(idIterator.next(), creationDate)),
+            Comment comment = new Comment(SN.formId(SN.composeId(idIterator.next(), creationDate, machineId), machineId),
                     creationDate,
                     deletionDate,
                     membership.getPerson(),

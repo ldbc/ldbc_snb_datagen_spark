@@ -208,7 +208,6 @@ public class PersonGenerator {
     public Iterator<Person> generatePersonBlock(int seed, int blockSize) {
         resetState(seed);
         nextId = seed * blockSize;
-        SN.machineId = seed;
         return new Iterator<Person>() {
             private int i = 0;
 
