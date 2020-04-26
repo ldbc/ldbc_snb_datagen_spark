@@ -4,3 +4,57 @@
 *.jar
 *.war
 *.ear
+<<<<<<< HEAD
+=======
+*.pyc
+*.iml
+
+# IntelliJ stuff
+.idea
+ldbc_socialnet_dbgen.iml
+
+# other stuff
+target/
+.m0factors.txt.crc
+.m0friendList0.csv.crc
+test_data/
+substitution_parameters/
+*.pyc
+scripts/
+*.iml
+/hadoop/
+/social_network/
+*.log
+test_log
+.DS_Store
+.Rhistory
+
+# Eclipse stuff
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+.recommenders
+.project
+.classpath
+
+/*.crc
+/*.txt
+/*.csv
+out/
+datagen_output/
+
+# Hadoop directory extracted as instructed in the Quick Start guide
+/hadoop-*.tar.gz
+/hadoop-*/
+
+# configuration file
+params.ini
+dependency-reduced-pom.xml
+>>>>>>> 4d932139... Add temp pom entry to gitignore
