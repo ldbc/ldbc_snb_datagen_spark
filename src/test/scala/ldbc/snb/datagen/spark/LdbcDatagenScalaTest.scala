@@ -16,7 +16,7 @@ import org.apache.hadoop.mapred.SequenceFileInputFormat
 import org.apache.spark.sql.SparkSession
 import org.scalatest.{BeforeAndAfterAll, FunSuite, Matchers}
 
-class LdbcDatagenTest extends FunSuite with BeforeAndAfterAll with Matchers {
+class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers {
 
   var hadoopConf: Configuration = _
   var hadoopPrefix: String = _
