@@ -4,8 +4,6 @@
 *.jar
 *.war
 *.ear
-<<<<<<< HEAD
-=======
 *.pyc
 *.iml
 
@@ -57,4 +55,4 @@ datagen_output/
 # configuration file
 params.ini
 dependency-reduced-pom.xml
->>>>>>> 4d932139... Add temp pom entry to gitignore
+
