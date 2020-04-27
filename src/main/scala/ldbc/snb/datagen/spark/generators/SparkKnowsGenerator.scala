@@ -61,13 +61,14 @@ object SparkKnowsGenerator {
         val knowsGeneratorClass = Class.forName(knowsGeneratorClassName)
         val knowsGenerator = knowsGeneratorClass.newInstance().asInstanceOf[KnowsGenerator]
         knowsGenerator.initialize(conf)
+        val personSimilarity = DatagenParams.getPersonSimularity
 
         val personGroups = for { (block, persons) <- groups } yield {
           val clonedPersons = new util.ArrayList[Person]
           for (p <- persons.values) {
             clonedPersons.add(new Person(p))
           }
-          knowsGenerator.generateKnows(clonedPersons, block.toInt, percentagesJava, stepIndex)
+          knowsGenerator.generateKnows(clonedPersons, block.toInt, percentagesJava, stepIndex, personSimilarity)
           clonedPersons
         }
 

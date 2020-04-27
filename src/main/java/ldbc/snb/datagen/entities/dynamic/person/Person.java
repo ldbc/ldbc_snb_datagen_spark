@@ -484,6 +484,4 @@ public final class Person implements Writable, Serializable, Comparable<Person> 
         }
         arg0.writeLong(classYear);
     }
-
-    public static PersonSimilarity personSimilarity;
 }
