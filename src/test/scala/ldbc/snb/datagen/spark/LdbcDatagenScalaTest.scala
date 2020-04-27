@@ -76,7 +76,7 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
 
   import Keys._
 
-  test("University Knows generator returns expected results (interest)") {
+  test("University Knows generator returns expected results") {
     shouldGenerateSameKnows(
       "/knows_university",
       0,
@@ -85,7 +85,7 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
     )
   }
 
-  test("Interest Knows generator returns expected results (interest)") {
+  test("Interest Knows generator returns expected results") {
     shouldGenerateSameKnows(
       "/knows_interest",
       1,
@@ -94,7 +94,23 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
     )
   }
 
-  def shouldGenerateSameKnows[K: ClassTag: Ordering](hadoopDir: String, stepIndex: Int, sparkSorter: Person => K, hadoopSorter: String) = {
+  test("Random Knows generator returns expected results") {
+    shouldGenerateSameKnows(
+      "/knows_random",
+      2,
+      (p: Person) => p.byRandomId,
+      "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter",
+      knowsGeneratorClassName = "ldbc.snb.datagen.generator.generators.knowsgenerators.RandomKnowsGenerator"
+    )
+  }
+
+  def shouldGenerateSameKnows[K: ClassTag: Ordering](
+    hadoopDir: String,
+    stepIndex: Int,
+    sparkSorter: Person => K,
+    hadoopSorter: String,
+    knowsGeneratorClassName: String = "ldbc.snb.datagen.generator.generators.knowsgenerators.DistanceKnowsGenerator"
+  ) = {
     val personsFixturePath = getClass.getResource("/fixtures/hadoop/persons").toString
 
     val knowsGeneratorClassName = "ldbc.snb.datagen.generator.generators.knowsgenerators.DistanceKnowsGenerator"
