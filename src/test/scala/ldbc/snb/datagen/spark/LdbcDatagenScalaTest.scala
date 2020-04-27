@@ -1,20 +1,23 @@
 package ldbc.snb.datagen.spark
 
 import java.io.{PrintStream, PrintWriter}
-import java.util
+import java.{lang, util}
 import java.util.Properties
 
 import ldbc.snb.datagen._
-import ldbc.snb.datagen.entities.dynamic.person.Person
+import ldbc.snb.datagen.entities.dynamic.person.{IP, Person, PersonSummary}
 import ldbc.snb.datagen.hadoop.HadoopConfiguration
-import ldbc.snb.datagen.hadoop.generator.HadoopPersonGenerator
+import ldbc.snb.datagen.hadoop.generator.{HadoopKnowsGenerator, HadoopPersonGenerator}
 import ldbc.snb.datagen.hadoop.key.TupleKey
-import ldbc.snb.datagen.spark.generators.SparkPersonGenerator
+import ldbc.snb.datagen.spark.generators.{SparkKnowsGenerator, SparkPersonGenerator}
 import ldbc.snb.datagen.util.{ConfigParser, LdbcConfiguration}
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.mapred.SequenceFileInputFormat
+import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
 import org.scalatest.{BeforeAndAfterAll, FunSuite, Matchers}
+
+import scala.collection.JavaConverters._
 
 class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers {
 
@@ -29,7 +32,7 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
 
     confMap.putAll(ConfigParser.readConfig(getClass.getResourceAsStream("/params_default.ini")))
 
-    val props = new Properties();
+    val props = new Properties()
     props.setProperty("generator.scaleFactor", "0.1")
     props.setProperty("generator.mode", "interactive")
     props.setProperty("generator.blockSize", "100")
@@ -47,6 +50,7 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
       .builder()
       .master("local[*]")
       .appName("test")
+      .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
       .getOrCreate()
 
   }
@@ -57,7 +61,7 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
 
   test("Person generator returns expected results") {
     timed(
-      "hadoop generation",
+      "hadoop person generation",
       new HadoopPersonGenerator(hadoopConf)
         .run(hadoopPrefix + "/persons", "ldbc.snb.datagen.hadoop.miscjob.keychanger.UniversityKeySetter")
     )
@@ -65,20 +69,60 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
     val expected = spark.sparkContext.hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](hadoopPrefix + "/persons")
     val actual = SparkPersonGenerator(conf, numPartitions = Some(Integer.parseInt(hadoopConf.get("hadoop.numThreads"))))(spark)
 
-    //new PrintWriter("expected.txt") { write(expected.collectAsMap().values.mkString("\n")); close() }
-
-    val expecteds = expected.map { case (_, p) => p.hashCode() }.collect().toSet
     val actuals = actual.map(_.hashCode()).collect().toSet
+    val expecteds = expected.map(_._2.hashCode()).collect().toSet
 
-    actuals should have size 1700
     actuals shouldBe expecteds
   }
 
+  test("Knows generator returns expected results") {
+    val personsFixturePath = getClass.getResource("/fixtures/hadoop/persons").toString
+
+    val knowsGeneratorClassName = "ldbc.snb.datagen.generator.generators.knowsgenerators.DistanceKnowsGenerator"
+    val preKeyHadoop = "ldbc.snb.datagen.hadoop.miscjob.keychanger.UniversityKeySetter"
+    val postKeySetter = "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter"
+    val stepIndex = 0
+
+    val percentages = Seq(0.45f, 0.45f, 0.1f)
+    timed(
+      "hadoop knows generation",
+      new HadoopKnowsGenerator(
+        hadoopConf,
+        preKeyHadoop,
+        postKeySetter,
+        percentages.map(new lang.Float(_)).asJava,
+        stepIndex,
+        knowsGeneratorClassName
+      ).run(personsFixturePath, hadoopPrefix + "/knows")
+    )
+
+    val persons = spark.sparkContext
+      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](personsFixturePath)
+      .values
+
+    import Keys._
+
+    implicit val sparkSession = spark
+
+    val actual = SparkKnowsGenerator(persons, conf, percentages, stepIndex,
+      sortBy = _.byUni, knowsGeneratorClassName)
+
+    val expected = spark.sparkContext
+      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](hadoopPrefix + "/knows")
+
+    val expecteds = expected.map { case (_, p) => p.hashCode() }.collect()
+    val actuals = actual.map(_.hashCode()).collect()
+
+    expecteds should have length 1700
+
+    actuals should contain theSameElementsAs expecteds
+  }
+
   def timed[A](name: String, thunk: => A): A = {
-    val start = System.currentTimeMillis();
+    val start = System.nanoTime()
     val res = thunk
-    val end = System.currentTimeMillis()
-    println(s"$name: ${(end.toFloat-start) / 1000f} s")
+    val end = System.nanoTime()
+    println(s"$name: ${(end.toFloat-start) / 1e9f} s")
     res
   }
 }
