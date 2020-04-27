@@ -119,7 +119,7 @@ public class HadoopKnowsGenerator {
                 throws IOException, InterruptedException {
             List<Person> persons = new ArrayList<>();
             for (Person p : valueSet) {
-                persons.add(new Person(p));
+                persons.add(p.clone());
             }
             this.knowsGenerator.generateKnows(persons, (int) key.block, percentages, step_index, personSimilarity);
             for (Person p : persons) {

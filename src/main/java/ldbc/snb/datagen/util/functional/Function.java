@@ -18,4 +18,5 @@ public class Function {
     public interface FunctionIT<T> {
         T apply(int value);
     }
+
 }

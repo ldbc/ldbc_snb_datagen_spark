@@ -47,7 +47,7 @@ import java.io.IOException;
 import java.util.*;
 
 
-public final class Knows implements Writable, Comparable<Knows> {
+public final class Knows implements Writable, Comparable<Knows>, Cloneable {
 
     private boolean isExplicitlyDeleted;
     private PersonSummary to;
@@ -60,12 +60,20 @@ public final class Knows implements Writable, Comparable<Knows> {
         to = new PersonSummary();
     }
 
-    public Knows(Knows k) {
-        to = new PersonSummary(k.to());
-        creationDate = k.getCreationDate();
-        deletionDate = k.getDeletionDate();
-        weight = k.getWeight();
-        isExplicitlyDeleted = k.isExplicitlyDeleted();
+    @Override
+    public Knows clone() {
+        Knows cloned = null;
+        try {
+            cloned = (Knows) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+        cloned.to = to().clone();
+        cloned.creationDate = getCreationDate();
+        cloned.deletionDate = getDeletionDate();
+        cloned.weight = getWeight();
+        cloned.isExplicitlyDeleted = isExplicitlyDeleted();
+        return cloned;
     }
 
     public Knows(Person to, long creationDate, long deletionDate, float weight, boolean isExplicitlyDeleted) {

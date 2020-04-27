@@ -7,7 +7,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Objects;
 
-public final class PersonSummary implements Writable {
+public final class PersonSummary implements Writable, Cloneable {
     private long accountId;
     private long creationDate;
     private long deletionDate;
@@ -20,23 +20,31 @@ public final class PersonSummary implements Writable {
         ipAddress = new IP();
     }
 
+    @Override
+    public PersonSummary clone() {
+        PersonSummary cloned = null;
+        try {
+            cloned = (PersonSummary) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+        cloned.accountId = getAccountId();
+        cloned.creationDate = getCreationDate();
+        cloned.deletionDate = getDeletionDate();
+        cloned.browserId = getBrowserId();
+        cloned.country = getCountryId();
+        cloned.ipAddress = getIpAddress().clone();
+        cloned.isLargePoster = getIsLargePoster();
+        return cloned;
+    }
+
     public PersonSummary(Person p) {
         accountId = p.getAccountId();
         creationDate = p.getCreationDate();
         deletionDate = p.getDeletionDate();
         browserId = p.getBrowserId();
         country = p.getCountryId();
-        ipAddress = new IP(p.getIpAddress());
-        isLargePoster = p.getIsLargePoster();
-    }
-
-    public PersonSummary(PersonSummary p) {
-        accountId = p.getAccountId();
-        creationDate = p.getCreationDate();
-        deletionDate = p.getDeletionDate();
-        browserId = p.getBrowserId();
-        country = p.getCountryId();
-        ipAddress = new IP(p.getIpAddress());
+        ipAddress = p.getIpAddress().clone();
         isLargePoster = p.getIsLargePoster();
     }
 
@@ -46,7 +54,7 @@ public final class PersonSummary implements Writable {
         deletionDate = p.getDeletionDate();
         browserId = p.getBrowserId();
         country = p.getCountryId();
-        ipAddress = new IP(p.getIpAddress());
+        ipAddress = p.getIpAddress().clone();
         isLargePoster = p.getIsLargePoster();
     }
 

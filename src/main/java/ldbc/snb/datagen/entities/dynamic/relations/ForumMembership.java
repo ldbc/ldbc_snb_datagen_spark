@@ -58,7 +58,7 @@ public class ForumMembership implements DynamicActivity {
         this.creationDate = creationDate;
         this.deletionDate = deletionDate;
         this.forumType = forumType;
-        person = new PersonSummary(p);
+        person = p.clone();
         this.isExplicitlyDeleted = isExplicitlyDeleted;
     }
 

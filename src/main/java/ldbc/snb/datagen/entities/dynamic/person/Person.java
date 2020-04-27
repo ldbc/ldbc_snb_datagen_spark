@@ -44,7 +44,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
-public final class Person implements Writable, Serializable, Comparable<Person> {
+public final class Person implements Writable, Serializable, Comparable<Person>, Cloneable {
 
     private boolean isExplicitlyDeleted;
     private long accountId;
@@ -102,6 +102,56 @@ public final class Person implements Writable, Serializable, Comparable<Person> 
     }
 
     @Override
+    public Person clone() {
+        Person cloned = null;
+        try {
+            cloned = (Person) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+        cloned.isExplicitlyDeleted = isExplicitlyDeleted();
+        cloned.knows = new TreeSet<>();
+        cloned.emails = new TreeSet<>();
+        cloned.interests = new TreeSet<>();
+        cloned.languages = new ArrayList<>();
+        cloned.companies = new HashMap<>();
+
+        cloned.accountId = getAccountId();
+        cloned.creationDate = getCreationDate();
+        cloned.deletionDate = getDeletionDate();
+        cloned.maxNumKnows = getMaxNumKnows();
+        for (Knows k : getKnows()) {
+            cloned.knows.add(k.clone());
+        }
+
+        cloned.browserId = getBrowserId();
+        cloned.ipAddress = getIpAddress().clone();
+
+        cloned.countryId = getCountryId();
+        cloned.cityId = getCityId();
+        cloned.interests.addAll(getInterests().descendingSet());
+        cloned.mainInterest = getMainInterest();
+
+        cloned.universityLocationId = getUniversityLocationId();
+        cloned.gender = getGender();
+        cloned.birthday = getBirthday();
+        cloned.isLargePoster = getIsLargePoster();
+        cloned.randomId = getRandomId();
+
+        cloned.emails.addAll(getEmails().descendingSet());
+
+        cloned.languages.addAll(getLanguages());
+
+        cloned.firstName = getFirstName();
+        cloned.lastName = getLastName();
+        for (Map.Entry<Long, Long> c : getCompanies().entrySet()) {
+            cloned.companies.put(c.getKey(), c.getValue());
+        }
+        cloned.classYear = getClassYear();
+        return cloned;
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(isExplicitlyDeleted, accountId, creationDate, deletionDate, maxNumKnows, knows, browserId, ipAddress, countryId, cityId, interests, mainInterest, universityLocationId, gender, birthday, isLargePoster, randomId, emails, languages, firstName, lastName, companies, classYear);
     }
@@ -152,50 +202,6 @@ public final class Person implements Writable, Serializable, Comparable<Person> 
         languages = new ArrayList<>();
         companies = new HashMap<>();
         ipAddress = new IP();
-    }
-
-    public Person(Person p) {
-
-        isExplicitlyDeleted = p.isExplicitlyDeleted();
-        knows = new TreeSet<>();
-        emails = new TreeSet<>();
-        interests = new TreeSet<>();
-        languages = new ArrayList<>();
-        companies = new HashMap<>();
-
-        accountId = p.getAccountId();
-        creationDate = p.getCreationDate();
-        deletionDate = p.getDeletionDate();
-        maxNumKnows = p.getMaxNumKnows();
-        for (Knows k : p.getKnows()) {
-            knows.add(new Knows(k));
-        }
-
-        browserId = p.getBrowserId();
-        ipAddress = new IP(p.getIpAddress());
-
-        countryId = p.getCountryId();
-        cityId = p.getCityId();
-        interests.addAll(p.getInterests().descendingSet());
-        mainInterest = p.getMainInterest();
-
-        universityLocationId = p.getUniversityLocationId();
-        gender = p.getGender();
-        birthday = p.getBirthday();
-        isLargePoster = p.getIsLargePoster();
-        randomId = p.getRandomId();
-
-        emails.addAll(p.getEmails().descendingSet());
-
-        languages.addAll(p.getLanguages());
-
-        firstName = p.getFirstName();
-        lastName = p.getLastName();
-        for (Map.Entry<Long, Long> c : p.getCompanies().entrySet()) {
-            companies.put(c.getKey(), c.getValue());
-        }
-        classYear = p.getClassYear();
-
     }
 
     public boolean isExplicitlyDeleted() {

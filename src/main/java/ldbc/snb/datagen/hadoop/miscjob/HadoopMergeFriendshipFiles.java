@@ -87,7 +87,7 @@ public class HadoopMergeFriendshipFiles {
             int index = 0;
             for (Person p : valueSet) {
                 if (index == 0) {
-                    person = new Person(p);
+                    person = p.clone();
                 }
                 knows.addAll(p.getKnows());
                 index++;

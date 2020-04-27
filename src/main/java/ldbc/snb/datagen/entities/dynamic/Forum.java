@@ -71,7 +71,7 @@ public class Forum implements DynamicActivity {
         this.deletionDate = deletionDate;
         this.title = title;
         this.placeId = placeId;
-        this.moderator = new PersonSummary(moderator);
+        this.moderator = moderator.clone();
         this.language = language;
         this.forumType = forumType;
         this.isExplicitlyDeleted = isExplicitlyDeleted;

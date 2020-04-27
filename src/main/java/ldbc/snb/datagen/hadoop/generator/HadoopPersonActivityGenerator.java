@@ -127,7 +127,7 @@ public class HadoopPersonActivityGenerator {
             System.out.println("Reducing block " + key.block);
             List<Person> persons = new ArrayList<>();
             for (Person p : valueSet) {
-                persons.add(new Person(p));
+                persons.add(p.clone());
 
                 StringBuilder strbuf = new StringBuilder();
                 strbuf.append(p.getAccountId());

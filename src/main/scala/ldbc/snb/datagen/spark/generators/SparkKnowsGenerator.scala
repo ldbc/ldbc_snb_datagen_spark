@@ -66,7 +66,7 @@ object SparkKnowsGenerator {
         val personGroups = for { (block, persons) <- groups } yield {
           val clonedPersons = new util.ArrayList[Person]
           for (p <- persons.values) {
-            clonedPersons.add(new Person(p))
+            clonedPersons.add(p.clone())
           }
           knowsGenerator.generateKnows(clonedPersons, block.toInt, percentagesJava, stepIndex, personSimilarity)
           clonedPersons

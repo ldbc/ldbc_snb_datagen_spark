@@ -69,11 +69,6 @@ public final class IP implements Writable, Serializable, Cloneable {
         network = ip & mask;
     }
 
-    public IP(IP i) {
-        this.ip = i.ip;
-        this.mask = i.mask;
-        this.network = i.network;
-    }
 
     public IP(int ip, int mask) {
         this.ip = ip;
@@ -120,6 +115,20 @@ public final class IP implements Writable, Serializable, Cloneable {
         return ip == ip1.ip &&
                 mask == ip1.mask &&
                 network == ip1.network;
+    }
+
+    @Override
+    public IP clone() {
+        IP cloned;
+        try {
+            cloned = (IP) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+        cloned.ip = ip;
+        cloned.mask = mask;
+        cloned.network = network;
+        return cloned;
     }
 
     @Override

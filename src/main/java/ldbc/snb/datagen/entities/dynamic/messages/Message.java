@@ -69,12 +69,12 @@ abstract public class Message implements DynamicActivity {
         this.messageId = messageId;
         this.creationDate = creationDate;
         this.deletionDate = deletionDate;
-        this.author = new PersonSummary(author);
+        this.author = author.clone();
         this.forumId = forumId;
         this.content = content;
         this.tags = new TreeSet<>(tags);
         this.countryId = countryId;
-        this.ipAddress = new IP(ipAddress);
+        this.ipAddress = ipAddress.clone();
         this.browserId = browserId;
         this.isExplicitlyDeleted = isExplicitlyDeleted;
     }
@@ -86,7 +86,7 @@ abstract public class Message implements DynamicActivity {
         this.messageId = messageId;
         this.creationDate = creationDate;
         this.deletionDate = deletionDate;
-        this.author = new PersonSummary(author);
+        this.author = author.clone();
         this.forumId = forumId;
         this.content = content;
         this.tags.clear();
