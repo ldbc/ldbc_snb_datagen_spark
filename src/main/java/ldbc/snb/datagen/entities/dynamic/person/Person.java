@@ -45,7 +45,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
-public final class Person implements Writable, Serializable, Cloneable, WritableComparable {
+public final class Person implements Writable, Serializable, Comparable<Person> {
 
     private boolean isExplicitlyDeleted;
     private long accountId;
@@ -137,9 +137,8 @@ public final class Person implements Writable, Serializable, Cloneable, Writable
     }
 
     @Override
-    public int compareTo(Object o) {
-        Person other = (Person) o;
-        return Long.compare(this.getAccountId(), other.getAccountId());
+    public int compareTo(Person o) {
+        return Long.compare(this.getAccountId(), o.getAccountId());
 
     }
 
