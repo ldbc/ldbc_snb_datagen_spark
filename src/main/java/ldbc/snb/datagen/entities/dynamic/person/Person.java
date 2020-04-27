@@ -37,7 +37,6 @@ package ldbc.snb.datagen.entities.dynamic.person;
 
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.WritableComparable;
 
 import java.io.DataInput;
 import java.io.DataOutput;

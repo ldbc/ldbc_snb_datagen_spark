@@ -110,10 +110,12 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
     val expected = spark.sparkContext
       .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](hadoopPrefix + "/knows")
 
-    val expecteds = expected.map { case (_, p) => p.hashCode() }.collect().toSet
-    val actuals = actual.map(_.hashCode()).collect().toSet
+    val expecteds = expected.map { case (_, p) => p.hashCode() }.collect()
+    val actuals = actual.map(_.hashCode()).collect()
 
-    actuals shouldBe expecteds
+    expecteds should have length 1700
+
+    actuals should contain theSameElementsAs expecteds
   }
 
   def timed[A](name: String, thunk: => A): A = {

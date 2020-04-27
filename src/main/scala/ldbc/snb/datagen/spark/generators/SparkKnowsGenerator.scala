@@ -39,8 +39,6 @@ object SparkKnowsGenerator {
       }
       ._2
 
-    println(s"Aggregated counts: $aggregatedCounts")
-
     val broadcastedCounts = spark.sparkContext.broadcast(aggregatedCounts)
 
     val indexed = sortedPersons.mapPartitionsWithIndex((i, ps) => {
@@ -56,34 +54,20 @@ object SparkKnowsGenerator {
       .combineByKeyWithClassTag(
           personByRank => SortedMap(personByRank),
           (map: SortedMap[Long, Person], personByRank) => map + personByRank,
-          (m1: SortedMap[Long, Person], m2: SortedMap[Long, Person]) => m1 ++ m2
+          (a: SortedMap[Long, Person], b: SortedMap[Long, Person]) => a ++ b
         )
       .mapPartitions(groups => {
         DatagenContext.initialize(conf)
         val knowsGeneratorClass = Class.forName(knowsGeneratorClassName)
+        val knowsGenerator = knowsGeneratorClass.newInstance().asInstanceOf[KnowsGenerator]
+        knowsGenerator.initialize(conf)
 
         val personGroups = for { (block, persons) <- groups } yield {
           val clonedPersons = new util.ArrayList[Person]
           for (p <- persons.values) {
             clonedPersons.add(new Person(p))
           }
-          val knowsGenerator = knowsGeneratorClass.newInstance().asInstanceOf[KnowsGenerator]
-          knowsGenerator.initialize(conf)
-
-          val hashCode = clonedPersons.hashCode
-
           knowsGenerator.generateKnows(clonedPersons, block.toInt, percentagesJava, stepIndex)
-          println("1: Generating block " + block.toInt + " percentages: " + percentagesJava + " step index: " + stepIndex + " person hash:" + hashCode + " output hash: " + clonedPersons.hashCode)
-
-          val clonedPersons2 = new util.ArrayList[Person]
-          for (p <- persons.values) {
-            clonedPersons2.add(new Person(p))
-          }
-
-          val hashCode2 = clonedPersons2.hashCode
-
-          knowsGenerator.generateKnows(clonedPersons2, block.toInt, percentagesJava, stepIndex)
-          println("2: Generating block " + block.toInt + " percentages: " + percentagesJava + " step index: " + stepIndex + " person hash:" + hashCode2 + " output hash: " + clonedPersons2.hashCode)
           clonedPersons
         }
 
