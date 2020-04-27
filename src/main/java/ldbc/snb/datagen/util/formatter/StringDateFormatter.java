@@ -38,38 +38,34 @@ package ldbc.snb.datagen.util.formatter;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.util.LdbcConfiguration;
 
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
-import java.util.TimeZone;
 
 public class StringDateFormatter implements DateFormatter {
+
+    private final ZoneId GMT = ZoneId.of("GMT");
 
     private String formatDateTimeString = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
     private String formatDateString = "yyyy-MM-dd";
 
-    private SimpleDateFormat gmtDateTimeFormatter;
-    private SimpleDateFormat gmtDateFormatter;
-    private Date date;
+    private DateTimeFormatter gmtDateTimeFormatter;
+    private DateTimeFormatter gmtDateFormatter;
 
     public void initialize(LdbcConfiguration conf) {
-
         formatDateTimeString = DatagenParams.getDateTimeFormat();
-        gmtDateTimeFormatter = new SimpleDateFormat(formatDateTimeString);
-        gmtDateTimeFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
+        gmtDateTimeFormatter = DateTimeFormatter.ofPattern(formatDateTimeString).withZone(GMT);
         formatDateString = DatagenParams.getDateFormat();
-        gmtDateFormatter = new SimpleDateFormat(formatDateString);
-        gmtDateFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
-        date = new Date();
+        gmtDateFormatter = DateTimeFormatter.ofPattern(formatDateString).withZone(GMT);
     }
 
     public String formatDateTime(long date) {
-        this.date.setTime(date);
-        return gmtDateTimeFormatter.format(this.date);
+        return gmtDateTimeFormatter.format(Instant.ofEpochMilli(date));
     }
 
     public String formatDate(long date) {
-        this.date.setTime(date);
-        return gmtDateFormatter.format(this.date);
+        return gmtDateFormatter.format(Instant.ofEpochMilli(date));
     }
 
 }
