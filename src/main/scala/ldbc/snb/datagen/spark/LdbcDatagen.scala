@@ -2,7 +2,7 @@ package ldbc.snb.datagen.spark
 
 import ldbc.snb.datagen.{DatagenContext, DatagenParams}
 import ldbc.snb.datagen.entities.dynamic.person.Person
-import ldbc.snb.datagen.spark.generators.{SparkKnowsGenerator, SparkKnowsMerger, SparkPersonGenerator}
+import ldbc.snb.datagen.spark.generators.{SparkKnowsGenerator, SparkKnowsMerger, SparkPersonGenerator, SparkRanker}
 import ldbc.snb.datagen.util.{ConfigParser, LdbcConfiguration}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
@@ -35,16 +35,18 @@ object LdbcDatagen {
 
     import Keys._
 
-    val uniKnows = SparkKnowsGenerator(persons, config, percentages, 0, _.byUni,
-      knowsGeneratorClassName, Some(numPartitions))
+    val uniRanker = SparkRanker.create(_.byUni, Some(numPartitions))
+    val interestRanker = SparkRanker.create(_.byInterest, Some(numPartitions))
+    val randomRanker = SparkRanker.create(_.byRandomId, Some(numPartitions))
 
-    val interestKnows = SparkKnowsGenerator(persons, config, percentages, 1, _.byInterest,
-      knowsGeneratorClassName, Some(numPartitions))
 
-    val randomKnows = SparkKnowsGenerator(persons, config, percentages, 2, _.byUni,
-      knowsGeneratorClassName, Some(numPartitions))
+    val uniKnows = SparkKnowsGenerator(persons, uniRanker, config, percentages, 0, knowsGeneratorClassName)
+    val interestKnows = SparkKnowsGenerator(persons, interestRanker, config, percentages, 1, knowsGeneratorClassName)
+    val randomKnows = SparkKnowsGenerator(persons, randomRanker, config, percentages, 2, knowsGeneratorClassName)
 
     val merged = SparkKnowsMerger(uniKnows, interestKnows, randomKnows)
+
+    //val activity = SparkActivityGenerator(activity)
 
 
 
