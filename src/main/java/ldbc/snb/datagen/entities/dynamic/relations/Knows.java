@@ -47,7 +47,7 @@ import java.io.IOException;
 import java.util.*;
 
 
-public class Knows implements Writable, Comparable<Knows> {
+public final class Knows implements Writable, Comparable<Knows> {
 
     private boolean isExplicitlyDeleted;
     private PersonSummary to;
@@ -117,6 +117,7 @@ public class Knows implements Writable, Comparable<Knows> {
     }
 
     public void readFields(DataInput arg0) throws IOException {
+        isExplicitlyDeleted = arg0.readBoolean();
         to.readFields(arg0);
         creationDate = arg0.readLong();
         deletionDate = arg0.readLong();
@@ -124,6 +125,7 @@ public class Knows implements Writable, Comparable<Knows> {
     }
 
     public void write(DataOutput arg0) throws IOException {
+        arg0.writeBoolean(isExplicitlyDeleted);
         to.write(arg0);
         arg0.writeLong(creationDate);
         arg0.writeLong(deletionDate);
@@ -135,6 +137,23 @@ public class Knows implements Writable, Comparable<Knows> {
         if (res > 0) return 1;
         if (res < 0) return -1;
         return 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Knows knows = (Knows) o;
+        return isExplicitlyDeleted == knows.isExplicitlyDeleted &&
+                creationDate == knows.creationDate &&
+                deletionDate == knows.deletionDate &&
+                Float.compare(knows.weight, weight) == 0 &&
+                Objects.equals(to, knows.to);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(isExplicitlyDeleted, to, creationDate, deletionDate, weight);
     }
 
     static public class FullComparator implements Comparator<Knows> {
