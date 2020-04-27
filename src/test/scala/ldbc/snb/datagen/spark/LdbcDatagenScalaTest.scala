@@ -1,14 +1,15 @@
 package ldbc.snb.datagen.spark
 
 import java.{lang, util}
-import java.util.Properties
+import java.util.{ArrayList, Arrays, Properties}
 
 import ldbc.snb.datagen._
 import ldbc.snb.datagen.entities.dynamic.person.Person
 import ldbc.snb.datagen.hadoop.HadoopConfiguration
 import ldbc.snb.datagen.hadoop.generator.{HadoopKnowsGenerator, HadoopPersonGenerator}
 import ldbc.snb.datagen.hadoop.key.TupleKey
-import ldbc.snb.datagen.spark.generators.{SparkKnowsGenerator, SparkPersonGenerator}
+import ldbc.snb.datagen.hadoop.miscjob.HadoopMergeFriendshipFiles
+import ldbc.snb.datagen.spark.generators.{SparkKnowsGenerator, SparkKnowsMerger, SparkPersonGenerator}
 import ldbc.snb.datagen.util.{ConfigParser, LdbcConfiguration}
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.mapred.SequenceFileInputFormat
@@ -104,6 +105,53 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
     )
   }
 
+  test("Merger returns expected results") {
+    val personsFixturePath = getClass.getResource("/fixtures/hadoop").toString
+
+    implicit val sparkSession = spark
+
+    val uni = spark.sparkContext
+      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](personsFixturePath + "/knows_university")
+      .values
+      .map(new Person(_)) // this required because of https://issues.apache.org/jira/browse/SPARK-993
+
+    val interest = spark.sparkContext
+      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](personsFixturePath + "/knows_interest")
+      .values
+      .map(new Person(_)) // this required because of https://issues.apache.org/jira/browse/SPARK-993
+
+    val random = spark.sparkContext
+      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](personsFixturePath + "/knows_random")
+      .values
+      .map(new Person(_)) // this required because of https://issues.apache.org/jira/browse/SPARK-993
+
+    val merger = new HadoopMergeFriendshipFiles(hadoopConf, "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter")
+    timed(
+      "hadoop merge",
+      merger.run(
+        hadoopPrefix + "/mergedPersons",
+        new util.ArrayList[String](util.Arrays.asList(
+          personsFixturePath + "/knows_university",
+          personsFixturePath + "/knows_interest",
+          personsFixturePath + "/knows_random"
+        ))
+      )
+    )
+
+    val actual = SparkKnowsMerger(uni, interest, random)
+
+    val expected = spark.sparkContext
+      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](hadoopPrefix + "/mergedPersons")
+      .values
+
+    val expecteds = expected.map(_.hashCode).collect().toSet
+
+    val actuals = actual.map(_.hashCode).collect().toSet
+
+    actuals should have size 1700
+    actuals shouldBe expecteds
+  }
+
   def shouldGenerateSameKnows[K: ClassTag: Ordering](
     hadoopDir: String,
     stepIndex: Int,
@@ -142,12 +190,11 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
     val expected = spark.sparkContext
       .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](hadoopPrefix + hadoopDir)
 
-    val expecteds = expected.map { case (_, p) => p.hashCode() }.collect()
-    val actuals = actual.map(_.hashCode()).collect()
+    val expecteds = expected.map { case (_, p) => p.hashCode() }.collect().toSet
+    val actuals = actual.map(_.hashCode()).collect().toSet
 
-    expecteds should have length 1700
-
-    actuals should contain theSameElementsAs expecteds
+    expecteds should have size 1700
+    actuals shouldBe expecteds
   }
 
   def timed[A](name: String, thunk: => A): A = {
