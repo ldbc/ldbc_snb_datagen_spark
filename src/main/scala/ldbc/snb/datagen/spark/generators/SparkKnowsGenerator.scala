@@ -14,7 +14,7 @@ import scala.collection.SortedMap
 import scala.reflect.ClassTag
 
 object SparkKnowsGenerator {
-  def apply[K: Ordering: ClassTag](
+  def apply(
     persons: RDD[Person],
     ranker: SparkRanker,
     conf: LdbcConfiguration,

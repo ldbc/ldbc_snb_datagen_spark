@@ -1,11 +1,11 @@
 package ldbc.snb.datagen.spark.generators
 
-import ldbc.snb.datagen.DatagenParams
 import ldbc.snb.datagen.entities.dynamic.person.Person
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
 
 import scala.collection.SortedMap
+import scala.reflect.ClassTag
 
 trait SparkRanker {
   def apply(persons: RDD[Person]): RDD[(Long, Person)]
@@ -13,7 +13,7 @@ trait SparkRanker {
 
 object SparkRanker {
 
-  def create[K](by: Person => K, numPartitions: Option[Int] = None)(implicit spark: SparkSession): SparkRanker =
+  def create[K: Ordering: ClassTag](by: Person => K, numPartitions: Option[Int] = None)(implicit spark: SparkSession): SparkRanker =
     persons => {
       val partitions = numPartitions.getOrElse(spark.sparkContext.defaultParallelism)
 

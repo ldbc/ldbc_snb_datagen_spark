@@ -9,7 +9,7 @@ import ldbc.snb.datagen.hadoop.HadoopConfiguration
 import ldbc.snb.datagen.hadoop.generator.{HadoopKnowsGenerator, HadoopPersonGenerator}
 import ldbc.snb.datagen.hadoop.key.TupleKey
 import ldbc.snb.datagen.hadoop.miscjob.HadoopMergeFriendshipFiles
-import ldbc.snb.datagen.spark.generators.{SparkKnowsGenerator, SparkKnowsMerger, SparkPersonGenerator}
+import ldbc.snb.datagen.spark.generators.{SparkKnowsGenerator, SparkKnowsMerger, SparkPersonGenerator, SparkRanker}
 import ldbc.snb.datagen.util.{ConfigParser, LdbcConfiguration}
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.mapred.SequenceFileInputFormat
@@ -161,7 +161,6 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
   ) = {
     val personsFixturePath = getClass.getResource("/fixtures/hadoop/persons").toString
 
-    val knowsGeneratorClassName = "ldbc.snb.datagen.generator.generators.knowsgenerators.DistanceKnowsGenerator"
     val preKeyHadoop = hadoopSorter
     val postKeySetter = "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter"
 
@@ -184,8 +183,9 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
 
     implicit val sparkSession = spark
 
-    val actual = SparkKnowsGenerator(persons, conf, percentages, stepIndex,
-      sortBy = sparkSorter, knowsGeneratorClassName)
+    val ranker = SparkRanker.create(sparkSorter)
+
+    val actual = SparkKnowsGenerator(persons, ranker, conf, percentages, stepIndex, knowsGeneratorClassName)
 
     val expected = spark.sparkContext
       .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](hadoopPrefix + hadoopDir)

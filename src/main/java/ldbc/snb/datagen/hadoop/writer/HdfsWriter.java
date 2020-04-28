@@ -35,6 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop.writer;
 
+import com.google.common.base.Charsets;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -50,10 +51,9 @@ public class HdfsWriter {
     private StringBuffer buffer;
     private OutputStream[] fileOutputStream;
 
-    public HdfsWriter(String outputDir, String prefix, int numPartitions, boolean compressed, String extension) throws IOException {
+    public HdfsWriter(Configuration conf, String outputDir, String prefix, int numPartitions, boolean compressed, String extension) throws IOException {
         this.numPartitions = numPartitions;
         try {
-            Configuration conf = new Configuration();
             FileSystem fs = FileSystem.get(conf);
             fileOutputStream = new OutputStream[numPartitions];
             if (compressed) {
@@ -77,7 +77,7 @@ public class HdfsWriter {
         buffer.setLength(0);
         buffer.append(entry);
         try {
-            fileOutputStream[currentPartition].write(buffer.toString().getBytes("UTF8"));
+            fileOutputStream[currentPartition].write(buffer.toString().getBytes(Charsets.UTF_8));
             currentPartition = ++currentPartition % numPartitions;
         } catch (IOException e) {
             System.out.println("Cannot write to output file ");
@@ -88,7 +88,7 @@ public class HdfsWriter {
     public void writeAllPartitions(String entry) {
         try {
             for (int i = 0; i < numPartitions; ++i) {
-                fileOutputStream[i].write(entry.getBytes("UTF8"));
+                fileOutputStream[i].write(entry.getBytes(Charsets.UTF_8));
             }
         } catch (IOException e) {
             System.out.println("Cannot write to output file ");

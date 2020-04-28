@@ -36,6 +36,8 @@
 package ldbc.snb.datagen.hadoop.writer;
 
 
+import org.apache.hadoop.conf.Configuration;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -45,8 +47,8 @@ public class HdfsCsvWriter extends HdfsWriter {
     private StringBuffer buffer;
     private boolean endLineSeparator = true;
 
-    public HdfsCsvWriter(String outputDir, String prefix, int numPartitions, boolean compressed, String separator, boolean endLineSeparator) throws IOException {
-        super(outputDir, prefix, numPartitions, compressed, "csv");
+    public HdfsCsvWriter(Configuration conf, String outputDir, String prefix, int numPartitions, boolean compressed, String separator, boolean endLineSeparator) throws IOException {
+        super(conf, outputDir, prefix, numPartitions, compressed, "csv");
         this.separator = separator;
         this.buffer = new StringBuffer(2048);
         this.endLineSeparator = endLineSeparator;

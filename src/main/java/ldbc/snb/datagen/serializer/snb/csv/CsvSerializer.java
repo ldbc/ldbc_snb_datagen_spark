@@ -18,6 +18,7 @@ public interface CsvSerializer extends Serializer<HdfsCsvWriter> {
         Map<FileName, HdfsCsvWriter> writers = new HashMap<>();
         for (FileName f : fileNames) {
             writers.put(f, new HdfsCsvWriter(
+                    conf,
                     HadoopConfiguration.getSocialNetworkDir(conf) + (dynamic ? "/dynamic/" : "/static/"),
                     f.toString() + "_" + reducerId,
                     DatagenParams.numUpdateStreams,
