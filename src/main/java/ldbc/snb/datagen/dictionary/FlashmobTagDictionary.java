@@ -54,11 +54,6 @@ public class FlashmobTagDictionary {
     private PowerDistribution levelGenerator;
 
     /**
-     *  A uniform random generator.
-     */
-    private Random random;
-
-    /**
      *  The tag dictionary used to create the flashmob tags.
      */
     private TagDictionary tagDictionary;
@@ -100,7 +95,6 @@ public class FlashmobTagDictionary {
         this.tagDictionary = tagDictionary;
         this.dateGen = dateGen;
         this.levelGenerator = new PowerDistribution(flashmobTagMinLevel, flashmobTagMaxLevel, flashmobTagDistExp);
-        this.random = new Random(0);
         this.flashmobTags = new HashMap<>();
         this.flashmobTagsPerMonth = flashmobTagsPerMonth;
         this.probInterestFlashmobTag = probInterestFlashmobTag;
@@ -112,6 +106,7 @@ public class FlashmobTagDictionary {
      * Initializes the flashmob tag dictionary, by selecting a set of tags as flashmob tags.
      */
     private void initialize() {
+        Random random = new Random(0);
         int numFlashmobTags = (int) (flashmobTagsPerMonth * dateGen.numberOfMonths(dateGen.getSimulationStart()));
         Integer[] tags = tagDictionary.getRandomTags(random, numFlashmobTags);
         flashmobTagCumDist = new FlashMobTag[numFlashmobTags];
