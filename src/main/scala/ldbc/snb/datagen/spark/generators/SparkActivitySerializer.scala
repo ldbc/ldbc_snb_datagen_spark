@@ -6,7 +6,7 @@ import ldbc.snb.datagen.{DatagenContext, DatagenMode, DatagenParams}
 import ldbc.snb.datagen.entities.dynamic.person.Person
 import ldbc.snb.datagen.generator.generators.PersonActivityGenerator
 import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter
-import ldbc.snb.datagen.serializer.{DeleteEventSerializer, DynamicActivitySerializer, DynamicPersonSerializer, InsertEventSerializer, PersonActivityExporter}
+import ldbc.snb.datagen.serializer.{DeleteEventSerializer, DynamicActivitySerializer, InsertEventSerializer, PersonActivityExporter}
 import ldbc.snb.datagen.spark.util.SerializableConfiguration
 import ldbc.snb.datagen.util.LdbcConfiguration
 import org.apache.hadoop.fs.{FileSystem, Path}
@@ -30,6 +30,7 @@ object SparkActivitySerializer {
       val hadoopConf = serializableHadoopConf.value
 
       val fs = FileSystem.get(hadoopConf)
+      fs.mkdirs(new Path(outputDir))
 
       val dynamicActivitySerializer = Class.forName(serializerClassName)
         .newInstance()
@@ -56,6 +57,8 @@ object SparkActivitySerializer {
       }
       val generator = new PersonActivityGenerator
       val exporter = new PersonActivityExporter(dynamicActivitySerializer, insertEventSerializer, deleteEventSerializer)
+
+
 
       val personFactors = fs.create(new Path(outputDir + "/" + "m" + partitionId + DatagenParams.PERSON_COUNTS_FILE))
       val activityFactors = fs.create(new Path(outputDir + "/" + "m" + partitionId + DatagenParams.ACTIVITY_FILE))

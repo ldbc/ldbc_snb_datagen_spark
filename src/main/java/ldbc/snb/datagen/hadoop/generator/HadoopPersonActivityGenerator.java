@@ -93,6 +93,7 @@ public class HadoopPersonActivityGenerator {
             System.out.println("Setting up reducer for person activity generation");
             Configuration hadoopConf = context.getConfiguration();
             LdbcConfiguration conf = HadoopConfiguration.extractLdbcConfig(hadoopConf);
+            String outputFileName = hadoopConf.get("outputFileName");
             int reducerId = context.getTaskAttemptID().getTaskID().getId();
             DatagenContext.initialize(conf);
             try {
@@ -101,8 +102,8 @@ public class HadoopPersonActivityGenerator {
                 InsertEventSerializer insertEventSerializer = null;
                 DeleteEventSerializer deleteEventSerializer = null;
                 if (DatagenParams.getDatagenMode() != DatagenMode.RAW_DATA) {
-                    insertEventSerializer = new InsertEventSerializer(hadoopConf, HadoopConfiguration.getHadoopDir(hadoopConf)  + "/temp_insertStream_forum_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
-                    deleteEventSerializer = new DeleteEventSerializer(hadoopConf, HadoopConfiguration.getHadoopDir(hadoopConf)  + "/temp_deleteStream_forum_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
+                    insertEventSerializer = new InsertEventSerializer(hadoopConf, outputFileName  + "/temp_insertStream_forum_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
+                    deleteEventSerializer = new DeleteEventSerializer(hadoopConf, outputFileName  + "/temp_deleteStream_forum_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
                 }
                 personActivityGenerator = new PersonActivityGenerator();
                 personActivityExporter =
@@ -110,10 +111,10 @@ public class HadoopPersonActivityGenerator {
 
                 FileSystem fs = FileSystem.get(context.getConfiguration());
                 personFactors = fs
-                        .create(new Path(HadoopConfiguration.getHadoopDir(hadoopConf)  + "/" + "m" + reducerId + DatagenParams.PERSON_COUNTS_FILE));
+                        .create(new Path(outputFileName  + "/" + "m" + reducerId + DatagenParams.PERSON_COUNTS_FILE));
                 activityFactors = fs
-                        .create(new Path(HadoopConfiguration.getHadoopDir(hadoopConf)  + "/" + "m" + reducerId + DatagenParams.ACTIVITY_FILE));
-                friends = fs.create(new Path(HadoopConfiguration.getHadoopDir(hadoopConf)  + "/" + "m0friendList" + reducerId + ".csv"));
+                        .create(new Path(outputFileName  + "/" + "m" + reducerId + DatagenParams.ACTIVITY_FILE));
+                friends = fs.create(new Path(outputFileName  + "/" + "m0friendList" + reducerId + ".csv"));
 
             } catch (Exception e) {
                 System.err.println(e.getMessage());
@@ -185,7 +186,7 @@ public class HadoopPersonActivityGenerator {
         this.conf = conf;
     }
 
-    public void run(String inputFileName) throws AssertionError, Exception {
+    public void run(String inputFileName, String outputFileName) throws AssertionError, Exception {
 
         FileSystem fs = FileSystem.get(conf);
 
@@ -196,6 +197,7 @@ public class HadoopPersonActivityGenerator {
 
         System.out.println("Running activity generator");
         int numThreads = HadoopConfiguration.getNumThreads(conf);
+        conf.set("outputFileName", outputFileName);
         Job job = Job.getInstance(conf, "Person Activity Generator/Serializer");
         job.setMapOutputKeyClass(BlockKey.class);
         job.setMapOutputValueClass(Person.class);
@@ -220,7 +222,7 @@ public class HadoopPersonActivityGenerator {
         //
 
         FileInputFormat.setInputPaths(job, new Path(rankedFileName));
-        FileOutputFormat.setOutputPath(job, new Path(HadoopConfiguration.getHadoopDir(conf) + "/aux"));
+        FileOutputFormat.setOutputPath(job, new Path(outputFileName + "/aux"));
         long start = System.currentTimeMillis();
         if (!job.waitForCompletion(true)) {
             throw new IllegalStateException("HadoopPersonActivityGenerator failed");
@@ -229,7 +231,7 @@ public class HadoopPersonActivityGenerator {
 
         try {
             fs.delete(new Path(rankedFileName), true);
-            fs.delete(new Path(HadoopConfiguration.getHadoopDir(conf) + "/aux"), true);
+            fs.delete(new Path(outputFileName + "/aux"), true);
         } catch (IOException e) {
             System.err.println(e.getMessage());
             throw new RuntimeException(e);

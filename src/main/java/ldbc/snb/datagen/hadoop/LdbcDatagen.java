@@ -116,7 +116,7 @@ public class LdbcDatagen {
         long startPersonActivity = System.currentTimeMillis();
         printProgress("Generating and serializing person activity");
         HadoopPersonActivityGenerator activityGenerator = new HadoopPersonActivityGenerator(conf);
-        activityGenerator.run(hadoopPrefix + "/mergedPersons");
+        activityGenerator.run(hadoopPrefix + "/mergedPersons", hadoopPrefix);
         for (int i = 0; i < HadoopConfiguration.getNumThreads(conf); ++i) {
             if (i < (int) Math.ceil(DatagenParams.numPersons / (double) DatagenParams.blockSize)) { // i<number of blocks
                 copyToLocal(fs, HadoopConfiguration.getHadoopDir(conf) + "/m" + i + "personFactors.txt");

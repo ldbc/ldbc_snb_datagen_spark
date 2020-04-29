@@ -1,15 +1,16 @@
 package ldbc.snb.datagen.spark
 
-import java.{lang, util}
-import java.util.{ArrayList, Arrays, Properties}
+import java.lang
+import java.util.Properties
 
 import ldbc.snb.datagen._
 import ldbc.snb.datagen.entities.dynamic.person.Person
 import ldbc.snb.datagen.hadoop.HadoopConfiguration
-import ldbc.snb.datagen.hadoop.generator.{HadoopKnowsGenerator, HadoopPersonGenerator}
+import ldbc.snb.datagen.hadoop.generator.{HadoopKnowsGenerator, HadoopPersonActivityGenerator, HadoopPersonGenerator}
 import ldbc.snb.datagen.hadoop.key.TupleKey
 import ldbc.snb.datagen.hadoop.miscjob.HadoopMergeFriendshipFiles
-import ldbc.snb.datagen.spark.generators.{SparkKnowsGenerator, SparkKnowsMerger, SparkPersonGenerator, SparkRanker}
+import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvBasicDynamicActivitySerializer
+import ldbc.snb.datagen.spark.generators.{SparkActivitySerializer, SparkKnowsGenerator, SparkKnowsMerger, SparkPersonGenerator, SparkRanker}
 import ldbc.snb.datagen.util.{ConfigParser, LdbcConfiguration}
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.mapred.SequenceFileInputFormat
@@ -28,7 +29,7 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
 
   override def beforeAll(): Unit = {
     super.beforeAll()
-    val confMap: util.Map[String, String] = ConfigParser.defaultConfiguration
+    val confMap: java.util.Map[String, String] = ConfigParser.defaultConfiguration
 
     confMap.putAll(ConfigParser.readConfig(getClass.getResourceAsStream("/params_default.ini")))
 
@@ -58,6 +59,8 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
     spark.close()
     super.afterAll()
   }
+
+  val fixturePath = getClass.getResource("/fixtures/hadoop").toString
 
   test("Person generator returns expected results") {
     timed(
@@ -106,22 +109,20 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
   }
 
   test("Merger returns expected results") {
-    val personsFixturePath = getClass.getResource("/fixtures/hadoop").toString
-
     implicit val sparkSession = spark
 
     val uni = spark.sparkContext
-      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](personsFixturePath + "/knows_university")
+      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](fixturePath + "/knows_university")
       .values
       .map(new Person(_)) // this required because of https://issues.apache.org/jira/browse/SPARK-993
 
     val interest = spark.sparkContext
-      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](personsFixturePath + "/knows_interest")
+      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](fixturePath + "/knows_interest")
       .values
       .map(new Person(_)) // this required because of https://issues.apache.org/jira/browse/SPARK-993
 
     val random = spark.sparkContext
-      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](personsFixturePath + "/knows_random")
+      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](fixturePath + "/knows_random")
       .values
       .map(new Person(_)) // this required because of https://issues.apache.org/jira/browse/SPARK-993
 
@@ -129,11 +130,11 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
     timed(
       "hadoop merge",
       merger.run(
-        hadoopPrefix + "/mergedPersons",
-        new util.ArrayList[String](util.Arrays.asList(
-          personsFixturePath + "/knows_university",
-          personsFixturePath + "/knows_interest",
-          personsFixturePath + "/knows_random"
+        hadoopPrefix + "/merged_persons",
+        new java.util.ArrayList[String](java.util.Arrays.asList(
+          fixturePath + "/knows_university",
+          fixturePath + "/knows_interest",
+          fixturePath + "/knows_random"
         ))
       )
     )
@@ -141,7 +142,7 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
     val actual = SparkKnowsMerger(uni, interest, random)
 
     val expected = spark.sparkContext
-      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](hadoopPrefix + "/mergedPersons")
+      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](hadoopPrefix + "/merged_persons")
       .values
 
     val expecteds = expected.map(_.hashCode).collect().toSet
@@ -152,6 +153,28 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
     actuals shouldBe expecteds
   }
 
+  test("Person activity serializer generates & serializes the same activities") {
+    val persons = spark.sparkContext
+      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](fixturePath + "/merged_persons")
+      .values
+
+    implicit val sparkSession = spark
+
+    val ranker = SparkRanker.create(_.byRandomId)
+
+    val hadoop = new HadoopPersonActivityGenerator(hadoopConf)
+
+    timed(
+      "hadoop person activity",
+      hadoop.run(fixturePath + "/merged_persons", hadoopPrefix + "/activity/expected")
+    )
+
+    timed(
+      "spark person activity",
+      SparkActivitySerializer(persons, ranker, conf, classOf[CsvBasicDynamicActivitySerializer].getName, hadoopPrefix + "/activity/actual")
+    )
+  }
+
   def shouldGenerateSameKnows[K: ClassTag: Ordering](
     hadoopDir: String,
     stepIndex: Int,
@@ -159,8 +182,6 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
     hadoopSorter: String,
     knowsGeneratorClassName: String = "ldbc.snb.datagen.generator.generators.knowsgenerators.DistanceKnowsGenerator"
   ) = {
-    val personsFixturePath = getClass.getResource("/fixtures/hadoop/persons").toString
-
     val preKeyHadoop = hadoopSorter
     val postKeySetter = "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter"
 
@@ -174,11 +195,11 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
         percentages.map(new lang.Float(_)).asJava,
         stepIndex,
         knowsGeneratorClassName
-      ).run(personsFixturePath, hadoopPrefix + hadoopDir)
+      ).run(fixturePath + "/persons", hadoopPrefix + hadoopDir)
     )
 
     val persons = spark.sparkContext
-      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](personsFixturePath)
+      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](fixturePath + "/persons")
       .values
 
     implicit val sparkSession = spark
