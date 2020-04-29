@@ -53,13 +53,10 @@ public class TagTextDictionary {
      */
     private double reducedTextRatio;
 
-    private StringBuilder returnString = null;
-
     public TagTextDictionary(TagDictionary tagDic, double reducedTextRatio) {
         this.tagText = new HashMap<>();
         this.tagDic = tagDic;
         this.reducedTextRatio = reducedTextRatio;
-        this.returnString = new StringBuilder(1000);
         load(DatagenParams.tagTextFile);
     }
 
@@ -126,6 +123,7 @@ public class TagTextDictionary {
      * @brief Generates a text given a set of tags.
      */
     public String generateText(Random randomTextSize, TreeSet<Integer> tags, int textSize) {
+        StringBuilder returnString = new StringBuilder(1024);
         returnString.setLength(0);
         int textSizePerTag = (int) Math.ceil(textSize / (double) tags.size());
         while (returnString.length() < textSize) {
