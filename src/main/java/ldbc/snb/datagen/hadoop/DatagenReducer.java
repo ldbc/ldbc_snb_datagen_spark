@@ -6,7 +6,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 
 import java.io.IOException;
 
-public abstract class DatagenReducer<T, T1, T2, T3> extends Reducer<T, T1, T2, T3> {
+public abstract class DatagenReducer<KEYIN, VALUEIN, KEYOUT, VALUEOUT> extends Reducer<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
 
     protected Configuration hadoopConf;
     protected LdbcConfiguration conf;
