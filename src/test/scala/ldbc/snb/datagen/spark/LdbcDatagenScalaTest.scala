@@ -59,6 +59,28 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
     super.afterAll()
   }
 
+  test("Person generator is deterministic") {
+    timed(
+      "hadoop person generation",
+      new HadoopPersonGenerator(hadoopConf)
+        .run(hadoopPrefix + "/persons", "ldbc.snb.datagen.hadoop.miscjob.keychanger.UniversityKeySetter")
+    )
+
+    timed(
+      "hadoop person generation",
+      new HadoopPersonGenerator(hadoopConf)
+        .run(hadoopPrefix + "/persons2", "ldbc.snb.datagen.hadoop.miscjob.keychanger.UniversityKeySetter")
+    )
+
+    val expected = spark.sparkContext.hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](hadoopPrefix + "/persons")
+    val actual = spark.sparkContext.hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](hadoopPrefix + "/persons2")
+
+    val actuals = actual.map(_.hashCode()).collect().toSet
+    val expecteds = expected.map(_._2.hashCode()).collect().toSet
+
+    actuals shouldBe expecteds
+  }
+
   test("Person generator returns expected results") {
     timed(
       "hadoop person generation",
