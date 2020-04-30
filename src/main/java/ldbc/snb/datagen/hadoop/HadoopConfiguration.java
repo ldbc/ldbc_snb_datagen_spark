@@ -43,10 +43,10 @@ public class HadoopConfiguration {
     public static Configuration prepare(Map<String, String> conf) throws IOException {
         Configuration hadoopConf = new Configuration();
 
-        if (hadoopConf.get("fs.defaultFS").compareTo("file:///") == 0) {
-            System.out.println("Running in standalone mode. Setting numThreads to 1");
-            conf.put("hadoop.numThreads", "1");
-        }
+//        if (hadoopConf.get("fs.defaultFS").compareTo("file:///") == 0) {
+//            System.out.println("Running in standalone mode. Setting numThreads to 1");
+//            conf.put("hadoop.numThreads", "1");
+//        }
 
 //        conf.put("hadoop.serializer.hadoopDir", conf.get("hadoop.serializer.outputDir") + "hadoop");
 //        conf.put("hadoop.serializer.socialNetworkDir", conf.get("hadoop.serializer.outputDir") + "social_network");
