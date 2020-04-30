@@ -75,7 +75,7 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
     val expected = spark.sparkContext.hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](hadoopPrefix + "/persons")
     val actual = spark.sparkContext.hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](hadoopPrefix + "/persons2")
 
-    val actuals = actual.map(_.hashCode()).collect().toSet
+    val actuals = actual.map(_._2.hashCode()).collect().toSet
     val expecteds = expected.map(_._2.hashCode()).collect().toSet
 
     actuals shouldBe expecteds
