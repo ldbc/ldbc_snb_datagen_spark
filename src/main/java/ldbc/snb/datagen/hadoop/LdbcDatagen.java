@@ -74,7 +74,7 @@ public class LdbcDatagen extends DatagenHadoopJob {
     private long personGenerateJob(String hadoopPrefix) throws Exception {
         printProgress("Starting: Person generation");
         long startPerson = System.currentTimeMillis();
-        new HadoopPersonGenerator(hadoopConf)
+        new HadoopPersonGenerator(conf, hadoopConf)
                 .run(hadoopPrefix + "/persons",
                         "ldbc.snb.datagen.hadoop.miscjob.keychanger.UniversityKeySetter");
         return (System.currentTimeMillis() - startPerson);
@@ -120,7 +120,7 @@ public class LdbcDatagen extends DatagenHadoopJob {
     private long personActivityJob(String hadoopPrefix, FileSystem fs) throws Exception {
         long startPersonActivity = System.currentTimeMillis();
         printProgress("Generating and serializing person activity");
-        HadoopPersonActivityGenerator activityGenerator = new HadoopPersonActivityGenerator(hadoopConf);
+        HadoopPersonActivityGenerator activityGenerator = new HadoopPersonActivityGenerator(conf, hadoopConf);
         activityGenerator.run(hadoopPrefix + "/mergedPersons");
         for (int i = 0; i < HadoopConfiguration.getNumThreads(hadoopConf); ++i) {
             if (i < (int) Math.ceil(DatagenParams.numPersons / (double) DatagenParams.blockSize)) { // i<number of blocks
