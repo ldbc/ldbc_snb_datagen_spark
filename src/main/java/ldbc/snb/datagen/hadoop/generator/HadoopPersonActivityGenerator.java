@@ -42,6 +42,7 @@ import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.generator.generators.GenActivity;
 import ldbc.snb.datagen.generator.generators.PersonActivityGenerator;
+import ldbc.snb.datagen.hadoop.DatagenHadoopJob;
 import ldbc.snb.datagen.hadoop.HadoopBlockMapper;
 import ldbc.snb.datagen.hadoop.HadoopBlockPartitioner;
 import ldbc.snb.datagen.hadoop.HadoopConfiguration;
@@ -74,9 +75,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class HadoopPersonActivityGenerator {
+public class HadoopPersonActivityGenerator extends DatagenHadoopJob {
 
-    private Configuration hadoopConf;
+    public HadoopPersonActivityGenerator(LdbcConfiguration conf, Configuration hadoopConf) {
+        super(conf, hadoopConf);
+    }
 
     public static class HadoopPersonActivityGeneratorReducer extends Reducer<BlockKey, Person, LongWritable, Person> {
 
@@ -187,13 +190,7 @@ public class HadoopPersonActivityGenerator {
         }
     }
 
-    public HadoopPersonActivityGenerator(Configuration hadoopConf) {
-        this.hadoopConf = hadoopConf;
-    }
-
     public void run(String inputFileName) throws AssertionError, Exception {
-
-        LdbcConfiguration conf = HadoopConfiguration.extractLdbcConfig(hadoopConf);
 
         FileSystem fs = FileSystem.get(hadoopConf);
 
