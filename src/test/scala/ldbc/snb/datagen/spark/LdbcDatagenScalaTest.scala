@@ -1,5 +1,6 @@
 package ldbc.snb.datagen.spark
 
+import java.io.File
 import java.{lang, util}
 import java.util.{ArrayList, Arrays, Properties}
 
@@ -11,15 +12,17 @@ import ldbc.snb.datagen.hadoop.key.TupleKey
 import ldbc.snb.datagen.hadoop.miscjob.HadoopMergeFriendshipFiles
 import ldbc.snb.datagen.spark.generators.{SparkKnowsGenerator, SparkKnowsMerger, SparkPersonGenerator}
 import ldbc.snb.datagen.util.{ConfigParser, LdbcConfiguration}
+import org.apache.commons.io.FileUtils
 import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.hadoop.mapred.SequenceFileInputFormat
 import org.apache.spark.sql.SparkSession
-import org.scalatest.{BeforeAndAfterAll, FunSuite, Matchers}
+import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, BeforeAndAfterEach, FunSuite, Matchers}
 
 import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
 
-class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers {
+class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with Matchers {
 
   var hadoopConf: Configuration = _
   var hadoopPrefix: String = _
@@ -57,6 +60,13 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
   override def afterAll(): Unit = {
     spark.close()
     super.afterAll()
+  }
+
+  override def beforeEach(): Unit = {
+    val dfs = FileSystem.get(hadoopConf)
+    dfs.delete(new Path(hadoopConf.get("hadoop.serializer.hadoopDir")), true)
+    dfs.delete(new Path(hadoopConf.get("hadoop.serializer.socialNetworkDir")), true)
+    FileUtils.deleteDirectory(new File(hadoopConf.get("hadoop.serializer.outputDir") + "/substitution_parameters"))
   }
 
   test("Person generator is deterministic") {
