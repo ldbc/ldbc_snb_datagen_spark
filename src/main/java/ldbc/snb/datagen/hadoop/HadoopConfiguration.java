@@ -39,7 +39,7 @@ public class HadoopConfiguration {
         FileSystem dfs = FileSystem.get(hadoopConf);
 
         dfs.delete(new Path(ldbcConf.getBuildDir()), true);
-        dfs.delete(new Path(ldbcConf.getOutputDir()), true);
+        dfs.delete(new Path(ldbcConf.getSocialNetworkDir()), true);
         FileUtils.deleteDirectory(new File(ldbcConf.getOutputDir() + "/substitution_parameters"));
         return hadoopConf;
     }
