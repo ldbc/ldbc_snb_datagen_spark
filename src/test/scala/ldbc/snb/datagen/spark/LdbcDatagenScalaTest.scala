@@ -37,13 +37,13 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
     props.setProperty("generator.mode", "interactive")
     props.setProperty("generator.blockSize", "100")
     props.setProperty("generator.interactive.numUpdateStreams", "1")
-    props.setProperty("hadoop.numThreads", "2")
 
     confMap.putAll(ConfigParser.readConfig(props))
 
     conf = new LdbcConfiguration(confMap)
 
     hadoopConf = HadoopConfiguration.prepare(conf)
+    hadoopConf.set("hadoop.numThreads", "2")
     buildDir = conf.getBuildDir
 
     DatagenContext.initialize(conf)
