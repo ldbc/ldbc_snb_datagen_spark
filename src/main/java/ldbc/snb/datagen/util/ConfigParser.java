@@ -104,14 +104,14 @@ public class ConfigParser {
         conf.put("generator.StringDate.dateFormat", "yyyy-MM-dd");
 
 
+
         conf.put("hadoop.numThreads", "1");
         conf.put("serializer.format","CsvBasic");
         conf.put("serializer.compressed", "false");
         conf.put("serializer.insertTrailingSeparator", "false");
         conf.put("serializer.outputDir", "./");
         conf.put("serializer.socialNetworkDir", "./social_network");
-        conf.put("serializer.hadoopDir", "./hadoop");
-
+        conf.put("serializer.buildDir", "./hadoop");
 
         return conf;
     }

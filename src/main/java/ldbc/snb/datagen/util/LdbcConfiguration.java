@@ -193,7 +193,7 @@ public class LdbcConfiguration implements Iterable<Map.Entry<String, String>>, S
     }
 
     public String getBuildDir() {
-        return map.get("generator.buildDir");
+        return map.get("serializer.buildDir");
     }
 
     public String getSocialNetworkDir() {
