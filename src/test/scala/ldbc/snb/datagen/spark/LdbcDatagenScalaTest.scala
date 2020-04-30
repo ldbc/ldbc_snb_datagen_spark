@@ -22,7 +22,7 @@ import scala.reflect.ClassTag
 class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers {
 
   var hadoopConf: Configuration = _
-  var hadoopPrefix: String = _
+  var buildDir: String = _
   var conf: LdbcConfiguration = _
   var spark: SparkSession = _
 
@@ -37,13 +37,15 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
     props.setProperty("generator.mode", "interactive")
     props.setProperty("generator.blockSize", "100")
     props.setProperty("generator.interactive.numUpdateStreams", "1")
-    props.setProperty("hadoop.numThreads", "2")
 
     confMap.putAll(ConfigParser.readConfig(props))
 
-    hadoopConf = HadoopConfiguration.prepare(confMap)
-    hadoopPrefix = HadoopConfiguration.getHadoopDir(hadoopConf)
-    conf = HadoopConfiguration.extractLdbcConfig(hadoopConf)
+    conf = new LdbcConfiguration(confMap)
+
+    hadoopConf = HadoopConfiguration.prepare(conf)
+    hadoopConf.set("hadoop.numThreads", "2")
+    buildDir = conf.getBuildDir
+
     DatagenContext.initialize(conf)
 
     spark = SparkSession
@@ -62,11 +64,11 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
   test("Person generator returns expected results") {
     timed(
       "hadoop person generation",
-      new HadoopPersonGenerator(hadoopConf)
-        .run(hadoopPrefix + "/persons", "ldbc.snb.datagen.hadoop.miscjob.keychanger.UniversityKeySetter")
+      new HadoopPersonGenerator(conf, hadoopConf)
+        .run(buildDir + "/persons", "ldbc.snb.datagen.hadoop.miscjob.keychanger.UniversityKeySetter")
     )
 
-    val expected = spark.sparkContext.hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](hadoopPrefix + "/persons")
+    val expected = spark.sparkContext.hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](buildDir + "/persons")
     val actual = SparkPersonGenerator(conf, numPartitions = Some(Integer.parseInt(hadoopConf.get("hadoop.numThreads"))))(spark)
 
     val actuals = actual.map(_.hashCode()).collect().toSet
@@ -129,7 +131,7 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
     timed(
       "hadoop merge",
       merger.run(
-        hadoopPrefix + "/mergedPersons",
+        buildDir + "/mergedPersons",
         new util.ArrayList[String](util.Arrays.asList(
           personsFixturePath + "/knows_university",
           personsFixturePath + "/knows_interest",
@@ -141,7 +143,7 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
     val actual = SparkKnowsMerger(uni, interest, random)
 
     val expected = spark.sparkContext
-      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](hadoopPrefix + "/mergedPersons")
+      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](buildDir + "/mergedPersons")
       .values
 
     val expecteds = expected.map(_.hashCode).collect().toSet
@@ -153,7 +155,7 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
   }
 
   def shouldGenerateSameKnows[K: ClassTag: Ordering](
-    hadoopDir: String,
+    hadoopFile: String,
     stepIndex: Int,
     sparkSorter: Person => K,
     hadoopSorter: String,
@@ -167,15 +169,16 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
 
     val percentages = Seq(0.45f, 0.45f, 0.1f)
     timed(
-      s"hadoop knows generation for $hadoopDir",
+      s"hadoop knows generation for $hadoopFile",
       new HadoopKnowsGenerator(
+        conf,
         hadoopConf,
         preKeyHadoop,
         postKeySetter,
         percentages.map(new lang.Float(_)).asJava,
         stepIndex,
         knowsGeneratorClassName
-      ).run(personsFixturePath, hadoopPrefix + hadoopDir)
+      ).run(personsFixturePath, buildDir + hadoopFile)
     )
 
     val persons = spark.sparkContext
@@ -188,7 +191,7 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
       sortBy = sparkSorter, knowsGeneratorClassName)
 
     val expected = spark.sparkContext
-      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](hadoopPrefix + hadoopDir)
+      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](buildDir + hadoopFile)
 
     val expecteds = expected.map { case (_, p) => p.hashCode() }.collect().toSet
     val actuals = actual.map(_.hashCode()).collect().toSet
