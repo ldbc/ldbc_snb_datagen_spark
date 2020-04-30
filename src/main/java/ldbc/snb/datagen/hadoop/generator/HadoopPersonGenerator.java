@@ -150,7 +150,7 @@ public class HadoopPersonGenerator {
      */
     public void run(String outputFileName, String postKeySetterName) throws Exception {
 
-        String hadoopDir = conf.get("hadoop.serializer.hadoopDir");
+        String hadoopDir = conf.get("serializer.hadoopDir");
         String tempFile = hadoopDir + "/mrInputFile";
 
         FileSystem dfs = FileSystem.get(conf);

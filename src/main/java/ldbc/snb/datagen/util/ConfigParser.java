@@ -85,12 +85,6 @@ public class ConfigParser {
         }
     }
 
-    public static void printConfig(Map<String, String> conf) {
-        System.out.println("********* Configuration *********");
-        conf.forEach((key, value) -> System.out.println(key + ": " + value));
-        System.out.println("*********************************");
-    }
-
     public static Map<String, String> defaultConfiguration() {
         Map<String, String> conf = new HashMap<>();
         conf.put("", Integer.toString(1));
@@ -111,12 +105,12 @@ public class ConfigParser {
 
 
         conf.put("hadoop.numThreads", "1");
-        conf.put("hadoop.serializer.format","CsvBasic");
-        conf.put("hadoop.serializer.compressed", "false");
-        conf.put("hadoop.serializer.endlineSeparator", "false");
-        conf.put("hadoop.serializer.outputDir", "./");
-        conf.put("hadoop.serializer.socialNetworkDir", "./social_network");
-        conf.put("hadoop.serializer.hadoopDir", "./hadoop");
+        conf.put("serializer.format","CsvBasic");
+        conf.put("serializer.compressed", "false");
+        conf.put("serializer.insertTrailingSeparator", "false");
+        conf.put("serializer.outputDir", "./");
+        conf.put("serializer.socialNetworkDir", "./social_network");
+        conf.put("serializer.hadoopDir", "./hadoop");
 
 
         return conf;

@@ -39,9 +39,7 @@ import ldbc.snb.datagen.DatagenContext;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.generator.generators.knowsgenerators.KnowsGenerator;
-import ldbc.snb.datagen.hadoop.HadoopBlockMapper;
-import ldbc.snb.datagen.hadoop.HadoopBlockPartitioner;
-import ldbc.snb.datagen.hadoop.HadoopConfiguration;
+import ldbc.snb.datagen.hadoop.*;
 import ldbc.snb.datagen.hadoop.key.TupleKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyComparator;
@@ -63,9 +61,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HadoopKnowsGenerator {
+public class HadoopKnowsGenerator extends DatagenHadoopJob {
 
-    private Configuration conf;
     private String preKeySetterName;
     private String postKeySetterName;
     private String knowsGeneratorName;
@@ -73,7 +70,7 @@ public class HadoopKnowsGenerator {
     private int stepIndex;
 
 
-    public static class HadoopKnowsGeneratorReducer extends Reducer<BlockKey, Person, TupleKey, Person> {
+    public static class HadoopKnowsGeneratorReducer extends DatagenReducer<BlockKey, Person, TupleKey, Person> {
 
         private KnowsGenerator knowsGenerator;
         /**
@@ -89,7 +86,6 @@ public class HadoopKnowsGenerator {
         protected void setup(Context context) {
             this.hadoopConf = context.getConfiguration();
             try {
-                LdbcConfiguration conf = HadoopConfiguration.extractLdbcConfig(hadoopConf);
                 DatagenContext.initialize(conf);
                 this.knowsGenerator = (KnowsGenerator) Class.forName(hadoopConf.get("knowsGeneratorName")).newInstance();
                 this.knowsGenerator.initialize(conf);
@@ -135,8 +131,8 @@ public class HadoopKnowsGenerator {
     }
 
 
-    public HadoopKnowsGenerator(Configuration conf, String preKeySetterName, String postKeySetterName, List<Float> percentages, int stepIndex, String knowsGeneratorName) {
-        this.conf = new Configuration(conf);
+    public HadoopKnowsGenerator(LdbcConfiguration conf, Configuration hadoopConf, String preKeySetterName, String postKeySetterName, List<Float> percentages, int stepIndex, String knowsGeneratorName) {
+        super(conf, hadoopConf);
         this.preKeySetterName = preKeySetterName;
         this.postKeySetterName = postKeySetterName;
         this.percentages = percentages;
@@ -145,26 +141,25 @@ public class HadoopKnowsGenerator {
     }
 
     public void run(String inputFileName, String outputFileName) throws Exception {
-        FileSystem fs = FileSystem.get(conf);
-
+        FileSystem fs = FileSystem.get(hadoopConf);
         System.out.println("Ranking persons");
         long start = System.currentTimeMillis();
-        String rankedFileName = HadoopConfiguration.getHadoopDir(conf) + "/ranked";
-        HadoopFileRanker hadoopFileRanker = new HadoopFileRanker(conf, TupleKey.class, Person.class, preKeySetterName);
+        String rankedFileName = conf.getBuildDir() + "/ranked";
+        HadoopFileRanker hadoopFileRanker = new HadoopFileRanker(conf, hadoopConf, TupleKey.class, Person.class, preKeySetterName);
         hadoopFileRanker.run(inputFileName, rankedFileName);
 
         System.out.println("... Time to rank persons: " + (System.currentTimeMillis() - start) + " ms");
 
-        conf.setInt("stepIndex", stepIndex);
+        hadoopConf.setInt("stepIndex", stepIndex);
         int index = 0;
         for (float p : percentages) {
-            conf.setFloat("percentage" + index, p);
+            hadoopConf.setFloat("percentage" + index, p);
             ++index;
         }
-        conf.set("postKeySetterName", postKeySetterName);
-        conf.set("knowsGeneratorName", knowsGeneratorName);
-        int numThreads = HadoopConfiguration.getNumThreads(conf);
-        Job job = Job.getInstance(conf, "Knows generator");
+        hadoopConf.set("postKeySetterName", postKeySetterName);
+        hadoopConf.set("knowsGeneratorName", knowsGeneratorName);
+        int numThreads = HadoopConfiguration.getNumThreads(hadoopConf);
+        Job job = Job.getInstance(hadoopConf, "Knows generator");
         job.setMapOutputKeyClass(BlockKey.class);
         job.setMapOutputValueClass(Person.class);
         job.setOutputKeyClass(TupleKey.class);

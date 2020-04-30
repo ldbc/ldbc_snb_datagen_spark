@@ -16,8 +16,8 @@ abstract public class LdbcSerializer<TWriter extends HdfsWriter> implements Seri
 
     abstract public void writeFileHeaders();
 
-    public void initialize(Configuration conf, int reducerId) throws IOException {
-        writers = initialize(conf, reducerId, isDynamic(), getFileNames());
+    public void initialize(Configuration conf, String outputDir, int reducerId, boolean isCompressed, boolean insertTrailingSeparator) throws IOException {
+        writers = initialize(conf, outputDir, reducerId, isCompressed, insertTrailingSeparator, isDynamic(), getFileNames());
         writeFileHeaders();
     }
 
