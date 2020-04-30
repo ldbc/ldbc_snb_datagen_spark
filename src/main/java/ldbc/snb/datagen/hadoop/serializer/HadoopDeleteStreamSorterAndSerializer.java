@@ -29,16 +29,6 @@ public class HadoopDeleteStreamSorterAndSerializer extends DatagenHadoopJob {
     }
 
     public static class HadoopDeleteStreamSorterAndSerializerReducer extends StreamSorterAndSerializerReducer<DeleteEventKey, Text, DeleteEventKey, Text> {
-
-        private boolean compressed = false;
-        private LdbcConfiguration conf;
-        private Configuration hadoopConf;
-        private String streamType;
-
-        protected void setup(Context context) {
-
-        }
-
         @Override
         public void reduce(DeleteEventKey key, Iterable<Text> valueSet, Context context) {
             OutputStream out;
