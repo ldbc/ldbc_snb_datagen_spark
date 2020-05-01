@@ -445,11 +445,10 @@ public class LdbcDatagen extends DatagenHadoopJob {
         System.out.println(conf.getSocialNetworkDir());
         System.out.println(conf.getOutputDir());
 
-        DatagenContext.initialize(HadoopConfiguration.extractLdbcConfig(hadoopConf));
+        DatagenContext.initialize(conf);
         LdbcDatagen datagen = new LdbcDatagen(conf, hadoopConf);
 
         datagen.runGenerateJob();
-
     }
 
     private static void print(String message) {
