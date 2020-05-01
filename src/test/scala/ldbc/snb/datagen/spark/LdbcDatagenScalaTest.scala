@@ -40,7 +40,7 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with BeforeAn
     props.setProperty("generator.mode", "interactive")
     props.setProperty("generator.blockSize", "100")
     props.setProperty("generator.interactive.numUpdateStreams", "1")
-    props.setProperty("hadoop.numThreads", "2")
+    props.setProperty("hadoop.numThreads", "1")
 
     confMap.putAll(ConfigParser.readConfig(props))
 
