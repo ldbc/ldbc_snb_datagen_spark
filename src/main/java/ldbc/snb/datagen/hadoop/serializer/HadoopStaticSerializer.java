@@ -41,8 +41,8 @@ import ldbc.snb.datagen.entities.statictype.Organisation;
 import ldbc.snb.datagen.entities.statictype.TagClass;
 import ldbc.snb.datagen.entities.statictype.place.Place;
 import ldbc.snb.datagen.entities.statictype.tag.Tag;
-import ldbc.snb.datagen.hadoop.HadoopConfiguration;
 import ldbc.snb.datagen.serializer.StaticSerializer;
+import ldbc.snb.datagen.util.LdbcConfiguration;
 import ldbc.snb.datagen.util.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 
@@ -52,25 +52,32 @@ import java.util.TreeSet;
 
 public class HadoopStaticSerializer {
 
+    private final int numPartitions;
     private StaticSerializer[] staticSerializer;
     private TreeSet<Integer> exportedClasses;
     private int currentFile = 0;
 
-    private Configuration conf;
+    private Configuration hadoopConf;
+    private LdbcConfiguration conf;
 
-    public HadoopStaticSerializer(Configuration conf) {
-        this.conf = new Configuration(conf);
+    public HadoopStaticSerializer(LdbcConfiguration conf, Configuration hadoopConf, int numPartitions) {
+        this.conf = conf;
+        this.hadoopConf = hadoopConf;
+        this.numPartitions = numPartitions;
         exportedClasses = new TreeSet<>();
-        DatagenContext.initialize(HadoopConfiguration.extractLdbcConfig(this.conf));
+        DatagenContext.initialize(conf);
     }
 
     public void run() {
 
         try {
-            staticSerializer = new StaticSerializer[HadoopConfiguration.getNumThreads(conf)];
-            for (int i = 0; i < HadoopConfiguration.getNumThreads(conf); ++i) {
-                staticSerializer[i] = HadoopConfiguration.getStaticSerializer(conf);
-                staticSerializer[i].initialize(conf, i);
+            staticSerializer = new StaticSerializer[numPartitions];
+            for (int i = 0; i < numPartitions; ++i) {
+                staticSerializer[i] = conf.getStaticSerializer();
+                staticSerializer[i].initialize(
+                        hadoopConf, conf.getSocialNetworkDir(), i,
+                        conf.isCompressed(), conf.insertTrailingSeparator()
+                );
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -81,14 +88,14 @@ public class HadoopStaticSerializer {
         exportTags();
         exportOrganisations();
 
-        for (int i = 0; i < HadoopConfiguration.getNumThreads(conf); ++i) {
+        for (int i = 0; i < numPartitions; ++i) {
             staticSerializer[i].close();
         }
     }
 
     private int nextFile() {
         int ret = currentFile;
-        currentFile = (++currentFile) % HadoopConfiguration.getNumThreads(conf);
+        currentFile = (++currentFile) % numPartitions;
         return ret;
     }
 

@@ -50,10 +50,9 @@ public class HdfsWriter {
     private StringBuffer buffer;
     private OutputStream[] fileOutputStream;
 
-    public HdfsWriter(String outputDir, String prefix, int numPartitions, boolean compressed, String extension) throws IOException {
+    public HdfsWriter(Configuration conf, String outputDir, String prefix, int numPartitions, boolean compressed, String extension) throws IOException {
         this.numPartitions = numPartitions;
         try {
-            Configuration conf = new Configuration();
             FileSystem fs = FileSystem.get(conf);
             fileOutputStream = new OutputStream[numPartitions];
             if (compressed) {

@@ -35,10 +35,12 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop.serializer;
 
+import ldbc.snb.datagen.hadoop.DatagenHadoopJob;
 import ldbc.snb.datagen.hadoop.HadoopConfiguration;
 import ldbc.snb.datagen.hadoop.generator.HadoopInsertEventKeyPartitioner;
 import ldbc.snb.datagen.hadoop.key.updatekey.InsertEventKey;
 import ldbc.snb.datagen.hadoop.key.updatekey.InsertEventKeyGroupComparator;
+import ldbc.snb.datagen.util.LdbcConfiguration;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -56,37 +58,24 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
-public class HadoopInsertStreamSorterAndSerializer {
+public class HadoopInsertStreamSorterAndSerializer extends DatagenHadoopJob {
 
-    private Configuration conf;
+    public HadoopInsertStreamSorterAndSerializer(LdbcConfiguration conf, Configuration hadoopConf) {
+        super(conf, hadoopConf);
+    }
 
-    public static class HadoopInsertStreamSorterAndSerializerReducer extends Reducer<InsertEventKey, Text, InsertEventKey, Text> {
-
-        private boolean compressed = false;
-        private Configuration conf;
-        private String streamType;
-
-        protected void setup(Context context) {
-            conf = context.getConfiguration();
-            streamType = conf.get("streamType");
-            try {
-                compressed = HadoopConfiguration.isCompressed(conf);
-            } catch (Exception e) {
-                System.err.println(e.getMessage());
-            }
-        }
-
+    public static class HadoopInsertStreamSorterAndSerializerReducer extends StreamSorterAndSerializerReducer<InsertEventKey, Text, InsertEventKey, Text> {
         @Override
         public void reduce(InsertEventKey key, Iterable<Text> valueSet, Context context) {
             OutputStream out;
             try {
-                FileSystem fs = FileSystem.get(conf);
+                FileSystem fs = FileSystem.get(hadoopConf);
                 if (compressed) {
                     Path outFile = new Path(
-                            HadoopConfiguration.getSocialNetworkDir(conf) + "/insertStream_" + key.reducerId + "_" + key.partition + "_" + streamType + ".csv.gz");
+                            conf.getSocialNetworkDir() + "/insertStream_" + key.reducerId + "_" + key.partition + "_" + streamType + ".csv.gz");
                     out = new GZIPOutputStream(fs.create(outFile));
                 } else {
-                    Path outFile = new Path(HadoopConfiguration.getSocialNetworkDir(conf) + "/insertStream_" + key.reducerId + "_" + key.partition + "_" + streamType + ".csv");
+                    Path outFile = new Path(conf.getSocialNetworkDir() + "/insertStream_" + key.reducerId + "_" + key.partition + "_" + streamType + ".csv");
                     out = fs.create(outFile);
                 }
                 for (Text t : valueSet) {
@@ -99,16 +88,12 @@ public class HadoopInsertStreamSorterAndSerializer {
         }
     }
 
-    public HadoopInsertStreamSorterAndSerializer(Configuration conf) {
-        this.conf = new Configuration(conf);
-    }
-
     public void run(List<String> inputFileNames, String type) throws Exception {
 
-        int numThreads = HadoopConfiguration.getNumThreads(conf);
-        conf.set("streamType", type);
+        int numThreads = HadoopConfiguration.getNumThreads(hadoopConf);
+        hadoopConf.set("streamType", type);
 
-        Job job = Job.getInstance(conf, "Insert Stream Serializer");
+        Job job = Job.getInstance(hadoopConf, "Insert Stream Serializer");
         job.setMapOutputKeyClass(InsertEventKey.class);
         job.setMapOutputValueClass(Text.class);
         job.setOutputKeyClass(InsertEventKey.class);
@@ -125,15 +110,15 @@ public class HadoopInsertStreamSorterAndSerializer {
         for (String s : inputFileNames) {
             FileInputFormat.addInputPath(job, new Path(s));
         }
-        FileOutputFormat.setOutputPath(job, new Path(HadoopConfiguration.getHadoopDir(conf) + "/aux"));
+        FileOutputFormat.setOutputPath(job, new Path(conf.getBuildDir() + "/aux"));
         if (!job.waitForCompletion(true)) {
             throw new Exception();
         }
 
 
         try {
-            FileSystem fs = FileSystem.get(conf);
-            fs.delete(new Path(HadoopConfiguration.getHadoopDir(conf) + "/aux"), true);
+            FileSystem fs = FileSystem.get(hadoopConf);
+            fs.delete(new Path(conf.getBuildDir() + "/aux"), true);
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }

@@ -36,28 +36,29 @@
 package ldbc.snb.datagen.hadoop.writer;
 
 
+import org.apache.hadoop.conf.Configuration;
+
 import java.io.IOException;
 import java.util.List;
 
 public class HdfsCsvWriter extends HdfsWriter {
 
-    private String separator = "|";
+    private String separator;
     private StringBuffer buffer;
-    private boolean endLineSeparator = true;
+    private boolean insertTrailingSeparator;
 
-    public HdfsCsvWriter(String outputDir, String prefix, int numPartitions, boolean compressed, String separator, boolean endLineSeparator) throws IOException {
-        super(outputDir, prefix, numPartitions, compressed, "csv");
+    public HdfsCsvWriter(Configuration conf, String outputDir, String prefix, int numPartitions, boolean compressed, String separator, boolean insertTrailingSeparator) throws IOException {
+        super(conf, outputDir, prefix, numPartitions, compressed, "csv");
         this.separator = separator;
         this.buffer = new StringBuffer(2048);
-        this.endLineSeparator = endLineSeparator;
-
+        this.insertTrailingSeparator = insertTrailingSeparator;
     }
 
     public void writeHeader(List<String> entry) {
         buffer.setLength(0);
         for (int i = 0; i < entry.size(); ++i) {
             buffer.append(entry.get(i));
-            if ((endLineSeparator && i == (entry.size() - 1)) || (i < entry.size() - 1))
+            if ((insertTrailingSeparator && i == (entry.size() - 1)) || (i < entry.size() - 1))
                 buffer.append(separator);
         }
         buffer.append("\n");
@@ -68,7 +69,7 @@ public class HdfsCsvWriter extends HdfsWriter {
         buffer.setLength(0);
         for (int i = 0; i < entry.size(); ++i) {
             buffer.append(entry.get(i));
-            if ((endLineSeparator && i == (entry.size() - 1)) || (i < entry.size() - 1))
+            if ((insertTrailingSeparator && i == (entry.size() - 1)) || (i < entry.size() - 1))
                 buffer.append(separator);
         }
         buffer.append("\n");

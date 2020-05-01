@@ -20,8 +20,8 @@ public class TestingFacebookDist {
 
         confMap.putAll(ConfigParser.readConfig(TestingFacebookDist.class.getResourceAsStream("/params_default.ini")));
 
-        Configuration hadoopConf = HadoopConfiguration.prepare(confMap);
-        LdbcConfiguration conf = HadoopConfiguration.extractLdbcConfig(hadoopConf);
+        LdbcConfiguration conf = new LdbcConfiguration(confMap);
+        Configuration hadoopConf = HadoopConfiguration.prepare(conf);
 
         DatagenContext.initialize(conf);
 

@@ -61,11 +61,6 @@ public class EmptyDynamicPersonSerializer extends DynamicPersonSerializer {
     }
 
     @Override
-    public void initialize(Configuration conf, int reducerId) throws IOException {
-        //Intentionally left empty
-    }
-
-    @Override
     public void close() {
         //Intentionally left empty
     }
@@ -90,9 +85,9 @@ public class EmptyDynamicPersonSerializer extends DynamicPersonSerializer {
         //Intentionally left empty
     }
 
+
     @Override
-    public Map initialize(Configuration conf, int reducerId, boolean dynamic, List list) throws IOException {
+    public Map initialize(Configuration conf, String outputDir, int reducerId, boolean isCompressed, boolean insertTrailingSeparator, boolean dynamic, List list) throws IOException {
         return Collections.emptyMap();
     }
-
 }
