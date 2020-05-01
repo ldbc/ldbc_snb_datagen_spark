@@ -44,7 +44,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
-public final class Person implements Writable, Serializable {
+public final class Person implements Writable, Serializable, Comparable<Person> {
 
     private boolean isExplicitlyDeleted;
     private long accountId;
@@ -133,6 +133,12 @@ public final class Person implements Writable, Serializable {
                 ", companies=" + companies +
                 ", classYear=" + classYear +
                 '}';
+    }
+
+    @Override
+    public int compareTo(Person o) {
+        return Long.compare(this.getAccountId(), o.getAccountId());
+
     }
 
     public interface PersonSimilarity {
@@ -478,6 +484,4 @@ public final class Person implements Writable, Serializable {
         }
         arg0.writeLong(classYear);
     }
-
-    public static PersonSimilarity personSimilarity;
 }

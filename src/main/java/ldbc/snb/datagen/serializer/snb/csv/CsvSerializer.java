@@ -13,16 +13,26 @@ import java.util.Map;
 
 public interface CsvSerializer extends Serializer<HdfsCsvWriter> {
 
-    default Map<FileName, HdfsCsvWriter> initialize(Configuration conf, int reducerId, boolean dynamic, List<FileName> fileNames) throws IOException {
+    default Map<FileName, HdfsCsvWriter> initialize(
+            Configuration conf,
+            String outputDir,
+            int reducerId,
+            boolean isCompressed,
+            boolean insertTrailingSeparator,
+            boolean dynamic,
+            List<FileName> fileNames
+    ) throws IOException {
 
         Map<FileName, HdfsCsvWriter> writers = new HashMap<>();
         for (FileName f : fileNames) {
             writers.put(f, new HdfsCsvWriter(
-                    HadoopConfiguration.getSocialNetworkDir(conf) + (dynamic ? "/dynamic/" : "/static/"),
+                    conf,
+                    outputDir + (dynamic ? "/dynamic/" : "/static/"),
                     f.toString() + "_" + reducerId,
                     DatagenParams.numUpdateStreams,
-                    HadoopConfiguration.isCompressed(conf), "|",
-                    HadoopConfiguration.getEndLineSeparator(conf)
+                    isCompressed,
+                    "|",
+                    insertTrailingSeparator
                 )
             );
         }

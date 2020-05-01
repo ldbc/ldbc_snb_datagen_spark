@@ -37,7 +37,7 @@ package ldbc.snb.datagen.hadoop.miscjob;
 
 import ldbc.snb.datagen.DatagenContext;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
-import ldbc.snb.datagen.entities.dynamic.relations.Knows;
+import ldbc.snb.datagen.generator.FriendshipMerger;
 import ldbc.snb.datagen.hadoop.HadoopBlockMapper;
 import ldbc.snb.datagen.hadoop.HadoopConfiguration;
 import ldbc.snb.datagen.hadoop.HadoopTuplePartitioner;
@@ -53,7 +53,6 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class HadoopMergeFriendshipFiles {
@@ -82,35 +81,10 @@ public class HadoopMergeFriendshipFiles {
         public void reduce(TupleKey key, Iterable<Person> valueSet, Context context)
                 throws IOException, InterruptedException {
 
-            List<Knows> knows = new ArrayList<>();
-            Person person = null;
-            int index = 0;
-            for (Person p : valueSet) {
-                if (index == 0) {
-                    person = new Person(p);
-                }
-                knows.addAll(p.getKnows());
-                index++;
-            }
-            person.getKnows().clear();
-            Knows.FullComparator comparator = new Knows.FullComparator();
-            knows.sort(comparator);
-            if (knows.size() > 0) {
-                long currentTo = knows.get(0).to().getAccountId();
-                person.getKnows().add(knows.get(0));
-                for (index = 1; index < knows.size(); ++index) {
-                    Knows nextKnows = knows.get(index);
-                    if (currentTo != knows.get(index).to().getAccountId()) {
-                        person.getKnows().add(nextKnows);
-                        currentTo = nextKnows.to().getAccountId();
-                    } else {
-                        numRepeated++;
-                    }
-                }
-            }
-
-            //System.out.println("Num persons "+index);
-            context.write(keySetter.getKey(person), person);
+            FriendshipMerger friendshipMerger = new FriendshipMerger();
+            Person mergedPerson = friendshipMerger.apply(valueSet);
+            numRepeated += friendshipMerger.getNumRepeated();
+            context.write(keySetter.getKey(mergedPerson), mergedPerson);
         }
 
         protected void cleanup(Context context) {

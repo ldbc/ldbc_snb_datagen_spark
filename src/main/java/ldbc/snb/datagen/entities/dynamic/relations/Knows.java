@@ -47,7 +47,7 @@ import java.io.IOException;
 import java.util.*;
 
 
-public class Knows implements Writable, Comparable<Knows> {
+public final class Knows implements Writable, Comparable<Knows> {
 
     private boolean isExplicitlyDeleted;
     private PersonSummary to;
@@ -117,6 +117,7 @@ public class Knows implements Writable, Comparable<Knows> {
     }
 
     public void readFields(DataInput arg0) throws IOException {
+        isExplicitlyDeleted = arg0.readBoolean();
         to.readFields(arg0);
         creationDate = arg0.readLong();
         deletionDate = arg0.readLong();
@@ -124,6 +125,7 @@ public class Knows implements Writable, Comparable<Knows> {
     }
 
     public void write(DataOutput arg0) throws IOException {
+        arg0.writeBoolean(isExplicitlyDeleted);
         to.write(arg0);
         arg0.writeLong(creationDate);
         arg0.writeLong(deletionDate);
@@ -135,6 +137,23 @@ public class Knows implements Writable, Comparable<Knows> {
         if (res > 0) return 1;
         if (res < 0) return -1;
         return 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Knows knows = (Knows) o;
+        return isExplicitlyDeleted == knows.isExplicitlyDeleted &&
+                creationDate == knows.creationDate &&
+                deletionDate == knows.deletionDate &&
+                Float.compare(knows.weight, weight) == 0 &&
+                Objects.equals(to, knows.to);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(isExplicitlyDeleted, to, creationDate, deletionDate, weight);
     }
 
     static public class FullComparator implements Comparator<Knows> {
@@ -151,7 +170,7 @@ public class Knows implements Writable, Comparable<Knows> {
 
     }
 
-    public static boolean createKnow(Random dateRandom, Random deletionRandom, Person personA, Person personB, Boolean ignore) {
+    public static boolean createKnow(Random dateRandom, Random deletionRandom, Person personA, Person personB, Person.PersonSimilarity personSimilarity, Boolean ignore) {
 
         if (personA.getCreationDate() + DatagenParams.delta > personB.getDeletionDate() ||
                 personB.getCreationDate() + DatagenParams.delta > personA.getDeletionDate()) {
@@ -171,13 +190,13 @@ public class Knows implements Writable, Comparable<Knows> {
         }
         assert (creationDate <= deletionDate) : "Knows creation date is larger than knows deletion date";
 
-        float similarity = Person.personSimilarity.similarity(personA, personB);
+        float similarity = personSimilarity.similarity(personA, personB);
         return personB.getKnows().add(new Knows(personA, creationDate, deletionDate, similarity,isExplicitlyDeleted)) &&
                 personA.getKnows().add(new Knows(personB, creationDate, deletionDate, similarity,isExplicitlyDeleted));
     }
 
     //     TODO: used for uni and interest dimension in knows gen
-    public static void createKnow(Random dateRandom, Random deletionRandom, Person personA, Person personB) {
+    public static void createKnow(Random dateRandom, Random deletionRandom, Person personA, Person personB, Person.PersonSimilarity personSimilarity) {
 
         if (personA.getCreationDate() + DatagenParams.delta > personB.getDeletionDate() ||
                 personB.getCreationDate() + DatagenParams.delta > personA.getDeletionDate()) {
@@ -197,7 +216,7 @@ public class Knows implements Writable, Comparable<Knows> {
         }
         assert (creationDate <= deletionDate) : "Knows creation date is larger than knows deletion date";
 
-        float similarity = Person.personSimilarity.similarity(personA, personB);
+        float similarity = personSimilarity.similarity(personA, personB);
         if (personB.getKnows().add(new Knows(personA, creationDate, deletionDate, similarity,isExplicitlyDeleted))) {
             personA.getKnows().add(new Knows(personB, creationDate, deletionDate, similarity,isExplicitlyDeleted));
         }

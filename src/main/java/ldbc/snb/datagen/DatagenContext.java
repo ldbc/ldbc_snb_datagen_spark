@@ -13,7 +13,6 @@ public class DatagenContext {
             DatagenParams.readConf(conf);
             Dictionaries.loadDictionaries(conf);
             SN.initialize();
-            Person.personSimilarity = DatagenParams.getPersonSimularity();
             initialized = true;
         }
     }

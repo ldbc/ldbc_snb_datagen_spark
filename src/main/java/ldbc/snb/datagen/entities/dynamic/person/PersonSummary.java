@@ -5,8 +5,9 @@ import org.apache.hadoop.io.Writable;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.Objects;
 
-public class PersonSummary implements Writable {
+public final class PersonSummary implements Writable {
     private long accountId;
     private long creationDate;
     private long deletionDate;
@@ -95,5 +96,24 @@ public class PersonSummary implements Writable {
         arg0.writeInt(country);
         ipAddress.write(arg0);
         arg0.writeBoolean(isLargePoster);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PersonSummary that = (PersonSummary) o;
+        return accountId == that.accountId &&
+                creationDate == that.creationDate &&
+                deletionDate == that.deletionDate &&
+                browserId == that.browserId &&
+                country == that.country &&
+                isLargePoster == that.isLargePoster &&
+                Objects.equals(ipAddress, that.ipAddress);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(accountId, creationDate, deletionDate, browserId, country, ipAddress, isLargePoster);
     }
 }

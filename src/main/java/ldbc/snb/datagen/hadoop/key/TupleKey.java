@@ -41,8 +41,9 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Objects;
 
-public class TupleKey implements WritableComparable<TupleKey>, Serializable {
+public final class TupleKey implements WritableComparable<TupleKey>, Serializable {
     public long key;
     public long id;
 
@@ -75,5 +76,27 @@ public class TupleKey implements WritableComparable<TupleKey>, Serializable {
         if (id < tk.id) return -1;
         if (id > tk.id) return 1;
         return 0;
+    }
+
+    @Override
+    public String toString() {
+        return "TupleKey{" +
+                "key=" + key +
+                ", id=" + id +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TupleKey tupleKey = (TupleKey) o;
+        return key == tupleKey.key &&
+                id == tupleKey.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key, id);
     }
 }

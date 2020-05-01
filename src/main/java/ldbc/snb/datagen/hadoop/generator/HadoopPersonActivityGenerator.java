@@ -42,6 +42,7 @@ import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.generator.generators.GenActivity;
 import ldbc.snb.datagen.generator.generators.PersonActivityGenerator;
+import ldbc.snb.datagen.hadoop.DatagenHadoopJob;
 import ldbc.snb.datagen.hadoop.HadoopBlockMapper;
 import ldbc.snb.datagen.hadoop.HadoopBlockPartitioner;
 import ldbc.snb.datagen.hadoop.HadoopConfiguration;
@@ -74,9 +75,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class HadoopPersonActivityGenerator {
+public class HadoopPersonActivityGenerator extends DatagenHadoopJob {
 
-    private Configuration conf;
+    public HadoopPersonActivityGenerator(LdbcConfiguration conf, Configuration hadoopConf) {
+        super(conf, hadoopConf);
+    }
 
     public static class HadoopPersonActivityGeneratorReducer extends Reducer<BlockKey, Person, LongWritable, Person> {
 
@@ -96,13 +99,19 @@ public class HadoopPersonActivityGenerator {
             int reducerId = context.getTaskAttemptID().getTaskID().getId();
             DatagenContext.initialize(conf);
             try {
-                DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer = HadoopConfiguration.getDynamicActivitySerializer(hadoopConf);
-                dynamicActivitySerializer.initialize(hadoopConf, reducerId);
+                String buildDir = conf.getBuildDir();
+                String snDir = conf.getSocialNetworkDir();
+                String outputDir = conf.getOutputDir();
+                boolean isCompressed = conf.isCompressed();
+                boolean insertTrailingSeparator = conf.insertTrailingSeparator();
+                
+                DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer = conf.getDynamicActivitySerializer();
+                dynamicActivitySerializer.initialize(hadoopConf, snDir, reducerId, isCompressed, insertTrailingSeparator);
                 InsertEventSerializer insertEventSerializer = null;
                 DeleteEventSerializer deleteEventSerializer = null;
                 if (DatagenParams.getDatagenMode() != DatagenMode.RAW_DATA) {
-                    insertEventSerializer = new InsertEventSerializer(hadoopConf, HadoopConfiguration.getHadoopDir(hadoopConf)  + "/temp_insertStream_forum_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
-                    deleteEventSerializer = new DeleteEventSerializer(hadoopConf, HadoopConfiguration.getHadoopDir(hadoopConf)  + "/temp_deleteStream_forum_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
+                    insertEventSerializer = new InsertEventSerializer(hadoopConf, buildDir  + "/temp_insertStream_forum_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
+                    deleteEventSerializer = new DeleteEventSerializer(hadoopConf, buildDir  + "/temp_deleteStream_forum_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
                 }
                 personActivityGenerator = new PersonActivityGenerator();
                 personActivityExporter =
@@ -110,10 +119,10 @@ public class HadoopPersonActivityGenerator {
 
                 FileSystem fs = FileSystem.get(context.getConfiguration());
                 personFactors = fs
-                        .create(new Path(HadoopConfiguration.getHadoopDir(hadoopConf)  + "/" + "m" + reducerId + DatagenParams.PERSON_COUNTS_FILE));
+                        .create(new Path(buildDir + "/" + "m" + reducerId + DatagenParams.PERSON_COUNTS_FILE));
                 activityFactors = fs
-                        .create(new Path(HadoopConfiguration.getHadoopDir(hadoopConf)  + "/" + "m" + reducerId + DatagenParams.ACTIVITY_FILE));
-                friends = fs.create(new Path(HadoopConfiguration.getHadoopDir(hadoopConf)  + "/" + "m0friendList" + reducerId + ".csv"));
+                        .create(new Path(buildDir + "/" + "m" + reducerId + DatagenParams.ACTIVITY_FILE));
+                friends = fs.create(new Path(buildDir + "/" + "m0friendList" + reducerId + ".csv"));
 
             } catch (Exception e) {
                 System.err.println(e.getMessage());
@@ -181,22 +190,20 @@ public class HadoopPersonActivityGenerator {
         }
     }
 
-    public HadoopPersonActivityGenerator(Configuration conf) {
-        this.conf = conf;
-    }
-
     public void run(String inputFileName) throws AssertionError, Exception {
 
-        FileSystem fs = FileSystem.get(conf);
+        FileSystem fs = FileSystem.get(hadoopConf);
+
+        String buildDir = conf.getBuildDir();
 
         System.out.println("Ranking Persons");
-        String rankedFileName = HadoopConfiguration.getHadoopDir(conf) + "/ranked";
-        HadoopFileRanker hadoopFileRanker = new HadoopFileRanker(conf, TupleKey.class, Person.class, null);
+        String rankedFileName = buildDir + "/ranked";
+        HadoopFileRanker hadoopFileRanker = new HadoopFileRanker(conf, hadoopConf, TupleKey.class, Person.class, null);
         hadoopFileRanker.run(inputFileName, rankedFileName);
 
         System.out.println("Running activity generator");
-        int numThreads = HadoopConfiguration.getNumThreads(conf);
-        Job job = Job.getInstance(conf, "Person Activity Generator/Serializer");
+        int numThreads = HadoopConfiguration.getNumThreads(hadoopConf);
+        Job job = Job.getInstance(hadoopConf, "Person Activity Generator/Serializer");
         job.setMapOutputKeyClass(BlockKey.class);
         job.setMapOutputValueClass(Person.class);
         job.setOutputKeyClass(LongWritable.class);
@@ -220,7 +227,7 @@ public class HadoopPersonActivityGenerator {
         //
 
         FileInputFormat.setInputPaths(job, new Path(rankedFileName));
-        FileOutputFormat.setOutputPath(job, new Path(HadoopConfiguration.getHadoopDir(conf) + "/aux"));
+        FileOutputFormat.setOutputPath(job, new Path(buildDir + "/aux"));
         long start = System.currentTimeMillis();
         if (!job.waitForCompletion(true)) {
             throw new IllegalStateException("HadoopPersonActivityGenerator failed");
@@ -229,7 +236,7 @@ public class HadoopPersonActivityGenerator {
 
         try {
             fs.delete(new Path(rankedFileName), true);
-            fs.delete(new Path(HadoopConfiguration.getHadoopDir(conf) + "/aux"), true);
+            fs.delete(new Path(buildDir + "/aux"), true);
         } catch (IOException e) {
             System.err.println(e.getMessage());
             throw new RuntimeException(e);

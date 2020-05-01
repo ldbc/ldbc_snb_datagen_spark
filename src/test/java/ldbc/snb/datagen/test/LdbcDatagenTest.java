@@ -15,6 +15,7 @@ import ldbc.snb.datagen.test.csv.PairUniquenessCheck;
 import ldbc.snb.datagen.test.csv.StringLengthCheck;
 import ldbc.snb.datagen.test.csv.UniquenessCheck;
 import ldbc.snb.datagen.util.ConfigParser;
+import ldbc.snb.datagen.util.LdbcConfiguration;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -35,10 +36,10 @@ public class LdbcDatagenTest {
         Map<String, String> confMap = ConfigParser.defaultConfiguration();
         confMap.putAll(ConfigParser.readConfig("./test_params.ini"));
         confMap.putAll(ConfigParser.readConfig(LdbcDatagen.class.getResourceAsStream("/params_default.ini")));
-        Configuration hadoopConf = HadoopConfiguration.prepare(confMap);
-        DatagenContext.initialize(HadoopConfiguration.extractLdbcConfig(hadoopConf));
-        LdbcDatagen datagen = new LdbcDatagen();
-        datagen.runGenerateJob(hadoopConf);
+        LdbcConfiguration conf = new LdbcConfiguration(confMap);
+        Configuration hadoopConf = HadoopConfiguration.prepare(conf);
+        LdbcDatagen datagen = new LdbcDatagen(conf, hadoopConf);
+        datagen.runGenerateJob();
     }
 
     @Test

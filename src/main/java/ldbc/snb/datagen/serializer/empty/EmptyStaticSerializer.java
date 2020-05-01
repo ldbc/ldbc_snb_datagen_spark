@@ -85,8 +85,7 @@ public class EmptyStaticSerializer extends StaticSerializer {
     }
 
     @Override
-    public Map initialize(Configuration conf, int reducerId, boolean dynamic, List list) throws IOException {
+    public Map initialize(Configuration conf, String outputDir, int reducerId, boolean isCompressed, boolean insertTrailingSeparator, boolean dynamic, List list) throws IOException {
         return Collections.emptyMap();
     }
-
 }

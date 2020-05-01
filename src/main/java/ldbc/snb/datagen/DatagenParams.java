@@ -329,12 +329,6 @@ public class DatagenParams {
             dateFormat = conf.get("generator.StringDate.dateFormat");
             endYear = startYear + numYears;
 
-            if (conf.get("ldbc.snb.datagen.generator.gscale") != null) {
-                double scale = conf.getDouble("ldbc.snb.datagen.generator.gscale", 6.0);
-                DegreeDistribution degreeDistribution = getDegreeDistribution();
-                degreeDistribution.initialize(conf);
-                numPersons = findNumPersonsFromGraphalyticsScale(degreeDistribution, scale);
-            }
             System.out.println(" ... Datagen Mode " + datagenMode);
             System.out.println(" ... Num Persons " + numPersons);
             System.out.println(" ... Start Year " + startYear);
@@ -357,9 +351,6 @@ public class DatagenParams {
             case "bi":
                 mode = BI;
                 break;
-            case "graphalytics":
-                mode = GRAPHALYTICS;
-                break;
             case "rawdata":
                 mode = RAW_DATA;
                 break;
@@ -373,31 +364,6 @@ public class DatagenParams {
 
     private static double scale(long numPersons, double mean) {
         return Math.log10(mean * numPersons / 2 + numPersons);
-    }
-
-    private static long findNumPersonsFromGraphalyticsScale(DegreeDistribution distribution, double scale) {
-
-        long numPersonsMin = 1000000;
-        while (scale(numPersonsMin, distribution.mean(numPersonsMin)) > scale)
-            numPersonsMin /= 2;
-
-        long numPersonsMax = 1000000;
-        while (scale(numPersonsMax, distribution.mean(numPersonsMax)) < scale)
-            numPersonsMax *= 2;
-
-        long currentNumPersons = (numPersonsMax - numPersonsMin) / 2 + numPersonsMin;
-        double currentScale = scale(currentNumPersons, distribution.mean(currentNumPersons));
-        while (Math.abs(currentScale - scale) / scale > 0.001) {
-            if (currentScale < scale)
-                numPersonsMin = currentNumPersons;
-            else
-                numPersonsMax = currentNumPersons;
-
-            currentNumPersons = (numPersonsMax - numPersonsMin) / 2 + numPersonsMin;
-            currentScale = scale(currentNumPersons, distribution.mean(currentNumPersons));
-            System.out.println(numPersonsMin + " " + numPersonsMax + " " + currentNumPersons + " " + currentScale);
-        }
-        return currentNumPersons;
     }
 
     //TODO: add remaining degree distributions
