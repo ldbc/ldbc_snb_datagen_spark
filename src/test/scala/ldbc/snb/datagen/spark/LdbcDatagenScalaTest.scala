@@ -68,7 +68,7 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with BeforeAn
     val dfs = FileSystem.get(hadoopConf)
     dfs.delete(new Path(conf.getBuildDir), true)
     dfs.delete(new Path(conf.getSocialNetworkDir), true)
-    FileUtils.deleteDirectory(new File(conf.getOutputDir + "/substitution_parameters"))
+    // FileUtils.deleteDirectory(new File(conf.getOutputDir + "/substitution_parameters"))
   }
 
   test("Person generator is deterministic") {
