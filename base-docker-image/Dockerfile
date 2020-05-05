@@ -1,5 +1,7 @@
 FROM ubuntu:20.04
 
+ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+
 # Download hadoop
 WORKDIR /opt
 RUN apt-get update
