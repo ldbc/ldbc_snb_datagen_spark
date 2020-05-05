@@ -43,7 +43,7 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
     conf = new LdbcConfiguration(confMap)
 
     hadoopConf = HadoopConfiguration.prepare(conf)
-    hadoopConf.set("hadoop.numThreads", "2")
+    hadoopConf.set("hadoop.numThreads", "1")
     buildDir = conf.getBuildDir
 
     DatagenContext.initialize(conf)
