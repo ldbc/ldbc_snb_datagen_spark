@@ -1,5 +1,6 @@
 package ldbc.snb.datagen.spark
 
+import java.io.File
 import java.{lang, util}
 import java.util.{ArrayList, Arrays, Properties}
 
@@ -11,15 +12,17 @@ import ldbc.snb.datagen.hadoop.key.TupleKey
 import ldbc.snb.datagen.hadoop.miscjob.HadoopMergeFriendshipFiles
 import ldbc.snb.datagen.spark.generators.{SparkKnowsGenerator, SparkKnowsMerger, SparkPersonGenerator}
 import ldbc.snb.datagen.util.{ConfigParser, LdbcConfiguration}
+import org.apache.commons.io.FileUtils
 import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.hadoop.mapred.SequenceFileInputFormat
 import org.apache.spark.sql.SparkSession
-import org.scalatest.{BeforeAndAfterAll, FunSuite, Matchers}
+import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, BeforeAndAfterEach, FunSuite, Matchers}
 
 import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
 
-class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers {
+class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with Matchers {
 
   var hadoopConf: Configuration = _
   var buildDir: String = _
@@ -37,13 +40,13 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
     props.setProperty("generator.mode", "interactive")
     props.setProperty("generator.blockSize", "100")
     props.setProperty("generator.interactive.numUpdateStreams", "1")
+    props.setProperty("hadoop.numThreads", "1")
 
     confMap.putAll(ConfigParser.readConfig(props))
 
     conf = new LdbcConfiguration(confMap)
 
     hadoopConf = HadoopConfiguration.prepare(conf)
-    hadoopConf.set("hadoop.numThreads", "1")
     buildDir = conf.getBuildDir
 
     DatagenContext.initialize(conf)
@@ -59,6 +62,35 @@ class LdbcDatagenScalaTest extends FunSuite with BeforeAndAfterAll with Matchers
   override def afterAll(): Unit = {
     spark.close()
     super.afterAll()
+  }
+
+  override def beforeEach(): Unit = {
+    val dfs = FileSystem.get(hadoopConf)
+    dfs.delete(new Path(conf.getBuildDir), true)
+    dfs.delete(new Path(conf.getSocialNetworkDir), true)
+    FileUtils.deleteDirectory(new File(conf.getOutputDir + "/substitution_parameters"))
+  }
+
+  test("Person generator is deterministic") {
+    timed(
+      "hadoop person generation",
+      new HadoopPersonGenerator(conf, hadoopConf)
+        .run(conf.getBuildDir + "/persons", "ldbc.snb.datagen.hadoop.miscjob.keychanger.UniversityKeySetter")
+    )
+
+    timed(
+      "hadoop person generation",
+      new HadoopPersonGenerator(conf, hadoopConf)
+        .run(conf.getBuildDir + "/persons2", "ldbc.snb.datagen.hadoop.miscjob.keychanger.UniversityKeySetter")
+    )
+
+    val expected = spark.sparkContext.hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](conf.getBuildDir + "/persons")
+    val actual = spark.sparkContext.hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](conf.getBuildDir + "/persons2")
+
+    val actuals = actual.map(_._2.hashCode()).collect().toSet
+    val expecteds = expected.map(_._2.hashCode()).collect().toSet
+
+    actuals shouldBe expecteds
   }
 
   test("Person generator returns expected results") {
