@@ -39,6 +39,7 @@ import ldbc.snb.datagen.DatagenContext;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.generator.generators.PersonGenerator;
+import ldbc.snb.datagen.hadoop.DatagenHadoopJob;
 import ldbc.snb.datagen.hadoop.HadoopConfiguration;
 import ldbc.snb.datagen.hadoop.key.TupleKey;
 import ldbc.snb.datagen.hadoop.miscjob.keychanger.HadoopFileKeyChanger;
@@ -60,9 +61,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Iterator;
 
-public class HadoopPersonGenerator {
+public class HadoopPersonGenerator extends DatagenHadoopJob {
 
-    private Configuration conf;
+    public HadoopPersonGenerator(LdbcConfiguration conf, Configuration hadoopConf) {
+        super(conf, hadoopConf);
+    }
 
     public static class HadoopPersonGeneratorMapper extends Mapper<LongWritable, Text, TupleKey, Person> {
 
@@ -125,10 +128,6 @@ public class HadoopPersonGenerator {
         }
     }
 
-    public HadoopPersonGenerator(Configuration conf) {
-        this.conf = new Configuration(conf);
-    }
-
     private static void writeToOutputFile(String filename, int numMaps, Configuration conf) {
         try {
             FileSystem dfs = FileSystem.get(conf);
@@ -150,17 +149,17 @@ public class HadoopPersonGenerator {
      */
     public void run(String outputFileName, String postKeySetterName) throws Exception {
 
-        String hadoopDir = conf.get("hadoop.serializer.hadoopDir");
-        String tempFile = hadoopDir + "/mrInputFile";
+        String buildDir = conf.getBuildDir();
+        int numThreads = HadoopConfiguration.getNumThreads(hadoopConf);
+        String tempFile = buildDir + "/mrInputFile";
 
-        FileSystem dfs = FileSystem.get(conf);
+        FileSystem dfs = FileSystem.get(hadoopConf);
         dfs.delete(new Path(tempFile), true);
-        writeToOutputFile(tempFile, HadoopConfiguration.getNumThreads(conf), conf);
+        writeToOutputFile(tempFile, numThreads, hadoopConf);
 
-        int numThreads = HadoopConfiguration.getNumThreads(conf);
-        conf.setInt("mapreduce.input.lineinputformat.linespermap", 1);
-        conf.set("postKeySetterName", postKeySetterName);
-        Job job = Job.getInstance(conf, "SIB Generate Persons & 1st Dimension");
+        hadoopConf.setInt("mapreduce.input.lineinputformat.linespermap", 1);
+        hadoopConf.set("postKeySetterName", postKeySetterName);
+        Job job = Job.getInstance(hadoopConf, "SIB Generate Persons & 1st Dimension");
         job.setMapOutputKeyClass(TupleKey.class);
         job.setMapOutputValueClass(Person.class);
         job.setOutputKeyClass(TupleKey.class);

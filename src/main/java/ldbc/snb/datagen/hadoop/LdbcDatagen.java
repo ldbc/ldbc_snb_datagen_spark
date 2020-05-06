@@ -65,40 +65,45 @@ import java.util.*;
 
 import static ldbc.snb.datagen.DatagenMode.*;
 
-public class LdbcDatagen {
-    private long personGenerateJob(String hadoopPrefix, Configuration conf) throws Exception {
+public class LdbcDatagen extends DatagenHadoopJob {
+
+    public LdbcDatagen(LdbcConfiguration conf, Configuration hadoopConf) {
+        super(conf, hadoopConf);
+    }
+
+    private long personGenerateJob(String hadoopPrefix) throws Exception {
         printProgress("Starting: Person generation");
         long startPerson = System.currentTimeMillis();
-        new HadoopPersonGenerator(conf)
+        new HadoopPersonGenerator(conf, hadoopConf)
                 .run(hadoopPrefix + "/persons",
                         "ldbc.snb.datagen.hadoop.miscjob.keychanger.UniversityKeySetter");
         return (System.currentTimeMillis() - startPerson);
     }
 
-    private long knowsGenerateJob(String hadoopPrefix, Configuration conf, String message, String preKey, String postKey, int step_index, String generator, String outputFile) throws Exception {
+    private long knowsGenerateJob(String hadoopPrefix, String message, String preKey, String postKey, int step_index, String generator, String outputFile) throws Exception {
         List<Float> percentages = new ArrayList<>(Arrays.asList(0.45f, 0.45f, 0.1f));
         printProgress(message);
         long startUniversity = System.currentTimeMillis();
-        new HadoopKnowsGenerator(conf, preKey, postKey, percentages, step_index, generator)
+        new HadoopKnowsGenerator(conf, hadoopConf, preKey, postKey, percentages, step_index, generator)
                 .run(hadoopPrefix + "/persons", hadoopPrefix + outputFile);
         return (System.currentTimeMillis() - startUniversity);
     }
 
-    private long mergeKnows(String hadoopPrefix, Configuration conf) throws Exception {
+    private long mergeKnows(String hadoopPrefix) throws Exception {
         printProgress("Merging the different edge files");
         long startMerge = System.currentTimeMillis();
-        HadoopMergeFriendshipFiles merger = new HadoopMergeFriendshipFiles(conf, "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter");
+        HadoopMergeFriendshipFiles merger = new HadoopMergeFriendshipFiles(hadoopConf, "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter");
         merger.run(hadoopPrefix + "/mergedPersons",
                 new ArrayList<>(Arrays.asList(hadoopPrefix + "/universityEdges", hadoopPrefix + "/interestEdges", hadoopPrefix + "/randomEdges")));
         return (System.currentTimeMillis() - startMerge);
     }
 
-    private long serializePersons(String hadoopPrefix, Configuration conf) throws Exception {
+    private long serializePersons(String hadoopPrefix) throws Exception {
         printProgress("Serializing persons");
         long startPersonSerializing = System.currentTimeMillis();
-        if (conf.getBoolean("ldbc.snb.datagen.serializer.persons.sort", true)) {
+        if (hadoopConf.getBoolean("ldbc.snb.datagen.serializer.persons.sort", true)) {
             // set true in config parser
-            new HadoopPersonSortAndSerializer(conf).run(hadoopPrefix + "/mergedPersons");
+            new HadoopPersonSortAndSerializer(conf, hadoopConf).run(hadoopPrefix + "/mergedPersons");
         }
         // TODO: check if this is ever needed
 //        else {
@@ -112,32 +117,37 @@ public class LdbcDatagen {
         fs.copyToLocalFile(false, new Path(pathString), new Path("./"));
     }
 
-    private long personActivityJob(String hadoopPrefix, Configuration conf, FileSystem fs) throws Exception {
+    private long personActivityJob(String hadoopPrefix, FileSystem fs) throws Exception {
         long startPersonActivity = System.currentTimeMillis();
         printProgress("Generating and serializing person activity");
-        HadoopPersonActivityGenerator activityGenerator = new HadoopPersonActivityGenerator(conf);
-        activityGenerator.run(hadoopPrefix + "/mergedPersons", hadoopPrefix);
-        for (int i = 0; i < HadoopConfiguration.getNumThreads(conf); ++i) {
+        HadoopPersonActivityGenerator activityGenerator = new HadoopPersonActivityGenerator(conf, hadoopConf);
+        activityGenerator.run(hadoopPrefix + "/mergedPersons");
+        for (int i = 0; i < HadoopConfiguration.getNumThreads(hadoopConf); ++i) {
             if (i < (int) Math.ceil(DatagenParams.numPersons / (double) DatagenParams.blockSize)) { // i<number of blocks
-                copyToLocal(fs, HadoopConfiguration.getHadoopDir(conf) + "/m" + i + "personFactors.txt");
-                copyToLocal(fs, HadoopConfiguration.getHadoopDir(conf) + "/m" + i + "activityFactors.txt");
-                copyToLocal(fs, HadoopConfiguration.getHadoopDir(conf) + "/m0friendList" + i + ".csv");
+                copyToLocal(fs, conf.getBuildDir() + "/m" + i + "personFactors.txt");
+                copyToLocal(fs, conf.getBuildDir() + "/m" + i + "activityFactors.txt");
+                copyToLocal(fs, conf.getBuildDir() + "/m0friendList" + i + ".csv");
             }
         }
         return (System.currentTimeMillis() - startPersonActivity);
     }
 
-    private long serializeStaticGraph(Configuration conf) {
+    private long serializeStaticGraph() {
         printProgress("Serializing static graph ");
         long startInvariantSerializing = System.currentTimeMillis();
-        HadoopStaticSerializer staticSerializer = new HadoopStaticSerializer(conf);
+        HadoopStaticSerializer staticSerializer = new HadoopStaticSerializer(
+                conf,
+                hadoopConf,
+                HadoopConfiguration.getNumThreads(hadoopConf)
+
+        );
         staticSerializer.run();
         return (System.currentTimeMillis() - startInvariantSerializing);
     }
 
-    private void generateBIParameters(Configuration conf) throws Exception {
+    private void generateBIParameters() throws Exception {
         print("Generating BI Parameters");
-        ProcessBuilder pb = new ProcessBuilder("python", "paramgenerator/generateparamsbi.py", "./", HadoopConfiguration.getOutputDir(conf) + "/substitution_parameters");
+        ProcessBuilder pb = new ProcessBuilder("python", "paramgenerator/generateparamsbi.py", "./", conf.getBuildDir() + "/substitution_parameters");
         pb.directory(new File("./"));
         File logBi = new File("parameters_bi.log");
         pb.redirectErrorStream(true);
@@ -147,16 +157,16 @@ public class LdbcDatagen {
         print("Finished BI Parameter Generation");
     }
 
-    private void generateInteractiveParameters(Configuration conf) throws Exception {
+    private void generateInteractiveParameters() throws Exception {
 
         print("Running Parameter Generation");
         print("Generating Interactive Parameters");
-        ProcessBuilder pb = new ProcessBuilder("mkdir", "-p", HadoopConfiguration.getOutputDir(conf) + "/substitution_parameters");
+        ProcessBuilder pb = new ProcessBuilder("mkdir", "-p", conf.getBuildDir() + "/substitution_parameters");
         pb.directory(new File("./"));
         Process p = pb.start();
         p.waitFor();
 
-        pb = new ProcessBuilder("python", "paramgenerator/generateparams.py", "./", HadoopConfiguration.getOutputDir(conf) + "/substitution_parameters");
+        pb = new ProcessBuilder("python", "paramgenerator/generateparams.py", "./", conf.getBuildDir() + "/substitution_parameters");
         pb.directory(new File("./"));
         File logInteractive = new File("parameters_interactive.log");
         pb.redirectErrorStream(true);
@@ -166,16 +176,15 @@ public class LdbcDatagen {
         print("Finished Interactive Parameter Generation");
     }
 
-    public void runGenerateJob(Configuration hadoopConf) throws Exception {
-        String hadoopPrefix = HadoopConfiguration.getHadoopDir(hadoopConf);
-        LdbcConfiguration conf = HadoopConfiguration.extractLdbcConfig(hadoopConf);
+    public void runGenerateJob() throws Exception {
+        String hadoopPrefix = conf.getBuildDir();
         FileSystem fs = FileSystem.get(hadoopConf);
         long start = System.currentTimeMillis();
 
         //create all people in the graph
-        long personGenTime = personGenerateJob(hadoopPrefix, hadoopConf);
+        long personGenTime = personGenerateJob(hadoopPrefix);
         //generate friendships based on going to the same uni
-        long uniKnowsGenTime = knowsGenerateJob(hadoopPrefix, hadoopConf,
+        long uniKnowsGenTime = knowsGenerateJob(hadoopPrefix,
                 "Creating university location correlated edges",
                 "ldbc.snb.datagen.hadoop.miscjob.keychanger.UniversityKeySetter",
                 "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter",
@@ -183,7 +192,7 @@ public class LdbcDatagen {
                 DatagenParams.getKnowsGenerator(),
                 "/universityEdges");
         //generate second set of friendships based on similar interests
-        long interestKnowsGenTime = knowsGenerateJob(hadoopPrefix, hadoopConf,
+        long interestKnowsGenTime = knowsGenerateJob(hadoopPrefix,
                 "Creating main interest correlated edges",
                 "ldbc.snb.datagen.hadoop.miscjob.keychanger.InterestKeySetter",
                 "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter",
@@ -191,7 +200,7 @@ public class LdbcDatagen {
                 DatagenParams.getKnowsGenerator(),
                 "/interestEdges");
         //generate final set of friendships based on randomness
-        long randomKnowsGenTime = knowsGenerateJob(hadoopPrefix, hadoopConf,
+        long randomKnowsGenTime = knowsGenerateJob(hadoopPrefix,
                 "Creating random correlated edges",
                 "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter",
                 "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter",
@@ -199,32 +208,32 @@ public class LdbcDatagen {
                 "ldbc.snb.datagen.generator.generators.knowsgenerators.RandomKnowsGenerator",
                 "/randomEdges");
         //delete old persons file as now merged persons is going to be used
-        fs.delete(new Path(HadoopConfiguration.getHadoopDir(hadoopConf) + "/persons"), true);
+        fs.delete(new Path(conf.getBuildDir() + "/persons"), true);
         //merge all friendship edges into a single file
-        long mergeKnowsTime = mergeKnows(hadoopPrefix, hadoopConf);
+        long mergeKnowsTime = mergeKnows(hadoopPrefix);
         //serialize persons
-        long personSerializeTime = serializePersons(hadoopPrefix, hadoopConf);
+        long personSerializeTime = serializePersons(hadoopPrefix);
         //generate person activities
-        long personActivityTime = personActivityJob(hadoopPrefix, hadoopConf, fs);
+        long personActivityTime = personActivityJob(hadoopPrefix, fs);
         //serialize static graph
-        long serializeStaticTime = serializeStaticGraph(hadoopConf);
+        long serializeStaticTime = serializeStaticGraph();
         // interative generate update stream
         long serializeUpdatesTime = 0;
         if (DatagenParams.getDatagenMode() == INTERACTIVE) {
             printProgress("Serializing update streams and generating parameters");
-            serializeUpdatesTime = runSortInsertStream(hadoopConf);
-            serializeUpdatesTime = serializeUpdatesTime + runSortDeleteStream(hadoopConf);
-            generateInteractiveParameters(hadoopConf);
+            serializeUpdatesTime = runSortInsertStream();
+            serializeUpdatesTime = serializeUpdatesTime + runSortDeleteStream();
+            generateInteractiveParameters();
         }
 
         // [JACK] ni this sort should merge all insert/delete streams, sort by event time then divide into a specified
         // number of refresh data sets. Also some redundant sorting here I think.
         if (DatagenParams.getDatagenMode() == BI) {
             printProgress("Serializing batches and generating parameters");
-            runSortInsertStream(hadoopConf);
-            runSortDeleteStream(hadoopConf);
-            runBiSortJob(hadoopConf);
-            generateBIParameters(hadoopConf);
+            runSortInsertStream();
+            runSortDeleteStream();
+            runBiSortJob();
+            generateBIParameters();
         }
 
         //total time taken
@@ -242,9 +251,9 @@ public class LdbcDatagen {
 
     }
 
-    public void individualSortJob(String filename, Configuration conf) throws Exception {
-        String creationPrefix = conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted/creation";
-        String deletionPrefix = conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted/deletion";
+    public void individualSortJob(String filename) throws Exception {
+        String creationPrefix = hadoopConf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted/creation";
+        String deletionPrefix = hadoopConf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted/deletion";
         HadoopCreationTimeSorter creationSorter = new HadoopCreationTimeSorter();
         HadoopDeletionTimeSorter deletionSorter = new HadoopDeletionTimeSorter();
         long startSort = System.currentTimeMillis();
@@ -254,13 +263,13 @@ public class LdbcDatagen {
         print(filename + " sorting time: " + ((System.currentTimeMillis() - startSort) / 1000));
     }
 
-    public void runBiSortJob(Configuration conf) throws Exception {
-        FileSystem.get(conf).mkdirs(new Path(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted"));
-        FileSystem.get(conf).mkdirs(new Path(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted/creation"));
-        FileSystem.get(conf).mkdirs(new Path(conf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted/deletion"));
+    public void runBiSortJob() throws Exception {
+        FileSystem.get(hadoopConf).mkdirs(new Path(hadoopConf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted"));
+        FileSystem.get(hadoopConf).mkdirs(new Path(hadoopConf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted/creation"));
+        FileSystem.get(hadoopConf).mkdirs(new Path(hadoopConf.get("ldbc.snb.datagen.serializer.socialNetworkDir") + "/sorted/deletion"));
 
-        DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer = HadoopConfiguration.getDynamicActivitySerializer(conf);
-        DynamicPersonSerializer<HdfsCsvWriter> dynamicPersonSerializer = HadoopConfiguration.getDynamicPersonSerializer(conf);
+        DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer = conf.getDynamicActivitySerializer();
+        DynamicPersonSerializer<HdfsCsvWriter> dynamicPersonSerializer = conf.getDynamicPersonSerializer();
 
 
         List<FileName> filenames = Lists.newArrayList();
@@ -268,41 +277,41 @@ public class LdbcDatagen {
         filenames.addAll(dynamicPersonSerializer.getFileNames());
 
         for (FileName f : filenames) {
-            individualSortJob(f.toString(), conf);
+            individualSortJob(f.toString());
         }
     }
 
-    public long runSortInsertStream(Configuration conf) throws Exception {
+    public long runSortInsertStream() throws Exception {
 
         long startSortingInsertStreams = System.currentTimeMillis();
 
         List<String> personStreamsFileNames = new ArrayList<>();
         List<String> forumStreamsFileNames = new ArrayList<>();
-        for (int i = 0; i < HadoopConfiguration.getNumThreads(conf); ++i) {
+        for (int i = 0; i < HadoopConfiguration.getNumThreads(hadoopConf); ++i) {
             int numPartitions = DatagenParams.numUpdateStreams;
             for (int j = 0; j < numPartitions; ++j) {
-                personStreamsFileNames.add(HadoopConfiguration.getHadoopDir(conf) + "/temp_insertStream_person_" + i + "_" + j);
-                forumStreamsFileNames.add(HadoopConfiguration.getHadoopDir(conf) + "/temp_insertStream_forum_" + i + "_" + j);
+                personStreamsFileNames.add(conf.getBuildDir() + "/temp_insertStream_person_" + i + "_" + j);
+                forumStreamsFileNames.add(conf.getBuildDir() + "/temp_insertStream_forum_" + i + "_" + j);
             }
         }
 
-        HadoopInsertStreamSorterAndSerializer insertSorterAndSerializer = new HadoopInsertStreamSorterAndSerializer(conf);
+        HadoopInsertStreamSorterAndSerializer insertSorterAndSerializer = new HadoopInsertStreamSorterAndSerializer(conf, hadoopConf);
         insertSorterAndSerializer.run(personStreamsFileNames, "person");
         insertSorterAndSerializer.run(forumStreamsFileNames, "forum");
         for (String file : personStreamsFileNames) {
-            FileSystem.get(conf).delete(new Path(file), true);
+            FileSystem.get(hadoopConf).delete(new Path(file), true);
         }
 
         for (String file : forumStreamsFileNames) {
-            FileSystem.get(conf).delete(new Path(file), true);
+            FileSystem.get(hadoopConf).delete(new Path(file), true);
         }
 
         long minDate = Long.MAX_VALUE;
         long maxDate = Long.MIN_VALUE;
         long count = 0;
-        for (int i = 0; i < HadoopConfiguration.getNumThreads(conf); ++i) {
-            Path propertiesFile = new Path(HadoopConfiguration.getHadoopDir(conf) + "/temp_insertStream_person_" + i + ".properties");
-            FSDataInputStream file = FileSystem.get(conf).open(propertiesFile);
+        for (int i = 0; i < HadoopConfiguration.getNumThreads(hadoopConf); ++i) {
+            Path propertiesFile = new Path(conf.getBuildDir() + "/temp_insertStream_person_" + i + ".properties");
+            FSDataInputStream file = FileSystem.get(hadoopConf).open(propertiesFile);
             Properties properties = new Properties();
             properties.load(file);
             long aux;
@@ -313,10 +322,10 @@ public class LdbcDatagen {
             aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.insert.num_events"));
             count += aux;
             file.close();
-            FileSystem.get(conf).delete(propertiesFile, true);
+            FileSystem.get(hadoopConf).delete(propertiesFile, true);
 
-            propertiesFile = new Path(HadoopConfiguration.getHadoopDir(conf) + "/temp_insertStream_forum_" + i + ".properties");
-            file = FileSystem.get(conf).open(propertiesFile);
+            propertiesFile = new Path(conf.getBuildDir() + "/temp_insertStream_forum_" + i + ".properties");
+            file = FileSystem.get(hadoopConf).open(propertiesFile);
             properties = new Properties();
             properties.load(file);
             aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.insert.min_write_event_start_time"));
@@ -326,12 +335,12 @@ public class LdbcDatagen {
             aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.insert.num_events"));
             count += aux;
             file.close();
-            FileSystem.get(conf).delete(propertiesFile, true);
+            FileSystem.get(hadoopConf).delete(propertiesFile, true);
 
         }
 
-        OutputStream output = FileSystem.get(conf)
-                .create(new Path(HadoopConfiguration.getSocialNetworkDir(conf) + "/insertStream" + ".properties"), true);
+        OutputStream output = FileSystem.get(hadoopConf)
+                .create(new Path(conf.getBuildDir() + "/insertStream" + ".properties"), true);
         output.write(("ldbc.snb.interactive.insert.gct_delta_duration:" + DatagenParams.delta + "\n")
                 .getBytes());
         output.write(("ldbc.snb.interactive.insert.min_write_event_start_time:" + minDate + "\n").getBytes());
@@ -346,7 +355,7 @@ public class LdbcDatagen {
         return ((endSortingInsertStreams - startSortingInsertStreams) / 1000);
     }
 
-    public long runSortDeleteStream(Configuration conf) throws Exception {
+    public long runSortDeleteStream() throws Exception {
 
         printProgress("Sorting delete streams ");
 
@@ -354,31 +363,31 @@ public class LdbcDatagen {
 
         List<String> personStreamsFileNames = new ArrayList<>();
         List<String> forumStreamsFileNames = new ArrayList<>();
-        for (int i = 0; i < HadoopConfiguration.getNumThreads(conf); ++i) {
+        for (int i = 0; i < HadoopConfiguration.getNumThreads(hadoopConf); ++i) {
             int numPartitions = DatagenParams.numUpdateStreams;
             for (int j = 0; j < numPartitions; ++j) {
-                personStreamsFileNames.add(HadoopConfiguration.getHadoopDir(conf) + "/temp_deleteStream_person_" + i + "_" + j);
-                forumStreamsFileNames.add(HadoopConfiguration.getHadoopDir(conf) + "/temp_deleteStream_forum_" + i + "_" + j);
+                personStreamsFileNames.add(conf.getBuildDir() + "/temp_deleteStream_person_" + i + "_" + j);
+                forumStreamsFileNames.add(conf.getBuildDir() + "/temp_deleteStream_forum_" + i + "_" + j);
             }
         }
 
-        HadoopDeleteStreamSorterAndSerializer deleteSorterAndSerializer = new HadoopDeleteStreamSorterAndSerializer(conf);
+        HadoopDeleteStreamSorterAndSerializer deleteSorterAndSerializer = new HadoopDeleteStreamSorterAndSerializer(conf, hadoopConf);
         deleteSorterAndSerializer.run(personStreamsFileNames, "person");
         deleteSorterAndSerializer.run(forumStreamsFileNames, "forum");
         for (String file : personStreamsFileNames) {
-            FileSystem.get(conf).delete(new Path(file), true);
+            FileSystem.get(hadoopConf).delete(new Path(file), true);
         }
 
         for (String file : forumStreamsFileNames) {
-            FileSystem.get(conf).delete(new Path(file), true);
+            FileSystem.get(hadoopConf).delete(new Path(file), true);
         }
 
         long minDate = Long.MAX_VALUE;
         long maxDate = Long.MIN_VALUE;
         long count = 0;
-        for (int i = 0; i < HadoopConfiguration.getNumThreads(conf); ++i) {
-            Path propertiesFile = new Path(HadoopConfiguration.getHadoopDir(conf) + "/temp_deleteStream_person_" + i + ".properties");
-            FSDataInputStream file = FileSystem.get(conf).open(propertiesFile);
+        for (int i = 0; i < HadoopConfiguration.getNumThreads(hadoopConf); ++i) {
+            Path propertiesFile = new Path(conf.getBuildDir() + "/temp_deleteStream_person_" + i + ".properties");
+            FSDataInputStream file = FileSystem.get(hadoopConf).open(propertiesFile);
             Properties properties = new Properties();
             properties.load(file);
             long aux;
@@ -389,10 +398,10 @@ public class LdbcDatagen {
             aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.delete.num_events"));
             count += aux;
             file.close();
-            FileSystem.get(conf).delete(propertiesFile, true);
+            FileSystem.get(hadoopConf).delete(propertiesFile, true);
 
-            propertiesFile = new Path(HadoopConfiguration.getHadoopDir(conf) + "/temp_deleteStream_forum_" + i + ".properties");
-            file = FileSystem.get(conf).open(propertiesFile);
+            propertiesFile = new Path(conf.getBuildDir() + "/temp_deleteStream_forum_" + i + ".properties");
+            file = FileSystem.get(hadoopConf).open(propertiesFile);
             properties = new Properties();
             properties.load(file);
             aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.delete.min_write_event_start_time"));
@@ -402,12 +411,12 @@ public class LdbcDatagen {
             aux = Long.parseLong(properties.getProperty("ldbc.snb.interactive.delete.num_events"));
             count += aux;
             file.close();
-            FileSystem.get(conf).delete(propertiesFile, true);
+            FileSystem.get(hadoopConf).delete(propertiesFile, true);
 
         }
 
-        OutputStream output = FileSystem.get(conf)
-                .create(new Path(HadoopConfiguration.getSocialNetworkDir(conf) + "/deleteStream" + ".properties"), true);
+        OutputStream output = FileSystem.get(hadoopConf)
+                .create(new Path(conf.getSocialNetworkDir() + "/deleteStream" + ".properties"), true);
         output.write(("ldbc.snb.interactive.delete.gct_delta_duration:" + DatagenParams.delta + "\n")
                 .getBytes());
         output.write(("ldbc.snb.interactive.delete.min_write_event_start_time:" + minDate + "\n").getBytes());
@@ -423,21 +432,23 @@ public class LdbcDatagen {
     }
 
     public static void main(String[] args) throws Exception {
-        Map<String, String> conf = ConfigParser.defaultConfiguration();
+        Map<String, String> confMap = ConfigParser.defaultConfiguration();
 
-        conf.putAll(ConfigParser.readConfig(args[0]));
-        conf.putAll(ConfigParser.readConfig(LdbcDatagen.class.getResourceAsStream("/params_default.ini")));
+        confMap.putAll(ConfigParser.readConfig(args[0]));
+        confMap.putAll(ConfigParser.readConfig(LdbcDatagen.class.getResourceAsStream("/params_default.ini")));
+
+        LdbcConfiguration conf = new LdbcConfiguration(confMap);
 
         Configuration hadoopConf = HadoopConfiguration.prepare(conf);
-        System.out.println(HadoopConfiguration.getHadoopDir(hadoopConf));
-        System.out.println(HadoopConfiguration.getSocialNetworkDir(hadoopConf));
-        System.out.println(HadoopConfiguration.getOutputDir(hadoopConf));
 
-        DatagenContext.initialize(HadoopConfiguration.extractLdbcConfig(hadoopConf));
-        LdbcDatagen datagen = new LdbcDatagen();
+        System.out.println(conf.getBuildDir());
+        System.out.println(conf.getSocialNetworkDir());
+        System.out.println(conf.getOutputDir());
 
-        datagen.runGenerateJob(hadoopConf);
+        DatagenContext.initialize(conf);
+        LdbcDatagen datagen = new LdbcDatagen(conf, hadoopConf);
 
+        datagen.runGenerateJob();
     }
 
     private static void print(String message) {

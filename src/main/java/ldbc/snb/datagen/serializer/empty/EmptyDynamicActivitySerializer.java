@@ -63,11 +63,6 @@ public class EmptyDynamicActivitySerializer extends DynamicActivitySerializer {
     }
 
     @Override
-    public void initialize(Configuration conf, int reducerId) throws IOException {
-        //This is left intentionally blank
-    }
-
-    @Override
     public void close() {
         //This is left intentionally blank
     }
@@ -103,8 +98,7 @@ public class EmptyDynamicActivitySerializer extends DynamicActivitySerializer {
     }
 
     @Override
-    public Map initialize(Configuration conf, int reducerId, boolean dynamic, List list) throws IOException {
+    public Map initialize(Configuration conf, String outputDir, int reducerId, boolean isCompressed, boolean insertTrailingSeparator, boolean dynamic, List list) throws IOException {
         return Collections.emptyMap();
     }
-
 }

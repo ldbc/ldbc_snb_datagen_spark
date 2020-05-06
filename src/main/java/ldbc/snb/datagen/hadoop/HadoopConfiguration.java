@@ -1,22 +1,5 @@
 package ldbc.snb.datagen.hadoop;
 
-import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
-import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
-import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
-import ldbc.snb.datagen.serializer.StaticSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvBasicDynamicActivitySerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvCompositeDynamicActivitySerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvCompositeMergeForeignDynamicActivitySerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvMergeForeignDynamicActivitySerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CsvBasicDynamicPersonSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CsvCompositeDynamicPersonSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CsvCompositeMergeForeignDynamicPersonSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CsvMergeForeignDynamicPersonSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvBasicStaticSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvCompositeMergeForeignStaticSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvCompositeStaticSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvMergeForeignStaticSerializer;
-import ldbc.snb.datagen.util.ConfigParser;
 import ldbc.snb.datagen.util.LdbcConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -31,7 +14,7 @@ import java.util.Map;
 public class HadoopConfiguration {
 
     public static LdbcConfiguration extractLdbcConfig(Configuration hadoop) {
-        return new LdbcConfiguration(hadoop.getValByRegex("^(generator).*$"));
+        return new LdbcConfiguration(hadoop.getValByRegex("^(generator|serializer).*$"));
     }
 
     public static void mergeLdbcIntoHadoop(LdbcConfiguration ldbcConfiguration, Configuration hadoop) {
@@ -40,131 +23,20 @@ public class HadoopConfiguration {
         }
     }
 
-    public static Configuration prepare(Map<String, String> conf) throws IOException {
+    public static Configuration prepare(LdbcConfiguration ldbcConf) throws IOException {
         Configuration hadoopConf = new Configuration();
 
-        if (hadoopConf.get("fs.defaultFS").compareTo("file:///") == 0) {
-            System.out.println("Running in standalone mode. Setting numThreads to 1");
-            conf.put("hadoop.numThreads", "1");
-        }
-
-//        conf.put("hadoop.serializer.hadoopDir", conf.get("hadoop.serializer.outputDir") + "hadoop");
-//        conf.put("hadoop.serializer.socialNetworkDir", conf.get("hadoop.serializer.outputDir") + "social_network");
-
-        ConfigParser.printConfig(conf);
-
-        mergeLdbcIntoHadoop(new LdbcConfiguration(conf), hadoopConf);
+        ldbcConf.printConfig();
+        mergeLdbcIntoHadoop(ldbcConf, hadoopConf);
         FileSystem dfs = FileSystem.get(hadoopConf);
 
-
-        dfs.delete(new Path(conf.get("hadoop.serializer.hadoopDir")), true);
-        dfs.delete(new Path(conf.get("hadoop.serializer.socialNetworkDir")), true);
-        FileUtils.deleteDirectory(new File(conf.get("hadoop.serializer.outputDir") + "/substitution_parameters"));
+        dfs.delete(new Path(ldbcConf.getBuildDir()), true);
+        dfs.delete(new Path(ldbcConf.getSocialNetworkDir()), true);
+        FileUtils.deleteDirectory(new File(ldbcConf.getOutputDir() + "/substitution_parameters"));
         return hadoopConf;
-    }
-
-    public static DynamicPersonSerializer<HdfsCsvWriter> getDynamicPersonSerializer(Configuration hadoopConf) {
-
-        String serializerFormat = hadoopConf.get("hadoop.serializer.format");
-
-        DynamicPersonSerializer<HdfsCsvWriter> output;
-        switch (serializerFormat) {
-            case "CsvBasic":
-                output = new CsvBasicDynamicPersonSerializer();
-                break;
-            case "CsvMergeForeign":
-                output = new CsvMergeForeignDynamicPersonSerializer();
-                break;
-            case "CsvComposite":
-                output = new CsvCompositeDynamicPersonSerializer();
-                break;
-            case "CsvCompositeMergeForeign":
-                output = new CsvCompositeMergeForeignDynamicPersonSerializer();
-                break;
-            default:
-                throw new IllegalStateException("Unexpected person serializer: " + serializerFormat);
-        }
-
-        return output;
-    }
-
-    public static DynamicActivitySerializer<HdfsCsvWriter> getDynamicActivitySerializer(Configuration hadoopConf) {
-
-        String serializerFormat = hadoopConf.get("hadoop.serializer.format");
-
-
-        DynamicActivitySerializer<HdfsCsvWriter> output;
-        switch (serializerFormat) {
-            case "CsvBasic":
-                output = new CsvBasicDynamicActivitySerializer();
-                break;
-            case "CsvMergeForeign":
-                output = new CsvMergeForeignDynamicActivitySerializer();
-                break;
-            case "CsvComposite":
-                output = new CsvCompositeDynamicActivitySerializer();
-                break;
-            case "CsvCompositeMergeForeign":
-                output = new CsvCompositeMergeForeignDynamicActivitySerializer();
-                break;
-            default:
-                throw new IllegalStateException("Unexpected activity serializer: " + serializerFormat);
-        }
-
-        return output;
-    }
-
-    public static StaticSerializer<HdfsCsvWriter> getStaticSerializer(Configuration hadoopConf) {
-
-        String serializerFormat = hadoopConf.get("hadoop.serializer.format");
-
-
-        StaticSerializer<HdfsCsvWriter> output;
-        switch (serializerFormat) {
-            case "CsvBasic":
-                output = new CsvBasicStaticSerializer();
-                break;
-            case "CsvComposite":
-                output = new CsvCompositeStaticSerializer();
-                break;
-            case "CsvCompositeMergeForeign":
-                output = new CsvCompositeMergeForeignStaticSerializer();
-                break;
-            case "CsvMergeForeign":
-                output = new CsvMergeForeignStaticSerializer();
-                break;
-            default:
-                throw new IllegalStateException("Unexpected static serializer: " + serializerFormat);
-        }
-
-        return output;
-    }
-
-    public static boolean isCompressed(Configuration hadoopConf) {
-
-        return Boolean.parseBoolean(hadoopConf.get("hadoop.serializer.compressed"));
-
-    }
-
-    public static boolean getEndLineSeparator(Configuration hadoopConf) {
-        return Boolean.parseBoolean(hadoopConf.get("hadoop.serializer.endlineSeparator"));
-
     }
 
     public static int getNumThreads(Configuration hadoopConf) {
         return Integer.parseInt(hadoopConf.get("hadoop.numThreads"));
     }
-
-    public static String getOutputDir(Configuration hadoopConf){
-        return hadoopConf.get("hadoop.serializer.outputDir");
-    }
-
-    public static String getHadoopDir(Configuration hadoopConf){
-        return hadoopConf.get("hadoop.serializer.hadoopDir");
-    }
-
-    public static String getSocialNetworkDir(Configuration hadoopConf){
-        return hadoopConf.get("hadoop.serializer.socialNetworkDir");
-    }
-
 }

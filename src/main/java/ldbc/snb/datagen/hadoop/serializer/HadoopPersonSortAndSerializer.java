@@ -41,10 +41,7 @@ import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
-import ldbc.snb.datagen.hadoop.HadoopBlockMapper;
-import ldbc.snb.datagen.hadoop.HadoopBlockPartitioner;
-import ldbc.snb.datagen.hadoop.HadoopConfiguration;
-import ldbc.snb.datagen.hadoop.HadoopTuplePartitioner;
+import ldbc.snb.datagen.hadoop.*;
 import ldbc.snb.datagen.hadoop.key.TupleKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKey;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyComparator;
@@ -61,7 +58,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
@@ -69,11 +65,13 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 
 import java.io.IOException;
 
-public class HadoopPersonSortAndSerializer {
+public class HadoopPersonSortAndSerializer extends DatagenHadoopJob {
 
-    private Configuration conf;
+    public HadoopPersonSortAndSerializer(LdbcConfiguration conf, Configuration hadoopConf) {
+        super(conf, hadoopConf);
+    }
 
-    public static class HadoopDynamicPersonSerializerReducer extends Reducer<BlockKey, Person, LongWritable, Person> {
+    public static class HadoopDynamicPersonSerializerReducer extends DatagenReducer<BlockKey, Person, LongWritable, Person> {
 
         private DynamicPersonSerializer<HdfsCsvWriter> dynamicPersonSerializer;
         private InsertEventSerializer insertEventSerializer;
@@ -86,11 +84,14 @@ public class HadoopPersonSortAndSerializer {
             int reducerId = context.getTaskAttemptID().getTaskID().getId();
             try {
                 DatagenContext.initialize(conf);
-                dynamicPersonSerializer = HadoopConfiguration.getDynamicPersonSerializer(hadoopConf);
-                dynamicPersonSerializer.initialize(hadoopConf, reducerId);
+                dynamicPersonSerializer = conf.getDynamicPersonSerializer();
+                dynamicPersonSerializer.initialize(
+                        hadoopConf, conf.getSocialNetworkDir(), reducerId,
+                        conf.isCompressed(), conf.insertTrailingSeparator()
+                        );
                 if (DatagenParams.getDatagenMode() == DatagenMode.INTERACTIVE || DatagenParams.getDatagenMode() == DatagenMode.BI) {
-                    insertEventSerializer = new InsertEventSerializer(hadoopConf, HadoopConfiguration.getHadoopDir(hadoopConf) + "/temp_insertStream_person_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
-                    deleteEventSerializer = new DeleteEventSerializer(hadoopConf, HadoopConfiguration.getHadoopDir(hadoopConf)  + "/temp_deleteStream_person_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
+                    insertEventSerializer = new InsertEventSerializer(hadoopConf, conf.getBuildDir() + "/temp_insertStream_person_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
+                    deleteEventSerializer = new DeleteEventSerializer(hadoopConf, conf.getBuildDir()  + "/temp_deleteStream_person_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
                 }
             } catch (Exception e) {
                 System.err.println(e.getMessage());
@@ -186,20 +187,16 @@ public class HadoopPersonSortAndSerializer {
         }
     }
 
-    public HadoopPersonSortAndSerializer(Configuration conf) {
-        this.conf = new Configuration(conf);
-    }
-
     public void run(String inputFileName) throws Exception {
 
-        FileSystem fs = FileSystem.get(conf);
+        FileSystem fs = FileSystem.get(hadoopConf);
 
-        String rankedFileName = HadoopConfiguration.getHadoopDir(conf) + "/ranked";
-        HadoopFileRanker hadoopFileRanker = new HadoopFileRanker(conf, TupleKey.class, Person.class, null);
+        String rankedFileName = conf.getBuildDir() + "/ranked";
+        HadoopFileRanker hadoopFileRanker = new HadoopFileRanker(conf, hadoopConf, TupleKey.class, Person.class, null);
         hadoopFileRanker.run(inputFileName, rankedFileName);
 
-        int numThreads = HadoopConfiguration.getNumThreads(conf);
-        Job job = Job.getInstance(conf, "Person Serializer");
+        int numThreads = HadoopConfiguration.getNumThreads(hadoopConf);
+        Job job = Job.getInstance(hadoopConf, "Person Serializer");
         job.setMapOutputKeyClass(BlockKey.class);
         job.setMapOutputValueClass(Person.class);
         job.setOutputKeyClass(LongWritable.class);
@@ -218,7 +215,7 @@ public class HadoopPersonSortAndSerializer {
         job.setPartitionerClass(HadoopBlockPartitioner.class);
 
         FileInputFormat.setInputPaths(job, new Path(rankedFileName));
-        FileOutputFormat.setOutputPath(job, new Path(HadoopConfiguration.getHadoopDir(conf) + "/aux"));
+        FileOutputFormat.setOutputPath(job, new Path(conf.getBuildDir() + "/aux"));
         if (!job.waitForCompletion(true)) {
             throw new IllegalStateException("HadoopPersonSerializer failed");
         }
@@ -226,7 +223,7 @@ public class HadoopPersonSortAndSerializer {
 
         try {
             fs.delete(new Path(rankedFileName), true);
-            fs.delete(new Path(HadoopConfiguration.getHadoopDir(conf) + "/aux"), true);
+            fs.delete(new Path(conf.getBuildDir() + "/aux"), true);
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }

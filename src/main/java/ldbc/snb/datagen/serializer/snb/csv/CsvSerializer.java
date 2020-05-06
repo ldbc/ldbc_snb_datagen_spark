@@ -1,7 +1,6 @@
 package ldbc.snb.datagen.serializer.snb.csv;
 
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.hadoop.HadoopConfiguration;
 import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
 import ldbc.snb.datagen.serializer.Serializer;
 import org.apache.hadoop.conf.Configuration;
@@ -17,9 +16,9 @@ public interface CsvSerializer extends Serializer<HdfsCsvWriter> {
             Configuration conf,
             String outputDir,
             int reducerId,
-            boolean dynamic,
             boolean isCompressed,
-            boolean endLineSeparator,
+            boolean insertTrailingSeparator,
+            boolean dynamic,
             List<FileName> fileNames
     ) throws IOException {
 
@@ -30,8 +29,9 @@ public interface CsvSerializer extends Serializer<HdfsCsvWriter> {
                     outputDir + (dynamic ? "/dynamic/" : "/static/"),
                     f.toString() + "_" + reducerId,
                     DatagenParams.numUpdateStreams,
-                    isCompressed, "|",
-
+                    isCompressed,
+                    "|",
+                    insertTrailingSeparator
                 )
             );
         }
