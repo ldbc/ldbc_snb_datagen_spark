@@ -1,5 +1,6 @@
 package ldbc.snb.datagen.spark.generators
 
+import java.nio.charset.StandardCharsets
 import java.util
 
 import ldbc.snb.datagen.{DatagenContext, DatagenMode, DatagenParams}
@@ -12,6 +13,8 @@ import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.TaskContext
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
+
+import scala.collection.JavaConverters._
 
 object SparkActivitySerializer {
 
@@ -58,16 +61,24 @@ object SparkActivitySerializer {
       }
       val generator = new PersonActivityGenerator
       val exporter = new PersonActivityExporter(dynamicActivitySerializer, insertEventSerializer, deleteEventSerializer)
+      val friends = fs.create(new Path(buildDir + "/" + "m0friendList" + partitionId + ".csv"))
+      val personFactors = fs.create(new Path(buildDir + "/" + "m" + partitionId + DatagenParams.PERSON_COUNTS_FILE))
+      val activityFactors = fs.create(new Path(buildDir + "/" + "m" + partitionId + DatagenParams.ACTIVITY_FILE))
 
       try {
-        val personFactors = fs.create(new Path(buildDir + "/" + "m" + partitionId + DatagenParams.PERSON_COUNTS_FILE))
-        val activityFactors = fs.create(new Path(buildDir + "/" + "m" + partitionId + DatagenParams.ACTIVITY_FILE))
-        val friends = fs.create(new Path(buildDir + "/" + "m0friendList" + partitionId + ".csv"))
-
         for {(blockId, persons) <- groups} {
           val clonedPersons = new util.ArrayList[Person]
           for (p <- persons) {
             clonedPersons.add(new Person(p))
+
+            val strbuf = new StringBuilder
+            strbuf.append(p.getAccountId)
+            for (k <- p.getKnows.iterator().asScala) {
+              strbuf.append(",")
+              strbuf.append(k.to.getAccountId)
+            }
+            strbuf.append("\n")
+            friends.write(strbuf.toString().getBytes(StandardCharsets.UTF_8))
           }
 
           val activities = generator.generateActivityForBlock(blockId.toInt, clonedPersons)
@@ -76,10 +87,12 @@ object SparkActivitySerializer {
 
           generator.writePersonFactors(personFactors)
         }
-
         generator.writeActivityFactors(activityFactors)
       } finally {
         exporter.close()
+        friends.close()
+        personFactors.close()
+        activityFactors.close()
       }
     })
   }

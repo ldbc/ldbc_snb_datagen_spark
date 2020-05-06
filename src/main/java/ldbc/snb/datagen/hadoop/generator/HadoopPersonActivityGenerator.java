@@ -143,16 +143,7 @@ public class HadoopPersonActivityGenerator extends DatagenHadoopJob {
                 for (Knows k : p.getKnows()) {
                     strbuf.append(",");
                     strbuf.append(k.to().getAccountId());
-//                        TODO: moved this to HadoopPersonSerializer/HadoopPersonSortAndSerializer
-//                    if (k.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold() && DatagenParams.updateStreams) {
-//                        insertEventSerializer.export(p, k);
-//                        deleteEventSerializer.export(p, k);
-//                    }
                 }
-//                if (DatagenParams.updateStreams) {
-//                    insertEventSerializer.changePartition();
-//                    deleteEventSerializer.changePartition();
-//                }
 
                 strbuf.append("\n");
                 friends.write(strbuf.toString().getBytes(StandardCharsets.UTF_8));
@@ -242,5 +233,4 @@ public class HadoopPersonActivityGenerator extends DatagenHadoopJob {
             throw new RuntimeException(e);
         }
     }
-
 }
