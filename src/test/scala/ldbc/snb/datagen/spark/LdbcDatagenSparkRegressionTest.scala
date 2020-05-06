@@ -21,7 +21,7 @@ import scala.collection.JavaConverters._
 import scala.io.Source
 import scala.reflect.ClassTag
 
-class LdbcDatagenScalaTest extends FunSuite
+class LdbcDatagenSparkRegressionTest extends FunSuite
   with BeforeAndAfterAll
   with BeforeAndAfterEach
   with Matchers
