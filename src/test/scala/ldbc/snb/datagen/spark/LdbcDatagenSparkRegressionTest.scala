@@ -18,7 +18,7 @@ import org.apache.spark.sql.SparkSession
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite, Inspectors, Matchers}
 
 import scala.collection.JavaConverters._
-import scala.io.Source
+import scala.io.{Codec, Source}
 import scala.reflect.ClassTag
 
 class LdbcDatagenSparkRegressionTest extends FunSuite
@@ -247,6 +247,8 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
         "forum",
         "post",
       )
+
+      implicit val codec = Codec.UTF8
 
       forAll(datasets) { ds =>
         val actual = Source.fromFile(s"${conf.getSocialNetworkDir}/actual/dynamic/${ds}_0_0.csv").getLines().drop(1)
