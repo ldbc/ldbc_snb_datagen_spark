@@ -1,6 +1,5 @@
 FROM ubuntu:20.04 AS base
 
-
 ARG HADOOP_VERSION=3.2.1
 
 # Download hadoop
@@ -16,9 +15,10 @@ ENV PATH="${HADOOP_HOME}/bin:${PATH}"
 # Copy the project
 COPY . /opt/ldbc_snb_datagen
 WORKDIR /opt/ldbc_snb_datagen
-RUN mvn -DskipTests -ntp clean assembly:assembly
 
 FROM base
+
+RUN mvn -DskipTests -ntp clean assembly:assembly
 
 ENV HADOOP_CLIENT_OPTS '-Xmx8G'
 ENV HADOOP_LOGLEVEL WARN
