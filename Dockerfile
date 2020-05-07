@@ -1,6 +1,5 @@
 FROM ubuntu:20.04 AS base
 
-RUN mkdir -p /usr/share/man/man1 && mkdir -p /usr/share/man/man7 
 
 ARG HADOOP_VERSION=3.2.1
 
