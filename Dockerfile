@@ -5,11 +5,14 @@ ARG HADOOP_VERSION=3.2.1
 # Download hadoop
 WORKDIR /opt
 RUN apt-get update
-RUN apt-get install -y maven python curl openjdk-8-jdk
+RUN apt-get install -y maven python curl openjdk-8-jdk && \
+    update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
+    
+ENV JAVA_HOME "/usr/lib/jvm/java-8-openjdk-amd64"
+
 RUN curl -L "http://archive.apache.org/dist/hadoop/core/hadoop-${HADOOP_VERSION}/hadoop-${HADOOP_VERSION}.tar.gz" | tar -xz
 
 ENV HADOOP_HOME "/opt/hadoop-${HADOOP_VERSION}"
-ENV JAVA_HOME "/usr/lib/jvm/java-8-openjdk-amd64"
 ENV PATH="${HADOOP_HOME}/bin:${PATH}"
 
 # Copy the project
