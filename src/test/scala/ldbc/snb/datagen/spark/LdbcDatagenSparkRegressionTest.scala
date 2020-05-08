@@ -12,10 +12,10 @@ import ldbc.snb.datagen.hadoop.generator.{HadoopKnowsGenerator, HadoopPersonActi
 import ldbc.snb.datagen.hadoop.key.TupleKey
 import ldbc.snb.datagen.hadoop.miscjob.HadoopMergeFriendshipFiles
 import ldbc.snb.datagen.spark.generators._
+import ldbc.snb.datagen.spark.util.SparkTesting
 import ldbc.snb.datagen.util.{ConfigParser, LdbcConfiguration}
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.mapred.SequenceFileInputFormat
-import org.apache.spark.sql.SparkSession
 import org.scalatest._
 
 import scala.collection.JavaConverters._
@@ -23,12 +23,11 @@ import scala.io.{Codec, Source}
 import scala.reflect.ClassTag
 
 class LdbcDatagenSparkRegressionTest extends FunSuite
+  with SparkTesting
   with BeforeAndAfterAll
   with BeforeAndAfterEach
   with Matchers
   with Inspectors {
-
-  var spark: SparkSession = _
 
   // to reduce boilerplate
   import scala.language.implicitConversions
@@ -62,23 +61,6 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
 
     val hadoopConf = HadoopConfiguration.prepare(conf)
     test(conf, hadoopConf)
-  }
-
-  override def beforeAll(): Unit = {
-    super.beforeAll()
-
-    spark = SparkSession
-      .builder()
-      .master("local[*]")
-      .appName("test")
-      .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-      .getOrCreate()
-
-  }
-
-  override def afterAll(): Unit = {
-    spark.close()
-    super.afterAll()
   }
 
   val fixturePath = getClass.getResource("/fixtures/hadoop").getPath
@@ -169,8 +151,6 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
   }
 
   test("Merger returns expected results") {
-    implicit val sparkSession = spark
-
     val uni = spark.sparkContext
       .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](fixturePath / "knows_university")
       .values
@@ -220,8 +200,6 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
       val persons = spark.sparkContext
         .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](fixturePath / "merged_persons")
         .values
-
-      implicit val sparkSession = spark
 
       val ranker = SparkRanker.create(_.byRandomId)
 
@@ -305,8 +283,6 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
     val persons = spark.sparkContext
       .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](fixturePath / "persons")
       .values
-
-    implicit val sparkSession = spark
 
     val ranker = SparkRanker.create(sparkSorter)
 
