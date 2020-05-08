@@ -41,6 +41,7 @@ import org.apache.hadoop.fs.Path;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.GZIPOutputStream;
 
 public class HdfsWriter {
@@ -76,7 +77,7 @@ public class HdfsWriter {
         buffer.setLength(0);
         buffer.append(entry);
         try {
-            fileOutputStream[currentPartition].write(buffer.toString().getBytes("UTF8"));
+            fileOutputStream[currentPartition].write(buffer.toString().getBytes(StandardCharsets.UTF_8));
             currentPartition = ++currentPartition % numPartitions;
         } catch (IOException e) {
             System.out.println("Cannot write to output file ");
@@ -87,7 +88,7 @@ public class HdfsWriter {
     public void writeAllPartitions(String entry) {
         try {
             for (int i = 0; i < numPartitions; ++i) {
-                fileOutputStream[i].write(entry.getBytes("UTF8"));
+                fileOutputStream[i].write(entry.getBytes(StandardCharsets.UTF_8));
             }
         } catch (IOException e) {
             System.out.println("Cannot write to output file ");

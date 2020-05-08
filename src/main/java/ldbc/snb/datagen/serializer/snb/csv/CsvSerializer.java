@@ -1,7 +1,6 @@
 package ldbc.snb.datagen.serializer.snb.csv;
 
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.hadoop.HadoopConfiguration;
 import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
 import ldbc.snb.datagen.serializer.Serializer;
 import org.apache.hadoop.conf.Configuration;
