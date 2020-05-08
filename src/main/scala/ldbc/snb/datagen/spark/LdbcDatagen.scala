@@ -1,7 +1,7 @@
 package ldbc.snb.datagen.spark
 
 import ldbc.snb.datagen.{DatagenContext, DatagenParams}
-import ldbc.snb.datagen.spark.generators.{SparkActivitySerializer, SparkKnowsGenerator, SparkKnowsMerger, SparkPersonGenerator, SparkRanker}
+import ldbc.snb.datagen.spark.generators.{SparkPersonSerializer, SparkActivitySerializer, SparkKnowsGenerator, SparkKnowsMerger, SparkPersonGenerator, SparkRanker}
 import ldbc.snb.datagen.util.{ConfigParser, LdbcConfiguration}
 import org.apache.spark.sql.SparkSession
 
@@ -45,7 +45,7 @@ object LdbcDatagen {
 
     SparkActivitySerializer(merged, randomRanker, config, Some(numPartitions))
 
-    PersonSerializer(merged, config, Some(numPartitions))
+    SparkPersonSerializer(merged, config, Some(numPartitions))
 
 
 
