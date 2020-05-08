@@ -2,13 +2,13 @@
 
 set -e
 
-if [ ! -f /opt/ldbc_snb_datagen/params.ini ]; then
+if [ ! -f params.ini ]; then
     echo "The params.ini file is not present"
     exit 1
 fi
 
 # Running the generator
-/opt/hadoop-3.2.1/bin/hadoop jar /opt/ldbc_snb_datagen/target/ldbc_snb_datagen-0.4.0-SNAPSHOT-jar-with-dependencies.jar /opt/ldbc_snb_datagen/params.ini
+hadoop jar target/ldbc_snb_datagen-0.4.0-SNAPSHOT-jar-with-dependencies.jar params.ini
 
 # Cleanup
 rm -f m*personFactors*
