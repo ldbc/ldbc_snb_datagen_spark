@@ -12,17 +12,18 @@ import ldbc.snb.datagen.hadoop.generator.{HadoopKnowsGenerator, HadoopPersonActi
 import ldbc.snb.datagen.hadoop.key.TupleKey
 import ldbc.snb.datagen.hadoop.miscjob.HadoopMergeFriendshipFiles
 import ldbc.snb.datagen.spark.generators._
-import ldbc.snb.datagen.spark.util.SparkTesting
+import ldbc.snb.datagen.spark.util.{SaneDefaults, SparkTesting}
 import ldbc.snb.datagen.util.{ConfigParser, LdbcConfiguration}
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.mapred.SequenceFileInputFormat
 import org.scalatest._
 
 import scala.collection.JavaConverters._
-import scala.io.{Codec, Source}
+import scala.io.Source
 import scala.reflect.ClassTag
 
 class LdbcDatagenSparkRegressionTest extends FunSuite
+  with SaneDefaults
   with SparkTesting
   with BeforeAndAfterAll
   with BeforeAndAfterEach
@@ -231,8 +232,6 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
         "forum",
         "post",
       )
-
-      implicit val codec = Codec.UTF8
 
       forAll(datasets) { ds =>
         val actual = Source.fromFile(s"${conf.getSocialNetworkDir}/actual/dynamic/${ds}_0_0.csv").getLines().drop(1)
