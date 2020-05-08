@@ -31,7 +31,7 @@ object SparkActivitySerializer {
 
     blocks.foreachPartition(groups => {
       DatagenContext.initialize(conf)
-      val partitionId = TaskContext.get().partitionId()
+      val partitionId = TaskContext.getPartitionId()
       val hadoopConf = serializableHadoopConf.value
       val buildDir = conf.getBuildDir
 

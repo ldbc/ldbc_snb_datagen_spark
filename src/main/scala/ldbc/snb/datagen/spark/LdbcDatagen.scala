@@ -1,10 +1,8 @@
 package ldbc.snb.datagen.spark
 
 import ldbc.snb.datagen.{DatagenContext, DatagenParams}
-import ldbc.snb.datagen.entities.dynamic.person.Person
-import ldbc.snb.datagen.spark.generators.{SparkKnowsGenerator, SparkKnowsMerger, SparkPersonGenerator, SparkRanker}
+import ldbc.snb.datagen.spark.generators.{SparkActivitySerializer, SparkKnowsGenerator, SparkKnowsMerger, SparkPersonGenerator, SparkRanker}
 import ldbc.snb.datagen.util.{ConfigParser, LdbcConfiguration}
-import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
 
 object LdbcDatagen {
@@ -39,14 +37,15 @@ object LdbcDatagen {
     val interestRanker = SparkRanker.create(_.byInterest, Some(numPartitions))
     val randomRanker = SparkRanker.create(_.byRandomId, Some(numPartitions))
 
-
     val uniKnows = SparkKnowsGenerator(persons, uniRanker, config, percentages, 0, knowsGeneratorClassName)
     val interestKnows = SparkKnowsGenerator(persons, interestRanker, config, percentages, 1, knowsGeneratorClassName)
     val randomKnows = SparkKnowsGenerator(persons, randomRanker, config, percentages, 2, knowsGeneratorClassName)
 
     val merged = SparkKnowsMerger(uniKnows, interestKnows, randomKnows)
 
-    //val activity = SparkActivityGenerator(activity)
+    SparkActivitySerializer(merged, randomRanker, config, Some(numPartitions))
+
+    PersonSerializer(merged, config, Some(numPartitions))
 
 
 
