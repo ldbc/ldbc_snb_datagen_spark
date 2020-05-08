@@ -4,18 +4,19 @@ import java.lang
 import java.nio.file.Files
 import java.util.Properties
 
+import better.files._
 import ldbc.snb.datagen._
 import ldbc.snb.datagen.entities.dynamic.person.Person
 import ldbc.snb.datagen.hadoop.HadoopConfiguration
 import ldbc.snb.datagen.hadoop.generator.{HadoopKnowsGenerator, HadoopPersonActivityGenerator, HadoopPersonGenerator}
 import ldbc.snb.datagen.hadoop.key.TupleKey
 import ldbc.snb.datagen.hadoop.miscjob.HadoopMergeFriendshipFiles
-import ldbc.snb.datagen.spark.generators.{SparkActivitySerializer, SparkKnowsGenerator, SparkKnowsMerger, SparkPersonGenerator, SparkRanker}
+import ldbc.snb.datagen.spark.generators._
 import ldbc.snb.datagen.util.{ConfigParser, LdbcConfiguration}
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.mapred.SequenceFileInputFormat
 import org.apache.spark.sql.SparkSession
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite, Inspectors, Matchers}
+import org.scalatest._
 
 import scala.collection.JavaConverters._
 import scala.io.{Codec, Source}
@@ -28,6 +29,11 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
   with Inspectors {
 
   var spark: SparkSession = _
+
+  // to reduce boilerplate
+  import scala.language.implicitConversions
+  implicit def convertToJavaFile(file: File): java.io.File = file.toJava
+  implicit def convertToString(file: File): String = file.toString
 
   def withHadoopConf(propOverrides: (Properties => Properties)*)(test: (LdbcConfiguration, Configuration) => Any) = {
     val confMap = ConfigParser.defaultConfiguration
@@ -42,9 +48,9 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
 
     val tmpRoot = Files.createTempDirectory("ldbc_snb_datagen_test").toString
 
-    props.setProperty("serializer.buildDir", tmpRoot + "/build_dir")
-    props.setProperty("serializer.socialNetworkDir", tmpRoot + "/sn_dir")
-    props.setProperty("serializer.outputDir", tmpRoot + "/out_dir")
+    props.setProperty("serializer.buildDir", tmpRoot / "build")
+    props.setProperty("serializer.socialNetworkDir", tmpRoot / "sn")
+    props.setProperty("serializer.outputDir", tmpRoot / "out")
 
     val finalProps = propOverrides.foldLeft(props)((p, f) => f(p))
 
@@ -75,24 +81,24 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
     super.afterAll()
   }
 
-  val fixturePath = getClass.getResource("/fixtures/hadoop").toString
+  val fixturePath = getClass.getResource("/fixtures/hadoop").getPath
 
   test("Person generator is deterministic") {
     withHadoopConf() { (conf, hadoopConf) =>
       timed(
         "hadoop person generation",
         new HadoopPersonGenerator(conf, hadoopConf)
-          .run(conf.getBuildDir + "/persons", "ldbc.snb.datagen.hadoop.miscjob.keychanger.UniversityKeySetter")
+          .run(conf.getBuildDir / "persons", "ldbc.snb.datagen.hadoop.miscjob.keychanger.UniversityKeySetter")
       )
 
       timed(
         "hadoop person generation",
         new HadoopPersonGenerator(conf, hadoopConf)
-          .run(conf.getBuildDir + "/persons2", "ldbc.snb.datagen.hadoop.miscjob.keychanger.UniversityKeySetter")
+          .run(conf.getBuildDir / "persons2", "ldbc.snb.datagen.hadoop.miscjob.keychanger.UniversityKeySetter")
       )
 
-      val expected = spark.sparkContext.hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](conf.getBuildDir + "/persons")
-      val actual = spark.sparkContext.hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](conf.getBuildDir + "/persons2")
+      val expected = spark.sparkContext.hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](conf.getBuildDir / "persons")
+      val actual = spark.sparkContext.hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](conf.getBuildDir / "persons2")
 
       val actuals = actual.map(_._2.hashCode()).collect().toSet
       val expecteds = expected.map(_._2.hashCode()).collect().toSet
@@ -107,11 +113,11 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
     timed(
       "hadoop person generation",
       new HadoopPersonGenerator(conf, hadoopConf)
-        .run(conf.getBuildDir + "/persons", "ldbc.snb.datagen.hadoop.miscjob.keychanger.UniversityKeySetter")
+        .run(conf.getBuildDir / "persons", "ldbc.snb.datagen.hadoop.miscjob.keychanger.UniversityKeySetter")
     )
 
     val expected = spark.sparkContext
-      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](conf.getBuildDir + "/persons")
+      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](conf.getBuildDir / "persons")
     val actual = SparkPersonGenerator(conf, numPartitions = Some(Integer.parseInt(hadoopConf.get("hadoop.numThreads"))))(spark)
 
     val actuals = actual.map(_.hashCode()).collect().toSet
@@ -125,7 +131,7 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
   test("University Knows generator returns expected results") {
     withHadoopConf() { (conf, hadoopConf) =>
       shouldGenerateSameKnows(
-        "/knows_university",
+        "knows_university",
         0,
         (p: Person) => p.byUni,
         "ldbc.snb.datagen.hadoop.miscjob.keychanger.UniversityKeySetter",
@@ -138,7 +144,7 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
   test("Interest Knows generator returns expected results") {
     withHadoopConf() { (conf, hadoopConf) =>
       shouldGenerateSameKnows(
-        "/knows_interest",
+        "knows_interest",
         1,
         (p: Person) => p.byInterest,
         "ldbc.snb.datagen.hadoop.miscjob.keychanger.InterestKeySetter",
@@ -151,7 +157,7 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
   test("Random Knows generator returns expected results") {
     withHadoopConf() { (conf, hadoopConf) =>
       shouldGenerateSameKnows(
-        "/knows_random",
+        "knows_random",
         2,
         (p: Person) => p.byRandomId,
         "ldbc.snb.datagen.hadoop.miscjob.keychanger.RandomKeySetter",
@@ -166,17 +172,17 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
     implicit val sparkSession = spark
 
     val uni = spark.sparkContext
-      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](fixturePath + "/knows_university")
+      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](fixturePath / "knows_university")
       .values
       .map(new Person(_)) // this required because of https://issues.apache.org/jira/browse/SPARK-993
 
     val interest = spark.sparkContext
-      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](fixturePath + "/knows_interest")
+      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](fixturePath / "knows_interest")
       .values
       .map(new Person(_)) // this required because of https://issues.apache.org/jira/browse/SPARK-993
 
     val random = spark.sparkContext
-      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](fixturePath + "/knows_random")
+      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](fixturePath / "knows_random")
       .values
       .map(new Person(_)) // this required because of https://issues.apache.org/jira/browse/SPARK-993
 
@@ -186,10 +192,10 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
         "hadoop merge",
         merger.run(
           conf.getBuildDir + "/merged_persons",
-          new java.util.ArrayList[String](java.util.Arrays.asList(
-            fixturePath + "/knows_university",
-            fixturePath + "/knows_interest",
-            fixturePath + "/knows_random"
+          new java.util.ArrayList(java.util.Arrays.asList[String](
+            fixturePath / "knows_university",
+            fixturePath / "knows_interest",
+            fixturePath / "knows_random"
           ))
         )
       )
@@ -197,7 +203,7 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
       val actual = SparkKnowsMerger(uni, interest, random)
 
       val expected = spark.sparkContext
-        .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](conf.getBuildDir + "/merged_persons")
+        .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](conf.getBuildDir / "merged_persons")
         .values
 
       val expecteds = expected.map(_.hashCode).collect().toSet
@@ -212,7 +218,7 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
   test("Person activity serializer generates & serializes the same activities") {
     withHadoopConf() { (conf, hadoopConf) =>
       val persons = spark.sparkContext
-        .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](fixturePath + "/merged_persons")
+        .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](fixturePath / "merged_persons")
         .values
 
       implicit val sparkSession = spark
@@ -221,20 +227,20 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
 
       {
         val (h, c) = updateConf(hadoopConf,
-          "serializer.buildDir" -> (conf.getBuildDir + "/expected"),
-          "serializer.socialNetworkDir" -> (conf.getSocialNetworkDir + "/expected"),
+          "serializer.buildDir" -> (conf.getBuildDir / "expected"),
+          "serializer.socialNetworkDir" -> (conf.getSocialNetworkDir / "expected"),
         )
         val hadoop = new HadoopPersonActivityGenerator(c, h)
         timed(
           "hadoop person activity",
-          hadoop.run(fixturePath + "/merged_persons")
+          hadoop.run(fixturePath / "merged_persons")
         )
       }
 
       {
         val (h, c) = updateConf(hadoopConf,
-          "serializer.buildDir" -> (conf.getBuildDir + "/actual"),
-          "serializer.socialNetworkDir" -> (conf.getSocialNetworkDir + "/actual"),
+          "serializer.buildDir" -> (conf.getBuildDir / "actual"),
+          "serializer.socialNetworkDir" -> (conf.getSocialNetworkDir / "actual"),
         )
         timed(
           "spark person activity",
@@ -276,7 +282,7 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
     hadoopConf: Configuration,
     knowsGeneratorClassName: String = "ldbc.snb.datagen.generator.generators.knowsgenerators.DistanceKnowsGenerator"
   ) = {
-    val personsFixturePath = fixturePath + "/persons"
+    val personsFixturePath = fixturePath / "persons"
 
     val knowsGeneratorClassName = "ldbc.snb.datagen.generator.generators.knowsgenerators.DistanceKnowsGenerator"
     val preKeyHadoop = hadoopSorter
@@ -297,7 +303,7 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
     )
 
     val persons = spark.sparkContext
-      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](fixturePath + "/persons")
+      .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](fixturePath / "persons")
       .values
 
     implicit val sparkSession = spark
