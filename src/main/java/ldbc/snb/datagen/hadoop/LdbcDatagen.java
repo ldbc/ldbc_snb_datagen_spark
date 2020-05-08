@@ -248,7 +248,6 @@ public class LdbcDatagen extends DatagenHadoopJob {
         print("Insert stream serialization time: " + (serializeUpdatesTime / 1000));
 
         print("Total Execution time: " + ((System.currentTimeMillis() - start) / 1000));
-
     }
 
     public void individualSortJob(String filename) throws Exception {

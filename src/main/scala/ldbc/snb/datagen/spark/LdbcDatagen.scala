@@ -1,7 +1,7 @@
 package ldbc.snb.datagen.spark
 
 import ldbc.snb.datagen.{DatagenContext, DatagenParams}
-import ldbc.snb.datagen.spark.generators.{SparkPersonSerializer, SparkActivitySerializer, SparkKnowsGenerator, SparkKnowsMerger, SparkPersonGenerator, SparkRanker}
+import ldbc.snb.datagen.spark.generators.{SparkActivitySerializer, SparkKnowsGenerator, SparkKnowsMerger, SparkPersonGenerator, SparkPersonSerializer, SparkRanker, SparkStaticGraphSerializer}
 import ldbc.snb.datagen.util.{ConfigParser, LdbcConfiguration}
 import org.apache.spark.sql.SparkSession
 
@@ -14,6 +14,8 @@ object LdbcDatagen {
       .builder()
       .appName(appName)
       .getOrCreate()
+
+    val start = System.currentTimeMillis
 
     val conf = ConfigParser.defaultConfiguration()
 
@@ -37,6 +39,8 @@ object LdbcDatagen {
     val interestRanker = SparkRanker.create(_.byInterest, Some(numPartitions))
     val randomRanker = SparkRanker.create(_.byRandomId, Some(numPartitions))
 
+
+
     val uniKnows = SparkKnowsGenerator(persons, uniRanker, config, percentages, 0, knowsGeneratorClassName)
     val interestKnows = SparkKnowsGenerator(persons, interestRanker, config, percentages, 1, knowsGeneratorClassName)
     val randomKnows = SparkKnowsGenerator(persons, randomRanker, config, percentages, 2, knowsGeneratorClassName)
@@ -47,19 +51,9 @@ object LdbcDatagen {
 
     SparkPersonSerializer(merged, config, Some(numPartitions))
 
+    SparkStaticGraphSerializer(config, Some(numPartitions))
 
-
-//    val interestKnows = genInterestKnows()
-//    val randomKnows = genRandomKnows()
-//
-//    val knows = uniKnows ++ interestKnows ++ randomKnows
-//
-//    val activity = genActivity()
-//
-//    writeStaticGraph(persons, knows)
-//
-//    writeActivity(activity)
-
+    print("Total Execution time: " + ((System.currentTimeMillis - start) / 1000))
   }
 }
 
