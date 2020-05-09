@@ -11,6 +11,7 @@ import ldbc.snb.datagen.hadoop.HadoopConfiguration
 import ldbc.snb.datagen.hadoop.generator.{HadoopKnowsGenerator, HadoopPersonActivityGenerator, HadoopPersonGenerator}
 import ldbc.snb.datagen.hadoop.key.TupleKey
 import ldbc.snb.datagen.hadoop.miscjob.HadoopMergeFriendshipFiles
+import ldbc.snb.datagen.hadoop.serializer.HadoopPersonSortAndSerializer
 import ldbc.snb.datagen.spark.generators._
 import ldbc.snb.datagen.spark.util.{SaneDefaults, SparkTesting}
 import ldbc.snb.datagen.util.{ConfigParser, LdbcConfiguration}
@@ -193,6 +194,52 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
 
       actuals should have size 1700
       actuals shouldBe expecteds
+    }
+  }
+
+  test("Person serializer generates & serializers the same persons") {
+    withHadoopConf() { (conf, hadoopConf) =>
+      val persons = spark.sparkContext
+        .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](fixturePath / "merged_persons")
+        .values
+
+      {
+        val (h, c) = updateConf(hadoopConf,
+          "serializer.buildDir" -> (conf.getBuildDir / "expected"),
+          "serializer.socialNetworkDir" -> (conf.getSocialNetworkDir / "expected"),
+        )
+        val hadoop = new HadoopPersonSortAndSerializer(c, h)
+        timed(
+          "hadoop person serialization",
+          hadoop.run(fixturePath / "merged_persons")
+        )
+      }
+
+      {
+        val (h, c) = updateConf(hadoopConf,
+          "serializer.buildDir" -> (conf.getBuildDir / "actual"),
+          "serializer.socialNetworkDir" -> (conf.getSocialNetworkDir / "actual"),
+        )
+        timed(
+          "spark person activity",
+          SparkPersonSerializer(persons, c, Some(HadoopConfiguration.getNumThreads(h)))
+        )
+      }
+
+      val datasets = Seq(
+        "person",
+        "person_knows_person",
+        "person_hasInterest_tag",
+      )
+
+      forAll(datasets) { ds =>
+        val actual = Source.fromFile(s"${conf.getSocialNetworkDir}/actual/dynamic/${ds}_0_0.csv").getLines().drop(1)
+        val expected = Source.fromFile(s"${conf.getSocialNetworkDir}/expected/dynamic/${ds}_0_0.csv").getLines().drop(1)
+
+        actual.length shouldBe expected.length
+
+        actual.toSet shouldBe expected.toSet
+      }
     }
   }
 

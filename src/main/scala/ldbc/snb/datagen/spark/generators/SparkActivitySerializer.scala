@@ -16,22 +16,23 @@ import org.apache.spark.sql.SparkSession
 
 import scala.collection.JavaConverters._
 
+import ldbc.snb.datagen.spark.util.FluentSyntax._
+
 object SparkActivitySerializer {
 
   def apply(persons: RDD[Person], ranker: SparkRanker, conf: LdbcConfiguration, partitions: Option[Int] = None)(implicit spark: SparkSession) = {
-    val numPartitions = partitions.getOrElse(spark.sparkContext.defaultParallelism)
 
     val blockSize = DatagenParams.blockSize
     val blocks = ranker(persons)
       .map { case (k, v) => (k / blockSize, v) }
       .groupByKey()
-      .repartition(numPartitions)
+      .withFoldLeft(partitions, (rdd: RDD[(Long, Iterable[Person])], p: Int) => rdd.repartition(p))
 
     val serializableHadoopConf = new SerializableConfiguration(spark.sparkContext.hadoopConfiguration)
 
     blocks.foreachPartition(groups => {
       DatagenContext.initialize(conf)
-      val partitionId = TaskContext.get().partitionId()
+      val partitionId = TaskContext.getPartitionId()
       val hadoopConf = serializableHadoopConf.value
       val buildDir = conf.getBuildDir
 
