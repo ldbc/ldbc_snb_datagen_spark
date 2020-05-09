@@ -51,7 +51,7 @@ export HADOOP_HOME=`pwd`/hadoop-3.2.1
 export LDBC_SNB_DATAGEN_HOME=`pwd`
 # limit Hadoop's log to error messages
 export HADOOP_LOGLEVEL=WARN
-./run.sh
+tools/run.sh
 ```
 
 ### Docker image
