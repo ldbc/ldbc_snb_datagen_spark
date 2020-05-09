@@ -36,7 +36,9 @@
 
 package ldbc.snb.datagen.entities.dynamic.relations;
 
-public class StudyAt {
+import java.io.Serializable;
+
+public class StudyAt implements Serializable {
     public long person;
     public long university;
     public long year;

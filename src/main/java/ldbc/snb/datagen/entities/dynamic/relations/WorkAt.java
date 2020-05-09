@@ -35,7 +35,9 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.entities.dynamic.relations;
 
-public class WorkAt {
+import java.io.Serializable;
+
+public class WorkAt implements Serializable {
     public long person;
     public long company;
     public long year;

@@ -118,9 +118,6 @@ object SparkPersonSerializer {
           deleteEventSerializer.close()
         }
       }
-
-
-
     })
   }
 }

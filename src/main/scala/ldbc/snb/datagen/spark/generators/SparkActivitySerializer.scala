@@ -2,10 +2,11 @@ package ldbc.snb.datagen.spark.generators
 
 import java.nio.charset.StandardCharsets
 import java.util
+import java.util.function.Consumer
 
 import ldbc.snb.datagen.{DatagenContext, DatagenMode, DatagenParams}
 import ldbc.snb.datagen.entities.dynamic.person.Person
-import ldbc.snb.datagen.generator.generators.PersonActivityGenerator
+import ldbc.snb.datagen.generator.generators.{GenActivity, PersonActivityGenerator}
 import ldbc.snb.datagen.serializer.{DeleteEventSerializer, InsertEventSerializer, PersonActivityExporter}
 import ldbc.snb.datagen.spark.util.SerializableConfiguration
 import ldbc.snb.datagen.util.LdbcConfiguration
@@ -15,7 +16,6 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
 
 import scala.collection.JavaConverters._
-
 import ldbc.snb.datagen.spark.util.FluentSyntax._
 
 object SparkActivitySerializer {
@@ -84,7 +84,9 @@ object SparkActivitySerializer {
 
           val activities = generator.generateActivityForBlock(blockId.toInt, clonedPersons)
 
-          activities.forEach(exporter.export(_))
+          activities.forEach(new Consumer[GenActivity] {
+            override def accept(t: GenActivity): Unit = exporter.export(t)
+          })
 
           generator.writePersonFactors(personFactors)
         }

@@ -1,6 +1,8 @@
 package ldbc.snb.datagen.entities.dynamic;
 
-public interface DynamicActivity {
+import java.io.Serializable;
+
+public interface DynamicActivity extends Serializable {
     long getCreationDate();
     long getDeletionDate();
 

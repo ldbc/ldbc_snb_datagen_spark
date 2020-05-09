@@ -5,9 +5,10 @@ import org.apache.hadoop.io.Writable;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Objects;
 
-public final class PersonSummary implements Writable {
+public final class PersonSummary implements Writable, Serializable {
     private long accountId;
     private long creationDate;
     private long deletionDate;

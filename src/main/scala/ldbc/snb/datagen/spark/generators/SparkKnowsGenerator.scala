@@ -20,7 +20,7 @@ object SparkKnowsGenerator {
     conf: LdbcConfiguration,
     percentages: Seq[Float],
     stepIndex: Int,
-    knowsGeneratorClassName: String,
+    knowsGeneratorClassName: String
   )(implicit spark: SparkSession) = {
     val blockSize = DatagenParams.blockSize
 

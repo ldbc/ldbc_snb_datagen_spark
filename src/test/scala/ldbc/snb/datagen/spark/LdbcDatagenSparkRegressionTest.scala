@@ -206,7 +206,7 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
       {
         val (h, c) = updateConf(hadoopConf,
           "serializer.buildDir" -> (conf.getBuildDir / "expected"),
-          "serializer.socialNetworkDir" -> (conf.getSocialNetworkDir / "expected"),
+          "serializer.socialNetworkDir" -> (conf.getSocialNetworkDir / "expected")
         )
         val hadoop = new HadoopPersonSortAndSerializer(c, h)
         timed(
@@ -218,7 +218,7 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
       {
         val (h, c) = updateConf(hadoopConf,
           "serializer.buildDir" -> (conf.getBuildDir / "actual"),
-          "serializer.socialNetworkDir" -> (conf.getSocialNetworkDir / "actual"),
+          "serializer.socialNetworkDir" -> (conf.getSocialNetworkDir / "actual")
         )
         timed(
           "spark person activity",
@@ -229,7 +229,7 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
       val datasets = Seq(
         "person",
         "person_knows_person",
-        "person_hasInterest_tag",
+        "person_hasInterest_tag"
       )
 
       forAll(datasets) { ds =>
@@ -254,7 +254,7 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
       {
         val (h, c) = updateConf(hadoopConf,
           "serializer.buildDir" -> (conf.getBuildDir / "expected"),
-          "serializer.socialNetworkDir" -> (conf.getSocialNetworkDir / "expected"),
+          "serializer.socialNetworkDir" -> (conf.getSocialNetworkDir / "expected")
         )
         val hadoop = new HadoopPersonActivityGenerator(c, h)
         timed(
@@ -266,7 +266,7 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
       {
         val (h, c) = updateConf(hadoopConf,
           "serializer.buildDir" -> (conf.getBuildDir / "actual"),
-          "serializer.socialNetworkDir" -> (conf.getSocialNetworkDir / "actual"),
+          "serializer.socialNetworkDir" -> (conf.getSocialNetworkDir / "actual")
         )
         timed(
           "spark person activity",
@@ -277,7 +277,7 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
       val datasets = Seq(
         "comment",
         "forum",
-        "post",
+        "post"
       )
 
       forAll(datasets) { ds =>
