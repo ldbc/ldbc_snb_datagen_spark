@@ -45,7 +45,7 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
     props.setProperty("generator.mode", "interactive")
     props.setProperty("generator.blockSize", "100")
     props.setProperty("generator.interactive.numUpdateStreams", "1")
-    props.setProperty("hadoop.numThreads", "1")
+    props.setProperty("hadoop.numThreads", "3")
 
     val tmpRoot = Files.createTempDirectory("ldbc_snb_datagen_test").toString
 
