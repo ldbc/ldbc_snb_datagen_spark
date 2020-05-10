@@ -48,11 +48,13 @@ public class StringDateFormatter implements DateFormatter {
     private DateTimeFormatter gmtDateTimeFormatter;
     private DateTimeFormatter gmtDateFormatter;
 
+    private static ZoneId GMT = ZoneId.of("GMT");
+
     public void initialize(LdbcConfiguration conf) {
         String formatDateTimeString = DatagenParams.getDateTimeFormat();
-        gmtDateTimeFormatter = DateTimeFormatter.ofPattern(formatDateTimeString).withZone(DateUtils.UTC);
+        gmtDateTimeFormatter = DateTimeFormatter.ofPattern(formatDateTimeString).withZone(GMT);
         String formatDateString = DatagenParams.getDateFormat();
-        gmtDateFormatter = DateTimeFormatter.ofPattern(formatDateString).withZone(DateUtils.UTC);
+        gmtDateFormatter = DateTimeFormatter.ofPattern(formatDateString).withZone(GMT);
     }
 
     public String formatDateTime(long date) {
