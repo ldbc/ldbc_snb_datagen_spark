@@ -1,9 +1,13 @@
 FROM ubuntu:20.04 AS build
 
 ARG HADOOP_VERSION=3.2.1
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Use Unicode
+ENV LANG=C.UTF-8
 
 RUN apt-get update
-RUN apt-get install -y maven python curl openjdk-8-jdk && \
+RUN apt-get install -y locales ssh git maven python curl openjdk-8-jdk && \
     update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
     
 ENV JAVA_HOME "/usr/lib/jvm/java-8-openjdk-amd64"
