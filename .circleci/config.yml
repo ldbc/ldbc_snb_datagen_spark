@@ -16,7 +16,7 @@ jobs:
         key: m2-dep-branch:{{ .Branch }}-{{ epoch }}
         paths:
         - ~/.m2/repository
-      - save_cache
+      - save_cache:
         key: m2-dep-pom:{{ checksum "pom.xml" }}-{{ epoch }}
         paths:
         - ~/.m2/repository
