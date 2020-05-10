@@ -8,13 +8,17 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          - m2-dep-{{ .Branch }}-
-          - m2-dep-dev-
-          - m2-dep-
+        - m2-dep-pom:{{ checksum "pom.xml" }}- 
+        - m2-dep-branch:{{ .Branch }}-
+        - m2-dep-branch:dev-
       - mvn -ntp clean test-compile
       - save_cache:
-          key: m2-dep-{{ .Branch }}-{{ epoch }}
-          paths:
-            - ~/.m2/repository
+        key: m2-dep-branch:{{ .Branch }}-{{ epoch }}
+        paths:
+        - ~/.m2/repository
+      - save_cache
+        key: m2-dep-pom:{{ checksum "pom.xml" }}-{{ epoch }}
+        paths:
+        - ~/.m2/repository
       - mvn -ntp test
       
