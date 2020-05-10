@@ -1,7 +1,7 @@
 version: 2
 jobs:
   build:
-    resource_class: medium
+    resource_class: large
     working_directory: ~/ldbc/ldbc_snb_datagen
     docker:
       - image: ldbc/datagen-build:0.0.2
