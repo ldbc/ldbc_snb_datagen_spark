@@ -171,10 +171,6 @@ public class DateUtils {
         return randomDate(random, fromDate, toDate);
     }
 
-    public long numberOfMonths(Person person) {
-        return numberOfMonths(person.getCreationDate());
-    }
-
     public long numberOfMonths(long fromDate) {
         return (simulationEnd - fromDate) / THIRTY_DAYS;
     }
@@ -247,7 +243,7 @@ public class DateUtils {
     }
 
     public Long getNetworkCollapse() {
-        return getSimulationStart() + DateUtils.TEN_YEARS;
+        return getSimulationStart() + TEN_YEARS;
     }
 
     public long getBulkLoadThreshold() {
