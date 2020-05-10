@@ -15,11 +15,11 @@ jobs:
       - run: mvn -ntp clean test-compile
       - save_cache:
           key: m2-dep-branch:{{ .Branch }}-{{ epoch }}
-          paths:
-            - ~/.m2/repository
+          paths: &cached_deps
+            - ~/.m2/repository   # maven deps
+            - ~/.sbt/1.0/zinc    # scala compiler bridge
       - save_cache:
           key: m2-dep-pom:{{ checksum "pom.xml" }}-{{ epoch }}
-          paths:
-            - ~/.m2/repository
+          paths: *cached_deps
       - run: mvn -ntp test
       
