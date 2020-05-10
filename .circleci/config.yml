@@ -4,7 +4,7 @@ jobs:
     resource_class: medium
     working_directory: ~/ldbc/ldbc_snb_datagen
     docker:
-      - image: ldbc/datagen-build:0.0.1
+      - image: ldbc/datagen-build:0.0.2
     steps:
       - checkout
       - restore_cache:
