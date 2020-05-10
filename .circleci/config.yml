@@ -10,6 +10,7 @@ jobs:
       - restore_cache:
           keys:
             - m2-dep-branch:{{ .Branch }}-pom:{{ checksum "pom.xml" }}-
+            - m2-dep-branch:dev-pom:{{ checksum "pom.xml" }}-
             - m2-dep-branch:{{ .Branch }}-
             - m2-dep-branch:dev-
       - run: mvn -ntp clean test-compile
