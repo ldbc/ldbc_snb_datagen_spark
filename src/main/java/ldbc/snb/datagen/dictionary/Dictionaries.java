@@ -39,7 +39,7 @@ import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.util.DateUtils;
 import ldbc.snb.datagen.util.LdbcConfiguration;
 
-import java.util.GregorianCalendar;
+import java.time.LocalDate;
 
 public class Dictionaries {
 
@@ -63,13 +63,11 @@ public class Dictionaries {
 
         browsers = new BrowserDictionary(DatagenParams.probAnotherBrowser);
 
-        dates = new DateUtils(conf, new GregorianCalendar(DatagenParams.startYear,
-                                                              DatagenParams.startMonth,
-                                                              DatagenParams.startDate),
-                                  new GregorianCalendar(DatagenParams.endYear,
-                                                        DatagenParams.endMonth,
-                                                        DatagenParams.endDate),
-                                  DatagenParams.alpha
+        dates = new DateUtils(
+                conf,
+                LocalDate.of(DatagenParams.startYear, DatagenParams.startMonth + 1, DatagenParams.startDate),
+                LocalDate.of(DatagenParams.endYear, DatagenParams.endMonth + 1, DatagenParams.endDate),
+                DatagenParams.alpha
         );
 
 

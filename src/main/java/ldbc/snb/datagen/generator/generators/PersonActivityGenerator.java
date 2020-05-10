@@ -198,7 +198,7 @@ public class PersonActivityGenerator {
     private GenWall<Pair<Photo, Stream<Like>>> generateAlbums(Person person, long blockId) {
 
         // work out number of albums to generate
-        int numberOfMonths = (int) Dictionaries.dates.numberOfMonths(person);
+        int numberOfMonths = (int) Dictionaries.dates.numberOfMonths(person.getCreationDate());
         int numberOfPhotoAlbums = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_PHOTO_ALBUM).nextInt(DatagenParams.maxNumPhotoAlbumsPerMonth + 1);
         int numberOfPhotoAlbumsForMonths = numberOfPhotoAlbums == 0
                 ? numberOfPhotoAlbums
