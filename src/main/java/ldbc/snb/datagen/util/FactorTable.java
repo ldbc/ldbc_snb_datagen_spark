@@ -236,15 +236,15 @@ public class FactorTable {
         }
         incrFirstNameCount(person.getFirstName());
         String medianName = Dictionaries.names.getMedianGivenName(person.getCountryId(), person.getGender() == 1,
-                Dictionaries.dates
-                        .getBirthYear(person.getBirthday()));
+                DateUtils
+                        .getYear(person.getBirthday()));
         medianFirstName.put(person.getAccountId(), medianName);
     }
 
     public void extractFactors(ForumMembership member) {
         long memberId = member.getPerson().getAccountId();
         personCounts(memberId).incrNumForums();
-        int bucket = Dictionaries.dates
+        int bucket = DateUtils
                 .getNumberOfMonths(member.getCreationDate(), DatagenParams.startMonth, DatagenParams.startYear);
         if (bucket < 36 + 1)
             personCounts(memberId).incrNumForumsPerMonth(bucket);
@@ -397,9 +397,9 @@ public class FactorTable {
                     "\n" +
                     DatagenParams.startYear +
                     "\n" +
-                    Dictionaries.dates.formatYear(minWorkFrom) +
+                    DateUtils.formatYear(minWorkFrom) +
                     "\n" +
-                    Dictionaries.dates.formatYear(maxWorkFrom) +
+                    DateUtils.formatYear(maxWorkFrom) +
                     "\n";
             writer.write(strbuf.getBytes(StandardCharsets.UTF_8));
             writer.flush();

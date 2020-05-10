@@ -38,7 +38,7 @@ package ldbc.snb.datagen.util.formatter;
 import ldbc.snb.datagen.util.LdbcConfiguration;
 
 public interface DateFormatter {
-    void initialize(LdbcConfiguration ldbcConfiguration);
+    default void initialize(LdbcConfiguration ldbcConfiguration) {}
 
     String formatDate(long date);
 
