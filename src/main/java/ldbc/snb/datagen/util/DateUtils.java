@@ -40,7 +40,13 @@ import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.generator.tools.PowerDistribution;
 import ldbc.snb.datagen.util.formatter.DateFormatter;
 
-import java.util.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.ZoneId;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Random;
 
 public class DateUtils {
 
@@ -55,31 +61,21 @@ public class DateUtils {
     private long simulationEnd;
     private long fromBirthDay;
     private long toBirthDay;
-    private GregorianCalendar calendar;
     private long bulkLoadThreshold;
     private PowerDistribution powerDist;
     private DateFormatter dateFormatter;
 
     // This constructor is for the case of friendship's created date generator
-    public DateUtils(LdbcConfiguration conf, GregorianCalendar simulationStartYear, GregorianCalendar simulationEndYear,
+    public DateUtils(LdbcConfiguration conf, LocalDate simulationStartYear, LocalDate simulationEndYear,
                      double alpha) {
-        simulationEndYear.setTimeZone(TimeZone.getTimeZone("GMT"));
-        simulationStartYear.setTimeZone(TimeZone.getTimeZone("GMT"));
-        simulationStart = simulationStartYear.getTimeInMillis();
-        simulationEnd = simulationEndYear.getTimeInMillis();
+        simulationStart = toEpochMilli(simulationStartYear);
+        simulationEnd = toEpochMilli(simulationEndYear);
         powerDist = new PowerDistribution(0.0, 1.0, alpha);
 
         // For birthday from 1980 to 1990
-        GregorianCalendar fromBirthCalendar = new GregorianCalendar(1980, 1, 1);
-        fromBirthCalendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        GregorianCalendar toBirthCalendar = new GregorianCalendar(1990, 1, 1);
-        toBirthCalendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        fromBirthDay = fromBirthCalendar.getTimeInMillis();
-        toBirthDay = toBirthCalendar.getTimeInMillis();
-        calendar = new GregorianCalendar();
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+        fromBirthDay = toEpochMilli(LocalDate.of(1980, 1, 1));
+        toBirthDay = toEpochMilli(LocalDate.of(1990, 1, 1));
         bulkLoadThreshold = getSimulationEnd() - (long) ((getSimulationEnd() - getSimulationStart()) * (DatagenParams.bulkLoadPortion));
-
 
         try {
             dateFormatter = DatagenParams.getDateFormatter();
@@ -88,6 +84,16 @@ public class DateUtils {
             System.err.println("Error when initializing date formatter");
             System.err.println(e.getMessage());
         }
+    }
+
+    public static long toEpochMilli(LocalDate ld) {
+        return ld.atStartOfDay(UTC).toInstant().toEpochMilli();
+    }
+
+    public static ZoneId UTC = ZoneId.of("UTC");
+
+    public static LocalDate utcDateOfEpochMilli(long epochMilli) {
+        return Instant.ofEpochMilli(epochMilli).atZone(UTC).toLocalDate();
     }
 
     /**
@@ -121,10 +127,9 @@ public class DateUtils {
         return dateFormatter.formatDate(date);
     }
 
-    public String formatYear(long date) {
-        calendar.setTimeInMillis(date);
-        int year = calendar.get(Calendar.YEAR);
-        return year + "";
+    public static String formatYear(long epochMilli) {
+        LocalDate date = utcDateOfEpochMilli(epochMilli);
+        return Integer.toString(date.getYear());
     }
 
     /*
@@ -135,13 +140,11 @@ public class DateUtils {
     }
 
 
-    public static boolean isTravelSeason(long date) {
-        GregorianCalendar c = new GregorianCalendar();
-        c.setTimeZone(TimeZone.getTimeZone("GMT"));
-        c.setTimeInMillis(date);
+    public static boolean isTravelSeason(long epochMilli) {
+        LocalDate date = utcDateOfEpochMilli(epochMilli);
 
-        int day = c.get(Calendar.DAY_OF_MONTH);
-        int month = c.get(Calendar.MONTH) + 1;
+        int day = date.getDayOfMonth();
+        int month = date.getMonthValue();
 
         if ((month > 4) && (month < 7)) {
             return true;
@@ -149,10 +152,10 @@ public class DateUtils {
         return ((month == 11) && (day > 23));
     }
 
-    public int getNumberOfMonths(long date, int startMonth, int startYear) {
-        calendar.setTimeInMillis(date);
-        int month = calendar.get(Calendar.MONTH) + 1;
-        int year = calendar.get(Calendar.YEAR);
+    public static int getNumberOfMonths(long epochMilli, int startMonth, int startYear) {
+        LocalDate date = utcDateOfEpochMilli(epochMilli);
+        int month = date.getMonthValue();
+        int year = date.getYear();
         return (year - startYear) * 12 + month - startMonth;
     }
 
@@ -199,27 +202,24 @@ public class DateUtils {
 
     // The birthday is fixed during 1980 --> 1990
     public long getBirthDay(Random random) {
-        calendar.setTimeInMillis(((long) (random.nextDouble() * (toBirthDay - fromBirthDay)) + fromBirthDay));
-        GregorianCalendar aux_calendar = new GregorianCalendar(calendar.get(Calendar.YEAR), calendar
-                .get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
-        aux_calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        return aux_calendar.getTimeInMillis();
+        LocalDate date = utcDateOfEpochMilli(((long) (random.nextDouble() * (toBirthDay - fromBirthDay)) + fromBirthDay));
+        return toEpochMilli(date);
     }
 
-    public int getBirthYear(long birthday) {
-        calendar.setTimeInMillis(birthday);
-        return calendar.get(GregorianCalendar.YEAR);
+    public static int getYear(long epochMilli) {
+        LocalDate date = utcDateOfEpochMilli(epochMilli);
+        return date.getYear();
     }
 
-    public int getBirthMonth(long birthday) {
-        calendar.setTimeInMillis(birthday);
-        return calendar.get(GregorianCalendar.MONTH);
+    public static Month getMonth(long epochMilli) {
+        LocalDate date = utcDateOfEpochMilli(epochMilli);
+        return date.getMonth();
     }
     //If do not know the birthday, first randomly guess the age of person
     //Randomly get the age when person graduate
     //person's age for graduating is from 20 to 30
 
-    public long getClassYear(Random random, long birthday) {
+    public long randomClassYear(Random random, long birthday) {
         long graduateAge = (random.nextInt(5) + 18) * ONE_YEAR;
         long classYear = birthday + graduateAge;
         if (classYear > this.simulationEnd) return -1;

@@ -48,6 +48,7 @@ import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.entities.dynamic.relations.Like;
 import ldbc.snb.datagen.hadoop.InsertEvent;
 import ldbc.snb.datagen.hadoop.key.updatekey.InsertEventKey;
+import ldbc.snb.datagen.util.DateUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.io.SequenceFile;
@@ -241,7 +242,7 @@ public class InsertEventSerializer {
         if (universityId != -1 && person.getClassYear() != -1) {
             List<String> studyAtData = new ArrayList<>();
             studyAtData.add(Long.toString(Dictionaries.universities.getUniversityFromLocation(universityId)));
-            studyAtData.add(Dictionaries.dates.formatYear(person.getClassYear()));
+            studyAtData.add(DateUtils.formatYear(person.getClassYear()));
             list.add(formatStringArray(studyAtData, ","));
         }
         endList();
@@ -250,7 +251,7 @@ public class InsertEventSerializer {
         for (Long companyId : person.getCompanies().keySet()) {
             List<String> workAtData = new ArrayList<>();
             workAtData.add(Long.toString(companyId));
-            workAtData.add(Dictionaries.dates.formatYear(person.getCompanies().get(companyId)));
+            workAtData.add(DateUtils.formatYear(person.getCompanies().get(companyId)));
             list.add(formatStringArray(workAtData, ","));
         }
         endList();

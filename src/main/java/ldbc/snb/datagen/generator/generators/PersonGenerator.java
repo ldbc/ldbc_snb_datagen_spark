@@ -40,12 +40,12 @@ import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.generator.distribution.DegreeDistribution;
 import ldbc.snb.datagen.generator.tools.PowerDistribution;
+import ldbc.snb.datagen.util.DateUtils;
 import ldbc.snb.datagen.util.LdbcConfiguration;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
-import ldbc.snb.datagen.vocabulary.SN;
 
 import java.text.Normalizer;
-import java.util.GregorianCalendar;
+import java.time.Month;
 import java.util.Iterator;
 import java.util.List;
 
@@ -130,7 +130,7 @@ public class PersonGenerator {
         person.setFirstName(Dictionaries.names.getRandomGivenName(randomFarm.get(RandomGeneratorFarm.Aspect.NAME),
                 person.getCountryId(),
                 person.getGender() == 1,
-                Dictionaries.dates.getBirthYear(person.getBirthday())));
+                DateUtils.getYear(person.getBirthday())));
 
         person.setLastName(Dictionaries.names.getRandomSurname(randomFarm.get(RandomGeneratorFarm.Aspect.SURNAME), person
                 .getCountryId()));
@@ -154,7 +154,7 @@ public class PersonGenerator {
         if ((prob < DatagenParams.missingRatio) || person.getUniversityLocationId() == -1) {
             person.setClassYear(-1);
         } else {
-            person.setClassYear(Dictionaries.dates.getClassYear(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),
+            person.setClassYear(Dictionaries.dates.randomClassYear(randomFarm.get(RandomGeneratorFarm.Aspect.DATE),
                     person.getBirthday()));
         }
 
@@ -190,7 +190,7 @@ public class PersonGenerator {
     }
 
     private boolean isLargePoster(Person p) {
-        return Dictionaries.dates.getBirthMonth(p.getBirthday()) == GregorianCalendar.JANUARY;
+        return DateUtils.getMonth(p.getBirthday()) == Month.JANUARY;
     }
 
     private void resetState(int seed) {

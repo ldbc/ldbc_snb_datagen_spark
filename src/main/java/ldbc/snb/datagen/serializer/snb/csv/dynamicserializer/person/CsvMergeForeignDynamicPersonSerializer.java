@@ -45,6 +45,7 @@ import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
 import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.CsvSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
+import ldbc.snb.datagen.util.DateUtils;
 
 import java.util.Iterator;
 import java.util.List;
@@ -128,7 +129,7 @@ public class CsvMergeForeignDynamicPersonSerializer extends DynamicPersonSeriali
             Dictionaries.dates.formatDateTime(person.getDeletionDate()),
             Long.toString(studyAt.person),
             Long.toString(studyAt.university),
-            Dictionaries.dates.formatYear(studyAt.year)
+            DateUtils.formatYear(studyAt.year)
         ));
     }
 
@@ -140,7 +141,7 @@ public class CsvMergeForeignDynamicPersonSerializer extends DynamicPersonSeriali
             Dictionaries.dates.formatDateTime(person.getDeletionDate()),
             Long.toString(workAt.person),
             Long.toString(workAt.company),
-            Dictionaries.dates.formatYear(workAt.year)
+            DateUtils.formatYear(workAt.year)
         ));
     }
 
