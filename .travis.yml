@@ -6,6 +6,7 @@ python:
 services:
   - docker
 before_install:
+  - cat /proc/cpuinfo
   - docker build . --tag ldbc/datagen
 install: true
 script:

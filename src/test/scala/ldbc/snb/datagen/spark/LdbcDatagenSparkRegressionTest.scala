@@ -1,7 +1,7 @@
 package ldbc.snb.datagen.spark
 
 import java.lang
-import java.nio.file.Files
+import java.nio.file.{Files, Paths}
 import java.util.Properties
 
 import better.files._
@@ -20,7 +20,6 @@ import org.apache.hadoop.mapred.SequenceFileInputFormat
 import org.scalatest._
 
 import scala.collection.JavaConverters._
-import scala.io.Source
 import scala.reflect.ClassTag
 
 class LdbcDatagenSparkRegressionTest extends FunSuite
@@ -45,7 +44,7 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
     props.setProperty("generator.mode", "interactive")
     props.setProperty("generator.blockSize", "100")
     props.setProperty("generator.interactive.numUpdateStreams", "1")
-    props.setProperty("hadoop.numThreads", "1")
+    props.setProperty("hadoop.numThreads", "3")
 
     val tmpRoot = Files.createTempDirectory("ldbc_snb_datagen_test").toString
 
@@ -203,6 +202,8 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
         .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](fixturePath / "merged_persons")
         .values
 
+      val numPartitions = HadoopConfiguration.getNumThreads(hadoopConf)
+
       {
         val (h, c) = updateConf(hadoopConf,
           "serializer.buildDir" -> (conf.getBuildDir / "expected"),
@@ -233,8 +234,8 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
       )
 
       forAll(datasets) { ds =>
-        val actual = Source.fromFile(s"${conf.getSocialNetworkDir}/actual/dynamic/${ds}_0_0.csv").getLines().drop(1)
-        val expected = Source.fromFile(s"${conf.getSocialNetworkDir}/expected/dynamic/${ds}_0_0.csv").getLines().drop(1)
+        val expected = concatCsvFileRows((for {i <- 0 until numPartitions} yield s"${conf.getSocialNetworkDir}/expected/dynamic/${ds}_${i}_0.csv"): _*).toList
+        val actual = concatCsvFileRows((for {i <- 0 until numPartitions} yield s"${conf.getSocialNetworkDir}/actual/dynamic/${ds}_${i}_0.csv"): _*).toList
 
         actual.length shouldBe expected.length
 
@@ -243,11 +244,20 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
     }
   }
 
+  def concatCsvFileRows(csvFiles: String*): Seq[String] = {
+    for {
+      csvFile <- csvFiles
+      line <- Files.readAllLines(Paths.get(csvFile), charset).iterator.asScala.drop(1)
+    } yield line
+  }
+
   test("Person activity serializer generates & serializes the same activities") {
     withHadoopConf() { (conf, hadoopConf) =>
       val persons = spark.sparkContext
         .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](fixturePath / "merged_persons")
         .values
+
+      val numPartitions = HadoopConfiguration.getNumThreads(hadoopConf)
 
       val ranker = SparkRanker.create(_.byRandomId)
 
@@ -281,8 +291,8 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
       )
 
       forAll(datasets) { ds =>
-        val actual = Source.fromFile(s"${conf.getSocialNetworkDir}/actual/dynamic/${ds}_0_0.csv").getLines().drop(1)
-        val expected = Source.fromFile(s"${conf.getSocialNetworkDir}/expected/dynamic/${ds}_0_0.csv").getLines().drop(1)
+        val expected = concatCsvFileRows((for {i <- 0 until numPartitions} yield s"${conf.getSocialNetworkDir}/expected/dynamic/${ds}_${i}_0.csv"): _*).toList
+        val actual = concatCsvFileRows((for {i <- 0 until numPartitions} yield s"${conf.getSocialNetworkDir}/actual/dynamic/${ds}_${i}_0.csv"): _*).toList
 
         actual.length shouldBe expected.length
 
