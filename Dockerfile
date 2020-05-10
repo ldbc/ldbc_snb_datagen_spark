@@ -15,8 +15,6 @@ RUN curl -L "http://archive.apache.org/dist/hadoop/core/hadoop-${HADOOP_VERSION}
 ENV HADOOP_HOME "/opt/hadoop-${HADOOP_VERSION}"
 ENV PATH="${HADOOP_HOME}/bin:${PATH}"
 
-WORKDIR $HOME
-
 FROM build
 
 # Copy the project
