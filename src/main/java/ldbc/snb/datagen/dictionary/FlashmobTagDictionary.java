@@ -37,7 +37,7 @@ package ldbc.snb.datagen.dictionary;
 
 import ldbc.snb.datagen.entities.statictype.tag.FlashMobTag;
 import ldbc.snb.datagen.generator.tools.PowerDistribution;
-import ldbc.snb.datagen.util.DateUtils;
+import ldbc.snb.datagen.generator.generators.DateGenerator;
 
 import java.util.*;
 
@@ -46,7 +46,7 @@ public class FlashmobTagDictionary {
     /**
      *  The date generator used to generate dates.
      */
-    private DateUtils dateGen;
+    private DateGenerator dateGen;
 
     /**
      *  The powerlaw distribution generator used to generate the levels.
@@ -84,7 +84,7 @@ public class FlashmobTagDictionary {
     private double probRandomPerLevel;
 
     public FlashmobTagDictionary(TagDictionary tagDictionary,
-                                 DateUtils dateGen,
+                                 DateGenerator dateGen,
                                  int flashmobTagsPerMonth,
                                  double probInterestFlashmobTag,
                                  double probRandomPerLevel,

@@ -113,7 +113,7 @@ class PhotoGenerator {
                 ip = Dictionaries.ips.getIP(random, country);
             }
 
-            long id = SN.formId(SN.composeId(idIterator.next(), creationDate, blockId), blockId);
+            long id = SN.formId(SN.composeId(idIterator.next(), creationDate), blockId);
             photo.initialize(id,
                     creationDate,
                     deletionDate,

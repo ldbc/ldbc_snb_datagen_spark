@@ -159,7 +159,7 @@ public class CommentGenerator {
                 ip = Dictionaries.ips.getIP(random, country);
             }
 
-            Comment comment = new Comment(SN.formId(SN.composeId(idIterator.next(), creationDate, blockId), blockId),
+            Comment comment = new Comment(SN.formId(SN.composeId(idIterator.next(), creationDate), blockId),
                     creationDate,
                     deletionDate,
                     membership.getPerson(),
