@@ -1,24 +1,43 @@
 package ldbc.snb.datagen.spark
 
+import java.net.URI
+
 import ldbc.snb.datagen.{DatagenContext, DatagenParams}
-import ldbc.snb.datagen.spark.generators.{SparkPersonSerializer, SparkActivitySerializer, SparkKnowsGenerator, SparkKnowsMerger, SparkPersonGenerator, SparkRanker}
+import ldbc.snb.datagen.spark.generators.{SparkActivitySerializer, SparkKnowsGenerator, SparkKnowsMerger, SparkPersonGenerator, SparkPersonSerializer, SparkRanker, SparkStaticGraphSerializer}
+import ldbc.snb.datagen.spark.util.SparkUI
 import ldbc.snb.datagen.util.{ConfigParser, LdbcConfiguration}
+import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.SparkSession
+
+import ldbc.snb.datagen.spark.util.Utils._
+
+import scala.reflect.ClassTag
 
 object LdbcDatagen {
   val appName = "LDBC Datagen for Spark"
+
+  private def simpleNameOf[T: ClassTag] = implicitly[ClassTag[T]].runtimeClass.getSimpleName
+
+  def openPropFileStream(uri: URI)(implicit spark: SparkSession) = {
+    val fs = FileSystem.get(uri, spark.sparkContext.hadoopConfiguration)
+    fs.open(new Path(uri.getPath))
+  }
 
   def main(args: Array[String]): Unit = {
 
     implicit val spark = SparkSession
       .builder()
+      .master("local[*]")
       .appName(appName)
       .getOrCreate()
 
+    val start = System.currentTimeMillis
+
     val conf = ConfigParser.defaultConfiguration()
 
-    conf.putAll(ConfigParser.readConfig(args(0)))
-    conf.putAll(ConfigParser.readConfig(getClass.getResourceAsStream("/params_default.ini")))
+    conf.putAll(getClass.getResourceAsStream("/params_default.ini") use { ConfigParser.readConfig })
+
+    conf.putAll(openPropFileStream(URI.create(args(0))) use { ConfigParser.readConfig })
 
     val config = new LdbcConfiguration(conf)
 
@@ -43,23 +62,19 @@ object LdbcDatagen {
 
     val merged = SparkKnowsMerger(uniKnows, interestKnows, randomKnows)
 
-    SparkActivitySerializer(merged, randomRanker, config, Some(numPartitions))
+    SparkUI.job(simpleNameOf[SparkActivitySerializer.type], "serialize person activities") {
+      SparkActivitySerializer(merged, randomRanker, config, Some(numPartitions))
+    }
 
-    SparkPersonSerializer(merged, config, Some(numPartitions))
+    SparkUI.job(simpleNameOf[SparkPersonSerializer.type ], "serialize persons") {
+      SparkPersonSerializer(merged, config, Some(numPartitions))
+    }
 
+    SparkUI.job(simpleNameOf[SparkStaticGraphSerializer.type], "serialize static graph") {
+      SparkStaticGraphSerializer(config, Some(numPartitions))
+    }
 
-
-//    val interestKnows = genInterestKnows()
-//    val randomKnows = genRandomKnows()
-//
-//    val knows = uniKnows ++ interestKnows ++ randomKnows
-//
-//    val activity = genActivity()
-//
-//    writeStaticGraph(persons, knows)
-//
-//    writeActivity(activity)
-
+    print("Total Execution time: " + ((System.currentTimeMillis - start) / 1000))
   }
 }
 

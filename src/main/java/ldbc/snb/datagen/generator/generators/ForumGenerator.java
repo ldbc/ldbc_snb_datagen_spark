@@ -72,7 +72,7 @@ public class ForumGenerator {
             return null;
         }
 
-        Forum forum = new Forum(SN.formId(SN.composeId(forumId, person.getCreationDate() + DatagenParams.delta, blockId), blockId),
+        Forum forum = new Forum(SN.formId(SN.composeId(forumId, person.getCreationDate() + DatagenParams.delta), blockId),
                 person.getCreationDate() + DatagenParams.delta,
                 person.getDeletionDate(),
                 new PersonSummary(person),
@@ -144,7 +144,7 @@ public class ForumGenerator {
         interest.add(interestId);
 
         // Create group
-        Forum forum = new Forum(SN.formId(SN.composeId(forumId, groupCreationDate, blockId), blockId),
+        Forum forum = new Forum(SN.formId(SN.composeId(forumId, groupCreationDate), blockId),
                 groupCreationDate,
                 groupDeletionDate,
                 new PersonSummary(moderator),
@@ -272,7 +272,7 @@ public class ForumGenerator {
 
 
         int language = randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE).nextInt(person.getLanguages().size());
-        Forum forum = new Forum(SN.formId(SN.composeId(forumId, albumCreationDate, blockId), blockId),
+        Forum forum = new Forum(SN.formId(SN.composeId(forumId, albumCreationDate), blockId),
                 albumCreationDate,
                 albumDeletionDate,
                 new PersonSummary(person),

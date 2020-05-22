@@ -16,9 +16,12 @@ object Keys {
     def byInterest = (self.getMainInterest, self.getAccountId)
   }
 
-  implicit def orderingForPair[A: Ordering, B: Ordering]: Ordering[(A, B)] = (x: (A, B), y: (A, B)) => (x, y) match {
+  implicit def orderingForPair[A: Ordering, B: Ordering]: Ordering[(A, B)] = new Ordering[(A, B)] {
+
+    override def compare(x: (A, B), y: (A, B)): Int = (x, y) match {
       case ((x1, x2), (y1, y2)) =>
         val d1 = implicitly[Ordering[A]].compare(x1, y1)
         if (d1 == 0) implicitly[Ordering[B]].compare(x2, y2) else d1
     }
+  }
 }

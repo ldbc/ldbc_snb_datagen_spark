@@ -120,7 +120,7 @@ abstract public class PostGenerator {
                 Post post = new Post();
 
                 // create post with above information and from post info
-                post.initialize(SN.formId(SN.composeId(idIterator.next(), postCore.getCreationDate(), blockId), blockId),
+                post.initialize(SN.formId(SN.composeId(idIterator.next(), postCore.getCreationDate()), blockId),
                         postCore.getCreationDate(),
                         postCore.getDeletionDate(),
                         member.getPerson(),

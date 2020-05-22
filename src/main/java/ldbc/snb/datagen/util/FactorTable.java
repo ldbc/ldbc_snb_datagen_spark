@@ -270,7 +270,7 @@ public class FactorTable {
         long current = personCounts(authorId).numTagsOfMessages();
         personCounts(authorId).numTagsOfMessages(current + message.getTags().size());
 
-        int bucket = Dictionaries.dates.getNumberOfMonths(
+        int bucket = DateUtils.getNumberOfMonths(
                 message.getCreationDate(),
                 DatagenParams.startMonth,
                 DatagenParams.startYear);

@@ -36,7 +36,7 @@
 package ldbc.snb.datagen.dictionary;
 
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.util.DateUtils;
+import ldbc.snb.datagen.generator.generators.DateGenerator;
 import ldbc.snb.datagen.util.LdbcConfiguration;
 
 import java.time.LocalDate;
@@ -45,7 +45,7 @@ public class Dictionaries {
 
     public static BrowserDictionary browsers = null;
     public static CompanyDictionary companies = null;
-    public static DateUtils dates = null;
+    public static DateGenerator dates = null;
     public static EmailDictionary emails = null;
     public static IPAddressDictionary ips = null;
     public static LanguageDictionary languages = null;
@@ -63,7 +63,7 @@ public class Dictionaries {
 
         browsers = new BrowserDictionary(DatagenParams.probAnotherBrowser);
 
-        dates = new DateUtils(
+        dates = new DateGenerator(
                 conf,
                 LocalDate.of(DatagenParams.startYear, DatagenParams.startMonth + 1, DatagenParams.startDate),
                 LocalDate.of(DatagenParams.endYear, DatagenParams.endMonth + 1, DatagenParams.endDate),
@@ -109,5 +109,4 @@ public class Dictionaries {
 
         tagText = new TagTextDictionary(tags, DatagenParams.ratioReduceText);
     }
-
 }

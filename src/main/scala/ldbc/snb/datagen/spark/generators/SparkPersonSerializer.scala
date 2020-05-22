@@ -70,7 +70,7 @@ object SparkPersonSerializer {
               }
             }
             else if (p.getCreationDate < Dictionaries.dates.getBulkLoadThreshold && p.getDeletionDate > Dictionaries.dates.getSimulationEnd) dynamicPersonSerializer.export(p)
-            else if (p.getCreationDate >= Dictionaries.dates.getBulkLoadThreshold && (p.getDeletionDate >= Dictionaries.dates.getBulkLoadThreshold) && p.getDeletionDate <= Dictionaries.dates.getSimulationEnd) {
+            else if (p.getCreationDate >= Dictionaries.dates.getBulkLoadThreshold && (p.getDeletionDate >= Dictionaries.dates.getBulkLoadThreshold && p.getDeletionDate <= Dictionaries.dates.getSimulationEnd)) {
               insertEventSerializer.export(p)
               insertEventSerializer.changePartition()
               if (p.isExplicitlyDeleted) {
@@ -94,7 +94,7 @@ object SparkPersonSerializer {
                 }
               }
               else if (k.getCreationDate < Dictionaries.dates.getBulkLoadThreshold && k.getDeletionDate > Dictionaries.dates.getSimulationEnd) dynamicPersonSerializer.export(p, k)
-              else if (k.getCreationDate >= Dictionaries.dates.getBulkLoadThreshold && (k.getDeletionDate >= Dictionaries.dates.getBulkLoadThreshold) && k.getDeletionDate <= Dictionaries.dates.getSimulationEnd) {
+              else if (k.getCreationDate >= Dictionaries.dates.getBulkLoadThreshold && (k.getDeletionDate >= Dictionaries.dates.getBulkLoadThreshold && k.getDeletionDate <= Dictionaries.dates.getSimulationEnd)) {
                 insertEventSerializer.export(p, k)
                 insertEventSerializer.changePartition()
                 if (k.isExplicitlyDeleted) {
@@ -118,9 +118,6 @@ object SparkPersonSerializer {
           deleteEventSerializer.close()
         }
       }
-
-
-
     })
   }
 }

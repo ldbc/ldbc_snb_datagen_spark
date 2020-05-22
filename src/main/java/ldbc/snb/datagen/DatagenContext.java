@@ -1,7 +1,6 @@
 package ldbc.snb.datagen;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.util.LdbcConfiguration;
 import ldbc.snb.datagen.vocabulary.SN;
 

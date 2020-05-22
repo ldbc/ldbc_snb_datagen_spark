@@ -36,13 +36,11 @@
 package ldbc.snb.datagen.util.formatter;
 
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.util.DateUtils;
 import ldbc.snb.datagen.util.LdbcConfiguration;
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 public class StringDateFormatter implements DateFormatter {
     private DateTimeFormatter gmtDateTimeFormatter;

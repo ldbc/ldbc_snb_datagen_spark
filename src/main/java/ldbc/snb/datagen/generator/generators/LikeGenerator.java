@@ -44,7 +44,6 @@ import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.entities.dynamic.relations.Like;
 import ldbc.snb.datagen.entities.dynamic.relations.Like.LikeType;
 import ldbc.snb.datagen.generator.tools.PowerDistribution;
-import ldbc.snb.datagen.util.DateUtils;
 import ldbc.snb.datagen.util.Iterators;
 
 import java.util.Arrays;
@@ -74,7 +73,7 @@ public class LikeGenerator {
 
             long minCreationDate = Math.max(membership.getPerson().getCreationDate(), message.getCreationDate()) + DatagenParams.delta;
             long maxCreationDate = Collections.min(Arrays.asList(
-                    message.getCreationDate() + DateUtils.SEVEN_DAYS,
+                    message.getCreationDate() + DateGenerator.SEVEN_DAYS,
                     membership.getPerson().getDeletionDate(),
                     message.getDeletionDate(),
                     Dictionaries.dates.getSimulationEnd()

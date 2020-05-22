@@ -66,7 +66,7 @@ public class SN {
         return upperPart | machinePart | lowerPart;
     }
 
-    public static long composeId(long id, long creationDate, long blockId) {
+    public static long composeId(long id, long creationDate) {
         long bucket = (long) (256 * (creationDate - minDate) / (double) maxDate);
         long idMask = ~(0xFFFFFFFFFFFFFFFFL << 36);
         return (bucket << 36) | (id & idMask);
