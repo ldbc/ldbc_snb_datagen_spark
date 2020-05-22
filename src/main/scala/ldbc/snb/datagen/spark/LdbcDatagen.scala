@@ -27,7 +27,6 @@ object LdbcDatagen {
 
     implicit val spark = SparkSession
       .builder()
-      .master("local[*]")
       .appName(appName)
       .getOrCreate()
 
@@ -45,16 +44,16 @@ object LdbcDatagen {
 
     DatagenContext.initialize(config)
 
-    val persons = SparkPersonGenerator(config, Some(numPartitions))
+    val persons = SparkPersonGenerator(config)
 
     val percentages = Seq(0.45f, 0.45f, 0.1f)
     val knowsGeneratorClassName = DatagenParams.getKnowsGenerator
 
     import Keys._
 
-    val uniRanker = SparkRanker.create(_.byUni, Some(numPartitions))
-    val interestRanker = SparkRanker.create(_.byInterest, Some(numPartitions))
-    val randomRanker = SparkRanker.create(_.byRandomId, Some(numPartitions))
+    val uniRanker = SparkRanker.create(_.byUni)
+    val interestRanker = SparkRanker.create(_.byInterest)
+    val randomRanker = SparkRanker.create(_.byRandomId)
 
     val uniKnows = SparkKnowsGenerator(persons, uniRanker, config, percentages, 0, knowsGeneratorClassName)
     val interestKnows = SparkKnowsGenerator(persons, interestRanker, config, percentages, 1, knowsGeneratorClassName)
