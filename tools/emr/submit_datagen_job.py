@@ -8,10 +8,6 @@ import __main__
 
 import argparse
 
-instance_type = 'i3.xlarge'
-
-availability_zone = 'us-west-2a'
-
 main_class = 'ldbc.snb.datagen.spark.LdbcDatagen'
 
 version = '0.4.0-SNAPSHOT'
@@ -22,6 +18,7 @@ max_num_workers = 100
 defaults = {
     'bucket': 'ldbc-snb-datagen-store',
     'use_spot': False,
+    'instance_type': 'i3.xlarge',
     'az': 'us-west-2a',
     'is_interactive': False
 }
@@ -53,6 +50,7 @@ def calculate_cluster_config(scale_factor):
 def submit_datagen_job(params_file, sf,
                        bucket=defaults['bucket'],
                        use_spot=defaults['use_spot'],
+                       instance_type=defaults['instance_type'],
                        az=defaults['az'],
                        is_interactive=defaults['is_interactive']
                        ):
@@ -62,8 +60,8 @@ def submit_datagen_job(params_file, sf,
     ts = datetime.utcnow()
     ts_formatted = ts.strftime('%Y%m%d_%H%M%S')
 
-    jar_url = f's3://{bucket}/jars/ldbc_snb_datagen-{version}-all.jar'
-    params_url = f's3://{bucket}/params/{name}'
+    jar_url = f's3://{bucket}/jars/ldbc_snb_datagen-{version}-jar-with-dependencies.jar'
+    params_url = f's3://{bucket}/params/{name}.ini'
 
     results_url = f's3://{bucket}/results/{name}'
     run_url = f'{results_url}/runs/{ts_formatted}'
@@ -107,11 +105,13 @@ def submit_datagen_job(params_file, sf,
                     'InstanceCount': cluster_config['num_workers'],
                 }
             ],
-            'Placement': {'AvailabilityZone': availability_zone},
+            'Placement': {'AvailabilityZone': az},
             'KeepJobFlowAliveWhenNoSteps': False,
             'TerminationProtected': False,
         },
-
+        'JobFlowRole': 'EMR_EC2_DefaultRole',
+        'ServiceRole': 'EMR_DefaultRole',
+        'VisibleToAllUsers': True,
         'Steps': [
             {
                 'Name': 'Run LDBC SNB Datagen',
