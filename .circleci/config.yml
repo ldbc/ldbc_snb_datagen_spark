@@ -22,4 +22,5 @@ jobs:
             - ~/.m2/repository   # maven deps
             - ~/.sbt/1.0/zinc    # scala compiler bridge
       - run: mvn -ntp test
-      - slack/status
+      - slack/status:
+          only_for_branches: dev
