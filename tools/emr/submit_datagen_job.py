@@ -73,6 +73,11 @@ def submit_datagen_job(params_file, sf,
         'spark.serializer': 'org.apache.spark.serializer.KryoSerializer'
     }
 
+    hdfs_prefix = '/ldbc_snb_datagen'
+
+    build_dir = f'{hdfs_prefix}/build'
+    sn_dir = f'{hdfs_prefix}/social_network'
+
     market = 'SPOT' if use_spot else 'ON_DEMAND'
 
     job_flow_args = {
@@ -80,6 +85,7 @@ def submit_datagen_job(params_file, sf,
         'LogUri': f's3://{bucket}/logs/emr',
         'ReleaseLabel': 'emr-5.30.0',
         'Applications': [
+            {'Name': 'hadoop'},
             {'Name': 'spark'}
         ],
         'Configurations': [
@@ -119,7 +125,8 @@ def submit_datagen_job(params_file, sf,
                 'HadoopJarStep': {
                     'Properties': [],
                     'Jar': 'command-runner.jar',
-                    'Args': ['spark-submit', '--class', main_class, jar_url, params_url]
+                    'Args': ['spark-submit', '--class', main_class, jar_url, params_url,
+                             '--sn-dir', sn_dir, '--build-dir', build_dir]
                 }
 
             },
@@ -130,7 +137,7 @@ def submit_datagen_job(params_file, sf,
                     'Properties': [],
                     'Jar': 'command-runner.jar',
                     'Args': ['s3-dist-cp',
-                             '--src', 'hdfs:///social_network',
+                             '--src', f'hdfs://{sn_dir}',
                              '--dest', f'{run_url}/social_network'
                              ]
                 }

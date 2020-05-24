@@ -14,7 +14,13 @@ import ldbc.snb.datagen.spark.util.Utils._
 import scala.reflect.ClassTag
 
 object LdbcDatagen {
-  val appName = "LDBC Datagen for Spark"
+  case class Args(
+    propFile: String = "",
+    buildDir: Option[String] = None,
+    socialNetworkDir: Option[String] = None
+  )
+
+  val appName = "LDBC SNB Datagen for Spark"
 
   private def simpleNameOf[T: ClassTag] = implicitly[ClassTag[T]].runtimeClass.getSimpleName
 
@@ -24,6 +30,26 @@ object LdbcDatagen {
   }
 
   def main(args: Array[String]): Unit = {
+
+    val parser = new scopt.OptionParser[Args](getClass.getName.dropRight(1)) {
+      head(appName)
+
+      opt[String]("build-dir")
+        .action((x, c) => c.copy(buildDir = Some(x)))
+        .text("build directory for intermediate files")
+
+      opt[String]( "sn-dir")
+        .action((x, c) => c.copy(socialNetworkDir = Some(x)))
+        .text("output directory")
+
+      help("help").text("prints this usage text")
+
+      arg[String]("<param_file>").required()
+        .action((x, c) => c.copy(propFile = x))
+        .text("parameter file")
+    }
+
+    val parsedArgs = parser.parse(args, Args()).getOrElse(throw new RuntimeException("Invalid args"))
 
     implicit val spark = SparkSession
       .builder()
@@ -36,7 +62,10 @@ object LdbcDatagen {
 
     conf.putAll(getClass.getResourceAsStream("/params_default.ini") use { ConfigParser.readConfig })
 
-    conf.putAll(openPropFileStream(URI.create(args(0))) use { ConfigParser.readConfig })
+    conf.putAll(openPropFileStream(URI.create(parsedArgs.propFile)) use { ConfigParser.readConfig })
+
+    for { buildDir <- parsedArgs.buildDir } conf.put("serializer.buildDir", buildDir)
+    for { snDir <- parsedArgs.socialNetworkDir } conf.put("serializer.socialNetworkDir", snDir)
 
     val config = new LdbcConfiguration(conf)
 
