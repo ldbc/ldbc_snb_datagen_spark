@@ -101,7 +101,6 @@ public class HadoopPersonActivityGenerator extends DatagenHadoopJob {
             try {
                 String buildDir = conf.getBuildDir();
                 String snDir = conf.getSocialNetworkDir();
-                String outputDir = conf.getOutputDir();
                 boolean isCompressed = conf.isCompressed();
                 boolean insertTrailingSeparator = conf.insertTrailingSeparator();
 

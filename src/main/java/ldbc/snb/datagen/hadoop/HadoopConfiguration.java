@@ -32,7 +32,6 @@ public class HadoopConfiguration {
 
         dfs.delete(new Path(ldbcConf.getBuildDir()), true);
         dfs.delete(new Path(ldbcConf.getSocialNetworkDir()), true);
-        FileUtils.deleteDirectory(new File(ldbcConf.getOutputDir() + "/substitution_parameters"));
         return hadoopConf;
     }
 

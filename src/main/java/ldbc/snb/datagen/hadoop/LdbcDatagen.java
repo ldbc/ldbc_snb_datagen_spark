@@ -442,7 +442,6 @@ public class LdbcDatagen extends DatagenHadoopJob {
 
         System.out.println(conf.getBuildDir());
         System.out.println(conf.getSocialNetworkDir());
-        System.out.println(conf.getOutputDir());
 
         DatagenContext.initialize(conf);
         LdbcDatagen datagen = new LdbcDatagen(conf, hadoopConf);
