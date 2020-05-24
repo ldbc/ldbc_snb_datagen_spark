@@ -17,7 +17,8 @@ object LdbcDatagen {
   case class Args(
     propFile: String = "",
     buildDir: Option[String] = None,
-    socialNetworkDir: Option[String] = None
+    socialNetworkDir: Option[String] = None,
+    numThreads: Option[Int] = None
   )
 
   val appName = "LDBC SNB Datagen for Spark"
@@ -38,9 +39,14 @@ object LdbcDatagen {
         .action((x, c) => c.copy(buildDir = Some(x)))
         .text("build directory for intermediate files")
 
-      opt[String]( "sn-dir")
+      opt[String]("sn-dir")
         .action((x, c) => c.copy(socialNetworkDir = Some(x)))
         .text("output directory")
+
+      opt[Int]("num-threads")
+        .action((x, c) => c.copy(numThreads = Some(x)))
+        .text("number of threads")
+
 
       help("help").text("prints this usage text")
 
@@ -66,6 +72,7 @@ object LdbcDatagen {
 
     for { buildDir <- parsedArgs.buildDir } conf.put("serializer.buildDir", buildDir)
     for { snDir <- parsedArgs.socialNetworkDir } conf.put("serializer.socialNetworkDir", snDir)
+    for { numThreads <- parsedArgs.numThreads } conf.put("hadoop.numThreads", numThreads.toString)
 
     val config = new LdbcConfiguration(conf)
 

@@ -20,7 +20,8 @@ defaults = {
     'use_spot': False,
     'instance_type': 'i3.xlarge',
     'az': 'us-west-2a',
-    'is_interactive': False
+    'is_interactive': False,
+    'ec2_key': None,
 }
 
 pp = pprint.PrettyPrinter(indent=2)
@@ -41,7 +42,7 @@ def ask_continue(message):
 
 
 def calculate_cluster_config(scale_factor):
-    num_workers = max(min_num_workers, min(max_num_workers, scale_factor // 20))
+    num_workers = max(min_num_workers, min(max_num_workers, scale_factor // 33))
     return {
         'num_workers': num_workers,
     }
@@ -52,7 +53,8 @@ def submit_datagen_job(params_file, sf,
                        use_spot=defaults['use_spot'],
                        instance_type=defaults['instance_type'],
                        az=defaults['az'],
-                       is_interactive=defaults['is_interactive']
+                       is_interactive=defaults['is_interactive'],
+                       ec2_key=defaults['ec2_key']
                        ):
     emr = boto3.client('emr')
 
@@ -80,13 +82,16 @@ def submit_datagen_job(params_file, sf,
 
     market = 'SPOT' if use_spot else 'ON_DEMAND'
 
+    ec2_key_dict = {'Ec2KeyName': ec2_key} if ec2_key is not None else {}
+
     job_flow_args = {
         'Name': f'{name}_{ts_formatted}',
         'LogUri': f's3://{bucket}/logs/emr',
         'ReleaseLabel': 'emr-5.30.0',
         'Applications': [
             {'Name': 'hadoop'},
-            {'Name': 'spark'}
+            {'Name': 'spark'},
+            {'Name': 'ganglia'}
         ],
         'Configurations': [
             {
@@ -111,6 +116,7 @@ def submit_datagen_job(params_file, sf,
                     'InstanceCount': cluster_config['num_workers'],
                 }
             ],
+            **ec2_key_dict,
             'Placement': {'AvailabilityZone': az},
             'KeepJobFlowAliveWhenNoSteps': False,
             'TerminationProtected': False,
@@ -126,7 +132,8 @@ def submit_datagen_job(params_file, sf,
                     'Properties': [],
                     'Jar': 'command-runner.jar',
                     'Args': ['spark-submit', '--class', main_class, jar_url, params_url,
-                             '--sn-dir', sn_dir, '--build-dir', build_dir]
+                             '--sn-dir', sn_dir, '--build-dir', build_dir,
+                             '--num-threads', f"{cluster_config['num_workers'] * 4}"]
                 }
 
             },
@@ -149,7 +156,6 @@ def submit_datagen_job(params_file, sf,
         if not ask_continue(f'Job parameters:\n{job_flow_args_formatted}'):
             return
 
-
     emr.run_job_flow(**job_flow_args)
 
 
@@ -164,6 +170,8 @@ if __name__ == "__main__":
     parser.add_argument('--az', default=defaults['az'], help='Cluster availability zone')
     parser.add_argument('--bucket', default=defaults['bucket'],
                         help='LDBC SNB Datagen storage bucket')
+    parser.add_argument('--ec2-key', default=defaults['ec2_key'],
+                        help='EC2 key name for SSH connection')
     parser.add_argument('-y', action='store_true')
 
     args = parser.parse_args()
@@ -172,5 +180,6 @@ if __name__ == "__main__":
 
     submit_datagen_job(args.params_url, args.sf,
                        bucket=args.bucket, use_spot=args.use_spot, az=args.az,
-                       is_interactive=is_interactive and not args.y
+                       is_interactive=is_interactive and not args.y,
+                       ec2_key=args.ec2_key
                        )
