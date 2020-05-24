@@ -57,13 +57,13 @@ import static ldbc.snb.datagen.util.functional.Thunk.wrapException;
 
 public class PersonActivityExporter implements AutoCloseable {
     protected DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer;
-    protected InsertEventSerializer insertEventSerializer;
-    protected DeleteEventSerializer deleteEventSerializer;
+    protected AbstractInsertEventSerializer abstractInsertEventSerializer;
+    protected AbstractDeleteEventSerializer abstractDeleteEventSerializer;
 
-    public PersonActivityExporter(DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer, InsertEventSerializer insertEventSerializer, DeleteEventSerializer deleteEventSerializer) {
+    public PersonActivityExporter(DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer, AbstractInsertEventSerializer abstractInsertEventSerializer, AbstractDeleteEventSerializer abstractDeleteEventSerializer) {
         this.dynamicActivitySerializer = dynamicActivitySerializer;
-        this.insertEventSerializer = insertEventSerializer;
-        this.deleteEventSerializer = deleteEventSerializer;
+        this.abstractInsertEventSerializer = abstractInsertEventSerializer;
+        this.abstractDeleteEventSerializer = abstractDeleteEventSerializer;
     }
 
     private void exportPostWall(final GenWall<Triplet<Post, Stream<Like>, Stream<Pair<Comment, Stream<Like>>>>> genWall) {
@@ -116,8 +116,8 @@ public class PersonActivityExporter implements AutoCloseable {
                             forum.getDeletionDate() <= Dictionaries.dates.getSimulationEnd()))) {
                 dynamicActivitySerializer.export(forum);
                 if (forum.isExplicitlyDeleted()) {
-                    deleteEventSerializer.export(forum);
-                    deleteEventSerializer.changePartition();
+                    abstractDeleteEventSerializer.export(forum);
+                    abstractDeleteEventSerializer.changePartition();
                 }
             } else if (forum.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold()
                     && forum.getDeletionDate() > Dictionaries.dates.getSimulationEnd()
@@ -126,16 +126,16 @@ public class PersonActivityExporter implements AutoCloseable {
             } else if (forum.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()
                     && (forum.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold()) &&
                     forum.getDeletionDate() <= Dictionaries.dates.getSimulationEnd()) {
-                insertEventSerializer.export(forum);
-                insertEventSerializer.changePartition();
+                abstractInsertEventSerializer.export(forum);
+                abstractInsertEventSerializer.changePartition();
                 if (forum.isExplicitlyDeleted()) {
-                    deleteEventSerializer.export(forum);
-                    deleteEventSerializer.changePartition();
+                    abstractDeleteEventSerializer.export(forum);
+                    abstractDeleteEventSerializer.changePartition();
                 }
             } else if (forum.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()
                     && forum.getDeletionDate() > Dictionaries.dates.getSimulationEnd()) {
-                insertEventSerializer.export(forum);
-                insertEventSerializer.changePartition();
+                abstractInsertEventSerializer.export(forum);
+                abstractInsertEventSerializer.changePartition();
             }
         }
 
@@ -151,8 +151,8 @@ public class PersonActivityExporter implements AutoCloseable {
                     )) {
                 dynamicActivitySerializer.export(post);
                 if (post.isExplicitlyDeleted()) {
-                    deleteEventSerializer.export(post);
-                    deleteEventSerializer.changePartition();
+                    abstractDeleteEventSerializer.export(post);
+                    abstractDeleteEventSerializer.changePartition();
                 }
             } else if (post.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold()
                     && post.getDeletionDate() > Dictionaries.dates.getSimulationEnd()
@@ -161,16 +161,16 @@ public class PersonActivityExporter implements AutoCloseable {
             } else if (post.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()
                     && (post.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold()) &&
                     post.getDeletionDate() <= Dictionaries.dates.getSimulationEnd()) {
-                insertEventSerializer.export(post);
-                insertEventSerializer.changePartition();
+                abstractInsertEventSerializer.export(post);
+                abstractInsertEventSerializer.changePartition();
                 if (post.isExplicitlyDeleted()) {
-                    deleteEventSerializer.export(post);
-                    deleteEventSerializer.changePartition();
+                    abstractDeleteEventSerializer.export(post);
+                    abstractDeleteEventSerializer.changePartition();
                 }
             } else if (post.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()
                     && post.getDeletionDate() > Dictionaries.dates.getSimulationEnd()) {
-                insertEventSerializer.export(post);
-                insertEventSerializer.changePartition();
+                abstractInsertEventSerializer.export(post);
+                abstractInsertEventSerializer.changePartition();
             }
         }
 
@@ -186,8 +186,8 @@ public class PersonActivityExporter implements AutoCloseable {
                     )) {
                 dynamicActivitySerializer.export(comment);
                 if (comment.isExplicitlyDeleted()) {
-                    deleteEventSerializer.export(comment);
-                    deleteEventSerializer.changePartition();
+                    abstractDeleteEventSerializer.export(comment);
+                    abstractDeleteEventSerializer.changePartition();
                 }
             } else if (comment.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold()
                     && comment.getDeletionDate() > Dictionaries.dates.getSimulationEnd()
@@ -196,16 +196,16 @@ public class PersonActivityExporter implements AutoCloseable {
             } else if (comment.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()
                     && (comment.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold()) &&
                     comment.getDeletionDate() <= Dictionaries.dates.getSimulationEnd()) {
-                insertEventSerializer.export(comment);
-                insertEventSerializer.changePartition();
+                abstractInsertEventSerializer.export(comment);
+                abstractInsertEventSerializer.changePartition();
                 if (comment.isExplicitlyDeleted()) {
-                    deleteEventSerializer.export(comment);
-                    deleteEventSerializer.changePartition();
+                    abstractDeleteEventSerializer.export(comment);
+                    abstractDeleteEventSerializer.changePartition();
                 }
             } else if (comment.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()
                     && comment.getDeletionDate() > Dictionaries.dates.getSimulationEnd()) {
-                insertEventSerializer.export(comment);
-                insertEventSerializer.changePartition();
+                abstractInsertEventSerializer.export(comment);
+                abstractInsertEventSerializer.changePartition();
             }
         }
     }
@@ -220,8 +220,8 @@ public class PersonActivityExporter implements AutoCloseable {
             )) {
                 dynamicActivitySerializer.export(photo);
                 if (photo.isExplicitlyDeleted()) {
-                    deleteEventSerializer.export(photo);
-                    deleteEventSerializer.changePartition();
+                    abstractDeleteEventSerializer.export(photo);
+                    abstractDeleteEventSerializer.changePartition();
                 }
             } else if (photo.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold()
                     && photo.getDeletionDate() > Dictionaries.dates.getSimulationEnd()
@@ -230,16 +230,16 @@ public class PersonActivityExporter implements AutoCloseable {
             } else if (photo.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()
                     && (photo.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold()) &&
                     photo.getDeletionDate() <= Dictionaries.dates.getSimulationEnd() ) {
-                insertEventSerializer.export(photo);
-                insertEventSerializer.changePartition();
+                abstractInsertEventSerializer.export(photo);
+                abstractInsertEventSerializer.changePartition();
                 if (photo.isExplicitlyDeleted()) {
-                    deleteEventSerializer.export(photo);
-                    deleteEventSerializer.changePartition();
+                    abstractDeleteEventSerializer.export(photo);
+                    abstractDeleteEventSerializer.changePartition();
                 }
             } else if (photo.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()
                     && photo.getDeletionDate() > Dictionaries.dates.getSimulationEnd()) {
-                insertEventSerializer.export(photo);
-                insertEventSerializer.changePartition();
+                abstractInsertEventSerializer.export(photo);
+                abstractInsertEventSerializer.changePartition();
             }
         }
     }
@@ -255,8 +255,8 @@ public class PersonActivityExporter implements AutoCloseable {
                     )) {
                 dynamicActivitySerializer.export(member);
                 if (member.isExplicitlyDeleted()) {
-                    deleteEventSerializer.export(member);
-                    deleteEventSerializer.changePartition();
+                    abstractDeleteEventSerializer.export(member);
+                    abstractDeleteEventSerializer.changePartition();
                 }
             } else if (member.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold()
                     && member.getDeletionDate() > Dictionaries.dates.getSimulationEnd()
@@ -265,16 +265,16 @@ public class PersonActivityExporter implements AutoCloseable {
             } else if (member.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()
                     && (member.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold()) &&
                     member.getDeletionDate() <= Dictionaries.dates.getSimulationEnd()) {
-                insertEventSerializer.export(member);
-                insertEventSerializer.changePartition();
+                abstractInsertEventSerializer.export(member);
+                abstractInsertEventSerializer.changePartition();
                 if (member.isExplicitlyDeleted()) {
-                    deleteEventSerializer.export(member);
-                    deleteEventSerializer.changePartition();
+                    abstractDeleteEventSerializer.export(member);
+                    abstractDeleteEventSerializer.changePartition();
                 }
             } else if (member.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()
                     && member.getDeletionDate() > Dictionaries.dates.getSimulationEnd()) {
-                insertEventSerializer.export(member);
-                insertEventSerializer.changePartition();
+                abstractInsertEventSerializer.export(member);
+                abstractInsertEventSerializer.changePartition();
             }
         }
     }
@@ -290,8 +290,8 @@ public class PersonActivityExporter implements AutoCloseable {
             )) {
                 dynamicActivitySerializer.export(like);
                 if (like.isExplicitlyDeleted()) {
-                    deleteEventSerializer.export(like);
-                    deleteEventSerializer.changePartition();
+                    abstractDeleteEventSerializer.export(like);
+                    abstractDeleteEventSerializer.changePartition();
                 }
             } else if (like.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold()
                     && like.getDeletionDate() > Dictionaries.dates.getSimulationEnd()
@@ -300,16 +300,16 @@ public class PersonActivityExporter implements AutoCloseable {
             } else if (like.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()
                     && (like.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold()) &&
                     like.getDeletionDate() <= Dictionaries.dates.getSimulationEnd()) {
-                insertEventSerializer.export(like);
-                insertEventSerializer.changePartition();
+                abstractInsertEventSerializer.export(like);
+                abstractInsertEventSerializer.changePartition();
                 if (like.isExplicitlyDeleted()) {
-                    deleteEventSerializer.export(like);
-                    deleteEventSerializer.changePartition();
+                    abstractDeleteEventSerializer.export(like);
+                    abstractDeleteEventSerializer.changePartition();
                 }
             } else if (like.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()
                     && like.getDeletionDate() > Dictionaries.dates.getSimulationEnd()) {
-                insertEventSerializer.export(like);
-                insertEventSerializer.changePartition();
+                abstractInsertEventSerializer.export(like);
+                abstractInsertEventSerializer.changePartition();
             }
         }
     }
@@ -319,11 +319,11 @@ public class PersonActivityExporter implements AutoCloseable {
         if (dynamicActivitySerializer != null) {
             dynamicActivitySerializer.close();
         }
-        if (insertEventSerializer != null) {
-            insertEventSerializer.close();
+        if (abstractInsertEventSerializer != null) {
+            abstractInsertEventSerializer.close();
         }
-        if (deleteEventSerializer != null) {
-            deleteEventSerializer.close();
+        if (abstractDeleteEventSerializer != null) {
+            abstractDeleteEventSerializer.close();
         }
     }
 }

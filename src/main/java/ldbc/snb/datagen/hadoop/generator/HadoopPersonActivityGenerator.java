@@ -52,10 +52,7 @@ import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyComparator;
 import ldbc.snb.datagen.hadoop.key.blockkey.BlockKeyGroupComparator;
 import ldbc.snb.datagen.hadoop.miscjob.HadoopFileRanker;
 import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
-import ldbc.snb.datagen.serializer.DeleteEventSerializer;
-import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
-import ldbc.snb.datagen.serializer.InsertEventSerializer;
-import ldbc.snb.datagen.serializer.PersonActivityExporter;
+import ldbc.snb.datagen.serializer.*;
 import ldbc.snb.datagen.util.LdbcConfiguration;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -101,21 +98,20 @@ public class HadoopPersonActivityGenerator extends DatagenHadoopJob {
             try {
                 String buildDir = conf.getBuildDir();
                 String snDir = conf.getSocialNetworkDir();
-                String outputDir = conf.getOutputDir();
                 boolean isCompressed = conf.isCompressed();
                 boolean insertTrailingSeparator = conf.insertTrailingSeparator();
 
                 DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer = conf.getDynamicActivitySerializer();
                 dynamicActivitySerializer.initialize(hadoopConf, snDir, reducerId, isCompressed, insertTrailingSeparator);
-                InsertEventSerializer insertEventSerializer = null;
-                DeleteEventSerializer deleteEventSerializer = null;
+                AbstractInsertEventSerializer abstractInsertEventSerializer = null;
+                AbstractDeleteEventSerializer abstractDeleteEventSerializer = null;
                 if (DatagenParams.getDatagenMode() != DatagenMode.RAW_DATA) {
-                    insertEventSerializer = new InsertEventSerializer(hadoopConf, buildDir  + "/temp_insertStream_forum_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
-                    deleteEventSerializer = new DeleteEventSerializer(hadoopConf, buildDir  + "/temp_deleteStream_forum_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
+                    abstractInsertEventSerializer = new InsertEventSerializer(hadoopConf, buildDir  + "/temp_insertStream_forum_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
+                    abstractDeleteEventSerializer = new DeleteEventSerializer(hadoopConf, buildDir  + "/temp_deleteStream_forum_" + reducerId, reducerId, DatagenParams.numUpdateStreams);
                 }
                 personActivityGenerator = new PersonActivityGenerator();
                 personActivityExporter =
-                        new PersonActivityExporter(dynamicActivitySerializer, insertEventSerializer, deleteEventSerializer);
+                        new PersonActivityExporter(dynamicActivitySerializer, abstractInsertEventSerializer, abstractDeleteEventSerializer);
 
                 FileSystem fs = FileSystem.get(context.getConfiguration());
                 personFactors = fs

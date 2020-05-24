@@ -188,10 +188,6 @@ public class LdbcConfiguration implements Iterable<Map.Entry<String, String>>, S
 
     }
 
-    public String getOutputDir(){
-        return map.get("serializer.outputDir");
-    }
-
     public String getBuildDir() {
         return map.get("serializer.buildDir");
     }

@@ -63,7 +63,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Properties;
 
-public class InsertEventSerializer {
+public class InsertEventSerializer implements AbstractInsertEventSerializer {
 
     private SequenceFile.Writer[] streamWriter;
     private List<String> data;
@@ -119,6 +119,7 @@ public class InsertEventSerializer {
         }
     }
 
+    @Override
     public void changePartition() {
         nextPartition = (++nextPartition) % numPartitions;
     }
@@ -172,6 +173,7 @@ public class InsertEventSerializer {
         data.add(formatStringArray(list, ";"));
     }
 
+    @Override
     public void close() throws IOException {
         try {
             FileSystem fs = FileSystem.get(conf);
@@ -202,6 +204,7 @@ public class InsertEventSerializer {
         }
     }
 
+    @Override
     public void export(Person person) throws IOException {
 
         currentDependantDate = 0;
@@ -258,6 +261,7 @@ public class InsertEventSerializer {
         endEvent();
     }
 
+    @Override
     public void export(Person p, Knows k) throws IOException {
         if (p.getAccountId() < k.to().getAccountId()) {
             currentDependantDate = Math.max(p.getCreationDate(), k.to().getCreationDate());
@@ -269,6 +273,7 @@ public class InsertEventSerializer {
         }
     }
 
+    @Override
     public void export(Post post) throws IOException {
         currentDependantDate = post.getAuthor().getCreationDate();
         beginEvent(post.getCreationDate(), InsertEvent.InsertEventType.ADD_POST);
@@ -293,6 +298,7 @@ public class InsertEventSerializer {
         endEvent();
     }
 
+    @Override
     public void export(Like like) throws IOException {
         currentDependantDate = like.getPersonCreationDate();
         if (like.getType() == Like.LikeType.COMMENT) {
@@ -306,6 +312,7 @@ public class InsertEventSerializer {
         endEvent();
     }
 
+    @Override
     public void export(Photo photo) throws IOException {
 
         currentDependantDate = photo.getAuthor().getCreationDate();
@@ -331,6 +338,7 @@ public class InsertEventSerializer {
         endEvent();
     }
 
+    @Override
     public void export(Comment comment) throws IOException {
 
         currentDependantDate = comment.getAuthor().getCreationDate();
@@ -358,6 +366,7 @@ public class InsertEventSerializer {
         endEvent();
     }
 
+    @Override
     public void export(Forum forum) throws IOException {
         currentDependantDate = forum.getModerator().getCreationDate();
         beginEvent(forum.getCreationDate(), InsertEvent.InsertEventType.ADD_FORUM);
@@ -374,6 +383,7 @@ public class InsertEventSerializer {
         endEvent();
     }
 
+    @Override
     public void export(ForumMembership membership) throws IOException {
         currentDependantDate = membership.getPerson().getCreationDate();
         beginEvent(membership.getCreationDate(), InsertEvent.InsertEventType.ADD_FORUM_MEMBERSHIP);

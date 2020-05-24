@@ -1,4 +1,6 @@
-version: 2
+version: 2.1
+orbs:
+  slack: circleci/slack@3.4.2
 jobs:
   build:
     resource_class: large
@@ -20,4 +22,4 @@ jobs:
             - ~/.m2/repository   # maven deps
             - ~/.sbt/1.0/zinc    # scala compiler bridge
       - run: mvn -ntp test
-      
+      - slack/status
