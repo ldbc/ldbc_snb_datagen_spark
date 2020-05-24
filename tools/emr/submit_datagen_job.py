@@ -161,18 +161,26 @@ def submit_datagen_job(params_file, sf,
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Submit a Datagen job to EMR')
-    parser.add_argument('params_url', type=str,
+    parser.add_argument('params_url',
+                        type=str,
                         help='params file name')
     parser.add_argument('sf', type=int,
                         help='scale factor (used to calculate cluster size)')
-    parser.add_argument('--use-spot', action='store_true',
+    parser.add_argument('--use-spot',
+                        action='store_true',
                         help='Use SPOT workers')
-    parser.add_argument('--az', default=defaults['az'], help='Cluster availability zone')
-    parser.add_argument('--bucket', default=defaults['bucket'],
-                        help='LDBC SNB Datagen storage bucket')
-    parser.add_argument('--ec2-key', default=defaults['ec2_key'],
+    parser.add_argument('--az',
+                        default=defaults['az'],
+                        help=f'Cluster availability zone. Default: {defaults["az"]}')
+    parser.add_argument('--bucket',
+                        default=defaults['bucket'],
+                        help=f'LDBC SNB Datagen storage bucket. Default: {defaults["bucket"]}')
+    parser.add_argument('--ec2-key',
+                        default=defaults['ec2_key'],
                         help='EC2 key name for SSH connection')
-    parser.add_argument('-y', action='store_true')
+    parser.add_argument('-y',
+                        action='store_true',
+                        help='Assume \'yes\' for prompts')
 
     args = parser.parse_args()
 
