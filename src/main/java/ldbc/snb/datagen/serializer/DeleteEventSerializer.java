@@ -29,7 +29,7 @@ import java.util.Properties;
 import static ldbc.snb.datagen.entities.dynamic.relations.Like.LikeType.COMMENT;
 import static ldbc.snb.datagen.hadoop.DeleteEvent.DeleteEventType.*;
 
-public class DeleteEventSerializer {
+public class DeleteEventSerializer implements AbstractDeleteEventSerializer {
 
 
     private SequenceFile.Writer[] streamWriter;
@@ -106,6 +106,7 @@ public class DeleteEventSerializer {
         }
     }
 
+    @Override
     public void changePartition() {
         nextPartition = (++nextPartition) % numPartitions;
     }
@@ -151,6 +152,7 @@ public class DeleteEventSerializer {
         writeKeyValue(currentEvent);
     }
 
+    @Override
     public void close() throws IOException {
         try {
             FileSystem fs = FileSystem.get(conf);
@@ -181,6 +183,7 @@ public class DeleteEventSerializer {
         }
     }
 
+    @Override
     public void export(Person person) throws IOException {
 
         currentDependantDate = person.getCreationDate();
@@ -189,6 +192,7 @@ public class DeleteEventSerializer {
         endEvent();
     }
 
+    @Override
     public void export(Person p, Knows k) throws IOException {
         if (p.getAccountId() < k.to().getAccountId()) {
             currentDependantDate = k.getCreationDate();
@@ -199,6 +203,7 @@ public class DeleteEventSerializer {
         }
     }
 
+    @Override
     public void export(Post post) throws IOException {
         currentDependantDate = post.getCreationDate();
         beginEvent(post.getDeletionDate(), REMOVE_POST);
@@ -206,6 +211,7 @@ public class DeleteEventSerializer {
         endEvent();
     }
 
+    @Override
     public void export(Like like) throws IOException {
         currentDependantDate = like.getCreationDate();
         if (like.getType() == COMMENT) {
@@ -218,6 +224,7 @@ public class DeleteEventSerializer {
         endEvent();
     }
 
+    @Override
     public void export(Photo photo) throws IOException {
 
         currentDependantDate = photo.getCreationDate();
@@ -226,6 +233,7 @@ public class DeleteEventSerializer {
         endEvent();
     }
 
+    @Override
     public void export(Comment comment) throws IOException {
 
         currentDependantDate = comment.getCreationDate();
@@ -234,6 +242,7 @@ public class DeleteEventSerializer {
         endEvent();
     }
 
+    @Override
     public void export(Forum forum) throws IOException {
         currentDependantDate = forum.getCreationDate();
         beginEvent(forum.getDeletionDate(), REMOVE_FORUM);
@@ -241,6 +250,7 @@ public class DeleteEventSerializer {
         endEvent();
     }
 
+    @Override
     public void export(ForumMembership membership) throws IOException {
         currentDependantDate = membership.getCreationDate();
         beginEvent(membership.getDeletionDate(), REMOVE_FORUM_MEMBERSHIP);

@@ -7,7 +7,7 @@ import java.util.function.Consumer
 import ldbc.snb.datagen.{DatagenContext, DatagenMode, DatagenParams}
 import ldbc.snb.datagen.entities.dynamic.person.Person
 import ldbc.snb.datagen.generator.generators.{GenActivity, PersonActivityGenerator}
-import ldbc.snb.datagen.serializer.{DeleteEventSerializer, InsertEventSerializer, PersonActivityExporter}
+import ldbc.snb.datagen.serializer.{DeleteEventSerializer, DummyDeleteEventSerializer, DummyInsertEventSerializer, InsertEventSerializer, PersonActivityExporter}
 import ldbc.snb.datagen.spark.util.SerializableConfiguration
 import ldbc.snb.datagen.util.LdbcConfiguration
 import org.apache.hadoop.fs.{FileSystem, Path}
@@ -43,23 +43,9 @@ object SparkActivitySerializer {
 
       dynamicActivitySerializer.initialize(hadoopConf, conf.getSocialNetworkDir, partitionId, conf.isCompressed, conf.insertTrailingSeparator())
 
-      var insertEventSerializer: InsertEventSerializer = null
-      var deleteEventSerializer: DeleteEventSerializer = null
+      val insertEventSerializer = new DummyInsertEventSerializer
+      val deleteEventSerializer = new DummyDeleteEventSerializer
 
-      if (DatagenParams.getDatagenMode != DatagenMode.RAW_DATA) {
-        insertEventSerializer = new InsertEventSerializer(
-          hadoopConf,
-          buildDir + "/temp_insertStream_forum_" + partitionId,
-          partitionId,
-          DatagenParams.numUpdateStreams
-        )
-        deleteEventSerializer = new DeleteEventSerializer(
-          hadoopConf,
-          buildDir + "/temp_deleteStream_forum_" + partitionId,
-          partitionId,
-          DatagenParams.numUpdateStreams
-        )
-      }
       val generator = new PersonActivityGenerator
       val exporter = new PersonActivityExporter(dynamicActivitySerializer, insertEventSerializer, deleteEventSerializer)
       val friends = fs.create(new Path(buildDir + "/" + "m0friendList" + partitionId + ".csv"))
