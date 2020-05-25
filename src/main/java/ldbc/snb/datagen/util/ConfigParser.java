@@ -108,7 +108,7 @@ public class ConfigParser {
         conf.put("serializer.compressed", "false");
         conf.put("serializer.insertTrailingSeparator", "false");
         conf.put("serializer.socialNetworkDir", "./social_network");
-        conf.put("serializer.buildDir", "./hadoop");
+        conf.put("serializer.buildDir", "./build");
 
         return conf;
     }
