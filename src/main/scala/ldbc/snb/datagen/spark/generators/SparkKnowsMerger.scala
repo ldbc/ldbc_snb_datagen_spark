@@ -12,7 +12,6 @@ object SparkKnowsMerger {
   def apply(persons: RDD[Person]*)(implicit spark: SparkSession): RDD[Person] = {
     val unioned = persons
       .foldLeft(spark.sparkContext.emptyRDD[Person]) { _ union _ }
-      .cache()
 
     unioned
       .groupBy(_.getAccountId)

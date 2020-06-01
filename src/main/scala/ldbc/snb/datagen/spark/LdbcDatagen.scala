@@ -95,7 +95,7 @@ object LdbcDatagen {
     val interestKnows = SparkKnowsGenerator(persons, interestRanker, config, percentages, 1, knowsGeneratorClassName)
     val randomKnows = SparkKnowsGenerator(persons, randomRanker, config, percentages, 2, knowsGeneratorClassName)
 
-    val merged = SparkKnowsMerger(uniKnows, interestKnows, randomKnows)
+    val merged = SparkKnowsMerger(uniKnows, interestKnows, randomKnows).cache()
 
     SparkUI.job(simpleNameOf[SparkActivitySerializer.type], "serialize person activities") {
       SparkActivitySerializer(merged, randomRanker, config, Some(numPartitions))
