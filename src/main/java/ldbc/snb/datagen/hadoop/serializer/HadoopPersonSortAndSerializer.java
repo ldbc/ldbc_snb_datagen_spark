@@ -75,7 +75,8 @@ public class HadoopPersonSortAndSerializer extends DatagenHadoopJob {
         private AbstractDeleteEventSerializer abstractDeleteEventSerializer;
 
         @Override
-        protected void setup(Context context) {
+        protected void setup(Context context) throws IOException, InterruptedException {
+            super.setup(context);
             Configuration hadoopConf = context.getConfiguration();
             LdbcConfiguration conf = HadoopConfiguration.extractLdbcConfig(hadoopConf);
             int reducerId = context.getTaskAttemptID().getTaskID().getId();

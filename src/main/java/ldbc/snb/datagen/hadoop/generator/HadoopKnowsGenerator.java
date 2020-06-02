@@ -83,7 +83,8 @@ public class HadoopKnowsGenerator extends DatagenHadoopJob {
         private int numGeneratedEdges = 0;
         private Person.PersonSimilarity personSimilarity;
 
-        protected void setup(Context context) {
+        protected void setup(Context context) throws IOException, InterruptedException {
+            super.setup(context);
             this.hadoopConf = context.getConfiguration();
             try {
                 DatagenContext.initialize(conf);
