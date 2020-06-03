@@ -18,7 +18,8 @@ max_num_workers = 100
 defaults = {
     'bucket': 'ldbc-snb-datagen-store',
     'use_spot': False,
-    'instance_type': 'i3.xlarge',
+    'master_instance_type': 'c5d.xlarge',
+    'instance_type': 'r5d.2xlarge',
     'az': 'us-west-2a',
     'is_interactive': False,
     'ec2_key': None,
@@ -52,6 +53,7 @@ def submit_datagen_job(params_file, sf,
                        bucket=defaults['bucket'],
                        use_spot=defaults['use_spot'],
                        instance_type=defaults['instance_type'],
+                       master_instance_type=defaults['master_instance_type'],
                        az=defaults['az'],
                        is_interactive=defaults['is_interactive'],
                        ec2_key=defaults['ec2_key']
@@ -105,7 +107,7 @@ def submit_datagen_job(params_file, sf,
                     'Name': "Driver node",
                     'Market': 'ON_DEMAND',
                     'InstanceRole': 'MASTER',
-                    'InstanceType': instance_type,
+                    'InstanceType': master_instance_type,
                     'InstanceCount': 1,
                 },
                 {
@@ -133,7 +135,7 @@ def submit_datagen_job(params_file, sf,
                     'Jar': 'command-runner.jar',
                     'Args': ['spark-submit', '--class', main_class, jar_url, params_url,
                              '--sn-dir', sn_dir, '--build-dir', build_dir,
-                             '--num-threads', f"{cluster_config['num_workers'] * 4}"]
+                             '--num-threads', f"{cluster_config['num_workers'] * 8}"]
                 }
 
             },
@@ -175,6 +177,9 @@ if __name__ == "__main__":
     parser.add_argument('--bucket',
                         default=defaults['bucket'],
                         help=f'LDBC SNB Datagen storage bucket. Default: {defaults["bucket"]}')
+    parser.add_argument('--instance-type',
+                        default=defaults['instance_type'],
+                        help=f'Override the EC2 instance type used for worker nodes. Default: {defaults["instance_type"]}')
     parser.add_argument('--ec2-key',
                         default=defaults['ec2_key'],
                         help='EC2 key name for SSH connection')
@@ -189,5 +194,6 @@ if __name__ == "__main__":
     submit_datagen_job(args.params_url, args.sf,
                        bucket=args.bucket, use_spot=args.use_spot, az=args.az,
                        is_interactive=is_interactive and not args.y,
+                       instance_type=args.instance_type,
                        ec2_key=args.ec2_key
                        )
