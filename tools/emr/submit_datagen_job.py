@@ -13,7 +13,7 @@ main_class = 'ldbc.snb.datagen.spark.LdbcDatagen'
 version = '0.4.0-SNAPSHOT'
 
 min_num_workers = 1
-max_num_workers = 100
+max_num_workers = 1000
 
 defaults = {
     'bucket': 'ldbc-snb-datagen-store',
