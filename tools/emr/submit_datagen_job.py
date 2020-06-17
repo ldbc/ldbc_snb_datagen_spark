@@ -4,6 +4,8 @@ import boto3
 from os import path
 from datetime import datetime
 import pprint
+import csv
+import re
 import __main__
 
 import argparse
@@ -27,6 +29,14 @@ defaults = {
 
 pp = pprint.PrettyPrinter(indent=2)
 
+dir = path.dirname(path.realpath(__file__))
+ec2info_file = 'Amazon EC2 Instance Comparison.csv'
+
+
+with open(path.join(dir, ec2info_file), mode='r') as infile:
+    reader = csv.DictReader(infile)
+    ec2_instances = [dict(row) for row in reader]
+
 
 def ask_continue(message):
     print(message)
@@ -49,7 +59,7 @@ def calculate_cluster_config(scale_factor):
     }
 
 
-def submit_datagen_job(params_file, sf,
+def submit_datagen_job(params_file, sf, instance_vcpu,
                        bucket=defaults['bucket'],
                        use_spot=defaults['use_spot'],
                        instance_type=defaults['instance_type'],
@@ -85,6 +95,7 @@ def submit_datagen_job(params_file, sf,
     market = 'SPOT' if use_spot else 'ON_DEMAND'
 
     ec2_key_dict = {'Ec2KeyName': ec2_key} if ec2_key is not None else {}
+
 
     job_flow_args = {
         'Name': f'{name}_{ts_formatted}',
@@ -135,7 +146,7 @@ def submit_datagen_job(params_file, sf,
                     'Jar': 'command-runner.jar',
                     'Args': ['spark-submit', '--class', main_class, jar_url, params_url,
                              '--sn-dir', sn_dir, '--build-dir', build_dir,
-                             '--num-threads', f"{cluster_config['num_workers'] * 8}"]
+                             '--num-threads', f"{cluster_config['num_workers'] * instance_vcpu}"]
                 }
 
             },
@@ -191,9 +202,21 @@ if __name__ == "__main__":
 
     is_interactive = hasattr(__main__, '__file__')
 
+    def parse_vcpu(col):
+        return int(re.search(r'(\d) .*', col).group(1))
+
+    instance_type = args.instance_type
+
+    vcpu = next((parse_vcpu(i['vCPUs']) for i in ec2_instances if i['API Name'] == instance_type), None)
+
+    if vcpu is None:
+        raise Exception(f'unable to find instance type `{instance_type}`. If not a typo, reexport `{ec2info_file}` from ec2instances.com')
+
+
     submit_datagen_job(args.params_url, args.sf,
                        bucket=args.bucket, use_spot=args.use_spot, az=args.az,
                        is_interactive=is_interactive and not args.y,
                        instance_type=args.instance_type,
+                       instance_vcpu=vcpu,
                        ec2_key=args.ec2_key
                        )
