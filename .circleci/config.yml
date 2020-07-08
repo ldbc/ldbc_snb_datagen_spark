@@ -3,14 +3,16 @@ orbs:
   slack: circleci/slack@3.4.2
 jobs:
   build:
-    resource_class: large
     branches:
       ignore:
         - stable
         - v0.3.3
+
+    resource_class: large
     working_directory: ~/ldbc/ldbc_snb_datagen
     docker:
       - image: ldbc/datagen-build:0.0.2
+
     steps:
       - checkout
       - restore_cache:
