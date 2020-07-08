@@ -1,32 +1,35 @@
 version: 2.1
 orbs:
   slack: circleci/slack@3.4.2
-jobs:
+workflows: 2
   build:
-    branches:
-      ignore:
-        - stable
-        - v0.3.3
+    jobs:
+      - test:
+          filters:
+            branches:
+              ignore:
+                - stable
+                - v0.3.3
 
-    resource_class: large
-    working_directory: ~/ldbc/ldbc_snb_datagen
-    docker:
-      - image: ldbc/datagen-build:0.0.2
+          resource_class: large
+          working_directory: ~/ldbc/ldbc_snb_datagen
+          docker:
+            - image: ldbc/datagen-build:0.0.2
 
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - m2-dep-branch:{{ .Branch }}-pom:{{ checksum "pom.xml" }}-
-            - m2-dep-branch:dev-pom:{{ checksum "pom.xml" }}-
-            - m2-dep-branch:{{ .Branch }}-
-            - m2-dep-branch:dev-
-      - run: mvn -ntp clean test-compile
-      - save_cache:
-          key: m2-dep-branch:{{ .Branch }}-pom:{{ checksum "pom.xml" }}-{{ epoch }}
-          paths:
-            - ~/.m2/repository   # maven deps
-            - ~/.sbt/1.0/zinc    # scala compiler bridge
-      - run: mvn -ntp test
-      - slack/status:
-          only_for_branches: dev
+          steps:
+            - checkout
+            - restore_cache:
+                keys:
+                  - m2-dep-branch:{{ .Branch }}-pom:{{ checksum "pom.xml" }}-
+                  - m2-dep-branch:dev-pom:{{ checksum "pom.xml" }}-
+                  - m2-dep-branch:{{ .Branch }}-
+                  - m2-dep-branch:dev-
+            - run: mvn -ntp clean test-compile
+            - save_cache:
+                key: m2-dep-branch:{{ .Branch }}-pom:{{ checksum "pom.xml" }}-{{ epoch }}
+                paths:
+                  - ~/.m2/repository   # maven deps
+                  - ~/.sbt/1.0/zinc    # scala compiler bridge
+            - run: mvn -ntp test
+            - slack/status:
+                only_for_branches: dev
