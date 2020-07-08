@@ -4,6 +4,10 @@ orbs:
 jobs:
   build:
     resource_class: large
+    branches:
+      ignore:
+        - stable
+        - v0.3.3
     working_directory: ~/ldbc/ldbc_snb_datagen
     docker:
       - image: ldbc/datagen-build:0.0.2
