@@ -64,10 +64,11 @@ Alternatively, the image can be built with the provided Dockerfile. To build, ex
 docker build . -t ldbc/spark -f spark.dockerfile
 ```
 
-Then, run it using:
+Then, assemble the JAR file and run the docker image using the mounted jar:
 
 ```bash
-docker run -v `pwd`/out:/mnt/data -v `pwd`/params.ini:/mnt/params.ini -v `pwd`/target/ldbc_snb_datagen-0.4.0-SNAPSHOT-jar-with-dependencies.jar:/mnt/jar ldbc/spark &&
+mvn assembly:assembly -DskipTests && \
+  docker run -v `pwd`/out:/mnt/data -v `pwd`/params.ini:/mnt/params.ini -v `pwd`/target/ldbc_snb_datagen-0.4.0-SNAPSHOT-jar-with-dependencies.jar:/mnt/jar ldbc/spark &&
   sudo chown -R $USER:$USER social_network/ substitution_parameters/
 ```
 

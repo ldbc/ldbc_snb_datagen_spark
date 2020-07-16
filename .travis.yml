@@ -10,6 +10,7 @@ before_install:
   - docker build . -t ldbc/datagen -f spark.dockerfile
 install: true
 script:
+  - mvn assembly:assembly
   # test basic serializer
   - cp params-csv-basic.ini params.ini
   - docker run -v `pwd`/out:/mnt/data -v `pwd`/params.ini:/mnt/params.ini -v `pwd`/target/ldbc_snb_datagen-0.4.0-SNAPSHOT-jar-with-dependencies.jar:/mnt/jar ldbc/datagen
