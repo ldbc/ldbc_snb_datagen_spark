@@ -29,31 +29,6 @@ Initialize the `params.ini` file as needed. For example, to generate the basic C
 cp params-csv-basic.ini params.ini
 ```
 
-There are three main ways to run Datagen, each using a different approach to configure the amount of memory available.
-
-1. using a pseudo-distributed Hadoop installation,
-2. running the same setup in a Docker image,
-3. running on a distributed Hadoop cluster.
-
-### Pseudo-distributed Hadoop node
-
-To configure the amount of memory available, set the `HADOOP_CLIENT_OPTS` environment variable.
-To grab Hadoop, extract it, and set the environment values to sensible defaults, and generate the data as specified in the `params-csv-params.ini` template file, run the following script:
-
-```bash
-cp params-csv-basic.ini params.ini
-wget http://archive.apache.org/dist/hadoop/core/hadoop-3.2.1/hadoop-3.2.1.tar.gz
-tar xf hadoop-3.2.1.tar.gz
-export HADOOP_CLIENT_OPTS="-Xmx2G"
-# set this to the Hadoop 3.2.1 directory
-export HADOOP_HOME=`pwd`/hadoop-3.2.1
-# set this to the repository's directory
-export LDBC_SNB_DATAGEN_HOME=`pwd`
-# limit Hadoop's log to error messages
-export HADOOP_LOGLEVEL=WARN
-tools/run.sh
-```
-
 ### Docker image
 
 SNB datagen images are available via [Docker Hub](https://hub.docker.com/r/ldbc/datagen/) where you may find both the latest version of the generator as well as previous stable versions.
@@ -71,12 +46,6 @@ mvn assembly:assembly -DskipTests && \
   docker run -v `pwd`/out:/mnt/data -v `pwd`/params.ini:/mnt/params.ini -v `pwd`/target/ldbc_snb_datagen-0.4.0-SNAPSHOT-jar-with-dependencies.jar:/mnt/jar ldbc/spark &&
   sudo chown -R $USER:$USER social_network/ substitution_parameters/
 ```
-
-If you need to raise the memory limit, use the `-e HADOOP_CLIENT_OPTS="-Xmx..."` parameter to override the default value (`-Xmx2G`).
-
-### Hadoop cluster
-
-Instructions are currently not provided.
 
 ### Graph schema
 
