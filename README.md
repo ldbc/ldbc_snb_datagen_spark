@@ -61,20 +61,13 @@ SNB datagen images are available via [Docker Hub](https://hub.docker.com/r/ldbc/
 Alternatively, the image can be built with the provided Dockerfile. To build, execute the following command from the repository directory:
 
 ```bash
-docker build . --tag ldbc/datagen
+docker build . -t ldbc/spark -f spark.dockerfile
 ```
 
-#### Running
-
-Set the `params.ini` in the repository as for the pseudo-distributed case. The file will be mounted in the container by the `--mount type=bind,source="$(pwd)/params.ini,target="/opt/ldbc_snb_datagen/params.ini"` option. If required, the source path can be set to a different path.
-
-The container outputs its results in the `/opt/ldbc_snb_datagen/out/` directory which contains two sub-directories, `social_network/` and `substitution_parameters`. In order to save the results of the generation, a directory must be mounted in the container from the host. The driver requires the results be in the datagen repository directory. To generate the data, run the following command which includes changing the owner (`chown`) of the Docker-mounted volumes.
-
-:warning: This removes the previously generated `social_network` directory:
+Then, run it using:
 
 ```bash
-rm -rf social_network/ substitution_parameters && \
-  docker run --rm --mount type=bind,source="$(pwd)/",target="/opt/ldbc_snb_datagen/out" --mount type=bind,source="$(pwd)/params.ini",target="/opt/ldbc_snb_datagen/params.ini" ldbc/datagen; \
+docker run -v `pwd`/out:/mnt/data -v `pwd`/params.ini:/mnt/params.ini -v `pwd`/target/ldbc_snb_datagen-0.4.0-SNAPSHOT-jar-with-dependencies.jar:/mnt/jar ldbc/spark &&
   sudo chown -R $USER:$USER social_network/ substitution_parameters/
 ```
 
