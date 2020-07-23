@@ -36,7 +36,7 @@ SNB datagen images are available via [Docker Hub](https://hub.docker.com/r/ldbc/
 Alternatively, the image can be built with the provided Dockerfile. To build, execute the following command from the repository directory:
 
 ```bash
-docker build . -t ldbc/spark -f spark.dockerfile
+docker build . -t ldbc/spark
 ```
 
 Then, assemble the JAR file and run the docker image using the mounted jar:
