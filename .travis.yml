@@ -7,12 +7,13 @@ services:
   - docker
 before_install:
   - cat /proc/cpuinfo
-  - docker build . --tag ldbc/datagen
+  - docker build . -t ldbc/datagen
 install: true
 script:
+  - mvn assembly:assembly
   # test basic serializer
   - cp params-csv-basic.ini params.ini
-  - docker run --rm --mount type=bind,source="$(pwd)/",target="/opt/ldbc_snb_datagen/out" --mount type=bind,source="$(pwd)/params.ini",target="/opt/ldbc_snb_datagen/params.ini" ldbc/datagen
+  - docker run -v `pwd`/out:/mnt/data -v `pwd`/params.ini:/mnt/params.ini -v `pwd`/target/ldbc_snb_datagen-0.4.0-SNAPSHOT-jar-with-dependencies.jar:/mnt/jar ldbc/datagen
 notifications:
   slack: ldbcouncil:OrBanrJ7l0EHQbj8T5YdJYhd
   email: false
