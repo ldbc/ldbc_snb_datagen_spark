@@ -7,8 +7,11 @@ LDBC SNB Data Generator
 
 :scroll: If you wish to cite the LDBC SNB, please refer to the [documentation repository](https://github.com/ldbc/ldbc_snb_docs#how-to-cite-ldbc-benchmarks).
 
-The LDBC SNB Data Generator (Datagen) is the responsible of providing the datasets used by all the LDBC benchmarks. This data generator is designed to produce directed labeled graphs that mimic the characteristics of those graphs of real data. A detailed description of the schema produced by Datagen, as well as the format of the output files, can be found in the latest version of official [LDBC SNB specification document](https://github.com/ldbc/ldbc_snb_docs).
+:warning: There are two versions of this repository:
+* To generate data for Interactive SF1-1000, use the non-default [`stable` branch](https://github.com/ldbc/ldbc_snb_datagen/tree/stable) which uses Hadoop.
+* For the Interactive workload's larger data sets (SF3000+) and for the BI workload, use the [`dev` branch](https://github.com/ldbc/ldbc_snb_datagen/) which uses Spark. This is an experimental implementation.
 
+The LDBC SNB Data Generator (Datagen) is the responsible of providing the datasets used by all the LDBC benchmarks. This data generator is designed to produce directed labeled graphs that mimic the characteristics of those graphs of real data. A detailed description of the schema produced by Datagen, as well as the format of the output files, can be found in the latest version of official [LDBC SNB specification document](https://github.com/ldbc/ldbc_snb_docs).
 
 
 `ldbc_snb_datagen` is part of the [LDBC project](http://www.ldbcouncil.org/).
