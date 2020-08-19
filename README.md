@@ -21,6 +21,10 @@ The LDBC-SNB Data Generator (Datagen) is the responsible of providing the datase
 
 ## Quick start
 
+### Setup
+
+This version of Datagen (v0.3.3) uses Hadoop to allow execution over multiple machines (Datagen v0.4.0 and subsequent versions use Spark). Hadoop version 3.2.1 is recommended.
+
 ### Configuration
 
 Initialize the `params.ini` file as needed. For example, to generate the basic CSV files, issue:
