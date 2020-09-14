@@ -1,9 +1,9 @@
 #!/bin/bash
-export HADOOP_HOME=/home/user/hadoop-1.0.3 #change to your hadoop folder
-export LDBC_SOCIALNET_DBGEN_HOME=/home/user/ldbc_socialnet_bm/ldbc_socialnet_dbgen #change to your ldbc_socialnet_dbgen folder 
+export HADOOP_HOME=`pwd`/hadoop-1.0.3 #change to your hadoop folder
+export LDBC_SOCIALNET_DBGEN_HOME=`pwd` #change to your ldbc_socialnet_dbgen folder 
 export NUM_MACHINES=1
 
-export SOCIALNET_DIR=/home/user/datasetFolder #change to the folder where the generated data should be written
+export SOCIALNET_DIR=`pwd`
 export OUTPUT_DIR=$SOCIALNET_DIR/output
 export SIB_INPUT_DIR=input/sib
 export SIB_OUTPUT_DIR=$OUTPUT_DIR/sib
