@@ -48,7 +48,7 @@ Then, assemble the JAR file and run the docker image using the mounted JAR, whic
 
 ```bash
 mvn assembly:assembly -DskipTests && \
-  docker run -v `pwd`/out:/mnt/data -v `pwd`/params.ini:/mnt/params.ini -v `pwd`/target/ldbc_snb_datagen-0.4.0-SNAPSHOT-jar-with-dependencies.jar:/mnt/datagen.jar ldbc/spar
+  docker run -v `pwd`/out:/mnt/data -v `pwd`/params.ini:/mnt/params.ini -v `pwd`/target/ldbc_snb_datagen-0.4.0-SNAPSHOT-jar-with-dependencies.jar:/mnt/datagen.jar ldbc/spark
 ```
 
 The `out/social_network` directory is initially root-owned, to fix this, run:
