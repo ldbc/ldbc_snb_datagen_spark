@@ -3,7 +3,7 @@
 LDBC SNB Data Generator
 ----------------------
 
-[![Build Status](https://circleci.com/gh/ldbc/ldbc_snb_datagen.svg?style=svg)
+![Build Status](https://circleci.com/gh/ldbc/ldbc_snb_datagen.svg?style=svg)
 
 :scroll: If you wish to cite the LDBC SNB, please refer to the [documentation repository](https://github.com/ldbc/ldbc_snb_docs#how-to-cite-ldbc-benchmarks).
 
