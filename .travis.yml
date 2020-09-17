@@ -7,7 +7,7 @@ services:
   - docker
 before_install:
   - cat /proc/cpuinfo
-  - docker build . -t ldbc/datagen
+  - docker build . -t ldbc/spark
 install: true
 script:
   - mvn assembly:assembly
