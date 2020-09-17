@@ -13,7 +13,7 @@ script:
   - mvn assembly:assembly
   # test basic serializer
   - cp params-csv-basic.ini params.ini
-  - docker run -v `pwd`/out:/mnt/data -v `pwd`/params.ini:/mnt/params.ini -v `pwd`/target/ldbc_snb_datagen-0.4.0-SNAPSHOT-jar-with-dependencies.jar:/mnt/jar ldbc/datagen
+  - docker run -v `pwd`/out:/mnt/data -v `pwd`/params.ini:/mnt/params.ini -v `pwd`/target/ldbc_snb_datagen-0.4.0-SNAPSHOT-jar-with-dependencies.jar:/mnt/datagen.jar ldbc/spark
 notifications:
   slack: ldbcouncil:OrBanrJ7l0EHQbj8T5YdJYhd
   email: false
