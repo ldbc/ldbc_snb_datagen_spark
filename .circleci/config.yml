@@ -11,6 +11,7 @@ workflows:
               ignore:
                 - stable
                 - v0.3.3
+                - sigmod2014contest
 
 jobs:
   test:
