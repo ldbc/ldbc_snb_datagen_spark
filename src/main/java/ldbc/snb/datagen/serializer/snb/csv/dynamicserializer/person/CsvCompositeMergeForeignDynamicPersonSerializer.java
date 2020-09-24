@@ -36,6 +36,8 @@
 package ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person;
 
 import com.google.common.collect.ImmutableList;
+import ldbc.snb.datagen.DatagenMode;
+import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
@@ -60,50 +62,56 @@ public class CsvCompositeMergeForeignDynamicPersonSerializer extends DynamicPers
 
     @Override
     public void writeFileHeaders() {
-        writers.get(PERSON)                     .writeHeader(ImmutableList.of("creationDate", "deletionDate", "id", "firstName", "lastName", "gender", "birthday", "locationIP", "browserUsed", "place", "language", "email"));
-        writers.get(PERSON_HASINTEREST_TAG)     .writeHeader(ImmutableList.of("creationDate", "deletionDate", "Person.id", "Tag.id"));
-        writers.get(PERSON_STUDYAT_ORGANISATION).writeHeader(ImmutableList.of("creationDate", "deletionDate", "Person.id", "Organisation.id", "classYear"));
-        writers.get(PERSON_WORKAT_ORGANISATION) .writeHeader(ImmutableList.of("creationDate", "deletionDate", "Person.id", "Organisation.id", "workFrom"));
-        writers.get(PERSON_KNOWS_PERSON)        .writeHeader(ImmutableList.of("creationDate", "deletionDate", "Person.id", "Person.id"));
+        List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of("creationDate", "deletionDate") :
+                ImmutableList.of("creationDate");
+
+        writers.get(PERSON)                     .writeHeader(dates, ImmutableList.of("id", "firstName", "lastName", "gender", "birthday", "locationIP", "browserUsed", "place", "language", "email"));
+        writers.get(PERSON_HASINTEREST_TAG)     .writeHeader(dates, ImmutableList.of("Person.id", "Tag.id"));
+        writers.get(PERSON_STUDYAT_ORGANISATION).writeHeader(dates, ImmutableList.of("Person.id", "Organisation.id", "classYear"));
+        writers.get(PERSON_WORKAT_ORGANISATION) .writeHeader(dates, ImmutableList.of("Person.id", "Organisation.id", "workFrom"));
+        writers.get(PERSON_KNOWS_PERSON)        .writeHeader(dates, ImmutableList.of("Person.id", "Person.id"));
     }
 
     @Override
-    protected void serialize(final Person p) {
-        //"creationDate", "deletionDate", "id", "firstName", "lastName", "gender", "birthday", "locationIP", "browserUsed", "place", "language", "email"
-        writers.get(PERSON).writeEntry(ImmutableList.of(
-                Dictionaries.dates.formatDateTime(p.getCreationDate()),
-                Dictionaries.dates.formatDateTime(p.getDeletionDate()),
-                Long.toString(p.getAccountId()),
-                p.getFirstName(),
-                p.getLastName(),
-                getGender(p.getGender()),
-                Dictionaries.dates.formatDate(p.getBirthday()),
-                p.getIpAddress().toString(),
-                Dictionaries.browsers.getName(p.getBrowserId()),
-                Integer.toString(p.getCityId()),
-                buildLanguages(p.getLanguages()),
-                buildEmail(p.getEmails())
+    protected void serialize(final Person person) {
+        List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()));
+
+        // creationDate, [deletionDate,] id, firstName, lastName, gender, birthday, locationIP, browserUsed, place, language, email
+        writers.get(PERSON).writeEntry(dates, ImmutableList.of(
+                Long.toString(person.getAccountId()),
+                person.getFirstName(),
+                person.getLastName(),
+                getGender(person.getGender()),
+                Dictionaries.dates.formatDate(person.getBirthday()),
+                person.getIpAddress().toString(),
+                Dictionaries.browsers.getName(person.getBrowserId()),
+                Integer.toString(person.getCityId()),
+                buildLanguages(person.getLanguages()),
+                buildEmail(person.getEmails())
         ));
 
-        Iterator<Integer> itInteger = p.getInterests().iterator();
+        Iterator<Integer> itInteger = person.getInterests().iterator();
         while (itInteger.hasNext()) {
             Integer interestIdx = itInteger.next();
-            //"creationDate", "deletionDate", "Person.id", "Tag.id"
-            writers.get(PERSON_HASINTEREST_TAG).writeEntry(ImmutableList.of(
-                    Dictionaries.dates.formatDateTime(p.getCreationDate()),
-                    Dictionaries.dates.formatDateTime(p.getDeletionDate()),
-                    Long.toString(p.getAccountId()),
+            // creationDate, [deletionDate,] Person.id, Tag.id
+            writers.get(PERSON_HASINTEREST_TAG).writeEntry(dates, ImmutableList.of(
+                    Long.toString(person.getAccountId()),
                     Integer.toString(interestIdx)
             ));
         }
     }
 
     @Override
-    protected void serialize(final StudyAt studyAt,final Person person) {
-        //"creationDate", "deletionDate", "Person.id", "Organisation.id", "classYear"
-        writers.get(PERSON_STUDYAT_ORGANISATION).writeEntry(ImmutableList.of(
-                Dictionaries.dates.formatDateTime(person.getCreationDate()),
-                Dictionaries.dates.formatDateTime(person.getDeletionDate()),
+    protected void serialize(final StudyAt studyAt, final Person person) {
+        List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()));
+
+        // creationDate, [deletionDate,] Person.id, Organisation.id, classYear
+        writers.get(PERSON_STUDYAT_ORGANISATION).writeEntry(dates, ImmutableList.of(
                 Long.toString(studyAt.person),
                 Long.toString(studyAt.university),
                 DateUtils.formatYear(studyAt.year)
@@ -111,11 +119,13 @@ public class CsvCompositeMergeForeignDynamicPersonSerializer extends DynamicPers
     }
 
     @Override
-    protected void serialize(final WorkAt workAt,final Person person) {
-        //"creationDate", "deletionDate", "Person.id", "Organisation.id", "workFrom"
-        writers.get(PERSON_WORKAT_ORGANISATION).writeEntry(ImmutableList.of(
-                Dictionaries.dates.formatDateTime(person.getCreationDate()),
-                Dictionaries.dates.formatDateTime(person.getDeletionDate()),
+    protected void serialize(final WorkAt workAt, final Person person) {
+        List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()));
+
+        // creationDate, [deletionDate,] Person.id, Organisation.id, workFrom
+        writers.get(PERSON_WORKAT_ORGANISATION).writeEntry(dates, ImmutableList.of(
                 Long.toString(workAt.person),
                 Long.toString(workAt.company),
                 DateUtils.formatYear(workAt.year)
@@ -123,12 +133,14 @@ public class CsvCompositeMergeForeignDynamicPersonSerializer extends DynamicPers
     }
 
     @Override
-    protected void serialize(final Person p, Knows knows) {
-        //"creationDate", "deletionDate", "Person.id", "Person.id"
-        writers.get(PERSON_KNOWS_PERSON).writeEntry(ImmutableList.of(
-                Dictionaries.dates.formatDateTime(knows.getCreationDate()),
-                Dictionaries.dates.formatDateTime(knows.getDeletionDate()),
-                Long.toString(p.getAccountId()),
+    protected void serialize(final Person person, Knows knows) {
+        List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()));
+
+        // creationDate, [deletionDate,] Person.id, Person.id
+        writers.get(PERSON_KNOWS_PERSON).writeEntry(dates, ImmutableList.of(
+                Long.toString(person.getAccountId()),
                 Long.toString(knows.to().getAccountId())
         ));
     }

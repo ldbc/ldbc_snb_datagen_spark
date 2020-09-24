@@ -36,6 +36,8 @@
 package ldbc.snb.datagen.hadoop.writer;
 
 
+import com.clearspring.analytics.util.Lists;
+import com.google.common.collect.Iterables;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
@@ -65,6 +67,10 @@ public class HdfsCsvWriter extends HdfsWriter {
         this.writeAllPartitions(buffer.toString());
     }
 
+    public void writeHeader(List<String>... entry) {
+        writeHeader(Lists.newArrayList(Iterables.concat(entry)));
+    }
+
     public void writeEntry(List<String> entry) {
         buffer.setLength(0);
         for (int i = 0; i < entry.size(); ++i) {
@@ -75,4 +81,9 @@ public class HdfsCsvWriter extends HdfsWriter {
         buffer.append("\n");
         this.write(buffer.toString());
     }
+
+    public void writeEntry(List<String>... entry) {
+        writeEntry(Lists.newArrayList(Iterables.concat(entry)));
+    }
+
 }

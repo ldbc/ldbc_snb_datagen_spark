@@ -49,13 +49,13 @@ import java.util.stream.Collectors;
 
 abstract public class DynamicPersonSerializer<TWriter extends HdfsWriter> extends LdbcSerializer<TWriter> {
 
-    abstract protected void serialize(final Person p);
+    abstract protected void serialize(final Person person);
 
     abstract protected void serialize(final StudyAt studyAt, final Person person);
 
     abstract protected void serialize(final WorkAt workAt, final Person person);
 
-    abstract protected void serialize(final Person p, final Knows knows);
+    abstract protected void serialize(final Person person, final Knows knows);
 
     public void export(final Person person) {
 
