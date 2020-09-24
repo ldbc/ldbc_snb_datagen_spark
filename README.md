@@ -54,7 +54,7 @@ mvn assembly:assembly -DskipTests && \
 The `out/social_network` directory is initially root-owned, to fix this, run:
 
 ```bash
-sudo chown -R `id -u`:`id -g` out/social_network/
+sudo chown -R `id -u`:`id -g` out/
 ```
 
 ### Graph schema
