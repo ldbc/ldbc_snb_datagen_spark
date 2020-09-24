@@ -69,464 +69,221 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
 
     @Override
     public void writeFileHeaders() {
-        if (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) {
-            writers.get(FORUM).writeHeader(ImmutableList.of("creationDate", "id", "title", "type", "deletionDate"));
-            writers.get(FORUM_HASMODERATOR_PERSON).writeHeader(ImmutableList.of("creationDate", "Forum.id", "Person.id", "deletionDate"));
-            writers.get(FORUM_HASTAG_TAG).writeHeader(ImmutableList.of("creationDate", "Forum.id", "Tag.id", "deletionDate"));
-            writers.get(FORUM_HASMEMBER_PERSON).writeHeader(ImmutableList.of("creationDate", "Forum.id", "Person.id", "type", "deletionDate"));
+        List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of("creationDate", "deletionDate") :
+                ImmutableList.of("creationDate");
 
-            writers.get(POST).writeHeader(ImmutableList.of("creationDate", "id", "imageFile", "locationIP", "browserUsed", "language", "content", "length", "deletionDate"));
-            writers.get(POST_HASCREATOR_PERSON).writeHeader(ImmutableList.of("creationDate", "Post.id", "Person.id", "deletionDate"));
-            writers.get(POST_ISLOCATEDIN_PLACE).writeHeader(ImmutableList.of("creationDate", "Post.id", "Place.id", "deletionDate"));
-            writers.get(POST_HASTAG_TAG).writeHeader(ImmutableList.of("creationDate", "Post.id", "Tag.id", "deletionDate"));
-            writers.get(FORUM_CONTAINEROF_POST).writeHeader(ImmutableList.of("creationDate", "Forum.id", "Post.id", "deletionDate"));
+        writers.get(FORUM)                    .writeHeader(dates, ImmutableList.of("id", "title", "type"));
+        writers.get(FORUM_HASMODERATOR_PERSON).writeHeader(dates, ImmutableList.of("Forum.id", "Person.id"));
+        writers.get(FORUM_HASTAG_TAG)         .writeHeader(dates, ImmutableList.of("Forum.id", "Tag.id"));
+        writers.get(FORUM_HASMEMBER_PERSON)   .writeHeader(dates, ImmutableList.of("Forum.id", "Person.id", "type"));
 
-            writers.get(COMMENT).writeHeader(ImmutableList.of("creationDate", "id", "locationIP", "browserUsed", "content", "length", "deletionDate"));
-            writers.get(COMMENT_REPLYOF_POST).writeHeader(ImmutableList.of("creationDate", "Comment.id", "Post.id", "deletionDate"));
-            writers.get(COMMENT_REPLYOF_COMMENT).writeHeader(ImmutableList.of("creationDate", "Comment.id", "Comment.id", "deletionDate"));
-            writers.get(COMMENT_HASCREATOR_PERSON).writeHeader(ImmutableList.of("creationDate", "Comment.id", "Person.id", "deletionDate"));
-            writers.get(COMMENT_ISLOCATEDIN_PLACE).writeHeader(ImmutableList.of("creationDate", "Comment.id", "Place.id", "deletionDate"));
-            writers.get(COMMENT_HASTAG_TAG).writeHeader(ImmutableList.of("creationDate", "Comment.id", "Tag.id", "deletionDate"));
+        writers.get(POST)                     .writeHeader(dates, ImmutableList.of("id", "imageFile", "locationIP", "browserUsed", "language", "content", "length"));
+        writers.get(POST_HASCREATOR_PERSON)   .writeHeader(dates, ImmutableList.of("Post.id", "Person.id"));
+        writers.get(POST_ISLOCATEDIN_PLACE)   .writeHeader(dates, ImmutableList.of("Post.id", "Place.id"));
+        writers.get(POST_HASTAG_TAG)          .writeHeader(dates, ImmutableList.of("Post.id", "Tag.id"));
+        writers.get(FORUM_CONTAINEROF_POST)   .writeHeader(dates, ImmutableList.of("Forum.id", "Post.id"));
 
-            writers.get(PERSON_LIKES_POST).writeHeader(ImmutableList.of("creationDate", "Person.id", "Post.id", "deletionDate"));
-            writers.get(PERSON_LIKES_COMMENT).writeHeader(ImmutableList.of("creationDate", "Person.id", "Comment.id", "deletionDate"));
+        writers.get(COMMENT)                  .writeHeader(dates, ImmutableList.of("id", "locationIP", "browserUsed", "content", "length"));
+        writers.get(COMMENT_REPLYOF_POST)     .writeHeader(dates, ImmutableList.of("Comment.id", "Post.id"));
+        writers.get(COMMENT_REPLYOF_COMMENT)  .writeHeader(dates, ImmutableList.of("Comment.id", "Comment.id"));
+        writers.get(COMMENT_HASCREATOR_PERSON).writeHeader(dates, ImmutableList.of("Comment.id", "Person.id"));
+        writers.get(COMMENT_ISLOCATEDIN_PLACE).writeHeader(dates, ImmutableList.of("Comment.id", "Place.id"));
+        writers.get(COMMENT_HASTAG_TAG)       .writeHeader(dates, ImmutableList.of("Comment.id", "Tag.id"));
 
-        } else {
-            writers.get(FORUM).writeHeader(ImmutableList.of("creationDate", "id", "title", "type"));
-            writers.get(FORUM_HASMODERATOR_PERSON).writeHeader(ImmutableList.of("creationDate", "Forum.id", "Person.id"));
-            writers.get(FORUM_HASTAG_TAG).writeHeader(ImmutableList.of("creationDate", "Forum.id", "Tag.id"));
-            writers.get(FORUM_HASMEMBER_PERSON).writeHeader(ImmutableList.of("creationDate", "Forum.id", "Person.id", "type"));
-
-            writers.get(POST).writeHeader(ImmutableList.of("creationDate", "id", "imageFile", "locationIP", "browserUsed", "language", "content", "length"));
-            writers.get(POST_HASCREATOR_PERSON).writeHeader(ImmutableList.of("creationDate", "Post.id", "Person.id"));
-            writers.get(POST_ISLOCATEDIN_PLACE).writeHeader(ImmutableList.of("creationDate", "Post.id", "Place.id"));
-            writers.get(POST_HASTAG_TAG).writeHeader(ImmutableList.of("creationDate", "Post.id", "Tag.id"));
-            writers.get(FORUM_CONTAINEROF_POST).writeHeader(ImmutableList.of("creationDate", "Forum.id", "Post.id"));
-
-            writers.get(COMMENT).writeHeader(ImmutableList.of("creationDate", "id", "locationIP", "browserUsed", "content", "length"));
-            writers.get(COMMENT_REPLYOF_POST).writeHeader(ImmutableList.of("creationDate", "Comment.id", "Post.id"));
-            writers.get(COMMENT_REPLYOF_COMMENT).writeHeader(ImmutableList.of("creationDate", "Comment.id", "Comment.id"));
-            writers.get(COMMENT_HASCREATOR_PERSON).writeHeader(ImmutableList.of("creationDate", "Comment.id", "Person.id"));
-            writers.get(COMMENT_ISLOCATEDIN_PLACE).writeHeader(ImmutableList.of("creationDate", "Comment.id", "Place.id"));
-            writers.get(COMMENT_HASTAG_TAG).writeHeader(ImmutableList.of("creationDate", "Comment.id", "Tag.id"));
-
-            writers.get(PERSON_LIKES_POST).writeHeader(ImmutableList.of("creationDate", "Person.id", "Post.id"));
-            writers.get(PERSON_LIKES_COMMENT).writeHeader(ImmutableList.of("creationDate", "Person.id", "Comment.id"));
-        }
+        writers.get(PERSON_LIKES_POST)        .writeHeader(dates, ImmutableList.of("Person.id", "Post.id"));
+        writers.get(PERSON_LIKES_COMMENT)     .writeHeader(dates, ImmutableList.of("Person.id", "Comment.id"));
     }
 
     protected void serialize(final Forum forum) {
-        String forumCreationDate = Dictionaries.dates.formatDateTime(forum.getCreationDate());
-        String forumDeletionDate = Dictionaries.dates.formatDateTime(forum.getDeletionDate());
-        if (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) {
-            //"creationDate", "id", "title", "deletionDate"
-            writers.get(FORUM).writeEntry(ImmutableList.of(
-                    forumCreationDate,
+        List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(Dictionaries.dates.formatDateTime(forum.getCreationDate()), Dictionaries.dates.formatDateTime(forum.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(forum.getCreationDate()));
+        List<String> moderatorDates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(Dictionaries.dates.formatDateTime(forum.getCreationDate()) + DatagenParams.delta, Dictionaries.dates.formatDateTime(forum.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(forum.getCreationDate()) + DatagenParams.delta);
+
+        // creationDate, [deletionDate,] id, title
+        writers.get(FORUM).writeEntry(dates, ImmutableList.of(
+                Long.toString(forum.getId()),
+                forum.getTitle(),
+                forum.getForumType().toString()
+        ));
+
+        // creationDate, [deletionDate,] Forum.id, Person.id
+        writers.get(FORUM_HASMODERATOR_PERSON).writeEntry(moderatorDates, ImmutableList.of(
+                Long.toString(forum.getId()),
+                Long.toString(forum.getModerator().getAccountId())
+        ));
+
+        for (Integer i : forum.getTags()) {
+            // creationDate, [deletionDate,] Forum.id, Tag.id
+            writers.get(FORUM_HASTAG_TAG).writeEntry(dates, ImmutableList.of(
                     Long.toString(forum.getId()),
-                    forum.getTitle(),
-                    forum.getForumType().toString(),
-                    forumDeletionDate
-            ));
-
-            //"creationDate", "id", "title", "deletionDate"
-            writers.get(FORUM).writeEntry(ImmutableList.of(
-                    forumCreationDate,
-                    Long.toString(forum.getId()),
-                    forum.getTitle(),
-                    forum.getForumType().toString(),
-                    forumDeletionDate
-            ));
-
-            //"creationDate",  "Forum.id", "Person.id", "deletionDate"
-            writers.get(FORUM_HASMODERATOR_PERSON).writeEntry(ImmutableList.of(
-                    Long.toString(forum.getModerator().getCreationDate() + DatagenParams.delta),
-                    Long.toString(forum.getId()),
-                    Long.toString(forum.getModerator().getAccountId()),
-                    Long.toString(forum.getModerator().getDeletionDate())
-            ));
-
-            for (Integer i : forum.getTags()) {
-                //"creationDate",  "Forum.id", "Tag.id", "deletionDate"
-                writers.get(FORUM_HASTAG_TAG).writeEntry(ImmutableList.of(
-                        forumCreationDate,
-                        Long.toString(forum.getId()),
-                        Integer.toString(i),
-                        forumDeletionDate));
-            }
-        } else {
-            //"creationDate", "id", "title"
-            writers.get(FORUM).writeEntry(ImmutableList.of(
-                    forumCreationDate,
-                    Long.toString(forum.getId()),
-                    forum.getTitle(),
-                    forum.getForumType().toString()
-            ));
-
-            if (forum.getModerator().getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold()) {
-                //"creationDate",  "Forum.id", "Person.id"
-                writers.get(FORUM_HASMODERATOR_PERSON).writeEntry(ImmutableList.of(
-                        forumCreationDate,
-                        Long.toString(forum.getId()),
-                        Long.toString(forum.getModerator().getAccountId())
-                ));
-            }
-
-            for (Integer i : forum.getTags()) {
-                //"creationDate",  "Forum.id", "Tag.id",
-                writers.get(FORUM_HASTAG_TAG).writeEntry(ImmutableList.of(
-                        forumCreationDate,
-                        Long.toString(forum.getId()),
-                        Integer.toString(i)));
-            }
+                    Integer.toString(i)));
         }
     }
 
     protected void serialize(final ForumMembership membership) {
+        List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(Dictionaries.dates.formatDateTime(membership.getCreationDate()), Dictionaries.dates.formatDateTime(membership.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(membership.getCreationDate()));
 
-        if (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) {
-            //"creationDate",  "Forum.id", "Person.id",
-            writers.get(FORUM_HASMEMBER_PERSON).writeEntry(ImmutableList.of(
-                    Dictionaries.dates.formatDateTime(membership.getCreationDate()),
-                    Long.toString(membership.getForumId()),
-                    Long.toString(membership.getPerson().getAccountId()),
-                    membership.getForumType().toString(),
-                    Dictionaries.dates.formatDateTime(membership.getDeletionDate())));
-        } else {
-            //"creationDate",  "Forum.id", "Person.id", "deletionDate"
-            writers.get(FORUM_HASMEMBER_PERSON).writeEntry(ImmutableList.of(
-                    Dictionaries.dates.formatDateTime(membership.getCreationDate()),
-                    Long.toString(membership.getForumId()),
-                    Long.toString(membership.getPerson().getAccountId()),
-                    membership.getForumType().toString()));
-        }
+        // creationDate, [deletionDate,] Forum.id, Person.id
+        writers.get(FORUM_HASMEMBER_PERSON).writeEntry(dates, ImmutableList.of(
+                Long.toString(membership.getForumId()),
+                Long.toString(membership.getPerson().getAccountId()),
+                membership.getForumType().toString()));
     }
 
     protected void serialize(final Post post) {
-        String creationDate = Dictionaries.dates.formatDateTime(post.getCreationDate());
-        String deletionDate = Dictionaries.dates.formatDateTime(post.getDeletionDate());
+        List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(Dictionaries.dates.formatDateTime(post.getCreationDate()), Dictionaries.dates.formatDateTime(post.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(post.getCreationDate()));
 
-        if (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) {
-            //"creationDate",  "id", "imageFile", "locationIP", "browserUsed", "language", "content", "length","deletionDate"
-            writers.get(POST).writeEntry(ImmutableList.of(
-                    creationDate,
+        // creationDate, [deletionDate,] id, imageFile, locationIP, browserUsed, language, content, length
+        writers.get(POST).writeEntry(dates, ImmutableList.of(
+                Long.toString(post.getMessageId()),
+                "",
+                post.getIpAddress().toString(),
+                Dictionaries.browsers.getName(post.getBrowserId()),
+                Dictionaries.languages.getLanguageName(post.getLanguage()),
+                post.getContent(),
+                Integer.toString(post.getContent().length())
+        ));
+
+        // creationDate, [deletionDate,] Post.id, Person.id
+        writers.get(POST_HASCREATOR_PERSON).writeEntry(dates, ImmutableList.of(
+                Long.toString(post.getMessageId()),
+                Long.toString(post.getAuthor().getAccountId())
+        ));
+
+        // creationDate, [deletionDate,] Post.id, Place.id
+        writers.get(POST_ISLOCATEDIN_PLACE).writeEntry(dates, ImmutableList.of(
+                Long.toString(post.getMessageId()),
+                Integer.toString(post.getCountryId())
+        ));
+
+        // creationDate, [deletionDate,] Post.id, Tag.id
+        for (Integer t : post.getTags()) {
+            writers.get(POST_HASTAG_TAG).writeEntry(dates, ImmutableList.of(
                     Long.toString(post.getMessageId()),
-                    "",
-                    post.getIpAddress().toString(),
-                    Dictionaries.browsers.getName(post.getBrowserId()),
-                    Dictionaries.languages.getLanguageName(post.getLanguage()),
-                    post.getContent(),
-                    Integer.toString(post.getContent().length()),
-                    deletionDate
-            ));
-
-            //"creationDate",  "Post.id", "Person.id","deletionDate"
-            writers.get(POST_HASCREATOR_PERSON).writeEntry(ImmutableList.of(
-                    creationDate,
-                    Long.toString(post.getMessageId()),
-                    Long.toString(post.getAuthor().getAccountId()),
-                    deletionDate
-            ));
-
-            //"creationDate",  "Post.id", "Place.id","deletionDate"
-            writers.get(POST_ISLOCATEDIN_PLACE).writeEntry(ImmutableList.of(
-                    creationDate,
-                    Long.toString(post.getMessageId()),
-                    Integer.toString(post.getCountryId()),
-                    deletionDate
-            ));
-
-            //"creationDate",  "Post.id", "Tag.id","deletionDate"
-            for (Integer t : post.getTags()) {
-                writers.get(POST_HASTAG_TAG).writeEntry(ImmutableList.of(
-                        creationDate,
-                        Long.toString(post.getMessageId()),
-                        Integer.toString(t),
-                        deletionDate
-                ));
-            }
-            //"creationDate",  "Forum.id", "Post.id","deletionDate"
-            writers.get(FORUM_CONTAINEROF_POST).writeEntry(ImmutableList.of(
-                    creationDate,
-                    Long.toString(post.getForumId()),
-                    Long.toString(post.getMessageId()),
-                    deletionDate
-            ));
-        } else {
-            //"creationDate",  "id", "imageFile", "locationIP", "browserUsed", "language", "content", "length"
-
-            writers.get(POST).writeEntry(ImmutableList.of(
-                    creationDate,
-                    Long.toString(post.getMessageId()),
-                    "",
-                    post.getIpAddress().toString(),
-                    Dictionaries.browsers.getName(post.getBrowserId()),
-                    Dictionaries.languages.getLanguageName(post.getLanguage()),
-                    post.getContent(),
-                    Integer.toString(post.getContent().length())
-            ));
-
-            //"creationDate",  "Post.id", "Person.id"
-            writers.get(POST_HASCREATOR_PERSON).writeEntry(ImmutableList.of(
-                    creationDate,
-                    Long.toString(post.getMessageId()),
-                    Long.toString(post.getAuthor().getAccountId())
-            ));
-
-            //"creationDate",  "Post.id", "Place.id"
-            writers.get(POST_ISLOCATEDIN_PLACE).writeEntry(ImmutableList.of(
-                    creationDate,
-                    Long.toString(post.getMessageId()),
-                    Integer.toString(post.getCountryId())
-            ));
-
-            //"creationDate",  "Post.id", "Tag.id"
-            for (Integer t : post.getTags()) {
-                writers.get(POST_HASTAG_TAG).writeEntry(ImmutableList.of(
-                        creationDate,
-                        Long.toString(post.getMessageId()),
-                        Integer.toString(t)
-                ));
-            }
-            //"creationDate",  "Forum.id", "Post.id"
-            writers.get(FORUM_CONTAINEROF_POST).writeEntry(ImmutableList.of(
-                    creationDate,
-                    Long.toString(post.getForumId()),
-                    Long.toString(post.getMessageId())
+                    Integer.toString(t)
             ));
         }
-
+        // creationDate, [deletionDate,] Forum.id, Post.id
+        writers.get(FORUM_CONTAINEROF_POST).writeEntry(dates, ImmutableList.of(
+                Long.toString(post.getForumId()),
+                Long.toString(post.getMessageId())
+        ));
     }
 
     protected void serialize(final Comment comment) {
-        String creationDate = Dictionaries.dates.formatDateTime(comment.getCreationDate());
-        String deletionDate = Dictionaries.dates.formatDateTime(comment.getDeletionDate());
+        List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(Dictionaries.dates.formatDateTime(comment.getCreationDate()), Dictionaries.dates.formatDateTime(comment.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(comment.getCreationDate()));
 
-        if (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) {
-            //"creationDate",  "id", "locationIP", "browserUsed", "content", "length", "deletionDate"
-            writers.get(COMMENT).writeEntry(ImmutableList.of(
-                    creationDate,
+        // creationDate, [deletionDate,] id, locationIP, browserUsed, content, length
+        writers.get(COMMENT).writeEntry(dates, ImmutableList.of(
+                Long.toString(comment.getMessageId()),
+                comment.getIpAddress().toString(),
+                Dictionaries.browsers.getName(comment.getBrowserId()),
+                comment.getContent(),
+                Integer.toString(comment.getContent().length())
+        ));
+
+        if (comment.replyOf() == comment.postId()) {
+            // creationDate, [deletionDate,] Comment.id, Post.id
+            writers.get(COMMENT_REPLYOF_POST).writeEntry(dates, ImmutableList.of(
                     Long.toString(comment.getMessageId()),
-                    comment.getIpAddress().toString(),
-                    Dictionaries.browsers.getName(comment.getBrowserId()),
-                    comment.getContent(),
-                    Integer.toString(comment.getContent().length()),
-                    deletionDate
+                    Long.toString(comment.postId())
             ));
-
-            if (comment.replyOf() == comment.postId()) {
-                //"creationDate",  "Comment.id", "Post.id", "deletionDate"
-                writers.get(COMMENT_REPLYOF_POST).writeEntry(ImmutableList.of(
-                        creationDate,
-                        Long.toString(comment.getMessageId()),
-                        Long.toString(comment.postId()),
-                        deletionDate
-                ));
-            } else {
-                //"creationDate",  "Comment.id", "Comment.id", "deletionDate"
-                writers.get(COMMENT_REPLYOF_COMMENT).writeEntry(ImmutableList.of(
-                        creationDate,
-                        Long.toString(comment.getMessageId()),
-                        Long.toString(comment.replyOf()),
-                        deletionDate
-                ));
-            }
-            //"creationDate",  "Comment.id", "Person.id", "deletionDate"
-            writers.get(COMMENT_HASCREATOR_PERSON).writeEntry(ImmutableList.of(
-                    creationDate,
-                    Long.toString(comment.getMessageId()),
-                    Long.toString(comment.getAuthor().getAccountId()),
-                    deletionDate
-            ));
-
-            //"creationDate",  "Comment.id", "Place.id", "deletionDate"
-            writers.get(COMMENT_ISLOCATEDIN_PLACE).writeEntry(ImmutableList.of(
-                    creationDate,
-                    Long.toString(comment.getMessageId()),
-                    Integer.toString(comment.getCountryId()),
-                    deletionDate
-            ));
-
-            for (Integer t : comment.getTags()) {
-                //"creationDate",  "Comment.id", "Tag.id", "deletionDate"
-                writers.get(COMMENT_HASTAG_TAG).writeEntry(ImmutableList.of(
-                        creationDate,
-                        Long.toString(comment.getMessageId()),
-                        Integer.toString(t),
-                        deletionDate
-                ));
-            }
         } else {
-            //"creationDate",  "id", "locationIP", "browserUsed", "content", "length"
-            writers.get(COMMENT).writeEntry(ImmutableList.of(
-                    creationDate,
+            // creationDate, [deletionDate,] Comment.id, Comment.id
+            writers.get(COMMENT_REPLYOF_COMMENT).writeEntry(dates, ImmutableList.of(
                     Long.toString(comment.getMessageId()),
-                    comment.getIpAddress().toString(),
-                    Dictionaries.browsers.getName(comment.getBrowserId()),
-                    comment.getContent(),
-                    Integer.toString(comment.getContent().length())
+                    Long.toString(comment.replyOf())
             ));
-
-            if (comment.replyOf() == comment.postId()) {
-                //"creationDate",  "Comment.id", "Post.id"
-                writers.get(COMMENT_REPLYOF_POST).writeEntry(ImmutableList.of(
-                        creationDate,
-                        Long.toString(comment.getMessageId()),
-                        Long.toString(comment.postId())
-                ));
-            } else {
-                //"creationDate",  "Comment.id", "Comment.id"
-                writers.get(COMMENT_REPLYOF_COMMENT).writeEntry(ImmutableList.of(
-                        creationDate,
-                        Long.toString(comment.getMessageId()),
-                        Long.toString(comment.replyOf())
-                ));
-            }
-            //"creationDate",  "Comment.id", "Person.id"
-            writers.get(COMMENT_HASCREATOR_PERSON).writeEntry(ImmutableList.of(
-                    creationDate,
-                    Long.toString(comment.getMessageId()),
-                    Long.toString(comment.getAuthor().getAccountId())
-            ));
-
-            //"creationDate",  "Comment.id", "Place.id"
-            writers.get(COMMENT_ISLOCATEDIN_PLACE).writeEntry(ImmutableList.of(
-                    creationDate,
-                    Long.toString(comment.getMessageId()),
-                    Integer.toString(comment.getCountryId())
-            ));
-
-            for (Integer t : comment.getTags()) {
-                //"creationDate",  "Comment.id", "Tag.id"
-                writers.get(COMMENT_HASTAG_TAG).writeEntry(ImmutableList.of(
-                        creationDate,
-                        Long.toString(comment.getMessageId()),
-                        Integer.toString(t)
-                ));
-            }
         }
+        // creationDate, [deletionDate,] Comment.id, Person.id
+        writers.get(COMMENT_HASCREATOR_PERSON).writeEntry(dates, ImmutableList.of(
+                Long.toString(comment.getMessageId()),
+                Long.toString(comment.getAuthor().getAccountId())
+        ));
+
+        // creationDate, [deletionDate,] Comment.id, Place.id
+        writers.get(COMMENT_ISLOCATEDIN_PLACE).writeEntry(dates, ImmutableList.of(
+                Long.toString(comment.getMessageId()),
+                Integer.toString(comment.getCountryId())
+        ));
+
+        for (Integer t : comment.getTags()) {
+            // creationDate, [deletionDate,] Comment.id, Tag.id
+            writers.get(COMMENT_HASTAG_TAG).writeEntry(dates, ImmutableList.of(
+                    Long.toString(comment.getMessageId()),
+                    Integer.toString(t)
+            ));
+        }
+
     }
 
     protected void serialize(final Photo photo) {
-        String creationDate = Dictionaries.dates.formatDateTime(photo.getCreationDate());
-        String deletionDate = Dictionaries.dates.formatDateTime(photo.getDeletionDate());
+        List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(Dictionaries.dates.formatDateTime(photo.getCreationDate()), Dictionaries.dates.formatDateTime(photo.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(photo.getCreationDate()));
 
-        if (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) {
-            //"creationDate",  "id", "imageFile", "locationIP", "browserUsed", "language", "content", "length","deletionDate"
-            writers.get(POST).writeEntry(ImmutableList.of(
-                    creationDate,
+        // creationDate, [deletionDate,] id, imageFile, locationIP, browserUsed, language, content, length
+        writers.get(POST).writeEntry(dates, ImmutableList.of(
+                Long.toString(photo.getMessageId()),
+                photo.getContent(),
+                photo.getIpAddress().toString(),
+                Dictionaries.browsers.getName(photo.getBrowserId()),
+                "",
+                "",
+                Integer.toString(0)
+        ));
+
+        // creationDate, [deletionDate,] Post.id, Place.id
+        writers.get(POST_ISLOCATEDIN_PLACE).writeEntry(dates, ImmutableList.of(
+                Long.toString(photo.getMessageId()),
+                Integer.toString(photo.getCountryId())
+        ));
+
+        // creationDate, [deletionDate,] Post.id, Tag.id
+        writers.get(POST_HASCREATOR_PERSON).writeEntry(dates, ImmutableList.of(
+                Long.toString(photo.getMessageId()),
+                Long.toString(photo.getAuthor().getAccountId())
+        ));
+
+        // creationDate, [deletionDate,] Post.id, Tag.id
+        for (Integer t : photo.getTags()) {
+            writers.get(POST_HASTAG_TAG).writeEntry(dates, ImmutableList.of(
                     Long.toString(photo.getMessageId()),
-                    photo.getContent(),
-                    photo.getIpAddress().toString(),
-                    Dictionaries.browsers.getName(photo.getBrowserId()),
-                    "",
-                    "",
-                    Integer.toString(0),
-                    deletionDate
-            ));
-
-            //"creationDate",  "Post.id", "Place.id","deletionDate"
-            writers.get(POST_ISLOCATEDIN_PLACE).writeEntry(ImmutableList.of(
-                    creationDate,
-                    Long.toString(photo.getMessageId()),
-                    Integer.toString(photo.getCountryId()),
-                    deletionDate
-            ));
-
-            //"creationDate",  "Post.id", "Tag.id","deletionDate"
-            writers.get(POST_HASCREATOR_PERSON).writeEntry(ImmutableList.of(
-                    creationDate,
-                    Long.toString(photo.getMessageId()),
-                    Long.toString(photo.getAuthor().getAccountId()),
-                    deletionDate
-            ));
-
-            //"creationDate",  "Post.id", "Tag.id","deletionDate"
-            for (Integer t : photo.getTags()) {
-                writers.get(POST_HASTAG_TAG).writeEntry(ImmutableList.of(
-                        creationDate,
-                        Long.toString(photo.getMessageId()),
-                        Integer.toString(t),
-                        deletionDate
-                ));
-            }
-
-            //"creationDate",  "Forum.id", "Post.id","deletionDate"
-            writers.get(FORUM_CONTAINEROF_POST).writeEntry(ImmutableList.of(
-                    creationDate,
-                    Long.toString(photo.getForumId()),
-                    Long.toString(photo.getMessageId()),
-                    deletionDate
-            ));
-        } else {
-            //"creationDate",  "id", "imageFile", "locationIP", "browserUsed", "language", "content", "length"
-            writers.get(POST).writeEntry(ImmutableList.of(
-                    creationDate,
-                    Long.toString(photo.getMessageId()),
-                    photo.getContent(),
-                    photo.getIpAddress().toString(),
-                    Dictionaries.browsers.getName(photo.getBrowserId()),
-                    "",
-                    "",
-                    Integer.toString(0)
-            ));
-
-            //"creationDate",  "Post.id", "Place.id",
-            writers.get(POST_ISLOCATEDIN_PLACE).writeEntry(ImmutableList.of(
-                    creationDate,
-                    Long.toString(photo.getMessageId()),
-                    Integer.toString(photo.getCountryId())
-            ));
-
-            //"creationDate",  "Post.id", "Tag.id"
-            writers.get(POST_HASCREATOR_PERSON).writeEntry(ImmutableList.of(
-                    creationDate,
-                    Long.toString(photo.getMessageId()),
-                    Long.toString(photo.getAuthor().getAccountId())
-            ));
-
-            //"creationDate",  "Post.id", "Tag.id"
-            for (Integer t : photo.getTags()) {
-                writers.get(POST_HASTAG_TAG).writeEntry(ImmutableList.of(
-                        creationDate,
-                        Long.toString(photo.getMessageId()),
-                        Integer.toString(t)
-                ));
-            }
-
-            //"creationDate",  "Forum.id", "Post.id"
-            writers.get(FORUM_CONTAINEROF_POST).writeEntry(ImmutableList.of(
-                    creationDate,
-                    Long.toString(photo.getForumId()),
-                    Long.toString(photo.getMessageId())
+                    Integer.toString(t)
             ));
         }
+
+        // creationDate, [deletionDate,] Forum.id, Post.id
+        writers.get(FORUM_CONTAINEROF_POST).writeEntry(dates, ImmutableList.of(
+                Long.toString(photo.getForumId()),
+                Long.toString(photo.getMessageId())
+        ));
     }
 
     protected void serialize(final Like like) {
-        if (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) {
-            //"creationDate",  "Person.id", "Post.id"/"Comment.id","deletionDate"
-            List<String> arguments = ImmutableList.of(
-                    Dictionaries.dates.formatDateTime(like.getCreationDate()),
-                    Long.toString(like.getPerson()),
-                    Long.toString(like.getMessageId()),
-                    Dictionaries.dates.formatDateTime(like.getDeletionDate()));
-            if (like.getType() == Like.LikeType.POST || like.getType() == Like.LikeType.PHOTO) {
-                writers.get(PERSON_LIKES_POST).writeEntry(arguments);
-            } else {
-                writers.get(PERSON_LIKES_COMMENT).writeEntry(arguments);
-            }
-        }  else {
-            //"creationDate",  "Person.id", "Post.id"/"Comment.id"
-            List<String> arguments = ImmutableList.of(
-                    Dictionaries.dates.formatDateTime(like.getCreationDate()),
-                    Long.toString(like.getPerson()),
-                    Long.toString(like.getMessageId())
-            );
-            if (like.getType() == Like.LikeType.POST || like.getType() == Like.LikeType.PHOTO) {
-                writers.get(PERSON_LIKES_POST).writeEntry(arguments);
-            } else {
-                writers.get(PERSON_LIKES_COMMENT).writeEntry(arguments);
-            }
+        List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(Dictionaries.dates.formatDateTime(like.getCreationDate()), Dictionaries.dates.formatDateTime(like.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(like.getCreationDate()));
+
+        // creationDate, [deletionDate,] Person.id, Post.id/Comment.id
+        List<String> arguments = ImmutableList.of(
+                Long.toString(like.getPerson()),
+                Long.toString(like.getMessageId()));
+
+        if (like.getType() == Like.LikeType.POST || like.getType() == Like.LikeType.PHOTO) {
+            writers.get(PERSON_LIKES_POST).writeEntry(dates, arguments);
+        } else {
+            writers.get(PERSON_LIKES_COMMENT).writeEntry(dates, arguments);
         }
     }
 
