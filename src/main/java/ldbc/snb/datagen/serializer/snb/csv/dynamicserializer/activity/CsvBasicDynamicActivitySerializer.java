@@ -189,15 +189,15 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
                     Dictionaries.dates.formatDateTime(membership.getCreationDate()),
                     Long.toString(membership.getForumId()),
                     Long.toString(membership.getPerson().getAccountId()),
-                    membership.getForumType().toString()));
+                    membership.getForumType().toString(),
+                    Dictionaries.dates.formatDateTime(membership.getDeletionDate())));
         } else {
             //"creationDate",  "Forum.id", "Person.id", "deletionDate"
             writers.get(FORUM_HASMEMBER_PERSON).writeEntry(ImmutableList.of(
                     Dictionaries.dates.formatDateTime(membership.getCreationDate()),
                     Long.toString(membership.getForumId()),
                     Long.toString(membership.getPerson().getAccountId()),
-                    membership.getForumType().toString(),
-                    Dictionaries.dates.formatDateTime(membership.getDeletionDate())));
+                    membership.getForumType().toString()));
         }
     }
 
