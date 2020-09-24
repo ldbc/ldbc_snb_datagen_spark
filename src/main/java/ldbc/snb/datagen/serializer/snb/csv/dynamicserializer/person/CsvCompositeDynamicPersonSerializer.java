@@ -38,6 +38,8 @@
 package ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person;
 
 import com.google.common.collect.ImmutableList;
+import ldbc.snb.datagen.DatagenMode;
+import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
@@ -65,13 +67,21 @@ public class CsvCompositeDynamicPersonSerializer extends DynamicPersonSerializer
 
     @Override
     public void writeFileHeaders() {
-        writers.get(PERSON)                     .writeHeader(ImmutableList.of("creationDate", "deletionDate", "id", "firstName", "lastName", "gender", "birthday", "locationIP", "browserUsed", "language", "email"));
-        writers.get(PERSON_ISLOCATEDIN_PLACE)   .writeHeader(ImmutableList.of("creationDate", "deletionDate", "Person.id", "Place.id"));
-        writers.get(PERSON_HASINTEREST_TAG)     .writeHeader(ImmutableList.of("creationDate", "deletionDate", "Person.id", "Tag.id"));
-        writers.get(PERSON_STUDYAT_ORGANISATION).writeHeader(ImmutableList.of("creationDate", "deletionDate", "Person.id", "Organisation.id", "classYear"));
-        writers.get(PERSON_WORKAT_ORGANISATION) .writeHeader(ImmutableList.of("creationDate", "deletionDate", "Person.id", "Organisation.id", "workFrom"));
-        writers.get(PERSON_KNOWS_PERSON)        .writeHeader(ImmutableList.of("creationDate", "deletionDate", "Person.id", "Person.id"));
-
+        if (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) {
+            writers.get(PERSON).writeHeader(ImmutableList.of("creationDate", "id", "firstName", "lastName", "gender", "birthday", "locationIP", "browserUsed", "language", "email", "deletionDate"));
+            writers.get(PERSON_ISLOCATEDIN_PLACE).writeHeader(ImmutableList.of("creationDate", "Person.id", "Place.id","deletionDate"));
+            writers.get(PERSON_HASINTEREST_TAG).writeHeader(ImmutableList.of("creationDate", "Person.id", "Tag.id","deletionDate"));
+            writers.get(PERSON_STUDYAT_ORGANISATION).writeHeader(ImmutableList.of("creationDate", "Person.id", "Organisation.id", "classYear","deletionDate"));
+            writers.get(PERSON_WORKAT_ORGANISATION).writeHeader(ImmutableList.of("creationDate", "Person.id", "Organisation.id", "workFrom","deletionDate"));
+            writers.get(PERSON_KNOWS_PERSON).writeHeader(ImmutableList.of("creationDate", "Person.id", "Person.id"));
+        } else {
+            writers.get(PERSON).writeHeader(ImmutableList.of("creationDate", "id", "firstName", "lastName", "gender", "birthday", "locationIP", "browserUsed", "language", "email"));
+            writers.get(PERSON_ISLOCATEDIN_PLACE).writeHeader(ImmutableList.of("creationDate", "Person.id", "Place.id"));
+            writers.get(PERSON_HASINTEREST_TAG).writeHeader(ImmutableList.of("creationDate", "Person.id", "Tag.id"));
+            writers.get(PERSON_STUDYAT_ORGANISATION).writeHeader(ImmutableList.of("creationDate", "Person.id", "Organisation.id", "classYear"));
+            writers.get(PERSON_WORKAT_ORGANISATION).writeHeader(ImmutableList.of("creationDate", "Person.id", "Organisation.id", "workFrom"));
+            writers.get(PERSON_KNOWS_PERSON).writeHeader(ImmutableList.of("creationDate", "Person.id", "Person.id"));
+        }
     }
 
     @Override
