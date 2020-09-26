@@ -99,9 +99,6 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
                 ImmutableList.of(Dictionaries.dates.formatDateTime(forum.getCreationDate()), Dictionaries.dates.formatDateTime(forum.getDeletionDate())) :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(forum.getCreationDate()));
-        List<String> moderatorDates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(Dictionaries.dates.formatDateTime(forum.getCreationDate()) + DatagenParams.delta, Dictionaries.dates.formatDateTime(forum.getDeletionDate())) :
-                ImmutableList.of(Dictionaries.dates.formatDateTime(forum.getCreationDate()) + DatagenParams.delta);
 
         // creationDate, [deletionDate,] id, title, category
         writers.get(FORUM).writeEntry(dates, ImmutableList.of(
@@ -110,11 +107,20 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
                 forum.getForumType().toString()
         ));
 
-        // creationDate, [deletionDate,] Forum.id, Person.id
-        writers.get(FORUM_HASMODERATOR_PERSON).writeEntry(moderatorDates, ImmutableList.of(
-                Long.toString(forum.getId()),
-                Long.toString(forum.getModerator().getAccountId())
-        ));
+        // (Forum)-[:hasModerator]->(Person)
+        List<String> moderatorDates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(Dictionaries.dates.formatDateTime(forum.getCreationDate()), Dictionaries.dates.formatDateTime(forum.getModeratorDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(forum.getCreationDate()));
+        // to prevent dangling edges, we only serialize the hasModerator edge if the moderator exists and/or
+        // we use 'raw data' serialization mode
+        if (forum.getModeratorDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold() ||
+            DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) {
+            // creationDate, [deletionDate,] Forum.id, Person.id
+            writers.get(FORUM_HASMODERATOR_PERSON).writeEntry(moderatorDates, ImmutableList.of(
+                    Long.toString(forum.getId()),
+                    Long.toString(forum.getModerator().getAccountId())
+            ));
+        }
 
         for (Integer i : forum.getTags()) {
             // creationDate, [deletionDate,] Forum.id, Tag.id

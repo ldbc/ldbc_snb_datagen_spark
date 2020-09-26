@@ -52,6 +52,7 @@ public class Forum implements DynamicActivity {
     private boolean isExplicitlyDeleted;
     private long id;
     private PersonSummary moderator;
+    private long moderatorDeletionDate;
     private long creationDate;
     private long deletionDate;
     private String title;
@@ -62,7 +63,7 @@ public class Forum implements DynamicActivity {
     private ForumType forumType;
 
 
-    public Forum(long id, long creationDate, long deletionDate, PersonSummary moderator, String title, int placeId, int language, ForumType forumType, boolean isExplicitlyDeleted) {
+    public Forum(long id, long creationDate, long deletionDate, PersonSummary moderator, long moderatorDeletionDate, String title, int placeId, int language, ForumType forumType, boolean isExplicitlyDeleted) {
         assert (moderator.getCreationDate() + DatagenParams.delta) <= creationDate : "Moderator's creation date is less than or equal to the Forum creation date";
         memberships = new ArrayList<>();
         tags = new ArrayList<>();
@@ -72,6 +73,7 @@ public class Forum implements DynamicActivity {
         this.title = title;
         this.placeId = placeId;
         this.moderator = new PersonSummary(moderator);
+        this.moderatorDeletionDate = moderatorDeletionDate;
         this.language = language;
         this.forumType = forumType;
         this.isExplicitlyDeleted = isExplicitlyDeleted;
@@ -99,6 +101,10 @@ public class Forum implements DynamicActivity {
 
     public PersonSummary getModerator() {
         return moderator;
+    }
+
+    public long getModeratorDeletionDate() {
+        return moderatorDeletionDate;
     }
 
     public long getCreationDate() {
