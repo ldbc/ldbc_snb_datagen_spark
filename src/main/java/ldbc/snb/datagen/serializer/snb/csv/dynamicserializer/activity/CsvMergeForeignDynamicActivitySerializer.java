@@ -70,14 +70,13 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
 
         writers.get(FORUM)                 .writeHeader(dates, ImmutableList.of("id", "title", "moderator"));
         writers.get(FORUM_HASTAG_TAG)      .writeHeader(dates, ImmutableList.of("Forum.id", "Tag.id"));
+        writers.get(FORUM_HASMEMBER_PERSON).writeHeader(dates, ImmutableList.of("Forum.id", "Person.id"));
 
         writers.get(POST)                  .writeHeader(dates, ImmutableList.of("id", "imageFile", "locationIP", "browserUsed", "language", "content", "length", "creator", "Forum.id", "place"));
         writers.get(POST_HASTAG_TAG)       .writeHeader(dates, ImmutableList.of("Post.id", "Tag.id"));
 
         writers.get(COMMENT)               .writeHeader(dates, ImmutableList.of("id", "locationIP", "browserUsed", "content", "length", "creator", "place", "replyOfPost", "replyOfComment"));
         writers.get(COMMENT_HASTAG_TAG)    .writeHeader(dates, ImmutableList.of("Comment.id", "Tag.id"));
-
-        writers.get(FORUM_HASMEMBER_PERSON).writeHeader(dates, ImmutableList.of("Forum.id", "Person.id"));
 
         writers.get(PERSON_LIKES_POST)     .writeHeader(dates, ImmutableList.of("Person.id", "Post.id"));
         writers.get(PERSON_LIKES_COMMENT)  .writeHeader(dates, ImmutableList.of("Person.id", "Comment.id"));

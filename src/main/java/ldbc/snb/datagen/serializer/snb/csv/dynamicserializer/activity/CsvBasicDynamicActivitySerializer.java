@@ -76,7 +76,7 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
         writers.get(FORUM)                    .writeHeader(dates, ImmutableList.of("id", "title", "type"));
         writers.get(FORUM_HASMODERATOR_PERSON).writeHeader(dates, ImmutableList.of("Forum.id", "Person.id"));
         writers.get(FORUM_HASTAG_TAG)         .writeHeader(dates, ImmutableList.of("Forum.id", "Tag.id"));
-        writers.get(FORUM_HASMEMBER_PERSON)   .writeHeader(dates, ImmutableList.of("Forum.id", "Person.id", "type"));
+        writers.get(FORUM_HASMEMBER_PERSON)   .writeHeader(dates, ImmutableList.of("Forum.id", "Person.id"));
 
         writers.get(POST)                     .writeHeader(dates, ImmutableList.of("id", "imageFile", "locationIP", "browserUsed", "language", "content", "length"));
         writers.get(POST_HASCREATOR_PERSON)   .writeHeader(dates, ImmutableList.of("Post.id", "Person.id"));
@@ -103,7 +103,7 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
                 ImmutableList.of(Dictionaries.dates.formatDateTime(forum.getCreationDate()) + DatagenParams.delta, Dictionaries.dates.formatDateTime(forum.getDeletionDate())) :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(forum.getCreationDate()) + DatagenParams.delta);
 
-        // creationDate, [deletionDate,] id, title
+        // creationDate, [deletionDate,] id, title, category
         writers.get(FORUM).writeEntry(dates, ImmutableList.of(
                 Long.toString(forum.getId()),
                 forum.getTitle(),
@@ -132,8 +132,8 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
         // creationDate, [deletionDate,] Forum.id, Person.id
         writers.get(FORUM_HASMEMBER_PERSON).writeEntry(dates, ImmutableList.of(
                 Long.toString(membership.getForumId()),
-                Long.toString(membership.getPerson().getAccountId()),
-                membership.getForumType().toString()));
+                Long.toString(membership.getPerson().getAccountId())
+        ));
     }
 
     protected void serialize(final Post post) {
