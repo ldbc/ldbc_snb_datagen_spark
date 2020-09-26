@@ -92,7 +92,7 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
                 ImmutableList.of(Dictionaries.dates.formatDateTime(forum.getCreationDate()) + DatagenParams.delta);
         // TODO amend moderator dates
 
-        // creationDate, [deletionDate,] id, title, creationDate, moderator
+        // creationDate, [deletionDate,] id, title, moderator
         writers.get(FORUM).writeEntry(dates, ImmutableList.of(
                 Long.toString(forum.getId()),
                 forum.getTitle(),
@@ -114,7 +114,7 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
                 ImmutableList.of(Dictionaries.dates.formatDateTime(post.getCreationDate()), Dictionaries.dates.formatDateTime(post.getDeletionDate())) :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(post.getCreationDate()));
 
-        // creationDate, [deletionDate,] id, imageFile, creationDate, locationIP, browserUsed, language, content, length, creator, Forum.id, place
+        // creationDate, [deletionDate,] id, imageFile, locationIP, browserUsed, language, content, length, creator, Forum.id, place
         writers.get(POST).writeEntry(dates, ImmutableList.of(
             Long.toString(post.getMessageId()),
             "",
@@ -129,7 +129,7 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
         ));
 
         for (Integer t : post.getTags()) {
-            // creationDate, [deletionDate,] Post.id, Tag.id, creationDate
+            // creationDate, [deletionDate,] Post.id, Tag.id
             writers.get(POST_HASTAG_TAG).writeEntry(dates, ImmutableList.of(
                 Long.toString(post.getMessageId()),
                 Integer.toString(t)
@@ -142,7 +142,7 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
                 ImmutableList.of(Dictionaries.dates.formatDateTime(comment.getCreationDate()), Dictionaries.dates.formatDateTime(comment.getDeletionDate())) :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(comment.getCreationDate()));
 
-        // creationDate, [deletionDate,] id, creationDate, locationIP, browserUsed, content, length, creator, place, replyOfPost, replyOfComment
+        // creationDate, [deletionDate,] id, locationIP, browserUsed, content, length, creator, place, replyOfPost, replyOfComment
         writers.get(COMMENT).writeEntry(dates, ImmutableList.of(
             Long.toString(comment.getMessageId()),
             comment.getIpAddress().toString(),
@@ -156,7 +156,7 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
         ));
 
         for (Integer t : comment.getTags()) {
-            // creationDate, [deletionDate,] Comment.id, Tag.id, creationDate
+            // creationDate, [deletionDate,] Comment.id, Tag.id
             writers.get(COMMENT_HASTAG_TAG).writeEntry(dates, ImmutableList.of(
                 Long.toString(comment.getMessageId()),
                 Integer.toString(t)
@@ -169,7 +169,7 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
                 ImmutableList.of(Dictionaries.dates.formatDateTime(photo.getCreationDate()), Dictionaries.dates.formatDateTime(photo.getDeletionDate())) :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(photo.getCreationDate()));
 
-        // creationDate, [deletionDate,] id, imageFile, creationDate, locationIP, browserUsed, language, content, length, creator, Forum.id, place
+        // creationDate, [deletionDate,] id, imageFile, locationIP, browserUsed, language, content, length, creator, Forum.id, place
         writers.get(POST).writeEntry(dates, ImmutableList.of(
             Long.toString(photo.getMessageId()),
             photo.getContent(),
@@ -184,7 +184,7 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
         ));
 
         for (Integer t : photo.getTags()) {
-            // creationDate, [deletionDate,] Post.id, Tag.id, creationDate
+            // creationDate, [deletionDate,] Post.id, Tag.id
             writers.get(POST_HASTAG_TAG).writeEntry(dates, ImmutableList.of(
                 Long.toString(photo.getMessageId()),
                 Integer.toString(t)
