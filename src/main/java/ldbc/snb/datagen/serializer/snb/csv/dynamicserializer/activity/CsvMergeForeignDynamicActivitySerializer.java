@@ -152,8 +152,8 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
             Integer.toString(comment.getContent().length()),
             Long.toString(comment.getAuthor().getAccountId()),
             Integer.toString(comment.getCountryId()),
-            comment.replyOf() == comment.postId() ? Long.toString(comment.postId()) : "",
-            comment.replyOf() == comment.postId() ? "" : Long.toString(comment.replyOf())
+            comment.parentMessageId() == comment.rootPostId() ? Long.toString(comment.rootPostId()) : "",
+            comment.parentMessageId() == comment.rootPostId() ? "" : Long.toString(comment.parentMessageId())
         ));
 
         for (Integer t : comment.getTags()) {
