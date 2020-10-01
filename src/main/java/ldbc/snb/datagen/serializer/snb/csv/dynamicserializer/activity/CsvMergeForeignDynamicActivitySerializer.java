@@ -68,18 +68,18 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
                 ImmutableList.of("creationDate", "deletionDate") :
                 ImmutableList.of("creationDate");
 
-        writers.get(FORUM)                 .writeHeader(dates, ImmutableList.of("id", "title", "moderator"));
-        writers.get(FORUM_HASTAG_TAG)      .writeHeader(dates, ImmutableList.of("Forum.id", "Tag.id"));
-        writers.get(FORUM_HASMEMBER_PERSON).writeHeader(dates, ImmutableList.of("Forum.id", "Person.id"));
+        writers.get(FORUM)                    .writeHeader(dates, ImmutableList.of("id", "title", "moderator"));
+        writers.get(FORUM_HASTAG_TAG)         .writeHeader(dates, ImmutableList.of("Forum.id", "Tag.id"));
+        writers.get(FORUM_HASMEMBER_PERSON)   .writeHeader(dates, ImmutableList.of("Forum.id", "Person.id"));
 
-        writers.get(POST)                  .writeHeader(dates, ImmutableList.of("id", "imageFile", "locationIP", "browserUsed", "language", "content", "length", "creator", "Forum.id", "place"));
-        writers.get(POST_HASTAG_TAG)       .writeHeader(dates, ImmutableList.of("Post.id", "Tag.id"));
+        writers.get(POST)                     .writeHeader(dates, ImmutableList.of("id", "imageFile", "locationIP", "browserUsed", "language", "content", "length", "creator", "Forum.id", "place"));
+        writers.get(POST_HASTAG_TAG)          .writeHeader(dates, ImmutableList.of("Post.id", "Tag.id"));
 
-        writers.get(COMMENT)               .writeHeader(dates, ImmutableList.of("id", "locationIP", "browserUsed", "content", "length", "creator", "place", "replyOfPost", "replyOfComment"));
-        writers.get(COMMENT_HASTAG_TAG)    .writeHeader(dates, ImmutableList.of("Comment.id", "Tag.id"));
+        writers.get(COMMENT)                  .writeHeader(dates, ImmutableList.of("id", "locationIP", "browserUsed", "content", "length", "creator", "place", "replyOfPost", "replyOfComment"));
+        writers.get(COMMENT_HASTAG_TAG)       .writeHeader(dates, ImmutableList.of("Comment.id", "Tag.id"));
 
-        writers.get(PERSON_LIKES_POST)     .writeHeader(dates, ImmutableList.of("Person.id", "Post.id"));
-        writers.get(PERSON_LIKES_COMMENT)  .writeHeader(dates, ImmutableList.of("Person.id", "Comment.id"));
+        writers.get(PERSON_LIKES_POST)        .writeHeader(dates, ImmutableList.of("Person.id", "Post.id"));
+        writers.get(PERSON_LIKES_COMMENT)     .writeHeader(dates, ImmutableList.of("Person.id", "Comment.id"));
 
     }
 
@@ -87,16 +87,17 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
                 ImmutableList.of(Dictionaries.dates.formatDateTime(forum.getCreationDate()), Dictionaries.dates.formatDateTime(forum.getDeletionDate())) :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(forum.getCreationDate()));
-        List<String> moderatorDates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(Dictionaries.dates.formatDateTime(forum.getCreationDate()) + DatagenParams.delta, Dictionaries.dates.formatDateTime(forum.getDeletionDate())) :
-                ImmutableList.of(Dictionaries.dates.formatDateTime(forum.getCreationDate()) + DatagenParams.delta);
-        // TODO amend moderator dates
 
         // creationDate, [deletionDate,] id, title, moderator
         writers.get(FORUM).writeEntry(dates, ImmutableList.of(
                 Long.toString(forum.getId()),
                 forum.getTitle(),
-                Long.toString(forum.getModerator().getAccountId())
+                // to prevent dangling edges, we only serialize the hasModerator edge if the moderator exists
+                // and/or we use 'raw data' serialization mode
+                (forum.getModeratorDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold()
+                    || DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA)
+                    ? Long.toString(forum.getModerator().getAccountId())
+                    : ""
         ));
 
         for (Integer i : forum.getTags()) {

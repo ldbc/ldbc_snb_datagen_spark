@@ -76,6 +76,7 @@ public class ForumGenerator {
                 person.getCreationDate() + DatagenParams.delta,
                 person.getDeletionDate(),
                 new PersonSummary(person),
+                person.getDeletionDate(),
                 StringUtils.clampString("Wall of " + person.getFirstName() + " " + person.getLastName(), 256),
                 person.getCityId(),
                 language,
@@ -117,8 +118,6 @@ public class ForumGenerator {
         long groupMaxCreationDate = Math.min(moderator.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
         long groupCreationDate = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), groupMinCreationDate, groupMaxCreationDate);
 
-        //TODO: Currently if the group moderator is deleted before the forum then no new moderator is installed. This breaks the schema.
-
         // deletion date
         long groupDeletionDate;
         boolean isExplicitlyDeleted;
@@ -131,6 +130,9 @@ public class ForumGenerator {
             isExplicitlyDeleted = false;
             groupDeletionDate = Dictionaries.dates.getNetworkCollapse();
         }
+
+        // the hasModerator edge is deleted if either the Forum (group) or the Person (moderator) is deleted
+        long moderatorDeletionDate = Math.min(groupDeletionDate, moderator.getDeletionDate());
 
         int language = randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE).nextInt(moderator.getLanguages().size());
 
@@ -148,6 +150,7 @@ public class ForumGenerator {
                 groupCreationDate,
                 groupDeletionDate,
                 new PersonSummary(moderator),
+                moderatorDeletionDate,
                 StringUtils.clampString("Group for " + Dictionaries.tags.getName(interestId)
                         .replace("\"", "\\\"") + " in " + Dictionaries.places
                         .getPlaceName(moderator.getCityId()), 256),
@@ -276,6 +279,7 @@ public class ForumGenerator {
                 albumCreationDate,
                 albumDeletionDate,
                 new PersonSummary(person),
+                person.getDeletionDate(),
                 StringUtils.clampString("Album " + numAlbum + " of " + person.getFirstName() + " " + person
                         .getLastName(), 256),
                 person.getCityId(),
