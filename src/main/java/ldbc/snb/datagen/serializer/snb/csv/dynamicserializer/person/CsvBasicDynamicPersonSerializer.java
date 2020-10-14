@@ -64,7 +64,7 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
     @Override
     public void writeFileHeaders() {
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of("creationDate", "deletionDate") :
+                ImmutableList.of("creationDate", "deletionDate", "explicitlyDeleted") :
                 ImmutableList.of("creationDate");
 
         writers.get(PERSON)                     .writeHeader(dates, ImmutableList.of("id", "firstName", "lastName", "gender", "birthday", "locationIP", "browserUsed"));
@@ -80,7 +80,7 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
     @Override
     protected void serialize(final Person person) {
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate()), person.isExplicitlyDeleted()? "true" : "false") :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()));
 
         // creationDate, [deletionDate,] id, firstName, lastName, gender, birthday, locationIP, browserUsed
@@ -126,7 +126,7 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
     @Override
     protected void serialize(final StudyAt studyAt, final Person person) {
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate()), person.isExplicitlyDeleted()? "true" : "false") :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()));
 
         // creationDate, [deletionDate,] Person.id, Organisation.id, classYear
@@ -140,7 +140,7 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
     @Override
     protected void serialize(final WorkAt workAt, final Person person) {
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate()), person.isExplicitlyDeleted()? "true" : "false") :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()));
 
         // creationDate, [deletionDate,] Person.id, Organisation.id, workFrom
@@ -154,7 +154,7 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
     @Override
     protected void serialize(final Person person, Knows knows) {
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate()), person.isExplicitlyDeleted()? "true" : "false") :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()));
 
         // creationDate, [deletionDate,] Person.id, Person.id
