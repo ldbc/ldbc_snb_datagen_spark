@@ -54,7 +54,6 @@ import ldbc.snb.datagen.generator.generators.textgenerators.TextGenerator;
 import ldbc.snb.datagen.util.FactorTable;
 import ldbc.snb.datagen.util.Iterators;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
-import ldbc.snb.datagen.vocabulary.SN;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
@@ -163,7 +162,7 @@ public class PersonActivityGenerator {
         // generate person created groups
         double moderatorProb = randomFarm.get(RandomGeneratorFarm.Aspect.FORUM_MODERATOR).nextDouble();
             int numGroup = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_FORUM)
-                    .nextInt(DatagenParams.maxNumGroupCreatedPerUser) + 1;
+                    .nextInt(DatagenParams.maxNumGroupCreatedPerPerson) + 1;
 
         return Streams.stream(Iterators.forIterator(0, i -> i < numGroup, i -> ++i, i -> {
             if (moderatorProb >= DatagenParams.groupModeratorProb)
