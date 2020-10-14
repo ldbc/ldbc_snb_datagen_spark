@@ -75,7 +75,7 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
         writers.get(POST)                     .writeHeader(dates, ImmutableList.of("id", "imageFile", "locationIP", "browserUsed", "language", "content", "length", "creator", "Forum.id", "place"));
         writers.get(POST_HASTAG_TAG)          .writeHeader(dates, ImmutableList.of("Post.id", "Tag.id"));
 
-        writers.get(COMMENT)                  .writeHeader(dates, ImmutableList.of("id", "locationIP", "browserUsed", "content", "length", "creator", "place", "replyOfPost", "replyOfComment"));
+        writers.get(COMMENT)                  .writeHeader(dates, ImmutableList.of("id", "locationIP", "browserUsed", "content", "length", "creator", "place", "parentPost", "parentComment"));
         writers.get(COMMENT_HASTAG_TAG)       .writeHeader(dates, ImmutableList.of("Comment.id", "Tag.id"));
 
         writers.get(PERSON_LIKES_POST)        .writeHeader(dates, ImmutableList.of("Person.id", "Post.id"));
@@ -143,7 +143,7 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
                 ImmutableList.of(Dictionaries.dates.formatDateTime(comment.getCreationDate()), Dictionaries.dates.formatDateTime(comment.getDeletionDate())) :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(comment.getCreationDate()));
 
-        // creationDate, [deletionDate,] id, locationIP, browserUsed, content, length, creator, place, replyOfPost, replyOfComment
+        // creationDate, [deletionDate,] id, locationIP, browserUsed, content, length, creator, place, parentPost, parentComment
         writers.get(COMMENT).writeEntry(dates, ImmutableList.of(
             Long.toString(comment.getMessageId()),
             comment.getIpAddress().toString(),
@@ -152,8 +152,8 @@ public class CsvMergeForeignDynamicActivitySerializer extends DynamicActivitySer
             Integer.toString(comment.getContent().length()),
             Long.toString(comment.getAuthor().getAccountId()),
             Integer.toString(comment.getCountryId()),
-            comment.replyOf() == comment.postId() ? Long.toString(comment.postId()) : "",
-            comment.replyOf() == comment.postId() ? "" : Long.toString(comment.replyOf())
+            comment.parentMessageId() == comment.rootPostId() ? Long.toString(comment.rootPostId()) : "",
+            comment.parentMessageId() == comment.rootPostId() ? "" : Long.toString(comment.parentMessageId())
         ));
 
         for (Integer t : comment.getTags()) {

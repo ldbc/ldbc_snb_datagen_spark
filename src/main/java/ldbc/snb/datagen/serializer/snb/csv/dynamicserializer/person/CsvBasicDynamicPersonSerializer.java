@@ -67,14 +67,14 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
                 ImmutableList.of("creationDate", "deletionDate") :
                 ImmutableList.of("creationDate");
 
-        writers.get(PERSON)                     .writeHeader(dates, ImmutableList.of("creationDate", "id", "firstName", "lastName", "gender", "birthday", "locationIP", "browserUsed"));
-        writers.get(PERSON_SPEAKS_LANGUAGE)     .writeHeader(dates, ImmutableList.of("creationDate", "Person.id", "language"));
-        writers.get(PERSON_EMAIL_EMAILADDRESS)  .writeHeader(dates, ImmutableList.of("creationDate", "Person.id", "email"));
-        writers.get(PERSON_ISLOCATEDIN_PLACE)   .writeHeader(dates, ImmutableList.of("creationDate", "Person.id", "Place.id"));
-        writers.get(PERSON_HASINTEREST_TAG)     .writeHeader(dates, ImmutableList.of("creationDate", "Person.id", "Tag.id"));
-        writers.get(PERSON_STUDYAT_ORGANISATION).writeHeader(dates, ImmutableList.of("creationDate", "Person.id", "Organisation.id", "classYear"));
-        writers.get(PERSON_WORKAT_ORGANISATION) .writeHeader(dates, ImmutableList.of("creationDate", "Person.id", "Organisation.id", "workFrom"));
-        writers.get(PERSON_KNOWS_PERSON)        .writeHeader(dates, ImmutableList.of("creationDate", "Person.id", "Person.id"));
+        writers.get(PERSON)                     .writeHeader(dates, ImmutableList.of("id", "firstName", "lastName", "gender", "birthday", "locationIP", "browserUsed"));
+        writers.get(PERSON_SPEAKS_LANGUAGE)     .writeHeader(dates, ImmutableList.of("Person.id", "language"));
+        writers.get(PERSON_EMAIL_EMAILADDRESS)  .writeHeader(dates, ImmutableList.of("Person.id", "email"));
+        writers.get(PERSON_ISLOCATEDIN_PLACE)   .writeHeader(dates, ImmutableList.of("Person.id", "Place.id"));
+        writers.get(PERSON_HASINTEREST_TAG)     .writeHeader(dates, ImmutableList.of("Person.id", "Tag.id"));
+        writers.get(PERSON_STUDYAT_ORGANISATION).writeHeader(dates, ImmutableList.of("Person.id", "Organisation.id", "classYear"));
+        writers.get(PERSON_WORKAT_ORGANISATION) .writeHeader(dates, ImmutableList.of("Person.id", "Organisation.id", "workFrom"));
+        writers.get(PERSON_KNOWS_PERSON)        .writeHeader(dates, ImmutableList.of("Person1.id", "Person2.id"));
     }
 
     @Override

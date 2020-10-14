@@ -43,8 +43,8 @@ import java.util.TreeSet;
 
 public class Comment extends Message {
 
-    private long postId;
-    private long replyOf;
+    private long rootPostId;
+    private long parentMessageId;
 
     public Comment() {
         super();
@@ -53,8 +53,8 @@ public class Comment extends Message {
     public Comment(Comment comment) {
         super(comment.getMessageId(), comment.getCreationDate(), comment.getDeletionDate(), comment.getAuthor(), comment.getForumId(), comment.getContent(),
               comment.getTags(), comment.getCountryId(), comment.getIpAddress(), comment.getBrowserId(),comment.isExplicitlyDeleted());
-        postId = comment.postId();
-        replyOf = comment.replyOf();
+        rootPostId = comment.rootPostId();
+        parentMessageId = comment.parentMessageId();
     }
 
     public Comment(long commentId,
@@ -67,14 +67,14 @@ public class Comment extends Message {
                    int countryId,
                    IP ipAddress,
                    int browserId,
-                   long postId,
-                   long replyOf,
+                   long rootPostId,
+                   long parentMessageId,
                    boolean isExplicitlyDeleted
     ) {
 
         super(commentId, creationDate, deletionDate, author, forumId, content, tags, countryId, ipAddress, browserId,isExplicitlyDeleted);
-        this.postId = postId;
-        this.replyOf = replyOf;
+        this.rootPostId = rootPostId;
+        this.parentMessageId = parentMessageId;
     }
 
     public void initialize(long commentId,
@@ -87,20 +87,20 @@ public class Comment extends Message {
                            int countryId,
                            IP ipAddress,
                            int browserId,
-                           long postId,
-                           long replyOf,
+                           long rootPostId,
+                           long parentMessageId,
                            boolean isExplicitlyDeleted) {
         super.initialize(commentId, creationDate, deletionDate, author, forumId, content, tags, countryId, ipAddress, browserId,isExplicitlyDeleted);
-        this.postId = postId;
-        this.replyOf = replyOf;
+        this.rootPostId = rootPostId;
+        this.parentMessageId = parentMessageId;
     }
 
-    public long postId() {
-        return postId;
+    public long rootPostId() {
+        return rootPostId;
     }
 
-    public long replyOf() {
-        return replyOf;
+    public long parentMessageId() {
+        return parentMessageId;
     }
 
 
