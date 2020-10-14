@@ -65,8 +65,8 @@ public class PersonGenerator {
 //            System.out.print(e.getMessage());
 //        }
 
-        randomTagPowerLaw = new PowerDistribution(DatagenParams.minNumTagsPerUser,
-                DatagenParams.maxNumTagsPerUser + 1,
+        randomTagPowerLaw = new PowerDistribution(DatagenParams.minNumTagsPerPerson,
+                DatagenParams.maxNumTagsPerPerson + 1,
                 DatagenParams.alpha);
         randomFarm = new RandomGeneratorFarm();
     }

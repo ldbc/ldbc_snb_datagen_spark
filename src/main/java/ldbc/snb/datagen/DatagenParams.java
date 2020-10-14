@@ -129,10 +129,10 @@ public class DatagenParams {
         UNIVERSITY_UNCORRELATED_RATIO("generator.probUnCorrelatedOrganisation"),
         MAX_NUM_LIKE("generator.maxNumLike"),
         BULK_LOAD_PORTION("generator.bulkLoadPortion"),
-        USER_MAX_GROUP("generator.maxNumGroupCreatedPerUser"),
+        USER_MAX_GROUP("generator.maxNumGroupCreatedPerPerson"),
         USER_MAX_POST_MONTH("generator.maxNumPostPerMonth"),
-        USER_MAX_TAGS("generator.maxNumTagsPerUser"),
-        USER_MIN_TAGS("generator.minNumTagsPerUser"),
+        USER_MAX_TAGS("generator.maxNumTagsPerPerson"),
+        USER_MIN_TAGS("generator.minNumTagsPerPerson"),
 
         PROB_PERSON_DELETED("generator.probPersonDeleted"),
         PROB_FORUM_DELETED("generator.probForumDeleted"),
@@ -188,7 +188,7 @@ public class DatagenParams {
     public static int maxNumComments = 0;
     public static int maxNumFlashmobPostPerMonth = 0;
     public static int maxNumFriends = 0;
-    public static int maxNumGroupCreatedPerUser = 0;
+    public static int maxNumGroupCreatedPerPerson = 0;
     public static int maxNumGroupFlashmobPostPerMonth = 0;
     public static int maxNumGroupPostPerMonth = 0;
     public static int maxGroupSize = 0;
@@ -198,12 +198,12 @@ public class DatagenParams {
     public static int maxNumPopularPlaces = 0;
     public static int maxNumPostPerMonth = 0;
     public static int maxNumTagPerFlashmobPost = 0;
-    public static int maxNumTagsPerUser = 0;
+    public static int maxNumTagsPerPerson = 0;
     public static int maxTextSize = 0;
     public static int minCommentSize = 0;
     public static int minLargeCommentSize = 0;
     public static int minLargePostSize = 0;
-    public static int minNumTagsPerUser = 0;
+    public static int minNumTagsPerPerson = 0;
     public static int minTextSize = 0;
 
     // deletion probs.
@@ -265,8 +265,8 @@ public class DatagenParams {
             probCommentLikeDeleted = doubleConf(conf, ParameterNames.PROB_COMMENT_LIKE_DELETED);
 
             maxNumFriends = intConf(conf, ParameterNames.MAX_FRIENDS);
-            minNumTagsPerUser = intConf(conf, ParameterNames.USER_MIN_TAGS);
-            maxNumTagsPerUser = intConf(conf, ParameterNames.USER_MAX_TAGS);
+            minNumTagsPerPerson = intConf(conf, ParameterNames.USER_MIN_TAGS);
+            maxNumTagsPerPerson = intConf(conf, ParameterNames.USER_MAX_TAGS);
             maxNumPostPerMonth = intConf(conf, ParameterNames.USER_MAX_POST_MONTH);
             maxNumComments = intConf(conf, ParameterNames.MAX_COMMENT_POST);
             limitProCorrelated = doubleConf(conf, ParameterNames.LIMIT_CORRELATED);
@@ -290,7 +290,7 @@ public class DatagenParams {
             maxNumLike = intConf(conf, ParameterNames.MAX_NUM_LIKE);
             maxNumPhotoAlbumsPerMonth = intConf(conf, ParameterNames.MAX_PHOTOALBUM);
             maxNumPhotoPerAlbums = intConf(conf, ParameterNames.MAX_PHOTO_PER_ALBUM);
-            maxNumGroupCreatedPerUser = intConf(conf, ParameterNames.USER_MAX_GROUP);
+            maxNumGroupCreatedPerPerson = intConf(conf, ParameterNames.USER_MAX_GROUP);
             maxGroupSize = intConf(conf, ParameterNames.MAX_GROUP_MEMBERS);
             groupModeratorProb = doubleConf(conf, ParameterNames.GROUP_MODERATOR_RATIO);
             maxNumGroupPostPerMonth = intConf(conf, ParameterNames.GROUP_MAX_POST_MONTH);

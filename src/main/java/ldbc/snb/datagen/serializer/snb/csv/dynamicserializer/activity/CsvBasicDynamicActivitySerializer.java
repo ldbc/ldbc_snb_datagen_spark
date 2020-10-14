@@ -85,8 +85,8 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
         writers.get(FORUM_CONTAINEROF_POST)   .writeHeader(dates, ImmutableList.of("Forum.id", "Post.id"));
 
         writers.get(COMMENT)                  .writeHeader(dates, ImmutableList.of("id", "locationIP", "browserUsed", "content", "length"));
-        writers.get(COMMENT_REPLYOF_POST)     .writeHeader(dates, ImmutableList.of("Comment.id", "Post.id"));
-        writers.get(COMMENT_REPLYOF_COMMENT)  .writeHeader(dates, ImmutableList.of("Comment.id", "Comment.id"));
+        writers.get(COMMENT_REPLYOF_POST)     .writeHeader(dates, ImmutableList.of("Comment.id", "ParentPost.id"));
+        writers.get(COMMENT_REPLYOF_COMMENT)  .writeHeader(dates, ImmutableList.of("Comment.id", "ParentComment.id"));
         writers.get(COMMENT_HASCREATOR_PERSON).writeHeader(dates, ImmutableList.of("Comment.id", "Person.id"));
         writers.get(COMMENT_ISLOCATEDIN_PLACE).writeHeader(dates, ImmutableList.of("Comment.id", "Place.id"));
         writers.get(COMMENT_HASTAG_TAG)       .writeHeader(dates, ImmutableList.of("Comment.id", "Tag.id"));
@@ -198,17 +198,17 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
                 Integer.toString(comment.getContent().length())
         ));
 
-        if (comment.replyOf() == comment.postId()) {
+        if (comment.parentMessageId() == comment.rootPostId()) {
             // creationDate, [deletionDate,] Comment.id, Post.id
             writers.get(COMMENT_REPLYOF_POST).writeEntry(dates, ImmutableList.of(
                     Long.toString(comment.getMessageId()),
-                    Long.toString(comment.postId())
+                    Long.toString(comment.rootPostId())
             ));
         } else {
             // creationDate, [deletionDate,] Comment.id, Comment.id
             writers.get(COMMENT_REPLYOF_COMMENT).writeEntry(dates, ImmutableList.of(
                     Long.toString(comment.getMessageId()),
-                    Long.toString(comment.replyOf())
+                    Long.toString(comment.parentMessageId())
             ));
         }
         // creationDate, [deletionDate,] Comment.id, Person.id
