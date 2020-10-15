@@ -49,13 +49,13 @@ public class SN {
 
     /**
      * Sets the machine id.
-     * Used as a suffix in some SN entities' tp create unique IDs in parallel generation.
+     * Used as a suffix in some SN entities' to create unique IDs in parallel generation.
      */
     public static void initialize() {
         minDate = Dictionaries.dates.getSimulationStart();
         maxDate = Dictionaries.dates.getSimulationEnd();
         numBits = (int) Math.ceil(Math.log10(Math.ceil(DatagenParams.numPersons / (double) DatagenParams.blockSize)) / Math.log10(2));
-        if (numBits > 20) System.out.print("WARNING: Possible id overlapp");
+        if (numBits > 20) throw new IllegalStateException("Possible id overlap");
     }
 
     public static Long formId(long id, long blockId) {
