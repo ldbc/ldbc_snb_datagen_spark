@@ -111,7 +111,7 @@ public class HadoopPersonActivityGenerator extends DatagenHadoopJob {
                 }
                 personActivityGenerator = new PersonActivityGenerator();
                 personActivityExporter =
-                        new PersonActivityExporter(dynamicActivitySerializer, abstractInsertEventSerializer, abstractDeleteEventSerializer);
+                        new PersonActivityExporter(dynamicActivitySerializer, abstractInsertEventSerializer, abstractDeleteEventSerializer, personActivityGenerator.getFactorTable());
 
                 FileSystem fs = FileSystem.get(context.getConfiguration());
                 personFactors = fs

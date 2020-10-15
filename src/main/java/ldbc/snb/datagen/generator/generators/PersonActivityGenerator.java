@@ -51,6 +51,7 @@ import ldbc.snb.datagen.generator.generators.postgenerators.FlashmobPostGenerato
 import ldbc.snb.datagen.generator.generators.postgenerators.UniformPostGenerator;
 import ldbc.snb.datagen.generator.generators.textgenerators.LdbcSnbTextGenerator;
 import ldbc.snb.datagen.generator.generators.textgenerators.TextGenerator;
+import ldbc.snb.datagen.serializer.PersonActivityExporter;
 import ldbc.snb.datagen.util.FactorTable;
 import ldbc.snb.datagen.util.Iterators;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
@@ -247,5 +248,9 @@ public class PersonActivityGenerator {
 
     public void writePersonFactors(OutputStream writer) {
         factorTable.writePersonFactors(writer);
+    }
+
+    public FactorTable getFactorTable() {
+        return factorTable;
     }
 }

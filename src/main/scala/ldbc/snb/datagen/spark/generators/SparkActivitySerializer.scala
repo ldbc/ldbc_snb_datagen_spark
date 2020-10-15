@@ -47,7 +47,7 @@ object SparkActivitySerializer {
       val deleteEventSerializer = new DummyDeleteEventSerializer
 
       val generator = new PersonActivityGenerator
-      val exporter = new PersonActivityExporter(dynamicActivitySerializer, insertEventSerializer, deleteEventSerializer)
+      val exporter = new PersonActivityExporter(dynamicActivitySerializer, insertEventSerializer, deleteEventSerializer, generator.getFactorTable)
       val friends = fs.create(new Path(buildDir + "/" + "m0friendList" + partitionId + ".csv"))
       val personFactors = fs.create(new Path(buildDir + "/" + "m" + partitionId + DatagenParams.PERSON_COUNTS_FILE))
       val activityFactors = fs.create(new Path(buildDir + "/" + "m" + partitionId + DatagenParams.ACTIVITY_FILE))

@@ -47,6 +47,7 @@ import ldbc.snb.datagen.entities.dynamic.relations.Like;
 import ldbc.snb.datagen.generator.generators.GenActivity;
 import ldbc.snb.datagen.generator.generators.GenWall;
 import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
+import ldbc.snb.datagen.util.FactorTable;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
@@ -59,11 +60,13 @@ public class PersonActivityExporter implements AutoCloseable {
     protected DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer;
     protected AbstractInsertEventSerializer abstractInsertEventSerializer;
     protected AbstractDeleteEventSerializer abstractDeleteEventSerializer;
+    protected FactorTable factorTable;
 
-    public PersonActivityExporter(DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer, AbstractInsertEventSerializer abstractInsertEventSerializer, AbstractDeleteEventSerializer abstractDeleteEventSerializer) {
+    public PersonActivityExporter(DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer, AbstractInsertEventSerializer abstractInsertEventSerializer, AbstractDeleteEventSerializer abstractDeleteEventSerializer, FactorTable factorTable) {
         this.dynamicActivitySerializer = dynamicActivitySerializer;
         this.abstractInsertEventSerializer = abstractInsertEventSerializer;
         this.abstractDeleteEventSerializer = abstractDeleteEventSerializer;
+        this.factorTable = factorTable;
     }
 
     private void exportPostWall(final GenWall<Triplet<Post, Stream<Like>, Stream<Pair<Comment, Stream<Like>>>>> genWall) {
@@ -144,12 +147,14 @@ public class PersonActivityExporter implements AutoCloseable {
     public void export(final Post post) throws IOException {
         if (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA){
             dynamicActivitySerializer.export(post);
+            factorTable.extractFactors(post);
         } else {
             if ((post.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold() &&
                     (post.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold() &&
                             post.getDeletionDate() <= Dictionaries.dates.getSimulationEnd())
                     )) {
                 dynamicActivitySerializer.export(post);
+                factorTable.extractFactors(post);
                 if (post.isExplicitlyDeleted()) {
                     abstractDeleteEventSerializer.export(post);
                     abstractDeleteEventSerializer.changePartition();
@@ -158,6 +163,7 @@ public class PersonActivityExporter implements AutoCloseable {
                     && post.getDeletionDate() > Dictionaries.dates.getSimulationEnd()
                     ) {
                 dynamicActivitySerializer.export(post);
+                factorTable.extractFactors(post);
             } else if (post.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()
                     && (post.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold()) &&
                     post.getDeletionDate() <= Dictionaries.dates.getSimulationEnd()) {
@@ -179,12 +185,14 @@ public class PersonActivityExporter implements AutoCloseable {
     public void export(final Comment comment) throws IOException {
         if (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA){
             dynamicActivitySerializer.export(comment);
+            factorTable.extractFactors(comment);
         } else {
          if ((comment.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold() &&
                     (comment.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold() &&
                             comment.getDeletionDate() <= Dictionaries.dates.getSimulationEnd())
                     )) {
                 dynamicActivitySerializer.export(comment);
+                factorTable.extractFactors(comment);
                 if (comment.isExplicitlyDeleted()) {
                     abstractDeleteEventSerializer.export(comment);
                     abstractDeleteEventSerializer.changePartition();
@@ -193,6 +201,7 @@ public class PersonActivityExporter implements AutoCloseable {
                     && comment.getDeletionDate() > Dictionaries.dates.getSimulationEnd()
                     ) {
                 dynamicActivitySerializer.export(comment);
+                factorTable.extractFactors(comment);
             } else if (comment.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()
                     && (comment.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold()) &&
                     comment.getDeletionDate() <= Dictionaries.dates.getSimulationEnd()) {
@@ -213,12 +222,14 @@ public class PersonActivityExporter implements AutoCloseable {
     public void export(final Photo photo) throws IOException {
         if (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA){
             dynamicActivitySerializer.export(photo);
+            factorTable.extractFactors(photo);
         } else {
             if ((photo.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold() &&
                     (photo.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold() &&
                             photo.getDeletionDate() <= Dictionaries.dates.getSimulationEnd())
             )) {
                 dynamicActivitySerializer.export(photo);
+                factorTable.extractFactors(photo);
                 if (photo.isExplicitlyDeleted()) {
                     abstractDeleteEventSerializer.export(photo);
                     abstractDeleteEventSerializer.changePartition();
@@ -227,6 +238,7 @@ public class PersonActivityExporter implements AutoCloseable {
                     && photo.getDeletionDate() > Dictionaries.dates.getSimulationEnd()
             ) {
                 dynamicActivitySerializer.export(photo);
+                factorTable.extractFactors(photo);
             } else if (photo.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()
                     && (photo.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold()) &&
                     photo.getDeletionDate() <= Dictionaries.dates.getSimulationEnd() ) {
@@ -248,12 +260,14 @@ public class PersonActivityExporter implements AutoCloseable {
 
         if (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA){
             dynamicActivitySerializer.export(member);
+            factorTable.extractFactors(member);
         } else {
             if ((member.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold() &&
                     (member.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold() &&
                             member.getDeletionDate() <= Dictionaries.dates.getSimulationEnd())
                     )) {
                 dynamicActivitySerializer.export(member);
+                factorTable.extractFactors(member);
                 if (member.isExplicitlyDeleted()) {
                     abstractDeleteEventSerializer.export(member);
                     abstractDeleteEventSerializer.changePartition();
@@ -262,6 +276,7 @@ public class PersonActivityExporter implements AutoCloseable {
                     && member.getDeletionDate() > Dictionaries.dates.getSimulationEnd()
                     ) {
                 dynamicActivitySerializer.export(member);
+                factorTable.extractFactors(member);
             } else if (member.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()
                     && (member.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold()) &&
                     member.getDeletionDate() <= Dictionaries.dates.getSimulationEnd()) {
@@ -283,12 +298,14 @@ public class PersonActivityExporter implements AutoCloseable {
 
         if (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA){
             dynamicActivitySerializer.export(like);
+            factorTable.extractFactors(like);
         } else {
            if ((like.getCreationDate() < Dictionaries.dates.getBulkLoadThreshold() &&
                     (like.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold() &&
                             like.getDeletionDate() <= Dictionaries.dates.getSimulationEnd())
             )) {
                 dynamicActivitySerializer.export(like);
+                factorTable.extractFactors(like);
                 if (like.isExplicitlyDeleted()) {
                     abstractDeleteEventSerializer.export(like);
                     abstractDeleteEventSerializer.changePartition();
@@ -297,6 +314,7 @@ public class PersonActivityExporter implements AutoCloseable {
                     && like.getDeletionDate() > Dictionaries.dates.getSimulationEnd()
             ) {
                 dynamicActivitySerializer.export(like);
+                factorTable.extractFactors(like);
             } else if (like.getCreationDate() >= Dictionaries.dates.getBulkLoadThreshold()
                     && (like.getDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold()) &&
                     like.getDeletionDate() <= Dictionaries.dates.getSimulationEnd()) {
