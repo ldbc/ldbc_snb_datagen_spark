@@ -55,5 +55,5 @@ datagen_output/
 # configuration file
 params.ini
 dependency-reduced-pom.xml
-
-build/
+.Rproj.user
+/build/
