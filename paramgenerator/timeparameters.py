@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 import sys
 
@@ -42,7 +42,7 @@ def getMedian(data, sort_key, getEntireTuple = False):
 		return data[0].count
 
 	srtd = sorted(data,key=sort_key)
-	mid = len(data)/2
+	mid = len(data)//2
 
 	if len(data) % 2 == 0:
 		if getEntireTuple:
@@ -58,8 +58,9 @@ def MonthYearToDate(myc, day):
 	return "%d-%d-%d"%(myc.year, myc.month, day)
 
 
-def getTimeParamsWithMedian(factors, (medianFirstMonth, medianLastMonth, median)):
+def getTimeParamsWithMedian(factors, stats):
 	# strategy: find the median of the given distribution, then increase the time interval until it matches the given parameter
+	(medianFirstMonth, medianLastMonth, median) = stats
 	res = []
 	for values in factors:
 		input = sorted(values,key=lambda myc: (myc.year, myc.month))
@@ -68,15 +69,16 @@ def getTimeParamsWithMedian(factors, (medianFirstMonth, medianLastMonth, median)
 			res.append(TimeParameter(START_YEAR,1,1,0))
 			continue
 		if currentMedian.count > median:
-			duration = int(28*currentMedian.count/median)
+			duration = int(28*currentMedian.count//median)
 			res.append(TimeParameter(currentMedian.year, currentMedian.month, 1, duration))
 		else:
-			duration = int(28*median/currentMedian.count)
+			duration = int(28*median//currentMedian.count)
 			res.append(TimeParameter(currentMedian.year, currentMedian.month, 1, duration))
 	return res
 
-def getTimeParamsBeforeMedian(factors, (medianFirstMonth, medianLastMonth, median)):
+def getTimeParamsBeforeMedian(factors, stats):
 	# strategy: find the interval [0: median] with the sum of counts as close as possible to medianFirstMonth
+	(medianFirstMonth, medianLastMonth, median) = stats
 	res = []
 	i = 0
 	for values in factors:
@@ -87,7 +89,7 @@ def getTimeParamsBeforeMedian(factors, (medianFirstMonth, medianLastMonth, media
 			localsum += myc.count
 			i+=1
 			if localsum >= medianFirstMonth:
-				day = max(28 -28*(localsum-medianFirstMonth)/myc.count,1)
+				day = max(28 -28*(localsum-medianFirstMonth)//myc.count,1)
 				res.append(TimeParameter(myc.year, myc.month, day, None))
 				break
 			best = myc
@@ -97,8 +99,9 @@ def getTimeParamsBeforeMedian(factors, (medianFirstMonth, medianLastMonth, media
 
 	return res
 
-def getTimeParamsAfterMedian(factors, (medianFirstMonth, medianLastMonth, median)):
+def getTimeParamsAfterMedian(factors, stats):
 	# strategy: find the interval [median: end] with the sum of counts as close as possible to medianFirstMonth
+	(medianFirstMonth, medianLastMonth, median) = stats
 	res = []
 
 	for values in factors:
@@ -108,7 +111,7 @@ def getTimeParamsAfterMedian(factors, (medianFirstMonth, medianLastMonth, median
 		for myc in input:
 			localsum += myc.count
 			if localsum >= medianLastMonth:
-				day = max(28 * (localsum-medianLastMonth)/myc.count,1)
+				day = max(28 * (localsum-medianLastMonth)//myc.count,1)
 				res.append(TimeParameter(myc.year, myc.month, day, None))
 				break
 			best = myc
@@ -152,8 +155,8 @@ def readTimeParams(persons, personFactorFiles, activityFactorFiles, friendFiles)
 			for line in f.readlines():
 				line = line.split(",")
 				person = int(line[0])
-				localPostCounts = map(int,line[offset:offset+monthcount])
-				localGroupCounts = map(int, line[offset+monthcount:])
+				localPostCounts = list(map(int,line[offset:offset+monthcount]))
+				localGroupCounts = list(map(int, line[offset+monthcount:]))
 				if not person in postCounts:
 					postCounts[person] = localPostCounts
 				else:
@@ -169,7 +172,7 @@ def readTimeParams(persons, personFactorFiles, activityFactorFiles, friendFiles)
 	for inputFriendFile in friendFiles:
 		with open(inputFriendFile, 'r') as f:
 			for line in f:
-				people = map(int, line.split(","))
+				people = list(map(int, line.split(",")))
 				person = people[0]
 				friendsPostsCounts[person] = [0]*monthcount
 				for friend in people[1:]:
@@ -188,7 +191,7 @@ def readTimeParams(persons, personFactorFiles, activityFactorFiles, friendFiles)
 	for inputFriendFile in friendFiles:
 		with open(inputFriendFile, 'r') as f:
 			for line in f:
-				people = map(int, line.split(","))
+				people = list(map(int, line.split(",")))
 				person = people[0]
 				ffPostCounts[person] = [0]*monthcount
 				for friend in people[1:]:
@@ -231,7 +234,7 @@ def findTimeParams(input, personFactorFiles, activityFactorFiles, friendFiles, s
 			for (month,count) in enumerate(countsPerMonth):
 				if count == 0:
 					continue
-				year = startYear + month / 12
+				year = startYear + month // 12
 				myc.append(MonthYearCount(month % 12 + 1, int(year), count))
 			mycFactors.append(myc)
 
@@ -244,7 +247,7 @@ def main(argv=None):
 		argv = sys.argv
 
 	if len(argv)< 2:
-		print "arguments: <input persons file>"
+		print("arguments: <input persons file>")
 		return 1
 
 	f = open(argv[1])
