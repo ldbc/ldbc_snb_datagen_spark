@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 import codecs
 import sys
@@ -55,7 +55,7 @@ class NameParameter:
 		return self.values[person]
 
 def load(personFactorFiles,activityFactorFiles, friendFiles):
-	print "loading input for parameter generation"
+	print("loading input for parameter generation")
 	results = Factors()
 	countries = Factors()
 	postsHisto = Factors()
@@ -82,7 +82,7 @@ def load(personFactorFiles,activityFactorFiles, friendFiles):
 				results.addValue(person, "g", int(line[6]))
 				results.addValue(person, "w", int(line[7]))
 				results.addValue(person, "pr", int(line[8]))
-				for i in range((len(line)-9)/2):
+				for i in range((len(line)-9)//2):
 					if not postsHisto.existParam(i):
 						postsHisto.addNewParam(i)
 					postsHisto.addValue(i, "p", int(line[9+i]))
@@ -129,7 +129,7 @@ def load(personFactorFiles,activityFactorFiles, friendFiles):
 
 	loadFriends(friendFiles, results)
 
-	return (results, countries, tags.items(), tagClasses.items(), names.items(), givenNames,timestamp, postsHisto)
+	return (results, countries, list(tags.items()), list(tagClasses.items()), list(names.items()), givenNames,timestamp, postsHisto)
 
 def loadFriends(friendFiles, factors):
 
@@ -137,7 +137,7 @@ def loadFriends(friendFiles, factors):
 	for inputFriendsFileName in friendFiles:
 		with open(inputFriendsFileName, 'r') as f:
 			for line in f:
-				people = map(int, line.split(","))
+				people = list(map(int, line.split(",")))
 				person = people[0]
 				if not factors.existParam(person):
 					continue
@@ -154,7 +154,7 @@ def loadFriends(friendFiles, factors):
 	for inputFriendsFileName in friendFiles:
 		with open(inputFriendsFileName, 'r') as f:
 			for line in f:
-				people = map(int, line.split(","))
+				people = list(map(int, line.split(",")))
 				person = people[0]
 				if not factors.existParam(person):
 					continue
@@ -216,7 +216,7 @@ def getTagFactorsForQuery(queryId, factors):
 if __name__ == "__main__":
 	argv = sys.argv
 	if len(argv)< 3:
-		print "arguments: <m0factors.txt> <m0friendsList.txt>"
+		print("arguments: <m0factors.txt> <m0friendsList.txt>")
 		sys.exit(1)
 
 	sys.exit(load(argv[1], argv[2]))

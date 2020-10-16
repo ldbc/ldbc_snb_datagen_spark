@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 import calendar
 import codecs
@@ -57,7 +57,7 @@ def post_date_range_params(sample, lower_bound, upper_bound):
 
 def post_month_params(sample, lower_bound, upper_bound):
    results = []
-   for ix in range(0, len(sample)/4):
+   for ix in range(0, len(sample)//4):
       start_ix = ix*4
       count_sum = 0
       for offset, count in sample[start_ix:start_ix+4]:
@@ -113,7 +113,7 @@ def serialize_q2(outdir, countries, post_day_ranges):
 def serialize_q3(outdir, post_months):
    writer = ParamsWriter(outdir, 3, ["year", "month"] )
    for post_month in post_months:
-      t = time.gmtime(post_month[0][0]/1000)
+      t = time.gmtime(post_month[0][0]//1000)
       writer.append([str(t.tm_year), str(t.tm_mon)])
 
 def serialize_q4(outdir, tagclasses, countries):
@@ -284,7 +284,7 @@ def serialize_q25(outdir, persons, post_month_ranges):
 
 def add_months(sourcedate,months):
    month = sourcedate.month - 1 + months
-   year = int(sourcedate.year + month / 12 )
+   year = int(sourcedate.year + month // 12 )
    month = month % 12 + 1
    day = min(sourcedate.day,calendar.monthrange(year,month)[1])
    return sourcedate.replace(year, month, day)
@@ -295,10 +295,10 @@ def convert_posts_histo(histogram):
    while (histogram.existParam(month)):
       monthTotal = histogram.getValue(month, "p")
       baseDate=add_months(START_DATE,month)
-      week_posts.append([format_date(baseDate), monthTotal/4])
-      week_posts.append([format_date(baseDate+timedelta(days=7)), monthTotal/4])
-      week_posts.append([format_date(baseDate+timedelta(days=14)), monthTotal/4])
-      week_posts.append([format_date(baseDate+timedelta(days=21)), monthTotal/4])
+      week_posts.append([format_date(baseDate), monthTotal//4])
+      week_posts.append([format_date(baseDate+timedelta(days=7)), monthTotal//4])
+      week_posts.append([format_date(baseDate+timedelta(days=14)), monthTotal//4])
+      week_posts.append([format_date(baseDate+timedelta(days=21)), monthTotal//4])
       month = month + 1
    return week_posts
 
@@ -307,7 +307,7 @@ def main(argv=None):
       argv = sys.argv
 
    if len(argv) < 3:
-      print "arguments: <input dir> <output dir>"
+      print("arguments: <input dir> <output dir>")
       return 1
 
    indir = argv[1]+"/"
@@ -330,13 +330,13 @@ def main(argv=None):
    week_posts = convert_posts_histo(postsHisto)
 
    persons = []
-   for key, _ in personFactors.values.iteritems():
+   for key, _ in personFactors.values.items():
       persons.append(key)
    random.seed(1988)
    random.shuffle(persons)
 
    country_sample = []
-   for key, value in countryFactors.values.iteritems():
+   for key, value in countryFactors.values.items():
       country_sample.append([key, value.getValue("p")])
    country_sample.sort(key=lambda x: x[1], reverse=True)
 
@@ -366,8 +366,8 @@ def main(argv=None):
       if week_posts[ix][1]==0:
          non_empty_weeks-= 1
 
-   post_lower_threshold = (total_posts/(non_empty_weeks/4))*0.8
-   post_upper_threshold = (total_posts/(non_empty_weeks/4))*1.2
+   post_lower_threshold = (total_posts//(non_empty_weeks//4))*0.8
+   post_upper_threshold = (total_posts//(non_empty_weeks//4))*1.2
    post_months = post_month_params(week_posts, post_lower_threshold, post_upper_threshold)
 
    # the lower bound is inclusive and the upper bound is exclusive
@@ -375,35 +375,35 @@ def main(argv=None):
    language_codes = prob_language_codes()
    post_lengths = prob_post_lengths()
 
-   serialize_q2 (outdir, key_params(country_sample, total_posts/200, total_posts/100), post_day_ranges) # TODO determine constants
+   serialize_q2 (outdir, key_params(country_sample, total_posts//200, total_posts//100), post_day_ranges) # TODO determine constants
    serialize_q3 (outdir, post_months)
    serialize_q14(outdir, post_months)
 
    serialize_q1 (outdir, post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts))
    serialize_q12(outdir, post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts))
    serialize_q18(outdir, post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts), post_lengths, language_codes)
-   serialize_q10(outdir, key_params(tag_posts, total_posts/900, total_posts/600), post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts))
+   serialize_q10(outdir, key_params(tag_posts, total_posts//900, total_posts//600), post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts))
 
-   serialize_q4 (outdir, key_params(tagclass_posts, total_posts/20, total_posts/10), key_params(country_sample, total_posts/150, total_posts/50))
-   serialize_q5 (outdir, key_params(country_sample, total_posts/200, total_posts/100))
-   serialize_q6 (outdir, key_params(tag_posts, total_posts/1300, total_posts/900))
-   serialize_q7 (outdir, key_params(tag_posts, total_posts/900, total_posts/600))
-   serialize_q8 (outdir, key_params(tag_posts, total_posts/600, total_posts/300))
+   serialize_q4 (outdir, key_params(tagclass_posts, total_posts//20, total_posts//10), key_params(country_sample, total_posts//150, total_posts//50))
+   serialize_q5 (outdir, key_params(country_sample, total_posts//200, total_posts//100))
+   serialize_q6 (outdir, key_params(tag_posts, total_posts//1300, total_posts//900))
+   serialize_q7 (outdir, key_params(tag_posts, total_posts//900, total_posts//600))
+   serialize_q8 (outdir, key_params(tag_posts, total_posts//600, total_posts//300))
    serialize_q9 (outdir, key_params(tagclass_posts, 6000, 25000))
-   serialize_q13(outdir, key_params(country_sample, total_posts/200, total_posts/100))
-   serialize_q15(outdir, key_params(country_sample, total_posts/200, total_posts/100))
-   serialize_q16(outdir, persons, key_params(tagclass_posts, total_posts/30, total_posts/10), key_params(country_sample, total_posts/80, total_posts/20), path_bounds)
-   serialize_q17(outdir, key_params(country_sample, total_posts/200, total_posts/100))
-   serialize_q19(outdir, key_params(tagclass_posts, total_posts/60, total_posts/10))
-   serialize_q21(outdir, key_params(country_sample, total_posts/200, total_posts/100))
-   serialize_q22(outdir, key_params(country_sample, total_posts/120, total_posts/40))
-   serialize_q23(outdir, key_params(country_sample, total_posts/200, total_posts/100))
-   serialize_q24(outdir, key_params(tagclass_posts, total_posts/140, total_posts/5))
+   serialize_q13(outdir, key_params(country_sample, total_posts//200, total_posts//100))
+   serialize_q15(outdir, key_params(country_sample, total_posts//200, total_posts//100))
+   serialize_q16(outdir, persons, key_params(tagclass_posts, total_posts//30, total_posts//10), key_params(country_sample, total_posts//80, total_posts//20), path_bounds)
+   serialize_q17(outdir, key_params(country_sample, total_posts//200, total_posts//100))
+   serialize_q19(outdir, key_params(tagclass_posts, total_posts//60, total_posts//10))
+   serialize_q21(outdir, key_params(country_sample, total_posts//200, total_posts//100))
+   serialize_q22(outdir, key_params(country_sample, total_posts//120, total_posts//40))
+   serialize_q23(outdir, key_params(country_sample, total_posts//200, total_posts//100))
+   serialize_q24(outdir, key_params(tagclass_posts, total_posts//140, total_posts//5))
    serialize_q25(outdir, persons, post_months)
 
    # TODO: Refine
-   serialize_q20(outdir, key_params(tagclass_posts, total_posts/20, total_posts/2))
-   serialize_q11(outdir, key_params(country_sample, total_posts/80, total_posts/20), bad_words)
+   serialize_q20(outdir, key_params(tagclass_posts, total_posts//20, total_posts//2))
+   serialize_q11(outdir, key_params(country_sample, total_posts//80, total_posts//20), bad_words)
 
 if __name__ == "__main__":
    sys.exit(main())
