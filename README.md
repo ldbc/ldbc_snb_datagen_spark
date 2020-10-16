@@ -69,6 +69,10 @@ paramgenerator/generateparams.py out/build/ substitution_parameters
 paramgenerator/generateparamsbi.py out/build/ substitution_parameters
 ```
 
+### Larger scale factors
+
+The scale factors SF3k are currently being fine-tuned, both regarding optimizing the generator and also for tuning the distributions.
+
 ### Graph schema
 
 The graph schema is as follows:
