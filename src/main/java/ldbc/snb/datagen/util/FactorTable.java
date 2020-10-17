@@ -305,39 +305,43 @@ public class FactorTable {
                 Collections.sort(entry.getValue());
                 medianNames.put(entry.getKey(), entry.getValue().get(entry.getValue().size() / 2));
             }
-            for (Map.Entry<Long, PersonCounts> c : personCounts.entrySet()) {
-                PersonCounts count = c.getValue();
+            for (Map.Entry<Long, PersonCounts> entry : personCounts.entrySet()) {
+                long personId = entry.getKey();
+                PersonCounts personCounts = entry.getValue();
                 // correct the group counts
-                String name = medianNames.get(c.getValue().country());
+                String name = medianNames.get(entry.getValue().country());
                 if (name != null) {
                     StringBuilder strbuf = new StringBuilder();
-                    strbuf.append(c.getKey());
+                    strbuf.append(personId);
                     strbuf.append(",");
                     strbuf.append(name);
                     strbuf.append(",");
-                    strbuf.append(count.numFriends());
+                    strbuf.append(personCounts.numFriends());
                     strbuf.append(",");
-                    strbuf.append(count.numPosts());
+                    strbuf.append(personCounts.numPosts());
                     strbuf.append(",");
-                    strbuf.append(count.numLikes());
+                    strbuf.append(personCounts.numLikes());
                     strbuf.append(",");
-                    strbuf.append(count.numTagsOfMessages());
+                    strbuf.append(personCounts.numTagsOfMessages());
                     strbuf.append(",");
-                    strbuf.append(count.numForums());
+                    strbuf.append(personCounts.numForums());
                     strbuf.append(",");
-                    strbuf.append(count.numWorkPlaces());
+                    strbuf.append(personCounts.numWorkPlaces());
                     strbuf.append(",");
-                    strbuf.append(count.numComments());
+                    strbuf.append(personCounts.numComments());
                     strbuf.append(",");
 
-                    for (Long bucket : count.numMessagesPerMonth()) {
+                    // 37 (!) entries for number of messages / month
+                    for (Long bucket : personCounts.numMessagesPerMonth()) {
                         strbuf.append(bucket);
                         strbuf.append(",");
                     }
-                    for (Long bucket : count.numForumsPerMonth()) {
+                    // 37 (!) entries for number of forums / month
+                    for (Long bucket : personCounts.numForumsPerMonth()) {
                         strbuf.append(bucket);
                         strbuf.append(",");
                     }
+                    // end of line
                     strbuf.setCharAt(strbuf.length() - 1, '\n');
                     writer.write(strbuf.toString().getBytes(StandardCharsets.UTF_8));
                 }

@@ -64,7 +64,7 @@ def load(personFactorFiles,activityFactorFiles, friendFiles):
 	tagClasses = {}
 	tags = {}
 	names = {}
-	timestamp = [0,0,0,0]
+	timestamp = [0,0,0,0] # startMonth, startYear, minWorkFrom (year), maxWorkFrom (year)
 
 	for inputfileName in personFactorFiles:
 		with codecs.open(inputfileName, "r", "utf-8") as f:
@@ -75,13 +75,13 @@ def load(personFactorFiles,activityFactorFiles, friendFiles):
 					results.addNewParam(person)
 				name = line[1]
 				givenNames.setValue(person, name)
-				results.addValue(person, "f", int(line[2]))
-				results.addValue(person, "p", int(line[3]))
-				results.addValue(person, "pl", int(line[4]))
-				results.addValue(person, "pt", int(line[5]))
-				results.addValue(person, "g", int(line[6]))
-				results.addValue(person, "w", int(line[7]))
-				results.addValue(person, "pr", int(line[8]))
+				results.addValue(person, "f", int(line[2]))   # friends
+				results.addValue(person, "p", int(line[3]))   # posts
+				results.addValue(person, "pl", int(line[4]))  # likes
+				results.addValue(person, "pt", int(line[5]))  # tags of messages
+				results.addValue(person, "g", int(line[6]))   # forums (=groups)
+				results.addValue(person, "w", int(line[7]))   # workplaces (=companies)
+				results.addValue(person, "pr", int(line[8]))  # comments (=replies)
 				for i in range((len(line)-9)//2):
 					if not postsHisto.existParam(i):
 						postsHisto.addNewParam(i)
@@ -181,7 +181,7 @@ def getFactorsForQuery(queryId, factors):
 
 	queryFactorDict = {
 		1: getColumns(factors, ["f", "ff"]),
-		2: getColumns(factors, [ "f", "fp"]),
+		2: getColumns(factors, ["f", "fp"]),
 		3: getColumns(factors, ["ff", "ffp"]),
 		4: getColumns(factors, ["fp", "f",  "fpt"]),
 		5: getColumns(factors, ["ff", "ffg"]),	
