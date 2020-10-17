@@ -34,19 +34,19 @@ open(indir * activityFactorFile) do f
     # example: India,464151
     countryCount = parse(Int64, readline(f))
     for i = 1:countryCount
-        line = split(readline(f), ",")
+        line = split(readline(f), "|")
         country = line[1]
         population = parse(Int64, line[2])
         countryFactors[country] = population
     end
 
     # read tag classes
-    # example: Thing,Thing,29737
+    # example: Thing,29737
     tagClassCount = parse(Int64, readline(f))
     for i = 1:tagClassCount
-        line = split(readline(f), ",")
+        line = split(readline(f), "|")
         tagClass = line[1]
-        count = parse(Int64, line[3])
+        count = parse(Int64, line[2])
         tagClassFactors[tagClass] += count
     end
 
@@ -55,9 +55,9 @@ open(indir * activityFactorFile) do f
     # example: Frederick_III,_Holy_Roman_Emperor,19
     tagCount = parse(Int64, readline(f))
     for i = 1:tagCount
-        line = split(readline(f), ",")
+        line = split(readline(f), "|")
         tag = line[1]
-        count = parse(Int64, line[end])
+        count = parse(Int64, line[2])
         tagFactors[tag] += + count
     end
 
@@ -65,7 +65,7 @@ open(indir * activityFactorFile) do f
     # example: Daisuke,20
     nameCount = parse(Int64, readline(f))
     for i = 1:nameCount
-        line = split(readline(f), ",")
+        line = split(readline(f), "|")
         name = line[1]
         count = parse(Int64, line[2])
         nameFactors[name] += + count
@@ -101,9 +101,14 @@ end
 #         results.append([key, count])
 #   return results
 
-function key_params(sample, lower_bound, upper_bound)
-    filter(e -> (lower_bound < e[2] && e[2] < upper_bound), sample)
-end
+# function key_params(sample, lower_bound, upper_bound)
+#     filter(e -> (lower_bound < e[2] && e[2] < upper_bound), sample)
+# end
 
-bi6 = key_params(tag_posts, total_posts/1300, total_posts/900)
-bi6
+# bi6 = key_params(tag_posts, total_posts/1300, total_posts/900)
+# bi6
+
+tagClassFactors
+tagFactors
+nameFactors
+timestamps

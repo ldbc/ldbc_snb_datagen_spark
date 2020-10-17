@@ -313,33 +313,33 @@ public class FactorTable {
                 if (name != null) {
                     StringBuilder strbuf = new StringBuilder();
                     strbuf.append(personId);
-                    strbuf.append(",");
+                    strbuf.append("|");
                     strbuf.append(name);
-                    strbuf.append(",");
+                    strbuf.append("|");
                     strbuf.append(personCounts.numFriends());
-                    strbuf.append(",");
+                    strbuf.append("|");
                     strbuf.append(personCounts.numPosts());
-                    strbuf.append(",");
+                    strbuf.append("|");
                     strbuf.append(personCounts.numLikes());
-                    strbuf.append(",");
+                    strbuf.append("|");
                     strbuf.append(personCounts.numTagsOfMessages());
-                    strbuf.append(",");
+                    strbuf.append("|");
                     strbuf.append(personCounts.numForums());
-                    strbuf.append(",");
+                    strbuf.append("|");
                     strbuf.append(personCounts.numWorkPlaces());
-                    strbuf.append(",");
+                    strbuf.append("|");
                     strbuf.append(personCounts.numComments());
-                    strbuf.append(",");
+                    strbuf.append("|");
 
                     // 37 (!) entries for number of messages / month
                     for (Long bucket : personCounts.numMessagesPerMonth()) {
                         strbuf.append(bucket);
-                        strbuf.append(",");
+                        strbuf.append("|");
                     }
                     // 37 (!) entries for number of forums / month
                     for (Long bucket : personCounts.numForumsPerMonth()) {
                         strbuf.append(bucket);
-                        strbuf.append(",");
+                        strbuf.append("|");
                     }
                     // end of line
                     strbuf.setCharAt(strbuf.length() - 1, '\n');
@@ -361,7 +361,7 @@ public class FactorTable {
             writer.write("\n".getBytes(StandardCharsets.UTF_8));
             for (Map.Entry<Integer, Long> c : postsPerCountry.entrySet()) {
                 String strbuf = Dictionaries.places.getPlaceName(c.getKey()) +
-                        "," +
+                        "|" +
                         c.getValue() +
                         "\n";
                 writer.write(strbuf.getBytes(StandardCharsets.UTF_8));
@@ -371,7 +371,7 @@ public class FactorTable {
             writer.write("\n".getBytes(StandardCharsets.UTF_8));
             for (Map.Entry<Integer, Long> c : tagClassCount.entrySet()) {
                 String strbuf = Dictionaries.tags.getClassName(c.getKey()) +
-                        "," +
+                        "|" +
                         c.getValue() +
                         "\n";
                 writer.write(strbuf.getBytes(StandardCharsets.UTF_8));
@@ -380,7 +380,7 @@ public class FactorTable {
             writer.write("\n".getBytes(StandardCharsets.UTF_8));
             for (Map.Entry<Integer, Long> c : tagCount.entrySet()) {
                 String strbuf = Dictionaries.tags.getName(c.getKey()) +
-                        "," +
+                        "|" +
                         c.getValue() +
                         "\n";
                 writer.write(strbuf.getBytes(StandardCharsets.UTF_8));
@@ -390,7 +390,7 @@ public class FactorTable {
             writer.write("\n".getBytes(StandardCharsets.UTF_8));
             for (Map.Entry<String, Long> c : firstNameCount.entrySet()) {
                 String strbuf = c.getKey() +
-                        "," +
+                        "|" +
                         c.getValue() +
                         "\n";
                 writer.write(strbuf.getBytes(StandardCharsets.UTF_8));

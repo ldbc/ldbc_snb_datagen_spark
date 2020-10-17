@@ -13,7 +13,7 @@ def allclose(a, b, rtol=1e-05, atol=1e-08):
 def readFactors(f):
 	res = []
 	for line in f.readlines():
-		values = [item if index == 0  else int(item) for (index, item)  in enumerate(line.split(","))]
+		values = [item if index == 0  else int(item) for (index, item)  in enumerate(line.split("|"))]
 		res.append(values)
 
 	return res

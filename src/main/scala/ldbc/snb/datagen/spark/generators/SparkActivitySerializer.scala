@@ -61,7 +61,7 @@ object SparkActivitySerializer {
             val strbuf = new StringBuilder
             strbuf.append(p.getAccountId)
             for (k <- p.getKnows.iterator().asScala) {
-              strbuf.append(",")
+              strbuf.append("|")
               strbuf.append(k.to.getAccountId)
             }
             strbuf.append("\n")

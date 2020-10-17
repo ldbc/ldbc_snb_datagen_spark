@@ -137,7 +137,7 @@ public class HadoopPersonActivityGenerator extends DatagenHadoopJob {
                 StringBuilder strbuf = new StringBuilder();
                 strbuf.append(p.getAccountId());
                 for (Knows k : p.getKnows()) {
-                    strbuf.append(",");
+                    strbuf.append("|");
                     strbuf.append(k.to().getAccountId());
                 }
 

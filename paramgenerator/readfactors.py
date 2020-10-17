@@ -74,7 +74,7 @@ def load(personFactorFiles, activityFactorFiles, friendFiles):
 	for inputfileName in personFactorFiles:
 		with codecs.open(inputfileName, "r", "utf-8") as f:
 			for line in f.readlines():
-				line = line.split(",")
+				line = line.split("|")
 				person = int(line[0])
 				if not results.existParam(person):
 					results.addNewParam(person)
@@ -96,7 +96,7 @@ def load(personFactorFiles, activityFactorFiles, friendFiles):
 		with codecs.open(inputFileName, "r", "utf-8") as f:
 			countryCount = int(f.readline())
 			for i in range(countryCount):
-				line = f.readline().split(",")
+				line = f.readline().split("|")
 				country = line[0]
 				if not countries.existParam(country):
 					countries.addNewParam(country)
@@ -105,8 +105,8 @@ def load(personFactorFiles, activityFactorFiles, friendFiles):
 			tagClassCount = int(f.readline())
 			for i in range(tagClassCount):
 				line = f.readline()
-				count = line[1+line.rfind(","):]
-				name = line[:line.rfind(",")]
+				count = line[1+line.rfind("|"):]
+				name = line[:line.rfind("|")]
 				if not name in tagClasses:
 					tagClasses[name] = 0
 				tagClasses[name] += int(count)
@@ -114,15 +114,15 @@ def load(personFactorFiles, activityFactorFiles, friendFiles):
 			tagCount = int(f.readline())
 			for i in range(tagCount):
 				line = f.readline()
-				count = line[1+line.rfind(","):]
-				name = line[:line.rfind(",")]
+				count = line[1+line.rfind("|"):]
+				name = line[:line.rfind("|")]
 				if not name in tags:
 					tags[name] = 0
 				tags[name] += int(count)
 
 			nameCount = int(f.readline())
 			for i in range(nameCount):
-				line = f.readline().split(",")
+				line = f.readline().split("|")
 				name = line[0]
 				if not name in names:
 					names[name] = 0
@@ -152,7 +152,7 @@ def loadFriends(friendFiles, factors):
 	for inputFriendsFileName in friendFiles:
 		with open(inputFriendsFileName, 'r') as f:
 			for line in f:
-				people = list(map(int, line.split(",")))
+				people = list(map(int, line.split("|")))
 				person = people[0]
 				if not factors.existParam(person):
 					continue
@@ -170,7 +170,7 @@ def loadFriends(friendFiles, factors):
 	for inputFriendsFileName in friendFiles:
 		with open(inputFriendsFileName, 'r') as f:
 			for line in f:
-				people = list(map(int, line.split(",")))
+				people = list(map(int, line.split("|")))
 				person = people[0]
 				if not factors.existParam(person):
 					continue
