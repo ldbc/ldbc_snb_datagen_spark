@@ -44,7 +44,8 @@ Alternatively, the image can be built with the provided Dockerfile. To build, ex
 docker build . -t ldbc/spark
 ```
 
-Then, assemble the JAR file and run the docker image using the mounted JAR, which will produce its output to the `out/social_network` directory:
+Make sure you hava Java 8 (JDK) installed and set as `$JAVA_HOME` (you might find [SDKMAN](https://sdkman.io/) useful).
+To assemble the JAR file and run the docker image using the mounted JAR, which will produce its output to the `out/social_network` directory:
 
 ```bash
 tools/build.sh && tools/run.sh
