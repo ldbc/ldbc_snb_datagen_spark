@@ -101,8 +101,8 @@
 # indir = ARGS[1] * "/"
 # outdir = ARGS[2] * "/"
 
-cd("/home/szarnyasg/git/ldbc/snb/ldbc_snb_datagen/paramgenerator")
-indir = "../hadoop/"
+cd("/home/szarnyasg/git/snb/ldbc_snb_datagen/paramgenerator")
+indir = "../out/build/"
 outdir = "../substitution_out/"
 
 files = readdir(indir)
