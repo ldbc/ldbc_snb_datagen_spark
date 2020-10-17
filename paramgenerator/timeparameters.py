@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import sys
-import re
 
 LAST_MONTHS = 3 # number of months that we consider for date parameters in the filters of a form timestamp <= Date0
 START_YEAR = 2010 # default value that gets over-written from the data generator output
@@ -154,15 +153,16 @@ def readTimeParams(persons, personFactorFiles, activityFactorFiles, friendFiles)
 	for inputFactorFile in personFactorFiles:
 		with open(inputFactorFile, 'r') as f:
 			for line in f.readlines():
-				#line = line.split("|")
-				line = re.split('[;|]', line)
+				line = line.split("|")
 				person = int(line[0])
-				localPostCounts = list(map(int,line[offset:offset+monthcount]))
-				localGroupCounts = list(map(int, line[offset+monthcount:]))
+				localPostCounts = list(map(int, line[9].split(";")))
+				localGroupCounts = list(map(int, line[10].split(";")))
+
 				if not person in postCounts:
 					postCounts[person] = localPostCounts
 				else:
 					postCounts[person] =  [sum(x) for x in zip(postCounts[person], localPostCounts)]
+
 
 				if not person in groupCounts:
 					groupCounts[person] = localGroupCounts
