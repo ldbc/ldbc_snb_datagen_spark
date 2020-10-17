@@ -148,7 +148,7 @@ def readTimeParams(persons, personFactorFiles, activityFactorFiles, friendFiles)
 
 	postCounts = {}
 	groupCounts = {}
-	offset = 8
+	offset = 9
 	monthcount = 12*3 + 1
 
 	for inputFactorFile in personFactorFiles:
