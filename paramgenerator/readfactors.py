@@ -75,10 +75,10 @@ def load(personFactorFiles, activityFactorFiles, friendFiles):
 		with codecs.open(inputfileName, "r", "utf-8") as f:
 			for line in f.readlines():
 				line = line.split("|")
-				person = int(line[0])
+				person = int(line[0])                         # id
 				if not results.existParam(person):
 					results.addNewParam(person)
-				name = line[1]
+				name = line[1]                                # name
 				givenNames.setValue(person, name)
 				results.addValue(person, "f", int(line[2]))   # friends
 				results.addValue(person, "p", int(line[3]))   # posts
@@ -87,10 +87,12 @@ def load(personFactorFiles, activityFactorFiles, friendFiles):
 				results.addValue(person, "g", int(line[6]))   # groups (=forums)
 				results.addValue(person, "w", int(line[7]))   # workplaces (=companies)
 				results.addValue(person, "pr", int(line[8]))  # replies (=comments)
-				for i in range((len(line)-9)//2):
+				numMessages = list(map(int,line[9].split(";"))) # number of messages/month
+
+				for i in range(0, len(numMessages)):
 					if not postsHisto.existParam(i):
 						postsHisto.addNewParam(i)
-					postsHisto.addValue(i, "p", int(line[9+i]))
+					postsHisto.addValue(i, "p", numMessages[i])
 
 	for inputFileName in activityFactorFiles:
 		with codecs.open(inputFileName, "r", "utf-8") as f:

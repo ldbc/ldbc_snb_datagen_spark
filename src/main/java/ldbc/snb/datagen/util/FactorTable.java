@@ -49,6 +49,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class FactorTable {
 
@@ -333,17 +334,14 @@ public class FactorTable {
                     strbuf.append("|");
 
                     // entries for number of messages / month
-                    for (Long bucket : personCounts.numMessagesPerMonth()) {
-                        strbuf.append(bucket);
-                        strbuf.append("|");
-                    }
+                    strbuf.append(personCounts.numMessagesPerMonth().stream()
+                            .map(x -> x.toString()).collect(Collectors.joining(";")));
+                    strbuf.append("|");
                     // entries for number of forums / month
-                    for (Long bucket : personCounts.numForumsPerMonth()) {
-                        strbuf.append(bucket);
-                        strbuf.append("|");
-                    }
+                    strbuf.append(personCounts.numForumsPerMonth().stream()
+                            .map(x -> x.toString()).collect(Collectors.joining(";")));
                     // end of line
-                    strbuf.setCharAt(strbuf.length() - 1, '\n');
+                    strbuf.append('\n');
                     writer.write(strbuf.toString().getBytes(StandardCharsets.UTF_8));
                 }
             }
