@@ -65,8 +65,8 @@ public class Dictionaries {
 
         dates = new DateGenerator(
                 conf,
-                LocalDate.of(DatagenParams.startYear, DatagenParams.startMonth + 1, DatagenParams.startDate),
-                LocalDate.of(DatagenParams.endYear, DatagenParams.endMonth + 1, DatagenParams.endDate),
+                LocalDate.of(DatagenParams.startYear, DatagenParams.startMonth, DatagenParams.startDate),
+                LocalDate.of(DatagenParams.endYear, DatagenParams.endMonth, DatagenParams.endDate),
                 DatagenParams.alpha
         );
 

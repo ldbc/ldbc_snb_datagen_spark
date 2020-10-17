@@ -216,13 +216,13 @@ public class DatagenParams {
     public static double probPostLikeDeleted = 0.0;
     public static double probCommentLikeDeleted = 0.0;
 
-    // Gregorian calendar uses 0-based months
-    public static final int startMonth = 0;
-    public static final int endMonth = 0;
+    public static final int startMonth = 1;
+    public static final int endMonth = 1;
 
     public static final int startDate = 1;
     public static final int endDate = 1;
-    public static final double alpha = 0.4;
+
+    public static final double alpha = 0.4; // used for the power law distribution
 
     public static String datagenMode;
     public static String degreeDistributionName;
@@ -235,7 +235,7 @@ public class DatagenParams {
     public static int delta = 10000;
     public static long numPersons = 10000;
     public static int startYear = 2010;
-    public static int endYear = 2013;
+    public static int endYear;
     public static int numYears = 3;
     public static boolean exportText = true;
     public static int numUpdateStreams = 1;
