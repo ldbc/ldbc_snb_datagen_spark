@@ -372,8 +372,6 @@ public class FactorTable {
             for (Map.Entry<Integer, Long> c : tagClassCount.entrySet()) {
                 String strbuf = Dictionaries.tags.getClassName(c.getKey()) +
                         "," +
-                        Dictionaries.tags.getClassName(c.getKey()) +
-                        "," +
                         c.getValue() +
                         "\n";
                 writer.write(strbuf.getBytes(StandardCharsets.UTF_8));

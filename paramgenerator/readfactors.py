@@ -97,13 +97,14 @@ def load(personFactorFiles,activityFactorFiles, friendFiles):
 					countries.addNewParam(country)
 				countries.addValue(country, "p", int(line[1]))
 
-			tagCount = int(f.readline())
-			for i in range(tagCount):
-				line = f.readline().split(",")
-				tag = line[0]
-				if not tag in tagClasses:
-					tagClasses[tag] = 0
-				tagClasses[tag] += int(line[2])
+			tagClassCount = int(f.readline())
+			for i in range(tagClassCount):
+				line = f.readline()
+				count = line[1+line.rfind(","):]
+				name = line[:line.rfind(",")]
+				if not name in tagClasses:
+					tagClasses[name] = 0
+				tagClasses[name] += int(count)
 
 			tagCount = int(f.readline())
 			for i in range(tagCount):
