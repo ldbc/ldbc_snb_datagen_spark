@@ -198,17 +198,18 @@ def getColumns(factors, columnNames):
 def getFactorsForQuery(queryId, factors):
 
 	queryFactorDict = {
-		1: getColumns(factors, ["f", "ff"]),
-		2: getColumns(factors, ["f", "fp"]),
-		3: getColumns(factors, ["ff", "ffp"]),
-		4: getColumns(factors, ["fp", "f",  "fpt"]),
-		5: getColumns(factors, ["ff", "ffg"]),	
-		6: getColumns(factors, ["f","ff", "ffp", "ffpt"]),
-		7: getColumns(factors, ["pl", "p"]),
-		8: getColumns(factors, ["pr", "p"]),
-		9: getColumns(factors, ["f", "ffp", "ff"]),
-		10: getColumns(factors, ["f","ff", "ffp", "ffpt"]),
-		11: getColumns(factors, ["f","ff", "ffw"]),
+		# note that the order of factors matters 
+		 1: getColumns(factors, ["f", "ff"]),
+		 2: getColumns(factors, ["f", "fp"]),
+		 3: getColumns(factors, ["ff", "ffp"]),
+		 4: getColumns(factors, ["fp", "f",  "fpt"]),
+		 5: getColumns(factors, ["ff", "ffg"]),	
+		 6: getColumns(factors, ["f", "ff", "ffp", "ffpt"]),
+		 7: getColumns(factors, ["pl", "p"]),
+		 8: getColumns(factors, ["pr", "p"]),
+		 9: getColumns(factors, ["f", "ffp", "ff"]),
+		10: getColumns(factors, ["f", "ff", "ffp", "ffpt"]),
+		11: getColumns(factors, ["f", "ff", "ffw"]),
 		12: getColumns(factors, ["f", "fp"]), ### add "fpr"
 		13: getColumns(factors, ["ff"]),
 		14: getColumns(factors, ["ff"])
