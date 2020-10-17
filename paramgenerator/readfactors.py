@@ -77,11 +77,11 @@ def load(personFactorFiles,activityFactorFiles, friendFiles):
 				givenNames.setValue(person, name)
 				results.addValue(person, "f", int(line[2]))   # friends
 				results.addValue(person, "p", int(line[3]))   # posts
-				results.addValue(person, "pl", int(line[4]))  # likes
-				results.addValue(person, "pt", int(line[5]))  # tags of messages
-				results.addValue(person, "g", int(line[6]))   # forums (=groups)
+				results.addValue(person, "pl", int(line[4]))  # person's likes
+				results.addValue(person, "pt", int(line[5]))  # person's tags (of messages)
+				results.addValue(person, "g", int(line[6]))   # groups (=forums)
 				results.addValue(person, "w", int(line[7]))   # workplaces (=companies)
-				results.addValue(person, "pr", int(line[8]))  # comments (=replies)
+				results.addValue(person, "pr", int(line[8]))  # replies (=comments)
 				for i in range((len(line)-9)//2):
 					if not postsHisto.existParam(i):
 						postsHisto.addNewParam(i)
