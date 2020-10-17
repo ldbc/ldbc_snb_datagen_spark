@@ -3,7 +3,12 @@
 import codecs
 import sys
 
-FACTORS = ["f", "ff", "fp", "fpt", "ffg", "p", "pl", "pt", "pr", "g", "w", "ffw", "ffp", "fw", "fg", "ffpt", "fpr", "org"]
+FACTORS = [
+	#friends  posts  likes   tags  forums  companies  comments
+	   "f",     "p", "pl",   "pt",   "g",     "w",      "pr",
+	  "ff",    "fp",        "fpt",  "fg",    "fw",     "fpr",    # note: no likes
+	          "ffp",       "ffpt", "ffg",   "ffw",               # note: no friends/likes/comments
+	"org"]
 
 FACTOR_MAP = {value: key for (key, value) in enumerate(FACTORS)}
 
@@ -54,7 +59,7 @@ class NameParameter:
 	def getValue(self, person):
 		return self.values[person]
 
-def load(personFactorFiles,activityFactorFiles, friendFiles):
+def load(personFactorFiles, activityFactorFiles, friendFiles):
 	print("loading input for parameter generation")
 	results = Factors()
 	countries = Factors()
@@ -130,7 +135,16 @@ def load(personFactorFiles,activityFactorFiles, friendFiles):
 
 	loadFriends(friendFiles, results)
 
-	return (results, countries, list(tags.items()), list(tagClasses.items()), list(names.items()), givenNames,timestamp, postsHisto)
+	return (
+	  results,
+	  countries,
+	  list(tags.items()),
+	  list(tagClasses.items()),
+	  list(names.items()),
+	  givenNames,
+	  timestamp,
+	  postsHisto
+	)
 
 def loadFriends(friendFiles, factors):
 
@@ -148,8 +162,9 @@ def loadFriends(friendFiles, factors):
 					factors.addValue(person, "ff", factors.getValue(friend, "f"))
 					factors.addValue(person, "fp", factors.getValue(friend, "p"))
 					factors.addValue(person, "fpt", factors.getValue(friend, "pt"))
-					factors.addValue(person, "fw", factors.getValue(friend, "w"))
 					factors.addValue(person, "fg", factors.getValue(friend, "g"))
+					factors.addValue(person, "fw", factors.getValue(friend, "w"))
+					# fpr is missing
 
 	# second scan for friends-of-friends counts (groups of friends of friends)
 	for inputFriendsFileName in friendFiles:
@@ -162,10 +177,12 @@ def loadFriends(friendFiles, factors):
 				for friend in people[1:]:
 					if not factors.existParam(friend):
 						continue
-					factors.addValue(person, "ffg", factors.getValue(friend, "fg"))
-					factors.addValue(person, "ffw", factors.getValue(friend, "fw"))
 					factors.addValue(person, "ffp", factors.getValue(friend, "fp"))
 					factors.addValue(person, "ffpt", factors.getValue(friend, "fpt"))
+					factors.addValue(person, "ffg", factors.getValue(friend, "fg"))
+					factors.addValue(person, "ffw", factors.getValue(friend, "fw"))
+
+
 
 def getColumns(factors, columnNames):
 	res = []
@@ -217,9 +234,9 @@ def getTagFactorsForQuery(queryId, factors):
 if __name__ == "__main__":
 	argv = sys.argv
 	if len(argv)< 3:
-		print("arguments: <m0factors.txt> <m0friendsList.txt>")
+		print("arguments: <m0personFactors.txt> <m0activityFactors.txt> <m0friendList0.csv>")
 		sys.exit(1)
 
-	sys.exit(load(argv[1], argv[2]))
+	print(load([argv[1]], [argv[2]], [argv[3]]))
 
 
