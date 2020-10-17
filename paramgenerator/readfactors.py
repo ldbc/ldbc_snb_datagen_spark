@@ -6,9 +6,9 @@ import sys
 FACTORS = [
 	#friends  posts  likes   tags  forums  companies  comments
 	   "f",     "p", "pl",   "pt",   "g",     "w",      "pr",
-	  "ff",    "fp",        "fpt",  "fg",    "fw",     "fpr",    # note: no likes
+	  "ff",    "fp",        "fpt",  "fg",    "fw",     "fpr",    # note: no likes, fpr is unused in the code
 	          "ffp",       "ffpt", "ffg",   "ffw",               # note: no friends/likes/comments
-	"org"]
+	]
 
 FACTOR_MAP = {value: key for (key, value) in enumerate(FACTORS)}
 
@@ -220,7 +220,7 @@ def getFactorsForQuery(queryId, factors):
 def getCountryFactorsForQuery(queryId, factors):
 	queryFactorDict = {
 		3: getColumns(factors, ["p"]),
-		11: getColumns(factors, ["p"]) ### replace with "org"
+		11: getColumns(factors, ["p"])
 	}
 
 	return queryFactorDict[queryId]
