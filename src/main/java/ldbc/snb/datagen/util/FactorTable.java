@@ -395,7 +395,7 @@ public class FactorTable {
                         "\n";
                 writer.write(strbuf.getBytes(StandardCharsets.UTF_8));
             }
-            String strbuf = DatagenParams.startMonth +
+            String strbuf = (DatagenParams.startMonth - 1) + // the parameter generator uses 0-based indexing for months
                     "\n" +
                     DatagenParams.startYear +
                     "\n" +
