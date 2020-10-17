@@ -11,27 +11,6 @@ from timeparameters import *
 
 SEED = 1
 
-def findNameParameters(names):
-	srtd = sorted(names,key=lambda x: -x[1])
-	res = []
-	hist = {}
-	for t in srtd:
-		if t[1] not in hist:
-			hist[t[1]] = []
-		hist[t[1]].append(t[0])
-	counts = sorted([i for i in hist.keys()])
-
-	mid = len(counts)//2
-	i = mid
-	while counts[i] - counts[mid] < 0.1 * counts[mid]:
-		res.extend([name for name in hist[counts[i]]])
-		i += 1
-	i = mid - 1
-	while  counts[mid] - counts[i] < 0.1 * counts[mid]:
-		res.extend([name for name in hist[counts[i]]])
-		i -= 1
-	return res
-
 class CSVSerializer:
 	def __init__(self):
 		self.handlers = []

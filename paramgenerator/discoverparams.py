@@ -38,9 +38,6 @@ def getAverageCost(rows, key):
 def getCostStdDev(rows, avg, key):
 	return math.sqrt(sum([math.pow(key(r)-avg,2) for r in rows]) / len(rows))
 
-def updateAverageCost(avg, oldelem, newelem, samplesize):
-	return avg + (newelem - oldelem) / samplesize;
-
 
 
 def findWindows(factors, param, amount, bounds):
