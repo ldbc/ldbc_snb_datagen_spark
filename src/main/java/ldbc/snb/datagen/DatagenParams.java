@@ -217,10 +217,7 @@ public class DatagenParams {
     public static double probCommentLikeDeleted = 0.0;
 
     public static final int startMonth = 1;
-    public static final int endMonth = 1;
-
-    public static final int startDate = 1;
-    public static final int endDate = 1;
+    public static final int startDay = 1;
 
     public static final double alpha = 0.4; // used for the power law distribution
 
@@ -235,7 +232,6 @@ public class DatagenParams {
     public static int delta = 10000;
     public static long numPersons = 10000;
     public static int startYear = 2010;
-    public static int endYear;
     public static int numYears = 3;
     public static boolean exportText = true;
     public static int numUpdateStreams = 1;
@@ -327,7 +323,6 @@ public class DatagenParams {
             dateFormatter = conf.get("generator.dateFormatter");
             dateTimeFormat = conf.get("generator.StringDate.dateTimeFormat");
             dateFormat = conf.get("generator.StringDate.dateFormat");
-            endYear = startYear + numYears;
 
             System.out.println(" ... Datagen Mode " + datagenMode);
             System.out.println(" ... Num Persons " + numPersons);
@@ -434,7 +429,10 @@ public class DatagenParams {
 
     public static String getDateTimeFormat(){
         return dateTimeFormat;
+    }
 
+    public static int getNumberOfMonths() {
+        return numYears * 12;
     }
 
 }
