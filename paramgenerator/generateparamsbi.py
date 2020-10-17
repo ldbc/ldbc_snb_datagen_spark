@@ -9,11 +9,11 @@ import time
 from datetime import datetime, timedelta
 from timeparameters import *
 
-# START_DATE=datetime.strptime("2010-01-01", "%Y-%m-%d")
-# END_DATE=datetime.strptime("2013-01-01", "%Y-%m-%d")
-#
-# def format_date(date):
-#   return int(time.mktime(date.timetuple())*1000)
+START_DATE=datetime.strptime("2010-01-01", "%Y-%m-%d")
+END_DATE=datetime.strptime("2013-01-01", "%Y-%m-%d")
+
+def format_date(date):
+   return int(time.mktime(date.timetuple())*1000)
 
 
 class ParamsWriter:
@@ -324,7 +324,7 @@ def main(argv=None):
       if file.startswith("m0friendList"):
          friendsFiles.append(indir+file)
 
-   # read precomputed counts from files
+   # read precomputed counts from files   
    (personFactors, countryFactors, tagFactors, tagClassFactors, nameFactors, givenNames,  ts, postsHisto) = \
       readfactors.load(personFactorFiles,activityFactorFiles, friendsFiles)
    week_posts = convert_posts_histo(postsHisto)
@@ -350,13 +350,13 @@ def main(argv=None):
    for day, count in tag_posts:
       total_posts += count
 
-   # person_sum = 0
-   # for country, count in country_sample:
-   #    person_sum += count
-   #
-   # post_lower_threshold = 0.1*total_posts*0.9
-   # post_upper_threshold = 0.1*total_posts*1.1
-   # post_day_ranges = post_date_range_params(week_posts, post_lower_threshold, post_upper_threshold)
+   person_sum = 0
+   for country, count in country_sample:
+      person_sum += count
+
+   post_lower_threshold = 0.1*total_posts*0.9
+   post_upper_threshold = 0.1*total_posts*1.1
+   post_day_ranges = post_date_range_params(week_posts, post_lower_threshold, post_upper_threshold)
    
    bad_words = ['Augustine','William','James','with','Henry','Robert','from','Pope','Hippo','album','David','has','one','also','Green','which','that']
    #post_lower_threshold = (total_posts/(week_posts[len(week_posts)-1][0]/7/4))*0.8
