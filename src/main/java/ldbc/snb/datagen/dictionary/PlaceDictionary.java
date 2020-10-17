@@ -35,8 +35,8 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.dictionary;
 
-import ldbc.snb.datagen.generator.DatagenParams;
-import ldbc.snb.datagen.objects.Place;
+import ldbc.snb.datagen.DatagenParams;
+import ldbc.snb.datagen.entities.statictype.place.Place;
 import ldbc.snb.datagen.util.ZOrder;
 
 import java.io.BufferedReader;
@@ -45,75 +45,64 @@ import java.io.InputStreamReader;
 import java.util.*;
 
 /**
- * This class reads the files containing the country data and city data used in the ldbc socialnet generation and
- * provides access methods to get such data.
- * Most of the users has the prerequisite of requiring a valid location id.
+ * This class reads the files containing the country data and city data used in the LDBC soical network generation and
+ * provides access methods to the data.
+ * Most of the persons has the prerequisite of requiring a valid location id.
  */
 public class PlaceDictionary {
 
-    public static final int INVALID_LOCATION = -1;
+    static final int INVALID_LOCATION = -1;
     private static final String SEPARATOR = " ";
     private static final String SEPARATOR_CITY = " ";
 
     private PlaceZOrder[] sortedPlace;
-    private Float cumulativeDistribution[];
-
-    private ArrayList<Integer> countries;
-    /**
-     * < @brief The set of countries. *
-     */
-    private HashMap<Integer, Place> places;
-    /**
-     * < @brief The places by id. *
-     */
-    private HashMap<Integer, Integer> isPartOf;
-    /**
-     * < @brief The location hierarchy. *
-     */
-    private HashMap<Integer, ArrayList<Integer>> citiesByCountry;
-    /**
-     * < @brief The cities by country. *
-     */
-    private HashMap<String, Integer> cityNames;
-    /**
-     * < @brief The city names. *
-     */
-    private HashMap<String, Integer> countryNames;       /**< @brief The country names. **/
+    private Float[] cumulativeDistribution;
 
     /**
-     * Private class used to sort countries by their z-order value.
+     * The set of countries. *
      */
-    private class PlaceZOrder implements Comparable<PlaceZOrder> {
-
-        public int id;
-        public Integer zvalue;
-
-        public PlaceZOrder(int id, int zvalue) {
-            this.id = id;
-            this.zvalue = zvalue;
-        }
-
-        public int compareTo(PlaceZOrder obj) {
-            return zvalue.compareTo(obj.zvalue);
-        }
-    }
+    private List<Integer> countries;
 
     /**
-     * @brief Creator.
+     * The places by id. *
+     */
+    private Map<Integer, Place> places;
+
+    /**
+     * The location hierarchy. *
+     */
+    private Map<Integer, Integer> isPartOf;
+
+    /**
+     * The cities by country. *
+     */
+    private Map<Integer, List<Integer>> citiesByCountry;
+
+    /**
+     * The city names. *
+     */
+    private Map<String, Integer> cityNames;
+    /**
+     * The country names. *
+     * */
+    private Map<String, Integer> countryNames;
+
+    /**
+     * Create place dictionary
      */
     public PlaceDictionary() {
-        this.countryNames = new HashMap<String, Integer>();
-        this.cityNames = new HashMap<String, Integer>();
-        this.places = new HashMap<Integer, Place>();
-        this.isPartOf = new HashMap<Integer, Integer>();
-        this.countries = new ArrayList<Integer>();
-        this.citiesByCountry = new HashMap<Integer, ArrayList<Integer>>();
-        load(DatagenParams.cityDictionaryFile, DatagenParams.countryDictionaryFile);
+        this.countryNames = new HashMap<>();
+        this.cityNames = new HashMap<>();
+        this.places = new HashMap<>();
+        this.isPartOf = new HashMap<>();
+        this.countries = new ArrayList<>();
+        this.citiesByCountry = new HashMap<>();
+        load();
     }
 
     /**
      * @return The set of places.
-     * @brief Gets the set of places.
+     * Gets the set of places.
      */
     public Set<Integer> getPlaces() {
         return places.keySet();
@@ -121,61 +110,35 @@ public class PlaceDictionary {
 
     /**
      * @return The set of countries
-     * @brief Gets a list of the country ids.
+     * Gets a list of the country ids.
      */
-    public ArrayList<Integer> getCountries() {
-        return new ArrayList<Integer>(countries);
+    public List<Integer> getCountries() {
+        return new ArrayList<>(countries);
     }
 
     /**
      * @param placeId Gets the name of a location.
      * @return The name of the location.
-     * @brief Given a location id returns the name of said place.
+     *  Given a location id returns the name of said place.
      */
     public String getPlaceName(int placeId) {
         return places.get(placeId).getName();
     }
 
-    /**
-     * @param placeId The place identifier.
-     * @return Population of that place.
-     * @brief Given a place id returns the population of said place.
-     */
-    public Long getPopulation(int placeId) {
-        return places.get(placeId).getPopulation();
-    }
 
     /**
      * @param placeId The place identifier.
      * @return The type of the place.
-     * @brief Gets the type of a place.
+     *  Gets the type of a place.
      */
-    public String getType(int placeId) {
+    String getType(int placeId) {
         return places.get(placeId).getType();
-    }
-
-    /**
-     * @param placeId The place identifier.
-     * @return The lattitude of the place.
-     * @brief Gets the lattitude of a place.
-     */
-    public double getLatt(int placeId) {
-        return places.get(placeId).getLatt();
-    }
-
-    /**
-     * @param placeId The place identifier.
-     * @return The longitude of the place.
-     * @brief Gets the longitude of a place.
-     */
-    public double getLongt(int placeId) {
-        return places.get(placeId).getLongt();
     }
 
     /**
      * @param cityName The name of the city.
      * @return The identifier of the city.
-     * @brief Gets The identifier of a city.
+     * Gets The identifier of a city.
      */
     public int getCityId(String cityName) {
         if (!cityNames.containsKey(cityName)) {
@@ -187,7 +150,7 @@ public class PlaceDictionary {
     /**
      * @param countryName The name of the country.
      * @return The identifier ot the country.
-     * @brief Gets the identifier of a country.
+     * Gets the identifier of a country.
      */
     public int getCountryId(String countryName) {
         if (!countryNames.containsKey(countryName)) {
@@ -199,7 +162,7 @@ public class PlaceDictionary {
     /**
      * @param placeId The place identifier.
      * @return The parent place identifier.
-     * @brief Gets the parent of a place in the place hierarchy.
+     * Gets the parent of a place in the place hierarchy.
      */
     public int belongsTo(int placeId) {
         if (!isPartOf.containsKey(placeId)) {
@@ -212,7 +175,7 @@ public class PlaceDictionary {
      * @param random    The random  number generator.
      * @param countryId The country Identifier.
      * @return The city identifier.
-     * @brief Gets a random city from a country.
+     * Gets a random city from a country.
      */
     public int getRandomCity(Random random, int countryId) {
         if (!citiesByCountry.containsKey(countryId)) {
@@ -240,21 +203,20 @@ public class PlaceDictionary {
     }
 
     /**
-     * @param citiesFileName    The cities file name.
-     * @param countriesFileName The countries file name.
-     * @brief Loads the dictionary files.
+     * Loads the dictionary files
      */
-    private void load(String citiesFileName, String countriesFileName) {
+    private void load() {
 
-        readCountries(countriesFileName);
+        readCountries(DatagenParams.countryDictionaryFile);
         orderByZ();
-        readCities(citiesFileName);
-        readContinents(countriesFileName);
+        readCities(DatagenParams.cityDictionaryFile);
+        readContinents(DatagenParams.countryDictionaryFile);
+
     }
 
     /**
      * @param fileName The cities file name to read.
-     * @brief Reads a cities file name.
+     * Reads a cities file name.
      */
     private void readCities(String fileName) {
         try {
@@ -263,15 +225,15 @@ public class PlaceDictionary {
 
             String line;
             while ((line = dictionary.readLine()) != null) {
-                String data[] = line.split(SEPARATOR_CITY);
+                String[] data = line.split(SEPARATOR_CITY);
                 if (countryNames.containsKey(data[0])) {
                     Integer countryId = countryNames.get(data[0]);
                     if (!cityNames.containsKey(data[1])) {
                         Place placeId = new Place();
                         placeId.setId(places.size());
                         placeId.setName(data[1]);
-                        placeId.setLatt(places.get(countryId).getLatt());
-                        placeId.setLongt(places.get(countryId).getLongt());
+                        placeId.setLatitude(places.get(countryId).getLatitude());
+                        placeId.setLongitude(places.get(countryId).getLongitude());
                         placeId.setPopulation(-1);
                         placeId.setType(Place.CITY);
 
@@ -285,20 +247,20 @@ public class PlaceDictionary {
             }
             dictionary.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
     /**
      * @param fileName The countries file name.
-     * @brief Reads a countries file.
+     * Reads a countries file.
      */
     private void readCountries(String fileName) {
         try {
             BufferedReader dictionary = new BufferedReader(
                     new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));
 
-            ArrayList<Float> temporalCumulative = new ArrayList<Float>();
+            List<Float> temporalCumulative = new ArrayList<>();
 
             String line;
             while ((line = dictionary.readLine()) != null) {
@@ -308,8 +270,8 @@ public class PlaceDictionary {
                 Place place = new Place();
                 place.setId(places.size());
                 place.setName(placeName);
-                place.setLatt(Double.parseDouble(data[2]));
-                place.setLongt(Double.parseDouble(data[3]));
+                place.setLatitude(Double.parseDouble(data[2]));
+                place.setLongitude(Double.parseDouble(data[3]));
                 place.setPopulation(Integer.parseInt(data[4]));
                 place.setType(Place.COUNTRY);
 
@@ -319,22 +281,22 @@ public class PlaceDictionary {
                 temporalCumulative.add(dist);
                 countries.add(place.getId());
 
-                citiesByCountry.put(place.getId(), new ArrayList<Integer>());
+                citiesByCountry.put(place.getId(), new ArrayList<>());
             }
             dictionary.close();
             cumulativeDistribution = new Float[temporalCumulative.size()];
             cumulativeDistribution = temporalCumulative.toArray(cumulativeDistribution);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
     /**
      * @param fileName The continents file name.
-     * @brief Reads a continents file name.
+     * Reads a continents file name.
      */
     private void readContinents(String fileName) {
-        HashMap<String, Integer> treatedContinents = new HashMap<String, Integer>();
+        Map<String, Integer> treatedContinents = new HashMap<>();
         try {
             BufferedReader dictionary = new BufferedReader(
                     new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));
@@ -351,8 +313,8 @@ public class PlaceDictionary {
                     Place continent = new Place();
                     continent.setId(places.size());
                     continent.setName(data[0]);
-                    continent.setLatt(Double.parseDouble(data[2]));
-                    continent.setLongt(Double.parseDouble(data[3]));
+                    continent.setLatitude(Double.parseDouble(data[2]));
+                    continent.setLongitude(Double.parseDouble(data[3]));
                     continent.setPopulation(0);
                     continent.setType(Place.CONTINENT);
 
@@ -366,16 +328,16 @@ public class PlaceDictionary {
             }
             dictionary.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
     /**
      * @param random The random number generator.
-     * @return The country for the user.
-     * @brief Gets a country for a user.
+     * @return The country for the person.
+     * Gets a country for a person.
      */
-    public int getCountryForUser(Random random) {
+    public int getCountryForPerson(Random random) {
         int position = Arrays.binarySearch(cumulativeDistribution, random.nextFloat());
         if (position >= 0) {
             return position;
@@ -391,7 +353,7 @@ public class PlaceDictionary {
     }
 
     /**
-     * @brief Sorts places by Z order.
+     * Sorts places by Z order.
      */
     private void orderByZ() {
         ZOrder zorder = new ZOrder(8);
@@ -399,30 +361,30 @@ public class PlaceDictionary {
 
         for (int i = 0; i < countries.size(); i++) {
             Place loc = places.get(countries.get(i));
-            int zvalue = zorder.getZValue(((int) Math.round(loc.getLongt()) + 180) / 2, ((int) Math
-                    .round(loc.getLatt()) + 180) / 2);
+            int zvalue = zorder.getZValue(((int) Math.round(loc.getLongitude()) + 180) / 2, ((int) Math
+                    .round(loc.getLatitude()) + 180) / 2);
             sortedPlace[i] = new PlaceZOrder(loc.getId(), zvalue);
         }
 
         Arrays.sort(sortedPlace);
         for (int i = 0; i < sortedPlace.length; i++) {
-            places.get(sortedPlace[i].id).setzId(i);
+            places.get(sortedPlace[i].id).setZId(i);
         }
     }
 
     /**
      * @param placeId The place identifier.
      * @return The z order of the place.
-     * @brief Gets the z order of a place.
+     * Gets the z order of a place.
      */
     public int getZorderID(int placeId) {
-        return places.get(placeId).getzId();
+        return places.get(placeId).getZId();
     }
 
     /**
      * @param zOrderId the z order.
      * @return The place identifier.
-     * @brief Gets the place identifier from a z order.
+     * Gets the place identifier from a z order.
      */
     public int getPlaceIdFromZOrder(int zOrderId) {
         return sortedPlace[zOrderId].id;
@@ -431,7 +393,7 @@ public class PlaceDictionary {
     /**
      * @param id The place identifier.
      * @return The place whose identifier is id.
-     * @brief Gets a place from its identifier.
+     * Gets a place from its identifier.
      */
     public Place getLocation(int id) {
         return places.get(id);

@@ -35,16 +35,13 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.dictionary;
 
-import ldbc.snb.datagen.generator.DatagenParams;
-import ldbc.snb.datagen.objects.IP;
+import ldbc.snb.datagen.DatagenParams;
+import ldbc.snb.datagen.entities.dynamic.person.IP;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
-import java.util.TreeMap;
+import java.util.*;
 
 
 public class IPAddressDictionary {
@@ -53,20 +50,20 @@ public class IPAddressDictionary {
     private static final String SEPARATOR_IP = "[.]";
     private static final String SEPARATOR_MASK = "/";
     private static final int MAX_IP_COUNTRY = 100;
-    private TreeMap<Integer, ArrayList<IP>> ipsByCountry;
+    private TreeMap<Integer, List<IP>> ipsByCountry;
     /**
-     * < @brief The country of ips. *
+     *  The country of ips. *
      */
     private PlaceDictionary placeDictionary;
 
     /**
-     * < @brief The location dictionary. *
+     *  The location dictionary. *
      */
 
     public IPAddressDictionary(PlaceDictionary locationDic) {
 
         this.placeDictionary = locationDic;
-        this.ipsByCountry = new TreeMap<Integer, ArrayList<IP>>();
+        this.ipsByCountry = new TreeMap<>();
         load(DatagenParams.countryAbbrMappingFile, DatagenParams.IPZONE_DIRECTORY);
     }
 
@@ -77,7 +74,7 @@ public class IPAddressDictionary {
      */
     private void load(String mappingFileName, String baseIPdir) {
         String line;
-        HashMap<String, String> countryAbbreMap = new HashMap<String, String>();
+        Map<String, String> countryAbbreMap = new HashMap<>();
         try {
             BufferedReader mappingFile = new BufferedReader(new InputStreamReader(getClass()
                                                                                           .getResourceAsStream(mappingFileName), "UTF-8"));
@@ -89,9 +86,9 @@ public class IPAddressDictionary {
             }
             mappingFile.close();
 
-            ArrayList<Integer> countries = placeDictionary.getCountries();
+            List<Integer> countries = placeDictionary.getCountries();
             for (int i = 0; i < countries.size(); i++) {
-                ipsByCountry.put(countries.get(i), new ArrayList<IP>());
+                ipsByCountry.put(countries.get(i), new ArrayList<>());
 
                 //Get the name of file
                 String fileName = countryAbbreMap.get(placeDictionary.getPlaceName(countries.get(i)));
@@ -117,7 +114,7 @@ public class IPAddressDictionary {
                 ipZoneFile.close();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -126,7 +123,7 @@ public class IPAddressDictionary {
         while (!placeDictionary.getType(finalLocationIndex).equals("country")) {
             finalLocationIndex = placeDictionary.belongsTo(finalLocationIndex);
         }
-        ArrayList<IP> countryIPs = ipsByCountry.get(finalLocationIndex);
+        List<IP> countryIPs = ipsByCountry.get(finalLocationIndex);
         int idx = random.nextInt(countryIPs.size());
 
         IP networkIp = countryIPs.get(idx);

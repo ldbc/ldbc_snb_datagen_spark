@@ -1,19 +1,18 @@
 
-import sys, os
 import glob
-
+import sys
 
 if( len(sys.argv) == 1):
     print("Validates the correctness of the studyAt graph.")
     print("Usage: validateStudyAt <dir>")
 
-study_at_files = glob.glob(sys.argv[1]+'/person_studyAt_organization_?_?.csv')
-organization_files = glob.glob(sys.argv[1]+'/organisation_?_?.csv')
+study_at_files = glob.glob(sys.argv[1]+'/person_studyAt_organisation_?_?.csv')
+organisation_files = glob.glob(sys.argv[1]+'/organisation_?_?.csv')
 update_stream_files = glob.glob(sys.argv[1]+'/updateStream_?_?_person.csv')
 
 universities = set()
 
-for filename in organization_files:
+for filename in organisation_files:
     file = open(filename,"r")
     print("reading "+filename)
     count = 0

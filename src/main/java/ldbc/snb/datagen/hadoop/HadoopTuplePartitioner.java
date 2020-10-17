@@ -35,12 +35,10 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.hadoop;
 
-import ldbc.snb.datagen.objects.Person;
+import ldbc.snb.datagen.entities.dynamic.person.Person;
+import ldbc.snb.datagen.hadoop.key.TupleKey;
 import org.apache.hadoop.mapreduce.Partitioner;
 
-/**
- * Created by aprat on 25/08/15.
- */
 public class HadoopTuplePartitioner extends Partitioner<TupleKey, Person> {
 
     @Override

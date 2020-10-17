@@ -35,12 +35,13 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.dictionary;
 
-import ldbc.snb.datagen.generator.DatagenParams;
+import ldbc.snb.datagen.DatagenParams;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 
@@ -51,8 +52,8 @@ import java.util.Random;
 public class EmailDictionary {
 
     private static final String SEPARATOR = " ";
-    private ArrayList<String> emails;
-    private ArrayList<Double> cumulativeDistribution;
+    private List<String> emails;
+    private List<Double> cumulativeDistribution;
 
     /**
      * @brief Constructor.
@@ -70,8 +71,8 @@ public class EmailDictionary {
             BufferedReader emailDictionary = new BufferedReader(
                     new InputStreamReader(getClass().getResourceAsStream(fileName), "UTF-8"));
 
-            emails = new ArrayList<String>();
-            cumulativeDistribution = new ArrayList<Double>();
+            emails = new ArrayList<>();
+            cumulativeDistribution = new ArrayList<>();
 
             String line;
             double cummulativeDist = 0.0;
@@ -85,7 +86,7 @@ public class EmailDictionary {
             }
             emailDictionary.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

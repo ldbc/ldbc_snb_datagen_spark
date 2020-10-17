@@ -1,18 +1,19 @@
 package ldbc.snb.datagen.test.dictionaries;
 
+import ldbc.snb.datagen.DatagenContext;
 import ldbc.snb.datagen.dictionary.PlaceDictionary;
-import ldbc.snb.datagen.generator.LDBCDatagen;
+import ldbc.snb.datagen.hadoop.HadoopConfiguration;
+import ldbc.snb.datagen.hadoop.LdbcDatagen;
 import ldbc.snb.datagen.util.ConfigParser;
+import ldbc.snb.datagen.util.LdbcConfiguration;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Random;
 
-import static org.junit.Assert.*;
-/**
- * Created by aprat on 27/07/17.
- */
+import static org.junit.Assert.assertTrue;
 public class PlaceDictionaryTest {
 
     @Test
@@ -20,11 +21,12 @@ public class PlaceDictionaryTest {
 
             PlaceDictionary placeDictionary = new PlaceDictionary();
         try {
-            Configuration conf = ConfigParser.initialize();
-            ConfigParser.readConfig(conf, "./test_params.ini");
-            ConfigParser.readConfig(conf, LDBCDatagen.class.getResourceAsStream("/params.ini"));
-            LDBCDatagen.prepareConfiguration(conf);
-            LDBCDatagen.initializeContext(conf);
+            Map<String, String> confMap = ConfigParser.defaultConfiguration();
+            confMap.putAll(ConfigParser.readConfig("./test_params.ini"));
+            confMap.putAll(ConfigParser.readConfig(LdbcDatagen.class.getResourceAsStream("/params_default.ini")));
+            LdbcConfiguration conf = new LdbcConfiguration(confMap);
+            HadoopConfiguration.prepare(conf);
+            DatagenContext.initialize(conf);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -34,7 +36,7 @@ public class PlaceDictionaryTest {
         Arrays.fill(countryFreqs, 0);
         Random random = new Random(123456789);
         for (int i = 0; i < numPersons; ++i) {
-            int nextCountry = placeDictionary.getCountryForUser(random);
+            int nextCountry = placeDictionary.getCountryForPerson(random);
             countryFreqs[nextCountry]++;
         }
 

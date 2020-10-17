@@ -35,34 +35,28 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.dictionary;
 
-import ldbc.snb.datagen.generator.DatagenParams;
+import ldbc.snb.datagen.DatagenParams;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Random;
-import java.util.TreeSet;
+import java.util.*;
 
 public class TagTextDictionary {
     private static final String SEPARATOR = "  ";
     private TagDictionary tagDic;
     /**
-     * < @brief The tag dictionary. *
+     *  The tag dictionary. *
      */
-    private HashMap<Integer, String> tagText;
+    private Map<Integer, String> tagText;
     /**
-     * < @brief The tag text. *
+     *  The tag text. *
      */
     private double reducedTextRatio;
 
-    private StringBuilder returnString = null;
-
     public TagTextDictionary(TagDictionary tagDic, double reducedTextRatio) {
-        this.tagText = new HashMap<Integer, String>();
+        this.tagText = new HashMap<>();
         this.tagDic = tagDic;
         this.reducedTextRatio = reducedTextRatio;
-        this.returnString = new StringBuilder(1000);
         load(DatagenParams.tagTextFile);
     }
 
@@ -82,7 +76,7 @@ public class TagTextDictionary {
             }
             dictionary.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -129,6 +123,7 @@ public class TagTextDictionary {
      * @brief Generates a text given a set of tags.
      */
     public String generateText(Random randomTextSize, TreeSet<Integer> tags, int textSize) {
+        StringBuilder returnString = new StringBuilder(1024);
         returnString.setLength(0);
         int textSizePerTag = (int) Math.ceil(textSize / (double) tags.size());
         while (returnString.length() < textSize) {

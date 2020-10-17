@@ -35,13 +35,14 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.dictionary;
 
-import ldbc.snb.datagen.generator.DatagenParams;
+import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -54,21 +55,21 @@ public class CompanyDictionary {
     private static final String SEPARATOR = "  ";
     private TreeMap<Long, String> companyName;
     /**
-     * < @brief A map containing the name of each company.*
+     *  A map containing the name of each company.*
      */
     private TreeMap<Long, Integer> companyCountry;
     /**
-     * < @brief A map containing the location of each company. *
+     *  A map containing the location of each company. *
      */
-    private TreeMap<Integer, ArrayList<Long>> companiesByCountry;
+    private TreeMap<Integer, List<Long>> companiesByCountry;
     /**
-     * < @brief A map containing the companies of each country. *
+     *  A map containing the companies of each country. *
      */
     private PlaceDictionary placeDictionary;
     /**
-     * < @brief The location dictionary.*
+     *  The location dictionary.*
      */
-    private double probUnCorrelatedCompany;    /**< @brief The probability of working in a uncorrelated company.**/
+    private double probUnCorrelatedCompany;    /** The probability of working in a uncorrelated company.**/
 
     /**
      * @param probUnCorrelatedCompany: Probability of selecting a country unrelated company.
@@ -79,11 +80,11 @@ public class CompanyDictionary {
 
         this.placeDictionary = placeDictionary;
         this.probUnCorrelatedCompany = probUnCorrelatedCompany;
-        this.companyName = new TreeMap<Long, String>();
-        this.companyCountry = new TreeMap<Long, Integer>();
-        this.companiesByCountry = new TreeMap<Integer, ArrayList<Long>>();
+        this.companyName = new TreeMap<>();
+        this.companyCountry = new TreeMap<>();
+        this.companiesByCountry = new TreeMap<>();
         for (Integer id : placeDictionary.getCountries()) {
-            this.companiesByCountry.put(id, new ArrayList<Long>());
+            this.companiesByCountry.put(id, new ArrayList<>());
         }
         load(DatagenParams.companiesDictionaryFile);
     }
@@ -113,7 +114,7 @@ public class CompanyDictionary {
             }
             dictionary.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -135,7 +136,7 @@ public class CompanyDictionary {
      */
     public long getRandomCompany(RandomGeneratorFarm randomFarm, int countryId) {
         int locId = countryId;
-        ArrayList<Integer> countries = placeDictionary.getCountries();
+        List<Integer> countries = placeDictionary.getCountries();
         if (randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_COMPANY).nextDouble() <= probUnCorrelatedCompany) {
             locId = countries.get(randomFarm.get(RandomGeneratorFarm.Aspect.UNCORRELATED_COMPANY_LOCATION)
                                             .nextInt(countries.size()));

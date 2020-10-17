@@ -35,25 +35,26 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.dictionary;
 
-import ldbc.snb.datagen.generator.DatagenParams;
+import ldbc.snb.datagen.DatagenParams;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class BrowserDictionary {
 
     private static final String SEPARATOR_ = "  ";
-    private ArrayList<String> browsers_;
-    private ArrayList<Double> cumulativeDistribution_;
+    private List<String> browsers_;
+    private List<Double> cumulativeDistribution_;
     private double probAnotherBrowser_ = 0.0f;
 
     public BrowserDictionary(double probAnotherBrowser) {
         probAnotherBrowser_ = probAnotherBrowser;
-        browsers_ = new ArrayList<String>();
-        cumulativeDistribution_ = new ArrayList<Double>();
+        browsers_ = new ArrayList<>();
+        cumulativeDistribution_ = new ArrayList<>();
         load(DatagenParams.browserDictonryFile);
     }
 
@@ -72,7 +73,7 @@ public class BrowserDictionary {
             }
             dictionary.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -97,8 +98,8 @@ public class BrowserDictionary {
         return maxIdx;
     }
 
-    public int getPostBrowserId(Random randomDiffBrowser, Random randomBrowser, int userBrowserId) {
+    public int getPostBrowserId(Random randomDiffBrowser, Random randomBrowser, int personBrowserId) {
         double prob = randomDiffBrowser.nextDouble();
-        return (prob < probAnotherBrowser_) ? getRandomBrowserId(randomBrowser) : userBrowserId;
+        return (prob < probAnotherBrowser_) ? getRandomBrowserId(randomBrowser) : personBrowserId;
     }
 }

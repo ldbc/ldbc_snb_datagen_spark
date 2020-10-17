@@ -1,8 +1,5 @@
 package ldbc.snb.datagen.test.csv;
 
-/**
- * Created by aprat on 23/12/15.
- */
 public class LongCheck extends NumericCheck<Long> {
 
     private long offset = 0;

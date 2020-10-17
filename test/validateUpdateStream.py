@@ -1,9 +1,8 @@
 
-import sys, os
-
+import sys
 
 if( len(sys.argv) == 1):
-    print("Validates the correcness of an update stream regarding the dates of the events.")
+    print("Validates the correctness of an update stream regarding the dates of the events.")
     print("Usage: validateIdUniqueness <file>")
 
 fileName = sys.argv[1]

@@ -35,12 +35,12 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.util;
 
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 
 public class Distribution {
@@ -55,8 +55,8 @@ public class Distribution {
     public void initialize() {
         try {
             BufferedReader distributionBuffer = new BufferedReader(new InputStreamReader(getClass()
-                                                                                                 .getResourceAsStream(distributionFile), "UTF-8"));
-            ArrayList<Double> temp = new ArrayList<Double>();
+                    .getResourceAsStream(distributionFile), StandardCharsets.UTF_8));
+            List<Double> temp = new ArrayList<>();
             String line;
             while ((line = distributionBuffer.readLine()) != null) {
                 Double prob = Double.valueOf(line);
@@ -64,13 +64,12 @@ public class Distribution {
             }
             distribution = new double[temp.size()];
             int index = 0;
-            Iterator<Double> it = temp.iterator();
-            while (it.hasNext()) {
-                distribution[index] = it.next();
+            for (Double aDouble : temp) {
+                distribution[index] = aDouble;
                 ++index;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

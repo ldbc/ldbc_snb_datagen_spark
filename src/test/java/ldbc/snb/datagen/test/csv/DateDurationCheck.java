@@ -1,20 +1,17 @@
 package ldbc.snb.datagen.test.csv;
 
-import ldbc.snb.datagen.generator.DateGenerator;
+import ldbc.snb.datagen.generator.generators.DateGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by aprat on 13/05/16.
- */
 public class DateDurationCheck extends Check {
 
     private Long val1;
     private Long val2;
 
     public DateDurationCheck(String name, Integer baseColumn, Integer offsetColumn, Long val1, Long val2 ) {
-        super(name, new ArrayList<Integer>());
+        super(name, new ArrayList<>());
         getColumns().add(baseColumn);
         getColumns().add(offsetColumn);
         this.val1 = val1;

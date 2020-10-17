@@ -1,10 +1,7 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
-import sys
-import getopt
 import math
 #import numpy as np
-import random
 from operator import itemgetter
 
 # amount of parameters to be mined (as a percentage to the domain size, i.e. total number of persons)
@@ -124,7 +121,7 @@ def generate(factors, portion=SHARE):
 	params = len(factors[0]) -1
 
 	keys = [i for i in range(1,params+1)]
-	factors.sort(key=apply(itemgetter, keys), reverse=True)
+	factors.sort(key=itemgetter(*keys), reverse=True)
 	result = []
 	paramId = 1
 
@@ -163,7 +160,7 @@ def generate(factors, portion=SHARE):
 	return result
 
 def divideFactors(factors, splitPortion):
-  sortedFactors = sorted(factors, key=lambda (k,v): v, reverse=True)
+  sortedFactors = sorted(factors, key=lambda k_v: k_v[1], reverse=True)
   oSum= 0
   for l in sortedFactors:
     oSum+=l[1]

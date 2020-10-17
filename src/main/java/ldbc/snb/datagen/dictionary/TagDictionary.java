@@ -35,15 +35,12 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.dictionary;
 
-import ldbc.snb.datagen.generator.DatagenParams;
+import ldbc.snb.datagen.DatagenParams;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 
 public class TagDictionary {
@@ -51,42 +48,42 @@ public class TagDictionary {
     private static final String SEPARATOR = "\t";
     private int numPopularTags;
     /**
-     * < @brief The number of popular tags. *
+     *  The number of popular tags. *
      */
     private double tagCountryCorrProb;
     /**
-     * < @brief The probability to choose another country when asking for a tag.
+     *  The probability to choose another country when asking for a tag.
      */
 
-    private ArrayList<ArrayList<Integer>> tagsByCountry;
+    private List<List<Integer>> tagsByCountry;
     /**
-     * < @brief The tags by country map.
+     *  The tags by country map.
      */
-    private ArrayList<ArrayList<Double>> tagCummulativeDist;
+    private List<List<Double>> tagCummulativeDist;
     /**
-     * < @brief The tags by country cumulative distribution.
+     *  The tags by country cumulative distribution.
      */
-    private HashMap<Integer, String> tagClassName;
+    private Map<Integer, String> tagClassName;
     /**
-     * < @brief The tag class names.
+     *  The tag class names.
      */
-    private HashMap<Integer, String> tagClassLabel;
+    private Map<Integer, String> tagClassLabel;
     /**
-     * < @brief The tag class labels.
+     *  The tag class labels.
      */
-    private HashMap<Integer, Integer> tagClassHierarchy;
+    private Map<Integer, Integer> tagClassHierarchy;
     /**
-     * < @brief The tag class hierarchy.
+     *  The tag class hierarchy.
      */
-    private HashMap<Integer, Integer> tagTagClass;
+    private Map<Integer, Integer> tagTagClass;
     /**
-     * < @brief The tag tag classes.
+     *  The tag tag classes.
      */
-    private HashMap<Integer, String> tagNames;
+    private Map<Integer, String> tagNames;
     /**
-     * < @brief the tag names.
+     *  the tag names.
      */
-    private HashMap<Integer, String> tagDescription;         /**< @brief the tag descriptions.*/
+    private Map<Integer, String> tagDescription;         /** the tag descriptions.*/
 
     /**
      * @param numCountries       The number of countries.
@@ -96,17 +93,17 @@ public class TagDictionary {
     public TagDictionary(int numCountries, double tagCountryCorrProb) {
 
         this.tagCountryCorrProb = tagCountryCorrProb;
-        this.tagCummulativeDist = new ArrayList<ArrayList<Double>>(numCountries);
-        this.tagsByCountry = new ArrayList<ArrayList<Integer>>(numCountries);
-        this.tagNames = new HashMap<Integer, String>();
-        this.tagTagClass = new HashMap<Integer, Integer>();
-        this.tagDescription = new HashMap<Integer, String>();
-        this.tagClassName = new HashMap<Integer, String>();
-        this.tagClassLabel = new HashMap<Integer, String>();
-        this.tagClassHierarchy = new HashMap<Integer, Integer>();
+        this.tagCummulativeDist = new ArrayList<>(numCountries);
+        this.tagsByCountry = new ArrayList<>(numCountries);
+        this.tagNames = new HashMap<>();
+        this.tagTagClass = new HashMap<>();
+        this.tagDescription = new HashMap<>();
+        this.tagClassName = new HashMap<>();
+        this.tagClassLabel = new HashMap<>();
+        this.tagClassHierarchy = new HashMap<>();
         for (int i = 0; i < numCountries; i++) {
-            tagCummulativeDist.add(new ArrayList<Double>());
-            tagsByCountry.add(new ArrayList<Integer>());
+            tagCummulativeDist.add(new ArrayList<>());
+            tagsByCountry.add(new ArrayList<>());
         }
         this.numPopularTags = 0;
 
@@ -225,7 +222,7 @@ public class TagDictionary {
 
             dictionary.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -279,7 +276,7 @@ public class TagDictionary {
         Integer[] result = new Integer[num];
         for (int i = 0; i < num; ) {
             int randomCountry = random.nextInt(tagsByCountry.size());
-            ArrayList<Integer> tags = tagsByCountry.get(randomCountry);
+            List<Integer> tags = tagsByCountry.get(randomCountry);
             if (tags.size() > 0) {
                 result[i] = tags.get(random.nextInt(tags.size()));
                 ++i;

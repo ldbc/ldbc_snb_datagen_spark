@@ -1,25 +1,27 @@
 package ldbc.snb.datagen.test.csv;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-/**
- * Created by aprat on 18/12/15.
- */
 public class PairUniquenessCheck<T,S> extends Check {
 
 
-    protected HashMap< T,Set<S>> values = null;
-    protected Parser<T> parserA = null;
-    protected Parser<S> parserB = null;
+    protected Map< T,Set<S>> values;
+    protected Parser<T> parserA;
+    protected Parser<S> parserB;
 
 
     public PairUniquenessCheck(Parser<T> parserA, Parser<S> parserB, int columnA, int columnB) {
-        super( "Pair Uniqueness Check", (new ArrayList<Integer>()));
+        super( "Pair Uniqueness Check", (new ArrayList<>()));
         this.parserA = parserA;
         this.parserB = parserB;
         this.getColumns().add(columnA);
         this.getColumns().add(columnB);
-        values = new HashMap<T, Set<S>>();
+        values = new HashMap<>();
     }
 
     @Override
@@ -28,7 +30,7 @@ public class PairUniquenessCheck<T,S> extends Check {
         S valB = parserB.parse(vals.get(1));
         Set<S> others = values.get(valA);
         if(others == null) {
-            others = new HashSet<S>();
+            others = new HashSet<>();
             others.add(valB);
             values.put(valA,others);
         } else {

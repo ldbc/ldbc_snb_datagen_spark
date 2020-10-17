@@ -35,45 +35,17 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.util;
 
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
-
 
 public class DistributionKey {
 
-    private ArrayList<Pair> distribution;
+    private List<Pair> distribution;
     private String distributionFile;
-
-    static class Pair {
-        private double l;
-        private String r;
-
-        public Pair(double l, String r) {
-            this.l = l;
-            this.r = r;
-        }
-
-        public double getL() {
-            return l;
-        }
-
-        public String getR() {
-            return r;
-        }
-
-        public void setL(double l) {
-            this.l = l;
-        }
-
-        public void setR(String r) {
-            this.r = r;
-        }
-
-    }
 
     public DistributionKey(String distributionFile) {
         this.distributionFile = distributionFile;
@@ -84,7 +56,7 @@ public class DistributionKey {
             BufferedReader distributionBuffer = new BufferedReader(new InputStreamReader(getClass()
                                                                                                  .getResourceAsStream(distributionFile), "UTF-8"));
             String line;
-            distribution = new ArrayList<Pair>();
+            distribution = new ArrayList<>();
 
             while ((line = distributionBuffer.readLine()) != null) {
                 String[] parts = line.split(" ");
@@ -95,7 +67,7 @@ public class DistributionKey {
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

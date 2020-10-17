@@ -1,13 +1,13 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
-import discoverparams
-import readfactors
-import random
-import os
 import codecs
+import discoverparams
+import os
+import random
+import readfactors
+from calendar import timegm
 from datetime import date
 from timeparameters import *
-from calendar import timegm
 
 SEED = 1
 
@@ -19,9 +19,9 @@ def findNameParameters(names):
 		if t[1] not in hist:
 			hist[t[1]] = []
 		hist[t[1]].append(t[0])
-	counts = sorted([i for i in hist.iterkeys()])
+	counts = sorted([i for i in hist.keys()])
 
-	mid = len(counts)/2
+	mid = len(counts)//2
 	i = mid
 	while counts[i] - counts[mid] < 0.1 * counts[mid]:
 		res.extend([name for name in hist[counts[i]]])
@@ -69,7 +69,12 @@ class CSVSerializer:
 def handlePersonParam(person):
 	return str(person)
 
-def handleTimeParam(timeParam):
+def handleMaxTimeParam(timeParam):
+	res =  str(timegm(date(year=int(timeParam.year),
+		month=int(timeParam.month), day=int(timeParam.day)).timetuple())*1000)
+	return res
+
+def handleMinTimeParam(timeParam):
 	res =  str(timegm(date(year=int(timeParam.year),
 		month=int(timeParam.month), day=int(timeParam.day)).timetuple())*1000)
 	return res
@@ -81,7 +86,8 @@ def handleTimeDurationParam(timeParam):
 	return res
 
 
-def handlePairCountryParam((Country1, Country2)):
+def handlePairCountryParam(countries):
+	(Country1, Country2) = countries
 	return Country1+"|"+Country2
 
 def handleCountryParam(Country):
@@ -99,7 +105,8 @@ def handleMonthParam(month):
 def handleFirstNameParam(firstName):
 	return firstName
 
-def handlePairPersonParam((person1, person2)):
+def handlePairPersonParam(persons):
+	(person1, person2) = persons
 	return str(person1)+"|"+str(person2)
 
 def handleWorkYearParam(timeParam):
@@ -110,7 +117,7 @@ def main(argv=None):
 		argv = sys.argv
 
 	if len(argv) < 3:
-		print "arguments: <input dir> <output>"
+		print("arguments: <input dir> <output>")
 		return 1
 
 	indir = argv[1]+"/"
@@ -235,20 +242,20 @@ def main(argv=None):
 		if i==3 or i==4:
 			csvWriters[i].registerHandler(handleTimeDurationParam, selectedTimeParams[i], "startDate|durationDays")
 		elif i==2 or i==9:
-			csvWriters[i].registerHandler(handleTimeParam, selectedTimeParams[i], "maxDate")
+			csvWriters[i].registerHandler(handleMaxTimeParam, selectedTimeParams[i], "maxDate")
 		elif i==5:
-			csvWriters[i].registerHandler(handleTimeParam, selectedTimeParams[i], "minDate")
+			csvWriters[i].registerHandler(handleMinTimeParam, selectedTimeParams[i], "minDate")
 
 	# other, query-specific parameters
 	csvWriters[1].registerHandler(handleFirstNameParam, nameParams, "firstName")
-	csvWriters[3].registerHandler(handlePairCountryParam, zip(selectedCountryParams[3],secondCountry), "countryXName|countryYName")
+	csvWriters[3].registerHandler(handlePairCountryParam, list(zip(selectedCountryParams[3],secondCountry)), "countryXName|countryYName")
 	csvWriters[6].registerHandler(handleTagParam, selectedTagParams[6], "tagName")
 	csvWriters[10].registerHandler(handleMonthParam, months, "month")
 	csvWriters[11].registerHandler(handleCountryParam, selectedCountryParams[11], "countryName")
 	csvWriters[11].registerHandler(handleWorkYearParam, selectedTimeParams[11], "workFromYear")
 	csvWriters[12].registerHandler(handleTagTypeParam, selectedTagTypeParams[12], "tagClassName")
-	csvWriters[13].registerHandler(handlePairPersonParam, zip(selectedPersonParams[13], secondPerson[13]), "person1Id|person2Id")
-	csvWriters[14].registerHandler(handlePairPersonParam, zip(selectedPersonParams[14], secondPerson[14]), "person1Id|person2Id")
+	csvWriters[13].registerHandler(handlePairPersonParam, list(zip(selectedPersonParams[13], secondPerson[13])), "person1Id|person2Id")
+	csvWriters[14].registerHandler(handlePairPersonParam, list(zip(selectedPersonParams[14], secondPerson[14])), "person1Id|person2Id")
 
 
 	for j in csvWriters:

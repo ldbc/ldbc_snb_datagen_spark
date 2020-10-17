@@ -1,17 +1,13 @@
-FROM openjdk:8-jdk-alpine
+FROM bde2020/spark-master:2.4.5-hadoop2.7
 
-# Download hadoop
-WORKDIR /opt
-RUN apk add bash curl maven python
-RUN curl -L 'http://archive.apache.org/dist/hadoop/core/hadoop-2.6.0/hadoop-2.6.0.tar.gz' | tar -xz
+VOLUME /mnt/datagen.jar /mnt/params.ini /mnt/data
 
-# Copy the project
-COPY . /opt/ldbc_snb_datagen
-WORKDIR /opt/ldbc_snb_datagen
-# Remove sample parameters
-RUN rm params*.ini
-# Build jar bundle
-RUN mvn -DskipTests clean assembly:assembly
+WORKDIR /mnt/data
 
-ENV HADOOP_CLIENT_OPTS '-Xmx8G'
-CMD /opt/ldbc_snb_datagen/docker_run.sh
+ENTRYPOINT ["/spark/bin/spark-submit"]
+
+CMD ["--class", "ldbc.snb.datagen.spark.LdbcDatagen", \
+     "--master", "local[*]", \
+     "/mnt/datagen.jar", \
+     "/mnt/params.ini" \
+]

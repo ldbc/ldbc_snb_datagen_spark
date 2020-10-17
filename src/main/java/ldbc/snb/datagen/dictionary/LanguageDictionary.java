@@ -35,14 +35,12 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.dictionary;
 
-import ldbc.snb.datagen.generator.DatagenParams;
+import ldbc.snb.datagen.DatagenParams;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
+import java.util.*;
 
 
 public class LanguageDictionary {
@@ -50,27 +48,27 @@ public class LanguageDictionary {
     private static final String SEPARATOR = "  ";
     private static final String ISO_ENGLISH_CODE = "en";
 
-    private ArrayList<String> languages;
+    private List<String> languages;
     /**
-     * < @brief The array of languages. *
+     *  The array of languages. *
      */
-    private HashMap<Integer, ArrayList<Integer>> officalLanguagesByCountry;
+    private Map<Integer, List<Integer>> officalLanguagesByCountry;
     /**
-     * < @brief The official languages by country. *
+     *  The official languages by country. *
      */
-    private HashMap<Integer, ArrayList<Integer>> languagesByCountry;
+    private Map<Integer, List<Integer>> languagesByCountry;
     /**
-     * < @brief The languages by country. *
+     *  The languages by country. *
      */
     private PlaceDictionary placeDictionary;
     /**
-     * < @brief The location dictionary. *
+     *  The location dictionary. *
      */
     private double probEnglish;
     /**
-     * < @brief The probability to speak english. *
+     *  The probability to speak english. *
      */
-    private double probSecondLang;                 /**< @brief The probability of speaking a second language. **/
+    private double probSecondLang;                 /** The probability of speaking a second language. **/
 
     /**
      * @param locationDic    The location dictionary.
@@ -83,9 +81,9 @@ public class LanguageDictionary {
         this.placeDictionary = locationDic;
         this.probEnglish = probEnglish;
         this.probSecondLang = probSecondLang;
-        this.languages = new ArrayList<String>();
-        this.officalLanguagesByCountry = new HashMap<Integer, ArrayList<Integer>>();
-        this.languagesByCountry = new HashMap<Integer, ArrayList<Integer>>();
+        this.languages = new ArrayList<>();
+        this.officalLanguagesByCountry = new HashMap<>();
+        this.languagesByCountry = new HashMap<>();
         load(DatagenParams.languageDictionaryFile);
     }
 
@@ -96,8 +94,8 @@ public class LanguageDictionary {
     private void load(String fileName) {
         try {
             for (Integer id : placeDictionary.getCountries()) {
-                officalLanguagesByCountry.put(id, new ArrayList<Integer>());
-                languagesByCountry.put(id, new ArrayList<Integer>());
+                officalLanguagesByCountry.put(id, new ArrayList<>());
+                languagesByCountry.put(id, new ArrayList<>());
             }
             BufferedReader dictionary = new BufferedReader(new InputStreamReader(getClass()
                                                                                          .getResourceAsStream(fileName), "UTF-8"));
@@ -122,7 +120,7 @@ public class LanguageDictionary {
             }
             dictionary.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -145,8 +143,8 @@ public class LanguageDictionary {
      * @return The set of randomly choosen languages.
      * @breif Gets a set of random languages from a country.
      */
-    public ArrayList<Integer> getLanguages(Random random, int country) {
-        ArrayList<Integer> langSet = new ArrayList<Integer>();
+    public List<Integer> getLanguages(Random random, int country) {
+        List<Integer> langSet = new ArrayList<>();
         if (officalLanguagesByCountry.get(country).size() != 0) {
             int id = random.nextInt(officalLanguagesByCountry.get(country).size());
             langSet.add(officalLanguagesByCountry.get(country).get(id));

@@ -35,24 +35,22 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.dictionary;
 
-import ldbc.snb.datagen.generator.DatagenParams;
-import ldbc.snb.datagen.objects.PopularPlace;
+import ldbc.snb.datagen.DatagenParams;
+import ldbc.snb.datagen.entities.statictype.place.PopularPlace;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
+import java.util.*;
 
 
 public class PopularPlacesDictionary {
 
     private PlaceDictionary placeDictionary;
     /**
-     * < @brief The location dictionary. *
+     *  The location dictionary. *
      */
-    private HashMap<Integer, ArrayList<PopularPlace>> popularPlacesByCountry;   /**< @brief The popular places by country .**/
+    private Map<Integer, List<PopularPlace>> popularPlacesByCountry;   /** The popular places by country .**/
 
     /**
      * @param locationDic The location dictionary.
@@ -60,9 +58,9 @@ public class PopularPlacesDictionary {
      */
     public PopularPlacesDictionary(PlaceDictionary locationDic) {
         this.placeDictionary = locationDic;
-        this.popularPlacesByCountry = new HashMap<Integer, ArrayList<PopularPlace>>();
+        this.popularPlacesByCountry = new HashMap<>();
         for (Integer id : placeDictionary.getCountries()) {
-            this.popularPlacesByCountry.put(id, new ArrayList<PopularPlace>());
+            this.popularPlacesByCountry.put(id, new ArrayList<>());
         }
         load(DatagenParams.popularDictionaryFile);
     }
@@ -105,7 +103,7 @@ public class PopularPlacesDictionary {
             }
             dicPopularPlace.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

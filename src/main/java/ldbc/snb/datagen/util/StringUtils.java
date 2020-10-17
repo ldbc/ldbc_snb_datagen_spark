@@ -35,9 +35,6 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.util;
 
-/**
- * Created by aprat on 25/11/16.
- */
 public class StringUtils {
 
     public static String clampString(String str, int length) {

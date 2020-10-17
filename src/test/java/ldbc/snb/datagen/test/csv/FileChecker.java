@@ -4,20 +4,17 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by aprat on 18/12/15.
- */
 public class FileChecker {
 
-    private String fileName = null;
-    private List<Check> checks = null;
+    private String fileName;
+    private List<Check> checks;
 
     public FileChecker(String fileName) {
         this.fileName = fileName;
-        this.checks = new ArrayList<Check>();
+        this.checks = new ArrayList<>();
     }
 
-    public void addCheck( Check check) {
+    public void addCheck(Check check) {
         checks.add(check);
     }
 
@@ -26,23 +23,23 @@ public class FileChecker {
         try {
             CsvFileReader csvReader = new CsvFileReader(file);
             int lineCount = 1;
-            while(csvReader.hasNext()) {
+            while (csvReader.hasNext()) {
                 String[] line = csvReader.next();
-                if(startLine <= lineCount-1) {
+                if (startLine <= lineCount - 1) {
                     for (Check c : checks) {
-                        List<String> row = new ArrayList<String>();
+                        List<String> row = new ArrayList<>();
                         for (Integer index : c.getColumns()) {
                             row.add(line[index]);
                         }
                         if (!c.check(row)) {
                             System.err.print("Found error at file " + fileName + " at line " + lineCount);
-                            System.err.print(" when applying " + c.getCheckName()+" on columns ");
-                            for(Integer index : c.getColumns()) {
-                               System.err.print(index+" ");
+                            System.err.print(" when applying " + c.getCheckName() + " on columns ");
+                            for (Integer index : c.getColumns()) {
+                                System.err.print(index + " ");
                             }
                             System.err.print(" with values ");
-                            for(String index : row) {
-                                System.err.print(index+" ");
+                            for (String index : row) {
+                                System.err.print(index + " ");
                             }
                             System.err.println();
                             return false;
@@ -51,7 +48,7 @@ public class FileChecker {
                 }
                 lineCount++;
             }
-        }catch(Exception e) {
+        } catch (Exception e) {
             System.err.println(e.getMessage());
             return false;
         }

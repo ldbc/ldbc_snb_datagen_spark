@@ -35,19 +35,16 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.distribution;
 
+import ldbc.snb.datagen.util.LdbcConfiguration;
 import org.apache.commons.math3.distribution.GeometricDistribution;
-import org.apache.hadoop.conf.Configuration;
 
 
-/**
- * Created by aprat on 5/03/15.
- */
 public class GeoDistribution extends DegreeDistribution {
 
     private GeometricDistribution geo_;
     private double ALPHA_ = 0.12;
 
-    public void initialize(Configuration conf) {
+    public void initialize(LdbcConfiguration conf) {
         ALPHA_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.GeoDistribution.alpha", ALPHA_);
         geo_ = new GeometricDistribution(ALPHA_);
     }

@@ -35,145 +35,82 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.util;
 
-import ldbc.snb.datagen.generator.LDBCDatagen;
-import org.apache.hadoop.conf.Configuration;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.TreeMap;
 
-/**
- * Created by aprat on 6/1/14.
- */
 public class ConfigParser {
 
-    private static TreeMap<String, ScaleFactor> scaleFactors;
-    private static final String SCALE_FACTORS_FILE = "scale_factors.xml";
-
-    public static Configuration initialize() throws Exception {
-
-        /** Default Parameters **/
-        Configuration conf = new Configuration();
-        conf.set("", Integer.toString(1));
-        conf.set("ldbc.snb.datagen.generator.numPersons", "10000");
-        conf.set("ldbc.snb.datagen.generator.startYear", "2010");
-        conf.set("ldbc.snb.datagen.generator.numYears", "3");
-        conf.set("ldbc.snb.datagen.generator.numThreads", Integer.toString(1));
-        conf.set("ldbc.snb.datagen.serializer.personSerializer", "ldbc.snb.datagen.serializer.snb.interactive.CSVPersonSerializer");
-        conf.set("ldbc.snb.datagen.serializer.invariantSerializer", "ldbc.snb.datagen.serializer.snb.interactive.CSVInvariantSerializer");
-        conf.set("ldbc.snb.datagen.serializer.personActivitySerializer", "ldbc.snb.datagen.serializer.snb.interactive.CSVPersonActivitySerializer");
-        conf.set("ldbc.snb.datagen.generator.distribution.degreeDistribution", "ldbc.snb.datagen.generator.distribution.FacebookDegreeDistribution");
-        conf.set("ldbc.snb.datagen.generator.knowsGenerator", "ldbc.snb.datagen.generator.DistanceKnowsGenerator");
-        conf.set("ldbc.snb.datagen.serializer.compressed", Boolean.toString(false));
-        conf.set("ldbc.snb.datagen.serializer.updateStreams", Boolean.toString(true));
-        conf.set("ldbc.snb.datagen.serializer.numPartitions", "1");
-        conf.set("ldbc.snb.datagen.serializer.numUpdatePartitions", "1");
-        conf.set("ldbc.snb.datagen.serializer.outputDir", "./");
-        conf.set("ldbc.snb.datagen.serializer.socialNetworkDir", "./social_network");
-        conf.set("ldbc.snb.datagen.serializer.hadoopDir", "./hadoop");
-        conf.set("ldbc.snb.datagen.serializer.endlineSeparator", Boolean.toString(false));
-        conf.set("ldbc.snb.datagen.generator.deltaTime", "10000");
-        conf.set("ldbc.snb.datagen.generator.activity", "true");
-        conf.set("ldbc.snb.datagen.serializer.dateFormatter", "ldbc.snb.datagen.serializer.formatter.StringDateFormatter");
-        conf.set("ldbc.snb.datagen.serializer.formatter.StringDateFormatter.dateTimeFormat", "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-        conf.set("ldbc.snb.datagen.serializer.formatter.StringDateFormatter.dateFormat", "yyyy-MM-dd");
-        conf.set("ldbc.snb.datagen.generator.person.similarity", "ldbc.snb.datagen.objects.similarity.GeoDistanceSimilarity");
-        conf.set("ldbc.snb.datagen.parametergenerator.python", "python");
-        conf.set("ldbc.snb.datagen.parametergenerator.parameters", "true");
-        conf.set("ldbc.snb.datagen.serializer.persons.sort", "true");
-
-        /** Loading predefined Scale Factors **/
-
-        try {
-            scaleFactors = new TreeMap<String, ScaleFactor>();
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(LDBCDatagen.class.getResourceAsStream("/" + SCALE_FACTORS_FILE));
-            doc.getDocumentElement().normalize();
-
-            System.out.println("Reading scale factors..");
-            NodeList nodes = doc.getElementsByTagName("scale_factor");
-            for (int i = 0; i < nodes.getLength(); i++) {
-                Node node = nodes.item(i);
-                if (node.getNodeType() == Node.ELEMENT_NODE) {
-                    Element element = (Element) node;
-                    String scaleFactorName = element.getAttribute("name");
-                    ScaleFactor scaleFactor = new ScaleFactor();
-                    NodeList properties = ((Element) node).getElementsByTagName("property");
-                    for (int j = 0; j < properties.getLength(); ++j) {
-                        Element property = (Element) properties.item(j);
-                        String name = property.getElementsByTagName("name").item(0).getTextContent();
-                        String value = property.getElementsByTagName("value").item(0).getTextContent();
-                        scaleFactor.properties.put(name, value);
-                    }
-                    System.out.println("Available scale factor configuration set " + scaleFactorName);
-                    scaleFactors.put(scaleFactorName, scaleFactor);
-                }
-            }
-            System.out.println("Number of scale factors read " + scaleFactors.size());
-        } catch (ParserConfigurationException e) {
-            throw e;
+    public static Map<String, String> readConfig(String paramsFile) {
+        try(FileInputStream fis = new FileInputStream(paramsFile)) {
+            return readConfig(fis);
         } catch (IOException e) {
-            throw e;
-        }
-        return conf;
-    }
-
-    public static Configuration readConfig(Configuration conf, String paramsFile) {
-        try {
-            readConfig(conf, new FileInputStream(paramsFile));
-        } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static Map<String, String> readConfig(Properties properties) {
+        Map<String, String> conf = new HashMap<>();
+        ScaleFactors scaleFactors = ScaleFactors.INSTANCE;
+        String val = (String) properties.get("generator.scaleFactor");
+        if (val != null) {
+            if (!scaleFactors.value.containsKey(val)) {
+                throw new IllegalArgumentException("Scale factor " + val + " does not exist");
+            }
+            ScaleFactor scaleFactor = scaleFactors.value.get(val);
+            System.out.println("Applied configuration of scale factor " + val);
+            for (Map.Entry<String, String> e : scaleFactor.properties.entrySet()) {
+                conf.put(e.getKey(), e.getValue());
+            }
+        }
+
+        for (String s : properties.stringPropertyNames()) {
+            if (s.compareTo("generator.scaleFactor") != 0) {
+                conf.put(s, properties.getProperty(s));
+            }
+        }
         return conf;
     }
 
-    public static Configuration readConfig(Configuration conf, InputStream paramStream) {
+    public static Map<String, String> readConfig(InputStream paramStream) {
+        Properties properties = new Properties();
         try {
-            Properties properties = new Properties();
-            properties.load(new InputStreamReader(paramStream, "UTF-8"));
-            String val = (String) properties.get("ldbc.snb.datagen.generator.scaleFactor");
-            if (val != null) {
-                ScaleFactor scaleFactor = scaleFactors.get(val);
-                System.out.println("Applied configuration of scale factor " + val);
-                for (Map.Entry<String, String> e : scaleFactor.properties.entrySet()) {
-                    conf.set(e.getKey(), e.getValue());
-                }
-            }
-
-            for (String s : properties.stringPropertyNames()) {
-                if (s.compareTo("ldbc.snb.datagen.generator.scaleFactor") != 0) {
-                    conf.set(s, properties.getProperty(s));
-                }
-            }
-
-            if (conf.get("fs.defaultFS").compareTo("file:///") == 0) {
-                System.out.println("Running in standalone mode. Setting numThreads to 1");
-                conf.set("ldbc.snb.datagen.generator.numThreads", "1");
-            }
-        } catch (Exception e) {
+            properties.load(new InputStreamReader(paramStream, StandardCharsets.UTF_8));
+            return readConfig(properties);
+        } catch (IOException e) {
             System.err.println(e.getMessage());
-            e.printStackTrace();
-            System.exit(-1);
+            throw new RuntimeException(e);
         }
+    }
+
+    public static Map<String, String> defaultConfiguration() {
+        Map<String, String> conf = new HashMap<>();
+        conf.put("", Integer.toString(1));
+        conf.put("generator.numPersons", "10000");
+        conf.put("generator.startYear", "2010");
+        conf.put("generator.numYears", "3");
+        conf.put("generator.delta", "10000");
+        conf.put("generator.mode", "interactive");
+        conf.put("generator.mode.bi.deleteType", "simple");
+        conf.put("generator.mode.bi.batches", "1");
+        conf.put("generator.mode.interactive.numUpdateStreams", "1");
+        conf.put("generator.degreeDistribution", "Facebook");
+        conf.put("generator.knowsGenerator", "Distance");
+        conf.put("generator.person.similarity", "GeoDistance");
+        conf.put("generator.dateFormatter", "StringDate");
+        conf.put("generator.StringDate.dateTimeFormat", "yyyy-MM-dd'T'HH:mm:ss.SSS+00:00");
+        conf.put("generator.StringDate.dateFormat", "yyyy-MM-dd");
+
+        conf.put("hadoop.numThreads", "1");
+        conf.put("serializer.format","CsvBasic");
+        conf.put("serializer.compressed", "false");
+        conf.put("serializer.insertTrailingSeparator", "false");
+        conf.put("serializer.socialNetworkDir", "./social_network");
+        conf.put("serializer.buildDir", "./build");
+
         return conf;
     }
 
-
-    public static void printConfig(Configuration conf) {
-        System.out.println("********* Configuration *********");
-        Map<String, String> map = conf.getValByRegex("^(ldbc.snb.datagen).*$");
-        for (Map.Entry<String, String> e : map.entrySet()) {
-            System.out.println(e.getKey() + " " + e.getValue());
-        }
-        System.out.println("*********************************");
-    }
 }

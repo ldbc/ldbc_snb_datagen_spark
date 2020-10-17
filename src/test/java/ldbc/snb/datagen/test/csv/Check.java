@@ -2,13 +2,10 @@ package ldbc.snb.datagen.test.csv;
 
 import java.util.List;
 
-/**
- * Created by aprat on 18/12/15.
- */
 public abstract class Check {
 
-    protected String checkName = null;
-    protected List<Integer> columns = null;
+    protected String checkName;
+    protected List<Integer> columns;
 
     public String getCheckName() {
         return checkName;

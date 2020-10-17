@@ -24,6 +24,8 @@ scripts/
 /social_network/
 *.log
 test_log
+.DS_Store
+.Rhistory
 
 # Eclipse stuff
 .metadata
@@ -44,3 +46,14 @@ local.properties
 /*.txt
 /*.csv
 out/
+datagen_output/
+
+# Hadoop directory extracted as instructed in the Quick Start guide
+/hadoop-*.tar.gz
+/hadoop-*/
+
+# configuration file
+params.ini
+dependency-reduced-pom.xml
+.Rproj.user
+/build/

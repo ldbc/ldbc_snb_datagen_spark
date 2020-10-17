@@ -1,0 +1,15 @@
+tools/*
+
+target/*
+
+*.swp
+*.crc
+*.log
+
+*.iml
+.travis.yml
+.idea/*
+.gitignore
+.git/*
+
+Dockerfile

@@ -35,15 +35,12 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.dictionary;
 
-import ldbc.snb.datagen.generator.DatagenParams;
-import ldbc.snb.datagen.generator.DateGenerator;
-import org.apache.hadoop.conf.Configuration;
+import ldbc.snb.datagen.DatagenParams;
+import ldbc.snb.datagen.generator.generators.DateGenerator;
+import ldbc.snb.datagen.util.LdbcConfiguration;
 
-import java.util.GregorianCalendar;
+import java.time.LocalDate;
 
-/**
- * @author aprat
- */
 public class Dictionaries {
 
     public static BrowserDictionary browsers = null;
@@ -62,17 +59,15 @@ public class Dictionaries {
     public static FlashmobTagDictionary flashmobs = null;
 
 
-    public static void loadDictionaries(Configuration conf) {
+    public static void loadDictionaries(LdbcConfiguration conf) {
 
         browsers = new BrowserDictionary(DatagenParams.probAnotherBrowser);
 
-        dates = new DateGenerator(conf, new GregorianCalendar(DatagenParams.startYear,
-                                                              DatagenParams.startMonth,
-                                                              DatagenParams.startDate),
-                                  new GregorianCalendar(DatagenParams.endYear,
-                                                        DatagenParams.endMonth,
-                                                        DatagenParams.endDate),
-                                  DatagenParams.alpha
+        dates = new DateGenerator(
+                conf,
+                LocalDate.of(DatagenParams.startYear, DatagenParams.startMonth + 1, DatagenParams.startDate),
+                LocalDate.of(DatagenParams.endYear, DatagenParams.endMonth + 1, DatagenParams.endDate),
+                DatagenParams.alpha
         );
 
 
@@ -99,7 +94,7 @@ public class Dictionaries {
         companies = new CompanyDictionary(places, DatagenParams.probUnCorrelatedCompany);
 
         universities = new UniversityDictionary(places,
-                                                DatagenParams.probUnCorrelatedOrganization,
+                                                DatagenParams.probUnCorrelatedOrganisation,
                                                 DatagenParams.probTopUniv,
                                                 companies.getNumCompanies());
 
@@ -114,5 +109,4 @@ public class Dictionaries {
 
         tagText = new TagTextDictionary(tags, DatagenParams.ratioReduceText);
     }
-
 }
