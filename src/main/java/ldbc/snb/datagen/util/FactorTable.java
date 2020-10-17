@@ -75,12 +75,13 @@ public class FactorTable {
         private List<Long> numForumsPerMonth;
 
         PersonCounts() {
-            numMessagesPerMonth = new ArrayList<>(36 + 1);
-            for (int i = 0; i < 36 + 1; ++i) {
+            // we initialize #month + 1 buckets
+            numMessagesPerMonth = new ArrayList<>(DatagenParams.getNumberOfMonths() + 1);
+            for (int i = 0; i <= DatagenParams.getNumberOfMonths(); ++i) {
                 numMessagesPerMonth.add(0L);
             }
-            numForumsPerMonth = new ArrayList<>(36 + 1);
-            for (int i = 0; i < 36 + 1; ++i) {
+            numForumsPerMonth = new ArrayList<>(DatagenParams.getNumberOfMonths() + 1);
+            for (int i = 0; i <= DatagenParams.getNumberOfMonths(); ++i) {
                 numForumsPerMonth.add(0L);
             }
         }
@@ -246,7 +247,7 @@ public class FactorTable {
         personCounts(memberId).incrNumForums();
         int bucket = DateUtils
                 .getNumberOfMonths(member.getCreationDate(), DatagenParams.startMonth, DatagenParams.startYear);
-        if (bucket < 36 + 1)
+        if (bucket < DatagenParams.getNumberOfMonths() + 1)
             personCounts(memberId).incrNumForumsPerMonth(bucket);
     }
 
@@ -275,7 +276,7 @@ public class FactorTable {
                 DatagenParams.startMonth,
                 DatagenParams.startYear);
 
-        if (bucket < 36 + 1)
+        if (bucket < DatagenParams.getNumberOfMonths() + 1)
             personCounts(authorId).incrNumMessagesPerMonth(bucket);
 
 
@@ -331,12 +332,12 @@ public class FactorTable {
                     strbuf.append(personCounts.numComments());
                     strbuf.append("|");
 
-                    // 37 (!) entries for number of messages / month
+                    // entries for number of messages / month
                     for (Long bucket : personCounts.numMessagesPerMonth()) {
                         strbuf.append(bucket);
                         strbuf.append("|");
                     }
-                    // 37 (!) entries for number of forums / month
+                    // entries for number of forums / month
                     for (Long bucket : personCounts.numForumsPerMonth()) {
                         strbuf.append(bucket);
                         strbuf.append("|");
