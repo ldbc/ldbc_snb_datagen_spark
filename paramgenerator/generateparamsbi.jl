@@ -122,6 +122,7 @@ countryFactors = Dict{String,Int64}()
 tagClassFactors = DefaultDict{String,Int64}(0)
 tagFactors = DefaultDict{String,Int64}(0)
 nameFactors = DefaultDict{String,Int64}(0)
+timestamps = Dict{String,Int64}()
 
 activityFactorFile = activityFactorFiles[1]
 open(indir * activityFactorFile) do f
@@ -167,18 +168,18 @@ open(indir * activityFactorFile) do f
     end
 
     # the last 4 lines are timestamps
-    # TODO: copy the behaviour of the Py code
-    # if timestamp[i] == 0 and t != 'null':
-    #     timestamp[i] = int(t)
-    for i = 1:4
-        parse(Int64, readline(f))
-    end
+    # instead of the Py code's array, we use a dictionary
+    timestamps["startMonth"] = parse(Int64, readline(f))
+    timestamps["startYear"] = parse(Int64, readline(f))
+    timestamps["minWorkFrom"] = parse(Int64, readline(f))
+    timestamps["maxWorkFrom"] = parse(Int64, readline(f))
 end
 
 countryFactors
 tagClassFactors
 tagFactors
 nameFactors
+timestamps
 
 tag_posts = tagFactors
 tag_posts = sort(collect(tag_posts), by=x->x[2], rev=true)
