@@ -1,5 +1,6 @@
 # DefaultDict comes from DataStructures #import Pkg; Pkg.add("DataStructures")
 using DataStructures
+using CSV
 
 # if length(ARGS) < 2
 #     println("arguments: <input dir> <output dir>")
@@ -15,23 +16,26 @@ outdir = "../substitution_out/"
 
 files = readdir(indir)
 activityFactorFiles = filter(f -> endswith(f, "activityFactors.txt"), files)
-#personFactorFiles = filter!(r"personFactors\.txt$", files)
-#friendsFiles = filter!(r"^m0friendList", files)
+personFactorFiles = filter(x -> occursin(r"personFactors\.txt$", x), files)
+friendListFiles = filter(x -> occursin(r"friendList\d+\.csv$", x), files)
 
 println(activityFactorFiles)
-#println(personFactorFiles)
-#println(friendsFiles)
+println(personFactorFiles)
+println(friendListFiles)
 
+# factors
 countryFactors = Dict{String,Int64}()
 tagClassFactors = DefaultDict{String,Int64}(0)
 tagFactors = DefaultDict{String,Int64}(0)
 nameFactors = DefaultDict{String,Int64}(0)
 timestamps = Dict{String,Int64}()
 
+## activity factors
+
 activityFactorFile = activityFactorFiles[1]
 open(indir * activityFactorFile) do f
     # read countryFactors
-    # example: India,464151
+    # example: India|464151
     countryCount = parse(Int64, readline(f))
     for i = 1:countryCount
         line = split(readline(f), "|")
@@ -41,7 +45,7 @@ open(indir * activityFactorFile) do f
     end
 
     # read tag classes
-    # example: Thing,29737
+    # example: Thing|29737
     tagClassCount = parse(Int64, readline(f))
     for i = 1:tagClassCount
         line = split(readline(f), "|")
@@ -51,24 +55,24 @@ open(indir * activityFactorFile) do f
     end
 
     # read tagFactors
-    # example: Hamid_Karzai,8815
-    # example: Frederick_III,_Holy_Roman_Emperor,19
+    # example: Hamid_Karzai|8815
+    # example: Frederick_III,_Holy_Roman_Emperor|19
     tagCount = parse(Int64, readline(f))
     for i = 1:tagCount
         line = split(readline(f), "|")
         tag = line[1]
         count = parse(Int64, line[2])
-        tagFactors[tag] += + count
+        tagFactors[tag] += count
     end
 
     # read nameFactors
-    # example: Daisuke,20
+    # example: Daisuke|20
     nameCount = parse(Int64, readline(f))
     for i = 1:nameCount
         line = split(readline(f), "|")
         name = line[1]
         count = parse(Int64, line[2])
-        nameFactors[name] += + count
+        nameFactors[name] += count
     end
 
     # the last 4 lines are timestamps
@@ -93,6 +97,35 @@ for (tag, count) in tag_posts
    global total_posts += count
 end
 
+## person factors
+
+personFactorFile = personFactorFiles[1]
+personFactors = CSV.File(indir * personFactorFile; delim='|', header=["id", "name", "f", "p", "pl", "pt", "g", "w", "pr", "numMessages", "numForums"])
+
+## friend list
+
+personFriends = Dict{Int64,Array{Int64}}()
+
+friendListFile = friendListFiles[1]
+open(indir * friendListFile) do f
+    # read countryFactors
+    # examples:
+    # 24189255811623|2199023256816|4398046512254|19791209300118|35184372089014
+    # 30786325577800|1204|4398046511614
+    # 30786325578463
+
+    while (strline = readline(f)) != ""
+        line = split(strline, "|")
+        id = parse(Int64, line[1])
+        friends = map(x -> parse(Int64, x), line[2:end])
+        personFriends[id] = friends
+    end
+
+end
+
+
+
+
 
 #def key_params(sample, lower_bound, upper_bound):
 #   results = []
@@ -112,3 +145,4 @@ tagClassFactors
 tagFactors
 nameFactors
 timestamps
+personFriends
