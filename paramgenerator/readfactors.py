@@ -17,9 +17,6 @@ class FactorCount:
 	def __init__(self):
 		self.values = [0]*len(FACTORS)
 
-	def setValue(self, factor, value):
-		self.values[FACTOR_MAP[factor]] = value
-
 	def addValue(self, factor, value):
 		self.values[FACTOR_MAP[factor]] += value
 
@@ -37,9 +34,6 @@ class Factors:
 
 	def existParam(self, p):
 		return p in self.values
-
-	def setValue(self, person, factor, value):
-		self.values[person].setValue(factor, value)
 
 	def getValue(self, person, factor):
 		return self.values[person].getValue(factor)
@@ -223,13 +217,6 @@ def getCountryFactorsForQuery(queryId, factors):
 	queryFactorDict = {
 		3: getColumns(factors, ["p"]),
 		11: getColumns(factors, ["p"])
-	}
-
-	return queryFactorDict[queryId]
-
-def getTagFactorsForQuery(queryId, factors):
-	queryFactorDict = {
-		6: getColumns(factors, ["p"]),
 	}
 
 	return queryFactorDict[queryId]
