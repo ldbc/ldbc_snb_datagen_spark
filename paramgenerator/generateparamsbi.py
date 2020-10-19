@@ -244,9 +244,7 @@ def main(argv=None):
    random.seed(1988)
    random.shuffle(persons)
 
-   country_sample = []
-   for key, value in countryFactors.items():
-      country_sample.append([key, value])
+   country_sample = countryFactors
    country_sample.sort(key=lambda x: x[1], reverse=True)
 
    tagclass_posts = tagClassFactors

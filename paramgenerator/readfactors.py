@@ -134,7 +134,7 @@ def load(personFactorFiles, activityFactorFiles, friendFiles):
 
 	return (
 	  results,
-	  countries,
+	  list(countries.items()),
 	  list(tags.items()),
 	  list(tagClasses.items()),
 	  list(names.items()),
@@ -216,12 +216,6 @@ def getFactorsForQuery(queryId, factors):
 	}
 
 	return queryFactorDict[queryId]
-
-def getCountryFactorsForQuery(queryId, factorDict):
-	res = []
-	for key in factorDict:
-		res.append([key, factorDict[key]])
-	return res
 
 if __name__ == "__main__":
 	argv = sys.argv

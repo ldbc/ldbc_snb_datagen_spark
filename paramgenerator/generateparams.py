@@ -139,8 +139,7 @@ def main(argv=None):
 	# find country parameters for Query 3 and 11
 	selectedCountryParams = {}
 	for i in [3, 11]:
-		factors = readfactors.getCountryFactorsForQuery(i, countryFactors)
-		selectedCountryParams[i] = discoverparams.generate(factors, portion=0.1)
+		selectedCountryParams[i] = discoverparams.generate(countryFactors, portion=0.1)
 
 		# make sure there are as many country parameters as person parameters
 		oldlen = len(selectedCountryParams[i])
