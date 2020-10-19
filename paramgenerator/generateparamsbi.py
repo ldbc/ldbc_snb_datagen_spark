@@ -284,20 +284,40 @@ def main(argv=None):
    serialize_q3 (outdir, post_months) #new: 2
    serialize_q14(outdir, post_months) #new: 9
 
-   serialize_q1 (outdir, post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts))
-   serialize_q18(outdir, post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts), post_lengths, language_codes) #new: 12
-   serialize_q10(outdir, key_params(tag_posts, total_posts//900, total_posts//600), post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts)) #new: 8
+   serialize_q1 (outdir,
+      post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts))
+   serialize_q18(outdir,
+      post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts),
+      post_lengths,
+      language_codes) #new: 12
+   serialize_q10(outdir,
+      key_params(tag_posts, total_posts//900, total_posts//600),
+      post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts)) #new: 8
 
-   serialize_q4 (outdir, key_params(tagclass_posts, total_posts//20, total_posts//10), key_params(country_sample, total_posts//150, total_posts//50)) #new: 3
-   serialize_q5 (outdir, key_params(country_sample, total_posts//200, total_posts//100)) #new: 4
-   serialize_q6 (outdir, key_params(tag_posts, total_posts//1300, total_posts//900)) #new: 5
-   serialize_q7 (outdir, key_params(tag_posts, total_posts//900, total_posts//600)) #new: 6
-   serialize_q8 (outdir, key_params(tag_posts, total_posts//600, total_posts//300)) #new: 7
-   serialize_q16(outdir, persons, key_params(tagclass_posts, total_posts//30, total_posts//10), key_params(country_sample, total_posts//80, total_posts//20), path_bounds) #new: 10
-   serialize_q17(outdir, key_params(country_sample, total_posts//200, total_posts//100)) #new: 11
-   serialize_q21(outdir, key_params(country_sample, total_posts//200, total_posts//100)) #new: 13
-   serialize_q22(outdir, key_params(country_sample, total_posts//120, total_posts//40)) #new: 14
-   serialize_q25(outdir, persons, post_months) #new: 15
+   serialize_q4 (outdir,
+      key_params(tagclass_posts, total_posts//20, total_posts//10),
+      key_params(country_sample, total_posts//150, total_posts//50)) #new: 3
+   serialize_q5 (outdir,
+      key_params(country_sample, total_posts//200, total_posts//100)) #new: 4
+   serialize_q6 (outdir,
+      key_params(tag_posts, total_posts//1300, total_posts//900)) #new: 5
+   serialize_q7 (outdir,
+      key_params(tag_posts, total_posts//900, total_posts//600)) #new: 6
+   serialize_q8 (outdir,
+      key_params(tag_posts, total_posts//600, total_posts//300)) #new: 7
+   serialize_q16(outdir,
+      persons,
+      key_params(tagclass_posts, total_posts//30, total_posts//10),
+      key_params(country_sample, total_posts//80, total_posts//20),
+      path_bounds) #new: 10
+   serialize_q17(outdir,
+      key_params(country_sample, total_posts//200, total_posts//100)) #new: 11
+   serialize_q21(outdir,
+      key_params(country_sample, total_posts//200, total_posts//100)) #new: 13
+   serialize_q22(outdir,
+      key_params(country_sample, total_posts//120, total_posts//40)) #new: 14
+   serialize_q25(outdir,
+      persons, post_months) #new: 15
 
 
 if __name__ == "__main__":
