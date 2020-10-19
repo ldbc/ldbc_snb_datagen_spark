@@ -56,9 +56,9 @@ class NameParameter:
 def load(personFactorFiles, activityFactorFiles, friendFiles):
 	print("loading input for parameter generation")
 	results = Factors()
-	postsHisto = Factors()
 	givenNames = NameParameter()
 
+	postsHisto = {}
 	countries = {}
 	tagClasses = {}
 	tags = {}
@@ -84,9 +84,9 @@ def load(personFactorFiles, activityFactorFiles, friendFiles):
 				numMessages = list(map(int,line[9].split(";"))) # number of messages/month
 
 				for i in range(0, len(numMessages)):
-					if not postsHisto.existParam(i):
-						postsHisto.addNewParam(i)
-					postsHisto.addValue(i, "p", numMessages[i])
+					if not i in postsHisto:
+						postsHisto[i] = 0
+					postsHisto[i] += numMessages[i]
 
 	for inputFileName in activityFactorFiles:
 		with codecs.open(inputFileName, "r", "utf-8") as f:

@@ -116,7 +116,7 @@ def main(argv=None):
 			friendsFiles.append(indir+file)
 
 	# read precomputed counts from files	
-	(personFactors, countryFactors, tagFactors, tagClassFactors, nameFactors, givenNames,  ts, postHisto) = readfactors.load(personFactorFiles, activityFactorFiles, friendsFiles)
+	(personFactors, countryFactors, tagFactors, tagClassFactors, nameFactors, givenNames, ts, postsHisto) = readfactors.load(personFactorFiles, activityFactorFiles, friendsFiles)
 
 	# find person parameters
 	selectedPersonParams = {}

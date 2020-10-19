@@ -292,8 +292,8 @@ def add_months(sourcedate,months):
 def convert_posts_histo(histogram):
    week_posts = []
    month = 0
-   while (histogram.existParam(month)):
-      monthTotal = histogram.getValue(month, "p")
+   while (month in histogram):
+      monthTotal = histogram[month]
       baseDate=add_months(START_DATE,month)
       week_posts.append([format_date(baseDate), monthTotal//4])
       week_posts.append([format_date(baseDate+timedelta(days=7)), monthTotal//4])
@@ -325,7 +325,7 @@ def main(argv=None):
          friendsFiles.append(indir+file)
 
    # read precomputed counts from files   
-   (personFactors, countryFactors, tagFactors, tagClassFactors, nameFactors, givenNames,  ts, postsHisto) = \
+   (personFactors, countryFactors, tagFactors, tagClassFactors, nameFactors, givenNames, ts, postsHisto) = \
       readfactors.load(personFactorFiles,activityFactorFiles, friendsFiles)
    week_posts = convert_posts_histo(postsHisto)
 
