@@ -59,12 +59,12 @@ object SparkActivitySerializer {
             clonedPersons.add(new Person(p))
 
             val strbuf = new StringBuilder
-            strbuf.append(p.getAccountId)
             for (k <- p.getKnows.iterator().asScala) {
+              strbuf.append(p.getAccountId)
               strbuf.append("|")
               strbuf.append(k.to.getAccountId)
+              strbuf.append("\n")
             }
-            strbuf.append("\n")
             friends.write(strbuf.toString().getBytes(StandardCharsets.UTF_8))
           }
 

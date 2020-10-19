@@ -135,13 +135,13 @@ public class HadoopPersonActivityGenerator extends DatagenHadoopJob {
                 persons.add(new Person(p));
 
                 StringBuilder strbuf = new StringBuilder();
-                strbuf.append(p.getAccountId());
                 for (Knows k : p.getKnows()) {
+                    strbuf.append(p.getAccountId());
                     strbuf.append("|");
                     strbuf.append(k.to().getAccountId());
+                    strbuf.append("\n");
                 }
 
-                strbuf.append("\n");
                 friends.write(strbuf.toString().getBytes(StandardCharsets.UTF_8));
             }
             System.out.println("Starting generation of block: " + key.block);
