@@ -1,5 +1,6 @@
 # DefaultDict comes from DataStructures #import Pkg; Pkg.add("DataStructures")
 using DataStructures
+using DataFrames
 using CSV
 
 # if length(ARGS) < 2
@@ -97,52 +98,86 @@ end
 resultFactors = DefaultDict{Int64, DefaultDict{String, Int64}}(() -> DefaultDict{String, Int64}(0))
 postsHisto = fill(0, 36+1) # TODO: make this configurable
 
-personFactorFile = personFactorFiles[1]
-personFactorRows = CSV.File(indir * personFactorFile; delim='|', header=["id", "name", "f", "p", "pl", "pt", "g", "w", "pr", "numMessages", "numForums"])
+# personFactorFile = personFactorFiles[1]
+# personFactorsRows = CSV.File(indir * personFactorFile; delim='|', header=["id", "name", "f", "p", "pl", "pt", "g", "w", "pr", "numMessages", "numForums"])
 
-for row in personFactorRows
-    global postsHisto
-    resultFactors[row.id]["f"] = row.f
-    resultFactors[row.id]["p"] += row.p
-    resultFactors[row.id]["pl"] += row.pl
-    resultFactors[row.id]["pt"] += row.pt
-    resultFactors[row.id]["g"] += row.g
-    resultFactors[row.id]["w"] += row.w
-    resultFactors[row.id]["pr"] += row.pr
-    numMessages = map(x -> parse(Int64, x), split(row.numMessages, ";"))
-    postsHisto += numMessages
-end
+# display(personFactorsRows)
+
+# for row in personFactorsRows
+#     global postsHisto
+#     resultFactors[row.id]["f"] = row.f
+#     resultFactors[row.id]["p"] += row.p
+#     resultFactors[row.id]["pl"] += row.pl
+#     resultFactors[row.id]["pt"] += row.pt
+#     resultFactors[row.id]["g"] += row.g
+#     resultFactors[row.id]["w"] += row.w
+#     resultFactors[row.id]["pr"] += row.pr
+#     numMessages = map(x -> parse(Int64, x), split(row.numMessages, ";"))
+#     postsHisto += numMessages
+# end
 
 ## friend list
 
-personFriends = Dict{Int64,Array{Int64}}()
+# personFriends = Dict{Int64,Array{Int64}}()
+
+# friendListFile = friendListFiles[1]
+# open(indir * friendListFile) do f
+#     # read countryFactors
+#     # examples:
+#     # 24189255811623|2199023256816|4398046512254|19791209300118|35184372089014
+#     # 30786325577800|1204|4398046511614
+#     # 30786325578463
+
+#     while (strline = readline(f)) != ""
+#         line = split(strline, "|")
+#         id = parse(Int64, line[1])
+#         friends = map(x -> parse(Int64, x), line[2:end])
+#         personFriends[id] = friends
+#     end
+# end
 
 friendListFile = friendListFiles[1]
-open(indir * friendListFile) do f
-    # read countryFactors
-    # examples:
-    # 24189255811623|2199023256816|4398046512254|19791209300118|35184372089014
-    # 30786325577800|1204|4398046511614
-    # 30786325578463
 
-    while (strline = readline(f)) != ""
-        line = split(strline, "|")
-        id = parse(Int64, line[1])
-        friends = map(x -> parse(Int64, x), line[2:end])
-        personFriends[id] = friends
-    end
+friendList = CSV.read(indir * friendListFile, DataFrame; delim='|', header=["person", "friend"])
+personFactors = CSV.read(indir * personFactorFile, DataFrame; delim='|', header=["person", "name", "f", "p", "pl", "pt", "g", "w", "pr", "numMessages", "numForums"])
 
-end
+personFactors[!, :numMessages] = map.(x -> parse(Int64, x), split.(personFactors[!, :numMessages], ";"))
+
+
+
+friendsFactors = 
+    combine(
+        groupby(
+            innerjoin(friendList, personFactors, on = [:friend => :person])
+            , :person
+        ),
+        :f => sum => :f,
+        :p => sum => :p,
+        :pl => sum => :pl,
+        :pt => sum => :pt,
+        :g => sum => :g,
+        :w => sum => :w,
+        :pr => sum => :pr
+    )
+
+foafFactors =
+    combine(
+        groupby(
+            innerjoin(friendList, friendsFactors, on = [:friend => :person])
+            , :person
+        ),
+        :f => sum => :f,
+        :p => sum => :p,
+        :pl => sum => :pl,
+        :pt => sum => :pt,
+        :g => sum => :g,
+        :w => sum => :w,
+        :pr => sum => :pr
+    )
+
 
 # using the list of friends, compute f* and ff* factors
 
-for (person, friends) in personFriends
-    resultFactors[person]["fp"] += sum(Int64[resultFactors[f]["p"] for f in friends])
-end
-
-for (person, friends) in personFriends
-    resultFactors[person]["ffp"] += sum(Int64[resultFactors[f]["fp"] for f in friends])
-end
 
 resultFactors
 
@@ -165,5 +200,5 @@ summary(tagClassFactors)
 summary(tagFactors)
 summary(nameFactors)
 summary(timestamps)
-summary(personFriends)
 summary(postsHisto)
+
