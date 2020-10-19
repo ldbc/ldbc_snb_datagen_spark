@@ -17,9 +17,11 @@ outdir = "../substitution_out/"
 files = readdir(indir)
 activityFactorFiles = filter(f -> endswith(f, "activityFactors.txt"), files)
 personFactorFiles = filter(x -> occursin(r"personFactors\.txt$", x), files)
-friendListFiles = filter(x -> occursin(r"friendList\d+\.csv$", x), files)
+friendsFiles = filter(x -> occursin(r"friendList\d+\.csv$", x), files)
 
 # factors
+
+# TODO: use data frames to parse these
 
 ## activityFactors
 countryFactors = Dict{String, Int64}()
@@ -95,9 +97,9 @@ end
 
 ## person, friend, and foaf factors
 personFactorFile = personFactorFiles[1]
-friendListFile = friendListFiles[1]
+friendsFile = friendsFiles[1]
 
-friendList = CSV.read(indir * friendListFile, DataFrame; delim='|', header=["person", "friend"])
+friends = CSV.read(indir * friendsFile, DataFrame; delim='|', header=["person", "friend"])
 personFactors = CSV.read(indir * personFactorFile, DataFrame; delim='|', header=["person", "name", "f", "p", "pl", "pt", "g", "w", "pr", "numMessages", "numForums"])
 
 personFactors[!, :numMessages] = map.(x -> parse(Int64, x), split.(personFactors[!, :numMessages], ";"))
@@ -111,10 +113,11 @@ personFactorsAggregated = combine(
 
 postsHisto = personFactorsAggregated.numMessages[1]
 
+# determine factors for friends by computing the sums of the factors grouped by person for friends join_{friends[friend] = personFactors[person]} personFactors
 friendsFactors = 
     combine(
         groupby(
-            innerjoin(friendList, personFactors, on = [:friend => :person])
+            innerjoin(friends, personFactors, on = [:friend => :person])
             , :person
         ),
         :f => sum => :f,
@@ -126,10 +129,11 @@ friendsFactors =
         :pr => sum => :pr
     )
 
+# determine factors for friends of friends
 foafFactors =
     combine(
         groupby(
-            innerjoin(friendList, friendsFactors, on = [:friend => :person])
+            innerjoin(friends, friendsFactors, on = [:friend => :person])
             , :person
         ),
         :f => sum => :f,
@@ -141,8 +145,6 @@ foafFactors =
         :pr => sum => :pr
     )
 
-
-# using the list of friends, compute f* and ff* factors
 
 
 

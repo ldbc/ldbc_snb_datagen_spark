@@ -358,7 +358,7 @@ def main(argv=None):
    post_upper_threshold = 0.1*total_posts*1.1
    post_day_ranges = post_date_range_params(week_posts, post_lower_threshold, post_upper_threshold)
    
-   bad_words = ['Augustine','William','James','with','Henry','Robert','from','Pope','Hippo','album','David','has','one','also','Green','which','that']
+   bad_words = ['Augustine','William','James','with','Henry','Robert','from','Pope','Hippo','album','David','has','one','also','Green','which','that'] #TODO: drop
    #post_lower_threshold = (total_posts/(week_posts[len(week_posts)-1][0]/7/4))*0.8
    #post_upper_threshold = (total_posts/(week_posts[len(week_posts)-1][0]/7/4))*1.2
    non_empty_weeks=len(week_posts)
@@ -375,12 +375,12 @@ def main(argv=None):
    language_codes = prob_language_codes()
    post_lengths = prob_post_lengths()
 
-   serialize_q2 (outdir, key_params(country_sample, total_posts//200, total_posts//100), post_day_ranges) # TODO determine constants
+   serialize_q2 (outdir, key_params(country_sample, total_posts//200, total_posts//100), post_day_ranges) # TODO determine constants #TODO: drop
    serialize_q3 (outdir, post_months)
    serialize_q14(outdir, post_months)
 
    serialize_q1 (outdir, post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts))
-   serialize_q12(outdir, post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts))
+   serialize_q12(outdir, post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts)) #TODO: drop
    serialize_q18(outdir, post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts), post_lengths, language_codes)
    serialize_q10(outdir, key_params(tag_posts, total_posts//900, total_posts//600), post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts))
 
@@ -389,21 +389,21 @@ def main(argv=None):
    serialize_q6 (outdir, key_params(tag_posts, total_posts//1300, total_posts//900))
    serialize_q7 (outdir, key_params(tag_posts, total_posts//900, total_posts//600))
    serialize_q8 (outdir, key_params(tag_posts, total_posts//600, total_posts//300))
-   serialize_q9 (outdir, key_params(tagclass_posts, 6000, 25000))
-   serialize_q13(outdir, key_params(country_sample, total_posts//200, total_posts//100))
-   serialize_q15(outdir, key_params(country_sample, total_posts//200, total_posts//100))
+   serialize_q9 (outdir, key_params(tagclass_posts, 6000, 25000)) #TODO: drop
+   serialize_q13(outdir, key_params(country_sample, total_posts//200, total_posts//100)) #TODO: drop
+   serialize_q15(outdir, key_params(country_sample, total_posts//200, total_posts//100)) #TODO: drop
    serialize_q16(outdir, persons, key_params(tagclass_posts, total_posts//30, total_posts//10), key_params(country_sample, total_posts//80, total_posts//20), path_bounds)
    serialize_q17(outdir, key_params(country_sample, total_posts//200, total_posts//100))
-   serialize_q19(outdir, key_params(tagclass_posts, total_posts//60, total_posts//10))
+   serialize_q19(outdir, key_params(tagclass_posts, total_posts//60, total_posts//10)) #TODO: drop
    serialize_q21(outdir, key_params(country_sample, total_posts//200, total_posts//100))
-   serialize_q22(outdir, key_params(country_sample, total_posts//120, total_posts//40))
-   serialize_q23(outdir, key_params(country_sample, total_posts//200, total_posts//100))
+   serialize_q22(outdir, key_params(country_sample, total_posts//120, total_posts//40)) #TODO: drop
+   serialize_q23(outdir, key_params(country_sample, total_posts//200, total_posts//100)) #TODO: drop
    serialize_q24(outdir, key_params(tagclass_posts, total_posts//140, total_posts//5))
    serialize_q25(outdir, persons, post_months)
 
    # TODO: Refine
-   serialize_q20(outdir, key_params(tagclass_posts, total_posts//20, total_posts//2))
-   serialize_q11(outdir, key_params(country_sample, total_posts//80, total_posts//20), bad_words)
+   serialize_q20(outdir, key_params(tagclass_posts, total_posts//20, total_posts//2)) #TODO: drop
+   serialize_q11(outdir, key_params(country_sample, total_posts//80, total_posts//20), bad_words) #TODO: drop
 
 if __name__ == "__main__":
    sys.exit(main())
