@@ -1,6 +1,7 @@
 using DataStructures
 using DataFrames
 using CSV
+using Random
 
 # if length(ARGS) < 2
 #     println("arguments: <input dir> <output dir>")
@@ -87,14 +88,6 @@ tagFactors
 nameFactors
 timestamps
 
-tag_posts = tagFactors
-tag_posts = sort(collect(tag_posts), by=x->x[2], rev=true)
-
-total_posts = 0
-for (tag, count) in tag_posts
-   global total_posts += count
-end
-
 ## person, friend, and foaf factors
 personFactorFile = personFactorFiles[1]
 friendsFile = friendsFiles[1]
@@ -145,27 +138,92 @@ foafFactors =
         :pr => sum => :pr
     )
 
-
-
-
-
-#def key_params(sample, lower_bound, upper_bound):
-#   results = []
-#   for key, count in sample:
-#      if count > lower_bound and count < upper_bound:
-#         results.append([key, count])
-#   return results
-
-# function key_params(sample, lower_bound, upper_bound)
-#     filter(e -> (lower_bound < e[2] && e[2] < upper_bound), sample)
-# end
-
-# bi6 = key_params(tag_posts, total_posts/1300, total_posts/900)
-# bi6
-
 summary(tagClassFactors)
 summary(tagFactors)
 summary(nameFactors)
 summary(timestamps)
 summary(postsHisto)
 
+# def add_months(sourcedate,months):
+#    month = sourcedate.month - 1 + months
+#    year = int(sourcedate.year + month // 12 )
+#    month = month % 12 + 1
+#    day = 1
+#    return sourcedate.replace(year, month, day)
+
+
+function add_months(year, month, day, months)
+    baseMonth = month - 1 + months
+    baseYear = year + month ÷ 12
+    baseMonth = baseMonth % 12 + 1
+    baseDay = 1
+    return (baseYear, baseMonth, baseDay)
+end
+
+
+function convert_posts_histo(histogram, timestamps)
+  week_posts = []
+  for month in 1:length(histogram)
+    # split total into 4 weeks
+    monthTotal = histogram[month]
+    (baseYear, baseMonth, baseDay) = add_months(2010, 01, 01, month)
+    append!(week_posts, [(baseYear, baseMonth, baseDay    , monthTotal ÷ 4)])
+    append!(week_posts, [(baseYear, baseMonth, baseDay+7  , monthTotal ÷ 4)])
+    append!(week_posts, [(baseYear, baseMonth, baseDay+14 , monthTotal ÷ 4)])
+    append!(week_posts, [(baseYear, baseMonth, baseDay+21 , monthTotal ÷ 4)])
+  end
+
+  return week_posts
+end
+
+week_posts = convert_posts_histo(postsHisto, timestamps)
+non_empty_weeks = length(filter(x -> x[4] != 0, week_posts))
+
+non_empty_weeks=len(week_posts)
+for ix in range(0,len(week_posts)):
+    if week_posts[ix][1]==0:
+        non_empty_weeks-= 1
+print(non_empty_weeks)
+
+persons = personFactors[:, :person]
+shuffle!(MersenneTwister(1234), persons)
+
+# sorting and sampling data
+
+country_sample = countryFactors
+
+tag_posts = tagFactors
+tag_posts = sort(collect(tag_posts), by=x->x[2], rev=true)
+
+tagclass_posts = tagClassFactors
+tagclass_posts = sort(collect(tagclass_posts), by=x->x[2], rev=true)
+
+total_posts = sum(values(tagFactors))
+person_sum = sum(TODO)
+
+post_lower_threshold = 0.01*total_posts
+post_upper_threshold = 0.11*total_posts
+
+# TODO: why are these redefined?
+#post_lower_threshold = (total_posts÷(non_empty_weeks÷4))*0.8
+#post_upper_threshold = (total_posts÷(non_empty_weeks÷4))*1.2
+
+
+# non_empty_weeks=len(week_posts)
+# for ix in range(0,len(week_posts)):
+#    if week_posts[ix][1]==0:
+#       non_empty_weeks-= 1
+
+
+# only keep values in (lower bound, upper bound) from sample
+function key_params(sample, lower_bound, upper_bound)
+    filter(e -> (lower_bound < e[2] && e[2] < upper_bound), sample)
+end
+
+#bi4 = key_params(tagclass_posts, total_posts÷20, total_posts÷10)
+#key_params(country_sample, total_posts÷20, total_posts÷10)
+#bi5 = key_params(tag_posts, total_posts÷150, total_posts÷50)
+
+bi6 = key_params(tag_posts, total_posts÷1300, total_posts÷900)
+bi7 = key_params(tag_posts, total_posts÷900, total_posts÷600)
+bi8 = key_params(tag_posts, total_posts÷600, total_posts÷300)
