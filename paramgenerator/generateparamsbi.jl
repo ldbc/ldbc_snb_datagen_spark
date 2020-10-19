@@ -19,18 +19,14 @@ activityFactorFiles = filter(f -> endswith(f, "activityFactors.txt"), files)
 personFactorFiles = filter(x -> occursin(r"personFactors\.txt$", x), files)
 friendListFiles = filter(x -> occursin(r"friendList\d+\.csv$", x), files)
 
-println(activityFactorFiles)
-println(personFactorFiles)
-println(friendListFiles)
-
 # factors
-countryFactors = Dict{String,Int64}()
-tagClassFactors = DefaultDict{String,Int64}(0)
-tagFactors = DefaultDict{String,Int64}(0)
-nameFactors = DefaultDict{String,Int64}(0)
-timestamps = Dict{String,Int64}()
 
-## activity factors
+## activityFactors
+countryFactors = Dict{String, Int64}()
+tagClassFactors = DefaultDict{String, Int64}(0)
+tagFactors = DefaultDict{String, Int64}(0)
+nameFactors = DefaultDict{String, Int64}(0)
+timestamps = Dict{String, Int64}()
 
 activityFactorFile = activityFactorFiles[1]
 open(indir * activityFactorFile) do f
@@ -98,9 +94,24 @@ for (tag, count) in tag_posts
 end
 
 ## person factors
+resultFactors = DefaultDict{Int64, DefaultDict{String, Int64}}(() -> DefaultDict{String, Int64}(0))
+postsHisto = fill(0, 36+1) # TODO: make this configurable
 
 personFactorFile = personFactorFiles[1]
-personFactors = CSV.File(indir * personFactorFile; delim='|', header=["id", "name", "f", "p", "pl", "pt", "g", "w", "pr", "numMessages", "numForums"])
+personFactorRows = CSV.File(indir * personFactorFile; delim='|', header=["id", "name", "f", "p", "pl", "pt", "g", "w", "pr", "numMessages", "numForums"])
+
+for row in personFactorRows
+    global postsHisto
+    resultFactors[row.id]["f"] = row.f
+    resultFactors[row.id]["p"] += row.p
+    resultFactors[row.id]["pl"] += row.pl
+    resultFactors[row.id]["pt"] += row.pt
+    resultFactors[row.id]["g"] += row.g
+    resultFactors[row.id]["w"] += row.w
+    resultFactors[row.id]["pr"] += row.pr
+    numMessages = map(x -> parse(Int64, x), split(row.numMessages, ";"))
+    postsHisto += numMessages
+end
 
 ## friend list
 
@@ -123,8 +134,17 @@ open(indir * friendListFile) do f
 
 end
 
+# using the list of friends, compute f* and ff* factors
 
+for (person, friends) in personFriends
+    resultFactors[person]["fp"] += sum(Int64[resultFactors[f]["p"] for f in friends])
+end
 
+for (person, friends) in personFriends
+    resultFactors[person]["ffp"] += sum(Int64[resultFactors[f]["fp"] for f in friends])
+end
+
+resultFactors
 
 
 #def key_params(sample, lower_bound, upper_bound):
@@ -141,8 +161,9 @@ end
 # bi6 = key_params(tag_posts, total_posts/1300, total_posts/900)
 # bi6
 
-tagClassFactors
-tagFactors
-nameFactors
-timestamps
-personFriends
+summary(tagClassFactors)
+summary(tagFactors)
+summary(nameFactors)
+summary(timestamps)
+summary(personFriends)
+summary(postsHisto)
