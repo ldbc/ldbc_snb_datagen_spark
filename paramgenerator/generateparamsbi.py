@@ -44,16 +44,6 @@ def post_date_right_open_range_params(sample, lower_bound, upper_bound):
          results.append([start_offset, count_sum])
    return results
 
-def post_date_range_params(sample, lower_bound, upper_bound):
-   results = []
-   for ix in range(0, len(sample)):
-      start_offset = sample[ix][0]
-      count_sum = 0
-      for offset, count in sample[ix:]:
-         count_sum += count
-         if count_sum > lower_bound and count_sum < upper_bound:
-            results.append([[start_offset, offset], count_sum])
-   return results
 
 def post_month_params(sample, lower_bound, upper_bound):
    results = []
@@ -193,9 +183,11 @@ def serialize_q25(outdir, persons, post_month_ranges):
 
 def add_months(sourcedate,months):
    month = sourcedate.month - 1 + months
-   year = int(sourcedate.year + month // 12 )
+   year = sourcedate.year + month // 12
    month = month % 12 + 1
-   day = min(sourcedate.day,calendar.monthrange(year,month)[1])
+   # with the default settings, the date is always one due to the hard-coded source-date
+   # day = min(sourcedate.day, calendar.monthrange(year,month)[1])
+   day = 1
    return sourcedate.replace(year, month, day)
 
 def convert_posts_histo(histogram):
@@ -263,15 +255,11 @@ def main(argv=None):
 
    post_lower_threshold = 0.1*total_posts*0.9
    post_upper_threshold = 0.1*total_posts*1.1
-   post_day_ranges = post_date_range_params(week_posts, post_lower_threshold, post_upper_threshold)
    
-   #post_lower_threshold = (total_posts/(week_posts[len(week_posts)-1][0]/7/4))*0.8
-   #post_upper_threshold = (total_posts/(week_posts[len(week_posts)-1][0]/7/4))*1.2
    non_empty_weeks=len(week_posts)
    for ix in range(0,len(week_posts)):
       if week_posts[ix][1]==0:
          non_empty_weeks-= 1
-
    post_lower_threshold = (total_posts//(non_empty_weeks//4))*0.8
    post_upper_threshold = (total_posts//(non_empty_weeks//4))*1.2
    post_months = post_month_params(week_posts, post_lower_threshold, post_upper_threshold)
