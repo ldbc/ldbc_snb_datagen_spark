@@ -56,10 +56,10 @@ class NameParameter:
 def load(personFactorFiles, activityFactorFiles, friendFiles):
 	print("loading input for parameter generation")
 	results = Factors()
-	countries = Factors()
 	postsHisto = Factors()
 	givenNames = NameParameter()
 
+	countries = {}
 	tagClasses = {}
 	tags = {}
 	names = {}
@@ -92,11 +92,12 @@ def load(personFactorFiles, activityFactorFiles, friendFiles):
 		with codecs.open(inputFileName, "r", "utf-8") as f:
 			countryCount = int(f.readline())
 			for i in range(countryCount):
-				line = f.readline().split("|")
-				country = line[0]
-				if not countries.existParam(country):
-					countries.addNewParam(country)
-				countries.addValue(country, "p", int(line[1]))
+				line = f.readline()
+				count = line[1+line.rfind("|"):]
+				name = line[:line.rfind("|")]
+				if not name in countries:
+					countries[name] = 0
+				countries[name] += int(count)
 
 			tagClassCount = int(f.readline())
 			for i in range(tagClassCount):
@@ -213,13 +214,11 @@ def getFactorsForQuery(queryId, factors):
 
 	return queryFactorDict[queryId]
 
-def getCountryFactorsForQuery(queryId, factors):
-	queryFactorDict = {
-		3: getColumns(factors, ["p"]),
-		11: getColumns(factors, ["p"])
-	}
-
-	return queryFactorDict[queryId]
+def getCountryFactorsForQuery(queryId, factorDict):
+	res = []
+	for key in factorDict:
+		res.append([key, factorDict[key]])
+	return res
 
 if __name__ == "__main__":
 	argv = sys.argv
