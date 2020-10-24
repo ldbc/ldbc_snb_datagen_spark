@@ -11,7 +11,7 @@ using Random
 # indir = ARGS[1] * "/"
 # outdir = ARGS[2] * "/"
 
-cd("/home/szarnyasg/git/snb/ldbc_snb_datagen/paramgenerator")
+cd("../paramgenerator")
 indir = "../out/build/"
 outdir = "../substitution_out/"
 
