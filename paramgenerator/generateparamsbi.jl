@@ -210,10 +210,6 @@ function post_month_params(sample, lower_bound, upper_bound)
     return results
 end
 
-week_posts = convert_posts_histo(postsHisto, timestamps)
-post_months = post_month_params(week_posts, post_lower_threshold, post_upper_threshold)
-non_empty_weeks = length(filter(x -> x[2] != 0, week_posts))
-
 persons = personFactors[:, :person]
 shuffle!(MersenneTwister(1234), persons)
 
@@ -233,11 +229,11 @@ person_sum = sum(values(countryFactors))
 #post_lower_threshold = 0.01*total_posts
 #post_upper_threshold = 0.11*total_posts
 
+week_posts = convert_posts_histo(postsHisto, timestamps)
+non_empty_weeks = length(filter(x -> x[2] != 0, week_posts))
+
 post_lower_threshold = (total_posts÷(non_empty_weeks÷4))*0.8
 post_upper_threshold = (total_posts÷(non_empty_weeks÷4))*1.2
-
-post_lower_threshold
-post_upper_threshold
 
 post_months = post_month_params(week_posts, post_lower_threshold, post_upper_threshold)
 post_months
