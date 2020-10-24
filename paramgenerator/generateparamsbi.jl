@@ -152,12 +152,12 @@ summary(postsHisto)
 #    return sourcedate.replace(year, month, day)
 
 
-function add_months(year, month, day, months)
-    baseMonth = month - 1 + months
-    baseYear = year + month ÷ 12
-    baseMonth = baseMonth % 12 + 1
-    baseDay = 1
-    return (baseYear, baseMonth, baseDay)
+function add_months(sourceYear, sourceMonth, sourceDay, nMonths)
+    newMonth = sourceMonth - 1 + nMonths
+    newYear = sourceYear + newMonth ÷ 12
+    newMonth = newMonth % 12 + 1
+    newDay = 1
+    return (newYear, newMonth, newDay)
 end
 
 
@@ -166,24 +166,53 @@ function convert_posts_histo(histogram, timestamps)
   for month in 1:length(histogram)
     # split total into 4 weeks
     monthTotal = histogram[month]
-    (baseYear, baseMonth, baseDay) = add_months(2010, 01, 01, month)
-    append!(week_posts, [(baseYear, baseMonth, baseDay    , monthTotal ÷ 4)])
-    append!(week_posts, [(baseYear, baseMonth, baseDay+7  , monthTotal ÷ 4)])
-    append!(week_posts, [(baseYear, baseMonth, baseDay+14 , monthTotal ÷ 4)])
-    append!(week_posts, [(baseYear, baseMonth, baseDay+21 , monthTotal ÷ 4)])
+    (year, month, day) = add_months(2010, 01, 01, month-1)
+    push!(week_posts, [(year, month, day   ) , monthTotal ÷ 4])
+    push!(week_posts, [(year, month, day+7 ) , monthTotal ÷ 4])
+    push!(week_posts, [(year, month, day+14) , monthTotal ÷ 4])
+    push!(week_posts, [(year, month, day+21) , monthTotal ÷ 4])
   end
 
   return week_posts
 end
+week_posts = convert_posts_histo(postsHisto, timestamps)
+
+function post_date_right_open_range_params(sample, lower_bound, upper_bound)
+    results = []
+    for ix in 1:length(sample)
+        start_offset = sample[ix][1]
+        count_sum = 0
+        for v in sample[ix:length(sample)]
+            count_sum += v[2]
+        end
+        if lower_bound < count_sum < upper_bound
+            push!(results, [start_offset, count_sum])
+        end
+    end
+    return results
+end
+
+function post_month_params(sample, lower_bound, upper_bound)
+    results = []
+    for ix in 0:length(sample)÷4-1
+        start_ix = ix*4+1
+        end_ix = min(ix*4+4, length(sample))
+        count_sum = 0
+        for v in sample[start_ix:end_ix]
+            count_sum += v[2]
+        end
+        start_day = sample[start_ix][1]
+        end_day = sample[end_ix][1]
+        if lower_bound < count_sum < upper_bound
+            push!(results, [[start_day, end_day], count_sum])
+        end
+    end
+    return results
+end
 
 week_posts = convert_posts_histo(postsHisto, timestamps)
+post_months = post_month_params(week_posts, post_lower_threshold, post_upper_threshold)
 non_empty_weeks = length(filter(x -> x[4] != 0, week_posts))
-
-non_empty_weeks=len(week_posts)
-for ix in range(0,len(week_posts)):
-    if week_posts[ix][1]==0:
-        non_empty_weeks-= 1
-print(non_empty_weeks)
 
 persons = personFactors[:, :person]
 shuffle!(MersenneTwister(1234), persons)
@@ -199,31 +228,81 @@ tagclass_posts = tagClassFactors
 tagclass_posts = sort(collect(tagclass_posts), by=x->x[2], rev=true)
 
 total_posts = sum(values(tagFactors))
-person_sum = sum(TODO)
+person_sum = sum(values(countryFactors))
 
-post_lower_threshold = 0.01*total_posts
-post_upper_threshold = 0.11*total_posts
+#post_lower_threshold = 0.01*total_posts
+#post_upper_threshold = 0.11*total_posts
 
-# TODO: why are these redefined?
-#post_lower_threshold = (total_posts÷(non_empty_weeks÷4))*0.8
-#post_upper_threshold = (total_posts÷(non_empty_weeks÷4))*1.2
+post_lower_threshold = (total_posts÷(non_empty_weeks÷4))*0.8
+post_upper_threshold = (total_posts÷(non_empty_weeks÷4))*1.2
 
+post_lower_threshold
+post_upper_threshold
 
-# non_empty_weeks=len(week_posts)
-# for ix in range(0,len(week_posts)):
-#    if week_posts[ix][1]==0:
-#       non_empty_weeks-= 1
+post_months = post_month_params(week_posts, post_lower_threshold, post_upper_threshold)
+post_months
 
+path_bounds = [2, 5] #TODO: this query needs revision anyways
+language_codes = [["ar"], ["tk"], ["tk"], ["uz"], ["uz"], ["uz"], ["uz"], ["uz"], ["uz"], ["uz"], ["uz"], ["uz", "tk"], ["uz", "tk"]]
+post_lengths = [20,40,113,97,240]
 
 # only keep values in (lower bound, upper bound) from sample
 function key_params(sample, lower_bound, upper_bound)
     filter(e -> (lower_bound < e[2] && e[2] < upper_bound), sample)
 end
 
-#bi4 = key_params(tagclass_posts, total_posts÷20, total_posts÷10)
-#key_params(country_sample, total_posts÷20, total_posts÷10)
-#bi5 = key_params(tag_posts, total_posts÷150, total_posts÷50)
+# Q1
+post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts)
 
+# Q3
+bi3 = post_months
+
+# Q4
+bi4 = []
+for i in key_params(tagclass_posts, total_posts÷20, total_posts÷10)
+    for j in key_params(country_sample, total_posts÷150, total_posts÷50)
+        push!(bi4, [i[1], j[1]])
+    end
+end
+bi4
+
+# Q5
+bi5 = key_params(country_sample, total_posts÷200, total_posts÷100)
+
+# Q6
 bi6 = key_params(tag_posts, total_posts÷1300, total_posts÷900)
+
+# Q7
 bi7 = key_params(tag_posts, total_posts÷900, total_posts÷600)
+
+# Q8
 bi8 = key_params(tag_posts, total_posts÷600, total_posts÷300)
+
+# Q14
+
+# Q16
+
+# Q17
+bi17 = key_params(country_sample, total_posts÷200, total_posts÷100)
+
+# Q18
+
+# Q21
+bi21 = []
+for c in keys(key_params(country_sample, total_posts÷200, total_posts÷100))
+    push!(bi21, [c, 1356994800000])
+end
+bi21
+
+# Q22
+bi22 = []
+for i in keys(key_params(country_sample, total_posts÷120, total_posts÷40))
+    for j in keys(key_params(country_sample, total_posts÷120, total_posts÷40))
+        if i < j
+            push!(bi22, [i, j])
+        end
+    end
+end
+bi22
+
+# Q25
