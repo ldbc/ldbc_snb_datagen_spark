@@ -1,5 +1,6 @@
 package ldbc.snb.datagen.spark.generators
 
+import java.io.OutputStream
 import java.nio.charset.StandardCharsets
 import java.util
 import java.util.function.Consumer
@@ -49,8 +50,12 @@ object SparkActivitySerializer {
       val generator = new PersonActivityGenerator
       val exporter = new PersonActivityExporter(dynamicActivitySerializer, insertEventSerializer, deleteEventSerializer, generator.getFactorTable)
       val friends = fs.create(new Path(buildDir + "/" + "m0friendList" + partitionId + ".csv"))
-      val personFactors = fs.create(new Path(buildDir + "/" + "m" + partitionId + DatagenParams.PERSON_COUNTS_FILE))
-      val activityFactors = fs.create(new Path(buildDir + "/" + "m" + partitionId + DatagenParams.ACTIVITY_FILE))
+      val personFactors = fs.create(new Path(buildDir + "/" + "m" + partitionId + DatagenParams.PERSON_FACTORS_FILE))
+      val postsPerCountryFactors = fs.create(new Path(buildDir + "/" + "m" + partitionId + DatagenParams.POSTS_PER_COUNTRY_FACTOR_FILE))
+      val tagClassFactors = fs.create(new Path(buildDir + "/" + "m" + partitionId + DatagenParams.TAGCLASS_FACTOR_FILE))
+      val tagFactors = fs.create(new Path(buildDir + "/" + "m" + partitionId + DatagenParams.TAG_FACTOR_FILE))
+      val firstNameFactors = fs.create(new Path(buildDir + "/" + "m" + partitionId + DatagenParams.FIRSTNAME_FACTOR_FILE))
+      val miscFactors = fs.create(new Path(buildDir + "/" + "m" + partitionId + DatagenParams.MISC_FACTOR_FILE))
 
       try {
         for {(blockId, persons) <- groups} {
@@ -76,12 +81,16 @@ object SparkActivitySerializer {
 
           generator.writePersonFactors(personFactors)
         }
-        generator.writeActivityFactors(activityFactors)
+        generator.writeActivityFactors(postsPerCountryFactors, tagClassFactors, tagFactors, firstNameFactors, miscFactors)
       } finally {
         exporter.close()
-        friends.close()
+        postsPerCountryFactors.close()
+        tagClassFactors.close()
+        tagFactors.close()
+        firstNameFactors.close()
+        miscFactors.close()
         personFactors.close()
-        activityFactors.close()
+        friends.close()
       }
     })
   }

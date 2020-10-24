@@ -354,57 +354,52 @@ public class FactorTable {
         }
     }
 
-    public void writeActivityFactors(OutputStream writer) throws IOException {
+    public void writeActivityFactors(OutputStream postsWriter, OutputStream tagClassWriter, OutputStream tagWriter, OutputStream firstNameWriter, OutputStream miscWriter) throws IOException {
         try {
-            writer.write(Integer.toString(postsPerCountry.size()).getBytes(StandardCharsets.UTF_8));
-            writer.write("\n".getBytes(StandardCharsets.UTF_8));
             for (Map.Entry<Integer, Long> c : postsPerCountry.entrySet()) {
                 String strbuf = Dictionaries.places.getPlaceName(c.getKey()) +
                         "|" +
                         c.getValue() +
                         "\n";
-                writer.write(strbuf.getBytes(StandardCharsets.UTF_8));
+                postsWriter.write(strbuf.getBytes(StandardCharsets.UTF_8));
             }
+            postsWriter.flush();
 
-            writer.write(Integer.toString(tagClassCount.size()).getBytes(StandardCharsets.UTF_8));
-            writer.write("\n".getBytes(StandardCharsets.UTF_8));
             for (Map.Entry<Integer, Long> c : tagClassCount.entrySet()) {
                 String strbuf = Dictionaries.tags.getClassName(c.getKey()) +
                         "|" +
                         c.getValue() +
                         "\n";
-                writer.write(strbuf.getBytes(StandardCharsets.UTF_8));
+                tagClassWriter.write(strbuf.getBytes(StandardCharsets.UTF_8));
             }
-            writer.write(Integer.toString(tagCount.size()).getBytes(StandardCharsets.UTF_8));
-            writer.write("\n".getBytes(StandardCharsets.UTF_8));
+            tagClassWriter.flush();
+
             for (Map.Entry<Integer, Long> c : tagCount.entrySet()) {
                 String strbuf = Dictionaries.tags.getName(c.getKey()) +
                         "|" +
                         c.getValue() +
                         "\n";
-                writer.write(strbuf.getBytes(StandardCharsets.UTF_8));
+                tagWriter.write(strbuf.getBytes(StandardCharsets.UTF_8));
             }
+            tagWriter.flush();
 
-            writer.write(Integer.toString(firstNameCount.size()).getBytes(StandardCharsets.UTF_8));
-            writer.write("\n".getBytes(StandardCharsets.UTF_8));
             for (Map.Entry<String, Long> c : firstNameCount.entrySet()) {
                 String strbuf = c.getKey() +
                         "|" +
                         c.getValue() +
                         "\n";
-                writer.write(strbuf.getBytes(StandardCharsets.UTF_8));
+                firstNameWriter.write(strbuf.getBytes(StandardCharsets.UTF_8));
             }
-            String strbuf = (DatagenParams.startMonth - 1) + // the parameter generator uses 0-based indexing for months
-                    "\n" +
-                    DatagenParams.startYear +
-                    "\n" +
-                    DateUtils.formatYear(minWorkFrom) +
-                    "\n" +
-                    DateUtils.formatYear(maxWorkFrom) +
-                    "\n";
-            writer.write(strbuf.getBytes(StandardCharsets.UTF_8));
-            writer.flush();
-            writer.close();
+            firstNameWriter.flush();
+
+            String strbuf =
+                    "startMonth|startYear|minWorkFrom|maxWorkFrom\n" +
+                    (DatagenParams.startMonth - 1) + "|" + // the parameter generator uses 0-based indexing for months
+                    DatagenParams.startYear + "|" +
+                    DateUtils.formatYear(minWorkFrom) + "|" +
+                    DateUtils.formatYear(maxWorkFrom) + "\n";
+            miscWriter.write(strbuf.getBytes(StandardCharsets.UTF_8));
+            miscWriter.flush();
         } catch (IOException e) {
             System.err.println("Unable to write parameter counts");
             System.err.println(e.getMessage());
