@@ -8,12 +8,13 @@ import readfactors
 import time
 from datetime import datetime, timedelta
 from timeparameters import *
+from calendar import timegm
 
 START_DATE=datetime.strptime("2010-01-01", "%Y-%m-%d")
 END_DATE=datetime.strptime("2013-01-01", "%Y-%m-%d")
 
 def format_date(date):
-   return int(time.mktime(date.timetuple())*1000)
+   return int(calendar.timegm(date.timetuple())*1000)
 
 
 class ParamsWriter:
