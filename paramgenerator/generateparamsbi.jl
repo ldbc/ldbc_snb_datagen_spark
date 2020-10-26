@@ -3,7 +3,8 @@ using DataFrames
 using CSV
 using Random
 
-# only keep values in (lower bound, upper bound) from sample
+# sample based on count,
+# i.e. only keep values in (lower bound, upper bound) from sample
 function key_params(df, lower_bound, upper_bound)
     df[lower_bound .< df.count .< upper_bound, :]
 end
@@ -78,6 +79,10 @@ cd("../paramgenerator")
 indir = "../out/build/"
 outdir = "../substitution_out/"
 
+###############################
+### load CSVs #################
+###############################
+
 files = readdir(indir)
 
 # activity factors
@@ -101,7 +106,7 @@ countFriends = CSV.read(indir * friendsFiles[1], DataFrame; delim='|', header=["
 country_sample = CSV.read(indir * postsPerCountryFactorFiles[1], DataFrame; delim='|', header=["country", "count"])
 tagclass_posts = CSV.read(indir * tagClassCountFactorFiles[1], DataFrame; delim='|', header=["tagClass", "count"])
 tag_posts = CSV.read(indir * tagCountFactorFiles[1], DataFrame; delim='|', header=["tag", "count"])
-# unused in BI
+# unused in the BI workload
 #nameFactors = CSV.read(indir * firstNameCountFactorFiles[1], DataFrame; delim='|', header=["name", "count"])
 misc = CSV.read(indir * miscFactorFiles[1], DataFrame; delim='|')
 
@@ -112,18 +117,21 @@ friendsFile = friendsFiles[1]
 friends = CSV.read(indir * friendsFile, DataFrame; delim='|', header=["person", "friend"])
 personFactors = CSV.read(indir * personFactorFile, DataFrame; delim='|', header=["person", "name", "f", "p", "pl", "pt", "g", "w", "pr", "numMessages", "numForums"])
 
+###############################
+### preprocess data frames ####
+###############################
+
+# create arrays from nested semicolon-separated fields
 personFactors[!, :numMessages] = map.(x -> parse(Int64, x), split.(personFactors[!, :numMessages], ";"))
 personFactors[!, :numForums] = map.(x -> parse(Int64, x), split.(personFactors[!, :numForums], ";"))
-
 personFactorsAggregated = combine(
     groupby(personFactors, []),
     :numMessages => sum => :numMessages,
-    :numForums => sum => :numForums
+    :numForums => sum => :numForums # unused
 )
 
-postsHisto = personFactorsAggregated.numMessages[1]
-
-# determine factors for friends by computing the sums of the factors grouped by person for friends join_{friends[friend] = personFactors[person]} personFactors
+# determine factors for friends by computing the sums of the factors grouped by person for the join expression:
+# friends join_{friends[friend] = personFactors[person]} personFactors
 friendsFactors = 
     combine(
         groupby(
@@ -155,36 +163,33 @@ foafFactors =
         :pr => sum => :pr
     )
 
-
-week_posts = convert_posts_histo(postsHisto, timestamps)
-
-
+# shuffling/ sorting and sampling data
 persons = personFactors[:, :person]
 shuffle!(MersenneTwister(1234), persons)
-
-# sorting and sampling data
-
 sort!(tag_posts, order(:count, rev=true))
 sort!(tagclass_posts, order(:count, rev=true))
 
+# aggregating data
 total_posts = sum(tagFactors.count)
 person_sum = sum(countryFactors.count)
 
-#post_lower_threshold = 0.01*total_posts
-#post_upper_threshold = 0.11*total_posts
-
-week_posts = convert_posts_histo(postsHisto, timestamps)
+posts_histogram = personFactorsAggregated.numMessages
+week_posts = convert_posts_histo(posts_histogram, timestamps)
 non_empty_weeks = length(filter(x -> x[2] != 0, week_posts))
 
+# computing posts/month
 post_lower_threshold = (total_posts÷(non_empty_weeks÷4))*0.8
 post_upper_threshold = (total_posts÷(non_empty_weeks÷4))*1.2
-
 post_months = post_month_params(week_posts, post_lower_threshold, post_upper_threshold)
-post_months
 
-path_bounds = [2, 5] #TODO: this query needs revision anyways
+# some constants
+path_bounds = [2, 5] # TODO: path bound for BI Q16 // 10 need a revision anyways
 language_codes = [["ar"], ["tk"], ["tk"], ["uz"], ["uz"], ["uz"], ["uz"], ["uz"], ["uz"], ["uz"], ["uz"], ["uz", "tk"], ["uz", "tk"]]
 post_lengths = [20,40,113,97,240]
+
+###############################
+### compute params for BI #####
+###############################
 
 # Q1 // 1
 post_date_right_open_range_params(week_posts, 0.3*total_posts, 0.6*total_posts)
