@@ -51,7 +51,7 @@ function add_months(sourceYear, sourceMonth, sourceDay, nMonths)
 end
 
 
-function convert_posts_histo(histogram, timestamps)
+function convert_posts_histo(histogram, timestamps) # TODO: use timestamps
   week_posts = []
   for month in 1:length(histogram)
     # split total into 4 weeks
@@ -108,7 +108,7 @@ tagclass_posts = CSV.read(indir * tagClassCountFactorFiles[1], DataFrame; delim=
 tag_posts = CSV.read(indir * tagCountFactorFiles[1], DataFrame; delim='|', header=["tag", "count"])
 # unused in the BI workload
 #nameFactors = CSV.read(indir * firstNameCountFactorFiles[1], DataFrame; delim='|', header=["name", "count"])
-misc = CSV.read(indir * miscFactorFiles[1], DataFrame; delim='|')
+timestamps = CSV.read(indir * miscFactorFiles[1], DataFrame; delim='|')
 
 ## person, friend, and foaf factors
 personFactorFile = personFactorFiles[1]
@@ -170,10 +170,10 @@ sort!(tag_posts, order(:count, rev=true))
 sort!(tagclass_posts, order(:count, rev=true))
 
 # aggregating data
-total_posts = sum(tagFactors.count)
-person_sum = sum(countryFactors.count)
+total_posts = sum(tag_posts.count)
+person_sum = sum(country_sample.count)
 
-posts_histogram = personFactorsAggregated.numMessages
+posts_histogram = personFactorsAggregated.numMessages[1]
 week_posts = convert_posts_histo(posts_histogram, timestamps)
 non_empty_weeks = length(filter(x -> x[2] != 0, week_posts))
 
