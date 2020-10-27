@@ -151,7 +151,7 @@ def readTimeParams(persons, personFactorFiles, activityFactorFiles, friendFiles)
 	monthcount = 12*3 + 1
 
 	for inputFactorFile in personFactorFiles:
-		with open(inputFactorFile, 'r') as f:
+		with open(inputFactorFile, 'r', encoding="utf-8") as f:
 			for line in f.readlines():
 				line = line.split(",")
 				person = int(line[0])
@@ -170,7 +170,7 @@ def readTimeParams(persons, personFactorFiles, activityFactorFiles, friendFiles)
 	friendsPostsCounts = {}
 	fGroupCount = {}
 	for inputFriendFile in friendFiles:
-		with open(inputFriendFile, 'r') as f:
+		with open(inputFriendFile, 'r', encoding="utf-8") as f:
 			for line in f:
 				people = list(map(int, line.split(",")))
 				person = people[0]
@@ -189,7 +189,7 @@ def readTimeParams(persons, personFactorFiles, activityFactorFiles, friendFiles)
 	ffPostCounts = {}
 	ffGroupCount = {}
 	for inputFriendFile in friendFiles:
-		with open(inputFriendFile, 'r') as f:
+		with open(inputFriendFile, 'r', encoding="utf-8") as f:
 			for line in f:
 				people = list(map(int, line.split(",")))
 				person = people[0]
