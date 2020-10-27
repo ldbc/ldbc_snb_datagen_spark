@@ -4,14 +4,19 @@ VOLUME /mnt/datagen.jar /mnt/params.ini /mnt/data
 
 WORKDIR /mnt/data
 
-ENTRYPOINT ["/spark/bin/spark-submit"]
+# adjust these environment variables
+ENV TEMP_DIR /tmp
+ENV EXECUTOR_MEMORY "1G"
+ENV DRIVER_MEMORY "5G"
 
-# memory settings are sufficient for SF10,
-# increase proportionally for larger scale factors
-CMD ["--class", "ldbc.snb.datagen.spark.LdbcDatagen", \
-     "--master", "local[*]", \
-     "--executor-memory", "1G", \
-     "--driver-memory", "5G", \
-     "/mnt/datagen.jar", \
-     "/mnt/params.ini" \
-]
+# the SPARK_* variables are used by submit.sh to configure the Spark job
+ENV SPARK_LOCAL_DIRS ${TEMP_DIR}
+ENV SPARK_SUBMIT_ARGS --executor-memory ${EXECUTOR_MEMORY} --driver-memory ${DRIVER_MEMORY}
+ENV SPARK_APPLICATION_MAIN_CLASS ldbc.snb.datagen.spark.LdbcDatagen
+ENV SPARK_MASTER_URL local[*]
+ENV SPARK_APPLICATION_JAR_LOCATION /mnt/datagen.jar
+ENV SPARK_APPLICATION_ARGS /mnt/params.ini
+
+COPY submit.sh /
+
+ENTRYPOINT ["/bin/bash", "/submit.sh"]
