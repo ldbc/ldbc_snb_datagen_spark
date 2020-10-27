@@ -20,7 +20,8 @@ class TimeParameter:
 		self.duration=duration
 
 def findTimeParameters(persons, factors, procedure, timestampSelection):
-	if "w" == procedure:
+	print(procedure)
+	if "w" == procedure: # this only takes values f, ff, ffg in the code
 		medians = computeTimeMedians(factors, lastmonthcount = 12)
 	else:
 		medians = computeTimeMedians(factors)
