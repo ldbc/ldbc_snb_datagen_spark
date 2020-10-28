@@ -7,7 +7,7 @@ options(digits=4)
 #### load data ####
 cat("loading data...\n")
 ldbc = paste0(Sys.getenv("LDBC_SNB_DATAGEN_HOME"),"/out/social_network/dynamic/")
-# ldbc = "/Users/jackwaudby/Documents/ldbc/ldbc_snb_datagen/out/social_network/dynamic/"
+#ldbc = "/Users/jackwaudby/Documents/ldbc/ldbc_snb_datagen/out/social_network/dynamic/"
 person = paste0(ldbc,"person_0_0_trimmed.csv")
 forum = paste0(ldbc,"forum_0_0_trimmed.csv")
 post = paste0(ldbc,"post_0_0_trimmed.csv")
@@ -80,7 +80,6 @@ batch_op_cnt <- function(dat,type) {
   return(res)
 }
 
-
 pe = batch_op_cnt(person,"person") %>% rename(c("i-pers" = "i", "d-pers" ="d"))
 po = batch_op_cnt(post,"post") %>% rename(c("i-post" = "i", "d-post" ="d"))
 c = batch_op_cnt(comment,"comment") %>% rename(c("i-comm" = "i", "d-comm" ="d"))
@@ -102,23 +101,21 @@ deletes = tibble(`deletes` = total_d)
 pc = tibble(`pc` = pc)
 
 res = bind_cols(res, inserts, deletes,pc)
-print(res%>% data.frame,row.names = FALSE)
+cat("\nCount by refresh batch, by type:\n")
+print(res %>% data.frame,row.names = FALSE)
 
+cat("\nCount by type:\n")
+totals = res %>% colSums() 
+totals = round(totals[c(-1,-20)],1)
+options("scipen"=100, "digits"=4)
+print(totals)
 
-# plots
-# new_posts_per_day = post %>% filter(creationDate > new_bl) %>% mutate(creationDate = date(creationDate)) %>% count(creationDate)
-# deleted_posts_per_day = post %>% filter(explicitlyDeleted == T, deletionDate > new_bl) %>% mutate(deletionDate = date(deletionDate)) %>% count(deletionDate)
-# 
-# ggplot(new_posts_per_day , aes(x = creationDate, y=n)) + geom_line() 
-# ggplot(deleted_posts_per_day , aes(x = deletionDate, y=n)) + geom_line()
-# 
-# (p_hist <- ggplot(posts_per_day, aes(x=n)) + geom_histogram())
-
-
-# operations_per_type = updates %>% count(type) %>% mutate(type = types)
-# operations_per_day = updates %>% mutate(timestamp = date(timestamp)) %>% group_by(type) %>% count(timestamp) %>% do({
-#    p <- ggplot(., aes(x = timestamp, y = n)) + geom_line()
-#    ggsave(p, filename = paste0("./figs/ops_per_day_type_", unique(.$type),  ".pdf"), width = 4, height = 4, units = "in")
-#    invisible(.)
-#    })
-# TODO: add labels and some colour to plots
+p = rep(0,9)
+ind = 1
+for (i in 1:9) {
+  p[i] = totals[ind+1]/(totals[ind] + totals[ind+1])
+  ind = ind + 2
+}
+names(p) <- c("pers", "post", "comm", "forum", "knows", "likes-p", "likes-c","memb","total")
+cat("\nRatio by type:\n")
+print(round(p,3))

@@ -78,6 +78,7 @@ public class DatagenParams {
     public static final String tagClassHierarchyFile = DICTIONARY_DIRECTORY + "tagClassHierarchy.txt";
     public static final String tagTextFile = DICTIONARY_DIRECTORY + "tagText.txt";
     public static final String tagMatrixFile = DICTIONARY_DIRECTORY + "tagMatrix.txt";
+    public static final String personDeleteFile = DICTIONARY_DIRECTORY + "personDelete.txt";
     public static final String flashmobDistFile = DICTIONARY_DIRECTORY + "flashmobDist.txt";
     public static final String fbSocialDegreeFile = DICTIONARY_DIRECTORY + "facebookBucket100.dat";
 

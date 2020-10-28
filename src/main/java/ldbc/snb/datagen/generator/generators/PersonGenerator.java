@@ -38,11 +38,10 @@ package ldbc.snb.datagen.generator.generators;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
-import ldbc.snb.datagen.util.DateUtils;
+import ldbc.snb.datagen.util.*;
 import ldbc.snb.datagen.generator.distribution.DegreeDistribution;
 import ldbc.snb.datagen.generator.tools.PowerDistribution;
-import ldbc.snb.datagen.util.LdbcConfiguration;
-import ldbc.snb.datagen.util.RandomGeneratorFarm;
+import org.apache.kerby.kerberos.kerb.type.fast.PaAuthnEntry;
 
 import java.text.Normalizer;
 import java.time.Month;
@@ -51,6 +50,7 @@ import java.util.List;
 
 public class PersonGenerator {
 
+    private PersonDeleteDistribution personDeleteDistribution;
     private DegreeDistribution degreeDistribution;
     private PowerDistribution randomTagPowerLaw;
     private RandomGeneratorFarm randomFarm;
@@ -60,7 +60,10 @@ public class PersonGenerator {
 //        try {
 //            this.degreeDistribution = (DegreeDistribution) Class.forName(degreeDistribution).newInstance();
             this.degreeDistribution = DatagenParams.getDegreeDistribution();
+            this.personDeleteDistribution = new PersonDeleteDistribution(DatagenParams.personDeleteFile);
+            personDeleteDistribution.initialize();
             this.degreeDistribution.initialize(conf);
+
 //        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
 //            System.out.print(e.getMessage());
 //        }
@@ -94,11 +97,12 @@ public class PersonGenerator {
         person.setCountryId(countryId);
         person.setCityId(Dictionaries.places.getRandomCity(randomFarm.get(RandomGeneratorFarm.Aspect.CITY), countryId));
         person.setIpAddress(Dictionaries.ips.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), countryId));
-        person.setMaxNumKnows(Math.min(degreeDistribution.nextDegree(), DatagenParams.maxNumFriends));
 
-
+        long maxKnows = Math.min(degreeDistribution.nextDegree(), DatagenParams.maxNumFriends);
+        person.setMaxNumKnows(maxKnows);
+        boolean delete = personDeleteDistribution.isDeleted(randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_PERSON),maxKnows);
         long deletionDate;
-        if (randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_PERSON).nextDouble() < DatagenParams.probPersonDeleted) {
+        if (delete) {
             person.setExplicitlyDeleted(true);
             long maxDeletionDate = Dictionaries.dates.getSimulationEnd();
             deletionDate = Dictionaries.dates.randomPersonDeletionDate(
