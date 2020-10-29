@@ -98,6 +98,8 @@ public class PersonGenerator {
         person.setCityId(Dictionaries.places.getRandomCity(randomFarm.get(RandomGeneratorFarm.Aspect.CITY), countryId));
         person.setIpAddress(Dictionaries.ips.getIP(randomFarm.get(RandomGeneratorFarm.Aspect.IP), countryId));
 
+        person.setMessageDeleter(randomFarm.get(RandomGeneratorFarm.Aspect.RANDOM).nextDouble() > 0.5);
+
         long maxKnows = Math.min(degreeDistribution.nextDegree(), DatagenParams.maxNumFriends);
         person.setMaxNumKnows(maxKnows);
         boolean delete = personDeleteDistribution.isDeleted(randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_PERSON),maxKnows);

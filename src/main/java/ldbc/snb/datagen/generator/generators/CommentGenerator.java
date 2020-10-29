@@ -136,7 +136,9 @@ public class CommentGenerator {
 
             long deletionDate;
             boolean isExplicitlyDeleted;
-            if (randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_COMM).nextDouble() < DatagenParams.probCommentDeleted) {
+
+            // if person is a deleter and selected for delete
+            if (membership.getPerson().getIsMessageDeleter() && randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_COMM).nextDouble() < DatagenParams.probCommentDeleted) {
                 isExplicitlyDeleted = true;
                 long minDeletionDate = creationDate + DatagenParams.delta;
                 long maxDeletionDate = Collections.min(Arrays.asList(parentMessage.getDeletionDate(), membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd()));
