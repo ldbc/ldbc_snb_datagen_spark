@@ -45,6 +45,7 @@ import ldbc.snb.datagen.entities.dynamic.relations.Like;
 import ldbc.snb.datagen.entities.dynamic.relations.Like.LikeType;
 import ldbc.snb.datagen.generator.tools.PowerDistribution;
 import ldbc.snb.datagen.util.Iterators;
+import ldbc.snb.datagen.util.RandomGeneratorFarm;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -83,15 +84,18 @@ public class LikeGenerator {
             }
             long likeCreationDate = Dictionaries.dates.randomDate(random, minCreationDate, maxCreationDate);
 
+
             long likeDeletionDate;
             boolean isExplicitlyDeleted;
-            double prob;
-            if (type == LikeType.COMMENT) {
-                prob = DatagenParams.probCommentLikeDeleted;
-            } else { // treating photo and posts as the same
-                prob = DatagenParams.probPostLikeDeleted;
-            }
-            if(randomDeleteLike.nextDouble() < prob) {
+            if (membership.getPerson().getIsMessageDeleter() && randomDeleteLike.nextDouble() < DatagenParams.probPostLikeDeleted) {
+
+//            double prob;
+//            if (type == LikeType.COMMENT) {
+//                prob = DatagenParams.probCommentLikeDeleted;
+//            } else { // treating photo and posts as the same
+//                prob = DatagenParams.probPostLikeDeleted;
+//            }
+//            if(randomDeleteLike.nextDouble() < prob) {
                 isExplicitlyDeleted = true;
                 long minDeletionDate = likeCreationDate + DatagenParams.delta;
                 long maxDeletionDate = Collections.min(Arrays.asList(
@@ -101,7 +105,7 @@ public class LikeGenerator {
                 if (maxDeletionDate - minDeletionDate < 0) {
                     return Iterators.ForIterator.CONTINUE();
                 }
-                likeDeletionDate = Dictionaries.dates.randomDate(random, minDeletionDate, maxDeletionDate);
+                likeDeletionDate = Dictionaries.dates.powerLawDeleteDate(random, minDeletionDate, maxDeletionDate);
             } else {
                 isExplicitlyDeleted = false;
                 likeDeletionDate = Collections.min(Arrays.asList(
