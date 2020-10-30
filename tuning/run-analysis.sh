@@ -44,7 +44,7 @@ fi
 if [ "$2" == "t" ]; then 
   sa=`date +%s`
   echo "computing batches..."
-  Rscript analysis.R
+  Rscript ./tuning/analysis.R
   ea=`date +%s`
   ra=$((ea-sa))
   echo "computed in $ra secs!"

@@ -11,7 +11,7 @@ buckets = read_delim(buckets,delim = " ",col_names=c("min","max","id"))
 a = 0.3
 r = 0.629
 n = 10
-p1 = rep(0,10)
+p1 = rep(0,10) 
 p1[1] = a
 for (i in 1:10) {
   p1[i+1] = p1[i] * r
@@ -26,6 +26,8 @@ p3 = rep((1 - (sum(p1) + sum(p2)))/900,900)
 cdf = c(p1,p2,p3)
 
 write.table(cdf, file = paste0(ldbc,"personDelete.txt"), row.names = FALSE, col.names = FALSE)
+
+plot(cdf )
 
 ## functions ##
 # Calculates the probability a person is deleted given their max friends.
@@ -68,7 +70,6 @@ for (i in 1:length(samp)) {
   samp[i] = next_degree(rebuilt)
 }
 mean(samp)
-
 
 max_friends = rep(0,sf1)
 delete_prob = rep(0,sf1)
