@@ -53,8 +53,7 @@ public class UniformPostGenerator extends PostGenerator {
     }
 
     @Override
-    protected PostCore generatePostInfo(Random randomDeletePost, Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership) {
-
+    protected PostCore generatePostInfo(Random randomDeletePost, Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership, int numComments) {
         PostCore postCore = new PostCore();
 
         // add creation date
@@ -67,8 +66,12 @@ public class UniformPostGenerator extends PostGenerator {
         postCore.setCreationDate(postCreationDate);
 
         // add deletion date
+
+        // TODO: used in FlashmobPostGen and PhotoGen
+        // if person is deleter * convert num comments into probability
+        double[] prob = {0.08, 0.08, 0.08, 0.08, 0.08, 0.02, 0.02, 0.02, 0.02, 0.02, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.005,0.005};
         long postDeletionDate;
-        if (randomDeletePost.nextDouble() < DatagenParams.probPostDeleted) {
+        if (membership.getPerson().getIsMessageDeleter() && randomDeletePost.nextDouble() < prob[numComments]) {
             postCore.setExplicitlyDeleted(true);
             long minDeletionDate = postCreationDate + DatagenParams.delta;
             long maxDeletionDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd());

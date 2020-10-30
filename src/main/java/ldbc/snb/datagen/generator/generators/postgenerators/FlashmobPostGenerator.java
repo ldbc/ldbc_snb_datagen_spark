@@ -152,7 +152,7 @@ public class FlashmobPostGenerator extends PostGenerator {
      * @param membership forum member
      * @return core information for a post during a flashmob
      */
-    protected PostCore generatePostInfo(Random randomDeletePost, Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership) {
+    protected PostCore generatePostInfo(Random randomDeletePost, Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership, int numComments) {
 
         if (currentForum != forum.getId()) {
             populateForumFlashmobTags(randomTag, forum);
@@ -190,8 +190,9 @@ public class FlashmobPostGenerator extends PostGenerator {
         postCore.setCreationDate(creationDate);
 
         // add deletion date
+        double[] probb = {0.08, 0.08, 0.08, 0.08, 0.08, 0.02, 0.02, 0.02, 0.02, 0.02, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.005,0.005};
         long postDeletionDate;
-        if (randomDeletePost.nextDouble() < probPostDeleted) {
+        if (membership.getPerson().getIsMessageDeleter() && randomDeletePost.nextDouble() < probb[numComments]) {
             postCore.setExplicitlyDeleted(true);
             long minDeletionDate = creationDate + DatagenParams.delta;
             long maxDeletionDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
