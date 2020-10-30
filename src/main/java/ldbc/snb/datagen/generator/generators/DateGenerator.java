@@ -40,6 +40,7 @@ import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.generator.tools.PowerDistribution;
 import ldbc.snb.datagen.util.DateUtils;
 import ldbc.snb.datagen.util.LdbcConfiguration;
+import ldbc.snb.datagen.util.PowerLawActivityDeleteDistribution;
 import ldbc.snb.datagen.util.formatter.DateFormatter;
 
 import java.time.LocalDate;
@@ -63,6 +64,7 @@ public class DateGenerator {
     private long bulkLoadThreshold;
     private PowerDistribution powerDist;
     private DateFormatter dateFormatter;
+    private PowerLawActivityDeleteDistribution powerLawActivityDeleteDistribution;
 
     // This constructor is for the case of friendship's created date generator
     public DateGenerator(LdbcConfiguration conf, LocalDate simulationStartYear, LocalDate simulationEndYear,
@@ -70,7 +72,8 @@ public class DateGenerator {
         simulationStart = DateUtils.toEpochMilli(simulationStartYear);
         simulationEnd = DateUtils.toEpochMilli(simulationEndYear);
         powerDist = new PowerDistribution(0.0, 1.0, alpha);
-
+        powerLawActivityDeleteDistribution = new PowerLawActivityDeleteDistribution(DatagenParams.powerLawActivityDeleteFile);
+        powerLawActivityDeleteDistribution.initialize();
         // For birthday from 1980 to 1990
         fromBirthDay = DateUtils.toEpochMilli(LocalDate.of(1980, 1, 1));
         toBirthDay = DateUtils.toEpochMilli(LocalDate.of(1990, 1, 1));
@@ -149,6 +152,16 @@ public class DateGenerator {
         assert (minDate < maxDate) : "Invalid interval bounds. maxDate (" + maxDate + ") should be larger than minDate(" + minDate +")";
         return (long) (random.nextDouble() * (maxDate - minDate) + minDate);
     }
+
+    public long powerLawDeleteDate(Random random, long minDate, long maxDate) {
+        long deletionDate = (long) (minDate + powerLawActivityDeleteDistribution.nextDouble(random.nextDouble(),random));
+        if (deletionDate > maxDate ) {
+            deletionDate = maxDate - 1000; // to avoid 2 explicit deletes having the same timestamp
+        }
+        return deletionDate;
+    }
+
+
 
     /**
      * Returns the creation date of a comment following a power law distribution.

@@ -95,7 +95,7 @@ class PhotoGenerator {
                 isExplicitlyDeleted = true;
                 long minDeletionDate = creationDate + DatagenParams.delta;
                 long maxDeletionDate = Math.min(album.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
-                deletionDate = Dictionaries.dates.randomDate(randomDate, minDeletionDate, maxDeletionDate);
+                deletionDate = Dictionaries.dates.powerLawDeleteDate(randomDate, minDeletionDate, maxDeletionDate);
             } else {
                 isExplicitlyDeleted = false;
                 deletionDate = album.getDeletionDate();

@@ -199,7 +199,7 @@ public class FlashmobPostGenerator extends PostGenerator {
             if (maxDeletionDate - minDeletionDate < 0) {
                 return null;
             }
-            postDeletionDate = Dictionaries.dates.randomDate(randomDate, minDeletionDate, maxDeletionDate);
+            postDeletionDate = Dictionaries.dates.powerLawDeleteDate(randomDate, minDeletionDate, maxDeletionDate);
         } else {
             postCore.setExplicitlyDeleted(false);
             postDeletionDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd());

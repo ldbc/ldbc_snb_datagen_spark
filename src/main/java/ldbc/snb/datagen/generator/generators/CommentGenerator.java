@@ -145,7 +145,7 @@ public class CommentGenerator {
                 if (maxDeletionDate - minDeletionDate < 0) {
                     return Iterators.ForIterator.CONTINUE();
                 }
-                deletionDate = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), minDeletionDate, maxDeletionDate);
+                deletionDate = Dictionaries.dates.powerLawDeleteDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), minDeletionDate, maxDeletionDate);
             } else {
                 isExplicitlyDeleted = false;
                 deletionDate = Collections.min(Arrays.asList(parentMessage.getDeletionDate(), membership.getDeletionDate()));

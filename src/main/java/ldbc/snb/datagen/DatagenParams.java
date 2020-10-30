@@ -81,7 +81,7 @@ public class DatagenParams {
     public static final String personDeleteFile = DICTIONARY_DIRECTORY + "personDelete.txt";
     public static final String flashmobDistFile = DICTIONARY_DIRECTORY + "flashmobDist.txt";
     public static final String fbSocialDegreeFile = DICTIONARY_DIRECTORY + "facebookBucket100.dat";
-
+    public static final String powerLawActivityDeleteFile = DICTIONARY_DIRECTORY + "powerLawActivityDeleteDate.txt";
     //private parameters
     private enum ParameterNames {
         BASE_CORRELATED("generator.baseProbCorrelated"),
