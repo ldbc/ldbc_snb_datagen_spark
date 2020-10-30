@@ -121,18 +121,16 @@ cat("\nRatio by type:\n")
 print(round(p,3))
 
 cat("\nTargets:\n")
-
 pers = mean(person$explicitlyDeleted)*100
 post = mean(post$explicitlyDeleted)*100
 comm = mean(comment$explicitlyDeleted)*100
-form = mean(forum$explicitlyDeleted)*100
+form = mean(forum$explicitlyDeleted[forum$type != "WALL"])*100
 know = mean(person_knows_person$explicitlyDeleted)*100
 likp = mean(person_likes_post$explicitlyDeleted)*100
 likc = mean(person_likes_comment$explicitlyDeleted)*100
-memb = mean(forum_hasMember_person$explicitlyDeleted)*100
+memb = mean(forum_hasMember_person$explicitlyDeleted[forum_hasMember_person$type == "GROUP"])*100
 
-
-target = c(0.03,0.015,0.005,0.99,0.99,0.005,0.005,0.99)*100
+target = c(0.035,0.027,0.018,0.01,0.99,0.024,0.024,0.05)*100
 actual = c(pers,post,comm,form,know,likp,likc,memb)
 heur = rbind(target,actual)
 colnames(heur) <- c("pers", "post", "comm", "form", "knows", "likes-p", "likes-c","memb")

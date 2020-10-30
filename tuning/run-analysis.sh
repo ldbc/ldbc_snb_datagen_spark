@@ -27,13 +27,13 @@ if [ "$1" == "t" ]; then
   st=`date +%s`
   # keep creationDate, deletionDate, explicitlyDeleted
   cut -d'|' -f1-3 $person > $person_trimmed
-  cut -d'|' -f1-3 $forum > $forum_trimmed
+  cut -d'|' -f1-3,6 $forum > $forum_trimmed
   cut -d'|' -f1-3 $post > $post_trimmed
   cut -d'|' -f1-3 $comment > $comment_trimmed
   cut -d'|' -f1-3 $person_likes_comment > $person_likes_comment_trimmed
   cut -d'|' -f1-3 $person_likes_post > $person_likes_post_trimmed
   cut -d'|' -f1-3 $person_knows_person > $person_knows_person_trimmed
-  cut -d'|' -f1-3 $forum_hasMember_person > $forum_hasMember_person_trimmed
+  cut -d'|' -f1-3,6 $forum_hasMember_person > $forum_hasMember_person_trimmed
   et=`date +%s`
   rt=$((et-st))
   echo "files trimmed in $rt secs!"
