@@ -76,7 +76,7 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
         writers.get(FORUM)                    .writeHeader(dates, ImmutableList.of("id", "title", "type"));
         writers.get(FORUM_HASMODERATOR_PERSON).writeHeader(dates, ImmutableList.of("Forum.id", "Person.id"));
         writers.get(FORUM_HASTAG_TAG)         .writeHeader(dates, ImmutableList.of("Forum.id", "Tag.id"));
-        writers.get(FORUM_HASMEMBER_PERSON)   .writeHeader(dates, ImmutableList.of("Forum.id", "Person.id"));
+        writers.get(FORUM_HASMEMBER_PERSON)   .writeHeader(dates, ImmutableList.of("Forum.id", "Person.id", "type"));
 
         writers.get(POST)                     .writeHeader(dates, ImmutableList.of("id", "imageFile", "locationIP", "browserUsed", "language", "content", "length"));
         writers.get(POST_HASCREATOR_PERSON)   .writeHeader(dates, ImmutableList.of("Post.id", "Person.id"));
@@ -135,10 +135,11 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
                 ImmutableList.of(Dictionaries.dates.formatDateTime(membership.getCreationDate()), Dictionaries.dates.formatDateTime(membership.getDeletionDate()), membership.isExplicitlyDeleted()? "true" : "false") :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(membership.getCreationDate()));
 
-        // creationDate, [deletionDate,] Forum.id, Person.id
+        // creationDate, [deletionDate,] Forum.id, Person.id, ForumType
         writers.get(FORUM_HASMEMBER_PERSON).writeEntry(dates, ImmutableList.of(
                 Long.toString(membership.getForumId()),
-                Long.toString(membership.getPerson().getAccountId())
+                Long.toString(membership.getPerson().getAccountId()),
+                membership.getForumType().toString()
         ));
     }
 

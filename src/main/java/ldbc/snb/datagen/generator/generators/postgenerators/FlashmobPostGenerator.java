@@ -48,7 +48,6 @@ import ldbc.snb.datagen.util.Distribution;
 import java.util.*;
 
 import static ldbc.snb.datagen.DatagenParams.maxNumTagPerFlashmobPost;
-import static ldbc.snb.datagen.DatagenParams.probPostDeleted;
 
 public class FlashmobPostGenerator extends PostGenerator {
 
@@ -190,9 +189,8 @@ public class FlashmobPostGenerator extends PostGenerator {
         postCore.setCreationDate(creationDate);
 
         // add deletion date
-        double[] probb = {0.08, 0.08, 0.08, 0.08, 0.08, 0.02, 0.02, 0.02, 0.02, 0.02, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.005,0.005};
         long postDeletionDate;
-        if (membership.getPerson().getIsMessageDeleter() && randomDeletePost.nextDouble() < probb[numComments]) {
+        if (membership.getPerson().getIsMessageDeleter() && randomDeletePost.nextDouble() < DatagenParams.postMapping[numComments]) {
             postCore.setExplicitlyDeleted(true);
             long minDeletionDate = creationDate + DatagenParams.delta;
             long maxDeletionDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd());

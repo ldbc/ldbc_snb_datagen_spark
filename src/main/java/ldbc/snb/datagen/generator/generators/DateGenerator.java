@@ -155,8 +155,9 @@ public class DateGenerator {
 
     public long powerLawDeleteDate(Random random, long minDate, long maxDate) {
         long deletionDate = (long) (minDate + powerLawActivityDeleteDistribution.nextDouble(random.nextDouble(),random));
-        if (deletionDate > maxDate ) {
-            deletionDate = maxDate - 1000; // to avoid 2 explicit deletes having the same timestamp
+        // TODO: if generated value outside the valid bound just pick the midpoint, this can be handled better.
+        if (deletionDate > maxDate) {
+            deletionDate = minDate + (maxDate - minDate)/2;
         }
         return deletionDate;
     }

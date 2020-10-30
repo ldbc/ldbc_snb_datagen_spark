@@ -87,15 +87,7 @@ public class LikeGenerator {
 
             long likeDeletionDate;
             boolean isExplicitlyDeleted;
-            if (membership.getPerson().getIsMessageDeleter() && randomDeleteLike.nextDouble() < DatagenParams.probPostLikeDeleted) {
-
-//            double prob;
-//            if (type == LikeType.COMMENT) {
-//                prob = DatagenParams.probCommentLikeDeleted;
-//            } else { // treating photo and posts as the same
-//                prob = DatagenParams.probPostLikeDeleted;
-//            }
-//            if(randomDeleteLike.nextDouble() < prob) {
+            if (membership.getPerson().getIsMessageDeleter() && randomDeleteLike.nextDouble() < DatagenParams.probLikeDeleted) {
                 isExplicitlyDeleted = true;
                 long minDeletionDate = likeCreationDate + DatagenParams.delta;
                 long maxDeletionDate = Collections.min(Arrays.asList(
