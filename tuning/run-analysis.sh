@@ -25,7 +25,7 @@ forum_hasMember_person_trimmed=$DIR/forum_hasMember_person_0_0_trimmed.csv
 if [ "$1" == "t" ]; then 
   echo "trimming files..."
   st=`date +%s`
-  # keep creationDate, deletionDate, explicitlyDeleted
+  # keep creationDate, deletionDate, explicitlyDeleted, [forum_type]
   cut -d'|' -f1-3 $person > $person_trimmed
   cut -d'|' -f1-3,6 $forum > $forum_trimmed
   cut -d'|' -f1-3 $post > $post_trimmed
