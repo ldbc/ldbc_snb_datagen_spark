@@ -28,6 +28,22 @@ for (i in 1:90) {
 p3 = rep((1 - (sum(p1) + sum(p2)))/900,900)
 pmf = c(p1,p2,p3)
 plot(pmf) # TODO: ggplot
+
+
+ggplot(data = data.frame(x = 1:1002,y = pmf),
+       aes(x = x, y = y)) +
+  geom_line() +
+
+  scale_y_continuous(name="probability",
+                     limits = c(0.0,0.31)) +
+   scale_x_log10(name="x (knows)") +
+  theme_bw() +
+  ggtitle("knows-probability person deleted mapping\n") +
+  theme(plot.title = element_text(hjust = 0.5),
+        text = element_text(size = 12))
+ldbc = "/Users/jackwaudby/Documents/ldbc/ldbc_snb_datagen/tuning/figs/"
+ggsave(paste0(ldbc,"person.pdf"))
+
 write.table(pmf, file = paste0(ldbc,"personDelete.txt"), row.names = FALSE, col.names = FALSE)
 
 

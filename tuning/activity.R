@@ -23,7 +23,26 @@
 # photos in album use flat probability 
 mapping = c(18,15.2,14.2,10,10,10,10,5,5,5,1,1,1,1,1,1,1,1,1,1,1)/100
 mean(mapping) # 0.054
-plot(mapping) #TODO: ggplot
+plot(mapping) 
+
+ggplot(data = data.frame(x = 0:20,
+                         y = mapping,
+                         yend = rep(0,21)),
+       aes(x = x, y = y, xend = x, yend = yend)) +
+  geom_point() +
+  geom_segment() +
+  scale_x_continuous(name="comments",
+                
+                     limits = c(-0.5, 20.5)) +
+  scale_y_continuous(name="probability",
+                     limits = c(0.0,0.2)) +
+  theme_bw() +
+  ggtitle("comment-probability post deleted mapping\n") +
+  theme(plot.title = element_text(hjust = 0.5),
+        text = element_text(size = 12))
+  
+ldbc = "/Users/jackwaudby/Documents/ldbc/ldbc_snb_datagen/tuning/figs/"
+ggsave(paste0(ldbc,"comment.pdf"))
 
 n = 11000  #sf1
 is_deleted = rep(F,n)
@@ -90,7 +109,21 @@ for (i in 1:length(draw)) {
 }
 mean(draw)/60
 sqrt(var(draw))/60
-plot(minutes,p,type="l") #TODO: ggplot
+plot(minutes,p,type="l") 
 
+ggplot(data = data.frame(x = minutes,y = p),
+       aes(x = x, y = y)) +
+  geom_line() +
+  scale_x_continuous(name="x (minutes)",
+                     limits = c(0, 10100)) +
+  scale_y_continuous(name="F(x)",
+                     limits = c(0.0,1.0)) +
+  theme_bw() +
+  ggtitle("cdf post deletion since creation\n") +
+  theme(plot.title = element_text(hjust = 0.5),
+        text = element_text(size = 12))
 
+ldbc = "/Users/jackwaudby/Documents/ldbc/ldbc_snb_datagen/tuning/figs/"
+ggsave(paste0(ldbc,"post_temporal.pdf"))
 
+dev.off()
