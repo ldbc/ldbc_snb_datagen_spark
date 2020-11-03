@@ -136,7 +136,7 @@ abstract public class PostGenerator {
                                 randomFarm.get(RandomGeneratorFarm.Aspect.BROWSER),
                                 member.getPerson().getBrowserId()),
                         forum.getLanguage(),
-                        forum.isExplicitlyDeleted());
+                        postCore.isExplicitlyDeleted());
 
                 Stream<Like> likeStream = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE).nextDouble() <= 0.1
                     ? likeGenerator.generateLikes(

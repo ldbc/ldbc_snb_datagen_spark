@@ -78,7 +78,7 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
         writers.get(FORUM_HASTAG_TAG)         .writeHeader(dates, ImmutableList.of("Forum.id", "Tag.id"));
         writers.get(FORUM_HASMEMBER_PERSON)   .writeHeader(dates, ImmutableList.of("Forum.id", "Person.id", "type"));
 
-        writers.get(POST)                     .writeHeader(dates, ImmutableList.of("id", "imageFile", "locationIP", "browserUsed", "language", "content", "length"));
+        writers.get(POST)                     .writeHeader(dates, ImmutableList.of("id", "imageFile", "locationIP", "browserUsed", "language", "content", "length","Forum.id"));
         writers.get(POST_HASCREATOR_PERSON)   .writeHeader(dates, ImmutableList.of("Post.id", "Person.id"));
         writers.get(POST_ISLOCATEDIN_PLACE)   .writeHeader(dates, ImmutableList.of("Post.id", "Place.id"));
         writers.get(POST_HASTAG_TAG)          .writeHeader(dates, ImmutableList.of("Post.id", "Tag.id"));
@@ -156,7 +156,8 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
                 Dictionaries.browsers.getName(post.getBrowserId()),
                 Dictionaries.languages.getLanguageName(post.getLanguage()),
                 post.getContent(),
-                Integer.toString(post.getContent().length())
+                Integer.toString(post.getContent().length()),
+                Long.toString(post.getForumId())
         ));
 
         // creationDate, [deletionDate,] Post.id, Person.id
@@ -247,7 +248,8 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
                 Dictionaries.browsers.getName(photo.getBrowserId()),
                 "",
                 "",
-                Integer.toString(0)
+                Integer.toString(0),
+                Long.toString(photo.getForumId())
         ));
 
         // creationDate, [deletionDate,] Post.id, Place.id

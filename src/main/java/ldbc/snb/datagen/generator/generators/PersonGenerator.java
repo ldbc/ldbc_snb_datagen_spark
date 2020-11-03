@@ -111,9 +111,7 @@ public class PersonGenerator {
                     randomFarm.get(RandomGeneratorFarm.Aspect.DATE), creationDate, person.getMaxNumKnows(), maxDeletionDate);
         } else {
             person.setExplicitlyDeleted(false);
-            long maxDeletionDate = Dictionaries.dates.getNetworkCollapse();
-            deletionDate = Dictionaries.dates.randomPersonDeletionDate(
-                    randomFarm.get(RandomGeneratorFarm.Aspect.DATE), creationDate, person.getMaxNumKnows(), maxDeletionDate);
+            deletionDate = Dictionaries.dates.getNetworkCollapse();
         }
         person.setDeletionDate(deletionDate);
 
