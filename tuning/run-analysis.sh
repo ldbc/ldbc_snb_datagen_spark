@@ -27,8 +27,8 @@ if [ "$1" == "t" ]; then
   st=`date +%s`
   # keep creationDate, deletionDate, explicitlyDeleted, [forum_type]
   cut -d'|' -f1-3 $person > $person_trimmed
-  cut -d'|' -f1-3,6 $forum > $forum_trimmed
-  cut -d'|' -f1-3 $post > $post_trimmed
+  cut -d'|' -f1-3,4,6 $forum > $forum_trimmed
+  cut -d'|' -f1-3,4,11 $post > $post_trimmed
   cut -d'|' -f1-3 $comment > $comment_trimmed
   cut -d'|' -f1-3 $person_likes_comment > $person_likes_comment_trimmed
   cut -d'|' -f1-3 $person_likes_post > $person_likes_post_trimmed

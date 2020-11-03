@@ -7,7 +7,7 @@ ldbc = "/Users/jackwaudby/Documents/ldbc/ldbc_snb_datagen/src/main/resources/dic
 buckets = paste0(ldbc,"facebookBucket100.dat")
 buckets = read_delim(buckets,delim = " ",col_names=c("min","max","id"))
 
-# handcooked cdf
+# handcooked iwiw pmf
 a = 0.3
 r = 0.629
 n = 10
@@ -22,17 +22,20 @@ r=0.99
 for (i in 1:90) {
   p2[i+1] = p2[i] * r
 }
+
+(1 - (sum(p1) + sum(p2)))/900
+
 p3 = rep((1 - (sum(p1) + sum(p2)))/900,900)
-cdf = c(p1,p2,p3)
+pmf = c(p1,p2,p3)
+plot(pmf) # TODO: ggplot
+write.table(pmf, file = paste0(ldbc,"personDelete.txt"), row.names = FALSE, col.names = FALSE)
 
-write.table(cdf, file = paste0(ldbc,"personDelete.txt"), row.names = FALSE, col.names = FALSE)
 
-plot(cdf )
 
 ## functions ##
 # Calculates the probability a person is deleted given their max friends.
-pd_cdf = function(max_friends,cdf) {
-  return(cdf[max_friends + 1])
+pd_cdf = function(max_friends,pmf) {
+  return(pmf[max_friends + 1])
 }
 # Calculates the avg number of friends for a given scale factor.
 tavg = function(s) {
@@ -76,7 +79,7 @@ delete_prob = rep(0,sf1)
 deleted = rep(T,sf1)
 for (i in 1:sf1) {
   max_friends[i] = next_degree(rebuilt)
-  delete_prob[i] = pd_cdf(max_friends[i],cdf)
+  delete_prob[i] = pd_cdf(max_friends[i],pmf)
   if (delete_prob[i] > runif(1)) {
     deleted[i] = T
   } else {
