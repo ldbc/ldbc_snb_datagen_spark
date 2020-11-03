@@ -7,7 +7,7 @@ options(digits=4)
 #### load data ####
 cat("loading data...\n")
 ldbc = paste0(Sys.getenv("LDBC_SNB_DATAGEN_HOME"),"/out/social_network/dynamic/")
-ldbc = "/Users/jackwaudby/Documents/ldbc/ldbc_snb_datagen/out/social_network/dynamic/"
+# ldbc = "/Users/jackwaudby/Documents/ldbc/ldbc_snb_datagen/out/social_network/dynamic/"
 person = paste0(ldbc,"person_0_0_trimmed.csv")
 forum = paste0(ldbc,"forum_0_0_trimmed.csv")
 post = paste0(ldbc,"post_0_0_trimmed.csv")
