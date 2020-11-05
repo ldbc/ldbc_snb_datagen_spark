@@ -7,7 +7,7 @@ options(digits=4)
 #### load data ####
 cat("loading data...\n")
 ldbc = paste0(Sys.getenv("LDBC_SNB_DATAGEN_HOME"),"/out/social_network/dynamic/")
-# ldbc = "/Users/jackwaudby/Documents/ldbc/ldbc_snb_datagen/out/social_network/dynamic/"
+ ldbc = "/Users/jackwaudby/Documents/ldbc/ldbc_snb_datagen/out/social_network/dynamic/"
 person = paste0(ldbc,"person_0_0_trimmed.csv")
 forum = paste0(ldbc,"forum_0_0_trimmed.csv")
 post = paste0(ldbc,"post_0_0_trimmed.csv")
@@ -130,7 +130,7 @@ likp = mean(person_likes_post$explicitlyDeleted)*100
 likc = mean(person_likes_comment$explicitlyDeleted)*100
 memb = mean(forum_hasMember_person$explicitlyDeleted[forum_hasMember_person$type == "GROUP"])*100
 
-target = c(0.035,0.027,0.018,0.01,0.99,0.024,0.024,0.05)*100
+target = c(0.035,0.027,0.018,0.01,0.05,0.024,0.024,0.05)*100
 actual = c(pers,post,comm,form,know,likp,likc,memb)
 heur = rbind(target,actual)
 colnames(heur) <- c("pers", "post", "comm", "form", "knows", "likes-p", "likes-c","memb")
