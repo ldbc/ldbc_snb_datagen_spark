@@ -79,7 +79,7 @@ public class LikeGenerator {
                     message.getDeletionDate(),
                     Dictionaries.dates.getSimulationEnd()
             ));
-            if (maxCreationDate - minCreationDate < 0) {
+            if (maxCreationDate <= minCreationDate) {
                 return Iterators.ForIterator.CONTINUE();
             }
             long likeCreationDate = Dictionaries.dates.randomDate(random, minCreationDate, maxCreationDate);
@@ -94,7 +94,7 @@ public class LikeGenerator {
                         membership.getPerson().getDeletionDate(),
                         message.getDeletionDate(),
                         Dictionaries.dates.getSimulationEnd()));
-                if (maxDeletionDate - minDeletionDate < 0) {
+                if (maxDeletionDate <= minDeletionDate) {
                     return Iterators.ForIterator.CONTINUE();
                 }
                 likeDeletionDate = Dictionaries.dates.powerLawDeleteDate(random, minDeletionDate, maxDeletionDate);
