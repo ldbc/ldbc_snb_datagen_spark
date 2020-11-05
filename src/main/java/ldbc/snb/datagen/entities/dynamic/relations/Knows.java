@@ -182,7 +182,16 @@ public final class Knows implements Writable, Comparable<Knows>, Serializable {
         long deletionDate;
         boolean isExplicitlyDeleted;
 
-        if (deletionRandom.nextDouble() < DatagenParams.probKnowsDeleted) {
+        float similarity = personSimilarity.similarity(personA, personB);
+
+        double deleteProb;
+        if (similarity < 0.9222521) {
+            deleteProb = 0.025;
+        } else {
+            deleteProb = 0.075;
+        }
+
+        if (deletionRandom.nextDouble() < deleteProb) {
             isExplicitlyDeleted = true;
             deletionDate = Dictionaries.dates.randomKnowsDeletionDate(dateRandom, personA, personB, creationDate);
         } else {
@@ -191,7 +200,6 @@ public final class Knows implements Writable, Comparable<Knows>, Serializable {
         }
         assert (creationDate <= deletionDate) : "Knows creation date is larger than knows deletion date";
 
-        float similarity = personSimilarity.similarity(personA, personB);
         return personB.getKnows().add(new Knows(personA, creationDate, deletionDate, similarity,isExplicitlyDeleted)) &&
                 personA.getKnows().add(new Knows(personB, creationDate, deletionDate, similarity,isExplicitlyDeleted));
     }
@@ -208,7 +216,16 @@ public final class Knows implements Writable, Comparable<Knows>, Serializable {
         long deletionDate;
         boolean isExplicitlyDeleted;
 
-        if (deletionRandom.nextDouble() < DatagenParams.probKnowsDeleted) {
+        float similarity = personSimilarity.similarity(personA, personB);
+
+        double deleteProb;
+        if (similarity < 0.9222521) {
+            deleteProb = 0.025;
+        } else {
+            deleteProb = 0.075;
+        }
+
+        if (deletionRandom.nextDouble() < deleteProb) {
             isExplicitlyDeleted = true;
             deletionDate = Dictionaries.dates.randomKnowsDeletionDate(dateRandom, personA, personB, creationDate);
         } else {
@@ -217,7 +234,6 @@ public final class Knows implements Writable, Comparable<Knows>, Serializable {
         }
         assert (creationDate <= deletionDate) : "Knows creation date is larger than knows deletion date";
 
-        float similarity = personSimilarity.similarity(personA, personB);
         if (personB.getKnows().add(new Knows(personA, creationDate, deletionDate, similarity,isExplicitlyDeleted))) {
             personA.getKnows().add(new Knows(personB, creationDate, deletionDate, similarity,isExplicitlyDeleted));
         }

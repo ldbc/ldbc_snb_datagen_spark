@@ -74,7 +74,7 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
         writers.get(PERSON_HASINTEREST_TAG)     .writeHeader(dates, ImmutableList.of("Person.id", "Tag.id"));
         writers.get(PERSON_STUDYAT_ORGANISATION).writeHeader(dates, ImmutableList.of("Person.id", "Organisation.id", "classYear"));
         writers.get(PERSON_WORKAT_ORGANISATION) .writeHeader(dates, ImmutableList.of("Person.id", "Organisation.id", "workFrom"));
-        writers.get(PERSON_KNOWS_PERSON)        .writeHeader(dates, ImmutableList.of("Person1.id", "Person2.id"));
+        writers.get(PERSON_KNOWS_PERSON)        .writeHeader(dates, ImmutableList.of("Person1.id", "Person2.id","weight"));
     }
 
     @Override
@@ -154,13 +154,14 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
     @Override
     protected void serialize(final Person person, Knows knows) {
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate()), person.isExplicitlyDeleted()? "true" : "false") :
-                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()));
+                ImmutableList.of(Dictionaries.dates.formatDateTime(knows.getCreationDate()), Dictionaries.dates.formatDateTime(knows.getDeletionDate()), knows.isExplicitlyDeleted()? "true" : "false") :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(knows.getCreationDate()));
 
-        // creationDate, [deletionDate,] Person.id, Person.id
+        // creationDate, [deletionDate,] Person.id, Person.id, weight
         writers.get(PERSON_KNOWS_PERSON).writeEntry(dates, ImmutableList.of(
                 Long.toString(person.getAccountId()),
-                Long.toString(knows.to().getAccountId())
+                Long.toString(knows.to().getAccountId()),
+                Float.toString(knows.getWeight())
         ));
     }
 
