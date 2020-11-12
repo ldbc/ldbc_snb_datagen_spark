@@ -135,7 +135,7 @@ def loadFriends(friendFiles, factors):
 
 	# scan the friends list and sum up the counts related to friends (number of posts of friends etc)
 	for inputFriendsFileName in friendFiles:
-		with open(inputFriendsFileName, 'r') as f:
+		with open(inputFriendsFileName, 'r', encoding="utf-8") as f:
 			for line in f:
 				people = list(map(int, line.split(",")))
 				person = people[0]
@@ -152,7 +152,7 @@ def loadFriends(friendFiles, factors):
 
 	# second scan for friends-of-friends counts (groups of friends of friends)
 	for inputFriendsFileName in friendFiles:
-		with open(inputFriendsFileName, 'r') as f:
+		with open(inputFriendsFileName, 'r', encoding="utf-8") as f:
 			for line in f:
 				people = list(map(int, line.split(",")))
 				person = people[0]
