@@ -66,6 +66,9 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
                 ImmutableList.of("creationDate", "deletionDate", "explicitlyDeleted") :
                 ImmutableList.of("creationDate");
+        List<String> headerEndKnows = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of("weight") :
+                ImmutableList.of();
 
         writers.get(PERSON)                     .writeHeader(dates, ImmutableList.of("id", "firstName", "lastName", "gender", "birthday", "locationIP", "browserUsed"));
         writers.get(PERSON_SPEAKS_LANGUAGE)     .writeHeader(dates, ImmutableList.of("Person.id", "language"));
@@ -74,7 +77,7 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
         writers.get(PERSON_HASINTEREST_TAG)     .writeHeader(dates, ImmutableList.of("Person.id", "Tag.id"));
         writers.get(PERSON_STUDYAT_ORGANISATION).writeHeader(dates, ImmutableList.of("Person.id", "Organisation.id", "classYear"));
         writers.get(PERSON_WORKAT_ORGANISATION) .writeHeader(dates, ImmutableList.of("Person.id", "Organisation.id", "workFrom"));
-        writers.get(PERSON_KNOWS_PERSON)        .writeHeader(dates, ImmutableList.of("Person1.id", "Person2.id","weight"));
+        writers.get(PERSON_KNOWS_PERSON)        .writeHeader(dates, ImmutableList.of("Person1.id", "Person2.id"), headerEndKnows);
     }
 
     @Override
@@ -153,16 +156,26 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
 
     @Override
     protected void serialize(final Person person, Knows knows) {
-        List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(Dictionaries.dates.formatDateTime(knows.getCreationDate()), Dictionaries.dates.formatDateTime(knows.getDeletionDate()), knows.isExplicitlyDeleted()? "true" : "false") :
+        List<String> rowStart = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(
+                        Dictionaries.dates.formatDateTime(knows.getCreationDate()),
+                        Dictionaries.dates.formatDateTime(knows.getDeletionDate()),
+                        knows.isExplicitlyDeleted()? "true" : "false"
+                ) :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(knows.getCreationDate()));
+        List<String> rowEnd = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(Float.toString(knows.getWeight())) :
+                ImmutableList.of();
 
-        // creationDate, [deletionDate,] Person.id, Person.id, weight
-        writers.get(PERSON_KNOWS_PERSON).writeEntry(dates, ImmutableList.of(
-                Long.toString(person.getAccountId()),
-                Long.toString(knows.to().getAccountId()),
-                Float.toString(knows.getWeight())
-        ));
+        // creationDate[, deletionDate, explicitlyDeleted], Person1.id, Person2.id[, weight]
+        writers.get(PERSON_KNOWS_PERSON).writeEntry(
+                rowStart,
+                ImmutableList.of(
+                    Long.toString(person.getAccountId()),
+                    Long.toString(knows.to().getAccountId())
+                ),
+                rowEnd
+        );
     }
 
 }

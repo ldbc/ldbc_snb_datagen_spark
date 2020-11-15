@@ -138,7 +138,7 @@ public class CsvCompositeMergeForeignDynamicPersonSerializer extends DynamicPers
                 ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate())) :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()));
 
-        // creationDate, [deletionDate,] Person.id, Person.id
+        // creationDate, [deletionDate,] Person1.id, Person2.id
         writers.get(PERSON_KNOWS_PERSON).writeEntry(dates, ImmutableList.of(
                 Long.toString(person.getAccountId()),
                 Long.toString(knows.to().getAccountId())
