@@ -196,7 +196,7 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
     }
   }
 
-  test("Person serializer generates & serializers the same persons") {
+  test("Person serializer generates & serializes the same persons") {
     withHadoopConf() { (conf, hadoopConf) =>
       val persons = spark.sparkContext
         .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](fixturePath / "merged_persons")
