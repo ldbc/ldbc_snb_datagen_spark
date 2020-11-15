@@ -125,7 +125,7 @@ public class CommentGenerator {
             // creation date
             long minCreationDate = Math.max(parentMessage.getCreationDate(), membership.getCreationDate()) + DatagenParams.delta;
             long maxCreationDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
-            if (maxCreationDate - minCreationDate < 0) {
+            if (maxCreationDate <= minCreationDate) {
                 return Iterators.ForIterator.CONTINUE();
             }
             // powerlaw distribtion
@@ -136,14 +136,16 @@ public class CommentGenerator {
 
             long deletionDate;
             boolean isExplicitlyDeleted;
-            if (randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_COMM).nextDouble() < DatagenParams.probCommentDeleted) {
+
+            // if person is a deleter and selected for delete
+            if (membership.getPerson().getIsMessageDeleter() && randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_COMM).nextDouble() < DatagenParams.probCommentDeleted) {
                 isExplicitlyDeleted = true;
                 long minDeletionDate = creationDate + DatagenParams.delta;
                 long maxDeletionDate = Collections.min(Arrays.asList(parentMessage.getDeletionDate(), membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd()));
-                if (maxDeletionDate - minDeletionDate < 0) {
+                if (maxDeletionDate <= minDeletionDate) {
                     return Iterators.ForIterator.CONTINUE();
                 }
-                deletionDate = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), minDeletionDate, maxDeletionDate);
+                deletionDate = Dictionaries.dates.powerLawDeleteDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), minDeletionDate, maxDeletionDate);
             } else {
                 isExplicitlyDeleted = false;
                 deletionDate = Collections.min(Arrays.asList(parentMessage.getDeletionDate(), membership.getDeletionDate()));

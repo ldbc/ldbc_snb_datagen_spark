@@ -53,8 +53,7 @@ public class UniformPostGenerator extends PostGenerator {
     }
 
     @Override
-    protected PostCore generatePostInfo(Random randomDeletePost, Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership) {
-
+    protected PostCore generatePostInfo(Random randomDeletePost, Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership, int numComments) {
         PostCore postCore = new PostCore();
 
         // add creation date
@@ -68,15 +67,16 @@ public class UniformPostGenerator extends PostGenerator {
 
         // add deletion date
         long postDeletionDate;
-        if (randomDeletePost.nextDouble() < DatagenParams.probPostDeleted) {
-            postCore.setExplicitlyDeleted(true);
+        if (membership.getPerson().getIsMessageDeleter() && randomDeletePost.nextDouble() < DatagenParams.postMapping[numComments]) {
+
+                postCore.setExplicitlyDeleted(true);
             long minDeletionDate = postCreationDate + DatagenParams.delta;
             long maxDeletionDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
 
             if (maxDeletionDate - minDeletionDate < 0) {
                 return null;
             }
-            postDeletionDate = Dictionaries.dates.randomDate(randomDate, minDeletionDate, maxDeletionDate);
+            postDeletionDate = Dictionaries.dates.powerLawDeleteDate(randomDate, minDeletionDate, maxDeletionDate);
         } else {
             postCore.setExplicitlyDeleted(false);
             postDeletionDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd());

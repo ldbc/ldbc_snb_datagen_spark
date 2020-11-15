@@ -48,7 +48,6 @@ import ldbc.snb.datagen.util.Distribution;
 import java.util.*;
 
 import static ldbc.snb.datagen.DatagenParams.maxNumTagPerFlashmobPost;
-import static ldbc.snb.datagen.DatagenParams.probPostDeleted;
 
 public class FlashmobPostGenerator extends PostGenerator {
 
@@ -152,7 +151,7 @@ public class FlashmobPostGenerator extends PostGenerator {
      * @param membership forum member
      * @return core information for a post during a flashmob
      */
-    protected PostCore generatePostInfo(Random randomDeletePost, Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership) {
+    protected PostCore generatePostInfo(Random randomDeletePost, Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership, int numComments) {
 
         if (currentForum != forum.getId()) {
             populateForumFlashmobTags(randomTag, forum);
@@ -191,14 +190,14 @@ public class FlashmobPostGenerator extends PostGenerator {
 
         // add deletion date
         long postDeletionDate;
-        if (randomDeletePost.nextDouble() < probPostDeleted) {
+        if (membership.getPerson().getIsMessageDeleter() && randomDeletePost.nextDouble() < DatagenParams.postMapping[numComments]) {
             postCore.setExplicitlyDeleted(true);
             long minDeletionDate = creationDate + DatagenParams.delta;
             long maxDeletionDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
             if (maxDeletionDate - minDeletionDate < 0) {
                 return null;
             }
-            postDeletionDate = Dictionaries.dates.randomDate(randomDate, minDeletionDate, maxDeletionDate);
+            postDeletionDate = Dictionaries.dates.powerLawDeleteDate(randomDate, minDeletionDate, maxDeletionDate);
         } else {
             postCore.setExplicitlyDeleted(false);
             postDeletionDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd());

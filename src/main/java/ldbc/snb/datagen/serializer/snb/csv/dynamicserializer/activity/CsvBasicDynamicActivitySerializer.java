@@ -70,15 +70,15 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
     @Override
     public void writeFileHeaders() {
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of("creationDate", "deletionDate") :
+                ImmutableList.of("creationDate", "deletionDate", "explicitlyDeleted") :
                 ImmutableList.of("creationDate");
 
         writers.get(FORUM)                    .writeHeader(dates, ImmutableList.of("id", "title", "type"));
         writers.get(FORUM_HASMODERATOR_PERSON).writeHeader(dates, ImmutableList.of("Forum.id", "Person.id"));
         writers.get(FORUM_HASTAG_TAG)         .writeHeader(dates, ImmutableList.of("Forum.id", "Tag.id"));
-        writers.get(FORUM_HASMEMBER_PERSON)   .writeHeader(dates, ImmutableList.of("Forum.id", "Person.id"));
+        writers.get(FORUM_HASMEMBER_PERSON)   .writeHeader(dates, ImmutableList.of("Forum.id", "Person.id", "type"));
 
-        writers.get(POST)                     .writeHeader(dates, ImmutableList.of("id", "imageFile", "locationIP", "browserUsed", "language", "content", "length"));
+        writers.get(POST)                     .writeHeader(dates, ImmutableList.of("id", "imageFile", "locationIP", "browserUsed", "language", "content", "length","Forum.id"));
         writers.get(POST_HASCREATOR_PERSON)   .writeHeader(dates, ImmutableList.of("Post.id", "Person.id"));
         writers.get(POST_ISLOCATEDIN_PLACE)   .writeHeader(dates, ImmutableList.of("Post.id", "Place.id"));
         writers.get(POST_HASTAG_TAG)          .writeHeader(dates, ImmutableList.of("Post.id", "Tag.id"));
@@ -97,7 +97,7 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
 
     protected void serialize(final Forum forum) {
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(Dictionaries.dates.formatDateTime(forum.getCreationDate()), Dictionaries.dates.formatDateTime(forum.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(forum.getCreationDate()), Dictionaries.dates.formatDateTime(forum.getDeletionDate()), forum.isExplicitlyDeleted()? "true" : "false") :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(forum.getCreationDate()));
 
         // creationDate, [deletionDate,] id, title, category
@@ -109,7 +109,7 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
 
         // (Forum)-[:hasModerator]->(Person)
         List<String> moderatorDates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(Dictionaries.dates.formatDateTime(forum.getCreationDate()), Dictionaries.dates.formatDateTime(forum.getModeratorDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(forum.getCreationDate()), Dictionaries.dates.formatDateTime(forum.getModeratorDeletionDate()), forum.isExplicitlyDeleted()? "true" : "false") :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(forum.getCreationDate()));
         // to prevent dangling edges, we only serialize the hasModerator edge if the moderator exists and/or
         // we use 'raw data' serialization mode
@@ -132,19 +132,20 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
 
     protected void serialize(final ForumMembership membership) {
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(Dictionaries.dates.formatDateTime(membership.getCreationDate()), Dictionaries.dates.formatDateTime(membership.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(membership.getCreationDate()), Dictionaries.dates.formatDateTime(membership.getDeletionDate()), membership.isExplicitlyDeleted()? "true" : "false") :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(membership.getCreationDate()));
 
-        // creationDate, [deletionDate,] Forum.id, Person.id
+        // creationDate, [deletionDate,] Forum.id, Person.id, ForumType
         writers.get(FORUM_HASMEMBER_PERSON).writeEntry(dates, ImmutableList.of(
                 Long.toString(membership.getForumId()),
-                Long.toString(membership.getPerson().getAccountId())
+                Long.toString(membership.getPerson().getAccountId()),
+                membership.getForumType().toString()
         ));
     }
 
     protected void serialize(final Post post) {
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(Dictionaries.dates.formatDateTime(post.getCreationDate()), Dictionaries.dates.formatDateTime(post.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(post.getCreationDate()), Dictionaries.dates.formatDateTime(post.getDeletionDate()), post.isExplicitlyDeleted()? "true" : "false") :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(post.getCreationDate()));
 
         // creationDate, [deletionDate,] id, imageFile, locationIP, browserUsed, language, content, length
@@ -155,7 +156,8 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
                 Dictionaries.browsers.getName(post.getBrowserId()),
                 Dictionaries.languages.getLanguageName(post.getLanguage()),
                 post.getContent(),
-                Integer.toString(post.getContent().length())
+                Integer.toString(post.getContent().length()),
+                Long.toString(post.getForumId())
         ));
 
         // creationDate, [deletionDate,] Post.id, Person.id
@@ -186,7 +188,7 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
 
     protected void serialize(final Comment comment) {
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(Dictionaries.dates.formatDateTime(comment.getCreationDate()), Dictionaries.dates.formatDateTime(comment.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(comment.getCreationDate()), Dictionaries.dates.formatDateTime(comment.getDeletionDate()), comment.isExplicitlyDeleted()? "true" : "false") :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(comment.getCreationDate()));
 
         // creationDate, [deletionDate,] id, locationIP, browserUsed, content, length
@@ -235,7 +237,7 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
 
     protected void serialize(final Photo photo) {
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(Dictionaries.dates.formatDateTime(photo.getCreationDate()), Dictionaries.dates.formatDateTime(photo.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(photo.getCreationDate()), Dictionaries.dates.formatDateTime(photo.getDeletionDate()), photo.isExplicitlyDeleted()? "true" : "false") :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(photo.getCreationDate()));
 
         // creationDate, [deletionDate,] id, imageFile, locationIP, browserUsed, language, content, length
@@ -246,7 +248,8 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
                 Dictionaries.browsers.getName(photo.getBrowserId()),
                 "",
                 "",
-                Integer.toString(0)
+                Integer.toString(0),
+                Long.toString(photo.getForumId())
         ));
 
         // creationDate, [deletionDate,] Post.id, Place.id
@@ -278,7 +281,7 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
 
     protected void serialize(final Like like) {
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(Dictionaries.dates.formatDateTime(like.getCreationDate()), Dictionaries.dates.formatDateTime(like.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(like.getCreationDate()), Dictionaries.dates.formatDateTime(like.getDeletionDate()), like.isExplicitlyDeleted()? "true" : "false") :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(like.getCreationDate()));
 
         // creationDate, [deletionDate,] Person.id, Post.id/Comment.id

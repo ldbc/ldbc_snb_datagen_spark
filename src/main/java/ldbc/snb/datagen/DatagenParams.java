@@ -78,9 +78,10 @@ public class DatagenParams {
     public static final String tagClassHierarchyFile = DICTIONARY_DIRECTORY + "tagClassHierarchy.txt";
     public static final String tagTextFile = DICTIONARY_DIRECTORY + "tagText.txt";
     public static final String tagMatrixFile = DICTIONARY_DIRECTORY + "tagMatrix.txt";
+    public static final String personDeleteFile = DICTIONARY_DIRECTORY + "personDelete.txt";
     public static final String flashmobDistFile = DICTIONARY_DIRECTORY + "flashmobDist.txt";
     public static final String fbSocialDegreeFile = DICTIONARY_DIRECTORY + "facebookBucket100.dat";
-
+    public static final String powerLawActivityDeleteFile = DICTIONARY_DIRECTORY + "powerLawActivityDeleteDate.txt";
     //private parameters
     private enum ParameterNames {
         BASE_CORRELATED("generator.baseProbCorrelated"),
@@ -134,15 +135,13 @@ public class DatagenParams {
         USER_MAX_TAGS("generator.maxNumTagsPerPerson"),
         USER_MIN_TAGS("generator.minNumTagsPerPerson"),
 
-        PROB_PERSON_DELETED("generator.probPersonDeleted"),
+//        PROB_PERSON_DELETED("generator.probPersonDeleted"),
         PROB_FORUM_DELETED("generator.probForumDeleted"),
-        PROB_POST_DELETED("generator.probPostDeleted"),
+        PROB_PHOTO_DELETED("generator.probPhotoDeleted"),
         PROB_COMMENT_DELETED("generator.probCommentDeleted"),
         PROB_KNOWS_DELETED("generator.probKnowsDeleted"),
         PROB_MEMB_DELETED("generator.probMembDeleted"),
-        PROB_POST_LIKE_DELETED("generator.probPostLikeDeleted"),
-        PROB_COMMENT_LIKE_DELETED("generator.probPostCommentDeleted");
-
+        PROB_LIKE_DELETED("generator.probLikeDeleted");
 
         private final String name;
 
@@ -207,14 +206,21 @@ public class DatagenParams {
     public static int minTextSize = 0;
 
     // deletion probs.
-    public static double probPersonDeleted = 0.0;
+//    public static double probPersonDeleted = 0.0;
     public static double probForumDeleted = 0.0;
-    public static double probPostDeleted = 0.0;
+    public static double probPhotoDeleted = 0.0;
     public static double probCommentDeleted = 0.0;
     public static double probKnowsDeleted = 0.0;
     public static double probMembDeleted = 0.0;
-    public static double probPostLikeDeleted = 0.0;
-    public static double probCommentLikeDeleted = 0.0;
+    public static double probLikeDeleted = 0.0;
+//    public static double probCommentLikeDeleted = 0.0;
+    public static double[] postMapping = {
+            0.18, 0.152,
+            0.142, 0.1, 0.1, 0.1, 0.1,
+            0.05, 0.05, 0.05,
+            0.01, 0.01, 0.01, 0.01, 0.01,
+            0.01, 0.01, 0.01, 0.01, 0.01, 0.01};
+
 
     // Gregorian calendar uses 0-based months
     public static final int startMonth = 0;
@@ -255,14 +261,13 @@ public class DatagenParams {
                 if (conf.get(value.toString()) == null)
                     throw new IllegalStateException("Missing " + value.toString() + " parameter");
 
-            probPersonDeleted = doubleConf(conf, ParameterNames.PROB_PERSON_DELETED);
+//            probPersonDeleted = doubleConf(conf, ParameterNames.PROB_PERSON_DELETED);
             probForumDeleted = doubleConf(conf, ParameterNames.PROB_FORUM_DELETED);
-            probPostDeleted = doubleConf(conf, ParameterNames.PROB_POST_DELETED);
+            probPhotoDeleted = doubleConf(conf, ParameterNames.PROB_PHOTO_DELETED);
             probCommentDeleted = doubleConf(conf, ParameterNames.PROB_COMMENT_DELETED);
             probKnowsDeleted = doubleConf(conf, ParameterNames.PROB_KNOWS_DELETED);
             probMembDeleted = doubleConf(conf, ParameterNames.PROB_MEMB_DELETED);
-            probPostLikeDeleted = doubleConf(conf, ParameterNames.PROB_POST_LIKE_DELETED);
-            probCommentLikeDeleted = doubleConf(conf, ParameterNames.PROB_COMMENT_LIKE_DELETED);
+            probLikeDeleted = doubleConf(conf, ParameterNames.PROB_LIKE_DELETED);
 
             maxNumFriends = intConf(conf, ParameterNames.MAX_FRIENDS);
             minNumTagsPerPerson = intConf(conf, ParameterNames.USER_MIN_TAGS);

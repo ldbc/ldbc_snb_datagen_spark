@@ -47,6 +47,7 @@ import java.util.*;
 public final class Person implements Writable, Serializable, Comparable<Person> {
 
     private boolean isExplicitlyDeleted;
+    private boolean isMessageDeleter;
     private long accountId;
     private long creationDate;
     private long deletionDate;
@@ -77,6 +78,7 @@ public final class Person implements Writable, Serializable, Comparable<Person> 
         if (o == null || getClass() != o.getClass()) return false;
         Person person = (Person) o;
         return isExplicitlyDeleted == person.isExplicitlyDeleted &&
+                isMessageDeleter == person.isMessageDeleter &&
                 accountId == person.accountId &&
                 creationDate == person.creationDate &&
                 deletionDate == person.deletionDate &&
@@ -103,13 +105,14 @@ public final class Person implements Writable, Serializable, Comparable<Person> 
 
     @Override
     public int hashCode() {
-        return Objects.hash(isExplicitlyDeleted, accountId, creationDate, deletionDate, maxNumKnows, knows, browserId, ipAddress, countryId, cityId, interests, mainInterest, universityLocationId, gender, birthday, isLargePoster, randomId, emails, languages, firstName, lastName, companies, classYear);
+        return Objects.hash(isExplicitlyDeleted, isMessageDeleter, accountId, creationDate, deletionDate, maxNumKnows, knows, browserId, ipAddress, countryId, cityId, interests, mainInterest, universityLocationId, gender, birthday, isLargePoster, randomId, emails, languages, firstName, lastName, companies, classYear);
     }
 
     @Override
     public String toString() {
         return "Person{" +
                 "isExplicitlyDeleted=" + isExplicitlyDeleted +
+                ", isMessageDeleter=" + isMessageDeleter +
                 ", accountId=" + accountId +
                 ", creationDate=" + creationDate +
                 ", deletionDate=" + deletionDate +
@@ -157,6 +160,7 @@ public final class Person implements Writable, Serializable, Comparable<Person> 
     public Person(Person p) {
 
         isExplicitlyDeleted = p.isExplicitlyDeleted();
+        isMessageDeleter = p.isMessageDeleter();
         knows = new TreeSet<>();
         emails = new TreeSet<>();
         interests = new TreeSet<>();
@@ -196,6 +200,14 @@ public final class Person implements Writable, Serializable, Comparable<Person> 
         }
         classYear = p.getClassYear();
 
+    }
+
+    public boolean isMessageDeleter() {
+        return isMessageDeleter;
+    }
+
+    public void setMessageDeleter(boolean messageDeleter) {
+        isMessageDeleter = messageDeleter;
     }
 
     public boolean isExplicitlyDeleted() {
@@ -384,10 +396,10 @@ public final class Person implements Writable, Serializable, Comparable<Person> 
 
     public void readFields(DataInput arg0) throws IOException {
         isExplicitlyDeleted = arg0.readBoolean();
+        isMessageDeleter = arg0.readBoolean();
         accountId = arg0.readLong();
         creationDate = arg0.readLong();
         deletionDate = arg0.readLong();
-        isExplicitlyDeleted = arg0.readBoolean();
         maxNumKnows = arg0.readLong();
         int numFriends = arg0.readShort();
         knows = new TreeSet<>();
@@ -439,10 +451,10 @@ public final class Person implements Writable, Serializable, Comparable<Person> 
 
     public void write(DataOutput arg0) throws IOException {
         arg0.writeBoolean(isExplicitlyDeleted);
+        arg0.writeBoolean(isMessageDeleter);
         arg0.writeLong(accountId);
         arg0.writeLong(creationDate);
         arg0.writeLong(deletionDate);
-        arg0.writeBoolean(isExplicitlyDeleted);
         arg0.writeLong(maxNumKnows);
         arg0.writeShort(knows.size());
 
