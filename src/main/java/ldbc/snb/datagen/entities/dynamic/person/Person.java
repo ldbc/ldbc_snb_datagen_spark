@@ -400,7 +400,6 @@ public final class Person implements Writable, Serializable, Comparable<Person> 
         accountId = arg0.readLong();
         creationDate = arg0.readLong();
         deletionDate = arg0.readLong();
-        isExplicitlyDeleted = arg0.readBoolean();
         maxNumKnows = arg0.readLong();
         int numFriends = arg0.readShort();
         knows = new TreeSet<>();
@@ -456,7 +455,6 @@ public final class Person implements Writable, Serializable, Comparable<Person> 
         arg0.writeLong(accountId);
         arg0.writeLong(creationDate);
         arg0.writeLong(deletionDate);
-        arg0.writeBoolean(isExplicitlyDeleted);
         arg0.writeLong(maxNumKnows);
         arg0.writeShort(knows.size());
 
