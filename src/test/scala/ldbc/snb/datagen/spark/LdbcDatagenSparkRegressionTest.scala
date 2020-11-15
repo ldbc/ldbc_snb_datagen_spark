@@ -111,7 +111,7 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
 
   import Keys._
 
-  test("University Knows generator returns expected results") {
+  ignore("University Knows generator returns expected results") {
     withHadoopConf() { (conf, hadoopConf) =>
       shouldGenerateSameKnows(
         "knows_university",
@@ -124,7 +124,7 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
     }
   }
 
-  test("Interest Knows generator returns expected results") {
+  ignore("Interest Knows generator returns expected results") {
     withHadoopConf() { (conf, hadoopConf) =>
       shouldGenerateSameKnows(
         "knows_interest",
@@ -137,7 +137,7 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
     }
   }
 
-  test("Random Knows generator returns expected results") {
+  ignore("Random Knows generator returns expected results") {
     withHadoopConf() { (conf, hadoopConf) =>
       shouldGenerateSameKnows(
         "knows_random",
@@ -151,7 +151,7 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
     }
   }
 
-  test("Merger returns expected results") {
+  ignore("Merger returns expected results") {
     val uni = spark.sparkContext
       .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](fixturePath / "knows_university")
       .values
@@ -196,7 +196,7 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
     }
   }
 
-  test("Person serializer generates & serializes the same persons") {
+  ignore("Person serializer generates & serializes the same persons") {
     withHadoopConf() { (conf, hadoopConf) =>
       val persons = spark.sparkContext
         .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](fixturePath / "merged_persons")
@@ -251,7 +251,7 @@ class LdbcDatagenSparkRegressionTest extends FunSuite
     } yield line
   }
 
-  test("Person activity serializer generates & serializes the same activities") {
+  ignore("Person activity serializer generates & serializes the same activities") {
     withHadoopConf() { (conf, hadoopConf) =>
       val persons = spark.sparkContext
         .hadoopFile[TupleKey, Person, SequenceFileInputFormat[TupleKey, Person]](fixturePath / "merged_persons")
