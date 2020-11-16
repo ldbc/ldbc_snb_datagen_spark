@@ -34,6 +34,19 @@ Initialize the `params.ini` file as needed. For example, to generate the basic C
 cp params-csv-basic.ini params.ini
 ```
 
+The following options are available:
+
+* `generator.scaleFactor`: determines the data set size, options: `0.003` (for tests), `0.1`, `0.3`, `1`, `3`, `10`, `30`, ..., `1000`. Larger ones coming soon (Dec 2020/Jan 2021)
+* `serializer.format`, options:
+  * `CsvBasic`
+  * `CsvMergeForeign`
+  * `CsvComposite`
+  * `CsvCompositeMergeForeign`
+  * RDF/Turtle serializers are currently not supported.
+* `generator.mode`, options:
+  * `interactive`: used for the benchmarks
+  * `rawdata`: used for debugging, includes explicit deletion date timestamps, edge weights used to select deletions, etc. This mode is only compatible with the `CsvBasic` serializer.
+
 ### Docker image
 
 SNB datagen images are available via [Docker Hub](https://hub.docker.com/r/ldbc/datagen/) where you may find both the latest version of the generator as well as previous stable versions.
