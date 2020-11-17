@@ -35,21 +35,25 @@ jobs:
           sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/java-8-openjdk-amd64/bin/java 1
           sudo update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/bin/java
           java -version
-      - run: mvn -ntp test
+      - run: mvn -ntp package
       - run: docker build . -t ldbc/spark
       - run: |
           mkdir dist/
           # deploy CircleCI configuration provide 'filters' instructions (and prevent failed build on gh-pages)
           cp -r .circleci dist/
+          # CsvBasic
           sed 's/:1$/:0.003/g' params-csv-basic.ini > params.ini
           tools/run.sh
           cp -r out/social_network dist/social_network-csv-basic
+          # CsvComposite
           sed 's/:1$/:0.003/g' params-csv-composite.ini > params.ini
           tools/run.sh
           cp -r out/social_network dist/social_network-csv-composite
+          # CsvMergeForeign
           sed 's/:1$/:0.003/g' params-csv-merge-foreign.ini > params.ini
           tools/run.sh
           cp -r out/social_network dist/social_network-csv-merge-foreign
+          # CsvCompositeMergeForeign
           sed 's/:1$/:0.003/g' params-csv-composite-merge-foreign.ini > params.ini
           tools/run.sh
           cp -r out/social_network dist/social_network-csv-composite-merge-foreign
