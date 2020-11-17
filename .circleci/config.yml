@@ -37,10 +37,14 @@ jobs:
           mkdir dist/
           # deploy CircleCI configuration provide 'filters' instructions (and prevent failed build on gh-pages)
           cp -r .circleci dist/
-          # CsvBasic
+          # CsvBasic using 'interactive mode'
           sed 's/:1$/:0.003/g' params-csv-basic.ini > params.ini
           tools/run.sh
           cp -r out/social_network dist/social_network-csv-basic
+          # CsvBasic using 'raw data' mode
+          sed 's/:1$/:0.003/g' params-csv-basic-rawdata.ini > params.ini
+          tools/run.sh
+          cp -r out/social_network dist/social_network-csv-basic-rawdata
           # CsvComposite
           sed 's/:1$/:0.003/g' params-csv-composite.ini > params.ini
           tools/run.sh
