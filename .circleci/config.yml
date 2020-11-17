@@ -1,6 +1,7 @@
 version: 2.1
 orbs:
   slack: circleci/slack@3.4.2
+  gh-pages: sugarshin/gh-pages@0.0.6
 workflows:
   version: 2
   build:
@@ -12,28 +13,51 @@ workflows:
                 - stable
                 - v0.3.3
                 - sigmod2014contest
+                - gh-pages
+      - deploy:
+          filters:
+            branches:
+              only: dev
 
 jobs:
   test:
-    resource_class: large
+    resource_class: xlarge
     working_directory: ~/ldbc/ldbc_snb_datagen
-    docker:
-      - image: ldbc/datagen-build:0.0.2
+    machine:
+      image: ubuntu-2004:202008-01
 
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - m2-dep-branch:{{ .Branch }}-pom:{{ checksum "pom.xml" }}-
-            - m2-dep-branch:dev-pom:{{ checksum "pom.xml" }}-
-            - m2-dep-branch:{{ .Branch }}-
-            - m2-dep-branch:dev-
-      - run: mvn -ntp clean test-compile
-      - save_cache:
-          key: m2-dep-branch:{{ .Branch }}-pom:{{ checksum "pom.xml" }}-{{ epoch }}
-          paths:
-            - ~/.m2/repository   # maven deps
-            - ~/.sbt/1.0/zinc    # scala compiler bridge
+      - run: |
+          DEBIAN_FRONTEND=noninteractive
+          sudo apt update
+          sudo apt install -y openjdk-8-jdk
+          sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/java-8-openjdk-amd64/bin/java 1
+          sudo update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/bin/java
+          java -version
       - run: mvn -ntp test
-      - slack/status:
-          only_for_branches: dev
+      - run: docker build . -t ldbc/spark
+      - run: |
+          mkdir dist/
+          # deploy CircleCI configuration provide 'filters' instructions (and prevent failed build on gh-pages)
+          cp -r .circleci dist/
+          sed 's/:1$/:0.003/g' params-csv-basic.ini > params.ini
+          tools/run.sh
+          cp -r out/social_network dist/social_network-csv-basic
+          sed 's/:1$/:0.003/g' params-csv-composite.ini > params.ini
+          tools/run.sh
+          cp -r out/social_network dist/social_network-csv-composite
+          sed 's/:1$/:0.003/g' params-csv-merge-foreign.ini > params.ini
+          tools/run.sh
+          cp -r out/social_network dist/social_network-csv-merge-foreign
+          sed 's/:1$/:0.003/g' params-csv-composite-merge-foreign.ini > params.ini
+          tools/run.sh
+          cp -r out/social_network dist/social_network-csv-composite-merge-foreign
+      - slack/status
+
+  deploy:
+    docker:
+      - image: cimg/base:2020.01
+    steps:
+      - gh-pages/deploy:
+          ssh-fingerprints: '60:8f:35:48:99:c0:ae:9f:71:6b:a9:66:19:21:95:7d'
