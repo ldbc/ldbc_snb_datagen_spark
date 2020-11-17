@@ -78,7 +78,10 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
         writers.get(FORUM_HASTAG_TAG)         .writeHeader(dates, ImmutableList.of("Forum.id", "Tag.id"));
         writers.get(FORUM_HASMEMBER_PERSON)   .writeHeader(dates, ImmutableList.of("Forum.id", "Person.id", "type"));
 
-        writers.get(POST)                     .writeHeader(dates, ImmutableList.of("id", "imageFile", "locationIP", "browserUsed", "language", "content", "length","Forum.id"));
+        List<String> postEnd = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of("Forum.id") :
+                ImmutableList.of();
+        writers.get(POST)                     .writeHeader(dates, ImmutableList.of("id", "imageFile", "locationIP", "browserUsed", "language", "content", "length"), postEnd);
         writers.get(POST_HASCREATOR_PERSON)   .writeHeader(dates, ImmutableList.of("Post.id", "Person.id"));
         writers.get(POST_ISLOCATEDIN_PLACE)   .writeHeader(dates, ImmutableList.of("Post.id", "Place.id"));
         writers.get(POST_HASTAG_TAG)          .writeHeader(dates, ImmutableList.of("Post.id", "Tag.id"));
@@ -147,8 +150,11 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
                 ImmutableList.of(Dictionaries.dates.formatDateTime(post.getCreationDate()), Dictionaries.dates.formatDateTime(post.getDeletionDate()), post.isExplicitlyDeleted()? "true" : "false") :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(post.getCreationDate()));
+        List<String> postEnd = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(Long.toString(post.getForumId())) :
+                ImmutableList.of();
 
-        // creationDate, [deletionDate,] id, imageFile, locationIP, browserUsed, language, content, length
+        // creationDate, [deletionDate,] id, imageFile, locationIP, browserUsed, language, content, length[, Forum.id]
         writers.get(POST).writeEntry(dates, ImmutableList.of(
                 Long.toString(post.getMessageId()),
                 "",
@@ -156,9 +162,9 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
                 Dictionaries.browsers.getName(post.getBrowserId()),
                 Dictionaries.languages.getLanguageName(post.getLanguage()),
                 post.getContent(),
-                Integer.toString(post.getContent().length()),
-                Long.toString(post.getForumId())
-        ));
+                Integer.toString(post.getContent().length())),
+                postEnd
+        );
 
         // creationDate, [deletionDate,] Post.id, Person.id
         writers.get(POST_HASCREATOR_PERSON).writeEntry(dates, ImmutableList.of(
@@ -239,8 +245,11 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
                 ImmutableList.of(Dictionaries.dates.formatDateTime(photo.getCreationDate()), Dictionaries.dates.formatDateTime(photo.getDeletionDate()), photo.isExplicitlyDeleted()? "true" : "false") :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(photo.getCreationDate()));
+        List<String> postEnd = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(Long.toString(photo.getForumId())) :
+                ImmutableList.of();
 
-        // creationDate, [deletionDate,] id, imageFile, locationIP, browserUsed, language, content, length
+        // creationDate, [deletionDate,] id, imageFile, locationIP, browserUsed, language, content, length[, Forum.id]
         writers.get(POST).writeEntry(dates, ImmutableList.of(
                 Long.toString(photo.getMessageId()),
                 photo.getContent(),
@@ -248,9 +257,9 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
                 Dictionaries.browsers.getName(photo.getBrowserId()),
                 "",
                 "",
-                Integer.toString(0),
-                Long.toString(photo.getForumId())
-        ));
+                Integer.toString(0)),
+                postEnd
+        );
 
         // creationDate, [deletionDate,] Post.id, Place.id
         writers.get(POST_ISLOCATEDIN_PLACE).writeEntry(dates, ImmutableList.of(
