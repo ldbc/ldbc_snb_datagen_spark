@@ -66,10 +66,12 @@ public class CsvCompositeMergeForeignDynamicPersonSerializer extends DynamicPers
                 ImmutableList.of("creationDate", "deletionDate") :
                 ImmutableList.of("creationDate");
 
-        writers.get(PERSON)                     .writeHeader(dates, ImmutableList.of("id", "firstName", "lastName", "gender", "birthday", "locationIP", "browserUsed", "place", "language", "email"));
+        // one-to-many edges, single- and multi-valued attributes
+        writers.get(PERSON)                     .writeHeader(dates, ImmutableList.of("id", "firstName", "lastName", "gender", "birthday", "locationIP", "browserUsed", "isLocatedIn", "speaks", "email"));
+        // many-to-many edges
         writers.get(PERSON_HASINTEREST_TAG)     .writeHeader(dates, ImmutableList.of("Person.id", "Tag.id"));
-        writers.get(PERSON_STUDYAT_ORGANISATION).writeHeader(dates, ImmutableList.of("Person.id", "Organisation.id", "classYear"));
-        writers.get(PERSON_WORKAT_ORGANISATION) .writeHeader(dates, ImmutableList.of("Person.id", "Organisation.id", "workFrom"));
+        writers.get(PERSON_STUDYAT_ORGANISATION).writeHeader(dates, ImmutableList.of("Person.id", "University.id", "classYear"));
+        writers.get(PERSON_WORKAT_ORGANISATION) .writeHeader(dates, ImmutableList.of("Person.id", "Company.id", "workFrom"));
         writers.get(PERSON_KNOWS_PERSON)        .writeHeader(dates, ImmutableList.of("Person1.id", "Person2.id"));
     }
 
@@ -79,7 +81,7 @@ public class CsvCompositeMergeForeignDynamicPersonSerializer extends DynamicPers
                 ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate())) :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()));
 
-        // creationDate, [deletionDate,] id, firstName, lastName, gender, birthday, locationIP, browserUsed, place, language, email
+        // creationDate, id, firstName, lastName, gender, birthday, locationIP, browserUsed, isLocatedIn, language, email
         writers.get(PERSON).writeEntry(dates, ImmutableList.of(
                 Long.toString(person.getAccountId()),
                 person.getFirstName(),
@@ -96,7 +98,7 @@ public class CsvCompositeMergeForeignDynamicPersonSerializer extends DynamicPers
         Iterator<Integer> itInteger = person.getInterests().iterator();
         while (itInteger.hasNext()) {
             Integer interestIdx = itInteger.next();
-            // creationDate, [deletionDate,] Person.id, Tag.id
+            // creationDate, Person.id, Tag.id
             writers.get(PERSON_HASINTEREST_TAG).writeEntry(dates, ImmutableList.of(
                     Long.toString(person.getAccountId()),
                     Integer.toString(interestIdx)
@@ -110,7 +112,7 @@ public class CsvCompositeMergeForeignDynamicPersonSerializer extends DynamicPers
                 ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate())) :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()));
 
-        // creationDate, [deletionDate,] Person.id, Organisation.id, classYear
+        // creationDate, Person.id, University.id, classYear
         writers.get(PERSON_STUDYAT_ORGANISATION).writeEntry(dates, ImmutableList.of(
                 Long.toString(studyAt.person),
                 Long.toString(studyAt.university),
@@ -124,7 +126,7 @@ public class CsvCompositeMergeForeignDynamicPersonSerializer extends DynamicPers
                 ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate())) :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()));
 
-        // creationDate, [deletionDate,] Person.id, Organisation.id, workFrom
+        // creationDate, Person.id, Company.id, workFrom
         writers.get(PERSON_WORKAT_ORGANISATION).writeEntry(dates, ImmutableList.of(
                 Long.toString(workAt.person),
                 Long.toString(workAt.company),
@@ -138,7 +140,7 @@ public class CsvCompositeMergeForeignDynamicPersonSerializer extends DynamicPers
                 ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate())) :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()));
 
-        // creationDate, [deletionDate,] Person1.id, Person2.id
+        // creationDate, Person1.id, Person2.id
         writers.get(PERSON_KNOWS_PERSON).writeEntry(dates, ImmutableList.of(
                 Long.toString(person.getAccountId()),
                 Long.toString(knows.to().getAccountId())

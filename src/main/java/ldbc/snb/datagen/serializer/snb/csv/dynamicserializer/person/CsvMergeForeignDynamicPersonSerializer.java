@@ -68,12 +68,15 @@ public class CsvMergeForeignDynamicPersonSerializer extends DynamicPersonSeriali
                 ImmutableList.of("creationDate", "deletionDate") :
                 ImmutableList.of("creationDate");
 
-        writers.get(PERSON)                     .writeHeader(dates, ImmutableList.of("id", "firstName", "lastName", "gender", "birthday",  "locationIP", "browserUsed", "place"));
-        writers.get(PERSON_SPEAKS_LANGUAGE)     .writeHeader(dates, ImmutableList.of("Person.id", "language"));
+        // single-valued attributes and many-to-one edges
+        writers.get(PERSON)                     .writeHeader(dates, ImmutableList.of("id", "firstName", "lastName", "gender", "birthday",  "locationIP", "browserUsed", "isLocatedIn"));
+        // multi-valued attributes
+        writers.get(PERSON_SPEAKS_LANGUAGE)     .writeHeader(dates, ImmutableList.of("Person.id", "speaks"));
         writers.get(PERSON_EMAIL_EMAILADDRESS)  .writeHeader(dates, ImmutableList.of("Person.id", "email"));
+        // many-to-many edges
         writers.get(PERSON_HASINTEREST_TAG)     .writeHeader(dates, ImmutableList.of("Person.id", "Tag.id"));
-        writers.get(PERSON_STUDYAT_ORGANISATION).writeHeader(dates, ImmutableList.of("Person.id", "Organisation.id", "classYear"));
-        writers.get(PERSON_WORKAT_ORGANISATION) .writeHeader(dates, ImmutableList.of("Person.id", "Organisation.id", "workFrom"));
+        writers.get(PERSON_STUDYAT_ORGANISATION).writeHeader(dates, ImmutableList.of("Person.id", "University.id", "classYear"));
+        writers.get(PERSON_WORKAT_ORGANISATION) .writeHeader(dates, ImmutableList.of("Person.id", "Company.id", "workFrom"));
         writers.get(PERSON_KNOWS_PERSON)        .writeHeader(dates, ImmutableList.of("Person1.id", "Person2.id"));
     }
 
@@ -83,7 +86,7 @@ public class CsvMergeForeignDynamicPersonSerializer extends DynamicPersonSeriali
                 ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate())) :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()));
 
-        //creationDate, [deletionDate,] id, firstName, lastName, gender, birthday, locationIP, browserUsed, place
+        // creationDate, id, firstName, lastName, gender, birthday, locationIP, browserUsed, place
         writers.get(PERSON).writeEntry(dates, ImmutableList.of(
             Long.toString(person.getAccountId()),
             person.getFirstName(),
@@ -97,7 +100,7 @@ public class CsvMergeForeignDynamicPersonSerializer extends DynamicPersonSeriali
 
         List<Integer> languages = person.getLanguages();
         for (int i = 0; i < languages.size(); i++) {
-            //creationDate, [deletionDate,] Person.id, language
+            // creationDate, Person.id, language
             writers.get(PERSON_SPEAKS_LANGUAGE).writeEntry(dates, ImmutableList.of(
                 Long.toString(person.getAccountId()),
                 Dictionaries.languages.getLanguageName(languages.get(i))
@@ -106,7 +109,7 @@ public class CsvMergeForeignDynamicPersonSerializer extends DynamicPersonSeriali
 
         Iterator<String> emails = person.getEmails().iterator();
         while (emails.hasNext()) {
-            //creationDate, [deletionDate,] Person.id, email
+            // creationDate, Person.id, email
             writers.get(PERSON_EMAIL_EMAILADDRESS).writeEntry(dates, ImmutableList.of(
                 Long.toString(person.getAccountId()),
                 emails.next()
@@ -115,7 +118,7 @@ public class CsvMergeForeignDynamicPersonSerializer extends DynamicPersonSeriali
 
         Iterator<Integer> interests = person.getInterests().iterator();
         while (interests.hasNext()) {
-            //creationDate, [deletionDate,] Person.id, Tag.id
+            // creationDate, Person.id, Tag.id
             writers.get(PERSON_HASINTEREST_TAG).writeEntry(dates, ImmutableList.of(
                 Long.toString(person.getAccountId()),
                 Integer.toString(interests.next())
@@ -129,7 +132,7 @@ public class CsvMergeForeignDynamicPersonSerializer extends DynamicPersonSeriali
                 ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate())) :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()));
 
-        //creationDate, [deletionDate,] Person.id, Organisation.id, classYear
+        // creationDate, Person.id, University.id, classYear
         writers.get(PERSON_STUDYAT_ORGANISATION).writeEntry(dates, ImmutableList.of(
             Long.toString(studyAt.person),
             Long.toString(studyAt.university),
@@ -143,7 +146,7 @@ public class CsvMergeForeignDynamicPersonSerializer extends DynamicPersonSeriali
                 ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate())) :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()));
 
-        //creationDate, [deletionDate,] Person.id, Organisation.id, workFrom
+        // creationDate, Person.id, Company.id, workFrom
         writers.get(PERSON_WORKAT_ORGANISATION).writeEntry(dates, ImmutableList.of(
             Long.toString(workAt.person),
             Long.toString(workAt.company),
@@ -157,7 +160,7 @@ public class CsvMergeForeignDynamicPersonSerializer extends DynamicPersonSeriali
                 ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate())) :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()));
 
-        //creationDate, [deletionDate,] Person1.id, Person2.id
+        // creationDate, Person1.id, Person2.id
         writers.get(PERSON_KNOWS_PERSON).writeEntry(dates, ImmutableList.of(
             Long.toString(person.getAccountId()),
             Long.toString(knows.to().getAccountId())
