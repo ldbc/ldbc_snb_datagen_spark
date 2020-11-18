@@ -73,10 +73,13 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
                 ImmutableList.of("creationDate", "deletionDate", "explicitlyDeleted") :
                 ImmutableList.of("creationDate");
 
-        writers.get(FORUM)                    .writeHeader(dates, ImmutableList.of("id", "title", "type"));
+        List<String> forumEnd = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of("type") :
+                ImmutableList.of();
+        writers.get(FORUM)                    .writeHeader(dates, ImmutableList.of("id", "title"), forumEnd);
         writers.get(FORUM_HASMODERATOR_PERSON).writeHeader(dates, ImmutableList.of("Forum.id", "Person.id"));
         writers.get(FORUM_HASTAG_TAG)         .writeHeader(dates, ImmutableList.of("Forum.id", "Tag.id"));
-        writers.get(FORUM_HASMEMBER_PERSON)   .writeHeader(dates, ImmutableList.of("Forum.id", "Person.id", "type"));
+        writers.get(FORUM_HASMEMBER_PERSON)   .writeHeader(dates, ImmutableList.of("Forum.id", "Person.id"), forumEnd);
 
         List<String> postEnd = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
                 ImmutableList.of("Forum.id") :
@@ -103,12 +106,15 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
                 ImmutableList.of(Dictionaries.dates.formatDateTime(forum.getCreationDate()), Dictionaries.dates.formatDateTime(forum.getDeletionDate()), forum.isExplicitlyDeleted()? "true" : "false") :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(forum.getCreationDate()));
 
-        // creationDate, [deletionDate,] id, title, category
+        List<String> forumEnd = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(forum.getForumType().toString()) :
+                ImmutableList.of();
+        // creationDate, [deletionDate,] id, title[, type]
         writers.get(FORUM).writeEntry(dates, ImmutableList.of(
                 Long.toString(forum.getId()),
-                forum.getTitle(),
-                forum.getForumType().toString()
-        ));
+                forum.getTitle()),
+                forumEnd
+        );
 
         // (Forum)-[:hasModerator]->(Person)
         List<String> moderatorDates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
@@ -137,13 +143,16 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
                 ImmutableList.of(Dictionaries.dates.formatDateTime(membership.getCreationDate()), Dictionaries.dates.formatDateTime(membership.getDeletionDate()), membership.isExplicitlyDeleted()? "true" : "false") :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(membership.getCreationDate()));
+        List<String> forumEnd = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(membership.getForumType().toString()) :
+                ImmutableList.of();
 
-        // creationDate, [deletionDate,] Forum.id, Person.id, ForumType
+        // creationDate, [deletionDate,] Forum.id, Person.id[, type]
         writers.get(FORUM_HASMEMBER_PERSON).writeEntry(dates, ImmutableList.of(
                 Long.toString(membership.getForumId()),
-                Long.toString(membership.getPerson().getAccountId()),
-                membership.getForumType().toString()
-        ));
+                Long.toString(membership.getPerson().getAccountId())),
+                forumEnd
+        );
     }
 
     protected void serialize(final Post post) {
