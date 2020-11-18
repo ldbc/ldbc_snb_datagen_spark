@@ -86,7 +86,7 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
                 ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate()), person.isExplicitlyDeleted()? "true" : "false") :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()));
 
-        // creationDate, [deletionDate,] id, firstName, lastName, gender, birthday, locationIP, browserUsed
+        // creationDate[, deletionDate], id, firstName, lastName, gender, birthday, locationIP, browserUsed
         writers.get(PERSON).writeEntry(dates, ImmutableList.of(
                 Long.toString(person.getAccountId()),
                 person.getFirstName(),
@@ -98,27 +98,27 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
         ));
 
         for (Integer i : person.getLanguages()) {
-            // creationDate, [deletionDate,] Person.id, language
+            // creationDate[, deletionDate], Person.id, language
             writers.get(PERSON_SPEAKS_LANGUAGE).writeEntry(dates, ImmutableList.of(
                     Long.toString(person.getAccountId()),
                     Dictionaries.languages.getLanguageName(i)
             ));
         }
         for (String s : person.getEmails()) {
-            // creationDate, [deletionDate,] Person.id, email
+            // creationDate[, deletionDate], Person.id, email
             writers.get(PERSON_EMAIL_EMAILADDRESS).writeEntry(dates, ImmutableList.of(
                     Long.toString(person.getAccountId()),
                     s
             ));
         }
-        // creationDate, [deletionDate,] Person.id, Place.id
+        // creationDate[, deletionDate], Person.id, Place.id
         writers.get(PERSON_ISLOCATEDIN_PLACE).writeEntry(dates, ImmutableList.of(
                 Long.toString(person.getAccountId()),
                 Integer.toString(person.getCityId())
         ));
 
         for (Integer integer : person.getInterests()) {
-            // creationDate, [deletionDate,] Person.id, Tag.id
+            // creationDate[, deletionDate], Person.id, Tag.id
             writers.get(PERSON_HASINTEREST_TAG).writeEntry(dates, ImmutableList.of(
                     Long.toString(person.getAccountId()),
                     Integer.toString(integer)
@@ -132,7 +132,7 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
                 ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate()), person.isExplicitlyDeleted()? "true" : "false") :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()));
 
-        // creationDate, [deletionDate,] Person.id, Organisation.id, classYear
+        // creationDate[, deletionDate], Person.id, Organisation.id, classYear
         writers.get(PERSON_STUDYAT_ORGANISATION).writeEntry(dates, ImmutableList.of(
                 Long.toString(studyAt.person),
                 Long.toString(studyAt.university),
@@ -146,7 +146,7 @@ public class CsvBasicDynamicPersonSerializer extends DynamicPersonSerializer<Hdf
                 ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate()), person.isExplicitlyDeleted()? "true" : "false") :
                 ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()));
 
-        // creationDate, [deletionDate,] Person.id, Organisation.id, workFrom
+        // creationDate[, deletionDate], Person.id, Organisation.id, workFrom
         writers.get(PERSON_WORKAT_ORGANISATION).writeEntry(dates, ImmutableList.of(
                 Long.toString(workAt.person),
                 Long.toString(workAt.company),
