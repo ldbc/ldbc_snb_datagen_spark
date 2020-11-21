@@ -32,6 +32,12 @@ jobs:
           sudo update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/bin/java
           java -version
       - run: docker build . -t ldbc/spark
+      - restore_cache:
+          keys:
+            - m2-dep-branch:{{ .Branch }}-pom:{{ checksum "pom.xml" }}-
+            - m2-dep-branch:dev-pom:{{ checksum "pom.xml" }}-
+            - m2-dep-branch:{{ .Branch }}-
+            - m2-dep-branch:dev-
       - run: mvn -ntp clean test-compile assembly:assembly
       - save_cache:
           key: m2-dep-branch:{{ .Branch }}-pom:{{ checksum "pom.xml" }}-{{ epoch }}
