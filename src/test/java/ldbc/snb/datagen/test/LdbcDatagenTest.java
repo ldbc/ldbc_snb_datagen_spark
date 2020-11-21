@@ -1,6 +1,5 @@
 package ldbc.snb.datagen.test;
 
-import ldbc.snb.datagen.DatagenContext;
 import ldbc.snb.datagen.hadoop.HadoopConfiguration;
 import ldbc.snb.datagen.hadoop.LdbcDatagen;
 import ldbc.snb.datagen.test.csv.ColumnSet;
