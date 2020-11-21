@@ -53,7 +53,7 @@ def ask_continue(message):
 
 
 def calculate_cluster_config(scale_factor):
-    num_workers = max(min_num_workers, min(max_num_workers, scale_factor // 33))
+    num_workers = max(min_num_workers, min(max_num_workers, scale_factor // 20))
     return {
         'num_workers': num_workers,
     }
