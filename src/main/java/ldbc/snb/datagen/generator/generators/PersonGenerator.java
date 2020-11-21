@@ -74,7 +74,7 @@ public class PersonGenerator {
         randomFarm = new RandomGeneratorFarm();
     }
 
-    private long composeUserId(long id, long date) {
+    private long composePersonId(long id, long date) {
         long idMask = ~(0xFFFFFFFFFFFFFFFFL << 41);
         long bucket = (long) (256 * (date - Dictionaries.dates.getSimulationStart()) / (double) Dictionaries.dates
                 .getSimulationEnd());
@@ -118,7 +118,7 @@ public class PersonGenerator {
 
         assert (person.getCreationDate() + DatagenParams.delta <= person.getDeletionDate()) : "Person creation date is larger than person deletion date";
 
-        person.setAccountId(composeUserId(nextId++, creationDate));
+        person.setAccountId(composePersonId(nextId++, creationDate));
         person.setMainInterest(Dictionaries.tags.getaTagByCountry(randomFarm
                 .get(RandomGeneratorFarm.Aspect.TAG_OTHER_COUNTRY), randomFarm
                 .get(RandomGeneratorFarm.Aspect.TAG), person
