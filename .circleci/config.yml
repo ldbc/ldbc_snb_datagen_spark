@@ -32,8 +32,19 @@ jobs:
           sudo update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/bin/java
           java -version
       - run: docker build . -t ldbc/spark
+      - restore_cache:
+          keys:
+            - m2-dep-branch:{{ .Branch }}-pom:{{ checksum "pom.xml" }}-
+            - m2-dep-branch:dev-pom:{{ checksum "pom.xml" }}-
+            - m2-dep-branch:{{ .Branch }}-
+            - m2-dep-branch:dev-
+      - run: mvn -ntp clean test-compile assembly:assembly
+      - save_cache:
+          key: m2-dep-branch:{{ .Branch }}-pom:{{ checksum "pom.xml" }}-{{ epoch }}
+          paths:
+            - ~/.m2/repository   # maven deps
+            - ~/.sbt/1.0/zinc    # scala compiler bridge
       - run: |
-          mvn -ntp assembly:assembly
           # deploy CircleCI configuration provide 'filters' instructions (and prevent failed build on gh-pages)
           cp -r .circleci dist/
           # CsvBasic using 'interactive mode'
