@@ -56,8 +56,12 @@ public class DatagenParams {
     public static final String DICTIONARY_DIRECTORY = "/dictionaries/";
     public static final String SPARKBENCH_DIRECTORY = "/sparkbench";
     public static final String IPZONE_DIRECTORY = "/ipaddrByCountries";
-    public static final String PERSON_COUNTS_FILE = "personFactors.txt";
-    public static final String ACTIVITY_FILE = "activityFactors.txt";
+    public static final String PERSON_FACTORS_FILE = "personFactors.csv";
+    public static final String POSTS_PER_COUNTRY_FACTOR_FILE = "postsPerCountryFactors.csv";
+    public static final String TAGCLASS_FACTOR_FILE = "tagClassCountFactors.csv";
+    public static final String TAG_FACTOR_FILE = "tagCountFactors.csv";
+    public static final String FIRSTNAME_FACTOR_FILE = "firstNameCountFactors.csv";
+    public static final String MISC_FACTOR_FILE = "miscFactors.csv";
 
     // Dictionaries dataset files
     public static final String browserDictonryFile = DICTIONARY_DIRECTORY + "browsersDic.txt";
@@ -222,13 +226,10 @@ public class DatagenParams {
             0.01, 0.01, 0.01, 0.01, 0.01, 0.01};
 
 
-    // Gregorian calendar uses 0-based months
-    public static final int startMonth = 0;
-    public static final int endMonth = 0;
+    public static final int startMonth = 1;
+    public static final int startDay = 1;
 
-    public static final int startDate = 1;
-    public static final int endDate = 1;
-    public static final double alpha = 0.4;
+    public static final double alpha = 0.4; // used for the power law distribution
 
     public static String datagenMode;
     public static String degreeDistributionName;
@@ -241,7 +242,6 @@ public class DatagenParams {
     public static int delta = 10000;
     public static long numPersons = 10000;
     public static int startYear = 2010;
-    public static int endYear = 2013;
     public static int numYears = 3;
     public static boolean exportText = true;
     public static int numUpdateStreams = 1;
@@ -332,7 +332,6 @@ public class DatagenParams {
             dateFormatter = conf.get("generator.dateFormatter");
             dateTimeFormat = conf.get("generator.StringDate.dateTimeFormat");
             dateFormat = conf.get("generator.StringDate.dateFormat");
-            endYear = startYear + numYears;
 
             System.out.println(" ... Datagen Mode " + datagenMode);
             System.out.println(" ... Num Persons " + numPersons);
@@ -439,7 +438,10 @@ public class DatagenParams {
 
     public static String getDateTimeFormat(){
         return dateTimeFormat;
+    }
 
+    public static int getNumberOfMonths() {
+        return numYears * 12;
     }
 
 }

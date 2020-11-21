@@ -86,7 +86,11 @@ public class HadoopPersonActivityGenerator extends DatagenHadoopJob {
         private PersonActivityGenerator personActivityGenerator;
         private PersonActivityExporter personActivityExporter;
         private OutputStream personFactors;
-        private OutputStream activityFactors;
+        private OutputStream postsPerCountryFactors;
+        private OutputStream tagClassFactors;
+        private OutputStream tagFactors;
+        private OutputStream firstNameFactors;
+        private OutputStream miscFactors;
         private OutputStream friends;
 
         protected void setup(Context context) {
@@ -114,10 +118,13 @@ public class HadoopPersonActivityGenerator extends DatagenHadoopJob {
                         new PersonActivityExporter(dynamicActivitySerializer, abstractInsertEventSerializer, abstractDeleteEventSerializer, personActivityGenerator.getFactorTable());
 
                 FileSystem fs = FileSystem.get(context.getConfiguration());
-                personFactors = fs
-                        .create(new Path(buildDir + "/" + "m" + reducerId + DatagenParams.PERSON_COUNTS_FILE));
-                activityFactors = fs
-                        .create(new Path(buildDir + "/" + "m" + reducerId + DatagenParams.ACTIVITY_FILE));
+                personFactors = fs.create(new Path(buildDir + "/" + "m" + reducerId + DatagenParams.PERSON_FACTORS_FILE));
+                postsPerCountryFactors = fs.create(new Path(buildDir + "/" + "m" + reducerId + DatagenParams.POSTS_PER_COUNTRY_FACTOR_FILE));
+                tagClassFactors = fs.create(new Path(buildDir + "/" + "m" + reducerId + DatagenParams.TAGCLASS_FACTOR_FILE));
+                tagFactors = fs.create(new Path(buildDir + "/" + "m" + reducerId + DatagenParams.TAG_FACTOR_FILE));
+                firstNameFactors = fs.create(new Path(buildDir + "/" + "m" + reducerId + DatagenParams.FIRSTNAME_FACTOR_FILE));
+                miscFactors = fs.create(new Path(buildDir + "/" + "m" + reducerId + DatagenParams.MISC_FACTOR_FILE));
+
                 friends = fs.create(new Path(buildDir + "/" + "m0friendList" + reducerId + ".csv"));
 
             } catch (Exception e) {
@@ -135,13 +142,13 @@ public class HadoopPersonActivityGenerator extends DatagenHadoopJob {
                 persons.add(new Person(p));
 
                 StringBuilder strbuf = new StringBuilder();
-                strbuf.append(p.getAccountId());
                 for (Knows k : p.getKnows()) {
-                    strbuf.append(",");
+                    strbuf.append(p.getAccountId());
+                    strbuf.append("|");
                     strbuf.append(k.to().getAccountId());
+                    strbuf.append("\n");
                 }
 
-                strbuf.append("\n");
                 friends.write(strbuf.toString().getBytes(StandardCharsets.UTF_8));
             }
             System.out.println("Starting generation of block: " + key.block);
@@ -169,8 +176,13 @@ public class HadoopPersonActivityGenerator extends DatagenHadoopJob {
 
         protected void cleanup(Context context) throws IOException {
             System.out.println("Cleaning up");
-            personActivityGenerator.writeActivityFactors(activityFactors);
-            activityFactors.close();
+            // TODO: why is this in cleanup?
+            personActivityGenerator.writeActivityFactors(postsPerCountryFactors, tagClassFactors, tagFactors, firstNameFactors, miscFactors);
+            postsPerCountryFactors.close();
+            tagClassFactors.close();
+            tagFactors.close();
+            firstNameFactors.close();
+            miscFactors.close();
             personFactors.close();
             friends.close();
             personActivityExporter.close();

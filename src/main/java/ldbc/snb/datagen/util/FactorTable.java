@@ -49,6 +49,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class FactorTable {
 
@@ -75,12 +76,13 @@ public class FactorTable {
         private List<Long> numForumsPerMonth;
 
         PersonCounts() {
-            numMessagesPerMonth = new ArrayList<>(36 + 1);
-            for (int i = 0; i < 36 + 1; ++i) {
+            // we initialize #month + 1 buckets
+            numMessagesPerMonth = new ArrayList<>(DatagenParams.getNumberOfMonths() + 1);
+            for (int i = 0; i <= DatagenParams.getNumberOfMonths(); ++i) {
                 numMessagesPerMonth.add(0L);
             }
-            numForumsPerMonth = new ArrayList<>(36 + 1);
-            for (int i = 0; i < 36 + 1; ++i) {
+            numForumsPerMonth = new ArrayList<>(DatagenParams.getNumberOfMonths() + 1);
+            for (int i = 0; i <= DatagenParams.getNumberOfMonths(); ++i) {
                 numForumsPerMonth.add(0L);
             }
         }
@@ -246,7 +248,7 @@ public class FactorTable {
         personCounts(memberId).incrNumForums();
         int bucket = DateUtils
                 .getNumberOfMonths(member.getCreationDate(), DatagenParams.startMonth, DatagenParams.startYear);
-        if (bucket < 36 + 1)
+        if (bucket < DatagenParams.getNumberOfMonths() + 1)
             personCounts(memberId).incrNumForumsPerMonth(bucket);
     }
 
@@ -275,7 +277,7 @@ public class FactorTable {
                 DatagenParams.startMonth,
                 DatagenParams.startYear);
 
-        if (bucket < 36 + 1)
+        if (bucket < DatagenParams.getNumberOfMonths() + 1)
             personCounts(authorId).incrNumMessagesPerMonth(bucket);
 
 
@@ -305,40 +307,41 @@ public class FactorTable {
                 Collections.sort(entry.getValue());
                 medianNames.put(entry.getKey(), entry.getValue().get(entry.getValue().size() / 2));
             }
-            for (Map.Entry<Long, PersonCounts> c : personCounts.entrySet()) {
-                PersonCounts count = c.getValue();
+            for (Map.Entry<Long, PersonCounts> entry : personCounts.entrySet()) {
+                long personId = entry.getKey();
+                PersonCounts personCounts = entry.getValue();
                 // correct the group counts
-                String name = medianNames.get(c.getValue().country());
+                String name = medianNames.get(entry.getValue().country());
                 if (name != null) {
                     StringBuilder strbuf = new StringBuilder();
-                    strbuf.append(c.getKey());
-                    strbuf.append(",");
+                    strbuf.append(personId);
+                    strbuf.append("|");
                     strbuf.append(name);
-                    strbuf.append(",");
-                    strbuf.append(count.numFriends());
-                    strbuf.append(",");
-                    strbuf.append(count.numPosts());
-                    strbuf.append(",");
-                    strbuf.append(count.numLikes());
-                    strbuf.append(",");
-                    strbuf.append(count.numTagsOfMessages());
-                    strbuf.append(",");
-                    strbuf.append(count.numForums());
-                    strbuf.append(",");
-                    strbuf.append(count.numWorkPlaces());
-                    strbuf.append(",");
-                    strbuf.append(count.numComments());
-                    strbuf.append(",");
+                    strbuf.append("|");
+                    strbuf.append(personCounts.numFriends());
+                    strbuf.append("|");
+                    strbuf.append(personCounts.numPosts());
+                    strbuf.append("|");
+                    strbuf.append(personCounts.numLikes());
+                    strbuf.append("|");
+                    strbuf.append(personCounts.numTagsOfMessages());
+                    strbuf.append("|");
+                    strbuf.append(personCounts.numForums());
+                    strbuf.append("|");
+                    strbuf.append(personCounts.numWorkPlaces());
+                    strbuf.append("|");
+                    strbuf.append(personCounts.numComments());
+                    strbuf.append("|");
 
-                    for (Long bucket : count.numMessagesPerMonth()) {
-                        strbuf.append(bucket);
-                        strbuf.append(",");
-                    }
-                    for (Long bucket : count.numForumsPerMonth()) {
-                        strbuf.append(bucket);
-                        strbuf.append(",");
-                    }
-                    strbuf.setCharAt(strbuf.length() - 1, '\n');
+                    // entries for number of messages / month
+                    strbuf.append(personCounts.numMessagesPerMonth().stream()
+                            .map(x -> x.toString()).collect(Collectors.joining(";")));
+                    strbuf.append("|");
+                    // entries for number of forums / month
+                    strbuf.append(personCounts.numForumsPerMonth().stream()
+                            .map(x -> x.toString()).collect(Collectors.joining(";")));
+                    // end of line
+                    strbuf.append('\n');
                     writer.write(strbuf.toString().getBytes(StandardCharsets.UTF_8));
                 }
             }
@@ -351,59 +354,52 @@ public class FactorTable {
         }
     }
 
-    public void writeActivityFactors(OutputStream writer) throws IOException {
+    public void writeActivityFactors(OutputStream postsWriter, OutputStream tagClassWriter, OutputStream tagWriter, OutputStream firstNameWriter, OutputStream miscWriter) throws IOException {
         try {
-            writer.write(Integer.toString(postsPerCountry.size()).getBytes(StandardCharsets.UTF_8));
-            writer.write("\n".getBytes(StandardCharsets.UTF_8));
             for (Map.Entry<Integer, Long> c : postsPerCountry.entrySet()) {
                 String strbuf = Dictionaries.places.getPlaceName(c.getKey()) +
-                        "," +
+                        "|" +
                         c.getValue() +
                         "\n";
-                writer.write(strbuf.getBytes(StandardCharsets.UTF_8));
+                postsWriter.write(strbuf.getBytes(StandardCharsets.UTF_8));
             }
+            postsWriter.flush();
 
-            writer.write(Integer.toString(tagClassCount.size()).getBytes(StandardCharsets.UTF_8));
-            writer.write("\n".getBytes(StandardCharsets.UTF_8));
             for (Map.Entry<Integer, Long> c : tagClassCount.entrySet()) {
                 String strbuf = Dictionaries.tags.getClassName(c.getKey()) +
-                        "," +
-                        Dictionaries.tags.getClassName(c.getKey()) +
-                        "," +
+                        "|" +
                         c.getValue() +
                         "\n";
-                writer.write(strbuf.getBytes(StandardCharsets.UTF_8));
+                tagClassWriter.write(strbuf.getBytes(StandardCharsets.UTF_8));
             }
-            writer.write(Integer.toString(tagCount.size()).getBytes(StandardCharsets.UTF_8));
-            writer.write("\n".getBytes(StandardCharsets.UTF_8));
+            tagClassWriter.flush();
+
             for (Map.Entry<Integer, Long> c : tagCount.entrySet()) {
                 String strbuf = Dictionaries.tags.getName(c.getKey()) +
-                        "," +
+                        "|" +
                         c.getValue() +
                         "\n";
-                writer.write(strbuf.getBytes(StandardCharsets.UTF_8));
+                tagWriter.write(strbuf.getBytes(StandardCharsets.UTF_8));
             }
+            tagWriter.flush();
 
-            writer.write(Integer.toString(firstNameCount.size()).getBytes(StandardCharsets.UTF_8));
-            writer.write("\n".getBytes(StandardCharsets.UTF_8));
             for (Map.Entry<String, Long> c : firstNameCount.entrySet()) {
                 String strbuf = c.getKey() +
-                        "," +
+                        "|" +
                         c.getValue() +
                         "\n";
-                writer.write(strbuf.getBytes(StandardCharsets.UTF_8));
+                firstNameWriter.write(strbuf.getBytes(StandardCharsets.UTF_8));
             }
-            String strbuf = DatagenParams.startMonth +
-                    "\n" +
-                    DatagenParams.startYear +
-                    "\n" +
-                    DateUtils.formatYear(minWorkFrom) +
-                    "\n" +
-                    DateUtils.formatYear(maxWorkFrom) +
-                    "\n";
-            writer.write(strbuf.getBytes(StandardCharsets.UTF_8));
-            writer.flush();
-            writer.close();
+            firstNameWriter.flush();
+
+            String strbuf =
+                    "startMonth|startYear|minWorkFrom|maxWorkFrom\n" +
+                    (DatagenParams.startMonth - 1) + "|" + // the parameter generator uses 0-based indexing for months
+                    DatagenParams.startYear + "|" +
+                    DateUtils.formatYear(minWorkFrom) + "|" +
+                    DateUtils.formatYear(maxWorkFrom) + "\n";
+            miscWriter.write(strbuf.getBytes(StandardCharsets.UTF_8));
+            miscWriter.flush();
         } catch (IOException e) {
             System.err.println("Unable to write parameter counts");
             System.err.println(e.getMessage());

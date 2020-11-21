@@ -20,7 +20,8 @@ class TimeParameter:
 		self.duration=duration
 
 def findTimeParameters(persons, factors, procedure, timestampSelection):
-	if "w" == procedure:
+	print(procedure)
+	if "w" == procedure: # this only takes values f, ff, ffg in the code
 		medians = computeTimeMedians(factors, lastmonthcount = 12)
 	else:
 		medians = computeTimeMedians(factors)
@@ -147,20 +148,22 @@ def readTimeParams(persons, personFactorFiles, activityFactorFiles, friendFiles)
 
 	postCounts = {}
 	groupCounts = {}
-	offset = 8
+	offset = 9
 	monthcount = 12*3 + 1
 
 	for inputFactorFile in personFactorFiles:
 		with open(inputFactorFile, 'r', encoding="utf-8") as f:
 			for line in f.readlines():
-				line = line.split(",")
+				line = line.split("|")
 				person = int(line[0])
-				localPostCounts = list(map(int,line[offset:offset+monthcount]))
-				localGroupCounts = list(map(int, line[offset+monthcount:]))
+				localPostCounts = list(map(int, line[9].split(";")))
+				localGroupCounts = list(map(int, line[10].split(";")))
+
 				if not person in postCounts:
 					postCounts[person] = localPostCounts
 				else:
 					postCounts[person] =  [sum(x) for x in zip(postCounts[person], localPostCounts)]
+
 
 				if not person in groupCounts:
 					groupCounts[person] = localGroupCounts
@@ -172,7 +175,7 @@ def readTimeParams(persons, personFactorFiles, activityFactorFiles, friendFiles)
 	for inputFriendFile in friendFiles:
 		with open(inputFriendFile, 'r', encoding="utf-8") as f:
 			for line in f:
-				people = list(map(int, line.split(",")))
+				people = list(map(int, line.split("|")))
 				person = people[0]
 				friendsPostsCounts[person] = [0]*monthcount
 				for friend in people[1:]:
@@ -191,7 +194,7 @@ def readTimeParams(persons, personFactorFiles, activityFactorFiles, friendFiles)
 	for inputFriendFile in friendFiles:
 		with open(inputFriendFile, 'r', encoding="utf-8") as f:
 			for line in f:
-				people = list(map(int, line.split(",")))
+				people = list(map(int, line.split("|")))
 				person = people[0]
 				ffPostCounts[person] = [0]*monthcount
 				for friend in people[1:]:

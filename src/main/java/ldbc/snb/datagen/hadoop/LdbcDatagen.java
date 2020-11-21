@@ -122,13 +122,13 @@ public class LdbcDatagen extends DatagenHadoopJob {
         printProgress("Generating and serializing person activity");
         HadoopPersonActivityGenerator activityGenerator = new HadoopPersonActivityGenerator(conf, hadoopConf);
         activityGenerator.run(hadoopPrefix + "/mergedPersons");
-        for (int i = 0; i < HadoopConfiguration.getNumThreads(hadoopConf); ++i) {
-            if (i < (int) Math.ceil(DatagenParams.numPersons / (double) DatagenParams.blockSize)) { // i<number of blocks
-                copyToLocal(fs, conf.getBuildDir() + "/m" + i + "personFactors.txt");
-                copyToLocal(fs, conf.getBuildDir() + "/m" + i + "activityFactors.txt");
-                copyToLocal(fs, conf.getBuildDir() + "/m0friendList" + i + ".csv");
-            }
-        }
+//        for (int i = 0; i < HadoopConfiguration.getNumThreads(hadoopConf); ++i) {
+//            if (i < (int) Math.ceil(DatagenParams.numPersons / (double) DatagenParams.blockSize)) { // i<number of blocks
+//                copyToLocal(fs, conf.getBuildDir() + "/m" + i + "personFactors.txt");
+//                copyToLocal(fs, conf.getBuildDir() + "/m" + i + "activityFactors.txt");
+//                copyToLocal(fs, conf.getBuildDir() + "/m0friendList" + i + ".csv");
+//            }
+//        }
         return (System.currentTimeMillis() - startPersonActivity);
     }
 

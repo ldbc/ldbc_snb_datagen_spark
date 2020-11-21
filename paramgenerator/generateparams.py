@@ -11,27 +11,6 @@ from timeparameters import *
 
 SEED = 1
 
-def findNameParameters(names):
-	srtd = sorted(names,key=lambda x: -x[1])
-	res = []
-	hist = {}
-	for t in srtd:
-		if t[1] not in hist:
-			hist[t[1]] = []
-		hist[t[1]].append(t[0])
-	counts = sorted([i for i in hist.keys()])
-
-	mid = len(counts)//2
-	i = mid
-	while counts[i] - counts[mid] < 0.1 * counts[mid]:
-		res.extend([name for name in hist[counts[i]]])
-		i += 1
-	i = mid - 1
-	while  counts[mid] - counts[i] < 0.1 * counts[mid]:
-		res.extend([name for name in hist[counts[i]]])
-		i -= 1
-	return res
-
 class CSVSerializer:
 	def __init__(self):
 		self.handlers = []
@@ -137,7 +116,7 @@ def main(argv=None):
 			friendsFiles.append(indir+file)
 
 	# read precomputed counts from files	
-	(personFactors, countryFactors, tagFactors, tagClassFactors, nameFactors, givenNames,  ts, postHisto) = readfactors.load(personFactorFiles, activityFactorFiles, friendsFiles)
+	(personFactors, countryFactors, tagFactors, tagClassFactors, nameFactors, givenNames, ts, postsHisto) = readfactors.load(personFactorFiles, activityFactorFiles, friendsFiles)
 
 	# find person parameters
 	selectedPersonParams = {}
@@ -160,8 +139,7 @@ def main(argv=None):
 	# find country parameters for Query 3 and 11
 	selectedCountryParams = {}
 	for i in [3, 11]:
-		factors = readfactors.getCountryFactorsForQuery(i, countryFactors)
-		selectedCountryParams[i] = discoverparams.generate(factors, portion=0.1)
+		selectedCountryParams[i] = discoverparams.generate(countryFactors, portion=0.1)
 
 		# make sure there are as many country parameters as person parameters
 		oldlen = len(selectedCountryParams[i])
@@ -233,7 +211,7 @@ def main(argv=None):
 	for i in range(1,15):
 		csvWriter = CSVSerializer()
 		csvWriter.setOutputFile(outdir+"interactive_%d_param.txt"%(i))
-		if i != 13 and i != 14: # these three queries take two Persons as parameters
+		if i != 13 and i != 14: # these two queries take two Persons as parameters
 			csvWriter.registerHandler(handlePersonParam, selectedPersonParams[i], "personId")
 		csvWriters[i] = csvWriter
 

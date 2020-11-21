@@ -37,7 +37,7 @@ public class DateUtils {
         LocalDate date = utcDateOfEpochMilli(epochMilli);
         int month = date.getMonthValue();
         int year = date.getYear();
-        return (year - startYear) * 12 + month - startMonth;
+        return (year - startYear) * 12 + month - (startMonth - 1);
     }
 
     public static int getYear(long epochMilli) {

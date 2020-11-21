@@ -242,8 +242,8 @@ public class PersonActivityGenerator {
         return block.stream().map(p -> generateActivity(p, block, blockId));
     }
 
-    public void writeActivityFactors(OutputStream writer) throws IOException {
-        factorTable.writeActivityFactors(writer);
+    public void writeActivityFactors(OutputStream postsWriter, OutputStream tagClassWriter, OutputStream tagWriter, OutputStream firstNameWriter, OutputStream miscWriter) throws IOException {
+        factorTable.writeActivityFactors(postsWriter, tagClassWriter, tagWriter, firstNameWriter, miscWriter);
     }
 
     public void writePersonFactors(OutputStream writer) {

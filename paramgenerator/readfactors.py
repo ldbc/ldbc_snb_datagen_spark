@@ -3,7 +3,12 @@
 import codecs
 import sys
 
-FACTORS = ["f", "ff", "fp", "fpt", "ffg", "p", "pl", "pt", "pr", "g", "w", "ffw", "ffp", "fw", "fg", "ffpt", "fpr", "org"]
+FACTORS = [
+	#friends  posts  likes   tags  forums  companies  comments
+	   "f",     "p", "pl",   "pt",   "g",     "w",      "pr",
+	  "ff",    "fp",        "fpt",  "fg",    "fw",     "fpr",    # note: no likes, fpr is unused in the code
+	          "ffp",       "ffpt", "ffg",   "ffw",               # note: no friends/likes/comments
+	]
 
 FACTOR_MAP = {value: key for (key, value) in enumerate(FACTORS)}
 
@@ -11,9 +16,6 @@ FACTOR_MAP = {value: key for (key, value) in enumerate(FACTORS)}
 class FactorCount:
 	def __init__(self):
 		self.values = [0]*len(FACTORS)
-
-	def setValue(self, factor, value):
-		self.values[FACTOR_MAP[factor]] = value
 
 	def addValue(self, factor, value):
 		self.values[FACTOR_MAP[factor]] += value
@@ -33,9 +35,6 @@ class Factors:
 	def existParam(self, p):
 		return p in self.values
 
-	def setValue(self, person, factor, value):
-		self.values[person].setValue(factor, value)
-
 	def getValue(self, person, factor):
 		return self.values[person].getValue(factor)
 
@@ -54,69 +53,73 @@ class NameParameter:
 	def getValue(self, person):
 		return self.values[person]
 
-def load(personFactorFiles,activityFactorFiles, friendFiles):
+def load(personFactorFiles, activityFactorFiles, friendFiles):
 	print("loading input for parameter generation")
 	results = Factors()
-	countries = Factors()
-	postsHisto = Factors()
 	givenNames = NameParameter()
 
+	postsHisto = {}
+	countries = {}
 	tagClasses = {}
 	tags = {}
 	names = {}
-	timestamp = [0,0,0,0]
+	timestamp = [0,0,0,0] # startMonth, startYear, minWorkFrom (year), maxWorkFrom (year)
 
 	for inputfileName in personFactorFiles:
 		with codecs.open(inputfileName, "r", "utf-8") as f:
 			for line in f.readlines():
-				line = line.split(",")
-				person = int(line[0])
+				line = line.split("|")
+				person = int(line[0])                         # id
 				if not results.existParam(person):
 					results.addNewParam(person)
-				name = line[1]
+				name = line[1]                                # name
 				givenNames.setValue(person, name)
-				results.addValue(person, "f", int(line[2]))
-				results.addValue(person, "p", int(line[3]))
-				results.addValue(person, "pl", int(line[4]))
-				results.addValue(person, "pt", int(line[5]))
-				results.addValue(person, "g", int(line[6]))
-				results.addValue(person, "w", int(line[7]))
-				results.addValue(person, "pr", int(line[8]))
-				for i in range((len(line)-9)//2):
-					if not postsHisto.existParam(i):
-						postsHisto.addNewParam(i)
-					postsHisto.addValue(i, "p", int(line[9+i]))
+				results.addValue(person, "f", int(line[2]))   # friends
+				results.addValue(person, "p", int(line[3]))   # posts
+				results.addValue(person, "pl", int(line[4]))  # person's likes
+				results.addValue(person, "pt", int(line[5]))  # person's tags (of messages)
+				results.addValue(person, "g", int(line[6]))   # groups (=forums)
+				results.addValue(person, "w", int(line[7]))   # workplaces (=companies)
+				results.addValue(person, "pr", int(line[8]))  # replies (=comments)
+				numMessages = list(map(int,line[9].split(";"))) # number of messages/month
+
+				for i in range(0, len(numMessages)):
+					if not i in postsHisto:
+						postsHisto[i] = 0
+					postsHisto[i] += numMessages[i]
 
 	for inputFileName in activityFactorFiles:
 		with codecs.open(inputFileName, "r", "utf-8") as f:
 			countryCount = int(f.readline())
 			for i in range(countryCount):
-				line = f.readline().split(",")
-				country = line[0]
-				if not countries.existParam(country):
-					countries.addNewParam(country)
-				countries.addValue(country, "p", int(line[1]))
+				line = f.readline()
+				count = line[1+line.rfind("|"):]
+				name = line[:line.rfind("|")]
+				if not name in countries:
+					countries[name] = 0
+				countries[name] += int(count)
 
-			tagCount = int(f.readline())
-			for i in range(tagCount):
-				line = f.readline().split(",")
-				tag = line[0]
-				if not tag in tagClasses:
-					tagClasses[tag] = 0
-				tagClasses[tag] += int(line[2])
+			tagClassCount = int(f.readline())
+			for i in range(tagClassCount):
+				line = f.readline()
+				count = line[1+line.rfind("|"):]
+				name = line[:line.rfind("|")]
+				if not name in tagClasses:
+					tagClasses[name] = 0
+				tagClasses[name] += int(count)
 
 			tagCount = int(f.readline())
 			for i in range(tagCount):
 				line = f.readline()
-				count = line[1+line.rfind(","):]
-				name = line[:line.rfind(",")]
+				count = line[1+line.rfind("|"):]
+				name = line[:line.rfind("|")]
 				if not name in tags:
 					tags[name] = 0
 				tags[name] += int(count)
 
 			nameCount = int(f.readline())
 			for i in range(nameCount):
-				line = f.readline().split(",")
+				line = f.readline().split("|")
 				name = line[0]
 				if not name in names:
 					names[name] = 0
@@ -129,7 +132,16 @@ def load(personFactorFiles,activityFactorFiles, friendFiles):
 
 	loadFriends(friendFiles, results)
 
-	return (results, countries, list(tags.items()), list(tagClasses.items()), list(names.items()), givenNames,timestamp, postsHisto)
+	return (
+	  results,
+	  list(countries.items()),
+	  list(tags.items()),
+	  list(tagClasses.items()),
+	  list(names.items()),
+	  givenNames,
+	  timestamp,
+	  postsHisto
+	)
 
 def loadFriends(friendFiles, factors):
 
@@ -137,7 +149,7 @@ def loadFriends(friendFiles, factors):
 	for inputFriendsFileName in friendFiles:
 		with open(inputFriendsFileName, 'r', encoding="utf-8") as f:
 			for line in f:
-				people = list(map(int, line.split(",")))
+				people = list(map(int, line.split("|")))
 				person = people[0]
 				if not factors.existParam(person):
 					continue
@@ -147,24 +159,27 @@ def loadFriends(friendFiles, factors):
 					factors.addValue(person, "ff", factors.getValue(friend, "f"))
 					factors.addValue(person, "fp", factors.getValue(friend, "p"))
 					factors.addValue(person, "fpt", factors.getValue(friend, "pt"))
-					factors.addValue(person, "fw", factors.getValue(friend, "w"))
 					factors.addValue(person, "fg", factors.getValue(friend, "g"))
+					factors.addValue(person, "fw", factors.getValue(friend, "w"))
+					# fpr is missing
 
 	# second scan for friends-of-friends counts (groups of friends of friends)
 	for inputFriendsFileName in friendFiles:
 		with open(inputFriendsFileName, 'r', encoding="utf-8") as f:
 			for line in f:
-				people = list(map(int, line.split(",")))
+				people = list(map(int, line.split("|")))
 				person = people[0]
 				if not factors.existParam(person):
 					continue
 				for friend in people[1:]:
 					if not factors.existParam(friend):
 						continue
-					factors.addValue(person, "ffg", factors.getValue(friend, "fg"))
-					factors.addValue(person, "ffw", factors.getValue(friend, "fw"))
 					factors.addValue(person, "ffp", factors.getValue(friend, "fp"))
 					factors.addValue(person, "ffpt", factors.getValue(friend, "fpt"))
+					factors.addValue(person, "ffg", factors.getValue(friend, "fg"))
+					factors.addValue(person, "ffw", factors.getValue(friend, "fw"))
+
+
 
 def getColumns(factors, columnNames):
 	res = []
@@ -180,35 +195,24 @@ def getColumns(factors, columnNames):
 def getFactorsForQuery(queryId, factors):
 
 	queryFactorDict = {
-		1: getColumns(factors, ["f", "ff"]),
-		2: getColumns(factors, [ "f", "fp"]),
-		3: getColumns(factors, ["ff", "ffp"]),
-		4: getColumns(factors, ["fp", "f",  "fpt"]),
-		5: getColumns(factors, ["ff", "ffg"]),	
-		6: getColumns(factors, ["f","ff", "ffp", "ffpt"]),
-		7: getColumns(factors, ["pl", "p"]),
-		8: getColumns(factors, ["pr","p"]), ### add "pr"
-		9: getColumns(factors, ["f", "ffp", "ff"]),
-		10: getColumns(factors, ["f","ff", "ffp", "ffpt"]),
-		11: getColumns(factors, ["f","ff", "ffw"]),
-		12: getColumns(factors, ["f", "fp"]), ### add "fpr"
-		13: getColumns(factors, ["ff"]),
-		14: getColumns(factors, ["ff"])
-	}
-
-	return queryFactorDict[queryId]
-
-def getCountryFactorsForQuery(queryId, factors):
-	queryFactorDict = {
-		3: getColumns(factors, ["p"]),
-		11: getColumns(factors, ["p"]) ### replace with "org"
-	}
-
-	return queryFactorDict[queryId]
-
-def getTagFactorsForQuery(queryId, factors):
-	queryFactorDict = {
-		6: getColumns(factors, ["p"]),
+		# note that the order of factors matters 
+		#                           person       friends       foafs
+		 1: getColumns(factors, ["f",             "ff"                     ]),
+		 2: getColumns(factors, ["f",             "fp"                     ]),
+		 3: getColumns(factors, [                 "ff",       "ffp"        ]),
+		 4: getColumns(factors, [                 "fp",
+		                         "f",             "fpt"                    ]),
+		 5: getColumns(factors, [                 "ff",       "ffg"        ]),
+		 6: getColumns(factors, ["f",             "ff",       "ffp", "ffpt"]),
+		 7: getColumns(factors, ["pl", "p"                                 ]),
+		 8: getColumns(factors, ["pr", "p"                                 ]),
+		 9: getColumns(factors, ["f",                         "ffp",
+		                                          "ff"                     ]),
+		10: getColumns(factors, ["f",             "ff",       "ffp", "ffpt"]),
+		11: getColumns(factors, ["f",             "ff",       "ffw"        ]),
+		12: getColumns(factors, ["f",             "fp"                     ]), ### add "fpr"
+		13: getColumns(factors, [                 "ff"                     ]),
+		14: getColumns(factors, [                 "ff"                     ])
 	}
 
 	return queryFactorDict[queryId]
@@ -216,9 +220,9 @@ def getTagFactorsForQuery(queryId, factors):
 if __name__ == "__main__":
 	argv = sys.argv
 	if len(argv)< 3:
-		print("arguments: <m0factors.txt> <m0friendsList.txt>")
+		print("arguments: <m0personFactors.txt> <m0activityFactors.txt> <m0friendList0.csv>")
 		sys.exit(1)
 
-	sys.exit(load(argv[1], argv[2]))
+	print(load([argv[1]], [argv[2]], [argv[3]]))
 
 
