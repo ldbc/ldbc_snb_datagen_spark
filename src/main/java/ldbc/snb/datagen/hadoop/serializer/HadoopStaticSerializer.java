@@ -127,7 +127,7 @@ public class HadoopStaticSerializer {
         while (it.hasNext()) {
             Organisation company = new Organisation();
             company.id = it.next();
-            company.type = Organisation.OrganisationType.company;
+            company.type = Organisation.OrganisationType.Company;
             company.name = StringUtils.clampString(Dictionaries.companies.getCompanyName(company.id), 256);
             company.location = Dictionaries.companies.getCountry(company.id);
             staticSerializer[nextFile()].export(company);
@@ -138,7 +138,7 @@ public class HadoopStaticSerializer {
         while (it.hasNext()) {
             Organisation university = new Organisation();
             university.id = it.next();
-            university.type = Organisation.OrganisationType.university;
+            university.type = Organisation.OrganisationType.University;
             university.name = StringUtils.clampString(Dictionaries.universities.getUniversityName(university.id), 256);
             university.location = Dictionaries.universities.getUniversityCity(university.id);
             staticSerializer[nextFile()].export(university);

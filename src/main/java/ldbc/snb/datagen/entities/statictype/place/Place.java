@@ -40,9 +40,9 @@ import java.io.Serializable;
 @SuppressWarnings("serial")
 public class Place implements Serializable {
 
-    public static final String CITY = "city";
-    public static final String COUNTRY = "country";
-    public static final String CONTINENT = "continent";
+    public static final String CITY = "City";
+    public static final String COUNTRY = "Country";
+    public static final String CONTINENT = "Continent";
 //    public static final String AREA = "world";
 
     private int id;

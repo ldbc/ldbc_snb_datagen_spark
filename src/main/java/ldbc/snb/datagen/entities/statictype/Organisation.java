@@ -40,8 +40,8 @@ package ldbc.snb.datagen.entities.statictype;
 public class Organisation {
 
     public enum OrganisationType {
-        university,
-        company
+        University,
+        Company
     }
 
     public long id;
