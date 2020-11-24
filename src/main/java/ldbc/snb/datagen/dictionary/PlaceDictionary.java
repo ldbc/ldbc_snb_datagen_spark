@@ -45,7 +45,7 @@ import java.io.InputStreamReader;
 import java.util.*;
 
 /**
- * This class reads the files containing the country data and city data used in the LDBC soical network generation and
+ * This class reads the files containing the country data and city data used in the LDBC social network generation and
  * provides access methods to the data.
  * Most of the persons has the prerequisite of requiring a valid location id.
  */
