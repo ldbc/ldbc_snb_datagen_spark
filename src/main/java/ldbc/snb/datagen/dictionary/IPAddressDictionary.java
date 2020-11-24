@@ -37,6 +37,7 @@ package ldbc.snb.datagen.dictionary;
 
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.entities.dynamic.person.IP;
+import ldbc.snb.datagen.entities.statictype.place.Place;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -120,7 +121,7 @@ public class IPAddressDictionary {
 
     public IP getIP(Random random, int countryId) {
         int finalLocationIndex = countryId;
-        while (!placeDictionary.getType(finalLocationIndex).equals("Country")) {
+        while (!placeDictionary.getType(finalLocationIndex).equals(Place.COUNTRY)) {
             finalLocationIndex = placeDictionary.belongsTo(finalLocationIndex);
         }
         List<IP> countryIPs = ipsByCountry.get(finalLocationIndex);
