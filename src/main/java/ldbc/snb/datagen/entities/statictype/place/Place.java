@@ -43,7 +43,6 @@ public class Place implements Serializable {
     public static final String CITY = "City";
     public static final String COUNTRY = "Country";
     public static final String CONTINENT = "Continent";
-//    public static final String AREA = "world";
 
     private int id;
     private int zId;
