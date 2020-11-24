@@ -120,7 +120,7 @@ public class IPAddressDictionary {
 
     public IP getIP(Random random, int countryId) {
         int finalLocationIndex = countryId;
-        while (!placeDictionary.getType(finalLocationIndex).equals("country")) {
+        while (!placeDictionary.getType(finalLocationIndex).equals("Country")) {
             finalLocationIndex = placeDictionary.belongsTo(finalLocationIndex);
         }
         List<IP> countryIPs = ipsByCountry.get(finalLocationIndex);
