@@ -22,7 +22,7 @@ defaults = {
     'use_spot': False,
     'master_instance_type': 'm5d.xlarge',
     'instance_type': 'r5d.2xlarge',
-    'az': 'us-west-2a',
+    'az': 'us-west-2c',
     'is_interactive': False,
     'ec2_key': None,
 }
