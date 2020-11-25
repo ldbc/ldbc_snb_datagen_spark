@@ -49,7 +49,7 @@ The following options are available:
 
 ### Docker image
 
-SNB datagen images are available via [Docker Hub](https://hub.docker.com/r/ldbc/datagen/) where you may find both the latest version of the generator as well as previous stable versions.
+SNB Datagen images are available via [Docker Hub](https://hub.docker.com/r/ldbc/datagen/) (currently outdated).
 
 Alternatively, the image can be built with the provided Dockerfile. To build, execute the following command from the repository directory:
 
@@ -57,18 +57,14 @@ Alternatively, the image can be built with the provided Dockerfile. To build, ex
 tools/docker-build.sh
 ```
 
-Make sure you hava Java 8 (JDK) installed and set as `$JAVA_HOME` (you might find [SDKMAN](https://sdkman.io/) useful).
-To assemble the JAR file and run the docker image using the mounted JAR, which will produce its output to the `out/social_network` directory:
+Make sure you hava Java 8 (JDK) installed and the `$JAVA_HOME` environment variable points to its location. You might find [SDKMAN](https://sdkman.io/) useful.
+To assemble the JAR file and run the Docker image using the mounted JAR, run:
 
 ```bash
 tools/build.sh && tools/run.sh
 ```
 
-The `out/social_network` directory is initially root-owned, to fix this, run:
-
-```bash
-sudo chown -R `id -u`:`id -g` out/
-```
+This produce its output to the `out/social_network` directory
 
 ### Parameter generation
 
