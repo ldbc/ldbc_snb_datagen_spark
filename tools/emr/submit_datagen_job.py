@@ -20,9 +20,9 @@ max_num_workers = 1000
 defaults = {
     'bucket': 'ldbc-snb-datagen-store',
     'use_spot': False,
-    'master_instance_type': 'c5d.xlarge',
+    'master_instance_type': 'm5d.xlarge',
     'instance_type': 'r5d.2xlarge',
-    'az': 'us-west-2a',
+    'az': 'us-west-2c',
     'is_interactive': False,
     'ec2_key': None,
 }
