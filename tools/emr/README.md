@@ -24,7 +24,7 @@ aws s3 cp params-csv-basic-sf10000.ini s3://ldbc-snb-datagen-store/params/params
 1. Upload JAR to S3. (We don't version the JARs yet, so you can only make sure that you run the intended code this way :( ) 
 
 ```bash
-aws s3 cp target/ldbc_snb_datagen-0.4.0-SNAPSHOT.jar s3://ldbc-snb-datagen-store/jars/ldbc_snb_datagen-0.4.0-SNAPSHOT-jar-with-dependencies.jar
+aws s3 cp target/ldbc_snb_datagen-0.4.0-SNAPSHOT-jar-with-dependencies.jar s3://ldbc-snb-datagen-store/jars/ldbc_snb_datagen-0.4.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 
 1. Submit job. Run with `--help` for customization options.
