@@ -100,7 +100,7 @@ def submit_datagen_job(params_file, sf, instance_vcpu,
     job_flow_args = {
         'Name': f'{name}_{ts_formatted}',
         'LogUri': f's3://{bucket}/logs/emr',
-        'ReleaseLabel': 'emr-5.30.0',
+        'ReleaseLabel': 'emr-5.31.0',
         'Applications': [
             {'Name': 'hadoop'},
             {'Name': 'spark'},
