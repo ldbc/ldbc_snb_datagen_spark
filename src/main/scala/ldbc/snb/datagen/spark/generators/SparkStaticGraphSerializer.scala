@@ -10,7 +10,7 @@ object SparkStaticGraphSerializer {
     val serializer = new HadoopStaticSerializer(
       config,
       spark.sparkContext.hadoopConfiguration,
-      partitions.getOrElse(spark.sparkContext.defaultParallelism)
+      1
     )
     serializer.run()
   }
