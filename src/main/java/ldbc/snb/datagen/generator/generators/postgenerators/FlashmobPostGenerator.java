@@ -35,6 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.generators.postgenerators;
 
+import ldbc.snb.datagen.DatagenMode;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.Forum;
@@ -190,17 +191,22 @@ public class FlashmobPostGenerator extends PostGenerator {
 
         // add deletion date
         long postDeletionDate;
-        if (membership.getPerson().getIsMessageDeleter() && randomDeletePost.nextDouble() < DatagenParams.postMapping[numComments]) {
-            postCore.setExplicitlyDeleted(true);
-            long minDeletionDate = creationDate + DatagenParams.delta;
-            long maxDeletionDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
-            if (maxDeletionDate - minDeletionDate < 0) {
-                return null;
-            }
-            postDeletionDate = Dictionaries.dates.powerLawDeleteDate(randomDate, minDeletionDate, maxDeletionDate);
-        } else {
+        if (DatagenParams.getDatagenMode() == DatagenMode.INTERACTIVE) {
+            postDeletionDate = Dictionaries.dates.getNetworkCollapse();
             postCore.setExplicitlyDeleted(false);
-            postDeletionDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
+        } else {
+            if (membership.getPerson().getIsMessageDeleter() && randomDeletePost.nextDouble() < DatagenParams.postMapping[numComments]) {
+                postCore.setExplicitlyDeleted(true);
+                long minDeletionDate = creationDate + DatagenParams.delta;
+                long maxDeletionDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
+                if (maxDeletionDate - minDeletionDate < 0) {
+                    return null;
+                }
+                postDeletionDate = Dictionaries.dates.powerLawDeleteDate(randomDate, minDeletionDate, maxDeletionDate);
+            } else {
+                postCore.setExplicitlyDeleted(false);
+                postDeletionDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
+            }
         }
         postCore.setDeletionDate(postDeletionDate);
 

@@ -35,6 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.generators;
 
+import ldbc.snb.datagen.DatagenMode;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
@@ -102,16 +103,23 @@ public class PersonGenerator {
 
         long maxKnows = Math.min(degreeDistribution.nextDegree(), DatagenParams.maxNumFriends);
         person.setMaxNumKnows(maxKnows);
-        boolean delete = personDeleteDistribution.isDeleted(randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_PERSON),maxKnows);
+
+
         long deletionDate;
-        if (delete) {
-            person.setExplicitlyDeleted(true);
-            long maxDeletionDate = Dictionaries.dates.getSimulationEnd();
-            deletionDate = Dictionaries.dates.randomPersonDeletionDate(
-                    randomFarm.get(RandomGeneratorFarm.Aspect.DATE), creationDate, person.getMaxNumKnows(), maxDeletionDate);
-        } else {
-            person.setExplicitlyDeleted(false);
+        if (DatagenParams.getDatagenMode() == DatagenMode.INTERACTIVE) {
             deletionDate = Dictionaries.dates.getNetworkCollapse();
+            person.setExplicitlyDeleted(false);
+        } else {
+            boolean delete = personDeleteDistribution.isDeleted(randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_PERSON), maxKnows);
+            if (delete) {
+                person.setExplicitlyDeleted(true);
+                long maxDeletionDate = Dictionaries.dates.getSimulationEnd();
+                deletionDate = Dictionaries.dates.randomPersonDeletionDate(
+                        randomFarm.get(RandomGeneratorFarm.Aspect.DATE), creationDate, person.getMaxNumKnows(), maxDeletionDate);
+            } else {
+                person.setExplicitlyDeleted(false);
+                deletionDate = Dictionaries.dates.getNetworkCollapse();
+            }
         }
         person.setDeletionDate(deletionDate);
 
