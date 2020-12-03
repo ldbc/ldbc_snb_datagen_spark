@@ -36,6 +36,7 @@
 package ldbc.snb.datagen.generator.generators;
 
 import com.google.common.collect.Streams;
+import ldbc.snb.datagen.DatagenMode;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.Forum;
@@ -87,22 +88,27 @@ public class LikeGenerator {
 
             long likeDeletionDate;
             boolean isExplicitlyDeleted;
-            if (membership.getPerson().getIsMessageDeleter() && randomDeleteLike.nextDouble() < DatagenParams.probLikeDeleted) {
-                isExplicitlyDeleted = true;
-                long minDeletionDate = likeCreationDate + DatagenParams.delta;
-                long maxDeletionDate = Collections.min(Arrays.asList(
-                        membership.getPerson().getDeletionDate(),
-                        message.getDeletionDate(),
-                        Dictionaries.dates.getSimulationEnd()));
-                if (maxDeletionDate <= minDeletionDate) {
-                    return Iterators.ForIterator.CONTINUE();
-                }
-                likeDeletionDate = Dictionaries.dates.powerLawDeleteDate(random, minDeletionDate, maxDeletionDate);
-            } else {
+            if (DatagenParams.getDatagenMode() == DatagenMode.INTERACTIVE) {
+                likeDeletionDate = Dictionaries.dates.getNetworkCollapse();
                 isExplicitlyDeleted = false;
-                likeDeletionDate = Collections.min(Arrays.asList(
-                        membership.getPerson().getDeletionDate(),
-                        message.getDeletionDate()));
+            } else {
+                if (membership.getPerson().getIsMessageDeleter() && randomDeleteLike.nextDouble() < DatagenParams.probLikeDeleted) {
+                    isExplicitlyDeleted = true;
+                    long minDeletionDate = likeCreationDate + DatagenParams.delta;
+                    long maxDeletionDate = Collections.min(Arrays.asList(
+                            membership.getPerson().getDeletionDate(),
+                            message.getDeletionDate(),
+                            Dictionaries.dates.getSimulationEnd()));
+                    if (maxDeletionDate <= minDeletionDate) {
+                        return Iterators.ForIterator.CONTINUE();
+                    }
+                    likeDeletionDate = Dictionaries.dates.powerLawDeleteDate(random, minDeletionDate, maxDeletionDate);
+                } else {
+                    isExplicitlyDeleted = false;
+                    likeDeletionDate = Collections.min(Arrays.asList(
+                            membership.getPerson().getDeletionDate(),
+                            message.getDeletionDate()));
+                }
             }
 
             like.setExplicitlyDeleted(isExplicitlyDeleted);

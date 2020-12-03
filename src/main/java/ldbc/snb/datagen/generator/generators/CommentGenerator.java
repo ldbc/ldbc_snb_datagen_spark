@@ -36,6 +36,7 @@
 package ldbc.snb.datagen.generator.generators;
 
 import com.google.common.collect.Streams;
+import ldbc.snb.datagen.DatagenMode;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.Forum;
@@ -136,19 +137,24 @@ public class CommentGenerator {
 
             long deletionDate;
             boolean isExplicitlyDeleted;
-
-            // if person is a deleter and selected for delete
-            if (membership.getPerson().getIsMessageDeleter() && randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_COMM).nextDouble() < DatagenParams.probCommentDeleted) {
-                isExplicitlyDeleted = true;
-                long minDeletionDate = creationDate + DatagenParams.delta;
-                long maxDeletionDate = Collections.min(Arrays.asList(parentMessage.getDeletionDate(), membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd()));
-                if (maxDeletionDate <= minDeletionDate) {
-                    return Iterators.ForIterator.CONTINUE();
-                }
-                deletionDate = Dictionaries.dates.powerLawDeleteDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), minDeletionDate, maxDeletionDate);
-            } else {
+            if (DatagenParams.getDatagenMode() == DatagenMode.INTERACTIVE) {
+                deletionDate = Dictionaries.dates.getNetworkCollapse();
                 isExplicitlyDeleted = false;
-                deletionDate = Collections.min(Arrays.asList(parentMessage.getDeletionDate(), membership.getDeletionDate()));
+            } else {
+
+                // if person is a deleter and selected for delete
+                if (membership.getPerson().getIsMessageDeleter() && randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_COMM).nextDouble() < DatagenParams.probCommentDeleted) {
+                    isExplicitlyDeleted = true;
+                    long minDeletionDate = creationDate + DatagenParams.delta;
+                    long maxDeletionDate = Collections.min(Arrays.asList(parentMessage.getDeletionDate(), membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd()));
+                    if (maxDeletionDate <= minDeletionDate) {
+                        return Iterators.ForIterator.CONTINUE();
+                    }
+                    deletionDate = Dictionaries.dates.powerLawDeleteDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), minDeletionDate, maxDeletionDate);
+                } else {
+                    isExplicitlyDeleted = false;
+                    deletionDate = Collections.min(Arrays.asList(parentMessage.getDeletionDate(), membership.getDeletionDate()));
+                }
             }
 
             int country = membership.getPerson().getCountryId();

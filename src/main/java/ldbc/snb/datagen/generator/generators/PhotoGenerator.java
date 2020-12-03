@@ -36,6 +36,7 @@
 package ldbc.snb.datagen.generator.generators;
 
 import com.google.common.collect.Streams;
+import ldbc.snb.datagen.DatagenMode;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.Forum;
@@ -91,14 +92,19 @@ class PhotoGenerator {
 
             long deletionDate;
             boolean isExplicitlyDeleted;
-            if (album.getModerator().getIsMessageDeleter() &&  randomDeletePost.nextDouble() < DatagenParams.probPhotoDeleted) {
-                isExplicitlyDeleted = true;
-                long minDeletionDate = creationDate + DatagenParams.delta;
-                long maxDeletionDate = Math.min(album.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
-                deletionDate = Dictionaries.dates.powerLawDeleteDate(randomDate, minDeletionDate, maxDeletionDate);
-            } else {
+            if (DatagenParams.getDatagenMode() == DatagenMode.INTERACTIVE) {
+                deletionDate = Dictionaries.dates.getNetworkCollapse();
                 isExplicitlyDeleted = false;
-                deletionDate = album.getDeletionDate();
+            } else {
+                if (album.getModerator().getIsMessageDeleter() && randomDeletePost.nextDouble() < DatagenParams.probPhotoDeleted) {
+                    isExplicitlyDeleted = true;
+                    long minDeletionDate = creationDate + DatagenParams.delta;
+                    long maxDeletionDate = Math.min(album.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
+                    deletionDate = Dictionaries.dates.powerLawDeleteDate(randomDate, minDeletionDate, maxDeletionDate);
+                } else {
+                    isExplicitlyDeleted = false;
+                    deletionDate = album.getDeletionDate();
+                }
             }
 
             int country = album.getModerator().getCountryId();
