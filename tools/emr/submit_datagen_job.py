@@ -18,10 +18,10 @@ max_num_workers = 1000
 defaults = {
     'bucket': 'ldbc-snb-datagen-store',
     'use_spot': False,
-    'master_instance_type': 'c5d.xlarge',
+    'master_instance_type': 'm5d.xlarge',
     'instance_type': 'r5d.2xlarge',
     'version': '0.4.0-SNAPSHOT',
-    'az': 'us-west-2a',
+    'az': 'us-west-2c',
     'is_interactive': False,
     'ec2_key': None,
 }
@@ -52,7 +52,7 @@ def ask_continue(message):
 
 
 def calculate_cluster_config(scale_factor):
-    num_workers = max(min_num_workers, min(max_num_workers, scale_factor // 20))
+    num_workers = max(min_num_workers, min(max_num_workers, scale_factor // 50))
     return {
         'num_workers': num_workers,
     }
@@ -100,7 +100,7 @@ def submit_datagen_job(params_file, sf, instance_vcpu,
     job_flow_args = {
         'Name': f'{name}_{ts_formatted}',
         'LogUri': f's3://{bucket}/logs/emr',
-        'ReleaseLabel': 'emr-5.30.0',
+        'ReleaseLabel': 'emr-5.31.0',
         'Applications': [
             {'Name': 'hadoop'},
             {'Name': 'spark'},

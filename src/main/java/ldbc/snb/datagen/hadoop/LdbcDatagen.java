@@ -138,7 +138,7 @@ public class LdbcDatagen extends DatagenHadoopJob {
         HadoopStaticSerializer staticSerializer = new HadoopStaticSerializer(
                 conf,
                 hadoopConf,
-                HadoopConfiguration.getNumThreads(hadoopConf)
+                1
 
         );
         staticSerializer.run();

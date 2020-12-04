@@ -24,7 +24,7 @@ object SparkPersonSerializer {
     val serializableHadoopConf = new SerializableConfiguration(spark.sparkContext.hadoopConfiguration)
 
     persons
-      .withFoldLeft(partitions, (rdd: RDD[Person], p: Int) => rdd.repartition(p))
+      .withFoldLeft(partitions, (rdd: RDD[Person], p: Int) => rdd.coalesce(p))
       .foreachPartition(persons => {
       val dynamicPersonSerializer = conf.getDynamicPersonSerializer
       val hadoopConf = serializableHadoopConf.value
