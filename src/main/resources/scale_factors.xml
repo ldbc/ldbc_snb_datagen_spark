@@ -232,7 +232,7 @@
     <scale_factor name="30000" >
         <property>
             <name>generator.numPersons</name>
-            <value>40000000</value>
+            <value>65000000</value>
         </property>
         <property>
             <name>generator.startYear</name>
