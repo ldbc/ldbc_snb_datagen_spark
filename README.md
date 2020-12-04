@@ -41,6 +41,28 @@ The following options are available:
   * `interactive`: used for the benchmarks
   * `rawdata`: used for debugging, includes explicit deletion date timestamps, edge weights used to select deletions, etc. This mode is only compatible with the `CsvBasic` serializer.
 
+### Build the JAR
+Make sure you hava Java 8 (JDK) installed and the `$JAVA_HOME` environment variable points to its location. You might find [SDKMAN](https://sdkman.io/) useful.
+To assemble the JAR file, run:
+
+```bash
+tools/build.sh
+```
+
+### Running locally
+
+Download and extract Spark 2.4.x:
+
+```bash
+curl https://downloads.apache.org/spark/spark-2.4.7/spark-2.4.7-bin-hadoop2.7.tgz | sudo tar -xz -C /opt/
+export SPARK_HOME="/opt/spark-2.4.7-bin-hadoop2.7"
+export PATH="$SPARK_HOME/bin":"$PATH"
+```
+
+```bash
+tools/run.sh
+```
+
 ### Docker image
 
 SNB Datagen images are available via [Docker Hub](https://hub.docker.com/r/ldbc/datagen/) (currently outdated).
@@ -51,11 +73,10 @@ Alternatively, the image can be built with the provided Dockerfile. To build, ex
 tools/docker-build.sh
 ```
 
-Make sure you hava Java 8 (JDK) installed and the `$JAVA_HOME` environment variable points to its location. You might find [SDKMAN](https://sdkman.io/) useful.
-To assemble the JAR file and run the Docker image using the mounted JAR, run:
+See [Build the JAR](#build-the-jar) to build the library. Then, run the following:
 
 ```bash
-tools/build.sh && tools/run.sh
+tools/docker-run.sh
 ```
 
 This produce its output to the `out/social_network` directory
