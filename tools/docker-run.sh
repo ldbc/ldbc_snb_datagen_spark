@@ -6,9 +6,9 @@
 # make sure that out directory exists and clean previously generated data
 mkdir -p out/
 rm -rf out/*
-
-spark-submit \
-  --master local[*] \
-  --class ldbc.snb.datagen.spark.LdbcDatagen \
-  target/ldbc_snb_datagen-0.4.0-SNAPSHOT-jar-with-dependencies.jar \
-  params.ini
+docker run \
+  --env uid=`id -u` \
+  --volume `pwd`/out:/mnt/data \
+  --volume `pwd`/params.ini:/mnt/params.ini \
+  --volume `pwd`/target/ldbc_snb_datagen-0.4.0-SNAPSHOT-jar-with-dependencies.jar:/mnt/datagen.jar \
+  ldbc/spark
