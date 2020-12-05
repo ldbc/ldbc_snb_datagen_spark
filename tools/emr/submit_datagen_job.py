@@ -8,9 +8,10 @@ import csv
 import re
 import __main__
 
-import argparse
+from math import ceil
+from datagen import lib, util
 
-main_class = 'ldbc.snb.datagen.spark.LdbcDatagen'
+import argparse
 
 min_num_workers = 1
 max_num_workers = 1000
@@ -20,11 +21,12 @@ defaults = {
     'use_spot': False,
     'master_instance_type': 'm5d.xlarge',
     'instance_type': 'r5d.2xlarge',
-    'version': '0.4.0-SNAPSHOT',
+    'version': lib.version,
     'az': 'us-west-2c',
     'is_interactive': False,
     'ec2_key': None,
-    'emr_release': 'emr-5.31.0'
+    'emr_release': 'emr-5.31.0',
+    'sf_ratio': 50.0
 }
 
 pp = pprint.PrettyPrinter(indent=2)
@@ -38,28 +40,31 @@ with open(path.join(dir, ec2info_file), mode='r') as infile:
     ec2_instances = [dict(row) for row in reader]
 
 
-def ask_continue(message):
-    print(message)
-    resp = None
-    inp = input("Continue? [Y/N]:").lower()
-    while resp is None:
-        if inp == 'y' or inp == 'yes':
-            resp = True
-        elif inp == 'n' or inp == 'no':
-            resp = False
-        else:
-            inp = input("Please answer yes or no:").lower()
-    return resp
-
-
-def calculate_cluster_config(scale_factor):
-    num_workers = max(min_num_workers, min(max_num_workers, scale_factor // 50))
+def calculate_cluster_config(scale_factor, sf_ratio=50.0):
+    num_workers = max(min_num_workers, min(max_num_workers, ceil(scale_factor / sf_ratio)))
     return {
         'num_workers': num_workers,
+        'parallelism_factor': max(1.0, sf_ratio / 50.0)
     }
 
 
-def submit_datagen_job(params_file, sf, instance_vcpu,
+def get_instance_info(instance_type):
+    def parse_vcpu(col):
+        return int(re.search(r'(\d+) .*', col).group(1))
+
+    def parse_mem(col):
+        return int(re.search(r'(\d+).*', col).group(1))
+
+    vcpu = next((parse_vcpu(i['vCPUs']) for i in ec2_instances if i['API Name'] == instance_type), None)
+    mem = next((parse_mem(i['Memory']) for i in ec2_instances if i['API Name'] == instance_type), None)
+
+    if vcpu is None or mem is None:
+        raise Exception(f'unable to find instance type `{instance_type}`. If not a typo, reexport `{ec2info_file}` from ec2instances.com')
+
+    return {'vcpu': vcpu, 'mem': mem}
+
+
+def submit_datagen_job(params_file, sf,
                        bucket=defaults['bucket'],
                        use_spot=defaults['use_spot'],
                        instance_type=defaults['instance_type'],
@@ -70,6 +75,11 @@ def submit_datagen_job(params_file, sf, instance_vcpu,
                        is_interactive=defaults['is_interactive'],
                        ec2_key=defaults['ec2_key']
                        ):
+
+    exec_info = get_instance_info(instance_type)
+
+    cluster_config = calculate_cluster_config(sf)
+
     emr = boto3.client('emr')
 
     name = path.splitext(params_file)[0]
@@ -82,10 +92,11 @@ def submit_datagen_job(params_file, sf, instance_vcpu,
     results_url = f's3://{bucket}/results/{name}'
     run_url = f'{results_url}/runs/{ts_formatted}'
 
-    cluster_config = calculate_cluster_config(sf)
+    num_threads = ceil(cluster_config['num_workers'] * exec_info['vcpu'] * cluster_config['parallelism_factor'] * 2)
 
     spark_config = {
         'maximizeResourceAllocation': 'true',
+        'spark.default.parallelism': str(num_threads),
         'spark.serializer': 'org.apache.spark.serializer.KryoSerializer'
     }
 
@@ -97,7 +108,6 @@ def submit_datagen_job(params_file, sf, instance_vcpu,
     market = 'SPOT' if use_spot else 'ON_DEMAND'
 
     ec2_key_dict = {'Ec2KeyName': ec2_key} if ec2_key is not None else {}
-
 
     job_flow_args = {
         'Name': f'{name}_{ts_formatted}',
@@ -146,9 +156,9 @@ def submit_datagen_job(params_file, sf, instance_vcpu,
                 'HadoopJarStep': {
                     'Properties': [],
                     'Jar': 'command-runner.jar',
-                    'Args': ['spark-submit', '--class', main_class, jar_url, params_url,
+                    'Args': ['spark-submit', '--class', lib.main_class, jar_url, params_url,
                              '--sn-dir', sn_dir, '--build-dir', build_dir,
-                             '--num-threads', f"{cluster_config['num_workers'] * instance_vcpu}"]
+                             '--num-threads', str(num_threads)]
                 }
 
             },
@@ -168,7 +178,7 @@ def submit_datagen_job(params_file, sf, instance_vcpu,
 
     if is_interactive:
         job_flow_args_formatted = pp.pformat(job_flow_args)
-        if not ask_continue(f'Job parameters:\n{job_flow_args_formatted}'):
+        if not util.ask_continue(f'Job parameters:\n{job_flow_args_formatted}'):
             return
 
     emr.run_job_flow(**job_flow_args)
@@ -210,21 +220,10 @@ if __name__ == "__main__":
 
     is_interactive = hasattr(__main__, '__file__')
 
-    def parse_vcpu(col):
-        return int(re.search(r'(\d) .*', col).group(1))
-
-    instance_type = args.instance_type
-
-    vcpu = next((parse_vcpu(i['vCPUs']) for i in ec2_instances if i['API Name'] == instance_type), None)
-
-    if vcpu is None:
-        raise Exception(f'unable to find instance type `{instance_type}`. If not a typo, reexport `{ec2info_file}` from ec2instances.com')
-
     submit_datagen_job(args.params_url, args.sf,
                        bucket=args.bucket, use_spot=args.use_spot, az=args.az,
                        is_interactive=is_interactive and not args.y,
                        instance_type=args.instance_type,
-                       instance_vcpu=vcpu,
                        emr_release=args.emr_release,
                        ec2_key=args.ec2_key,
                        version=args.version
