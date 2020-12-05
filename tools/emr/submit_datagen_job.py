@@ -24,6 +24,7 @@ defaults = {
     'az': 'us-west-2c',
     'is_interactive': False,
     'ec2_key': None,
+    'emr_release': 'emr-5.31.0'
 }
 
 pp = pprint.PrettyPrinter(indent=2)
@@ -65,6 +66,7 @@ def submit_datagen_job(params_file, sf, instance_vcpu,
                        master_instance_type=defaults['master_instance_type'],
                        az=defaults['az'],
                        version=defaults['version'],
+                       emr_release=defaults['emr_release'],
                        is_interactive=defaults['is_interactive'],
                        ec2_key=defaults['ec2_key']
                        ):
@@ -100,7 +102,7 @@ def submit_datagen_job(params_file, sf, instance_vcpu,
     job_flow_args = {
         'Name': f'{name}_{ts_formatted}',
         'LogUri': f's3://{bucket}/logs/emr',
-        'ReleaseLabel': 'emr-5.31.0',
+        'ReleaseLabel': emr_release,
         'Applications': [
             {'Name': 'hadoop'},
             {'Name': 'spark'},
@@ -197,6 +199,9 @@ if __name__ == "__main__":
     parser.add_argument('--version',
                         default=defaults['version'],
                         help='LDBC SNB Datagen library version')
+    parser.add_argument('--emr-release',
+                        default=defaults['emr_release'],
+                        help='The EMR release to use. E.g emr-5.31.0, emr-6.1.0')
     parser.add_argument('-y',
                         action='store_true',
                         help='Assume \'yes\' for prompts')
