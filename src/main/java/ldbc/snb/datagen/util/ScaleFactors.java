@@ -1,6 +1,5 @@
 package ldbc.snb.datagen.util;
 
-import ldbc.snb.datagen.hadoop.LdbcDatagen;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -25,7 +24,7 @@ public class ScaleFactors {
             value = new TreeMap<>();
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(LdbcDatagen.class.getResourceAsStream("/" + SCALE_FACTORS_FILE));
+            Document doc = dBuilder.parse(ScaleFactors.class.getResourceAsStream("/" + SCALE_FACTORS_FILE));
             doc.getDocumentElement().normalize();
 
             System.out.println("Reading scale factors..");
