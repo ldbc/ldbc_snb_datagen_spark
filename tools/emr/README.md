@@ -16,7 +16,7 @@ Create an S3 bucket. This bucket will have the following layout:
 1. From the repository root, run:
 
 ```
-pip install -r tools/emr/requirements.txt
+pip install -r tools/requirements.txt
 ```
 
 1. Package the JAR. Make sure you use Java 8:
