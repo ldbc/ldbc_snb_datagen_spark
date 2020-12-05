@@ -261,4 +261,15 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>spark-3</id>
+      <properties>
+        <scala.version>2.12.12</scala.version>
+        <scala.compat.version>2.12</scala.compat.version>
+        <spark.version>3.0.1</spark.version>
+      </properties>
+    </profile>
+  </profiles>
 </project>
