@@ -226,5 +226,6 @@ if __name__ == "__main__":
                        instance_type=args.instance_type,
                        instance_vcpu=vcpu,
                        emr_release=args.emr_release,
-                       ec2_key=args.ec2_key
+                       ec2_key=args.ec2_key,
+                       version=args.version
                        )
