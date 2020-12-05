@@ -1,9 +1,5 @@
 import argparse
 
-from pprint import PrettyPrinter
-
-_pp = PrettyPrinter(indent=2)
-
 
 class KeyValue(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
@@ -17,7 +13,7 @@ class KeyValue(argparse.Action):
 
 
 def ask_continue(message):
-    _pp.pprint(message)
+    print(message)
     resp = None
     inp = input("Continue? [Y/N]:").lower()
     while resp is None:
