@@ -12,8 +12,6 @@ import argparse
 
 main_class = 'ldbc.snb.datagen.spark.LdbcDatagen'
 
-version = '0.4.0-SNAPSHOT'
-
 min_num_workers = 1
 max_num_workers = 1000
 
@@ -22,6 +20,7 @@ defaults = {
     'use_spot': False,
     'master_instance_type': 'm5d.xlarge',
     'instance_type': 'r5d.2xlarge',
+    'version': '0.4.0-SNAPSHOT',
     'az': 'us-west-2c',
     'is_interactive': False,
     'ec2_key': None,
@@ -65,6 +64,7 @@ def submit_datagen_job(params_file, sf, instance_vcpu,
                        instance_type=defaults['instance_type'],
                        master_instance_type=defaults['master_instance_type'],
                        az=defaults['az'],
+                       version=defaults['version'],
                        is_interactive=defaults['is_interactive'],
                        ec2_key=defaults['ec2_key']
                        ):
@@ -194,6 +194,9 @@ if __name__ == "__main__":
     parser.add_argument('--ec2-key',
                         default=defaults['ec2_key'],
                         help='EC2 key name for SSH connection')
+    parser.add_argument('--version',
+                        default=defaults['version'],
+                        help='LDBC SNB Datagen library version')
     parser.add_argument('-y',
                         action='store_true',
                         help='Assume \'yes\' for prompts')
@@ -211,7 +214,6 @@ if __name__ == "__main__":
 
     if vcpu is None:
         raise Exception(f'unable to find instance type `{instance_type}`. If not a typo, reexport `{ec2info_file}` from ec2instances.com')
-
 
     submit_datagen_job(args.params_url, args.sf,
                        bucket=args.bucket, use_spot=args.use_spot, az=args.az,
