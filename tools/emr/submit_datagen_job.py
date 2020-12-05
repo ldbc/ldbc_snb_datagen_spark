@@ -9,10 +9,11 @@ import re
 import __main__
 
 from math import ceil
+from datagen import lib, util
 
 import argparse
 
-main_class = 'ldbc.snb.datagen.spark.LdbcDatagen'
+import argparse
 
 min_num_workers = 1
 max_num_workers = 1000
@@ -22,7 +23,7 @@ defaults = {
     'use_spot': False,
     'master_instance_type': 'm5d.xlarge',
     'instance_type': 'r5d.2xlarge',
-    'version': '0.4.0-SNAPSHOT',
+    'version': lib.version,
     'az': 'us-west-2c',
     'is_interactive': False,
     'ec2_key': None,
@@ -178,7 +179,7 @@ def submit_datagen_job(params_file, sf,
                 'HadoopJarStep': {
                     'Properties': [],
                     'Jar': 'command-runner.jar',
-                    'Args': ['spark-submit', '--class', main_class, jar_url, params_url,
+                    'Args': ['spark-submit', '--class', lib.main_class, jar_url, params_url,
                              '--sn-dir', sn_dir, '--build-dir', build_dir,
                              '--num-threads', str(num_threads)]
                 }
@@ -200,7 +201,7 @@ def submit_datagen_job(params_file, sf,
 
     if is_interactive:
         job_flow_args_formatted = pp.pformat(job_flow_args)
-        if not ask_continue(f'Job parameters:\n{job_flow_args_formatted}'):
+        if not util.ask_continue(f'Job parameters:\n{job_flow_args_formatted}'):
             return
 
     emr.run_job_flow(**job_flow_args)
