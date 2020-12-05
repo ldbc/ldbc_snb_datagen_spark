@@ -225,5 +225,6 @@ if __name__ == "__main__":
                        is_interactive=is_interactive and not args.y,
                        instance_type=args.instance_type,
                        instance_vcpu=vcpu,
+                       emr_release=args.emr_release,
                        ec2_key=args.ec2_key
                        )
