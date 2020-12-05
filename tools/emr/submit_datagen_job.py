@@ -8,9 +8,9 @@ import csv
 import re
 import __main__
 
-import argparse
+from datagen import lib, util
 
-main_class = 'ldbc.snb.datagen.spark.LdbcDatagen'
+import argparse
 
 min_num_workers = 1
 max_num_workers = 1000
@@ -20,7 +20,7 @@ defaults = {
     'use_spot': False,
     'master_instance_type': 'm5d.xlarge',
     'instance_type': 'r5d.2xlarge',
-    'version': '0.4.0-SNAPSHOT',
+    'version': lib.version,
     'az': 'us-west-2c',
     'is_interactive': False,
     'ec2_key': None,
@@ -36,20 +36,6 @@ ec2info_file = 'Amazon EC2 Instance Comparison.csv'
 with open(path.join(dir, ec2info_file), mode='r') as infile:
     reader = csv.DictReader(infile)
     ec2_instances = [dict(row) for row in reader]
-
-
-def ask_continue(message):
-    print(message)
-    resp = None
-    inp = input("Continue? [Y/N]:").lower()
-    while resp is None:
-        if inp == 'y' or inp == 'yes':
-            resp = True
-        elif inp == 'n' or inp == 'no':
-            resp = False
-        else:
-            inp = input("Please answer yes or no:").lower()
-    return resp
 
 
 def calculate_cluster_config(scale_factor):
@@ -146,7 +132,7 @@ def submit_datagen_job(params_file, sf, instance_vcpu,
                 'HadoopJarStep': {
                     'Properties': [],
                     'Jar': 'command-runner.jar',
-                    'Args': ['spark-submit', '--class', main_class, jar_url, params_url,
+                    'Args': ['spark-submit', '--class', lib.main_class, jar_url, params_url,
                              '--sn-dir', sn_dir, '--build-dir', build_dir,
                              '--num-threads', f"{cluster_config['num_workers'] * instance_vcpu}"]
                 }
@@ -168,7 +154,7 @@ def submit_datagen_job(params_file, sf, instance_vcpu,
 
     if is_interactive:
         job_flow_args_formatted = pp.pformat(job_flow_args)
-        if not ask_continue(f'Job parameters:\n{job_flow_args_formatted}'):
+        if not util.ask_continue(f'Job parameters:\n{job_flow_args_formatted}'):
             return
 
     emr.run_job_flow(**job_flow_args)
