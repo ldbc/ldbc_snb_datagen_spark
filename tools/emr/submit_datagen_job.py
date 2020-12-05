@@ -56,7 +56,7 @@ def ask_continue(message):
 
 
 def calculate_cluster_config(scale_factor, sf_ratio):
-    num_workers = max(min_num_workers, min(max_num_workers, scale_factor // ceil(sf_ratio)))
+    num_workers = max(min_num_workers, min(max_num_workers, ceil(scale_factor / sf_ratio)))
     return {
         'num_workers': num_workers,
         'parallelism_factor': max(1.0, sf_ratio / 50.0)
