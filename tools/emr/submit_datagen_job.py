@@ -68,7 +68,7 @@ def get_instance_info(instance_type):
         return int(re.search(r'(\d+) .*', col).group(1))
 
     def parse_mem(col):
-        return int(re.search(r'(\d+\w).*', col).group(1))
+        return int(re.search(r'(\d+).*', col).group(1))
 
     vcpu = next((parse_vcpu(i['vCPUs']) for i in ec2_instances if i['API Name'] == instance_type), None)
     mem = next((parse_mem(i['Memory']) for i in ec2_instances if i['API Name'] == instance_type), None)
