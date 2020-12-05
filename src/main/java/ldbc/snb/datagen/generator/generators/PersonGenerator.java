@@ -42,7 +42,6 @@ import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.util.*;
 import ldbc.snb.datagen.generator.distribution.DegreeDistribution;
 import ldbc.snb.datagen.generator.tools.PowerDistribution;
-import org.apache.kerby.kerberos.kerb.type.fast.PaAuthnEntry;
 
 import java.text.Normalizer;
 import java.time.Month;

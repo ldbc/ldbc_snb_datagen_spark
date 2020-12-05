@@ -16,8 +16,6 @@ import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvBasicStaticSerial
 import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvCompositeMergeForeignStaticSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvCompositeStaticSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvMergeForeignStaticSerializer;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.util.StringUtils;
 
 import java.io.Serializable;
 import java.util.Iterator;
@@ -41,10 +39,10 @@ public class LdbcConfiguration implements Iterable<Map.Entry<String, String>>, S
     public boolean getBoolean(String key, boolean defaultValue) {
         String valueString = this.getTrimmed(key);
         if (null != valueString && !valueString.isEmpty()) {
-            if (org.apache.hadoop.util.StringUtils.equalsIgnoreCase("true", valueString)) {
+            if ("true".equalsIgnoreCase(valueString)) {
                 return true;
             } else {
-                return StringUtils.equalsIgnoreCase("false", valueString) ? false : defaultValue;
+                return "false".equalsIgnoreCase(valueString) ? false : defaultValue;
             }
         } else {
             return defaultValue;
