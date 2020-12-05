@@ -240,7 +240,7 @@ if __name__ == "__main__":
                         help='Controls the SF/instance ratio. The default is 50. '
                              'Higher values will result in less instances allocated, '
                              'but also smaller tasks and thus longer builds. \n'
-                             'IMPORTANT: Also modified the numThreads parameter.')
+                             'IMPORTANT: Also modifies the numThreads parameter.')
     parser.add_argument('-y',
                         action='store_true',
                         help='Assume \'yes\' for prompts')
