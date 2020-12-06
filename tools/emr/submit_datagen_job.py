@@ -8,10 +8,7 @@ import csv
 import re
 import __main__
 
-from math import ceil
 from datagen import lib, util
-
-import argparse
 
 import argparse
 
@@ -27,8 +24,7 @@ defaults = {
     'az': 'us-west-2c',
     'is_interactive': False,
     'ec2_key': None,
-    'emr_release': 'emr-5.31.0',
-    'sf_ratio': 50.0
+    'emr_release': 'emr-5.31.0'
 }
 
 pp = pprint.PrettyPrinter(indent=2)
@@ -42,45 +38,14 @@ with open(path.join(dir, ec2info_file), mode='r') as infile:
     ec2_instances = [dict(row) for row in reader]
 
 
-def ask_continue(message):
-    print(message)
-    resp = None
-    inp = input("Continue? [Y/N]:").lower()
-    while resp is None:
-        if inp == 'y' or inp == 'yes':
-            resp = True
-        elif inp == 'n' or inp == 'no':
-            resp = False
-        else:
-            inp = input("Please answer yes or no:").lower()
-    return resp
-
-
-def calculate_cluster_config(scale_factor, sf_ratio):
-    num_workers = max(min_num_workers, min(max_num_workers, ceil(scale_factor / sf_ratio)))
+def calculate_cluster_config(scale_factor):
+    num_workers = max(min_num_workers, min(max_num_workers, scale_factor // 50))
     return {
         'num_workers': num_workers,
-        'parallelism_factor': max(1.0, sf_ratio / 50.0)
     }
 
 
-def get_instance_info(instance_type):
-    def parse_vcpu(col):
-        return int(re.search(r'(\d+) .*', col).group(1))
-
-    def parse_mem(col):
-        return int(re.search(r'(\d+).*', col).group(1))
-
-    vcpu = next((parse_vcpu(i['vCPUs']) for i in ec2_instances if i['API Name'] == instance_type), None)
-    mem = next((parse_mem(i['Memory']) for i in ec2_instances if i['API Name'] == instance_type), None)
-
-    if vcpu is None or mem is None:
-        raise Exception(f'unable to find instance type `{instance_type}`. If not a typo, reexport `{ec2info_file}` from ec2instances.com')
-
-    return {'vcpu': vcpu, 'mem': mem}
-
-
-def submit_datagen_job(params_file, sf,
+def submit_datagen_job(params_file, sf, instance_vcpu,
                        bucket=defaults['bucket'],
                        use_spot=defaults['use_spot'],
                        instance_type=defaults['instance_type'],
@@ -89,15 +54,8 @@ def submit_datagen_job(params_file, sf,
                        version=defaults['version'],
                        emr_release=defaults['emr_release'],
                        is_interactive=defaults['is_interactive'],
-                       ec2_key=defaults['ec2_key'],
-                       sf_ratio=defaults['sf_ratio']
+                       ec2_key=defaults['ec2_key']
                        ):
-
-    exec_info = get_instance_info(instance_type)
-    master_info = get_instance_info(master_instance_type)
-
-    cluster_config = calculate_cluster_config(sf, sf_ratio)
-
     emr = boto3.client('emr')
 
     name = path.splitext(params_file)[0]
@@ -110,18 +68,12 @@ def submit_datagen_job(params_file, sf,
     results_url = f's3://{bucket}/results/{name}'
     run_url = f'{results_url}/runs/{ts_formatted}'
 
-    num_threads = ceil(cluster_config['num_workers'] * exec_info['vcpu'] * cluster_config['parallelism_factor'] * 2)
+    cluster_config = calculate_cluster_config(sf)
 
     spark_config = {
-        'spark.default.parallelism': str(num_threads),
-        'spark.executor_memory': f'{exec_info["mem"]}G',
-        'spark.driver.memory': f'{master_info["mem"]}G',
-        'spark.executor.cores': str(exec_info['vcpu']),
-        'spark.executor.instances': str(cluster_config["num_workers"]),
+        'maximizeResourceAllocation': 'true',
         'spark.serializer': 'org.apache.spark.serializer.KryoSerializer'
     }
-
-
 
     hdfs_prefix = '/ldbc_snb_datagen'
 
@@ -131,6 +83,7 @@ def submit_datagen_job(params_file, sf,
     market = 'SPOT' if use_spot else 'ON_DEMAND'
 
     ec2_key_dict = {'Ec2KeyName': ec2_key} if ec2_key is not None else {}
+
 
     job_flow_args = {
         'Name': f'{name}_{ts_formatted}',
@@ -181,7 +134,7 @@ def submit_datagen_job(params_file, sf,
                     'Jar': 'command-runner.jar',
                     'Args': ['spark-submit', '--class', lib.main_class, jar_url, params_url,
                              '--sn-dir', sn_dir, '--build-dir', build_dir,
-                             '--num-threads', str(num_threads)]
+                             '--num-threads', f"{cluster_config['num_workers'] * instance_vcpu}"]
                 }
 
             },
@@ -235,13 +188,6 @@ if __name__ == "__main__":
     parser.add_argument('--emr-release',
                         default=defaults['emr_release'],
                         help='The EMR release to use. E.g emr-5.31.0, emr-6.1.0')
-    parser.add_argument('--sf-ratio',
-                        default=defaults['sf_ratio'],
-                        type=float,
-                        help='Controls the SF/instance ratio. The default is 50. '
-                             'Higher values will result in less instances allocated, '
-                             'but also smaller tasks and thus longer builds. \n'
-                             'IMPORTANT: Also modifies the numThreads parameter.')
     parser.add_argument('-y',
                         action='store_true',
                         help='Assume \'yes\' for prompts')
@@ -250,12 +196,22 @@ if __name__ == "__main__":
 
     is_interactive = hasattr(__main__, '__file__')
 
+    def parse_vcpu(col):
+        return int(re.search(r'(\d) .*', col).group(1))
+
+    instance_type = args.instance_type
+
+    vcpu = next((parse_vcpu(i['vCPUs']) for i in ec2_instances if i['API Name'] == instance_type), None)
+
+    if vcpu is None:
+        raise Exception(f'unable to find instance type `{instance_type}`. If not a typo, reexport `{ec2info_file}` from ec2instances.com')
+
     submit_datagen_job(args.params_url, args.sf,
                        bucket=args.bucket, use_spot=args.use_spot, az=args.az,
                        is_interactive=is_interactive and not args.y,
                        instance_type=args.instance_type,
+                       instance_vcpu=vcpu,
                        emr_release=args.emr_release,
                        ec2_key=args.ec2_key,
-                       version=args.version,
-                       sf_ratio=args.sf_ratio
+                       version=args.version
                        )
