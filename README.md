@@ -49,6 +49,22 @@ To assemble the JAR file, run:
 tools/build.sh
 ```
 
+
+### Install tools
+Some of the build utilities are written in Python. To use them, you have to create a Python virtual environment
+and install the dependencies.
+
+E.g with pyenv
+```bash
+pyenv virtualenv 3.7.7 ldbc_datagen_tools
+echo "3.7.7/envs/ldbc_datagen_tools" > .python-version
+pip install -U pip -r tools/requirements.txt
+```
+
+
+
+
+
 ### Running locally
 
 Download and extract Spark 2.4.x:

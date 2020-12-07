@@ -25,8 +25,7 @@ defaults = {
     'az': 'us-west-2c',
     'is_interactive': False,
     'ec2_key': None,
-    'emr_release': 'emr-5.31.0',
-    'sf_ratio': 50.0
+    'emr_release': 'emr-5.31.0'
 }
 
 pp = pprint.PrettyPrinter(indent=2)
@@ -96,7 +95,6 @@ def submit_datagen_job(params_file, sf,
 
     spark_config = {
         'maximizeResourceAllocation': 'true',
-        'spark.default.parallelism': str(num_threads),
         'spark.serializer': 'org.apache.spark.serializer.KryoSerializer'
     }
 
