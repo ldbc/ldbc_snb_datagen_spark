@@ -74,6 +74,7 @@ if __name__ == "__main__":
                         help='amount of memory to use. E.g 512m, 16g, 1t'
                         )
     parser.add_argument('--conf',
+                        nargs='+',
                         action=util.KeyValue,
                         help="Spark conf as a list of key=value pairs")
     parser.add_argument('--parallelism',
