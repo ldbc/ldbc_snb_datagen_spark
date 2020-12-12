@@ -17,11 +17,11 @@ object SparkRanker {
     override def apply(persons: RDD[Person]): RDD[(Long, Person)] = {
       val partitions = numPartitions.getOrElse(spark.sparkContext.defaultParallelism)
 
-      val sortedPersons = persons.sortBy(by, numPartitions = partitions).cache()
+      val sortedPersons = persons.sortBy(by, numPartitions = partitions)
 
       // single count / partition. Assumed small enough to collect and broadcast
       val counts = sortedPersons
-        .mapPartitionsWithIndex((i, ps) => Seq((i, ps.length.toLong)).iterator)
+        .mapPartitionsWithIndex((i, ps) => Array((i, ps.size)).iterator, preservesPartitioning = true)
         .collectAsMap()
 
       val aggregatedCounts = SortedMap(counts.toSeq : _*)
