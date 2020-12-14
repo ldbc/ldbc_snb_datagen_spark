@@ -69,9 +69,13 @@ export SPARK_HOME="/opt/spark-2.4.7-bin-hadoop2.7"
 export PATH="$SPARK_HOME/bin":"$PATH"
 ```
 
+Run the benchmarks locally with the following script:
+
 ```bash
-tools/run.sh
+tools/run.py ./target/ldbc_snb_datagen-0.4.0-SNAPSHOT-jar-with-dependencies.jar params.ini
 ```
+
+There are some configuration options like setting parallelism or number of cores, try `--help`.
 
 ### Docker image
 
