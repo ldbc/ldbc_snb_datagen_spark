@@ -50,6 +50,7 @@ import ldbc.snb.datagen.vocabulary.SN;
 import org.javatuples.Pair;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -65,7 +66,7 @@ class PhotoGenerator {
         this.photo = new Photo();
     }
 
-    Stream<Pair<Photo, Stream<Like>>> createPhotos(RandomGeneratorFarm randomFarm, final Forum album, long numPhotosInAlbum, Iterator<Long> idIterator, long blockId) {
+    Stream<Pair<Photo, List<Like>>> createPhotos(RandomGeneratorFarm randomFarm, final Forum album, long numPhotosInAlbum, Iterator<Long> idIterator, long blockId) {
         int numPopularPlaces = randomFarm.get(RandomGeneratorFarm.Aspect.NUM_POPULAR)
                 .nextInt(DatagenParams.maxNumPopularPlaces + 1);
         List<Short> popularPlaces = new ArrayList<>();
@@ -140,7 +141,7 @@ class PhotoGenerator {
                             album, photo, Like.LikeType.PHOTO)
                     : Stream.empty();
 
-            return Iterators.ForIterator.RETURN(new Pair<>(photo, likeStream)); // (photo, likeStream)
+            return Iterators.ForIterator.RETURN(new Pair<>(photo, likeStream.collect(Collectors.toList()))); // (photo, likeStream)
         }));
     }
 

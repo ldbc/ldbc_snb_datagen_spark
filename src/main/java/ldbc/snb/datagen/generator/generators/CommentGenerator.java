@@ -54,6 +54,7 @@ import ldbc.snb.datagen.vocabulary.SN;
 import org.javatuples.Pair;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class CommentGenerator {
@@ -66,7 +67,7 @@ public class CommentGenerator {
         this.likeGenerator = likeGenerator;
     }
 
-    public Stream<Pair<Comment, Stream<Like>>> createComments(RandomGeneratorFarm randomFarm, final Forum forum, final Post post, long numComments, Iterator<Long> idIterator, long blockId) {
+    public Stream<Pair<Comment, List<Like>>> createComments(RandomGeneratorFarm randomFarm, final Forum forum, final Post post, long numComments, Iterator<Long> idIterator, long blockId) {
 
         List<Message> parentCandidates = new ArrayList<>();
         parentCandidates.add(post);
@@ -192,7 +193,7 @@ public class CommentGenerator {
                     randomFarm.get(RandomGeneratorFarm.Aspect.NUM_LIKE), forum, comment, Like.LikeType.COMMENT)
                     : Stream.empty();
 
-            return Iterators.ForIterator.RETURN(new Pair<>(comment, likeStream));
+            return Iterators.ForIterator.RETURN(new Pair<>(comment, likeStream.collect(Collectors.toList())));
         }));
     }
 
