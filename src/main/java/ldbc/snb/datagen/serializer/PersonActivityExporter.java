@@ -63,11 +63,10 @@ public class PersonActivityExporter implements AutoCloseable {
     protected AbstractDeleteEventSerializer abstractDeleteEventSerializer;
     protected FactorTable factorTable;
 
-    public PersonActivityExporter(DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer, AbstractInsertEventSerializer abstractInsertEventSerializer, AbstractDeleteEventSerializer abstractDeleteEventSerializer, FactorTable factorTable) {
+    public PersonActivityExporter(DynamicActivitySerializer<HdfsCsvWriter> dynamicActivitySerializer, AbstractInsertEventSerializer abstractInsertEventSerializer, AbstractDeleteEventSerializer abstractDeleteEventSerializer) {
         this.dynamicActivitySerializer = dynamicActivitySerializer;
         this.abstractInsertEventSerializer = abstractInsertEventSerializer;
         this.abstractDeleteEventSerializer = abstractDeleteEventSerializer;
-        this.factorTable = factorTable;
     }
 
     private void exportPostWall(final GenWall<Triplet<Post, List<Like>, List<Pair<Comment, List<Like>>>>> genWall) {

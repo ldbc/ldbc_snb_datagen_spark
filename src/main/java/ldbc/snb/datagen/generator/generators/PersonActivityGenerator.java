@@ -64,6 +64,7 @@ import java.io.OutputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class PersonActivityGenerator {
 
@@ -94,7 +95,7 @@ public class PersonActivityGenerator {
         messageIdIterator = Iterators.numbers(0);
     }
 
-    private GenActivity generateActivity(Person person, List<Person> block, long blockId) throws AssertionError {
+    private GenActivity generateActivity(Person person, Person[] block, long blockId) throws AssertionError {
         try {
             factorTable.extractFactors(person);
             return new GenActivity(
@@ -157,7 +158,7 @@ public class PersonActivityGenerator {
      * @param person persons
      * @param block  block for persons
      */
-    private Stream<GenWall<Triplet<Post, List<Like>, List<Pair<Comment, List<Like>>>>>> generateGroups(Person person, List<Person> block, long blockId) {
+    private Stream<GenWall<Triplet<Post, List<Like>, List<Pair<Comment, List<Like>>>>>> generateGroups(Person person, Person[] block, long blockId) {
 
         // generate person created groups
         double moderatorProb = randomFarm.get(RandomGeneratorFarm.Aspect.FORUM_MODERATOR).nextDouble();
@@ -235,11 +236,11 @@ public class PersonActivityGenerator {
         return (numberPost * forum.getMemberships().size()) / maxMembersPerForum;
     }
 
-    public Stream<GenActivity> generateActivityForBlock(int blockId, List<Person> block) {
+    public Stream<GenActivity> generateActivityForBlock(int blockId, Person[] block) {
         randomFarm.resetRandomGenerators(blockId);
         startForumId = 0;
         messageIdIterator = Iterators.numbers(0);
-        return block.stream().map(p -> generateActivity(p, block, blockId));
+        return Arrays.stream(block).map(p -> generateActivity(p, block, blockId));
     }
 
     public void writeActivityFactors(OutputStream postsWriter, OutputStream tagClassWriter, OutputStream tagWriter, OutputStream firstNameWriter, OutputStream miscWriter) throws IOException {
