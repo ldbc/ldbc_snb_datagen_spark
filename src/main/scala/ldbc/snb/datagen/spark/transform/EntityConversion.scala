@@ -230,9 +230,6 @@ trait LegacyEntityInstances extends JavaPrimitiveInstances with JavaCollectionIn
   ))
 }
 
-object EntityConversionInstances
-  extends JavaPrimitiveInstances
-    with JavaCollectionInstances
-    with LegacyEntityInstances
+object EntityConversionInstances extends LegacyEntityInstances
 
 
