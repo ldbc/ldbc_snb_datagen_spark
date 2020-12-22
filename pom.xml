@@ -18,7 +18,7 @@
     <scala.compat.version>2.11</scala.compat.version>
     <spark.version>2.4.5</spark.version>
     <spec2.version>4.2.0</spec2.version>
-    <guava.version>25.1-jre</guava.version>
+    <guava.version>14.0.1</guava.version>
   </properties>
 
   <dependencies>
@@ -54,6 +54,11 @@
       <groupId>com.chuusai</groupId>
       <artifactId>shapeless_${scala.compat.version}</artifactId>
       <version>2.3.3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.typelevel</groupId>
+      <artifactId>frameless-dataset_${scala.compat.version}</artifactId>
+      <version>0.8.0</version>
     </dependency>
     <dependency>
       <groupId>org.javatuples</groupId>

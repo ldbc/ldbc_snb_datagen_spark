@@ -1,8 +1,8 @@
 package ldbc.snb.datagen.spark.transform
 
-import ldbc.snb.datagen.spark.model.Cardinality._
-import ldbc.snb.datagen.spark.model.Entity._
-import ldbc.snb.datagen.spark.model.{Entity, Graph}
+import ldbc.snb.datagen.model.Cardinality._
+import ldbc.snb.datagen.model.Entity._
+import ldbc.snb.datagen.model.{Entity, EntityLens, Graph}
 import org.apache.spark.sql.DataFrame
 
 trait Transform {
@@ -22,8 +22,8 @@ case class RawToBasicTransform(bulkLoadTreshold: Long, simulationEnd: Long) exte
       )
 
     val entities = input.entities.map {
-      case (name, entity) if !Entity.static(entity) =>
-        name -> Entity.transformed(entity, filterBulkLoad andThen withoutDeletionCols)
+      case (name, entity) if !EntityLens.static(entity) =>
+        name -> EntityLens.transformed(entity, filterBulkLoad andThen withoutDeletionCols)
       case x => x
     }
 

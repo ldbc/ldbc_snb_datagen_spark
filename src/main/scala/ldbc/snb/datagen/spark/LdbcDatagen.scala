@@ -5,6 +5,7 @@ import ldbc.snb.datagen.generator.generators.PersonActivityGenerator
 import java.net.URI
 import ldbc.snb.datagen.{DatagenContext, DatagenParams}
 import ldbc.snb.datagen.spark.generators.{SparkActivityGenerator, SparkActivitySerializer, SparkKnowsGenerator, SparkKnowsMerger, SparkPersonGenerator, SparkPersonSerializer, SparkRanker, SparkStaticGraphSerializer}
+import ldbc.snb.datagen.spark.transform.GraphAssembler
 import ldbc.snb.datagen.spark.util.SparkUI
 import ldbc.snb.datagen.util.{ConfigParser, LdbcConfiguration}
 import org.apache.hadoop.fs.{FileSystem, Path}
@@ -101,17 +102,19 @@ object LdbcDatagen {
       SparkActivityGenerator(merged, randomRanker, config, Some(numPartitions))
     }
 
-    SparkUI.job(simpleNameOf[SparkActivitySerializer.type], "serialize person activities") {
-      SparkActivitySerializer(activities, randomRanker, config, Some(numPartitions))
-    }
+    GraphAssembler(persons, activities)
 
-    SparkUI.job(simpleNameOf[SparkPersonSerializer.type ], "serialize persons") {
-      SparkPersonSerializer(merged, config, Some(numPartitions))
-    }
-
-    SparkUI.job(simpleNameOf[SparkStaticGraphSerializer.type], "serialize static graph") {
-      SparkStaticGraphSerializer(config, Some(numPartitions))
-    }
+//    SparkUI.job(simpleNameOf[SparkActivitySerializer.type], "serialize person activities") {
+//      SparkActivitySerializer(activities, randomRanker, config, Some(numPartitions))
+//    }
+//
+//    SparkUI.job(simpleNameOf[SparkPersonSerializer.type ], "serialize persons") {
+//      SparkPersonSerializer(merged, config, Some(numPartitions))
+//    }
+//
+//    SparkUI.job(simpleNameOf[SparkStaticGraphSerializer.type], "serialize static graph") {
+//      SparkStaticGraphSerializer(config, Some(numPartitions))
+//    }
 
     print("Total Execution time: " + ((System.currentTimeMillis - start) / 1000))
   }

@@ -1,10 +1,9 @@
-package ldbc.snb.datagen.spark
+package ldbc.snb.datagen
 
 import org.apache.spark.sql.DataFrame
-import shapeless._
+import shapeless.lens
 
-object model {
-
+package object model {
   sealed trait Cardinality
   object Cardinality {
     case object N1 extends Cardinality
@@ -27,7 +26,8 @@ object model {
     ) extends Entity
 
     final case class Attr(dataset: DataFrame, isStatic: Boolean, ref: String) extends Entity
-
+  }
+  object EntityLens {
     private val datasetLens = lens[Entity].dataset
     private val isStaticLens = lens[Entity].isStatic
 
