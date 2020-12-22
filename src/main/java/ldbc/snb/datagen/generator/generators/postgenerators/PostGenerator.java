@@ -36,7 +36,6 @@
 
 package ldbc.snb.datagen.generator.generators.postgenerators;
 
-import com.google.common.collect.Lists;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.Forum;
