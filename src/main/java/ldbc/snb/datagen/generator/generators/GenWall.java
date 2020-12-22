@@ -7,11 +7,7 @@ import org.javatuples.Triplet;
 import java.util.List;
 
 public class GenWall<T> {
-    public List<Triplet<
-                Forum,
-            List<ForumMembership>,
-                List<T>
-                >> inner;
+    public List<Triplet<Forum, List<ForumMembership>, List<T>>> inner;
 
     public GenWall(List<Triplet<
             Forum,

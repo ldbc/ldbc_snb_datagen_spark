@@ -14,7 +14,8 @@ object GraphAssembler {
     import spark.implicits._
     val convertedPersons = spark.createDataset(persons.mapPartitions(_.map(_.repr)))
 
-    Graph()
+    val convertedActivities = spark.createDataset(activities.mapValues(_.map(_.repr)))
+
 
   }
 
