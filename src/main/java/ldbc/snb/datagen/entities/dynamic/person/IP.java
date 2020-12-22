@@ -51,6 +51,18 @@ public final class IP implements Writable, Serializable, Cloneable {
     public static final int BYTE2_SHIFT_POSITION = 16;
     public static final int BYTE3_SHIFT_POSITION = 8;
 
+    public void setIp(int ip) {
+        this.ip = ip;
+    }
+
+    public void setMask(int mask) {
+        this.mask = mask;
+    }
+
+    public void setNetwork(int network) {
+        this.network = network;
+    }
+
     private int ip;
     private int mask;
     private int network;

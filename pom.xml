@@ -18,7 +18,6 @@
     <scala.compat.version>2.11</scala.compat.version>
     <spark.version>2.4.5</spark.version>
     <spec2.version>4.2.0</spec2.version>
-    <guava.version>25.1-jre</guava.version>
   </properties>
 
   <dependencies>
@@ -44,11 +43,6 @@
       <groupId>com.github.scopt</groupId>
       <artifactId>scopt_${scala.compat.version}</artifactId>
       <version>3.7.1</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>${guava.version}</version>
     </dependency>
     <dependency>
       <groupId>org.javatuples</groupId>

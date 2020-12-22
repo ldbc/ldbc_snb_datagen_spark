@@ -1,6 +1,5 @@
 package ldbc.snb.datagen.util;
 
-import com.google.common.collect.Streams;
 import ldbc.snb.datagen.util.functional.Function;
 import org.junit.Test;
 

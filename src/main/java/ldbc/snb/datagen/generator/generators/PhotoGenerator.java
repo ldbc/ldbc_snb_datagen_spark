@@ -35,7 +35,6 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.generators;
 
-import com.google.common.collect.Streams;
 import ldbc.snb.datagen.DatagenMode;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
@@ -46,6 +45,7 @@ import ldbc.snb.datagen.entities.dynamic.relations.Like;
 import ldbc.snb.datagen.util.Iterators;
 import ldbc.snb.datagen.util.PersonBehavior;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
+import ldbc.snb.datagen.util.Streams;
 import ldbc.snb.datagen.vocabulary.SN;
 import org.javatuples.Pair;
 
