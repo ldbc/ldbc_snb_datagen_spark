@@ -1,6 +1,5 @@
 package ldbc.snb.datagen
 
-import org.apache.spark.sql.DataFrame
 import shapeless.lens
 
 package object model {
@@ -10,33 +9,33 @@ package object model {
     case object NN extends Cardinality
   }
 
-  sealed trait Entity {
-    val dataset: DataFrame
+  sealed trait EntityType {
     val isStatic: Boolean
   }
-  object Entity {
-    final case class Node(dataset: DataFrame, isStatic: Boolean) extends Entity
+  object EntityType {
+    final case class Node(name: String, isStatic: Boolean = false) extends EntityType
 
     final case class Edge(
-      dataset: DataFrame,
-      isStatic: Boolean,
+      `type`: String,
       source: String,
       destination: String,
-      cardinality: Cardinality
-    ) extends Entity
+      cardinality: Cardinality,
+      isStatic: Boolean = false
+    ) extends EntityType
 
-    final case class Attr(dataset: DataFrame, isStatic: Boolean, ref: String) extends Entity
-  }
-  object EntityLens {
-    private val datasetLens = lens[Entity].dataset
-    private val isStaticLens = lens[Entity].isStatic
-
-    def static(entity: Entity): Boolean = isStaticLens.get(entity).contains(true)
-
-    def transformed(entity: Entity, f: DataFrame => DataFrame): Entity = datasetLens.modify(entity)(f)
+    final case class Attr(`type`: String, parent: String, attribute: String, isStatic: Boolean = false) extends EntityType
   }
 
-  case class Graph(entities: Map[String, Entity])
+  object EntityTypeLens {
+    private val isStaticLens = lens[EntityType].isStatic
+
+    def static(entity: EntityType): Boolean = isStaticLens.get(entity).contains(true)
+  }
+
+  case class Graph[D](
+    layout: String,
+    entities: Map[EntityType, D]
+  )
 
   sealed trait BatchPeriod
   object BatchPeriod {

@@ -1,16 +1,17 @@
 package ldbc.snb.datagen.spark.transform
 
 import ldbc.snb.datagen.model.Cardinality._
-import ldbc.snb.datagen.model.Entity._
-import ldbc.snb.datagen.model.{Entity, EntityLens, Graph}
+import ldbc.snb.datagen.model.EntityType._
+import ldbc.snb.datagen.model.{EntityTypeLens, Graph}
+import ldbc.snb.datagen.spark.model.DataFrameGraph
 import org.apache.spark.sql.DataFrame
 
 trait Transform {
-  def transform(input: Graph): Graph
+  def transform(input: DataFrameGraph): DataFrameGraph
 }
 
 case class RawToBasicTransform(bulkLoadTreshold: Long, simulationEnd: Long) extends Transform {
-  override def transform(input: Graph): Graph = {
+  override def transform(input: DataFrameGraph): DataFrameGraph = {
 
     val withoutDeletionCols = (ds: DataFrame) => ds
       .drop("deletionDate", "explicitlyDeleted")
@@ -22,36 +23,36 @@ case class RawToBasicTransform(bulkLoadTreshold: Long, simulationEnd: Long) exte
       )
 
     val entities = input.entities.map {
-      case (name, entity) if !EntityLens.static(entity) =>
-        name -> EntityLens.transformed(entity, filterBulkLoad andThen withoutDeletionCols)
+      case (tpe, entity) if !EntityTypeLens.static(tpe) =>
+        tpe -> (filterBulkLoad andThen withoutDeletionCols)(entity)
       case x => x
     }
 
-    Graph(entities)
+    Graph("Basic", entities)
   }
 }
 
 object BasicToMergeForeignTransform extends Transform {
-  override def transform(input: Graph) = {
+  override def transform(input: DataFrameGraph): DataFrameGraph = {
     val (edgesToMerge, rest) = input.entities.partition {
-      case (_, Edge(_, _, _, _, cardinality)) if cardinality == N1 => true
+      case (Edge(_, _, _, cardinality, _), _) if cardinality == N1 => true
       case _ => false
     }
 
     val entities = rest.map {
-      case (name, n@Node(dataset, _)) =>
+      case (n@Node(name, _), dataset) =>
         val mergeTargets = edgesToMerge.collect {
-          case (_, edge@Edge(_, _, source, _, _)) if source == name => edge
+          case (edge@Edge(_, source, _, _, _), dataset) if source == name => (dataset, edge.source)
         }
 
         val mergedDataset = mergeTargets.foldLeft(dataset) {
-          (ds, edge) => ds.join(edge.dataset, ds("id") === edge.dataset(edge.source), "left_outer")
+          (ds, edge) => ds.join(edge._1, ds("id") === edge._1(edge._2), "left_outer")
         }
 
-        name -> n.copy(dataset = mergedDataset)
+        n -> mergedDataset
 
       case x => x
     }
-    Graph(entities)
+    Graph("MergeForeign", entities)
   }
 }

@@ -1,5 +1,8 @@
 package ldbc.snb.datagen.spark.util
 
+import com.google.common.base.CaseFormat
+import org.apache.spark.sql.ColumnName
+
 import java.io.{Closeable, IOException}
 import java.util.function.IntFunction
 import scala.reflect.ClassTag
@@ -32,4 +35,14 @@ object Utils {
       }
     }
   }
+
+  implicit class StringToColumn(val sc: StringContext) extends AnyVal {
+    def $(args: Any*): ColumnName = {
+      new ColumnName(sc.s(args: _*))
+    }
+  }
+
+  def snake(str: String) = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, str)
+
+  def camel(str: String) = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, str)
 }

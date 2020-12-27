@@ -1,11 +1,11 @@
-package ldbc.snb.datagen.spark.transform
+package ldbc.snb.datagen.entities
 
-import ldbc.snb.datagen.model.legacy
 import ldbc.snb.datagen.entities
 import ldbc.snb.datagen.generator.generators.{GenActivity, GenWall}
+import ldbc.snb.datagen.model.legacy
 
-import collection.JavaConverters._
 import java.{lang, util}
+import scala.collection.JavaConverters._
 
 trait EntityConversion[A] {
   type Repr
@@ -16,22 +16,18 @@ trait EntityConversion[A] {
 object EntityConversion {
   type Aux[A, R] = EntityConversion[A] {type Repr = R}
 
-  def apply[A, R](implicit instance: Aux[A, R]): Aux[A, R] = instance
-
-  def pure[A, R](f: A => R) = new EntityConversion[A] {
+  def make[A, R](f: A => R) = new EntityConversion[A] {
     override type Repr = R
-
     override def repr(self: A): R = f(self)
   }
 
   // begin Ops boilerplate
+  def apply[A, R](implicit instance: Aux[A, R]): Aux[A, R] = instance
+
   trait Ops[A] {
     type Repr
-
     def typeClassInstance: Aux[A, Repr]
-
     def self: A
-
     def repr = typeClassInstance.repr(self)
   }
 
@@ -53,44 +49,44 @@ object EntityConversion {
   // end Ops boilerplate
 }
 
-import EntityConversion.ops._
-import EntityConversion._
+import ldbc.snb.datagen.entities.EntityConversion._
+import ldbc.snb.datagen.entities.EntityConversion.ops._
 
 trait JavaPrimitiveInstances {
-  implicit val conversionForJLong = pure((_: lang.Long).longValue)
+  implicit val conversionForJLong = make((_: lang.Long).longValue)
 
-  implicit val conversionForJInteger = pure((_: lang.Integer).intValue)
+  implicit val conversionForJInteger = make((_: lang.Integer).intValue)
 
-  implicit val conversionForJString = pure(identity[String])
+  implicit val conversionForJString = make(identity[String])
 }
 
 trait JavaCollectionInstances {
-  implicit def conversionForJList[V, R](implicit ev: Aux[V, R]) = pure((_: util.List[V]).asScala.map(_.repr).toList)
+  implicit def conversionForJList[V, R](implicit ev: Aux[V, R]) = make((_: util.List[V]).asScala.map(_.repr).toList)
 
   implicit def conversionForMap[K, V, KR, VR](implicit ev0: Aux[K, KR], ev1: Aux[V, VR]) =
-    pure((_: util.Map[K, V]).asScala.map { case (k, v) => k.repr -> v.repr }.toMap)
+    make((_: util.Map[K, V]).asScala.map { case (k, v) => k.repr -> v.repr }.toMap)
 
   implicit def conversionForJTreeSet[V, R](implicit ev: Aux[V, R]) =
-    pure((_: util.TreeSet[V]).asScala.map(_.repr).toSet)
+    make((_: util.TreeSet[V]).asScala.map(_.repr).toSet)
 }
 
 trait JavaTuplesInstances {
-  implicit def conversionForPair[A0, R0, A1, R1](implicit ev0: Aux[A0, R0], ev1: Aux[A1, R1]) = pure(
+  implicit def conversionForPair[A0, R0, A1, R1](implicit ev0: Aux[A0, R0], ev1: Aux[A1, R1]) = make(
     (v: org.javatuples.Pair[A0, A1]) => (v.getValue0.repr, v.getValue1.repr)
   )
 
-  implicit def conversionForTriplet[A0, R0, A1, R1, A2, R2](implicit ev0: Aux[A0, R0], ev1: Aux[A1, R1], ev2: Aux[A2, R2]) = pure(
+  implicit def conversionForTriplet[A0, R0, A1, R1, A2, R2](implicit ev0: Aux[A0, R0], ev1: Aux[A1, R1], ev2: Aux[A2, R2]) = make(
     (v: org.javatuples.Triplet[A0, A1, A2]) => (v.getValue0.repr, v.getValue1.repr, v.getValue2.repr)
   )
 }
 
 trait LegacyEntityInstances extends JavaPrimitiveInstances with JavaCollectionInstances with JavaTuplesInstances {
-  implicit val conversionForIp = pure((self: entities.dynamic.person.IP) => legacy.IP(
+  implicit val conversionForIp = make((self: entities.dynamic.person.IP) => legacy.IP(
     ip = self.getIp,
     mask = self.getMask
   ))
 
-  implicit val conversionForPersonSummary = pure((self: entities.dynamic.person.PersonSummary) => legacy.PersonSummary(
+  implicit val conversionForPersonSummary = make((self: entities.dynamic.person.PersonSummary) => legacy.PersonSummary(
     accountId = self.getAccountId,
     creationDate = self.getCreationDate,
     deletionDate = self.getDeletionDate,
@@ -101,7 +97,7 @@ trait LegacyEntityInstances extends JavaPrimitiveInstances with JavaCollectionIn
     isMessageDeleter = self.getIsMessageDeleter
   ))
 
-  implicit val conversionForKnows = pure((self: entities.dynamic.relations.Knows) => legacy.Knows(
+  implicit val conversionForKnows = make((self: entities.dynamic.relations.Knows) => legacy.Knows(
     isExplicitlyDeleted = self.isExplicitlyDeleted,
     to = self.to().repr,
     creationDate = self.getCreationDate,
@@ -109,7 +105,7 @@ trait LegacyEntityInstances extends JavaPrimitiveInstances with JavaCollectionIn
     weight = self.getWeight
   ))
 
-  implicit val conversionForPerson = pure((self: entities.dynamic.person.Person) => legacy.Person(
+  implicit val conversionForPerson = make((self: entities.dynamic.person.Person) => legacy.Person(
     isExplicitlyDeleted = self.isExplicitlyDeleted,
     isMessageDeleter = self.isMessageDeleter,
     accountId = self.getAccountId,
@@ -135,8 +131,8 @@ trait LegacyEntityInstances extends JavaPrimitiveInstances with JavaCollectionIn
     companies = self.getCompanies.repr,
     classYear = self.getClassYear
   ))
-  
-  implicit val conversionForPost = pure((self: entities.dynamic.messages.Post) => legacy.Post(
+
+  implicit val conversionForPost = make((self: entities.dynamic.messages.Post) => legacy.Post(
     isExplicitlyDeleted = self.isExplicitlyDeleted,
     messageId = self.getMessageId,
     creationDate = self.getCreationDate,
@@ -151,7 +147,7 @@ trait LegacyEntityInstances extends JavaPrimitiveInstances with JavaCollectionIn
     language = self.getLanguage
   ))
 
-  implicit val conversionForComment = pure((self: entities.dynamic.messages.Comment) => legacy.Comment(
+  implicit val conversionForComment = make((self: entities.dynamic.messages.Comment) => legacy.Comment(
     isExplicitlyDeleted = self.isExplicitlyDeleted,
     messageId = self.getMessageId,
     creationDate = self.getCreationDate,
@@ -167,7 +163,7 @@ trait LegacyEntityInstances extends JavaPrimitiveInstances with JavaCollectionIn
     parentMessageId = self.parentMessageId
   ))
 
-  implicit val conversionForPhoto = pure((self: entities.dynamic.messages.Photo) => legacy.Photo(
+  implicit val conversionForPhoto = make((self: entities.dynamic.messages.Photo) => legacy.Photo(
     isExplicitlyDeleted = self.isExplicitlyDeleted,
     messageId = self.getMessageId,
     creationDate = self.getCreationDate,
@@ -181,9 +177,9 @@ trait LegacyEntityInstances extends JavaPrimitiveInstances with JavaCollectionIn
     countryId = self.getCountryId
   ))
 
-  implicit val conversionForForumType = pure((self: entities.dynamic.Forum.ForumType) => legacy.Forum.Type(self.ordinal))
+  implicit val conversionForForumType = make((self: entities.dynamic.Forum.ForumType) => legacy.Forum.Type(self.ordinal))
 
-  implicit val conversionForForumMembership = pure((self: entities.dynamic.relations.ForumMembership) => legacy.ForumMembership(
+  implicit val conversionForForumMembership = make((self: entities.dynamic.relations.ForumMembership) => legacy.ForumMembership(
     isExplicitlyDeleted = self.isExplicitlyDeleted,
     forumId = self.getForumId,
     creationDate = self.getCreationDate,
@@ -191,8 +187,8 @@ trait LegacyEntityInstances extends JavaPrimitiveInstances with JavaCollectionIn
     person = self.getPerson.repr,
     forumType = self.getForumType.repr
   ))
-  
-  implicit val conversionForForum = pure((self: entities.dynamic.Forum) => legacy.Forum(
+
+  implicit val conversionForForum = make((self: entities.dynamic.Forum) => legacy.Forum(
     isExplicitlyDeleted = self.isExplicitlyDeleted,
     id = self.getId,
     moderator = self.getModerator.repr,
@@ -207,9 +203,9 @@ trait LegacyEntityInstances extends JavaPrimitiveInstances with JavaCollectionIn
     forumType = self.getForumType.repr
   ))
 
-  implicit val conversionForLikeType = pure((self: entities.dynamic.relations.Like.LikeType) => legacy.Like.Type(self.ordinal))
-  
-  implicit val conversionForLike = pure((self: entities.dynamic.relations.Like) => legacy.Like(
+  implicit val conversionForLikeType = make((self: entities.dynamic.relations.Like.LikeType) => legacy.Like.Type(self.ordinal))
+
+  implicit val conversionForLike = make((self: entities.dynamic.relations.Like) => legacy.Like(
     isExplicitlyDeleted = self.isExplicitlyDeleted,
     person = self.getPerson,
     personCreationDate = self.getPersonCreationDate,
@@ -221,9 +217,9 @@ trait LegacyEntityInstances extends JavaPrimitiveInstances with JavaCollectionIn
 
 
   // eliminate the GenWall wrapper completely
-  implicit def conversionForWall[A, R](implicit ev: Aux[A, R]) = pure((wall: GenWall[A]) => wall.inner.repr)
+  implicit def conversionForWall[A, R](implicit ev: Aux[A, R]) = make((wall: GenWall[A]) => wall.inner.repr)
 
-  implicit val conversionForGenActivities = pure((self: GenActivity) => legacy.Activity(
+  implicit val conversionForGenActivities = make((self: GenActivity) => legacy.Activity(
     wall = self.genWall.repr,
     groups = self.genGroups.repr,
     albums = self.genAlbums.repr

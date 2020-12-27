@@ -1,5 +1,7 @@
 package ldbc.snb.datagen.model
 
+import scala.util.matching.Regex
+
 package object legacy {
 
   case class Person(
@@ -29,7 +31,24 @@ package object legacy {
     classYear: Long
   )
 
-  case class IP(ip: Int, mask: Int)
+  case class IP(ip: Int, mask: Int) {
+    import IP._
+
+    def format: String =
+      ((ip >>> BYTE1_SHIFT_POSITION) & BYTE_MASK) + "." +
+        ((ip >>> BYTE2_SHIFT_POSITION) & BYTE_MASK) + "." +
+        ((ip >>> BYTE3_SHIFT_POSITION) & BYTE_MASK) + "." +
+        (ip & BYTE_MASK)
+  }
+
+  object IP {
+    val BYTE_MASK = 0xFF
+    val IP4_SIZE_BITS = 32
+    val BYTE1_SHIFT_POSITION = 24
+    val BYTE2_SHIFT_POSITION = 16
+    val BYTE3_SHIFT_POSITION = 8
+    val BYTE4_SHIFT_POSITION = 0
+  }
 
   case class Knows(
     isExplicitlyDeleted: Boolean,
@@ -75,12 +94,10 @@ package object legacy {
   )
 
   object Forum {
-
-    object Type extends Enumeration {
-      type Type = Value
-      val Wall, Album, Group = Type
+    abstract class Type extends Enumeration
+    object Type extends Type {
+      val Wall, Album, Group = Value
     }
-
   }
 
   case class Like(
@@ -94,9 +111,9 @@ package object legacy {
   )
 
   object Like {
-    object Type extends Enumeration {
-      type Type = Value
-      val Post, Comment, Photo = Type
+    abstract class Type extends Enumeration
+    object Type extends Type {
+      val Post, Comment, Photo = Value
     }
   }
 
@@ -145,11 +162,9 @@ package object legacy {
     countryId: Int
   )
 
-
   type Wall[A] = List[(Forum, List[ForumMembership], List[A])]
   type PostTree = (Post, List[Like], List[(Comment, List[Like])])
   type PhotoTree = (Photo, List[Like])
-
 
   case class Activity(
     wall: Wall[PostTree],
