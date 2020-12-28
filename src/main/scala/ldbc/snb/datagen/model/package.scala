@@ -5,7 +5,7 @@ import shapeless.lens
 package object model {
   sealed trait Cardinality
   object Cardinality {
-    case object N1 extends Cardinality
+    case object OneN extends Cardinality
     case object NN extends Cardinality
   }
 

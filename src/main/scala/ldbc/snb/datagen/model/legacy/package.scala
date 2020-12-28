@@ -1,7 +1,5 @@
 package ldbc.snb.datagen.model
 
-import scala.util.matching.Regex
-
 package object legacy {
 
   case class Person(

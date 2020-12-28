@@ -7,7 +7,7 @@ import ldbc.snb.datagen.model.EntityType
 import ldbc.snb.datagen.spark.util.Utils.snake
 
 
-case class Csv(root: String, header: Boolean = false) {
+case class CsvSerializer(root: String, header: Boolean = false, separator: Char = '|') {
 
   import EntityPath._
 
@@ -15,7 +15,10 @@ case class Csv(root: String, header: Boolean = false) {
     graph.entities.foreach {
       case (tpe, dataset) => dataset.write
         .format("csv")
-        .option("header", header)
+        .options(Map(
+          "header" -> header.toString,
+          "sep" -> separator.toString
+        ))
         .save((root / "csv" / snake(graph.layout) / EntityPath[EntityType].entityPath(tpe)).toString)
     }
   }

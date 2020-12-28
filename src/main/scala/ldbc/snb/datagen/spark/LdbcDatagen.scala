@@ -1,13 +1,12 @@
 package ldbc.snb.datagen.spark
 
-import ldbc.snb.datagen.generator.generators.PersonActivityGenerator
-import ldbc.snb.datagen.serializer.snb.csv.CsvSerializer
+import ldbc.snb.datagen.model.EntityType
 
 import java.net.URI
 import ldbc.snb.datagen.{DatagenContext, DatagenParams}
 import ldbc.snb.datagen.spark.generators.{SparkActivityGenerator, SparkActivitySerializer, SparkKnowsGenerator, SparkKnowsMerger, SparkPersonGenerator, SparkPersonSerializer, SparkRanker, SparkStaticGraphSerializer}
-import ldbc.snb.datagen.spark.serializer.Csv
-import ldbc.snb.datagen.spark.transform.GraphAssembler
+import ldbc.snb.datagen.spark.serializer.{CsvSerializer, EntityPath}
+import ldbc.snb.datagen.spark.transform.LegacyToRawTransform
 import ldbc.snb.datagen.spark.util.SparkUI
 import ldbc.snb.datagen.util.{ConfigParser, LdbcConfiguration}
 import org.apache.hadoop.fs.{FileSystem, Path}
@@ -98,28 +97,40 @@ object LdbcDatagen {
     val interestKnows = SparkKnowsGenerator(persons, interestRanker, config, percentages, 1, knowsGeneratorClassName)
     val randomKnows = SparkKnowsGenerator(persons, randomRanker, config, percentages, 2, knowsGeneratorClassName)
 
-    val merged = SparkKnowsMerger(uniKnows, interestKnows, randomKnows).cache()
+    val mergedPersons = SparkKnowsMerger(uniKnows, interestKnows, randomKnows).cache()
 
     val activities = SparkUI.job(simpleNameOf[SparkActivityGenerator.type], "generate person activities") {
-      SparkActivityGenerator(merged, randomRanker, config, Some(numPartitions))
+      SparkActivityGenerator(mergedPersons, randomRanker, config, Some(numPartitions))
     }
 
-    val graph = GraphAssembler(persons, activities)
+    //activities.mapPartitions(activities => Seq(activities.size).iterator).collect().foreach(println)
 
-    SparkUI.job(simpleNameOf[SparkActivitySerializer.type], "serialize person activities") {
-      SparkActivitySerializer(activities, randomRanker, config, Some(numPartitions))
-    }
+//    SparkUI.job(simpleNameOf[SparkActivitySerializer.type], "serialize person activities") {
+//      SparkActivitySerializer(activities, randomRanker, config, Some(numPartitions))
+//    }
 
-    val serializer = Csv(config.getSocialNetworkDir)
+    val graph = GraphAssembler(mergedPersons, activities)
 
-    serializer.serialize(graph)
+//    import better.files._
+//
+//    graph.entities.foreach { case (e, ds) => ds
+//        .write
+//        .format("parquet")
+//        .save((config.getSocialNetworkDir / "parquet" / snake(graph.layout) / EntityPath[EntityType].entityPath(e)).toString)
+//    }
+
+    val rawGraph = LegacyToRawTransform.transform(graph)
+
+    val serializer = CsvSerializer(config.getSocialNetworkDir)
+
+    serializer.serialize(rawGraph)
 
 //    SparkUI.job(simpleNameOf[SparkActivitySerializer.type], "serialize person activities") {
 //      SparkActivitySerializer(activities, randomRanker, config, Some(numPartitions))
 //    }
 //
 //    SparkUI.job(simpleNameOf[SparkPersonSerializer.type ], "serialize persons") {
-//      SparkPersonSerializer(merged, config, Some(numPartitions))
+//      SparkPersonSerializer(mergedPersons, config, Some(numPartitions))
 //    }
 //
 //    SparkUI.job(simpleNameOf[SparkStaticGraphSerializer.type], "serialize static graph") {

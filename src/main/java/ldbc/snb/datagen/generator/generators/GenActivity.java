@@ -7,9 +7,10 @@ import ldbc.snb.datagen.entities.dynamic.relations.Like;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class GenActivity {
+public class GenActivity implements Serializable {
     public final GenWall<Triplet<Post, List<Like>, List<Pair<Comment, List<Like>>>>> genWall;
     public final List<GenWall<Triplet<Post, List<Like>, List<Pair<Comment, List<Like>>>>>> genGroups;
     public final GenWall<Pair<Photo, List<Like>>> genAlbums;
