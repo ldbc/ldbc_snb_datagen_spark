@@ -24,18 +24,6 @@ object Utils {
     override def apply(value: Int) = new Array[A](value)
   }
 
-  // "try with resources"
-  implicit class UseCloseable[A <: Closeable](val self: A) extends AnyVal {
-    def use[B](f: A => B): B = {
-      val res = self
-      try {
-        f(res)
-      } finally {
-        self.close()
-      }
-    }
-  }
-
   def snake(str: String) = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, str)
 
   def camel(str: String) = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, str)

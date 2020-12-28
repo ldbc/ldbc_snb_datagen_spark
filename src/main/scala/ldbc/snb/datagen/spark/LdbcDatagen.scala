@@ -1,6 +1,5 @@
 package ldbc.snb.datagen.spark
 
-import ldbc.snb.datagen.model.EntityType
 
 import java.net.URI
 import ldbc.snb.datagen.{DatagenContext, DatagenParams}
@@ -11,7 +10,7 @@ import ldbc.snb.datagen.spark.util.SparkUI
 import ldbc.snb.datagen.util.{ConfigParser, LdbcConfiguration}
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.SparkSession
-import ldbc.snb.datagen.spark.util.Utils._
+import ldbc.snb.datagen.syntax._
 
 import scala.reflect.ClassTag
 

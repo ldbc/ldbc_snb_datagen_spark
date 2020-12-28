@@ -2,7 +2,7 @@ package ldbc.snb.datagen.spark.generators
 
 import ldbc.snb.datagen.entities.dynamic.person.Person
 import ldbc.snb.datagen.generator.generators.{GenActivity, PersonActivityGenerator}
-import ldbc.snb.datagen.spark.util.FluentSyntax.FoldSyntax
+import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.spark.util.Utils.arrayOfSize
 import ldbc.snb.datagen.util.LdbcConfiguration
 import ldbc.snb.datagen.{DatagenContext, DatagenParams}

@@ -1,16 +1,21 @@
 package ldbc.snb.datagen.spark.transform
-import ldbc.snb.datagen.model.Cardinality.{OneN, NN}
+
+import ldbc.snb.datagen.model.Cardinality.{NN, OneN}
 import ldbc.snb.datagen.model.EntityType.{Attr, Edge, Node}
 import ldbc.snb.datagen.model.{Graph, legacy}
 import ldbc.snb.datagen.spark.model.DataFrameGraph
+import ldbc.snb.datagen.spark.sql._
+import ldbc.snb.datagen.syntax._
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.ByteType
-import ldbc.snb.datagen.spark.sql._
 
 object LegacyToRawTransform extends Transform {
   override def transform(input: DataFrameGraph): DataFrameGraph = {
-    val legacyPersons = input.entities(Node("Person"))
+    // as a rule of thumb try to cache every dataset that are used more than once,
+    // and are close to the leaf
+
+    val legacyPersons = input.entities(Node("Person")).cache()
     val legacyActivities = input.entities(Node("Activity"))
 
     val temporalAttributes = Seq(
@@ -19,8 +24,10 @@ object LegacyToRawTransform extends Transform {
       $"isExplicitlyDeleted".as("explicitlyDeleted")
     )
 
-    def formatIP(ip: Column): Column = {
-      def getByte(address: Column, pos: Int) = pmod(shiftLeft(address, pos).cast(ByteType), lit(256))
+    val formatIP = (ip: Column) => {
+      val getByte = (address: Column, pos: Int) =>
+        pmod(shiftLeft(address, pos).cast(ByteType), lit(256))
+
       val address = ip.getField("ip")
       format_string(
         "%d.%d.%d.%d",
@@ -31,6 +38,8 @@ object LegacyToRawTransform extends Transform {
       )
     }
 
+    val cached = (df: DataFrame) => df.cache()
+
     val personalWall = legacyActivities
       .select(explode($"wall").as("wall"))
       .select($"wall.*")
@@ -40,30 +49,92 @@ object LegacyToRawTransform extends Transform {
       .select(explode($"group").as("wall"))
       .select($"wall.*")
 
+    val textWalls = (personalWall |+| groupWall).cache()
+
     val photoWall = legacyActivities
       .select(explode($"albums").as("album"))
       .select($"album.*")
+      .cache()
 
-    def forumFromWall(wall: DataFrame): DataFrame = wall
+    val forumFromWall = (wall: DataFrame) => wall
       .select($"_1.*")
+      .cache()
 
-    def forumMembershipFromWall(wall: DataFrame): DataFrame = wall
+    val forumMembershipFromWall = (wall: DataFrame) => wall
       .select(explode($"_2").as("fm"))
       .select($"fm.*")
 
-    def treeFromWall(wall: DataFrame): DataFrame = wall
+    val treeFromWall = (wall: DataFrame) => wall
       .select(explode($"_3").as("pt"))
       .select($"pt.*")
 
-    def postFromTree(pt: DataFrame): DataFrame = pt.select($"_1.*")
+    val postFromTree = (pt: DataFrame) => pt.select($"_1.*")
 
-    def photoFromTree(pt: DataFrame): DataFrame = pt.select($"_1.*")
+    val photoFromTree = (pt: DataFrame) => pt.select($"_1.*")
 
-    def likesFromTree(pt: DataFrame): DataFrame = pt
+    val likesFromTree = (pt: DataFrame) => pt
       .select(explode($"_2").as("_2"))
       .select($"_2.*")
 
-    val textWalls = personalWall |+| groupWall
+    val commentTreeFromTree = (pt: DataFrame) => pt
+      .select(explode($"_3").as("_3"))
+      .select($"_3.*")
+
+    val commentFromCommentTree = (ct: DataFrame) => ct
+      .select($"_1.*")
+
+
+    val commentFromWall = cached compose commentFromCommentTree compose commentTreeFromTree compose treeFromWall
+
+    val comment = commentFromWall(textWalls)
+      .select(
+        temporalAttributes ++ Seq(
+          $"messageId".as("id"),
+          formatIP($"ipAddress").as("locationIP"),
+          $"browserId".as("browserUsed"), // join small dict
+          $"content".as("content"),
+          length($"content").as("length")
+        )
+      )
+
+    val commentHasCreatorPerson = commentFromWall(textWalls)
+      .select(
+        temporalAttributes ++ Seq(
+          $"messageId".as("Comment.id"),
+          $"author.accountId".as("Person.id")
+        )
+      )
+
+    val commentHasTagTag = commentFromWall(textWalls)
+      .select(
+        temporalAttributes ++ Seq(
+          $"messageId".as("Comment.id"),
+          explode($"tags").as("Tag.id")
+        )
+      )
+
+    val commentIsLocatedInPlace = commentFromWall(textWalls)
+      .select(
+        temporalAttributes ++ Seq(
+          $"messageId".as("Comment.id"),
+          $"countryId".as("Place.id")
+        )
+      )
+
+    val (commentReplyOfPost, commentReplyOfComment) = commentFromWall(textWalls)
+      .partition($"rootPostId" === $"parentMessageId")
+      .let {
+        case (post, comment) => (
+          post.select(temporalAttributes ++ Seq(
+            $"messageId".as("Comment.id"),
+            $"parentMessageId".as("ParentPost.id")
+          )),
+          comment.select(temporalAttributes ++ Seq(
+            $"messageId".as("Comment.id"),
+            $"parentMessageId".as("ParentComment.id")
+          ))
+        )
+      }
 
     val forum = (forumFromWall(textWalls) |+| forumFromWall(photoWall))
       .select(
@@ -174,12 +245,19 @@ object LegacyToRawTransform extends Transform {
       )
       .where($"`Person1.id`" < $"`Person2.id`")
 
-//    val personLikesComment =
-//
-//
-//    val personLikesPost = likesFromTree(treeFromWall(textWalls)) |+|
-//      likesFromTree(treeFromWall(photoWall))
-//        .select(temporalAttributes)
+    val personLikesComment = likesFromTree(commentTreeFromTree(treeFromWall(textWalls)))
+      .select(temporalAttributes ++ Seq(
+        $"person".as("Person.id"),
+        $"messageId".as("Comment.id")
+      ))
+
+    val likesFromWall = likesFromTree compose treeFromWall
+
+    val personLikesPost = (likesFromWall(textWalls) |+| likesFromWall(photoWall))
+        .select(temporalAttributes ++ Seq(
+          $"person".as("Person.id"),
+          $"messageId".as("Post.id")
+        ))
 
     val personStudyAtOrganisation = legacyPersons
       .select(
@@ -218,8 +296,8 @@ object LegacyToRawTransform extends Transform {
         temporalAttributes ++ Seq(
           $"messageId".as("Post.id"),
           $"countryId".as("Place.id")
+        )
       )
-    )
 
     def postCreationFromPost(post: DataFrame) = post
       .select(
@@ -237,17 +315,19 @@ object LegacyToRawTransform extends Transform {
         )
       )
 
+    val postFromWall = cached compose postFromTree compose treeFromWall
+
     val postHasCreatorPerson =
-      postCreationFromPost(postFromTree(treeFromWall(textWalls))) |+|
-        postCreationFromPost(postFromTree(treeFromWall(photoWall)))
+      postCreationFromPost(postFromWall(textWalls)) |+|
+        postCreationFromPost(postFromWall(photoWall))
 
     val postHasTagTag =
-      postTagFromPost(postFromTree(treeFromWall(textWalls))) |+|
-        postTagFromPost(postFromTree(treeFromWall(photoWall)))
+      postTagFromPost(postFromWall(textWalls)) |+|
+        postTagFromPost(postFromWall(photoWall))
 
     val postIsLocatedInPlace =
-      postLocationFromPost(postFromTree(treeFromWall(textWalls))) |+|
-        postLocationFromPost(postFromTree(treeFromWall(photoWall)))
+      postLocationFromPost(postFromWall(textWalls)) |+|
+        postLocationFromPost(postFromWall(photoWall))
 
     val photoPost = photoFromTree(treeFromWall(photoWall))
       .select(
@@ -266,6 +346,12 @@ object LegacyToRawTransform extends Transform {
     val post = textPost |+| photoPost
 
     Graph("Raw", Map(
+      Node("Comment") -> comment,
+      Edge("HasCreator", "Comment", "Person", OneN) -> commentHasCreatorPerson,
+      Edge("HasTag", "Comment", "Tag", NN) -> commentHasTagTag,
+      Edge("IsLocatedIn", "Comment", "Place", OneN) -> commentIsLocatedInPlace,
+      Edge("ReplyOf", "Comment", "Comment", OneN) -> commentReplyOfComment,
+      Edge("ReplyOf", "Comment", "Post", OneN) -> commentReplyOfPost,
       Node("Forum") -> forum,
       Edge("ContainerOf", "Forum", "Post", NN) -> forumContainerOfPost, // cardinality?
       Edge("HasMember", "Forum", "Person", NN) -> forumHasMemberPerson,
@@ -276,8 +362,8 @@ object LegacyToRawTransform extends Transform {
       Edge("HasInterest", "Person", "Tag", NN) -> personHasInterestTag,
       Edge("IsLocatedIn", "Person", "Place", OneN) -> personIsLocatedInPlace,
       Edge("Knows", "Person", "Person", NN) -> personKnowsPerson,
-      //Edge("Likes", "Person", "Comment", NN) -> personLikesComment,
-      //Edge("Likes", "Person", "Post", NN) -> personLikesPost,
+      Edge("Likes", "Person", "Comment", NN) -> personLikesComment,
+      Edge("Likes", "Person", "Post", NN) -> personLikesPost,
       Attr("Speaks", "Person", "Language") -> personSpeaksLanguage,
       Edge("StudyAt", "Person", "Organisation", OneN) -> personStudyAtOrganisation,
       Edge("WorkAt", "Person", "Organisation", NN) -> personWorkAtOrganisation,

@@ -1,6 +1,5 @@
 package ldbc.snb.datagen.spark.encoder
 
-import ldbc.snb.datagen.model.legacy
 import ldbc.snb.datagen.model.legacy.{Activity, Person}
 import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.expressions.objects.{Invoke, StaticInvoke}
