@@ -1,0 +1,6 @@
+person creationDate:LONG|deletionDate:LONG|isExplicitlyDeleted:BOOLEAN|id:ID(Person)|firstName:STRING|lastName:STRING|gender:STRING|birthday:LONG|locationIP:STRING|browserUsed:STRING
+forum creationDate:LONG|deletionDate:LONG|isExplicitlyDeleted:BOOLEAN|id:ID(Forum)|title:STRING|type:STRING
+post creationDate:LONG|deletionDate:LONG|isExplicitlyDeleted:BOOLEAN|id:ID(Post)|imageFile:STRING|locationIP:STRING|browserUsed:STRING|language:STRING|content:STRING|length:LONG|ForumId:IGNORE
+person_knows_person creationDate:LONG|deletionDate:LONG|isExplicitlyDeleted:BOOLEAN|:START_ID(Person)|:END_ID(Person)|weight:DOUBLE
+post_hasCreator_person creationDate:LONG|deletionDate:LONG|isExplicitlyDeleted:BOOLEAN|:START_ID(Post)|:END_ID(Person)
+forum_containerOf_post creationDate:LONG|deletionDate:LONG|isExplicitlyDeleted:BOOLEAN|:START_ID(Forum)|:END_ID(Post)
