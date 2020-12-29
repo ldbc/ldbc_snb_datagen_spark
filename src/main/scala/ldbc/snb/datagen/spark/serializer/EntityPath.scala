@@ -5,13 +5,12 @@ import ldbc.snb.datagen.model.EntityType.{Attr, Edge, Node}
 import ldbc.snb.datagen.spark.util.Utils.camel
 import shapeless._
 
-
-trait EntityPath[T] {
+trait EntityPath[T <: EntityType] {
   def entityPath(self: T): String
 }
 
 object EntityPath extends EntityPathInstances {
-  def apply[A](implicit instance: EntityPath[A]): EntityPath[A] = instance
+  def apply[A <: EntityType](implicit instance: EntityPath[A]): EntityPath[A] = instance
 }
 
 trait EntityPathInstances {

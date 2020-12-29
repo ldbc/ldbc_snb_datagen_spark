@@ -12,8 +12,8 @@ import org.apache.spark.sql.types.ByteType
 
 object LegacyToRawTransform extends Transform {
   override def transform(input: DataFrameGraph): DataFrameGraph = {
-    // as a rule of thumb try to cache every dataset that are used more than once,
-    // and are close to the leaf
+    // as a rule of thumb try to cache every dataset that is used more than once
+    // and is close to the leaf
 
     val legacyPersons = input.entities(Node("Person")).cache()
     val legacyActivities = input.entities(Node("Activity"))
@@ -82,7 +82,6 @@ object LegacyToRawTransform extends Transform {
 
     val commentFromCommentTree = (ct: DataFrame) => ct
       .select($"_1.*")
-
 
     val commentFromWall = cached compose commentFromCommentTree compose commentTreeFromTree compose treeFromWall
 
@@ -291,7 +290,7 @@ object LegacyToRawTransform extends Transform {
         )
       )
 
-    def postLocationFromPost(post: DataFrame) = post
+    val postLocationFromPost = (post: DataFrame) => post
       .select(
         temporalAttributes ++ Seq(
           $"messageId".as("Post.id"),
@@ -299,7 +298,7 @@ object LegacyToRawTransform extends Transform {
         )
       )
 
-    def postCreationFromPost(post: DataFrame) = post
+    val postCreationFromPost = (post: DataFrame) => post
       .select(
         temporalAttributes ++ Seq(
           $"messageId".as("Post.id"),
@@ -307,7 +306,7 @@ object LegacyToRawTransform extends Transform {
         )
       )
 
-    def postTagFromPost(post: DataFrame) = post
+    val postTagFromPost = (post: DataFrame) => post
       .select(
         temporalAttributes ++ Seq(
           $"messageId".as("Post.id"),

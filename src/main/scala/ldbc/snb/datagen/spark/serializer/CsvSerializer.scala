@@ -6,7 +6,6 @@ import better.files._
 import ldbc.snb.datagen.model.EntityType
 import ldbc.snb.datagen.spark.util.Utils.snake
 
-
 case class CsvSerializer(root: String, header: Boolean = false, separator: Char = '|') {
 
   import EntityPath._
@@ -23,4 +22,3 @@ case class CsvSerializer(root: String, header: Boolean = false, separator: Char 
     }
   }
 }
-

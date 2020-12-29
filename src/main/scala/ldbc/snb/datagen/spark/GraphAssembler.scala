@@ -9,22 +9,18 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 
 
 object GraphAssembler {
-
-  import ldbc.snb.datagen.entities.EntityConversion.ops._
-  import ldbc.snb.datagen.entities.EntityConversionInstances._
-
   def apply(personEntities: RDD[Person], activityEntities: RDD[GenActivity])(implicit spark: SparkSession): Graph[DataFrame] = {
 
+    import ldbc.snb.datagen.entities.EntityConversion.ops._
+    import ldbc.snb.datagen.entities.EntityConversionInstances._
     import ldbc.snb.datagen.spark.encoder._
 
-    val legacyPersons = spark.createDataset(personEntities.mapPartitions(_.map(_.repr)))
-
-    val legacyActivities = spark
-      .createDataset(activityEntities.map(_.repr))
+    val legacyPersons = spark.createDataset(personEntities.map(_.repr)).toDF
+    val legacyActivities = spark.createDataset(activityEntities.map(_.repr)).toDF
 
     Graph("Legacy", Map(
-      Node("Person") -> legacyPersons.toDF,
-      Node("Activity") -> legacyActivities.toDF
+      Node("Person") -> legacyPersons,
+      Node("Activity") -> legacyActivities
     ))
   }
 }

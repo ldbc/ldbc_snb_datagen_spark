@@ -86,7 +86,7 @@ object LdbcDatagen {
     val percentages = Seq(0.45f, 0.45f, 0.1f)
     val knowsGeneratorClassName = DatagenParams.getKnowsGenerator
 
-    import Keys._
+    import ldbc.snb.datagen.entities.Keys._
 
     val uniRanker = SparkRanker.create(_.byUni)
     val interestRanker = SparkRanker.create(_.byInterest)
@@ -131,7 +131,7 @@ object LdbcDatagen {
 //    SparkUI.job(simpleNameOf[SparkPersonSerializer.type ], "serialize persons") {
 //      SparkPersonSerializer(mergedPersons, config, Some(numPartitions))
 //    }
-//
+
 //    SparkUI.job(simpleNameOf[SparkStaticGraphSerializer.type], "serialize static graph") {
 //      SparkStaticGraphSerializer(config, Some(numPartitions))
 //    }

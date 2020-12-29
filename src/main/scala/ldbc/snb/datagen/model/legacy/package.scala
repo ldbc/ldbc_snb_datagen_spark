@@ -2,6 +2,42 @@ package ldbc.snb.datagen.model
 
 package object legacy {
 
+  case class Place(
+    id: Int,
+    zId: Int,
+    name: String,
+    latitude: Double,
+    longitude: Double,
+    population: Long,
+    `type`: String
+  )
+
+  case class Organisation(
+    id: Long,
+    name: String,
+    `type`: Organisation.Type.Value,
+    location: Int
+  )
+
+  object Organisation {
+    abstract class Type extends Enumeration
+    object Type extends Type {
+      val University, Company = Value
+    }
+  }
+
+  case class Tag(
+    id: Int,
+    tagClass: Int,
+    name: String
+  )
+
+  case class TagClass(
+    id: Int,
+    name: String,
+    parent: Int
+  )
+
   case class Person(
     isExplicitlyDeleted: Boolean,
     isMessageDeleter: Boolean,
@@ -30,6 +66,7 @@ package object legacy {
   )
 
   case class IP(ip: Int, mask: Int) {
+
     import IP._
 
     def format: String =
@@ -92,10 +129,13 @@ package object legacy {
   )
 
   object Forum {
+
     abstract class Type extends Enumeration
+
     object Type extends Type {
       val Wall, Album, Group = Value
     }
+
   }
 
   case class Like(
@@ -109,10 +149,13 @@ package object legacy {
   )
 
   object Like {
+
     abstract class Type extends Enumeration
+
     object Type extends Type {
       val Post, Comment, Photo = Value
     }
+
   }
 
   case class Comment(
@@ -169,4 +212,5 @@ package object legacy {
     groups: List[Wall[PostTree]],
     albums: Wall[PhotoTree]
   )
+
 }
