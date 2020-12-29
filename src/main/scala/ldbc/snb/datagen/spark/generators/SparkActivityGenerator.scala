@@ -27,6 +27,5 @@ object SparkActivityGenerator {
         }
       })
       .flatMap[GenActivity] { case (_, v) => v }
-      .withFoldLeft(partitions, (rdd: RDD[GenActivity], p: Int) => rdd.repartition(p))
   }
 }
