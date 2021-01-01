@@ -94,6 +94,14 @@ public final class Knows implements Writable, Comparable<Knows>, Serializable {
         this.to.copy(to);
     }
 
+    public PersonSummary getTo() {
+        return to;
+    }
+
+    public void setTo(PersonSummary to) {
+        this.to = to;
+    }
+
     public long getCreationDate() {
         return creationDate;
     }

@@ -72,7 +72,7 @@ public class UniformPostGenerator extends PostGenerator {
             postDeletionDate = Dictionaries.dates.getNetworkCollapse();
             postCore.setExplicitlyDeleted(false);
         } else {
-            if (membership.getPerson().getIsMessageDeleter() && randomDeletePost.nextDouble() < DatagenParams.postMapping[numComments]) {
+            if (membership.getPerson().isMessageDeleter() && randomDeletePost.nextDouble() < DatagenParams.postMapping[numComments]) {
 
                 postCore.setExplicitlyDeleted(true);
                 long minDeletionDate = postCreationDate + DatagenParams.delta;

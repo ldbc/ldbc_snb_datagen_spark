@@ -38,6 +38,7 @@ package ldbc.snb.datagen.generator.generators;
 import ldbc.snb.datagen.DatagenMode;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.entities.Pair;
 import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.entities.dynamic.messages.Comment;
 import ldbc.snb.datagen.entities.dynamic.messages.Message;
@@ -51,7 +52,6 @@ import ldbc.snb.datagen.util.PersonBehavior;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.util.Streams;
 import ldbc.snb.datagen.vocabulary.SN;
-import org.javatuples.Pair;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -144,7 +144,7 @@ public class CommentGenerator {
             } else {
 
                 // if person is a deleter and selected for delete
-                if (membership.getPerson().getIsMessageDeleter() && randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_COMM).nextDouble() < DatagenParams.probCommentDeleted) {
+                if (membership.getPerson().isMessageDeleter() && randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_COMM).nextDouble() < DatagenParams.probCommentDeleted) {
                     isExplicitlyDeleted = true;
                     long minDeletionDate = creationDate + DatagenParams.delta;
                     long maxDeletionDate = Collections.min(Arrays.asList(parentMessage.getDeletionDate(), membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd()));
@@ -158,7 +158,7 @@ public class CommentGenerator {
                 }
             }
 
-            int country = membership.getPerson().getCountryId();
+            int country = membership.getPerson().getCountry();
             IP ip = membership.getPerson().getIpAddress();
             Random random = randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER);
             if (PersonBehavior.changeUsualCountry(random, creationDate)) {
@@ -174,7 +174,7 @@ public class CommentGenerator {
                     membership.getPerson(),
                     forum.getId(),
                     content,
-                    tags,
+                    new ArrayList<>(tags),
                     country,
                     ip,
                     Dictionaries.browsers.getPostBrowserId(randomFarm

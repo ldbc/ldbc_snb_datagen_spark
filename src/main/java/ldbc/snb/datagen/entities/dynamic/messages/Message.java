@@ -40,6 +40,8 @@ import ldbc.snb.datagen.entities.dynamic.DynamicActivity;
 import ldbc.snb.datagen.entities.dynamic.person.IP;
 import ldbc.snb.datagen.entities.dynamic.person.PersonSummary;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeSet;
 
 abstract public class Message implements DynamicActivity {
@@ -51,18 +53,18 @@ abstract public class Message implements DynamicActivity {
     private PersonSummary author;
     private long forumId;
     private String content;
-    private TreeSet<Integer> tags;
+    private List<Integer> tags;
     private IP ipAddress;
     private int browserId;
     private int countryId;
 
     public Message() {
-        tags = new TreeSet<>();
+        tags = new ArrayList<>();
         ipAddress = new IP();
     }
 
     public Message(long messageId, long creationDate, long deletionDate, PersonSummary author, long forumId,
-                   String content, TreeSet<Integer> tags, int countryId, IP ipAddress, int browserId,
+                   String content, List<Integer> tags, int countryId, IP ipAddress, int browserId,
                    boolean isExplicitlyDeleted
     ) {
         assert ((author.getCreationDate() + DatagenParams.delta) <= creationDate);
@@ -72,7 +74,7 @@ abstract public class Message implements DynamicActivity {
         this.author = new PersonSummary(author);
         this.forumId = forumId;
         this.content = content;
-        this.tags = new TreeSet<>(tags);
+        this.tags = new ArrayList<>(tags);
         this.countryId = countryId;
         this.ipAddress = new IP(ipAddress);
         this.browserId = browserId;
@@ -80,7 +82,7 @@ abstract public class Message implements DynamicActivity {
     }
 
     public void initialize(long messageId, long creationDate, long deletionDate, PersonSummary author, long forumId,
-                           String content, TreeSet<Integer> tags, int countryId, IP ipAddress, int browserId,
+                           String content, List<Integer> tags, int countryId, IP ipAddress, int browserId,
                            boolean isExplicitlyDeleted
     ) {
         this.messageId = messageId;
@@ -109,14 +111,20 @@ abstract public class Message implements DynamicActivity {
         return messageId;
     }
 
+    public void setMessageId(long messageId) {
+        this.messageId = messageId;
+    }
+
+    @Override
     public long getCreationDate() {
         return creationDate;
     }
 
-    public void setCreationDate(long date) {
-        creationDate = date;
+    public void setCreationDate(long creationDate) {
+        this.creationDate = creationDate;
     }
 
+    @Override
     public long getDeletionDate() {
         return deletionDate;
     }
@@ -129,33 +137,48 @@ abstract public class Message implements DynamicActivity {
         return author;
     }
 
+    public void setAuthor(PersonSummary author) {
+        this.author = author;
+    }
+
     public long getForumId() {
         return forumId;
+    }
+
+    public void setForumId(long forumId) {
+        this.forumId = forumId;
     }
 
     public String getContent() {
         return content;
     }
 
-    public void setContent(String s) {
-        content = s;
+    public void setContent(String content) {
+        this.content = content;
     }
 
-    public TreeSet<Integer> getTags() {
+    public List<Integer> getTags() {
         return tags;
     }
 
-    public void setTags(TreeSet<Integer> tags) {
-        this.tags.clear();
-        this.tags.addAll(tags);
+    public void setTags(List<Integer> tags) {
+        this.tags = tags;
     }
 
     public IP getIpAddress() {
         return ipAddress;
     }
 
+    public void setIpAddress(IP ipAddress) {
+        this.ipAddress = ipAddress;
+    }
+
     public int getBrowserId() {
         return browserId;
+    }
+
+    public void setBrowserId(int browserId) {
+        this.browserId = browserId;
     }
 
     public int getCountryId() {

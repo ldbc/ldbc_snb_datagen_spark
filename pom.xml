@@ -63,11 +63,6 @@
       <version>0.8.0</version>
     </dependency>
     <dependency>
-      <groupId>org.javatuples</groupId>
-      <artifactId>javatuples</artifactId>
-      <version>1.2</version>
-    </dependency>
-    <dependency>
       <groupId>ca.umontreal.iro</groupId>
       <artifactId>ssj</artifactId>
       <version>2.5</version>

@@ -215,17 +215,17 @@ public class CsvBasicDynamicActivitySerializer extends DynamicActivitySerializer
                 Integer.toString(comment.getContent().length())
         ));
 
-        if (comment.parentMessageId() == comment.rootPostId()) {
+        if (comment.getParentMessageId() == comment.getRootPostId()) {
             // creationDate, [deletionDate,] Comment.id, Post.id
             writers.get(COMMENT_REPLYOF_POST).writeEntry(dates, ImmutableList.of(
                     Long.toString(comment.getMessageId()),
-                    Long.toString(comment.rootPostId())
+                    Long.toString(comment.getRootPostId())
             ));
         } else {
             // creationDate, [deletionDate,] Comment.id, Comment.id
             writers.get(COMMENT_REPLYOF_COMMENT).writeEntry(dates, ImmutableList.of(
                     Long.toString(comment.getMessageId()),
-                    Long.toString(comment.parentMessageId())
+                    Long.toString(comment.getParentMessageId())
             ));
         }
         // creationDate, [deletionDate,] Comment.id, Person.id

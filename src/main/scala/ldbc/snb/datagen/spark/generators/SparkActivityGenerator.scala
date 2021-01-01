@@ -1,7 +1,8 @@
 package ldbc.snb.datagen.spark.generators
 
+import ldbc.snb.datagen.entities.dynamic.Activity
 import ldbc.snb.datagen.entities.dynamic.person.Person
-import ldbc.snb.datagen.generator.generators.{GenActivity, PersonActivityGenerator}
+import ldbc.snb.datagen.generator.generators.PersonActivityGenerator
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.spark.util.Utils.arrayOfSize
 import ldbc.snb.datagen.util.LdbcConfiguration
@@ -11,7 +12,7 @@ import org.apache.spark.sql.SparkSession
 
 
 object SparkActivityGenerator {
-  def apply(persons: RDD[Person], ranker: SparkRanker, conf: LdbcConfiguration, partitions: Option[Int] = None)(implicit spark: SparkSession): RDD[GenActivity] = {
+  def apply(persons: RDD[Person], ranker: SparkRanker, conf: LdbcConfiguration, partitions: Option[Int] = None)(implicit spark: SparkSession): RDD[Activity] = {
     val blockSize = DatagenParams.blockSize
     val blocks = ranker(persons)
       .map { case (k, v) => (k / blockSize, v) }
@@ -23,9 +24,9 @@ object SparkActivityGenerator {
         DatagenContext.initialize(conf)
         val generator = new PersonActivityGenerator
         for {(blockId, persons) <- groups} yield {
-          blockId -> generator.generateActivityForBlock(blockId.toInt, persons.toArray).toArray(arrayOfSize[GenActivity])
+          blockId -> generator.generateActivityForBlock(blockId.toInt, persons.toArray).toArray(arrayOfSize[Activity])
         }
       })
-      .flatMap[GenActivity] { case (_, v) => v }
+      .flatMap[Activity] { case (_, v) => v }
   }
 }

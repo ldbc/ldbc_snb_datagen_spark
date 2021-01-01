@@ -21,7 +21,7 @@ object LegacyToRawTransform extends Transform {
     val temporalAttributes = Seq(
       $"creationDate", // map to date
       $"deletionDate", // map to date
-      $"isExplicitlyDeleted".as("explicitlyDeleted")
+      $"explicitlyDeleted"
     )
 
     val formatIP = (ip: Column) => {
@@ -41,47 +41,47 @@ object LegacyToRawTransform extends Transform {
     val cached = (df: DataFrame) => df.cache()
 
     val personalWall = legacyActivities
-      .select(explode($"wall").as("wall"))
+      .select(explode($"wall.inner").as("wall"))
       .select($"wall.*")
 
     val groupWall = legacyActivities
       .select(explode($"groups").as("group"))
-      .select(explode($"group").as("wall"))
+      .select(explode($"group.inner").as("wall"))
       .select($"wall.*")
 
     val textWalls = (personalWall |+| groupWall).cache()
 
     val photoWall = legacyActivities
-      .select(explode($"albums").as("album"))
+      .select(explode($"albums.inner").as("album"))
       .select($"album.*")
       .cache()
 
     val forumFromWall = (wall: DataFrame) => wall
-      .select($"_1.*")
+      .select($"value0.*")
       .cache()
 
     val forumMembershipFromWall = (wall: DataFrame) => wall
-      .select(explode($"_2").as("fm"))
+      .select(explode($"value1").as("fm"))
       .select($"fm.*")
 
     val treeFromWall = (wall: DataFrame) => wall
-      .select(explode($"_3").as("pt"))
+      .select(explode($"value2").as("pt"))
       .select($"pt.*")
 
-    val postFromTree = (pt: DataFrame) => pt.select($"_1.*")
+    val postFromTree = (pt: DataFrame) => pt.select($"value0.*")
 
-    val photoFromTree = (pt: DataFrame) => pt.select($"_1.*")
+    val photoFromTree = (pt: DataFrame) => pt.select($"value0.*")
 
     val likesFromTree = (pt: DataFrame) => pt
-      .select(explode($"_2").as("_2"))
-      .select($"_2.*")
+      .select(explode($"value1").as("value1"))
+      .select($"value1.*")
 
     val commentTreeFromTree = (pt: DataFrame) => pt
-      .select(explode($"_3").as("_3"))
-      .select($"_3.*")
+      .select(explode($"value2").as("value2"))
+      .select($"value2.*")
 
     val commentFromCommentTree = (ct: DataFrame) => ct
-      .select($"_1.*")
+      .select($"value0.*")
 
     val commentFromWall = cached compose commentFromCommentTree compose commentTreeFromTree compose treeFromWall
 
@@ -230,7 +230,7 @@ object LegacyToRawTransform extends Transform {
         Seq(
           $"creationDate",
           $"deletionDate",
-          $"isExplicitlyDeleted",
+          $"explicitlyDeleted",
           $"accountId",
           explode($"knows").as("know")
         )

@@ -38,22 +38,21 @@ package ldbc.snb.datagen.serializer;
 import ldbc.snb.datagen.DatagenMode;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.entities.Pair;
+import ldbc.snb.datagen.entities.PostTree;
+import ldbc.snb.datagen.entities.Triplet;
 import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.entities.dynamic.messages.Comment;
 import ldbc.snb.datagen.entities.dynamic.messages.Photo;
 import ldbc.snb.datagen.entities.dynamic.messages.Post;
 import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.entities.dynamic.relations.Like;
-import ldbc.snb.datagen.generator.generators.GenActivity;
-import ldbc.snb.datagen.generator.generators.GenWall;
+import ldbc.snb.datagen.entities.dynamic.Activity;
+import ldbc.snb.datagen.entities.dynamic.Wall;
 import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
-import ldbc.snb.datagen.util.FactorTable;
-import org.javatuples.Pair;
-import org.javatuples.Triplet;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static ldbc.snb.datagen.util.functional.Thunk.wrapException;
 
@@ -68,12 +67,12 @@ public class PersonActivityExporter implements AutoCloseable {
         this.abstractDeleteEventSerializer = abstractDeleteEventSerializer;
     }
 
-    private void exportPostWall(final GenWall<Triplet<Post, List<Like>, List<Pair<Comment, List<Like>>>>> genWall) {
-        genWall.inner.forEach(forum -> {
+    private void exportPostWall(final Wall<PostTree> wall) {
+        wall.inner.forEach(forum -> {
             wrapException(() -> this.export(forum.getValue0()));
             List<ForumMembership> genForumMembership = forum.getValue1();
             genForumMembership.forEach(m -> wrapException(() -> this.export(m)));
-            List<Triplet<Post, List<Like>, List<Pair<Comment, List<Like>>>>> thread = forum.getValue2();
+            List<PostTree> thread = forum.getValue2();
             thread.forEach(t -> {
                 wrapException(() -> this.export(t.getValue0()));
                 List<Like> genLike = t.getValue1();
@@ -88,7 +87,7 @@ public class PersonActivityExporter implements AutoCloseable {
         });
     }
 
-    private void exportAlbumWall(final GenWall<Pair<Photo, List<Like>>> genAlbums) {
+    private void exportAlbumWall(final Wall<Pair<Photo, List<Like>>> genAlbums) {
         genAlbums.inner.forEach(forum -> {
             wrapException(() -> this.export(forum.getValue0()));
             List<ForumMembership> genForumMembership = forum.getValue1();
@@ -102,10 +101,10 @@ public class PersonActivityExporter implements AutoCloseable {
         });
     }
 
-    public void export(final GenActivity genActivity) {
-        this.exportPostWall(genActivity.genWall);
-        genActivity.genGroups.forEach(this::exportPostWall);
-        this.exportAlbumWall(genActivity.genAlbums);
+    public void export(final Activity genActivity) {
+        this.exportPostWall(genActivity.wall);
+        genActivity.groups.forEach(this::exportPostWall);
+        this.exportAlbumWall(genActivity.albums);
     }
 
     public void export(final Forum forum) throws Exception {

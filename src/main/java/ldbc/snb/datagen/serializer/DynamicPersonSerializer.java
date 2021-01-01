@@ -98,7 +98,7 @@ abstract public class DynamicPersonSerializer<TWriter extends HdfsWriter> extend
                 .collect(Collectors.joining(";"));
     }
 
-    public String buildEmail(TreeSet<String> emails) {
+    public String buildEmail(List<String> emails) {
         return Joiner.on(";").join(emails);
     }
 

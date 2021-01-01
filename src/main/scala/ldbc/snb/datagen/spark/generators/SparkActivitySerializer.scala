@@ -1,7 +1,7 @@
 package ldbc.snb.datagen.spark.generators
 
 import ldbc.snb.datagen.DatagenContext
-import ldbc.snb.datagen.generator.generators.GenActivity
+import ldbc.snb.datagen.entities.dynamic.Activity
 import ldbc.snb.datagen.serializer.{DummyDeleteEventSerializer, DummyInsertEventSerializer, PersonActivityExporter}
 import ldbc.snb.datagen.spark.util.SerializableConfiguration
 import ldbc.snb.datagen.util.LdbcConfiguration
@@ -13,7 +13,7 @@ import org.apache.spark.sql.SparkSession
 
 object SparkActivitySerializer {
 
-  def apply(activities: RDD[(Long, Array[GenActivity])], ranker: SparkRanker, conf: LdbcConfiguration, partitions: Option[Int] = None)(implicit spark: SparkSession) = {
+  def apply(activities: RDD[(Long, Array[Activity])], ranker: SparkRanker, conf: LdbcConfiguration, partitions: Option[Int] = None)(implicit spark: SparkSession) = {
 
     val serializableHadoopConf = new SerializableConfiguration(spark.sparkContext.hadoopConfiguration)
 
