@@ -80,7 +80,7 @@ rm -rf social_network/ substitution_parameters && \
   sudo chown -R $USER:$USER social_network/ substitution_parameters/
 ```
 
-If you need to raise the memory limit, use the `-e HADOOP_CLIENT_OPTS="-Xmx..."` parameter to override the default value (`-Xmx2G`).
+If you need to raise the memory limit, use the `-e HADOOP_CLIENT_OPTS="-Xmx..."` parameter to override the default value. For SF1, `-Xmx2G` is recommended. For SF1000, `-Xmx370G` is sufficient.
 
 ### Hadoop cluster
 
