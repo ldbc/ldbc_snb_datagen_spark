@@ -1,8 +1,7 @@
 package ldbc.snb.datagen.spark.util
 
 import java.io.{Closeable, IOException}
-import java.util.function.IntFunction
-import scala.reflect.ClassTag
+
 import scala.util.control.NonFatal
 
 object Utils {
@@ -15,10 +14,6 @@ object Utils {
       case NonFatal(e) =>
         throw new IOException(e)
     }
-  }
-
-  def arrayOfSize[A: ClassTag] = new IntFunction[Array[A]] {
-    override def apply(value: Int) = new Array[A](value)
   }
 
   // "try with resources"
