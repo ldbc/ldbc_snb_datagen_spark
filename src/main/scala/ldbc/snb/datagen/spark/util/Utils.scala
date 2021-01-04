@@ -1,9 +1,8 @@
 package ldbc.snb.datagen.spark.util
 
 import com.google.common.base.CaseFormat
-import org.apache.spark.sql.ColumnName
 
-import java.io.{Closeable, IOException}
+import java.io.IOException
 import java.util.function.IntFunction
 import scala.reflect.ClassTag
 import scala.util.control.NonFatal

@@ -4,19 +4,19 @@ import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import org.javatuples.Triplet;
 
-import java.util.List;
+import java.util.stream.Stream;
 
 public class GenWall<T> {
-    public List<Triplet<
+    public Stream<Triplet<
                 Forum,
-            List<ForumMembership>,
-                List<T>
+                Stream<ForumMembership>,
+                Stream<T>
                 >> inner;
 
-    public GenWall(List<Triplet<
+    public GenWall(Stream<Triplet<
             Forum,
-            List<ForumMembership>,
-            List<T>
+            Stream<ForumMembership>,
+            Stream<T>
             >> inner) {
         this.inner = inner;
     }

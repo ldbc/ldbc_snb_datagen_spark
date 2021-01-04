@@ -112,7 +112,7 @@ public class ForumGenerator {
      * @param block      person block
      * @return Group
      */
-    Forum createGroup(RandomGeneratorFarm randomFarm, long forumId, Person moderator, Person[] block, long blockId) {
+    Forum createGroup(RandomGeneratorFarm randomFarm, long forumId, Person moderator, List<Person> block, long blockId) {
 
         // creation date
         long groupMinCreationDate = moderator.getCreationDate() + DatagenParams.delta;
@@ -217,8 +217,8 @@ public class ForumGenerator {
                 }
             } else { // pick from the person block
                 int candidateIndex = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP_INDEX)
-                        .nextInt(block.length);
-                Person member = block[candidateIndex];
+                        .nextInt(block.size());
+                Person member = block.get(candidateIndex);
                 prob = randomFarm.get(RandomGeneratorFarm.Aspect.MEMBERSHIP).nextDouble();
                 if ((prob < 0.1) && !groupMembers.contains(member.getAccountId())) {
 

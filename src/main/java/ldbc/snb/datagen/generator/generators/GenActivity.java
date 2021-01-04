@@ -7,17 +7,18 @@ import ldbc.snb.datagen.entities.dynamic.relations.Like;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
-import java.util.List;
+import java.util.stream.Stream;
+
 
 public class GenActivity {
-    public final GenWall<Triplet<Post, List<Like>, List<Pair<Comment, List<Like>>>>> genWall;
-    public final List<GenWall<Triplet<Post, List<Like>, List<Pair<Comment, List<Like>>>>>> genGroups;
-    public final GenWall<Pair<Photo, List<Like>>> genAlbums;
+    public final GenWall<Triplet<Post, Stream<Like>, Stream<Pair<Comment, Stream<Like>>>>> genWall;
+    public final Stream<GenWall<Triplet<Post, Stream<Like>, Stream<Pair<Comment, Stream<Like>>>>>> genGroups;
+    public final GenWall<Pair<Photo, Stream<Like>>> genAlbums;
 
     public GenActivity(
-            GenWall<Triplet<Post, List<Like>, List<Pair<Comment, List<Like>>>>> genWall,
-            List<GenWall<Triplet<Post, List<Like>, List<Pair<Comment, List<Like>>>>>> genGroups,
-            GenWall<Pair<Photo, List<Like>>> genAlbums
+            GenWall<Triplet<Post, Stream<Like>, Stream<Pair<Comment, Stream<Like>>>>> genWall,
+            Stream<GenWall<Triplet<Post, Stream<Like>, Stream<Pair<Comment, Stream<Like>>>>>> genGroups,
+            GenWall<Pair<Photo, Stream<Like>>> genAlbums
     ) {
         this.genWall = genWall;
         this.genGroups = genGroups;

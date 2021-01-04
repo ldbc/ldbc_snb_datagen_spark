@@ -1,9 +1,9 @@
 package ldbc.snb.datagen.spark
 
-
 import java.net.URI
+
 import ldbc.snb.datagen.{DatagenContext, DatagenParams}
-import ldbc.snb.datagen.spark.generators.{SparkActivityGenerator, SparkActivitySerializer, SparkKnowsGenerator, SparkKnowsMerger, SparkPersonGenerator, SparkPersonSerializer, SparkRanker, SparkStaticGraphSerializer}
+import ldbc.snb.datagen.spark.generators.{SparkActivitySerializer, SparkKnowsGenerator, SparkKnowsMerger, SparkPersonGenerator, SparkPersonSerializer, SparkRanker, SparkStaticGraphSerializer}
 import ldbc.snb.datagen.spark.util.SparkUI
 import ldbc.snb.datagen.util.{ConfigParser, LdbcConfiguration}
 import org.apache.hadoop.fs.{FileSystem, Path}
@@ -96,12 +96,8 @@ object LdbcDatagen {
 
     val merged = SparkKnowsMerger(uniKnows, interestKnows, randomKnows).cache()
 
-    val activities = SparkUI.job(simpleNameOf[SparkActivityGenerator.type], "generate person activities") {
-      SparkActivityGenerator(merged, randomRanker, config, Some(numPartitions))
-    }
-
     SparkUI.job(simpleNameOf[SparkActivitySerializer.type], "serialize person activities") {
-      SparkActivitySerializer(activities, randomRanker, config, Some(numPartitions))
+      SparkActivitySerializer(merged, randomRanker, config, Some(numPartitions))
     }
 
     SparkUI.job(simpleNameOf[SparkPersonSerializer.type ], "serialize persons") {
