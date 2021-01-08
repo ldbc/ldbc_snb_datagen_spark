@@ -57,7 +57,7 @@ E.g with pyenv
 ```bash
 pyenv virtualenv 3.7.7 ldbc_datagen_tools
 echo "3.7.7/envs/ldbc_datagen_tools" > .python-version
-pip install -U pip -r tools/requirements.txt
+pip install --user -U pip -r tools/requirements.txt
 ```
 ### Running locally
 
