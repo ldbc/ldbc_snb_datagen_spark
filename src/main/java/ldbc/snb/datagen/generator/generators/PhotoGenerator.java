@@ -73,7 +73,7 @@ class PhotoGenerator {
         for (int i = 0; i < numPopularPlaces; i++) {
             short aux = Dictionaries.popularPlaces.getPopularPlace(randomFarm
                     .get(RandomGeneratorFarm.Aspect.POPULAR), album
-                    .getPlace());
+                    .getPlaceId());
             if (aux != -1) {
                 popularPlaces.add(aux);
             }
@@ -97,7 +97,7 @@ class PhotoGenerator {
                 deletionDate = Dictionaries.dates.getNetworkCollapse();
                 isExplicitlyDeleted = false;
             } else {
-                if (album.getModerator().getIsMessageDeleter() && randomDeletePost.nextDouble() < DatagenParams.probPhotoDeleted) {
+                if (album.getModerator().isMessageDeleter() && randomDeletePost.nextDouble() < DatagenParams.probPhotoDeleted) {
                     isExplicitlyDeleted = true;
                     long minDeletionDate = creationDate + DatagenParams.delta;
                     long maxDeletionDate = Math.min(album.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
@@ -108,7 +108,7 @@ class PhotoGenerator {
                 }
             }
 
-            int country = album.getModerator().getCountryId();
+            int country = album.getModerator().getCountry();
             IP ip = album.getModerator().getIpAddress();
             Random random = randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER);
 
@@ -127,7 +127,7 @@ class PhotoGenerator {
                     album.getModerator(),
                     album.getId(),
                     "photo" + id + ".jpg",
-                    tags,
+                    new ArrayList<>(tags),
                     country,
                     ip,
                     album.getModerator().getBrowserId(),

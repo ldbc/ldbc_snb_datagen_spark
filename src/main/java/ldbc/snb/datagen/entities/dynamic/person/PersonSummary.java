@@ -38,10 +38,10 @@ public final class PersonSummary implements Writable, Serializable {
         creationDate = p.getCreationDate();
         deletionDate = p.getDeletionDate();
         browserId = p.getBrowserId();
-        country = p.getCountryId();
+        country = p.getCountry();
         ipAddress = new IP(p.getIpAddress());
-        isLargePoster = p.getIsLargePoster();
-        isMessageDeleter = p.getIsMessageDeleter();
+        isLargePoster = p.isLargePoster();
+        isMessageDeleter = p.isMessageDeleter();
     }
 
     public void copy(PersonSummary p) {
@@ -49,42 +49,10 @@ public final class PersonSummary implements Writable, Serializable {
         creationDate = p.getCreationDate();
         deletionDate = p.getDeletionDate();
         browserId = p.getBrowserId();
-        country = p.getCountryId();
+        country = p.getCountry();
         ipAddress = new IP(p.getIpAddress());
-        isLargePoster = p.getIsLargePoster();
-        isMessageDeleter = p.getIsMessageDeleter();
-    }
-
-    public boolean getIsMessageDeleter() {
-        return isMessageDeleter;
-    }
-
-    public long getAccountId() {
-        return accountId;
-    }
-
-    public long getCreationDate() {
-        return creationDate;
-    }
-
-    public long getDeletionDate() {
-        return deletionDate;
-    }
-
-    public int getBrowserId() {
-        return browserId;
-    }
-
-    public int getCountryId() {
-        return country;
-    }
-
-    public IP getIpAddress() {
-        return ipAddress;
-    }
-
-    public boolean getIsLargePoster() {
-        return isLargePoster;
+        isLargePoster = p.isLargePoster();
+        isMessageDeleter = p.isMessageDeleter();
     }
 
     public void readFields(DataInput arg0) throws IOException {
@@ -128,5 +96,69 @@ public final class PersonSummary implements Writable, Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(accountId, creationDate, deletionDate, browserId, country, ipAddress, isLargePoster, isMessageDeleter);
+    }
+
+    public long getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(long accountId) {
+        this.accountId = accountId;
+    }
+
+    public long getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(long creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public long getDeletionDate() {
+        return deletionDate;
+    }
+
+    public void setDeletionDate(long deletionDate) {
+        this.deletionDate = deletionDate;
+    }
+
+    public int getBrowserId() {
+        return browserId;
+    }
+
+    public void setBrowserId(int browserId) {
+        this.browserId = browserId;
+    }
+
+    public int getCountry() {
+        return country;
+    }
+
+    public void setCountry(int country) {
+        this.country = country;
+    }
+
+    public IP getIpAddress() {
+        return ipAddress;
+    }
+
+    public void setIpAddress(IP ipAddress) {
+        this.ipAddress = ipAddress;
+    }
+
+    public boolean isLargePoster() {
+        return isLargePoster;
+    }
+
+    public void setLargePoster(boolean largePoster) {
+        isLargePoster = largePoster;
+    }
+
+    public boolean isMessageDeleter() {
+        return isMessageDeleter;
+    }
+
+    public void setMessageDeleter(boolean messageDeleter) {
+        isMessageDeleter = messageDeleter;
     }
 }

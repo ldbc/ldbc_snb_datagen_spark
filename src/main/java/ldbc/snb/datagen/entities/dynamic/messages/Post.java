@@ -38,6 +38,7 @@ package ldbc.snb.datagen.entities.dynamic.messages;
 import ldbc.snb.datagen.entities.dynamic.person.IP;
 import ldbc.snb.datagen.entities.dynamic.person.PersonSummary;
 
+import java.util.List;
 import java.util.TreeSet;
 
 public class Post extends Message {
@@ -54,7 +55,7 @@ public class Post extends Message {
                 PersonSummary author,
                 long forumId,
                 String content,
-                TreeSet<Integer> tags,
+                List<Integer> tags,
                 int countryId,
                 IP ipAddress,
                 int browserId,
@@ -66,7 +67,7 @@ public class Post extends Message {
     }
 
     public void initialize(long postId, long creationDate, long deletionDate, PersonSummary author, long forumId,
-                           String content, TreeSet<Integer> tags, int countryId, IP ipAddress, int browserId, int language,
+                           String content, List<Integer> tags, int countryId, IP ipAddress, int browserId, int language,
                            boolean isExplicitlyDeleted
     ) {
         super.initialize(postId, creationDate, deletionDate, author, forumId, content, tags, countryId, ipAddress, browserId,isExplicitlyDeleted);
