@@ -26,8 +26,8 @@ public interface CsvSerializer extends Serializer<HdfsCsvWriter> {
         for (FileName f : fileNames) {
             writers.put(f, new HdfsCsvWriter(
                     conf,
-                    outputDir + (dynamic ? "/dynamic/" : "/static/"),
-                    f.toString() + "_" + reducerId,
+                    outputDir + (dynamic ? "/dynamic/" : "/static/") + f.toString() + "/",
+                    String.valueOf(reducerId),
                     DatagenParams.numUpdateStreams,
                     isCompressed,
                     "|",

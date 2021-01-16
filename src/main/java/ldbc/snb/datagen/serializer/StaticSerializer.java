@@ -43,29 +43,13 @@ import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
 
 abstract public class StaticSerializer<TWriter extends HdfsWriter> extends LdbcSerializer<TWriter> {
 
-    abstract protected void serialize(final Place place);
+    abstract public void serialize(final Place place);
 
-    abstract protected void serialize(final Organisation organisation);
+    abstract public void serialize(final Organisation organisation);
 
-    abstract protected void serialize(final TagClass tagClass);
+    abstract public void serialize(final TagClass tagClass);
 
-    abstract protected void serialize(final Tag tag);
-
-    public void export(final TagClass tagclass) {
-        serialize(tagclass);
-    }
-
-    public void export(final Place place) {
-        serialize(place);
-    }
-
-    public void export(final Organisation organisation) {
-        serialize(organisation);
-    }
-
-    public void export(final Tag tag) {
-        serialize(tag);
-    }
+    abstract public void serialize(final Tag tag);
 
     @Override
     protected boolean isDynamic() {

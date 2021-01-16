@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import os
 
 from subprocess import run
 from typing import Optional, Dict
@@ -56,7 +57,9 @@ def run_local(
         *arg_opts
     ]
 
-    run(cmd)
+    default_env = dict(os.environ)
+
+    run(cmd, env=default_env)
 
 
 if __name__ == "__main__":

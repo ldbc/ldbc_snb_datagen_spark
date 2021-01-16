@@ -1,22 +1,5 @@
 package ldbc.snb.datagen.util;
 
-import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
-import ldbc.snb.datagen.serializer.DynamicActivitySerializer;
-import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
-import ldbc.snb.datagen.serializer.StaticSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvBasicDynamicActivitySerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvCompositeDynamicActivitySerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvCompositeMergeForeignDynamicActivitySerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.activity.CsvMergeForeignDynamicActivitySerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CsvBasicDynamicPersonSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CsvCompositeDynamicPersonSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CsvCompositeMergeForeignDynamicPersonSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.dynamicserializer.person.CsvMergeForeignDynamicPersonSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvBasicStaticSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvCompositeMergeForeignStaticSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvCompositeStaticSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvMergeForeignStaticSerializer;
-
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map;
@@ -98,81 +81,6 @@ public class LdbcConfiguration implements Iterable<Map.Entry<String, String>>, S
     @Override
     public Iterator<Map.Entry<String, String>> iterator() {
         return this.map.entrySet().iterator();
-    }
-
-    public DynamicPersonSerializer<HdfsCsvWriter> getDynamicPersonSerializer() {
-
-        String serializerFormat = map.get("serializer.format");
-
-        DynamicPersonSerializer<HdfsCsvWriter> output;
-        switch (serializerFormat) {
-            case "CsvBasic":
-                output = new CsvBasicDynamicPersonSerializer();
-                break;
-            case "CsvMergeForeign":
-                output = new CsvMergeForeignDynamicPersonSerializer();
-                break;
-            case "CsvComposite":
-                output = new CsvCompositeDynamicPersonSerializer();
-                break;
-            case "CsvCompositeMergeForeign":
-                output = new CsvCompositeMergeForeignDynamicPersonSerializer();
-                break;
-            default:
-                throw new IllegalStateException("Unexpected person serializer: " + serializerFormat);
-        }
-
-        return output;
-    }
-
-    public DynamicActivitySerializer<HdfsCsvWriter> getDynamicActivitySerializer() {
-
-        String serializerFormat = map.get("serializer.format");
-
-        DynamicActivitySerializer<HdfsCsvWriter> output;
-        switch (serializerFormat) {
-            case "CsvBasic":
-                output = new CsvBasicDynamicActivitySerializer();
-                break;
-            case "CsvMergeForeign":
-                output = new CsvMergeForeignDynamicActivitySerializer();
-                break;
-            case "CsvComposite":
-                output = new CsvCompositeDynamicActivitySerializer();
-                break;
-            case "CsvCompositeMergeForeign":
-                output = new CsvCompositeMergeForeignDynamicActivitySerializer();
-                break;
-            default:
-                throw new IllegalStateException("Unexpected activity serializer: " + serializerFormat);
-        }
-
-        return output;
-    }
-
-    public StaticSerializer<HdfsCsvWriter> getStaticSerializer() {
-
-        String serializerFormat = map.get("serializer.format");
-
-        StaticSerializer<HdfsCsvWriter> output;
-        switch (serializerFormat) {
-            case "CsvBasic":
-                output = new CsvBasicStaticSerializer();
-                break;
-            case "CsvComposite":
-                output = new CsvCompositeStaticSerializer();
-                break;
-            case "CsvCompositeMergeForeign":
-                output = new CsvCompositeMergeForeignStaticSerializer();
-                break;
-            case "CsvMergeForeign":
-                output = new CsvMergeForeignStaticSerializer();
-                break;
-            default:
-                throw new IllegalStateException("Unexpected static serializer: " + serializerFormat);
-        }
-
-        return output;
     }
 
     public boolean isCompressed() {

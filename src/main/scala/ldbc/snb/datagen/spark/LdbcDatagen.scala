@@ -1,9 +1,9 @@
 package ldbc.snb.datagen.spark
 
 import java.net.URI
-
 import ldbc.snb.datagen.{DatagenContext, DatagenParams}
-import ldbc.snb.datagen.spark.generators.{SparkActivitySerializer, SparkKnowsGenerator, SparkKnowsMerger, SparkPersonGenerator, SparkPersonSerializer, SparkRanker, SparkStaticGraphSerializer}
+import ldbc.snb.datagen.spark.generators.{SparkKnowsGenerator, SparkKnowsMerger, SparkPersonGenerator, SparkRanker}
+import ldbc.snb.datagen.spark.serializer.{SparkActivitySerializer, SparkPersonSerializer, SparkStaticGraphSerializer}
 import ldbc.snb.datagen.spark.util.SparkUI
 import ldbc.snb.datagen.util.{ConfigParser, LdbcConfiguration}
 import org.apache.hadoop.fs.{FileSystem, Path}
@@ -107,6 +107,8 @@ object LdbcDatagen {
     SparkUI.job(simpleNameOf[SparkStaticGraphSerializer.type], "serialize static graph") {
       SparkStaticGraphSerializer(config, Some(numPartitions))
     }
+
+
 
     print("Total Execution time: " + ((System.currentTimeMillis - start) / 1000))
   }

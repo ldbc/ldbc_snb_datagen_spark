@@ -56,14 +56,15 @@ public class HdfsWriter {
         try {
             FileSystem fs = FileSystem.get(conf);
             fileOutputStream = new OutputStream[numPartitions];
+
             if (compressed) {
                 for (int i = 0; i < numPartitions; i++) {
-                    this.fileOutputStream[i] = new GZIPOutputStream(fs.create(new Path(outputDir + "/" + prefix + "_" + i + "." + extension + ".gz"), true, 131072));
+                    this.fileOutputStream[i] = new GZIPOutputStream(fs.create(new Path(outputDir + "/part_" + prefix + "_" + i + "." + extension + ".gz"), true, 131072));
                 }
             } else {
                 for (int i = 0; i < numPartitions; i++) {
                     this.fileOutputStream[i] = fs
-                            .create(new Path(outputDir + "/" + prefix + "_" + i + "." + extension), true, 131072);
+                            .create(new Path(outputDir + "/part_" + prefix + "_" + i + "." + extension), true, 131072);
                 }
             }
             buffer = new StringBuffer(1024);

@@ -28,4 +28,16 @@ object syntax {
       }
     }
   }
+
+  implicit class UseSyntaxForAutoClosable[A <: AutoCloseable](val self: A) extends AnyVal {
+    def use[B](f: A => B): B = {
+      val res = self
+      try {
+        f(res)
+      } finally {
+        self.close()
+      }
+    }
+  }
+
 }

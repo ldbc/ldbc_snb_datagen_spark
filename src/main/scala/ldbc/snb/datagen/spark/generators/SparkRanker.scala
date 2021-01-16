@@ -21,7 +21,7 @@ object SparkRanker {
 
       // single count / partition. Assumed small enough to collect and broadcast
       val counts = sortedPersons
-        .mapPartitionsWithIndex((i, ps) => Seq((i, ps.length.toLong)).iterator)
+        .mapPartitionsWithIndex((i, ps) => Array((i, ps.size)).iterator, preservesPartitioning = true)
         .collectAsMap()
 
       val aggregatedCounts = SortedMap(counts.toSeq : _*)

@@ -1,8 +1,9 @@
-package ldbc.snb.datagen.spark.generators
+package ldbc.snb.datagen.spark.serializer
 
 import ldbc.snb.datagen.entities.dynamic.person.Person
 import ldbc.snb.datagen.generator.generators.{GenActivity, PersonActivityGenerator}
-import ldbc.snb.datagen.serializer.{DummyDeleteEventSerializer, DummyInsertEventSerializer, PersonActivityExporter}
+import ldbc.snb.datagen.serializer.{DynamicActivitySerializer, PersonActivityExporter}
+import ldbc.snb.datagen.spark.generators.SparkRanker
 import ldbc.snb.datagen.spark.util.SerializableConfiguration
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.util.LdbcConfiguration
@@ -38,15 +39,12 @@ object SparkActivitySerializer {
       val fs = FileSystem.get(hadoopConf)
       fs.mkdirs(new Path(buildDir))
 
-      val dynamicActivitySerializer = conf.getDynamicActivitySerializer
+      val dynamicActivitySerializer = new DynamicActivitySerializer()
 
       dynamicActivitySerializer.initialize(hadoopConf, conf.getSocialNetworkDir, partitionId, conf.isCompressed, conf.insertTrailingSeparator())
 
-      val insertEventSerializer = new DummyInsertEventSerializer
-      val deleteEventSerializer = new DummyDeleteEventSerializer
-
       val generator = new PersonActivityGenerator
-      val exporter = new PersonActivityExporter(dynamicActivitySerializer, insertEventSerializer, deleteEventSerializer, generator.getFactorTable)
+      val exporter = new PersonActivityExporter(dynamicActivitySerializer, generator.getFactorTable)
       val friends = fs.create(new Path(buildDir + "/" + "m0friendList" + partitionId + ".csv"))
       val personFactors = fs.create(new Path(buildDir + "/" + "m" + partitionId + DatagenParams.PERSON_FACTORS_FILE))
       val postsPerCountryFactors = fs.create(new Path(buildDir + "/" + "m" + partitionId + DatagenParams.POSTS_PER_COUNTRY_FACTOR_FILE))
