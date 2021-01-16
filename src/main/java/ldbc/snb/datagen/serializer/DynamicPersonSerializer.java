@@ -36,52 +36,114 @@
 package ldbc.snb.datagen.serializer;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
+import ldbc.snb.datagen.DatagenMode;
+import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.entities.dynamic.relations.StudyAt;
 import ldbc.snb.datagen.entities.dynamic.relations.WorkAt;
+import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
 import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
+import ldbc.snb.datagen.serializer.snb.csv.CsvSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.FileName;
+import ldbc.snb.datagen.util.DateUtils;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-abstract public class DynamicPersonSerializer<TWriter extends HdfsWriter> extends LdbcSerializer<TWriter> {
+import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
 
-    abstract protected void serialize(final Person person);
-
-    abstract protected void serialize(final StudyAt studyAt, final Person person);
-
-    abstract protected void serialize(final WorkAt workAt, final Person person);
-
-    abstract protected void serialize(final Person person, final Knows knows);
-
-    public void export(final Person person) {
-
-            serialize(person);
-
-            long universityId = Dictionaries.universities.getUniversityFromLocation(person.getUniversityLocationId());
-            if ((universityId != -1) && (person.getClassYear() != -1)) {
-                StudyAt studyAt = new StudyAt();
-                studyAt.year = person.getClassYear();
-                studyAt.person = person.getAccountId();
-                studyAt.university = universityId;
-                serialize(studyAt, person);
-            }
-
-            for (long companyId : person.getCompanies().keySet()) {
-                WorkAt workAt = new WorkAt();
-                workAt.company = companyId;
-                workAt.person = person.getAccountId();
-                workAt.year = person.getCompanies().get(companyId);
-                serialize(workAt, person);
-            }
+public class DynamicPersonSerializer extends LdbcSerializer<HdfsCsvWriter> implements CsvSerializer {
+    @Override
+    public List<FileName> getFileNames() {
+        return ImmutableList.of(PERSON, PERSON_HASINTEREST_TAG, PERSON_WORKAT_ORGANISATION, PERSON_STUDYAT_ORGANISATION,PERSON_KNOWS_PERSON);
     }
 
-    public void export(final Person p, final Knows k) {
-        if (p.getAccountId() < k.to().getAccountId())
-            serialize(p, k);
+    @Override
+    public void writeFileHeaders() {
+        List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of("creationDate", "deletionDate") :
+                ImmutableList.of("creationDate");
+
+        // one-to-many edges, single- and multi-valued attributes
+        writers.get(PERSON)                     .writeHeader(dates, ImmutableList.of("id", "firstName", "lastName", "gender", "birthday", "locationIP", "browserUsed", "isLocatedIn", "speaks", "email"));
+        // many-to-many edges
+        writers.get(PERSON_HASINTEREST_TAG)     .writeHeader(dates, ImmutableList.of("Person.id", "Tag.id"));
+        writers.get(PERSON_STUDYAT_ORGANISATION).writeHeader(dates, ImmutableList.of("Person.id", "University.id", "classYear"));
+        writers.get(PERSON_WORKAT_ORGANISATION) .writeHeader(dates, ImmutableList.of("Person.id", "Company.id", "workFrom"));
+        writers.get(PERSON_KNOWS_PERSON)        .writeHeader(dates, ImmutableList.of("Person1.id", "Person2.id"));
+    }
+
+    public void serialize(final Person person) {
+        List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()));
+
+        // creationDate, id, firstName, lastName, gender, birthday, locationIP, browserUsed, isLocatedIn, language, email
+        writers.get(PERSON).writeEntry(dates, ImmutableList.of(
+                Long.toString(person.getAccountId()),
+                person.getFirstName(),
+                person.getLastName(),
+                getGender(person.getGender()),
+                Dictionaries.dates.formatDate(person.getBirthday()),
+                person.getIpAddress().toString(),
+                Dictionaries.browsers.getName(person.getBrowserId()),
+                Integer.toString(person.getCityId()),
+                buildLanguages(person.getLanguages()),
+                buildEmail(person.getEmails())
+        ));
+
+        Iterator<Integer> itInteger = person.getInterests().iterator();
+        while (itInteger.hasNext()) {
+            Integer interestIdx = itInteger.next();
+            // creationDate, Person.id, Tag.id
+            writers.get(PERSON_HASINTEREST_TAG).writeEntry(dates, ImmutableList.of(
+                    Long.toString(person.getAccountId()),
+                    Integer.toString(interestIdx)
+            ));
+        }
+    }
+
+    public void serialize(final StudyAt studyAt, final Person person) {
+        List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()));
+
+        // creationDate, Person.id, University.id, classYear
+        writers.get(PERSON_STUDYAT_ORGANISATION).writeEntry(dates, ImmutableList.of(
+                Long.toString(studyAt.person),
+                Long.toString(studyAt.university),
+                DateUtils.formatYear(studyAt.year)
+        ));
+    }
+
+    public void serialize(final WorkAt workAt, final Person person) {
+        List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()));
+
+        // creationDate, Person.id, Company.id, workFrom
+        writers.get(PERSON_WORKAT_ORGANISATION).writeEntry(dates, ImmutableList.of(
+                Long.toString(workAt.person),
+                Long.toString(workAt.company),
+                DateUtils.formatYear(workAt.year)
+        ));
+    }
+
+    public void serialize(final Person person, Knows knows) {
+        List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()));
+
+        // creationDate, Person1.id, Person2.id
+        writers.get(PERSON_KNOWS_PERSON).writeEntry(dates, ImmutableList.of(
+                Long.toString(person.getAccountId()),
+                Long.toString(knows.to().getAccountId())
+        ));
     }
 
     public String getGender(int gender) {

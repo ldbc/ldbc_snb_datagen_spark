@@ -35,43 +35,192 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.serializer;
 
+import com.google.common.collect.ImmutableList;
+import ldbc.snb.datagen.DatagenMode;
+import ldbc.snb.datagen.DatagenParams;
+import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.entities.dynamic.messages.Comment;
 import ldbc.snb.datagen.entities.dynamic.messages.Photo;
 import ldbc.snb.datagen.entities.dynamic.messages.Post;
 import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.entities.dynamic.relations.Like;
+import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
 import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
+import ldbc.snb.datagen.serializer.snb.csv.CsvSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.FileName;
 
-abstract public class DynamicActivitySerializer<TWriter extends HdfsWriter> extends LdbcSerializer<TWriter> {
+import java.util.List;
 
-    abstract protected void serialize(final Forum forum);
+import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
 
-    abstract protected void serialize(final Post post);
-
-    abstract protected void serialize(final Comment comment);
-
-    abstract protected void serialize(final Photo photo);
-
-    abstract protected void serialize(final ForumMembership membership);
-
-    abstract protected void serialize(final Like like);
-
-    public void export(final Forum forum) {
-        serialize(forum);
+public class DynamicActivitySerializer extends LdbcSerializer<HdfsCsvWriter> implements CsvSerializer {
+    @Override
+    public List<FileName> getFileNames() {
+        return ImmutableList.of(FORUM, FORUM_HASMEMBER_PERSON, FORUM_HASTAG_TAG, PERSON_LIKES_POST,
+                PERSON_LIKES_COMMENT, POST, POST_HASTAG_TAG, COMMENT, COMMENT_HASTAG_TAG);
     }
 
-    public void export(final ForumMembership forumMembership) { serialize(forumMembership); }
+    @Override
+    public void writeFileHeaders() {
+        List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of("creationDate", "deletionDate") :
+                ImmutableList.of("creationDate");
 
-    public void export(final Post post) {
-        serialize(post);
+        writers.get(FORUM)                    .writeHeader(dates, ImmutableList.of("id", "title", "moderator"));
+        writers.get(FORUM_HASTAG_TAG)         .writeHeader(dates, ImmutableList.of("Forum.id", "Tag.id"));
+        writers.get(FORUM_HASMEMBER_PERSON)   .writeHeader(dates, ImmutableList.of("Forum.id", "Person.id"));
+
+        writers.get(POST)                     .writeHeader(dates, ImmutableList.of("id", "imageFile", "locationIP", "browserUsed", "language", "content", "length", "creator", "Forum.id", "place"));
+        writers.get(POST_HASTAG_TAG)          .writeHeader(dates, ImmutableList.of("Post.id", "Tag.id"));
+
+        writers.get(COMMENT)                  .writeHeader(dates, ImmutableList.of("id", "locationIP", "browserUsed", "content", "length", "creator", "place", "parentPost", "parentComment"));
+        writers.get(COMMENT_HASTAG_TAG)       .writeHeader(dates, ImmutableList.of("Comment.id", "Tag.id"));
+
+        writers.get(PERSON_LIKES_POST)        .writeHeader(dates, ImmutableList.of("Person.id", "Post.id"));
+        writers.get(PERSON_LIKES_COMMENT)     .writeHeader(dates, ImmutableList.of("Person.id", "Comment.id"));
+
     }
 
-    public void export(Comment comment) { serialize(comment); }
+    public void serialize(final Forum forum) {
+        List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(Dictionaries.dates.formatDateTime(forum.getCreationDate()), Dictionaries.dates.formatDateTime(forum.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(forum.getCreationDate()));
 
-    public void export(Photo photo) { serialize(photo); }
+        // creationDate, [deletionDate,] id, title, moderator
+        writers.get(FORUM).writeEntry(dates, ImmutableList.of(
+                Long.toString(forum.getId()),
+                forum.getTitle(),
+                // to prevent dangling edges, we only serialize the hasModerator edge if the moderator exists
+                // and/or we use 'raw data' serialization mode
+                (forum.getModeratorDeletionDate() >= Dictionaries.dates.getBulkLoadThreshold()
+                        || DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA)
+                        ? Long.toString(forum.getModerator().getAccountId())
+                        : ""
+        ));
 
-    public void export(Like like) { serialize(like); }
+        for (Integer i : forum.getTags()) {
+            // creationDate, [deletionDate,] Forum.id, Tag.id
+            writers.get(FORUM_HASTAG_TAG).writeEntry(dates, ImmutableList.of(
+                    Long.toString(forum.getId()),
+                    Integer.toString(i)
+            ));
+        }
+
+    }
+
+    public void serialize(final Post post) {
+        List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(Dictionaries.dates.formatDateTime(post.getCreationDate()), Dictionaries.dates.formatDateTime(post.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(post.getCreationDate()));
+
+        // creationDate, [deletionDate,] id, imageFile, locationIP, browserUsed, language, content, length, creator, Forum.id, place
+        writers.get(POST).writeEntry(dates, ImmutableList.of(
+                Long.toString(post.getMessageId()),
+                "",
+                post.getIpAddress().toString(),
+                Dictionaries.browsers.getName(post.getBrowserId()),
+                Dictionaries.languages.getLanguageName(post.getLanguage()),
+                post.getContent(),
+                Integer.toString(post.getContent().length()),
+                Long.toString(post.getAuthor().getAccountId()),
+                Long.toString(post.getForumId()),
+                Integer.toString(post.getCountryId())
+        ));
+
+        for (Integer t : post.getTags()) {
+            // creationDate, [deletionDate,] Post.id, Tag.id
+            writers.get(POST_HASTAG_TAG).writeEntry(dates, ImmutableList.of(
+                    Long.toString(post.getMessageId()),
+                    Integer.toString(t)
+            ));
+        }
+    }
+
+    public void serialize(final Comment comment) {
+        List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(Dictionaries.dates.formatDateTime(comment.getCreationDate()), Dictionaries.dates.formatDateTime(comment.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(comment.getCreationDate()));
+
+        // creationDate, [deletionDate,] id, locationIP, browserUsed, content, length, creator, place, parentPost, parentComment
+        writers.get(COMMENT).writeEntry(dates, ImmutableList.of(
+                Long.toString(comment.getMessageId()),
+                comment.getIpAddress().toString(),
+                Dictionaries.browsers.getName(comment.getBrowserId()),
+                comment.getContent(),
+                Integer.toString(comment.getContent().length()),
+                Long.toString(comment.getAuthor().getAccountId()),
+                Integer.toString(comment.getCountryId()),
+                comment.getParentMessageId() == comment.getRootPostId() ? Long.toString(comment.getRootPostId()) : "",
+                comment.getParentMessageId() == comment.getRootPostId() ? "" : Long.toString(comment.getParentMessageId())
+        ));
+
+        for (Integer t : comment.getTags()) {
+            // creationDate, [deletionDate,] Comment.id, Tag.id
+            writers.get(COMMENT_HASTAG_TAG).writeEntry(dates, ImmutableList.of(
+                    Long.toString(comment.getMessageId()),
+                    Integer.toString(t)
+            ));
+        }
+    }
+
+    public void serialize(final Photo photo) {
+        List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(Dictionaries.dates.formatDateTime(photo.getCreationDate()), Dictionaries.dates.formatDateTime(photo.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(photo.getCreationDate()));
+
+        // creationDate, [deletionDate,] id, imageFile, locationIP, browserUsed, language, content, length, creator, Forum.id, place
+        writers.get(POST).writeEntry(dates, ImmutableList.of(
+                Long.toString(photo.getMessageId()),
+                photo.getContent(),
+                photo.getIpAddress().toString(),
+                Dictionaries.browsers.getName(photo.getBrowserId()),
+                "",
+                "",
+                Integer.toString(0),
+                Long.toString(photo.getAuthor().getAccountId()),
+                Long.toString(photo.getForumId()),
+                Integer.toString(photo.getCountryId())
+        ));
+
+        for (Integer t : photo.getTags()) {
+            // creationDate, [deletionDate,] Post.id, Tag.id
+            writers.get(POST_HASTAG_TAG).writeEntry(dates, ImmutableList.of(
+                    Long.toString(photo.getMessageId()),
+                    Integer.toString(t)
+            ));
+        }
+    }
+
+    public void serialize(final ForumMembership membership) {
+        List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(Dictionaries.dates.formatDateTime(membership.getCreationDate()), Dictionaries.dates.formatDateTime(membership.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(membership.getCreationDate()));
+
+        // creationDate, [deletionDate,] Forum.id, Person.id
+        writers.get(FORUM_HASMEMBER_PERSON).writeEntry(dates, ImmutableList.of(
+                Long.toString(membership.getForumId()),
+                Long.toString(membership.getPerson().getAccountId())
+        ));
+    }
+
+    public void serialize(final Like like) {
+        List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(Dictionaries.dates.formatDateTime(like.getCreationDate()), Dictionaries.dates.formatDateTime(like.getDeletionDate())) :
+                ImmutableList.of(Dictionaries.dates.formatDateTime(like.getCreationDate()));
+
+        // creationDate, [deletionDate,] Person.id, Post.id/Comment.id
+        List<String> arguments = ImmutableList.of(
+                Long.toString(like.getPerson()),
+                Long.toString(like.getMessageId())
+        );
+        if (like.getType() == Like.LikeType.POST || like.getType() == Like.LikeType.PHOTO) {
+            writers.get(PERSON_LIKES_POST).writeEntry(dates, arguments);
+        } else {
+            writers.get(PERSON_LIKES_COMMENT).writeEntry(dates, arguments);
+        }
+    }
+
 
     @Override
     protected boolean isDynamic() {

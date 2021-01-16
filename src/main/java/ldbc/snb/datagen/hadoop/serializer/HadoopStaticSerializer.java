@@ -42,6 +42,7 @@ import ldbc.snb.datagen.entities.statictype.TagClass;
 import ldbc.snb.datagen.entities.statictype.place.Place;
 import ldbc.snb.datagen.entities.statictype.tag.Tag;
 import ldbc.snb.datagen.serializer.StaticSerializer;
+import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvCompositeMergeForeignStaticSerializer;
 import ldbc.snb.datagen.util.LdbcConfiguration;
 import ldbc.snb.datagen.util.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -73,7 +74,7 @@ public class HadoopStaticSerializer {
         try {
             staticSerializer = new StaticSerializer[numPartitions];
             for (int i = 0; i < numPartitions; ++i) {
-                staticSerializer[i] = conf.getStaticSerializer();
+                staticSerializer[i] = new CsvCompositeMergeForeignStaticSerializer();
                 staticSerializer[i].initialize(
                         hadoopConf, conf.getSocialNetworkDir(), i,
                         conf.isCompressed(), conf.insertTrailingSeparator()
@@ -107,7 +108,7 @@ public class HadoopStaticSerializer {
             tagClass.id = classId;
             tagClass.name = StringUtils.clampString(Dictionaries.tags.getClassName(classId), 256);
             tagClass.parent = Dictionaries.tags.getClassParent(tagClass.id);
-            staticSerializer[nextFile()].export(tagClass);
+            staticSerializer[nextFile()].serialize(tagClass);
             classId = tagClass.parent;
         }
     }
@@ -117,7 +118,7 @@ public class HadoopStaticSerializer {
         for (Integer location : locations) {
             Place place = Dictionaries.places.getLocation(location);
             place.setName(StringUtils.clampString(place.getName(), 256));
-            staticSerializer[nextFile()].export(place);
+            staticSerializer[nextFile()].serialize(place);
         }
     }
 
@@ -130,7 +131,7 @@ public class HadoopStaticSerializer {
             company.type = Organisation.OrganisationType.Company;
             company.name = StringUtils.clampString(Dictionaries.companies.getCompanyName(company.id), 256);
             company.location = Dictionaries.companies.getCountry(company.id);
-            staticSerializer[nextFile()].export(company);
+            staticSerializer[nextFile()].serialize(company);
         }
 
         Set<Long> universities = Dictionaries.universities.getUniversities();
@@ -141,7 +142,7 @@ public class HadoopStaticSerializer {
             university.type = Organisation.OrganisationType.University;
             university.name = StringUtils.clampString(Dictionaries.universities.getUniversityName(university.id), 256);
             university.location = Dictionaries.universities.getUniversityCity(university.id);
-            staticSerializer[nextFile()].export(university);
+            staticSerializer[nextFile()].serialize(university);
         }
     }
 
@@ -153,7 +154,7 @@ public class HadoopStaticSerializer {
             tag.name = StringUtils.clampString(Dictionaries.tags.getName(tag.id), 256);
             tag.name.replace("\"", "\\\"");
             tag.tagClass = Dictionaries.tags.getTagClass(tag.id);
-            staticSerializer[nextFile()].export(tag);
+            staticSerializer[nextFile()].serialize(tag);
             exportTagHierarchy(tag);
         }
     }

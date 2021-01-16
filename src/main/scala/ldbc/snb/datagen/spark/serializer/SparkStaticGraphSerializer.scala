@@ -1,4 +1,4 @@
-package ldbc.snb.datagen.spark.generators
+package ldbc.snb.datagen.spark.serializer
 
 import ldbc.snb.datagen.hadoop.serializer.HadoopStaticSerializer
 import ldbc.snb.datagen.util.LdbcConfiguration
