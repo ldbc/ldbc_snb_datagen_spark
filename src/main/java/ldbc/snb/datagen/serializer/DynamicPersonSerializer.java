@@ -40,19 +40,17 @@ import com.google.common.collect.ImmutableList;
 import ldbc.snb.datagen.DatagenMode;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.entities.dynamic.person.Person;
-import ldbc.snb.datagen.entities.dynamic.relations.Knows;
-import ldbc.snb.datagen.entities.dynamic.relations.StudyAt;
-import ldbc.snb.datagen.entities.dynamic.relations.WorkAt;
+import ldbc.snb.datagen.spark.generation.entities.dynamic.person.Person;
+import ldbc.snb.datagen.spark.generation.entities.dynamic.relations.Knows;
+import ldbc.snb.datagen.spark.generation.entities.dynamic.relations.StudyAt;
+import ldbc.snb.datagen.spark.generation.entities.dynamic.relations.WorkAt;
 import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
-import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
 import ldbc.snb.datagen.serializer.snb.csv.CsvSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.FileName;
 import ldbc.snb.datagen.util.DateUtils;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;

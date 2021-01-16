@@ -37,9 +37,9 @@
 
 package ldbc.snb.datagen;
 
-import ldbc.snb.datagen.entities.dynamic.person.Person;
-import ldbc.snb.datagen.entities.dynamic.person.similarity.GeoDistanceSimilarity;
-import ldbc.snb.datagen.entities.dynamic.person.similarity.InterestsSimilarity;
+import ldbc.snb.datagen.spark.generation.entities.dynamic.person.Person;
+import ldbc.snb.datagen.spark.generation.entities.dynamic.person.similarity.GeoDistanceSimilarity;
+import ldbc.snb.datagen.spark.generation.entities.dynamic.person.similarity.InterestsSimilarity;
 import ldbc.snb.datagen.generator.distribution.DegreeDistribution;
 import ldbc.snb.datagen.generator.distribution.FacebookDegreeDistribution;
 import ldbc.snb.datagen.generator.distribution.ZipfDistribution;

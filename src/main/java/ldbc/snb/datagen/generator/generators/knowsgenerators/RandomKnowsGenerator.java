@@ -35,8 +35,8 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.generators.knowsgenerators;
 
-import ldbc.snb.datagen.entities.dynamic.person.Person;
-import ldbc.snb.datagen.entities.dynamic.relations.Knows;
+import ldbc.snb.datagen.spark.generation.entities.dynamic.person.Person;
+import ldbc.snb.datagen.spark.generation.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.util.LdbcConfiguration;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 

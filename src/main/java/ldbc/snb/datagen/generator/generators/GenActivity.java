@@ -1,9 +1,9 @@
 package ldbc.snb.datagen.generator.generators;
 
-import ldbc.snb.datagen.entities.dynamic.messages.Comment;
-import ldbc.snb.datagen.entities.dynamic.messages.Photo;
-import ldbc.snb.datagen.entities.dynamic.messages.Post;
-import ldbc.snb.datagen.entities.dynamic.relations.Like;
+import ldbc.snb.datagen.spark.generation.entities.dynamic.messages.Comment;
+import ldbc.snb.datagen.spark.generation.entities.dynamic.messages.Photo;
+import ldbc.snb.datagen.spark.generation.entities.dynamic.messages.Post;
+import ldbc.snb.datagen.spark.generation.entities.dynamic.relations.Like;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 

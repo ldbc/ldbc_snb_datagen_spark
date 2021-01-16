@@ -37,10 +37,10 @@ package ldbc.snb.datagen.serializer.snb.csv.staticserializer;
 
 import com.google.common.collect.ImmutableList;
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.entities.statictype.Organisation;
-import ldbc.snb.datagen.entities.statictype.TagClass;
-import ldbc.snb.datagen.entities.statictype.place.Place;
-import ldbc.snb.datagen.entities.statictype.tag.Tag;
+import ldbc.snb.datagen.spark.generation.entities.statictype.Organisation;
+import ldbc.snb.datagen.spark.generation.entities.statictype.TagClass;
+import ldbc.snb.datagen.spark.generation.entities.statictype.place.Place;
+import ldbc.snb.datagen.spark.generation.entities.statictype.tag.Tag;
 import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
 import ldbc.snb.datagen.serializer.StaticSerializer;
 import ldbc.snb.datagen.serializer.snb.csv.CsvSerializer;
