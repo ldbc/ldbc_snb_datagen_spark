@@ -16,6 +16,7 @@ def run_local(
         jar_file: str,
         params_file: str,
         cores: Optional[int] = None,
+        sn_dir: Optional[str] = None,
         memory: Optional[str] = None,
         parallelism: Optional[int] = None,
         spark_conf: Optional[Dict] = None
@@ -39,7 +40,8 @@ def run_local(
     }
 
     arg_opts = [
-        *(['--num-threads', str(parallelism)] if parallelism else [])
+        *(['--num-threads', str(parallelism)] if parallelism else []),
+        *(['--sn-dir', sn_dir] if sn_dir else [])
     ]
 
     conf = flatten([['-c', f'{k}={v}'] for k, v in final_spark_conf.items()])
@@ -77,6 +79,9 @@ if __name__ == "__main__":
                         nargs='+',
                         action=util.KeyValue,
                         help="Spark conf as a list of key=value pairs")
+    parser.add_argument('--sn-dir',
+                        type=str,
+                        help='Output directory')
     parser.add_argument('--parallelism',
                         type=int,
                         help='sets job parallelism. Higher values might reduce chance of OOM.')
@@ -90,6 +95,7 @@ if __name__ == "__main__":
         args.jar,
         args.params_file,
         cores=args.cores,
+        sn_dir=args.sn_dir,
         memory=args.memory,
         parallelism=args.parallelism,
         spark_conf=args.conf
