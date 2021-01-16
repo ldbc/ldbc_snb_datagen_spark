@@ -89,7 +89,7 @@ public class ForumGenerator {
         forum.setTags(forumTags);
 
         // adds all friends as members of wall
-        TreeSet<Knows> knows = person.getKnows();
+        List<Knows> knows = person.getKnows();
 
         // for each friend generate hasMember edge
         for (Knows know : knows) {
@@ -321,7 +321,7 @@ public class ForumGenerator {
 
         List<Integer> countries = Dictionaries.places.getCountries();
         int randomCountry = randomFarm.get(RandomGeneratorFarm.Aspect.COUNTRY).nextInt(countries.size());
-        forum.setPlace(countries.get(randomCountry));
+        forum.setPlaceId(countries.get(randomCountry));
 
         List<Knows> friends = new ArrayList<>(person.getKnows());
         for (Knows knows : friends) {

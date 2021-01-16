@@ -1,4 +1,4 @@
-package ldbc.snb.datagen.spark
+package ldbc.snb.datagen.entities
 
 import ldbc.snb.datagen.entities.dynamic.person.Person
 

@@ -91,7 +91,7 @@ public class LikeGenerator {
                 likeDeletionDate = Dictionaries.dates.getNetworkCollapse();
                 isExplicitlyDeleted = false;
             } else {
-                if (membership.getPerson().getIsMessageDeleter() && randomDeleteLike.nextDouble() < DatagenParams.probLikeDeleted) {
+                if (membership.getPerson().isMessageDeleter() && randomDeleteLike.nextDouble() < DatagenParams.probLikeDeleted) {
                     isExplicitlyDeleted = true;
                     long minDeletionDate = likeCreationDate + DatagenParams.delta;
                     long maxDeletionDate = Collections.min(Arrays.asList(

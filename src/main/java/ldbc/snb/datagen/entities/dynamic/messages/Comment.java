@@ -39,6 +39,7 @@ package ldbc.snb.datagen.entities.dynamic.messages;
 import ldbc.snb.datagen.entities.dynamic.person.IP;
 import ldbc.snb.datagen.entities.dynamic.person.PersonSummary;
 
+import java.util.List;
 import java.util.TreeSet;
 
 public class Comment extends Message {
@@ -53,8 +54,8 @@ public class Comment extends Message {
     public Comment(Comment comment) {
         super(comment.getMessageId(), comment.getCreationDate(), comment.getDeletionDate(), comment.getAuthor(), comment.getForumId(), comment.getContent(),
               comment.getTags(), comment.getCountryId(), comment.getIpAddress(), comment.getBrowserId(),comment.isExplicitlyDeleted());
-        rootPostId = comment.rootPostId();
-        parentMessageId = comment.parentMessageId();
+        rootPostId = comment.getRootPostId();
+        parentMessageId = comment.getParentMessageId();
     }
 
     public Comment(long commentId,
@@ -63,7 +64,7 @@ public class Comment extends Message {
                    PersonSummary author,
                    long forumId,
                    String content,
-                   TreeSet<Integer> tags,
+                   List<Integer> tags,
                    int countryId,
                    IP ipAddress,
                    int browserId,
@@ -83,7 +84,7 @@ public class Comment extends Message {
                            PersonSummary author,
                            long forumId,
                            String content,
-                           TreeSet<Integer> tags,
+                           List<Integer> tags,
                            int countryId,
                            IP ipAddress,
                            int browserId,
@@ -95,13 +96,19 @@ public class Comment extends Message {
         this.parentMessageId = parentMessageId;
     }
 
-    public long rootPostId() {
+    public long getRootPostId() {
         return rootPostId;
     }
 
-    public long parentMessageId() {
+    public void setRootPostId(long rootPostId) {
+        this.rootPostId = rootPostId;
+    }
+
+    public long getParentMessageId() {
         return parentMessageId;
     }
 
-
+    public void setParentMessageId(long parentMessageId) {
+        this.parentMessageId = parentMessageId;
+    }
 }

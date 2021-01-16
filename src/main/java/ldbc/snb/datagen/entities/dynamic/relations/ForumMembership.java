@@ -74,6 +74,10 @@ public class ForumMembership implements DynamicActivity {
         return forumId;
     }
 
+    public void setForumId(long forumId) {
+        this.forumId = forumId;
+    }
+
     public long getCreationDate() {
         return creationDate;
     }

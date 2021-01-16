@@ -351,12 +351,12 @@ public class InsertEventSerializer implements AbstractInsertEventSerializer {
         data.add(Integer.toString(comment.getContent().length()));
         data.add(Long.toString(comment.getAuthor().getAccountId()));
         data.add(Long.toString(comment.getCountryId()));
-        if (comment.parentMessageId() == comment.rootPostId()) {
-            data.add(Long.toString(comment.rootPostId()));
+        if (comment.getParentMessageId() == comment.getRootPostId()) {
+            data.add(Long.toString(comment.getRootPostId()));
             data.add("-1");
         } else {
             data.add("-1");
-            data.add(Long.toString(comment.parentMessageId()));
+            data.add(Long.toString(comment.getParentMessageId()));
         }
         beginList();
         for (int tag : comment.getTags()) {

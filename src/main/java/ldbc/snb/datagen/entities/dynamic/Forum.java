@@ -79,16 +79,16 @@ public class Forum implements DynamicActivity {
         this.isExplicitlyDeleted = isExplicitlyDeleted;
     }
 
+    public void addMember(ForumMembership member) {
+        memberships.add(member);
+    }
+
     public boolean isExplicitlyDeleted() {
         return isExplicitlyDeleted;
     }
 
     public void setExplicitlyDeleted(boolean explicitlyDeleted) {
         isExplicitlyDeleted = explicitlyDeleted;
-    }
-
-    public void addMember(ForumMembership member) {
-        memberships.add(member);
     }
 
     public long getId() {
@@ -103,10 +103,19 @@ public class Forum implements DynamicActivity {
         return moderator;
     }
 
+    public void setModerator(PersonSummary moderator) {
+        this.moderator = moderator;
+    }
+
     public long getModeratorDeletionDate() {
         return moderatorDeletionDate;
     }
 
+    public void setModeratorDeletionDate(long moderatorDeletionDate) {
+        this.moderatorDeletionDate = moderatorDeletionDate;
+    }
+
+    @Override
     public long getCreationDate() {
         return creationDate;
     }
@@ -115,21 +124,13 @@ public class Forum implements DynamicActivity {
         this.creationDate = creationDate;
     }
 
+    @Override
     public long getDeletionDate() {
         return deletionDate;
     }
 
     public void setDeletionDate(long deletionDate) {
         this.deletionDate = deletionDate;
-    }
-
-    public List<Integer> getTags() {
-        return tags;
-    }
-
-    public void setTags(List<Integer> tags) {
-        this.tags.clear();
-        this.tags.addAll(tags);
     }
 
     public String getTitle() {
@@ -140,15 +141,19 @@ public class Forum implements DynamicActivity {
         this.title = title;
     }
 
-    public List<ForumMembership> getMemberships() {
-        return memberships;
+    public List<Integer> getTags() {
+        return tags;
     }
 
-    public int getPlace() {
+    public void setTags(List<Integer> tags) {
+        this.tags = tags;
+    }
+
+    public int getPlaceId() {
         return placeId;
     }
 
-    public void setPlace(int placeId) {
+    public void setPlaceId(int placeId) {
         this.placeId = placeId;
     }
 
@@ -160,7 +165,19 @@ public class Forum implements DynamicActivity {
         this.language = language;
     }
 
+    public List<ForumMembership> getMemberships() {
+        return memberships;
+    }
+
+    public void setMemberships(List<ForumMembership> memberships) {
+        this.memberships = memberships;
+    }
+
     public ForumType getForumType() {
         return forumType;
+    }
+
+    public void setForumType(ForumType forumType) {
+        this.forumType = forumType;
     }
 }

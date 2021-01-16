@@ -45,8 +45,10 @@ import ldbc.snb.datagen.generator.tools.PowerDistribution;
 
 import java.text.Normalizer;
 import java.time.Month;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class PersonGenerator {
 
@@ -131,10 +133,10 @@ public class PersonGenerator {
                 .get(RandomGeneratorFarm.Aspect.TAG), person
                 .getCountryId()));
         short numTags = ((short) randomTagPowerLaw.getValue(randomFarm.get(RandomGeneratorFarm.Aspect.NUM_TAG)));
-        person.setInterests(Dictionaries.tagMatrix
+        person.setInterests(new ArrayList<>(Dictionaries.tagMatrix
                 .getSetofTags(randomFarm.get(RandomGeneratorFarm.Aspect.TOPIC), randomFarm
                         .get(RandomGeneratorFarm.Aspect.TAG_OTHER_COUNTRY), person
-                        .getMainInterest(), numTags));
+                        .getMainInterest(), numTags)));
         person.setUniversityLocationId(Dictionaries.universities.getRandomUniversity(randomFarm, person.getCountryId()));
         person.setRandomId(randomFarm.get(RandomGeneratorFarm.Aspect.RANDOM).nextInt(Integer.MAX_VALUE) % 100);
 

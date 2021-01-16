@@ -52,12 +52,12 @@ public final class Person implements Writable, Serializable, Comparable<Person> 
     private long creationDate;
     private long deletionDate;
     private long maxNumKnows;
-    private TreeSet<Knows> knows;
+    private List<Knows> knows;
     private int browserId;
     private IP ipAddress;
     private int countryId;
     private int cityId;
-    private TreeSet<Integer> interests;
+    private List<Integer> interests;
     private int mainInterest;
     private int universityLocationId;
     private byte gender;
@@ -65,7 +65,7 @@ public final class Person implements Writable, Serializable, Comparable<Person> 
     private boolean isLargePoster;
     private long randomId;
 
-    private TreeSet<String> emails;
+    private List<String> emails;
     private List<Integer> languages;
     private String firstName;
     private String lastName;
@@ -149,9 +149,9 @@ public final class Person implements Writable, Serializable, Comparable<Person> 
     }
 
     public Person() {
-        knows = new TreeSet<>();
-        emails = new TreeSet<>();
-        interests = new TreeSet<>();
+        knows = new ArrayList<>();
+        emails = new ArrayList<>();
+        interests = new ArrayList<>();
         languages = new ArrayList<>();
         companies = new HashMap<>();
         ipAddress = new IP();
@@ -161,9 +161,9 @@ public final class Person implements Writable, Serializable, Comparable<Person> 
 
         isExplicitlyDeleted = p.isExplicitlyDeleted();
         isMessageDeleter = p.isMessageDeleter();
-        knows = new TreeSet<>();
-        emails = new TreeSet<>();
-        interests = new TreeSet<>();
+        knows = new ArrayList<>();
+        emails = new ArrayList<>();
+        interests = new ArrayList<>();
         languages = new ArrayList<>();
         companies = new HashMap<>();
 
@@ -180,7 +180,7 @@ public final class Person implements Writable, Serializable, Comparable<Person> 
 
         countryId = p.getCountryId();
         cityId = p.getCityId();
-        interests.addAll(p.getInterests().descendingSet());
+        interests.addAll(p.getInterests());
         mainInterest = p.getMainInterest();
 
         universityLocationId = p.getUniversityLocationId();
@@ -189,7 +189,7 @@ public final class Person implements Writable, Serializable, Comparable<Person> 
         isLargePoster = p.getIsLargePoster();
         randomId = p.getRandomId();
 
-        emails.addAll(p.getEmails().descendingSet());
+        emails.addAll(p.getEmails());
 
         languages.addAll(p.getLanguages());
 
@@ -250,11 +250,11 @@ public final class Person implements Writable, Serializable, Comparable<Person> 
         maxNumKnows = maxKnows;
     }
 
-    public TreeSet<Knows> getKnows() {
+    public List<Knows> getKnows() {
         return knows;
     }
 
-    public void setKnows(TreeSet<Knows> knows) {
+    public void setKnows(List<Knows> knows) {
         this.knows.clear();
         this.knows.addAll(knows);
     }
@@ -291,11 +291,11 @@ public final class Person implements Writable, Serializable, Comparable<Person> 
         this.cityId = cityId;
     }
 
-    public TreeSet<Integer> getInterests() {
+    public List<Integer> getInterests() {
         return interests;
     }
 
-    public void setInterests(TreeSet<Integer> interests) {
+    public void setInterests(List<Integer> interests) {
         this.interests.clear();
         this.interests.addAll(interests);
     }
@@ -348,11 +348,11 @@ public final class Person implements Writable, Serializable, Comparable<Person> 
         this.randomId = randomId;
     }
 
-    public TreeSet<String> getEmails() {
+    public List<String> getEmails() {
         return emails;
     }
 
-    public void setEmails(TreeSet<String> emails) {
+    public void setEmails(List<String> emails) {
         emails.clear();
         this.emails.addAll(emails);
     }
@@ -386,6 +386,10 @@ public final class Person implements Writable, Serializable, Comparable<Person> 
         return companies;
     }
 
+    public void setCompanies(Map<Long, Long> companies) {
+        this.companies = companies;
+    }
+
     public long getClassYear() {
         return classYear;
     }
@@ -402,7 +406,7 @@ public final class Person implements Writable, Serializable, Comparable<Person> 
         deletionDate = arg0.readLong();
         maxNumKnows = arg0.readLong();
         int numFriends = arg0.readShort();
-        knows = new TreeSet<>();
+        knows = new ArrayList<>();
         for (int i = 0; i < numFriends; i++) {
             Knows fr = new Knows();
             fr.readFields(arg0);
@@ -417,7 +421,7 @@ public final class Person implements Writable, Serializable, Comparable<Person> 
         cityId = arg0.readInt();
 
         byte numTags = arg0.readByte();
-        interests = new TreeSet<>();
+        interests = new ArrayList<>();
         for (byte i = 0; i < numTags; i++) {
             interests.add(arg0.readInt());
         }
@@ -430,7 +434,7 @@ public final class Person implements Writable, Serializable, Comparable<Person> 
         randomId = arg0.readLong();
 
         int numEmails = arg0.readInt();
-        emails = new TreeSet<>();
+        emails = new ArrayList<>();
         for (int i = 0; i < numEmails; ++i) {
             emails.add(arg0.readUTF());
         }

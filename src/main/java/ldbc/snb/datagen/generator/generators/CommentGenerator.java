@@ -143,7 +143,7 @@ public class CommentGenerator {
             } else {
 
                 // if person is a deleter and selected for delete
-                if (membership.getPerson().getIsMessageDeleter() && randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_COMM).nextDouble() < DatagenParams.probCommentDeleted) {
+                if (membership.getPerson().isMessageDeleter() && randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_COMM).nextDouble() < DatagenParams.probCommentDeleted) {
                     isExplicitlyDeleted = true;
                     long minDeletionDate = creationDate + DatagenParams.delta;
                     long maxDeletionDate = Collections.min(Arrays.asList(parentMessage.getDeletionDate(), membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd()));
@@ -157,7 +157,7 @@ public class CommentGenerator {
                 }
             }
 
-            int country = membership.getPerson().getCountryId();
+            int country = membership.getPerson().getCountry();
             IP ip = membership.getPerson().getIpAddress();
             Random random = randomFarm.get(RandomGeneratorFarm.Aspect.DIFF_IP_FOR_TRAVELER);
             if (PersonBehavior.changeUsualCountry(random, creationDate)) {
@@ -173,7 +173,7 @@ public class CommentGenerator {
                     membership.getPerson(),
                     forum.getId(),
                     content,
-                    tags,
+                    new ArrayList<>(tags),
                     country,
                     ip,
                     Dictionaries.browsers.getPostBrowserId(randomFarm

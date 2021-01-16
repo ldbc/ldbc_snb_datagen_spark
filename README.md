@@ -53,8 +53,9 @@ tools/build.sh
 Some of the build utilities are written in Python. To use them, you have to create a Python virtual environment
 and install the dependencies.
 
-E.g with pyenv
+E.g. with [pyenv](https://github.com/pyenv/pyenv) and [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv):
 ```bash
+pyenv install 3.7.7
 pyenv virtualenv 3.7.7 ldbc_datagen_tools
 echo "3.7.7/envs/ldbc_datagen_tools" > .python-version
 pip install --user -U pip -r tools/requirements.txt

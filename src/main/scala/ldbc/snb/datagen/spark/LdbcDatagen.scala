@@ -8,8 +8,7 @@ import ldbc.snb.datagen.spark.util.SparkUI
 import ldbc.snb.datagen.util.{ConfigParser, LdbcConfiguration}
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.SparkSession
-
-import ldbc.snb.datagen.spark.util.Utils._
+import ldbc.snb.datagen.syntax._
 
 import scala.reflect.ClassTag
 
@@ -85,7 +84,7 @@ object LdbcDatagen {
     val percentages = Seq(0.45f, 0.45f, 0.1f)
     val knowsGeneratorClassName = DatagenParams.getKnowsGenerator
 
-    import Keys._
+    import ldbc.snb.datagen.entities.Keys._
 
     val uniRanker = SparkRanker.create(_.byUni)
     val interestRanker = SparkRanker.create(_.byInterest)
