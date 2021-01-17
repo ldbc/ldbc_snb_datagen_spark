@@ -5,8 +5,8 @@ import ldbc.snb.datagen.spark.transformation.model
 import ldbc.snb.datagen.spark.transformation.model.{EntityType, Graph, Mode}
 import ldbc.snb.datagen.syntax.FluentSyntaxForAny
 import org.apache.spark.sql.{Column, DataFrame}
-import org.apache.spark.sql.functions.{date_trunc, _}
-import org.apache.spark.sql.types.DateType
+import org.apache.spark.sql.functions._
+import org.apache.spark.sql.types.TimestampType
 
 case class Batched[T](
   entity: T,
@@ -25,8 +25,8 @@ case class RawToBiTransform(bulkLoadTreshold: Long, simulationEnd: Long) extends
     val batched = (df: DataFrame) => df
       .select(
         df.columns.map(qcol) ++ Seq(
-          date_trunc("yyyy-MM-dd", $"creationDate".cast(DateType)).as("insert_batch_id"),
-          date_trunc("yyyy-MM-dd", $"deletionDate".cast(DateType)).as("delete_batch_id")
+          date_trunc("yyyy-MM-dd", $"creationDate".cast(TimestampType)).as("insert_batch_id"),
+          date_trunc("yyyy-MM-dd", $"deletionDate".cast(TimestampType)).as("delete_batch_id")
         ): _*)
       .filter($"insert_batch_id" =!= $"delete_batch_id")
 
