@@ -1,6 +1,6 @@
 package ldbc.snb.datagen.spark.generation.generator
 
-import ldbc.snb.datagen.spark.generation.entities.dynamic.person.Person
+import ldbc.snb.datagen.entities.dynamic.person.Person
 import org.apache.spark.sql.SparkSession
 import ldbc.snb.datagen.{DatagenContext, DatagenParams}
 import ldbc.snb.datagen.generator.generators.PersonGenerator

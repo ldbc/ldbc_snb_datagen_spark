@@ -15,6 +15,15 @@ object syntax {
      * Fluent syntax for applying a function on self.
      */
     def let[R](f: A => R): R = f(self)
+
+
+    /**
+     * Fluent syntax for applying a side-effect on self.
+     */
+    def tap(f: A => Unit): A = {
+      f(self)
+      self
+    }
   }
 
   // "try with resources"

@@ -1,14 +1,11 @@
 package ldbc.snb.datagen.spark.generation
 
 import ldbc.snb.datagen.{DatagenContext, DatagenParams}
-import ldbc.snb.datagen.spark.LdbcDatagen.{appName, openPropFileStream}
-import ldbc.snb.datagen.spark.SparkApp
+import ldbc.snb.datagen.spark.{LdbcDatagen, SparkApp}
 import ldbc.snb.datagen.spark.generation.generator.{SparkKnowsGenerator, SparkKnowsMerger, SparkPersonGenerator, SparkRanker}
 import ldbc.snb.datagen.spark.generation.serializer.{SparkActivitySerializer, SparkPersonSerializer, SparkStaticGraphSerializer}
 import ldbc.snb.datagen.spark.util.SparkUI
 import ldbc.snb.datagen.spark.util.Utils.simpleNameOf
-import ldbc.snb.datagen.syntax.UseSyntaxForAutoClosable
-import ldbc.snb.datagen.util.{ConfigParser, LdbcConfiguration}
 import org.apache.spark.sql.SparkSession
 
 import java.net.URI
@@ -24,17 +21,7 @@ object GenerationStage extends SparkApp {
   )
 
   def run(args: Args)(implicit spark: SparkSession) = {
-    val conf = ConfigParser.defaultConfiguration()
-
-    conf.putAll(getClass.getResourceAsStream("/params_default.ini") use { ConfigParser.readConfig })
-
-    conf.putAll(openPropFileStream(URI.create(args.propFile)) use { ConfigParser.readConfig })
-
-    for { buildDir <- args.buildDir} conf.put("serializer.buildDir", buildDir)
-    for { snDir <- args.socialNetworkDir} conf.put("serializer.socialNetworkDir", snDir)
-    for { numThreads <- args.numThreads} conf.put("hadoop.numThreads", numThreads.toString)
-
-    val config = new LdbcConfiguration(conf)
+    val config = LdbcDatagen.buildConfig(args.propFile, args.buildDir, args.socialNetworkDir, args.numThreads)
 
     val numPartitions = config.getInt("hadoop.numThreads", spark.sparkContext.defaultParallelism)
 
@@ -45,7 +32,7 @@ object GenerationStage extends SparkApp {
     val percentages = Seq(0.45f, 0.45f, 0.1f)
     val knowsGeneratorClassName = DatagenParams.getKnowsGenerator
 
-    import ldbc.snb.datagen.spark.generation.entities.Keys._
+    import ldbc.snb.datagen.entities.Keys._
 
     val uniRanker = SparkRanker.create(_.byUni)
     val interestRanker = SparkRanker.create(_.byInterest)

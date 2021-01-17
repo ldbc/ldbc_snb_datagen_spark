@@ -3,6 +3,8 @@ package ldbc.snb.datagen.spark
 import better.files._
 import ldbc.snb.datagen.spark.generation.GenerationStage
 import ldbc.snb.datagen.spark.transformation.TransformationStage
+import ldbc.snb.datagen.syntax._
+import ldbc.snb.datagen.util.{ConfigParser, LdbcConfiguration}
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.SparkSession
 
@@ -15,6 +17,20 @@ object LdbcDatagen extends SparkApp {
   def openPropFileStream(uri: URI)(implicit spark: SparkSession) = {
     val fs = FileSystem.get(uri, spark.sparkContext.hadoopConfiguration)
     fs.open(new Path(uri.getPath))
+  }
+
+  def buildConfig(propFile: String, buildDir: Option[String] = None, socialNetworkDir: Option[String] = None, numThreads: Option[Int] = None) = {
+    val conf = ConfigParser.defaultConfiguration()
+
+    conf.putAll(getClass.getResourceAsStream("/params_default.ini") use { ConfigParser.readConfig })
+
+    conf.putAll(openPropFileStream(URI.create(propFile)) use { ConfigParser.readConfig })
+
+    for { buildDir <- buildDir} conf.put("serializer.buildDir", buildDir)
+    for { snDir <- socialNetworkDir} conf.put("serializer.socialNetworkDir", snDir)
+    for { numThreads <- numThreads} conf.put("hadoop.numThreads", numThreads.toString)
+
+    new LdbcConfiguration(conf)
   }
 
 
@@ -47,6 +63,7 @@ object LdbcDatagen extends SparkApp {
     GenerationStage.run(parsedArgs)
 
     TransformationStage.run(TransformationStage.Args(
+      parsedArgs.propFile,
       parsedArgs.socialNetworkDir.get,
       (parsedArgs.socialNetworkDir.get / "serialized" ).toString,
       parsedArgs.numThreads

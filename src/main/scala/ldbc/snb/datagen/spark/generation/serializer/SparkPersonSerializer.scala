@@ -1,7 +1,7 @@
 package ldbc.snb.datagen.spark.generation.serializer
 
 import ldbc.snb.datagen.DatagenContext
-import ldbc.snb.datagen.spark.generation.entities.dynamic.person.Person
+import ldbc.snb.datagen.entities.dynamic.person.Person
 import ldbc.snb.datagen.serializer.{DynamicPersonSerializer, PersonExporter}
 import ldbc.snb.datagen.spark.util.SerializableConfiguration
 import ldbc.snb.datagen.syntax._

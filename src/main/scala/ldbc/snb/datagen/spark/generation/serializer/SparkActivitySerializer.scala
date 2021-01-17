@@ -1,6 +1,6 @@
 package ldbc.snb.datagen.spark.generation.serializer
 
-import ldbc.snb.datagen.spark.generation.entities.dynamic.person.Person
+import ldbc.snb.datagen.entities.dynamic.person.Person
 import ldbc.snb.datagen.generator.generators.{GenActivity, PersonActivityGenerator}
 import ldbc.snb.datagen.serializer.{DynamicActivitySerializer, PersonActivityExporter}
 import ldbc.snb.datagen.spark.generation.generator.SparkRanker

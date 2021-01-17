@@ -36,8 +36,8 @@
 package ldbc.snb.datagen.dictionary;
 
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.spark.generation.entities.dynamic.person.IP;
-import ldbc.snb.datagen.spark.generation.entities.statictype.place.Place;
+import ldbc.snb.datagen.entities.dynamic.person.IP;
+import ldbc.snb.datagen.entities.statictype.place.Place;
 
 import java.io.BufferedReader;
 import java.io.IOException;

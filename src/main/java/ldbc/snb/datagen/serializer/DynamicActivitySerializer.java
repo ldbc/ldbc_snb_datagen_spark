@@ -39,21 +39,18 @@ import com.google.common.collect.ImmutableList;
 import ldbc.snb.datagen.DatagenMode;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.spark.generation.entities.dynamic.Forum;
-import ldbc.snb.datagen.spark.generation.entities.dynamic.messages.Comment;
-import ldbc.snb.datagen.spark.generation.entities.dynamic.messages.Photo;
-import ldbc.snb.datagen.spark.generation.entities.dynamic.messages.Post;
-import ldbc.snb.datagen.spark.generation.entities.dynamic.relations.ForumMembership;
-import ldbc.snb.datagen.spark.generation.entities.dynamic.relations.Like;
-import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
-import ldbc.snb.datagen.serializer.snb.csv.CsvSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.FileName;
+import ldbc.snb.datagen.entities.dynamic.Forum;
+import ldbc.snb.datagen.entities.dynamic.messages.Comment;
+import ldbc.snb.datagen.entities.dynamic.messages.Photo;
+import ldbc.snb.datagen.entities.dynamic.messages.Post;
+import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
+import ldbc.snb.datagen.entities.dynamic.relations.Like;
 
 import java.util.List;
 
-import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
+import static ldbc.snb.datagen.serializer.FileName.*;
 
-public class DynamicActivitySerializer extends LdbcSerializer<HdfsCsvWriter> implements CsvSerializer {
+public class DynamicActivitySerializer extends LdbcSerializer {
     @Override
     public List<FileName> getFileNames() {
         return ImmutableList.of(FORUM, FORUM_HASMEMBER_PERSON, FORUM_HASTAG_TAG, PERSON_LIKES_POST,
@@ -73,7 +70,7 @@ public class DynamicActivitySerializer extends LdbcSerializer<HdfsCsvWriter> imp
         writers.get(POST)                     .writeHeader(dates, ImmutableList.of("id", "imageFile", "locationIP", "browserUsed", "language", "content", "length", "creator", "Forum.id", "place"));
         writers.get(POST_HASTAG_TAG)          .writeHeader(dates, ImmutableList.of("Post.id", "Tag.id"));
 
-        writers.get(COMMENT)                  .writeHeader(dates, ImmutableList.of("id", "locationIP", "browserUsed", "content", "length", "creator", "place", "parentPost", "parentComment"));
+        writers.get(COMMENT)                  .writeHeader(dates, ImmutableList.of("id", "locationIP", "browserUsed", "content", "length", "creator", "place", "replyOfPost", "replyOfComment"));
         writers.get(COMMENT_HASTAG_TAG)       .writeHeader(dates, ImmutableList.of("Comment.id", "Tag.id"));
 
         writers.get(PERSON_LIKES_POST)        .writeHeader(dates, ImmutableList.of("Person.id", "Post.id"));
@@ -83,8 +80,8 @@ public class DynamicActivitySerializer extends LdbcSerializer<HdfsCsvWriter> imp
 
     public void serialize(final Forum forum) {
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(Dictionaries.dates.formatDateTime(forum.getCreationDate()), Dictionaries.dates.formatDateTime(forum.getDeletionDate())) :
-                ImmutableList.of(Dictionaries.dates.formatDateTime(forum.getCreationDate()));
+                ImmutableList.of(formatDateTime(forum.getCreationDate()), formatDateTime(forum.getDeletionDate())) :
+                ImmutableList.of(formatDateTime(forum.getCreationDate()));
 
         // creationDate, [deletionDate,] id, title, moderator
         writers.get(FORUM).writeEntry(dates, ImmutableList.of(
@@ -110,8 +107,8 @@ public class DynamicActivitySerializer extends LdbcSerializer<HdfsCsvWriter> imp
 
     public void serialize(final Post post) {
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(Dictionaries.dates.formatDateTime(post.getCreationDate()), Dictionaries.dates.formatDateTime(post.getDeletionDate())) :
-                ImmutableList.of(Dictionaries.dates.formatDateTime(post.getCreationDate()));
+                ImmutableList.of(formatDateTime(post.getCreationDate()), formatDateTime(post.getDeletionDate())) :
+                ImmutableList.of(formatDateTime(post.getCreationDate()));
 
         // creationDate, [deletionDate,] id, imageFile, locationIP, browserUsed, language, content, length, creator, Forum.id, place
         writers.get(POST).writeEntry(dates, ImmutableList.of(
@@ -138,8 +135,8 @@ public class DynamicActivitySerializer extends LdbcSerializer<HdfsCsvWriter> imp
 
     public void serialize(final Comment comment) {
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(Dictionaries.dates.formatDateTime(comment.getCreationDate()), Dictionaries.dates.formatDateTime(comment.getDeletionDate())) :
-                ImmutableList.of(Dictionaries.dates.formatDateTime(comment.getCreationDate()));
+                ImmutableList.of(formatDateTime(comment.getCreationDate()), formatDateTime(comment.getDeletionDate())) :
+                ImmutableList.of(formatDateTime(comment.getCreationDate()));
 
         // creationDate, [deletionDate,] id, locationIP, browserUsed, content, length, creator, place, parentPost, parentComment
         writers.get(COMMENT).writeEntry(dates, ImmutableList.of(
@@ -165,8 +162,8 @@ public class DynamicActivitySerializer extends LdbcSerializer<HdfsCsvWriter> imp
 
     public void serialize(final Photo photo) {
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(Dictionaries.dates.formatDateTime(photo.getCreationDate()), Dictionaries.dates.formatDateTime(photo.getDeletionDate())) :
-                ImmutableList.of(Dictionaries.dates.formatDateTime(photo.getCreationDate()));
+                ImmutableList.of(formatDateTime(photo.getCreationDate()), formatDateTime(photo.getDeletionDate())) :
+                ImmutableList.of(formatDateTime(photo.getCreationDate()));
 
         // creationDate, [deletionDate,] id, imageFile, locationIP, browserUsed, language, content, length, creator, Forum.id, place
         writers.get(POST).writeEntry(dates, ImmutableList.of(
@@ -193,8 +190,8 @@ public class DynamicActivitySerializer extends LdbcSerializer<HdfsCsvWriter> imp
 
     public void serialize(final ForumMembership membership) {
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(Dictionaries.dates.formatDateTime(membership.getCreationDate()), Dictionaries.dates.formatDateTime(membership.getDeletionDate())) :
-                ImmutableList.of(Dictionaries.dates.formatDateTime(membership.getCreationDate()));
+                ImmutableList.of(formatDateTime(membership.getCreationDate()), formatDateTime(membership.getDeletionDate())) :
+                ImmutableList.of(formatDateTime(membership.getCreationDate()));
 
         // creationDate, [deletionDate,] Forum.id, Person.id
         writers.get(FORUM_HASMEMBER_PERSON).writeEntry(dates, ImmutableList.of(
@@ -205,8 +202,8 @@ public class DynamicActivitySerializer extends LdbcSerializer<HdfsCsvWriter> imp
 
     public void serialize(final Like like) {
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(Dictionaries.dates.formatDateTime(like.getCreationDate()), Dictionaries.dates.formatDateTime(like.getDeletionDate())) :
-                ImmutableList.of(Dictionaries.dates.formatDateTime(like.getCreationDate()));
+                ImmutableList.of(formatDateTime(like.getCreationDate()), formatDateTime(like.getDeletionDate())) :
+                ImmutableList.of(formatDateTime(like.getCreationDate()));
 
         // creationDate, [deletionDate,] Person.id, Post.id/Comment.id
         List<String> arguments = ImmutableList.of(

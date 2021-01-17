@@ -28,4 +28,6 @@ object Utils {
   def snake(str: String) = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, str)
 
   def camel(str: String) = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, str)
+
+  def lower(str: String) = str.toLowerCase
 }

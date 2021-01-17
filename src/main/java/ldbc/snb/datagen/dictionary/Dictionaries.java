@@ -58,13 +58,11 @@ public class Dictionaries {
     public static UniversityDictionary universities = null;
     public static FlashmobTagDictionary flashmobs = null;
 
-
-    public static void loadDictionaries(LdbcConfiguration conf) {
+    public static void loadDictionaries() {
 
         browsers = new BrowserDictionary(DatagenParams.probAnotherBrowser);
 
         dates = new DateGenerator(
-                conf,
                 LocalDate.of(DatagenParams.startYear, DatagenParams.startMonth, DatagenParams.startDay),
                 LocalDate.of(DatagenParams.startYear + DatagenParams.numYears, DatagenParams.startMonth, DatagenParams.startDay),
                 DatagenParams.alpha

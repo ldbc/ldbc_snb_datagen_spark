@@ -36,7 +36,7 @@
 package ldbc.snb.datagen.generator.generators;
 
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.spark.generation.entities.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.generator.tools.PowerDistribution;
 import ldbc.snb.datagen.util.DateUtils;
 import ldbc.snb.datagen.util.LdbcConfiguration;
@@ -63,11 +63,10 @@ public class DateGenerator {
     private long toBirthDay;
     private long bulkLoadThreshold;
     private PowerDistribution powerDist;
-    private DateFormatter dateFormatter;
     private PowerLawActivityDeleteDistribution powerLawActivityDeleteDistribution;
 
     // This constructor is for the case of friendship's created date generator
-    public DateGenerator(LdbcConfiguration conf, LocalDate simulationStartYear, LocalDate simulationEndYear,
+    public DateGenerator(LocalDate simulationStartYear, LocalDate simulationEndYear,
                          double alpha) {
         simulationStart = DateUtils.toEpochMilli(simulationStartYear);
         simulationEnd = DateUtils.toEpochMilli(simulationEndYear);
@@ -78,14 +77,6 @@ public class DateGenerator {
         fromBirthDay = DateUtils.toEpochMilli(LocalDate.of(1980, 1, 1));
         toBirthDay = DateUtils.toEpochMilli(LocalDate.of(1990, 1, 1));
         bulkLoadThreshold = getSimulationEnd() - (long) ((getSimulationEnd() - getSimulationStart()) * (DatagenParams.bulkLoadPortion));
-
-        try {
-            dateFormatter = DatagenParams.getDateFormatter();
-            dateFormatter.initialize(conf);
-        } catch (Exception e) {
-            System.err.println("Error when initializing date formatter");
-            System.err.println(e.getMessage());
-        }
     }
 
     /**
@@ -111,21 +102,6 @@ public class DateGenerator {
         long personCreationDate = creationDate + DatagenParams.delta;
         return randomDate(random, personCreationDate, maxDeletionDate);
     }
-
-    /*
-     * format the date
-     */
-    public String formatDate(long date) {
-        return dateFormatter.formatDate(date);
-    }
-
-    /*
-     * format the date with hours and minutes
-     */
-    public String formatDateTime(long date) {
-        return dateFormatter.formatDateTime(date);
-    }
-
 
     public long randomKnowsCreationDate(Random random, Person personA, Person personB) {
         long fromDate = Math.max(personA.getCreationDate(), personB.getCreationDate()) + DatagenParams.delta;
@@ -161,8 +137,6 @@ public class DateGenerator {
         }
         return deletionDate;
     }
-
-
 
     /**
      * Returns the creation date of a comment following a power law distribution.

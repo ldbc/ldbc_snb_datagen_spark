@@ -10,7 +10,7 @@ public class DatagenContext {
     public static synchronized void initialize(LdbcConfiguration conf) {
         if (!initialized) {
             DatagenParams.readConf(conf);
-            Dictionaries.loadDictionaries(conf);
+            Dictionaries.loadDictionaries();
             SN.initialize();
             initialized = true;
         }
