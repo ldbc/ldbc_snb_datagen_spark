@@ -1,9 +1,11 @@
 package ldbc.snb.datagen.spark
 
 import better.files._
-import ldbc.snb.datagen.spark.generation.GenerationStage
-import ldbc.snb.datagen.spark.transformation.TransformationStage
+import ldbc.snb.datagen.SparkApp
+import ldbc.snb.datagen.generation.GenerationStage
+import ldbc.snb.datagen.transformation.TransformationStage
 import ldbc.snb.datagen.syntax._
+import ldbc.snb.datagen.transformation.model.Mode
 import ldbc.snb.datagen.util.{ConfigParser, LdbcConfiguration}
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.SparkSession
@@ -66,7 +68,10 @@ object LdbcDatagen extends SparkApp {
       parsedArgs.propFile,
       parsedArgs.socialNetworkDir.get,
       (parsedArgs.socialNetworkDir.get / "serialized" ).toString,
-      parsedArgs.numThreads
+      parsedArgs.numThreads,
+      explodeAttrs = true,
+      explodeEdges = true,
+      mode = Mode.BI
     ))
   }
 }
