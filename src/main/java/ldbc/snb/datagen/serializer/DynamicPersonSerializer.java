@@ -44,20 +44,15 @@ import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.entities.dynamic.relations.StudyAt;
 import ldbc.snb.datagen.entities.dynamic.relations.WorkAt;
-import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
-import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
-import ldbc.snb.datagen.serializer.snb.csv.CsvSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.FileName;
 import ldbc.snb.datagen.util.DateUtils;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import static ldbc.snb.datagen.serializer.snb.csv.FileName.*;
+import static ldbc.snb.datagen.serializer.FileName.*;
 
-public class DynamicPersonSerializer extends LdbcSerializer<HdfsCsvWriter> implements CsvSerializer {
+public class DynamicPersonSerializer extends LdbcSerializer {
     @Override
     public List<FileName> getFileNames() {
         return ImmutableList.of(PERSON, PERSON_HASINTEREST_TAG, PERSON_WORKAT_ORGANISATION, PERSON_STUDYAT_ORGANISATION,PERSON_KNOWS_PERSON);
@@ -70,18 +65,18 @@ public class DynamicPersonSerializer extends LdbcSerializer<HdfsCsvWriter> imple
                 ImmutableList.of("creationDate");
 
         // one-to-many edges, single- and multi-valued attributes
-        writers.get(PERSON)                     .writeHeader(dates, ImmutableList.of("id", "firstName", "lastName", "gender", "birthday", "locationIP", "browserUsed", "isLocatedIn", "speaks", "email"));
+        writers.get(PERSON)                     .writeHeader(dates, ImmutableList.of("id", "firstName", "lastName", "gender", "birthday", "locationIP", "browserUsed", "place", "language", "email"));
         // many-to-many edges
         writers.get(PERSON_HASINTEREST_TAG)     .writeHeader(dates, ImmutableList.of("Person.id", "Tag.id"));
-        writers.get(PERSON_STUDYAT_ORGANISATION).writeHeader(dates, ImmutableList.of("Person.id", "University.id", "classYear"));
-        writers.get(PERSON_WORKAT_ORGANISATION) .writeHeader(dates, ImmutableList.of("Person.id", "Company.id", "workFrom"));
+        writers.get(PERSON_STUDYAT_ORGANISATION).writeHeader(dates, ImmutableList.of("Person.id", "Organisation.id", "classYear"));
+        writers.get(PERSON_WORKAT_ORGANISATION) .writeHeader(dates, ImmutableList.of("Person.id", "Organisation.id", "workFrom"));
         writers.get(PERSON_KNOWS_PERSON)        .writeHeader(dates, ImmutableList.of("Person1.id", "Person2.id"));
     }
 
     public void serialize(final Person person) {
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate())) :
-                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()));
+                ImmutableList.of(formatDateTime(person.getCreationDate()), formatDateTime(person.getDeletionDate())) :
+                ImmutableList.of(formatDateTime(person.getCreationDate()));
 
         // creationDate, id, firstName, lastName, gender, birthday, locationIP, browserUsed, isLocatedIn, language, email
         writers.get(PERSON).writeEntry(dates, ImmutableList.of(
@@ -89,7 +84,7 @@ public class DynamicPersonSerializer extends LdbcSerializer<HdfsCsvWriter> imple
                 person.getFirstName(),
                 person.getLastName(),
                 getGender(person.getGender()),
-                Dictionaries.dates.formatDate(person.getBirthday()),
+                formatDate(person.getBirthday()),
                 person.getIpAddress().toString(),
                 Dictionaries.browsers.getName(person.getBrowserId()),
                 Integer.toString(person.getCityId()),
@@ -110,8 +105,8 @@ public class DynamicPersonSerializer extends LdbcSerializer<HdfsCsvWriter> imple
 
     public void serialize(final StudyAt studyAt, final Person person) {
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate())) :
-                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()));
+                ImmutableList.of(formatDateTime(person.getCreationDate()), formatDateTime(person.getDeletionDate())) :
+                ImmutableList.of(formatDateTime(person.getCreationDate()));
 
         // creationDate, Person.id, University.id, classYear
         writers.get(PERSON_STUDYAT_ORGANISATION).writeEntry(dates, ImmutableList.of(
@@ -123,8 +118,8 @@ public class DynamicPersonSerializer extends LdbcSerializer<HdfsCsvWriter> imple
 
     public void serialize(final WorkAt workAt, final Person person) {
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate())) :
-                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()));
+                ImmutableList.of(formatDateTime(person.getCreationDate()), formatDateTime(person.getDeletionDate())) :
+                ImmutableList.of(formatDateTime(person.getCreationDate()));
 
         // creationDate, Person.id, Company.id, workFrom
         writers.get(PERSON_WORKAT_ORGANISATION).writeEntry(dates, ImmutableList.of(
@@ -136,8 +131,8 @@ public class DynamicPersonSerializer extends LdbcSerializer<HdfsCsvWriter> imple
 
     public void serialize(final Person person, Knows knows) {
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()), Dictionaries.dates.formatDateTime(person.getDeletionDate())) :
-                ImmutableList.of(Dictionaries.dates.formatDateTime(person.getCreationDate()));
+                ImmutableList.of(formatDateTime(person.getCreationDate()), formatDateTime(person.getDeletionDate())) :
+                ImmutableList.of(formatDateTime(person.getCreationDate()));
 
         // creationDate, Person1.id, Person2.id
         writers.get(PERSON_KNOWS_PERSON).writeEntry(dates, ImmutableList.of(

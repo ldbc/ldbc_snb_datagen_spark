@@ -42,7 +42,6 @@ import ldbc.snb.datagen.entities.statictype.TagClass;
 import ldbc.snb.datagen.entities.statictype.place.Place;
 import ldbc.snb.datagen.entities.statictype.tag.Tag;
 import ldbc.snb.datagen.serializer.StaticSerializer;
-import ldbc.snb.datagen.serializer.snb.csv.staticserializer.CsvCompositeMergeForeignStaticSerializer;
 import ldbc.snb.datagen.util.LdbcConfiguration;
 import ldbc.snb.datagen.util.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -74,7 +73,7 @@ public class HadoopStaticSerializer {
         try {
             staticSerializer = new StaticSerializer[numPartitions];
             for (int i = 0; i < numPartitions; ++i) {
-                staticSerializer[i] = new CsvCompositeMergeForeignStaticSerializer();
+                staticSerializer[i] = new StaticSerializer();
                 staticSerializer[i].initialize(
                         hadoopConf, conf.getSocialNetworkDir(), i,
                         conf.isCompressed(), conf.insertTrailingSeparator()

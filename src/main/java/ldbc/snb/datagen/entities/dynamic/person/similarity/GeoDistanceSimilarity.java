@@ -37,6 +37,7 @@ package ldbc.snb.datagen.entities.dynamic.person.similarity;
 
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
+import ldbc.snb.datagen.entities.dynamic.person.Person;
 
 public class GeoDistanceSimilarity implements Person.PersonSimilarity {
     @Override

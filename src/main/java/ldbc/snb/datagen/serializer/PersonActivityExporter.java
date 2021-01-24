@@ -43,7 +43,6 @@ import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.entities.dynamic.relations.Like;
 import ldbc.snb.datagen.generator.generators.GenActivity;
 import ldbc.snb.datagen.generator.generators.GenWall;
-import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
 import ldbc.snb.datagen.util.FactorTable;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;

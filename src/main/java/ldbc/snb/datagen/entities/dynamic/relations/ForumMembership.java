@@ -36,6 +36,8 @@
 package ldbc.snb.datagen.entities.dynamic.relations;
 
 import ldbc.snb.datagen.DatagenParams;
+import ldbc.snb.datagen.entities.dynamic.Forum;
+import ldbc.snb.datagen.entities.dynamic.person.PersonSummary;
 import ldbc.snb.datagen.entities.dynamic.DynamicActivity;
 import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.entities.dynamic.person.PersonSummary;

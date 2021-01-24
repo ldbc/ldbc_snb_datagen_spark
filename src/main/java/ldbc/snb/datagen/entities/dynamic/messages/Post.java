@@ -37,9 +37,10 @@ package ldbc.snb.datagen.entities.dynamic.messages;
 
 import ldbc.snb.datagen.entities.dynamic.person.IP;
 import ldbc.snb.datagen.entities.dynamic.person.PersonSummary;
+import ldbc.snb.datagen.entities.dynamic.person.IP;
+import ldbc.snb.datagen.entities.dynamic.person.PersonSummary;
 
 import java.util.List;
-import java.util.TreeSet;
 
 public class Post extends Message {
 
