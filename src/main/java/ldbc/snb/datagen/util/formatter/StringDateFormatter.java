@@ -35,9 +35,6 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.util.formatter;
 
-import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.util.LdbcConfiguration;
-
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -48,10 +45,10 @@ public class StringDateFormatter implements DateFormatter {
 
     private static ZoneId GMT = ZoneId.of("GMT");
 
-    public void initialize(LdbcConfiguration conf) {
-        String formatDateTimeString = DatagenParams.getDateTimeFormat();
+    public StringDateFormatter() {
+        String formatDateTimeString = "yyyy-MM-dd'T'HH:mm:ss.SSS+00:00";
         gmtDateTimeFormatter = DateTimeFormatter.ofPattern(formatDateTimeString).withZone(GMT);
-        String formatDateString = DatagenParams.getDateFormat();
+        String formatDateString = "yyyy-MM-dd";
         gmtDateFormatter = DateTimeFormatter.ofPattern(formatDateString).withZone(GMT);
     }
 

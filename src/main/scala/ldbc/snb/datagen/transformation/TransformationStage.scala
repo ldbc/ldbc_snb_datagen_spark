@@ -33,7 +33,7 @@ object TransformationStage extends SparkApp with Logging {
       Node("Organisation", isStatic = true),
       Node("Place", isStatic = true),
       Node("Tag", isStatic = true),
-      Node("Tagclass", isStatic = true),
+      Node("TagClass", isStatic = true),
       Node("Comment"),
       Edge("HasTag", "Comment", "Tag", NN),
       Node("Forum"),
@@ -106,8 +106,8 @@ object TransformationStage extends SparkApp with Logging {
 
     GraphReader[Mode.Raw.type, DataFrame]
       .read(inputGraphDefinition, args.socialNetworkDir)
-      .pipeFoldLeft(args.explodeAttrs.fork, (graph, _: Unit) => ExplodeAttrs.transform(graph))
-      .pipeFoldLeft(args.explodeEdges.fork, (graph, _: Unit) => ExplodeEdges.transform(graph))
+      .pipeFoldLeft(args.explodeAttrs.fork)((graph, _: Unit) => ExplodeAttrs.transform(graph))
+      .pipeFoldLeft(args.explodeEdges.fork)((graph, _: Unit) => ExplodeEdges.transform(graph))
       .pipe[OutputTypes] {
         g => args.mode match {
           case Mode.BI => Inr(Inr(Inl(RawToBiTransform(bulkLoadThreshold, simulationEnd).transform(g))))

@@ -4,14 +4,19 @@ import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
 import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
 import ldbc.snb.datagen.util.DateUtils;
+import ldbc.snb.datagen.util.formatter.DateFormatter;
+import ldbc.snb.datagen.util.formatter.StringDateFormatter;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 abstract public class LdbcSerializer implements Serializer<HdfsCsvWriter> {
+
+    static DateFormatter dateFormatter = new StringDateFormatter();
 
     protected Map<FileName, HdfsCsvWriter> writers;
 
@@ -51,11 +56,11 @@ abstract public class LdbcSerializer implements Serializer<HdfsCsvWriter> {
     }
 
     protected String formatDate(long date) {
-        return Long.toString(DateUtils.toEpochMilli(DateUtils.utcDateOfEpochMilli(date)));
+        return dateFormatter.formatDate(date);
     }
 
     protected String formatDateTime(long date) {
-        return Long.toString(date);
+        return dateFormatter.formatDateTime(date);
     }
 
     protected abstract boolean isDynamic();

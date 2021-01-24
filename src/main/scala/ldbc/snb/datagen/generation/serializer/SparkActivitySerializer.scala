@@ -26,7 +26,7 @@ object SparkActivitySerializer {
     val blocks = ranker(persons)
       .map { case (k, v) => (k / blockSize, v) }
       .groupByKey()
-      .pipeFoldLeft(partitions, (rdd: RDD[(Long, Iterable[Person])], p: Int) => rdd.coalesce(p))
+      .pipeFoldLeft(partitions)((rdd: RDD[(Long, Iterable[Person])], p: Int) => rdd.coalesce(p))
 
     val serializableHadoopConf = new SerializableConfiguration(spark.sparkContext.hadoopConfiguration)
 

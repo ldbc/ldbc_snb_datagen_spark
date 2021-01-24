@@ -52,7 +52,7 @@ package object model {
     }
   }
 
-  case class Batched[+T](entity: T, partitionKeys: Seq[String])
+  case class Batched[+T](entity: T, batchId: Seq[String])
 
   case class BatchedEntity[+T](
     snapshot: T,
@@ -60,11 +60,11 @@ package object model {
     deleteBatches: Option[Batched[T]]
   )
 
-  sealed trait Mode { type Layout[A] }
+  sealed trait Mode { type Layout[Data] }
   object Mode {
-    final case object Raw extends Mode { type Layout[+A] = A }
-    final case object Interactive extends Mode { type Layout[+A] = A }
-    final case object BI extends Mode { type Layout[+A] = BatchedEntity[A] }
+    final case object Raw extends Mode { type Layout[+Data] = Data }
+    final case object Interactive extends Mode { type Layout[+Data] = Data }
+    final case object BI extends Mode { type Layout[+Data] = BatchedEntity[Data] }
   }
 
   case class Graph[+M <: Mode, D](

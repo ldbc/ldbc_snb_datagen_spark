@@ -10,7 +10,7 @@ final class FluentSyntaxOps[A](private val self: A) extends AnyVal {
   /**
    * Fluent syntax for folding with self as the base item.
    */
-  def pipeFoldLeft[F](foldable: TraversableOnce[F], op: (A, F) => A): A = {
+  def pipeFoldLeft[F](foldable: TraversableOnce[F])(op: (A, F) => A): A = {
     foldable.foldLeft(self)(op)
   }
 

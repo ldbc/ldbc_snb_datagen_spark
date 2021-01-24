@@ -1,6 +1,7 @@
 package ldbc.snb.datagen.transformation.transform
 
 import ldbc.snb.datagen.sql._
+import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.transformation.model.Cardinality.NN
 import ldbc.snb.datagen.transformation.model.EntityType
 import ldbc.snb.datagen.transformation.model.EntityType.Edge
@@ -23,9 +24,9 @@ private object Interactive {
   def snapshotPart(tpe: EntityType, df: DataFrame, bulkLoadThreshold: Long, simulationEnd: Long) = {
     val filterBulkLoad = (ds: DataFrame) => ds
       .filter(
-        ds("creationDate") < bulkLoadThreshold &&
-        ds("deletionDate") >= bulkLoadThreshold &&
-        ds("deletionDate") <= simulationEnd
+        Raw.dateTimeToTimestampMillis($"creationDate") < bulkLoadThreshold &&
+          Raw.dateTimeToTimestampMillis($"deletionDate") >= bulkLoadThreshold &&
+          Raw.dateTimeToTimestampMillis($"deletionDate") <= simulationEnd
       )
 
     tpe match {

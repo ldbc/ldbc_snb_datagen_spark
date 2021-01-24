@@ -7,12 +7,13 @@ import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.util.Logging
 import org.apache.spark.sql.{Column, DataFrame}
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.types.LongType
 
 case class RawToBiTransform(bulkLoadThreshold: Long, simulationEnd: Long) extends Transform.Untyped[Mode.Raw.type, Mode.BI.type] with Logging {
   override def transform(input: DataFrameGraph[Mode.Raw.type]): DataFrameGraph[Mode.BI.type] = {
     val batch_id = (col: Column) =>
-      date_format(date_trunc("dd", to_timestamp(col.cast(LongType) / 1000)), "yyyyMMdd")
+      date_format(date_trunc("dd", to_date(col, Raw.dateTimePattern)), "yyyyMMdd")
+
+
 
     val batched = (df: DataFrame) => df
       .select(
@@ -24,7 +25,7 @@ case class RawToBiTransform(bulkLoadThreshold: Long, simulationEnd: Long) extend
 
     val insertBatchPart = (tpe: EntityType, df: DataFrame, batchStart: Long, batchEnd: Long) => {
       df
-        .filter($"creationDate" >= batchStart && $"creationDate" < batchEnd)
+        .filter(Raw.dateTimeToTimestampMillis($"creationDate") >= batchStart && Raw.dateTimeToTimestampMillis($"creationDate") < batchEnd)
         .pipe(batched)
         .select(
           Seq($"insert_batch_id".as("batch_id")) ++ Interactive.columns(tpe, df.columns).map(qcol): _*
@@ -34,7 +35,7 @@ case class RawToBiTransform(bulkLoadThreshold: Long, simulationEnd: Long) extend
     val deleteBatchPart = (tpe: EntityType, df: DataFrame, batchStart: Long, batchEnd: Long) => {
       val idColumns = tpe.primaryKey.map(qcol)
       df
-        .filter($"deletionDate" >= batchStart && $"deletionDate" < batchEnd)
+        .filter(Raw.dateTimeToTimestampMillis($"deletionDate") >= batchStart && Raw.dateTimeToTimestampMillis($"deletionDate") < batchEnd)
         .pipe(batched)
         .select(Seq($"delete_batch_id".as("batch_id"), $"deletionDate") ++ idColumns: _*)
     }
