@@ -13,10 +13,10 @@ private object Interactive {
     case tpe if tpe.isStatic => cols
     case Edge("Knows", "Person", "Person", NN, false) =>
       val rawCols = Set("deletionDate", "explicitlyDeleted", "weight")
-      cols.filter(rawCols.contains)
+      cols.filter(!rawCols.contains(_))
     case _ =>
       val rawCols = Set("deletionDate", "explicitlyDeleted")
-      cols.filter(rawCols.contains)
+      cols.filter(!rawCols.contains(_))
   }
 
 

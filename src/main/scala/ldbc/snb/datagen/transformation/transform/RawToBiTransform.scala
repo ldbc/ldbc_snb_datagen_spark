@@ -27,8 +27,7 @@ case class RawToBiTransform(bulkLoadThreshold: Long, simulationEnd: Long) extend
         .filter($"creationDate" >= batchStart && $"creationDate" < batchEnd)
         .pipe(batched)
         .select(
-          Seq($"insert_batch_id".as("batch_id")) ++
-            Interactive.columns(tpe, df.columns).map(qcol): _*
+          Seq($"insert_batch_id".as("batch_id")) ++ Interactive.columns(tpe, df.columns).map(qcol): _*
         )
     }
 
