@@ -50,7 +50,7 @@ jobs:
           # CsvBasic using 'raw data' mode
           sed 's/:1$/:0.003/g' params-csv-basic-rawdata.ini > params.ini
           tools/docker-run.sh
-          cp -r out/social_network dist/social_network-csv-basic-rawdata
+          cp -r out dist/social_network-csv-basic-rawdata
           zip -r dist/social_network-csv-basic-rawdata.zip dist/social_network-csv-basic-rawdata
       - gh-pages/deploy:
           ssh-fingerprints: '60:8f:35:48:99:c0:ae:9f:71:6b:a9:66:19:21:95:7d'
