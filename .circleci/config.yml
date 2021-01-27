@@ -47,31 +47,11 @@ jobs:
       - run: |
           # deploy CircleCI configuration provide 'filters' instructions (and prevent failed build on gh-pages)
           cp -r .circleci dist/
-          # CsvBasic using 'interactive mode'
-          sed 's/:1$/:0.003/g' params-csv-basic.ini > params.ini
-          tools/docker-run.sh
-          cp -r out/social_network dist/social_network-csv-basic
-          zip -r dist/social_network-csv-basic.zip dist/social_network-csv-basic
           # CsvBasic using 'raw data' mode
           sed 's/:1$/:0.003/g' params-csv-basic-rawdata.ini > params.ini
           tools/docker-run.sh
           cp -r out/social_network dist/social_network-csv-basic-rawdata
           zip -r dist/social_network-csv-basic-rawdata.zip dist/social_network-csv-basic-rawdata
-          # CsvComposite
-          sed 's/:1$/:0.003/g' params-csv-composite.ini > params.ini
-          tools/docker-run.sh
-          cp -r out/social_network dist/social_network-csv-composite
-          zip -r dist/social_network-csv-composite.zip dist/social_network-csv-composite
-          # CsvMergeForeign
-          sed 's/:1$/:0.003/g' params-csv-merge-foreign.ini > params.ini
-          tools/docker-run.sh
-          cp -r out/social_network dist/social_network-csv-merge-foreign
-          zip -r dist/social_network-csv-merge-foreign.zip dist/social_network-csv-merge-foreign
-          # CsvCompositeMergeForeign
-          sed 's/:1$/:0.003/g' params-csv-composite-merge-foreign.ini > params.ini
-          tools/docker-run.sh
-          cp -r out/social_network dist/social_network-csv-composite-merge-foreign
-          zip -r dist/social_network-csv-composite-merge-foreign.zip dist/social_network-csv-composite-merge-foreign
       - gh-pages/deploy:
           ssh-fingerprints: '60:8f:35:48:99:c0:ae:9f:71:6b:a9:66:19:21:95:7d'
       - slack/status
