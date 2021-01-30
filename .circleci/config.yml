@@ -45,7 +45,7 @@ jobs:
             - ~/.m2/repository   # maven deps
             - ~/.sbt/1.0/zinc    # scala compiler bridge
       - run: |
-          # deploy CircleCI configuration provide 'filters' instructions (and prevent failed build on gh-pages)
+          # deploy CircleCI configuration to provide 'filters' instructions (and prevent failed build on gh-pages)
           cp -r .circleci dist/
           # CsvBasic using 'raw data' mode
           sed 's/:1$/:0.003/g' params-template.ini > params.ini
