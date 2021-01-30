@@ -25,10 +25,10 @@ The LDBC SNB Data Generator (Datagen) is the responsible of providing the datase
 Initialize the `params.ini` file as needed. For example, to generate the basic CSV files, issue:
 
 ```bash
-cp params-csv-basic.ini params.ini
+cp params-template.ini params.ini
 ```
 
-The following options are available:
+The following options are available (:warning: the configuration is currently being reworked, and is likely to be broken):
 
 * `generator.scaleFactor`: determines the data set size, options: `0.003` (for tests), `0.1`, `0.3`, `1`, `3`, `10`, `30`, ..., `1000`. Larger ones coming soon (Dec 2020/Jan 2021)
 * `serializer.format`, options:
