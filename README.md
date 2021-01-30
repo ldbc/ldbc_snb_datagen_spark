@@ -42,10 +42,11 @@ The following options are available (:warning: the configuration is currently be
   * `rawdata`: used for debugging, includes explicit deletion date timestamps, edge weights used to select deletions, etc. This mode is only compatible with the `CsvBasic` serializer.
 
 ### Build the JAR
-Make sure you hava Java 8 (JDK) installed and the `$JAVA_HOME` environment variable points to its location. You might find [SDKMAN](https://sdkman.io/) useful.
-To assemble the JAR file, run:
+Make sure you have both Java 8 and Java 11 (JDK) installed and the `$JAVA_HOME` environment variable points to its location. You might find [SDKMAN](https://sdkman.io/) useful.
+To assemble the JAR file switch to Java 11 (required by recent versions of Maven) and run:
 
 ```bash
+# switch to Java 11
 tools/build.sh
 ```
 
@@ -70,9 +71,10 @@ export SPARK_HOME="/opt/spark-2.4.7-bin-hadoop2.7"
 export PATH="$SPARK_HOME/bin":"$PATH"
 ```
 
-Run the benchmarks locally with the following script:
+Switch to Java 8 and run the benchmarks locally with the following script:
 
 ```bash
+# switch to Java 8
 tools/run.py ./target/ldbc_snb_datagen-0.4.0-SNAPSHOT-jar-with-dependencies.jar params.ini
 ```
 
@@ -80,9 +82,9 @@ There are some configuration options like setting parallelism or number of cores
 
 ### Docker image
 
-SNB Datagen images are available via [Docker Hub](https://hub.docker.com/r/ldbc/datagen/) (currently outdated).
+<!-- SNB Datagen images are available via [Docker Hub](https://hub.docker.com/r/ldbc/datagen/) (currently outdated). -->
 
-Alternatively, the image can be built with the provided Dockerfile. To build, execute the following command from the repository directory:
+The Docker image can be built with the provided Dockerfile. To build, execute the following command from the repository directory:
 
 ```bash
 tools/docker-build.sh
