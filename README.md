@@ -86,6 +86,16 @@ If you need to raise the memory limit, use the `-e HADOOP_CLIENT_OPTS="-Xmx..."`
 
 Instructions are currently not provided.
 
+### Generating multiple update partitions.
+
+To run the driver in a multi-threaded configuration, you need multiple update partitions. To generate these, use the `numUpdatePartitions` value in the `params.ini` file, e.g. to generate 4 partitions, use:
+
+```
+ldbc.snb.datagen.serializer.numUpdatePartitions:4
+```
+
+This will result in 4×2 update stream CSV files (for Persons and Forums).
+
 ### Graph schema
 
 The graph schema is as follows:
