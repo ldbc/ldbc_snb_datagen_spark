@@ -5,6 +5,5 @@ import java.io.Serializable;
 public interface DynamicActivity extends Serializable {
     long getCreationDate();
     long getDeletionDate();
-
-
+    boolean isExplicitlyDeleted();
 }
