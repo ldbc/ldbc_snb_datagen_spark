@@ -29,7 +29,23 @@
         <enabled>false</enabled>
       </snapshots>
     </repository>
+    <repository>
+      <id>tudelft</id>
+      <name>TUDelft Repository</name>
+      <url>https://simulation.tudelft.nl/maven/</url>
+    </repository>
   </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>central</id>
+      <name>Maven Central Repoistory</name>
+      <url>https://repo1.maven.org/maven2</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
 
   <dependencies>
     <dependency>
