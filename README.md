@@ -42,12 +42,23 @@ The following options are available (:warning: the configuration is currently be
   * `rawdata`: used for debugging, includes explicit deletion date timestamps, edge weights used to select deletions, etc. This mode is only compatible with the `CsvBasic` serializer.
 
 ### Build the JAR
-Make sure you have both Java 8 and Java 11 (JDK) installed and the `$JAVA_HOME` environment variable points to its location. You might find [SDKMAN](https://sdkman.io/) useful.
-To assemble the JAR file switch to Java 11 (required by recent versions of Maven) and run:
+
+#### Build with Maven
+
+To assemble the JAR file with Maven, run:
 
 ```bash
-# switch to Java 11
 tools/build.sh
+```
+
+:warning: If you experience any issues, make sure the compilation target is Java 1.8.
+
+#### Build with SBT
+
+For faster builds during development, consider using SBT. To assemble the JAR file with SBT, run:
+
+```bash
+sbt assembly
 ```
 
 ### Install tools
