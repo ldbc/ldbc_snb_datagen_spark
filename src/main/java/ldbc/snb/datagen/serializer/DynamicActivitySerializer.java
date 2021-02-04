@@ -59,31 +59,35 @@ public class DynamicActivitySerializer extends LdbcSerializer {
 
     @Override
     public void writeFileHeaders() {
-        List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+        List<String> dates1 = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of("creationDate", "deletionDate", "explicitlyDeleted") :
+                ImmutableList.of("creationDate");
+
+        List<String> dates2 = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
                 ImmutableList.of("creationDate", "deletionDate") :
                 ImmutableList.of("creationDate");
 
-        writers.get(FORUM)                    .writeHeader(dates, ImmutableList.of("id", "title", "moderator"));
-        writers.get(FORUM_HASTAG_TAG)         .writeHeader(dates, ImmutableList.of("Forum.id", "Tag.id"));
-        writers.get(FORUM_HASMEMBER_PERSON)   .writeHeader(dates, ImmutableList.of("Forum.id", "Person.id"));
+        writers.get(FORUM)                    .writeHeader(dates1, ImmutableList.of("id", "title", "moderator"));
+        writers.get(FORUM_HASTAG_TAG)         .writeHeader(dates2, ImmutableList.of("Forum.id", "Tag.id"));
+        writers.get(FORUM_HASMEMBER_PERSON)   .writeHeader(dates1, ImmutableList.of("Forum.id", "Person.id"));
 
-        writers.get(POST)                     .writeHeader(dates, ImmutableList.of("id", "imageFile", "locationIP", "browserUsed", "language", "content", "length", "creator", "Forum.id", "place"));
-        writers.get(POST_HASTAG_TAG)          .writeHeader(dates, ImmutableList.of("Post.id", "Tag.id"));
+        writers.get(POST)                     .writeHeader(dates1, ImmutableList.of("id", "imageFile", "locationIP", "browserUsed", "language", "content", "length", "creator", "Forum.id", "place"));
+        writers.get(POST_HASTAG_TAG)          .writeHeader(dates2, ImmutableList.of("Post.id", "Tag.id"));
 
-        writers.get(COMMENT)                  .writeHeader(dates, ImmutableList.of("id", "locationIP", "browserUsed", "content", "length", "creator", "place", "replyOfPost", "replyOfComment"));
-        writers.get(COMMENT_HASTAG_TAG)       .writeHeader(dates, ImmutableList.of("Comment.id", "Tag.id"));
+        writers.get(COMMENT)                  .writeHeader(dates1, ImmutableList.of("id", "locationIP", "browserUsed", "content", "length", "creator", "place", "replyOfPost", "replyOfComment"));
+        writers.get(COMMENT_HASTAG_TAG)       .writeHeader(dates2, ImmutableList.of("Comment.id", "Tag.id"));
 
-        writers.get(PERSON_LIKES_POST)        .writeHeader(dates, ImmutableList.of("Person.id", "Post.id"));
-        writers.get(PERSON_LIKES_COMMENT)     .writeHeader(dates, ImmutableList.of("Person.id", "Comment.id"));
+        writers.get(PERSON_LIKES_POST)        .writeHeader(dates1, ImmutableList.of("Person.id", "Post.id"));
+        writers.get(PERSON_LIKES_COMMENT)     .writeHeader(dates2, ImmutableList.of("Person.id", "Comment.id"));
 
     }
 
     public void serialize(final Forum forum) {
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(formatDateTime(forum.getCreationDate()), formatDateTime(forum.getDeletionDate())) :
+                ImmutableList.of(formatDateTime(forum.getCreationDate()), formatDateTime(forum.getDeletionDate()), String.valueOf(forum.isExplicitlyDeleted())) :
                 ImmutableList.of(formatDateTime(forum.getCreationDate()));
 
-        // creationDate, [deletionDate,] id, title, moderator
+        // creationDate, [deletionDate, explicitlyDeleted,] id, title, moderator
         writers.get(FORUM).writeEntry(dates, ImmutableList.of(
                 Long.toString(forum.getId()),
                 forum.getTitle(),
@@ -95,9 +99,12 @@ public class DynamicActivitySerializer extends LdbcSerializer {
                         : ""
         ));
 
+        List<String> dates2 = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(formatDateTime(forum.getCreationDate()), formatDateTime(forum.getDeletionDate())) :
+                ImmutableList.of(formatDateTime(forum.getCreationDate()));
         for (Integer i : forum.getTags()) {
             // creationDate, [deletionDate,] Forum.id, Tag.id
-            writers.get(FORUM_HASTAG_TAG).writeEntry(dates, ImmutableList.of(
+            writers.get(FORUM_HASTAG_TAG).writeEntry(dates2, ImmutableList.of(
                     Long.toString(forum.getId()),
                     Integer.toString(i)
             ));
@@ -106,12 +113,12 @@ public class DynamicActivitySerializer extends LdbcSerializer {
     }
 
     public void serialize(final Post post) {
-        List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(formatDateTime(post.getCreationDate()), formatDateTime(post.getDeletionDate())) :
+        List<String> dates1 = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(formatDateTime(post.getCreationDate()), formatDateTime(post.getDeletionDate()), String.valueOf(post.isExplicitlyDeleted())) :
                 ImmutableList.of(formatDateTime(post.getCreationDate()));
 
-        // creationDate, [deletionDate,] id, imageFile, locationIP, browserUsed, language, content, length, creator, Forum.id, place
-        writers.get(POST).writeEntry(dates, ImmutableList.of(
+        // creationDate, [deletionDate, explicitlyDeleted,] id, imageFile, locationIP, browserUsed, language, content, length, creator, Forum.id, place
+        writers.get(POST).writeEntry(dates1, ImmutableList.of(
                 Long.toString(post.getMessageId()),
                 "",
                 post.getIpAddress().toString(),
@@ -124,9 +131,12 @@ public class DynamicActivitySerializer extends LdbcSerializer {
                 Integer.toString(post.getCountryId())
         ));
 
+        List<String> dates2 = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(formatDateTime(post.getCreationDate()), formatDateTime(post.getDeletionDate())) :
+                ImmutableList.of(formatDateTime(post.getCreationDate()));
         for (Integer t : post.getTags()) {
             // creationDate, [deletionDate,] Post.id, Tag.id
-            writers.get(POST_HASTAG_TAG).writeEntry(dates, ImmutableList.of(
+            writers.get(POST_HASTAG_TAG).writeEntry(dates2, ImmutableList.of(
                     Long.toString(post.getMessageId()),
                     Integer.toString(t)
             ));
@@ -134,12 +144,12 @@ public class DynamicActivitySerializer extends LdbcSerializer {
     }
 
     public void serialize(final Comment comment) {
-        List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(formatDateTime(comment.getCreationDate()), formatDateTime(comment.getDeletionDate())) :
+        List<String> dates1 = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(formatDateTime(comment.getCreationDate()), formatDateTime(comment.getDeletionDate()), String.valueOf(comment.isExplicitlyDeleted())) :
                 ImmutableList.of(formatDateTime(comment.getCreationDate()));
 
-        // creationDate, [deletionDate,] id, locationIP, browserUsed, content, length, creator, place, parentPost, parentComment
-        writers.get(COMMENT).writeEntry(dates, ImmutableList.of(
+        // creationDate, [deletionDate, explicitlyDeleted,] id, locationIP, browserUsed, content, length, creator, place, parentPost, parentComment
+        writers.get(COMMENT).writeEntry(dates1, ImmutableList.of(
                 Long.toString(comment.getMessageId()),
                 comment.getIpAddress().toString(),
                 Dictionaries.browsers.getName(comment.getBrowserId()),
@@ -151,9 +161,12 @@ public class DynamicActivitySerializer extends LdbcSerializer {
                 comment.getParentMessageId() == comment.getRootPostId() ? "" : Long.toString(comment.getParentMessageId())
         ));
 
+        List<String> dates2 = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(formatDateTime(comment.getCreationDate()), formatDateTime(comment.getDeletionDate())) :
+                ImmutableList.of(formatDateTime(comment.getCreationDate()));
         for (Integer t : comment.getTags()) {
             // creationDate, [deletionDate,] Comment.id, Tag.id
-            writers.get(COMMENT_HASTAG_TAG).writeEntry(dates, ImmutableList.of(
+            writers.get(COMMENT_HASTAG_TAG).writeEntry(dates2, ImmutableList.of(
                     Long.toString(comment.getMessageId()),
                     Integer.toString(t)
             ));
@@ -161,12 +174,12 @@ public class DynamicActivitySerializer extends LdbcSerializer {
     }
 
     public void serialize(final Photo photo) {
-        List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(formatDateTime(photo.getCreationDate()), formatDateTime(photo.getDeletionDate())) :
+        List<String> dates1 = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(formatDateTime(photo.getCreationDate()), formatDateTime(photo.getDeletionDate()), String.valueOf(photo.isExplicitlyDeleted())) :
                 ImmutableList.of(formatDateTime(photo.getCreationDate()));
 
-        // creationDate, [deletionDate,] id, imageFile, locationIP, browserUsed, language, content, length, creator, Forum.id, place
-        writers.get(POST).writeEntry(dates, ImmutableList.of(
+        // creationDate, [deletionDate, explicitlyDeleted,] id, imageFile, locationIP, browserUsed, language, content, length, creator, Forum.id, place
+        writers.get(POST).writeEntry(dates1, ImmutableList.of(
                 Long.toString(photo.getMessageId()),
                 photo.getContent(),
                 photo.getIpAddress().toString(),
@@ -179,9 +192,12 @@ public class DynamicActivitySerializer extends LdbcSerializer {
                 Integer.toString(photo.getCountryId())
         ));
 
+        List<String> dates2 = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
+                ImmutableList.of(formatDateTime(photo.getCreationDate()), formatDateTime(photo.getDeletionDate())) :
+                ImmutableList.of(formatDateTime(photo.getCreationDate()));
         for (Integer t : photo.getTags()) {
             // creationDate, [deletionDate,] Post.id, Tag.id
-            writers.get(POST_HASTAG_TAG).writeEntry(dates, ImmutableList.of(
+            writers.get(POST_HASTAG_TAG).writeEntry(dates2, ImmutableList.of(
                     Long.toString(photo.getMessageId()),
                     Integer.toString(t)
             ));
@@ -190,10 +206,10 @@ public class DynamicActivitySerializer extends LdbcSerializer {
 
     public void serialize(final ForumMembership membership) {
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(formatDateTime(membership.getCreationDate()), formatDateTime(membership.getDeletionDate())) :
+                ImmutableList.of(formatDateTime(membership.getCreationDate()), formatDateTime(membership.getDeletionDate()), String.valueOf(membership.isExplicitlyDeleted())) :
                 ImmutableList.of(formatDateTime(membership.getCreationDate()));
 
-        // creationDate, [deletionDate,] Forum.id, Person.id
+        // creationDate, [deletionDate, explicitlyDeleted,] Forum.id, Person.id
         writers.get(FORUM_HASMEMBER_PERSON).writeEntry(dates, ImmutableList.of(
                 Long.toString(membership.getForumId()),
                 Long.toString(membership.getPerson().getAccountId())
@@ -202,10 +218,10 @@ public class DynamicActivitySerializer extends LdbcSerializer {
 
     public void serialize(final Like like) {
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(formatDateTime(like.getCreationDate()), formatDateTime(like.getDeletionDate())) :
+                ImmutableList.of(formatDateTime(like.getCreationDate()), formatDateTime(like.getDeletionDate()), String.valueOf(like.isExplicitlyDeleted())) :
                 ImmutableList.of(formatDateTime(like.getCreationDate()));
 
-        // creationDate, [deletionDate,] Person.id, Post.id/Comment.id
+        // creationDate, [deletionDate, explicitlyDeleted,] Person.id, Message.id
         List<String> arguments = ImmutableList.of(
                 Long.toString(like.getPerson()),
                 Long.toString(like.getMessageId())

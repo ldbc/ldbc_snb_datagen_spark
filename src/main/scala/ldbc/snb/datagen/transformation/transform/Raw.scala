@@ -8,7 +8,8 @@ import org.apache.spark.sql.functions.unix_timestamp
 object Raw {
   def withRawColumns(et: EntityType, cols: Column*): Seq[Column] = (!et.isStatic).fork.foldLeft(cols)((cols, _) => Seq(
     $"creationDate".as("creationDate"),
-    $"deletionDate".as("deletionDate")
+    $"deletionDate".as("deletionDate"),
+    $"explicitlyDeleted".as("explicitlyDeleted")
   ) ++ cols)
 
   def dateTimePattern = "yyyy-MM-dd'T'HH:mm:ss.SSS+00:00"
