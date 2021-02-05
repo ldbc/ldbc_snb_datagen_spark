@@ -139,8 +139,8 @@ public class DynamicPersonSerializer extends LdbcSerializer {
 
     public void serialize(final Person person, Knows knows) {
         List<String> dates = (DatagenParams.getDatagenMode() == DatagenMode.RAW_DATA) ?
-                ImmutableList.of(formatDateTime(person.getCreationDate()), formatDateTime(person.getDeletionDate()), String.valueOf(person.isExplicitlyDeleted())) :
-                ImmutableList.of(formatDateTime(person.getCreationDate()));
+                ImmutableList.of(formatDateTime(knows.getCreationDate()), formatDateTime(knows.getDeletionDate()), String.valueOf(knows.isExplicitlyDeleted())) :
+                ImmutableList.of(formatDateTime(knows.getCreationDate()));
 
         // creationDate, [deletionDate, explicitlyDeleted,] Person1.id, Person2.id
         writers.get(PERSON_KNOWS_PERSON).writeEntry(dates, ImmutableList.of(
