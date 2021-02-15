@@ -36,7 +36,6 @@
 
 package ldbc.snb.datagen.generator.generators;
 
-import ldbc.snb.datagen.DatagenMode;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.Forum;
@@ -122,19 +121,14 @@ public class ForumGenerator {
         // deletion date
         long groupDeletionDate;
         boolean isExplicitlyDeleted;
-        if (DatagenParams.getDatagenMode() == DatagenMode.INTERACTIVE) {
-            groupDeletionDate = Dictionaries.dates.getNetworkCollapse();
-            isExplicitlyDeleted = false;
+        if (randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_FORUM).nextDouble() < DatagenParams.probForumDeleted) {
+            isExplicitlyDeleted = true;
+            long groupMinDeletionDate = groupCreationDate + DatagenParams.delta;
+            long groupMaxDeletionDate = Dictionaries.dates.getSimulationEnd();
+            groupDeletionDate = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), groupMinDeletionDate, groupMaxDeletionDate);
         } else {
-            if (randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_FORUM).nextDouble() < DatagenParams.probForumDeleted) {
-                isExplicitlyDeleted = true;
-                long groupMinDeletionDate = groupCreationDate + DatagenParams.delta;
-                long groupMaxDeletionDate = Dictionaries.dates.getSimulationEnd();
-                groupDeletionDate = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), groupMinDeletionDate, groupMaxDeletionDate);
-            } else {
-                isExplicitlyDeleted = false;
-                groupDeletionDate = Dictionaries.dates.getNetworkCollapse();
-            }
+            isExplicitlyDeleted = false;
+            groupDeletionDate = Dictionaries.dates.getNetworkCollapse();
         }
 
         // the hasModerator edge is deleted if either the Forum (group) or the Person (moderator) is deleted
@@ -193,22 +187,17 @@ public class ForumGenerator {
 
                         long hasMemberDeletionDate;
                         boolean isHasMemberExplicitlyDeleted;
-                        if (DatagenParams.getDatagenMode() == DatagenMode.INTERACTIVE) {
-                            hasMemberDeletionDate = Dictionaries.dates.getNetworkCollapse();
-                            isHasMemberExplicitlyDeleted = false;
-                        } else {
-                            if (randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_MEMB).nextDouble() < DatagenParams.probMembDeleted) {
-                                isHasMemberExplicitlyDeleted = true;
-                                long minDeletionDate = hasMemberCreationDate + DatagenParams.delta;
-                                long maxDeletionDate = Collections.min(Arrays.asList(knows.to().getDeletionDate(), forum.getDeletionDate(), Dictionaries.dates.getSimulationEnd()));
-                                if (maxDeletionDate - minDeletionDate < 0) {
-                                    continue;
-                                }
-                                hasMemberDeletionDate = Dictionaries.dates.randomDate(random, minDeletionDate, maxDeletionDate);
-                            } else {
-                                isHasMemberExplicitlyDeleted = false;
-                                hasMemberDeletionDate = Collections.min(Arrays.asList(knows.to().getDeletionDate(), forum.getDeletionDate()));
+                        if (randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_MEMB).nextDouble() < DatagenParams.probMembDeleted) {
+                            isHasMemberExplicitlyDeleted = true;
+                            long minDeletionDate = hasMemberCreationDate + DatagenParams.delta;
+                            long maxDeletionDate = Collections.min(Arrays.asList(knows.to().getDeletionDate(), forum.getDeletionDate(), Dictionaries.dates.getSimulationEnd()));
+                            if (maxDeletionDate - minDeletionDate < 0) {
+                                continue;
                             }
+                            hasMemberDeletionDate = Dictionaries.dates.randomDate(random, minDeletionDate, maxDeletionDate);
+                        } else {
+                            isHasMemberExplicitlyDeleted = false;
+                            hasMemberDeletionDate = Collections.min(Arrays.asList(knows.to().getDeletionDate(), forum.getDeletionDate()));
                         }
                         ForumMembership hasMember = new ForumMembership(forum.getId(), hasMemberCreationDate, hasMemberDeletionDate, knows.to(), Forum.ForumType.GROUP, isHasMemberExplicitlyDeleted);
                         forum.addMember(hasMember);
@@ -232,22 +221,17 @@ public class ForumGenerator {
 
                         long hasMemberDeletionDate;
                         boolean isHasMemberExplicitlyDeleted;
-                        if (DatagenParams.getDatagenMode() == DatagenMode.INTERACTIVE) {
-                            hasMemberDeletionDate = Dictionaries.dates.getNetworkCollapse();
-                            isHasMemberExplicitlyDeleted = false;
-                        } else {
-                            if (randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_MEMB).nextDouble() < DatagenParams.probMembDeleted) {
-                                isHasMemberExplicitlyDeleted = true;
-                                long minHasMemberDeletionDate = hasMemberCreationDate + DatagenParams.delta;
-                                long maxHasMemberDeletionDate = Collections.min(Arrays.asList(member.getDeletionDate(), forum.getDeletionDate(), Dictionaries.dates.getSimulationEnd()));
-                                if (maxHasMemberCreationDate - minHasMemberDeletionDate < 0) {
-                                    continue;
-                                }
-                                hasMemberDeletionDate = Dictionaries.dates.randomDate(random, minHasMemberDeletionDate, maxHasMemberDeletionDate);
-                            } else {
-                                isHasMemberExplicitlyDeleted = false;
-                                hasMemberDeletionDate = Collections.min(Arrays.asList(member.getDeletionDate(), forum.getDeletionDate()));
+                        if (randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_MEMB).nextDouble() < DatagenParams.probMembDeleted) {
+                            isHasMemberExplicitlyDeleted = true;
+                            long minHasMemberDeletionDate = hasMemberCreationDate + DatagenParams.delta;
+                            long maxHasMemberDeletionDate = Collections.min(Arrays.asList(member.getDeletionDate(), forum.getDeletionDate(), Dictionaries.dates.getSimulationEnd()));
+                            if (maxHasMemberCreationDate - minHasMemberDeletionDate < 0) {
+                                continue;
                             }
+                            hasMemberDeletionDate = Dictionaries.dates.randomDate(random, minHasMemberDeletionDate, maxHasMemberDeletionDate);
+                        } else {
+                            isHasMemberExplicitlyDeleted = false;
+                            hasMemberDeletionDate = Collections.min(Arrays.asList(member.getDeletionDate(), forum.getDeletionDate()));
                         }
                         forum.addMember(new ForumMembership(forum.getId(), hasMemberCreationDate, hasMemberDeletionDate, new PersonSummary(member), Forum.ForumType.GROUP, isHasMemberExplicitlyDeleted));
                         groupMembers.add(member.getAccountId());
@@ -276,22 +260,17 @@ public class ForumGenerator {
 
         long albumDeletionDate;
         boolean isExplicitlyDeleted;
-        if (DatagenParams.getDatagenMode() == DatagenMode.INTERACTIVE) {
-            albumDeletionDate = Dictionaries.dates.getNetworkCollapse();
-            isExplicitlyDeleted = false;
-        } else {
-            if (randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_FORUM).nextDouble() < DatagenParams.probForumDeleted) {
-                isExplicitlyDeleted = true;
-                long minAlbumDeletionDate = albumCreationDate + DatagenParams.delta;
-                long maxAlbumDeletionDate = Math.min(person.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
-                if (maxAlbumDeletionDate - minAlbumCreationDate < 0) {
-                    return null;
-                }
-                albumDeletionDate = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), minAlbumDeletionDate, maxAlbumDeletionDate);
-            } else {
-                isExplicitlyDeleted = false;
-                albumDeletionDate = person.getDeletionDate();
+        if (randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_FORUM).nextDouble() < DatagenParams.probForumDeleted) {
+            isExplicitlyDeleted = true;
+            long minAlbumDeletionDate = albumCreationDate + DatagenParams.delta;
+            long maxAlbumDeletionDate = Math.min(person.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
+            if (maxAlbumDeletionDate - minAlbumCreationDate < 0) {
+                return null;
             }
+            albumDeletionDate = Dictionaries.dates.randomDate(randomFarm.get(RandomGeneratorFarm.Aspect.DATE), minAlbumDeletionDate, maxAlbumDeletionDate);
+        } else {
+            isExplicitlyDeleted = false;
+            albumDeletionDate = person.getDeletionDate();
         }
 
 

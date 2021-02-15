@@ -32,7 +32,7 @@ private final class DataFrameGraphReader[M <: Mode](implicit spark: SparkSession
       val df = spark.read.options(csvOptions).csv((path / entity.entityPath).toString())
       entity -> ev(df)
     }).toMap
-    Graph[M, DataFrame](definition.layout, entities)
+    Graph(definition.layout, definition.mode, entities)
   }
 
   override def exists(graphDef: GraphDef[M], path: String): Boolean = {

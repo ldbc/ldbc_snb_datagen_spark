@@ -38,7 +38,7 @@ package ldbc.snb.datagen.generator.generators.knowsgenerators;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
-import ldbc.snb.datagen.util.LdbcConfiguration;
+import ldbc.snb.datagen.util.GeneratorConfiguration;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 
 import java.util.List;
@@ -69,7 +69,7 @@ public class DistanceKnowsGenerator implements KnowsGenerator {
     }
 
     @Override
-    public void initialize(LdbcConfiguration conf) {
+    public void initialize(GeneratorConfiguration conf) {
         // This is inherited from knows generator and no initialization is required.
     }
 

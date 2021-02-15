@@ -35,7 +35,6 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.generators;
 
-import ldbc.snb.datagen.DatagenMode;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.Forum;
@@ -87,27 +86,22 @@ public class LikeGenerator {
 
             long likeDeletionDate;
             boolean isExplicitlyDeleted;
-            if (DatagenParams.getDatagenMode() == DatagenMode.INTERACTIVE) {
-                likeDeletionDate = Dictionaries.dates.getNetworkCollapse();
-                isExplicitlyDeleted = false;
-            } else {
-                if (membership.getPerson().isMessageDeleter() && randomDeleteLike.nextDouble() < DatagenParams.probLikeDeleted) {
-                    isExplicitlyDeleted = true;
-                    long minDeletionDate = likeCreationDate + DatagenParams.delta;
-                    long maxDeletionDate = Collections.min(Arrays.asList(
-                            membership.getPerson().getDeletionDate(),
-                            message.getDeletionDate(),
-                            Dictionaries.dates.getSimulationEnd()));
-                    if (maxDeletionDate <= minDeletionDate) {
-                        return Iterators.ForIterator.CONTINUE();
-                    }
-                    likeDeletionDate = Dictionaries.dates.powerLawDeleteDate(random, minDeletionDate, maxDeletionDate);
-                } else {
-                    isExplicitlyDeleted = false;
-                    likeDeletionDate = Collections.min(Arrays.asList(
-                            membership.getPerson().getDeletionDate(),
-                            message.getDeletionDate()));
+            if (membership.getPerson().isMessageDeleter() && randomDeleteLike.nextDouble() < DatagenParams.probLikeDeleted) {
+                isExplicitlyDeleted = true;
+                long minDeletionDate = likeCreationDate + DatagenParams.delta;
+                long maxDeletionDate = Collections.min(Arrays.asList(
+                        membership.getPerson().getDeletionDate(),
+                        message.getDeletionDate(),
+                        Dictionaries.dates.getSimulationEnd()));
+                if (maxDeletionDate <= minDeletionDate) {
+                    return Iterators.ForIterator.CONTINUE();
                 }
+                likeDeletionDate = Dictionaries.dates.powerLawDeleteDate(random, minDeletionDate, maxDeletionDate);
+            } else {
+                isExplicitlyDeleted = false;
+                likeDeletionDate = Collections.min(Arrays.asList(
+                        membership.getPerson().getDeletionDate(),
+                        message.getDeletionDate()));
             }
 
             like.setExplicitlyDeleted(isExplicitlyDeleted);

@@ -39,9 +39,7 @@ import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.generator.tools.PowerDistribution;
 import ldbc.snb.datagen.util.DateUtils;
-import ldbc.snb.datagen.util.LdbcConfiguration;
 import ldbc.snb.datagen.util.PowerLawActivityDeleteDistribution;
-import ldbc.snb.datagen.util.formatter.DateFormatter;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -61,7 +59,6 @@ public class DateGenerator {
     private long simulationEnd;
     private long fromBirthDay;
     private long toBirthDay;
-    private long bulkLoadThreshold;
     private PowerDistribution powerDist;
     private PowerLawActivityDeleteDistribution powerLawActivityDeleteDistribution;
 
@@ -76,7 +73,6 @@ public class DateGenerator {
         // For birthday from 1980 to 1990
         fromBirthDay = DateUtils.toEpochMilli(LocalDate.of(1980, 1, 1));
         toBirthDay = DateUtils.toEpochMilli(LocalDate.of(1990, 1, 1));
-        bulkLoadThreshold = getSimulationEnd() - (long) ((getSimulationEnd() - getSimulationStart()) * (DatagenParams.bulkLoadPortion));
     }
 
     /**
@@ -189,9 +185,4 @@ public class DateGenerator {
     public Long getNetworkCollapse() {
         return getSimulationStart() + TEN_YEARS;
     }
-
-    public long getBulkLoadThreshold() {
-        return bulkLoadThreshold;
-    }
-
 }

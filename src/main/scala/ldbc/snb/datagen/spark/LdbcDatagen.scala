@@ -1,78 +1,120 @@
 package ldbc.snb.datagen.spark
 
 import better.files._
-import ldbc.snb.datagen.SparkApp
+import ldbc.snb.datagen.dictionary.Dictionaries
+import ldbc.snb.datagen.{DatagenContext, SparkApp}
 import ldbc.snb.datagen.generation.GenerationStage
 import ldbc.snb.datagen.transformation.TransformationStage
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.transformation.model.Mode
-import ldbc.snb.datagen.util.{ConfigParser, LdbcConfiguration}
-import org.apache.hadoop.fs.{FileSystem, Path}
-import org.apache.spark.sql.SparkSession
+import ldbc.snb.datagen.util.Utils.lower
+import shapeless.lens
 
-import java.net.URI
 
 object LdbcDatagen extends SparkApp {
   val appName = "LDBC SNB Datagen for Spark"
 
-
-  def openPropFileStream(uri: URI)(implicit spark: SparkSession) = {
-    val fs = FileSystem.get(uri, spark.sparkContext.hadoopConfiguration)
-    fs.open(new Path(uri.getPath))
-  }
-
-  def buildConfig(propFile: String, buildDir: Option[String] = None, socialNetworkDir: Option[String] = None, numThreads: Option[Int] = None) = {
-    val conf = ConfigParser.defaultConfiguration()
-
-    conf.putAll(getClass.getResourceAsStream("/params_default.ini") use { ConfigParser.readConfig })
-
-    conf.putAll(openPropFileStream(URI.create(propFile)) use { ConfigParser.readConfig })
-
-    for { buildDir <- buildDir} conf.put("serializer.buildDir", buildDir)
-    for { snDir <- socialNetworkDir} conf.put("serializer.socialNetworkDir", snDir)
-    for { numThreads <- numThreads} conf.put("hadoop.numThreads", numThreads.toString)
-
-    new LdbcConfiguration(conf)
-  }
-
+  case class Args(
+    scaleFactor: Int = 1,
+    params: Map[String, String] = Map.empty,
+    paramFile: Option[String] = None,
+    outputDir: String = "out",
+    bulkloadPortion: Double = 0.1,
+    explodeEdges: Boolean = false,
+    explodeAttrs: Boolean = false,
+    mode: String = "raw",
+    batchPeriod: String = "daily",
+    numThreads: Option[Int] = None
+  )
 
   def main(args: Array[String]): Unit = {
-    val parser = new scopt.OptionParser[GenerationStage.Args](getClass.getName.dropRight(1)) {
+    val parser = new scopt.OptionParser[Args](getClass.getName.dropRight(1)) {
       head(appName)
 
-      opt[String]("build-dir")
-        .action((x, c) => c.copy(buildDir = Some(x)))
-        .text("build directory for intermediate files")
+      val args = lens[Args]
 
-      opt[String]("sn-dir")
-        .action((x, c) => c.copy(socialNetworkDir = Some(x)))
+      opt[Int]("scale-factor")
+        .action((x, c) => args.scaleFactor.set(c)(x))
+        .text("The generator scale factor")
+
+      opt[Map[String, String]]('p', "params")
+        .action((x, c) => args.params.set(c)(x))
+        .text("Key=value params passed to the generator. Takes precedence over --param-file")
+
+      opt[String]('P', "param-file")
+        .action((x, c) => args.paramFile.set(c)(Some(x)))
+        .text("Parameter file used for the generator")
+
+      opt[String]('o', "output")
+        .action((x, c) => args.outputDir.set(c)(x))
         .text("output directory")
 
-      opt[Int]("num-threads")
-        .action((x, c) => c.copy(numThreads = Some(x)))
-        .text("number of threads")
+      opt[Int]( "num-threads")
+        .action((x, c) => args.numThreads.set(c)(Some(x)))
+        .text("output directory")
 
+      opt[String]('m', "mode")
+        .validate(s => {
+          val ls = lower(s)
+          if (ls == "raw" || ls == "bi" || ls == "interactive") {
+            Right(())
+          } else {
+            Left("Invalid value. Must be one of raw, bi, interactive")
+          }
+        })
+        .action((x, c) => args.mode.set(c)(x))
+        .text("Generation mode. Options: raw, bi, interactive. Default: raw")
 
-      help("help").text("prints this usage text")
+      opt[Double]("bulkload-portion")
+        .action((x, c) => args.bulkloadPortion.set(c)(x))
+        .text("Bulkload portion. Only applicable to BI and interactive modes")
 
-      arg[String]("<param_file>").required()
-        .action((x, c) => c.copy(propFile = x))
-        .text("parameter file")
+      opt[Boolean]('e', "explode-edges")
+        .action((x, c) => args.explodeEdges.set(c)(x))
+
+      opt[Boolean]('a', "explode-attrs")
+        .action((x, c) => args.explodeAttrs.set(c)(x))
+
+      opt[String]("batch-period")
+        .action((x, c) => args.batchPeriod.set(c)(x))
+        .text("Period of the batches in BI mode. Possible values: year, day, month, hour, etc. Default: day")
     }
 
-    val parsedArgs = parser.parse(args, GenerationStage.Args()).getOrElse(throw new RuntimeException("Invalid args"))
+    val parsedArgs = parser.parse(args, Args()).getOrElse(throw new RuntimeException("Invalid arguments"))
 
-    GenerationStage.run(parsedArgs)
+    run(parsedArgs)
+  }
 
-    TransformationStage.run(TransformationStage.Args(
-      parsedArgs.propFile,
-      parsedArgs.socialNetworkDir.get,
-      (parsedArgs.socialNetworkDir.get / "serialized" ).toString,
-      parsedArgs.numThreads,
-      explodeAttrs = true,
-      explodeEdges = true,
-      mode = Mode.BI
-    ))
+  def run(args: Args): Unit = {
+
+    val generatorArgs = GenerationStage.Args(
+      scaleFactor = args.scaleFactor,
+      params = args.params,
+      paramFile = args.paramFile,
+      outputDir = args.outputDir,
+      numThreads = args.numThreads
+    )
+
+    val generatorConfig = GenerationStage.buildConfig(generatorArgs)
+
+    DatagenContext.initialize(generatorConfig)
+
+    GenerationStage.run(generatorConfig)
+
+    val transformArgs = TransformationStage.Args(
+      outputDir = args.outputDir,
+      explodeEdges = args.explodeEdges,
+      explodeAttrs = args.explodeAttrs,
+      simulationStart = Dictionaries.dates.getSimulationStart,
+      simulationEnd = Dictionaries.dates.getSimulationEnd,
+      mode = args.mode match {
+        case "bi" => Mode.BI(bulkloadPortion = args.bulkloadPortion, batchPeriod = args.batchPeriod)
+        case "interactive" => Mode.Interactive(bulkLoadPortion = args.bulkloadPortion)
+        case "raw" => Mode.Raw
+      }
+    )
+
+    TransformationStage.run(transformArgs)
   }
 }
 

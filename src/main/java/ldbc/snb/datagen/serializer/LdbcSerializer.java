@@ -2,14 +2,11 @@ package ldbc.snb.datagen.serializer;
 
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
-import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
-import ldbc.snb.datagen.util.DateUtils;
 import ldbc.snb.datagen.util.formatter.DateFormatter;
 import ldbc.snb.datagen.util.formatter.StringDateFormatter;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

@@ -37,7 +37,6 @@ package ldbc.snb.datagen.dictionary;
 
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.generator.generators.DateGenerator;
-import ldbc.snb.datagen.util.LdbcConfiguration;
 
 import java.time.LocalDate;
 

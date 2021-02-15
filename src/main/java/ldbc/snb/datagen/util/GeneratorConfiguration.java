@@ -4,10 +4,10 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map;
 
-public class LdbcConfiguration implements Iterable<Map.Entry<String, String>>, Serializable {
+public class GeneratorConfiguration implements Iterable<Map.Entry<String, String>>, Serializable {
     public final Map<String, String> map;
 
-    public LdbcConfiguration(Map<String, String> map) {
+    public GeneratorConfiguration(Map<String, String> map) {
         this.map = map;
     }
 

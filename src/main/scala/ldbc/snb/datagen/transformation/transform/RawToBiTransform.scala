@@ -1,19 +1,21 @@
 package ldbc.snb.datagen.transformation.transform
 
 import ldbc.snb.datagen.sql._
-import ldbc.snb.datagen.transformation.transform.Transform._
 import ldbc.snb.datagen.transformation.model.{Batched, BatchedEntity, EntityType, Graph, Mode}
 import ldbc.snb.datagen.syntax._
-import ldbc.snb.datagen.util.Logging
+import ldbc.snb.datagen.transformation.model.Mode.BI
+import ldbc.snb.datagen.util.{GeneratorConfiguration, Logging}
 import org.apache.spark.sql.{Column, DataFrame}
 import org.apache.spark.sql.functions._
 
-case class RawToBiTransform(bulkLoadThreshold: Long, simulationEnd: Long) extends Transform.Untyped[Mode.Raw.type, Mode.BI.type] with Logging {
-  override def transform(input: DataFrameGraph[Mode.Raw.type]): DataFrameGraph[Mode.BI.type] = {
+case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long) extends Transform[Mode.Raw.type, Mode.BI] with Logging {
+  log.debug(s"BI Transformation parameters: $mode")
+
+  val bulkLoadThreshold = Interactive.calculateBulkLoadThreshold(mode.bulkloadPortion, simulationStart, simulationEnd)
+
+  override def transform(input: In): Out = {
     val batch_id = (col: Column) =>
-      date_format(date_trunc("dd", to_date(col, Raw.dateTimePattern)), "yyyyMMdd")
-
-
+      date_format(date_trunc(mode.batchPeriod, to_date(col, Raw.dateTimePattern)), "yyyyMMdd")
 
     val batched = (df: DataFrame) => df
       .select(
@@ -43,12 +45,11 @@ case class RawToBiTransform(bulkLoadThreshold: Long, simulationEnd: Long) extend
     val entities = input.entities.map {
       case (tpe, v) if tpe.isStatic => tpe -> BatchedEntity(v, None, None)
       case (tpe, v) => tpe -> BatchedEntity(
-        Interactive.snapshotPart(tpe, v, bulkLoadThreshold, simulationEnd),
+        Interactive.snapshotPart(tpe, v, bulkLoadThreshold, filterDeletion = false),
         Some(Batched(insertBatchPart(tpe, v, bulkLoadThreshold, simulationEnd), Seq("batch_id"))),
         Some(Batched(deleteBatchPart(tpe, v, bulkLoadThreshold, simulationEnd), Seq("batch_id")))
       )
     }
-
-    Graph[Mode.BI.type, DataFrame]("Bi", entities)
+    Graph[Mode.BI, DataFrame]("Bi", mode, entities)
   }
 }

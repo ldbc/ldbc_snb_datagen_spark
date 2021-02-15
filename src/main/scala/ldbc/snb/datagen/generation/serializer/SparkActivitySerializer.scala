@@ -4,9 +4,8 @@ import ldbc.snb.datagen.entities.dynamic.person.Person
 import ldbc.snb.datagen.generator.generators.{GenActivity, PersonActivityGenerator}
 import ldbc.snb.datagen.serializer.{DynamicActivitySerializer, PersonActivityExporter}
 import ldbc.snb.datagen.generation.generator.SparkRanker
-import ldbc.snb.datagen.util.SerializableConfiguration
+import ldbc.snb.datagen.util.{GeneratorConfiguration, SerializableConfiguration}
 import ldbc.snb.datagen.syntax._
-import ldbc.snb.datagen.util.LdbcConfiguration
 import ldbc.snb.datagen.{DatagenContext, DatagenParams}
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.TaskContext
@@ -20,7 +19,7 @@ import scala.collection.JavaConverters._
 
 object SparkActivitySerializer {
 
-  def apply(persons: RDD[Person], ranker: SparkRanker, conf: LdbcConfiguration, partitions: Option[Int] = None)(implicit spark: SparkSession) = {
+  def apply(persons: RDD[Person], ranker: SparkRanker, conf: GeneratorConfiguration, partitions: Option[Int] = None)(implicit spark: SparkSession) = {
 
     val blockSize = DatagenParams.blockSize
     val blocks = ranker(persons)

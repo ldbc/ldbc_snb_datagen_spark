@@ -35,7 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.distribution;
 
-import ldbc.snb.datagen.util.LdbcConfiguration;
+import ldbc.snb.datagen.util.GeneratorConfiguration;
 
 import java.util.*;
 
@@ -51,7 +51,7 @@ public class ZipfDistribution extends DegreeDistribution {
     private int maxDegree = 1000;
     private int numSamples = 10000;
 
-    public void initialize(LdbcConfiguration conf) {
+    public void initialize(GeneratorConfiguration conf) {
         ALPHA = conf.getDouble("ldbc.snb.datagen.generator.distribution.ZipfDistribution.alpha", ALPHA);
         zipf = new org.apache.commons.math3.distribution.ZipfDistribution(maxDegree, ALPHA);
         for (int i = 0; i < numSamples; ++i) {

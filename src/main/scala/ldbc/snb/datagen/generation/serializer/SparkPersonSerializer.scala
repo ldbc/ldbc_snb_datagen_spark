@@ -3,9 +3,8 @@ package ldbc.snb.datagen.generation.serializer
 import ldbc.snb.datagen.DatagenContext
 import ldbc.snb.datagen.entities.dynamic.person.Person
 import ldbc.snb.datagen.serializer.{DynamicPersonSerializer, PersonExporter}
-import ldbc.snb.datagen.util.SerializableConfiguration
+import ldbc.snb.datagen.util.{GeneratorConfiguration, SerializableConfiguration}
 import ldbc.snb.datagen.syntax._
-import ldbc.snb.datagen.util.LdbcConfiguration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.TaskContext
 import org.apache.spark.rdd.RDD
@@ -15,7 +14,7 @@ object SparkPersonSerializer {
 
   def apply(
     persons: RDD[Person],
-    conf: LdbcConfiguration,
+    conf: GeneratorConfiguration,
     partitions: Option[Int] = None
   )(implicit spark: SparkSession): Unit = {
     val serializableHadoopConf = new SerializableConfiguration(spark.sparkContext.hadoopConfiguration)

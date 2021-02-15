@@ -35,11 +35,8 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.entities.dynamic.relations;
 
-import ldbc.snb.datagen.DatagenMode;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
-import ldbc.snb.datagen.entities.dynamic.person.Person;
-import ldbc.snb.datagen.entities.dynamic.person.PersonSummary;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.person.PersonSummary;
 import org.apache.hadoop.io.Writable;
@@ -228,7 +225,7 @@ public final class Knows implements Writable, Comparable<Knows>, Serializable {
         long creationDate = Dictionaries.dates.randomKnowsCreationDate(dateRandom, personA, personB);
         long deletionDate;
         boolean isExplicitlyDeleted;
-        if (DatagenParams.getDatagenMode() == DatagenMode.INTERACTIVE) {
+        if (false) {
             deletionDate = Dictionaries.dates.getNetworkCollapse();
             isExplicitlyDeleted = false;
         } else {

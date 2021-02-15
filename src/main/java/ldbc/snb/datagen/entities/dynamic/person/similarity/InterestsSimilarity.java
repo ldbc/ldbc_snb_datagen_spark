@@ -36,7 +36,6 @@
 package ldbc.snb.datagen.entities.dynamic.person.similarity;
 
 import ldbc.snb.datagen.entities.dynamic.person.Person;
-import ldbc.snb.datagen.entities.dynamic.person.Person;
 
 import java.util.Set;
 import java.util.TreeSet;

@@ -2,9 +2,10 @@
 
 import argparse
 import os
+import sys
 
 from subprocess import run
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 
 from datagen import lib, util
 
@@ -15,12 +16,11 @@ def flatten(ls):
 
 def run_local(
         jar_file: str,
-        params_file: str,
         cores: Optional[int] = None,
-        sn_dir: Optional[str] = None,
         memory: Optional[str] = None,
         parallelism: Optional[int] = None,
-        spark_conf: Optional[Dict] = None
+        spark_conf: Optional[Dict] = None,
+        passthrough_args: Optional[List[str]] = None
 ):
     if not cores:
         cores = "*"
@@ -42,7 +42,6 @@ def run_local(
 
     arg_opts = [
         *(['--num-threads', str(parallelism)] if parallelism else []),
-        *(['--sn-dir', sn_dir] if sn_dir else [])
     ]
 
     conf = flatten([['-c', f'{k}={v}'] for k, v in final_spark_conf.items()])
@@ -53,8 +52,8 @@ def run_local(
         *opt_class,
         *additional_opts,
         jar_file,
-        params_file,
-        *arg_opts
+        *arg_opts,
+        *passthrough_args
     ]
 
     default_env = dict(os.environ)
@@ -62,14 +61,20 @@ def run_local(
     run(cmd, env=default_env)
 
 
+def split_args():
+    args = sys.argv[1:]
+    try:
+        sep = args.index('--')
+        return args[:sep], args[sep+1:]
+    except ValueError:
+        return args, []
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run a Datagen job locally')
     parser.add_argument('jar',
                         type=str,
                         help='LDBC Datagen JAR file')
-    parser.add_argument('params_file',
-                        type=str,
-                        help='params file name')
     parser.add_argument('--cores',
                         type=int,
                         help='number of vcpu cores to use'
@@ -82,24 +87,23 @@ if __name__ == "__main__":
                         nargs='+',
                         action=util.KeyValue,
                         help="Spark conf as a list of key=value pairs")
-    parser.add_argument('--sn-dir',
-                        type=str,
-                        help='Output directory')
     parser.add_argument('--parallelism',
                         type=int,
                         help='sets job parallelism. Higher values might reduce chance of OOM.')
     parser.add_argument('-y',
                         action='store_true',
                         help='Assume \'yes\' for prompts')
+    parser.add_argument('--', nargs='*', help='Arguments passed to LDBC SNB Datagen', dest="arg")
 
-    args = parser.parse_args()
+    self_args, child_args = split_args()
+
+    args = parser.parse_args(self_args)
 
     run_local(
         args.jar,
-        args.params_file,
         cores=args.cores,
-        sn_dir=args.sn_dir,
         memory=args.memory,
         parallelism=args.parallelism,
-        spark_conf=args.conf
+        spark_conf=args.conf,
+        passthrough_args=child_args
     )

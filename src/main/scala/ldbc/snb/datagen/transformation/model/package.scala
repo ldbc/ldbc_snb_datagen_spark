@@ -62,17 +62,19 @@ package object model {
 
   sealed trait Mode { type Layout[Data] }
   object Mode {
+
     final case object Raw extends Mode { type Layout[+Data] = Data }
-    final case object Interactive extends Mode { type Layout[+Data] = Data }
-    final case object BI extends Mode { type Layout[+Data] = BatchedEntity[Data] }
+    final case class Interactive(bulkLoadPortion: Double) extends Mode { type Layout[+Data] = Data }
+    final case class BI(bulkloadPortion: Double, batchPeriod: String) extends Mode { type Layout[+Data] = BatchedEntity[Data] }
   }
 
   case class Graph[+M <: Mode, D](
     layout: String,
+    mode: M,
     entities: Map[EntityType, M#Layout[D]]
   )
 
-  case class GraphDef[M <: Mode](layout: String, entities: Set[EntityType])
+  case class GraphDef[M <: Mode](layout: String, mode: M, entities: Set[EntityType])
 
   sealed trait BatchPeriod
   object BatchPeriod {

@@ -7,7 +7,6 @@ import org.apache.spark.sql.{DataFrame, DataFrameWriter}
 import shapeless.{Generic, Poly1}
 import better.files._
 import ldbc.snb.datagen.util.Logging
-import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.immutable.TreeMap
 

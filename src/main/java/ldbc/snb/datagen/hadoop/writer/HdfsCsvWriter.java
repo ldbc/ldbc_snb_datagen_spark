@@ -67,7 +67,8 @@ public class HdfsCsvWriter extends HdfsWriter {
         this.writeAllPartitions(buffer.toString());
     }
 
-    public void writeHeader(List<String>... entry) {
+    @SafeVarargs
+    public final void writeHeader(List<String>... entry) {
         writeHeader(Lists.newArrayList(Iterables.concat(entry)));
     }
 
@@ -82,7 +83,8 @@ public class HdfsCsvWriter extends HdfsWriter {
         this.write(buffer.toString());
     }
 
-    public void writeEntry(List<String>... entry) {
+    @SafeVarargs
+    public final void writeEntry(List<String>... entry) {
         writeEntry(Lists.newArrayList(Iterables.concat(entry)));
     }
 

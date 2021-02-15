@@ -5,12 +5,11 @@ import ldbc.snb.datagen.transformation.model.{Graph, Mode}
 import ldbc.snb.datagen.transformation.model.Cardinality.{NN, NOne, OneN}
 import ldbc.snb.datagen.transformation.model.EntityType.{Edge, Node}
 import ldbc.snb.datagen.transformation.transform.Raw.withRawColumns
-import ldbc.snb.datagen.transformation.transform.Transform.DataFrameGraph
 import org.apache.spark.sql.{Column, DataFrame}
 import org.apache.spark.sql.functions._
 
-object ExplodeEdges extends Transform.Untyped[Mode.Raw.type, Mode.Raw.type]{
-  override def transform(input: DataFrameGraph[Mode.Raw.type]): DataFrameGraph[Mode.Raw.type] = {
+object ExplodeEdges extends Transform[Mode.Raw.type, Mode.Raw.type]{
+  override def transform(input: In): Out = {
     val entities = input.entities
 
     def explodedEdge(edge: Edge, node: DataFrame, column: Column) = {
@@ -65,6 +64,6 @@ object ExplodeEdges extends Transform.Untyped[Mode.Raw.type, Mode.Raw.type]{
       )
     }.foldLeft(entities)(_ ++ _)
 
-    Graph(layout="NonComposite", entities=updatedEntities)
+    Graph(layout="NonComposite", Mode.Raw, entities=updatedEntities)
   }
 }

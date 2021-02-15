@@ -47,7 +47,6 @@ import ldbc.snb.datagen.vocabulary.DBPOWL;
 import java.util.List;
 
 import static ldbc.snb.datagen.serializer.FileName.*;
-import static ldbc.snb.datagen.serializer.FileName.TAG;
 
 public class StaticSerializer extends LdbcSerializer {
 

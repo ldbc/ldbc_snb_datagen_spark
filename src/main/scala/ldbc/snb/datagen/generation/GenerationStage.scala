@@ -1,11 +1,12 @@
 package ldbc.snb.datagen.generation
 
 import ldbc.snb.datagen.{DatagenContext, DatagenParams, SparkApp}
-import ldbc.snb.datagen.spark.LdbcDatagen
 import ldbc.snb.datagen.generation.generator.{SparkKnowsGenerator, SparkKnowsMerger, SparkPersonGenerator, SparkRanker}
 import ldbc.snb.datagen.generation.serializer.{SparkActivitySerializer, SparkPersonSerializer, SparkStaticGraphSerializer}
-import ldbc.snb.datagen.util.SparkUI
+import ldbc.snb.datagen.syntax._
+import ldbc.snb.datagen.util.{ConfigParser, GeneratorConfiguration, SparkUI}
 import ldbc.snb.datagen.util.Utils.simpleNameOf
+import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.SparkSession
 
 import java.net.URI
@@ -14,18 +15,15 @@ object GenerationStage extends SparkApp {
   override def appName: String = "LDBC SNB Datagen for Spark: Generation Stage"
 
   case class Args(
-    propFile: String = "",
-    buildDir: Option[String] = None,
-    socialNetworkDir: Option[String] = None,
-    numThreads: Option[Int] = None
+    scaleFactor: Int = 0,
+    numThreads: Option[Int] = None,
+    params: Map[String, String] = Map.empty,
+    paramFile: Option[String] = None,
+    outputDir: String = "out"
   )
 
-  def run(args: Args)(implicit spark: SparkSession) = {
-    val config = LdbcDatagen.buildConfig(args.propFile, args.buildDir, args.socialNetworkDir, args.numThreads)
-
+  def run(config: GeneratorConfiguration)(implicit spark: SparkSession) = {
     val numPartitions = config.getInt("hadoop.numThreads", spark.sparkContext.defaultParallelism)
-
-    DatagenContext.initialize(config)
 
     val persons = SparkPersonGenerator(config)
 
@@ -57,37 +55,24 @@ object GenerationStage extends SparkApp {
     }
   }
 
-  def main(args: Array[String]): Unit = {
-    val start = System.currentTimeMillis
-
-    val parser = new scopt.OptionParser[Args](getClass.getName.dropRight(1)) {
-      head(appName)
-
-      opt[String]("build-dir")
-        .action((x, c) => c.copy(buildDir = Some(x)))
-        .text("build directory for intermediate files")
-
-      opt[String]("sn-dir")
-        .action((x, c) => c.copy(socialNetworkDir = Some(x)))
-        .text("output directory")
-
-      opt[Int]("num-threads")
-        .action((x, c) => c.copy(numThreads = Some(x)))
-        .text("number of threads")
-
-
-      help("help").text("prints this usage text")
-
-      arg[String]("<param_file>").required()
-        .action((x, c) => c.copy(propFile = x))
-        .text("parameter file")
-    }
-
-    val parsedArgs = parser.parse(args, Args()).getOrElse(throw new RuntimeException("Invalid args"))
-
-    run(parsedArgs)
-
-    print("Total Execution time: " + ((System.currentTimeMillis - start) / 1000))
+  def openPropFileStream(uri: URI) = {
+    val fs = FileSystem.get(uri, spark.sparkContext.hadoopConfiguration)
+    fs.open(new Path(uri.getPath))
   }
 
+  def buildConfig(args: Args) = {
+    val conf = ConfigParser.defaultConfiguration()
+
+    conf.putAll(getClass.getResourceAsStream("/params_default.ini") use { ConfigParser.readConfig })
+
+    for { paramsFile <- args.paramFile } conf.putAll(openPropFileStream(URI.create(paramsFile)) use { ConfigParser.readConfig })
+
+    for { (k, v) <- args.params } conf.put(k, v)
+
+    for { numThreads <- args.numThreads } conf.put("hadoop.numThreads", numThreads.toString)
+
+    conf.put("generator.scaleFactor", args.scaleFactor.toString)
+
+    new GeneratorConfiguration(conf)
+  }
 }
