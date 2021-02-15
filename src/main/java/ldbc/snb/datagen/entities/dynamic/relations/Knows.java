@@ -225,24 +225,19 @@ public final class Knows implements Writable, Comparable<Knows>, Serializable {
         long creationDate = Dictionaries.dates.randomKnowsCreationDate(dateRandom, personA, personB);
         long deletionDate;
         boolean isExplicitlyDeleted;
-        if (false) {
-            deletionDate = Dictionaries.dates.getNetworkCollapse();
-            isExplicitlyDeleted = false;
+        double deleteProb;
+        if (similarity < 0.9222521) {
+            deleteProb = 0.025;
         } else {
-            double deleteProb;
-            if (similarity < 0.9222521) {
-                deleteProb = 0.025;
-            } else {
-                deleteProb = 0.075;
-            }
+            deleteProb = 0.075;
+        }
 
-            if (deletionRandom.nextDouble() < deleteProb) {
-                isExplicitlyDeleted = true;
-                deletionDate = Dictionaries.dates.randomKnowsDeletionDate(dateRandom, personA, personB, creationDate);
-            } else {
-                isExplicitlyDeleted = false;
-                deletionDate = Collections.min(Arrays.asList(personA.getDeletionDate(), personB.getDeletionDate()));
-            }
+        if (deletionRandom.nextDouble() < deleteProb) {
+            isExplicitlyDeleted = true;
+            deletionDate = Dictionaries.dates.randomKnowsDeletionDate(dateRandom, personA, personB, creationDate);
+        } else {
+            isExplicitlyDeleted = false;
+            deletionDate = Collections.min(Arrays.asList(personA.getDeletionDate(), personB.getDeletionDate()));
         }
 
         assert (creationDate <= deletionDate) : "Knows creation date is larger than knows deletion date";
