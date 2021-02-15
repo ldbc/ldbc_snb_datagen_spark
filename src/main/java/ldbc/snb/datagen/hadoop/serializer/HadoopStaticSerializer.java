@@ -75,8 +75,8 @@ public class HadoopStaticSerializer {
             for (int i = 0; i < numPartitions; ++i) {
                 staticSerializer[i] = new StaticSerializer();
                 staticSerializer[i].initialize(
-                        hadoopConf, conf.getSocialNetworkDir(), i,
-                        conf.isCompressed(), conf.insertTrailingSeparator()
+                        hadoopConf, conf.getOutputDir(), i,
+                        false
                 );
             }
         } catch (Exception e) {

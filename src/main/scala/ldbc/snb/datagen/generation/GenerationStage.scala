@@ -15,7 +15,7 @@ object GenerationStage extends SparkApp {
   override def appName: String = "LDBC SNB Datagen for Spark: Generation Stage"
 
   case class Args(
-    scaleFactor: Int = 0,
+    scaleFactor: Double = 1.0,
     numThreads: Option[Int] = None,
     params: Map[String, String] = Map.empty,
     paramFile: Option[String] = None,
@@ -72,6 +72,8 @@ object GenerationStage extends SparkApp {
     for { numThreads <- args.numThreads } conf.put("hadoop.numThreads", numThreads.toString)
 
     conf.put("generator.scaleFactor", args.scaleFactor.toString)
+
+    conf.put("generator.outputDir", args.outputDir)
 
     new GeneratorConfiguration(conf)
   }

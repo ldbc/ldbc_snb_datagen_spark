@@ -24,7 +24,8 @@ object TransformationStage extends SparkApp with Logging {
   )
 
   val inputGraphDefinition = GraphDef(
-    "CompositeMergeForeign",
+    isAttrExploded = false,
+    isEdgesExploded = false,
     Mode.Raw,
     Set(
       Node("Organisation", isStatic = true),

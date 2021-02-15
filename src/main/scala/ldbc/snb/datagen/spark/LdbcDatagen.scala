@@ -15,7 +15,7 @@ object LdbcDatagen extends SparkApp {
   val appName = "LDBC SNB Datagen for Spark"
 
   case class Args(
-    scaleFactor: Int = 1,
+    scaleFactor: Double = 1.0f,
     params: Map[String, String] = Map.empty,
     paramFile: Option[String] = None,
     outputDir: String = "out",
@@ -33,7 +33,7 @@ object LdbcDatagen extends SparkApp {
 
       val args = lens[Args]
 
-      opt[Int]("scale-factor")
+      opt[Double]("scale-factor")
         .action((x, c) => args.scaleFactor.set(c)(x))
         .text("The generator scale factor")
 

@@ -14,7 +14,7 @@ case class RawToInteractiveTransform(mode: Mode.Interactive, simulationStart: Lo
       case (tpe, v) if tpe.isStatic => tpe -> v
       case (tpe, v) => tpe -> Interactive.snapshotPart(tpe, v, bulkLoadThreshold, filterDeletion = true)
     }
-    Graph[Mode.Interactive, DataFrame](input.layout, mode, entities)
+    Graph[Mode.Interactive, DataFrame](isAttrExploded = input.isAttrExploded, isEdgesExploded = input.isEdgesExploded, mode, entities)
   }
 }
 

@@ -33,14 +33,14 @@ object SparkActivitySerializer {
       DatagenContext.initialize(conf)
       val partitionId = TaskContext.getPartitionId()
       val hadoopConf = serializableHadoopConf.value
-      val buildDir = conf.getBuildDir
+      val buildDir = conf.getOutputDir
 
       val fs = FileSystem.get(hadoopConf)
       fs.mkdirs(new Path(buildDir))
 
       val dynamicActivitySerializer = new DynamicActivitySerializer()
 
-      dynamicActivitySerializer.initialize(hadoopConf, conf.getSocialNetworkDir, partitionId, conf.isCompressed, conf.insertTrailingSeparator())
+      dynamicActivitySerializer.initialize(hadoopConf, conf.getOutputDir, partitionId, false)
 
       val generator = new PersonActivityGenerator
       val exporter = new PersonActivityExporter(dynamicActivitySerializer, generator.getFactorTable)

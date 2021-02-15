@@ -13,7 +13,6 @@ public interface Serializer<THDFSWriter extends HdfsWriter> {
             String outputDir,
             int reducerId,
             boolean isCompressed,
-            boolean insertTrailingSeparator,
             boolean dynamic,
             List<FileName> fileNames
     ) throws IOException;

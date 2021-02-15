@@ -47,20 +47,18 @@ public class HdfsCsvWriter extends HdfsWriter {
 
     private String separator;
     private StringBuffer buffer;
-    private boolean insertTrailingSeparator;
 
-    public HdfsCsvWriter(Configuration conf, String outputDir, String prefix, int numPartitions, boolean compressed, String separator, boolean insertTrailingSeparator) throws IOException {
+    public HdfsCsvWriter(Configuration conf, String outputDir, String prefix, int numPartitions, boolean compressed, String separator) throws IOException {
         super(conf, outputDir, prefix, numPartitions, compressed, "csv");
         this.separator = separator;
         this.buffer = new StringBuffer(2048);
-        this.insertTrailingSeparator = insertTrailingSeparator;
     }
 
     public void writeHeader(List<String> entry) {
         buffer.setLength(0);
         for (int i = 0; i < entry.size(); ++i) {
             buffer.append(entry.get(i));
-            if ((insertTrailingSeparator && i == (entry.size() - 1)) || (i < entry.size() - 1))
+            if (i < entry.size() - 1)
                 buffer.append(separator);
         }
         buffer.append("\n");
@@ -76,7 +74,7 @@ public class HdfsCsvWriter extends HdfsWriter {
         buffer.setLength(0);
         for (int i = 0; i < entry.size(); ++i) {
             buffer.append(entry.get(i));
-            if ((insertTrailingSeparator && i == (entry.size() - 1)) || (i < entry.size() - 1))
+            if (i < entry.size() - 1)
                 buffer.append(separator);
         }
         buffer.append("\n");

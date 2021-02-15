@@ -336,7 +336,6 @@ public class DatagenParams {
         }
     }
 
-
     private static double scale(long numPersons, double mean) {
         return Math.log10(mean * numPersons / 2 + numPersons);
     }

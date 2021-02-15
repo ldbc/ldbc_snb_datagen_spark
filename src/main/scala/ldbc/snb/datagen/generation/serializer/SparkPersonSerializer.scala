@@ -25,17 +25,16 @@ object SparkPersonSerializer {
         val dynamicPersonSerializer = new DynamicPersonSerializer
         val hadoopConf = serializableHadoopConf.value
         val partitionId = TaskContext.getPartitionId()
-        val buildDir = conf.getBuildDir
+        val buildDir = conf.getOutputDir
 
         val fs = FileSystem.get(hadoopConf)
         fs.mkdirs(new Path(buildDir))
 
         dynamicPersonSerializer.initialize(
           hadoopConf,
-          conf.getSocialNetworkDir,
+          conf.getOutputDir,
           partitionId,
-          conf.isCompressed,
-          conf.insertTrailingSeparator()
+          false
         )
 
         val personExporter = new PersonExporter(dynamicPersonSerializer)

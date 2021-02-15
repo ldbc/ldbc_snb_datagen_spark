@@ -84,22 +84,11 @@ public class GeneratorConfiguration implements Iterable<Map.Entry<String, String
     }
 
     public boolean isCompressed() {
-
-        return Boolean.parseBoolean(map.get("serializer.compressed"));
-
+        return Boolean.parseBoolean(map.get("generator.compressed"));
     }
 
-    public boolean insertTrailingSeparator() {
-        return Boolean.parseBoolean(map.get("serializer.insertTrailingSeparator"));
-
-    }
-
-    public String getBuildDir() {
-        return map.get("serializer.buildDir");
-    }
-
-    public String getSocialNetworkDir() {
-        return map.get("serializer.socialNetworkDir");
+    public String getOutputDir() {
+        return map.get("generator.outputDir");
     }
 
     public void printConfig() {

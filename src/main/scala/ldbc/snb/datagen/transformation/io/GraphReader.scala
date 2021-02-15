@@ -1,9 +1,10 @@
 package ldbc.snb.datagen.transformation.io
 
-import ldbc.snb.datagen.transformation.model.{Graph, GraphDef, Id, Mode}
+import ldbc.snb.datagen.transformation.model.{Graph, GraphDef, GraphLike, Id, Mode}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import better.files._
 import org.apache.hadoop.fs.{FileSystem, Path}
+import shapeless.Witness
 
 import java.net.URI
 
@@ -29,10 +30,10 @@ private final class DataFrameGraphReader[M <: Mode](implicit spark: SparkSession
 
   override def read(definition: GraphDef[M], path: String): Graph[M, DataFrame] = {
     val entities = (for { entity <- definition.entities } yield {
-      val df = spark.read.options(csvOptions).csv((path / entity.entityPath).toString())
+      val df = spark.read.options(csvOptions).csv((path / "csv" / PathComponent[GraphLike[M]].path(definition) / entity.entityPath).toString())
       entity -> ev(df)
     }).toMap
-    Graph(definition.layout, definition.mode, entities)
+    Graph[M, DataFrame](definition.isAttrExploded, definition.isEdgesExploded, definition.mode, entities)
   }
 
   override def exists(graphDef: GraphDef[M], path: String): Boolean = {

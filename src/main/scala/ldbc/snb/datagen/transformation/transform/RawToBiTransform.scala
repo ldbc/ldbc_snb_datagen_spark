@@ -50,6 +50,6 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
         Some(Batched(deleteBatchPart(tpe, v, bulkLoadThreshold, simulationEnd), Seq("batch_id")))
       )
     }
-    Graph[Mode.BI, DataFrame]("Bi", mode, entities)
+    Graph[Mode.BI, DataFrame](isAttrExploded = input.isAttrExploded, isEdgesExploded = input.isEdgesExploded, mode, entities)
   }
 }
