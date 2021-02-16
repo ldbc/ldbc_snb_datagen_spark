@@ -13,4 +13,5 @@ docker run \
   --volume `pwd`/target/ldbc_snb_datagen-0.4.0-SNAPSHOT-jar-with-dependencies.jar:/mnt/datagen.jar \
   ldbc/spark \
   --output /mnt/data \
-  --param-file /mnt/params.ini
+  --param-file /mnt/params.ini \
+  ${@} # pass arguments of this script to the submit.sh script (Docker entrypoint)

@@ -15,4 +15,5 @@ exec /usr/local/bin/gosu docker /spark/bin/spark-submit \
     --master ${SPARK_MASTER_URL} \
     ${SPARK_SUBMIT_ARGS} \
     ${SPARK_APPLICATION_JAR_LOCATION} \
-    ${@} # pass arguments of this script to the submit script
+    ${@} # pass arguments of this script to the spark-submit script
+-
