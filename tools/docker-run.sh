@@ -12,4 +12,5 @@ docker run \
   --volume `pwd`/params.ini:/mnt/params.ini \
   --volume `pwd`/target/ldbc_snb_datagen-0.4.0-SNAPSHOT-jar-with-dependencies.jar:/mnt/datagen.jar \
   ldbc/spark \
-  --sn-dir /mnt/data
+  --output /mnt/data \
+  --param-file /mnt/params.ini
