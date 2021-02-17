@@ -95,22 +95,15 @@ private final class BatchedDataFrameGraphWriter[M <: Mode](implicit
           .mode(SaveMode.Ignore)
           .save((path / "csv" / PathComponent[GraphLike[M]].path(graph) / "initial_snapshot" / tpe.entityPath).toString())
 
-        log.info(f"$tpe: Writing inserts")
+        for { (operation, batches) <- Map("inserts" -> insertBatches, "deletes" -> deleteBatches) } {
+          log.info(f"$tpe: Writing $operation")
 
-        insertBatches.foreach { case Batched(entity, partitionKeys) =>
-          CsvWriter.commonCsvOptions(entity.write, options.header, options.separator)
-            .partitionBy(partitionKeys: _*)
-            .mode(SaveMode.Ignore)
-            .save((path / "csv" / PathComponent[GraphLike[M]].path(graph) / "inserts" / tpe.entityPath).toString())
-        }
-
-        log.info(f"$tpe: Writing deletes")
-
-        deleteBatches.foreach { case Batched(entity, partitionKeys) =>
-          CsvWriter.commonCsvOptions(entity.write, options.header, options.separator)
-            .partitionBy(partitionKeys: _*)
-            .mode(SaveMode.Ignore)
-            .save((path / "csv" / PathComponent[GraphLike[M]].path(graph) / "deletes" / tpe.entityPath).toString())
+          batches.foreach { case Batched(entity, partitionKeys) =>
+            CsvWriter.commonCsvOptions(entity.write, options.header, options.separator)
+              .partitionBy(partitionKeys: _*)
+              .mode(SaveMode.Ignore)
+              .save((path / "csv" / PathComponent[GraphLike[M]].path(graph) / operation / tpe.entityPath).toString())
+          }
         }
     }
   }
