@@ -5,7 +5,7 @@ import ldbc.snb.datagen.entities.dynamic.person.Person
 import java.util
 import ldbc.snb.datagen.{DatagenContext, DatagenParams}
 import ldbc.snb.datagen.generator.generators.knowsgenerators.KnowsGenerator
-import ldbc.snb.datagen.util.LdbcConfiguration
+import ldbc.snb.datagen.util.GeneratorConfiguration
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
 
@@ -17,7 +17,7 @@ object SparkKnowsGenerator {
   def apply(
     persons: RDD[Person],
     ranker: SparkRanker,
-    conf: LdbcConfiguration,
+    conf: GeneratorConfiguration,
     percentages: Seq[Float],
     stepIndex: Int,
     knowsGeneratorClassName: String

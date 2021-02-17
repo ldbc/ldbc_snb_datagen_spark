@@ -36,7 +36,7 @@
 package ldbc.snb.datagen.generator.distribution;
 
 import ldbc.snb.datagen.generator.tools.Bucket;
-import ldbc.snb.datagen.util.LdbcConfiguration;
+import ldbc.snb.datagen.util.GeneratorConfiguration;
 import org.apache.commons.math3.util.Pair;
 
 import java.io.BufferedReader;
@@ -50,7 +50,7 @@ public class EmpiricalDistribution extends BucketedDistribution {
     private String fileName = null;
 
     @Override
-    public List<Bucket> getBuckets(LdbcConfiguration conf) {
+    public List<Bucket> getBuckets(GeneratorConfiguration conf) {
         fileName = conf.get("ldbc.snb.datagen.generator.distribution.EmpiricalDistribution.fileName");
         List<Pair<Integer, Integer>> histogram = new ArrayList<>();
         try {

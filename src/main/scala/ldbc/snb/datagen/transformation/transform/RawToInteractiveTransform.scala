@@ -1,16 +1,20 @@
 package ldbc.snb.datagen.transformation.transform
 
 import ldbc.snb.datagen.transformation.model.{Graph, Mode}
-import ldbc.snb.datagen.transformation.transform.Transform.DataFrameGraph
+import ldbc.snb.datagen.util.Logging
 import org.apache.spark.sql.DataFrame
 
-case class RawToInteractiveTransform(bulkLoadThreshold: Long, simulationEnd: Long) extends Transform.Untyped[Mode.Raw.type, Mode.Interactive.type] {
-  override def transform(input: DataFrameGraph[Mode.Raw.type]): DataFrameGraph[Mode.Interactive.type] = {
+case class RawToInteractiveTransform(mode: Mode.Interactive, simulationStart: Long, simulationEnd: Long) extends Transform[Mode.Raw.type, Mode.Interactive] with Logging {
+  log.debug(s"Interactive Transformation parameters: $mode")
+
+  val bulkLoadThreshold = Interactive.calculateBulkLoadThreshold(mode.bulkLoadPortion, simulationStart, simulationEnd)
+
+  override def transform(input: In): Out = {
     val entities = input.entities.map {
       case (tpe, v) if tpe.isStatic => tpe -> v
-      case (tpe, v) => tpe -> Interactive.snapshotPart(tpe, v, bulkLoadThreshold, simulationEnd)
+      case (tpe, v) => tpe -> Interactive.snapshotPart(tpe, v, bulkLoadThreshold, filterDeletion = true)
     }
-    Graph[Mode.Interactive.type, DataFrame](input.layout, entities)
+    Graph[Mode.Interactive, DataFrame](isAttrExploded = input.isAttrExploded, isEdgesExploded = input.isEdgesExploded, mode, entities)
   }
 }
 

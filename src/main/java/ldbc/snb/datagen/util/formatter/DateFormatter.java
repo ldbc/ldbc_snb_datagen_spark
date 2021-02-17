@@ -35,10 +35,10 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.util.formatter;
 
-import ldbc.snb.datagen.util.LdbcConfiguration;
+import ldbc.snb.datagen.util.GeneratorConfiguration;
 
 public interface DateFormatter {
-    default void initialize(LdbcConfiguration ldbcConfiguration) {}
+    default void initialize(GeneratorConfiguration generatorConfiguration) {}
 
     String formatDate(long date);
 

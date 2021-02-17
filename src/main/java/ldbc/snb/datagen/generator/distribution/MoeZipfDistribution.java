@@ -35,7 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.distribution;
 
-import ldbc.snb.datagen.util.LdbcConfiguration;
+import ldbc.snb.datagen.util.GeneratorConfiguration;
 
 import java.util.Random;
 
@@ -46,7 +46,7 @@ public class MoeZipfDistribution extends DegreeDistribution {
     private double DELTA_ = 1.5;
     private Random random_;
 
-    public void initialize(LdbcConfiguration conf) {
+    public void initialize(GeneratorConfiguration conf) {
         ALPHA_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.MoeZipfDistribution.alpha", ALPHA_);
         DELTA_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.MoeZipfDistribution.delta", DELTA_);
         zipf_ = new org.apache.commons.math3.distribution.ZipfDistribution(5000, ALPHA_);

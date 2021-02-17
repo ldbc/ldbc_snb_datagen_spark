@@ -36,7 +36,7 @@
 package ldbc.snb.datagen.generator.distribution;
 
 import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.util.LdbcConfiguration;
+import ldbc.snb.datagen.util.GeneratorConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +48,7 @@ public class AltmannDistribution extends CumulativeBasedDegreeDistribution {
     private double BETA_ = 0.0162;
 
 
-    public List<CumulativeEntry> cumulativeProbability(LdbcConfiguration conf) {
+    public List<CumulativeEntry> cumulativeProbability(GeneratorConfiguration conf) {
         ALPHA_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.AltmannDistribution.alpha", ALPHA_);
         BETA_ = conf.getDouble("ldbc.snb.datagen.generator.distribution.AltmannDistribution.beta", BETA_);
 

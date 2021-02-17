@@ -1,14 +1,11 @@
 package ldbc.snb.datagen.transformation
 
-import ldbc.snb.datagen.dictionary.Dictionaries
-import ldbc.snb.datagen.{DatagenContext, SparkApp}
-import ldbc.snb.datagen.spark.LdbcDatagen
+import ldbc.snb.datagen.SparkApp
 import ldbc.snb.datagen.transformation.model.Cardinality.{NN, OneN}
 import ldbc.snb.datagen.transformation.model.EntityType.{Edge, Node}
 import ldbc.snb.datagen.transformation.model.{BatchedEntity, Graph, GraphDef, Mode}
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.transformation.io._
-import ldbc.snb.datagen.transformation.model.Mode.Raw
 import ldbc.snb.datagen.transformation.transform.{ExplodeAttrs, ExplodeEdges, RawToBiTransform, RawToInteractiveTransform}
 import ldbc.snb.datagen.util.Logging
 import org.apache.spark.sql.{DataFrame, SparkSession}
@@ -18,17 +15,18 @@ object TransformationStage extends SparkApp with Logging {
   override def appName: String = "LDBC SNB Datagen for Spark: TransformationStage"
 
   case class Args(
-    propFile: String,
-    socialNetworkDir: String,
-    outputDir: String,
-    numThreads: Option[Int] = None,
-    explodeEdges: Boolean,
-    explodeAttrs: Boolean,
-    mode: Mode
+    outputDir: String = "out",
+    explodeEdges: Boolean = false,
+    explodeAttrs: Boolean = false,
+    simulationStart: Long = 0,
+    simulationEnd: Long = 0,
+    mode: Mode = Mode.Raw
   )
 
-  val inputGraphDefinition = GraphDef[Mode.Raw.type](
-    "CompositeMergeForeign",
+  val inputGraphDefinition = GraphDef(
+    isAttrExploded = false,
+    isEdgesExploded = false,
+    Mode.Raw,
     Set(
       Node("Organisation", isStatic = true),
       Node("Place", isStatic = true),
@@ -51,45 +49,7 @@ object TransformationStage extends SparkApp with Logging {
     )
   )
 
-  /*
-  date formatting logic
-  public class StringDateFormatter implements DateFormatter {
-    private DateTimeFormatter gmtDateTimeFormatter;
-    private DateTimeFormatter gmtDateFormatter;
-
-    private static ZoneId GMT = ZoneId.of("GMT");
-
-    public void initialize(LdbcConfiguration conf) {
-        String formatDateTimeString = DatagenParams.getDateTimeFormat();
-        gmtDateTimeFormatter = DateTimeFormatter.ofPattern(formatDateTimeString).withZone(GMT);
-        String formatDateString = DatagenParams.getDateFormat();
-        gmtDateFormatter = DateTimeFormatter.ofPattern(formatDateString).withZone(GMT);
-    }
-
-    public String formatDateTime(long date) {
-        return gmtDateTimeFormatter.format(Instant.ofEpochMilli(date));
-    }
-
-    public String formatDate(long date) {
-        return gmtDateFormatter.format(Instant.ofEpochMilli(date));
-    }
-
-}
-   */
-
   def run(args: Args)(implicit spark: SparkSession) = {
-    val config = LdbcDatagen.buildConfig(args.propFile, None, Some(args.socialNetworkDir), args.numThreads)
-
-    val bulkLoadThreshold = Dictionaries.dates.getBulkLoadThreshold
-    val simulationEnd = Dictionaries.dates.getSimulationEnd
-
-    log.debug(s"bulkLoadThreshold: $bulkLoadThreshold")
-    log.debug(s"simulationEnd: $simulationEnd")
-
-    val numPartitions = config.getInt("hadoop.numThreads", spark.sparkContext.defaultParallelism)
-
-    DatagenContext.initialize(config)
-
     object write extends Poly1 {
       implicit def caseSimple[M <: Mode](implicit ev: M#Layout[DataFrame] =:= DataFrame) = at[Graph[M, DataFrame]](
         GraphWriter[M, DataFrame].write(_, args.outputDir, WriterOptions())
@@ -100,18 +60,18 @@ object TransformationStage extends SparkApp with Logging {
     }
 
     type OutputTypes = Graph[Mode.Raw.type, DataFrame] :+:
-      Graph[Mode.Interactive.type, DataFrame] :+:
-      Graph[Mode.BI.type, DataFrame] :+:
+      Graph[Mode.Interactive, DataFrame] :+:
+      Graph[Mode.BI, DataFrame] :+:
       CNil
 
     GraphReader[Mode.Raw.type, DataFrame]
-      .read(inputGraphDefinition, args.socialNetworkDir)
+      .read(inputGraphDefinition, args.outputDir)
       .pipeFoldLeft(args.explodeAttrs.fork)((graph, _: Unit) => ExplodeAttrs.transform(graph))
       .pipeFoldLeft(args.explodeEdges.fork)((graph, _: Unit) => ExplodeEdges.transform(graph))
       .pipe[OutputTypes] {
         g => args.mode match {
-          case Mode.BI => Inr(Inr(Inl(RawToBiTransform(bulkLoadThreshold, simulationEnd).transform(g))))
-          case Mode.Interactive => Inr(Inl(RawToInteractiveTransform(bulkLoadThreshold, simulationEnd).transform(g)))
+          case bi@Mode.BI(_, _) => Inr(Inr(Inl(RawToBiTransform(bi, args.simulationStart, args.simulationEnd).transform(g))))
+          case interactive@Mode.Interactive(_) => Inr(Inl(RawToInteractiveTransform(interactive, args.simulationStart, args.simulationEnd).transform(g)))
           case Mode.Raw => Inl(g)
         }
       }

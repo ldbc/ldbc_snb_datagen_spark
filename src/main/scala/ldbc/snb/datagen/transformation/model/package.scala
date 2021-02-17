@@ -18,6 +18,7 @@ package object model {
     val entityPath: String
     val primaryKey: Seq[String]
   }
+
   object EntityType {
     private def s(isStatic: Boolean) = if (isStatic) "static" else "dynamic"
 
@@ -48,7 +49,6 @@ package object model {
         case (s, d) if s == d => Seq(s"${s}1", s"${d}2")
         case (s, d) => Seq(s, d)
       }).map(name => s"$name.id")
-
     }
   }
 
@@ -60,19 +60,44 @@ package object model {
     deleteBatches: Option[Batched[T]]
   )
 
-  sealed trait Mode { type Layout[Data] }
+  sealed trait Mode {
+    type Layout[Data]
+    def modePath: String
+  }
   object Mode {
-    final case object Raw extends Mode { type Layout[+Data] = Data }
-    final case object Interactive extends Mode { type Layout[+Data] = Data }
-    final case object BI extends Mode { type Layout[+Data] = BatchedEntity[Data] }
+    final case object Raw extends Mode {
+      type Layout[+Data] = Data
+      override val modePath: String = "raw"
+    }
+    final case class Interactive(bulkLoadPortion: Double) extends Mode {
+      type Layout[+Data] = Data
+      override val modePath: String = "interactice"
+    }
+    final case class BI(bulkloadPortion: Double, batchPeriod: String) extends Mode {
+      type Layout[+Data] = BatchedEntity[Data]
+      override val modePath: String = "bi"
+    }
+  }
+
+  trait GraphLike[+M <: Mode] {
+    def isAttrExploded: Boolean
+    def isEdgesExploded: Boolean
+    def mode: M
   }
 
   case class Graph[+M <: Mode, D](
-    layout: String,
+    isAttrExploded: Boolean,
+    isEdgesExploded: Boolean,
+    mode: M,
     entities: Map[EntityType, M#Layout[D]]
-  )
+  ) extends GraphLike[M]
 
-  case class GraphDef[M <: Mode](layout: String, entities: Set[EntityType])
+  case class GraphDef[M <: Mode](
+    isAttrExploded: Boolean,
+    isEdgesExploded: Boolean,
+    mode: M,
+    entities: Set[EntityType]
+  ) extends GraphLike[M]
 
   sealed trait BatchPeriod
   object BatchPeriod {

@@ -46,7 +46,6 @@ ENV SPARK_SUBMIT_ARGS --executor-memory ${EXECUTOR_MEMORY} --driver-memory ${DRI
 ENV SPARK_APPLICATION_MAIN_CLASS ldbc.snb.datagen.spark.LdbcDatagen
 ENV SPARK_MASTER_URL local[*]
 ENV SPARK_APPLICATION_JAR_LOCATION /mnt/datagen.jar
-ENV SPARK_APPLICATION_ARGS /mnt/params.ini
 
 COPY submit.sh /
 

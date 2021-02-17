@@ -86,7 +86,7 @@ Switch to Java 8 and run the benchmarks locally with the following script:
 
 ```bash
 # switch to Java 8
-tools/run.py ./target/ldbc_snb_datagen-0.4.0-SNAPSHOT-jar-with-dependencies.jar params.ini
+tools/run.py ./target/ldbc_snb_datagen-0.4.0-SNAPSHOT-jar-with-dependencies.jar -- --param-file params.ini
 ```
 
 There are some configuration options like setting parallelism or number of cores, try `--help`.

@@ -42,7 +42,7 @@ import ldbc.snb.datagen.entities.statictype.TagClass;
 import ldbc.snb.datagen.entities.statictype.place.Place;
 import ldbc.snb.datagen.entities.statictype.tag.Tag;
 import ldbc.snb.datagen.serializer.StaticSerializer;
-import ldbc.snb.datagen.util.LdbcConfiguration;
+import ldbc.snb.datagen.util.GeneratorConfiguration;
 import ldbc.snb.datagen.util.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 
@@ -58,9 +58,9 @@ public class HadoopStaticSerializer {
     private int currentFile = 0;
 
     private Configuration hadoopConf;
-    private LdbcConfiguration conf;
+    private GeneratorConfiguration conf;
 
-    public HadoopStaticSerializer(LdbcConfiguration conf, Configuration hadoopConf, int numPartitions) {
+    public HadoopStaticSerializer(GeneratorConfiguration conf, Configuration hadoopConf, int numPartitions) {
         this.conf = conf;
         this.hadoopConf = hadoopConf;
         this.numPartitions = numPartitions;
@@ -75,8 +75,8 @@ public class HadoopStaticSerializer {
             for (int i = 0; i < numPartitions; ++i) {
                 staticSerializer[i] = new StaticSerializer();
                 staticSerializer[i].initialize(
-                        hadoopConf, conf.getSocialNetworkDir(), i,
-                        conf.isCompressed(), conf.insertTrailingSeparator()
+                        hadoopConf, conf.getOutputDir(), i,
+                        false
                 );
             }
         } catch (Exception e) {

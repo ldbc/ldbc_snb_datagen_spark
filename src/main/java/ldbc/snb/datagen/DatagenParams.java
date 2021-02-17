@@ -43,12 +43,10 @@ import ldbc.snb.datagen.entities.dynamic.person.similarity.InterestsSimilarity;
 import ldbc.snb.datagen.generator.distribution.DegreeDistribution;
 import ldbc.snb.datagen.generator.distribution.FacebookDegreeDistribution;
 import ldbc.snb.datagen.generator.distribution.ZipfDistribution;
-import ldbc.snb.datagen.util.LdbcConfiguration;
+import ldbc.snb.datagen.util.GeneratorConfiguration;
 import ldbc.snb.datagen.util.formatter.DateFormatter;
 import ldbc.snb.datagen.util.formatter.LongDateFormatter;
 import ldbc.snb.datagen.util.formatter.StringDateFormatter;
-
-import static ldbc.snb.datagen.DatagenMode.*;
 
 public class DatagenParams {
 
@@ -133,7 +131,6 @@ public class DatagenParams {
         TAG_UNCORRELATED_COUNTRY("generator.tagCountryCorrProb"),
         UNIVERSITY_UNCORRELATED_RATIO("generator.probUnCorrelatedOrganisation"),
         MAX_NUM_LIKE("generator.maxNumLike"),
-        BULK_LOAD_PORTION("generator.bulkLoadPortion"),
         USER_MAX_GROUP("generator.maxNumGroupCreatedPerPerson"),
         USER_MAX_POST_MONTH("generator.maxNumPostPerMonth"),
         USER_MAX_TAGS("generator.maxNumTagsPerPerson"),
@@ -180,7 +177,6 @@ public class DatagenParams {
     public static double ratioLargePost = 0.0;
     public static double ratioReduceText = 0.0; // 80% text has size less than 1/2 max size
     public static double tagCountryCorrProb = 0.0;
-    public static double bulkLoadPortion = 0.0;
     public static int blockSize = 0;
     public static int flashmobTagsPerMonth = 0;
     public static int maxCommentSize = 0;
@@ -231,7 +227,6 @@ public class DatagenParams {
 
     public static final double alpha = 0.4; // used for the power law distribution
 
-    public static String datagenMode;
     public static String degreeDistributionName;
     public static String knowsGeneratorName;
     public static String personSimularity;
@@ -246,15 +241,15 @@ public class DatagenParams {
     public static boolean exportText = true;
     public static int numUpdateStreams = 1;
 
-    private static Integer intConf(LdbcConfiguration conf, ParameterNames param) {
+    private static Integer intConf(GeneratorConfiguration conf, ParameterNames param) {
         return Integer.parseInt(conf.get(param.toString()));
     }
 
-    private static Double doubleConf(LdbcConfiguration conf, ParameterNames param) {
+    private static Double doubleConf(GeneratorConfiguration conf, ParameterNames param) {
         return Double.parseDouble(conf.get(param.toString()));
     }
 
-    public static void readConf(LdbcConfiguration conf) {
+    public static void readConf(GeneratorConfiguration conf) {
         try {
             ParameterNames[] values = ParameterNames.values();
             for (ParameterNames value : values)
@@ -317,10 +312,8 @@ public class DatagenParams {
             flashmobTagMinLevel = doubleConf(conf, ParameterNames.FLASHMOB_TAG_MIN_LEVEL);
             flashmobTagMaxLevel = doubleConf(conf, ParameterNames.FLASHMOB_TAG_MAX_LEVEL);
             flashmobTagDistExp = doubleConf(conf, ParameterNames.FLASHMOB_TAG_DIST_EXP);
-            bulkLoadPortion = doubleConf(conf, ParameterNames.BULK_LOAD_PORTION);
             blockSize = intConf(conf, ParameterNames.BLOCK_SIZE);
 
-            datagenMode = conf.get("generator.mode");
             numPersons = Long.parseLong(conf.get("generator.numPersons"));
             startYear = Integer.parseInt(conf.get("generator.startYear"));
             numYears = Integer.parseInt(conf.get("generator.numYears"));
@@ -329,11 +322,7 @@ public class DatagenParams {
             knowsGeneratorName = conf.get("generator.knowsGenerator");
             personSimularity = conf.get("generator.person.similarity");
             degreeDistributionName = conf.get("generator.degreeDistribution");
-            dateFormatter = conf.get("generator.dateFormatter");
-            dateTimeFormat = conf.get("generator.StringDate.dateTimeFormat");
-            dateFormat = conf.get("generator.StringDate.dateFormat");
 
-            System.out.println(" ... Datagen Mode " + datagenMode);
             System.out.println(" ... Num Persons " + numPersons);
             System.out.println(" ... Start Year " + startYear);
             System.out.println(" ... Num Years " + numYears);
@@ -343,28 +332,6 @@ public class DatagenParams {
             throw new RuntimeException(e);
         }
     }
-
-
-    public static DatagenMode getDatagenMode() {
-
-        DatagenMode mode;
-        switch (datagenMode) {
-            case "interactive":
-                mode = INTERACTIVE;
-                break;
-            case "bi":
-                mode = BI;
-                break;
-            case "rawdata":
-                mode = RAW_DATA;
-                break;
-            default:
-                throw new IllegalStateException("Unexpected datagen mode: " + datagenMode);
-        }
-
-        return mode;
-    }
-
 
     private static double scale(long numPersons, double mean) {
         return Math.log10(mean * numPersons / 2 + numPersons);

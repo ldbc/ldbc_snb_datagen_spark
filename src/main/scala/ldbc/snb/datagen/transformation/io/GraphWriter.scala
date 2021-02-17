@@ -1,13 +1,11 @@
 package ldbc.snb.datagen.transformation.io
 
-import ldbc.snb.datagen.transformation.model.{Batched, BatchedEntity, EntityType, Graph, Mode}
+import ldbc.snb.datagen.transformation.model.{Batched, BatchedEntity, EntityType, Graph, GraphLike, Mode}
 import ldbc.snb.datagen.transformation.model.EntityType.{Attr, Edge, Node}
-import ldbc.snb.datagen.util.Utils.snake
-import org.apache.spark.sql.{DataFrame, DataFrameWriter}
+import org.apache.spark.sql.{DataFrame, DataFrameWriter, SaveMode}
 import shapeless.{Generic, Poly1}
 import better.files._
 import ldbc.snb.datagen.util.Logging
-import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.immutable.TreeMap
 
@@ -28,6 +26,9 @@ object GraphWriter {
 
 object CsvWriter {
   object implicits {
+
+    // Heuristic for ordering entity types so that those derived
+    // similarly are near each other.
     implicit val cacheFriendlyOrdering = new Ordering[EntityType] {
       private val and = (a: Int, b: Int) => if (a == 0) b else a
 
@@ -60,7 +61,9 @@ object CsvWriter {
     ))
 }
 
-private final class DataFrameGraphWriter[M <: Mode](implicit ev: M#Layout[DataFrame] =:= DataFrame) extends GraphWriter[M] with Logging {
+private final class DataFrameGraphWriter[M <: Mode](implicit
+  ev: M#Layout[DataFrame] =:= DataFrame
+) extends GraphWriter[M] with Logging {
   import CsvWriter.implicits._
   type Data = DataFrame
 
@@ -70,12 +73,15 @@ private final class DataFrameGraphWriter[M <: Mode](implicit ev: M#Layout[DataFr
         log.info(f"$tpe: Writing snapshot")
 
         CsvWriter.commonCsvOptions(dataset.write, options.header, options.separator)
-          .save((path / "csv" / snake(graph.layout) / tpe.entityPath).toString())
+          .mode(SaveMode.Ignore)
+          .save((path / "csv" / PathComponent[GraphLike[M]].path(graph) / tpe.entityPath).toString())
     }
   }
 }
 
-private final class BatchedDataFrameGraphWriter[M <: Mode](implicit ev: M#Layout[DataFrame] =:= BatchedEntity[DataFrame]) extends GraphWriter[M] with Logging {
+private final class BatchedDataFrameGraphWriter[M <: Mode](implicit
+  ev: M#Layout[DataFrame] =:= BatchedEntity[DataFrame]
+) extends GraphWriter[M] with Logging {
   import CsvWriter.implicits._
   type Data = DataFrame
 
@@ -86,22 +92,18 @@ private final class BatchedDataFrameGraphWriter[M <: Mode](implicit ev: M#Layout
         log.info(f"$tpe: Writing initial snapshot")
 
         CsvWriter.commonCsvOptions(snapshot.write, options.header, options.separator)
-          .save((path / "csv" / snake(graph.layout) / "initial_snapshot" / tpe.entityPath).toString())
+          .mode(SaveMode.Ignore)
+          .save((path / "csv" / PathComponent[GraphLike[M]].path(graph) / "initial_snapshot" / tpe.entityPath).toString())
 
-        log.info(f"$tpe: Writing inserts")
+        for { (operation, batches) <- Map("inserts" -> insertBatches, "deletes" -> deleteBatches) } {
+          log.info(f"$tpe: Writing $operation")
 
-        insertBatches.foreach { case Batched(entity, partitionKeys) =>
-          CsvWriter.commonCsvOptions(entity.write, options.header, options.separator)
-            .partitionBy(partitionKeys: _*)
-            .save((path / "csv" / snake(graph.layout) / "inserts" / tpe.entityPath).toString())
-        }
-
-        log.info(f"$tpe: Writing deletes")
-
-        deleteBatches.foreach { case Batched(entity, partitionKeys) =>
-          CsvWriter.commonCsvOptions(entity.write, options.header, options.separator)
-            .partitionBy(partitionKeys: _*)
-            .save((path / "csv" / snake(graph.layout) / "deletes" / tpe.entityPath).toString())
+          batches.foreach { case Batched(entity, partitionKeys) =>
+            CsvWriter.commonCsvOptions(entity.write, options.header, options.separator)
+              .partitionBy(partitionKeys: _*)
+              .mode(SaveMode.Ignore)
+              .save((path / "csv" / PathComponent[GraphLike[M]].path(graph) / operation / tpe.entityPath).toString())
+          }
         }
     }
   }

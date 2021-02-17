@@ -49,7 +49,7 @@ jobs:
           cp -r .circleci dist/
           # CsvBasic using 'raw data' mode
           sed 's/:1$/:0.003/g' params-template.ini > params.ini
-          tools/docker-run.sh
+          tools/docker-run.sh --mode bi
           mv out social_network-bi
           zip -r dist/social_network-bi.zip social_network-bi/
       - gh-pages/deploy:

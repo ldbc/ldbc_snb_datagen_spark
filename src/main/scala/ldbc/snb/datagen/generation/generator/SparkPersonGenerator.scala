@@ -4,14 +4,14 @@ import ldbc.snb.datagen.entities.dynamic.person.Person
 import org.apache.spark.sql.SparkSession
 import ldbc.snb.datagen.{DatagenContext, DatagenParams}
 import ldbc.snb.datagen.generator.generators.PersonGenerator
-import ldbc.snb.datagen.util.LdbcConfiguration
+import ldbc.snb.datagen.util.GeneratorConfiguration
 import org.apache.spark.rdd.RDD
 
 import scala.collection.JavaConverters._
 
 object SparkPersonGenerator {
 
-  def apply(conf: LdbcConfiguration, numPartitions: Option[Int] = None)(implicit spark: SparkSession): RDD[Person] = {
+  def apply(conf: GeneratorConfiguration, numPartitions: Option[Int] = None)(implicit spark: SparkSession): RDD[Person] = {
     val numBlocks = Math.ceil(DatagenParams.numPersons / DatagenParams.blockSize.toDouble).toInt
 
     val personPartitionGenerator = (blocks: Iterator[Long]) => {

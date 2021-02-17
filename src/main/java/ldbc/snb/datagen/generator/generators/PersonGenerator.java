@@ -35,13 +35,15 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.generators;
 
-import ldbc.snb.datagen.DatagenMode;
 import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
-import ldbc.snb.datagen.util.*;
 import ldbc.snb.datagen.generator.distribution.DegreeDistribution;
 import ldbc.snb.datagen.generator.tools.PowerDistribution;
+import ldbc.snb.datagen.util.DateUtils;
+import ldbc.snb.datagen.util.GeneratorConfiguration;
+import ldbc.snb.datagen.util.PersonDeleteDistribution;
+import ldbc.snb.datagen.util.RandomGeneratorFarm;
 
 import java.text.Normalizer;
 import java.time.Month;
@@ -57,7 +59,7 @@ public class PersonGenerator {
     private RandomGeneratorFarm randomFarm;
     private int nextId = 0;
 
-    public PersonGenerator(LdbcConfiguration conf, String degreeDistribution) {
+    public PersonGenerator(GeneratorConfiguration conf, String degreeDistribution) {
 //        try {
 //            this.degreeDistribution = (DegreeDistribution) Class.forName(degreeDistribution).newInstance();
             this.degreeDistribution = DatagenParams.getDegreeDistribution();
@@ -106,20 +108,15 @@ public class PersonGenerator {
 
 
         long deletionDate;
-        if (DatagenParams.getDatagenMode() == DatagenMode.INTERACTIVE) {
-            deletionDate = Dictionaries.dates.getNetworkCollapse();
-            person.setExplicitlyDeleted(false);
+        boolean delete = personDeleteDistribution.isDeleted(randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_PERSON), maxKnows);
+        if (delete) {
+            person.setExplicitlyDeleted(true);
+            long maxDeletionDate = Dictionaries.dates.getSimulationEnd();
+            deletionDate = Dictionaries.dates.randomPersonDeletionDate(
+                    randomFarm.get(RandomGeneratorFarm.Aspect.DATE), creationDate, person.getMaxNumKnows(), maxDeletionDate);
         } else {
-            boolean delete = personDeleteDistribution.isDeleted(randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_PERSON), maxKnows);
-            if (delete) {
-                person.setExplicitlyDeleted(true);
-                long maxDeletionDate = Dictionaries.dates.getSimulationEnd();
-                deletionDate = Dictionaries.dates.randomPersonDeletionDate(
-                        randomFarm.get(RandomGeneratorFarm.Aspect.DATE), creationDate, person.getMaxNumKnows(), maxDeletionDate);
-            } else {
-                person.setExplicitlyDeleted(false);
-                deletionDate = Dictionaries.dates.getNetworkCollapse();
-            }
+            person.setExplicitlyDeleted(false);
+            deletionDate = Dictionaries.dates.getNetworkCollapse();
         }
         person.setDeletionDate(deletionDate);
 
