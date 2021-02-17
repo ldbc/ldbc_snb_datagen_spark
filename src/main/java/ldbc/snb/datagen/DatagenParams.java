@@ -131,7 +131,6 @@ public class DatagenParams {
         TAG_UNCORRELATED_COUNTRY("generator.tagCountryCorrProb"),
         UNIVERSITY_UNCORRELATED_RATIO("generator.probUnCorrelatedOrganisation"),
         MAX_NUM_LIKE("generator.maxNumLike"),
-        BULK_LOAD_PORTION("generator.bulkLoadPortion"),
         USER_MAX_GROUP("generator.maxNumGroupCreatedPerPerson"),
         USER_MAX_POST_MONTH("generator.maxNumPostPerMonth"),
         USER_MAX_TAGS("generator.maxNumTagsPerPerson"),
@@ -178,7 +177,6 @@ public class DatagenParams {
     public static double ratioLargePost = 0.0;
     public static double ratioReduceText = 0.0; // 80% text has size less than 1/2 max size
     public static double tagCountryCorrProb = 0.0;
-    public static double bulkLoadPortion = 0.0;
     public static int blockSize = 0;
     public static int flashmobTagsPerMonth = 0;
     public static int maxCommentSize = 0;
@@ -314,7 +312,6 @@ public class DatagenParams {
             flashmobTagMinLevel = doubleConf(conf, ParameterNames.FLASHMOB_TAG_MIN_LEVEL);
             flashmobTagMaxLevel = doubleConf(conf, ParameterNames.FLASHMOB_TAG_MAX_LEVEL);
             flashmobTagDistExp = doubleConf(conf, ParameterNames.FLASHMOB_TAG_DIST_EXP);
-            bulkLoadPortion = doubleConf(conf, ParameterNames.BULK_LOAD_PORTION);
             blockSize = intConf(conf, ParameterNames.BLOCK_SIZE);
 
             numPersons = Long.parseLong(conf.get("generator.numPersons"));
