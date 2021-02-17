@@ -2,7 +2,7 @@ package ldbc.snb.datagen.transformation.io
 
 import ldbc.snb.datagen.transformation.model.{Batched, BatchedEntity, EntityType, Graph, GraphLike, Mode}
 import ldbc.snb.datagen.transformation.model.EntityType.{Attr, Edge, Node}
-import org.apache.spark.sql.{DataFrame, DataFrameWriter}
+import org.apache.spark.sql.{DataFrame, DataFrameWriter, SaveMode}
 import shapeless.{Generic, Poly1}
 import better.files._
 import ldbc.snb.datagen.util.Logging
@@ -73,6 +73,7 @@ private final class DataFrameGraphWriter[M <: Mode](implicit
         log.info(f"$tpe: Writing snapshot")
 
         CsvWriter.commonCsvOptions(dataset.write, options.header, options.separator)
+          .mode(SaveMode.Ignore)
           .save((path / "csv" / PathComponent[GraphLike[M]].path(graph) / tpe.entityPath).toString())
     }
   }
@@ -91,6 +92,7 @@ private final class BatchedDataFrameGraphWriter[M <: Mode](implicit
         log.info(f"$tpe: Writing initial snapshot")
 
         CsvWriter.commonCsvOptions(snapshot.write, options.header, options.separator)
+          .mode(SaveMode.Ignore)
           .save((path / "csv" / PathComponent[GraphLike[M]].path(graph) / "initial_snapshot" / tpe.entityPath).toString())
 
         log.info(f"$tpe: Writing inserts")
@@ -98,6 +100,7 @@ private final class BatchedDataFrameGraphWriter[M <: Mode](implicit
         insertBatches.foreach { case Batched(entity, partitionKeys) =>
           CsvWriter.commonCsvOptions(entity.write, options.header, options.separator)
             .partitionBy(partitionKeys: _*)
+            .mode(SaveMode.Ignore)
             .save((path / "csv" / PathComponent[GraphLike[M]].path(graph) / "inserts" / tpe.entityPath).toString())
         }
 
@@ -106,6 +109,7 @@ private final class BatchedDataFrameGraphWriter[M <: Mode](implicit
         deleteBatches.foreach { case Batched(entity, partitionKeys) =>
           CsvWriter.commonCsvOptions(entity.write, options.header, options.separator)
             .partitionBy(partitionKeys: _*)
+            .mode(SaveMode.Ignore)
             .save((path / "csv" / PathComponent[GraphLike[M]].path(graph) / "deletes" / tpe.entityPath).toString())
         }
     }
