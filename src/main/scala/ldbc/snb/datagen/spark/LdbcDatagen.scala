@@ -80,11 +80,7 @@ object LdbcDatagen extends SparkApp {
       opt[String]("batch-period")
         .action((x, c) => args.batchPeriod.set(c)(x))
         .text("Period of the batches in BI mode. Possible values: year, day, month, hour, etc. Default: day")
-
-      opt[String]("batch-period")
-        .action((x, c) => args.batchPeriod.set(c)(x))
-        .text("Period of the batches in BI mode. Possible values: year, day, month, hour, etc. Default: day")
-
+      
       opt[String]('f', "format")
         .action((x, c) => args.format.set(c)(x))
         .text("Output format. Currently, Spark Datasource formats are supported, such as 'csv', 'parquet' or 'orc'.")
