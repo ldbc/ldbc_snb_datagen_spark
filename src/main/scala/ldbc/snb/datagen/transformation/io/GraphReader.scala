@@ -4,13 +4,12 @@ import ldbc.snb.datagen.transformation.model.{Graph, GraphDef, GraphLike, Id, Mo
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import better.files._
 import org.apache.hadoop.fs.{FileSystem, Path}
-import shapeless.Witness
 
 import java.net.URI
 
 trait GraphReader[M <: Mode] {
   type Data
-  def read(graphDef: GraphDef[M], path: String): Graph[M, Data]
+  def read(graphDef: GraphDef[M], path: String, options: ReaderOptions): Graph[M, Data]
   def exists(graphDef: GraphDef[M], path: String): Boolean
 }
 
@@ -20,17 +19,32 @@ object GraphReader {
   def apply[M <: Mode, D](implicit ev: GraphReader.Aux[M, D]): GraphReader.Aux[M, D] = ev
 }
 
-private final class DataFrameGraphReader[M <: Mode](implicit spark: SparkSession, ev: Id[DataFrame] =:= M#Layout[DataFrame]) extends GraphReader[M] {
-  type Data = DataFrame
+case class ReaderOptions(
+  format: String,
+  formatOptions: Map[String, String]
+)
 
-  val csvOptions = Map(
+object Reader {
+  val defaultCsvOptions = Map(
     "header" -> "true",
     "sep" -> "|"
   )
 
-  override def read(definition: GraphDef[M], path: String): Graph[M, DataFrame] = {
+  def apply(readerOptions: ReaderOptions)(implicit spark: SparkSession) = {
+    val formatOptions = readerOptions.format match {
+      case "csv" => defaultCsvOptions ++ readerOptions.formatOptions
+      case _ => readerOptions.formatOptions
+    }
+    spark.read.format(readerOptions.format).options(formatOptions)
+  }
+}
+
+private final class DataFrameGraphReader[M <: Mode](implicit spark: SparkSession, ev: Id[DataFrame] =:= M#Layout[DataFrame]) extends GraphReader[M] {
+  type Data = DataFrame
+
+  override def read(definition: GraphDef[M], path: String, options: ReaderOptions): Graph[M, DataFrame] = {
     val entities = (for { entity <- definition.entities } yield {
-      val df = spark.read.options(csvOptions).csv((path / "csv" / PathComponent[GraphLike[M]].path(definition) / entity.entityPath).toString())
+      val df = Reader(options).load((path / options.format / PathComponent[GraphLike[M]].path(definition) / entity.entityPath).toString())
       entity -> ev(df)
     }).toMap
     Graph[M, DataFrame](definition.isAttrExploded, definition.isEdgesExploded, definition.mode, entities)

@@ -10,8 +10,8 @@ import ldbc.snb.datagen.util.Logging
 import scala.collection.immutable.TreeMap
 
 case class WriterOptions(
-  header: Boolean = true,
-  separator: Char = '|'
+  format: String,
+  formatOptions: Map[String, String]
 )
 
 trait GraphWriter[M <: Mode] {
@@ -24,7 +24,7 @@ object GraphWriter {
   def apply[M <: Mode, D](implicit ev: GraphWriter.Aux[M, D]): GraphWriter.Aux[M, D] = ev
 }
 
-object CsvWriter {
+object Writer {
   object implicits {
 
     // Heuristic for ordering entity types so that those derived
@@ -53,18 +53,27 @@ object CsvWriter {
     }
   }
 
-  def commonCsvOptions[T](dfw: DataFrameWriter[T], header: Boolean, separator: Char) = dfw
-    .format("csv")
-    .options(Map(
-      "header" -> header.toString,
-      "sep" -> separator.toString
-    ))
+  val defaultCsvOptions = Map(
+    "header" -> "true",
+    "sep" ->  "|"
+  )
+
+  def apply[T](dfw: DataFrameWriter[T], writerOptions: WriterOptions) = {
+    val formatOptions = writerOptions.format match {
+      case "csv" => defaultCsvOptions ++ writerOptions.formatOptions
+      case _ => writerOptions.formatOptions
+    }
+
+    dfw
+      .format(writerOptions.format)
+      .options(formatOptions)
+  }
 }
 
 private final class DataFrameGraphWriter[M <: Mode](implicit
   ev: M#Layout[DataFrame] =:= DataFrame
 ) extends GraphWriter[M] with Logging {
-  import CsvWriter.implicits._
+  import Writer.implicits._
   type Data = DataFrame
 
   override def write(graph: Graph[M, DataFrame], path: String, options: WriterOptions): Unit = {
@@ -72,9 +81,9 @@ private final class DataFrameGraphWriter[M <: Mode](implicit
       case (tpe, dataset) =>
         log.info(f"$tpe: Writing snapshot")
 
-        CsvWriter.commonCsvOptions(dataset.write, options.header, options.separator)
+        Writer.apply(dataset.write, options)
           .mode(SaveMode.Ignore)
-          .save((path / "csv" / PathComponent[GraphLike[M]].path(graph) / tpe.entityPath).toString())
+          .save((path / options.format / PathComponent[GraphLike[M]].path(graph) / tpe.entityPath).toString())
     }
   }
 }
@@ -82,7 +91,7 @@ private final class DataFrameGraphWriter[M <: Mode](implicit
 private final class BatchedDataFrameGraphWriter[M <: Mode](implicit
   ev: M#Layout[DataFrame] =:= BatchedEntity[DataFrame]
 ) extends GraphWriter[M] with Logging {
-  import CsvWriter.implicits._
+  import Writer.implicits._
   type Data = DataFrame
 
   override def write(graph: Graph[M, DataFrame], path: String, options: WriterOptions): Unit = {
@@ -91,18 +100,18 @@ private final class BatchedDataFrameGraphWriter[M <: Mode](implicit
 
         log.info(f"$tpe: Writing initial snapshot")
 
-        CsvWriter.commonCsvOptions(snapshot.write, options.header, options.separator)
+        Writer.apply(snapshot.write, options)
           .mode(SaveMode.Ignore)
-          .save((path / "csv" / PathComponent[GraphLike[M]].path(graph) / "initial_snapshot" / tpe.entityPath).toString())
+          .save((path / options.format / PathComponent[GraphLike[M]].path(graph) / "initial_snapshot" / tpe.entityPath).toString())
 
         for { (operation, batches) <- Map("inserts" -> insertBatches, "deletes" -> deleteBatches) } {
           log.info(f"$tpe: Writing $operation")
 
           batches.foreach { case Batched(entity, partitionKeys) =>
-            CsvWriter.commonCsvOptions(entity.write, options.header, options.separator)
+            Writer.apply(entity.write, options)
               .partitionBy(partitionKeys: _*)
               .mode(SaveMode.Ignore)
-              .save((path / "csv" / PathComponent[GraphLike[M]].path(graph) / operation / tpe.entityPath).toString())
+              .save((path / options.format / PathComponent[GraphLike[M]].path(graph) / operation / tpe.entityPath).toString())
           }
         }
     }

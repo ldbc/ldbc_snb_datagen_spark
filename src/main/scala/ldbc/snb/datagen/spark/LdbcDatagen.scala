@@ -24,7 +24,9 @@ object LdbcDatagen extends SparkApp {
     explodeAttrs: Boolean = false,
     mode: String = "raw",
     batchPeriod: String = "daily",
-    numThreads: Option[Int] = None
+    numThreads: Option[Int] = None,
+    format: String = "csv",
+    formatOptions: Map[String, String] = Map.empty
   )
 
   def main(args: Array[String]): Unit = {
@@ -78,6 +80,16 @@ object LdbcDatagen extends SparkApp {
       opt[String]("batch-period")
         .action((x, c) => args.batchPeriod.set(c)(x))
         .text("Period of the batches in BI mode. Possible values: year, day, month, hour, etc. Default: day")
+      
+      opt[String]('f', "format")
+        .action((x, c) => args.format.set(c)(x))
+        .text("Output format. Currently, Spark Datasource formats are supported, such as 'csv', 'parquet' or 'orc'.")
+
+      opt[Map[String,String]]("format-options")
+        .action((x, c) => args.formatOptions.set(c)(x))
+        .text("Output format options in key=value[,key=value...] format. See format options for specific formats " +
+          "available in Spark: https://spark.apache.org/docs/2.4.5/api/scala/index.html#org.apache.spark.sql.DataFrameWriter")
+
     }
 
     val parsedArgs = parser.parse(args, Args()).getOrElse(throw new RuntimeException("Invalid arguments"))
@@ -111,7 +123,9 @@ object LdbcDatagen extends SparkApp {
         case "bi" => Mode.BI(bulkloadPortion = args.bulkloadPortion, batchPeriod = args.batchPeriod)
         case "interactive" => Mode.Interactive(bulkLoadPortion = args.bulkloadPortion)
         case "raw" => Mode.Raw
-      }
+      },
+      args.format,
+      args.formatOptions
     )
 
     TransformationStage.run(transformArgs)
