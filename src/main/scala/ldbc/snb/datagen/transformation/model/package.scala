@@ -1,6 +1,8 @@
 package ldbc.snb.datagen.transformation
 
+import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.util.Utils.{camel, lower}
+import org.apache.spark.sql.Column
 
 import scala.language.higherKinds
 
@@ -68,10 +70,20 @@ package object model {
     final case object Raw extends Mode {
       type Layout[+Data] = Data
       override val modePath: String = "raw"
+
+      def withRawColumns(et: EntityType, cols: Column*): Seq[Column] = (!et.isStatic).fork.foldLeft(cols)((cols, _) => Seq(
+        $"creationDate".as("creationDate"),
+        $"deletionDate".as("deletionDate"),
+        $"explicitlyDeleted".as("explicitlyDeleted")
+      ) ++ cols)
+
+      def dateTimePattern = "yyyy-MM-dd'T'HH:mm:ss.SSS+00:00"
+      def datePattern = "yyyy-MM-dd"
+
     }
     final case class Interactive(bulkLoadPortion: Double) extends Mode {
       type Layout[+Data] = Data
-      override val modePath: String = "interactice"
+      override val modePath: String = "interactive"
     }
     final case class BI(bulkloadPortion: Double, batchPeriod: String) extends Mode {
       type Layout[+Data] = BatchedEntity[Data]

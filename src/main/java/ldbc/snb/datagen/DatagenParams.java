@@ -44,9 +44,6 @@ import ldbc.snb.datagen.generator.distribution.DegreeDistribution;
 import ldbc.snb.datagen.generator.distribution.FacebookDegreeDistribution;
 import ldbc.snb.datagen.generator.distribution.ZipfDistribution;
 import ldbc.snb.datagen.util.GeneratorConfiguration;
-import ldbc.snb.datagen.util.formatter.DateFormatter;
-import ldbc.snb.datagen.util.formatter.LongDateFormatter;
-import ldbc.snb.datagen.util.formatter.StringDateFormatter;
 
 public class DatagenParams {
 
@@ -230,9 +227,6 @@ public class DatagenParams {
     public static String degreeDistributionName;
     public static String knowsGeneratorName;
     public static String personSimularity;
-    public static String dateFormatter;
-    public static String dateFormat;
-    public static String dateTimeFormat;
 
     public static int delta = 10000;
     public static long numPersons = 10000;
@@ -381,30 +375,6 @@ public class DatagenParams {
         }
 
         return output;
-    }
-
-    public static DateFormatter getDateFormatter() {
-        DateFormatter output;
-        switch (dateFormatter) {
-            case "LongDate":
-                output = new LongDateFormatter();
-                break;
-            case "StringDate":
-                output = new StringDateFormatter();
-                break;
-            default:
-                throw new IllegalStateException("Unexpected date formatter: " + dateFormatter);
-        }
-
-        return output;
-    }
-
-    public static String getDateFormat() {
-        return dateFormat;
-    }
-
-    public static String getDateTimeFormat(){
-        return dateTimeFormat;
     }
 
     public static int getNumberOfMonths() {

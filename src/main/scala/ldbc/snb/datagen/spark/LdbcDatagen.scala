@@ -53,7 +53,7 @@ object LdbcDatagen extends SparkApp {
 
       opt[Int]( "num-threads")
         .action((x, c) => args.numThreads.set(c)(Some(x)))
-        .text("output directory")
+        .text("Controls parallelization and number of files written.")
 
       opt[String]('m', "mode")
         .validate(s => {
@@ -71,16 +71,16 @@ object LdbcDatagen extends SparkApp {
         .action((x, c) => args.bulkloadPortion.set(c)(x))
         .text("Bulkload portion. Only applicable to BI and interactive modes")
 
-      opt[Boolean]('e', "explode-edges")
-        .action((x, c) => args.explodeEdges.set(c)(x))
+      opt[Unit]('e', "explode-edges")
+        .action((x, c) => args.explodeEdges.set(c)(true))
 
-      opt[Boolean]('a', "explode-attrs")
-        .action((x, c) => args.explodeAttrs.set(c)(x))
+      opt[Unit]('a', "explode-attrs")
+        .action((x, c) => args.explodeAttrs.set(c)(true))
 
       opt[String]("batch-period")
         .action((x, c) => args.batchPeriod.set(c)(x))
-        .text("Period of the batches in BI mode. Possible values: year, day, month, hour, etc. Default: day")
-      
+        .text("Period of the batches in BI mode. Possible values: year, month, day, hour. Default: day")
+
       opt[String]('f', "format")
         .action((x, c) => args.format.set(c)(x))
         .text("Output format. Currently, Spark Datasource formats are supported, such as 'csv', 'parquet' or 'orc'.")

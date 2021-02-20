@@ -31,7 +31,7 @@ object SparkPersonSerializer {
         fs.mkdirs(new Path(buildDir))
 
         dynamicPersonSerializer.initialize(
-          hadoopConf,
+          fs,
           conf.getOutputDir,
           partitionId,
           false

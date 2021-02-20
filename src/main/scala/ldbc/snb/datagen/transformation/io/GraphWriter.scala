@@ -9,14 +9,9 @@ import ldbc.snb.datagen.util.Logging
 
 import scala.collection.immutable.TreeMap
 
-case class WriterOptions(
-  format: String,
-  formatOptions: Map[String, String]
-)
-
 trait GraphWriter[M <: Mode] {
   type Data
-  def write(graph: Graph[M, Data], path: String, options: WriterOptions): Unit
+  def write(graph: Graph[M, Data], path: String, options: FormatOptions): Unit
 }
 
 object GraphWriter {
@@ -53,20 +48,12 @@ object Writer {
     }
   }
 
-  val defaultCsvOptions = Map(
-    "header" -> "true",
-    "sep" ->  "|"
-  )
 
-  def apply[T](dfw: DataFrameWriter[T], writerOptions: WriterOptions) = {
-    val formatOptions = writerOptions.format match {
-      case "csv" => defaultCsvOptions ++ writerOptions.formatOptions
-      case _ => writerOptions.formatOptions
-    }
 
+  def apply[T](dfw: DataFrameWriter[T], writerOptions: FormatOptions) = {
     dfw
       .format(writerOptions.format)
-      .options(formatOptions)
+      .options(writerOptions.formatOptions)
   }
 }
 
@@ -76,7 +63,7 @@ private final class DataFrameGraphWriter[M <: Mode](implicit
   import Writer.implicits._
   type Data = DataFrame
 
-  override def write(graph: Graph[M, DataFrame], path: String, options: WriterOptions): Unit = {
+  override def write(graph: Graph[M, DataFrame], path: String, options: FormatOptions): Unit = {
     TreeMap(graph.entities.toSeq: _*).foreach {
       case (tpe, dataset) =>
         log.info(f"$tpe: Writing snapshot")
@@ -94,7 +81,7 @@ private final class BatchedDataFrameGraphWriter[M <: Mode](implicit
   import Writer.implicits._
   type Data = DataFrame
 
-  override def write(graph: Graph[M, DataFrame], path: String, options: WriterOptions): Unit = {
+  override def write(graph: Graph[M, DataFrame], path: String, options: FormatOptions): Unit = {
     TreeMap(graph.entities.mapValues(ev).toSeq: _*).foreach {
       case (tpe, BatchedEntity(snapshot, insertBatches, deleteBatches)) =>
 

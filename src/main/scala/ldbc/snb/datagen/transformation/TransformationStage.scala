@@ -53,11 +53,11 @@ object TransformationStage extends SparkApp with Logging {
 
   def run(args: Args)(implicit spark: SparkSession) = {
     object write extends Poly1 {
-      implicit def caseSimple[M <: Mode](implicit ev: M#Layout[DataFrame] =:= DataFrame) = at[Graph[M, DataFrame]](
-        GraphWriter[M, DataFrame].write(_, args.outputDir, WriterOptions(args.format, args.formatOptions))
+      implicit def caseSimple[M <: Mode](implicit ev: M#Layout[DataFrame] =:= DataFrame) = at[Graph[M, DataFrame]](g =>
+        GraphWriter[M, DataFrame].write(g, args.outputDir, new FormatOptions(args.format, g.mode, args.formatOptions))
       )
-      implicit def caseBatched[M <: Mode](implicit ev: M#Layout[DataFrame] =:= BatchedEntity[DataFrame]) = at[Graph[M, DataFrame]](
-        GraphWriter[M, DataFrame].write(_, args.outputDir, WriterOptions(args.format, args.formatOptions))
+      implicit def caseBatched[M <: Mode](implicit ev: M#Layout[DataFrame] =:= BatchedEntity[DataFrame]) = at[Graph[M, DataFrame]](g =>
+        GraphWriter[M, DataFrame].write(g, args.outputDir, new FormatOptions(args.format, g.mode, args.formatOptions))
       )
     }
 
@@ -67,7 +67,7 @@ object TransformationStage extends SparkApp with Logging {
       CNil
 
     GraphReader[Mode.Raw.type, DataFrame]
-      .read(inputGraphDefinition, args.outputDir, ReaderOptions("csv", Map.empty))
+      .read(inputGraphDefinition, args.outputDir, new FormatOptions("csv", Mode.Raw))
       .pipeFoldLeft(args.explodeAttrs.fork)((graph, _: Unit) => ExplodeAttrs.transform(graph))
       .pipeFoldLeft(args.explodeEdges.fork)((graph, _: Unit) => ExplodeEdges.transform(graph))
       .pipe[OutputTypes] {

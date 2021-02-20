@@ -21,14 +21,14 @@ private object Interactive {
   }
 
   def calculateBulkLoadThreshold(bulkLoadPortion: Double, simulationStart: Long, simulationEnd: Long) = {
-    simulationEnd - ((simulationEnd - simulationStart) * bulkLoadPortion).toLong
+    (simulationEnd - ((simulationEnd - simulationStart) * bulkLoadPortion).toLong)
   }
 
   def snapshotPart(tpe: EntityType, df: DataFrame, bulkLoadThreshold: Long, filterDeletion: Boolean) = {
     val filterBulkLoad = (ds: DataFrame) => ds
       .filter(
-        Raw.dateTimeToTimestampMillis($"creationDate") < bulkLoadThreshold &&
-          (!lit(filterDeletion) || Raw.dateTimeToTimestampMillis($"deletionDate") >= bulkLoadThreshold)
+        $"creationDate" < to_timestamp(lit(bulkLoadThreshold / 1000)) &&
+          (!lit(filterDeletion) || $"deletionDate" >= to_timestamp(lit(bulkLoadThreshold / 1000)))
       )
 
     tpe match {
