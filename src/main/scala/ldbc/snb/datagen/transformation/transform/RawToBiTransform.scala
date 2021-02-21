@@ -13,9 +13,18 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
 
   val bulkLoadThreshold = Interactive.calculateBulkLoadThreshold(mode.bulkloadPortion, simulationStart, simulationEnd)
 
+  def batchPeriodFormat(batchPeriod: String) = batchPeriod match {
+    case "year" => "yyyy"
+    case "month" => "yyyy-MM"
+    case "day" => "yyyy-MM-dd"
+    case "hour" => "yyyy-MM-dd'T'hh"
+    case "minute" => "yyyy-MM-dd'T'hh:mm"
+    case _ => "yyyy-MM-dd'T'HH:mm:ss.SSS+00:00"
+  }
+
   override def transform(input: In): Out = {
     val batch_id = (col: Column) =>
-      date_format(date_trunc(mode.batchPeriod, col), "yyyy-MM-dd")
+      date_format(date_trunc(mode.batchPeriod, col), batchPeriodFormat(mode.batchPeriod))
 
     def inBatch(col: Column, batchStart: Long, batchEnd: Long) =
       col >= to_timestamp(lit(batchStart / 1000)) &&
@@ -36,6 +45,8 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
         .select(
           Seq($"insert_batch_id".as("batch_id")) ++ Interactive.columns(tpe, df.columns).map(qcol): _*
         )
+        .repartition(1, $"batch_id")
+        .sortWithinPartitions($"creationDate")
     }
 
     val deleteBatchPart = (tpe: EntityType, df: DataFrame, batchStart: Long, batchEnd: Long) => {
@@ -44,14 +55,17 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
         .filter(inBatch($"deletionDate", batchStart, batchEnd))
         .pipe(batched)
         .select(Seq($"delete_batch_id".as("batch_id"), $"deletionDate") ++ idColumns: _*)
+        .repartition(1, $"batch_id")
+        .sortWithinPartitions($"deletionDate")
     }
 
     val entities = input.entities.map {
       case (tpe, v) if tpe.isStatic => tpe -> BatchedEntity(v, None, None)
-      case (tpe, v) => tpe -> BatchedEntity(
-        Interactive.snapshotPart(tpe, v, bulkLoadThreshold, filterDeletion = false),
-        Some(Batched(insertBatchPart(tpe, v, bulkLoadThreshold, simulationEnd), Seq("batch_id"))),
-        Some(Batched(deleteBatchPart(tpe, v, bulkLoadThreshold, simulationEnd), Seq("batch_id")))
+      case (tpe, v) =>
+        tpe -> BatchedEntity(
+          Interactive.snapshotPart(tpe, v, bulkLoadThreshold, filterDeletion = false),
+          Some(Batched(insertBatchPart(tpe, v, bulkLoadThreshold, simulationEnd), Seq("batch_id"))),
+          Some(Batched(deleteBatchPart(tpe, v, bulkLoadThreshold, simulationEnd), Seq("batch_id")))
       )
     }
     Graph[Mode.BI, DataFrame](isAttrExploded = input.isAttrExploded, isEdgesExploded = input.isEdgesExploded, mode, entities)
