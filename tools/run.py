@@ -73,7 +73,7 @@ if __name__ == "__main__":
                         )
     parser.add_argument('--memory',
                         type=str,
-                        help='amount of memory to use. E.g 512m, 16g, 1t'
+                        help='amount of memory to use. E.g. 512m, 16g, 1t'
                         )
     parser.add_argument('--conf',
                         nargs='+',

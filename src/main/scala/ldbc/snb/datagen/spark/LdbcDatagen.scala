@@ -45,11 +45,11 @@ object LdbcDatagen extends SparkApp {
         .action((x, c) => args.paramFile.set(c)(Some(x)))
         .text("Parameter file used for the generator")
 
-      opt[String]('o', "output")
+      opt[String]('o', "output-dir")
         .action((x, c) => args.outputDir.set(c)(x))
         .text("output directory")
 
-      opt[Int]( "num-threads")
+      opt[Int]('n', "num-threads")
         .action((x, c) => args.numThreads.set(c)(Some(x)))
         .text("Controls parallelization and number of files written.")
 
@@ -88,6 +88,7 @@ object LdbcDatagen extends SparkApp {
         .text("Output format options specified as key=value1[,key=value...]. See format options for specific formats " +
           "available in Spark: https://spark.apache.org/docs/2.4.5/api/scala/index.html#org.apache.spark.sql.DataFrameWriter")
 
+      help('h', "help").text("prints this usage text")
     }
 
     val parsedArgs = parser.parse(args, Args()).getOrElse(throw new RuntimeException("Invalid arguments"))

@@ -20,48 +20,30 @@ The LDBC SNB Data Generator (Datagen) is the responsible of providing the datase
 
 ## Quick start
 
-### Configuration
-
-Initialize the `params.ini` file as needed. For example, to generate the basic CSV files, issue:
-
-```bash
-cp params-template.ini params.ini
-```
-
-The following options are available (:warning: the configuration is currently being reworked, and is likely to be broken):
-
-* `generator.scaleFactor`: determines the data set size, options: `0.003` (for tests), `0.1`, `0.3`, `1`, `3`, `10`, `30`, ..., `1000`. Larger ones coming soon (Dec 2020/Jan 2021)
-* `serializer.format`, options:
-  * `CsvBasic`
-  * `CsvMergeForeign`
-  * `CsvComposite`
-  * `CsvCompositeMergeForeign`
-  * RDF/Turtle serializers are currently not supported.
-* `generator.mode`, options:
-  * `interactive`: used for the benchmarks
-  * `rawdata`: used for debugging, includes explicit deletion date timestamps, edge weights used to select deletions, etc. This mode is only compatible with the `CsvBasic` serializer.
-
 ### Build the JAR
 
-#### Build with Maven
+#### Build the JAR
 
-To assemble the JAR file with Maven, run:
+You can build the JAR with both Maven and SBT.
 
-```bash
-tools/build.sh
-```
+* To assemble the JAR file with Maven, run:
 
-:warning: If you experience any issues, make sure the compilation target is Java 1.8.
+    ```bash
+    tools/build.sh
+    ```
 
-#### Build with SBT
+    :warning: If you experience any issues, make sure the compilation target is Java 1.8.
 
-For faster builds during development, consider using SBT. To assemble the JAR file with SBT, run:
+* For faster builds during development, consider using SBT. To assemble the JAR file with SBT, run:
 
-```bash
-sbt assembly
-```
+    ```bash
+    sbt assembly
+    ```
+
+    :warning: When using SBT, change the path of the JAR file in the instructions provided in the README (`target/ldbc_snb_datagen-0.4.0-SNAPSHOT.jar` -> `./target/scala-2.11/ldbc_snb_datagen-assembly-0.4.0-SNAPSHOT.jar`).
 
 ### Install tools
+
 Some of the build utilities are written in Python. To use them, you have to create a Python virtual environment
 and install the dependencies.
 
@@ -82,14 +64,75 @@ export SPARK_HOME="/opt/spark-2.4.7-bin-hadoop2.7"
 export PATH="$SPARK_HOME/bin":"$PATH"
 ```
 
-Switch to Java 8 and run the benchmarks locally with the following script:
+Make sure you use Java 8.
+
+The `tools/run.py` is intended for **local runs** and its arguments are structured as follows:
 
 ```bash
-# switch to Java 8
-tools/run.py ./target/ldbc_snb_datagen-0.4.0-SNAPSHOT-jar-with-dependencies.jar -- --param-file params.ini
+tools/run.py ./target/ldbc_snb_datagen-0.4.0-SNAPSHOT.jar <runtime configuration arguments> -- <generator configuration arguments>
 ```
 
-There are some configuration options like setting parallelism or number of cores, try `--help`.
+#### Runtime configuration arguments
+
+The runtime configuration arguments determine the amount of memory, number of threads, degree of parallelism. For a list of arguments, see:
+
+```bash
+tools/run.py --help
+```
+
+To generate a single `part-*.csv` file, reduce the parallelism (number of Spark partitions) to 1.
+
+```bash
+./tools/run.py ./target/ldbc_snb_datagen-0.4.0-SNAPSHOT.jar --parallelism 1 -- --format csv --scale-factor 0.003 --mode interactive
+```
+#### Generator configuration arguments
+
+The generator configuration arguments allow the configuration of the output directory, output format, layout, etc.
+
+To get a complete list of the arguments, pass `--help` to the JAR file:
+
+```bash
+./tools/run.py ./target/ldbc_snb_datagen-0.4.0-SNAPSHOT.jar -- --help
+```
+
+* Passing `params.ini` files:
+
+  ```bash
+  ./tools/run.py ./target/ldbc_snb_datagen-0.4.0-SNAPSHOT.jar -- --format csv --param-file params.ini
+  ```
+
+* Generating `CsvBasic` files in Interactive mode:
+
+  ```bash
+  ./tools/run.py ./target/ldbc_snb_datagen-0.4.0-SNAPSHOT.jar -- --format csv --scale-factor 0.003 --explode-edges --explode-attrs --mode interactive
+  ```
+
+* Generating `CsvCompositeMergeForeign` files in BI mode:
+
+  ```bash
+  ./tools/run.py ./target/ldbc_snb_datagen-0.4.0-SNAPSHOT.jar -- --format csv --scale-factor 0.003 --mode bi
+  ```
+
+* Generating CSVs in `Raw` mode:
+
+  ```bash
+  ./tools/run.py ./target/ldbc_snb_datagen-0.4.0-SNAPSHOT.jar -- --format csv --scale-factor 0.003 --mode raw
+  ```
+
+* For the `interactive` and `bi` formats, the `--format-options` argument allows passing formatting options such as timestamp/date formats and the presence/abscence of headers (see the [Spark formatting options](https://spark.apache.org/docs/2.4.7/api/scala/index.html#org.apache.spark.sql.DataFrameWriter) for details):
+
+  ```bash
+  ./tools/run.py ./target/ldbc_snb_datagen-0.4.0-SNAPSHOT.jar -- --format csv --scale-factor 0.003 --mode interactive --format-options timestampFormat=MM/dd/YYYY\ HH:mm:ss,dateFormat=MM/dd/YYYY,header=false
+  ```
+
+To change the Spark configuration directory, adjust the `SPARK_CONF_DIR` environment variable.
+
+A complex example:
+
+```bash
+export SPARK_CONF_DIR=./conf
+./tools/run.py ./target/ldbc_snb_datagen-0.4.0-SNAPSHOT.jar --parallelism 4 --memory 8G -- --format csv --format-options timestampFormat=MM/dd/YYYY\ HH:mm:ss,dateFormat=MM/dd/YYYY --explode-edges --explode-attrs --mode interactive --scale-factor 0.003
+```
 
 ### Docker image
 
@@ -106,8 +149,6 @@ See [Build the JAR](#build-the-jar) to build the library. Then, run the followin
 ```bash
 tools/docker-run.sh
 ```
-
-This produce its output to the `out/social_network` directory
 
 ### Elastic MapReduce
 
@@ -128,7 +169,7 @@ paramgenerator/generateparamsbi.py out/build/ substitution_parameters
 
 ## Larger scale factors
 
-The scale factors SF3k are currently being fine-tuned, both regarding optimizing the generator and also for tuning the distributions.
+The scale factors SF3k+ are currently being fine-tuned, both regarding optimizing the generator and also for tuning the distributions.
 
 ## Graph schema
 
