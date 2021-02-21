@@ -15,7 +15,7 @@ object LdbcDatagen extends SparkApp {
   val appName = "LDBC SNB Datagen for Spark"
 
   case class Args(
-    scaleFactor: Double = 1.0f,
+    scaleFactor: String = "1",
     params: Map[String, String] = Map.empty,
     paramFile: Option[String] = None,
     outputDir: String = "out",
@@ -35,7 +35,7 @@ object LdbcDatagen extends SparkApp {
 
       val args = lens[Args]
 
-      opt[Double]("scale-factor")
+      opt[String]("scale-factor")
         .action((x, c) => args.scaleFactor.set(c)(x))
         .text("The generator scale factor")
 
@@ -87,7 +87,7 @@ object LdbcDatagen extends SparkApp {
 
       opt[Map[String,String]]("format-options")
         .action((x, c) => args.formatOptions.set(c)(x))
-        .text("Output format options in key=value[,key=value...] format. See format options for specific formats " +
+        .text("Output format options specified as key=value1[,key=value...]. See format options for specific formats " +
           "available in Spark: https://spark.apache.org/docs/2.4.5/api/scala/index.html#org.apache.spark.sql.DataFrameWriter")
 
     }

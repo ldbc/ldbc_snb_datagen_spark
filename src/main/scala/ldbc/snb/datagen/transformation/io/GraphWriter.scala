@@ -5,18 +5,38 @@ import ldbc.snb.datagen.transformation.model.EntityType.{Attr, Edge, Node}
 import org.apache.spark.sql.{DataFrame, DataFrameWriter, SaveMode}
 import shapeless.{Generic, Poly1}
 import better.files._
+import ldbc.snb.datagen.transformation.model.Mode.Raw
 import ldbc.snb.datagen.util.Logging
 
 import scala.collection.immutable.TreeMap
 
 trait GraphWriter[M <: Mode] {
   type Data
-  def write(graph: Graph[M, Data], path: String, options: FormatOptions): Unit
+  def write(graph: Graph[M, Data], path: String, options: WriterFormatOptions): Unit
 }
 
 object GraphWriter {
   type Aux[M <: Mode, D] = GraphWriter[M] { type Data = D }
   def apply[M <: Mode, D](implicit ev: GraphWriter.Aux[M, D]): GraphWriter.Aux[M, D] = ev
+}
+
+class WriterFormatOptions(val format: String, mode: Mode, private val customFormatOptions: Map[String, String] = Map.empty) {
+  val defaultCsvFormatOptions = Map(
+    "header" -> "true",
+    "sep" ->  "|",
+    "mode" -> "FAILFAST"
+  )
+
+  val forcedRawCsvFormatOptions = Map(
+    "dateFormat" -> Raw.datePattern,
+    "timestampFormat" -> Raw.dateTimePattern
+  )
+
+  val formatOptions: Map[String, String] = (format, mode) match {
+    case ("csv", Raw) => defaultCsvFormatOptions ++ customFormatOptions ++ forcedRawCsvFormatOptions
+    case ("csv", _) => defaultCsvFormatOptions ++ customFormatOptions
+    case _ => customFormatOptions
+  }
 }
 
 object Writer {
@@ -48,9 +68,7 @@ object Writer {
     }
   }
 
-
-
-  def apply[T](dfw: DataFrameWriter[T], writerOptions: FormatOptions) = {
+  def apply[T](dfw: DataFrameWriter[T], writerOptions: WriterFormatOptions) = {
     dfw
       .format(writerOptions.format)
       .options(writerOptions.formatOptions)
@@ -63,10 +81,11 @@ private final class DataFrameGraphWriter[M <: Mode](implicit
   import Writer.implicits._
   type Data = DataFrame
 
-  override def write(graph: Graph[M, DataFrame], path: String, options: FormatOptions): Unit = {
+  override def write(graph: Graph[M, DataFrame], path: String, options: WriterFormatOptions): Unit = {
     TreeMap(graph.entities.toSeq: _*).foreach {
       case (tpe, dataset) =>
-        log.info(f"$tpe: Writing snapshot")
+        log.info(s"$tpe: Writing snapshot")
+        log.info(s"FormatOptions: ${options.formatOptions}")
 
         Writer.apply(dataset.write, options)
           .mode(SaveMode.Ignore)
@@ -81,7 +100,7 @@ private final class BatchedDataFrameGraphWriter[M <: Mode](implicit
   import Writer.implicits._
   type Data = DataFrame
 
-  override def write(graph: Graph[M, DataFrame], path: String, options: FormatOptions): Unit = {
+  override def write(graph: Graph[M, DataFrame], path: String, options: WriterFormatOptions): Unit = {
     TreeMap(graph.entities.mapValues(ev).toSeq: _*).foreach {
       case (tpe, BatchedEntity(snapshot, insertBatches, deleteBatches)) =>
 
