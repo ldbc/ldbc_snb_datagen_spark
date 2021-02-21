@@ -23,8 +23,7 @@ object GraphWriter {
 class WriterFormatOptions(val format: String, mode: Mode, private val customFormatOptions: Map[String, String] = Map.empty) {
   val defaultCsvFormatOptions = Map(
     "header" -> "true",
-    "sep" ->  "|",
-    "mode" -> "FAILFAST"
+    "sep" ->  "|"
   )
 
   val forcedRawCsvFormatOptions = Map(
@@ -84,12 +83,12 @@ private final class DataFrameGraphWriter[M <: Mode](implicit
   override def write(graph: Graph[M, DataFrame], path: String, options: WriterFormatOptions): Unit = {
     TreeMap(graph.entities.toSeq: _*).foreach {
       case (tpe, dataset) =>
-        log.info(s"$tpe: Writing snapshot")
-        log.info(s"FormatOptions: ${options.formatOptions}")
+        log.info(s"$tpe: Writing")
 
         Writer.apply(dataset.write, options)
           .mode(SaveMode.Ignore)
           .save((path / options.format / PathComponent[GraphLike[M]].path(graph) / tpe.entityPath).toString())
+        log.info(s"$tpe: Writing completed")
     }
   }
 }
@@ -103,12 +102,13 @@ private final class BatchedDataFrameGraphWriter[M <: Mode](implicit
   override def write(graph: Graph[M, DataFrame], path: String, options: WriterFormatOptions): Unit = {
     TreeMap(graph.entities.mapValues(ev).toSeq: _*).foreach {
       case (tpe, BatchedEntity(snapshot, insertBatches, deleteBatches)) =>
-
-        log.info(f"$tpe: Writing initial snapshot")
+        log.info(s"$tpe: Writing snapshot")
 
         Writer.apply(snapshot.write, options)
           .mode(SaveMode.Ignore)
           .save((path / options.format / PathComponent[GraphLike[M]].path(graph) / "initial_snapshot" / tpe.entityPath).toString())
+
+        log.info(s"$tpe: Writing snapshot completed")
 
         for { (operation, batches) <- Map("inserts" -> insertBatches, "deletes" -> deleteBatches) } {
           log.info(f"$tpe: Writing $operation")
@@ -119,6 +119,7 @@ private final class BatchedDataFrameGraphWriter[M <: Mode](implicit
               .mode(SaveMode.Ignore)
               .save((path / options.format / PathComponent[GraphLike[M]].path(graph) / operation / tpe.entityPath).toString())
           }
+          log.info(f"$tpe: Writing $operation completed")
         }
     }
   }

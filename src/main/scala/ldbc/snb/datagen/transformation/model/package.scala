@@ -27,6 +27,7 @@ package object model {
     final case class Node(name: String, isStatic: Boolean = false) extends EntityType {
       override val entityPath: String = s"${s(isStatic)}/${lower(name)}"
       override val primaryKey: Seq[String] = Seq("id")
+      override def toString: String = s"$name"
     }
 
     final case class Edge(
@@ -42,6 +43,8 @@ package object model {
           case (s, d) if s == d => Seq(s"${s}1", s"${d}2")
           case (s, d) => Seq(s, d)
       }).map(name => s"$name.id")
+
+      override def toString: String = s"$source -[${`type`}]-> $destination"
     }
 
     final case class Attr(`type`: String, parent: String, attribute: String, isStatic: Boolean = false) extends EntityType {
@@ -51,7 +54,9 @@ package object model {
         case (s, d) if s == d => Seq(s"${s}1", s"${d}2")
         case (s, d) => Seq(s, d)
       }).map(name => s"$name.id")
+      override def toString: String = s"$parent ♢-[${`type`}]-> $attribute"
     }
+
   }
 
   case class Batched[+T](entity: T, batchId: Seq[String])
@@ -108,7 +113,7 @@ package object model {
     isAttrExploded: Boolean,
     isEdgesExploded: Boolean,
     mode: M,
-    entities: Set[EntityType]
+    entities: Map[EntityType, Option[String]]
   ) extends GraphLike[M]
 
   sealed trait BatchPeriod

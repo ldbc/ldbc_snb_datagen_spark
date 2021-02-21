@@ -3,7 +3,9 @@ package ldbc.snb.datagen.transformation.io
 import ldbc.snb.datagen.transformation.model.{Graph, GraphDef, GraphLike, Id, Mode}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import better.files._
+import ldbc.snb.datagen.syntax.fluentSyntaxOps
 import ldbc.snb.datagen.transformation.model.Mode.Raw
+import ldbc.snb.datagen.util.Logging
 import org.apache.hadoop.fs.{FileSystem, Path}
 
 import java.net.URI
@@ -23,8 +25,7 @@ object GraphReader {
 class ReaderFormatOptions(val format: String, mode: Mode, private val customFormatOptions: Map[String, String] = Map.empty) {
   val defaultCsvFormatOptions = Map(
     "header" -> "true",
-    "sep" ->  "|",
-    "inferSchema" -> "true"
+    "sep" ->  "|"
   )
 
   val forcedRawCsvFormatOptions = Map(
@@ -45,14 +46,19 @@ object Reader {
   }
 }
 
-private final class DataFrameGraphReader[M <: Mode](implicit spark: SparkSession, ev: Id[DataFrame] =:= M#Layout[DataFrame]) extends GraphReader[M] {
+private final class DataFrameGraphReader[M <: Mode](implicit spark: SparkSession, ev: Id[DataFrame] =:= M#Layout[DataFrame])
+  extends GraphReader[M]
+    with Logging {
   type Data = DataFrame
 
   override def read(definition: GraphDef[M], path: String, options: ReaderFormatOptions): Graph[M, DataFrame] = {
-    val entities = (for { entity <- definition.entities } yield {
-      val df = Reader(options).load((path / options.format / PathComponent[GraphLike[M]].path(definition) / entity.entityPath).toString())
+    val entities = for { (entity, schema) <- definition.entities } yield {
+      log.info(s"Reading $entity")
+      val df = Reader(options)
+        .pipeFoldLeft(schema)(_.schema(_))
+        .load((path / options.format / PathComponent[GraphLike[M]].path(definition) / entity.entityPath).toString())
       entity -> ev(df)
-    }).toMap
+    }
     Graph[M, DataFrame](definition.isAttrExploded, definition.isEdgesExploded, definition.mode, entities)
   }
 
