@@ -1,11 +1,9 @@
 package ldbc.snb.datagen.spark
 
-import better.files._
 import ldbc.snb.datagen.dictionary.Dictionaries
 import ldbc.snb.datagen.{DatagenContext, SparkApp}
 import ldbc.snb.datagen.generation.GenerationStage
 import ldbc.snb.datagen.transformation.TransformationStage
-import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.transformation.model.Mode
 import ldbc.snb.datagen.util.Utils.lower
 import shapeless.lens
@@ -23,7 +21,7 @@ object LdbcDatagen extends SparkApp {
     explodeEdges: Boolean = false,
     explodeAttrs: Boolean = false,
     mode: String = "raw",
-    batchPeriod: String = "daily",
+    batchPeriod: String = "day",
     numThreads: Option[Int] = None,
     format: String = "csv",
     formatOptions: Map[String, String] = Map.empty
