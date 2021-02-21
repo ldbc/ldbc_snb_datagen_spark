@@ -17,6 +17,10 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
     val batch_id = (col: Column) =>
       date_format(date_trunc(mode.batchPeriod, col), "yyyy-MM-dd")
 
+    def inBatch(col: Column, batchStart: Long, batchEnd: Long) =
+      col >= to_timestamp(lit(batchStart / 1000)) &&
+        col < to_timestamp(lit(batchEnd / 1000))
+
     val batched = (df: DataFrame) => df
       .select(
         df.columns.map(qcol) ++ Seq(
@@ -27,7 +31,7 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
 
     val insertBatchPart = (tpe: EntityType, df: DataFrame, batchStart: Long, batchEnd: Long) => {
       df
-        .filter($"creationDate" >= batchStart && $"creationDate" < batchEnd)
+        .filter(inBatch($"creationDate", batchStart, batchEnd))
         .pipe(batched)
         .select(
           Seq($"insert_batch_id".as("batch_id")) ++ Interactive.columns(tpe, df.columns).map(qcol): _*
@@ -37,7 +41,7 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
     val deleteBatchPart = (tpe: EntityType, df: DataFrame, batchStart: Long, batchEnd: Long) => {
       val idColumns = tpe.primaryKey.map(qcol)
       df
-        .filter($"deletionDate" >= batchStart && $"deletionDate" < batchEnd)
+        .filter(inBatch($"deletionDate", batchStart, batchEnd))
         .pipe(batched)
         .select(Seq($"delete_batch_id".as("batch_id"), $"deletionDate") ++ idColumns: _*)
     }
