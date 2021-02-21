@@ -38,7 +38,7 @@ package ldbc.snb.datagen.hadoop.writer;
 
 import com.clearspring.analytics.util.Lists;
 import com.google.common.collect.Iterables;
-import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 
 import java.io.IOException;
 import java.util.List;
@@ -48,8 +48,8 @@ public class HdfsCsvWriter extends HdfsWriter {
     private String separator;
     private StringBuffer buffer;
 
-    public HdfsCsvWriter(Configuration conf, String outputDir, String prefix, int numPartitions, boolean compressed, String separator) throws IOException {
-        super(conf, outputDir, prefix, numPartitions, compressed, "csv");
+    public HdfsCsvWriter(FileSystem fs, String outputDir, String prefix, int numPartitions, boolean compressed, String separator) throws IOException {
+        super(fs, outputDir, prefix, numPartitions, compressed, "csv");
         this.separator = separator;
         this.buffer = new StringBuffer(2048);
     }

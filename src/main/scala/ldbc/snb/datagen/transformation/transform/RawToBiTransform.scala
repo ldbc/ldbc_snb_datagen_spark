@@ -4,7 +4,7 @@ import ldbc.snb.datagen.sql._
 import ldbc.snb.datagen.transformation.model.{Batched, BatchedEntity, EntityType, Graph, Mode}
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.transformation.model.Mode.BI
-import ldbc.snb.datagen.util.{GeneratorConfiguration, Logging}
+import ldbc.snb.datagen.util.Logging
 import org.apache.spark.sql.{Column, DataFrame}
 import org.apache.spark.sql.functions._
 
@@ -15,7 +15,11 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
 
   override def transform(input: In): Out = {
     val batch_id = (col: Column) =>
-      date_format(date_trunc(mode.batchPeriod, to_date(col, Raw.dateTimePattern)), "yyyyMMdd")
+      date_format(date_trunc(mode.batchPeriod, col), "yyyy-MM-dd")
+
+    def inBatch(col: Column, batchStart: Long, batchEnd: Long) =
+      col >= to_timestamp(lit(batchStart / 1000)) &&
+        col < to_timestamp(lit(batchEnd / 1000))
 
     val batched = (df: DataFrame) => df
       .select(
@@ -27,7 +31,7 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
 
     val insertBatchPart = (tpe: EntityType, df: DataFrame, batchStart: Long, batchEnd: Long) => {
       df
-        .filter(Raw.dateTimeToTimestampMillis($"creationDate") >= batchStart && Raw.dateTimeToTimestampMillis($"creationDate") < batchEnd)
+        .filter(inBatch($"creationDate", batchStart, batchEnd))
         .pipe(batched)
         .select(
           Seq($"insert_batch_id".as("batch_id")) ++ Interactive.columns(tpe, df.columns).map(qcol): _*
@@ -37,7 +41,7 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
     val deleteBatchPart = (tpe: EntityType, df: DataFrame, batchStart: Long, batchEnd: Long) => {
       val idColumns = tpe.primaryKey.map(qcol)
       df
-        .filter(Raw.dateTimeToTimestampMillis($"deletionDate") >= batchStart && Raw.dateTimeToTimestampMillis($"deletionDate") < batchEnd)
+        .filter(inBatch($"deletionDate", batchStart, batchEnd))
         .pipe(batched)
         .select(Seq($"delete_batch_id".as("batch_id"), $"deletionDate") ++ idColumns: _*)
     }

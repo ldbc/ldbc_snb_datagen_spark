@@ -1,6 +1,7 @@
 package ldbc.snb.datagen.util;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -81,10 +82,6 @@ public class GeneratorConfiguration implements Iterable<Map.Entry<String, String
     @Override
     public Iterator<Map.Entry<String, String>> iterator() {
         return this.map.entrySet().iterator();
-    }
-
-    public boolean isCompressed() {
-        return Boolean.parseBoolean(map.get("generator.compressed"));
     }
 
     public String getOutputDir() {

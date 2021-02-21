@@ -1,21 +1,21 @@
 package ldbc.snb.datagen.generation
 
-import ldbc.snb.datagen.{DatagenContext, DatagenParams, SparkApp}
+import ldbc.snb.datagen.{DatagenParams, SparkApp}
 import ldbc.snb.datagen.generation.generator.{SparkKnowsGenerator, SparkKnowsMerger, SparkPersonGenerator, SparkRanker}
 import ldbc.snb.datagen.generation.serializer.{SparkActivitySerializer, SparkPersonSerializer, SparkStaticGraphSerializer}
 import ldbc.snb.datagen.syntax._
-import ldbc.snb.datagen.util.{ConfigParser, GeneratorConfiguration, SparkUI}
+import ldbc.snb.datagen.util.{ConfigParser, GeneratorConfiguration, Logging, SparkUI}
 import ldbc.snb.datagen.util.Utils.simpleNameOf
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.SparkSession
 
 import java.net.URI
 
-object GenerationStage extends SparkApp {
+object GenerationStage extends SparkApp with Logging {
   override def appName: String = "LDBC SNB Datagen for Spark: Generation Stage"
 
   case class Args(
-    scaleFactor: Double = 1.0,
+    scaleFactor: String = "1",
     numThreads: Option[Int] = None,
     params: Map[String, String] = Map.empty,
     paramFile: Option[String] = None,
@@ -61,7 +61,7 @@ object GenerationStage extends SparkApp {
   }
 
   def buildConfig(args: Args) = {
-    val conf = ConfigParser.defaultConfiguration()
+    val conf = new java.util.HashMap[String, String]
 
     conf.putAll(getClass.getResourceAsStream("/params_default.ini") use { ConfigParser.readConfig })
 
@@ -71,7 +71,7 @@ object GenerationStage extends SparkApp {
 
     for { numThreads <- args.numThreads } conf.put("hadoop.numThreads", numThreads.toString)
 
-    conf.put("generator.scaleFactor", args.scaleFactor.toString)
+    conf.putAll(ConfigParser.scaleFactorConf(args.scaleFactor))
 
     conf.put("generator.outputDir", args.outputDir)
 

@@ -13,6 +13,8 @@ from datagen import lib, util
 
 import argparse
 
+from datagen.util import split_passthrough_args
+
 min_num_workers = 1
 max_num_workers = 1000
 
@@ -72,7 +74,8 @@ def submit_datagen_job(params_file, sf,
                        version=defaults['version'],
                        emr_release=defaults['emr_release'],
                        is_interactive=defaults['is_interactive'],
-                       ec2_key=defaults['ec2_key']
+                       ec2_key=defaults['ec2_key'],
+                       passthrough_args=None
                        ):
 
     exec_info = get_instance_info(instance_type)
@@ -86,7 +89,6 @@ def submit_datagen_job(params_file, sf,
     ts_formatted = ts.strftime('%Y%m%d_%H%M%S')
 
     jar_url = f's3://{bucket}/jars/ldbc_snb_datagen-{version}-jar-with-dependencies.jar'
-    params_url = f's3://{bucket}/params/{name}.ini'
 
     results_url = f's3://{bucket}/results/{name}'
     run_url = f'{results_url}/runs/{ts_formatted}'
@@ -154,9 +156,12 @@ def submit_datagen_job(params_file, sf,
                 'HadoopJarStep': {
                     'Properties': [],
                     'Jar': 'command-runner.jar',
-                    'Args': ['spark-submit', '--class', lib.main_class, jar_url, params_url,
-                             '--sn-dir', sn_dir, '--build-dir', build_dir,
-                             '--num-threads', str(num_threads)]
+                    'Args': ['spark-submit', '--class', lib.main_class, jar_url,
+                             '--output-dir', build_dir,
+                             '--scale-factor', str(sf),
+                             '--num-threads', str(num_threads),
+                             *passthrough_args
+                             ]
                 }
 
             },
@@ -213,8 +218,11 @@ if __name__ == "__main__":
     parser.add_argument('-y',
                         action='store_true',
                         help='Assume \'yes\' for prompts')
+    parser.add_argument('--', nargs='*', help='Arguments passed to LDBC SNB Datagen', dest="arg")
 
-    args = parser.parse_args()
+    self_args, child_args = split_passthrough_args()
+
+    args = parser.parse_args(self_args)
 
     is_interactive = hasattr(__main__, '__file__')
 
@@ -224,5 +232,6 @@ if __name__ == "__main__":
                        instance_type=args.instance_type,
                        emr_release=args.emr_release,
                        ec2_key=args.ec2_key,
-                       version=args.version
+                       version=args.version,
+                       passthrough_args=child_args
                        )

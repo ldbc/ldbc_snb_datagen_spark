@@ -2,8 +2,8 @@ package ldbc.snb.datagen.transformation.transform
 
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.transformation.model.EntityType.{Attr, Node}
-import ldbc.snb.datagen.transformation.model.{Graph, Mode}
-import ldbc.snb.datagen.transformation.transform.Raw.withRawColumns
+import ldbc.snb.datagen.transformation.model.Mode.Raw.withRawColumns
+import ldbc.snb.datagen.transformation.model.Mode
 import org.apache.spark.sql.{Column, DataFrame}
 import org.apache.spark.sql.functions.{explode, split}
 import shapeless.lens

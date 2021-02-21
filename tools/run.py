@@ -8,6 +8,7 @@ from subprocess import run
 from typing import Optional, Dict, List
 
 from datagen import lib, util
+from datagen.util import split_passthrough_args
 
 
 def flatten(ls):
@@ -61,15 +62,6 @@ def run_local(
     run(cmd, env=default_env)
 
 
-def split_args():
-    args = sys.argv[1:]
-    try:
-        sep = args.index('--')
-        return args[:sep], args[sep+1:]
-    except ValueError:
-        return args, []
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run a Datagen job locally')
     parser.add_argument('jar',
@@ -95,7 +87,7 @@ if __name__ == "__main__":
                         help='Assume \'yes\' for prompts')
     parser.add_argument('--', nargs='*', help='Arguments passed to LDBC SNB Datagen', dest="arg")
 
-    self_args, child_args = split_args()
+    self_args, child_args = split_passthrough_args()
 
     args = parser.parse_args(self_args)
 

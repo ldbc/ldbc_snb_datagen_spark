@@ -45,6 +45,7 @@ import ldbc.snb.datagen.serializer.StaticSerializer;
 import ldbc.snb.datagen.util.GeneratorConfiguration;
 import ldbc.snb.datagen.util.StringUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 
 import java.util.Iterator;
 import java.util.Set;
@@ -69,13 +70,13 @@ public class HadoopStaticSerializer {
     }
 
     public void run() {
-
         try {
+            FileSystem fs = FileSystem.get(hadoopConf);
             staticSerializer = new StaticSerializer[numPartitions];
             for (int i = 0; i < numPartitions; ++i) {
                 staticSerializer[i] = new StaticSerializer();
                 staticSerializer[i].initialize(
-                        hadoopConf, conf.getOutputDir(), i,
+                        fs, conf.getOutputDir(), i,
                         false
                 );
             }

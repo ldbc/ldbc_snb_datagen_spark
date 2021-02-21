@@ -6,6 +6,7 @@ import ldbc.snb.datagen.serializer.{DynamicActivitySerializer, PersonActivityExp
 import ldbc.snb.datagen.generation.generator.SparkRanker
 import ldbc.snb.datagen.util.{GeneratorConfiguration, SerializableConfiguration}
 import ldbc.snb.datagen.syntax._
+import ldbc.snb.datagen.util.formatter.DateFormatter
 import ldbc.snb.datagen.{DatagenContext, DatagenParams}
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.TaskContext
@@ -40,7 +41,7 @@ object SparkActivitySerializer {
 
       val dynamicActivitySerializer = new DynamicActivitySerializer()
 
-      dynamicActivitySerializer.initialize(hadoopConf, conf.getOutputDir, partitionId, false)
+      dynamicActivitySerializer.initialize(fs, conf.getOutputDir, partitionId, false)
 
       val generator = new PersonActivityGenerator
       val exporter = new PersonActivityExporter(dynamicActivitySerializer, generator.getFactorTable)

@@ -1,6 +1,8 @@
 package ldbc.snb.datagen.transformation
 
+import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.util.Utils.{camel, lower}
+import org.apache.spark.sql.Column
 
 import scala.language.higherKinds
 
@@ -25,6 +27,7 @@ package object model {
     final case class Node(name: String, isStatic: Boolean = false) extends EntityType {
       override val entityPath: String = s"${s(isStatic)}/${lower(name)}"
       override val primaryKey: Seq[String] = Seq("id")
+      override def toString: String = s"$name"
     }
 
     final case class Edge(
@@ -40,6 +43,8 @@ package object model {
           case (s, d) if s == d => Seq(s"${s}1", s"${d}2")
           case (s, d) => Seq(s, d)
       }).map(name => s"$name.id")
+
+      override def toString: String = s"$source -[${`type`}]-> $destination"
     }
 
     final case class Attr(`type`: String, parent: String, attribute: String, isStatic: Boolean = false) extends EntityType {
@@ -49,7 +54,9 @@ package object model {
         case (s, d) if s == d => Seq(s"${s}1", s"${d}2")
         case (s, d) => Seq(s, d)
       }).map(name => s"$name.id")
+      override def toString: String = s"$parent ♢-[${`type`}]-> $attribute"
     }
+
   }
 
   case class Batched[+T](entity: T, batchId: Seq[String])
@@ -68,10 +75,20 @@ package object model {
     final case object Raw extends Mode {
       type Layout[+Data] = Data
       override val modePath: String = "raw"
+
+      def withRawColumns(et: EntityType, cols: Column*): Seq[Column] = (!et.isStatic).fork.foldLeft(cols)((cols, _) => Seq(
+        $"creationDate".as("creationDate"),
+        $"deletionDate".as("deletionDate"),
+        $"explicitlyDeleted".as("explicitlyDeleted")
+      ) ++ cols)
+
+      def dateTimePattern = "yyyy-MM-dd'T'HH:mm:ss.SSS+00:00"
+      def datePattern = "yyyy-MM-dd"
+
     }
     final case class Interactive(bulkLoadPortion: Double) extends Mode {
       type Layout[+Data] = Data
-      override val modePath: String = "interactice"
+      override val modePath: String = "interactive"
     }
     final case class BI(bulkloadPortion: Double, batchPeriod: String) extends Mode {
       type Layout[+Data] = BatchedEntity[Data]
@@ -96,7 +113,7 @@ package object model {
     isAttrExploded: Boolean,
     isEdgesExploded: Boolean,
     mode: M,
-    entities: Set[EntityType]
+    entities: Map[EntityType, Option[String]]
   ) extends GraphLike[M]
 
   sealed trait BatchPeriod

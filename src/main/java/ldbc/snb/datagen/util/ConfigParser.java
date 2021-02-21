@@ -54,66 +54,32 @@ public class ConfigParser {
         }
     }
 
-    public static Map<String, String> readConfig(Properties properties) {
+    public static Map<String, String> scaleFactorConf(String scaleFactorId) {
         Map<String, String> conf = new HashMap<>();
         ScaleFactors scaleFactors = ScaleFactors.INSTANCE;
-        String val = (String) properties.get("generator.scaleFactor");
-        if (val != null) {
-            if (!scaleFactors.value.containsKey(val)) {
-                throw new IllegalArgumentException("Scale factor " + val + " does not exist");
-            }
-            ScaleFactor scaleFactor = scaleFactors.value.get(val);
-            System.out.println("Applied configuration of scale factor " + val);
-            for (Map.Entry<String, String> e : scaleFactor.properties.entrySet()) {
-                conf.put(e.getKey(), e.getValue());
-            }
+        if (!scaleFactors.value.containsKey(scaleFactorId)) {
+            throw new IllegalArgumentException("Scale factor " + scaleFactorId + " does not exist");
         }
-
-        for (String s : properties.stringPropertyNames()) {
-            if (s.compareTo("generator.scaleFactor") != 0) {
-                conf.put(s, properties.getProperty(s));
-            }
+        ScaleFactor scaleFactor = scaleFactors.value.get(scaleFactorId);
+        System.out.println("Applied configuration of scale factor " + scaleFactorId);
+        for (Map.Entry<String, String> e : scaleFactor.properties.entrySet()) {
+            conf.put(e.getKey(), e.getValue());
         }
         return conf;
     }
 
     public static Map<String, String> readConfig(InputStream paramStream) {
         Properties properties = new Properties();
+        Map<String, String> res = new HashMap<>();
         try {
             properties.load(new InputStreamReader(paramStream, StandardCharsets.UTF_8));
-            return readConfig(properties);
+            for (String s: properties.stringPropertyNames()) {
+                res.put(s, properties.getProperty(s));
+            }
+            return res;
         } catch (IOException e) {
             System.err.println(e.getMessage());
             throw new RuntimeException(e);
         }
     }
-
-    public static Map<String, String> defaultConfiguration() {
-        Map<String, String> conf = new HashMap<>();
-        conf.put("", Integer.toString(1));
-        conf.put("generator.numPersons", "10000");
-        conf.put("generator.startYear", "2010");
-        conf.put("generator.numYears", "3");
-        conf.put("generator.delta", "10000");
-        conf.put("generator.mode", "interactive");
-        conf.put("generator.mode.bi.deleteType", "simple");
-        conf.put("generator.mode.bi.batches", "1");
-        conf.put("generator.mode.interactive.numUpdateStreams", "1");
-        conf.put("generator.degreeDistribution", "Facebook");
-        conf.put("generator.knowsGenerator", "Distance");
-        conf.put("generator.person.similarity", "GeoDistance");
-        conf.put("generator.dateFormatter", "StringDate");
-        conf.put("generator.StringDate.dateTimeFormat", "yyyy-MM-dd'T'HH:mm:ss.SSS+00:00");
-        conf.put("generator.StringDate.dateFormat", "yyyy-MM-dd");
-
-        conf.put("hadoop.numThreads", "1");
-        conf.put("serializer.format","CsvBasic");
-        conf.put("serializer.compressed", "false");
-        conf.put("serializer.insertTrailingSeparator", "false");
-        conf.put("serializer.socialNetworkDir", "./social_network");
-        conf.put("serializer.buildDir", "./build");
-
-        return conf;
-    }
-
 }

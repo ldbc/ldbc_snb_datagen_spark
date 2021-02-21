@@ -5,23 +5,37 @@ import ldbc.snb.datagen.transformation.model.EntityType.{Attr, Edge, Node}
 import org.apache.spark.sql.{DataFrame, DataFrameWriter, SaveMode}
 import shapeless.{Generic, Poly1}
 import better.files._
+import ldbc.snb.datagen.transformation.model.Mode.Raw
 import ldbc.snb.datagen.util.Logging
 
 import scala.collection.immutable.TreeMap
 
-case class WriterOptions(
-  format: String,
-  formatOptions: Map[String, String]
-)
-
 trait GraphWriter[M <: Mode] {
   type Data
-  def write(graph: Graph[M, Data], path: String, options: WriterOptions): Unit
+  def write(graph: Graph[M, Data], path: String, options: WriterFormatOptions): Unit
 }
 
 object GraphWriter {
   type Aux[M <: Mode, D] = GraphWriter[M] { type Data = D }
   def apply[M <: Mode, D](implicit ev: GraphWriter.Aux[M, D]): GraphWriter.Aux[M, D] = ev
+}
+
+class WriterFormatOptions(val format: String, mode: Mode, private val customFormatOptions: Map[String, String] = Map.empty) {
+  val defaultCsvFormatOptions = Map(
+    "header" -> "true",
+    "sep" ->  "|"
+  )
+
+  val forcedRawCsvFormatOptions = Map(
+    "dateFormat" -> Raw.datePattern,
+    "timestampFormat" -> Raw.dateTimePattern
+  )
+
+  val formatOptions: Map[String, String] = (format, mode) match {
+    case ("csv", Raw) => defaultCsvFormatOptions ++ customFormatOptions ++ forcedRawCsvFormatOptions
+    case ("csv", _) => defaultCsvFormatOptions ++ customFormatOptions
+    case _ => customFormatOptions
+  }
 }
 
 object Writer {
@@ -53,20 +67,10 @@ object Writer {
     }
   }
 
-  val defaultCsvOptions = Map(
-    "header" -> "true",
-    "sep" ->  "|"
-  )
-
-  def apply[T](dfw: DataFrameWriter[T], writerOptions: WriterOptions) = {
-    val formatOptions = writerOptions.format match {
-      case "csv" => defaultCsvOptions ++ writerOptions.formatOptions
-      case _ => writerOptions.formatOptions
-    }
-
+  def apply[T](dfw: DataFrameWriter[T], writerOptions: WriterFormatOptions) = {
     dfw
       .format(writerOptions.format)
-      .options(formatOptions)
+      .options(writerOptions.formatOptions)
   }
 }
 
@@ -76,14 +80,15 @@ private final class DataFrameGraphWriter[M <: Mode](implicit
   import Writer.implicits._
   type Data = DataFrame
 
-  override def write(graph: Graph[M, DataFrame], path: String, options: WriterOptions): Unit = {
+  override def write(graph: Graph[M, DataFrame], path: String, options: WriterFormatOptions): Unit = {
     TreeMap(graph.entities.toSeq: _*).foreach {
       case (tpe, dataset) =>
-        log.info(f"$tpe: Writing snapshot")
+        log.info(s"$tpe: Writing")
 
         Writer.apply(dataset.write, options)
           .mode(SaveMode.Ignore)
           .save((path / options.format / PathComponent[GraphLike[M]].path(graph) / tpe.entityPath).toString())
+        log.info(s"$tpe: Writing completed")
     }
   }
 }
@@ -94,15 +99,16 @@ private final class BatchedDataFrameGraphWriter[M <: Mode](implicit
   import Writer.implicits._
   type Data = DataFrame
 
-  override def write(graph: Graph[M, DataFrame], path: String, options: WriterOptions): Unit = {
+  override def write(graph: Graph[M, DataFrame], path: String, options: WriterFormatOptions): Unit = {
     TreeMap(graph.entities.mapValues(ev).toSeq: _*).foreach {
       case (tpe, BatchedEntity(snapshot, insertBatches, deleteBatches)) =>
-
-        log.info(f"$tpe: Writing initial snapshot")
+        log.info(s"$tpe: Writing snapshot")
 
         Writer.apply(snapshot.write, options)
           .mode(SaveMode.Ignore)
           .save((path / options.format / PathComponent[GraphLike[M]].path(graph) / "initial_snapshot" / tpe.entityPath).toString())
+
+        log.info(s"$tpe: Writing snapshot completed")
 
         for { (operation, batches) <- Map("inserts" -> insertBatches, "deletes" -> deleteBatches) } {
           log.info(f"$tpe: Writing $operation")
@@ -113,6 +119,7 @@ private final class BatchedDataFrameGraphWriter[M <: Mode](implicit
               .mode(SaveMode.Ignore)
               .save((path / options.format / PathComponent[GraphLike[M]].path(graph) / operation / tpe.entityPath).toString())
           }
+          log.info(f"$tpe: Writing $operation completed")
         }
     }
   }

@@ -1,4 +1,5 @@
 import argparse
+import sys
 
 
 class KeyValue(argparse.Action):
@@ -24,3 +25,12 @@ def ask_continue(message):
         else:
             inp = input("Please answer yes or no:").lower()
     return resp
+
+
+def split_passthrough_args():
+    args = sys.argv[1:]
+    try:
+        sep = args.index('--')
+        return args[:sep], args[sep+1:]
+    except ValueError:
+        return args, []

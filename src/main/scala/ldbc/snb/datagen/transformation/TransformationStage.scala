@@ -29,35 +29,72 @@ object TransformationStage extends SparkApp with Logging {
     isAttrExploded = false,
     isEdgesExploded = false,
     Mode.Raw,
-    Set(
-      Node("Organisation", isStatic = true),
-      Node("Place", isStatic = true),
-      Node("Tag", isStatic = true),
-      Node("TagClass", isStatic = true),
-      Node("Comment"),
-      Edge("HasTag", "Comment", "Tag", NN),
-      Node("Forum"),
-      Edge("HasMember", "Forum", "Person", NN),
-      Edge("HasTag", "Forum", "Tag", NN),
-      Node("Person"),
-      Edge("HasInterest", "Person", "Tag", NN),
-      Edge("Knows", "Person", "Person", NN),
-      Edge("Likes", "Person", "Comment", NN),
-      Edge("Likes", "Person", "Post", NN),
-      Edge("StudyAt", "Person", "Organisation", OneN),
-      Edge("WorkAt", "Person", "Organisation", NN),
-      Node("Post"),
-      Edge("HasTag", "Post", "Tag", NN)
+    Map(
+      Node("Organisation", isStatic = true) -> Some(
+        "`id` INT,`type` STRING,`name` STRING,`url` STRING,`place` INT"
+      ),
+      Node("Place", isStatic = true) -> Some(
+        "`id` INT,`name` STRING,`url` STRING,`type` STRING,`isPartOf` INT"
+      ),
+      Node("Tag", isStatic = true) -> Some(
+        "`id` INT,`name` STRING,`url` STRING,`hasType` INT"
+      ),
+      Node("TagClass", isStatic = true) -> Some(
+        "`id` INT,`name` STRING,`url` STRING,`isSubclassOf` INT"
+      ),
+      Node("Comment") -> Some(
+        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`explicitlyDeleted` BOOLEAN,`id` BIGINT,`locationIP` STRING,`browserUsed` STRING,`content` STRING,`length` INT,`creator` BIGINT,`place` INT,`replyOfPost` BIGINT,`replyOfComment` BIGINT"
+      ),
+      Edge("HasTag", "Comment", "Tag", NN) -> Some(
+        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`Comment.id` BIGINT,`Tag.id` INT"
+      ),
+      Node("Forum") -> Some(
+        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`explicitlyDeleted` BOOLEAN,`id` BIGINT,`title` STRING,`moderator` BIGINT"
+      ),
+      Edge("HasMember", "Forum", "Person", NN) -> Some(
+        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`explicitlyDeleted` BOOLEAN,`Forum.id` BIGINT,`Person.id` BIGINT"
+      ),
+      Edge("HasTag", "Forum", "Tag", NN) -> Some(
+        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`Forum.id` BIGINT,`Tag.id` INT"
+      ),
+      Node("Person") -> Some(
+        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`explicitlyDeleted` BOOLEAN,`id` BIGINT,`firstName` STRING,`lastName` STRING,`gender` STRING,`birthday` DATE,`locationIP` STRING,`browserUsed` STRING,`place` INT,`language` STRING,`email` STRING"
+      ),
+      Edge("HasInterest", "Person", "Tag", NN) -> Some(
+        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`Person.id` BIGINT,`Tag.id` INT"
+      ),
+      Edge("Knows", "Person", "Person", NN) -> Some(
+        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`explicitlyDeleted` BOOLEAN,`Person1.id` BIGINT,`Person2.id` BIGINT"
+      ),
+      Edge("Likes", "Person", "Comment", NN) -> Some(
+        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`Person.id` BOOLEAN,`Comment.id` BIGINT"
+      ),
+      Edge("Likes", "Person", "Post", NN) -> Some(
+        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`explicitlyDeleted` BOOLEAN,`Person.id` BIGINT,`Post.id` BIGINT"
+      ),
+      Edge("StudyAt", "Person", "Organisation", OneN) -> Some(
+        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`Person.id` BIGINT,`Organisation.id` INT,`classYear` INT"
+      ),
+      Edge("WorkAt", "Person", "Organisation", NN) -> Some(
+        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`Person.id` BIGINT,`Organisation.id` INT,`workFrom` INT"
+      ),
+      Node("Post") -> Some(
+        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`explicitlyDeleted` BOOLEAN,`id` BIGINT,`imageFile` STRING,`locationIP` STRING,`browserUsed` STRING,`language` STRING,`content` STRING,`length` INT,`creator` BIGINT,`Forum.id` BIGINT,`place` INT"
+      ),
+      Edge("HasTag", "Post", "Tag", NN) -> Some(
+        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`Post.id` BIGINT,`Tag.id` INT"
+      )
     )
   )
 
   def run(args: Args)(implicit spark: SparkSession) = {
     object write extends Poly1 {
-      implicit def caseSimple[M <: Mode](implicit ev: M#Layout[DataFrame] =:= DataFrame) = at[Graph[M, DataFrame]](
-        GraphWriter[M, DataFrame].write(_, args.outputDir, WriterOptions(args.format, args.formatOptions))
+      implicit def caseSimple[M <: Mode](implicit ev: M#Layout[DataFrame] =:= DataFrame) = at[Graph[M, DataFrame]](g =>
+        GraphWriter[M, DataFrame].write(g, args.outputDir, new WriterFormatOptions(args.format, g.mode, args.formatOptions))
       )
-      implicit def caseBatched[M <: Mode](implicit ev: M#Layout[DataFrame] =:= BatchedEntity[DataFrame]) = at[Graph[M, DataFrame]](
-        GraphWriter[M, DataFrame].write(_, args.outputDir, WriterOptions(args.format, args.formatOptions))
+
+      implicit def caseBatched[M <: Mode](implicit ev: M#Layout[DataFrame] =:= BatchedEntity[DataFrame]) = at[Graph[M, DataFrame]](g =>
+        GraphWriter[M, DataFrame].write(g, args.outputDir, new WriterFormatOptions(args.format, g.mode, args.formatOptions))
       )
     }
 
@@ -67,15 +104,16 @@ object TransformationStage extends SparkApp with Logging {
       CNil
 
     GraphReader[Mode.Raw.type, DataFrame]
-      .read(inputGraphDefinition, args.outputDir, ReaderOptions("csv", Map.empty))
+      .read(inputGraphDefinition, args.outputDir, new ReaderFormatOptions("csv", Mode.Raw))
       .pipeFoldLeft(args.explodeAttrs.fork)((graph, _: Unit) => ExplodeAttrs.transform(graph))
       .pipeFoldLeft(args.explodeEdges.fork)((graph, _: Unit) => ExplodeEdges.transform(graph))
       .pipe[OutputTypes] {
-        g => args.mode match {
-          case bi@Mode.BI(_, _) => Inr(Inr(Inl(RawToBiTransform(bi, args.simulationStart, args.simulationEnd).transform(g))))
-          case interactive@Mode.Interactive(_) => Inr(Inl(RawToInteractiveTransform(interactive, args.simulationStart, args.simulationEnd).transform(g)))
-          case Mode.Raw => Inl(g)
-        }
+        g =>
+          args.mode match {
+            case bi@Mode.BI(_, _) => Inr(Inr(Inl(RawToBiTransform(bi, args.simulationStart, args.simulationEnd).transform(g))))
+            case interactive@Mode.Interactive(_) => Inr(Inl(RawToInteractiveTransform(interactive, args.simulationStart, args.simulationEnd).transform(g)))
+            case Mode.Raw => Inl(g)
+          }
       }
       .pipe(_.map(write))
     ()

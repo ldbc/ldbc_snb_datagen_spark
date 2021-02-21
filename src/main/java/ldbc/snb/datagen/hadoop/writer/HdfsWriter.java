@@ -51,12 +51,10 @@ public class HdfsWriter {
     private StringBuffer buffer;
     private OutputStream[] fileOutputStream;
 
-    public HdfsWriter(Configuration conf, String outputDir, String prefix, int numPartitions, boolean compressed, String extension) throws IOException {
+    public HdfsWriter(FileSystem fs, String outputDir, String prefix, int numPartitions, boolean compressed, String extension) throws IOException {
         this.numPartitions = numPartitions;
         try {
-            FileSystem fs = FileSystem.get(conf);
             fileOutputStream = new OutputStream[numPartitions];
-
             if (compressed) {
                 for (int i = 0; i < numPartitions; i++) {
                     this.fileOutputStream[i] = new GZIPOutputStream(fs.create(new Path(outputDir + "/part_" + prefix + "_" + i + "." + extension + ".gz"), true, 131072));

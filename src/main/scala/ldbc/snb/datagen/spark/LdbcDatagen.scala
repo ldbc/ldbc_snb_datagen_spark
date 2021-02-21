@@ -1,11 +1,9 @@
 package ldbc.snb.datagen.spark
 
-import better.files._
 import ldbc.snb.datagen.dictionary.Dictionaries
 import ldbc.snb.datagen.{DatagenContext, SparkApp}
 import ldbc.snb.datagen.generation.GenerationStage
 import ldbc.snb.datagen.transformation.TransformationStage
-import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.transformation.model.Mode
 import ldbc.snb.datagen.util.Utils.lower
 import shapeless.lens
@@ -15,7 +13,7 @@ object LdbcDatagen extends SparkApp {
   val appName = "LDBC SNB Datagen for Spark"
 
   case class Args(
-    scaleFactor: Double = 1.0f,
+    scaleFactor: String = "1",
     params: Map[String, String] = Map.empty,
     paramFile: Option[String] = None,
     outputDir: String = "out",
@@ -23,7 +21,7 @@ object LdbcDatagen extends SparkApp {
     explodeEdges: Boolean = false,
     explodeAttrs: Boolean = false,
     mode: String = "raw",
-    batchPeriod: String = "daily",
+    batchPeriod: String = "day",
     numThreads: Option[Int] = None,
     format: String = "csv",
     formatOptions: Map[String, String] = Map.empty
@@ -35,7 +33,7 @@ object LdbcDatagen extends SparkApp {
 
       val args = lens[Args]
 
-      opt[Double]("scale-factor")
+      opt[String]("scale-factor")
         .action((x, c) => args.scaleFactor.set(c)(x))
         .text("The generator scale factor")
 
@@ -53,7 +51,7 @@ object LdbcDatagen extends SparkApp {
 
       opt[Int]( "num-threads")
         .action((x, c) => args.numThreads.set(c)(Some(x)))
-        .text("output directory")
+        .text("Controls parallelization and number of files written.")
 
       opt[String]('m', "mode")
         .validate(s => {
@@ -71,23 +69,23 @@ object LdbcDatagen extends SparkApp {
         .action((x, c) => args.bulkloadPortion.set(c)(x))
         .text("Bulkload portion. Only applicable to BI and interactive modes")
 
-      opt[Boolean]('e', "explode-edges")
-        .action((x, c) => args.explodeEdges.set(c)(x))
+      opt[Unit]('e', "explode-edges")
+        .action((x, c) => args.explodeEdges.set(c)(true))
 
-      opt[Boolean]('a', "explode-attrs")
-        .action((x, c) => args.explodeAttrs.set(c)(x))
+      opt[Unit]('a', "explode-attrs")
+        .action((x, c) => args.explodeAttrs.set(c)(true))
 
       opt[String]("batch-period")
         .action((x, c) => args.batchPeriod.set(c)(x))
-        .text("Period of the batches in BI mode. Possible values: year, day, month, hour, etc. Default: day")
-      
+        .text("Period of the batches in BI mode. Possible values: year, month, day, hour. Default: day")
+
       opt[String]('f', "format")
         .action((x, c) => args.format.set(c)(x))
         .text("Output format. Currently, Spark Datasource formats are supported, such as 'csv', 'parquet' or 'orc'.")
 
       opt[Map[String,String]]("format-options")
         .action((x, c) => args.formatOptions.set(c)(x))
-        .text("Output format options in key=value[,key=value...] format. See format options for specific formats " +
+        .text("Output format options specified as key=value1[,key=value...]. See format options for specific formats " +
           "available in Spark: https://spark.apache.org/docs/2.4.5/api/scala/index.html#org.apache.spark.sql.DataFrameWriter")
 
     }
