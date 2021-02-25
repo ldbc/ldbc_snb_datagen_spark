@@ -48,6 +48,9 @@ jobs:
           # deploy CircleCI configuration to provide 'filters' instructions (and prevent failed build on gh-pages)
           cp -r .circleci dist/
           tools/docker-run.sh --mode bi --scale-factor 0.003 --explode-edges --explode-attrs
+          tools/docker-run.sh --mode bi --scale-factor 0.003 --explode-attrs
+          tools/docker-run.sh --mode bi --scale-factor 0.003 --explode-edges
+          tools/docker-run.sh --mode bi --scale-factor 0.003
           mv out social_network-bi
           zip -r dist/social_network-bi.zip social_network-bi/
       - gh-pages/deploy:
