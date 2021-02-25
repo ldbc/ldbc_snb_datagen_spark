@@ -1,7 +1,7 @@
 package ldbc.snb.datagen.transformation
 
 import ldbc.snb.datagen.syntax._
-import ldbc.snb.datagen.util.Utils.{camel, lower}
+import ldbc.snb.datagen.util.Utils.camel
 import org.apache.spark.sql.Column
 
 import scala.language.higherKinds
@@ -25,7 +25,7 @@ package object model {
     private def s(isStatic: Boolean) = if (isStatic) "static" else "dynamic"
 
     final case class Node(name: String, isStatic: Boolean = false) extends EntityType {
-      override val entityPath: String = s"${s(isStatic)}/${lower(name)}"
+      override val entityPath: String = s"${s(isStatic)}/${name}"
       override val primaryKey: Seq[String] = Seq("id")
       override def toString: String = s"$name"
     }
@@ -37,7 +37,7 @@ package object model {
       cardinality: Cardinality,
       isStatic: Boolean = false
     ) extends EntityType {
-      override val entityPath: String = s"${s(isStatic)}/${lower(source)}_${camel(`type`)}_${lower(destination)}"
+      override val entityPath: String = s"${s(isStatic)}/${source}_${camel(`type`)}_${destination}"
 
       override val primaryKey: Seq[String] = ((source, destination) match {
           case (s, d) if s == d => Seq(s"${s}1", s"${d}2")
@@ -48,7 +48,7 @@ package object model {
     }
 
     final case class Attr(`type`: String, parent: String, attribute: String, isStatic: Boolean = false) extends EntityType {
-      override val entityPath: String = s"${s(isStatic)}/${lower(parent)}_${camel(`type`)}_${lower(attribute)}"
+      override val entityPath: String = s"${s(isStatic)}/${parent}_${camel(`type`)}_${attribute}"
 
       override val primaryKey: Seq[String] = ((parent, attribute) match {
         case (s, d) if s == d => Seq(s"${s}1", s"${d}2")

@@ -52,7 +52,7 @@ import static ldbc.snb.datagen.serializer.FileName.*;
 public class DynamicPersonSerializer extends LdbcSerializer {
     @Override
     public List<FileName> getFileNames() {
-        return ImmutableList.of(PERSON, PERSON_HASINTEREST_TAG, PERSON_WORKAT_ORGANISATION, PERSON_STUDYAT_ORGANISATION,PERSON_KNOWS_PERSON);
+        return ImmutableList.of(PERSON, PERSON_HASINTEREST_TAG, PERSON_WORKAT_COMPANY, PERSON_STUDYAT_UNIVERSITY,PERSON_KNOWS_PERSON);
     }
 
     @Override
@@ -67,8 +67,8 @@ public class DynamicPersonSerializer extends LdbcSerializer {
 
         List<String> dates2 = ImmutableList.of("creationDate", "deletionDate");
         writers.get(PERSON_HASINTEREST_TAG)     .writeHeader(dates2, ImmutableList.of("Person.id", "Tag.id"));
-        writers.get(PERSON_STUDYAT_ORGANISATION).writeHeader(dates2, ImmutableList.of("Person.id", "Organisation.id", "classYear"));
-        writers.get(PERSON_WORKAT_ORGANISATION) .writeHeader(dates2, ImmutableList.of("Person.id", "Organisation.id", "workFrom"));
+        writers.get(PERSON_STUDYAT_UNIVERSITY)  .writeHeader(dates2, ImmutableList.of("Person.id", "Organisation.id", "classYear"));
+        writers.get(PERSON_WORKAT_COMPANY)      .writeHeader(dates2, ImmutableList.of("Person.id", "Organisation.id", "workFrom"));
     }
 
     public void serialize(final Person person) {
@@ -102,7 +102,7 @@ public class DynamicPersonSerializer extends LdbcSerializer {
         List<String> dates = ImmutableList.of(formatDateTime(person.getCreationDate()), formatDateTime(person.getDeletionDate()));
 
         // creationDate, [deletionDate,] Person.id, University.id, classYear
-        writers.get(PERSON_STUDYAT_ORGANISATION).writeEntry(dates, ImmutableList.of(
+        writers.get(PERSON_STUDYAT_UNIVERSITY).writeEntry(dates, ImmutableList.of(
                 Long.toString(studyAt.person),
                 Long.toString(studyAt.university),
                 DateUtils.formatYear(studyAt.year)
@@ -113,7 +113,7 @@ public class DynamicPersonSerializer extends LdbcSerializer {
         List<String> dates = ImmutableList.of(formatDateTime(person.getCreationDate()), formatDateTime(person.getDeletionDate()));
 
         // creationDate, [deletionDate,] Person.id, Company.id, workFrom
-        writers.get(PERSON_WORKAT_ORGANISATION).writeEntry(dates, ImmutableList.of(
+        writers.get(PERSON_WORKAT_COMPANY).writeEntry(dates, ImmutableList.of(
                 Long.toString(workAt.person),
                 Long.toString(workAt.company),
                 DateUtils.formatYear(workAt.year)

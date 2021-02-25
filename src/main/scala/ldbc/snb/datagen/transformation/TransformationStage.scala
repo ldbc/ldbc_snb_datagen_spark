@@ -72,11 +72,11 @@ object TransformationStage extends SparkApp with Logging {
       Edge("Likes", "Person", "Post", NN) -> Some(
         "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`explicitlyDeleted` BOOLEAN,`Person.id` BIGINT,`Post.id` BIGINT"
       ),
-      Edge("StudyAt", "Person", "Organisation", OneN) -> Some(
-        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`Person.id` BIGINT,`Organisation.id` INT,`classYear` INT"
+      Edge("StudyAt", "Person", "University", OneN) -> Some(
+        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`Person.id` BIGINT,`Organisation.id` INT, `classYear` INT"
       ),
-      Edge("WorkAt", "Person", "Organisation", NN) -> Some(
-        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`Person.id` BIGINT,`Organisation.id` INT,`workFrom` INT"
+      Edge("WorkAt", "Person", "Company", NN) -> Some(
+        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`Person.id` BIGINT,`Organisation.id` INT, `workFrom` INT"
       ),
       Node("Post") -> Some(
         "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`explicitlyDeleted` BOOLEAN,`id` BIGINT,`imageFile` STRING,`locationIP` STRING,`browserUsed` STRING,`language` STRING,`content` STRING,`length` INT,`creator` BIGINT,`Forum.id` BIGINT,`place` INT"
