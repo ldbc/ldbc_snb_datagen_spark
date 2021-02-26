@@ -33,7 +33,7 @@ abstract public class LdbcSerializer implements Serializer<HdfsCsvWriter> {
         for (FileName f : fileNames) {
             writers.put(f, new HdfsCsvWriter(
                             fs,
-                            outputDir + "/csv/raw/composite_merge_foreign" + (dynamic ? "/dynamic/" : "/static/") + f.toString() + "/",
+                            outputDir + "/csv/raw/composite-merged-fk" + (dynamic ? "/dynamic/" : "/static/") + f.toString() + "/",
                             String.valueOf(reducerId),
                             DatagenParams.numUpdateStreams,
                             isCompressed,
