@@ -33,6 +33,7 @@ public enum FileName {
 
     // dynamic person
     PERSON("person"),
+    SOCIAL_NETWORK_PERSON("social_network_person"),
     PERSON_SPEAKS_LANGUAGE("person_speaks_language"),
     PERSON_EMAIL_EMAILADDRESS("person_email_emailaddress"),
     PERSON_ISLOCATEDIN_PLACE("person_isLocatedIn_place"),

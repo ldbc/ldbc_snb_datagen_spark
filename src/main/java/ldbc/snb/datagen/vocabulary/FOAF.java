@@ -33,32 +33,36 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-package ldbc.snb.datagen.serializer;
+package ldbc.snb.datagen.vocabulary;
 
-import ldbc.snb.datagen.entities.dynamic.Forum;
-import ldbc.snb.datagen.entities.dynamic.messages.Comment;
-import ldbc.snb.datagen.entities.dynamic.messages.Photo;
-import ldbc.snb.datagen.entities.dynamic.messages.Post;
-import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
-import ldbc.snb.datagen.entities.dynamic.relations.Like;
-import ldbc.snb.datagen.hadoop.writer.HdfsWriter;
+/**
+ * Friend of a friend project namespace used in the serialization process.
+ */
+public class FOAF {
 
-public abstract class DynamicActivitySerializer<TWriter extends HdfsWriter> extends LdbcSerializer<TWriter> {
+    public static final String NAMESPACE = "http://xmlns.com/foaf/0.1/";
+    public static final String PREFIX = "foaf:";
 
-    abstract protected void serialize(final Forum forum);
+    public static final String Name = PREFIX + "name";
 
-    abstract protected void serialize(final Post post);
+    /**
+     * Gets the FOAF prefix version of the input.
+     */
+    public static String prefixed(String string) {
+        return PREFIX + string;
+    }
 
-    abstract protected void serialize(final Comment comment);
+    /**
+     * Gets the FOAF URL version of the input.
+     */
+    public static String getUrl(String string) {
+        return NAMESPACE + string;
+    }
 
-    abstract protected void serialize(final Photo photo);
-
-    abstract protected void serialize(final ForumMembership membership);
-
-    abstract protected void serialize(final Like like);
-
-    @Override
-    protected boolean isDynamic() {
-        return true;
+    /**
+     * Gets the FOAF RDF-URL version of the input.
+     */
+    public static String fullprefixed(String string) {
+        return "<" + NAMESPACE + string + ">";
     }
 }

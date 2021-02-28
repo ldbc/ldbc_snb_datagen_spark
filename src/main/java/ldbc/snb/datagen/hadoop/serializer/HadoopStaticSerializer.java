@@ -41,7 +41,9 @@ import ldbc.snb.datagen.entities.statictype.Organisation;
 import ldbc.snb.datagen.entities.statictype.TagClass;
 import ldbc.snb.datagen.entities.statictype.place.Place;
 import ldbc.snb.datagen.entities.statictype.tag.Tag;
+import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
 import ldbc.snb.datagen.serializer.StaticSerializer;
+import ldbc.snb.datagen.serializer.csv.CsvStaticSerializer;
 import ldbc.snb.datagen.util.GeneratorConfiguration;
 import ldbc.snb.datagen.util.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -72,9 +74,17 @@ public class HadoopStaticSerializer {
     public void run() {
         try {
             FileSystem fs = FileSystem.get(hadoopConf);
+            String serializerFormat = conf.get("serializer.format");
             staticSerializer = new StaticSerializer[numPartitions];
             for (int i = 0; i < numPartitions; ++i) {
-                staticSerializer[i] = new StaticSerializer();
+                switch (serializerFormat) {
+                    case "CsvBasic":
+                        staticSerializer[i] = new CsvStaticSerializer();
+                        break;
+                    default:
+                        staticSerializer[i] = new CsvStaticSerializer();
+                }
+
                 staticSerializer[i].initialize(
                         fs, conf.getOutputDir(), i,
                         false
@@ -158,5 +168,4 @@ public class HadoopStaticSerializer {
             exportTagHierarchy(tag);
         }
     }
-
 }
