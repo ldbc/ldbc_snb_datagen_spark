@@ -33,7 +33,6 @@ public enum FileName {
 
     // dynamic person
     PERSON("person"),
-    SOCIAL_NETWORK_PERSON("social_network_person"),
     PERSON_SPEAKS_LANGUAGE("person_speaks_language"),
     PERSON_EMAIL_EMAILADDRESS("person_email_emailaddress"),
     PERSON_ISLOCATEDIN_PLACE("person_isLocatedIn_place"),
@@ -42,6 +41,11 @@ public enum FileName {
     PERSON_STUDYAT_ORGANISATION("person_studyAt_organisation"),
     PERSON_KNOWS_PERSON("person_knows_person"),
 
+
+    // single file for each
+    SOCIAL_NETWORK_STATIC("social_network_static"),
+    SOCIAL_NETWORK_ACTIVITY("social_network_activity"),
+    SOCIAL_NETWORK_PERSON("social_network_person"),
     ;
 
     private final String name;

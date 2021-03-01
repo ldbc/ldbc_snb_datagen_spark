@@ -41,15 +41,18 @@ import ldbc.snb.datagen.entities.statictype.Organisation;
 import ldbc.snb.datagen.entities.statictype.TagClass;
 import ldbc.snb.datagen.entities.statictype.place.Place;
 import ldbc.snb.datagen.entities.statictype.tag.Tag;
-import ldbc.snb.datagen.serializer.DynamicPersonSerializer;
 import ldbc.snb.datagen.serializer.StaticSerializer;
 import ldbc.snb.datagen.serializer.csv.CsvStaticSerializer;
+import ldbc.snb.datagen.serializer.yarspg.staticserializer.YarsPgCanonicalStaticSerializer;
+import ldbc.snb.datagen.serializer.yarspg.staticserializer.YarsPgSchemalessStaticSerializer;
+import ldbc.snb.datagen.serializer.yarspg.staticserializer.YarsPgStaticSerializer;
 import ldbc.snb.datagen.util.GeneratorConfiguration;
 import ldbc.snb.datagen.util.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 
 import java.util.Iterator;
+import java.util.MissingFormatArgumentException;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -81,8 +84,17 @@ public class HadoopStaticSerializer {
                     case "CsvBasic":
                         staticSerializer[i] = new CsvStaticSerializer();
                         break;
+                    case "YarsPG":
+                        staticSerializer[i] = new YarsPgStaticSerializer();
+                        break;
+                    case "YarsPGSchemaless":
+                        staticSerializer[i] = new YarsPgSchemalessStaticSerializer();
+                        break;
+                    case "YarsPGCanonical":
+                        staticSerializer[i] = new YarsPgCanonicalStaticSerializer();
+                        break;
                     default:
-                        staticSerializer[i] = new CsvStaticSerializer();
+                        throw new MissingFormatArgumentException("Missing serializer.format");
                 }
 
                 staticSerializer[i].initialize(

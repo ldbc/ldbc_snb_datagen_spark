@@ -5,6 +5,8 @@ import ldbc.snb.datagen.generator.generators.{GenActivity, PersonActivityGenerat
 import ldbc.snb.datagen.serializer.{DynamicActivitySerializer, PersonActivityExporter}
 import ldbc.snb.datagen.generation.generator.SparkRanker
 import ldbc.snb.datagen.serializer.csv.CsvDynamicActivitySerializer
+import ldbc.snb.datagen.serializer.yarspg.dynamicserializer.activity.{YarsPgCanonicalDynamicActivitySerializer, YarsPgDynamicActivitySerializer, YarsPgSchemalessDynamicActivitySerializer}
+import ldbc.snb.datagen.serializer.yarspg.dynamicserializer.person.{YarsPgCanonicalDynamicPersonSerializer, YarsPgDynamicPersonSerializer, YarsPgSchemalessDynamicPersonSerializer}
 import ldbc.snb.datagen.util.{GeneratorConfiguration, SerializableConfiguration}
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.util.formatter.DateFormatter
@@ -42,7 +44,10 @@ object SparkActivitySerializer {
 
       val dynamicActivitySerializer = conf.get("serializer.format") match {
         case "CsvBasic" => new CsvDynamicActivitySerializer
-        case _ => new CsvDynamicActivitySerializer
+        case "YarsPG" => new YarsPgDynamicActivitySerializer
+        case "YarsPGSchemaless" => new YarsPgSchemalessDynamicActivitySerializer
+        case "YarsPGCanonical" => new YarsPgCanonicalDynamicActivitySerializer
+        case _ => throw new NoSuchElementException("Missing serializer.format")
       }
 
       dynamicActivitySerializer.initialize(fs, conf.getOutputDir, partitionId, false)
