@@ -1,6 +1,7 @@
 package ldbc.snb.datagen.serializer.yarspg.staticserializer;
 
 import com.google.common.collect.ImmutableList;
+import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.statictype.Organisation;
 import ldbc.snb.datagen.entities.statictype.TagClass;
 import ldbc.snb.datagen.entities.statictype.place.Place;
@@ -17,7 +18,7 @@ import ldbc.snb.datagen.vocabulary.DBP;
 
 import java.util.List;
 
-import static ldbc.snb.datagen.serializer.FileName.*;
+import static ldbc.snb.datagen.serializer.FileName.SOCIAL_NETWORK_STATIC;
 
 public class YarsPgSchemalessStaticSerializer extends StaticSerializer<HdfsYarsPgWriter> implements YarsPgSerializer {
 
@@ -49,6 +50,15 @@ public class YarsPgSchemalessStaticSerializer extends StaticSerializer<HdfsYarsP
                                 );
                             });
                 });
+
+        if (place.getType().equals(Place.CITY) || place.getType().equals(Place.COUNTRY)) {
+            String placeEdgeID = Statement.generateId("Place" + place.getId());
+            String belongsToEdgeID = Statement.generateId("Place" + Dictionaries.places.belongsTo(place.getId()));
+            writers.get(SOCIAL_NETWORK_STATIC)
+                    .writeEdge(EdgeType.DIRECTED, (edge) -> {
+                        edge.as(placeEdgeID, Relationship.IS_PART_OF.toString(), belongsToEdgeID);
+                    });
+        }
     }
 
     public void serialize(final Organisation organisation) {
@@ -124,12 +134,12 @@ public class YarsPgSchemalessStaticSerializer extends StaticSerializer<HdfsYarsP
                             });
                 });
 
-        String leftEdgeID = Statement.generateId("Tag" + tag.id);
-        String rightEdgeID = Statement.generateId("Tag" + tag.tagClass);
+        String tagEdgeID = Statement.generateId("Tag" + tag.id);
+        String tagClassEdgeID = Statement.generateId("TagClass" + tag.tagClass);
 
         writers.get(SOCIAL_NETWORK_STATIC)
                 .writeEdge(EdgeType.DIRECTED, (edge) -> {
-                    edge.as(leftEdgeID, Relationship.HAS_TYPE.toString(), rightEdgeID);
+                    edge.as(tagEdgeID, Relationship.HAS_TYPE.toString(), tagClassEdgeID);
                 });
     }
 

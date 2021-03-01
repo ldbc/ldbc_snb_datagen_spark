@@ -35,8 +35,6 @@ public class YarsPgDynamicPersonSerializer extends DynamicPersonSerializer<HdfsY
 
     @Override
     protected void serialize(final Person person) {
-        String leftSchemaEdgeID = Statement.generateId("S_Person" + person.getAccountId());
-        String leftEdgeID = Statement.generateId("Person" + person.getAccountId());
         String schemaNodeID = Statement.generateId("S_Person" + person.getAccountId());
         String nodeID = Statement.generateId("Person" + person.getAccountId());
 
@@ -121,36 +119,38 @@ public class YarsPgDynamicPersonSerializer extends DynamicPersonSerializer<HdfsY
                             });
                 });
 
-        String rightSchemaEdgeID = Statement.generateId("S_City" + person.getCityId());
-        String rightEdgeID = Statement.generateId("City" + person.getCityId());
+        String personSchemaEdgeID = Statement.generateId("S_Person" + person.getAccountId());
+        String personEdgeID = Statement.generateId("Person" + person.getAccountId());
+        String citySchemaEdgeID = Statement.generateId("S_City" + person.getCityId());
+        String cityEdgeID = Statement.generateId("City" + person.getCityId());
 
         writers.get(SOCIAL_NETWORK_PERSON)
                 .writeEdge(EdgeType.DIRECTED, (schema, edge) -> {
-                    schema.as(leftSchemaEdgeID, Relationship.IS_LOCATED_IN.toString(), rightSchemaEdgeID);
-                    edge.as(leftEdgeID, Relationship.IS_LOCATED_IN.toString(), rightEdgeID);
+                    schema.as(personSchemaEdgeID, Relationship.IS_LOCATED_IN.toString(), citySchemaEdgeID);
+                    edge.as(personEdgeID, Relationship.IS_LOCATED_IN.toString(), cityEdgeID);
                 });
 
-        for (Integer interestId : person.getInterests()) {
-            String rightSchemaEdgeInterestID = Statement.generateId("S_Tag" + interestId);
-            String rightEdgeInterestID = Statement.generateId("Tag" + interestId);
+        for (Integer interestIdx : person.getInterests()) {
+            String tagSchemaEdgeInterestID = Statement.generateId("S_Tag" + interestIdx);
+            String tagEdgeInterestID = Statement.generateId("Tag" + interestIdx);
             writers.get(SOCIAL_NETWORK_PERSON)
                     .writeEdge(EdgeType.DIRECTED, (schema, edge) -> {
-                        schema.as(leftSchemaEdgeID, Relationship.HAS_INTEREST.toString(), rightSchemaEdgeInterestID);
-                        edge.as(leftEdgeID, Relationship.HAS_INTEREST.toString(), rightEdgeInterestID);
+                        schema.as(personSchemaEdgeID, Relationship.HAS_INTEREST.toString(), tagSchemaEdgeInterestID);
+                        edge.as(personEdgeID, Relationship.HAS_INTEREST.toString(), tagEdgeInterestID);
                     });
         }
     }
 
     @Override
     protected void serialize(final StudyAt studyAt, Person person) {
-        String leftSchemaEdgeID = Statement.generateId("S_Person" + person.getAccountId());
-        String leftEdgeID = Statement.generateId("Person" + person.getAccountId());
-        String rightSchemaEdgeID = Statement.generateId("S_University" + studyAt.university);
-        String rightEdgeID = Statement.generateId("University" + studyAt.university);
+        String personSchemaEdgeID = Statement.generateId("S_Person" + person.getAccountId());
+        String personEdgeID = Statement.generateId("Person" + person.getAccountId());
+        String universitySchemaEdgeID = Statement.generateId("S_University" + studyAt.university);
+        String universityEdgeID = Statement.generateId("University" + studyAt.university);
 
         writers.get(SOCIAL_NETWORK_PERSON)
                 .writeEdge(EdgeType.DIRECTED, (schema, edge) -> {
-                    schema.as(leftSchemaEdgeID, Relationship.STUDY_AT.toString(), rightSchemaEdgeID)
+                    schema.as(personSchemaEdgeID, Relationship.STUDY_AT.toString(), universitySchemaEdgeID)
                             .withPropsDefinition(propsSchemas -> {
                                 propsSchemas.add("classYear", propSchema ->
                                         propSchema.generateSchema(PrimitiveType.INTEGER)
@@ -158,7 +158,7 @@ public class YarsPgDynamicPersonSerializer extends DynamicPersonSerializer<HdfsY
                             });
 
 
-                    edge.as(leftEdgeID, Relationship.STUDY_AT.toString(), rightEdgeID)
+                    edge.as(personEdgeID, Relationship.STUDY_AT.toString(), universityEdgeID)
                             .withProperties(properties -> {
                                 properties.add("classYear", property ->
                                         property.generatePrimitive(PrimitiveType.INTEGER,
@@ -170,14 +170,14 @@ public class YarsPgDynamicPersonSerializer extends DynamicPersonSerializer<HdfsY
 
     @Override
     protected void serialize(WorkAt workAt, Person person) {
-        String leftSchemaEdgeID = Statement.generateId("S_Person" + person.getAccountId());
-        String leftEdgeID = Statement.generateId("Person" + person.getAccountId());
-        String rightSchemaEdgeID = Statement.generateId("S_Company" + workAt.company);
-        String rightEdgeID = Statement.generateId("Company" + workAt.company);
+        String personSchemaEdgeID = Statement.generateId("S_Person" + person.getAccountId());
+        String personEdgeID = Statement.generateId("Person" + person.getAccountId());
+        String companySchemaEdgeID = Statement.generateId("S_Company" + workAt.company);
+        String companyEdgeID = Statement.generateId("Company" + workAt.company);
 
         writers.get(SOCIAL_NETWORK_PERSON)
                 .writeEdge(EdgeType.DIRECTED, (schema, edge) -> {
-                    schema.as(leftSchemaEdgeID, Relationship.WORK_AT.toString(), rightSchemaEdgeID)
+                    schema.as(personSchemaEdgeID, Relationship.WORK_AT.toString(), companySchemaEdgeID)
                             .withPropsDefinition(propsSchemas -> {
                                 propsSchemas.add("workFrom", propSchema ->
                                         propSchema.generateSchema(PrimitiveType.INTEGER)
@@ -185,7 +185,7 @@ public class YarsPgDynamicPersonSerializer extends DynamicPersonSerializer<HdfsY
                             });
 
 
-                    edge.as(leftEdgeID, Relationship.WORK_AT.toString(), rightEdgeID)
+                    edge.as(personEdgeID, Relationship.WORK_AT.toString(), companyEdgeID)
                             .withProperties(properties -> {
                                 properties.add("workFrom", property ->
                                         property.generatePrimitive(PrimitiveType.INTEGER,
@@ -197,16 +197,16 @@ public class YarsPgDynamicPersonSerializer extends DynamicPersonSerializer<HdfsY
 
     @Override
     protected void serialize(final Person person, Knows knows) {
-        String leftSchemaEdgeID = Statement.generateId("S_Person" + person.getAccountId());
-        String leftEdgeID = Statement.generateId("Person" + person.getAccountId());
-        String rightSchemaEdgeID = Statement.generateId("S_Person" + knows.to()
+        String personSchemaEdgeID = Statement.generateId("S_Person" + person.getAccountId());
+        String personEdgeID = Statement.generateId("Person" + person.getAccountId());
+        String knowsPersonSchemaEdgeID = Statement.generateId("S_Person" + knows.to()
                 .getAccountId());
-        String rightEdgeID = Statement.generateId("Person" + knows.to()
+        String knowsPersonEdgeID = Statement.generateId("Person" + knows.to()
                 .getAccountId());
 
         writers.get(SOCIAL_NETWORK_PERSON)
                 .writeEdge(EdgeType.DIRECTED, (schema, edge) -> {
-                    schema.as(leftSchemaEdgeID, Relationship.KNOWS.toString(), rightSchemaEdgeID)
+                    schema.as(personSchemaEdgeID, Relationship.KNOWS.toString(), knowsPersonSchemaEdgeID)
                             .withPropsDefinition(propsSchemas -> {
                                 propsSchemas.add("creationDate", propSchema ->
                                         propSchema.generateSchema(PrimitiveType.DATE_TIME)
@@ -214,11 +214,11 @@ public class YarsPgDynamicPersonSerializer extends DynamicPersonSerializer<HdfsY
                             });
 
 
-                    edge.as(leftEdgeID, Relationship.KNOWS.toString(), rightEdgeID)
+                    edge.as(personEdgeID, Relationship.KNOWS.toString(), knowsPersonEdgeID)
                             .withProperties(properties -> {
                                 properties.add("creationDate", property ->
-                                        property.generatePrimitive(PrimitiveType.DATE_TIME, formatDateTime(
-                                                knows.getCreationDate()))
+                                        property.generatePrimitive(PrimitiveType.DATE_TIME,
+                                                DateUtils.formatYear(knows.getCreationDate()))
                                 );
                             });
                 });

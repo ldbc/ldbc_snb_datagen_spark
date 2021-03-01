@@ -68,6 +68,18 @@ public class YarsPgStaticSerializer extends StaticSerializer<HdfsYarsPgWriter> i
                                 );
                             });
                 });
+
+        if (place.getType().equals(Place.CITY) || place.getType().equals(Place.COUNTRY)) {
+            String placeSchemaEdgeID = Statement.generateId("S_Place" + place.getId());
+            String placeEdgeID = Statement.generateId("Place" + place.getId());
+            String belongsToSchemaEdgeID = Statement.generateId("Place" + Dictionaries.places.belongsTo(place.getId()));
+            String belongsToEdgeID = Statement.generateId("Place" + Dictionaries.places.belongsTo(place.getId()));
+            writers.get(SOCIAL_NETWORK_ACTIVITY)
+                    .writeEdge(EdgeType.DIRECTED, (schema, edge) -> {
+                        schema.as(placeSchemaEdgeID, Relationship.IS_PART_OF.toString(), belongsToSchemaEdgeID);
+                        edge.as(placeEdgeID, Relationship.IS_PART_OF.toString(), belongsToEdgeID);
+                    });
+        }
     }
 
     public void serialize(final Organisation organisation) {
@@ -191,16 +203,16 @@ public class YarsPgStaticSerializer extends StaticSerializer<HdfsYarsPgWriter> i
                             });
                 });
 
-        String leftSchemaEdgeID = Statement.generateId("S_Tag" + tag.id);
-        String leftEdgeID = Statement.generateId("Tag" + tag.id);
+        String tagSchemaEdgeID = Statement.generateId("S_Tag" + tag.id);
+        String tagEdgeID = Statement.generateId("Tag" + tag.id);
 
-        String rightSchemaEdgeID = Statement.generateId("S_Tag" + tag.tagClass);
-        String rightEdgeID = Statement.generateId("Tag" + tag.tagClass);
+        String tagClassSchemaEdgeID = Statement.generateId("S_TagClass" + tag.tagClass);
+        String tagClassEdgeID = Statement.generateId("TagClass" + tag.tagClass);
 
         writers.get(SOCIAL_NETWORK_STATIC)
                 .writeEdge(EdgeType.DIRECTED, (schema, edge) -> {
-                    schema.as(leftSchemaEdgeID, Relationship.HAS_TYPE.toString(), rightSchemaEdgeID);
-                    edge.as(leftEdgeID, Relationship.HAS_TYPE.toString(), rightEdgeID);
+                    schema.as(tagSchemaEdgeID, Relationship.HAS_TYPE.toString(), tagClassSchemaEdgeID);
+                    edge.as(tagEdgeID, Relationship.HAS_TYPE.toString(), tagClassEdgeID);
                 });
     }
 

@@ -1,6 +1,7 @@
 package ldbc.snb.datagen.serializer.yarspg.staticserializer;
 
 import com.google.common.collect.ImmutableList;
+import ldbc.snb.datagen.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.statictype.Organisation;
 import ldbc.snb.datagen.entities.statictype.TagClass;
 import ldbc.snb.datagen.entities.statictype.place.Place;
@@ -14,7 +15,7 @@ import ldbc.snb.datagen.vocabulary.DBP;
 
 import java.util.List;
 
-import static ldbc.snb.datagen.serializer.FileName.*;
+import static ldbc.snb.datagen.serializer.FileName.SOCIAL_NETWORK_STATIC;
 
 public class YarsPgCanonicalStaticSerializer extends StaticSerializer<HdfsYarsPgWriter> implements YarsPgSerializer {
 
@@ -74,6 +75,18 @@ public class YarsPgCanonicalStaticSerializer extends StaticSerializer<HdfsYarsPg
                                 );
                             });
                 });
+
+        if (place.getType().equals(Place.CITY) || place.getType().equals(Place.COUNTRY)) {
+            String placeSchemaEdgeID = Statement.generateId("S_Place" + place.getId());
+            String placeEdgeID = Statement.generateId("Place" + place.getId());
+            String belongsToSchemaEdgeID = Statement.generateId("S_Place" + Dictionaries.places.belongsTo(place.getId()));
+            String belongsToEdgeID = Statement.generateId("Place" + Dictionaries.places.belongsTo(place.getId()));
+            writers.get(SOCIAL_NETWORK_STATIC)
+                    .writeEdge(EdgeType.DIRECTED, (schema, edge) -> {
+                        schema.as(placeSchemaEdgeID, Relationship.IS_PART_OF.toString(), belongsToSchemaEdgeID);
+                        edge.as(placeEdgeID, Relationship.IS_PART_OF.toString(), belongsToEdgeID);
+                    });
+        }
     }
 
     public void serialize(final Organisation organisation) {
@@ -197,16 +210,16 @@ public class YarsPgCanonicalStaticSerializer extends StaticSerializer<HdfsYarsPg
                             });
                 });
 
-        String leftSchemaEdgeID = Statement.generateId("S_Tag" + tag.id);
-        String leftEdgeID = Statement.generateId("Tag" + tag.id);
+        String tagSchemaEdgeID = Statement.generateId("S_Tag" + tag.id);
+        String tagEdgeID = Statement.generateId("Tag" + tag.id);
 
-        String rightSchemaEdgeID = Statement.generateId("S_Tag" + tag.tagClass);
-        String rightEdgeID = Statement.generateId("Tag" + tag.tagClass);
+        String tagClassSchemaEdgeID = Statement.generateId("S_TagClass" + tag.tagClass);
+        String tagClassEdgeID = Statement.generateId("TagClass" + tag.tagClass);
 
         writers.get(SOCIAL_NETWORK_STATIC)
                 .writeEdge(EdgeType.DIRECTED, (schema, edge) -> {
-                    schema.as(leftSchemaEdgeID, Relationship.HAS_TYPE.toString(), rightSchemaEdgeID);
-                    edge.as(leftEdgeID, Relationship.HAS_TYPE.toString(), rightEdgeID);
+                    schema.as(tagSchemaEdgeID, Relationship.HAS_TYPE.toString(), tagClassSchemaEdgeID);
+                    edge.as(tagEdgeID, Relationship.HAS_TYPE.toString(), tagClassEdgeID);
                 });
     }
 

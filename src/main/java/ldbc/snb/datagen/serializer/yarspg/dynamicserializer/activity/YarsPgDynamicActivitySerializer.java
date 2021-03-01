@@ -20,7 +20,7 @@ import ldbc.snb.datagen.serializer.yarspg.property.PrimitiveType;
 
 import java.util.List;
 
-import static ldbc.snb.datagen.serializer.FileName.*;
+import static ldbc.snb.datagen.serializer.FileName.SOCIAL_NETWORK_ACTIVITY;
 
 public class YarsPgDynamicActivitySerializer extends DynamicActivitySerializer<HdfsYarsPgWriter> implements YarsPgSerializer {
     @Override
@@ -33,8 +33,8 @@ public class YarsPgDynamicActivitySerializer extends DynamicActivitySerializer<H
     }
 
     public void serialize(final Forum forum) {
-        String leftSchemaEdgeID = Statement.generateId("S_Forum" + forum.getId());
-        String leftEdgeID = Statement.generateId("Forum" + forum.getId());
+        String forumSchemaEdgeID = Statement.generateId("S_Forum" + forum.getId());
+        String forumEdgeID = Statement.generateId("Forum" + forum.getId());
         String schemaNodeID = Statement.generateId("S_Forum" + forum.getId());
         String nodeID = Statement.generateId("Forum" + forum.getId());
 
@@ -64,25 +64,33 @@ public class YarsPgDynamicActivitySerializer extends DynamicActivitySerializer<H
                 });
 
         for (Integer tagId : forum.getTags()) {
-            String rightSchemaEdgeID = Statement.generateId("S_Tag" + tagId);
-            String rightEdgeID = Statement.generateId("Tag" + tagId);
+            String tagSchemaEdgeID = Statement.generateId("S_Tag" + tagId);
+            String tagEdgeID = Statement.generateId("Tag" + tagId);
             writers.get(SOCIAL_NETWORK_ACTIVITY)
                     .writeEdge(EdgeType.DIRECTED, (schema, edge) -> {
-                        schema.as(leftSchemaEdgeID, Relationship.HAS_TAG.toString(), rightSchemaEdgeID);
-                        edge.as(leftEdgeID, Relationship.HAS_TAG.toString(), rightEdgeID);
+                        schema.as(forumSchemaEdgeID, Relationship.HAS_TAG.toString(), tagSchemaEdgeID);
+                        edge.as(forumEdgeID, Relationship.HAS_TAG.toString(), tagEdgeID);
                     });
         }
+
+        String personSchemaEdgeID = Statement.generateId("S_Person" + forum.getModerator().getAccountId());
+        String personEdgeID = Statement.generateId("Person" + forum.getModerator().getAccountId());
+        writers.get(SOCIAL_NETWORK_ACTIVITY)
+                .writeEdge(EdgeType.DIRECTED, (schema, edge) -> {
+                    schema.as(forumSchemaEdgeID, Relationship.HAS_MODERATOR.toString(), personSchemaEdgeID);
+                    edge.as(forumEdgeID, Relationship.HAS_MODERATOR.toString(), personEdgeID);
+                });
     }
 
     public void serialize(final Post post) {
-        String leftSchemaEdgeID = Statement.generateId("S_Post" + post.getMessageId());
-        String leftEdgeID = Statement.generateId("Post" + post.getMessageId());
+        String postSchemaEdgeID = Statement.generateId("S_Post" + post.getMessageId());
+        String postEdgeID = Statement.generateId("Post" + post.getMessageId());
         String schemaNodeID = Statement.generateId("S_Post" + post.getMessageId());
         String nodeID = Statement.generateId("Post" + post.getMessageId());
 
         writers.get(SOCIAL_NETWORK_ACTIVITY)
                 .writeNode(schemaNodeID, nodeID, (schema, node) -> {
-                    schema.withNodeLabels("Forum")
+                    schema.withNodeLabels("Post")
                             .withPropsDefinition(propsSchemas -> {
                                 propsSchemas.add("language", propSchema ->
                                         propSchema.generateSchema(PrimitiveType.STRING).asOptional()
@@ -106,28 +114,36 @@ public class YarsPgDynamicActivitySerializer extends DynamicActivitySerializer<H
                 });
 
         for (Integer tagId : post.getTags()) {
-            String rightSchemaEdgeID = Statement.generateId("S_Tag" + tagId);
-            String rightEdgeID = Statement.generateId("Tag" + tagId);
+            String tagSchemaEdgeID = Statement.generateId("S_Tag" + tagId);
+            String tagEdgeID = Statement.generateId("Tag" + tagId);
 
             writers.get(SOCIAL_NETWORK_ACTIVITY)
                     .writeEdge(EdgeType.DIRECTED, (schema, edge) -> {
-                        schema.as(leftSchemaEdgeID, Relationship.HAS_TAG.toString(), rightSchemaEdgeID);
-                        edge.as(leftEdgeID, Relationship.HAS_TAG.toString(), rightEdgeID);
+                        schema.as(postSchemaEdgeID, Relationship.HAS_TAG.toString(), tagSchemaEdgeID);
+                        edge.as(postEdgeID, Relationship.HAS_TAG.toString(), tagEdgeID);
                     });
         }
+
+        String forumSchemaEdgeID = Statement.generateId("S_Post" + post.getForumId());
+        String forumEdgeID = Statement.generateId("Post" + post.getForumId());
+        writers.get(SOCIAL_NETWORK_ACTIVITY)
+                .writeEdge(EdgeType.DIRECTED, (schema, edge) -> {
+                    schema.as(forumSchemaEdgeID, Relationship.CONTAINER_OF.toString(), postSchemaEdgeID);
+                    edge.as(forumEdgeID, Relationship.CONTAINER_OF.toString(), postEdgeID);
+                });
     }
 
     public void serialize(final Comment comment) {
-        String leftSchemaEdgeID = Statement.generateId("S_Comment" + comment.getRootPostId());
-        String leftEdgeID = Statement.generateId("Comment" + comment.getRootPostId());
+        String commentSchemaEdgeID = Statement.generateId("S_Comment" + comment.getRootPostId());
+        String commentEdgeID = Statement.generateId("Comment" + comment.getRootPostId());
 
-        String rightSchemaEdgeID = Statement.generateId("S_Comment" + comment.getMessageId());
-        String rightEdgeID = Statement.generateId("Comment" + comment.getMessageId());
+        String messageSchemaEdgeID = Statement.generateId("S_Message" + comment.getMessageId());
+        String messageEdgeID = Statement.generateId("Message" + comment.getMessageId());
 
         writers.get(SOCIAL_NETWORK_ACTIVITY)
                 .writeEdge(EdgeType.DIRECTED, (schema, edge) -> {
-                    schema.as(leftSchemaEdgeID, Relationship.IS_REPLY_OF.toString(), rightSchemaEdgeID);
-                    edge.as(leftEdgeID, Relationship.IS_REPLY_OF.toString(), rightEdgeID);
+                    schema.as(commentSchemaEdgeID, Relationship.IS_REPLY_OF.toString(), messageSchemaEdgeID);
+                    edge.as(commentEdgeID, Relationship.IS_REPLY_OF.toString(), messageEdgeID);
                 });
     }
 
@@ -135,19 +151,19 @@ public class YarsPgDynamicActivitySerializer extends DynamicActivitySerializer<H
     }
 
     public void serialize(final ForumMembership membership) {
-        String leftSchemaEdgeID = Statement.generateId("S_ForumMembership" + membership.getForumId());
-        String leftEdgeID = Statement.generateId("ForumMembership" + membership.getForumId());
+        String forumSchemaEdgeID = Statement.generateId("S_Forum" + membership.getForumId());
+        String forumEdgeID = Statement.generateId("Forum" + membership.getForumId());
 
-        String rightSchemaEdgeID = Statement.generateId("S_ForumMembership" + membership.getForumId());
-        String rightEdgeID = Statement.generateId("ForumMembership" + membership.getForumId());
+        String personSchemaEdgeID = Statement.generateId("S_Person" + membership.getForumId());
+        String personEdgeID = Statement.generateId("Person" + membership.getForumId());
 
         writers.get(SOCIAL_NETWORK_ACTIVITY)
                 .writeEdge(EdgeType.DIRECTED, (schema, edge) -> {
-                    schema.as(leftSchemaEdgeID, Relationship.HAS_MEMBER.toString(), rightSchemaEdgeID)
+                    schema.as(forumSchemaEdgeID, Relationship.HAS_MEMBER.toString(), personSchemaEdgeID)
                             .withPropsDefinition(schemasOfProperty -> schemasOfProperty.add("creationDate",
                                     propertySchema -> propertySchema.generateSchema(PrimitiveType.DATE_TIME)));
 
-                    edge.as(leftEdgeID, Relationship.HAS_MEMBER.toString(), rightEdgeID)
+                    edge.as(forumEdgeID, Relationship.HAS_MEMBER.toString(), personEdgeID)
                             .withProperties(properties -> {
                                 properties.add("creationDate", property ->
                                         property.generatePrimitive(PrimitiveType.DATE_TIME, formatDateTime(membership.getCreationDate())));
@@ -156,26 +172,25 @@ public class YarsPgDynamicActivitySerializer extends DynamicActivitySerializer<H
     }
 
     public void serialize(final Like like) {
-        String leftSchemaEdgeID = Statement.generateId("S_Like" + like.getPerson());
-        String leftEdgeID = Statement.generateId("Like" + like.getPerson());
+        String personSchemaEdgeID = Statement.generateId("S_Person" + like.getPerson());
+        String personEdgeID = Statement.generateId("Person" + like.getPerson());
 
-        String rightSchemaEdgeID = Statement.generateId("S_Like" + like.getMessageId());
-        String rightEdgeID = Statement.generateId("Like" + like.getMessageId());
+        String messageSchemaEdgeID = Statement.generateId("S_Message" + like.getMessageId());
+        String messageEdgeID = Statement.generateId("Message" + like.getMessageId());
 
         writers.get(SOCIAL_NETWORK_ACTIVITY)
                 .writeEdge(EdgeType.DIRECTED, (schema, edge) -> {
-                    schema.as(leftSchemaEdgeID, Relationship.LIKES.toString(), rightSchemaEdgeID)
+                    schema.as(personSchemaEdgeID, Relationship.LIKES.toString(), messageSchemaEdgeID)
                             .withPropsDefinition(schemasOfProperty -> schemasOfProperty.add("creationDate",
                                     propertySchema -> propertySchema.generateSchema(PrimitiveType.DATE_TIME)));
 
-                    edge.as(leftEdgeID, Relationship.LIKES.toString(), rightEdgeID)
+                    edge.as(personEdgeID, Relationship.LIKES.toString(), messageEdgeID)
                             .withProperties(properties -> {
                                 properties.add("creationDate", property ->
                                         property.generatePrimitive(PrimitiveType.DATE_TIME, formatDateTime(like.getCreationDate())));
                             });
                 });
     }
-
 
     @Override
     protected boolean isDynamic() {

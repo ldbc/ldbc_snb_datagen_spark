@@ -9,11 +9,15 @@ public enum Relationship {
     HAS_INTEREST("hasInterest"),
     SPEAKS_LANGUAGE("speaksLanguage"),
     HAS_TAG("hasTag"),
+    CONTAINER_OF("containerOf"),
     HAS_MEMBER("hasMember"),
+    HAS_MODERATOR("hasModerator"),
     IS_REPLY_OF("isReplyOf"),
     LIKES("likes"),
     IS_SUBCLASS_OF("isSubclassOf"),
     HAS_TYPE("hasType"),
+    HAS_CREATOR("hasCreator"),
+    IS_PART_OF("isPartOf"),
     ;
 
     private final String name;

@@ -14,7 +14,6 @@ import ldbc.snb.datagen.serializer.yarspg.Relationship;
 import ldbc.snb.datagen.serializer.yarspg.Statement;
 import ldbc.snb.datagen.serializer.yarspg.YarsPgSerializer;
 import ldbc.snb.datagen.serializer.yarspg.property.ComplexType;
-import ldbc.snb.datagen.serializer.yarspg.property.PrimitiveProperty;
 import ldbc.snb.datagen.serializer.yarspg.property.PrimitiveType;
 import ldbc.snb.datagen.util.DateUtils;
 
@@ -36,117 +35,123 @@ public class YarsPgSchemalessDynamicPersonSerializer extends DynamicPersonSerial
 
     @Override
     protected void serialize(final Person person) {
-        String leftEdgeID = Statement.generateId("Person" + person.getAccountId());
         String nodeID = Statement.generateId("Person" + person.getAccountId());
 
-        writers.get(SOCIAL_NETWORK_PERSON).writeNode(nodeID, (node) -> {
-            node.withNodeLabels("Person")
-                    .withProperties(properties -> {
-                        properties.add("id", property ->
-                                property.generatePrimitive(PrimitiveType.STRING,
-                                        Long.toString(person.getAccountId()))
-                        );
-                        properties.add("firstName", property ->
-                                property.generatePrimitive(PrimitiveType.STRING, person.getFirstName())
-                        );
-                        properties.add("lastName", property ->
-                                property.generatePrimitive(PrimitiveType.STRING, person.getLastName())
-                        );
-                        properties.add("gender", property ->
-                                property.withPrimitive(
-                                        new PrimitiveProperty(PrimitiveType.STRING, getGender(person.getGender())))
-                        );
-                        properties.add("birthday", property ->
-                                property.generatePrimitive(PrimitiveType.DATE,
-                                        formatDate(person.getBirthday()))
-                        );
-                        properties.add("email", property ->
-                                property.generateComplex(ComplexType.LIST,
-                                        PrimitiveType.STRING,
-                                        person.getEmails())
-                        );
+        writers.get(SOCIAL_NETWORK_PERSON)
+                .writeNode(nodeID, (node) -> {
+                    node.withNodeLabels("Person")
+                            .withProperties(properties -> {
+                                properties.add("id", property ->
+                                        property.generatePrimitive(PrimitiveType.STRING,
+                                                Long.toString(person.getAccountId()))
+                                );
+                                properties.add("firstName", property ->
+                                        property.generatePrimitive(PrimitiveType.STRING, person.getFirstName())
+                                );
+                                properties.add("lastName", property ->
+                                        property.generatePrimitive(PrimitiveType.STRING, person.getLastName())
+                                );
+                                properties.add("gender", property ->
+                                        property.generatePrimitive(PrimitiveType.STRING, getGender(person.getGender()))
+                                );
+                                properties.add("birthday", property ->
+                                        property.generatePrimitive(PrimitiveType.DATE,
+                                                formatDate(person.getBirthday()))
+                                );
+                                properties.add("email", property ->
+                                        property.generateComplex(ComplexType.LIST,
+                                                PrimitiveType.STRING,
+                                                person.getEmails())
+                                );
 
-                        properties.add("speaks", property ->
-                                property.generateComplex(
-                                        ComplexType.LIST, PrimitiveType.STRING,
-                                        person.getLanguages()
-                                                .stream()
-                                                .map(l -> Dictionaries.languages.getLanguageName(l))
-                                                .collect(
-                                                        Collectors.toList()))
-                        );
+                                properties.add("speaks", property ->
+                                        property.generateComplex(
+                                                ComplexType.LIST, PrimitiveType.STRING,
+                                                person.getLanguages()
+                                                        .stream()
+                                                        .map(l -> Dictionaries.languages.getLanguageName(l))
+                                                        .collect(
+                                                                Collectors.toList()))
+                                );
 
-                        properties.add("browserUsed", property ->
-                                property.generatePrimitive(PrimitiveType.STRING,
-                                        Dictionaries.browsers.getName(
-                                                person.getBrowserId()))
-                        );
-                        properties.add("locationIP", property ->
-                                property.generatePrimitive(PrimitiveType.STRING, person.getIpAddress()
-                                        .toString())
-                        );
-                    });
-        });
+                                properties.add("browserUsed", property ->
+                                        property.generatePrimitive(PrimitiveType.STRING,
+                                                Dictionaries.browsers.getName(
+                                                        person.getBrowserId()))
+                                );
+                                properties.add("locationIP", property ->
+                                        property.generatePrimitive(PrimitiveType.STRING, person.getIpAddress()
+                                                .toString())
+                                );
+                            });
+                });
 
-        String rightEdgeID = Statement.generateId("City" + person.getCityId());
+        String personEdgeID = Statement.generateId("Person" + person.getAccountId());
+        String cityEdgeID = Statement.generateId("City" + person.getCityId());
 
-        writers.get(SOCIAL_NETWORK_PERSON).writeEdge(EdgeType.DIRECTED, (edge) -> {
-            edge.as(leftEdgeID, Relationship.IS_LOCATED_IN.toString(), rightEdgeID);
-        });
+        writers.get(SOCIAL_NETWORK_PERSON)
+                .writeEdge(EdgeType.DIRECTED, (edge) -> {
+                    edge.as(personEdgeID, Relationship.IS_LOCATED_IN.toString(), cityEdgeID);
+                });
 
         for (Integer interestIdx : person.getInterests()) {
-            String rightEdgeInterestID = Statement.generateId("Tag" + interestIdx);
-            writers.get(SOCIAL_NETWORK_PERSON).writeEdge(EdgeType.DIRECTED, (edge) -> {
-                edge.as(leftEdgeID, Relationship.HAS_INTEREST.toString(), rightEdgeInterestID);
-            });
+            String tagEdgeInterestID = Statement.generateId("Tag" + interestIdx);
+            writers.get(SOCIAL_NETWORK_PERSON)
+                    .writeEdge(EdgeType.DIRECTED, (edge) -> {
+                        edge.as(personEdgeID, Relationship.HAS_INTEREST.toString(), tagEdgeInterestID);
+                    });
         }
     }
 
     @Override
     protected void serialize(final StudyAt studyAt, Person person) {
-        String leftEdgeID = Statement.generateId("Person" + person.getAccountId());
-        String rightEdgeID = Statement.generateId("University" + studyAt.university);
+        String personEdgeID = Statement.generateId("Person" + person.getAccountId());
+        String universityEdgeID = Statement.generateId("University" + studyAt.university);
 
-        writers.get(SOCIAL_NETWORK_PERSON).writeEdge(EdgeType.DIRECTED, (edge) -> {
-            edge.as(leftEdgeID, Relationship.STUDY_AT.toString(), rightEdgeID)
-                    .withProperties(properties -> {
-                        properties.add("classYear", property ->
-                                property.generatePrimitive(PrimitiveType.INTEGER,
-                                        DateUtils.formatYear(studyAt.year))
-                        );
-                    });
-        });
+        writers.get(SOCIAL_NETWORK_PERSON)
+                .writeEdge(EdgeType.DIRECTED, (edge) -> {
+                    edge.as(personEdgeID, Relationship.STUDY_AT.toString(), universityEdgeID)
+                            .withProperties(properties -> {
+                                properties.add("classYear", property ->
+                                        property.generatePrimitive(PrimitiveType.INTEGER,
+                                                DateUtils.formatYear(studyAt.year))
+                                );
+                            });
+                });
     }
 
     @Override
     protected void serialize(WorkAt workAt, Person person) {
-        String leftEdgeID = Statement.generateId("Person" + person.getAccountId());
-        String rightEdgeID = Statement.generateId("Company" + workAt.company);
+        String personEdgeID = Statement.generateId("Person" + person.getAccountId());
+        String companyEdgeID = Statement.generateId("Company" + workAt.company);
 
-        writers.get(SOCIAL_NETWORK_PERSON).writeEdge(EdgeType.DIRECTED, (edge) -> {
-            edge.as(leftEdgeID, Relationship.WORK_AT.toString(), rightEdgeID)
-                    .withProperties(properties -> {
-                        properties.add("workFrom", property ->
-                                property.generatePrimitive(PrimitiveType.INTEGER,
-                                        Long.toString(workAt.company))
-                        );
-                    });
-        });
+        writers.get(SOCIAL_NETWORK_PERSON)
+                .writeEdge(EdgeType.DIRECTED, (edge) -> {
+                    edge.as(personEdgeID, Relationship.WORK_AT.toString(), companyEdgeID)
+                            .withProperties(properties -> {
+                                properties.add("workFrom", property ->
+                                        property.generatePrimitive(PrimitiveType.INTEGER,
+                                                Long.toString(workAt.company))
+                                );
+                            });
+                });
     }
 
     @Override
     protected void serialize(final Person person, Knows knows) {
-        String leftEdgeID = Statement.generateId("Person" + person.getAccountId());
-        String rightEdgeID = Statement.generateId("Person" + knows.to()
+        String personEdgeID = Statement.generateId("Person" + person.getAccountId());
+        String knowsPersonEdgeID = Statement.generateId("Person" + knows.to()
                 .getAccountId());
 
-        writers.get(SOCIAL_NETWORK_PERSON).writeEdge(EdgeType.DIRECTED, (edge) -> {
-            edge.as(leftEdgeID, Relationship.KNOWS.toString(), rightEdgeID)
-                    .withProperties(properties -> {
-                        properties.add("creationDate", property ->
-                                property.generatePrimitive(PrimitiveType.DATE_TIME, formatDateTime(knows.getCreationDate()))
-                        );
-                    });
-        });
+        writers.get(SOCIAL_NETWORK_PERSON)
+                .writeEdge(EdgeType.DIRECTED, (edge) -> {
+                    edge.as(personEdgeID, Relationship.KNOWS.toString(), knowsPersonEdgeID)
+                            .withProperties(properties -> {
+                                properties.add("creationDate", property ->
+                                        property.generatePrimitive(PrimitiveType.DATE_TIME,
+                                                DateUtils.formatYear(knows.getCreationDate()))
+                                );
+                            });
+                });
     }
 }
