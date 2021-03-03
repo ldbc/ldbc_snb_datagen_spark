@@ -31,58 +31,58 @@ object TransformationStage extends SparkApp with Logging {
     Mode.Raw,
     Map(
       Node("Organisation", isStatic = true) -> Some(
-        "`id` INT,`type` STRING,`name` STRING,`url` STRING,`place` INT"
+        "`id` INT, `type` STRING, `name` STRING, `url` STRING, `place` INT"
       ),
       Node("Place", isStatic = true) -> Some(
-        "`id` INT,`name` STRING,`url` STRING,`type` STRING,`isPartOf` INT"
+        "`id` INT, `name` STRING, `url` STRING, `type` STRING, `isPartOf` INT"
       ),
       Node("Tag", isStatic = true) -> Some(
-        "`id` INT,`name` STRING,`url` STRING,`hasType` INT"
+        "`id` INT, `name` STRING, `url` STRING, `hasType` INT"
       ),
       Node("TagClass", isStatic = true) -> Some(
-        "`id` INT,`name` STRING,`url` STRING,`isSubclassOf` INT"
+        "`id` INT, `name` STRING, `url` STRING, `isSubclassOf` INT"
       ),
       Node("Comment") -> Some(
-        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`explicitlyDeleted` BOOLEAN,`id` BIGINT,`locationIP` STRING,`browserUsed` STRING,`content` STRING,`length` INT,`creator` BIGINT,`place` INT,`replyOfPost` BIGINT,`replyOfComment` BIGINT"
+        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `explicitlyDeleted` BOOLEAN, `id` BIGINT, `locationIP` STRING, `browserUsed` STRING, `content` STRING, `length` INT, `creator` BIGINT, `place` INT, `replyOfPost` BIGINT, `replyOfComment` BIGINT"
       ),
       Edge("HasTag", "Comment", "Tag", NN) -> Some(
-        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`Comment.id` BIGINT,`Tag.id` INT"
+        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `Comment.id` BIGINT, `Tag.id` INT"
       ),
       Node("Forum") -> Some(
-        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`explicitlyDeleted` BOOLEAN,`id` BIGINT,`title` STRING,`moderator` BIGINT"
+        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `explicitlyDeleted` BOOLEAN, `id` BIGINT, `title` STRING, `moderator` BIGINT"
       ),
       Edge("HasMember", "Forum", "Person", NN) -> Some(
-        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`explicitlyDeleted` BOOLEAN,`Forum.id` BIGINT,`Person.id` BIGINT"
+        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `explicitlyDeleted` BOOLEAN, `Forum.id` BIGINT, `Person.id` BIGINT"
       ),
       Edge("HasTag", "Forum", "Tag", NN) -> Some(
-        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`Forum.id` BIGINT,`Tag.id` INT"
+        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `Forum.id` BIGINT, `Tag.id` INT"
       ),
       Node("Person") -> Some(
-        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`explicitlyDeleted` BOOLEAN,`id` BIGINT,`firstName` STRING,`lastName` STRING,`gender` STRING,`birthday` DATE,`locationIP` STRING,`browserUsed` STRING,`place` INT,`language` STRING,`email` STRING"
+        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `explicitlyDeleted` BOOLEAN, `id` BIGINT, `firstName` STRING, `lastName` STRING, `gender` STRING, `birthday` DATE, `locationIP` STRING, `browserUsed` STRING, `place` INT, `language` STRING, `email` STRING"
       ),
       Edge("HasInterest", "Person", "Tag", NN) -> Some(
-        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`Person.id` BIGINT,`Tag.id` INT"
+        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `Person.id` BIGINT, `Tag.id` INT"
       ),
       Edge("Knows", "Person", "Person", NN) -> Some(
-        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`explicitlyDeleted` BOOLEAN,`Person1.id` BIGINT,`Person2.id` BIGINT"
+        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `explicitlyDeleted` BOOLEAN, `Person1.id` BIGINT, `Person2.id` BIGINT"
       ),
       Edge("Likes", "Person", "Comment", NN) -> Some(
-        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`Person.id` BOOLEAN,`Comment.id` BIGINT"
+        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `Person.id` BOOLEAN, `Comment.id` BIGINT"
       ),
       Edge("Likes", "Person", "Post", NN) -> Some(
-        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`explicitlyDeleted` BOOLEAN,`Person.id` BIGINT,`Post.id` BIGINT"
+        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `explicitlyDeleted` BOOLEAN, `Person.id` BIGINT, `Post.id` BIGINT"
       ),
-      Edge("StudyAt", "Person", "Organisation", OneN) -> Some(
-        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`Person.id` BIGINT,`Organisation.id` INT,`classYear` INT"
+      Edge("StudyAt", "Person", "University", OneN) -> Some(
+        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `Person.id` BIGINT, `University.id` INT, `classYear` INT"
       ),
-      Edge("WorkAt", "Person", "Organisation", NN) -> Some(
-        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`Person.id` BIGINT,`Organisation.id` INT,`workFrom` INT"
+      Edge("WorkAt", "Person", "Company", NN) -> Some(
+        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `Person.id` BIGINT, `Company.id` INT, `workFrom` INT"
       ),
       Node("Post") -> Some(
-        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`explicitlyDeleted` BOOLEAN,`id` BIGINT,`imageFile` STRING,`locationIP` STRING,`browserUsed` STRING,`language` STRING,`content` STRING,`length` INT,`creator` BIGINT,`Forum.id` BIGINT,`place` INT"
+        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `explicitlyDeleted` BOOLEAN, `id` BIGINT, `imageFile` STRING, `locationIP` STRING, `browserUsed` STRING, `language` STRING, `content` STRING, `length` INT, `creator` BIGINT, `Forum.id` BIGINT, `place` INT"
       ),
       Edge("HasTag", "Post", "Tag", NN) -> Some(
-        "`creationDate` TIMESTAMP,`deletionDate` TIMESTAMP,`Post.id` BIGINT,`Tag.id` INT"
+        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `Post.id` BIGINT, `Tag.id` INT"
       )
     )
   )
