@@ -39,14 +39,14 @@ public enum FileName {
     PERSON_HASINTEREST_TAG("Person_hasInterest_Tag"),
     PERSON_WORKAT_COMPANY("Person_workAt_Company"),
     PERSON_STUDYAT_UNIVERSITY("Person_studyAt_University"),
-    PERSON_STUDYAT_ORGANISATION("Person_studyAt_Organization"),
-    PERSON_KNOWS_PERSON("Person_knows_Person"),
 
 
     // single file for each
     SOCIAL_NETWORK_STATIC("social_network_static"),
     SOCIAL_NETWORK_ACTIVITY("social_network_activity"),
     SOCIAL_NETWORK_PERSON("social_network_person"),
+
+    PERSON_KNOWS_PERSON("Person_knows_Person"),
     ;
 
     private final String name;
