@@ -55,7 +55,7 @@ public class BrowserDictionary {
         probAnotherBrowser_ = probAnotherBrowser;
         browsers_ = new ArrayList<>();
         cumulativeDistribution_ = new ArrayList<>();
-        load(DatagenParams.browserDictonryFile);
+        load(DatagenParams.browserDictionaryFile);
     }
 
     private void load(String fileName) {

@@ -49,7 +49,6 @@ public class DatagenParams {
 
     // Files and folders
     public static final String DICTIONARY_DIRECTORY = "/dictionaries/";
-    public static final String SPARKBENCH_DIRECTORY = "/sparkbench";
     public static final String IPZONE_DIRECTORY = "/ipaddrByCountries";
     public static final String PERSON_FACTORS_FILE = "personFactors.csv";
     public static final String POSTS_PER_COUNTRY_FACTOR_FILE = "postsPerCountryFactors.csv";
@@ -59,7 +58,7 @@ public class DatagenParams {
     public static final String MISC_FACTOR_FILE = "miscFactors.csv";
 
     // Dictionaries dataset files
-    public static final String browserDictonryFile = DICTIONARY_DIRECTORY + "browsersDic.txt";
+    public static final String browserDictionaryFile = DICTIONARY_DIRECTORY + "browsersDic.txt";
     public static final String companiesDictionaryFile = DICTIONARY_DIRECTORY + "companiesByCountry.txt";
     public static final String countryAbbrMappingFile = DICTIONARY_DIRECTORY + "countryAbbrMapping.txt";
     public static final String popularTagByCountryFile = DICTIONARY_DIRECTORY + "popularTagByCountry.txt";
