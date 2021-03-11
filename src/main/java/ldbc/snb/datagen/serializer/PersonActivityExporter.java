@@ -107,10 +107,12 @@ public class PersonActivityExporter implements AutoCloseable {
 
     private void exportPost(final Post post) throws IOException {
         dynamicActivitySerializer.serialize(post);
+        factorTable.extractFactors(post);
     }
 
     private void exportComment(final Comment comment) throws IOException {
         dynamicActivitySerializer.serialize(comment);
+        factorTable.extractFactors(comment);
     }
 
     private void exportPhoto(final Photo photo) throws IOException {
