@@ -74,7 +74,7 @@ public class YarsPgStaticSerializer extends StaticSerializer<HdfsYarsPgWriter> i
             String placeEdgeID = Statement.generateId("Place" + place.getId());
             String belongsToSchemaEdgeID = Statement.generateId("Place" + Dictionaries.places.belongsTo(place.getId()));
             String belongsToEdgeID = Statement.generateId("Place" + Dictionaries.places.belongsTo(place.getId()));
-            writers.get(SOCIAL_NETWORK_ACTIVITY)
+            writers.get(SOCIAL_NETWORK_STATIC)
                     .writeEdge(EdgeType.DIRECTED, (schema, edge) -> {
                         schema.as(placeSchemaEdgeID, Relationship.IS_PART_OF.toString(), belongsToSchemaEdgeID);
                         edge.as(placeEdgeID, Relationship.IS_PART_OF.toString(), belongsToEdgeID);

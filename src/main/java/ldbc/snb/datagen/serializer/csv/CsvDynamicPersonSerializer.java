@@ -59,7 +59,7 @@ public class CsvDynamicPersonSerializer extends DynamicPersonSerializer<HdfsCsvW
 
     @Override
     public List<FileName> getFileNames() {
-        return ImmutableList.of(PERSON, PERSON_HASINTEREST_TAG,PERSON_KNOWS_PERSON);
+        return ImmutableList.of(PERSON, PERSON_STUDYAT_UNIVERSITY, PERSON_WORKAT_COMPANY, PERSON_HASINTEREST_TAG, PERSON_KNOWS_PERSON);
     }
 
     @Override

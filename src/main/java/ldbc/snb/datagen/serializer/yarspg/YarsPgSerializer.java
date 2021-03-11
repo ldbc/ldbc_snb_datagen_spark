@@ -22,7 +22,7 @@ public interface YarsPgSerializer extends Serializer<HdfsYarsPgWriter> {
         for (FileName f : fileNames) {
             HdfsYarsPgWriter w = new HdfsYarsPgWriter(
                     fs,
-                    outputDir + "/yarspg/" + (dynamic ? "/dynamic/" : "/static/") + f.toString() + "/",
+                    outputDir + "/yarspg/raw/composite-merged-fk" + (dynamic ? "/dynamic/" : "/static/") + f.toString() + "/",
                     String.valueOf(reducerId),
                     DatagenParams.numUpdateStreams,
                     isCompressed
