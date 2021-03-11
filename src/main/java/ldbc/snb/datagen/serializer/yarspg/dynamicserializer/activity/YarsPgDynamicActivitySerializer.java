@@ -148,6 +148,52 @@ public class YarsPgDynamicActivitySerializer extends DynamicActivitySerializer<H
     }
 
     public void serialize(final Photo photo) {
+        String postSchemaEdgeID = Statement.generateId("S_Post" + photo.getMessageId());
+        String postEdgeID = Statement.generateId("Post" + photo.getMessageId());
+        String schemaNodeID = Statement.generateId("S_Post" + photo.getMessageId());
+        String nodeID = Statement.generateId("Post" + photo.getMessageId());
+
+        writers.get(SOCIAL_NETWORK_ACTIVITY)
+                .writeNode(schemaNodeID, nodeID, (schema, node) -> {
+                    schema.withNodeLabels("Post")
+                            .withPropsDefinition(propsSchemas -> {
+                                propsSchemas.add("language", propSchema ->
+                                        propSchema.generateSchema(PrimitiveType.STRING).asOptional()
+                                );
+                                propsSchemas.add("imageFile", propSchema ->
+                                        propSchema.generateSchema(PrimitiveType.STRING).asOptional()
+                                );
+                            });
+
+                    node.withNodeLabels("Post")
+                            .withProperties(properties -> {
+                                properties.add("language", property ->
+                                        property.generatePrimitive(PrimitiveType.NULL, "null")
+                                );
+                                properties.add("imageFile", property ->
+                                        property.generatePrimitive(PrimitiveType.STRING, photo.getContent())
+                                );
+                            });
+                });
+
+        for (Integer tagId : photo.getTags()) {
+            String tagSchemaEdgeID = Statement.generateId("S_Tag" + tagId);
+            String tagEdgeID = Statement.generateId("Tag" + tagId);
+
+            writers.get(SOCIAL_NETWORK_ACTIVITY)
+                    .writeEdge(EdgeType.DIRECTED, (schema, edge) -> {
+                        schema.as(postSchemaEdgeID, Relationship.HAS_TAG.toString(), tagSchemaEdgeID);
+                        edge.as(postEdgeID, Relationship.HAS_TAG.toString(), tagEdgeID);
+                    });
+        }
+
+        String forumSchemaEdgeID = Statement.generateId("S_Post" + photo.getForumId());
+        String forumEdgeID = Statement.generateId("Post" + photo.getForumId());
+        writers.get(SOCIAL_NETWORK_ACTIVITY)
+                .writeEdge(EdgeType.DIRECTED, (schema, edge) -> {
+                    schema.as(forumSchemaEdgeID, Relationship.CONTAINER_OF.toString(), postSchemaEdgeID);
+                    edge.as(forumEdgeID, Relationship.CONTAINER_OF.toString(), postEdgeID);
+                });
     }
 
     public void serialize(final ForumMembership membership) {
