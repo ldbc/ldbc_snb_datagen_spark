@@ -58,7 +58,7 @@ public class DatagenParams {
     public static final String MISC_FACTOR_FILE = "miscFactors.csv";
 
     // Dictionaries dataset files
-    public static final String browserDictonryFile = DICTIONARY_DIRECTORY + "browsersDic.txt";
+    public static final String browserDictionaryFile = DICTIONARY_DIRECTORY + "browsersDic.txt";
     public static final String companiesDictionaryFile = DICTIONARY_DIRECTORY + "companiesByCountry.txt";
     public static final String countryAbbrMappingFile = DICTIONARY_DIRECTORY + "countryAbbrMapping.txt";
     public static final String popularTagByCountryFile = DICTIONARY_DIRECTORY + "popularTagByCountry.txt";
