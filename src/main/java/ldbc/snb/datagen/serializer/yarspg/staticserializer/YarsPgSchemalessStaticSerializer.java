@@ -18,23 +18,25 @@ import ldbc.snb.datagen.vocabulary.DBP;
 
 import java.util.List;
 
-import static ldbc.snb.datagen.serializer.FileName.SOCIAL_NETWORK_STATIC;
+import static ldbc.snb.datagen.serializer.FileName.*;
 
 public class YarsPgSchemalessStaticSerializer extends StaticSerializer<HdfsYarsPgWriter> implements YarsPgSerializer {
 
     @Override
     public List<FileName> getFileNames() {
-        return ImmutableList.of(SOCIAL_NETWORK_STATIC);
+        return ImmutableList.of(TAG, TAGCLASS, PLACE, ORGANISATION, TAGCLASS_ISSUBCLASSOF_TAGCLASS,
+                TAG_HASTYPE_TAGCLASS, PLACE_ISPARTOF_PLACE);
     }
 
     @Override
     public void writeFileHeaders() {
+        getFileNames().forEach(fileName -> writers.get(fileName).writeHeader(HdfsYarsPgWriter.STANDARD_HEADERS));
     }
 
     public void serialize(final Place place) {
         String nodeID = Statement.generateId("Place" + place.getId());
 
-        writers.get(SOCIAL_NETWORK_STATIC)
+        writers.get(PLACE)
                 .writeNode(nodeID, (node) -> {
                     node.withNodeLabels("Place")
                             .withProperties(properties -> {
@@ -54,7 +56,7 @@ public class YarsPgSchemalessStaticSerializer extends StaticSerializer<HdfsYarsP
         if (place.getType().equals(Place.CITY) || place.getType().equals(Place.COUNTRY)) {
             String placeEdgeID = Statement.generateId("Place" + place.getId());
             String belongsToEdgeID = Statement.generateId("Place" + Dictionaries.places.belongsTo(place.getId()));
-            writers.get(SOCIAL_NETWORK_STATIC)
+            writers.get(PLACE_ISPARTOF_PLACE)
                     .writeEdge(EdgeType.DIRECTED, (edge) -> {
                         edge.as(placeEdgeID, Relationship.IS_PART_OF.toString(), belongsToEdgeID);
                     });
@@ -64,7 +66,7 @@ public class YarsPgSchemalessStaticSerializer extends StaticSerializer<HdfsYarsP
     public void serialize(final Organisation organisation) {
         String nodeID = Statement.generateId("Organisation" + organisation.id);
 
-        writers.get(SOCIAL_NETWORK_STATIC)
+        writers.get(ORGANISATION)
                 .writeNode(nodeID, (node) -> {
                     node.withNodeLabels("Organisation")
                             .withProperties(properties -> {
@@ -85,7 +87,7 @@ public class YarsPgSchemalessStaticSerializer extends StaticSerializer<HdfsYarsP
     public void serialize(final TagClass tagClass) {
         String nodeID = Statement.generateId("TagClass" + tagClass.id);
 
-        writers.get(SOCIAL_NETWORK_STATIC)
+        writers.get(TAGCLASS)
                 .writeNode(nodeID, (node) -> {
                     node.withNodeLabels("TagClass")
                             .withProperties(properties -> {
@@ -107,7 +109,7 @@ public class YarsPgSchemalessStaticSerializer extends StaticSerializer<HdfsYarsP
         if (tagClass.parent != -1) {
             String rightEdgeID = Statement.generateId("TagClass" + tagClass.parent);
 
-            writers.get(SOCIAL_NETWORK_STATIC)
+            writers.get(TAGCLASS_ISSUBCLASSOF_TAGCLASS)
                     .writeEdge(EdgeType.DIRECTED, (edge) -> {
                         edge.as(leftEdgeID, Relationship.IS_SUBCLASS_OF.toString(), rightEdgeID);
                     });
@@ -117,7 +119,7 @@ public class YarsPgSchemalessStaticSerializer extends StaticSerializer<HdfsYarsP
     public void serialize(final Tag tag) {
         String nodeID = Statement.generateId("Tag" + tag.id);
 
-        writers.get(SOCIAL_NETWORK_STATIC)
+        writers.get(TAG)
                 .writeNode(nodeID, (node) -> {
                     node.withNodeLabels("Tag")
                             .withProperties(properties -> {
@@ -137,7 +139,7 @@ public class YarsPgSchemalessStaticSerializer extends StaticSerializer<HdfsYarsP
         String tagEdgeID = Statement.generateId("Tag" + tag.id);
         String tagClassEdgeID = Statement.generateId("TagClass" + tag.tagClass);
 
-        writers.get(SOCIAL_NETWORK_STATIC)
+        writers.get(TAG_HASTYPE_TAGCLASS)
                 .writeEdge(EdgeType.DIRECTED, (edge) -> {
                     edge.as(tagEdgeID, Relationship.HAS_TYPE.toString(), tagClassEdgeID);
                 });

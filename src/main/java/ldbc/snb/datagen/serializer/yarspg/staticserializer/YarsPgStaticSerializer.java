@@ -6,39 +6,36 @@ import ldbc.snb.datagen.entities.statictype.Organisation;
 import ldbc.snb.datagen.entities.statictype.TagClass;
 import ldbc.snb.datagen.entities.statictype.place.Place;
 import ldbc.snb.datagen.entities.statictype.tag.Tag;
-import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
 import ldbc.snb.datagen.hadoop.writer.HdfsYarsPgWriter;
 import ldbc.snb.datagen.serializer.FileName;
 import ldbc.snb.datagen.serializer.StaticSerializer;
-import ldbc.snb.datagen.serializer.csv.CsvSerializer;
 import ldbc.snb.datagen.serializer.yarspg.EdgeType;
 import ldbc.snb.datagen.serializer.yarspg.Relationship;
 import ldbc.snb.datagen.serializer.yarspg.Statement;
 import ldbc.snb.datagen.serializer.yarspg.YarsPgSerializer;
 import ldbc.snb.datagen.serializer.yarspg.property.PrimitiveType;
 import ldbc.snb.datagen.vocabulary.DBP;
-import ldbc.snb.datagen.vocabulary.DBPOWL;
 
 import java.util.List;
 
 import static ldbc.snb.datagen.serializer.FileName.*;
 
 public class YarsPgStaticSerializer extends StaticSerializer<HdfsYarsPgWriter> implements YarsPgSerializer {
-
     @Override
     public List<FileName> getFileNames() {
-        return ImmutableList.of(SOCIAL_NETWORK_STATIC);
+        return ImmutableList.of(TAG, TAGCLASS, PLACE, ORGANISATION);
     }
 
     @Override
     public void writeFileHeaders() {
+        getFileNames().forEach(fileName -> writers.get(fileName).writeHeader(HdfsYarsPgWriter.STANDARD_HEADERS));
     }
 
     public void serialize(final Place place) {
         String schemaNodeID = Statement.generateId("S_Place" + place.getId());
         String nodeID = Statement.generateId("Place" + place.getId());
 
-        writers.get(SOCIAL_NETWORK_STATIC)
+        writers.get(PLACE)
                 .writeNode(schemaNodeID, nodeID, (schema, node) -> {
                     schema.withNodeLabels("Place")
                             .withPropsDefinition(propsSchemas -> {
@@ -74,7 +71,7 @@ public class YarsPgStaticSerializer extends StaticSerializer<HdfsYarsPgWriter> i
             String placeEdgeID = Statement.generateId("Place" + place.getId());
             String belongsToSchemaEdgeID = Statement.generateId("Place" + Dictionaries.places.belongsTo(place.getId()));
             String belongsToEdgeID = Statement.generateId("Place" + Dictionaries.places.belongsTo(place.getId()));
-            writers.get(SOCIAL_NETWORK_STATIC)
+            writers.get(PLACE)
                     .writeEdge(EdgeType.DIRECTED, (schema, edge) -> {
                         schema.as(placeSchemaEdgeID, Relationship.IS_PART_OF.toString(), belongsToSchemaEdgeID);
                         edge.as(placeEdgeID, Relationship.IS_PART_OF.toString(), belongsToEdgeID);
@@ -86,7 +83,7 @@ public class YarsPgStaticSerializer extends StaticSerializer<HdfsYarsPgWriter> i
         String schemaNodeID = Statement.generateId("S_Organisation" + organisation.id);
         String nodeID = Statement.generateId("Organisation" + organisation.id);
 
-        writers.get(SOCIAL_NETWORK_STATIC)
+        writers.get(ORGANISATION)
                 .writeNode(schemaNodeID, nodeID, (schema, node) -> {
                     schema.withNodeLabels("Organisation")
                             .withPropsDefinition(propsSchemas -> {
@@ -122,7 +119,7 @@ public class YarsPgStaticSerializer extends StaticSerializer<HdfsYarsPgWriter> i
         String schemaNodeID = Statement.generateId("S_TagClass" + tagClass.id);
         String nodeID = Statement.generateId("TagClass" + tagClass.id);
 
-        writers.get(SOCIAL_NETWORK_STATIC)
+        writers.get(TAGCLASS)
                 .writeNode(schemaNodeID, nodeID, (schema, node) -> {
                     schema.withNodeLabels("TagClass")
                             .withPropsDefinition(propsSchemas -> {
@@ -160,7 +157,7 @@ public class YarsPgStaticSerializer extends StaticSerializer<HdfsYarsPgWriter> i
             String rightSchemaEdgeID = Statement.generateId("S_TagClass" + tagClass.parent);
             String rightEdgeID = Statement.generateId("TagClass" + tagClass.parent);
 
-            writers.get(SOCIAL_NETWORK_STATIC)
+            writers.get(TAGCLASS)
                     .writeEdge(EdgeType.DIRECTED, (schema, edge) -> {
                         schema.as(leftSchemaEdgeID, Relationship.IS_SUBCLASS_OF.toString(), rightSchemaEdgeID);
                         edge.as(leftEdgeID, Relationship.IS_SUBCLASS_OF.toString(), rightEdgeID);
@@ -172,7 +169,7 @@ public class YarsPgStaticSerializer extends StaticSerializer<HdfsYarsPgWriter> i
         String schemaNodeID = Statement.generateId("S_Tag" + tag.id);
         String nodeID = Statement.generateId("Tag" + tag.id);
 
-        writers.get(SOCIAL_NETWORK_STATIC)
+        writers.get(TAG)
                 .writeNode(schemaNodeID, nodeID, (schema, node) -> {
                     schema.withNodeLabels("Tag")
                             .withPropsDefinition(propsSchemas -> {
@@ -209,7 +206,7 @@ public class YarsPgStaticSerializer extends StaticSerializer<HdfsYarsPgWriter> i
         String tagClassSchemaEdgeID = Statement.generateId("S_TagClass" + tag.tagClass);
         String tagClassEdgeID = Statement.generateId("TagClass" + tag.tagClass);
 
-        writers.get(SOCIAL_NETWORK_STATIC)
+        writers.get(TAG)
                 .writeEdge(EdgeType.DIRECTED, (schema, edge) -> {
                     schema.as(tagSchemaEdgeID, Relationship.HAS_TYPE.toString(), tagClassSchemaEdgeID);
                     edge.as(tagEdgeID, Relationship.HAS_TYPE.toString(), tagClassEdgeID);

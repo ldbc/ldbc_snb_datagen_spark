@@ -5,7 +5,7 @@ import ldbc.snb.datagen.generator.generators.{GenActivity, PersonActivityGenerat
 import ldbc.snb.datagen.serializer.{DynamicActivitySerializer, PersonActivityExporter}
 import ldbc.snb.datagen.generation.generator.SparkRanker
 import ldbc.snb.datagen.serializer.csv.CsvDynamicActivitySerializer
-import ldbc.snb.datagen.serializer.yarspg.dynamicserializer.activity.{YarsPgCanonicalDynamicActivitySerializer, YarsPgDynamicActivitySerializer, YarsPgSchemalessDynamicActivitySerializer}
+import ldbc.snb.datagen.serializer.yarspg.dynamicserializer.activity.{YarsPgCanonicalDynamicActivitySerializer, YarsPgCanonicalSchemalessDynamicActivitySerializer, YarsPgDynamicActivitySerializer, YarsPgSchemalessDynamicActivitySerializer}
 import ldbc.snb.datagen.serializer.yarspg.dynamicserializer.person.{YarsPgCanonicalDynamicPersonSerializer, YarsPgDynamicPersonSerializer, YarsPgSchemalessDynamicPersonSerializer}
 import ldbc.snb.datagen.util.{GeneratorConfiguration, SerializableConfiguration}
 import ldbc.snb.datagen.syntax._
@@ -47,6 +47,7 @@ object SparkActivitySerializer {
         case "YarsPG" => new YarsPgDynamicActivitySerializer
         case "YarsPGSchemaless" => new YarsPgSchemalessDynamicActivitySerializer
         case "YarsPGCanonical" => new YarsPgCanonicalDynamicActivitySerializer
+        case "YarsPGCanonicalSchemaless" => new YarsPgCanonicalSchemalessDynamicActivitySerializer
         case _ => throw new NoSuchElementException("Missing serializer.format")
       }
 

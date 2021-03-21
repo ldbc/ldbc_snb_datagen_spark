@@ -36,12 +36,13 @@
 package ldbc.snb.datagen.vocabulary;
 
 /**
- * Friend of a friend project namespace used in the serialization process.
+ * Dublin core project namespace used in the serialization process.
  */
-public class FOAF {
+public class DC {
 
-    public static final String NAMESPACE = "http://xmlns.com/foaf/0.1/";
-    public static final String PREFIX = "foaf:";
+    public static final String NAMESPACE = "http://purl.org/dc/terms/";
+    public static final String PREFIX = "dc:";
+    public static final String PREFIX_DECLARATION =  ":" + DC.PREFIX + fullprefixed("") ;
 
     public static final String Name = PREFIX + "name";
 

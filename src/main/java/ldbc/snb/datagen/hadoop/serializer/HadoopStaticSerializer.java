@@ -43,6 +43,7 @@ import ldbc.snb.datagen.entities.statictype.place.Place;
 import ldbc.snb.datagen.entities.statictype.tag.Tag;
 import ldbc.snb.datagen.serializer.StaticSerializer;
 import ldbc.snb.datagen.serializer.csv.CsvStaticSerializer;
+import ldbc.snb.datagen.serializer.yarspg.staticserializer.YarsPgCanonicalSchemalessStaticSerializer;
 import ldbc.snb.datagen.serializer.yarspg.staticserializer.YarsPgCanonicalStaticSerializer;
 import ldbc.snb.datagen.serializer.yarspg.staticserializer.YarsPgSchemalessStaticSerializer;
 import ldbc.snb.datagen.serializer.yarspg.staticserializer.YarsPgStaticSerializer;
@@ -92,6 +93,9 @@ public class HadoopStaticSerializer {
                         break;
                     case "YarsPGCanonical":
                         staticSerializer[i] = new YarsPgCanonicalStaticSerializer();
+                        break;
+                    case "YarsPGCanonicalSchemaless":
+                        staticSerializer[i] = new YarsPgCanonicalSchemalessStaticSerializer();
                         break;
                     default:
                         throw new MissingFormatArgumentException("Missing serializer.format");

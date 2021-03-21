@@ -1,22 +1,46 @@
 package ldbc.snb.datagen.hadoop.writer;
 
 import ldbc.snb.datagen.serializer.yarspg.*;
+import ldbc.snb.datagen.vocabulary.DC;
+import ldbc.snb.datagen.vocabulary.OWL;
 import org.apache.hadoop.fs.FileSystem;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class HdfsYarsPgWriter extends HdfsWriter {
     private final StringBuffer buffer;
     private boolean isCanonical = false;
+
     private Node node;
     private NodeSchema nodeSchema;
     private Edge edge;
     private EdgeSchema edgeSchema;
+
+    private String footer = "";
     private HashSet<String> edgeSchemaKey = new HashSet<>();
+    private HashSet<String> edgeKey = new HashSet<>();
     private HashSet<String> nodeSchemaKey = new HashSet<>();
+    private HashSet<String> nodeKey = new HashSet<>();
+
+    public static final String STANDARD_HEADERS = DC.PREFIX_DECLARATION + "\n" +
+            OWL.PREFIX_DECLARATION + "\n" +
+            "-" + DC.prefixed("creator:") + "\"LDBC\"" + "\n" +
+            "-" + DC.prefixed("created:") + "\"" + new Date().toString() + "\"" + "\n" +
+            "-" + DC.prefixed("title:") + "\"" + "Social Network Benchmark" + "\"" + "\n" +
+            "-" + DC.prefixed("identifier:") + "\"" + UUID.randomUUID() + "\"" + "\n" +
+            "-" + OWL.prefixed("version:") + "\"" + YarsPgSerializer.VERSION + "\"";
+
+    public static final String CANONICAL_HEADERS = "-" + DC.fullprefixed("creator") + ":\"LDBC\"" +
+            "-" + DC.fullprefixed("created") + ":\"" + new Date().toString() + "\"" + "\n" +
+            "-" + DC.fullprefixed("title") + ":\"" + "Social Network Benchmark" + "\"" + "\n" +
+            "-" + DC.fullprefixed("identifier") + ":\"" + UUID.randomUUID() + "\""+ "\n" +
+            "-" + OWL.fullprefixed("version") + ":\"" + YarsPgSerializer.VERSION + "\"";
+
 
     public HdfsYarsPgWriter(FileSystem fs, String outputDir, String prefix, int numPartitions, boolean compressed) throws IOException {
         super(fs, outputDir, prefix, numPartitions, compressed, "yarspg");
@@ -27,24 +51,20 @@ public class HdfsYarsPgWriter extends HdfsWriter {
         isCanonical = canonical;
     }
 
+    public boolean getCanonical() {
+        return isCanonical;
+    }
+
     @Override
     public void close() {
-        // Due tu keeping data in the buffer in canonical case,
-        // data is saved just before closing the file
-        if (isCanonical) {
-            this.write(buffer.toString());
+        if (!isCanonical) {
+            this.write("# End of " + footer + "\n");
         }
 
         super.close();
     }
 
     public void writeHeader(String header) {
-        if (isCanonical) {
-            buffer.append(header)
-                    .append("\n");
-            return;
-        }
-
         buffer.setLength(0);
         buffer.append(header)
                 .append("\n");
@@ -75,46 +95,38 @@ public class HdfsYarsPgWriter extends HdfsWriter {
     }
 
     public void writeNode(String schemaNodeID, String nodeID, BiConsumer<NodeSchema, Node> biConsumer) {
-        if (!isCanonical)
-            buffer.setLength(0);
+        buffer.setLength(0);
 
         nodeSchema = new NodeSchema(schemaNodeID);
         node = new Node(nodeID);
         biConsumer.accept(nodeSchema, node);
 
-        if (isCanonical) {
-            // Make sure that specific schema is written only once
-            // Workaround to `PersonExporter` implementation
-            if (!nodeSchemaKey.contains(nodeSchema.getNodeLabel()
-                    .get(0))) {
-                int afterNodeSchemaHeaderIndex = buffer.indexOf(String.valueOf(
-                        Header.NODE_SCHEMA)) + Header.NODE_SCHEMA.toString()
-                        .length() + 1;
-
-                buffer.insert(afterNodeSchemaHeaderIndex, nodeSchema + "\n");
-            }
-
-            nodeSchemaKey.add(nodeSchema.getNodeLabel()
-                    .get(0));
-
-            int afterNodesHeaderIndex = buffer.indexOf(String.valueOf(
-                    Header.NODES)) + Header.NODES.toString()
-                    .length() + 1;
-
-            buffer.insert(afterNodesHeaderIndex, node + "\n");
-
-            return;
-        }
-
-        // Make sure that specific schema is written only once
+        // Make sure that schema and section is written only once
         // Workaround to `PersonExporter` implementation
         if (!nodeSchemaKey.contains(nodeSchema.getNodeLabel()
                 .get(0))) {
+            footer = nodeSchema.getNodeLabel().toString();
+
+            if (isCanonical) {
+                buffer.append(Header.NODE_SCHEMA.toString())
+                        .append("\n");
+            }
             buffer.append(nodeSchema)
                     .append("\n");
         }
         nodeSchemaKey.add(nodeSchema.getNodeLabel()
                 .get(0));
+
+        // Make sure that node section is written only once
+        // Workaround to `PersonExporter` implementation
+        if (isCanonical && !nodeKey.contains(node.getNodeLabel()
+                .get(0))) {
+            buffer.append(Header.NODES.toString())
+                    .append("\n");
+        }
+        nodeKey.add(node.getNodeLabel()
+                .get(0));
+
 
         buffer.append(node)
                 .append("\n");
@@ -123,42 +135,36 @@ public class HdfsYarsPgWriter extends HdfsWriter {
     }
 
     public void writeEdge(EdgeType edgeType, BiConsumer<EdgeSchema, Edge> biConsumer) {
-        if (!isCanonical)
-            buffer.setLength(0);
+        buffer.setLength(0);
 
         edge = new Edge(edgeType);
         edgeSchema = new EdgeSchema(edgeType);
         biConsumer.accept(edgeSchema, edge);
 
-        if (isCanonical) {
-            // Make sure that specific schema is written only once
-            // Workaround to `PersonExporter` implementation
-            if (!edgeSchemaKey.contains(edgeSchema.getEdgeLabel())) {
-                int afterEdgeSchemaHeaderIndex = buffer.indexOf(String.valueOf(
-                        Header.EDGE_SCHEMA)) + Header.EDGE_SCHEMA.toString()
-                        .length() + 1;
-
-                buffer.insert(afterEdgeSchemaHeaderIndex, edgeSchema + "\n");
-            }
-
-            int afterEdgesHeaderIndex = buffer.indexOf(String.valueOf(
-                    Header.EDGES)) + Header.EDGES.toString()
-                    .length() + 1;
-
-            edgeSchemaKey.add(edgeSchema.getEdgeLabel());
-
-            buffer.insert(afterEdgesHeaderIndex, edge + "\n");
-
-            return;
-        }
-
-        // Make sure that specific schema is written only once
+        // Make sure that schema and section is written only once
         // Workaround to `PersonExporter` implementation
         if (!edgeSchemaKey.contains(edgeSchema.getEdgeLabel())) {
+            footer = edgeSchema.getEdgeLabel();
+
+            if (isCanonical) {
+                buffer.append(Header.EDGE_SCHEMA.toString())
+                        .append("\n");
+            }
+
             buffer.append(edgeSchema)
                     .append("\n");
+
         }
         edgeSchemaKey.add(edgeSchema.getEdgeLabel());
+
+        // Make sure that edge section is written only once
+        // Workaround to `PersonExporter` implementation
+        if (isCanonical && !edgeKey.contains(edge.getEdgeLabel())) {
+            buffer.append(Header.EDGES.toString())
+                    .append("\n");
+        }
+        edgeKey.add(edge.getEdgeLabel());
+
 
         buffer.append(edge)
                 .append("\n");

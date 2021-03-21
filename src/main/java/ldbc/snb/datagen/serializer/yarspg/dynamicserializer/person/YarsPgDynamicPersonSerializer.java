@@ -20,17 +20,19 @@ import ldbc.snb.datagen.util.DateUtils;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ldbc.snb.datagen.serializer.FileName.SOCIAL_NETWORK_PERSON;
+import static ldbc.snb.datagen.serializer.FileName.*;
 
 public class YarsPgDynamicPersonSerializer extends DynamicPersonSerializer<HdfsYarsPgWriter> implements YarsPgSerializer {
 
     @Override
     public List<FileName> getFileNames() {
-        return ImmutableList.of(SOCIAL_NETWORK_PERSON);
+        return ImmutableList.of(PERSON, PERSON_STUDYAT_UNIVERSITY, PERSON_WORKAT_COMPANY, PERSON_HASINTEREST_TAG,
+                PERSON_ISLOCATEDIN_CITY, PERSON_KNOWS_PERSON);
     }
 
     @Override
     public void writeFileHeaders() {
+        getFileNames().forEach(fileName -> writers.get(fileName).writeHeader(HdfsYarsPgWriter.STANDARD_HEADERS));
     }
 
     @Override
@@ -38,7 +40,7 @@ public class YarsPgDynamicPersonSerializer extends DynamicPersonSerializer<HdfsY
         String schemaNodeID = Statement.generateId("S_Person" + person.getAccountId());
         String nodeID = Statement.generateId("Person" + person.getAccountId());
 
-        writers.get(SOCIAL_NETWORK_PERSON)
+        writers.get(PERSON)
                 .writeNode(schemaNodeID, nodeID, (schema, node) -> {
                     schema.withNodeLabels("Person")
                             .withPropsDefinition(propsSchemas -> {
@@ -124,7 +126,7 @@ public class YarsPgDynamicPersonSerializer extends DynamicPersonSerializer<HdfsY
         String citySchemaEdgeID = Statement.generateId("S_City" + person.getCityId());
         String cityEdgeID = Statement.generateId("City" + person.getCityId());
 
-        writers.get(SOCIAL_NETWORK_PERSON)
+        writers.get(PERSON_ISLOCATEDIN_CITY)
                 .writeEdge(EdgeType.DIRECTED, (schema, edge) -> {
                     schema.as(personSchemaEdgeID, Relationship.IS_LOCATED_IN.toString(), citySchemaEdgeID);
                     edge.as(personEdgeID, Relationship.IS_LOCATED_IN.toString(), cityEdgeID);
@@ -133,7 +135,7 @@ public class YarsPgDynamicPersonSerializer extends DynamicPersonSerializer<HdfsY
         for (Integer interestIdx : person.getInterests()) {
             String tagSchemaEdgeInterestID = Statement.generateId("S_Tag" + interestIdx);
             String tagEdgeInterestID = Statement.generateId("Tag" + interestIdx);
-            writers.get(SOCIAL_NETWORK_PERSON)
+            writers.get(PERSON_HASINTEREST_TAG)
                     .writeEdge(EdgeType.DIRECTED, (schema, edge) -> {
                         schema.as(personSchemaEdgeID, Relationship.HAS_INTEREST.toString(), tagSchemaEdgeInterestID);
                         edge.as(personEdgeID, Relationship.HAS_INTEREST.toString(), tagEdgeInterestID);
@@ -148,7 +150,7 @@ public class YarsPgDynamicPersonSerializer extends DynamicPersonSerializer<HdfsY
         String universitySchemaEdgeID = Statement.generateId("S_University" + studyAt.university);
         String universityEdgeID = Statement.generateId("University" + studyAt.university);
 
-        writers.get(SOCIAL_NETWORK_PERSON)
+        writers.get(PERSON_STUDYAT_UNIVERSITY)
                 .writeEdge(EdgeType.DIRECTED, (schema, edge) -> {
                     schema.as(personSchemaEdgeID, Relationship.STUDY_AT.toString(), universitySchemaEdgeID)
                             .withPropsDefinition(propsSchemas -> {
@@ -175,7 +177,7 @@ public class YarsPgDynamicPersonSerializer extends DynamicPersonSerializer<HdfsY
         String companySchemaEdgeID = Statement.generateId("S_Company" + workAt.company);
         String companyEdgeID = Statement.generateId("Company" + workAt.company);
 
-        writers.get(SOCIAL_NETWORK_PERSON)
+        writers.get(PERSON_WORKAT_COMPANY)
                 .writeEdge(EdgeType.DIRECTED, (schema, edge) -> {
                     schema.as(personSchemaEdgeID, Relationship.WORK_AT.toString(), companySchemaEdgeID)
                             .withPropsDefinition(propsSchemas -> {
@@ -204,7 +206,7 @@ public class YarsPgDynamicPersonSerializer extends DynamicPersonSerializer<HdfsY
         String knowsPersonEdgeID = Statement.generateId("Person" + knows.to()
                 .getAccountId());
 
-        writers.get(SOCIAL_NETWORK_PERSON)
+        writers.get(PERSON_KNOWS_PERSON)
                 .writeEdge(EdgeType.DIRECTED, (schema, edge) -> {
                     schema.as(personSchemaEdgeID, Relationship.KNOWS.toString(), knowsPersonSchemaEdgeID)
                             .withPropsDefinition(propsSchemas -> {
