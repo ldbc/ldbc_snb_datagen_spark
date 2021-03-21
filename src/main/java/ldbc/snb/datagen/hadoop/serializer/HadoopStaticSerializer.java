@@ -53,7 +53,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 
 import java.util.Iterator;
-import java.util.MissingFormatArgumentException;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -78,13 +77,10 @@ public class HadoopStaticSerializer {
     public void run() {
         try {
             FileSystem fs = FileSystem.get(hadoopConf);
-            String serializerFormat = conf.get("serializer.format");
             staticSerializer = new StaticSerializer[numPartitions];
             for (int i = 0; i < numPartitions; ++i) {
-                switch (serializerFormat) {
-                    case "CsvBasic":
-                        staticSerializer[i] = new CsvStaticSerializer();
-                        break;
+                String format = conf.get("serializer.format");
+                switch ((format != null) ? format : "CsvBasic") {
                     case "YarsPG":
                         staticSerializer[i] = new YarsPgStaticSerializer();
                         break;
@@ -97,8 +93,9 @@ public class HadoopStaticSerializer {
                     case "YarsPGCanonicalSchemaless":
                         staticSerializer[i] = new YarsPgCanonicalSchemalessStaticSerializer();
                         break;
+                    case "CsvBasic":
                     default:
-                        throw new MissingFormatArgumentException("Missing serializer.format");
+                        staticSerializer[i] = new CsvStaticSerializer();
                 }
 
                 staticSerializer[i].initialize(

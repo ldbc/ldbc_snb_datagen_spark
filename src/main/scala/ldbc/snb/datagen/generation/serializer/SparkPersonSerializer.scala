@@ -31,7 +31,7 @@ object SparkPersonSerializer {
           case "YarsPGSchemaless" => new YarsPgSchemalessDynamicPersonSerializer
           case "YarsPGCanonical" => new YarsPgCanonicalDynamicPersonSerializer
           case "YarsPGCanonicalSchemaless" => new YarsPgCanonicalSchemalessDynamicPersonSerializer
-          case _ => throw new NoSuchElementException("Missing serializer.format")
+          case _ => new CsvDynamicPersonSerializer
         }
 
         val hadoopConf = serializableHadoopConf.value

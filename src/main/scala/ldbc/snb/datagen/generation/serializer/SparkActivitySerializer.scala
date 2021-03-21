@@ -4,7 +4,7 @@ import ldbc.snb.datagen.entities.dynamic.person.Person
 import ldbc.snb.datagen.generator.generators.{GenActivity, PersonActivityGenerator}
 import ldbc.snb.datagen.serializer.{DynamicActivitySerializer, PersonActivityExporter}
 import ldbc.snb.datagen.generation.generator.SparkRanker
-import ldbc.snb.datagen.serializer.csv.CsvDynamicActivitySerializer
+import ldbc.snb.datagen.serializer.csv.{CsvDynamicActivitySerializer, CsvDynamicPersonSerializer}
 import ldbc.snb.datagen.serializer.yarspg.dynamicserializer.activity.{YarsPgCanonicalDynamicActivitySerializer, YarsPgCanonicalSchemalessDynamicActivitySerializer, YarsPgDynamicActivitySerializer, YarsPgSchemalessDynamicActivitySerializer}
 import ldbc.snb.datagen.serializer.yarspg.dynamicserializer.person.{YarsPgCanonicalDynamicPersonSerializer, YarsPgDynamicPersonSerializer, YarsPgSchemalessDynamicPersonSerializer}
 import ldbc.snb.datagen.util.{GeneratorConfiguration, SerializableConfiguration}
@@ -48,7 +48,7 @@ object SparkActivitySerializer {
         case "YarsPGSchemaless" => new YarsPgSchemalessDynamicActivitySerializer
         case "YarsPGCanonical" => new YarsPgCanonicalDynamicActivitySerializer
         case "YarsPGCanonicalSchemaless" => new YarsPgCanonicalSchemalessDynamicActivitySerializer
-        case _ => throw new NoSuchElementException("Missing serializer.format")
+        case _ => new CsvDynamicActivitySerializer
       }
 
       dynamicActivitySerializer.initialize(fs, conf.getOutputDir, partitionId, false)
