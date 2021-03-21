@@ -22,8 +22,6 @@ The LDBC SNB Data Generator (Datagen) is the responsible of providing the datase
 
 ### Build the JAR
 
-#### Build the JAR
-
 You can build the JAR with both Maven and SBT.
 
 * To assemble the JAR file with Maven, run:
