@@ -102,7 +102,6 @@ def submit_datagen_job(name, sf,
     hdfs_prefix = '/ldbc_snb_datagen'
 
     build_dir = f'{hdfs_prefix}/build'
-    sn_dir = f'{hdfs_prefix}/social_network'
 
     market = 'SPOT' if use_spot else 'ON_DEMAND'
 
@@ -171,7 +170,7 @@ def submit_datagen_job(name, sf,
                     'Properties': [],
                     'Jar': 'command-runner.jar',
                     'Args': ['s3-dist-cp',
-                             '--src', f'hdfs://{sn_dir}',
+                             '--src', f'hdfs://{build_dir}',
                              '--dest', f'{run_url}/social_network'
                              ]
                 }
