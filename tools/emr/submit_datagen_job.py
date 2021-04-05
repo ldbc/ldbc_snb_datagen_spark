@@ -65,7 +65,7 @@ def get_instance_info(instance_type):
     return {'vcpu': vcpu, 'mem': mem}
 
 
-def submit_datagen_job(params_file, sf,
+def submit_datagen_job(name, sf,
                        bucket=defaults['bucket'],
                        use_spot=defaults['use_spot'],
                        instance_type=defaults['instance_type'],
@@ -84,7 +84,6 @@ def submit_datagen_job(params_file, sf,
 
     emr = boto3.client('emr')
 
-    name = path.splitext(params_file)[0]
     ts = datetime.utcnow()
     ts_formatted = ts.strftime('%Y%m%d_%H%M%S')
 
@@ -189,9 +188,9 @@ def submit_datagen_job(params_file, sf,
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Submit a Datagen job to EMR')
-    parser.add_argument('params_url',
+    parser.add_argument('name',
                         type=str,
-                        help='params file name')
+                        help='name')
     parser.add_argument('sf', type=int,
                         help='scale factor (used to calculate cluster size)')
     parser.add_argument('--use-spot',
@@ -226,7 +225,7 @@ if __name__ == "__main__":
 
     is_interactive = hasattr(__main__, '__file__')
 
-    submit_datagen_job(args.params_url, args.sf,
+    submit_datagen_job(args.name, args.sf,
                        bucket=args.bucket, use_spot=args.use_spot, az=args.az,
                        is_interactive=is_interactive and not args.y,
                        instance_type=args.instance_type,
