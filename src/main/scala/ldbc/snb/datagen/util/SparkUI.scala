@@ -7,6 +7,10 @@ object SparkUI {
 
   def job[T](jobGroup: String, jobDescription: String)(action: => T)(implicit spark: SparkSession) = {
     spark.sparkContext.setJobGroup(jobGroup, jobDescription)
-    action
+    try {
+      action
+    } finally {
+      spark.sparkContext.clearJobGroup()
+    }
   }
 }
