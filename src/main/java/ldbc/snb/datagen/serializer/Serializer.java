@@ -13,6 +13,7 @@ public interface Serializer<THDFSWriter extends HdfsWriter> {
             FileSystem fs,
             String outputDir,
             int reducerId,
+            double oversizeFactor,
             boolean isCompressed,
             boolean dynamic,
             List<FileName> fileNames

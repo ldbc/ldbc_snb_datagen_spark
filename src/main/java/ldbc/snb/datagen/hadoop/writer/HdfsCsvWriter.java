@@ -48,8 +48,8 @@ public class HdfsCsvWriter extends HdfsWriter {
     private String separator;
     private StringBuffer buffer;
 
-    public HdfsCsvWriter(FileSystem fs, String outputDir, String prefix, int numPartitions, boolean compressed, String separator) throws IOException {
-        super(fs, outputDir, prefix, numPartitions, compressed, "csv");
+    public HdfsCsvWriter(FileSystem fs, String outputDir, String prefix, int numFiles, boolean compressed, String separator) throws IOException {
+        super(fs, outputDir, prefix, numFiles, compressed, "csv");
         this.separator = separator;
         this.buffer = new StringBuffer(2048);
     }

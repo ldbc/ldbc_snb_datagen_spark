@@ -76,7 +76,7 @@ public class HadoopStaticSerializer {
             for (int i = 0; i < numPartitions; ++i) {
                 staticSerializer[i] = new StaticSerializer();
                 staticSerializer[i].initialize(
-                        fs, conf.getOutputDir(), i,
+                        fs, conf.getOutputDir(), i, 1.0,
                         false
                 );
             }

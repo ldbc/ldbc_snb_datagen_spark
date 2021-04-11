@@ -24,18 +24,18 @@ abstract public class LdbcSerializer implements Serializer<HdfsCsvWriter> {
             FileSystem fs,
             String outputDir,
             int reducerId,
+            double oversizeFactor,
             boolean isCompressed,
             boolean dynamic,
             List<FileName> fileNames
     ) throws IOException {
-
         Map<FileName, HdfsCsvWriter> writers = new HashMap<>();
         for (FileName f : fileNames) {
             writers.put(f, new HdfsCsvWriter(
                             fs,
-                            outputDir + "/csv/raw/composite-merged-fk" + (dynamic ? "/dynamic/" : "/static/") + f.toString() + "/",
+                            outputDir + "/csv/raw/composite-merged-fk" + (dynamic ? "/dynamic/" : "/static/") + f.name + "/",
                             String.valueOf(reducerId),
-                            DatagenParams.numUpdateStreams,
+                            (int)Math.ceil(f.size / oversizeFactor),
                             isCompressed,
                             "|"
                     )
@@ -44,8 +44,8 @@ abstract public class LdbcSerializer implements Serializer<HdfsCsvWriter> {
         return writers;
     }
 
-    public void initialize(FileSystem fs, String outputDir, int reducerId, boolean isCompressed) throws IOException {
-        writers = initialize(fs, outputDir, reducerId, isCompressed, isDynamic(), getFileNames());
+    public void initialize(FileSystem fs, String outputDir, int reducerId, double oversizeFactor, boolean isCompressed) throws IOException {
+        writers = initialize(fs, outputDir, reducerId, oversizeFactor, isCompressed, isDynamic(), getFileNames());
         writeFileHeaders();
         this.dateFormatter = new DateFormatter();
     }

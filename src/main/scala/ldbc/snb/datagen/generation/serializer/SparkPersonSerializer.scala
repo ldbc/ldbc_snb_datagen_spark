@@ -15,7 +15,8 @@ object SparkPersonSerializer {
   def apply(
     persons: RDD[Person],
     conf: GeneratorConfiguration,
-    partitions: Option[Int] = None
+    partitions: Option[Int] = None,
+    oversizeFactor: Double = 1.0
   )(implicit spark: SparkSession): Unit = {
     val serializableHadoopConf = new SerializableConfiguration(spark.sparkContext.hadoopConfiguration)
 
@@ -34,6 +35,7 @@ object SparkPersonSerializer {
           fs,
           conf.getOutputDir,
           partitionId,
+          oversizeFactor,
           false
         )
 

@@ -3,54 +3,40 @@ package ldbc.snb.datagen.serializer;
 public enum FileName {
 
     // static
-    TAG("Tag"),
-    TAG_HASTYPE_TAGCLASS("Tag_hasType_TagClass"),
-    TAGCLASS("TagClass"),
-    TAGCLASS_ISSUBCLASSOF_TAGCLASS("TagClass_isSubclassOf_TagClass"),
-    PLACE("Place"),
-    PLACE_ISPARTOF_PLACE("Place_isPartOf_Place"),
-    ORGANISATION("Organisation"),
-    ORGANISATION_ISLOCATEDIN_PLACE("Organisation_isLocatedIn_Place"),
+    TAG("Tag", 1.0),
+    TAG_HASTYPE_TAGCLASS("Tag_hasType_TagClass", 1.0),
+    TAGCLASS("TagClass", 1.0),
+    TAGCLASS_ISSUBCLASSOF_TAGCLASS("TagClass_isSubclassOf_TagClass", 1.0),
+    PLACE("Place", 1.0),
+    PLACE_ISPARTOF_PLACE("Place_isPartOf_Place", 1.0),
+    ORGANISATION("Organisation", 1.0),
+    ORGANISATION_ISLOCATEDIN_PLACE("Organisation_isLocatedIn_Place", 1.0),
 
     // dynamic activity
-    FORUM("Forum"),
-    FORUM_CONTAINEROF_POST("Forum_containerOf_Post"),
-    FORUM_HASMEMBER_PERSON("Forum_hasMember_Person"),
-    FORUM_HASMODERATOR_PERSON("Forum_hasModerator_Person"),
-    FORUM_HASTAG_TAG("Forum_hasTag_Tag"),
-    PERSON_LIKES_POST("Person_likes_Post"),
-    PERSON_LIKES_COMMENT("Person_likes_Comment"),
-    POST("Post"),
-    POST_HASCREATOR_PERSON("Post_hasCreator_Person"),
-    POST_HASTAG_TAG("Post_hasTag_Tag"),
-    POST_ISLOCATEDIN_COUNTRY("Post_isLocatedIn_Country"),
-    COMMENT("Comment"),
-    COMMENT_HASCREATOR_PERSON("Comment_hasCreator_Person"),
-    COMMENT_HASTAG_TAG("Comment_hasTag_Tag"),
-    COMMENT_ISLOCATEDIN_COUNTRY("Comment_isLocatedIn_Country"),
-    COMMENT_REPLYOF_POST("Comment_replyOf_Post"),
-    COMMENT_REPLYOF_COMMENT("Comment_replyOf_Comment"),
+    FORUM("Forum", 5.13),
+    FORUM_HASMEMBER_PERSON("Forum_hasMember_Person", 384.06),
+    FORUM_HASTAG_TAG("Forum_hasTag_Tag", 11.10),
+    PERSON_LIKES_POST("Person_likes_Post", 141.12),
+    PERSON_LIKES_COMMENT("Person_likes_Comment", 325.31),
+    POST("Post", 138.61),
+    POST_HASTAG_TAG("Post_hasTag_Tag", 77.34),
+    COMMENT("Comment", 503.70),
+    COMMENT_HASTAG_TAG("Comment_hasTag_Tag", 295.20),
 
     // dynamic person
-    PERSON("Person"),
-    PERSON_SPEAKS_LANGUAGE("Person_speaks_language"),
-    PERSON_EMAIL_EMAILADDRESS("Person_email_emailaddress"),
-    PERSON_ISLOCATEDIN_CITY("Person_isLocatedIn_City"),
-    PERSON_HASINTEREST_TAG("Person_hasInterest_Tag"),
-    PERSON_WORKAT_COMPANY("Person_workAt_Company"),
-    PERSON_STUDYAT_UNIVERSITY("Person_studyAt_University"),
-    PERSON_KNOWS_PERSON("Person_knows_Person"),
+    PERSON("Person", 1.0),
+    PERSON_HASINTEREST_TAG("Person_hasInterest_Tag", 7.89),
+    PERSON_WORKAT_COMPANY("Person_workAt_Company", 0.77),
+    PERSON_STUDYAT_UNIVERSITY("Person_studyAt_University", 0.28),
+    PERSON_KNOWS_PERSON("Person_knows_Person", 26.11),
 
     ;
 
-    private final String name;
+    public final String name;
+    public final double size;
 
-    FileName(String name) {
+    FileName(String name, double size) {
         this.name = name;
+        this.size = size;
     }
-
-    public String toString() {
-        return name;
-    }
-
 }

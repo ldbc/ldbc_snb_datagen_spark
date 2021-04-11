@@ -21,8 +21,8 @@ max_num_workers = 1000
 defaults = {
     'bucket': 'ldbc-snb-datagen-store',
     'use_spot': False,
-    'master_instance_type': 'm5ad.2xlarge',
-    'instance_type': 'r5ad.4xlarge',
+    'master_instance_type': 'm5a.2xlarge',
+    'instance_type': 'r5a.2xlarge',
     'version': lib.version,
     'az': 'us-west-2c',
     'is_interactive': False,
@@ -75,7 +75,8 @@ def submit_datagen_job(name, sf,
                        emr_release=defaults['emr_release'],
                        is_interactive=defaults['is_interactive'],
                        ec2_key=defaults['ec2_key'],
-                       passthrough_args=None
+                       passthrough_args=None,
+                       conf=None
                        ):
 
     exec_info = get_instance_info(instance_type)
@@ -96,7 +97,8 @@ def submit_datagen_job(name, sf,
 
     spark_config = {
         'maximizeResourceAllocation': 'true',
-        'spark.serializer': 'org.apache.spark.serializer.KryoSerializer'
+        'spark.serializer': 'org.apache.spark.serializer.KryoSerializer',
+        **(conf if conf else {})
     }
 
     hdfs_prefix = '/ldbc_snb_datagen'
@@ -184,6 +186,23 @@ def submit_datagen_job(name, sf,
 
     emr.run_job_flow(**job_flow_args)
 
+def parse_var(s):
+    items = s.split('=')
+    key = items[0].strip() # we remove blanks around keys, as is logical
+    if len(items) > 1:
+        # rejoin the rest:
+        value = '='.join(items[1:])
+    return (key, value)
+
+
+def parse_vars(items):
+    d = {}
+    if items:
+        for item in items:
+            key, value = parse_var(item)
+            d[key] = value
+    return d
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Submit a Datagen job to EMR')
@@ -216,11 +235,19 @@ if __name__ == "__main__":
     parser.add_argument('-y',
                         action='store_true',
                         help='Assume \'yes\' for prompts')
+    parser.add_argument("--conf",
+                            metavar="KEY=VALUE",
+                            nargs='+',
+                            help="SparkConf as key=value pairs")
+
     parser.add_argument('--', nargs='*', help='Arguments passed to LDBC SNB Datagen', dest="arg")
+
 
     self_args, child_args = split_passthrough_args()
 
     args = parser.parse_args(self_args)
+
+    conf = parse_vars(args.conf)
 
     is_interactive = hasattr(__main__, '__file__')
 
@@ -231,5 +258,6 @@ if __name__ == "__main__":
                        emr_release=args.emr_release,
                        ec2_key=args.ec2_key,
                        version=args.version,
-                       passthrough_args=child_args
+                       passthrough_args=child_args,
+                       conf=conf
                        )
