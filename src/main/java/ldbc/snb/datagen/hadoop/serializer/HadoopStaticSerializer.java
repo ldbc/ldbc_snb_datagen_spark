@@ -99,7 +99,7 @@ public class HadoopStaticSerializer {
                 }
 
                 staticSerializer[i].initialize(
-                        fs, conf.getOutputDir(), i,
+                        fs, conf.getOutputDir(), i, 1.0,
                         false
                 );
             }

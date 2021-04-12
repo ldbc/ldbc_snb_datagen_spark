@@ -23,7 +23,7 @@ import scala.collection.JavaConverters._
 
 object SparkActivitySerializer {
 
-  def apply(persons: RDD[Person], ranker: SparkRanker, conf: GeneratorConfiguration, partitions: Option[Int] = None)(implicit spark: SparkSession) = {
+  def apply(persons: RDD[Person], ranker: SparkRanker, conf: GeneratorConfiguration, partitions: Option[Int] = None, oversizeFactor: Double = 1.0)(implicit spark: SparkSession) = {
 
     val blockSize = DatagenParams.blockSize
     val blocks = ranker(persons)
@@ -51,7 +51,7 @@ object SparkActivitySerializer {
         case _ => new CsvDynamicActivitySerializer
       }
 
-      dynamicActivitySerializer.initialize(fs, conf.getOutputDir, partitionId, false)
+      dynamicActivitySerializer.initialize(fs, conf.getOutputDir, partitionId, oversizeFactor, false)
 
       val generator = new PersonActivityGenerator
       val exporter = new PersonActivityExporter(dynamicActivitySerializer, generator.getFactorTable)

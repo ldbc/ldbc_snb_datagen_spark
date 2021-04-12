@@ -14,6 +14,8 @@ import java.net.URI
 object GenerationStage extends SparkApp with Logging {
   override def appName: String = "LDBC SNB Datagen for Spark: Generation Stage"
 
+  val optimalPersonsPerFile = 500000
+
   case class Args(
     scaleFactor: String = "1",
     numThreads: Option[Int] = None,
@@ -24,6 +26,9 @@ object GenerationStage extends SparkApp with Logging {
 
   def run(config: GeneratorConfiguration)(implicit spark: SparkSession) = {
     val numPartitions = config.getInt("hadoop.numThreads", spark.sparkContext.defaultParallelism)
+    val idealPartitions = DatagenParams.numPersons.toDouble / optimalPersonsPerFile
+
+    val oversizeFactor = Math.max(numPartitions / idealPartitions, 1.0)
 
     val persons = SparkPersonGenerator(config)
 
@@ -43,11 +48,11 @@ object GenerationStage extends SparkApp with Logging {
     val merged = SparkKnowsMerger(uniKnows, interestKnows, randomKnows).cache()
 
     SparkUI.job(simpleNameOf[SparkActivitySerializer.type], "serialize person activities") {
-      SparkActivitySerializer(merged, randomRanker, config, Some(numPartitions))
+      SparkActivitySerializer(merged, randomRanker, config, Some(numPartitions), oversizeFactor)
     }
 
     SparkUI.job(simpleNameOf[SparkPersonSerializer.type ], "serialize persons") {
-      SparkPersonSerializer(merged, config, Some(numPartitions))
+      SparkPersonSerializer(merged, config, Some(numPartitions), oversizeFactor)
     }
 
     SparkUI.job(simpleNameOf[SparkStaticGraphSerializer.type], "serialize static graph") {

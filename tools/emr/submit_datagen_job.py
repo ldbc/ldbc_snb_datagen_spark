@@ -65,7 +65,7 @@ def get_instance_info(instance_type):
     return {'vcpu': vcpu, 'mem': mem}
 
 
-def submit_datagen_job(params_file, sf,
+def submit_datagen_job(name, sf,
                        bucket=defaults['bucket'],
                        use_spot=defaults['use_spot'],
                        instance_type=defaults['instance_type'],
@@ -75,7 +75,8 @@ def submit_datagen_job(params_file, sf,
                        emr_release=defaults['emr_release'],
                        is_interactive=defaults['is_interactive'],
                        ec2_key=defaults['ec2_key'],
-                       passthrough_args=None
+                       passthrough_args=None,
+                       conf=None
                        ):
 
     exec_info = get_instance_info(instance_type)
@@ -84,7 +85,6 @@ def submit_datagen_job(params_file, sf,
 
     emr = boto3.client('emr')
 
-    name = path.splitext(params_file)[0]
     ts = datetime.utcnow()
     ts_formatted = ts.strftime('%Y%m%d_%H%M%S')
 
@@ -97,13 +97,13 @@ def submit_datagen_job(params_file, sf,
 
     spark_config = {
         'maximizeResourceAllocation': 'true',
-        'spark.serializer': 'org.apache.spark.serializer.KryoSerializer'
+        'spark.serializer': 'org.apache.spark.serializer.KryoSerializer',
+        **(conf if conf else {})
     }
 
     hdfs_prefix = '/ldbc_snb_datagen'
 
     build_dir = f'{hdfs_prefix}/build'
-    sn_dir = f'{hdfs_prefix}/social_network'
 
     market = 'SPOT' if use_spot else 'ON_DEMAND'
 
@@ -172,7 +172,7 @@ def submit_datagen_job(params_file, sf,
                     'Properties': [],
                     'Jar': 'command-runner.jar',
                     'Args': ['s3-dist-cp',
-                             '--src', f'hdfs://{sn_dir}',
+                             '--src', f'hdfs://{build_dir}',
                              '--dest', f'{run_url}/social_network'
                              ]
                 }
@@ -186,12 +186,29 @@ def submit_datagen_job(params_file, sf,
 
     emr.run_job_flow(**job_flow_args)
 
+def parse_var(s):
+    items = s.split('=')
+    key = items[0].strip() # we remove blanks around keys, as is logical
+    if len(items) > 1:
+        # rejoin the rest:
+        value = '='.join(items[1:])
+    return (key, value)
+
+
+def parse_vars(items):
+    d = {}
+    if items:
+        for item in items:
+            key, value = parse_var(item)
+            d[key] = value
+    return d
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Submit a Datagen job to EMR')
-    parser.add_argument('params_url',
+    parser.add_argument('name',
                         type=str,
-                        help='params file name')
+                        help='name')
     parser.add_argument('sf', type=int,
                         help='scale factor (used to calculate cluster size)')
     parser.add_argument('--use-spot',
@@ -218,20 +235,29 @@ if __name__ == "__main__":
     parser.add_argument('-y',
                         action='store_true',
                         help='Assume \'yes\' for prompts')
+    parser.add_argument("--conf",
+                            metavar="KEY=VALUE",
+                            nargs='+',
+                            help="SparkConf as key=value pairs")
+
     parser.add_argument('--', nargs='*', help='Arguments passed to LDBC SNB Datagen', dest="arg")
+
 
     self_args, child_args = split_passthrough_args()
 
     args = parser.parse_args(self_args)
 
+    conf = parse_vars(args.conf)
+
     is_interactive = hasattr(__main__, '__file__')
 
-    submit_datagen_job(args.params_url, args.sf,
+    submit_datagen_job(args.name, args.sf,
                        bucket=args.bucket, use_spot=args.use_spot, az=args.az,
                        is_interactive=is_interactive and not args.y,
                        instance_type=args.instance_type,
                        emr_release=args.emr_release,
                        ec2_key=args.ec2_key,
                        version=args.version,
-                       passthrough_args=child_args
+                       passthrough_args=child_args,
+                       conf=conf
                        )

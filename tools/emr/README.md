@@ -41,5 +41,7 @@ aws s3 cp target/ldbc_snb_datagen-0.4.0-SNAPSHOT-jar-with-dependencies.jar s3://
 1. Submit the job. Run with `--help` for customization options.
 
 ```bash
-./tools/emr/submit_datagen_job.py --bucket ${BUCKET_NAME} params-csv-basic-sf1.ini 1
+JOB_NAME=MyTest
+SCALE_FACTOR=10
+./tools/emr/submit_datagen_job.py --bucket ${BUCKET_NAME} --az us-east-2c ${JOB_NAME} ${SCALE_FACTOR} -- --format csv --mode raw
 ```
