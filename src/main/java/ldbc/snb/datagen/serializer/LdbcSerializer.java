@@ -22,8 +22,8 @@ abstract public class LdbcSerializer<TWriter extends HdfsWriter> implements Seri
 
     protected abstract boolean isDynamic();
 
-    public void initialize(FileSystem fs, String outputDir, int reducerId, boolean isCompressed) throws IOException {
-        writers = initialize(fs, outputDir, reducerId, isCompressed, isDynamic(), getFileNames());
+    public void initialize(FileSystem fs, String outputDir, int reducerId, double oversizeFactor, boolean isCompressed) throws IOException {
+        writers = initialize(fs, outputDir, reducerId, oversizeFactor, isCompressed, isDynamic(), getFileNames());
         addition();
         writeFileHeaders();
         this.dateFormatter = new DateFormatter();

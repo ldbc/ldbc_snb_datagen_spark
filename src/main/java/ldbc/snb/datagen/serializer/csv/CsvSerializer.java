@@ -1,6 +1,5 @@
 package ldbc.snb.datagen.serializer.csv;
 
-import ldbc.snb.datagen.DatagenParams;
 import ldbc.snb.datagen.hadoop.writer.HdfsCsvWriter;
 import ldbc.snb.datagen.serializer.FileName;
 import ldbc.snb.datagen.serializer.Serializer;
@@ -13,12 +12,13 @@ import java.util.Map;
 
 public interface CsvSerializer extends Serializer<HdfsCsvWriter> {
 
-     default Map<FileName, HdfsCsvWriter> initialize(FileSystem fs,
-                                                     String outputDir,
-                                                     int reducerId,
-                                                     boolean isCompressed,
-                                                     boolean dynamic,
-                                                     List<FileName> fileNames) throws IOException {
+    default Map<FileName, HdfsCsvWriter> initialize(FileSystem fs,
+                                                    String outputDir,
+                                                    int reducerId,
+                                                    double oversizeFactor,
+                                                    boolean isCompressed,
+                                                    boolean dynamic,
+                                                    List<FileName> fileNames) throws IOException {
         Map<FileName, HdfsCsvWriter> writers = new HashMap<>();
 
         for (FileName f : fileNames) {
@@ -26,7 +26,7 @@ public interface CsvSerializer extends Serializer<HdfsCsvWriter> {
                             fs,
                             outputDir + "/csv/raw/composite-merged-fk" + (dynamic ? "/dynamic/" : "/static/") + f.toString() + "/",
                             String.valueOf(reducerId),
-                            DatagenParams.numUpdateStreams,
+                            (int) Math.ceil(f.size / oversizeFactor),
                             isCompressed,
                             "|"
                     )

@@ -38,12 +38,12 @@ public class HdfsYarsPgWriter extends HdfsWriter {
     public static final String CANONICAL_HEADERS = "-" + DC.fullprefixed("creator") + ":\"LDBC\"" +
             "-" + DC.fullprefixed("created") + ":\"" + new Date().toString() + "\"" + "\n" +
             "-" + DC.fullprefixed("title") + ":\"" + "Social Network Benchmark" + "\"" + "\n" +
-            "-" + DC.fullprefixed("identifier") + ":\"" + UUID.randomUUID() + "\""+ "\n" +
+            "-" + DC.fullprefixed("identifier") + ":\"" + UUID.randomUUID() + "\"" + "\n" +
             "-" + OWL.fullprefixed("version") + ":\"" + YarsPgSerializer.VERSION + "\"";
 
 
-    public HdfsYarsPgWriter(FileSystem fs, String outputDir, String prefix, int numPartitions, boolean compressed) throws IOException {
-        super(fs, outputDir, prefix, numPartitions, compressed, "yarspg");
+    public HdfsYarsPgWriter(FileSystem fs, String outputDir, String prefix, int numFiles, boolean compressed) throws IOException {
+        super(fs, outputDir, prefix, numFiles, compressed, "yarspg");
         this.buffer = new StringBuffer();
     }
 
