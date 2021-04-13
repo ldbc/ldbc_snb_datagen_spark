@@ -2,11 +2,11 @@ package ldbc.snb.datagen.transformation.io
 
 import ldbc.snb.datagen.transformation.model.{Batched, BatchedEntity, EntityType, Graph, GraphLike, Mode}
 import ldbc.snb.datagen.transformation.model.EntityType.{Attr, Edge, Node}
-import org.apache.spark.sql.{DataFrame, DataFrameWriter, SaveMode}
+import org.apache.spark.sql.{DataFrame, DataFrameWriter, SaveMode, SparkSession}
 import shapeless.{Generic, Poly1}
 import better.files._
 import ldbc.snb.datagen.transformation.model.Mode.Raw
-import ldbc.snb.datagen.util.Logging
+import ldbc.snb.datagen.util.{Logging, SparkUI}
 
 import scala.collection.immutable.TreeMap
 
@@ -83,12 +83,13 @@ private final class DataFrameGraphWriter[M <: Mode](implicit
   override def write(graph: Graph[M, DataFrame], path: String, options: WriterFormatOptions): Unit = {
     TreeMap(graph.entities.toSeq: _*).foreach {
       case (tpe, dataset) =>
-        log.info(s"$tpe: Writing")
-
-        Writer.apply(dataset.write, options)
-          .mode(SaveMode.Ignore)
-          .save((path / options.format / PathComponent[GraphLike[M]].path(graph) / tpe.entityPath).toString())
-        log.info(s"$tpe: Writing completed")
+        SparkUI.job(getClass.getSimpleName, s"write $tpe") {
+          log.info(s"$tpe: Writing started")
+          Writer.apply(dataset.write, options)
+            .mode(SaveMode.Ignore)
+            .save((path / options.format / PathComponent[GraphLike[M]].path(graph) / tpe.entityPath).toString())
+          log.info(s"$tpe: Writing completed")
+        } (dataset.sparkSession)
     }
   }
 }
@@ -102,24 +103,28 @@ private final class BatchedDataFrameGraphWriter[M <: Mode](implicit
   override def write(graph: Graph[M, DataFrame], path: String, options: WriterFormatOptions): Unit = {
     TreeMap(graph.entities.mapValues(ev).toSeq: _*).foreach {
       case (tpe, BatchedEntity(snapshot, insertBatches, deleteBatches)) =>
-        log.info(s"$tpe: Writing snapshot")
+        SparkUI.job(getClass.getSimpleName, s"write $tpe snapshot") {
+          log.info(s"$tpe: Writing snapshot")
 
-        Writer.apply(snapshot.write, options)
-          .mode(SaveMode.Ignore)
-          .save((path / options.format / PathComponent[GraphLike[M]].path(graph) / "initial_snapshot" / tpe.entityPath).toString())
+          Writer.apply(snapshot.write, options)
+            .mode(SaveMode.Ignore)
+            .save((path / options.format / PathComponent[GraphLike[M]].path(graph) / "initial_snapshot" / tpe.entityPath).toString())
 
-        log.info(s"$tpe: Writing snapshot completed")
+          log.info(s"$tpe: Writing snapshot completed")
+        } (snapshot.sparkSession)
 
         for { (operation, batches) <- Map("inserts" -> insertBatches, "deletes" -> deleteBatches) } {
-          log.info(f"$tpe: Writing $operation")
-
-          batches.foreach { case Batched(entity, partitionKeys) =>
-            Writer.apply(entity.write, options)
-              .partitionBy(partitionKeys: _*)
-              .mode(SaveMode.Ignore)
-              .save((path / options.format / PathComponent[GraphLike[M]].path(graph) / operation / tpe.entityPath).toString())
+          batches.foreach {
+            case Batched(entity, partitionKeys) =>
+              SparkUI.job(getClass.getSimpleName, s"write $tpe $operation") {
+                log.info(f"$tpe: Writing $operation")
+                Writer.apply(entity.write, options)
+                  .partitionBy(partitionKeys: _*)
+                  .mode(SaveMode.Ignore)
+                  .save((path / options.format / PathComponent[GraphLike[M]].path(graph) / operation / tpe.entityPath).toString())
+                log.info(f"$tpe: Writing $operation completed")
+              }(entity.sparkSession)
           }
-          log.info(f"$tpe: Writing $operation completed")
         }
     }
   }
