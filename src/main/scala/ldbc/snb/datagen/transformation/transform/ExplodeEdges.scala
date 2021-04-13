@@ -17,8 +17,8 @@ object ExplodeEdges extends Transform[Mode.Raw.type, Mode.Raw.type]{
       val Seq(src, dst) = edge.primaryKey
 
       edge.cardinality match {
-        case OneN => edge -> node.select(withRawColumns(edge, $"id".as(src), explode(split(column, ",")).as(dst)))
-        case NOne => edge -> node.select(withRawColumns(edge, explode(split(column, ",")).as(src), $"id".as(dst)))
+        case OneN => edge -> node.select(withRawColumns(edge, $"id".as(src), explode(split(column, ";")).as(dst)))
+        case NOne => edge -> node.select(withRawColumns(edge, explode(split(column, ";")).as(src), $"id".as(dst)))
         case NN => throw new IllegalArgumentException(s"Cannot explode edge with NN cardinality: $edge")
       }
     }
