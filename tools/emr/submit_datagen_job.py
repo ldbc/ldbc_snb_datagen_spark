@@ -22,7 +22,7 @@ defaults = {
     'bucket': 'ldbc-snb-datagen-store',
     'use_spot': False,
     'master_instance_type': 'm5d.2xlarge',
-    'instance_type': 'r5d.2xlarge',
+    'instance_type': 'i3.2xlarge',
     'version': lib.version,
     'az': 'us-west-2c',
     'is_interactive': False,
