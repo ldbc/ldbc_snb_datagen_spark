@@ -45,7 +45,7 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
         .select(
           Seq($"insert_batch_id".as("batch_id")) ++ Interactive.columns(tpe, df.columns).map(qcol): _*
         )
-        .repartition(1, $"batch_id")
+        .repartitionByRange($"batch_id")
         .sortWithinPartitions($"creationDate")
     }
 
@@ -55,7 +55,7 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
         .filter(inBatch($"deletionDate", batchStart, batchEnd))
         .pipe(batched)
         .select(Seq($"delete_batch_id".as("batch_id"), $"deletionDate") ++ idColumns: _*)
-        .repartition(1, $"batch_id")
+        .repartitionByRange($"batch_id")
         .sortWithinPartitions($"deletionDate")
     }
 
