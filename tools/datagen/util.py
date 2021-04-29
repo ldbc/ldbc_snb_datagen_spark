@@ -16,14 +16,14 @@ class KeyValue(argparse.Action):
 def ask_continue(message):
     print(message)
     resp = None
-    inp = input("Continue? [Y/N]:").lower()
+    inp = input("Continue? [Y/N]: ").lower()
     while resp is None:
         if inp == 'y' or inp == 'yes':
             resp = True
         elif inp == 'n' or inp == 'no':
             resp = False
         else:
-            inp = input("Please answer yes or no:").lower()
+            inp = input("Please answer Y/N: ").lower()
     return resp
 
 
