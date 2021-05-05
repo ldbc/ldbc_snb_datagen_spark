@@ -22,7 +22,7 @@ defaults = {
     'bucket': 'ldbc-snb-datagen-store',
     'use_spot': False,
     'master_instance_type': 'm5d.2xlarge',
-    'instance_type': 'i3.2xlarge',
+    'instance_type': 'i3.4xlarge',
     'version': lib.version,
     'az': 'us-west-2c',
     'is_interactive': False,
@@ -41,11 +41,11 @@ with open(path.join(dir, ec2info_file), mode='r') as infile:
     ec2_instances = [dict(row) for row in reader]
 
 
-def calculate_cluster_config(scale_factor, sf_ratio=50.0):
+def calculate_cluster_config(scale_factor, sf_ratio=100.0):
     num_workers = max(min_num_workers, min(max_num_workers, ceil(scale_factor / sf_ratio)))
     return {
         'num_workers': num_workers,
-        'parallelism_factor': max(1.0, sf_ratio / 50.0)
+        'parallelism_factor': max(1.0, sf_ratio / 100.0)
     }
 
 
