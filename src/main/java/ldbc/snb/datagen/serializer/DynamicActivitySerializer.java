@@ -72,7 +72,7 @@ public class DynamicActivitySerializer extends LdbcSerializer {
         writers.get(COMMENT_HASTAG_TAG)       .writeHeader(dates2, ImmutableList.of("Comment.id", "Tag.id"));
 
         writers.get(PERSON_LIKES_POST)        .writeHeader(dates1, ImmutableList.of("Person.id", "Post.id"));
-        writers.get(PERSON_LIKES_COMMENT)     .writeHeader(dates2, ImmutableList.of("Person.id", "Comment.id"));
+        writers.get(PERSON_LIKES_COMMENT)     .writeHeader(dates1, ImmutableList.of("Person.id", "Comment.id"));
 
     }
 
