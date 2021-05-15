@@ -23,7 +23,9 @@ object GraphWriter {
 class WriterFormatOptions(val format: String, mode: Mode, private val customFormatOptions: Map[String, String] = Map.empty) {
   val defaultCsvFormatOptions = Map(
     "header" -> "true",
-    "sep" ->  "|"
+    "sep" ->  "|",
+    "dateFormat" -> Raw.datePattern,
+    "timestampFormat" -> Raw.dateTimePattern
   )
 
   val forcedRawCsvFormatOptions = Map(
