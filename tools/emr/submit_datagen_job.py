@@ -22,7 +22,8 @@ defaults = {
     'bucket': 'ldbc-snb-datagen-store',
     'use_spot': False,
     'master_instance_type': 'm5d.2xlarge',
-    'instance_type': 'i3.4xlarge',
+    'instance_type': 'i3.2xlarge',
+    'sf_ratio': 50.0, # ratio of SFs and machines. a ratio of 50.0 for SF100 yields 2 machines
     'version': lib.version,
     'az': 'us-west-2c',
     'is_interactive': False,
@@ -41,11 +42,11 @@ with open(path.join(dir, ec2info_file), mode='r') as infile:
     ec2_instances = [dict(row) for row in reader]
 
 
-def calculate_cluster_config(scale_factor, sf_ratio=100.0):
+def calculate_cluster_config(scale_factor, sf_ratio):
     num_workers = max(min_num_workers, min(max_num_workers, ceil(scale_factor / sf_ratio)))
     return {
         'num_workers': num_workers,
-        'parallelism_factor': max(1.0, sf_ratio / 100.0)
+        'parallelism_factor': max(1.0, sf_ratio / 50.0)
     }
 
 
@@ -69,6 +70,7 @@ def submit_datagen_job(name, sf,
                        bucket=defaults['bucket'],
                        use_spot=defaults['use_spot'],
                        instance_type=defaults['instance_type'],
+                       sf_ratio=defaults['sf_ratio'],
                        master_instance_type=defaults['master_instance_type'],
                        az=defaults['az'],
                        version=defaults['version'],
@@ -79,9 +81,15 @@ def submit_datagen_job(name, sf,
                        conf=None
                        ):
 
+    # for very large scale factors, the availability zone might run out of machines
+    if sf >= 10000:
+        instance_type = 'i3.4xlarge'
+        sf_ratio = 100.0
+
+
     exec_info = get_instance_info(instance_type)
 
-    cluster_config = calculate_cluster_config(sf)
+    cluster_config = calculate_cluster_config(sf, sf_ratio)
 
     emr = boto3.client('emr')
 
