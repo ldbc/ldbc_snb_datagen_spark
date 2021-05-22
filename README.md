@@ -59,8 +59,8 @@ The `tools/run.py` is intended for **local runs**. To use it, download and extra
 #### Spark 2.4.x
 
 ```bash
-curl https://downloads.apache.org/spark/spark-2.4.7/spark-2.4.7-bin-hadoop2.7.tgz | sudo tar -xz -C /opt/
-export SPARK_HOME="/opt/spark-2.4.7-bin-hadoop2.7"
+curl https://downloads.apache.org/spark/spark-2.4.8/spark-2.4.8-bin-hadoop2.7.tgz | sudo tar -xz -C /opt/
+export SPARK_HOME="/opt/spark-2.4.8-bin-hadoop2.7"
 export PATH="$SPARK_HOME/bin":"$PATH"
 ```
 
@@ -137,7 +137,7 @@ To get a complete list of the arguments, pass `--help` to the JAR file:
   ./tools/run.py ./target/ldbc_snb_datagen_2.11_spark2.4-0.4.0-SNAPSHOT.jar -- --format csv --scale-factor 0.003 --mode raw
   ```
 
-* For the `interactive` and `bi` formats, the `--format-options` argument allows passing formatting options such as timestamp/date formats and the presence/abscence of headers (see the [Spark formatting options](https://spark.apache.org/docs/2.4.7/api/scala/index.html#org.apache.spark.sql.DataFrameWriter) for details):
+* For the `interactive` and `bi` formats, the `--format-options` argument allows passing formatting options such as timestamp/date formats and the presence/abscence of headers (see the [Spark formatting options](https://spark.apache.org/docs/2.4.8/api/scala/index.html#org.apache.spark.sql.DataFrameWriter) for details):
 
   ```bash
   ./tools/run.py ./target/ldbc_snb_datagen_2.11_spark2.4-0.4.0-SNAPSHOT.jar -- --format csv --scale-factor 0.003 --mode interactive --format-options timestampFormat=MM/dd/YYYY\ HH:mm:ss,dateFormat=MM/dd/YYYY,header=false
