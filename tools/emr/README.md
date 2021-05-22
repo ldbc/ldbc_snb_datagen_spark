@@ -34,6 +34,12 @@ VERSION=0.4.0-SNAPHOT
 aws s3 cp target/ldbc_snb_datagen_${PLATFORM_VERSION}-${VERSION}-jar-with-dependencies.jar s3://${BUCKET_NAME}/jars/ldbc_snb_datagen_${PLATFORM_VERSION}-${VERSION}-jar-with-dependencies.jar
 ```
 
+1. Upload the generator parameter file to S3 (if required).
+
+```bash
+aws s3 cp params-csv-basic-sf10000.ini s3://${BUCKET_NAME}/params/params-csv-basic-sf10000.ini
+```
+
 1. Submit the job. Run with `--help` for customization options.
 
 ```bash
@@ -50,8 +56,3 @@ PLATFORM_VERSION=2.12_spark3.1
 ./tools/emr/submit_datagen_job.py --bucket ${BUCKET_NAME} --platform-version ${PLATFORM_VERSION} --emr-release emr-6.3.0 ${JOB_NAME} ${SCALE_FACTOR} -- --format csv --mode raw
 ```
 
-1. Upload the generator parameter file to S3 (if required).
-
-```bash
-aws s3 cp params-csv-basic-sf10000.ini s3://${BUCKET_NAME}/params/params-csv-basic-sf10000.ini
-```
