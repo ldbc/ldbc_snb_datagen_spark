@@ -82,7 +82,7 @@ package object model {
         $"explicitlyDeleted".as("explicitlyDeleted")
       ) ++ cols)
 
-      def dateTimePattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZ"
+      def dateTimePattern = "yyyy-MM-dd'T'HH:mm:ss.SSS+00:00"
       def datePattern = "yyyy-MM-dd"
 
     }
