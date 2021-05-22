@@ -299,7 +299,7 @@
 
   <profiles>
     <profile>
-      <id>spark-3</id>
+      <id>spark3.1</id>
       <properties>
         <scala.version>2.12.12</scala.version>
         <scala.compat.version>2.12</scala.compat.version>
