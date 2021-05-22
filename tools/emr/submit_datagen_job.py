@@ -42,11 +42,14 @@ with open(path.join(dir, ec2info_file), mode='r') as infile:
     ec2_instances = [dict(row) for row in reader]
 
 
-def calculate_cluster_config(scale_factor, sf_ratio):
+def calculate_cluster_config(scale_factor, sf_ratio, vcpu):
     num_workers = max(min_num_workers, min(max_num_workers, ceil(scale_factor / sf_ratio)))
+    parallelism_factor = max(1.0, vcpu / 8)
+    num_threads = ceil(num_workers * vcpu * parallelism_factor * 2)
     return {
         'num_workers': num_workers,
-        'parallelism_factor': max(1.0, sf_ratio / 50.0)
+        'parallelism_factor': parallelism_factor,
+        'num_threads': num_threads
     }
 
 
@@ -81,15 +84,9 @@ def submit_datagen_job(name, sf,
                        conf=None
                        ):
 
-    # for very large scale factors, the availability zone might run out of machines
-    if sf >= 10000:
-        instance_type = 'i3.4xlarge'
-        sf_ratio = 100.0
-
-
     exec_info = get_instance_info(instance_type)
 
-    cluster_config = calculate_cluster_config(sf, sf_ratio)
+    cluster_config = calculate_cluster_config(sf, sf_ratio, exec_info['vcpu'])
 
     emr = boto3.client('emr')
 
@@ -100,8 +97,6 @@ def submit_datagen_job(name, sf,
 
     results_url = f's3://{bucket}/results/{name}'
     run_url = f'{results_url}/runs/{ts_formatted}'
-
-    num_threads = ceil(cluster_config['num_workers'] * exec_info['vcpu'] * cluster_config['parallelism_factor'] * 2)
 
     spark_config = {
         'maximizeResourceAllocation': 'true',
@@ -167,7 +162,7 @@ def submit_datagen_job(name, sf,
                     'Args': ['spark-submit', '--class', lib.main_class, jar_url,
                              '--output-dir', build_dir,
                              '--scale-factor', str(sf),
-                             '--num-threads', str(num_threads),
+                             '--num-threads', str(cluster_config['num_threads']),
                              *passthrough_args
                              ]
                 }
