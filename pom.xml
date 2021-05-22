@@ -17,6 +17,7 @@
     <scala.version>2.11.12</scala.version>
     <scala.compat.version>2.11</scala.compat.version>
     <spark.version>2.4.5</spark.version>
+    <spark.compat.version>2.4</spark.compat.version>
     <spec2.version>4.2.0</spec2.version>
   </properties>
 
@@ -129,6 +130,9 @@
     </dependency>
   </dependencies>
   <build>
+    <finalName>
+      ${project.artifactId}_${scala.compat.version}_spark${spark.compat.version}-${project.version}
+    </finalName>
     <plugins>
       <plugin>
         <groupId>net.alchim31.maven</groupId>
@@ -299,7 +303,8 @@
       <properties>
         <scala.version>2.12.12</scala.version>
         <scala.compat.version>2.12</scala.compat.version>
-        <spark.version>3.0.1</spark.version>
+        <spark.version>3.1.1</spark.version>
+        <spark.compat.version>3.1</spark.compat.version>
       </properties>
     </profile>
   </profiles>
