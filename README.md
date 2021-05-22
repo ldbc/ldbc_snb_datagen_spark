@@ -38,7 +38,7 @@ You can build the JAR with both Maven and SBT.
     sbt assembly
     ```
 
-    :warning: When using SBT, change the path of the JAR file in the instructions provided in the README (`target/ldbc_snb_datagen_$PLATFORM_VERSION-$VERSION.jar` -> `./target/scala-2.11/ldbc_snb_datagen-assembly-$VERSION.jar`).
+    :warning: When using SBT, change the path of the JAR file in the instructions provided in the README (`target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar` -> `./target/scala-2.11/ldbc_snb_datagen-assembly-${DATAGEN_VERSION}.jar`).
 
 ### Install tools
 
@@ -70,9 +70,9 @@ Run the script with:
 
 ```bash
 export PLATFORM_VERSION=2.11_spark2.4
-export VERSION=0.4.0-SNAPSHOT
+export DATAGEN_VERSION=0.4.0-SNAPSHOT
 
-tools/run.py ./target/ldbc_snb_datagen_$PLATFORM_VERSION-$VERSION.jar <runtime configuration arguments> -- <generator configuration arguments>
+tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar <runtime configuration arguments> -- <generator configuration arguments>
 ```
 
 #### Spark 3.1.x
@@ -89,8 +89,8 @@ Run the script with:
 
 ```bash
 export PLATFORM_VERSION=2.12_spark3.1
-export VERSION=0.4.0-SNAPSHOT
-tools/run.py ./target/ldbc_snb_datagen_$PLATFORM_VERSION-$VERSION.jar <runtime configuration arguments> -- <generator configuration arguments>
+export DATAGEN_VERSION=0.4.0-SNAPSHOT
+tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar <runtime configuration arguments> -- <generator configuration arguments>
 ```
 
 The rest of the instructions are provided assuming Spark 2.4.x.
@@ -115,37 +115,37 @@ The generator configuration arguments allow the configuration of the output dire
 To get a complete list of the arguments, pass `--help` to the JAR file:
 
 ```bash
-./tools/run.py ./target/ldbc_snb_datagen_$PLATFORM_VERSION-$VERSION.jar -- --help
+./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar -- --help
 ```
 
 * Passing `params.ini` files:
 
   ```bash
-  ./tools/run.py ./target/ldbc_snb_datagen_$PLATFORM_VERSION-$VERSION.jar -- --format csv --param-file params.ini
+  ./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar -- --format csv --param-file params.ini
   ```
 
 * Generating `CsvBasic` files in Interactive mode:
 
   ```bash
-  ./tools/run.py ./target/ldbc_snb_datagen_$PLATFORM_VERSION-$VERSION.jar -- --format csv --scale-factor 0.003 --explode-edges --explode-attrs --mode interactive
+  ./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar -- --format csv --scale-factor 0.003 --explode-edges --explode-attrs --mode interactive
   ```
 
 * Generating `CsvCompositeMergeForeign` files in BI mode resulting in compressed `.csv.gz` files:
 
   ```bash
-  ./tools/run.py ./target/ldbc_snb_datagen_$PLATFORM_VERSION-$VERSION.jar -- --format csv --scale-factor 0.003 --mode bi --format-options compression=gzip
+  ./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar -- --format csv --scale-factor 0.003 --mode bi --format-options compression=gzip
   ```
 
 * Generating CSVs in `Raw` mode:
 
   ```bash
-  ./tools/run.py ./target/ldbc_snb_datagen_$PLATFORM_VERSION-$VERSION.jar -- --format csv --scale-factor 0.003 --mode raw
+  ./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar -- --format csv --scale-factor 0.003 --mode raw
   ```
 
 * For the `interactive` and `bi` formats, the `--format-options` argument allows passing formatting options such as timestamp/date formats and the presence/abscence of headers (see the [Spark formatting options](https://spark.apache.org/docs/2.4.8/api/scala/index.html#org.apache.spark.sql.DataFrameWriter) for details):
 
   ```bash
-  ./tools/run.py ./target/ldbc_snb_datagen_$PLATFORM_VERSION-$VERSION.jar -- --format csv --scale-factor 0.003 --mode interactive --format-options timestampFormat=MM/dd/YYYY\ HH:mm:ss,dateFormat=MM/dd/YYYY,header=false
+  ./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar -- --format csv --scale-factor 0.003 --mode interactive --format-options timestampFormat=MM/dd/YYYY\ HH:mm:ss,dateFormat=MM/dd/YYYY,header=false
   ```
 
 To change the Spark configuration directory, adjust the `SPARK_CONF_DIR` environment variable.
@@ -154,7 +154,7 @@ A complex example:
 
 ```bash
 export SPARK_CONF_DIR=./conf
-./tools/run.py ./target/ldbc_snb_datagen_$PLATFORM_VERSION-$VERSION.jar --parallelism 4 --memory 8G -- --format csv --format-options timestampFormat=MM/dd/YYYY\ HH:mm:ss,dateFormat=MM/dd/YYYY --explode-edges --explode-attrs --mode interactive --scale-factor 0.003
+./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar --parallelism 4 --memory 8G -- --format csv --format-options timestampFormat=MM/dd/YYYY\ HH:mm:ss,dateFormat=MM/dd/YYYY --explode-edges --explode-attrs --mode interactive --scale-factor 0.003
 ```
 
 ### Docker image
