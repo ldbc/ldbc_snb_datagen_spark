@@ -19,7 +19,7 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
     case "day" => "yyyy-MM-dd"
     case "hour" => "yyyy-MM-dd'T'hh"
     case "minute" => "yyyy-MM-dd'T'hh:mm"
-    case _ => "yyyy-MM-dd'T'HH:mm:ss.SSS+00:00"
+    case _ => throw new IllegalStateException("Unrecognized partition key")
   }
 
   override def transform(input: In): Out = {
