@@ -23,6 +23,7 @@ defaults = {
     'use_spot': False,
     'master_instance_type': 'm5d.2xlarge',
     'instance_type': 'i3.4xlarge',
+    'platform_version': lib.platform_version,
     'version': lib.version,
     'az': 'us-west-2c',
     'is_interactive': False,
@@ -71,8 +72,9 @@ def submit_datagen_job(name, sf,
                        instance_type=defaults['instance_type'],
                        master_instance_type=defaults['master_instance_type'],
                        az=defaults['az'],
-                       version=defaults['version'],
                        emr_release=defaults['emr_release'],
+                       platform_version=defaults['platform_version'],
+                       version=defaults['version'],
                        is_interactive=defaults['is_interactive'],
                        ec2_key=defaults['ec2_key'],
                        passthrough_args=None,
@@ -88,7 +90,7 @@ def submit_datagen_job(name, sf,
     ts = datetime.utcnow()
     ts_formatted = ts.strftime('%Y%m%d_%H%M%S')
 
-    jar_url = f's3://{bucket}/jars/ldbc_snb_datagen-{version}-jar-with-dependencies.jar'
+    jar_url = f's3://{bucket}/jars/ldbc_snb_datagen_{platform_version}-{version}-jar-with-dependencies.jar'
 
     results_url = f's3://{bucket}/results/{name}'
     run_url = f'{results_url}/runs/{ts_formatted}'
@@ -226,6 +228,9 @@ if __name__ == "__main__":
     parser.add_argument('--ec2-key',
                         default=defaults['ec2_key'],
                         help='EC2 key name for SSH connection')
+    parser.add_argument('--platform-version',
+                        default=defaults['platform_version'],
+                        help='The spark platform the JAR is compiled for formatted like {scala.compat.version}_spark{spark.comapt.version}, e.g. 2.11_spark2.4, 2.12_spark3.1')
     parser.add_argument('--version',
                         default=defaults['version'],
                         help='LDBC SNB Datagen library version')
@@ -257,6 +262,7 @@ if __name__ == "__main__":
                        instance_type=args.instance_type,
                        emr_release=args.emr_release,
                        ec2_key=args.ec2_key,
+                       platform_version=args.platform_version,
                        version=args.version,
                        passthrough_args=child_args,
                        conf=conf
