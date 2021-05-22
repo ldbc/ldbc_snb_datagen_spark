@@ -32,6 +32,8 @@ pip install -r tools/requirements.txt
 aws s3 cp params-csv-basic-sf10000.ini s3://${BUCKET_NAME}/params/params-csv-basic-sf10000.ini
 ```
 
+### Spark 2
+
 1. Upload the JAR to S3. (We don't version the JARs yet, so you can only make sure that you run the intended code this way :( ) 
 
 ```bash
@@ -44,4 +46,11 @@ aws s3 cp target/ldbc_snb_datagen_2.11_spark2.4-0.4.0-SNAPSHOT-jar-with-dependen
 JOB_NAME=MyTest
 SCALE_FACTOR=10
 ./tools/emr/submit_datagen_job.py --bucket ${BUCKET_NAME} --az us-east-2c ${JOB_NAME} ${SCALE_FACTOR} -- --format csv --mode raw
+```
+
+### Spark 3
+
+```bash
+aws s3 cp target/ldbc_snb_datagen_2.12_spark3.1-0.4.0-SNAPSHOT-jar-with-dependencies.jar s3://${BUCKET_NAME}/jars/ldbc_snb_datagen_2.12_spark3.1-0.4.0-SNAPSHOT-jar-with-dependencies.jar
+./tools/emr/submit_datagen_job.py --bucket ${BUCKET_NAME} --az us-east-2c --platform-version 2.12_spark3.1 --emr-release emr-6.3.0 ${JOB_NAME} ${SCALE_FACTOR} -- --format csv --mode raw
 ```
