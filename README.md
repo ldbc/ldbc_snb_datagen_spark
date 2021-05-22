@@ -54,7 +54,9 @@ pip install --user -U pip -r tools/requirements.txt
 ```
 ### Running locally
 
-Download and extract Spark 2.4.x:
+The `tools/run.py` is intended for **local runs**. To use it, download and extract Spark as follows.
+
+#### Spark 2.4.x
 
 ```bash
 curl https://downloads.apache.org/spark/spark-2.4.7/spark-2.4.7-bin-hadoop2.7.tgz | sudo tar -xz -C /opt/
@@ -64,11 +66,29 @@ export PATH="$SPARK_HOME/bin":"$PATH"
 
 Make sure you use Java 8.
 
-The `tools/run.py` is intended for **local runs** and its arguments are structured as follows:
+Run the script with:
 
 ```bash
 tools/run.py ./target/ldbc_snb_datagen_2.11_spark2.4-0.4.0-SNAPSHOT.jar <runtime configuration arguments> -- <generator configuration arguments>
 ```
+
+#### Spark 3.1.x
+
+```bash
+curl https://downloads.apache.org/spark/spark-3.1.1/spark-3.1.1-bin-hadoop2.7.tgz | sudo tar -xz -C /opt/
+export SPARK_HOME="/opt/spark-3.1.1-bin-hadoop2.7"
+export PATH="$SPARK_HOME/bin":"$PATH"
+```
+
+Both Java 8 and Java 11 work.
+
+Run the script with:
+
+```bash
+tools/run.py ./target/ldbc_snb_datagen_2.12_spark3.1-0.4.0-SNAPSHOT.jar <runtime configuration arguments> -- <generator configuration arguments>
+```
+
+The rest of the instructions are provided assuming Spark 2.4.x.
 
 #### Runtime configuration arguments
 
