@@ -45,7 +45,8 @@ with open(path.join(dir, ec2info_file), mode='r') as infile:
 
 def calculate_cluster_config(scale_factor, sf_ratio, vcpu):
     num_workers = max(min_num_workers, min(max_num_workers, ceil(scale_factor / sf_ratio)))
-    num_threads = num_workers * vcpu
+    parallelism_factor = max(2.0, sf_ratio / vcpu / 3)
+    num_threads = ceil(num_workers * vcpu * parallelism_factor)
     return {
         'num_workers': num_workers,
         'num_threads': num_threads
