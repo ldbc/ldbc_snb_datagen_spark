@@ -23,6 +23,7 @@ defaults = {
     'use_spot': False,
     'master_instance_type': 'm5d.2xlarge',
     'instance_type': 'i3.4xlarge',
+    'sf_ratio': 50.0, # ratio of SFs and machines. a ratio of 50.0 for SF100 yields 2 machines
     'platform_version': lib.platform_version,
     'version': lib.version,
     'az': 'us-west-2c',
@@ -42,11 +43,12 @@ with open(path.join(dir, ec2info_file), mode='r') as infile:
     ec2_instances = [dict(row) for row in reader]
 
 
-def calculate_cluster_config(scale_factor, sf_ratio=100.0):
+def calculate_cluster_config(scale_factor, sf_ratio, vcpu):
     num_workers = max(min_num_workers, min(max_num_workers, ceil(scale_factor / sf_ratio)))
+    num_threads = num_workers * vcpu
     return {
         'num_workers': num_workers,
-        'parallelism_factor': max(1.0, sf_ratio / 100.0)
+        'num_threads': num_threads
     }
 
 
@@ -70,6 +72,7 @@ def submit_datagen_job(name, sf,
                        bucket=defaults['bucket'],
                        use_spot=defaults['use_spot'],
                        instance_type=defaults['instance_type'],
+                       sf_ratio=defaults['sf_ratio'],
                        master_instance_type=defaults['master_instance_type'],
                        az=defaults['az'],
                        emr_release=defaults['emr_release'],
@@ -83,7 +86,7 @@ def submit_datagen_job(name, sf,
 
     exec_info = get_instance_info(instance_type)
 
-    cluster_config = calculate_cluster_config(sf)
+    cluster_config = calculate_cluster_config(sf, sf_ratio, exec_info['vcpu'])
 
     emr = boto3.client('emr')
 
@@ -94,8 +97,6 @@ def submit_datagen_job(name, sf,
 
     results_url = f's3://{bucket}/results/{name}'
     run_url = f'{results_url}/runs/{ts_formatted}'
-
-    num_threads = ceil(cluster_config['num_workers'] * exec_info['vcpu'] * cluster_config['parallelism_factor'] * 2)
 
     spark_config = {
         'maximizeResourceAllocation': 'true',
@@ -161,7 +162,7 @@ def submit_datagen_job(name, sf,
                     'Args': ['spark-submit', '--class', lib.main_class, jar_url,
                              '--output-dir', build_dir,
                              '--scale-factor', str(sf),
-                             '--num-threads', str(num_threads),
+                             '--num-threads', str(cluster_config['num_threads']),
                              *passthrough_args
                              ]
                 }
