@@ -30,8 +30,6 @@ You can build the JAR with both Maven and SBT.
     tools/build.sh
     ```
 
-    :warning: If you experience any issues, make sure the compilation target is Java 1.8.
-
 * For faster builds during development, consider using SBT. To assemble the JAR file with SBT, run:
 
     ```bash
@@ -84,6 +82,12 @@ export PATH="$SPARK_HOME/bin":"$PATH"
 ```
 
 Both Java 8 and Java 11 work.
+
+To build, run
+
+```bash
+tools/build.sh -Pspark3.1
+```
 
 Run the script with:
 
