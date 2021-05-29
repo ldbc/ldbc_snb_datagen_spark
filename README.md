@@ -1,22 +1,24 @@
 ![LDBC_LOGO](https://raw.githubusercontent.com/wiki/ldbc/ldbc_snb_datagen/images/ldbc-logo.png)
 
-LDBC SNB Data Generator
-----------------------
+# LDBC SNB Data Generator (Datagen)
 
-[![Build Status](https://circleci.com/gh/ldbc/ldbc_snb_datagen.svg?style=svg)](https://circleci.com/gh/ldbc/ldbc_snb_datagen)
+| branch    | build status |
+| --------- | ------------ |
+| `dev`     | [![Build Status](https://circleci.com/gh/ldbc/ldbc_snb_datagen.svg?style=svg)](https://circleci.com/gh/ldbc/ldbc_snb_datagen) |
+| `stable`  | [![Build Status](https://circleci.com/gh/ldbc/ldbc_snb_datagen/tree/stable.svg?style=svg)](https://circleci.com/gh/ldbc/ldbc_snb_datagen?branch=stable) |
 
 :scroll: If you wish to cite the LDBC SNB, please refer to the [documentation repository](https://github.com/ldbc/ldbc_snb_docs#how-to-cite-ldbc-benchmarks).
 
-:warning: There are two versions of this repository:
+:warning: There are two different versions of the Datagen, both stored in this repository:
+
 * To generate the Interactive SF1-1000 data sets, use the non-default [`stable` branch](https://github.com/ldbc/ldbc_snb_datagen/tree/stable) which runs on Hadoop.
-* For the Interactive workload's larger data sets (up to SF30k) and for the BI workload, use the [`dev` branch](https://github.com/ldbc/ldbc_snb_datagen/) which runs on Spark. This is an experimental implementation. :warning: **Parameter generation is currently disabled for this branch and will be back in May 2021.**
+* For the Interactive workload's larger data sets (up to SF30k) and for the BI workload, use the [`dev` branch](https://github.com/ldbc/ldbc_snb_datagen/) which runs on Spark. This is an experimental implementation. :warning: **Parameter generation is currently disabled for this branch and will be back in June 2021.**
 
 The LDBC SNB Data Generator (Datagen) is the responsible for providing the datasets used by all the LDBC benchmarks. This data generator is designed to produce directed labelled graphs that mimic the characteristics of those graphs of real data. A detailed description of the schema produced by Datagen, as well as the format of the output files, can be found in the latest version of official [LDBC SNB specification document](https://github.com/ldbc/ldbc_snb_docs).
 
 [Generated small data sets](https://ldbc.github.io/ldbc_snb_datagen/) are deployed by the CI.
 
 `ldbc_snb_datagen` is part of the [LDBC project](http://www.ldbcouncil.org/).
-`ldbc_snb_datagen` is GPLv3 licensed, to see detailed information about this license read the `LICENSE.txt` file.
 
 ## Quick start
 
