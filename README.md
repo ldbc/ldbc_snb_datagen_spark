@@ -1,6 +1,6 @@
 ![LDBC_LOGO](https://raw.githubusercontent.com/wiki/ldbc/ldbc_snb_datagen/images/ldbc-logo.png)
 
-# LDBC SNB Data Generator (Datagen)
+# LDBC SNB Datagen (Spark-based)
 
 [![Build Status](https://circleci.com/gh/ldbc/ldbc_snb_datagen.svg?style=svg)](https://circleci.com/gh/ldbc/ldbc_snb_datagen)
 
