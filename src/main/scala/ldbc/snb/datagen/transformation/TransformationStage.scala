@@ -43,7 +43,7 @@ object TransformationStage extends SparkApp with Logging {
         "`id` INT, `name` STRING, `url` STRING, `isSubclassOf` INT"
       ),
       Node("Comment") -> Some(
-        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `explicitlyDeleted` BOOLEAN, `id` BIGINT, `locationIP` STRING, `browserUsed` STRING, `content` STRING, `length` INT, `creator` BIGINT, `place` INT, `replyOfPost` BIGINT, `replyOfComment` BIGINT"
+        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `explicitlyDeleted` BOOLEAN, `id` BIGINT, `locationIP` STRING, `browserUsed` STRING, `content` STRING, `length` INT, `Person.id` BIGINT, `Country.id` INT, `replyOfPost` BIGINT, `replyOfComment` BIGINT"
       ),
       Edge("HasTag", "Comment", "Tag", NN) -> Some(
         "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `Comment.id` BIGINT, `Tag.id` INT"
@@ -58,7 +58,7 @@ object TransformationStage extends SparkApp with Logging {
         "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `Forum.id` BIGINT, `Tag.id` INT"
       ),
       Node("Person") -> Some(
-        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `explicitlyDeleted` BOOLEAN, `id` BIGINT, `firstName` STRING, `lastName` STRING, `gender` STRING, `birthday` DATE, `locationIP` STRING, `browserUsed` STRING, `place` INT, `language` STRING, `email` STRING"
+        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `explicitlyDeleted` BOOLEAN, `id` BIGINT, `firstName` STRING, `lastName` STRING, `gender` STRING, `birthday` DATE, `locationIP` STRING, `browserUsed` STRING, `City.id` INT, `language` STRING, `email` STRING"
       ),
       Edge("HasInterest", "Person", "Tag", NN) -> Some(
         "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `Person.id` BIGINT, `Tag.id` INT"
@@ -79,7 +79,7 @@ object TransformationStage extends SparkApp with Logging {
         "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `Person.id` BIGINT, `Company.id` INT, `workFrom` INT"
       ),
       Node("Post") -> Some(
-        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `explicitlyDeleted` BOOLEAN, `id` BIGINT, `imageFile` STRING, `locationIP` STRING, `browserUsed` STRING, `language` STRING, `content` STRING, `length` INT, `creator` BIGINT, `Forum.id` BIGINT, `place` INT"
+        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `explicitlyDeleted` BOOLEAN, `id` BIGINT, `imageFile` STRING, `locationIP` STRING, `browserUsed` STRING, `language` STRING, `content` STRING, `length` INT, `Person.id` BIGINT, `Forum.id` BIGINT, `Country.id` INT"
       ),
       Edge("HasTag", "Post", "Tag", NN) -> Some(
         "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `Post.id` BIGINT, `Tag.id` INT"
