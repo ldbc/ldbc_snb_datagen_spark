@@ -60,15 +60,15 @@ public class DynamicPersonSerializer extends LdbcSerializer {
         List<String> dates1 = ImmutableList.of("creationDate", "deletionDate", "explicitlyDeleted");
 
         // one-to-many edges, single- and multi-valued attributes
-        writers.get(PERSON)                     .writeHeader(dates1, ImmutableList.of("id", "firstName", "lastName", "gender", "birthday", "locationIP", "browserUsed", "place", "language", "email"));
+        writers.get(PERSON)                     .writeHeader(dates1, ImmutableList.of("id", "firstName", "lastName", "gender", "birthday", "locationIP", "browserUsed", "city", "language", "email"));
 
         // many-to-many edges
         writers.get(PERSON_KNOWS_PERSON)        .writeHeader(dates1, ImmutableList.of("Person1.id", "Person2.id"));
 
         List<String> dates2 = ImmutableList.of("creationDate", "deletionDate");
         writers.get(PERSON_HASINTEREST_TAG)     .writeHeader(dates2, ImmutableList.of("Person.id", "Tag.id"));
-        writers.get(PERSON_STUDYAT_UNIVERSITY)  .writeHeader(dates2, ImmutableList.of("Person.id", "Organisation.id", "classYear"));
-        writers.get(PERSON_WORKAT_COMPANY)      .writeHeader(dates2, ImmutableList.of("Person.id", "Organisation.id", "workFrom"));
+        writers.get(PERSON_STUDYAT_UNIVERSITY)  .writeHeader(dates2, ImmutableList.of("Person.id", "University.id", "classYear"));
+        writers.get(PERSON_WORKAT_COMPANY)      .writeHeader(dates2, ImmutableList.of("Person.id", "Company.id", "workFrom"));
     }
 
     public void serialize(final Person person) {

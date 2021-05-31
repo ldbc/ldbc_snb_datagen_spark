@@ -41,11 +41,11 @@ object ExplodeEdges extends Transform[Mode.Raw.type, Mode.Raw.type]{
         k -> v.drop("isSubclassOf")
       )
       case (k@Node("Comment", false), v) => Map(
-        explodedEdge(Edge("HasCreator", "Comment", "Person", OneN), v, $"creator"),
-        explodedEdge(Edge("IsLocatedIn", "Comment", "Place", OneN), v, $"place"),
+        explodedEdge(Edge("HasCreator", "Comment", "Person", OneN), v, $"`Person.id`"),
+        explodedEdge(Edge("IsLocatedIn", "Comment", "Country", OneN), v, $"`Country.id`"),
         explodedEdge(Edge("ReplyOf", "Comment", "Comment", OneN), v, $"replyOfComment"),
         explodedEdge(Edge("ReplyOf", "Comment", "Post", OneN), v, $"replyOfPost"),
-        k -> v.drop("creator", "place", "replyOfPost", "replyOfComment")
+        k -> v.drop("Person.id", "Country.id", "replyOfPost", "replyOfComment")
       )
       case (k@Node("Forum", false), v) => Map(
         explodedEdge(Edge("HasModerator", "Forum", "Person", OneN), v, $"moderator"),
@@ -53,15 +53,15 @@ object ExplodeEdges extends Transform[Mode.Raw.type, Mode.Raw.type]{
       )
 
       case (k@Node("Person", false), v) => Map(
-        explodedEdge(Edge("IsLocatedIn", "Person", "Place", OneN), v, $"place"),
-        k -> v.drop("place")
+        explodedEdge(Edge("IsLocatedIn", "Person", "City", OneN), v, $"`City.id`"),
+        k -> v.drop("City.id")
       )
 
       case (k@Node("Post", false), v) => Map(
-        explodedEdge(Edge("HasCreator", "Post", "Person", OneN), v, $"creator"),
-        explodedEdge(Edge("IsLocatedIn", "Post", "Place", OneN), v, $"place"),
+        explodedEdge(Edge("HasCreator", "Post", "Person", OneN), v, $"`Person.id`"),
+        explodedEdge(Edge("IsLocatedIn", "Post", "Country", OneN), v, $"`Country.id`"),
         explodedEdge(Edge("ContainerOf", "Forum", "Post", NOne), v, $"`Forum.id`"),
-        k -> v.drop("creator", "place", "`Forum.id`")
+        k -> v.drop("Person.id", "Country.id", "Forum.id")
       )
     }.foldLeft(entities)(_ ++ _)
 
