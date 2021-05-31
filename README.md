@@ -142,7 +142,7 @@ To get a complete list of the arguments, pass `--help` to the JAR file:
 * Generating CSVs in `Raw` mode:
 
   ```bash
-  ./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar -- --format csv --scale-factor 0.003 --mode raw
+  ./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar -- --format csv --scale-factor 0.003 --mode raw --output-dir sf0.003-raw
   ```
 
 * For the `interactive` and `bi` formats, the `--format-options` argument allows passing formatting options such as timestamp/date formats and the presence/abscence of headers (see the [Spark formatting options](https://spark.apache.org/docs/2.4.8/api/scala/index.html#org.apache.spark.sql.DataFrameWriter) for details):
