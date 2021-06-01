@@ -60,21 +60,21 @@ public class DynamicPersonSerializer extends LdbcSerializer {
         List<String> dates1 = ImmutableList.of("creationDate", "deletionDate", "explicitlyDeleted");
 
         // one-to-many edges, single- and multi-valued attributes
-        writers.get(PERSON)                     .writeHeader(dates1, ImmutableList.of("id", "firstName", "lastName", "gender", "birthday", "locationIP", "browserUsed", "LocationCity.id", "language", "email"));
+        writers.get(PERSON)                     .writeHeader(dates1, ImmutableList.of("id", "firstName", "lastName", "gender", "birthday", "locationIP", "browserUsed", "LocationCityId", "language", "email"));
 
         // many-to-many edges
-        writers.get(PERSON_KNOWS_PERSON)        .writeHeader(dates1, ImmutableList.of("Person1.id", "Person2.id"));
+        writers.get(PERSON_KNOWS_PERSON)        .writeHeader(dates1, ImmutableList.of("Person1Id", "Person2Id"));
 
         List<String> dates2 = ImmutableList.of("creationDate", "deletionDate");
-        writers.get(PERSON_HASINTEREST_TAG)     .writeHeader(dates2, ImmutableList.of("Person.id", "Tag.id"));
-        writers.get(PERSON_STUDYAT_UNIVERSITY)  .writeHeader(dates2, ImmutableList.of("Person.id", "University.id", "classYear"));
-        writers.get(PERSON_WORKAT_COMPANY)      .writeHeader(dates2, ImmutableList.of("Person.id", "Company.id", "workFrom"));
+        writers.get(PERSON_HASINTEREST_TAG)     .writeHeader(dates2, ImmutableList.of("PersonId", "TagId"));
+        writers.get(PERSON_STUDYAT_UNIVERSITY)  .writeHeader(dates2, ImmutableList.of("PersonId", "UniversityId", "classYear"));
+        writers.get(PERSON_WORKAT_COMPANY)      .writeHeader(dates2, ImmutableList.of("PersonId", "CompanyId", "workFrom"));
     }
 
     public void serialize(final Person person) {
         List<String> dates1 = ImmutableList.of(formatDateTime(person.getCreationDate()), formatDateTime(person.getDeletionDate()), String.valueOf(person.isExplicitlyDeleted()));
 
-        // creationDate, deletionDate, explicitlyDeleted, id, firstName, lastName, gender, birthday, locationIP, browserUsed, LocationCity.id, language, email
+        // creationDate, deletionDate, explicitlyDeleted, id, firstName, lastName, gender, birthday, locationIP, browserUsed, LocationCityId, language, email
         writers.get(PERSON).writeEntry(dates1, ImmutableList.of(
                 Long.toString(person.getAccountId()),
                 person.getFirstName(),
@@ -90,7 +90,7 @@ public class DynamicPersonSerializer extends LdbcSerializer {
 
         List<String> dates2 = ImmutableList.of(formatDateTime(person.getCreationDate()), formatDateTime(person.getDeletionDate()));
         for (Integer interestIdx : person.getInterests()) {
-            // creationDate, deletionDate, Person.id, Tag.id
+            // creationDate, deletionDate, PersonId, TagId
             writers.get(PERSON_HASINTEREST_TAG).writeEntry(dates2, ImmutableList.of(
                     Long.toString(person.getAccountId()),
                     Integer.toString(interestIdx)
@@ -101,7 +101,7 @@ public class DynamicPersonSerializer extends LdbcSerializer {
     public void serialize(final StudyAt studyAt, final Person person) {
         List<String> dates = ImmutableList.of(formatDateTime(person.getCreationDate()), formatDateTime(person.getDeletionDate()));
 
-        // creationDate, deletionDate, Person.id, University.id, classYear
+        // creationDate, deletionDate, PersonId, UniversityId, classYear
         writers.get(PERSON_STUDYAT_UNIVERSITY).writeEntry(dates, ImmutableList.of(
                 Long.toString(studyAt.person),
                 Long.toString(studyAt.university),
@@ -112,7 +112,7 @@ public class DynamicPersonSerializer extends LdbcSerializer {
     public void serialize(final WorkAt workAt, final Person person) {
         List<String> dates = ImmutableList.of(formatDateTime(person.getCreationDate()), formatDateTime(person.getDeletionDate()));
 
-        // creationDate, deletionDate, Person.id, Company.id, workFrom
+        // creationDate, deletionDate, PersonId, CompanyId, workFrom
         writers.get(PERSON_WORKAT_COMPANY).writeEntry(dates, ImmutableList.of(
                 Long.toString(workAt.person),
                 Long.toString(workAt.company),
@@ -123,7 +123,7 @@ public class DynamicPersonSerializer extends LdbcSerializer {
     public void serialize(final Person person, Knows knows) {
         List<String> dates = ImmutableList.of(formatDateTime(knows.getCreationDate()), formatDateTime(knows.getDeletionDate()), String.valueOf(knows.isExplicitlyDeleted()));
 
-        // creationDate, deletionDate, explicitlyDeleted, Person1.id, Person2.id
+        // creationDate, deletionDate, explicitlyDeleted, Person1Id, Person2Id
         writers.get(PERSON_KNOWS_PERSON).writeEntry(dates, ImmutableList.of(
                 Long.toString(person.getAccountId()),
                 Long.toString(knows.to().getAccountId())

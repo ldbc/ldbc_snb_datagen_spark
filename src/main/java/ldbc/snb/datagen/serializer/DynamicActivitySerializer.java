@@ -61,25 +61,25 @@ public class DynamicActivitySerializer extends LdbcSerializer {
 
         List<String> dates2 = ImmutableList.of("creationDate", "deletionDate");
 
-        writers.get(FORUM)                    .writeHeader(dates1, ImmutableList.of("id", "title", "ModeratorPerson.id"));
-        writers.get(FORUM_HASTAG_TAG)         .writeHeader(dates2, ImmutableList.of("Forum.id", "Tag.id"));
-        writers.get(FORUM_HASMEMBER_PERSON)   .writeHeader(dates1, ImmutableList.of("Forum.id", "Person.id"));
+        writers.get(FORUM)                    .writeHeader(dates1, ImmutableList.of("id", "title", "ModeratorPersonId"));
+        writers.get(FORUM_HASTAG_TAG)         .writeHeader(dates2, ImmutableList.of("ForumId", "TagId"));
+        writers.get(FORUM_HASMEMBER_PERSON)   .writeHeader(dates1, ImmutableList.of("ForumId", "PersonId"));
 
-        writers.get(POST)                     .writeHeader(dates1, ImmutableList.of("id", "imageFile", "locationIP", "browserUsed", "language", "content", "length", "CreatorPerson.id", "ContainerForum.id", "LocationCountry.id"));
-        writers.get(POST_HASTAG_TAG)          .writeHeader(dates2, ImmutableList.of("Post.id", "Tag.id"));
+        writers.get(POST)                     .writeHeader(dates1, ImmutableList.of("id", "imageFile", "locationIP", "browserUsed", "language", "content", "length", "CreatorPersonId", "ContainerForumId", "LocationCountryId"));
+        writers.get(POST_HASTAG_TAG)          .writeHeader(dates2, ImmutableList.of("PostId", "TagId"));
 
-        writers.get(COMMENT)                  .writeHeader(dates1, ImmutableList.of("id", "locationIP", "browserUsed", "content", "length", "CreatorPerson.id", "LocationCountry.id", "ParentPost.id", "ParentComment.id"));
-        writers.get(COMMENT_HASTAG_TAG)       .writeHeader(dates2, ImmutableList.of("Comment.id", "Tag.id"));
+        writers.get(COMMENT)                  .writeHeader(dates1, ImmutableList.of("id", "locationIP", "browserUsed", "content", "length", "CreatorPersonId", "LocationCountryId", "ParentPostId", "ParentCommentId"));
+        writers.get(COMMENT_HASTAG_TAG)       .writeHeader(dates2, ImmutableList.of("CommentId", "TagId"));
 
-        writers.get(PERSON_LIKES_POST)        .writeHeader(dates1, ImmutableList.of("Person.id", "Post.id"));
-        writers.get(PERSON_LIKES_COMMENT)     .writeHeader(dates1, ImmutableList.of("Person.id", "Comment.id"));
+        writers.get(PERSON_LIKES_POST)        .writeHeader(dates1, ImmutableList.of("PersonId", "PostId"));
+        writers.get(PERSON_LIKES_COMMENT)     .writeHeader(dates1, ImmutableList.of("PersonId", "CommentId"));
 
     }
 
     public void serialize(final Forum forum) {
         List<String> dates = ImmutableList.of(formatDateTime(forum.getCreationDate()), formatDateTime(forum.getDeletionDate()), String.valueOf(forum.isExplicitlyDeleted()));
 
-        // creationDate, deletionDate, explicitlyDeleted, id, title, ModeratorPerson.id
+        // creationDate, deletionDate, explicitlyDeleted, id, title, ModeratorPersonId
         writers.get(FORUM).writeEntry(dates, ImmutableList.of(
                 Long.toString(forum.getId()),
                 forum.getTitle(),
@@ -88,7 +88,7 @@ public class DynamicActivitySerializer extends LdbcSerializer {
 
         List<String> dates2 = ImmutableList.of(formatDateTime(forum.getCreationDate()), formatDateTime(forum.getDeletionDate()));
         for (Integer i : forum.getTags()) {
-            // creationDate, deletionDate, Forum.id, Tag.id
+            // creationDate, deletionDate, ForumId, TagId
             writers.get(FORUM_HASTAG_TAG).writeEntry(dates2, ImmutableList.of(
                     Long.toString(forum.getId()),
                     Integer.toString(i)
@@ -100,7 +100,7 @@ public class DynamicActivitySerializer extends LdbcSerializer {
     public void serialize(final Post post) {
         List<String> dates1 = ImmutableList.of(formatDateTime(post.getCreationDate()), formatDateTime(post.getDeletionDate()), String.valueOf(post.isExplicitlyDeleted()));
 
-        // creationDate, deletionDate, explicitlyDeleted, id, imageFile, locationIP, browserUsed, language, content, length, CreatorPerson.id, ContainerForum.id, LocationCountry.id
+        // creationDate, deletionDate, explicitlyDeleted, id, imageFile, locationIP, browserUsed, language, content, length, CreatorPersonId, ContainerForumId, LocationCountryId
         writers.get(POST).writeEntry(dates1, ImmutableList.of(
                 Long.toString(post.getMessageId()),
                 "",
@@ -117,7 +117,7 @@ public class DynamicActivitySerializer extends LdbcSerializer {
         List<String> dates2 = ImmutableList.of(formatDateTime(post.getCreationDate()), formatDateTime(post.getDeletionDate()));
 
         for (Integer t : post.getTags()) {
-            // creationDate, deletionDate, Post.id, Tag.id
+            // creationDate, deletionDate, PostId, TagId
             writers.get(POST_HASTAG_TAG).writeEntry(dates2, ImmutableList.of(
                     Long.toString(post.getMessageId()),
                     Integer.toString(t)
@@ -128,7 +128,7 @@ public class DynamicActivitySerializer extends LdbcSerializer {
     public void serialize(final Comment comment) {
         List<String> dates1 = ImmutableList.of(formatDateTime(comment.getCreationDate()), formatDateTime(comment.getDeletionDate()), String.valueOf(comment.isExplicitlyDeleted()));
 
-        // creationDate, deletionDate, explicitlyDeleted, id, locationIP, browserUsed, content, length, CreatorPerson.id, LocationCountry.id, ParentPost.id, ParentComment.id
+        // creationDate, deletionDate, explicitlyDeleted, id, locationIP, browserUsed, content, length, CreatorPersonId, LocationCountryId, ParentPostId, ParentCommentId
         writers.get(COMMENT).writeEntry(dates1, ImmutableList.of(
                 Long.toString(comment.getMessageId()),
                 comment.getIpAddress().toString(),
@@ -143,7 +143,7 @@ public class DynamicActivitySerializer extends LdbcSerializer {
 
         List<String> dates2 = ImmutableList.of(formatDateTime(comment.getCreationDate()), formatDateTime(comment.getDeletionDate()));
         for (Integer t : comment.getTags()) {
-            // creationDate, deletionDate, Comment.id, Tag.id
+            // creationDate, deletionDate, CommentId, TagId
             writers.get(COMMENT_HASTAG_TAG).writeEntry(dates2, ImmutableList.of(
                     Long.toString(comment.getMessageId()),
                     Integer.toString(t)
@@ -154,7 +154,7 @@ public class DynamicActivitySerializer extends LdbcSerializer {
     public void serialize(final Photo photo) {
         List<String> dates1 = ImmutableList.of(formatDateTime(photo.getCreationDate()), formatDateTime(photo.getDeletionDate()), String.valueOf(photo.isExplicitlyDeleted()));
 
-        // creationDate, deletionDate, explicitlyDeleted, id, imageFile, locationIP, browserUsed, language, content, length, CreatorPerson.id, ContainerForum.id, LocationCountry.id
+        // creationDate, deletionDate, explicitlyDeleted, id, imageFile, locationIP, browserUsed, language, content, length, CreatorPersonId, ContainerForumId, LocationCountryId
         writers.get(POST).writeEntry(dates1, ImmutableList.of(
                 Long.toString(photo.getMessageId()),
                 photo.getContent(),
@@ -170,7 +170,7 @@ public class DynamicActivitySerializer extends LdbcSerializer {
 
         List<String> dates2 = ImmutableList.of(formatDateTime(photo.getCreationDate()), formatDateTime(photo.getDeletionDate()));
         for (Integer t : photo.getTags()) {
-            // creationDate, deletionDate, Post.id, Tag.id
+            // creationDate, deletionDate, PostId, TagId
             writers.get(POST_HASTAG_TAG).writeEntry(dates2, ImmutableList.of(
                     Long.toString(photo.getMessageId()),
                     Integer.toString(t)
@@ -181,7 +181,7 @@ public class DynamicActivitySerializer extends LdbcSerializer {
     public void serialize(final ForumMembership membership) {
         List<String> dates = ImmutableList.of(formatDateTime(membership.getCreationDate()), formatDateTime(membership.getDeletionDate()), String.valueOf(membership.isExplicitlyDeleted()));
 
-        // creationDate, deletionDate, explicitlyDeleted, Forum.id, Person.id
+        // creationDate, deletionDate, explicitlyDeleted, ForumId, PersonId
         writers.get(FORUM_HASMEMBER_PERSON).writeEntry(dates, ImmutableList.of(
                 Long.toString(membership.getForumId()),
                 Long.toString(membership.getPerson().getAccountId())
@@ -191,9 +191,9 @@ public class DynamicActivitySerializer extends LdbcSerializer {
     public void serialize(final Like like) {
         List<String> dates = ImmutableList.of(formatDateTime(like.getCreationDate()), formatDateTime(like.getDeletionDate()), String.valueOf(like.isExplicitlyDeleted()));
 
-        // creationDate, deletionDate, explicitlyDeleted, Person.id, Post.id
+        // creationDate, deletionDate, explicitlyDeleted, PersonId, PostId
         // or
-        // creationDate, deletionDate, explicitlyDeleted, Person.id, Comment.id
+        // creationDate, deletionDate, explicitlyDeleted, PersonId, CommentId
         List<String> arguments = ImmutableList.of(
                 Long.toString(like.getPerson()),
                 Long.toString(like.getMessageId())
