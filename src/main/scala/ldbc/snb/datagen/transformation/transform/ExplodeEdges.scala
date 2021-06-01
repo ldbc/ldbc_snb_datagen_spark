@@ -41,27 +41,27 @@ object ExplodeEdges extends Transform[Mode.Raw.type, Mode.Raw.type]{
         k -> v.drop("isSubclassOf")
       )
       case (k@Node("Comment", false), v) => Map(
-        explodedEdge(Edge("HasCreator", "Comment", "Person", OneN), v, $"`Person.id`"),
-        explodedEdge(Edge("IsLocatedIn", "Comment", "Country", OneN), v, $"`Country.id`"),
-        explodedEdge(Edge("ReplyOf", "Comment", "Comment", OneN), v, $"replyOfComment"),
-        explodedEdge(Edge("ReplyOf", "Comment", "Post", OneN), v, $"replyOfPost"),
-        k -> v.drop("Person.id", "Country.id", "replyOfPost", "replyOfComment")
+        explodedEdge(Edge("HasCreator", "Comment", "Person", OneN), v, $"CreatorPersonId"),
+        explodedEdge(Edge("IsLocatedIn", "Comment", "Country", OneN), v, $"LocationCountryId"),
+        explodedEdge(Edge("ReplyOf", "Comment", "Post", OneN), v, $"ParentPostId"),
+        explodedEdge(Edge("ReplyOf", "Comment", "Comment", OneN), v, $"ParentCommentId"),
+        k -> v.drop("CreatorPersonId", "LocationCountryId", "ParentPostId", "ParentCommentId")
       )
       case (k@Node("Forum", false), v) => Map(
-        explodedEdge(Edge("HasModerator", "Forum", "Person", OneN), v, $"moderator"),
-        k -> v.drop("moderator")
+        explodedEdge(Edge("HasModerator", "Forum", "Person", OneN), v, $"ModeratorPersonId"),
+        k -> v.drop("ModeratorPersonId")
       )
 
       case (k@Node("Person", false), v) => Map(
-        explodedEdge(Edge("IsLocatedIn", "Person", "City", OneN), v, $"`City.id`"),
-        k -> v.drop("City.id")
+        explodedEdge(Edge("IsLocatedIn", "Person", "City", OneN), v, $"LocationCityId"),
+        k -> v.drop("LocationCityId")
       )
 
       case (k@Node("Post", false), v) => Map(
-        explodedEdge(Edge("HasCreator", "Post", "Person", OneN), v, $"`Person.id`"),
-        explodedEdge(Edge("IsLocatedIn", "Post", "Country", OneN), v, $"`Country.id`"),
-        explodedEdge(Edge("ContainerOf", "Forum", "Post", NOne), v, $"`Forum.id`"),
-        k -> v.drop("Person.id", "Country.id", "Forum.id")
+        explodedEdge(Edge("HasCreator", "Post", "Person", OneN), v, $"CreatorPersonId"),
+        explodedEdge(Edge("IsLocatedIn", "Post", "Country", OneN), v, $"LocationCountryId"),
+        explodedEdge(Edge("ContainerOf", "Forum", "Post", NOne), v, $"ContainerForumId"),
+        k -> v.drop("CreatorPersonId", "LocationCountryId", "ContainerForumId")
       )
     }.foldLeft(entities)(_ ++ _)
 

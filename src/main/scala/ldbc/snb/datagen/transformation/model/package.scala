@@ -42,7 +42,7 @@ package object model {
       override val primaryKey: Seq[String] = ((source, destination) match {
           case (s, d) if s == d => Seq(s"${s}1", s"${d}2")
           case (s, d) => Seq(s, d)
-      }).map(name => s"$name.id")
+      }).map(name => s"${name}Id")
 
       override def toString: String = s"$source -[${`type`}]-> $destination"
     }
@@ -53,7 +53,7 @@ package object model {
       override val primaryKey: Seq[String] = ((parent, attribute) match {
         case (s, d) if s == d => Seq(s"${s}1", s"${d}2")
         case (s, d) => Seq(s, d)
-      }).map(name => s"$name.id")
+      }).map(name => s"${name}Id")
       override def toString: String = s"$parent ♢-[${`type`}]-> $attribute"
     }
 
