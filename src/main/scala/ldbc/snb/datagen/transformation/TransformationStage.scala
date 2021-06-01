@@ -46,43 +46,43 @@ object TransformationStage extends SparkApp with Logging {
         "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `explicitlyDeleted` BOOLEAN, `id` BIGINT, `locationIP` STRING, `browserUsed` STRING, `content` STRING, `length` INT, `CreatorPersonId` BIGINT, `LocationCountryId` INT, `ParentPostId` BIGINT, `ParentCommentId` BIGINT"
       ),
       Edge("HasTag", "Comment", "Tag", NN) -> Some(
-        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `Comment.id` BIGINT, `Tag.id` INT"
+        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `CommentId` BIGINT, `TagId` INT"
       ),
       Node("Forum") -> Some(
         "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `explicitlyDeleted` BOOLEAN, `id` BIGINT, `title` STRING, `ModeratorPersonId` BIGINT"
       ),
       Edge("HasMember", "Forum", "Person", NN) -> Some(
-        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `explicitlyDeleted` BOOLEAN, `Forum.id` BIGINT, `Person.id` BIGINT"
+        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `explicitlyDeleted` BOOLEAN, `ForumId` BIGINT, `PersonId` BIGINT"
       ),
       Edge("HasTag", "Forum", "Tag", NN) -> Some(
-        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `Forum.id` BIGINT, `Tag.id` INT"
+        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `ForumId` BIGINT, `TagId` INT"
       ),
       Node("Person") -> Some(
         "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `explicitlyDeleted` BOOLEAN, `id` BIGINT, `firstName` STRING, `lastName` STRING, `gender` STRING, `birthday` DATE, `locationIP` STRING, `browserUsed` STRING, `LocationCityId` INT, `language` STRING, `email` STRING"
       ),
       Edge("HasInterest", "Person", "Tag", NN) -> Some(
-        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `Person.id` BIGINT, `Tag.id` INT"
+        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `PersonId` BIGINT, `TagId` INT"
       ),
       Edge("Knows", "Person", "Person", NN) -> Some(
-        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `explicitlyDeleted` BOOLEAN, `Person1.id` BIGINT, `Person2.id` BIGINT"
+        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `explicitlyDeleted` BOOLEAN, `Person1Id` BIGINT, `Person2Id` BIGINT"
       ),
       Edge("Likes", "Person", "Comment", NN) -> Some(
-        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `explicitlyDeleted` BOOLEAN, `Person.id` BIGINT, `Comment.id` BIGINT"
+        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `explicitlyDeleted` BOOLEAN, `PersonId` BIGINT, `CommentId` BIGINT"
       ),
       Edge("Likes", "Person", "Post", NN) -> Some(
-        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `explicitlyDeleted` BOOLEAN, `Person.id` BIGINT, `Post.id` BIGINT"
+        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `explicitlyDeleted` BOOLEAN, `PersonId` BIGINT, `PostId` BIGINT"
       ),
       Edge("StudyAt", "Person", "University", OneN) -> Some(
-        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `Person.id` BIGINT, `University.id` INT, `classYear` INT"
+        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `PersonId` BIGINT, `UniversityId` INT, `classYear` INT"
       ),
       Edge("WorkAt", "Person", "Company", NN) -> Some(
-        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `Person.id` BIGINT, `Company.id` INT, `workFrom` INT"
+        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `PersonId` BIGINT, `CompanyId` INT, `workFrom` INT"
       ),
       Node("Post") -> Some(
         "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `explicitlyDeleted` BOOLEAN, `id` BIGINT, `imageFile` STRING, `locationIP` STRING, `browserUsed` STRING, `language` STRING, `content` STRING, `length` INT, `CreatorPersonId` BIGINT, `ContainerForumId` BIGINT, `LocationCountryId` INT"
       ),
       Edge("HasTag", "Post", "Tag", NN) -> Some(
-        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `Post.id` BIGINT, `Tag.id` INT"
+        "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `PostId` BIGINT, `TagId` INT"
       )
     )
   )
