@@ -31,16 +31,16 @@ object TransformationStage extends SparkApp with Logging {
     Mode.Raw,
     Map(
       Node("Organisation", isStatic = true) -> Some(
-        "`id` INT, `type` STRING, `name` STRING, `url` STRING, `place` INT"
+        "`id` INT, `type` STRING, `name` STRING, `url` STRING, `LocationPlaceId` INT"
       ),
       Node("Place", isStatic = true) -> Some(
-        "`id` INT, `name` STRING, `url` STRING, `type` STRING, `isPartOf` INT"
+        "`id` INT, `name` STRING, `url` STRING, `type` STRING, `PartOfPlaceId` INT"
       ),
       Node("Tag", isStatic = true) -> Some(
-        "`id` INT, `name` STRING, `url` STRING, `hasType` INT"
+        "`id` INT, `name` STRING, `url` STRING, `TypeTagClassId` INT"
       ),
       Node("TagClass", isStatic = true) -> Some(
-        "`id` INT, `name` STRING, `url` STRING, `isSubclassOf` INT"
+        "`id` INT, `name` STRING, `url` STRING, `SubclassOfTagClassId` INT"
       ),
       Node("Comment") -> Some(
         "`creationDate` TIMESTAMP, `deletionDate` TIMESTAMP, `explicitlyDeleted` BOOLEAN, `id` BIGINT, `locationIP` STRING, `browserUsed` STRING, `content` STRING, `length` INT, `CreatorPersonId` BIGINT, `LocationCountryId` INT, `ParentPostId` BIGINT, `ParentCommentId` BIGINT"

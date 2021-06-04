@@ -57,10 +57,10 @@ public class StaticSerializer extends LdbcSerializer {
 
     @Override
     public void writeFileHeaders() {
-        writers.get(TAG).writeHeader(ImmutableList.of("id", "name", "url", "hasType"));
-        writers.get(TAGCLASS).writeHeader(ImmutableList.of("id", "name", "url", "isSubclassOf"));
-        writers.get(PLACE).writeHeader(ImmutableList.of("id", "name", "url", "type", "isPartOf"));
-        writers.get(ORGANISATION).writeHeader(ImmutableList.of("id", "type", "name", "url", "place"));
+        writers.get(ORGANISATION).writeHeader(ImmutableList.of("id", "type", "name", "url", "LocationPlaceId"));
+        writers.get(PLACE).writeHeader(ImmutableList.of("id", "name", "url", "type", "PartOfPlaceId"));
+        writers.get(TAG).writeHeader(ImmutableList.of("id", "name", "url", "TypeTagClassId"));
+        writers.get(TAGCLASS).writeHeader(ImmutableList.of("id", "name", "url", "SubclassOfTagClassId"));
     }
 
     public void serialize(final Place place) {
