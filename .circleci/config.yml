@@ -14,6 +14,12 @@ workflows:
                 - v0.3.3
                 - sigmod2014contest
                 - gh-pages
+      - deploy:
+          requires:
+            - test
+          filters:
+            branches:
+              only: main
 
 jobs:
   test:
@@ -61,6 +67,12 @@ jobs:
           # currently we only deploy a single data set (the last generated one)
           mv out social_network-bi
           zip -r dist/social_network-bi.zip social_network-bi/
-      - gh-pages/deploy:
-          ssh-fingerprints: '60:8f:35:48:99:c0:ae:9f:71:6b:a9:66:19:21:95:7d'
       - slack/status
+  deploy:
+    resource_class: xlarge
+    working_directory: ~/ldbc/ldbc_snb_datagen
+    machine:
+      image: ubuntu-2004:202008-01
+    steps:
+      - gh-pages/deploy:
+        ssh-fingerprints: '60:8f:35:48:99:c0:ae:9f:71:6b:a9:66:19:21:95:7d'
