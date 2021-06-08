@@ -25,7 +25,8 @@ class WriterFormatOptions(val format: String, mode: Mode, private val customForm
     "header" -> "true",
     "sep" ->  "|",
     "dateFormat" -> Raw.datePattern,
-    "timestampFormat" -> Raw.dateTimePattern
+    "timestampFormat" -> Raw.dateTimePattern,
+    "nullValue" -> null
   )
 
   val forcedRawCsvFormatOptions = Map(
