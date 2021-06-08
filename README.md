@@ -145,10 +145,10 @@ To get a complete list of the arguments, pass `--help` to the JAR file:
   ./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar -- --format csv --scale-factor 0.003 --mode raw --output-dir sf0.003-raw
   ```
 
-* For the `interactive` and `bi` formats, the `--format-options` argument allows passing formatting options such as timestamp/date formats and the presence/abscence of headers (see the [Spark formatting options](https://spark.apache.org/docs/2.4.8/api/scala/index.html#org.apache.spark.sql.DataFrameWriter) for details):
+* For the `interactive` and `bi` formats, the `--format-options` argument allows passing formatting options such as timestamp/date formats, the presence/abscence of headers (see the [Spark formatting options](https://spark.apache.org/docs/2.4.8/api/scala/index.html#org.apache.spark.sql.DataFrameWriter) for details), and whether quoting the fields in the CSV required:
 
   ```bash
-  ./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar -- --format csv --scale-factor 0.003 --mode interactive --format-options timestampFormat=MM/dd/YYYY\ HH:mm:ss,dateFormat=MM/dd/YYYY,header=false
+  ./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar -- --format csv --scale-factor 0.003 --mode interactive --format-options timestampFormat=MM/dd/YYYY\ HH:mm:ss,dateFormat=MM/dd/YYYY,header=false,quoteAll=true
   ```
 
 To change the Spark configuration directory, adjust the `SPARK_CONF_DIR` environment variable.
