@@ -10,21 +10,29 @@ workflows:
           filters:
             branches:
               ignore:
-                - stable
-                - v0.3.3
                 - sigmod2014contest
                 - gh-pages
+      - deploy:
+          requires:
+            - test
+          filters:
+            branches:
+              only: main
+
+executors:
+  my-executor:
+    machine:
+      image: ubuntu-2004:202008-01
+    working_directory: ~/ldbc/ldbc_snb_datagen
 
 jobs:
   test:
     resource_class: xlarge
-    working_directory: ~/ldbc/ldbc_snb_datagen
-    machine:
-      image: ubuntu-2004:202008-01
-
+    executor: my-executor
     steps:
       - checkout
       - run: |
+          mkdir out/
           DEBIAN_FRONTEND=noninteractive
           sudo apt update
           sudo apt install -y openjdk-8-jdk zip
@@ -56,11 +64,23 @@ jobs:
       - run: tools/docker-run.sh --mode bi --scale-factor 0.003 --explode-edges
       - run: tools/docker-run.sh --mode bi --scale-factor 0.003
       - run: |
-          # deploy CircleCI configuration to provide 'filters' instructions (and prevent failed build on gh-pages)
-          cp -r .circleci dist/
+          # deploy CircleCI configuration to provide the 'filters' instructions (and prevent failed builds on the gh-pages branch)
+          mv .circleci dist/
           # currently we only deploy a single data set (the last generated one)
-          mv out social_network-bi
+          mv out/ social_network-bi/
           zip -r dist/social_network-bi.zip social_network-bi/
+      - persist_to_workspace:
+          # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is
+          # taken to be the root directory of the workspace.
+          root: .
+          # Must be relative path from root
+          paths:
+            - dist/
+      - slack/status
+  deploy:
+    executor: my-executor
+    steps:
+      - attach_workspace:
+          at: ~/ldbc/ldbc_snb_datagen
       - gh-pages/deploy:
           ssh-fingerprints: '60:8f:35:48:99:c0:ae:9f:71:6b:a9:66:19:21:95:7d'
-      - slack/status

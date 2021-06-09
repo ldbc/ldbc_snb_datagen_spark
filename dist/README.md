@@ -1,4 +1,7 @@
-# README
+# LDBC SNB Datagen (Spark variant) – Latest artefacts
+
+This README is deployed to <http://ldbc.github.io/ldbc_snb_datagen_spark>.
+
 ## Generated data sets
 
 The following data sets are generated for the `dev` variant, to be used for the BI workload.
