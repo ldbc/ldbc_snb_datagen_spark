@@ -51,24 +51,19 @@ jobs:
           key: m2-dep-branch:{{ .Branch }}-pom:{{ checksum "pom.xml" }}-{{ epoch }}
           paths:
             - ~/.m2/repository   # maven deps
-      - run: tools/docker-run.sh --mode interactive --scale-factor 0.003 --explode-edges --explode-attrs
-      - run: tools/docker-run.sh --mode interactive --scale-factor 0.003 --explode-attrs
-      - run: tools/docker-run.sh --mode interactive --scale-factor 0.003 --explode-edges
-      - run: tools/docker-run.sh --mode interactive --scale-factor 0.003
-      - run: tools/docker-run.sh --mode raw --scale-factor 0.003 --explode-edges --explode-attrs
-      - run: tools/docker-run.sh --mode raw --scale-factor 0.003 --explode-attrs
-      - run: tools/docker-run.sh --mode raw --scale-factor 0.003 --explode-edges
-      - run: tools/docker-run.sh --mode raw --scale-factor 0.003
-      - run: tools/docker-run.sh --mode bi --scale-factor 0.003 --explode-edges --explode-attrs
-      - run: tools/docker-run.sh --mode bi --scale-factor 0.003 --explode-attrs
-      - run: tools/docker-run.sh --mode bi --scale-factor 0.003 --explode-edges
-      - run: tools/docker-run.sh --mode bi --scale-factor 0.003
+      - run: mkdir social-network-sf0.003
+      - run: tools/docker-run.sh --mode interactive --scale-factor 0.003 --explode-edges --explode-attrs && mv out/* social-network-sf0.003
+      - run: tools/docker-run.sh --mode interactive --scale-factor 0.003 --explode-attrs && mv out/* social-network-sf0.003
+      - run: tools/docker-run.sh --mode interactive --scale-factor 0.003 --explode-edges && mv out/* social-network-sf0.003
+      - run: tools/docker-run.sh --mode interactive --scale-factor 0.003 && mv out/* social-network-sf0.003
+      - run: tools/docker-run.sh --mode bi --scale-factor 0.003 --explode-edges --explode-attrs && mv out/* social-network-sf0.003
+      - run: tools/docker-run.sh --mode bi --scale-factor 0.003 --explode-attrs && mv out/* social-network-sf0.003
+      - run: tools/docker-run.sh --mode bi --scale-factor 0.003 --explode-edges && mv out/* social-network-sf0.003
+      - run: tools/docker-run.sh --mode bi --scale-factor 0.003 && mv out/* social-network-sf0.003
       - run: |
           # deploy CircleCI configuration to provide the 'filters' instructions (and prevent failed builds on the gh-pages branch)
           mv .circleci dist/
-          # currently we only deploy a single data set (the last generated one)
-          mv out/ social_network-bi/
-          zip -r dist/social_network-bi.zip social_network-bi/
+          zip -r dist/social-network-sf0.003.zip social-network-sf0.003
       - persist_to_workspace:
           # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is
           # taken to be the root directory of the workspace.
