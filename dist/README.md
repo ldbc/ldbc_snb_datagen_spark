@@ -10,6 +10,6 @@ If you are looking for data sets to implement the Interactive workload, please c
 
 {% for file in site.static_files %}
   {% if file.extname == ".zip" -%}
-    * [{{ file.path }}]({{ site.baseurl }}{{ file.path }})
+    * [{{ file.path | replace: "/", "" }}]({{ site.baseurl }}{{ file.path }})
   {%- endif %}
 {% endfor %}
