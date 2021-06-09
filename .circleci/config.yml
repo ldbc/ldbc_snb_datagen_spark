@@ -76,6 +76,7 @@ jobs:
           # Must be relative path from root
           paths:
             - dist/
+            - .git/
       - slack/status
   deploy:
     executor: my-executor
