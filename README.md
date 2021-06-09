@@ -1,8 +1,8 @@
-![LDBC_LOGO](https://raw.githubusercontent.com/wiki/ldbc/ldbc_snb_datagen/images/ldbc-logo.png)
+![LDBC_LOGO](https://raw.githubusercontent.com/wiki/ldbc/ldbc_snb_datagen_spark/images/ldbc-logo.png)
 
 # LDBC SNB Datagen (Spark-based)
 
-[![Build Status](https://circleci.com/gh/ldbc/ldbc_snb_datagen.svg?style=svg)](https://circleci.com/gh/ldbc/ldbc_snb_datagen)
+[![Build Status](https://circleci.com/gh/ldbc/ldbc_snb_datagen_spark.svg?style=svg)](https://circleci.com/gh/ldbc/ldbc_snb_datagen_spark)
 
 Datagen is part of the [LDBC project](http://www.ldbcouncil.org/).
 
@@ -15,7 +15,7 @@ Datagen is part of the [LDBC project](http://www.ldbcouncil.org/).
 
 The LDBC SNB Data Generator (Datagen) is the responsible for providing the datasets used by all the LDBC benchmarks. This data generator is designed to produce directed labelled graphs that mimic the characteristics of those graphs of real data. A detailed description of the schema produced by Datagen, as well as the format of the output files, can be found in the latest version of official [LDBC SNB specification document](https://github.com/ldbc/ldbc_snb_docs).
 
-[Generated small data sets](https://ldbc.github.io/ldbc_snb_datagen/) are deployed by the CI.
+[Generated small data sets](https://ldbc.github.io/ldbc_snb_datagen_spark/) are deployed by the CI.
 
 ## Quick start
 
