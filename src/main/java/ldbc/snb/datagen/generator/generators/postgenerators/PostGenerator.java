@@ -99,7 +99,7 @@ abstract public class PostGenerator {
             return Streams.stream(Iterators.forIterator(0, i -> i < numPostsPerMemberInt, i -> ++i, i -> {
                 // create post core
                 PostCore postCore = generatePostInfo(randomFarm.get(RandomGeneratorFarm.Aspect.DELETION_POST), randomFarm.get(RandomGeneratorFarm.Aspect.TAG),
-                        randomFarm.get(RandomGeneratorFarm.Aspect.DATE), forum, member,numComments);
+                        randomFarm.get(RandomGeneratorFarm.Aspect.DATE), forum, member, numComments);
 
                 if (postCore == null)
                     return Iterators.ForIterator.CONTINUE();
@@ -149,5 +149,5 @@ abstract public class PostGenerator {
             }));
         });
     }
-    protected abstract PostCore generatePostInfo(Random randonDeletePost, Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership, int numComments);
+    protected abstract PostCore generatePostInfo(Random randomDeletePost, Random randomTag, Random randomDate, final Forum forum, final ForumMembership membership, int numComments);
 }
