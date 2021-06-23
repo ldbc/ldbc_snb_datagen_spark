@@ -36,7 +36,6 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
           batch_id($"creationDate").as("insert_batch_id"),
           batch_id($"deletionDate").as("delete_batch_id")
         ): _*)
-      .filter($"insert_batch_id" =!= $"delete_batch_id")
 
     val insertBatchPart = (tpe: EntityType, df: DataFrame, batchStart: Long, batchEnd: Long) => {
       df
