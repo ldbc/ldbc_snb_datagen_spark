@@ -52,7 +52,7 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
       val idColumns = tpe.primaryKey.map(qcol)
       df
         .filter(inBatch($"deletionDate", batchStart, batchEnd))
-        .filter(if (df.columns.contains("explicitlyDeleted")) lit(true) else lit(false))
+        .filter(if (df.columns.contains("explicitlyDeleted")) col("explicitlyDeleted") else lit(false))
         .pipe(batched)
         .select(Seq($"delete_batch_id".as("batch_id"), $"deletionDate") ++ idColumns: _*)
         .repartitionByRange($"batch_id")
