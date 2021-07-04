@@ -86,8 +86,8 @@ object LdbcDatagen extends SparkApp {
 
       opt[Unit]("keep-implicit-deletes")
         .action((x, c) => args.keepImplicitDeletes.set(c)(true))
-        .text("Keep implicit deletes. Only applicable to BI mode. By default the BI output doesn't contain dynamic entities that" +
-          "without the explicitlyDeleted attribute and filters dynamic entities where explicitlyDeleted is false. " +
+        .text("Keep implicit deletes. Only applicable to BI mode. By default the BI output doesn't contain dynamic entities" +
+          "without the explicitlyDeleted attribute and removes the rows where the attribute is false." +
           "Setting this flag retains all deletes.")
 
       opt[Map[String,String]]("format-options")
