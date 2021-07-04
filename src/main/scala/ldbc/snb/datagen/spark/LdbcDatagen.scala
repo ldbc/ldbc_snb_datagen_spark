@@ -20,6 +20,7 @@ object LdbcDatagen extends SparkApp {
     bulkloadPortion: Double = 0.1,
     explodeEdges: Boolean = false,
     explodeAttrs: Boolean = false,
+    keepImplicitDeletes: Boolean = false,
     mode: String = "raw",
     batchPeriod: String = "day",
     numThreads: Option[Int] = None,
@@ -83,6 +84,12 @@ object LdbcDatagen extends SparkApp {
         .action((x, c) => args.format.set(c)(x))
         .text("Output format. Currently, Spark Datasource formats are supported, such as 'csv', 'parquet' or 'orc'.")
 
+      opt[Unit]("keep-implicit-deletes")
+        .action((x, c) => args.keepImplicitDeletes.set(c)(true))
+        .text("Keep implicit deletes. Only applicable to BI mode. By default the BI output doesn't contain dynamic entities that" +
+          "without the explicitlyDeleted attribute and filters dynamic entities where explicitlyDeleted is false. " +
+          "Setting this flag retains all deletes.")
+
       opt[Map[String,String]]("format-options")
         .action((x, c) => args.formatOptions.set(c)(x))
         .text("Output format options specified as key=value1[,key=value...]. See format options for specific formats " +
@@ -116,6 +123,7 @@ object LdbcDatagen extends SparkApp {
       outputDir = args.outputDir,
       explodeEdges = args.explodeEdges,
       explodeAttrs = args.explodeAttrs,
+      keepImplicitDeletes = args.keepImplicitDeletes,
       simulationStart = Dictionaries.dates.getSimulationStart,
       simulationEnd = Dictionaries.dates.getSimulationEnd,
       mode = args.mode match {

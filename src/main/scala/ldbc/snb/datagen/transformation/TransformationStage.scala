@@ -18,6 +18,7 @@ object TransformationStage extends SparkApp with Logging {
     outputDir: String = "out",
     explodeEdges: Boolean = false,
     explodeAttrs: Boolean = false,
+    keepImplicitDeletes: Boolean = false,
     simulationStart: Long = 0,
     simulationEnd: Long = 0,
     mode: Mode = Mode.Raw,
@@ -110,7 +111,7 @@ object TransformationStage extends SparkApp with Logging {
       .pipe[OutputTypes] {
         g =>
           args.mode match {
-            case bi@Mode.BI(_, _) => Inr(Inr(Inl(RawToBiTransform(bi, args.simulationStart, args.simulationEnd).transform(g))))
+            case bi@Mode.BI(_, _) => Inr(Inr(Inl(RawToBiTransform(bi, args.simulationStart, args.simulationEnd, args.keepImplicitDeletes).transform(g))))
             case interactive@Mode.Interactive(_) => Inr(Inl(RawToInteractiveTransform(interactive, args.simulationStart, args.simulationEnd).transform(g)))
             case Mode.Raw => Inl(g)
           }

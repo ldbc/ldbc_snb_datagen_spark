@@ -8,7 +8,7 @@ import ldbc.snb.datagen.util.Logging
 import org.apache.spark.sql.{Column, DataFrame}
 import org.apache.spark.sql.functions._
 
-case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long) extends Transform[Mode.Raw.type, Mode.BI] with Logging {
+case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long, keepImplicitDeletes: Boolean) extends Transform[Mode.Raw.type, Mode.BI] with Logging {
   log.debug(s"BI Transformation parameters: $mode")
 
   val bulkLoadThreshold = Interactive.calculateBulkLoadThreshold(mode.bulkloadPortion, simulationStart, simulationEnd)
@@ -52,7 +52,7 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
       val idColumns = tpe.primaryKey.map(qcol)
       df
         .filter(inBatch($"deletionDate", batchStart, batchEnd))
-        .filter(if (df.columns.contains("explicitlyDeleted")) col("explicitlyDeleted") else lit(false))
+        .filter(if (df.columns.contains("explicitlyDeleted")) col("explicitlyDeleted") else lit(true))
         .pipe(batched)
         .select(Seq($"delete_batch_id".as("batch_id"), $"deletionDate") ++ idColumns: _*)
         .repartitionByRange($"batch_id")
@@ -65,7 +65,10 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
         tpe -> BatchedEntity(
           Interactive.snapshotPart(tpe, v, bulkLoadThreshold, filterDeletion = false),
           Some(Batched(insertBatchPart(tpe, v, bulkLoadThreshold, simulationEnd), Seq("batch_id"))),
-          Some(Batched(deleteBatchPart(tpe, v, bulkLoadThreshold, simulationEnd), Seq("batch_id")))
+          if (keepImplicitDeletes || v.columns.contains("explicitlyDeleted"))
+            Some(Batched(deleteBatchPart(tpe, v, bulkLoadThreshold, simulationEnd), Seq("batch_id")))
+          else
+            None
       )
     }
     Graph[Mode.BI, DataFrame](isAttrExploded = input.isAttrExploded, isEdgesExploded = input.isEdgesExploded, mode, entities)
