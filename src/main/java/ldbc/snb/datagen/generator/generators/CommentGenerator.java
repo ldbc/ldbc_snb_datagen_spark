@@ -124,7 +124,7 @@ public class CommentGenerator {
 
             // creation date
             long minCreationDate = Math.max(parentMessage.getCreationDate(), membership.getCreationDate()) + DatagenParams.delta;
-            long maxCreationDate = Math.min(membership.getDeletionDate(), Dictionaries.dates.getSimulationEnd());
+            long maxCreationDate = Collections.min(Arrays.asList(membership.getDeletionDate(), parentMessage.getDeletionDate(), Dictionaries.dates.getSimulationEnd()));
             if (maxCreationDate <= minCreationDate) {
                 return Iterators.ForIterator.CONTINUE();
             }
