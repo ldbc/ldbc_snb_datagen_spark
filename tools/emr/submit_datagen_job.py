@@ -23,7 +23,7 @@ defaults = {
     'use_spot': False,
     'master_instance_type': 'm5d.2xlarge',
     'instance_type': 'i3.4xlarge',
-    'sf_ratio': 50.0, # ratio of SFs and machines. a ratio of 50.0 for SF100 yields 2 machines
+    'sf_ratio': 100.0, # ratio of SFs and machines. a ratio of 50.0 for SF100 yields 2 machines
     'platform_version': lib.platform_version,
     'version': lib.version,
     'az': 'us-west-2c',
