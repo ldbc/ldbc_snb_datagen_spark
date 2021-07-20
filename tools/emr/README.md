@@ -55,6 +55,14 @@ SCALE_FACTOR=10
 
 Note: scale factors below 1 are not supported.
 
+### Using spot instances
+
+To use spot instances, add the `--use-spot` argument:
+
+```bash
+./tools/emr/submit_datagen_job.py --use-spot --bucket ${BUCKET_NAME} ${JOB_NAME} ${SCALE_FACTOR} -- --format csv --mode raw
+```
+
 ### Using a different EMR version
 
 We use EMR 5.13.0 by default. You can try out `emr-6.3.0` by specifying it with the `--emr-version` option.
