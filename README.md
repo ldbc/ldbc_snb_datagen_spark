@@ -127,19 +127,19 @@ To get a complete list of the arguments, pass `--help` to the JAR file:
   ./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar -- --format csv --param-file params.ini
   ```
 
-* Generating `CsvBasic` files in Interactive mode:
+* Generating `CsvBasic` files in **Interactive mode**:
 
   ```bash
   ./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar -- --format csv --scale-factor 0.003 --explode-edges --explode-attrs --mode interactive
   ```
 
-* Generating `CsvCompositeMergeForeign` files in BI mode resulting in compressed `.csv.gz` files:
+* Generating `CsvCompositeMergeForeign` files in **BI mode** resulting in compressed `.csv.gz` files:
 
   ```bash
   ./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar -- --format csv --scale-factor 0.003 --mode bi --format-options compression=gzip
   ```
 
-* Generating CSVs in `Raw` mode:
+* Generating CSVs in **raw mode**:
 
   ```bash
   ./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar -- --format csv --scale-factor 0.003 --mode raw --output-dir sf0.003-raw
