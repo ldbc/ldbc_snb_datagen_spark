@@ -1,10 +1,10 @@
 package ldbc.snb.datagen.transformation.transform
 
 import ldbc.snb.datagen.syntax._
-import ldbc.snb.datagen.transformation.model.Mode
-import ldbc.snb.datagen.transformation.model.Cardinality.{NN, NOne, OneN}
-import ldbc.snb.datagen.transformation.model.EntityType.{Edge, Node}
-import ldbc.snb.datagen.transformation.model.Mode.Raw.withRawColumns
+import ldbc.snb.datagen.model.Mode
+import ldbc.snb.datagen.model.Cardinality.{NN, NOne, OneN}
+import ldbc.snb.datagen.model.EntityType.{Edge, Node}
+import ldbc.snb.datagen.model.Mode.Raw.withRawColumns
 import org.apache.spark.sql.{Column, DataFrame}
 import org.apache.spark.sql.functions._
 import shapeless.lens

@@ -1,6 +1,6 @@
-package ldbc.snb.datagen.transformation.io
+package ldbc.snb.datagen.io
 
-import ldbc.snb.datagen.transformation.model.{GraphLike, Mode}
+import ldbc.snb.datagen.model.{GraphLike, Mode}
 
 trait PathComponent[A] {
   def path(a: A): String

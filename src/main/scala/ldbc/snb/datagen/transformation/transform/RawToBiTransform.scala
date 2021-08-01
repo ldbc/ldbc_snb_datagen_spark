@@ -1,9 +1,9 @@
 package ldbc.snb.datagen.transformation.transform
 
 import ldbc.snb.datagen.sql._
-import ldbc.snb.datagen.transformation.model.{Batched, BatchedEntity, EntityType, Graph, Mode}
+import ldbc.snb.datagen.model.{Batched, BatchedEntity, EntityType, Graph, Mode}
 import ldbc.snb.datagen.syntax._
-import ldbc.snb.datagen.transformation.model.Mode.BI
+import ldbc.snb.datagen.model.Mode.BI
 import ldbc.snb.datagen.util.Logging
 import org.apache.spark.sql.{Column, DataFrame}
 import org.apache.spark.sql.functions._
@@ -71,6 +71,6 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
             None
       )
     }
-    Graph[Mode.BI, DataFrame](isAttrExploded = input.isAttrExploded, isEdgesExploded = input.isEdgesExploded, mode, entities)
+    Graph[Mode.BI](isAttrExploded = input.isAttrExploded, isEdgesExploded = input.isEdgesExploded, mode, entities)
   }
 }

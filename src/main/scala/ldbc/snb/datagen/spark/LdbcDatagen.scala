@@ -1,10 +1,11 @@
 package ldbc.snb.datagen.spark
 
 import ldbc.snb.datagen.dictionary.Dictionaries
+import ldbc.snb.datagen.factors.FactorGenerationStage
 import ldbc.snb.datagen.{DatagenContext, SparkApp}
 import ldbc.snb.datagen.generation.GenerationStage
 import ldbc.snb.datagen.transformation.TransformationStage
-import ldbc.snb.datagen.transformation.model.Mode
+import ldbc.snb.datagen.model.Mode
 import ldbc.snb.datagen.util.Utils.lower
 import shapeless.lens
 
@@ -25,6 +26,7 @@ object LdbcDatagen extends SparkApp {
     batchPeriod: String = "day",
     numThreads: Option[Int] = None,
     format: String = "csv",
+    generateFactors: Boolean = false,
     formatOptions: Map[String, String] = Map.empty
   )
 
@@ -55,14 +57,10 @@ object LdbcDatagen extends SparkApp {
         .text("Controls parallelization and number of files written.")
 
       opt[String]('m', "mode")
-        .validate(s => {
-          val ls = lower(s)
-          if (ls == "raw" || ls == "bi" || ls == "interactive") {
-            Right(())
-          } else {
-            Left("Invalid value. Must be one of raw, bi, interactive")
-          }
-        })
+        .validate(s => lower(s) match {
+            case "raw" | "bi" | "interactive" => Right(())
+            case _ => Left("Invalid value. Must be one of raw, bi, interactive")
+          })
         .action((x, c) => args.mode.set(c)(x))
         .text("Generation mode. Options: raw, bi, interactive. Default: raw")
 
@@ -95,6 +93,10 @@ object LdbcDatagen extends SparkApp {
         .text("Output format options specified as key=value1[,key=value...]. See format options for specific formats " +
           "available in Spark: https://spark.apache.org/docs/2.4.5/api/scala/index.html#org.apache.spark.sql.DataFrameWriter")
 
+      opt[Unit]("generate-factors")
+        .action((x, c) => args.generateFactors.set(c)(true))
+        .text("Generate factor tables")
+
       help('h', "help").text("prints this usage text")
     }
 
@@ -118,6 +120,11 @@ object LdbcDatagen extends SparkApp {
     DatagenContext.initialize(generatorConfig)
 
     GenerationStage.run(generatorConfig)
+
+    if (args.generateFactors) {
+      val factorArgs = FactorGenerationStage.Args()
+      FactorGenerationStage.run(factorArgs)
+    }
 
     val transformArgs = TransformationStage.Args(
       outputDir = args.outputDir,

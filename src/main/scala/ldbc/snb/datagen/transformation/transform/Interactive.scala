@@ -2,9 +2,9 @@ package ldbc.snb.datagen.transformation.transform
 
 import ldbc.snb.datagen.sql._
 import ldbc.snb.datagen.syntax._
-import ldbc.snb.datagen.transformation.model.Cardinality.NN
-import ldbc.snb.datagen.transformation.model.EntityType
-import ldbc.snb.datagen.transformation.model.EntityType.Edge
+import ldbc.snb.datagen.model.Cardinality.NN
+import ldbc.snb.datagen.model.EntityType
+import ldbc.snb.datagen.model.EntityType.Edge
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions._
 

@@ -1,8 +1,8 @@
-package ldbc.snb.datagen.transformation
+package ldbc.snb.datagen
 
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.util.Utils.camel
-import org.apache.spark.sql.Column
+import org.apache.spark.sql.{Column, DataFrame}
 
 import scala.language.higherKinds
 
@@ -59,21 +59,21 @@ package object model {
 
   }
 
-  case class Batched[+T](entity: T, batchId: Seq[String])
+  case class Batched(entity: DataFrame, batchId: Seq[String])
 
-  case class BatchedEntity[+T](
-    snapshot: T,
-    insertBatches: Option[Batched[T]],
-    deleteBatches: Option[Batched[T]]
+  case class BatchedEntity(
+    snapshot: DataFrame,
+    insertBatches: Option[Batched],
+    deleteBatches: Option[Batched]
   )
 
   sealed trait Mode {
-    type Layout[Data]
+    type Layout
     def modePath: String
   }
   object Mode {
     final case object Raw extends Mode {
-      type Layout[+Data] = Data
+      type Layout = DataFrame
       override val modePath: String = "raw"
 
       def withRawColumns(et: EntityType, cols: Column*): Seq[Column] = (!et.isStatic).fork.foldLeft(cols)((cols, _) => Seq(
@@ -87,11 +87,11 @@ package object model {
 
     }
     final case class Interactive(bulkLoadPortion: Double) extends Mode {
-      type Layout[+Data] = Data
+      type Layout = DataFrame
       override val modePath: String = "interactive"
     }
     final case class BI(bulkloadPortion: Double, batchPeriod: String) extends Mode {
-      type Layout[+Data] = BatchedEntity[Data]
+      type Layout = BatchedEntity
       override val modePath: String = "bi"
     }
   }
@@ -102,11 +102,11 @@ package object model {
     def mode: M
   }
 
-  case class Graph[+M <: Mode, D](
+  case class Graph[+M <: Mode](
     isAttrExploded: Boolean,
     isEdgesExploded: Boolean,
     mode: M,
-    entities: Map[EntityType, M#Layout[D]]
+    entities: Map[EntityType, M#Layout]
   ) extends GraphLike[M]
 
   case class GraphDef[M <: Mode](
