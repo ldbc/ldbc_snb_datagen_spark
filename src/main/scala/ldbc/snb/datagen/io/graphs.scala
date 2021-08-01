@@ -1,23 +1,22 @@
 package ldbc.snb.datagen.io
 
-import ldbc.snb.datagen.model.EntityType.{Attr, Edge, Node}
-import ldbc.snb.datagen.model.{Batched, BatchedEntity, EntityType, Graph, GraphDef, GraphLike, Mode}
-import ldbc.snb.datagen.util.{Logging, SparkUI}
-import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
-import shapeless.{Generic, Poly1}
 import better.files._
 import ldbc.snb.datagen.io.dataframes.{DataFrameSink, DataFrameSource}
+import ldbc.snb.datagen.model.EntityType.{Attr, Edge, Node}
 import ldbc.snb.datagen.model.Mode.Raw
+import ldbc.snb.datagen.model._
+import ldbc.snb.datagen.util.{Logging, SparkUI}
 import org.apache.spark.sql.types.StructType
-import shapeless._
+import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
+import shapeless.{Generic, Poly1}
 
 import scala.collection.immutable.TreeMap
 
 object graphs {
 
-  import dataframes.instances._
-  import Writer.ops._
   import Reader.ops._
+  import Writer.ops._
+  import dataframes.instances._
 
   case class GraphSink(
                         path: String,

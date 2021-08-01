@@ -18,8 +18,10 @@ package object io {
     override def write(self: FactorTable[M], sink: FactorTableSink): Unit = {
       val p = (sink.path / "factors" / sink.format / PathComponent[GraphLike[M]].path(self.source) / self.name).toString()
       self.data.coalesce(1).write(DataFrameSink(p, sink.format))
+      log.info(s"Factor table ${self.name} written")
     }
   }
+
   trait WriterInstances {
     implicit def factorTableWriter[M <: Mode]: Writer.Aux[FactorTableSink, FactorTable[M]] = new FactorTableWriter[M]
   }
