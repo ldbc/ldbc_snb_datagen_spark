@@ -2,15 +2,16 @@ package ldbc.snb.datagen.factors
 
 import ldbc.snb.datagen.factors.io.FactorTableSink
 import ldbc.snb.datagen.io.graphs.GraphSource
-import ldbc.snb.datagen.model.{Graph, Mode, graphs}
+import ldbc.snb.datagen.model.{EntityType, graphs}
 import ldbc.snb.datagen.{SparkApp, model}
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.util.Logging
-import org.apache.spark.sql.functions.{broadcast, count, date_trunc}
+import org.apache.spark.sql.functions.{broadcast, count, date_trunc, sum}
 import org.apache.spark.sql.{Column, DataFrame, SparkSession}
 
-case class RawFactor(private val f: Graph[Mode.Raw.type] => DataFrame) extends (Graph[Mode.Raw.type] => DataFrame) {
-  override def apply(v1: Graph[Mode.Raw.type]): DataFrame = f(v1)
+
+case class Factor(requiredEntities: EntityType*)(f: Seq[DataFrame] => DataFrame)  extends (Seq[DataFrame] => DataFrame) {
+  override def apply(v1: Seq[DataFrame]): DataFrame = f(v1)
 }
 
 object FactorGenerationStage extends SparkApp with Logging {
@@ -26,23 +27,37 @@ object FactorGenerationStage extends SparkApp with Logging {
 
     GraphSource(model.graphs.Raw.graphDef, args.outputDir, "csv")
       .read
-      .pipe(g => rawFactors.map { case (name, calc) => FactorTable(name, calc(g), g) })
+      .pipe(g => rawFactors.map { case (name, calc) =>
+        val resolvedEntities = calc.requiredEntities.foldLeft(Seq.empty[DataFrame])((args, et) => args :+ g.entities(et))
+        FactorTable(name, calc(resolvedEntities), g)
+      })
       .foreach(_.write(FactorTableSink(args.outputDir)))
   }
 
-  private def frequency(df: DataFrame, value: Column, by: Seq[Column]) =
+  private def frequency(df: DataFrame, value: Column, by: Seq[Column], agg: Column => Column = count) =
     df
-      .groupBy(by: _*).agg(count(value).as("count"))
-      .select(by :+ $"count": _*)
-      .orderBy($"count".desc +: by.map(_.asc): _*)
+      .groupBy(by: _*).agg(agg(value).as("frequency"))
+      .select(by :+ $"frequency": _*)
+      .orderBy($"frequency".desc +: by.map(_.asc): _*)
+
+
+  private def messageTags(commentHasTag: DataFrame, postHasTag: DataFrame, tag: DataFrame) = {
+    val messageHasTag = commentHasTag.select($"CommentId".as("id"), $"TagId") |+| postHasTag.select($"PostId".as("id"), $"TagId")
+
+    frequency(
+      messageHasTag.as("MessageHasTag").join(tag.as("Tag"), $"Tag.id" === $"MessageHasTag.TagId"),
+      value = $"MessageHasTag.TagId",
+      by = Seq($"Tag.id", $"Tag.name")
+    ).select($"Tag.id".as("tagId"), $"Tag.name".as("tagName"), $"frequency")
+  }
+
+  import graphs.Raw.entities._
 
   private val rawFactors = Map(
-    "countryNumPersons" -> RawFactor { graph =>
-      val places = graph.entities(graphs.Raw.entities.Place).cache()
+    "countryNumPersons" -> Factor(Place, Person) { case Seq(places, persons) =>
       val cities = places.where($"type" === "City")
       val countries = places.where($"type" === "Country")
 
-      val persons = graph.entities(graphs.Raw.entities.Person)
       frequency(
         persons.as("Person")
           .join(broadcast(cities.as("City")), $"City.id" === $"Person.LocationCityId")
@@ -51,20 +66,14 @@ object FactorGenerationStage extends SparkApp with Logging {
         by = Seq($"Country.id", $"Country.name")
       )
     },
-    "countryNumMessages" -> RawFactor { graph =>
-      val comments = graph.entities(graphs.Raw.entities.Comment)
-      val posts = graph.entities(graphs.Raw.entities.Post)
+    "countryNumMessages" -> Factor(Comment, Post) { case Seq(comments, posts) =>
       frequency(
         comments.select($"id", $"LocationCountryId") |+| posts.select($"id", $"LocationCountryId"),
         value = $"id",
         by = Seq($"LocationCountryId")
       )
     },
-    "cityPairsNumFriends" -> RawFactor { graph =>
-      val personKnowsPerson = graph.entities(graphs.Raw.entities.PersonKnowsPerson)
-      val persons = graph.entities(graphs.Raw.entities.Person).cache()
-
-      val places = graph.entities(graphs.Raw.entities.Place)
+    "cityPairsNumFriends" -> Factor(PersonKnowsPerson, Person, Place) { case Seq(personKnowsPerson, persons, places) =>
       val cities = places.where($"type" === "City").cache()
 
       frequency(
@@ -81,14 +90,10 @@ object FactorGenerationStage extends SparkApp with Logging {
         $"City2.id".alias("city2Id"),
         $"City1.name".alias("city1Name"),
         $"City2.name".alias("city2Name"),
-        $"count"
+        $"frequency"
       )
     },
-    "countryPairsNumFriends" -> RawFactor { graph =>
-      val personKnowsPerson = graph.entities(graphs.Raw.entities.PersonKnowsPerson)
-      val persons = graph.entities(graphs.Raw.entities.Person).cache()
-
-      val places = graph.entities(graphs.Raw.entities.Place)
+    "countryPairsNumFriends" -> Factor(PersonKnowsPerson, Person, Place) { case Seq(personKnowsPerson, persons, places) =>
       val cities = places.where($"type" === "City").cache()
       val countries = places.where($"type" === "Country").cache()
 
@@ -108,23 +113,53 @@ object FactorGenerationStage extends SparkApp with Logging {
         $"Country2.id".alias("country2Id"),
         $"Country1.name".alias("country1Name"),
         $"Country2.name".alias("country2Name"),
-        $"count"
+        $"frequency"
       )
     },
-    "messageCreationDays" -> RawFactor { graph =>
-      val comments = graph.entities(graphs.Raw.entities.Comment)
-      val posts = graph.entities(graphs.Raw.entities.Post)
+    "messageCreationDays" -> Factor(Comment, Post) { case Seq(comments, posts) =>
       (comments.select($"creationDate") |+| posts.select($"creationDate"))
         .select(date_trunc("day", $"creationDate").as("creationDay"))
         .distinct()
     },
-    "messageLengths" -> RawFactor { graph =>
-      val comments = graph.entities(graphs.Raw.entities.Comment)
-      val posts = graph.entities(graphs.Raw.entities.Post)
+    "messageLengths" -> Factor(Comment, Post) { case Seq(comments, posts) =>
       frequency(
         comments.select($"id", $"length") |+| posts.select($"id", $"length"),
         value = $"id",
         by = Seq($"length")
+      )
+    },
+    "messageTags" -> Factor(CommentHasTag, PostHasTag, Tag) { case Seq(commentHasTag, postHasTag, tag) =>
+      messageTags(commentHasTag, postHasTag, tag).cache()
+    },
+    "messageTagClasses" -> Factor(CommentHasTag, PostHasTag, Tag, TagClass) { case Seq(commentHasTag, postHasTag, tag, tagClass) =>
+      frequency(
+        messageTags(commentHasTag, postHasTag, tag).as("MessageTags")
+          .join(tag.as("Tag"), $"MessageTags.tagId" === $"Tag.id")
+          .join(tagClass.as("TagClass"), $"Tag.TypeTagClassId" === $"TagClass.id"),
+        value = $"frequency",
+        by = Seq($"TagClass.id", $"TagClass.name"),
+        agg = sum
+      )
+    },
+    "personNumFriends" -> Factor(PersonKnowsPerson) { case Seq(knows) =>
+      frequency(knows, value=$"Person2Id", by=Seq($"Person1Id"))
+    },
+    "postLanguages" -> Factor(Post) { case Seq(post) =>
+      frequency(post.where($"language".isNotNull), value=$"id", by=Seq($"language"))
+    },
+    "tagClassNumTags" -> Factor(TagClass, Tag) { case Seq(tagClass, tag) =>
+      frequency(
+        tag.as("Tag").join(tagClass.as("TagClass"), $"Tag.TypeTagClassId" === $"TagClass.id"),
+        value = $"Tag.id",
+        by = Seq($"TagClass.id", $"TagClass.name")
+      )
+    },
+    "companiesNumEmployees" -> Factor(Organisation, PersonWorkAtCompany) { case Seq(organisation, workAt) =>
+      val company = organisation.where($"Type" === "Company")
+      frequency(
+        company.as("Company").join(workAt.as("WorkAt"), $"WorkAt.CompanyId" === $"Company.id"),
+        value = $"WorkAt.PersonId",
+        by = Seq($"Company.id", $"Company.name")
       )
     }
   )

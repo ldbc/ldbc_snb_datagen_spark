@@ -9,7 +9,7 @@ object utils {
 
   def fileExists(path: String)(implicit spark: SparkSession): Boolean = {
     val hadoopPath = new Path(path)
-    FileSystem.get(new URI(path), spark.sparkContext.hadoopConfiguration).exists(hadoopPath)
+    val fs = FileSystem.get(URI.create(path), spark.sparkContext.hadoopConfiguration)
+    fs.exists(hadoopPath)
   }
-
 }
