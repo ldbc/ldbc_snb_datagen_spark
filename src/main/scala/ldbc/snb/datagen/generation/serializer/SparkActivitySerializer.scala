@@ -6,14 +6,12 @@ import ldbc.snb.datagen.serializer.{DynamicActivitySerializer, PersonActivityExp
 import ldbc.snb.datagen.generation.generator.SparkRanker
 import ldbc.snb.datagen.util.{GeneratorConfiguration, SerializableConfiguration}
 import ldbc.snb.datagen.syntax._
-import ldbc.snb.datagen.util.formatter.DateFormatter
 import ldbc.snb.datagen.{DatagenContext, DatagenParams}
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.TaskContext
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
 
-import java.nio.charset.StandardCharsets
 import java.util
 import java.util.function.Consumer
 import scala.collection.JavaConverters._

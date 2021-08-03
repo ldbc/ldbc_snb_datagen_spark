@@ -1,7 +1,7 @@
 package ldbc.snb.datagen
 
 import ldbc.snb.datagen.syntax._
-import ldbc.snb.datagen.util.Utils.camel
+import ldbc.snb.datagen.util.camel
 import org.apache.spark.sql.{Column, DataFrame}
 
 import scala.language.higherKinds

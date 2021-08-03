@@ -2,11 +2,11 @@ package ldbc.snb.datagen.spark
 
 import ldbc.snb.datagen.dictionary.Dictionaries
 import ldbc.snb.datagen.factors.FactorGenerationStage
-import ldbc.snb.datagen.{DatagenContext, SparkApp}
+import ldbc.snb.datagen.DatagenContext
 import ldbc.snb.datagen.generation.GenerationStage
 import ldbc.snb.datagen.transformation.TransformationStage
 import ldbc.snb.datagen.model.Mode
-import ldbc.snb.datagen.util.Utils.lower
+import ldbc.snb.datagen.util.{SparkApp, lower}
 import shapeless.lens
 
 

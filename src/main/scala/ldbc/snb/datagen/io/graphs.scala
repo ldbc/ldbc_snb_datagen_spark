@@ -79,7 +79,7 @@ object graphs {
 
 
   private final class GraphWriter[M <: Mode](implicit
-                                             `==`: M#Layout =:= DataFrame
+                                             the: M#Layout =:= DataFrame
                                             ) extends Writer[GraphSink] with Logging with GraphWriterMixin {
 
     override type CoRet = Graph[M]
@@ -93,7 +93,7 @@ object graphs {
             val p = (sink.path / sink.format / PathComponent[GraphLike[M]].path(self) / tpe.entityPath).toString()
             log.info(s"$tpe: Writing started")
             val opts = getFormatOptions(sink.format, self.mode)
-            `==`(dataset).write(DataFrameSink(p, sink.format, opts, SaveMode.Ignore))
+            the(dataset).write(DataFrameSink(p, sink.format, opts, SaveMode.Ignore))
             log.info(s"$tpe: Writing completed")
           }(dataset.sparkSession)
       }
@@ -135,20 +135,16 @@ object graphs {
   }
 
   trait WriterInstances {
-    implicit def dataFrameGraphWriter[M <: Mode]
+    implicit def graphWriter[M <: Mode]
     (implicit ev: M#Layout =:= DataFrame): Writer.Aux[GraphSink, Graph[M]] = new GraphWriter[M]
 
-    implicit def batchedDataFrameGraphWriter[M <: Mode]
+    implicit def batchedGraphWriter[M <: Mode]
     (implicit ev: M#Layout =:= BatchedEntity): Writer.Aux[GraphSink, Graph[M]] = new BatchedGraphWriter[M]
   }
 
-  case class GraphSource[M <: Mode](
-                                     definition: GraphDef[M],
-                                     path: String,
-                                     format: String
-                                   )
+  case class GraphSource[M <: Mode](definition: GraphDef[M], path: String, format: String)
 
-  private final class DataFrameGraphReader[M <: Mode](implicit spark: SparkSession, ev: DataFrame =:= M#Layout)
+  private final class GraphReader[M <: Mode](implicit spark: SparkSession, ev: DataFrame =:= M#Layout)
     extends Reader[GraphSource[M]]
       with Logging {
     override type Ret = Graph[M]
@@ -188,9 +184,9 @@ object graphs {
   }
 
   trait ReaderInstances {
-    implicit def dataFrameGraphReader[M <: Mode]
+    implicit def graphReader[M <: Mode]
     (implicit spark: SparkSession, ev: DataFrame =:= M#Layout): Reader.Aux[GraphSource[M], Graph[M]] =
-      new DataFrameGraphReader[M]
+      new GraphReader[M]
   }
 
   trait Instances

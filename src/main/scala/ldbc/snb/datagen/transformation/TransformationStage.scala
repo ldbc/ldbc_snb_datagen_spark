@@ -1,17 +1,15 @@
 package ldbc.snb.datagen.transformation
 
 import ldbc.snb.datagen.io.graphs.{GraphSink, GraphSource}
-import ldbc.snb.datagen.{SparkApp, model}
+import ldbc.snb.datagen.model
 import ldbc.snb.datagen.model.{BatchedEntity, Graph, Mode}
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.transformation.transform.{ExplodeAttrs, ExplodeEdges, RawToBiTransform, RawToInteractiveTransform}
-import ldbc.snb.datagen.util.Logging
+import ldbc.snb.datagen.util.{DatagenStage, Logging}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import shapeless._
 
-object TransformationStage extends SparkApp with Logging {
-  override def appName: String = "LDBC SNB Datagen for Spark: TransformationStage"
-
+object TransformationStage extends DatagenStage with Logging {
   case class Args(
     outputDir: String = "out",
     explodeEdges: Boolean = false,

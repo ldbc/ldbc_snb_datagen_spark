@@ -3,9 +3,9 @@ package ldbc.snb.datagen.factors
 import ldbc.snb.datagen.factors.io.FactorTableSink
 import ldbc.snb.datagen.io.graphs.GraphSource
 import ldbc.snb.datagen.model.{EntityType, graphs}
-import ldbc.snb.datagen.{SparkApp, model}
+import ldbc.snb.datagen.model
 import ldbc.snb.datagen.syntax._
-import ldbc.snb.datagen.util.Logging
+import ldbc.snb.datagen.util.{DatagenStage, Logging}
 import org.apache.spark.sql.functions.{broadcast, count, date_trunc, sum}
 import org.apache.spark.sql.{Column, DataFrame, SparkSession}
 
@@ -14,8 +14,7 @@ case class Factor(requiredEntities: EntityType*)(f: Seq[DataFrame] => DataFrame)
   override def apply(v1: Seq[DataFrame]): DataFrame = f(v1)
 }
 
-object FactorGenerationStage extends SparkApp with Logging {
-  override def appName: String = "LDBC SNB Datagen for Spark: Factor Generation Stage"
+object FactorGenerationStage extends DatagenStage with Logging {
 
   case class Args(outputDir: String = "out")
 
@@ -55,8 +54,8 @@ object FactorGenerationStage extends SparkApp with Logging {
 
   private val rawFactors = Map(
     "countryNumPersons" -> Factor(Place, Person) { case Seq(places, persons) =>
-      val cities = places.where($"type" === "City")
-      val countries = places.where($"type" === "Country")
+      val cities = places.where($"type" === "City").cache()
+      val countries = places.where($"type" === "Country").cache()
 
       frequency(
         persons.as("Person")
@@ -78,8 +77,8 @@ object FactorGenerationStage extends SparkApp with Logging {
 
       frequency(
         personKnowsPerson.alias("Knows")
-          .join(persons.as("Person1"), $"Person1.id" === $"Knows.Person1Id")
-          .join(cities.as("City1"), $"City1.id" === "Person1.LocationCityId")
+          .join(persons.cache().as("Person1"), $"Person1.id" === $"Knows.Person1Id")
+          .join(cities.cache().as("City1"), $"City1.id" === "Person1.LocationCityId")
           .join(persons.as("Person2"), $"Person2.id" === $"Knows.Person2Id")
           .join(cities.as("City2"), $"City2.id" === "Person2.LocationCityId")
           .where($"City1.id" < $"City2.id"),
@@ -99,9 +98,9 @@ object FactorGenerationStage extends SparkApp with Logging {
 
       frequency(
         personKnowsPerson.alias("Knows")
-          .join(persons.as("Person1"), $"Person1.id" === $"Knows.Person1Id")
-          .join(cities.as("City1"), $"City1.id" === "Person1.LocationCityId")
-          .join(countries.as("Country1"), $"Country1.id" === "City1.PartOfPlaceId")
+          .join(persons.cache().as("Person1"), $"Person1.id" === $"Knows.Person1Id")
+          .join(cities.cache().as("City1"), $"City1.id" === "Person1.LocationCityId")
+          .join(countries.cache().as("Country1"), $"Country1.id" === "City1.PartOfPlaceId")
           .join(persons.as("Person2"), $"Person2.id" === $"Knows.Person2Id")
           .join(cities.as("City2"), $"City2.id" === "Person2.LocationCityId")
           .join(countries.as("Country2"), $"Country2.id" === "City2.PartOfPlaceId")
@@ -155,7 +154,7 @@ object FactorGenerationStage extends SparkApp with Logging {
       )
     },
     "companiesNumEmployees" -> Factor(Organisation, PersonWorkAtCompany) { case Seq(organisation, workAt) =>
-      val company = organisation.where($"Type" === "Company")
+      val company = organisation.where($"Type" === "Company").cache()
       frequency(
         company.as("Company").join(workAt.as("WorkAt"), $"WorkAt.CompanyId" === $"Company.id"),
         value = $"WorkAt.PersonId",

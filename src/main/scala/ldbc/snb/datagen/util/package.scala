@@ -1,4 +1,4 @@
-package ldbc.snb.datagen.util
+package ldbc.snb.datagen
 
 import com.google.common.base.CaseFormat
 
@@ -7,8 +7,8 @@ import java.util.function.IntFunction
 import scala.reflect.ClassTag
 import scala.util.control.NonFatal
 
-object Utils {
-  def tryOrIOException[T](block: => T): T = {
+package object util {
+  def tryOrThrowIOException[T](block: => T): T = {
     try {
       block
     } catch {
