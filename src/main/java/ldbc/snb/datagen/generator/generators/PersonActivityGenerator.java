@@ -50,15 +50,12 @@ import ldbc.snb.datagen.generator.generators.postgenerators.FlashmobPostGenerato
 import ldbc.snb.datagen.generator.generators.postgenerators.UniformPostGenerator;
 import ldbc.snb.datagen.generator.generators.textgenerators.LdbcSnbTextGenerator;
 import ldbc.snb.datagen.generator.generators.textgenerators.TextGenerator;
-import ldbc.snb.datagen.util.FactorTable;
 import ldbc.snb.datagen.util.Iterators;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.util.Streams;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -75,7 +72,6 @@ public class PersonActivityGenerator {
     private UniformPostGenerator uniformPostGenerator;
     private FlashmobPostGenerator flashmobPostGenerator;
     private PhotoGenerator photoGenerator;
-    private FactorTable factorTable;
 
     public PersonActivityGenerator() {
 
@@ -89,14 +85,11 @@ public class PersonActivityGenerator {
         flashmobPostGenerator = new FlashmobPostGenerator(generator, commentGenerator, likeGenerator);
         photoGenerator = new PhotoGenerator(likeGenerator);
 
-        factorTable = new FactorTable();
-
         messageIdIterator = Iterators.numbers(0);
     }
 
     private GenActivity generateActivity(Person person, List<Person> block, long blockId) throws AssertionError {
         try {
-            factorTable.extractFactors(person);
             return new GenActivity(
                     generateWall(person, blockId),
                     generateGroups(person, block, blockId),
@@ -239,17 +232,5 @@ public class PersonActivityGenerator {
         startForumId = 0;
         messageIdIterator = Iterators.numbers(0);
         return block.stream().map(p -> generateActivity(p, block, blockId));
-    }
-
-    public void writeActivityFactors(OutputStream postsWriter, OutputStream tagClassWriter, OutputStream tagWriter, OutputStream firstNameWriter, OutputStream miscWriter) throws IOException {
-        factorTable.writeActivityFactors(postsWriter, tagClassWriter, tagWriter, firstNameWriter, miscWriter);
-    }
-
-    public void writePersonFactors(OutputStream writer) {
-        factorTable.writePersonFactors(writer);
-    }
-
-    public FactorTable getFactorTable() {
-        return factorTable;
     }
 }

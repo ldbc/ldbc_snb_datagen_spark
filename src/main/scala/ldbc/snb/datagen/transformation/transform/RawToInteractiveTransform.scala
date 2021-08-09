@@ -1,6 +1,6 @@
 package ldbc.snb.datagen.transformation.transform
 
-import ldbc.snb.datagen.transformation.model.{Graph, Mode}
+import ldbc.snb.datagen.model.{Graph, Mode}
 import ldbc.snb.datagen.util.Logging
 import org.apache.spark.sql.DataFrame
 
@@ -14,7 +14,7 @@ case class RawToInteractiveTransform(mode: Mode.Interactive, simulationStart: Lo
       case (tpe, v) if tpe.isStatic => tpe -> v
       case (tpe, v) => tpe -> Interactive.snapshotPart(tpe, v, bulkLoadThreshold, filterDeletion = true)
     }
-    Graph[Mode.Interactive, DataFrame](isAttrExploded = input.isAttrExploded, isEdgesExploded = input.isEdgesExploded, mode, entities)
+    Graph[Mode.Interactive](isAttrExploded = input.isAttrExploded, isEdgesExploded = input.isEdgesExploded, mode, entities)
   }
 }
 

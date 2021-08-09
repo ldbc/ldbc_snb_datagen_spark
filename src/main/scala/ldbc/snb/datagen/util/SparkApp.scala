@@ -1,4 +1,4 @@
-package ldbc.snb.datagen
+package ldbc.snb.datagen.util
 
 import ldbc.snb.datagen.syntax._
 import org.apache.spark.sql.SparkSession
@@ -18,5 +18,8 @@ trait SparkApp {
   def defaultSparkConf: Map[String, String] = Map(
     "spark.sql.session.timeZone" -> "GMT"
   )
+}
 
+trait DatagenStage extends SparkApp {
+  override val appName: String = s"LDBC SNB Datagen for Spark: ${this.getClass.getSimpleName.stripSuffix("$")}"
 }

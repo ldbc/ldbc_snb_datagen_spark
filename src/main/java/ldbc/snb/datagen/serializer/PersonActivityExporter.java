@@ -43,7 +43,6 @@ import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.entities.dynamic.relations.Like;
 import ldbc.snb.datagen.generator.generators.GenActivity;
 import ldbc.snb.datagen.generator.generators.GenWall;
-import ldbc.snb.datagen.util.FactorTable;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
@@ -54,11 +53,9 @@ import static ldbc.snb.datagen.util.functional.Thunk.wrapException;
 
 public class PersonActivityExporter implements AutoCloseable {
     protected DynamicActivitySerializer dynamicActivitySerializer;
-    protected FactorTable factorTable;
 
-    public PersonActivityExporter(DynamicActivitySerializer dynamicActivitySerializer, FactorTable factorTable) {
+    public PersonActivityExporter(DynamicActivitySerializer dynamicActivitySerializer) {
         this.dynamicActivitySerializer = dynamicActivitySerializer;
-        this.factorTable = factorTable;
     }
 
     public void export(final GenActivity genActivity) {
@@ -107,27 +104,22 @@ public class PersonActivityExporter implements AutoCloseable {
 
     private void exportPost(final Post post) throws IOException {
         dynamicActivitySerializer.serialize(post);
-        factorTable.extractFactors(post);
     }
 
     private void exportComment(final Comment comment) throws IOException {
         dynamicActivitySerializer.serialize(comment);
-        factorTable.extractFactors(comment);
     }
 
     private void exportPhoto(final Photo photo) throws IOException {
         dynamicActivitySerializer.serialize(photo);
-        factorTable.extractFactors(photo);
     }
 
     private void exportForumMembership(final ForumMembership member) throws IOException {
         dynamicActivitySerializer.serialize(member);
-        factorTable.extractFactors(member);
     }
 
     private void exportLike(final Like like) throws IOException {
         dynamicActivitySerializer.serialize(like);
-        factorTable.extractFactors(like);
     }
 
     @Override

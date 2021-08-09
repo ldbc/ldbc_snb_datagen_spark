@@ -1,6 +1,6 @@
 package ldbc.snb.datagen.transformation.transform
 
-import ldbc.snb.datagen.transformation.model.{Graph, Mode}
+import ldbc.snb.datagen.model.{Graph, Mode}
 import ldbc.snb.datagen.transformation.transform.Transform.DataFrameGraph
 import org.apache.spark.sql.DataFrame
 
@@ -12,7 +12,7 @@ trait Transform[M1 <: Mode, M2 <: Mode] {
 
 
 object Transform {
-  type DataFrameGraph[M <: Mode] = Graph[M, DataFrame]
+  type DataFrameGraph[M <: Mode] = Graph[M]
 }
 
 

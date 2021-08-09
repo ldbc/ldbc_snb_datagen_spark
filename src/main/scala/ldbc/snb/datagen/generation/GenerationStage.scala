@@ -1,19 +1,16 @@
 package ldbc.snb.datagen.generation
 
-import ldbc.snb.datagen.{DatagenParams, SparkApp}
+import ldbc.snb.datagen.DatagenParams
 import ldbc.snb.datagen.generation.generator.{SparkKnowsGenerator, SparkKnowsMerger, SparkPersonGenerator, SparkRanker}
 import ldbc.snb.datagen.generation.serializer.{SparkActivitySerializer, SparkPersonSerializer, SparkStaticGraphSerializer}
 import ldbc.snb.datagen.syntax._
-import ldbc.snb.datagen.util.{ConfigParser, GeneratorConfiguration, Logging, SparkUI}
-import ldbc.snb.datagen.util.Utils.simpleNameOf
+import ldbc.snb.datagen.util.{ConfigParser, DatagenStage, GeneratorConfiguration, Logging, SparkUI, simpleNameOf}
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.SparkSession
 
 import java.net.URI
 
-object GenerationStage extends SparkApp with Logging {
-  override def appName: String = "LDBC SNB Datagen for Spark: Generation Stage"
-
+object GenerationStage extends DatagenStage with Logging {
   val optimalPersonsPerFile = 500000
 
   case class Args(
@@ -51,7 +48,7 @@ object GenerationStage extends SparkApp with Logging {
       SparkActivitySerializer(merged, randomRanker, config, Some(numPartitions), oversizeFactor)
     }
 
-    SparkUI.job(simpleNameOf[SparkPersonSerializer.type ], "serialize persons") {
+    SparkUI.job(simpleNameOf[SparkPersonSerializer.type], "serialize persons") {
       SparkPersonSerializer(merged, config, Some(numPartitions), oversizeFactor)
     }
 
