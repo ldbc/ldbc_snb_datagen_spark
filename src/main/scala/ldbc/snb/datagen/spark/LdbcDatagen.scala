@@ -50,7 +50,8 @@ object LdbcDatagen extends SparkApp {
 
       opt[String]('o', "output-dir")
         .action((x, c) => args.outputDir.set(c)(x))
-        .text("output directory")
+        .text("path on the cluster filesystem, where Datagen outputs. Can be a URI (e.g S3, ADLS, HDFS) or a " +
+          "path in which case the default cluster file system is used.")
 
       opt[Int]('n', "num-threads")
         .action((x, c) => args.numThreads.set(c)(Some(x)))

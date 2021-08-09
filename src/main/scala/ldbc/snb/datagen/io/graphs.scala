@@ -1,10 +1,10 @@
 package ldbc.snb.datagen.io
 
-import better.files._
 import ldbc.snb.datagen.io.dataframes.{DataFrameSink, DataFrameSource}
 import ldbc.snb.datagen.model.EntityType.{Attr, Edge, Node}
 import ldbc.snb.datagen.model.Mode.Raw
 import ldbc.snb.datagen.model._
+import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.util.{Logging, SparkUI}
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
@@ -90,7 +90,7 @@ object graphs {
       TreeMap(self.entities.toSeq: _*).foreach {
         case (tpe, dataset) =>
           SparkUI.job(getClass.getSimpleName, s"write $tpe") {
-            val p = (sink.path / sink.format / PathComponent[GraphLike[M]].path(self) / tpe.entityPath).toString()
+            val p = (sink.path / sink.format / PathComponent[GraphLike[M]].path(self) / tpe.entityPath).toString
             log.info(s"$tpe: Writing started")
             val opts = getFormatOptions(sink.format, self.mode)
             the(dataset).write(DataFrameSink(p, sink.format, opts, SaveMode.Ignore))
@@ -113,7 +113,7 @@ object graphs {
       TreeMap(self.entities.mapValues(ev).toSeq: _*).foreach {
         case (tpe, BatchedEntity(snapshot, insertBatches, deleteBatches)) =>
           SparkUI.job(getClass.getSimpleName, s"write $tpe snapshot") {
-            val p = (sink.path / sink.format / PathComponent[GraphLike[M]].path(self) / "initial_snapshot" / tpe.entityPath).toString()
+            val p = (sink.path / sink.format / PathComponent[GraphLike[M]].path(self) / "initial_snapshot" / tpe.entityPath).toString
             log.info(s"$tpe: Writing snapshot")
             snapshot.write(DataFrameSink(p, sink.format, opts, SaveMode.Ignore))
             log.info(s"$tpe: Writing snapshot completed")
@@ -123,7 +123,7 @@ object graphs {
             batches.foreach {
               case Batched(entity, partitionKeys) =>
                 SparkUI.job(getClass.getSimpleName, s"write $tpe $operation") {
-                  val p = (sink.path / sink.format / PathComponent[GraphLike[M]].path(self) / operation / tpe.entityPath).toString()
+                  val p = (sink.path / sink.format / PathComponent[GraphLike[M]].path(self) / operation / tpe.entityPath).toString
                   log.info(f"$tpe: Writing $operation")
                   entity.write(DataFrameSink(p, sink.format, opts, SaveMode.Ignore, partitionBy = partitionKeys))
                   log.info(f"$tpe: Writing $operation completed")

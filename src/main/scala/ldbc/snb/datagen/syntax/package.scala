@@ -5,3 +5,4 @@ package object syntax
     with UseSyntax
     with SparkSqlSyntax
     with BooleanSyntax
+    with PathSyntax

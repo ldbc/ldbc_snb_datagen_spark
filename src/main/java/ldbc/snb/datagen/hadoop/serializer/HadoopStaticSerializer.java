@@ -47,6 +47,7 @@ import ldbc.snb.datagen.util.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 
+import java.net.URI;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
@@ -71,7 +72,7 @@ public class HadoopStaticSerializer {
 
     public void run() {
         try {
-            FileSystem fs = FileSystem.get(hadoopConf);
+            FileSystem fs = FileSystem.get(new URI(conf.getOutputDir()), hadoopConf);
             staticSerializer = new StaticSerializer[numPartitions];
             for (int i = 0; i < numPartitions; ++i) {
                 staticSerializer[i] = new StaticSerializer();

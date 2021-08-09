@@ -10,6 +10,8 @@ import org.apache.spark.TaskContext
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
 
+import java.net.URI
+
 object SparkPersonSerializer {
 
   def apply(
@@ -28,7 +30,7 @@ object SparkPersonSerializer {
         val partitionId = TaskContext.getPartitionId()
         val buildDir = conf.getOutputDir
 
-        val fs = FileSystem.get(hadoopConf)
+        val fs = FileSystem.get(new URI(buildDir), hadoopConf)
         fs.mkdirs(new Path(buildDir))
 
         dynamicPersonSerializer.initialize(

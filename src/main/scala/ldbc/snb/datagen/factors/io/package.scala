@@ -3,7 +3,7 @@ package ldbc.snb.datagen.factors
 import ldbc.snb.datagen.io.{PathComponent, Writer}
 import ldbc.snb.datagen.util.Logging
 import ldbc.snb.datagen.model.{GraphLike, Mode}
-import better.files._
+import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.io.dataframes.DataFrameSink
 
 package object io {
@@ -16,7 +16,7 @@ package object io {
     override type CoRet = FactorTable[M]
 
     override def write(self: FactorTable[M], sink: FactorTableSink): Unit = {
-      val p = (sink.path / "factors" / sink.format / PathComponent[GraphLike[M]].path(self.source) / self.name).toString()
+      val p = (sink.path / "factors" / sink.format / PathComponent[GraphLike[M]].path(self.source) / self.name).toString
       self.data.coalesce(1).write(DataFrameSink(p, sink.format))
       log.info(s"Factor table ${self.name} written")
     }
