@@ -156,7 +156,7 @@
     <scale_factor name="300" >
         <property>
             <name>generator.numPersons</name>
-            <value>1254000</value>
+            <value>1250000</value>
         </property>
         <property>
             <name>generator.startYear</name>
@@ -175,7 +175,7 @@
     <scale_factor name="1000" >
         <property>
             <name>generator.numPersons</name>
-            <value>3600000</value>
+            <value>3500000</value>
         </property>
         <property>
             <name>generator.startYear</name>
@@ -213,26 +213,7 @@
     <scale_factor name="10000" >
         <property>
             <name>generator.numPersons</name>
-            <value>20800000</value>
-        </property>
-        <property>
-            <name>generator.startYear</name>
-            <value>2010</value>
-        </property>
-        <property>
-            <name>generator.numYears</name>
-            <value>3</value>
-        </property>
-        <property>
-            <name>generator.degreeDistribution</name>
-            <value>Facebook</value>
-        </property>
-    </scale_factor>
-
-    <scale_factor name="20000" >
-        <property>
-            <name>generator.numPersons</name>
-            <value>57000000</value>
+            <value>20900000</value>
         </property>
         <property>
             <name>generator.startYear</name>
@@ -251,7 +232,7 @@
     <scale_factor name="30000" >
         <property>
             <name>generator.numPersons</name>
-            <value>83000000</value>
+            <value>77000000</value>
         </property>
         <property>
             <name>generator.startYear</name>

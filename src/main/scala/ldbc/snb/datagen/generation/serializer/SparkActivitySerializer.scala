@@ -14,6 +14,7 @@ import org.apache.spark.sql.SparkSession
 
 import java.net.URI
 import java.util
+import java.util.Collections
 import java.util.function.Consumer
 import scala.collection.JavaConverters._
 
@@ -59,6 +60,7 @@ object SparkActivitySerializer {
               strbuf.append("\n")
             }
           }
+          Collections.sort(clonedPersons)
 
           val activities = generator.generateActivityForBlock(blockId.toInt, clonedPersons)
 

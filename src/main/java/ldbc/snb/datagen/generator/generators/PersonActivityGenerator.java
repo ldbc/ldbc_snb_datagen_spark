@@ -113,7 +113,7 @@ public class PersonActivityGenerator {
         // Generate wall
         Forum wall = forumGenerator.createWall(randomFarm, startForumId++, person, blockId);
 
-        // Could be null is moderator can't be added
+        // Could be null as moderator can't be added
         if (wall == null)
             return new GenWall<>(Stream.empty());
 

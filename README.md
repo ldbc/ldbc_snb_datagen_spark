@@ -11,7 +11,8 @@ Datagen is part of the [LDBC project](https://ldbcouncil.org/).
 :warning: There are two different versions of the Datagen:
 
 * The [Hadoop-based Datagen](https://github.com/ldbc/ldbc_snb_datagen_hadoop/) generates the Interactive SF1-1000 data sets
-* For the Interactive workload's larger data sets (up to SF30k) and for the BI workload, use the Spark-based Datagen (in this repository). This is an experimental repository and breaking changes (e.g. changes in the directory layout and CSV schema) are expected
+* For the BI workload, use the Spark-based Datagen (in this repository).
+* For the Interactive workloads's larger data sets, there is no out-of-the-box solution (see [this issue](https://github.com/ldbc/ldbc_snb_interactive/issues/173)).
 
 The LDBC SNB Data Generator (Datagen) is the responsible for providing the datasets used by all the LDBC benchmarks. This data generator is designed to produce directed labelled graphs that mimic the characteristics of those graphs of real data. A detailed description of the schema produced by Datagen, as well as the format of the output files, can be found in the latest version of official [LDBC SNB specification document](https://github.com/ldbc/ldbc_snb_docs).
 
@@ -127,19 +128,19 @@ To get a complete list of the arguments, pass `--help` to the JAR file:
   ./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar -- --format csv --param-file params.ini
   ```
 
-* Generating `CsvBasic` files in Interactive mode:
+* Generating `CsvBasic` files in **Interactive mode**:
 
   ```bash
   ./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar -- --format csv --scale-factor 0.003 --explode-edges --explode-attrs --mode interactive
   ```
 
-* Generating `CsvCompositeMergeForeign` files in BI mode resulting in compressed `.csv.gz` files:
+* Generating `CsvCompositeMergeForeign` files in **BI mode** resulting in compressed `.csv.gz` files:
 
   ```bash
   ./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar -- --format csv --scale-factor 0.003 --mode bi --format-options compression=gzip
   ```
 
-* Generating CSVs in `Raw` mode:
+* Generating CSVs in **raw mode**:
 
   ```bash
   ./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar -- --format csv --scale-factor 0.003 --mode raw --output-dir sf0.003-raw

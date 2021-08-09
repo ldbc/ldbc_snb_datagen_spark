@@ -24,6 +24,7 @@ defaults = {
     'master_instance_type': 'm5d.2xlarge',
     'instance_type': 'i3.4xlarge',
     'sf_ratio': 100.0, # ratio of SFs and machines. a ratio of 50.0 for SF100 yields 2 machines
+    #'sf_ratio': 240.0, # for limited vCPU counts, this ratio is still sufficient to generate the data
     'platform_version': lib.platform_version,
     'version': lib.version,
     'az': 'us-west-2c',
