@@ -12,6 +12,7 @@ import org.apache.spark.TaskContext
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
 
+import java.net.URI
 import java.util
 import java.util.Collections
 import java.util.function.Consumer
@@ -35,7 +36,7 @@ object SparkActivitySerializer {
       val hadoopConf = serializableHadoopConf.value
       val buildDir = conf.getOutputDir
 
-      val fs = FileSystem.get(hadoopConf)
+      val fs = FileSystem.get(new URI(buildDir), hadoopConf)
       fs.mkdirs(new Path(buildDir))
 
       val dynamicActivitySerializer = new DynamicActivitySerializer()

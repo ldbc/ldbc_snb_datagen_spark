@@ -1,6 +1,6 @@
 package ldbc.snb.datagen.io
 
-import ldbc.snb.datagen.syntax.fluentSyntaxOps
+import ldbc.snb.datagen.syntax._
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
 

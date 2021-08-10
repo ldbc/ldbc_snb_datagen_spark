@@ -73,11 +73,6 @@
       <version>2.3.3</version>
     </dependency>
     <dependency>
-      <groupId>com.github.pathikrit</groupId>
-      <artifactId>better-files_${scala.compat.version}</artifactId>
-      <version>3.8.0</version>
-    </dependency>
-    <dependency>
       <groupId>com.github.scopt</groupId>
       <artifactId>scopt_${scala.compat.version}</artifactId>
       <version>3.7.1</version>
