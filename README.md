@@ -76,8 +76,8 @@ tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.ja
 #### Spark 3.1.x
 
 ```bash
-curl https://downloads.apache.org/spark/spark-3.1.1/spark-3.1.1-bin-hadoop2.7.tgz | sudo tar -xz -C /opt/
-export SPARK_HOME="/opt/spark-3.1.1-bin-hadoop2.7"
+curl https://downloads.apache.org/spark/spark-3.1.2/spark-3.1.2-bin-hadoop2.7.tgz | sudo tar -xz -C /opt/
+export SPARK_HOME="/opt/spark-3.1.2-bin-hadoop2.7"
 export PATH="$SPARK_HOME/bin":"$PATH"
 ```
 
