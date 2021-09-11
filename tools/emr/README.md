@@ -24,10 +24,12 @@ In AWS IAM, add the following roles with **Create Role** | **AWS service** | **E
 
 ## Install the required libraries
 
-1. From the repository root, run:
+Make sure you use pip 21.1 or newer.
+
+1. From `tools`, run:
 
 ```
-pip install -r tools/requirements.txt
+pip install -e .
 ```
 
 1. Package the JAR. Make sure you use Java 8:
@@ -50,7 +52,7 @@ aws s3 cp target/ldbc_snb_datagen_${PLATFORM_VERSION}-${VERSION}-jar-with-depend
 ```bash
 JOB_NAME=MyTest
 SCALE_FACTOR=10
-./tools/emr/submit_datagen_job.py --bucket ${BUCKET_NAME} ${JOB_NAME} ${SCALE_FACTOR} -- --format csv --mode raw
+./tools/emr/submit_datagen_job.py --bucket ${BUCKET_NAME} ${JOB_NAME} ${SCALE_FACTOR} csv raw
 ```
 
 Note: scale factors below 1 are not supported.
@@ -60,7 +62,7 @@ Note: scale factors below 1 are not supported.
 To use spot instances, add the `--use-spot` argument:
 
 ```bash
-./tools/emr/submit_datagen_job.py --use-spot --bucket ${BUCKET_NAME} ${JOB_NAME} ${SCALE_FACTOR} -- --format csv --mode raw
+./tools/emr/submit_datagen_job.py --use-spot --bucket ${BUCKET_NAME} ${JOB_NAME} ${SCALE_FACTOR} csv raw
 ```
 
 ### Using a different EMR version
@@ -70,7 +72,7 @@ Make sure you uploaded the right JAR first!
 
 ```bash
 PLATFORM_VERSION=2.12_spark3.1
-./tools/emr/submit_datagen_job.py --bucket ${BUCKET_NAME} --platform-version ${PLATFORM_VERSION} --emr-release emr-6.3.0 ${JOB_NAME} ${SCALE_FACTOR} -- --format csv --mode raw
+./tools/emr/submit_datagen_job.py --bucket ${BUCKET_NAME} --platform-version ${PLATFORM_VERSION} --emr-release emr-6.3.0 ${JOB_NAME} ${SCALE_FACTOR} csv raw
 ```
 
 ### Using a parameter file

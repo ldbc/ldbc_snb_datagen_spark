@@ -8,9 +8,9 @@ class KeyValue(argparse.Action):
 
         for value in values:
             # split it into key and value
-            key, value = value.split('=')
+            key, value = value.split('=', maxsplit=1)
             # assign into dictionary
-            getattr(namespace, self.dest)[key] = value
+            getattr(namespace, self.dest)[key.strip()] = value
 
 
 def ask_continue(message):

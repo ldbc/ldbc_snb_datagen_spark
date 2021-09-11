@@ -1,5 +1,0 @@
--e tools
-boto3
-urllib3
-chardet
-requests
