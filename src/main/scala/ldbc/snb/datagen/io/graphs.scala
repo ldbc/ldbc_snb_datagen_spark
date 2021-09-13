@@ -90,7 +90,7 @@ object graphs {
       TreeMap(self.entities.toSeq: _*).foreach {
         case (tpe, dataset) =>
           SparkUI.job(getClass.getSimpleName, s"write $tpe") {
-            val p = (sink.path / sink.format / PathComponent[GraphLike[M]].path(self) / tpe.entityPath).toString
+            val p = (sink.path / "graphs" / sink.format / PathComponent[GraphLike[M]].path(self) / tpe.entityPath).toString
             log.info(s"$tpe: Writing started")
             val opts = getFormatOptions(sink.format, self.mode)
             the(dataset).write(DataFrameSink(p, sink.format, opts, SaveMode.Ignore))
@@ -113,7 +113,7 @@ object graphs {
       TreeMap(self.entities.mapValues(ev).toSeq: _*).foreach {
         case (tpe, BatchedEntity(snapshot, insertBatches, deleteBatches)) =>
           SparkUI.job(getClass.getSimpleName, s"write $tpe snapshot") {
-            val p = (sink.path / sink.format / PathComponent[GraphLike[M]].path(self) / "initial_snapshot" / tpe.entityPath).toString
+            val p = (sink.path / "graphs" / sink.format / PathComponent[GraphLike[M]].path(self) / "initial_snapshot" / tpe.entityPath).toString
             log.info(s"$tpe: Writing snapshot")
             snapshot.write(DataFrameSink(p, sink.format, opts, SaveMode.Ignore))
             log.info(s"$tpe: Writing snapshot completed")
@@ -123,7 +123,7 @@ object graphs {
             batches.foreach {
               case Batched(entity, partitionKeys) =>
                 SparkUI.job(getClass.getSimpleName, s"write $tpe $operation") {
-                  val p = (sink.path / sink.format / PathComponent[GraphLike[M]].path(self) / operation / tpe.entityPath).toString
+                  val p = (sink.path / "graphs" / sink.format / PathComponent[GraphLike[M]].path(self) / operation / tpe.entityPath).toString
                   log.info(f"$tpe: Writing $operation")
                   entity.write(DataFrameSink(p, sink.format, opts, SaveMode.Ignore, partitionBy = partitionKeys))
                   log.info(f"$tpe: Writing $operation completed")
@@ -151,7 +151,7 @@ object graphs {
 
     override def read(self: GraphSource[M]): Graph[M] = {
       val entities = for {(entity, schema) <- self.definition.entities} yield {
-        val p = (self.path / self.format / PathComponent[GraphLike[M]].path(self.definition) / entity.entityPath).toString()
+        val p = (self.path / "graphs" / self.format / PathComponent[GraphLike[M]].path(self.definition) / entity.entityPath).toString()
         log.info(s"Reading $entity")
         val opts = getFormatOptions(self.format, self.definition.mode)
         val df = DataFrameSource(p, self.format, opts, schema.map(StructType.fromDDL)).read
