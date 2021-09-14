@@ -20,7 +20,7 @@ max_num_workers = 1000
 
 defaults = {
     'bucket': 'ldbc-snb-datagen-store',
-    'use_spot': False,
+    'use_spot': True,
     'master_instance_type': 'm5d.2xlarge',
     'instance_type': 'i3.4xlarge',
     'sf_ratio': 100.0, # ratio of SFs and machines. a ratio of 50.0 for SF100 yields 2 machines
@@ -214,10 +214,16 @@ if __name__ == "__main__":
                         help='scale factor (used to calculate cluster size)')
     parser.add_argument('format', type=str, help='the required output format')
     parser.add_argument('mode', type=str, help='output mode')
-    parser.add_argument('--use-spot',
-                        default=defaults['use_spot'],
-                        action='store_true',
-                        help='Use SPOT workers')
+    market_args = parser.add_mutually_exclusive_group()
+    market_args.add_argument('--use-spot',
+                             default=defaults['use_spot'],
+                             action='store_true',
+                             help='Use SPOT workers')
+    market_args.add_argument('--no-use-spot',
+                             default=not defaults['use_spot'],
+                             dest='use_spot',
+                             action='store_false',
+                             help='Do not use SPOT workers')
     parser.add_argument('--az',
                         default=defaults['az'],
                         help=f'Cluster availability zone. Default: {defaults["az"]}')
