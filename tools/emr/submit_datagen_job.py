@@ -247,7 +247,7 @@ if __name__ == "__main__":
     copy_args.add_argument('--copy-filter',
                            type=str,
                            help='A regular expression specifying filtering paths to copy from the build dir to S3. '
-                                'By default it is \'{format}/{mode}/.*\'')
+                                'By default it is \'graphs/{format}/{mode}/.*\'')
     copy_args.add_argument('--copy-all',
                            action='store_true',
                            help='Copy the complete build dir to S3')
