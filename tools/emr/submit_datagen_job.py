@@ -96,7 +96,7 @@ def submit_datagen_job(name,
     build_dir = '/ldbc_snb_datagen/build'
 
     if not copy_filter:
-        copy_filter = f'.*{build_dir}/{format}/{mode}/.*'
+        copy_filter = f'.*{build_dir}/graphs/{format}/{mode}/.*'
     else:
         copy_filter = f'.*{build_dir}/{copy_filter}'
 
