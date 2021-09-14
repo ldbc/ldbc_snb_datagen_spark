@@ -47,8 +47,9 @@ E.g. with [pyenv](https://github.com/pyenv/pyenv) and [pyenv-virtualenv](https:/
 ```bash
 pyenv install 3.7.7
 pyenv virtualenv 3.7.7 ldbc_datagen_tools
-echo "3.7.7/envs/ldbc_datagen_tools" > .python-version
-pip install --user -U pip -r tools/requirements.txt
+pyenv local ldbc_datagen_tools
+pip install -U pip 
+pip install ./tools
 ```
 ### Running locally
 
