@@ -13,7 +13,7 @@ from datagen import lib, util
 
 import argparse
 
-from datagen.util import split_passthrough_args
+from datagen.util import KeyValue, split_passthrough_args
 
 min_num_workers = 1
 max_num_workers = 1000
@@ -28,7 +28,7 @@ defaults = {
     'platform_version': lib.platform_version,
     'version': lib.version,
     'az': 'us-west-2c',
-    'is_interactive': False,
+    'yes': False,
     'ec2_key': None,
     'emr_release': 'emr-5.31.0'
 }
@@ -70,21 +70,35 @@ def get_instance_info(instance_type):
     return {'vcpu': vcpu, 'mem': mem}
 
 
-def submit_datagen_job(name, sf,
-                       bucket=defaults['bucket'],
-                       use_spot=defaults['use_spot'],
-                       instance_type=defaults['instance_type'],
-                       sf_ratio=defaults['sf_ratio'],
-                       master_instance_type=defaults['master_instance_type'],
-                       az=defaults['az'],
-                       emr_release=defaults['emr_release'],
-                       platform_version=defaults['platform_version'],
-                       version=defaults['version'],
-                       is_interactive=defaults['is_interactive'],
-                       ec2_key=defaults['ec2_key'],
-                       passthrough_args=None,
-                       conf=None
+def submit_datagen_job(name,
+                       sf,
+                       format,
+                       mode,
+                       bucket,
+                       use_spot,
+                       instance_type,
+                       sf_ratio,
+                       master_instance_type,
+                       az,
+                       emr_release,
+                       platform_version,
+                       version,
+                       yes,
+                       ec2_key,
+                       conf,
+                       copy_filter,
+                       copy_all,
+                       passthrough_args, **kwargs
                        ):
+    
+    is_interactive = (not yes) and hasattr(__main__, '__file__')
+
+    build_dir = '/ldbc_snb_datagen/build'
+
+    if not copy_filter:
+        copy_filter = f'.*{build_dir}/graphs/{format}/{mode}/.*'
+    else:
+        copy_filter = f'.*{build_dir}/{copy_filter}'
 
     exec_info = get_instance_info(instance_type)
 
@@ -103,12 +117,8 @@ def submit_datagen_job(name, sf,
     spark_config = {
         'maximizeResourceAllocation': 'true',
         'spark.serializer': 'org.apache.spark.serializer.KryoSerializer',
-        **(conf if conf else {})
+        **(dict(conf) if conf else {})
     }
-
-    hdfs_prefix = '/ldbc_snb_datagen'
-
-    build_dir = f'{hdfs_prefix}/build'
 
     market = 'SPOT' if use_spot else 'ON_DEMAND'
 
@@ -165,6 +175,8 @@ def submit_datagen_job(name, sf,
                              '--output-dir', build_dir,
                              '--scale-factor', str(sf),
                              '--num-threads', str(cluster_config['num_threads']),
+                             '--mode', mode,
+                             '--format', format,
                              *passthrough_args
                              ]
                 }
@@ -178,7 +190,8 @@ def submit_datagen_job(name, sf,
                     'Jar': 'command-runner.jar',
                     'Args': ['s3-dist-cp',
                              '--src', f'hdfs://{build_dir}',
-                             '--dest', f'{run_url}/social_network'
+                             '--dest', f'{run_url}/social_network',
+                             *(['--srcPattern', copy_filter] if not copy_all else [])
                              ]
                 }
             }]
@@ -191,23 +204,6 @@ def submit_datagen_job(name, sf,
 
     emr.run_job_flow(**job_flow_args)
 
-def parse_var(s):
-    items = s.split('=')
-    key = items[0].strip() # we remove blanks around keys, as is logical
-    if len(items) > 1:
-        # rejoin the rest:
-        value = '='.join(items[1:])
-    return (key, value)
-
-
-def parse_vars(items):
-    d = {}
-    if items:
-        for item in items:
-            key, value = parse_var(item)
-            d[key] = value
-    return d
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Submit a Datagen job to EMR')
@@ -216,7 +212,10 @@ if __name__ == "__main__":
                         help='name')
     parser.add_argument('sf', type=int,
                         help='scale factor (used to calculate cluster size)')
+    parser.add_argument('format', type=str, help='the required output format')
+    parser.add_argument('mode', type=str, help='output mode')
     parser.add_argument('--use-spot',
+                        default=defaults['use_spot'],
                         action='store_true',
                         help='Use SPOT workers')
     parser.add_argument('--az',
@@ -240,33 +239,31 @@ if __name__ == "__main__":
     parser.add_argument('--emr-release',
                         default=defaults['emr_release'],
                         help='The EMR release to use. E.g emr-5.31.0, emr-6.1.0')
-    parser.add_argument('-y',
+    parser.add_argument('-y', '--yes',
+                        default=defaults['yes'],
                         action='store_true',
                         help='Assume \'yes\' for prompts')
+    copy_args = parser.add_mutually_exclusive_group()
+    copy_args.add_argument('--copy-filter',
+                           type=str,
+                           help='A regular expression specifying filtering paths to copy from the build dir to S3. '
+                                'By default it is \'graphs/{format}/{mode}/.*\'')
+    copy_args.add_argument('--copy-all',
+                           action='store_true',
+                           help='Copy the complete build dir to S3')
     parser.add_argument("--conf",
                             metavar="KEY=VALUE",
                             nargs='+',
+                            type=KeyValue,
                             help="SparkConf as key=value pairs")
 
     parser.add_argument('--', nargs='*', help='Arguments passed to LDBC SNB Datagen', dest="arg")
 
-
-    self_args, child_args = split_passthrough_args()
+    self_args, passthrough_args = split_passthrough_args()
 
     args = parser.parse_args(self_args)
 
-    conf = parse_vars(args.conf)
-
-    is_interactive = hasattr(__main__, '__file__')
-
-    submit_datagen_job(args.name, args.sf,
-                       bucket=args.bucket, use_spot=args.use_spot, az=args.az,
-                       is_interactive=is_interactive and not args.y,
-                       instance_type=args.instance_type,
-                       emr_release=args.emr_release,
-                       ec2_key=args.ec2_key,
-                       platform_version=args.platform_version,
-                       version=args.version,
-                       passthrough_args=child_args,
-                       conf=conf
-                       )
+    submit_datagen_job(passthrough_args=passthrough_args,
+                       sf_ratio=defaults['sf_ratio'],
+                       master_instance_type=defaults['master_instance_type'],
+                       **args.__dict__)
