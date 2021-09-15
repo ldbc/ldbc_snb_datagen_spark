@@ -18,14 +18,15 @@ object GenerationStage extends DatagenStage with Logging {
     numThreads: Option[Int] = None,
     params: Map[String, String] = Map.empty,
     paramFile: Option[String] = None,
-    outputDir: String = "out"
+    outputDir: String = "out",
+    oversizeFactor: Option[Double] = None
   )
 
-  def run(config: GeneratorConfiguration)(implicit spark: SparkSession) = {
+  def run(args: Args, config: GeneratorConfiguration)(implicit spark: SparkSession) = {
     val numPartitions = config.getInt("hadoop.numThreads", spark.sparkContext.defaultParallelism)
     val idealPartitions = DatagenParams.numPersons.toDouble / optimalPersonsPerFile
 
-    val oversizeFactor = Math.max(numPartitions / idealPartitions, 1.0)
+    val oversizeFactor = args.oversizeFactor.getOrElse(Math.max(numPartitions / idealPartitions, 1.0))
 
     val persons = SparkPersonGenerator(config)
 
