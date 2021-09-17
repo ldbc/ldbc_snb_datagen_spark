@@ -4,13 +4,14 @@ import ldbc.snb.datagen.entities.dynamic.person.Person
 import ldbc.snb.datagen.generator.generators.{GenActivity, PersonActivityGenerator}
 import ldbc.snb.datagen.serializer.{DynamicActivitySerializer, PersonActivityExporter}
 import ldbc.snb.datagen.generation.generator.SparkRanker
-import ldbc.snb.datagen.util.{GeneratorConfiguration, SerializableConfiguration}
+import ldbc.snb.datagen.util.GeneratorConfiguration
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.{DatagenContext, DatagenParams}
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.TaskContext
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
+import org.apache.spark.util.SerializableConfiguration
 
 import java.net.URI
 import java.util

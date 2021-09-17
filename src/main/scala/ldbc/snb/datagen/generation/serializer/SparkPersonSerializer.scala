@@ -3,12 +3,13 @@ package ldbc.snb.datagen.generation.serializer
 import ldbc.snb.datagen.DatagenContext
 import ldbc.snb.datagen.entities.dynamic.person.Person
 import ldbc.snb.datagen.serializer.{DynamicPersonSerializer, PersonExporter}
-import ldbc.snb.datagen.util.{GeneratorConfiguration, SerializableConfiguration}
+import ldbc.snb.datagen.util.GeneratorConfiguration
 import ldbc.snb.datagen.syntax._
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.TaskContext
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
+import org.apache.spark.util.SerializableConfiguration
 
 import java.net.URI
 
