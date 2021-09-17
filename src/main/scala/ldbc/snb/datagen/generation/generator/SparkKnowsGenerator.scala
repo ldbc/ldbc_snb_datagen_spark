@@ -27,7 +27,7 @@ object SparkKnowsGenerator {
     val indexed = ranker(persons)
       .map { case (k, v) => (k / blockSize, (k, v)) }
 
-    val percentagesJava = percentages.map(new java.lang.Float(_)).asJava
+    val percentagesJava = percentages.map(Float.box).asJava
 
     indexed
       // groupByKey wouldn't guarantee keeping the order inside groups
@@ -40,7 +40,7 @@ object SparkKnowsGenerator {
       .mapPartitions(groups => {
         DatagenContext.initialize(conf)
         val knowsGeneratorClass = Class.forName(knowsGeneratorClassName)
-        val knowsGenerator = knowsGeneratorClass.newInstance().asInstanceOf[KnowsGenerator]
+        val knowsGenerator = knowsGeneratorClass.getConstructor().newInstance().asInstanceOf[KnowsGenerator]
         knowsGenerator.initialize(conf)
         val personSimilarity = DatagenParams.getPersonSimularity
 

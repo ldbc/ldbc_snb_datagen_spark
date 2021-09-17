@@ -101,7 +101,7 @@ public class NamesDictionary {
                 String infos[] = line.split(",");
                 String locationName = infos[1];
                 int locationId = locationDic.getCountryId(locationName);
-                if (locationId != locationDic.INVALID_LOCATION) {
+                if (locationId != PlaceDictionary.INVALID_LOCATION) {
                     String surName = infos[2].trim();
                     surNamesByLocations.get(locationId).add(surName);
                     totalSurNames++;
@@ -127,7 +127,7 @@ public class NamesDictionary {
                 int gender = Integer.parseInt(infos[2]);
                 int birthYearPeriod = Integer.parseInt(infos[3]);
                 int locationId = locationDic.getCountryId(locationName);
-                if (locationId != locationDic.INVALID_LOCATION) {
+                if (locationId != PlaceDictionary.INVALID_LOCATION) {
                     String givenName = infos[1].trim();
                     if (gender == 0) {
                         givenNamesByLocationsMale.get(birthYearPeriod).get(locationId).add(givenName);
