@@ -27,7 +27,8 @@ object LdbcDatagen extends SparkApp {
     numThreads: Option[Int] = None,
     format: String = "csv",
     generateFactors: Boolean = false,
-    formatOptions: Map[String, String] = Map.empty
+    formatOptions: Map[String, String] = Map.empty,
+    oversizeFactor: Option[Double] = None
   )
 
   def main(args: Array[String]): Unit = {
@@ -64,6 +65,12 @@ object LdbcDatagen extends SparkApp {
           })
         .action((x, c) => args.mode.set(c)(x))
         .text("Generation mode. Options: raw, bi, interactive. Default: raw")
+
+      opt[Double]("oversize-factor")
+        .action((x, c) => args.oversizeFactor.set(c)(Some(x)))
+        .text("Controls size of files relative to Persons. " +
+          "Values larger than 1 will result in less but larger files. " +
+          "Smaller values result in more, smaller files")
 
       opt[Double]("bulkload-portion")
         .action((x, c) => args.bulkloadPortion.set(c)(x))
@@ -113,14 +120,15 @@ object LdbcDatagen extends SparkApp {
       params = args.params,
       paramFile = args.paramFile,
       outputDir = args.outputDir,
-      numThreads = args.numThreads
+      numThreads = args.numThreads,
+      oversizeFactor = args.oversizeFactor
     )
 
     val generatorConfig = GenerationStage.buildConfig(generatorArgs)
 
     DatagenContext.initialize(generatorConfig)
 
-    GenerationStage.run(generatorConfig)
+    GenerationStage.run(generatorArgs, generatorConfig)
 
     if (args.generateFactors) {
       val factorArgs = FactorGenerationStage.Args()
