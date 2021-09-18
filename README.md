@@ -55,30 +55,13 @@ pip install ./tools
 
 The `tools/run.py` is intended for **local runs**. To use it, download and extract Spark as follows.
 
-#### Spark 2.4.x
-
-```bash
-curl https://archive.apache.org/dist/spark/spark-2.4.8/spark-2.4.8-bin-hadoop2.7.tgz | sudo tar -xz -C /opt/
-export SPARK_HOME="/opt/spark-2.4.8-bin-hadoop2.7"
-export PATH="$SPARK_HOME/bin":"$PATH"
-```
-
-Make sure you use Java 8.
-
-Run the script with:
-
-```bash
-export PLATFORM_VERSION=2.11_spark2.4
-export DATAGEN_VERSION=0.4.0-SNAPSHOT
-
-tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar <runtime configuration arguments> -- <generator configuration arguments>
-```
-
 #### Spark 3.1.x
 
+Spark 3.1.x is the recommended runtime to use. The rest of the instructions are provided assuming Spark 3.1.x.
+
 ```bash
-curl https://downloads.apache.org/spark/spark-3.1.2/spark-3.1.2-bin-hadoop2.7.tgz | sudo tar -xz -C /opt/
-export SPARK_HOME="/opt/spark-3.1.2-bin-hadoop2.7"
+curl https://downloads.apache.org/spark/spark-3.1.2/spark-3.1.2-bin-hadoop3.2.tgz | sudo tar -xz -C /opt/
+export SPARK_HOME="/opt/spark-3.1.2-bin-hadoop3.2"
 export PATH="$SPARK_HOME/bin":"$PATH"
 ```
 
@@ -87,7 +70,7 @@ Both Java 8 and Java 11 work.
 To build, run
 
 ```bash
-tools/build.sh -Pspark3.1
+tools/build.sh
 ```
 
 Run the script with:
@@ -98,7 +81,34 @@ export DATAGEN_VERSION=0.4.0-SNAPSHOT
 tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar <runtime configuration arguments> -- <generator configuration arguments>
 ```
 
-The rest of the instructions are provided assuming Spark 2.4.x.
+#### Older Spark versions
+
+##### Spark 2.4.x
+
+Spark 2.4.x with Hadoop 2.7 (Scala 2.11 / JVM 8) is supported, but it is recommended to switch to Spark 3.
+
+```bash
+curl https://archive.apache.org/dist/spark/spark-2.4.8/spark-2.4.8-bin-hadoop2.7.tgz | sudo tar -xz -C /opt/
+export SPARK_HOME="/opt/spark-2.4.8-bin-hadoop2.7"
+export PATH="$SPARK_HOME/bin":"$PATH"
+```
+
+Make sure you use Java 8.
+
+To build, run
+
+```bash
+tools/build.sh -Pspark2.4
+```
+
+Run the script with:
+
+```bash
+export PLATFORM_VERSION=2.11_spark2.4
+export DATAGEN_VERSION=0.4.0-SNAPSHOT
+
+tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar <runtime configuration arguments> -- <generator configuration arguments>
+```
 
 #### Runtime configuration arguments
 
@@ -111,7 +121,7 @@ tools/run.py --help
 To generate a single `part-*.csv` file, reduce the parallelism (number of Spark partitions) to 1.
 
 ```bash
-./tools/run.py ./target/ldbc_snb_datagen_2.11_spark2.4-0.4.0-SNAPSHOT.jar --parallelism 1 -- --format csv --scale-factor 0.003 --mode interactive
+./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar --parallelism 1 -- --format csv --scale-factor 0.003 --mode interactive
 ```
 #### Generator configuration arguments
 

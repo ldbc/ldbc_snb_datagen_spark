@@ -29,6 +29,9 @@ jobs:
   test:
     resource_class: xlarge
     executor: my-executor
+    environment:
+      PLATFORM_VERSION: 2.12_spark3.1
+      DATAGEN_VERSION: 0.4.0-SNAPSHOT
     steps:
       - checkout
       - run: |
