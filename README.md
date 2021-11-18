@@ -14,7 +14,7 @@ Datagen is part of the [LDBC project](https://ldbcouncil.org/).
 * For the BI workload, use the Spark-based Datagen (in this repository).
 * For the Interactive workloads's larger data sets, there is no out-of-the-box solution (see [this issue](https://github.com/ldbc/ldbc_snb_interactive/issues/173)).
 
-The LDBC SNB Data Generator (Datagen) is the responsible for providing the datasets used by all the LDBC benchmarks. This data generator is designed to produce directed labelled graphs that mimic the characteristics of those graphs of real data. A detailed description of the schema produced by Datagen, as well as the format of the output files, can be found in the latest version of official [LDBC SNB specification document](https://github.com/ldbc/ldbc_snb_docs).
+The LDBC SNB Data Generator (Datagen) is responsible for providing the datasets used by all the LDBC benchmarks. This data generator is designed to produce directed labelled graphs that mimic the characteristics of those graphs of real data. A detailed description of the schema produced by Datagen, as well as the format of the output files, can be found in the latest version of official [LDBC SNB specification document](https://github.com/ldbc/ldbc_snb_docs).
 
 [Generated small data sets](https://ldbcouncil.org/ldbc_snb_datagen_spark/) are deployed by the CI.
 
