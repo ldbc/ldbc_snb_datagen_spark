@@ -14,9 +14,9 @@ object PathComponent {
   implicit def pathComponentForGraphDef[M <: Mode] = pure((g: GraphLike[M]) => {
     val explodedPart = g match {
       case g if g.isAttrExploded && g.isEdgesExploded => "singular-projected-fk"
-      case g if g.isAttrExploded => "singular-merged-fk"
-      case g if g.isEdgesExploded => "composite-projected-fk"
-      case _ => "composite-merged-fk"
+      case g if g.isAttrExploded                      => "singular-merged-fk"
+      case g if g.isEdgesExploded                     => "composite-projected-fk"
+      case _                                          => "composite-merged-fk"
     }
 
     val modePart = g.mode.modePath

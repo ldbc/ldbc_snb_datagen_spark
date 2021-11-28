@@ -1,6 +1,5 @@
 package ldbc.snb.datagen.io
 
-
 trait Writer[S] {
   type CoRet
   def write(self: CoRet, sink: S): Unit
@@ -26,9 +25,7 @@ object Writer {
     implicit def toWriterOps[CoRet, S](target: CoRet)(implicit tc: Writer.Aux[S, CoRet]): WriterOps.Aux[CoRet, S] = new WriterOps[CoRet] {
       override type Sink = S
       override def tcInstance: Aux[S, CoRet] = tc
-      override def self: CoRet = target
+      override def self: CoRet               = target
     }
   }
 }
-
-

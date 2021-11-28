@@ -20,7 +20,9 @@ import scala.collection.JavaConverters._
 
 object SparkActivitySerializer {
 
-  def apply(persons: RDD[Person], ranker: SparkRanker, conf: GeneratorConfiguration, partitions: Option[Int] = None, oversizeFactor: Double = 1.0)(implicit spark: SparkSession) = {
+  def apply(persons: RDD[Person], ranker: SparkRanker, conf: GeneratorConfiguration, partitions: Option[Int] = None, oversizeFactor: Double = 1.0)(implicit
+      spark: SparkSession
+  ) = {
 
     val blockSize = DatagenParams.blockSize
     val blocks = ranker(persons)
@@ -33,8 +35,8 @@ object SparkActivitySerializer {
     blocks.foreachPartition(groups => {
       DatagenContext.initialize(conf)
       val partitionId = TaskContext.getPartitionId()
-      val hadoopConf = serializableHadoopConf.value
-      val buildDir = conf.getOutputDir
+      val hadoopConf  = serializableHadoopConf.value
+      val buildDir    = conf.getOutputDir
 
       val fs = FileSystem.get(new URI(buildDir), hadoopConf)
       fs.mkdirs(new Path(buildDir))
@@ -44,10 +46,10 @@ object SparkActivitySerializer {
       dynamicActivitySerializer.initialize(fs, conf.getOutputDir, partitionId, oversizeFactor, false)
 
       val generator = new PersonActivityGenerator
-      val exporter = new PersonActivityExporter(dynamicActivitySerializer)
+      val exporter  = new PersonActivityExporter(dynamicActivitySerializer)
 
       try {
-        for {(blockId, persons) <- groups} {
+        for { (blockId, persons) <- groups } {
           val clonedPersons = new util.ArrayList[Person]
           for (p <- persons) {
             clonedPersons.add(new Person(p))

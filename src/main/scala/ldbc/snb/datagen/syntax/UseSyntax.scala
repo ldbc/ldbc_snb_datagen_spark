@@ -6,7 +6,7 @@ import scala.language.implicitConversions
 
 // "try with resources"
 trait UseSyntax {
-  @`inline` implicit final def useSyntaxForClosable[A <: Closeable](a: A) = new UseSyntaxForClosable(a)
+  @`inline` implicit final def useSyntaxForClosable[A <: Closeable](a: A)         = new UseSyntaxForClosable(a)
   @`inline` implicit final def useSyntaxForAutoClosable[A <: AutoCloseable](a: A) = new UseSyntaxForAutoClosable(a)
 }
 

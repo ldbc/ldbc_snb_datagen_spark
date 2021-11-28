@@ -25,15 +25,16 @@ private object Interactive {
   }
 
   def snapshotPart(tpe: EntityType, df: DataFrame, bulkLoadThreshold: Long, filterDeletion: Boolean) = {
-    val filterBulkLoad = (ds: DataFrame) => ds
-      .filter(
-        $"creationDate" < to_timestamp(lit(bulkLoadThreshold / 1000)) &&
-          (!lit(filterDeletion) || $"deletionDate" >= to_timestamp(lit(bulkLoadThreshold / 1000)))
-      )
+    val filterBulkLoad = (ds: DataFrame) =>
+      ds
+        .filter(
+          $"creationDate" < to_timestamp(lit(bulkLoadThreshold / 1000)) &&
+            (!lit(filterDeletion) || $"deletionDate" >= to_timestamp(lit(bulkLoadThreshold / 1000)))
+        )
 
     tpe match {
       case tpe if tpe.isStatic => df
-      case tpe => filterBulkLoad(df).select(columns(tpe, df.columns).map(name => col(qualified(name))): _*)
+      case tpe                 => filterBulkLoad(df).select(columns(tpe, df.columns).map(name => col(qualified(name))): _*)
     }
   }
 }

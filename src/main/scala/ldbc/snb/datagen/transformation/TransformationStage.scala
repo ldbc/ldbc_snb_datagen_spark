@@ -11,15 +11,15 @@ import shapeless._
 
 object TransformationStage extends DatagenStage with Logging {
   case class Args(
-    outputDir: String = "out",
-    explodeEdges: Boolean = false,
-    explodeAttrs: Boolean = false,
-    keepImplicitDeletes: Boolean = false,
-    simulationStart: Long = 0,
-    simulationEnd: Long = 0,
-    mode: Mode = Mode.Raw,
-    format: String = "csv",
-    formatOptions: Map[String, String] = Map.empty
+      outputDir: String = "out",
+      explodeEdges: Boolean = false,
+      explodeAttrs: Boolean = false,
+      keepImplicitDeletes: Boolean = false,
+      simulationStart: Long = 0,
+      simulationEnd: Long = 0,
+      mode: Mode = Mode.Raw,
+      format: String = "csv",
+      formatOptions: Map[String, String] = Map.empty
   )
 
   import ldbc.snb.datagen.io.instances._
@@ -28,13 +28,11 @@ object TransformationStage extends DatagenStage with Logging {
 
   def run(args: Args)(implicit spark: SparkSession) = {
     object write extends Poly1 {
-      implicit def caseSimple[M <: Mode](implicit ev: M#Layout =:= DataFrame) = at[Graph[M]](g =>
-        g.write(GraphSink(args.outputDir, args.format, args.formatOptions))
-      )
+      implicit def caseSimple[M <: Mode](implicit ev: M#Layout =:= DataFrame) =
+        at[Graph[M]](g => g.write(GraphSink(args.outputDir, args.format, args.formatOptions)))
 
-      implicit def caseBatched[M <: Mode](implicit ev: M#Layout =:= BatchedEntity) = at[Graph[M]](g =>
-        g.write(GraphSink(args.outputDir, args.format, args.formatOptions))
-      )
+      implicit def caseBatched[M <: Mode](implicit ev: M#Layout =:= BatchedEntity) =
+        at[Graph[M]](g => g.write(GraphSink(args.outputDir, args.format, args.formatOptions)))
     }
 
     type OutputTypes = Graph[Mode.Raw.type] :+:
@@ -42,17 +40,15 @@ object TransformationStage extends DatagenStage with Logging {
       Graph[Mode.BI] :+:
       CNil
 
-    GraphSource(model.graphs.Raw.graphDef, args.outputDir, "csv")
-      .read
+    GraphSource(model.graphs.Raw.graphDef, args.outputDir, "csv").read
       .pipeFoldLeft(args.explodeAttrs.fork)((graph, _: Unit) => ExplodeAttrs.transform(graph))
       .pipeFoldLeft(args.explodeEdges.fork)((graph, _: Unit) => ExplodeEdges.transform(graph))
-      .pipe[OutputTypes] {
-        g =>
-          args.mode match {
-            case bi@Mode.BI(_, _) => Inr(Inr(Inl(RawToBiTransform(bi, args.simulationStart, args.simulationEnd, args.keepImplicitDeletes).transform(g))))
-            case interactive@Mode.Interactive(_) => Inr(Inl(RawToInteractiveTransform(interactive, args.simulationStart, args.simulationEnd).transform(g)))
-            case Mode.Raw => Inl(g)
-          }
+      .pipe[OutputTypes] { g =>
+        args.mode match {
+          case bi @ Mode.BI(_, _) => Inr(Inr(Inl(RawToBiTransform(bi, args.simulationStart, args.simulationEnd, args.keepImplicitDeletes).transform(g))))
+          case interactive @ Mode.Interactive(_) => Inr(Inl(RawToInteractiveTransform(interactive, args.simulationStart, args.simulationEnd).transform(g)))
+          case Mode.Raw                          => Inl(g)
+        }
       }
       .map(write)
     ()

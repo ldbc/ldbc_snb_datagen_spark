@@ -15,4 +15,3 @@ class SerializableConfiguration(@transient var value: Configuration) extends Ser
     value.readFields(in)
   }
 }
-
