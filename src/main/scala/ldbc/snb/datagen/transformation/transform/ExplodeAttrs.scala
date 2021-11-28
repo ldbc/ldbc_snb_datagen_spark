@@ -14,13 +14,15 @@ object ExplodeAttrs extends Transform[Mode.Raw.type, Mode.Raw.type] {
     def explodedAttr(attr: Attr, node: DataFrame, column: Column) =
       attr -> node.select(withRawColumns(attr, $"id".as(s"${attr.parent}Id"), explode(split(column, ";")).as(s"${attr.attribute}Id")))
 
-    val updatedEntities = input.entities.collect {
-      case (k@Node("Person", false), v) => Map(
-        explodedAttr(Attr("Email", "Person", "EmailAddress"), v, $"email"),
-        explodedAttr(Attr("Speaks", "Person", "Language"), v, $"language"),
-        k -> v.drop("email", "language")
-      )
-    }.foldLeft(input.entities)(_ ++ _)
+    val updatedEntities = input.entities
+      .collect { case (k @ Node("Person", false), v) =>
+        Map(
+          explodedAttr(Attr("Email", "Person", "EmailAddress"), v, $"email"),
+          explodedAttr(Attr("Speaks", "Person", "Language"), v, $"language"),
+          k -> v.drop("email", "language")
+        )
+      }
+      .foldLeft(input.entities)(_ ++ _)
 
     val l = lens[In]
 

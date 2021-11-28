@@ -4,15 +4,14 @@ import ldbc.snb.datagen.syntax._
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
 
-
 object dataframes {
 
   case class DataFrameSource(
-                            path: String,
-                            format: String,
-                            formatOptions: Map[String, String] = Map.empty,
-                            schema: Option[StructType] = None
-                            )
+      path: String,
+      format: String,
+      formatOptions: Map[String, String] = Map.empty,
+      schema: Option[StructType] = None
+  )
 
   private class DataFrameReader(implicit spark: SparkSession) extends Reader[DataFrameSource] {
     override type Ret = DataFrame
@@ -32,19 +31,20 @@ object dataframes {
     implicit def dataFrameReader(implicit spark: SparkSession): Reader.Aux[DataFrameSource, DataFrame] = new DataFrameReader
   }
 
-  case class DataFrameSink(path: String,
-                               format: String,
-                               formatOptions: Map[String, String] = Map.empty,
-                               mode: SaveMode = SaveMode.ErrorIfExists,
-                           partitionBy: Seq[String] = Seq.empty
-                              )
+  case class DataFrameSink(
+      path: String,
+      format: String,
+      formatOptions: Map[String, String] = Map.empty,
+      mode: SaveMode = SaveMode.ErrorIfExists,
+      partitionBy: Seq[String] = Seq.empty
+  )
 
   case class DataFrameWriterOptions(
-                                     format: String,
-                                     partitionBy: Seq[String] = Seq.empty,
-                                     formatOptions: Map[String, String] = Map.empty,
-                                     mode: SaveMode = SaveMode.ErrorIfExists
-                                   )
+      format: String,
+      partitionBy: Seq[String] = Seq.empty,
+      formatOptions: Map[String, String] = Map.empty,
+      mode: SaveMode = SaveMode.ErrorIfExists
+  )
 
   private object DataFrameWriter extends Writer[DataFrameSink] {
     override type CoRet = DataFrame

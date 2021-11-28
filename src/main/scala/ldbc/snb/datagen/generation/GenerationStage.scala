@@ -14,34 +14,34 @@ object GenerationStage extends DatagenStage with Logging {
   val optimalPersonsPerFile = 500000
 
   case class Args(
-    scaleFactor: String = "1",
-    numThreads: Option[Int] = None,
-    params: Map[String, String] = Map.empty,
-    paramFile: Option[String] = None,
-    outputDir: String = "out",
-    oversizeFactor: Option[Double] = None
+      scaleFactor: String = "1",
+      numThreads: Option[Int] = None,
+      params: Map[String, String] = Map.empty,
+      paramFile: Option[String] = None,
+      outputDir: String = "out",
+      oversizeFactor: Option[Double] = None
   )
 
   def run(args: Args, config: GeneratorConfiguration)(implicit spark: SparkSession) = {
-    val numPartitions = config.getInt("hadoop.numThreads", spark.sparkContext.defaultParallelism)
+    val numPartitions   = config.getInt("hadoop.numThreads", spark.sparkContext.defaultParallelism)
     val idealPartitions = DatagenParams.numPersons.toDouble / optimalPersonsPerFile
 
     val oversizeFactor = args.oversizeFactor.getOrElse(Math.max(numPartitions / idealPartitions, 1.0))
 
     val persons = SparkPersonGenerator(config)
 
-    val percentages = Seq(0.45f, 0.45f, 0.1f)
+    val percentages             = Seq(0.45f, 0.45f, 0.1f)
     val knowsGeneratorClassName = DatagenParams.getKnowsGenerator
 
     import ldbc.snb.datagen.entities.Keys._
 
-    val uniRanker = SparkRanker.create(_.byUni)
+    val uniRanker      = SparkRanker.create(_.byUni)
     val interestRanker = SparkRanker.create(_.byInterest)
-    val randomRanker = SparkRanker.create(_.byRandomId)
+    val randomRanker   = SparkRanker.create(_.byRandomId)
 
-    val uniKnows = SparkKnowsGenerator(persons, uniRanker, config, percentages, 0, knowsGeneratorClassName)
+    val uniKnows      = SparkKnowsGenerator(persons, uniRanker, config, percentages, 0, knowsGeneratorClassName)
     val interestKnows = SparkKnowsGenerator(persons, interestRanker, config, percentages, 1, knowsGeneratorClassName)
-    val randomKnows = SparkKnowsGenerator(persons, randomRanker, config, percentages, 2, knowsGeneratorClassName)
+    val randomKnows   = SparkKnowsGenerator(persons, randomRanker, config, percentages, 2, knowsGeneratorClassName)
 
     val merged = SparkKnowsMerger(uniKnows, interestKnows, randomKnows).cache()
 

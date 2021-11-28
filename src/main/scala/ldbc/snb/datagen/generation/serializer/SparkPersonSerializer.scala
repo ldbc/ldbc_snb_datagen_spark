@@ -15,10 +15,10 @@ import java.net.URI
 object SparkPersonSerializer {
 
   def apply(
-    persons: RDD[Person],
-    conf: GeneratorConfiguration,
-    partitions: Option[Int] = None,
-    oversizeFactor: Double = 1.0
+      persons: RDD[Person],
+      conf: GeneratorConfiguration,
+      partitions: Option[Int] = None,
+      oversizeFactor: Double = 1.0
   )(implicit spark: SparkSession): Unit = {
     val serializableHadoopConf = new SerializableConfiguration(spark.sparkContext.hadoopConfiguration)
 
@@ -26,9 +26,9 @@ object SparkPersonSerializer {
       .pipeFoldLeft(partitions)((rdd: RDD[Person], p: Int) => rdd.coalesce(p))
       .foreachPartition(persons => {
         val dynamicPersonSerializer = new DynamicPersonSerializer
-        val hadoopConf = serializableHadoopConf.value
-        val partitionId = TaskContext.getPartitionId()
-        val buildDir = conf.getOutputDir
+        val hadoopConf              = serializableHadoopConf.value
+        val partitionId             = TaskContext.getPartitionId()
+        val buildDir                = conf.getOutputDir
 
         val fs = FileSystem.get(new URI(buildDir), hadoopConf)
         fs.mkdirs(new Path(buildDir))
@@ -45,7 +45,7 @@ object SparkPersonSerializer {
 
         personExporter use { pe =>
           DatagenContext.initialize(conf)
-          for {p <- persons} {
+          for { p <- persons } {
             pe.export(p)
           }
         }

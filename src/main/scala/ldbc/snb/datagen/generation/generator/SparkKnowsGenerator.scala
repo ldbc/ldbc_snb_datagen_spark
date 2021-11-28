@@ -15,12 +15,12 @@ import scala.reflect.ClassTag
 
 object SparkKnowsGenerator {
   def apply(
-    persons: RDD[Person],
-    ranker: SparkRanker,
-    conf: GeneratorConfiguration,
-    percentages: Seq[Float],
-    stepIndex: Int,
-    knowsGeneratorClassName: String
+      persons: RDD[Person],
+      ranker: SparkRanker,
+      conf: GeneratorConfiguration,
+      percentages: Seq[Float],
+      stepIndex: Int,
+      knowsGeneratorClassName: String
   )(implicit spark: SparkSession) = {
     val blockSize = DatagenParams.blockSize
 
@@ -33,14 +33,14 @@ object SparkKnowsGenerator {
       // groupByKey wouldn't guarantee keeping the order inside groups
       // TODO check if it actually has better performance than sorting inside mapPartitions (probably not)
       .combineByKeyWithClassTag(
-          personByRank => SortedMap(personByRank),
-          (map: SortedMap[Long, Person], personByRank) => map + personByRank,
-          (a: SortedMap[Long, Person], b: SortedMap[Long, Person]) => a ++ b
-        )
+        personByRank => SortedMap(personByRank),
+        (map: SortedMap[Long, Person], personByRank) => map + personByRank,
+        (a: SortedMap[Long, Person], b: SortedMap[Long, Person]) => a ++ b
+      )
       .mapPartitions(groups => {
         DatagenContext.initialize(conf)
         val knowsGeneratorClass = Class.forName(knowsGeneratorClassName)
-        val knowsGenerator = knowsGeneratorClass.getConstructor().newInstance().asInstanceOf[KnowsGenerator]
+        val knowsGenerator      = knowsGeneratorClass.getConstructor().newInstance().asInstanceOf[KnowsGenerator]
         knowsGenerator.initialize(conf)
         val personSimilarity = DatagenParams.getPersonSimularity
 
@@ -53,9 +53,9 @@ object SparkKnowsGenerator {
           clonedPersons
         }
 
-        for { 
+        for {
           persons <- personGroups
-          person <- persons.iterator().asScala
+          person  <- persons.iterator().asScala
         } yield person
       })
   }

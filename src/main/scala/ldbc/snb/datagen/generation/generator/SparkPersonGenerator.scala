@@ -21,7 +21,7 @@ object SparkPersonGenerator {
 
       for {
         i <- blocks
-        _ = println(s"Processing person block $i (${DatagenParams.blockSize})")
+        _    = println(s"Processing person block $i (${DatagenParams.blockSize})")
         size = Math.min(DatagenParams.numPersons - DatagenParams.blockSize * i, DatagenParams.blockSize).toInt
         person <- personGenerator.generatePersonBlock(i.toInt, DatagenParams.blockSize).asScala.take(size)
       } yield person
