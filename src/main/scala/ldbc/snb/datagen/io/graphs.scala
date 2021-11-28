@@ -92,7 +92,7 @@ object graphs {
           SparkUI.job(getClass.getSimpleName, s"write $tpe") {
             val p = (sink.path / "graphs" / sink.format / PathComponent[GraphLike[M]].path(self) / tpe.entityPath).toString
             log.info(s"$tpe: Writing started")
-            val opts = getFormatOptions(sink.format, self.mode)
+            val opts = getFormatOptions(sink.format, self.mode, sink.formatOptions)
             the(dataset).write(DataFrameSink(p, sink.format, opts, SaveMode.Ignore))
             log.info(s"$tpe: Writing completed")
           }(dataset.sparkSession)
@@ -109,7 +109,7 @@ object graphs {
     import CacheFriendlyEntityOrdering._
 
     override def write(self: Graph[M], sink: GraphSink): Unit = {
-      val opts = getFormatOptions(sink.format, self.mode)
+      val opts = getFormatOptions(sink.format, self.mode, sink.formatOptions)
       TreeMap(self.entities.mapValues(ev).toSeq: _*).foreach {
         case (tpe, BatchedEntity(snapshot, insertBatches, deleteBatches)) =>
           SparkUI.job(getClass.getSimpleName, s"write $tpe snapshot") {
