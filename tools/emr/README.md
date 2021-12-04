@@ -43,7 +43,7 @@ pip install -e .
 
 ```bash
 PLATFORM_VERSION=2.12_spark3.1
-VERSION=0.4.0-SNAPHOT
+VERSION=0.5.0-SNAPSHOT
 aws s3 cp target/ldbc_snb_datagen_${PLATFORM_VERSION}-${VERSION}-jar-with-dependencies.jar s3://${BUCKET_NAME}/jars/ldbc_snb_datagen_${PLATFORM_VERSION}-${VERSION}-jar-with-dependencies.jar
 ```
 
