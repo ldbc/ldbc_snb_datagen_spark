@@ -77,7 +77,7 @@ Run the script with:
 
 ```bash
 export PLATFORM_VERSION=2.12_spark3.1
-export DATAGEN_VERSION=0.4.0-SNAPSHOT
+export DATAGEN_VERSION=0.4.0
 tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar <runtime configuration arguments> -- <generator configuration arguments>
 ```
 
@@ -105,7 +105,7 @@ Run the script with:
 
 ```bash
 export PLATFORM_VERSION=2.11_spark2.4
-export DATAGEN_VERSION=0.4.0-SNAPSHOT
+export DATAGEN_VERSION=0.4.0
 
 tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar <runtime configuration arguments> -- <generator configuration arguments>
 ```
