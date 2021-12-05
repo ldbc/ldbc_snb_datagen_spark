@@ -4,5 +4,5 @@ import scala.io.Codec
 
 trait SaneDefaults {
   implicit val codec = Codec.UTF8
-  val charset = codec.charSet
+  val charset        = codec.charSet
 }

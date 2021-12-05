@@ -9,25 +9,25 @@ import ldbc.snb.datagen.model.Mode
 import ldbc.snb.datagen.util.{SparkApp, lower}
 import shapeless.lens
 
-
 object LdbcDatagen extends SparkApp {
   val appName = "LDBC SNB Datagen for Spark"
 
   case class Args(
-    scaleFactor: String = "1",
-    params: Map[String, String] = Map.empty,
-    paramFile: Option[String] = None,
-    outputDir: String = "out",
-    bulkloadPortion: Double = 0.97,
-    explodeEdges: Boolean = false,
-    explodeAttrs: Boolean = false,
-    keepImplicitDeletes: Boolean = false,
-    mode: String = "raw",
-    batchPeriod: String = "day",
-    numThreads: Option[Int] = None,
-    format: String = "csv",
-    generateFactors: Boolean = false,
-    formatOptions: Map[String, String] = Map.empty
+      scaleFactor: String = "1",
+      params: Map[String, String] = Map.empty,
+      paramFile: Option[String] = None,
+      outputDir: String = "out",
+      bulkloadPortion: Double = 0.97,
+      explodeEdges: Boolean = false,
+      explodeAttrs: Boolean = false,
+      keepImplicitDeletes: Boolean = false,
+      mode: String = "raw",
+      batchPeriod: String = "day",
+      numThreads: Option[Int] = None,
+      format: String = "csv",
+      generateFactors: Boolean = false,
+      formatOptions: Map[String, String] = Map.empty,
+      oversizeFactor: Option[Double] = None
   )
 
   def main(args: Array[String]): Unit = {
@@ -50,20 +50,32 @@ object LdbcDatagen extends SparkApp {
 
       opt[String]('o', "output-dir")
         .action((x, c) => args.outputDir.set(c)(x))
-        .text("path on the cluster filesystem, where Datagen outputs. Can be a URI (e.g S3, ADLS, HDFS) or a " +
-          "path in which case the default cluster file system is used.")
+        .text(
+          "path on the cluster filesystem, where Datagen outputs. Can be a URI (e.g S3, ADLS, HDFS) or a " +
+            "path in which case the default cluster file system is used."
+        )
 
       opt[Int]('n', "num-threads")
         .action((x, c) => args.numThreads.set(c)(Some(x)))
         .text("Controls parallelization and number of files written.")
 
       opt[String]('m', "mode")
-        .validate(s => lower(s) match {
+        .validate(s =>
+          lower(s) match {
             case "raw" | "bi" | "interactive" => Right(())
-            case _ => Left("Invalid value. Must be one of raw, bi, interactive")
-          })
+            case _                            => Left("Invalid value. Must be one of raw, bi, interactive")
+          }
+        )
         .action((x, c) => args.mode.set(c)(x))
         .text("Generation mode. Options: raw, bi, interactive. Default: raw")
+
+      opt[Double]("oversize-factor")
+        .action((x, c) => args.oversizeFactor.set(c)(Some(x)))
+        .text(
+          "Controls size of files relative to Persons. " +
+            "Values larger than 1 will result in less but larger files. " +
+            "Smaller values result in more, smaller files"
+        )
 
       opt[Double]("bulkload-portion")
         .action((x, c) => args.bulkloadPortion.set(c)(x))
@@ -85,14 +97,18 @@ object LdbcDatagen extends SparkApp {
 
       opt[Unit]("keep-implicit-deletes")
         .action((x, c) => args.keepImplicitDeletes.set(c)(true))
-        .text("Keep implicit deletes. Only applicable to BI mode. By default the BI output doesn't contain dynamic entities" +
-          "without the explicitlyDeleted attribute and removes the rows where the attribute is false." +
-          "Setting this flag retains all deletes.")
+        .text(
+          "Keep implicit deletes. Only applicable to BI mode. By default the BI output doesn't contain dynamic entities" +
+            "without the explicitlyDeleted attribute and removes the rows where the attribute is false." +
+            "Setting this flag retains all deletes."
+        )
 
-      opt[Map[String,String]]("format-options")
+      opt[Map[String, String]]("format-options")
         .action((x, c) => args.formatOptions.set(c)(x))
-        .text("Output format options specified as key=value1[,key=value...]. See format options for specific formats " +
-          "available in Spark: https://spark.apache.org/docs/2.4.5/api/scala/index.html#org.apache.spark.sql.DataFrameWriter")
+        .text(
+          "Output format options specified as key=value1[,key=value...]. See format options for specific formats " +
+            "available in Spark: https://spark.apache.org/docs/2.4.5/api/scala/index.html#org.apache.spark.sql.DataFrameWriter"
+        )
 
       opt[Unit]("generate-factors")
         .action((x, c) => args.generateFactors.set(c)(true))
@@ -113,14 +129,15 @@ object LdbcDatagen extends SparkApp {
       params = args.params,
       paramFile = args.paramFile,
       outputDir = args.outputDir,
-      numThreads = args.numThreads
+      numThreads = args.numThreads,
+      oversizeFactor = args.oversizeFactor
     )
 
     val generatorConfig = GenerationStage.buildConfig(generatorArgs)
 
     DatagenContext.initialize(generatorConfig)
 
-    GenerationStage.run(generatorConfig)
+    GenerationStage.run(generatorArgs, generatorConfig)
 
     if (args.generateFactors) {
       val factorArgs = FactorGenerationStage.Args()
@@ -135,9 +152,9 @@ object LdbcDatagen extends SparkApp {
       simulationStart = Dictionaries.dates.getSimulationStart,
       simulationEnd = Dictionaries.dates.getSimulationEnd,
       mode = args.mode match {
-        case "bi" => Mode.BI(bulkloadPortion = args.bulkloadPortion, batchPeriod = args.batchPeriod)
+        case "bi"          => Mode.BI(bulkloadPortion = args.bulkloadPortion, batchPeriod = args.batchPeriod)
         case "interactive" => Mode.Interactive(bulkLoadPortion = args.bulkloadPortion)
-        case "raw" => Mode.Raw
+        case "raw"         => Mode.Raw
       },
       args.format,
       args.formatOptions
@@ -146,6 +163,3 @@ object LdbcDatagen extends SparkApp {
     TransformationStage.run(transformArgs)
   }
 }
-
-
-

@@ -14,7 +14,7 @@ Datagen is part of the [LDBC project](https://ldbcouncil.org/).
 * For the BI workload, use the Spark-based Datagen (in this repository).
 * For the Interactive workloads's larger data sets, there is no out-of-the-box solution (see [this issue](https://github.com/ldbc/ldbc_snb_interactive/issues/173)).
 
-The LDBC SNB Data Generator (Datagen) is the responsible for providing the datasets used by all the LDBC benchmarks. This data generator is designed to produce directed labelled graphs that mimic the characteristics of those graphs of real data. A detailed description of the schema produced by Datagen, as well as the format of the output files, can be found in the latest version of official [LDBC SNB specification document](https://github.com/ldbc/ldbc_snb_docs).
+The LDBC SNB Data Generator (Datagen) is responsible for providing the datasets used by all the LDBC benchmarks. This data generator is designed to produce directed labelled graphs that mimic the characteristics of those graphs of real data. A detailed description of the schema produced by Datagen, as well as the format of the output files, can be found in the latest version of official [LDBC SNB specification document](https://github.com/ldbc/ldbc_snb_docs).
 
 [Generated small data sets](https://ldbcouncil.org/ldbc_snb_datagen_spark/) are deployed by the CI.
 
@@ -55,7 +55,37 @@ pip install ./tools
 
 The `tools/run.py` is intended for **local runs**. To use it, download and extract Spark as follows.
 
-#### Spark 2.4.x
+#### Spark 3.1.x
+
+Spark 3.1.x is the recommended runtime to use. The rest of the instructions are provided assuming Spark 3.1.x.
+
+```bash
+curl https://downloads.apache.org/spark/spark-3.1.2/spark-3.1.2-bin-hadoop3.2.tgz | sudo tar -xz -C /opt/
+export SPARK_HOME="/opt/spark-3.1.2-bin-hadoop3.2"
+export PATH="$SPARK_HOME/bin":"$PATH"
+```
+
+Both Java 8 and Java 11 work.
+
+To build, run
+
+```bash
+tools/build.sh
+```
+
+Run the script with:
+
+```bash
+export PLATFORM_VERSION=2.12_spark3.1
+export DATAGEN_VERSION=0.5.0-SNAPSHOT
+tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar <runtime configuration arguments> -- <generator configuration arguments>
+```
+
+#### Older Spark versions
+
+##### Spark 2.4.x
+
+Spark 2.4.x with Hadoop 2.7 (Scala 2.11 / JVM 8) is supported, but it is recommended to switch to Spark 3.
 
 ```bash
 curl https://archive.apache.org/dist/spark/spark-2.4.8/spark-2.4.8-bin-hadoop2.7.tgz | sudo tar -xz -C /opt/
@@ -65,40 +95,20 @@ export PATH="$SPARK_HOME/bin":"$PATH"
 
 Make sure you use Java 8.
 
+To build, run
+
+```bash
+tools/build.sh -Pspark2.4
+```
+
 Run the script with:
 
 ```bash
 export PLATFORM_VERSION=2.11_spark2.4
-export DATAGEN_VERSION=0.4.0-SNAPSHOT
+export DATAGEN_VERSION=0.5.0-SNAPSHOT
 
 tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar <runtime configuration arguments> -- <generator configuration arguments>
 ```
-
-#### Spark 3.1.x
-
-```bash
-curl https://downloads.apache.org/spark/spark-3.1.2/spark-3.1.2-bin-hadoop2.7.tgz | sudo tar -xz -C /opt/
-export SPARK_HOME="/opt/spark-3.1.2-bin-hadoop2.7"
-export PATH="$SPARK_HOME/bin":"$PATH"
-```
-
-Both Java 8 and Java 11 work.
-
-To build, run
-
-```bash
-tools/build.sh -Pspark3.1
-```
-
-Run the script with:
-
-```bash
-export PLATFORM_VERSION=2.12_spark3.1
-export DATAGEN_VERSION=0.4.0-SNAPSHOT
-tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar <runtime configuration arguments> -- <generator configuration arguments>
-```
-
-The rest of the instructions are provided assuming Spark 2.4.x.
 
 #### Runtime configuration arguments
 
@@ -111,7 +121,7 @@ tools/run.py --help
 To generate a single `part-*.csv` file, reduce the parallelism (number of Spark partitions) to 1.
 
 ```bash
-./tools/run.py ./target/ldbc_snb_datagen_2.11_spark2.4-0.4.0-SNAPSHOT.jar --parallelism 1 -- --format csv --scale-factor 0.003 --mode interactive
+./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar --parallelism 1 -- --format csv --scale-factor 0.003 --mode interactive
 ```
 #### Generator configuration arguments
 
@@ -150,7 +160,7 @@ To get a complete list of the arguments, pass `--help` to the JAR file:
 * For the `interactive` and `bi` formats, the `--format-options` argument allows passing formatting options such as timestamp/date formats, the presence/abscence of headers (see the [Spark formatting options](https://spark.apache.org/docs/2.4.8/api/scala/index.html#org.apache.spark.sql.DataFrameWriter) for details), and whether quoting the fields in the CSV required:
 
   ```bash
-  ./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar -- --format csv --scale-factor 0.003 --mode interactive --format-options timestampFormat=MM/dd/YYYY\ HH:mm:ss,dateFormat=MM/dd/YYYY,header=false,quoteAll=true
+  ./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar -- --format csv --scale-factor 0.003 --mode interactive --format-options timestampFormat=MM/dd/y\ HH:mm:ss,dateFormat=MM/dd/y,header=false,quoteAll=true
   ```
 
 To change the Spark configuration directory, adjust the `SPARK_CONF_DIR` environment variable.
@@ -159,7 +169,7 @@ A complex example:
 
 ```bash
 export SPARK_CONF_DIR=./conf
-./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar --parallelism 4 --memory 8G -- --format csv --format-options timestampFormat=MM/dd/YYYY\ HH:mm:ss,dateFormat=MM/dd/YYYY --explode-edges --explode-attrs --mode interactive --scale-factor 0.003
+./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar --parallelism 4 --memory 8G -- --format csv --format-options timestampFormat=MM/dd/y\ HH:mm:ss,dateFormat=MM/dd/y --explode-edges --explode-attrs --mode interactive --scale-factor 0.003
 ```
 
 ### Docker image
@@ -181,19 +191,6 @@ tools/docker-run.sh
 ### Elastic MapReduce
 
 We provide scripts to run Datagen on AWS EMR. See the README in the [`tools/emr`](tools/emr) directory for details.
-
-## Parameter generation
-
-The parameter generator is currently being reworked (see [relevant issue](https://github.com/ldbc/ldbc_snb_datagen/issues/83)) and no parameters are generated by default.
-However, the legacy parameter generator is still available. To use it, run the following commands:
-
-```bash
-mkdir substitution_parameters
-# for Interactive
-paramgenerator/generateparams.py out/build/ substitution_parameters
-# for BI
-paramgenerator/generateparamsbi.py out/build/ substitution_parameters
-```
 
 ## Larger scale factors
 

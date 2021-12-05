@@ -42,8 +42,8 @@ pip install -e .
 1. Upload the JAR to S3. (We don't version the JARs yet, so you can only make sure that you run the intended code this way :( ) 
 
 ```bash
-PLATFORM_VERSION=2.11_spark2.4 # use 2.12_spark3.1 if you want to run on emr-6.3.0
-VERSION=0.4.0-SNAPHOT
+PLATFORM_VERSION=2.12_spark3.1
+VERSION=0.5.0-SNAPSHOT
 aws s3 cp target/ldbc_snb_datagen_${PLATFORM_VERSION}-${VERSION}-jar-with-dependencies.jar s3://${BUCKET_NAME}/jars/ldbc_snb_datagen_${PLATFORM_VERSION}-${VERSION}-jar-with-dependencies.jar
 ```
 
@@ -65,14 +65,17 @@ To use spot instances, add the `--use-spot` argument:
 ./tools/emr/submit_datagen_job.py --use-spot --bucket ${BUCKET_NAME} ${JOB_NAME} ${SCALE_FACTOR} csv raw
 ```
 
-### Using a different EMR version
+### Using a different Spark / EMR version
 
-We use EMR 5.13.0 by default. You can try out `emr-6.3.0` by specifying it with the `--emr-version` option.
-Make sure you uploaded the right JAR first!
+
+
+We use EMR 6.3.0 by default, which contains Spark 3.1. You can use a different version by specifying it with the `--emr-version` option. 
+EMR 5.33.0 is the recommended EMR version to be used with Spark 2.4.
+Make sure that you have uploaded the right JAR first!
 
 ```bash
-PLATFORM_VERSION=2.12_spark3.1
-./tools/emr/submit_datagen_job.py --bucket ${BUCKET_NAME} --platform-version ${PLATFORM_VERSION} --emr-release emr-6.3.0 ${JOB_NAME} ${SCALE_FACTOR} csv raw
+PLATFORM_VERSION=2.11_spark2.4
+./tools/emr/submit_datagen_job.py --bucket ${BUCKET_NAME} --platform-version ${PLATFORM_VERSION} --emr-release emr-5.33.0 ${JOB_NAME} ${SCALE_FACTOR} csv raw
 ```
 
 ### Using a parameter file

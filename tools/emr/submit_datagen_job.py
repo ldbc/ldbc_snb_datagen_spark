@@ -20,7 +20,7 @@ max_num_workers = 1000
 
 defaults = {
     'bucket': 'ldbc-snb-datagen-store',
-    'use_spot': False,
+    'use_spot': True,
     'master_instance_type': 'm5d.2xlarge',
     'instance_type': 'i3.4xlarge',
     'sf_ratio': 100.0, # ratio of SFs and machines. a ratio of 50.0 for SF100 yields 2 machines
@@ -30,7 +30,7 @@ defaults = {
     'az': 'us-west-2c',
     'yes': False,
     'ec2_key': None,
-    'emr_release': 'emr-5.31.0'
+    'emr_release': 'emr-6.3.0'
 }
 
 pp = pprint.PrettyPrinter(indent=2)
@@ -214,10 +214,16 @@ if __name__ == "__main__":
                         help='scale factor (used to calculate cluster size)')
     parser.add_argument('format', type=str, help='the required output format')
     parser.add_argument('mode', type=str, help='output mode')
-    parser.add_argument('--use-spot',
-                        default=defaults['use_spot'],
-                        action='store_true',
-                        help='Use SPOT workers')
+    market_args = parser.add_mutually_exclusive_group()
+    market_args.add_argument('--use-spot',
+                             default=defaults['use_spot'],
+                             action='store_true',
+                             help='Use SPOT workers')
+    market_args.add_argument('--no-use-spot',
+                             default=not defaults['use_spot'],
+                             dest='use_spot',
+                             action='store_false',
+                             help='Do not use SPOT workers')
     parser.add_argument('--az',
                         default=defaults['az'],
                         help=f'Cluster availability zone. Default: {defaults["az"]}')
@@ -232,13 +238,13 @@ if __name__ == "__main__":
                         help='EC2 key name for SSH connection')
     parser.add_argument('--platform-version',
                         default=defaults['platform_version'],
-                        help='The spark platform the JAR is compiled for formatted like {scala.compat.version}_spark{spark.comapt.version}, e.g. 2.11_spark2.4, 2.12_spark3.1')
+                        help='The spark platform the JAR is compiled for formatted like {scala.compat.version}_spark{spark.compat.version}, e.g. 2.11_spark2.4, 2.12_spark3.1')
     parser.add_argument('--version',
                         default=defaults['version'],
                         help='LDBC SNB Datagen library version')
     parser.add_argument('--emr-release',
                         default=defaults['emr_release'],
-                        help='The EMR release to use. E.g emr-5.31.0, emr-6.1.0')
+                        help='The EMR release to use. E.g emr-5.33.0, emr-6.3.0')
     parser.add_argument('-y', '--yes',
                         default=defaults['yes'],
                         action='store_true',

@@ -5,7 +5,7 @@ import org.apache.spark.sql.{Column, ColumnName, DataFrame, Dataset}
 import scala.language.implicitConversions
 
 trait SparkSqlSyntax {
-  @`inline` implicit final def datasetOps[A](a: Dataset[A]) = new DatasetOps(a)
+  @`inline` implicit final def datasetOps[A](a: Dataset[A])           = new DatasetOps(a)
   @`inline` implicit final def stringToColumnOps[A](a: StringContext) = new StringToColumnOps(a)
 }
 

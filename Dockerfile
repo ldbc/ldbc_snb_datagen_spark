@@ -1,4 +1,4 @@
-FROM bde2020/spark-master:2.4.5-hadoop2.7
+FROM bde2020/spark-master:3.1.1-hadoop3.2
 
 ENV GOSU_VERSION 1.12
 

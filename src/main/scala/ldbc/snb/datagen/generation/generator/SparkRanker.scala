@@ -24,9 +24,9 @@ object SparkRanker {
         .mapPartitionsWithIndex((i, ps) => Array((i, ps.size)).iterator, preservesPartitioning = true)
         .collectAsMap()
 
-      val aggregatedCounts = SortedMap(counts.toSeq : _*)
-        .foldLeft((0L, Map.empty[Int, Long])) {
-          case ((total, map), (i, c)) => (total + c, map + (i -> total))
+      val aggregatedCounts = SortedMap(counts.toSeq: _*)
+        .foldLeft((0L, Map.empty[Int, Long])) { case ((total, map), (i, c)) =>
+          (total + c, map + (i -> total))
         }
         ._2
 
