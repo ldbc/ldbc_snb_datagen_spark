@@ -8,34 +8,37 @@ import ldbc.snb.datagen.util.Logging
 import org.apache.spark.sql.{Column, DataFrame}
 import org.apache.spark.sql.functions._
 
-case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long, keepImplicitDeletes: Boolean) extends Transform[Mode.Raw.type, Mode.BI] with Logging {
+case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long, keepImplicitDeletes: Boolean)
+    extends Transform[Mode.Raw.type, Mode.BI]
+    with Logging {
   log.debug(s"BI Transformation parameters: $mode")
 
   val bulkLoadThreshold = Interactive.calculateBulkLoadThreshold(mode.bulkloadPortion, simulationStart, simulationEnd)
 
   def batchPeriodFormat(batchPeriod: String) = batchPeriod match {
-    case "year" => "yyyy"
-    case "month" => "yyyy-MM"
-    case "day" => "yyyy-MM-dd"
-    case "hour" => "yyyy-MM-dd'T'hh"
+    case "year"   => "yyyy"
+    case "month"  => "yyyy-MM"
+    case "day"    => "yyyy-MM-dd"
+    case "hour"   => "yyyy-MM-dd'T'hh"
     case "minute" => "yyyy-MM-dd'T'hh:mm"
-    case _ => throw new IllegalStateException("Unrecognized partition key")
+    case _        => throw new IllegalStateException("Unrecognized partition key")
   }
 
   override def transform(input: In): Out = {
-    val batch_id = (col: Column) =>
-      date_format(date_trunc(mode.batchPeriod, col), batchPeriodFormat(mode.batchPeriod))
+    val batch_id = (col: Column) => date_format(date_trunc(mode.batchPeriod, to_timestamp(col)), batchPeriodFormat(mode.batchPeriod))
 
     def inBatch(col: Column, batchStart: Long, batchEnd: Long) =
-      col >= to_timestamp(lit(batchStart / 1000)) &&
-        col < to_timestamp(lit(batchEnd / 1000))
+      col >= lit(batchStart / 1000) &&
+        col < lit(batchEnd / 1000)
 
-    val batched = (df: DataFrame) => df
-      .select(
-        df.columns.map(qcol) ++ Seq(
-          batch_id($"creationDate").as("insert_batch_id"),
-          batch_id($"deletionDate").as("delete_batch_id")
-        ): _*)
+    val batched = (df: DataFrame) =>
+      df
+        .select(
+          df.columns.map(qcol) ++ Seq(
+            batch_id($"creationDate").as("insert_batch_id"),
+            batch_id($"deletionDate").as("delete_batch_id")
+          ): _*
+        )
 
     val insertBatchPart = (tpe: EntityType, df: DataFrame, batchStart: Long, batchEnd: Long) => {
       df
@@ -69,7 +72,7 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
             Some(Batched(deleteBatchPart(tpe, v, bulkLoadThreshold, simulationEnd), Seq("batch_id")))
           else
             None
-      )
+        )
     }
     Graph[Mode.BI](isAttrExploded = input.isAttrExploded, isEdgesExploded = input.isEdgesExploded, mode, entities)
   }

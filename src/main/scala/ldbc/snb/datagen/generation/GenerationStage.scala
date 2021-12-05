@@ -2,8 +2,8 @@ package ldbc.snb.datagen.generation
 
 import ldbc.snb.datagen.DatagenParams
 import ldbc.snb.datagen.generation.generator.{SparkKnowsGenerator, SparkKnowsMerger, SparkPersonGenerator, SparkRanker}
-import ldbc.snb.datagen.generation.serializer.{SparkActivitySerializer, SparkStaticGraphSerializer}
-import ldbc.snb.datagen.io.raw.{PersonGeneratorOutputWriter, RawSink}
+import ldbc.snb.datagen.generation.serializer.RawSerializer
+import ldbc.snb.datagen.io.raw.{Csv, RawSink}
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.util.{ConfigParser, DatagenStage, GeneratorConfiguration, Logging, SparkUI, simpleNameOf}
 import org.apache.hadoop.fs.{FileSystem, Path}
@@ -15,46 +15,39 @@ object GenerationStage extends DatagenStage with Logging {
   val optimalPersonsPerFile = 500000
 
   case class Args(
-    scaleFactor: String = "1",
-    numThreads: Option[Int] = None,
-    params: Map[String, String] = Map.empty,
-    paramFile: Option[String] = None,
-    outputDir: String = "out"
+      scaleFactor: String = "1",
+      numThreads: Option[Int] = None,
+      params: Map[String, String] = Map.empty,
+      paramFile: Option[String] = None,
+      outputDir: String = "out"
   )
 
   def run(config: GeneratorConfiguration)(implicit spark: SparkSession) = {
-    val numPartitions = config.getInt("hadoop.numThreads", spark.sparkContext.defaultParallelism)
+    val numPartitions   = config.getInt("hadoop.numThreads", spark.sparkContext.defaultParallelism)
     val idealPartitions = DatagenParams.numPersons.toDouble / optimalPersonsPerFile
 
     val oversizeFactor = Math.max(numPartitions / idealPartitions, 1.0)
 
     val persons = SparkPersonGenerator(config)
 
-    val percentages = Seq(0.45f, 0.45f, 0.1f)
+    val percentages             = Seq(0.45f, 0.45f, 0.1f)
     val knowsGeneratorClassName = DatagenParams.getKnowsGenerator
 
     import ldbc.snb.datagen.entities.Keys._
 
-    val uniRanker = SparkRanker.create(_.byUni)
+    val uniRanker      = SparkRanker.create(_.byUni)
     val interestRanker = SparkRanker.create(_.byInterest)
-    val randomRanker = SparkRanker.create(_.byRandomId)
+    val randomRanker   = SparkRanker.create(_.byRandomId)
 
-    val uniKnows = SparkKnowsGenerator(persons, uniRanker, config, percentages, 0, knowsGeneratorClassName)
+    val uniKnows      = SparkKnowsGenerator(persons, uniRanker, config, percentages, 0, knowsGeneratorClassName)
     val interestKnows = SparkKnowsGenerator(persons, interestRanker, config, percentages, 1, knowsGeneratorClassName)
-    val randomKnows = SparkKnowsGenerator(persons, randomRanker, config, percentages, 2, knowsGeneratorClassName)
+    val randomKnows   = SparkKnowsGenerator(persons, randomRanker, config, percentages, 2, knowsGeneratorClassName)
 
     val merged = SparkKnowsMerger(uniKnows, interestKnows, randomKnows).cache()
 
-    SparkUI.job(simpleNameOf[SparkActivitySerializer.type], "serialize person activities") {
-      SparkActivitySerializer(merged, randomRanker, config, Some(numPartitions), oversizeFactor)
-    }
-
-    SparkUI.job(simpleNameOf[PersonGeneratorOutputWriter.type], "serialize persons") {
-      PersonGeneratorOutputWriter.write(merged, RawSink(Some(numPartitions), config, oversizeFactor))
-    }
-
-    SparkUI.job(simpleNameOf[SparkStaticGraphSerializer.type], "serialize static graph") {
-      SparkStaticGraphSerializer(config, Some(numPartitions))
+    SparkUI.job(simpleNameOf[RawSerializer], "serialize persons") {
+      val rawSerializer = new RawSerializer(randomRanker)
+      rawSerializer.write(merged, RawSink(Csv, Some(numPartitions), config, oversizeFactor))
     }
   }
 

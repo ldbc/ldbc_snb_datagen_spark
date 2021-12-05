@@ -13,7 +13,7 @@ package object io {
   import ldbc.snb.datagen.io.Writer.ops._
 
   private final class FactorTableWriter[M <: Mode] extends Writer[FactorTableSink] with Logging {
-    override type CoRet = FactorTable[M]
+    override type Data = FactorTable[M]
 
     override def write(self: FactorTable[M], sink: FactorTableSink): Unit = {
       val p = (sink.path / "factors" / sink.format / PathComponent[GraphLike[M]].path(self.source) / self.name).toString

@@ -1,29 +1,27 @@
 package ldbc.snb.datagen.io
 
-import ldbc.snb.datagen.DatagenContext
-import ldbc.snb.datagen.dictionary.Dictionaries
-import ldbc.snb.datagen.entities.dynamic.person.{Person => GenPerson}
-import ldbc.snb.datagen.entities.raw.Person
 import ldbc.snb.datagen.io.raw.csv.{CsvRecordOutputStream, CsvRowEncoder}
-import ldbc.snb.datagen.serializer.FileName
-import ldbc.snb.datagen.syntax.{fluentSyntaxOps, useSyntaxForAutoClosable}
-import ldbc.snb.datagen.util.{GeneratorConfiguration, SerializableConfiguration}
+import ldbc.snb.datagen.io.raw.parquet.{ParquetRecordOutputStream, ParquetRowEncoder}
+import ldbc.snb.datagen.model.EntityTraits
+import ldbc.snb.datagen.util.GeneratorConfiguration
+import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FSDataOutputStream, FileSystem, Path}
+import org.apache.hadoop.mapreduce.task.TaskAttemptContextImpl
+import org.apache.hadoop.mapreduce.{JobID, TaskAttemptContext, TaskAttemptID, TaskID, TaskType}
 import org.apache.spark.TaskContext
-import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.Encoder
 
-import java.util
-import scala.collection.JavaConverters._
+import java.text.SimpleDateFormat
+import java.util.{Date, Locale}
 
 package object raw {
-
   trait RecordOutputStream[T] extends AutoCloseable {
     def write(t: T)
   }
 
   class RoundRobinOutputStream[T](outputStreams: Seq[RecordOutputStream[T]]) extends RecordOutputStream[T] {
     private var current = 0
-    private val n = outputStreams.length
+    private val n       = outputStreams.length
 
     override def write(t: T): Unit = {
       outputStreams(current).write(t)
@@ -33,78 +31,80 @@ package object raw {
     override def close(): Unit = for { os <- outputStreams } os.close()
   }
 
-  private def hdfsOutputStream(fs: FileSystem, fileName: Path): FSDataOutputStream = fs.create(fileName, true, 131072)
+  sealed trait RawFormat
+  case object Csv     extends RawFormat { override def toString = "csv"     }
+  case object Parquet extends RawFormat { override def toString = "parquet" }
 
   case class RawSink(
-                      partitions: Option[Int] = None,
-                      conf: GeneratorConfiguration,
-                      oversizeFactor: Double = 1.0
-                    )
+      format: RawFormat,
+      partitions: Option[Int] = None,
+      conf: GeneratorConfiguration,
+      oversizeFactor: Double = 1.0,
+      formatOptions: Map[String, String] = Map.empty
+  )
 
-  object PersonGeneratorOutputWriter extends Writer[RawSink] {
-    override type CoRet = RDD[GenPerson]
+  class WriteContext(
+      val taskContext: TaskContext,
+      val taskAttemptContext: TaskAttemptContext,
+      val hadoopConf: Configuration,
+      val fileSystem: FileSystem
+  )
 
-    private def getGender(gender: Int): String = if (gender == 0) "male" else "female"
+  private def fileOutputStream(fs: FileSystem, path: Path): FSDataOutputStream = fs.create(path, true, 131072)
 
-    private def getLanguages(languages: util.List[Integer]): Seq[String] = {
-      languages.asScala.map(x => Dictionaries.languages.getLanguageName(x))
+  def csvRecordOutputStream[T <: Product: CsvRowEncoder](path: Path, writeContext: WriteContext) = {
+    new CsvRecordOutputStream[T](fileOutputStream(writeContext.fileSystem, path))
+  }
+
+  def parquetRecordOutputStream[T <: Product: ParquetRowEncoder](path: Path, writeContext: WriteContext) = {
+    new ParquetRecordOutputStream[T](path, writeContext.taskAttemptContext)
+  }
+
+  def recordOutputStream[T <: Product: EntityTraits: CsvRowEncoder: ParquetRowEncoder](sink: RawSink, writeContext: WriteContext): RecordOutputStream[T] = {
+    val et                           = EntityTraits[T]
+    val numFiles                     = Math.ceil(et.sizeFactor / sink.oversizeFactor).toLong
+    val partitionId                  = writeContext.taskContext.partitionId()
+    implicit val encoder: Encoder[T] = ParquetRowEncoder[T].encoder
+    val entityPath                   = et.`type`.entityPath
+    val formatOutputStream = sink.format match {
+      case Parquet => parquetRecordOutputStream(_: Path, writeContext)
+      case Csv     => csvRecordOutputStream(_: Path, writeContext)
+      case x       => throw new UnsupportedOperationException(s"Raw serializer not implemented for format ${x}")
     }
-
-    private def getEmail(emails: util.List[String]): Seq[String] = emails.asScala
-
-    private def getPerson(person: GenPerson) = Person(
-        person.getCreationDate,
-        person.getDeletionDate,
-        person.isExplicitlyDeleted,
-        person.getAccountId,
-        person.getFirstName,
-        person.getLastName,
-        getGender(person.getGender),
-        person.getBirthday,
-        person.getIpAddress.toString,
-        Dictionaries.browsers.getName(person.getBrowserId),
-        person.getCityId,
-        getLanguages(person.getLanguages),
-        getEmail(person.getEmails)
+    val files =
+      for { i <- 0L until numFiles } yield new Path(
+        s"${sink.conf.getOutputDir}/graphs/${sink.format.toString}/raw/composite-merged-fk/${entityPath}/part_${partitionId}_${i}.${sink.format.toString}"
       )
+    new RoundRobinOutputStream(files.map(formatOutputStream))
+  }
 
-    private def recordOutputStream[T: CsvRowEncoder](
-                                                      fileSystem: FileSystem,
-                                                      outputDir: String,
-                                                      partitionId: Long,
-                                                      oversizeFactor: Double,
-                                                      fileName: FileName
-                                                    ) = {
-      val numFiles = Math.ceil(fileName.size / oversizeFactor).toLong
-      val files = for { i <- 0L until numFiles } yield {
-        new Path(s"$outputDir/graphs/csv/raw/composite-merged-fk/dynamic/${fileName.name}/part_${partitionId}_${i}.csv")
-      }
-      new RoundRobinOutputStream(files
-        .map(hdfsOutputStream(fileSystem, _))
-        .map(new CsvRecordOutputStream[T](_))
-      )
-    }
+  def createNewWriteContext(hadoopConf: Configuration, fs: FileSystem) = {
+    val jobIdInstant = new Date().getTime
+    new WriteContext(TaskContext.get, getTaskAttemptContext(hadoopConf, TaskContext.get, jobIdInstant), hadoopConf, fs)
+  }
 
-    override def write(self: RDD[GenPerson], sink: RawSink): Unit = {
-      val serializableHadoopConf = new SerializableConfiguration(self.sparkContext.hadoopConfiguration)
+  private[this] def getTaskAttemptContext(conf: Configuration, tc: TaskContext, jobIdInstant: Long): TaskAttemptContext = {
 
-      self
-        .pipeFoldLeft(sink.partitions)((rdd: RDD[GenPerson], p: Int) => rdd.coalesce(p))
-        .foreachPartition(persons => {
-          DatagenContext.initialize(sink.conf)
-          val hadoopConf = serializableHadoopConf.value
-          val partitionId = TaskContext.getPartitionId()
-          val buildDir = sink.conf.getOutputDir
-          val fs = FileSystem.get(hadoopConf)
-          fs.mkdirs(new Path(buildDir))
-          val ros = recordOutputStream[Person](fs, buildDir, partitionId, sink.oversizeFactor, FileName.PERSON)
-          ros use { ros =>
-            persons.foreach { person =>
-              val p = getPerson(person)
-              ros.write(p)
-            }
-          }
-        })
+    val jobId         = createJobID(new Date(jobIdInstant), tc.stageId())
+    val taskId        = new TaskID(jobId, TaskType.MAP, tc.partitionId())
+    val taskAttemptId = new TaskAttemptID(taskId, tc.taskAttemptId().toInt & Integer.MAX_VALUE)
+
+    // Set up the attempt context required to use in the output committer.
+    {
+      // Set up the configuration object
+      conf.set("mapreduce.job.id", jobId.toString)
+      conf.set("mapreduce.task.id", taskAttemptId.getTaskID.toString)
+      conf.set("mapreduce.task.attempt.id", taskAttemptId.toString)
+      conf.setBoolean("mapreduce.task.ismap", true)
+      conf.setInt("mapreduce.task.partition", 0)
+      new TaskAttemptContextImpl(conf, taskAttemptId)
     }
   }
+
+  private[this] def createJobID(time: Date, id: Int): JobID = {
+    val jobtrackerID = new SimpleDateFormat("yyyyMMddHHmmss", Locale.US).format(time)
+    new JobID(jobtrackerID, id)
+  }
+
+  object instances extends csv.CsvRowEncoderInstances with parquet.ParquetRowEncoderInstances
 }
