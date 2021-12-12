@@ -18,6 +18,7 @@ object TransformationStage extends DatagenStage with Logging {
       simulationStart: Long = 0,
       simulationEnd: Long = 0,
       mode: Mode = Mode.Raw,
+      irFormat: String = "parquet",
       format: String = "csv",
       formatOptions: Map[String, String] = Map.empty
   )
@@ -41,7 +42,7 @@ object TransformationStage extends DatagenStage with Logging {
       Graph[Mode.BI] :+:
       CNil
 
-    GraphSource(model.graphs.Raw.graphDef, args.outputDir, "parquet").read
+    GraphSource(model.graphs.Raw.graphDef, args.outputDir, args.irFormat).read
       .pipeFoldLeft(args.explodeAttrs.fork)((graph, _: Unit) => ExplodeAttrs.transform(graph))
       .pipeFoldLeft(args.explodeEdges.fork)((graph, _: Unit) => ExplodeEdges.transform(graph))
       .pipe(ConvertDates.transform)

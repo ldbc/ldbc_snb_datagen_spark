@@ -123,12 +123,18 @@ object LdbcDatagen extends SparkApp {
 
   def run(args: Args): Unit = {
 
+    val irFormat = {
+      val _f = System.getenv("LDBC_DATAGEN_IR_FORMAT")
+      if (_f == null || _f == "") "parquet" else _f
+    }
+
     val generatorArgs = GenerationStage.Args(
       scaleFactor = args.scaleFactor,
       params = args.params,
       paramFile = args.paramFile,
       outputDir = args.outputDir,
       numThreads = args.numThreads,
+      format = irFormat,
       oversizeFactor = args.oversizeFactor
     )
 
@@ -155,6 +161,7 @@ object LdbcDatagen extends SparkApp {
         case "interactive" => Mode.Interactive(bulkLoadPortion = args.bulkloadPortion)
         case "raw"         => Mode.Raw
       },
+      irFormat,
       args.format,
       args.formatOptions
     )

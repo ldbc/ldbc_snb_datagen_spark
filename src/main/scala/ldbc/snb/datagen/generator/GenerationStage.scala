@@ -13,13 +13,14 @@ object GenerationStage extends DatagenStage with Logging {
   val optimalPersonsPerFile = 500000
 
   case class Args(
-                   scaleFactor: String = "1",
-                   numThreads: Option[Int] = None,
-                   params: Map[String, String] = Map.empty,
-                   paramFile: Option[String] = None,
-                   outputDir: String = "out",
-                   oversizeFactor: Option[Double] = None
-                 )
+      scaleFactor: String = "1",
+      numThreads: Option[Int] = None,
+      params: Map[String, String] = Map.empty,
+      paramFile: Option[String] = None,
+      outputDir: String = "out",
+      format: String = "parquet",
+      oversizeFactor: Option[Double] = None
+  )
 
   def run(args: Args, config: GeneratorConfiguration)(implicit spark: SparkSession) = {
     val numPartitions   = config.getInt("hadoop.numThreads", spark.sparkContext.defaultParallelism)
@@ -44,9 +45,15 @@ object GenerationStage extends DatagenStage with Logging {
 
     val merged = SparkKnowsMerger(uniKnows, interestKnows, randomKnows).cache()
 
+    val format = args.format match {
+      case "csv"     => Csv
+      case "parquet" => Parquet
+      case a         => throw new IllegalArgumentException(s"Format `${a}` is not supported by the generator.")
+    }
+
     SparkUI.job(simpleNameOf[RawSerializer], "serialize persons") {
       val rawSerializer = new RawSerializer(randomRanker)
-      rawSerializer.write(merged, RawSink(Parquet, Some(numPartitions), config, oversizeFactor))
+      rawSerializer.write(merged, RawSink(format, Some(numPartitions), config, oversizeFactor))
     }
   }
 
