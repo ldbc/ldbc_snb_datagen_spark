@@ -7,7 +7,7 @@ import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.types.{DateType, TimestampType}
 import shapeless._
 
-object IrToRawTransform extends Transform[Mode.Raw.type, Mode.Raw.type] {
+object ConvertDates extends Transform[Mode.Raw.type, Mode.Raw.type] {
 
   def convertDates(tpe: EntityType, df: DataFrame): DataFrame = {
     tpe match {

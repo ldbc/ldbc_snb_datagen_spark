@@ -63,9 +63,6 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
     }
 
     val entities = input.entities
-      .map { case (tpe, v) =>
-        tpe -> IrToRawTransform.convertDates(tpe, v)
-      }
       .map {
         case (tpe, v) if tpe.isStatic => tpe -> BatchedEntity(v, None, None)
         case (tpe, v) =>
