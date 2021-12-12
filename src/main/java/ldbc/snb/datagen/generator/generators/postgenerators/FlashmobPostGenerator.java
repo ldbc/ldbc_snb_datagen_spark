@@ -35,8 +35,8 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.generators.postgenerators;
 
-import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.generator.DatagenParams;
+import ldbc.snb.datagen.generator.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.entities.statictype.tag.FlashMobTag;
@@ -47,7 +47,7 @@ import ldbc.snb.datagen.util.Distribution;
 
 import java.util.*;
 
-import static ldbc.snb.datagen.DatagenParams.maxNumTagPerFlashmobPost;
+import static ldbc.snb.datagen.generator.DatagenParams.maxNumTagPerFlashmobPost;
 
 public class FlashmobPostGenerator extends PostGenerator {
 

@@ -35,7 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.generators.textgenerators;
 
-import ldbc.snb.datagen.dictionary.TagDictionary;
+import ldbc.snb.datagen.generator.dictionary.TagDictionary;
 import ldbc.snb.datagen.entities.dynamic.person.PersonSummary;
 
 import java.util.Properties;

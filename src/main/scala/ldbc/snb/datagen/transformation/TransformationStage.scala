@@ -4,7 +4,7 @@ import ldbc.snb.datagen.io.graphs.{GraphSink, GraphSource}
 import ldbc.snb.datagen.model
 import ldbc.snb.datagen.model.{BatchedEntity, Graph, Mode}
 import ldbc.snb.datagen.syntax._
-import ldbc.snb.datagen.transformation.transform.{ExplodeAttrs, ExplodeEdges, RawToBiTransform, RawToInteractiveTransform}
+import ldbc.snb.datagen.transformation.transform.{ExplodeAttrs, ExplodeEdges, IrToRawTransform, RawToBiTransform, RawToInteractiveTransform}
 import ldbc.snb.datagen.util.{DatagenStage, Logging}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import shapeless._
@@ -41,14 +41,14 @@ object TransformationStage extends DatagenStage with Logging {
       Graph[Mode.BI] :+:
       CNil
 
-    GraphSource(model.graphs.Raw.graphDef, args.outputDir, "csv").read
+    GraphSource(model.graphs.Raw.graphDef, args.outputDir, "parquet").read
       .pipeFoldLeft(args.explodeAttrs.fork)((graph, _: Unit) => ExplodeAttrs.transform(graph))
       .pipeFoldLeft(args.explodeEdges.fork)((graph, _: Unit) => ExplodeEdges.transform(graph))
       .pipe[OutputTypes] { g =>
         args.mode match {
           case bi @ Mode.BI(_, _) => Inr(Inr(Inl(RawToBiTransform(bi, args.simulationStart, args.simulationEnd, args.keepImplicitDeletes).transform(g))))
           case interactive @ Mode.Interactive(_) => Inr(Inl(RawToInteractiveTransform(interactive, args.simulationStart, args.simulationEnd).transform(g)))
-          case Mode.Raw                          => Inl(g)
+          case Mode.Raw                          => Inl(IrToRawTransform.transform(g))
         }
       }
       .map(write)

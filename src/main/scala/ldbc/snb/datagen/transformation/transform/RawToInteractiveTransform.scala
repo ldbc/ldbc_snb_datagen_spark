@@ -12,10 +12,13 @@ case class RawToInteractiveTransform(mode: Mode.Interactive, simulationStart: Lo
   val bulkLoadThreshold = Interactive.calculateBulkLoadThreshold(mode.bulkLoadPortion, simulationStart, simulationEnd)
 
   override def transform(input: In): Out = {
-    val entities = input.entities.map {
-      case (tpe, v) if tpe.isStatic => tpe -> v
-      case (tpe, v)                 => tpe -> Interactive.snapshotPart(tpe, v, bulkLoadThreshold, filterDeletion = true)
-    }
+    val entities = input.entities
+      .map { case (tpe, v) =>
+        tpe -> IrToRawTransform.convertDates(tpe, v)
+      }
+      .map { case (tpe, v) =>
+        tpe -> Interactive.snapshotPart(tpe, v, bulkLoadThreshold, filterDeletion = true)
+      }
     Graph[Mode.Interactive](isAttrExploded = input.isAttrExploded, isEdgesExploded = input.isEdgesExploded, mode, entities)
   }
 }

@@ -192,7 +192,7 @@ object raw {
 
   trait EntityTraitsInstances {
     import EntityTraits._
-    import ldbc.snb.datagen.sql._
+    import ldbc.snb.datagen.util.sql._
 
     // static
     implicit val entityTraitsFor_TAG: EntityTraits[Tag]                   = pure(TagType, 1.0)

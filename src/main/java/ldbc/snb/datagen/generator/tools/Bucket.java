@@ -35,7 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.generator.tools;
 
-import ldbc.snb.datagen.DatagenParams;
+import ldbc.snb.datagen.generator.DatagenParams;
 import org.apache.commons.math3.util.Pair;
 
 import java.util.ArrayList;

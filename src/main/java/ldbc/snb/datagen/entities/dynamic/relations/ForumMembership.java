@@ -35,7 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.entities.dynamic.relations;
 
-import ldbc.snb.datagen.DatagenParams;
+import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.entities.dynamic.DynamicActivity;
 import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.entities.dynamic.person.PersonSummary;

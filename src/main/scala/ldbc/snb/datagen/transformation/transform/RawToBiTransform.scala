@@ -1,6 +1,6 @@
 package ldbc.snb.datagen.transformation.transform
 
-import ldbc.snb.datagen.sql._
+import ldbc.snb.datagen.util.sql._
 import ldbc.snb.datagen.model.{Batched, BatchedEntity, EntityType, Graph, Mode}
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.model.Mode.BI
@@ -25,11 +25,11 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
   }
 
   override def transform(input: In): Out = {
-    val batch_id = (col: Column) => date_format(date_trunc(mode.batchPeriod, to_timestamp(col)), batchPeriodFormat(mode.batchPeriod))
+    val batch_id = (col: Column) => date_format(date_trunc(mode.batchPeriod, col), batchPeriodFormat(mode.batchPeriod))
 
     def inBatch(col: Column, batchStart: Long, batchEnd: Long) =
-      col >= lit(batchStart / 1000) &&
-        col < lit(batchEnd / 1000)
+      col >= to_timestamp(lit(batchStart / 1000)) &&
+        col < to_timestamp(lit(batchEnd / 1000))
 
     val batched = (df: DataFrame) =>
       df
@@ -62,18 +62,22 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
         .sortWithinPartitions($"deletionDate")
     }
 
-    val entities = input.entities.map {
-      case (tpe, v) if tpe.isStatic => tpe -> BatchedEntity(v, None, None)
-      case (tpe, v) =>
-        tpe -> BatchedEntity(
-          Interactive.snapshotPart(tpe, v, bulkLoadThreshold, filterDeletion = false),
-          Some(Batched(insertBatchPart(tpe, v, bulkLoadThreshold, simulationEnd), Seq("batch_id"))),
-          if (keepImplicitDeletes || v.columns.contains("explicitlyDeleted"))
-            Some(Batched(deleteBatchPart(tpe, v, bulkLoadThreshold, simulationEnd), Seq("batch_id")))
-          else
-            None
-        )
-    }
+    val entities = input.entities
+      .map { case (tpe, v) =>
+        tpe -> IrToRawTransform.convertDates(tpe, v)
+      }
+      .map {
+        case (tpe, v) if tpe.isStatic => tpe -> BatchedEntity(v, None, None)
+        case (tpe, v) =>
+          tpe -> BatchedEntity(
+            Interactive.snapshotPart(tpe, v, bulkLoadThreshold, filterDeletion = false),
+            Some(Batched(insertBatchPart(tpe, v, bulkLoadThreshold, simulationEnd), Seq("batch_id"))),
+            if (keepImplicitDeletes || v.columns.contains("explicitlyDeleted"))
+              Some(Batched(deleteBatchPart(tpe, v, bulkLoadThreshold, simulationEnd), Seq("batch_id")))
+            else
+              None
+          )
+      }
     Graph[Mode.BI](isAttrExploded = input.isAttrExploded, isEdgesExploded = input.isEdgesExploded, mode, entities)
   }
 }

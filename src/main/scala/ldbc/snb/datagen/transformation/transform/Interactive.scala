@@ -1,12 +1,13 @@
 package ldbc.snb.datagen.transformation.transform
 
-import ldbc.snb.datagen.sql._
+import ldbc.snb.datagen.util.sql._
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.model.Cardinality.NN
 import ldbc.snb.datagen.model.EntityType
 import ldbc.snb.datagen.model.EntityType.Edge
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions._
+import org.apache.spark.sql.types.TimestampType
 
 private object Interactive {
 
@@ -28,8 +29,8 @@ private object Interactive {
     val filterBulkLoad = (ds: DataFrame) =>
       ds
         .filter(
-          $"creationDate" < lit(bulkLoadThreshold / 1000) &&
-            (!lit(filterDeletion) || $"deletionDate" >= lit(bulkLoadThreshold / 1000))
+          $"creationDate" < to_timestamp(lit(bulkLoadThreshold / 1000)) &&
+            (!lit(filterDeletion) || $"deletionDate" >= to_timestamp(lit(bulkLoadThreshold / 1000)))
         )
 
     tpe match {
