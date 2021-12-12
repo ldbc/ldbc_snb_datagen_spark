@@ -4,7 +4,7 @@ import ldbc.snb.datagen.model.{EntityType, Mode}
 import ldbc.snb.datagen.util.sql.qcol
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.lit
-import org.apache.spark.sql.types.{DateType, LongType, TimestampType}
+import org.apache.spark.sql.types.{DateType, TimestampType}
 import shapeless._
 
 object IrToRawTransform extends Transform[Mode.Raw.type, Mode.Raw.type] {
