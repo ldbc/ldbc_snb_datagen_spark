@@ -81,35 +81,6 @@ export DATAGEN_VERSION=0.5.0-SNAPSHOT
 tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar <runtime configuration arguments> -- <generator configuration arguments>
 ```
 
-#### Older Spark versions
-
-##### Spark 2.4.x
-
-Spark 2.4.x with Hadoop 2.7 (Scala 2.11 / JVM 8) is supported, but it is recommended to switch to Spark 3.
-
-```bash
-curl https://archive.apache.org/dist/spark/spark-2.4.8/spark-2.4.8-bin-hadoop2.7.tgz | sudo tar -xz -C /opt/
-export SPARK_HOME="/opt/spark-2.4.8-bin-hadoop2.7"
-export PATH="$SPARK_HOME/bin":"$PATH"
-```
-
-Make sure you use Java 8.
-
-To build, run
-
-```bash
-tools/build.sh -Pspark2.4
-```
-
-Run the script with:
-
-```bash
-export PLATFORM_VERSION=2.11_spark2.4
-export DATAGEN_VERSION=0.5.0-SNAPSHOT
-
-tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar <runtime configuration arguments> -- <generator configuration arguments>
-```
-
 #### Runtime configuration arguments
 
 The runtime configuration arguments determine the amount of memory, number of threads, degree of parallelism. For a list of arguments, see:
