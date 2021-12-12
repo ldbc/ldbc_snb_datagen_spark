@@ -140,7 +140,7 @@ object LdbcDatagen extends SparkApp {
     GenerationStage.run(generatorArgs, generatorConfig)
 
     if (args.generateFactors) {
-      val factorArgs = FactorGenerationStage.Args()
+      val factorArgs = FactorGenerationStage.Args(outputDir = args.outputDir)
       FactorGenerationStage.run(factorArgs)
     }
 
