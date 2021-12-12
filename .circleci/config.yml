@@ -27,7 +27,6 @@ executors:
 
 jobs:
   test:
-    resource_class: xlarge
     executor: my-executor
     environment:
       PLATFORM_VERSION: 2.12_spark3.1
