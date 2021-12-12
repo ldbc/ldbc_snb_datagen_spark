@@ -26,7 +26,7 @@ trait CsvRowEncoderInstances {
       dateFormatter.formatDate(person.birthday),
       person.`locationIP`,
       person.`browserUsed`,
-      Integer.toString(person.`place`),
+      Integer.toString(person.`LocationCityId`),
       person.`language`,
       person.`email`
     )

@@ -18,7 +18,7 @@ object raw {
       `birthday`: Long,
       `locationIP`: String,
       `browserUsed`: String,
-      `place`: Integer,
+      `LocationCityId`: Integer,
       `language`: String,
       `email`: String
   ) extends RawEntity
