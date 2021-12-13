@@ -1,17 +1,14 @@
 package ldbc.snb.datagen.io.raw
 
-import ldbc.snb.datagen.syntax.fluentSyntaxOps
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
 import org.apache.hadoop.mapreduce.{RecordWriter, TaskAttemptContext}
 import org.apache.parquet.hadoop.ParquetOutputFormat
 import org.apache.parquet.hadoop.api.WriteSupport
 import org.apache.parquet.io.api.RecordConsumer
-import org.apache.spark.sql.{Encoder, SQLContext}
+import org.apache.spark.sql.Encoder
 import org.apache.spark.sql.catalyst.encoders.encoderFor
-import org.apache.spark.sql.catalyst.util.CaseInsensitiveMap
-import org.apache.spark.sql.execution.datasources.parquet.{LdbcDatagenParquetWriteSupport, ParquetOptions}
-import org.apache.spark.sql.internal.SQLConf
+import org.apache.spark.sql.execution.datasources.parquet.LdbcDatagenParquetWriteSupport
 
 object parquet {
 
@@ -39,14 +36,12 @@ object parquet {
   }
 
   class ParquetRecordOutputStream[T <: Product: ParquetRowEncoder](
-                                                                    path: Path,
-                                                                    taskAttemptContext: TaskAttemptContext,
-                                                                    options: Map[String, String]
-                                                                  ) extends RecordOutputStream[T] {
+      path: Path,
+      taskAttemptContext: TaskAttemptContext,
+      options: Map[String, String]
+  ) extends RecordOutputStream[T] {
     lazy val writer: RecordWriter[Void, T] = {
-      val compressionCodecClassName = options
-        .get(ParquetOutputFormat.COMPRESSION)
-        .map(ParquetOptions.getParquetCompressionCodecName)
+      val compressionCodecClassName = options.get(ParquetOutputFormat.COMPRESSION)
 
       implicit val encoder: Encoder[T] = implicitly[ParquetRowEncoder[T]].encoder
       val parquetWriteSupport          = parquetWriteSupportForEncodable[T](compressionCodecClassName)

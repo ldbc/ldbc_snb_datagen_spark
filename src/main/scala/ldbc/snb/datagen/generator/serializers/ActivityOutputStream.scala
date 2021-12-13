@@ -1,9 +1,9 @@
 package ldbc.snb.datagen.generator.serializers
 
-import ldbc.snb.datagen.generator.dictionary.Dictionaries
 import ldbc.snb.datagen.entities.dynamic.Forum
 import ldbc.snb.datagen.entities.dynamic.messages.{Comment, Photo, Post}
 import ldbc.snb.datagen.entities.dynamic.relations.{ForumMembership, Like}
+import ldbc.snb.datagen.generator.dictionary.Dictionaries
 import ldbc.snb.datagen.generator.generators.{GenActivity, GenWall}
 import ldbc.snb.datagen.io.raw.RecordOutputStream
 import ldbc.snb.datagen.model.raw

@@ -3,13 +3,13 @@ package ldbc.snb.datagen.io
 import ldbc.snb.datagen.io.raw.csv.{CsvRecordOutputStream, CsvRowEncoder}
 import ldbc.snb.datagen.io.raw.parquet.{ParquetRecordOutputStream, ParquetRowEncoder}
 import ldbc.snb.datagen.model.EntityTraits
-import ldbc.snb.datagen.syntax.fluentSyntaxOps
 import ldbc.snb.datagen.util.GeneratorConfiguration
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FSDataOutputStream, FileSystem, Path}
 import org.apache.hadoop.mapreduce.task.TaskAttemptContextImpl
-import org.apache.hadoop.mapreduce.{JobID, TaskAttemptContext, TaskAttemptID, TaskID, TaskType}
+import org.apache.hadoop.mapreduce._
 import org.apache.parquet.hadoop.ParquetOutputFormat
+import org.apache.parquet.hadoop.metadata.CompressionCodecName
 import org.apache.spark.TaskContext
 import org.apache.spark.sql.Encoder
 
@@ -51,6 +51,10 @@ package object raw {
       val fileSystem: FileSystem
   )
 
+  // See org.apache.parquet.hadoop.metadata.CompressionCodecName for other options. Note that not all are
+  // supported by Spark.
+  val DefaultParquetCompression = "snappy"
+
   private def fileOutputStream(fs: FileSystem, path: Path): FSDataOutputStream = fs.create(path, true, 131072)
 
   def csvRecordOutputStream[T <: Product: CsvRowEncoder](path: Path, writeContext: WriteContext) = {
@@ -61,9 +65,7 @@ package object raw {
     new ParquetRecordOutputStream[T](path, writeContext.taskAttemptContext, options)
   }
 
-  private def getExtension(format: String, compression: Option[String]) = format.pipeFoldLeft(compression) { (f, c) => s"$c.$f" }
-
-    def recordOutputStream[T <: Product: EntityTraits: CsvRowEncoder: ParquetRowEncoder](sink: RawSink, writeContext: WriteContext): RecordOutputStream[T] = {
+  def recordOutputStream[T <: Product: EntityTraits: CsvRowEncoder: ParquetRowEncoder](sink: RawSink, writeContext: WriteContext): RecordOutputStream[T] = {
     val et                           = EntityTraits[T]
     val numFiles                     = Math.ceil(et.sizeFactor / sink.oversizeFactor).toLong
     val partitionId                  = writeContext.taskContext.partitionId()
@@ -71,20 +73,19 @@ package object raw {
     val entityPath                   = et.`type`.entityPath
     val (formatOutputStream, extension) = sink.format match {
       case Parquet => {
-        val compression = Some("snappy")
-        val options = Map.empty[String, String]
-          .pipeFoldLeft(compression) { (m, v) => m + (ParquetOutputFormat.COMPRESSION -> v)}
+        val compression = CompressionCodecName.fromConf(DefaultParquetCompression)
+        val options     = Map { ParquetOutputFormat.COMPRESSION -> compression.toString }
         (
           parquetRecordOutputStream(_: Path, writeContext, options),
-          getExtension(sink.format.toString, compression)
+          s"${compression.getExtension}.${sink.format}"
         )
       }
-      case Csv     => (csvRecordOutputStream(_: Path, writeContext), sink.format.toString)
-      case x       => throw new UnsupportedOperationException(s"Raw serializer not implemented for format ${x}")
+      case Csv => (csvRecordOutputStream(_: Path, writeContext), sink.format.toString)
+      case x   => throw new UnsupportedOperationException(s"Raw serializer not implemented for format ${x}")
     }
     val files =
       for { i <- 0L until numFiles } yield new Path(
-        s"${sink.conf.getOutputDir}/graphs/${sink.format.toString}/raw/composite-merged-fk/${entityPath}/part_${partitionId}_${i}.${extension}"
+        s"${sink.conf.getOutputDir}/graphs/${sink.format.toString}/raw/composite-merged-fk/${entityPath}/part_${partitionId}_${i}${extension}"
       )
     new RoundRobinOutputStream(files.map(formatOutputStream))
   }

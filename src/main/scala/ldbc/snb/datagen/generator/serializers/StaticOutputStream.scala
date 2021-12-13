@@ -1,12 +1,12 @@
 package ldbc.snb.datagen.generator.serializers
 
-import ldbc.snb.datagen.generator.dictionary.Dictionaries
-import ldbc.snb.datagen.entities.statictype.place.Place
 import ldbc.snb.datagen.entities.statictype.Organisation
+import ldbc.snb.datagen.entities.statictype.place.Place
+import ldbc.snb.datagen.generator.dictionary.Dictionaries
+import ldbc.snb.datagen.generator.vocabulary.{DBP, DBPOWL}
 import ldbc.snb.datagen.io.raw.RecordOutputStream
 import ldbc.snb.datagen.model.raw
 import ldbc.snb.datagen.util.StringUtils
-import ldbc.snb.datagen.generator.vocabulary.{DBP, DBPOWL}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable

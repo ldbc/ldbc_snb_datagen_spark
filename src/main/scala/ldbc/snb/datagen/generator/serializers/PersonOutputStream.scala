@@ -1,7 +1,7 @@
 package ldbc.snb.datagen.generator.serializers
 
-import ldbc.snb.datagen.generator.dictionary.Dictionaries
 import ldbc.snb.datagen.entities.dynamic.person.Person
+import ldbc.snb.datagen.generator.dictionary.Dictionaries
 import ldbc.snb.datagen.io.raw.RecordOutputStream
 import ldbc.snb.datagen.model.raw
 

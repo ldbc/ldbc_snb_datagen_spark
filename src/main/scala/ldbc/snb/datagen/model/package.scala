@@ -169,6 +169,5 @@ package object model {
     case object Day   extends BatchPeriod
     case object Month extends BatchPeriod
   }
-
   object instances extends UntypedEntitiesInstances
 }

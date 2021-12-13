@@ -2,8 +2,8 @@ package ldbc.snb.datagen.factors
 
 import ldbc.snb.datagen.factors.io.FactorTableSink
 import ldbc.snb.datagen.io.graphs.GraphSource
-import ldbc.snb.datagen.model.EntityType
 import ldbc.snb.datagen.model
+import ldbc.snb.datagen.model.EntityType
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.util.{DatagenStage, Logging}
 import org.apache.spark.sql.functions.{broadcast, count, date_trunc, sum}

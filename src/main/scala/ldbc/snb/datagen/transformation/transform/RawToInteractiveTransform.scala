@@ -3,9 +3,9 @@ package ldbc.snb.datagen.transformation.transform
 import ldbc.snb.datagen.model.Cardinality.NN
 import ldbc.snb.datagen.model.EntityType.Edge
 import ldbc.snb.datagen.model.{EntityType, Graph, Mode}
+import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.util.Logging
 import ldbc.snb.datagen.util.sql._
-import ldbc.snb.datagen.syntax._
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.{col, lit, to_timestamp}
 

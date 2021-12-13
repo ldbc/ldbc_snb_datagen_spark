@@ -4,7 +4,7 @@ import ldbc.snb.datagen.io.graphs.{GraphSink, GraphSource}
 import ldbc.snb.datagen.model
 import ldbc.snb.datagen.model.{BatchedEntity, Graph, Mode}
 import ldbc.snb.datagen.syntax._
-import ldbc.snb.datagen.transformation.transform.{ExplodeAttrs, ExplodeEdges, ConvertDates, RawToBiTransform, RawToInteractiveTransform}
+import ldbc.snb.datagen.transformation.transform._
 import ldbc.snb.datagen.util.{DatagenStage, Logging}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import shapeless._
@@ -23,12 +23,11 @@ object TransformationStage extends DatagenStage with Logging {
       formatOptions: Map[String, String] = Map.empty
   )
 
-  import ldbc.snb.datagen.io.instances._
-  import ldbc.snb.datagen.io.Writer.ops._
   import ldbc.snb.datagen.io.Reader.ops._
+  import ldbc.snb.datagen.io.Writer.ops._
+  import ldbc.snb.datagen.io.instances._
 
   def run(args: Args)(implicit spark: SparkSession) = {
-    import spark.implicits._
     object write extends Poly1 {
       implicit def caseSimple[M <: Mode](implicit ev: M#Layout =:= DataFrame) =
         at[Graph[M]](g => g.write(GraphSink(args.outputDir, args.format, args.formatOptions)))

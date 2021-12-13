@@ -8,6 +8,8 @@ import ldbc.snb.datagen.transformation.TransformationStage
 import ldbc.snb.datagen.util.{SparkApp, lower}
 import shapeless.lens
 
+import scala.collection.JavaConverters._
+
 object LdbcDatagen extends SparkApp {
   val appName = "LDBC SNB Datagen for Spark"
 
@@ -123,10 +125,8 @@ object LdbcDatagen extends SparkApp {
 
   def run(args: Args): Unit = {
 
-    val irFormat = {
-      val _f = System.getenv("LDBC_DATAGEN_IR_FORMAT")
-      if (_f == null || _f == "") "parquet" else _f
-    }
+    val env      = System.getenv().asScala
+    val irFormat = env.getOrElse("LDBC_DATAGEN_IR_FORMAT", "parquet")
 
     val generatorArgs = GenerationStage.Args(
       scaleFactor = args.scaleFactor,

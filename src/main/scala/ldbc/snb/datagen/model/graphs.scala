@@ -3,10 +3,11 @@ package ldbc.snb.datagen.model
 import ldbc.snb.datagen.model.raw.RawEntity
 
 object graphs {
+  import instances._
+
   object Raw {
 
-    import instances._
-    import ldbc.snb.datagen.model.raw.instances._
+    import raw.instances._
 
     val graphDef = GraphDef(
       isAttrExploded = false,

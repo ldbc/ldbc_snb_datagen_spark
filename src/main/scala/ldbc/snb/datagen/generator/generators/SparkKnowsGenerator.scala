@@ -1,17 +1,15 @@
 package ldbc.snb.datagen.generator.generators
 
 import ldbc.snb.datagen.entities.dynamic.person.Person
-
-import java.util
-import ldbc.snb.datagen.generator.{DatagenContext, DatagenParams}
 import ldbc.snb.datagen.generator.generators.knowsgenerators.KnowsGenerator
+import ldbc.snb.datagen.generator.{DatagenContext, DatagenParams}
 import ldbc.snb.datagen.util.GeneratorConfiguration
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
 
+import java.util
 import scala.collection.JavaConverters._
 import scala.collection.SortedMap
-import scala.reflect.ClassTag
 
 object SparkKnowsGenerator {
   def apply(

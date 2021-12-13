@@ -1,12 +1,12 @@
 package ldbc.snb.datagen.transformation.transform
 
-import ldbc.snb.datagen.util.sql._
-import ldbc.snb.datagen.model.{Batched, BatchedEntity, EntityType, Graph, Mode}
-import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.model.Mode.BI
+import ldbc.snb.datagen.model._
+import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.util.Logging
-import org.apache.spark.sql.{Column, DataFrame}
+import ldbc.snb.datagen.util.sql._
 import org.apache.spark.sql.functions._
+import org.apache.spark.sql.{Column, DataFrame}
 
 case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long, keepImplicitDeletes: Boolean)
     extends Transform[Mode.Raw.type, Mode.BI]

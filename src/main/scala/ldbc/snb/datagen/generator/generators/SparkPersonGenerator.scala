@@ -1,11 +1,10 @@
 package ldbc.snb.datagen.generator.generators
 
 import ldbc.snb.datagen.entities.dynamic.person.Person
-import org.apache.spark.sql.SparkSession
 import ldbc.snb.datagen.generator.{DatagenContext, DatagenParams}
-import ldbc.snb.datagen.generator.generators.PersonGenerator
 import ldbc.snb.datagen.util.GeneratorConfiguration
 import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.SparkSession
 
 import scala.collection.JavaConverters._
 

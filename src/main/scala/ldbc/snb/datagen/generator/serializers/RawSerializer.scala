@@ -1,28 +1,13 @@
 package ldbc.snb.datagen.generator.serializers
 
 import ldbc.snb.datagen.entities.dynamic.person.Person
+import ldbc.snb.datagen.generator.generators.{GenActivity, PersonActivityGenerator, SparkRanker}
 import ldbc.snb.datagen.generator.{DatagenContext, DatagenParams}
-import ldbc.snb.datagen.generator.generators.SparkRanker
-import ldbc.snb.datagen.generator.generators.{GenActivity, PersonActivityGenerator}
 import ldbc.snb.datagen.io.Writer
 import ldbc.snb.datagen.io.raw.csv.CsvRowEncoder
 import ldbc.snb.datagen.io.raw.parquet.ParquetRowEncoder
 import ldbc.snb.datagen.io.raw.{RawSink, WriteContext, createNewWriteContext, recordOutputStream}
-import ldbc.snb.datagen.model.raw.{
-  Comment,
-  CommentHasTag,
-  Forum,
-  ForumHasMember,
-  ForumHasTag,
-  Organisation,
-  PersonLikesComment,
-  PersonLikesPost,
-  Place,
-  Post,
-  PostHasTag,
-  Tag,
-  TagClass
-}
+import ldbc.snb.datagen.model.raw._
 import ldbc.snb.datagen.model.{EntityTraits, raw}
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.util.SerializableConfiguration
@@ -30,13 +15,11 @@ import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.internal.SQLConf
 
 import java.net.URI
 import java.util
 import java.util.Collections
 import java.util.function.Consumer
-import scala.collection.JavaConverters._
 
 class RawSerializer(ranker: SparkRanker)(implicit spark: SparkSession) extends Writer[RawSink] {
   override type Data = RDD[Person]
