@@ -80,7 +80,7 @@ package object raw {
           s"${compression.getExtension}.${sink.format}"
         )
       }
-      case Csv => (csvRecordOutputStream(_: Path, writeContext), sink.format.toString)
+      case Csv => (csvRecordOutputStream(_: Path, writeContext), s".${sink.format.toString}")
       case x   => throw new UnsupportedOperationException(s"Raw serializer not implemented for format ${x}")
     }
     val files =
