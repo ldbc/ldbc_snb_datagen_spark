@@ -33,14 +33,16 @@ jobs:
       DATAGEN_VERSION: 0.5.0-SNAPSHOT
     steps:
       - checkout
-      - run: |
-          mkdir out/
-          DEBIAN_FRONTEND=noninteractive
-          sudo apt update
-          sudo apt install -y openjdk-8-jdk zip
-          sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/java-8-openjdk-amd64/bin/java 1
-          sudo update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/bin/java
-          java -version
+      - run:
+          name: Install dependencies
+          command: |
+            mkdir out/
+            DEBIAN_FRONTEND=noninteractive
+            sudo apt update
+            sudo apt install -y openjdk-8-jdk zip
+            sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/java-8-openjdk-amd64/bin/java 1
+            sudo update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/bin/java
+            java -version
       - run: docker build . -t ldbc/spark
       - restore_cache:
           keys:
@@ -55,24 +57,69 @@ jobs:
             - ~/.m2/repository   # maven deps
       - run: mkdir social-network-sf0.003
       # BI
-      - run: tools/docker-run.sh --mode bi --scale-factor 0.003 --explode-edges --explode-attrs && mv out social-network-sf0.003-bi-singular-projected-fk
-      - run: tools/docker-run.sh --mode bi --scale-factor 0.003                 --explode-attrs && mv out social-network-sf0.003-bi-singular-merged-fk
-      - run: tools/docker-run.sh --mode bi --scale-factor 0.003 --explode-edges                 && mv out social-network-sf0.003-bi-composite-projected-fk
-      - run: tools/docker-run.sh --mode bi --scale-factor 0.003                                 && mv out social-network-sf0.003-bi-composite-merged-fk
-      - run: tools/docker-run.sh --mode bi --scale-factor 0.003 --format-options header=true && mv out social-network-sf0.003-bi-composite-merged-fk-postgres
-      - run: tools/docker-run.sh --mode bi --scale-factor 0.003 --explode-edges --format-options header=false,quoteAll=true && mv out social-network-sf0.003-bi-composite-projected-fk-neo4j
+      - run: 
+          name: Generate SF0.003 / BI / singular-projected CSVs
+          command: |
+            tools/docker-run.sh --mode bi --scale-factor 0.003 --explode-edges --explode-attrs
+            mv out social-network-sf0.003-bi-singular-projected-fk
+      - run:
+          name: Generate SF0.003 / BI / singular-projected CSVs
+          command: |
+            tools/docker-run.sh --mode bi --scale-factor 0.003 --explode-attrs
+            mv out social-network-sf0.003-bi-singular-merged-fk
+      - run:
+          name: Generate SF0.003 / BI / singular-projected CSVs
+          command: |
+            tools/docker-run.sh --mode bi --scale-factor 0.003 --explode-edges
+            mv out social-network-sf0.003-bi-composite-projected-fk
+      - run:
+          name: Generate SF0.003 / BI / singular-projected CSVs
+          command: |
+            tools/docker-run.sh --mode bi --scale-factor 0.003 --generate-factors
+            mv out social-network-sf0.003-bi-composite-merged-fk
+      - run:
+          name: Generate SF0.003 / BI / singular-projected CSVs
+          command: |
+            tools/docker-run.sh --mode bi --scale-factor 0.003 --format-options header=true
+            mv out social-network-sf0.003-bi-composite-merged-fk-postgres
+      - run:
+          name: Generate SF0.003 / BI / singular-projected CSVs
+          command: |
+            tools/docker-run.sh --mode bi --scale-factor 0.003 --explode-edges --format-options header=false,quoteAll=true
+            mv out social-network-sf0.003-bi-composite-projected-fk-neo4j
       # Interactive
-      - run: tools/docker-run.sh --mode interactive --scale-factor 0.003 --explode-edges --explode-attrs && mv out social-network-sf0.003-interactive-singular-projected-fk
-      - run: tools/docker-run.sh --mode interactive --scale-factor 0.003                 --explode-attrs && mv out social-network-sf0.003-interactive-singular-merged-fk
-      - run: tools/docker-run.sh --mode interactive --scale-factor 0.003 --explode-edges                 && mv out social-network-sf0.003-interactive-composite-projected-fk
-      - run: tools/docker-run.sh --mode interactive --scale-factor 0.003                                 && mv out social-network-sf0.003-interactive-composite-merged-fk
-      - run: |
-          # deploy CircleCI configuration to provide the 'filters' instructions (and prevent failed builds on the gh-pages branch)
-          mv .circleci dist/
-          for d in social-network-sf0.003*; do
-            echo "Generated with <https://github.com/ldbc/ldbc_snb_datagen_spark/commit/${CIRCLE_SHA1}>" > $d/README.md
-            zip -r dist/$d.zip $d/
-          done
+      - run:
+          name: Generate SF0.003 / BI / singular-projected CSVs
+          command: |
+            tools/docker-run.sh --mode interactive --scale-factor 0.003 --explode-edges --explode-attrs
+            mv out social-network-sf0.003-interactive-singular-projected-fk
+      - run:
+          name: Generate SF0.003 / BI / singular-projected CSVs
+          command: |
+            tools/docker-run.sh --mode interactive --scale-factor 0.003 --explode-attrs
+            mv out social-network-sf0.003-interactive-singular-merged-fk
+      - run:
+          name: Generate SF0.003 / BI / singular-projected CSVs
+          command: |
+            tools/docker-run.sh --mode interactive --scale-factor 0.003 --explode-edges                
+            mv out social-network-sf0.003-interactive-composite-projected-fk
+      - run:
+          name: Generate SF0.003 / BI / singular-projected CSVs
+          command: |
+            tools/docker-run.sh --mode interactive --scale-factor 0.003                                
+            mv out social-network-sf0.003-interactive-composite-merged-fk
+      - run:
+          name: Compress directories and prepare for deployment
+          command: |
+            # include the CircleCI configuration in the deployed package to provide the 'filters' instructions (and prevent failed builds on the gh-pages branch)
+            mv .circleci dist/
+            # move factors to a separate directory
+            mv social-network-sf0.003-bi-composite-merged-fk/factors social-network-sf0.003-bi-factors
+            # compress each directory
+            for d in social-network-sf0.003*; do
+              echo "Generated with <https://github.com/ldbc/ldbc_snb_datagen_spark/commit/${CIRCLE_SHA1}>" > $d/README.md
+              zip -r dist/$d.zip $d/
+            done
       - persist_to_workspace:
           # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is
           # taken to be the root directory of the workspace.
