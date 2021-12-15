@@ -4,6 +4,7 @@ import ldbc.snb.datagen.entities.dynamic.person.Person
 import ldbc.snb.datagen.generator.dictionary.Dictionaries
 import ldbc.snb.datagen.io.raw.RecordOutputStream
 import ldbc.snb.datagen.model.raw
+import ldbc.snb.datagen.util.DateUtils
 
 import java.util
 import scala.collection.JavaConverters._
@@ -62,7 +63,7 @@ class PersonOutputStream(
         person.getDeletionDate,
         person.getAccountId,
         universityId,
-        person.getClassYear.toInt
+        DateUtils.getYear(person.getClassYear)
       )
       personStudyAtUniversityStream.write(personStudyAtUniversity)
     }
@@ -73,7 +74,7 @@ class PersonOutputStream(
         person.getDeletionDate,
         person.getAccountId,
         companyId,
-        person.getCompanies.get(companyId).toInt
+        DateUtils.getYear(person.getCompanies.get(companyId))
       )
       personWorkAtCompanyStream.write(personWorkAtCompany)
     }

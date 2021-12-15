@@ -16,11 +16,6 @@ public class DateUtils {
         return Instant.ofEpochMilli(epochMilli).atZone(UTC).toLocalDate();
     }
 
-    public static String formatYear(long epochMilli) {
-        LocalDate date = utcDateOfEpochMilli(epochMilli);
-        return Integer.toString(date.getYear());
-    }
-
     public static boolean isTravelSeason(long epochMilli) {
         LocalDate date = utcDateOfEpochMilli(epochMilli);
 
