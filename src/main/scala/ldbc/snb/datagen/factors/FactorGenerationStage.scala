@@ -5,6 +5,7 @@ import ldbc.snb.datagen.io.graphs.GraphSource
 import ldbc.snb.datagen.model
 import ldbc.snb.datagen.model.EntityType
 import ldbc.snb.datagen.syntax._
+import ldbc.snb.datagen.transformation.transform.ConvertDates
 import ldbc.snb.datagen.util.{DatagenStage, Logging}
 import org.apache.spark.sql.functions.{broadcast, count, date_trunc, sum}
 import org.apache.spark.sql.{Column, DataFrame, SparkSession}
@@ -15,7 +16,7 @@ case class Factor(requiredEntities: EntityType*)(f: Seq[DataFrame] => DataFrame)
 
 object FactorGenerationStage extends DatagenStage with Logging {
 
-  case class Args(outputDir: String = "out")
+  case class Args(outputDir: String = "out", irFormat: String = "parquet")
 
   def run(args: Args)(implicit spark: SparkSession): Unit = {
     import ldbc.snb.datagen.factors.io.instances._
@@ -23,7 +24,8 @@ object FactorGenerationStage extends DatagenStage with Logging {
     import ldbc.snb.datagen.io.Writer.ops._
     import ldbc.snb.datagen.io.instances._
 
-    GraphSource(model.graphs.Raw.graphDef, args.outputDir, "csv").read
+    GraphSource(model.graphs.Raw.graphDef, args.outputDir, args.irFormat).read
+      .pipe(ConvertDates.transform)
       .pipe(g =>
         rawFactors.map { case (name, calc) =>
           val resolvedEntities = calc.requiredEntities.foldLeft(Seq.empty[DataFrame])((args, et) => args :+ g.entities(et))
