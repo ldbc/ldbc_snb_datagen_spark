@@ -32,7 +32,7 @@ class StaticOutputStream(
     val rawPlace = raw.Place(
       place.getId,
       place.getName,
-      DBPOWL.getUrl(place.getName),
+      DBP.getUrl(place.getName),
       place.getType,
       partOfPlaceId
     )
@@ -89,7 +89,7 @@ class StaticOutputStream(
         company.toInt,
         Organisation.OrganisationType.Company.toString,
         companyName,
-        DBPOWL.getUrl(companyName),
+        DBP.getUrl(companyName),
         Dictionaries.companies.getCountry(company)
       )
       organisationStream.write(rawOrganisation)
@@ -103,7 +103,7 @@ class StaticOutputStream(
         university.toInt,
         Organisation.OrganisationType.University.toString,
         universityName,
-        DBPOWL.getUrl(universityName),
+        DBP.getUrl(universityName),
         Dictionaries.universities.getUniversityCity(university)
       )
       organisationStream.write(rawOrganisation)
