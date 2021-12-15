@@ -9,6 +9,7 @@ import ldbc.snb.datagen.io.raw.RecordOutputStream
 import ldbc.snb.datagen.model.raw
 import org.javatuples.{Pair, Triplet}
 
+import java.util.function.Consumer
 import java.util.stream.Stream
 import scala.collection.JavaConverters._
 
@@ -207,10 +208,9 @@ class ActivityOutputStream(
 }
 
 object ActivityOutputStream {
-
-  // do this implicitly to make the syntax terser
-  import scala.language.implicitConversions
-  implicit private def javaStreamToScalaIterator[T](t: Stream[T]): Iterator[T] = {
-    t.iterator().asScala
+  implicit final class ScalaLoopSupportForJavaStream[A](val self: Stream[A]) extends AnyVal {
+    def foreach[U](fn: A => U): Unit = {
+      self.forEach(new Consumer[A] { override def accept(t: A): Unit = fn(t) })
+    }
   }
 }
