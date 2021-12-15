@@ -41,7 +41,7 @@ class StaticOutputStream(
   }
 
   def writeTagHierarchy(tag: raw.Tag): Unit = {
-    val classId = tag.`TypeTagClassId`
+    var classId = tag.`TypeTagClassId`
     while (classId != -1 && !exportedClasses.contains(classId)) {
       exportedClasses.add(classId)
       val classParent = Dictionaries.tags.getClassParent(classId)
@@ -53,6 +53,7 @@ class StaticOutputStream(
         if (classParent != -1) Some(classParent) else None
       )
       tagClassStream.write(rawTagClass)
+      classId = classParent.toInt
     }
   }
 
