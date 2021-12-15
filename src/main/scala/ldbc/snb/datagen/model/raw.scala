@@ -41,7 +41,6 @@ object raw {
   case class PersonStudyAtUniversity(
       creationDate: Long,
       deletionDate: Long,
-      explicitlyDeleted: Boolean,
       PersonId: Long,
       UniversityId: Long,
       classYear: Int
@@ -50,7 +49,6 @@ object raw {
   case class PersonWorkAtCompany(
       creationDate: Long,
       deletionDate: Long,
-      explicitlyDeleted: Boolean,
       PersonId: Long,
       CompanyId: Long,
       workFrom: Int

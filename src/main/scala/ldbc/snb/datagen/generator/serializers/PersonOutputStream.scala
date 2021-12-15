@@ -16,7 +16,7 @@ class PersonOutputStream(
     personWorkAtCompanyStream: RecordOutputStream[raw.PersonWorkAtCompany]
 ) extends RecordOutputStream[Person] {
 
-  private def getGender(gender: Int): String = if (gender == 0) "male" else "female"
+  private def getGender(gender: Int): String = if (gender == 0) "female" else "male"
 
   private def getLanguages(languages: util.List[Integer]): Seq[String] = {
     languages.asScala.map(x => Dictionaries.languages.getLanguageName(x))
@@ -60,7 +60,6 @@ class PersonOutputStream(
       val personStudyAtUniversity = raw.PersonStudyAtUniversity(
         person.getCreationDate,
         person.getDeletionDate,
-        person.isExplicitlyDeleted,
         person.getAccountId,
         universityId,
         person.getClassYear.toInt
@@ -72,7 +71,6 @@ class PersonOutputStream(
       val personWorkAtCompany = raw.PersonWorkAtCompany(
         person.getCreationDate,
         person.getDeletionDate,
-        person.isExplicitlyDeleted,
         person.getAccountId,
         companyId,
         person.getCompanies.get(companyId).toInt
@@ -85,9 +83,9 @@ class PersonOutputStream(
     for (know <- knows.iterator().asScala) {
       if (person.getAccountId < know.to.getAccountId) {
         val personKnowsPerson = raw.PersonKnowsPerson(
-          person.getCreationDate,
-          person.getDeletionDate,
-          person.isExplicitlyDeleted,
+          know.getCreationDate,
+          know.getDeletionDate,
+          know.isExplicitlyDeleted,
           person.getAccountId,
           know.to().getAccountId
         )
