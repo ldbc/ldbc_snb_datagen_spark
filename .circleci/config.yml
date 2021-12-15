@@ -77,11 +77,6 @@ jobs:
             tools/docker-run.sh --mode bi --scale-factor 0.003 --generate-factors
             mv out/ social-network-sf0.003-bi-composite-merged-fk/
       - run:
-          name: Generate SF0.003 / BI / composite-merged CSVs for Postgres
-          command: |
-            tools/docker-run.sh --mode bi --scale-factor 0.003 --format-options header=true
-            mv out/ social-network-sf0.003-bi-composite-merged-fk-postgres/
-      - run:
           name: Generate SF0.003 / BI / composite-projected CSVs for Neo4j
           command: |
             tools/docker-run.sh --mode bi --scale-factor 0.003 --explode-edges --format-options header=false,quoteAll=true
