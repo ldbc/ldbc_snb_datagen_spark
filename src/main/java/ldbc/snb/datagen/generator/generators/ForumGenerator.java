@@ -36,8 +36,8 @@
 
 package ldbc.snb.datagen.generator.generators;
 
-import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.generator.DatagenParams;
+import ldbc.snb.datagen.generator.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 import ldbc.snb.datagen.entities.dynamic.person.PersonSummary;
@@ -45,7 +45,7 @@ import ldbc.snb.datagen.entities.dynamic.relations.ForumMembership;
 import ldbc.snb.datagen.entities.dynamic.relations.Knows;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.util.StringUtils;
-import ldbc.snb.datagen.vocabulary.SN;
+import ldbc.snb.datagen.generator.vocabulary.SN;
 
 import java.util.*;
 

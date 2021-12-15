@@ -2,9 +2,10 @@ package ldbc.snb.datagen.factors
 
 import ldbc.snb.datagen.factors.io.FactorTableSink
 import ldbc.snb.datagen.io.graphs.GraphSource
-import ldbc.snb.datagen.model.{EntityType, graphs}
 import ldbc.snb.datagen.model
+import ldbc.snb.datagen.model.EntityType
 import ldbc.snb.datagen.syntax._
+import ldbc.snb.datagen.transformation.transform.ConvertDates
 import ldbc.snb.datagen.util.{DatagenStage, Logging}
 import org.apache.spark.sql.functions.{broadcast, count, date_trunc, sum}
 import org.apache.spark.sql.{Column, DataFrame, SparkSession}
@@ -15,7 +16,7 @@ case class Factor(requiredEntities: EntityType*)(f: Seq[DataFrame] => DataFrame)
 
 object FactorGenerationStage extends DatagenStage with Logging {
 
-  case class Args(outputDir: String = "out")
+  case class Args(outputDir: String = "out", irFormat: String = "parquet")
 
   def run(args: Args)(implicit spark: SparkSession): Unit = {
     import ldbc.snb.datagen.factors.io.instances._
@@ -23,7 +24,8 @@ object FactorGenerationStage extends DatagenStage with Logging {
     import ldbc.snb.datagen.io.Writer.ops._
     import ldbc.snb.datagen.io.instances._
 
-    GraphSource(model.graphs.Raw.graphDef, args.outputDir, "csv").read
+    GraphSource(model.graphs.Raw.graphDef, args.outputDir, args.irFormat).read
+      .pipe(ConvertDates.transform)
       .pipe(g =>
         rawFactors.map { case (name, calc) =>
           val resolvedEntities = calc.requiredEntities.foldLeft(Seq.empty[DataFrame])((args, et) => args :+ g.entities(et))
@@ -50,10 +52,10 @@ object FactorGenerationStage extends DatagenStage with Logging {
     ).select($"Tag.id".as("tagId"), $"Tag.name".as("tagName"), $"frequency")
   }
 
-  import graphs.Raw.entities._
+  import model.raw._
 
   private val rawFactors = Map(
-    "countryNumPersons" -> Factor(Place, Person) { case Seq(places, persons) =>
+    "countryNumPersons" -> Factor(PlaceType, PersonType) { case Seq(places, persons) =>
       val cities    = places.where($"type" === "City").cache()
       val countries = places.where($"type" === "Country").cache()
 
@@ -66,14 +68,14 @@ object FactorGenerationStage extends DatagenStage with Logging {
         by = Seq($"Country.id", $"Country.name")
       )
     },
-    "countryNumMessages" -> Factor(Comment, Post) { case Seq(comments, posts) =>
+    "countryNumMessages" -> Factor(CommentType, PostType) { case Seq(comments, posts) =>
       frequency(
         comments.select($"id", $"LocationCountryId") |+| posts.select($"id", $"LocationCountryId"),
         value = $"id",
         by = Seq($"LocationCountryId")
       )
     },
-    "cityPairsNumFriends" -> Factor(PersonKnowsPerson, Person, Place) { case Seq(personKnowsPerson, persons, places) =>
+    "cityPairsNumFriends" -> Factor(PersonKnowsPersonType, PersonType, PlaceType) { case Seq(personKnowsPerson, persons, places) =>
       val cities = places.where($"type" === "City").cache()
 
       frequency(
@@ -94,7 +96,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
         $"frequency"
       )
     },
-    "countryPairsNumFriends" -> Factor(PersonKnowsPerson, Person, Place) { case Seq(personKnowsPerson, persons, places) =>
+    "countryPairsNumFriends" -> Factor(PersonKnowsPersonType, PersonType, PlaceType) { case Seq(personKnowsPerson, persons, places) =>
       val cities    = places.where($"type" === "City").cache()
       val countries = places.where($"type" === "Country").cache()
 
@@ -118,22 +120,22 @@ object FactorGenerationStage extends DatagenStage with Logging {
         $"frequency"
       )
     },
-    "messageCreationDays" -> Factor(Comment, Post) { case Seq(comments, posts) =>
+    "messageCreationDays" -> Factor(CommentType, PostType) { case Seq(comments, posts) =>
       (comments.select($"creationDate") |+| posts.select($"creationDate"))
         .select(date_trunc("day", $"creationDate").as("creationDay"))
         .distinct()
     },
-    "messageLengths" -> Factor(Comment, Post) { case Seq(comments, posts) =>
+    "messageLengths" -> Factor(CommentType, PostType) { case Seq(comments, posts) =>
       frequency(
         comments.select($"id", $"length") |+| posts.select($"id", $"length"),
         value = $"id",
         by = Seq($"length")
       )
     },
-    "messageTags" -> Factor(CommentHasTag, PostHasTag, Tag) { case Seq(commentHasTag, postHasTag, tag) =>
+    "messageTags" -> Factor(CommentHasTagType, PostHasTagType, TagType) { case Seq(commentHasTag, postHasTag, tag) =>
       messageTags(commentHasTag, postHasTag, tag).cache()
     },
-    "messageTagClasses" -> Factor(CommentHasTag, PostHasTag, Tag, TagClass) { case Seq(commentHasTag, postHasTag, tag, tagClass) =>
+    "messageTagClasses" -> Factor(CommentHasTagType, PostHasTagType, TagType, TagClassType) { case Seq(commentHasTag, postHasTag, tag, tagClass) =>
       frequency(
         messageTags(commentHasTag, postHasTag, tag)
           .as("MessageTags")
@@ -144,20 +146,20 @@ object FactorGenerationStage extends DatagenStage with Logging {
         agg = sum
       )
     },
-    "personNumFriends" -> Factor(PersonKnowsPerson) { case Seq(knows) =>
+    "personNumFriends" -> Factor(PersonKnowsPersonType) { case Seq(knows) =>
       frequency(knows, value = $"Person2Id", by = Seq($"Person1Id"))
     },
-    "postLanguages" -> Factor(Post) { case Seq(post) =>
+    "postLanguages" -> Factor(PostType) { case Seq(post) =>
       frequency(post.where($"language".isNotNull), value = $"id", by = Seq($"language"))
     },
-    "tagClassNumTags" -> Factor(TagClass, Tag) { case Seq(tagClass, tag) =>
+    "tagClassNumTags" -> Factor(TagClassType, TagType) { case Seq(tagClass, tag) =>
       frequency(
         tag.as("Tag").join(tagClass.as("TagClass"), $"Tag.TypeTagClassId" === $"TagClass.id"),
         value = $"Tag.id",
         by = Seq($"TagClass.id", $"TagClass.name")
       )
     },
-    "companiesNumEmployees" -> Factor(Organisation, PersonWorkAtCompany) { case Seq(organisation, workAt) =>
+    "companiesNumEmployees" -> Factor(OrganisationType, PersonWorkAtCompanyType) { case Seq(organisation, workAt) =>
       val company = organisation.where($"Type" === "Company").cache()
       frequency(
         company.as("Company").join(workAt.as("WorkAt"), $"WorkAt.CompanyId" === $"Company.id"),

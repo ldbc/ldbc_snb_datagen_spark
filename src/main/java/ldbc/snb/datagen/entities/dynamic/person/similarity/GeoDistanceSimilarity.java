@@ -35,7 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.entities.dynamic.person.similarity;
 
-import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.generator.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.person.Person;
 
 public class GeoDistanceSimilarity implements Person.PersonSimilarity {

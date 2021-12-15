@@ -83,7 +83,7 @@ object graphs {
       with Logging
       with GraphWriterMixin {
 
-    override type CoRet = Graph[M]
+    override type Data = Graph[M]
 
     import CacheFriendlyEntityOrdering._
 
@@ -106,7 +106,7 @@ object graphs {
       with Logging
       with GraphWriterMixin {
 
-    override type CoRet = Graph[M]
+    override type Data = Graph[M]
 
     import CacheFriendlyEntityOrdering._
 

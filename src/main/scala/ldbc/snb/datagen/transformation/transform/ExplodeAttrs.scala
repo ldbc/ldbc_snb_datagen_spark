@@ -1,11 +1,11 @@
 package ldbc.snb.datagen.transformation.transform
 
-import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.model.EntityType.{Attr, Node}
-import ldbc.snb.datagen.model.Mode.Raw.withRawColumns
 import ldbc.snb.datagen.model.Mode
-import org.apache.spark.sql.{Column, DataFrame}
+import ldbc.snb.datagen.model.Mode.Raw.withRawColumns
+import ldbc.snb.datagen.syntax._
 import org.apache.spark.sql.functions.{explode, split}
+import org.apache.spark.sql.{Column, DataFrame}
 import shapeless.lens
 
 object ExplodeAttrs extends Transform[Mode.Raw.type, Mode.Raw.type] {

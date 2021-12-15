@@ -2,7 +2,9 @@ package ldbc.snb.datagen
 
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.util.camel
-import org.apache.spark.sql.{Column, DataFrame}
+import org.apache.spark.sql.types.StructType
+import org.apache.spark.sql.{Column, DataFrame, Encoder}
+import shapeless._
 
 import scala.language.higherKinds
 
@@ -13,6 +15,27 @@ package object model {
     case object OneN extends Cardinality
     case object NN   extends Cardinality
     case object NOne extends Cardinality
+  }
+
+  trait EntityTraits[A] {
+    def `type`: EntityType
+    def schema: StructType
+    def sizeFactor: Double
+  }
+
+  object EntityTraits {
+    def apply[A: EntityTraits] = implicitly[EntityTraits[A]]
+
+    def pure[A: Encoder](`type`: EntityType, sizeFactor: Double): EntityTraits[A] = {
+      val _type       = `type`
+      val _sizeFactor = sizeFactor
+      val _schema     = implicitly[Encoder[A]].schema
+      new EntityTraits[A] {
+        override def `type`: EntityType = _type
+        override def schema: StructType = _schema
+        override def sizeFactor: Double = _sizeFactor
+      }
+    }
   }
 
   sealed trait EntityType {
@@ -57,6 +80,29 @@ package object model {
       override def toString: String = s"$parent ♢-[${`type`}]-> $attribute"
     }
 
+  }
+
+  // Gadget to move from a strongly typed entity to an EntityType -> Schema mapping
+  trait UntypedEntities[T] { def value: Map[EntityType, StructType] }
+
+  object UntypedEntities {
+    implicit def apply[T: UntypedEntities] = implicitly[UntypedEntities[T]]
+  }
+
+  trait UntypedEntitiesInstances {
+
+    implicit def untypedEntitiesForHCons[T, Rest <: Coproduct](implicit et: EntityTraits[T], ev: UntypedEntities[Rest]): UntypedEntities[T :+: Rest] =
+      new UntypedEntities[T :+: Rest] {
+        override val value: Map[EntityType, StructType] = ev.value + (et.`type` -> et.schema)
+      }
+
+    implicit val untypedEntitiesForHNil: UntypedEntities[CNil] = new UntypedEntities[CNil] {
+      override def value: Map[EntityType, StructType] = Map.empty
+    }
+
+    implicit def untypedEntitiesForEnum[T, G](implicit gen: Generic.Aux[T, G], ev: UntypedEntities[G]): UntypedEntities[T] = new UntypedEntities[T] {
+      override val value = ev.value
+    }
   }
 
   case class Batched(entity: DataFrame, batchId: Seq[String])
@@ -123,4 +169,5 @@ package object model {
     case object Day   extends BatchPeriod
     case object Month extends BatchPeriod
   }
+  object instances extends UntypedEntitiesInstances
 }

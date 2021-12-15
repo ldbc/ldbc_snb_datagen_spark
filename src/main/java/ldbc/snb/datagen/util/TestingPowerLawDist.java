@@ -1,6 +1,6 @@
 package ldbc.snb.datagen.util;
 
-import ldbc.snb.datagen.DatagenParams;
+import ldbc.snb.datagen.generator.DatagenParams;
 import ldbc.snb.datagen.generator.tools.PowerDistribution;
 
 import java.io.BufferedWriter;

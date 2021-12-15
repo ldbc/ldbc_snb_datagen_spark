@@ -36,8 +36,8 @@
 
 package ldbc.snb.datagen.generator.generators.postgenerators;
 
-import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.generator.DatagenParams;
+import ldbc.snb.datagen.generator.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.entities.dynamic.messages.Comment;
 import ldbc.snb.datagen.entities.dynamic.messages.Post;
@@ -51,7 +51,7 @@ import ldbc.snb.datagen.util.Iterators;
 import ldbc.snb.datagen.util.PersonBehavior;
 import ldbc.snb.datagen.util.RandomGeneratorFarm;
 import ldbc.snb.datagen.util.Streams;
-import ldbc.snb.datagen.vocabulary.SN;
+import ldbc.snb.datagen.generator.vocabulary.SN;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
