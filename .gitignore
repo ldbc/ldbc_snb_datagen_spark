@@ -47,6 +47,10 @@ local.properties
 out/
 datagen_output/
 
+/sf*/
+/social-network*/
+/social_network*/
+
 # Hadoop directory extracted as instructed in the Quick Start guide
 /hadoop-*.tar.gz
 /hadoop-*/
