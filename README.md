@@ -36,7 +36,7 @@ You can build the JAR with both Maven and SBT.
     sbt assembly
     ```
 
-    :warning: When using SBT, change the path of the JAR file in the instructions provided in the README (`target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar` -> `./target/scala-2.11/ldbc_snb_datagen-assembly-${DATAGEN_VERSION}.jar`).
+    :warning: When using SBT, change the path of the JAR file in the instructions provided in the README (`target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar` -> `./target/scala-2.12/ldbc_snb_datagen-assembly-${DATAGEN_VERSION}.jar`).
 
 ### Install Python tools
 

@@ -56,15 +56,12 @@ To use spot instances, add the `--use-spot` argument:
 
 ### Using a different Spark / EMR version
 
-
-
-We use EMR 6.3.0 by default, which contains Spark 3.1. You can use a different version by specifying it with the `--emr-version` option. 
-EMR 5.33.0 is the recommended EMR version to be used with Spark 2.4.
-Make sure that you have uploaded the right JAR first!
+We use EMR 6.3.0 by default, which packages Spark 3.1. You can use a different version by specifying it with the `--emr-version` option.
+Make sure that you have uploaded the right JAR first.
 
 ```bash
-PLATFORM_VERSION=2.11_spark2.4
-./tools/emr/submit_datagen_job.py --bucket ${BUCKET_NAME} --platform-version ${PLATFORM_VERSION} --emr-release emr-5.33.0 ${JOB_NAME} ${SCALE_FACTOR} csv raw
+PLATFORM_VERSION=2.12_spark3.1
+./tools/emr/submit_datagen_job.py --bucket ${BUCKET_NAME} --platform-version ${PLATFORM_VERSION} --emr-release emr-6.2.0 ${JOB_NAME} ${SCALE_FACTOR} csv raw
 ```
 
 ### Using a parameter file
