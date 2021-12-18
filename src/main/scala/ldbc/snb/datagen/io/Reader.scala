@@ -28,8 +28,7 @@ object Reader {
     implicit def toReaderOps[T, R](target: T)(implicit tc: Reader.Aux[T, R]): ReaderOps.Aux[T, R] = new ReaderOps[T] {
       override type Ret = R
       override def tcInstance: Aux[T, R] = tc
-      override def self: T = target
+      override def self: T               = target
     }
   }
 }
-

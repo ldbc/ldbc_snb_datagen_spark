@@ -36,8 +36,8 @@
 
 package ldbc.snb.datagen.generator.generators;
 
-import ldbc.snb.datagen.DatagenParams;
-import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.generator.DatagenParams;
+import ldbc.snb.datagen.generator.dictionary.Dictionaries;
 import ldbc.snb.datagen.entities.dynamic.Forum;
 import ldbc.snb.datagen.entities.dynamic.messages.Comment;
 import ldbc.snb.datagen.entities.dynamic.messages.Photo;

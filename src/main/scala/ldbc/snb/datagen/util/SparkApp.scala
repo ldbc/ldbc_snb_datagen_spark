@@ -6,7 +6,7 @@ import org.apache.spark.sql.SparkSession
 trait SparkApp {
   def appName: String
 
-  implicit def spark = SparkSession
+  implicit def spark: SparkSession = SparkSession
     .builder()
     .appName(appName)
     .pipe(applySparkConf(defaultSparkConf))

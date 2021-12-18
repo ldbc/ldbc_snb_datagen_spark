@@ -35,7 +35,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 package ldbc.snb.datagen.entities.statictype.tag;
 
-import ldbc.snb.datagen.dictionary.Dictionaries;
+import ldbc.snb.datagen.generator.dictionary.Dictionaries;
 
 public class FlashMobTag implements Comparable<FlashMobTag> {
     public int level;
