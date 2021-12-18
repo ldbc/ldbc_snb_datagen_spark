@@ -38,7 +38,7 @@ You can build the JAR with both Maven and SBT.
 
     :warning: When using SBT, change the path of the JAR file in the instructions provided in the README (`target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar` -> `./target/scala-2.11/ldbc_snb_datagen-assembly-${DATAGEN_VERSION}.jar`).
 
-### Install tools
+### Install Python tools
 
 Some of the build utilities are written in Python. To use them, you have to create a Python virtual environment
 and install the dependencies.

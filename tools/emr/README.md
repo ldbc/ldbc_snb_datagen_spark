@@ -24,19 +24,8 @@ In AWS IAM, add the following roles with **Create Role** | **AWS service** | **E
 
 ## Install the required libraries
 
-Make sure you use pip 21.1 or newer.
+Install the required libraries as described in the [main README](../../README.md#install-python-tools).
 
-1. From `tools`, run:
-
-```
-pip install -e .
-```
-
-1. Package the JAR. Make sure you use Java 8:
-
-```bash
-./tools/build.sh
-```
 ## Submitting a job
 
 1. Upload the JAR to S3. (We don't version the JARs yet, so you can only make sure that you run the intended code this way :( ) 
