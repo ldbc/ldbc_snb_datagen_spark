@@ -64,7 +64,7 @@ public class ForumGenerator {
      */
     Forum createWall(RandomGeneratorFarm randomFarm, long forumId, Person person, long blockId) {
 
-        int language = randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE).nextInt(person.getLanguages().size());
+        int language = person.getLanguages().get(randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE).nextInt(person.getLanguages().size()));
 
         // Check moderator can be added
         if (person.getDeletionDate() - person.getCreationDate() + DatagenParams.delta < 0){
@@ -134,7 +134,7 @@ public class ForumGenerator {
         // the hasModerator edge is deleted if either the Forum (group) or the Person (moderator) is deleted
         long moderatorDeletionDate = Math.min(groupDeletionDate, moderator.getDeletionDate());
 
-        int language = randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE).nextInt(moderator.getLanguages().size());
+        int language = moderator.getLanguages().get(randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE).nextInt(moderator.getLanguages().size()));
 
         Iterator<Integer> iter = moderator.getInterests().iterator();
         int idx = randomFarm.get(RandomGeneratorFarm.Aspect.FORUM_INTEREST).nextInt(moderator.getInterests().size());
@@ -273,8 +273,7 @@ public class ForumGenerator {
             albumDeletionDate = person.getDeletionDate();
         }
 
-
-        int language = randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE).nextInt(person.getLanguages().size());
+        int language = person.getLanguages().get(randomFarm.get(RandomGeneratorFarm.Aspect.LANGUAGE).nextInt(person.getLanguages().size()));
         Forum forum = new Forum(SN.formId(SN.composeId(forumId, albumCreationDate), blockId),
                 albumCreationDate,
                 albumDeletionDate,
