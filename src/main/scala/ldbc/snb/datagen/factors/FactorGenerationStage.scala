@@ -68,6 +68,17 @@ object FactorGenerationStage extends DatagenStage with Logging {
         by = Seq($"Country.id", $"Country.name")
       )
     },
+    "cityNumPersons" -> Factor(PlaceType, PersonType) { case Seq(places, persons) =>
+      val cities    = places.where($"type" === "City").cache()
+
+      frequency(
+        persons
+          .as("Person")
+          .join(broadcast(cities.as("City")), $"City.id" === $"Person.LocationCityId"),
+        value = $"Person.id",
+        by = Seq($"City.id", $"City.name")
+      )
+    },
     "countryNumMessages" -> Factor(CommentType, PostType, PlaceType) { case Seq(comments, posts, places) =>
       val countries = places.where($"type" === "Country").cache()
 
