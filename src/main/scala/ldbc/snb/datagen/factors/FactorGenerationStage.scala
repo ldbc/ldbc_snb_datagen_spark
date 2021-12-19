@@ -7,7 +7,7 @@ import ldbc.snb.datagen.model.EntityType
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.transformation.transform.ConvertDates
 import ldbc.snb.datagen.util.{DatagenStage, Logging}
-import org.apache.spark.sql.functions.{broadcast, count, date_trunc, sum}
+import org.apache.spark.sql.functions.{broadcast, col, count, date_trunc, floor, sum}
 import org.apache.spark.sql.{Column, DataFrame, SparkSession}
 
 case class Factor(requiredEntities: EntityType*)(f: Seq[DataFrame] => DataFrame) extends (Seq[DataFrame] => DataFrame) {
@@ -149,6 +149,19 @@ object FactorGenerationStage extends DatagenStage with Logging {
           .join(tagClass.as("TagClass"), $"Tag.TypeTagClassId" === $"TagClass.id"),
         value = $"MessageId",
         by = Seq($"creationDay", $"TagClass.id")
+      )
+    },
+    "dateLengthCategoryNumMessages" -> Factor(CommentType, PostType) { case Seq(comments, posts) =>
+      frequency(
+        (comments.select($"id".as("MessageId"), $"creationDate", $"length")
+          |+| posts.select($"id".as("MessageId"), $"creationDate", $"length"))
+          .select(
+            $"MessageId",
+            date_trunc("day", $"creationDate").as("creationDay"),
+            floor(col("length") / 10).as("lengthCategory")
+          ),
+        value = $"MessageId",
+        by = Seq($"creationDay", $"lengthCategory")
       )
     },
     "messageLengths" -> Factor(CommentType, PostType) { case Seq(comments, posts) =>
