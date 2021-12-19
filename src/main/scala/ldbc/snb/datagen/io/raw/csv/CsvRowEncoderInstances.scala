@@ -47,7 +47,7 @@ trait CsvRowEncoderInstances {
       t.creationDate.toString,
       t.deletionDate.toString,
       t.personId.toString,
-      t.interestIdx.toString
+      t.interestId.toString
     )
   }
 

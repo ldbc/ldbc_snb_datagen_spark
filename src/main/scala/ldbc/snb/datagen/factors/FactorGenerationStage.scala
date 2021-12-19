@@ -155,6 +155,10 @@ object FactorGenerationStage extends DatagenStage with Logging {
     "postLanguages" -> Factor(PostType) { case Seq(post) =>
       frequency(post.where($"language".isNotNull), value = $"id", by = Seq($"language"))
     },
+    "tagNumPersons" -> Factor(PersonHasInterestTagType) { case Seq(interest) =>
+      frequency(interest, value = $"personId", by = Seq($"interestId")
+      )
+    },
     "tagClassNumTags" -> Factor(TagClassType, TagType) { case Seq(tagClass, tag) =>
       frequency(
         tag.as("Tag").join(tagClass.as("TagClass"), $"Tag.TypeTagClassId" === $"TagClass.id"),

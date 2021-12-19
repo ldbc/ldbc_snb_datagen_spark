@@ -27,7 +27,7 @@ object raw {
       creationDate: Long,
       deletionDate: Long,
       personId: Long,
-      interestIdx: Int
+      interestId: Int
   ) extends RawEntity
 
   case class PersonKnowsPerson(
