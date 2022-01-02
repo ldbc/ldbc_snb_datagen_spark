@@ -48,20 +48,20 @@ E.g. with [pyenv](https://github.com/pyenv/pyenv) and [pyenv-virtualenv](https:/
 pyenv install 3.7.7
 pyenv virtualenv 3.7.7 ldbc_datagen_tools
 pyenv local ldbc_datagen_tools
-pip install -U pip 
+pip install -U pip
 pip install ./tools
 ```
 ### Running locally
 
 The `tools/run.py` is intended for **local runs**. To use it, download and extract Spark as follows.
 
-#### Spark 3.1.x
+#### Spark 3.2.x
 
-Spark 3.1.x is the recommended runtime to use. The rest of the instructions are provided assuming Spark 3.1.x.
+Spark 3.2.x is the recommended runtime to use. The rest of the instructions are provided assuming Spark 3.2.x.
 
 ```bash
-curl https://downloads.apache.org/spark/spark-3.1.2/spark-3.1.2-bin-hadoop3.2.tgz | sudo tar -xz -C /opt/
-export SPARK_HOME="/opt/spark-3.1.2-bin-hadoop3.2"
+curl https://downloads.apache.org/spark/spark-3.2.0/spark-3.2.0-bin-hadoop3.2.tgz | sudo tar -xz -C /opt/
+export SPARK_HOME="/opt/spark-3.2.0-bin-hadoop3.2"
 export PATH="$SPARK_HOME/bin":"$PATH"
 ```
 
@@ -76,7 +76,7 @@ tools/build.sh
 Run the script with:
 
 ```bash
-export PLATFORM_VERSION=2.12_spark3.1
+export PLATFORM_VERSION=2.12_spark3.2
 export DATAGEN_VERSION=0.5.0-SNAPSHOT
 tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar <runtime configuration arguments> -- <generator configuration arguments>
 ```
