@@ -47,6 +47,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
       .union(personKnowsPerson.select($"Person2Id".as("Person1Id"), $"Person1Id".as("Person2Id")))
       .distinct()
       .alias("Knows")
+      .cache()
 
   private def messageTags(commentHasTag: DataFrame, postHasTag: DataFrame, tag: DataFrame) = {
     val messageHasTag = commentHasTag.select($"CommentId".as("id"), $"TagId") |+| postHasTag.select($"PostId".as("id"), $"TagId")
@@ -123,9 +124,10 @@ object FactorGenerationStage extends DatagenStage with Logging {
       frequency(knows
           .join(persons.cache().as("Person1"), $"Person1.id" === $"Knows.Person1Id")
           .join(cities.as("City1"), $"City1.id" === $"Person1.LocationCityId")
-          .join(countries.as("Country1"), $"Country1.id" === $"City1.PartOfPlaceId")
           .join(persons.as("Person2"), $"Person2.id" === $"Knows.Person2Id")
           .join(cities.as("City2"), $"City2.id" === $"Person2.LocationCityId")
+          .cache()
+          .join(countries.as("Country1"), $"Country1.id" === $"City1.PartOfPlaceId")
           .join(countries.as("Country2"), $"Country2.id" === $"City2.PartOfPlaceId")
           .where($"Country1.id" < $"Country2.id"),
         value = $"*",
