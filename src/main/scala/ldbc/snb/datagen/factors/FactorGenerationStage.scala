@@ -7,7 +7,7 @@ import ldbc.snb.datagen.model.EntityType
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.transformation.transform.ConvertDates
 import ldbc.snb.datagen.util.{DatagenStage, Logging}
-import org.apache.spark.sql.functions.{broadcast, col, count, date_trunc, floor, sum}
+import org.apache.spark.sql.functions.{broadcast, col, count, date_trunc, expr, floor, sum}
 import org.apache.spark.sql.{Column, DataFrame, SparkSession}
 
 case class Factor(requiredEntities: EntityType*)(f: Seq[DataFrame] => DataFrame) extends (Seq[DataFrame] => DataFrame) {
@@ -43,8 +43,8 @@ object FactorGenerationStage extends DatagenStage with Logging {
       .orderBy($"frequency".desc +: by.map(_.asc): _*)
 
   private def undirectedKnows(personKnowsPerson: DataFrame) =
-    personKnowsPerson.select($"Person1Id", $"Person2Id")
-      .union(personKnowsPerson.select($"Person2Id".as("Person1Id"), $"Person1Id".as("Person2Id")))
+    personKnowsPerson
+      .select(expr("stack(2, Person1Id, Person2Id, Person2Id, Person1Id)").as(Seq("Person1Id", "Person2Id")))
       .alias("Knows")
       .cache()
 
