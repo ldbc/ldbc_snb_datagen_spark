@@ -96,9 +96,9 @@ object FactorGenerationStage extends DatagenStage with Logging {
         personKnowsPerson
           .alias("Knows")
           .join(persons.cache().as("Person1"), $"Person1.id" === $"Knows.Person1Id")
-          .join(cities.cache().as("City1"), $"City1.id" === "Person1.LocationCityId")
+          .join(cities.as("City1"), $"City1.id" === $"Person1.LocationCityId")
           .join(persons.as("Person2"), $"Person2.id" === $"Knows.Person2Id")
-          .join(cities.as("City2"), $"City2.id" === "Person2.LocationCityId")
+          .join(cities.as("City2"), $"City2.id" === $"Person2.LocationCityId")
           .where($"City1.id" < $"City2.id"),
         value = $"*",
         by = Seq($"City1.id", $"City2.id", $"City1.name", $"City2.name")
@@ -118,11 +118,11 @@ object FactorGenerationStage extends DatagenStage with Logging {
         personKnowsPerson
           .alias("Knows")
           .join(persons.cache().as("Person1"), $"Person1.id" === $"Knows.Person1Id")
-          .join(cities.cache().as("City1"), $"City1.id" === "Person1.LocationCityId")
-          .join(countries.cache().as("Country1"), $"Country1.id" === "City1.PartOfPlaceId")
+          .join(cities.as("City1"), $"City1.id" === $"Person1.LocationCityId")
+          .join(countries.as("Country1"), $"Country1.id" === $"City1.PartOfPlaceId")
           .join(persons.as("Person2"), $"Person2.id" === $"Knows.Person2Id")
-          .join(cities.as("City2"), $"City2.id" === "Person2.LocationCityId")
-          .join(countries.as("Country2"), $"Country2.id" === "City2.PartOfPlaceId")
+          .join(cities.as("City2"), $"City2.id" === $"Person2.LocationCityId")
+          .join(countries.as("Country2"), $"Country2.id" === $"City2.PartOfPlaceId")
           .where($"Country1.id" < $"Country2.id"),
         value = $"*",
         by = Seq($"Country1.id", $"Country2.id", $"Country1.name", $"Country2.name")
