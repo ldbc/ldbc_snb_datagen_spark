@@ -7,7 +7,7 @@ import ldbc.snb.datagen.model.EntityType
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.transformation.transform.ConvertDates
 import ldbc.snb.datagen.util.{DatagenStage, Logging}
-import org.apache.spark.sql.functions.{broadcast, count, date_trunc, sum}
+import org.apache.spark.sql.functions.{broadcast, col, count, date_trunc, expr, floor, sum}
 import org.apache.spark.sql.{Column, DataFrame, SparkSession}
 
 case class Factor(requiredEntities: EntityType*)(f: Seq[DataFrame] => DataFrame) extends (Seq[DataFrame] => DataFrame) {
@@ -42,6 +42,12 @@ object FactorGenerationStage extends DatagenStage with Logging {
       .select(by :+ $"frequency": _*)
       .orderBy($"frequency".desc +: by.map(_.asc): _*)
 
+  private def undirectedKnows(personKnowsPerson: DataFrame) =
+    personKnowsPerson
+      .select(expr("stack(2, Person1Id, Person2Id, Person2Id, Person1Id)").as(Seq("Person1Id", "Person2Id")))
+      .alias("Knows")
+      .cache()
+
   private def messageTags(commentHasTag: DataFrame, postHasTag: DataFrame, tag: DataFrame) = {
     val messageHasTag = commentHasTag.select($"CommentId".as("id"), $"TagId") |+| postHasTag.select($"PostId".as("id"), $"TagId")
 
@@ -68,21 +74,34 @@ object FactorGenerationStage extends DatagenStage with Logging {
         by = Seq($"Country.id", $"Country.name")
       )
     },
-    "countryNumMessages" -> Factor(CommentType, PostType) { case Seq(comments, posts) =>
+    "cityNumPersons" -> Factor(PlaceType, PersonType) { case Seq(places, persons) =>
+      val cities = places.where($"type" === "City").cache()
+
       frequency(
-        comments.select($"id", $"LocationCountryId") |+| posts.select($"id", $"LocationCountryId"),
-        value = $"id",
-        by = Seq($"LocationCountryId")
+        persons
+          .as("Person")
+          .join(broadcast(cities.as("City")), $"City.id" === $"Person.LocationCityId"),
+        value = $"Person.id",
+        by = Seq($"City.id", $"City.name")
+      )
+    },
+    "countryNumMessages" -> Factor(CommentType, PostType, PlaceType) { case Seq(comments, posts, places) =>
+      val countries = places.where($"type" === "Country").cache()
+
+      frequency(
+        (comments.select($"id".as("MessageId"), $"LocationCountryId") |+| posts.select($"id".as("MessageId"), $"LocationCountryId"))
+          .join(broadcast(countries.as("Country")), $"Country.id" === $"LocationCountryId"),
+        value = $"MessageId",
+        by = Seq($"LocationCountryId", $"Country.name")
       )
     },
     "cityPairsNumFriends" -> Factor(PersonKnowsPersonType, PersonType, PlaceType) { case Seq(personKnowsPerson, persons, places) =>
       val cities = places.where($"type" === "City").cache()
+      val knows = undirectedKnows(personKnowsPerson)
 
-      frequency(
-        personKnowsPerson
-          .alias("Knows")
+      frequency(knows
           .join(persons.cache().as("Person1"), $"Person1.id" === $"Knows.Person1Id")
-          .join(cities.cache().as("City1"), $"City1.id" === $"Person1.LocationCityId")
+          .join(cities.as("City1"), $"City1.id" === $"Person1.LocationCityId")
           .join(persons.as("Person2"), $"Person2.id" === $"Knows.Person2Id")
           .join(cities.as("City2"), $"City2.id" === $"Person2.LocationCityId")
           .where($"City1.id" < $"City2.id"),
@@ -99,15 +118,15 @@ object FactorGenerationStage extends DatagenStage with Logging {
     "countryPairsNumFriends" -> Factor(PersonKnowsPersonType, PersonType, PlaceType) { case Seq(personKnowsPerson, persons, places) =>
       val cities    = places.where($"type" === "City").cache()
       val countries = places.where($"type" === "Country").cache()
+      val knows = undirectedKnows(personKnowsPerson)
 
-      frequency(
-        personKnowsPerson
-          .alias("Knows")
+      frequency(knows
           .join(persons.cache().as("Person1"), $"Person1.id" === $"Knows.Person1Id")
-          .join(cities.cache().as("City1"), $"City1.id" === $"Person1.LocationCityId")
-          .join(countries.cache().as("Country1"), $"Country1.id" === $"City1.PartOfPlaceId")
+          .join(cities.as("City1"), $"City1.id" === $"Person1.LocationCityId")
           .join(persons.as("Person2"), $"Person2.id" === $"Knows.Person2Id")
           .join(cities.as("City2"), $"City2.id" === $"Person2.LocationCityId")
+          .cache()
+          .join(countries.as("Country1"), $"Country1.id" === $"City1.PartOfPlaceId")
           .join(countries.as("Country2"), $"Country2.id" === $"City2.PartOfPlaceId")
           .where($"Country1.id" < $"Country2.id"),
         value = $"*",
@@ -120,22 +139,50 @@ object FactorGenerationStage extends DatagenStage with Logging {
         $"frequency"
       )
     },
-    "messageCreationDays" -> Factor(CommentType, PostType) { case Seq(comments, posts) =>
-      (comments.select($"creationDate") |+| posts.select($"creationDate"))
-        .select(date_trunc("day", $"creationDate").as("creationDay"))
-        .distinct()
+    "creationDayNumMessages" -> Factor(CommentType, PostType) { case Seq(comments, posts) =>
+      frequency(
+        (comments.select($"id".as("MessageId"), $"creationDate") |+| posts.select($"id".as("MessageId"), $"creationDate"))
+          .select($"MessageId", date_trunc("day", $"creationDate").as("creationDay")),
+        value = $"MessageId",
+        by = Seq($"creationDay")
+      )
     },
-    "messageLengths" -> Factor(CommentType, PostType) { case Seq(comments, posts) =>
+    "creationDayAndTagClassNumMessages" -> Factor(CommentType, PostType, CommentHasTagType, PostHasTagType, TagType, TagClassType) { case Seq(comments, posts, commentHasTag, postHasTag, tag, tagClass) =>
+      val messageHasTag = commentHasTag.select($"CommentId".as("id"), $"TagId") |+| postHasTag.select($"PostId".as("id"), $"TagId")
+      frequency(
+        (comments.select($"id".as("MessageId"), $"creationDate") |+| posts.select($"id".as("MessageId"), $"creationDate"))
+          .select($"MessageId", date_trunc("day", $"creationDate").as("creationDay"))
+          .join(messageHasTag.as("hasTag"), $"hasTag.id" === $"MessageId")
+          .join(tag.as("Tag"), $"Tag.id" === $"hasTag.TagId")
+          .join(tagClass.as("TagClass"), $"Tag.TypeTagClassId" === $"TagClass.id"),
+        value = $"MessageId",
+        by = Seq($"creationDay", $"TagClass.id")
+      )
+    },
+    "creationDayAndLengthCategoryNumMessages" -> Factor(CommentType, PostType) { case Seq(comments, posts) =>
+      frequency(
+        (comments.select($"id".as("MessageId"), $"creationDate", $"length")
+          |+| posts.select($"id".as("MessageId"), $"creationDate", $"length"))
+          .select(
+            $"MessageId",
+            date_trunc("day", $"creationDate").as("creationDay"),
+            floor(col("length") / 10).as("lengthCategory")
+          ),
+        value = $"MessageId",
+        by = Seq($"creationDay", $"lengthCategory")
+      )
+    },
+    "lengthNumMessages" -> Factor(CommentType, PostType) { case Seq(comments, posts) =>
       frequency(
         comments.select($"id", $"length") |+| posts.select($"id", $"length"),
         value = $"id",
         by = Seq($"length")
       )
     },
-    "messageTags" -> Factor(CommentHasTagType, PostHasTagType, TagType) { case Seq(commentHasTag, postHasTag, tag) =>
+    "tagNumMessages" -> Factor(CommentHasTagType, PostHasTagType, TagType) { case Seq(commentHasTag, postHasTag, tag) =>
       messageTags(commentHasTag, postHasTag, tag).cache()
     },
-    "messageTagClasses" -> Factor(CommentHasTagType, PostHasTagType, TagType, TagClassType) { case Seq(commentHasTag, postHasTag, tag, tagClass) =>
+    "tagClassNumMessages" -> Factor(CommentHasTagType, PostHasTagType, TagType, TagClassType) { case Seq(commentHasTag, postHasTag, tag, tagClass) =>
       frequency(
         messageTags(commentHasTag, postHasTag, tag)
           .as("MessageTags")
@@ -146,11 +193,15 @@ object FactorGenerationStage extends DatagenStage with Logging {
         agg = sum
       )
     },
-    "personNumFriends" -> Factor(PersonKnowsPersonType) { case Seq(knows) =>
+    "personNumFriends" -> Factor(PersonKnowsPersonType) { case Seq(personKnowsPerson) =>
+      val knows = undirectedKnows(personKnowsPerson)
       frequency(knows, value = $"Person2Id", by = Seq($"Person1Id"))
     },
-    "postLanguages" -> Factor(PostType) { case Seq(post) =>
+    "languageNumPosts" -> Factor(PostType) { case Seq(post) =>
       frequency(post.where($"language".isNotNull), value = $"id", by = Seq($"language"))
+    },
+    "tagNumPersons" -> Factor(PersonHasInterestTagType) { case Seq(interest) =>
+      frequency(interest, value = $"personId", by = Seq($"interestId"))
     },
     "tagClassNumTags" -> Factor(TagClassType, TagType) { case Seq(tagClass, tag) =>
       frequency(
@@ -159,7 +210,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
         by = Seq($"TagClass.id", $"TagClass.name")
       )
     },
-    "companiesNumEmployees" -> Factor(OrganisationType, PersonWorkAtCompanyType) { case Seq(organisation, workAt) =>
+    "companyNumEmployees" -> Factor(OrganisationType, PersonWorkAtCompanyType) { case Seq(organisation, workAt) =>
       val company = organisation.where($"Type" === "Company").cache()
       frequency(
         company.as("Company").join(workAt.as("WorkAt"), $"WorkAt.CompanyId" === $"Company.id"),

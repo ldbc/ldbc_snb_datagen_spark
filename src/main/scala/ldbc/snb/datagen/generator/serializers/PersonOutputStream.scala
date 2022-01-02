@@ -46,12 +46,12 @@ class PersonOutputStream(
     val p = getPerson(person)
     personStream.write(p)
 
-    for (interestIdx <- person.getInterests.iterator().asScala) {
+    for (interestId <- person.getInterests.iterator().asScala) {
       val personHasInterestTag = raw.PersonHasInterestTag(
         person.getCreationDate,
         person.getDeletionDate,
         person.getAccountId,
-        interestIdx
+        interestId
       )
       personHasInterestTagStream.write(personHasInterestTag)
     }
