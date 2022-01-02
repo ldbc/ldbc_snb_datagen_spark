@@ -134,12 +134,12 @@ object FactorGenerationStage extends DatagenStage with Logging {
         $"frequency"
       )
     },
-    "messageCreationDays" -> Factor(CommentType, PostType) { case Seq(comments, posts) =>
+    "creationDayNumMessages" -> Factor(CommentType, PostType) { case Seq(comments, posts) =>
       (comments.select($"creationDate") |+| posts.select($"creationDate"))
         .select(date_trunc("day", $"creationDate").as("creationDay"))
         .distinct()
     },
-    "dateTagClassNumMessages" -> Factor(CommentType, PostType, CommentHasTagType, PostHasTagType, TagType, TagClassType) { case Seq(comments, posts, commentHasTag, postHasTag, tag, tagClass) =>
+    "creationDayAndTagClassNumMessages" -> Factor(CommentType, PostType, CommentHasTagType, PostHasTagType, TagType, TagClassType) { case Seq(comments, posts, commentHasTag, postHasTag, tag, tagClass) =>
       val messageHasTag = commentHasTag.select($"CommentId".as("id"), $"TagId") |+| postHasTag.select($"PostId".as("id"), $"TagId")
       frequency(
         (comments.select($"id".as("MessageId"), $"creationDate") |+| posts.select($"id".as("MessageId"), $"creationDate"))
@@ -151,7 +151,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
         by = Seq($"creationDay", $"TagClass.id")
       )
     },
-    "dateLengthCategoryNumMessages" -> Factor(CommentType, PostType) { case Seq(comments, posts) =>
+    "creationDayAndLengthCategoryNumMessages" -> Factor(CommentType, PostType) { case Seq(comments, posts) =>
       frequency(
         (comments.select($"id".as("MessageId"), $"creationDate", $"length")
           |+| posts.select($"id".as("MessageId"), $"creationDate", $"length"))
@@ -164,17 +164,17 @@ object FactorGenerationStage extends DatagenStage with Logging {
         by = Seq($"creationDay", $"lengthCategory")
       )
     },
-    "messageLengths" -> Factor(CommentType, PostType) { case Seq(comments, posts) =>
+    "lengthNumMessages" -> Factor(CommentType, PostType) { case Seq(comments, posts) =>
       frequency(
         comments.select($"id", $"length") |+| posts.select($"id", $"length"),
         value = $"id",
         by = Seq($"length")
       )
     },
-    "messageTags" -> Factor(CommentHasTagType, PostHasTagType, TagType) { case Seq(commentHasTag, postHasTag, tag) =>
+    "tagNumMessages" -> Factor(CommentHasTagType, PostHasTagType, TagType) { case Seq(commentHasTag, postHasTag, tag) =>
       messageTags(commentHasTag, postHasTag, tag).cache()
     },
-    "messageTagClasses" -> Factor(CommentHasTagType, PostHasTagType, TagType, TagClassType) { case Seq(commentHasTag, postHasTag, tag, tagClass) =>
+    "tagClassNumMessages" -> Factor(CommentHasTagType, PostHasTagType, TagType, TagClassType) { case Seq(commentHasTag, postHasTag, tag, tagClass) =>
       frequency(
         messageTags(commentHasTag, postHasTag, tag)
           .as("MessageTags")
@@ -188,7 +188,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
     "personNumFriends" -> Factor(PersonKnowsPersonType) { case Seq(knows) =>
       frequency(knows, value = $"Person2Id", by = Seq($"Person1Id"))
     },
-    "postLanguages" -> Factor(PostType) { case Seq(post) =>
+    "languageNumPosts" -> Factor(PostType) { case Seq(post) =>
       frequency(post.where($"language".isNotNull), value = $"id", by = Seq($"language"))
     },
     "tagNumPersons" -> Factor(PersonHasInterestTagType) { case Seq(interest) =>
@@ -201,7 +201,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
         by = Seq($"TagClass.id", $"TagClass.name")
       )
     },
-    "companiesNumEmployees" -> Factor(OrganisationType, PersonWorkAtCompanyType) { case Seq(organisation, workAt) =>
+    "companyNumEmployees" -> Factor(OrganisationType, PersonWorkAtCompanyType) { case Seq(organisation, workAt) =>
       val company = organisation.where($"Type" === "Company").cache()
       frequency(
         company.as("Company").join(workAt.as("WorkAt"), $"WorkAt.CompanyId" === $"Company.id"),
