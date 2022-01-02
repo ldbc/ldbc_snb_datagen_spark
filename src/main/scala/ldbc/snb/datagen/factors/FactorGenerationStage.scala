@@ -42,6 +42,12 @@ object FactorGenerationStage extends DatagenStage with Logging {
       .select(by :+ $"frequency": _*)
       .orderBy($"frequency".desc +: by.map(_.asc): _*)
 
+  private def undirectedKnows(personKnowsPerson: DataFrame) =
+    personKnowsPerson.select($"Person1Id", $"Person2Id")
+      .union(personKnowsPerson.select($"Person2Id".as("Person1Id"), $"Person1Id".as("Person2Id")))
+      .distinct()
+      .alias("Knows")
+
   private def messageTags(commentHasTag: DataFrame, postHasTag: DataFrame, tag: DataFrame) = {
     val messageHasTag = commentHasTag.select($"CommentId".as("id"), $"TagId") |+| postHasTag.select($"PostId".as("id"), $"TagId")
 
@@ -91,10 +97,9 @@ object FactorGenerationStage extends DatagenStage with Logging {
     },
     "cityPairsNumFriends" -> Factor(PersonKnowsPersonType, PersonType, PlaceType) { case Seq(personKnowsPerson, persons, places) =>
       val cities = places.where($"type" === "City").cache()
+      val knows = undirectedKnows(personKnowsPerson)
 
-      frequency(
-        personKnowsPerson
-          .alias("Knows")
+      frequency(knows
           .join(persons.cache().as("Person1"), $"Person1.id" === $"Knows.Person1Id")
           .join(cities.as("City1"), $"City1.id" === $"Person1.LocationCityId")
           .join(persons.as("Person2"), $"Person2.id" === $"Knows.Person2Id")
@@ -113,10 +118,9 @@ object FactorGenerationStage extends DatagenStage with Logging {
     "countryPairsNumFriends" -> Factor(PersonKnowsPersonType, PersonType, PlaceType) { case Seq(personKnowsPerson, persons, places) =>
       val cities    = places.where($"type" === "City").cache()
       val countries = places.where($"type" === "Country").cache()
+      val knows = undirectedKnows(personKnowsPerson)
 
-      frequency(
-        personKnowsPerson
-          .alias("Knows")
+      frequency(knows
           .join(persons.cache().as("Person1"), $"Person1.id" === $"Knows.Person1Id")
           .join(cities.as("City1"), $"City1.id" === $"Person1.LocationCityId")
           .join(countries.as("Country1"), $"Country1.id" === $"City1.PartOfPlaceId")
@@ -188,7 +192,8 @@ object FactorGenerationStage extends DatagenStage with Logging {
         agg = sum
       )
     },
-    "personNumFriends" -> Factor(PersonKnowsPersonType) { case Seq(knows) =>
+    "personNumFriends" -> Factor(PersonKnowsPersonType) { case Seq(personKnowsPerson) =>
+      val knows = undirectedKnows(personKnowsPerson)
       frequency(knows, value = $"Person2Id", by = Seq($"Person1Id"))
     },
     "languageNumPosts" -> Factor(PostType) { case Seq(post) =>
