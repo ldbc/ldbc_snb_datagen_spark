@@ -10,11 +10,11 @@ import ldbc.snb.datagen.io.raw.{RawSink, WriteContext, createNewWriteContext, re
 import ldbc.snb.datagen.model.raw._
 import ldbc.snb.datagen.model.{EntityTraits, raw}
 import ldbc.snb.datagen.syntax._
-import ldbc.snb.datagen.util.SerializableConfiguration
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
+import org.apache.spark.util.SerializableConfiguration
 
 import java.net.URI
 import java.util
