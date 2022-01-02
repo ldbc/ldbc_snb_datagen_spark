@@ -69,7 +69,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
       )
     },
     "cityNumPersons" -> Factor(PlaceType, PersonType) { case Seq(places, persons) =>
-      val cities    = places.where($"type" === "City").cache()
+      val cities = places.where($"type" === "City").cache()
 
       frequency(
         persons
@@ -192,8 +192,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
       frequency(post.where($"language".isNotNull), value = $"id", by = Seq($"language"))
     },
     "tagNumPersons" -> Factor(PersonHasInterestTagType) { case Seq(interest) =>
-      frequency(interest, value = $"personId", by = Seq($"interestId")
-      )
+      frequency(interest, value = $"personId", by = Seq($"interestId"))
     },
     "tagClassNumTags" -> Factor(TagClassType, TagType) { case Seq(tagClass, tag) =>
       frequency(
