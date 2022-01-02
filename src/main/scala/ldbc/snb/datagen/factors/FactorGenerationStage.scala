@@ -45,7 +45,6 @@ object FactorGenerationStage extends DatagenStage with Logging {
   private def undirectedKnows(personKnowsPerson: DataFrame) =
     personKnowsPerson.select($"Person1Id", $"Person2Id")
       .union(personKnowsPerson.select($"Person2Id".as("Person1Id"), $"Person1Id".as("Person2Id")))
-      .distinct()
       .alias("Knows")
       .cache()
 
