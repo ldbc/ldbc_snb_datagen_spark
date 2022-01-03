@@ -156,7 +156,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
           .join(tag.as("Tag"), $"Tag.id" === $"hasTag.TagId")
           .join(tagClass.as("TagClass"), $"Tag.TypeTagClassId" === $"TagClass.id"),
         value = $"MessageId",
-        by = Seq($"creationDay", $"TagClass.id")
+        by = Seq($"creationDay", $"TagClass.id", $"TagClass.name")
       )
     },
     "creationDayAndLengthCategoryNumMessages" -> Factor(CommentType, PostType) { case Seq(comments, posts) =>
@@ -200,8 +200,13 @@ object FactorGenerationStage extends DatagenStage with Logging {
     "languageNumPosts" -> Factor(PostType) { case Seq(post) =>
       frequency(post.where($"language".isNotNull), value = $"id", by = Seq($"language"))
     },
-    "tagNumPersons" -> Factor(PersonHasInterestTagType) { case Seq(interest) =>
-      frequency(interest, value = $"personId", by = Seq($"interestId"))
+    "tagNumPersons" -> Factor(PersonHasInterestTagType, TagType) { case Seq(interest, tag) =>
+      frequency(
+        interest.join(tag.as("Tag"),
+        $"Tag.id" === $"interestId"),
+        value = $"personId",
+        by = Seq($"interestId", $"Tag.name")
+      )
     },
     "tagClassNumTags" -> Factor(TagClassType, TagType) { case Seq(tagClass, tag) =>
       frequency(
