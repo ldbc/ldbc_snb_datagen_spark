@@ -104,12 +104,6 @@ To get a complete list of the arguments, pass `--help` to the JAR file:
 ./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar -- --help
 ```
 
-* Passing `params.ini` files:
-
-  ```bash
-  ./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar -- --format csv --param-file params.ini
-  ```
-
 * Generating `CsvBasic` files in **Interactive mode**:
 
   ```bash
@@ -141,6 +135,12 @@ A complex example:
 ```bash
 export SPARK_CONF_DIR=./conf
 ./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar --parallelism 4 --memory 8G -- --format csv --format-options timestampFormat=MM/dd/y\ HH:mm:ss,dateFormat=MM/dd/y --explode-edges --explode-attrs --mode interactive --scale-factor 0.003
+```
+
+It is also possible to pass a parameter file:
+
+```bash
+./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar -- --format csv --param-file params.ini
 ```
 
 ### Docker image
