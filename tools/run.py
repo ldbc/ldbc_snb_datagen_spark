@@ -5,7 +5,7 @@ import os
 import sys
 
 from subprocess import run
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Union
 
 from datagen import lib, util
 from datagen.util import split_passthrough_args
@@ -17,7 +17,8 @@ def flatten(ls):
 
 def run_local(
         jar_file: str,
-        cores: Optional[int] = None,
+        main_class: Optional[str] = None,
+        cores: Optional[Union[int, str]] = None,
         memory: Optional[str] = None,
         parallelism: Optional[int] = None,
         spark_conf: Optional[Dict] = None,
@@ -27,7 +28,10 @@ def run_local(
         cores = "*"
     if not spark_conf:
         spark_conf = {}
-    opt_class = ['--class', lib.main_class]
+    if not main_class:
+        main_class = lib.main_class
+
+    opt_class = ['--class', main_class]
     opt_master = ['--master', f'local[{cores}]']
 
     additional_opts = []
@@ -67,6 +71,9 @@ if __name__ == "__main__":
     parser.add_argument('jar',
                         type=str,
                         help='LDBC Datagen JAR file')
+    parser.add_argument('--main-class',
+                        type=str,
+                        help='Overrides default main class.')
     parser.add_argument('--cores',
                         type=int,
                         help='number of vcpu cores to use'
@@ -93,6 +100,7 @@ if __name__ == "__main__":
 
     run_local(
         args.jar,
+        main_class=args.main_class,
         cores=args.cores,
         memory=args.memory,
         parallelism=args.parallelism,
