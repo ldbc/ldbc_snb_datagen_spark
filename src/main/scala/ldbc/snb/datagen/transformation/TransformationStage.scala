@@ -23,11 +23,13 @@ object TransformationStage extends DatagenStage with Logging {
       formatOptions: Map[String, String] = Map.empty
   )
 
+  override type ArgsType = Args
+
   import ldbc.snb.datagen.io.Reader.ops._
   import ldbc.snb.datagen.io.Writer.ops._
   import ldbc.snb.datagen.io.instances._
 
-  def run(args: Args)(implicit spark: SparkSession) = {
+  def run(args: ArgsType) = {
     object write extends Poly1 {
       implicit def caseSimple[M <: Mode](implicit ev: M#Layout =:= DataFrame) =
         at[Graph[M]](g => g.write(GraphSink(args.outputDir, args.format, args.formatOptions)))
