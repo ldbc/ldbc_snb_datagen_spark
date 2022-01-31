@@ -114,6 +114,8 @@ object FactorGenerationStage extends DatagenStage with Logging {
     var df = person.as("Person")
       .join(cities.as("City"), $"City.id" === $"Person.LocationCityId")
       .where($"City.PartOfPlaceId" === 1) // Country with ID 1 is China
+      .orderBy($"Person.id")
+      .limit(10)
       // 1-hop
       .join(undirectedKnows(personKnowsPerson).alias("knows"), $"Person.id" === $"knows.Person1Id")
       .select(
@@ -138,11 +140,14 @@ object FactorGenerationStage extends DatagenStage with Logging {
     // add the nhops'th hop
     val pairsWithNHops =
       addOneHop(
-        df.where($"nhops" === count).limit(500), // a sample of (nhops-1) paths
+        df.where($"nhops" === count)
+          .orderBy($"Person1Id", $"Person2Id")
+          .limit(500), // a sample of (nhops-1) paths
         df,
         personKnowsPerson,
         count + 1
       )
+      .orderBy($"Person1Id", $"Person2Id")
       .limit(limit)
 
     pairsWithNHops
