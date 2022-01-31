@@ -91,26 +91,61 @@ object FactorGenerationStage extends DatagenStage with Logging {
       .alias("Knows")
       .cache()
 
-  private def personHops(
-      personKnowsPerson: DataFrame,
-      hops: Int,
-      limit: Int
+  private def addOneHop(source: DataFrame, visited: DataFrame, personKnowsPerson: DataFrame, hops: Int) = source
+      .alias("left")
+      .join(undirectedKnows(personKnowsPerson).alias("right"), $"left.Person2Id" === $"right.Person1Id")
+      .join(
+        visited.as("previous"),
+        $"left.Person1Id" === $"previous.Person1Id" && $"right.Person2Id" === $"previous.Person2Id",
+        "leftanti"
+      )
+      .select($"left.Person1Id".alias("Person1Id"), $"right.Person2Id".alias("Person2Id"), lit(hops).alias("nhops"))
+
+  private def personNHops(
+     person: DataFrame,
+     personKnowsPerson: DataFrame,
+     places: DataFrame,
+     nhops: Int,
+     limit: Int
   ): DataFrame = {
     var count = 1
-    var df = personKnowsPerson
-      .select($"Person1Id", $"Person2Id", lit(count).alias("hops"))
-    while (count <= hops) {
-      df = df
-        .where($"hops" === count)
-        .alias("left")
-        .join(personKnowsPerson.alias("right"), $"left.Person2Id" === $"right.Person1Id")
-        .select($"left.Person1Id".alias("Person1Id"), $"right.Person2Id".alias("Person2Id"), lit(count + 1).alias("hops"))
+    val cities = places.where($"type" === "City").cache()
+
+    var df = person.as("Person")
+      .join(cities.as("City"), $"City.id" === $"Person.LocationCityId")
+      .where($"City.PartOfPlaceId" === 1) // Country with ID 1 is China
+      // 1-hop
+      .join(undirectedKnows(personKnowsPerson).alias("knows"), $"Person.id" === $"knows.Person1Id")
+      .select(
+        $"knows.Person1Id".alias("Person1Id"),
+        $"knows.Person2Id".alias("Person2Id"),
+        lit(count).alias("nhops")
+      )
+    // compute 1-hop to (nhops-1)-hop paths
+    while (count <= nhops - 2) {
+      df = addOneHop(
+          df.where($"nhops" === count),
+          df,
+          personKnowsPerson,
+          count + 1
+        )
         .unionAll(df)
         .groupBy($"Person1Id", $"Person2Id")
-        .agg(functions.min("hops").alias("hops"))
+        .agg(functions.min("nhops").alias("nhops"))
+
       count = count + 1
     }
-    df.where($"hops" === hops).limit(limit)
+    // add the nhops'th hop
+    val pairsWithNHops =
+      addOneHop(
+        df.where($"nhops" === count).limit(500), // a sample of (nhops-1) paths
+        df,
+        personKnowsPerson,
+        count + 1
+      )
+      .limit(limit)
+
+    pairsWithNHops
   }
 
   private def messageTags(commentHasTag: DataFrame, postHasTag: DataFrame, tag: DataFrame) = {
@@ -290,8 +325,8 @@ object FactorGenerationStage extends DatagenStage with Logging {
         by = Seq($"Company.id", $"Company.name")
       )
     },
-    "people4Hops" -> Factor(PersonKnowsPersonType) { case Seq(knows) =>
-      personHops(knows, hops = 4, limit = 100)
+    "people4Hops" -> Factor(PersonType, PlaceType, PersonKnowsPersonType) { case Seq(person, place, knows) =>
+      personNHops(person, knows, place, nhops = 4, limit = 100)
     }
   )
 }
