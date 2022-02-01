@@ -100,6 +100,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
         "leftanti"
       )
       .select($"left.Person1Id".alias("Person1Id"), $"right.Person2Id".alias("Person2Id"), lit(hops).alias("nhops"))
+      .distinct()
 
   private def personNHops(
      person: DataFrame,
@@ -132,8 +133,6 @@ object FactorGenerationStage extends DatagenStage with Logging {
           count + 1
         )
         .unionAll(df)
-        .groupBy($"Person1Id", $"Person2Id")
-        .agg(functions.min("nhops").alias("nhops"))
 
       count = count + 1
     }
