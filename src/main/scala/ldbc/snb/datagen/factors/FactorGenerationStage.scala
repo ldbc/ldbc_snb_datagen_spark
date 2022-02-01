@@ -91,16 +91,6 @@ object FactorGenerationStage extends DatagenStage with Logging {
       .alias("Knows")
       .cache()
 
-  private def addOneHop(source: DataFrame, visited: DataFrame, personKnowsPerson: DataFrame, hops: Int) = source
-      .alias("left")
-      .join(undirectedKnows(personKnowsPerson).alias("right"), $"left.Person2Id" === $"right.Person1Id")
-      .join(
-        visited.as("previous"),
-        $"left.Person1Id" === $"previous.Person1Id" && $"right.Person2Id" === $"previous.Person2Id",
-        "leftanti"
-      )
-      .select($"left.Person1Id".alias("Person1Id"), $"right.Person2Id".alias("Person2Id"), lit(hops).alias("nhops"))
-      .distinct()
 
   private def personNHops(
      person: DataFrame,
@@ -126,26 +116,28 @@ object FactorGenerationStage extends DatagenStage with Logging {
       )
     // compute 1-hop to (nhops-1)-hop paths
     while (count <= nhops - 2) {
-      df = addOneHop(
-          df.where($"nhops" === count),
-          df,
-          personKnowsPerson,
-          count + 1
-        )
+      df = df
+        .where($"nhops" === count)
+        .alias("left")
+        .join(undirectedKnows(personKnowsPerson).alias("right"), $"left.Person2Id" === $"right.Person1Id")
+        .select($"left.Person1Id".alias("Person1Id"), $"right.Person2Id".alias("Person2Id"), lit(count + 1).alias("nhops"))
         .unionAll(df)
-
+        .groupBy($"Person1Id", $"Person2Id")
+        .agg(functions.min("nhops").alias("nhops"))
       count = count + 1
     }
     // add the nhops'th hop
-    val pairsWithNHops =
-      addOneHop(
-        df.where($"nhops" === count)
-          .orderBy($"Person1Id", $"Person2Id")
-          .limit(500), // a sample of (nhops-1) paths
-        df,
-        personKnowsPerson,
-        count + 1
-      )
+    val pairsWithNHops = df
+      .where($"nhops" === count)
+      .orderBy($"Person1Id", $"Person2Id")
+      .limit(500) // a sample of (nhops-1) paths
+      .alias("left")
+      .join(undirectedKnows(personKnowsPerson).alias("right"), $"left.Person2Id" === $"right.Person1Id")
+      .select($"left.Person1Id".alias("Person1Id"), $"right.Person2Id".alias("Person2Id"), lit(count + 1).alias("nhops"))
+      .unionAll(df)
+      .groupBy($"Person1Id", $"Person2Id")
+      .agg(functions.min("nhops").alias("nhops"))
+      .where($"nhops" === count + 1)
       .orderBy($"Person1Id", $"Person2Id")
       .limit(limit)
 
