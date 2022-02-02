@@ -7,8 +7,11 @@ import ldbc.snb.datagen.model.EntityType
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.transformation.transform.ConvertDates
 import ldbc.snb.datagen.util.{DatagenStage, Logging}
-import org.apache.spark.sql.functions.{broadcast, col, count, date_trunc, expr, floor, sum}
-import org.apache.spark.sql.{Column, DataFrame}
+import org.apache.spark.sql.functions.{broadcast, col, count, date_trunc, expr, floor, lit, sum}
+import org.apache.spark.sql.{Column, DataFrame, functions}
+import shapeless._
+
+import scala.util.matching.Regex
 
 case class Factor(requiredEntities: EntityType*)(f: Seq[DataFrame] => DataFrame) extends (Seq[DataFrame] => DataFrame) {
   override def apply(v1: Seq[DataFrame]): DataFrame = f(v1)
@@ -16,9 +19,47 @@ case class Factor(requiredEntities: EntityType*)(f: Seq[DataFrame] => DataFrame)
 
 object FactorGenerationStage extends DatagenStage with Logging {
 
-  case class Args(outputDir: String = "out", irFormat: String = "parquet")
+  case class Args(
+      outputDir: String = "out",
+      irFormat: String = "parquet",
+      only: Option[Regex] = None,
+      force: Boolean = false
+  )
 
   override type ArgsType = Args
+
+  def main(args: Array[String]): Unit = {
+    val parser = new scopt.OptionParser[Args](getClass.getName.dropRight(1)) {
+      head(appName)
+
+      val args = lens[Args]
+
+      opt[String]('o', "output-dir")
+        .action((x, c) => args.outputDir.set(c)(x))
+        .text(
+          "path on the cluster filesystem, where Datagen outputs. Can be a URI (e.g S3, ADLS, HDFS) or a " +
+            "path in which case the default cluster file system is used."
+        )
+
+      opt[String]("ir-format")
+        .action((x, c) => args.irFormat.set(c)(x))
+        .text("Format of the raw input")
+
+      opt[String]("only")
+        .action((x, c) => args.only.set(c)(Some(x.r.anchored)))
+        .text("Only generate factor tables whose name matches the supplied regex")
+
+      opt[Unit]("force")
+        .action((_, c) => args.force.set(c)(true))
+        .text("Overwrites existing output")
+
+      help('h', "help").text("prints this usage text")
+    }
+
+    val parsedArgs = parser.parse(args, Args()).getOrElse(throw new RuntimeException("Invalid arguments"))
+
+    run(parsedArgs)
+  }
 
   def run(args: Args): Unit = {
     import ldbc.snb.datagen.factors.io.instances._
@@ -29,12 +70,14 @@ object FactorGenerationStage extends DatagenStage with Logging {
     GraphSource(model.graphs.Raw.graphDef, args.outputDir, args.irFormat).read
       .pipe(ConvertDates.transform)
       .pipe(g =>
-        rawFactors.map { case (name, calc) =>
-          val resolvedEntities = calc.requiredEntities.foldLeft(Seq.empty[DataFrame])((args, et) => args :+ g.entities(et))
-          FactorTable(name, calc(resolvedEntities), g)
-        }
+        rawFactors
+          .collect {
+            case (name, calc) if args.only.fold(true)(_.findFirstIn(name).isDefined) =>
+              val resolvedEntities = calc.requiredEntities.foldLeft(Seq.empty[DataFrame])((args, et) => args :+ g.entities(et))
+              FactorTable(name, calc(resolvedEntities), g)
+          }
       )
-      .foreach(_.write(FactorTableSink(args.outputDir)))
+      .foreach(_.write(FactorTableSink(args.outputDir, overwrite = args.force)))
   }
 
   private def frequency(df: DataFrame, value: Column, by: Seq[Column], agg: Column => Column = count) =
@@ -49,6 +92,25 @@ object FactorGenerationStage extends DatagenStage with Logging {
       .select(expr("stack(2, Person1Id, Person2Id, Person2Id, Person1Id)").as(Seq("Person1Id", "Person2Id")))
       .alias("Knows")
       .cache()
+
+  private def nHops(relationships: DataFrame, n: Int, joinKeys: (String, String), sample: Option[DataFrame => DataFrame] = None): DataFrame = {
+    val (leftKey, rightKey) = joinKeys
+    relationships
+      .pipeFoldLeft(sample) { (df, sampler) => sampler(df) }
+      .withColumn("nhops", lit(1))
+      .pipeFoldLeft(1 until n) { (df, count) =>
+        df
+          .where($"nhops" === count)
+          .alias("left")
+          .join(relationships.alias("right"), $"left.${leftKey}" === $"right.${rightKey}")
+          .select($"left.${rightKey}".alias(rightKey), $"right.${leftKey}".alias(leftKey), lit(count + 1).alias("nhops"))
+          .unionAll(df)
+          .groupBy(Seq(rightKey, leftKey).map(col): _*)
+          .agg(functions.min("nhops").alias("nhops"))
+      }
+      .where($"nhops" === n)
+      .select(Seq(rightKey, leftKey).map(col): _*)
+  }
 
   private def messageTags(commentHasTag: DataFrame, postHasTag: DataFrame, tag: DataFrame) = {
     val messageHasTag = commentHasTag.select($"CommentId".as("id"), $"TagId") |+| postHasTag.select($"PostId".as("id"), $"TagId")
@@ -219,22 +281,24 @@ object FactorGenerationStage extends DatagenStage with Logging {
         by = Seq($"TagClass.id", $"TagClass.name")
       )
     },
-    "personDisjointEmployerPairs" -> Factor(PersonType, PersonKnowsPersonType, OrganisationType, PersonWorkAtCompanyType) { case Seq(person, personKnowsPerson, organisation, workAt) =>
-      val knows = undirectedKnows(personKnowsPerson)
+    "personDisjointEmployerPairs" -> Factor(PersonType, PersonKnowsPersonType, OrganisationType, PersonWorkAtCompanyType) {
+      case Seq(person, personKnowsPerson, organisation, workAt) =>
+        val knows = undirectedKnows(personKnowsPerson)
 
-      val company = organisation.where($"Type" === "Company").cache()
-      val personSample = person
-        .orderBy($"id")
-        .limit(20)
-      personSample.as("Person2")
-        .join(knows.as("knows"), $"knows.person2Id" === $"Person2.id")
-        .join(workAt.as("workAt"), $"workAt.PersonId" === $"knows.Person1id")
-        .join(company.as("Company"), $"Company.id" === $"workAt.CompanyId")
-        .select(
-          $"Person2.id".alias("person2id"),
-          $"Company.name".alias("companyName"),
-          $"Company.id".alias("companyId"),
-        )
+        val company = organisation.where($"Type" === "Company").cache()
+        val personSample = person
+          .orderBy($"id")
+          .limit(20)
+        personSample
+          .as("Person2")
+          .join(knows.as("knows"), $"knows.person2Id" === $"Person2.id")
+          .join(workAt.as("workAt"), $"workAt.PersonId" === $"knows.Person1id")
+          .join(company.as("Company"), $"Company.id" === $"workAt.CompanyId")
+          .select(
+            $"Person2.id".alias("person2id"),
+            $"Company.name".alias("companyName"),
+            $"Company.id".alias("companyId")
+          )
     },
     "companyNumEmployees" -> Factor(OrganisationType, PersonWorkAtCompanyType) { case Seq(organisation, workAt) =>
       val company = organisation.where($"Type" === "Company").cache()
@@ -242,6 +306,41 @@ object FactorGenerationStage extends DatagenStage with Logging {
         company.as("Company").join(workAt.as("workAt"), $"workAt.CompanyId" === $"Company.id"),
         value = $"workAt.PersonId",
         by = Seq($"Company.id", $"Company.name")
+      )
+    },
+    "people4Hops" -> Factor(PersonType, PlaceType, PersonKnowsPersonType) { case Seq(person, place, knows) =>
+      val cities     = place.where($"type" === "City").cache()
+      val allKnows   = undirectedKnows(knows).cache()
+      val minSampleSize = 100.0
+
+      val chinesePeopleSample = (relations: DataFrame) => {
+        val peopleInChina = person
+          .as("Person")
+          .join(cities.as("City"), $"City.id" === $"Person.LocationCityId")
+          .where($"City.PartOfPlaceId" === 1) // Country with ID 1 is China
+
+        val count = peopleInChina.count()
+
+        val curveFactor = 1e-3
+
+        // sigmoid to select more samples for smaller scale factors
+        val sampleSize = Math.min(count, Math.max(minSampleSize, count / (1 + Math.exp(count * curveFactor)) * 2))
+
+        val sampleFraction = sampleSize / count
+
+        log.info(s"Factor people4Hops: using ${sampleSize} samples (${sampleFraction * 100}%)")
+
+        peopleInChina
+          .sample(sampleFraction, 42)
+          .join(relations.alias("knows"), $"Person.id" === $"knows.Person1Id")
+          .select($"knows.Person1Id".alias("Person1Id"), $"knows.Person2Id".alias("Person2Id"))
+      }
+
+      nHops(
+        allKnows,
+        n = 4,
+        joinKeys = ("Person2Id", "Person1Id"),
+        sample = Some(chinesePeopleSample)
       )
     }
   )
