@@ -105,7 +105,7 @@ package object model {
     }
   }
 
-  case class Batched(entity: DataFrame, batchId: Seq[String])
+  case class Batched(entity: DataFrame, batchId: Seq[String], ordering: Seq[Column])
 
   case class BatchedEntity(
       snapshot: DataFrame,

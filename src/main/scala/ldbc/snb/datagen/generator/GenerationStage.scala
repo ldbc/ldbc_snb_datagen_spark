@@ -6,7 +6,6 @@ import ldbc.snb.datagen.io.raw.{Csv, Parquet, RawSink}
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.util._
 import org.apache.hadoop.fs.{FileSystem, Path}
-import org.apache.spark.sql.SparkSession
 
 import java.net.URI
 object GenerationStage extends DatagenStage with Logging {
@@ -22,7 +21,12 @@ object GenerationStage extends DatagenStage with Logging {
       oversizeFactor: Option[Double] = None
   )
 
-  def run(args: Args, config: GeneratorConfiguration)(implicit spark: SparkSession) = {
+  override type ArgsType = Args
+
+  def run(args: Args) = {
+    val config = buildConfig(args)
+    DatagenContext.initialize(config)
+
     val numPartitions   = config.getInt("hadoop.numThreads", spark.sparkContext.defaultParallelism)
     val idealPartitions = DatagenParams.numPersons.toDouble / optimalPersonsPerFile
 
@@ -64,7 +68,6 @@ object GenerationStage extends DatagenStage with Logging {
 
   def buildConfig(args: Args) = {
     val conf = new java.util.HashMap[String, String]
-
     conf.putAll(getClass.getResourceAsStream("/params_default.ini") use { ConfigParser.readConfig })
 
     for { paramsFile <- args.paramFile } conf.putAll(openPropFileStream(URI.create(paramsFile)) use { ConfigParser.readConfig })
@@ -74,9 +77,7 @@ object GenerationStage extends DatagenStage with Logging {
     for { numThreads <- args.numThreads } conf.put("hadoop.numThreads", numThreads.toString)
 
     conf.putAll(ConfigParser.scaleFactorConf(args.scaleFactor))
-
     conf.put("generator.outputDir", args.outputDir)
-
     new GeneratorConfiguration(conf)
   }
 }
