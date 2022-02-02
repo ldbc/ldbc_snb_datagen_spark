@@ -32,8 +32,8 @@ Install the required libraries as described in the [main README](../../README.md
 
 ```bash
 PLATFORM_VERSION=2.12_spark3.1
-VERSION=0.5.0-SNAPSHOT
-aws s3 cp target/ldbc_snb_datagen_${PLATFORM_VERSION}-${VERSION}-jar-with-dependencies.jar s3://${BUCKET_NAME}/jars/ldbc_snb_datagen_${PLATFORM_VERSION}-${VERSION}-jar-with-dependencies.jar
+DATAGEN_VERSION=0.5.0-SNAPSHOT
+aws s3 cp target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}-jar-with-dependencies.jar s3://${BUCKET_NAME}/jars/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}-jar-with-dependencies.jar
 ```
 
 1. Submit the job. Run with `--help` for customization options.
