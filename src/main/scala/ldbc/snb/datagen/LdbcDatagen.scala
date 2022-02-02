@@ -31,6 +31,8 @@ object LdbcDatagen extends SparkApp {
       oversizeFactor: Option[Double] = None
   )
 
+  override type ArgsType = Args
+
   def main(args: Array[String]): Unit = {
     val parser = new scopt.OptionParser[Args](getClass.getName.dropRight(1)) {
       head(appName)
@@ -124,7 +126,6 @@ object LdbcDatagen extends SparkApp {
   }
 
   def run(args: Args): Unit = {
-
     val env      = System.getenv().asScala
     val irFormat = env.getOrElse("LDBC_DATAGEN_IR_FORMAT", "parquet")
 
@@ -138,11 +139,7 @@ object LdbcDatagen extends SparkApp {
       oversizeFactor = args.oversizeFactor
     )
 
-    val generatorConfig = GenerationStage.buildConfig(generatorArgs)
-
-    DatagenContext.initialize(generatorConfig)
-
-    GenerationStage.run(generatorArgs, generatorConfig)
+    GenerationStage.run(generatorArgs)
 
     if (args.generateFactors) {
       val factorArgs = FactorGenerationStage.Args(outputDir = args.outputDir, irFormat = irFormat)

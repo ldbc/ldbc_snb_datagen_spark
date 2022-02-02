@@ -26,6 +26,8 @@ object FactorGenerationStage extends DatagenStage with Logging {
       force: Boolean = false
   )
 
+  override type ArgsType = Args
+
   def main(args: Array[String]): Unit = {
     val parser = new scopt.OptionParser[Args](getClass.getName.dropRight(1)) {
       head(appName)
@@ -91,18 +93,18 @@ object FactorGenerationStage extends DatagenStage with Logging {
       .alias("Knows")
       .cache()
 
-
   private def personNHops(
-     person: DataFrame,
-     personKnowsPerson: DataFrame,
-     places: DataFrame,
-     nhops: Int,
-     limit: Int
+      person: DataFrame,
+      personKnowsPerson: DataFrame,
+      places: DataFrame,
+      nhops: Int,
+      limit: Int
   ): DataFrame = {
-    var count = 1
+    var count  = 1
     val cities = places.where($"type" === "City").cache()
 
-    var df = person.as("Person")
+    var df = person
+      .as("Person")
       .join(cities.as("City"), $"City.id" === $"Person.LocationCityId")
       .where($"City.PartOfPlaceId" === 1) // Country with ID 1 is China
       .orderBy($"Person.id")
@@ -313,11 +315,30 @@ object FactorGenerationStage extends DatagenStage with Logging {
         by = Seq($"TagClass.id", $"TagClass.name")
       )
     },
+    "personDisjointEmployerPairs" -> Factor(PersonType, PersonKnowsPersonType, OrganisationType, PersonWorkAtCompanyType) {
+      case Seq(person, personKnowsPerson, organisation, workAt) =>
+        val knows = undirectedKnows(personKnowsPerson)
+
+        val company = organisation.where($"Type" === "Company").cache()
+        val personSample = person
+          .orderBy($"id")
+          .limit(20)
+        personSample
+          .as("Person2")
+          .join(knows.as("knows"), $"knows.person2Id" === $"Person2.id")
+          .join(workAt.as("workAt"), $"workAt.PersonId" === $"knows.Person1id")
+          .join(company.as("Company"), $"Company.id" === $"workAt.CompanyId")
+          .select(
+            $"Person2.id".alias("person2id"),
+            $"Company.name".alias("companyName"),
+            $"Company.id".alias("companyId")
+          )
+    },
     "companyNumEmployees" -> Factor(OrganisationType, PersonWorkAtCompanyType) { case Seq(organisation, workAt) =>
       val company = organisation.where($"Type" === "Company").cache()
       frequency(
-        company.as("Company").join(workAt.as("WorkAt"), $"WorkAt.CompanyId" === $"Company.id"),
-        value = $"WorkAt.PersonId",
+        company.as("Company").join(workAt.as("workAt"), $"workAt.CompanyId" === $"Company.id"),
+        value = $"workAt.PersonId",
         by = Seq($"Company.id", $"Company.name")
       )
     },
