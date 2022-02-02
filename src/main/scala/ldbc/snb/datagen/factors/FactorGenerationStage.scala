@@ -93,57 +93,23 @@ object FactorGenerationStage extends DatagenStage with Logging {
       .alias("Knows")
       .cache()
 
-  private def personNHops(
-      person: DataFrame,
-      personKnowsPerson: DataFrame,
-      places: DataFrame,
-      nhops: Int,
-      limit: Int
-  ): DataFrame = {
-    var count  = 1
-    val cities = places.where($"type" === "City").cache()
-
-    var df = person
-      .as("Person")
-      .join(cities.as("City"), $"City.id" === $"Person.LocationCityId")
-      .where($"City.PartOfPlaceId" === 1) // Country with ID 1 is China
-      .orderBy($"Person.id")
-      .limit(10)
-      // 1-hop
-      .join(undirectedKnows(personKnowsPerson).alias("knows"), $"Person.id" === $"knows.Person1Id")
-      .select(
-        $"knows.Person1Id".alias("Person1Id"),
-        $"knows.Person2Id".alias("Person2Id"),
-        lit(count).alias("nhops")
-      )
-    // compute 1-hop to (nhops-1)-hop paths
-    while (count <= nhops - 2) {
-      df = df
-        .where($"nhops" === count)
-        .alias("left")
-        .join(undirectedKnows(personKnowsPerson).alias("right"), $"left.Person2Id" === $"right.Person1Id")
-        .select($"left.Person1Id".alias("Person1Id"), $"right.Person2Id".alias("Person2Id"), lit(count + 1).alias("nhops"))
-        .unionAll(df)
-        .groupBy($"Person1Id", $"Person2Id")
-        .agg(functions.min("nhops").alias("nhops"))
-      count = count + 1
-    }
-    // add the nhops'th hop
-    val pairsWithNHops = df
-      .where($"nhops" === count)
-      .orderBy($"Person1Id", $"Person2Id")
-      .limit(500) // a sample of (nhops-1) paths
-      .alias("left")
-      .join(undirectedKnows(personKnowsPerson).alias("right"), $"left.Person2Id" === $"right.Person1Id")
-      .select($"left.Person1Id".alias("Person1Id"), $"right.Person2Id".alias("Person2Id"), lit(count + 1).alias("nhops"))
-      .unionAll(df)
-      .groupBy($"Person1Id", $"Person2Id")
-      .agg(functions.min("nhops").alias("nhops"))
-      .where($"nhops" === count + 1)
-      .orderBy($"Person1Id", $"Person2Id")
-      .limit(limit)
-
-    pairsWithNHops
+  private def nHops(relationships: DataFrame, n: Int, joinKeys: (String, String), sample: Option[DataFrame => DataFrame] = None): DataFrame = {
+    val (leftKey, rightKey) = joinKeys
+    relationships
+      .pipeFoldLeft(sample) { (df, sampler) => sampler(df) }
+      .withColumn("nhops", lit(1))
+      .pipeFoldLeft(1 until n) { (df, count) =>
+        df
+          .where($"nhops" === count)
+          .alias("left")
+          .join(relationships.alias("right"), $"left.${leftKey}" === $"right.${rightKey}")
+          .select($"left.${rightKey}".alias(rightKey), $"right.${leftKey}".alias(leftKey), lit(count + 1).alias("nhops"))
+          .unionAll(df)
+          .groupBy(Seq(rightKey, leftKey).map(col): _*)
+          .agg(functions.min("nhops").alias("nhops"))
+      }
+      .where($"nhops" === n)
+      .select(Seq(rightKey, leftKey).map(col): _*)
   }
 
   private def messageTags(commentHasTag: DataFrame, postHasTag: DataFrame, tag: DataFrame) = {
@@ -343,7 +309,39 @@ object FactorGenerationStage extends DatagenStage with Logging {
       )
     },
     "people4Hops" -> Factor(PersonType, PlaceType, PersonKnowsPersonType) { case Seq(person, place, knows) =>
-      personNHops(person, knows, place, nhops = 4, limit = 100)
+      val cities     = place.where($"type" === "City").cache()
+      val allKnows   = undirectedKnows(knows).cache()
+      val minSampleSize = 100.0
+
+      val chinesePeopleSample = (relations: DataFrame) => {
+        val peopleInChina = person
+          .as("Person")
+          .join(cities.as("City"), $"City.id" === $"Person.LocationCityId")
+          .where($"City.PartOfPlaceId" === 1) // Country with ID 1 is China
+
+        val count = peopleInChina.count()
+
+        val curveFactor = 1e-3
+
+        // sigmoid to select more samples for smaller scale factors
+        val sampleSize = Math.min(count, Math.max(minSampleSize, count / (1 + Math.exp(count * curveFactor)) * 2))
+
+        val sampleFraction = sampleSize / count
+
+        log.info(s"Factor people4Hops: using ${sampleSize} samples (${sampleFraction * 100}%)")
+
+        peopleInChina
+          .sample(sampleFraction, 42)
+          .join(relations.alias("knows"), $"Person.id" === $"knows.Person1Id")
+          .select($"knows.Person1Id".alias("Person1Id"), $"knows.Person2Id".alias("Person2Id"))
+      }
+
+      nHops(
+        allKnows,
+        n = 3,
+        joinKeys = ("Person2Id", "Person1Id"),
+        sample = Some(chinesePeopleSample)
+      )
     }
   )
 }
