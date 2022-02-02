@@ -215,11 +215,28 @@ object FactorGenerationStage extends DatagenStage with Logging {
         by = Seq($"TagClass.id", $"TagClass.name")
       )
     },
+    "personDisjointEmployerPairs" -> Factor(PersonType, PersonKnowsPersonType, OrganisationType, PersonWorkAtCompanyType) { case Seq(person, personKnowsPerson, organisation, workAt) =>
+      val knows = undirectedKnows(personKnowsPerson)
+
+      val company = organisation.where($"Type" === "Company").cache()
+      val personSample = person
+        .orderBy($"id")
+        .limit(20)
+      personSample.as("Person2")
+        .join(knows.as("knows"), $"knows.person2Id" === $"Person2.id")
+        .join(workAt.as("workAt"), $"workAt.PersonId" === $"knows.Person1id")
+        .join(company.as("Company"), $"Company.id" === $"workAt.CompanyId")
+        .select(
+          $"Person2.id".alias("person2id"),
+          $"Company.name".alias("companyName"),
+          $"Company.id".alias("companyId"),
+        )
+    },
     "companyNumEmployees" -> Factor(OrganisationType, PersonWorkAtCompanyType) { case Seq(organisation, workAt) =>
       val company = organisation.where($"Type" === "Company").cache()
       frequency(
-        company.as("Company").join(workAt.as("WorkAt"), $"WorkAt.CompanyId" === $"Company.id"),
-        value = $"WorkAt.PersonId",
+        company.as("Company").join(workAt.as("workAt"), $"workAt.CompanyId" === $"Company.id"),
+        value = $"workAt.PersonId",
         by = Seq($"Company.id", $"Company.name")
       )
     }
