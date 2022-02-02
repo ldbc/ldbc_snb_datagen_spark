@@ -338,7 +338,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
 
       nHops(
         allKnows,
-        n = 3,
+        n = 4,
         joinKeys = ("Person2Id", "Person1Id"),
         sample = Some(chinesePeopleSample)
       )
