@@ -61,7 +61,7 @@
     <scale_factor name="1" >
         <property>
             <name>generator.numPersons</name>
-            <value>11000</value>
+            <value>10200</value>
         </property>
         <property>
             <name>generator.startYear</name>
@@ -80,7 +80,7 @@
     <scale_factor name="3" >
         <property>
             <name>generator.numPersons</name>
-            <value>27000</value>
+            <value>24500</value>
         </property>
         <property>
             <name>generator.startYear</name>
@@ -99,7 +99,7 @@
     <scale_factor name="10" >
         <property>
             <name>generator.numPersons</name>
-            <value>73000</value>
+            <value>69000</value>
         </property>
         <property>
             <name>generator.startYear</name>
@@ -118,7 +118,7 @@
     <scale_factor name="30" >
         <property>
             <name>generator.numPersons</name>
-            <value>184000</value>
+            <value>168000</value>
         </property>
         <property>
             <name>generator.startYear</name>
@@ -137,7 +137,7 @@
     <scale_factor name="100" >
         <property>
             <name>generator.numPersons</name>
-            <value>499000</value>
+            <value>459000</value> <!--was: 465k, 103GB-->
         </property>
         <property>
             <name>generator.startYear</name>
