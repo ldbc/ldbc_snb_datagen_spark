@@ -9,7 +9,6 @@ case class FactorTableDef[M <: Mode](
 )
 
 case class FactorTable[M <: Mode](
-    name: String,
-    data: DataFrame,
-    source: Graph[M]
+    definition: FactorTableDef[M],
+    data: DataFrame
 )

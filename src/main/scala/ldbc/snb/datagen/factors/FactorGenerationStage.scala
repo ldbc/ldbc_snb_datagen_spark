@@ -74,7 +74,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
           .collect {
             case (name, calc) if args.only.fold(true)(_.findFirstIn(name).isDefined) =>
               val resolvedEntities = calc.requiredEntities.foldLeft(Seq.empty[DataFrame])((args, et) => args :+ g.entities(et))
-              FactorTable(name, calc(resolvedEntities), g)
+              FactorTable(FactorTableDef(name, g.definition), calc(resolvedEntities))
           }
       )
       .foreach(_.write(FactorTableSink(args.outputDir, overwrite = args.force)))
@@ -309,8 +309,8 @@ object FactorGenerationStage extends DatagenStage with Logging {
       )
     },
     "people4Hops" -> Factor(PersonType, PlaceType, PersonKnowsPersonType) { case Seq(person, place, knows) =>
-      val cities     = place.where($"type" === "City").cache()
-      val allKnows   = undirectedKnows(knows).cache()
+      val cities        = place.where($"type" === "City").cache()
+      val allKnows      = undirectedKnows(knows).cache()
       val minSampleSize = 100.0
 
       val chinesePeopleSample = (relations: DataFrame) => {

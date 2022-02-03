@@ -91,9 +91,9 @@ object graphs {
     override def write(self: Graph[M], sink: GraphSink): Unit = {
       TreeMap(self.entities.toSeq: _*).foreach { case (tpe, dataset) =>
         SparkUI.job(getClass.getSimpleName, s"write $tpe") {
-          val p = (sink.path / "graphs" / sink.format / PathComponent[GraphLike[M]].path(self) / tpe.entityPath).toString
+          val p = (sink.path / "graphs" / sink.format / PathComponent[GraphDef[M]].path(self.definition) / tpe.entityPath).toString
           log.info(s"$tpe: Writing started")
-          val opts = getFormatOptions(sink.format, self.mode, sink.formatOptions)
+          val opts = getFormatOptions(sink.format, self.definition.mode, sink.formatOptions)
           the(dataset).write(DataFrameSink(p, sink.format, opts, SaveMode.Ignore))
           log.info(s"$tpe: Writing completed")
         }(dataset.sparkSession)
@@ -112,10 +112,10 @@ object graphs {
     import CacheFriendlyEntityOrdering._
 
     override def write(self: Graph[M], sink: GraphSink): Unit = {
-      val opts = getFormatOptions(sink.format, self.mode, sink.formatOptions)
+      val opts = getFormatOptions(sink.format, self.definition.mode, sink.formatOptions)
       TreeMap(self.entities.mapValues(ev).toSeq: _*).foreach { case (tpe, BatchedEntity(snapshot, insertBatches, deleteBatches)) =>
         SparkUI.job(getClass.getSimpleName, s"write $tpe snapshot") {
-          val p = (sink.path / "graphs" / sink.format / PathComponent[GraphLike[M]].path(self) / "initial_snapshot" / tpe.entityPath).toString
+          val p = (sink.path / "graphs" / sink.format / PathComponent[GraphDef[M]].path(self.definition) / "initial_snapshot" / tpe.entityPath).toString
           log.info(s"$tpe: Writing snapshot")
           snapshot.write(DataFrameSink(p, sink.format, opts, SaveMode.Ignore))
           log.info(s"$tpe: Writing snapshot completed")
@@ -132,7 +132,7 @@ object graphs {
         for { (operation, (batches, sizeFactor)) <- operations } {
           batches.foreach { case Batched(entity, partitionKeys, orderingKeys) =>
             SparkUI.job(getClass.getSimpleName, s"write $tpe $operation") {
-              val p             = (sink.path / "graphs" / sink.format / PathComponent[GraphLike[M]].path(self) / operation / tpe.entityPath).toString
+              val p             = (sink.path / "graphs" / sink.format / PathComponent[GraphDef[M]].path(self.definition) / operation / tpe.entityPath).toString
               val numPartitions = Math.max(1.0, entity.rdd.getNumPartitions * sizeFactor).toInt
               log.info(f"$tpe: Writing $operation")
               entity
@@ -160,13 +160,13 @@ object graphs {
 
     override def read(self: GraphSource[M]): Graph[M] = {
       val entities = for { (entity, schema) <- self.definition.entities } yield {
-        val p = (self.path / "graphs" / self.format / PathComponent[GraphLike[M]].path(self.definition) / entity.entityPath).toString()
+        val p = (self.path / "graphs" / self.format / PathComponent[GraphDef[M]].path(self.definition) / entity.entityPath).toString()
         log.info(s"Reading $entity")
         val opts = getFormatOptions(self.format, self.definition.mode)
-        val df   = DataFrameSource(p, self.format, opts, schema.map(StructType.fromDDL)).read
+        val df   = DataFrameSource(p, self.format, opts, schema).read
         entity -> ev(df)
       }
-      Graph[M](self.definition.isAttrExploded, self.definition.isEdgesExploded, self.definition.mode, entities)
+      Graph[M](self.definition, entities)
     }
 
     override def exists(self: GraphSource[M]): Boolean = utils.fileExists(self.path)

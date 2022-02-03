@@ -71,6 +71,12 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
               None
           )
       }
-    Graph[Mode.BI](isAttrExploded = input.isAttrExploded, isEdgesExploded = input.isEdgesExploded, mode, entities)
+    val definition = GraphDef[Mode.BI](
+      isAttrExploded = input.definition.isAttrExploded,
+      isEdgesExploded = input.definition.isEdgesExploded,
+      mode = mode,
+      entities = entities.map { case (k, v) => (k, v.snapshot.schema.some) }
+    )
+    Graph[Mode.BI](definition, entities)
   }
 }

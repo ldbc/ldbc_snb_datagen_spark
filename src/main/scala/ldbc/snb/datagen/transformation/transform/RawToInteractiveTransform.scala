@@ -2,7 +2,7 @@ package ldbc.snb.datagen.transformation.transform
 
 import ldbc.snb.datagen.model.Cardinality.NN
 import ldbc.snb.datagen.model.EntityType.Edge
-import ldbc.snb.datagen.model.{EntityType, Graph, Mode}
+import ldbc.snb.datagen.model.{EntityType, Graph, GraphDef, Mode}
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.util.Logging
 import ldbc.snb.datagen.util.sql._
@@ -21,7 +21,15 @@ case class RawToInteractiveTransform(mode: Mode.Interactive, simulationStart: Lo
       .map { case (tpe, v) =>
         tpe -> RawToInteractiveTransform.snapshotPart(tpe, v, bulkLoadThreshold, filterDeletion = true)
       }
-    Graph[Mode.Interactive](isAttrExploded = input.isAttrExploded, isEdgesExploded = input.isEdgesExploded, mode, entities)
+    Graph[Mode.Interactive](
+      GraphDef[Mode.Interactive](
+        isAttrExploded = input.definition.isAttrExploded,
+        isEdgesExploded = input.definition.isEdgesExploded,
+        mode = mode,
+        entities = entities.map { case (k, v) => (k, v.schema.some) }
+      ),
+      entities
+    )
   }
 }
 

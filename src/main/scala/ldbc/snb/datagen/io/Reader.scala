@@ -16,7 +16,8 @@ object Reader {
     type Ret
     def tcInstance: Reader.Aux[T, Ret]
     def self: T
-    def read: Ret = tcInstance.read(self)
+    def read: Ret       = tcInstance.read(self)
+    def exists: Boolean = tcInstance.exists(self)
   }
 
   object ReaderOps {

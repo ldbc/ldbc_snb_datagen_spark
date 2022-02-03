@@ -24,4 +24,8 @@ final class FluentSyntaxOps[A](private val self: A) extends AnyVal {
     f(self)
     self
   }
+
+  /** Fluent syntax for wrapping value in Some.
+    */
+  def some: Some[A] = Some(self)
 }

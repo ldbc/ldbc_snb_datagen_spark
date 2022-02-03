@@ -144,26 +144,17 @@ package object model {
     }
   }
 
-  trait GraphLike[+M <: Mode] {
-    def isAttrExploded: Boolean
-    def isEdgesExploded: Boolean
-    def mode: M
-  }
+  case class GraphDef[+M <: Mode](
+      isAttrExploded: Boolean,
+      isEdgesExploded: Boolean,
+      mode: M,
+      entities: Map[EntityType, Option[StructType]]
+  )
 
   case class Graph[+M <: Mode](
-      isAttrExploded: Boolean,
-      isEdgesExploded: Boolean,
-      mode: M,
+      definition: GraphDef[M],
       entities: Map[EntityType, M#Layout]
-  ) extends GraphLike[M]
-
-  case class GraphDef[M <: Mode](
-      isAttrExploded: Boolean,
-      isEdgesExploded: Boolean,
-      mode: M,
-      entities: Map[EntityType, Option[String]]
-  ) extends GraphLike[M]
-
+  )
   sealed trait BatchPeriod
   object BatchPeriod {
     case object Day   extends BatchPeriod

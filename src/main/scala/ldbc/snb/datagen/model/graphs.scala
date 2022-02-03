@@ -13,7 +13,7 @@ object graphs {
       isAttrExploded = false,
       isEdgesExploded = false,
       Mode.Raw,
-      UntypedEntities[RawEntity].value.map { case (k, v) => (k, Some(v.toDDL)) }
+      UntypedEntities[RawEntity].value.map { case (k, v) => (k, Some(v)) }
     )
   }
 }

@@ -26,6 +26,8 @@ object ExplodeAttrs extends Transform[Mode.Raw.type, Mode.Raw.type] {
 
     val l = lens[In]
 
-    (l.isAttrExploded ~ l.entities).set(input)((true, updatedEntities))
+    (l.definition.isAttrExploded ~ l.definition.entities ~ l.entities).set(input)(
+      (true, updatedEntities.map { case (k, v) => (k, v.schema.some) }, updatedEntities)
+    )
   }
 }

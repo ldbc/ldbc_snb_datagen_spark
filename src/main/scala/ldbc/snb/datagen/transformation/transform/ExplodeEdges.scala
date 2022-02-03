@@ -76,6 +76,8 @@ object ExplodeEdges extends Transform[Mode.Raw.type, Mode.Raw.type] {
       .foldLeft(entities)(_ ++ _)
 
     val l = lens[In]
-    (l.isEdgesExploded ~ l.entities).set(input)((true, updatedEntities))
+    (l.definition.isEdgesExploded ~ l.definition.entities ~ l.entities).set(input)(
+      (true, updatedEntities.map { case (k, v) => (k, v.schema.some) }, updatedEntities)
+    )
   }
 }
