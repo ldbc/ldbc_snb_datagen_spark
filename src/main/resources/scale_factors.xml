@@ -137,7 +137,7 @@
     <scale_factor name="100" >
         <property>
             <name>generator.numPersons</name>
-            <value>459000</value> <!--was: 465k, 103GB-->
+            <value>459000</value>
         </property>
         <property>
             <name>generator.startYear</name>
