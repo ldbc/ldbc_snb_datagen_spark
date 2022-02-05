@@ -2,7 +2,7 @@ package ldbc.snb.datagen
 
 import ldbc.snb.datagen.factors.FactorGenerationStage
 import ldbc.snb.datagen.generator.dictionary.Dictionaries
-import ldbc.snb.datagen.generator.{DatagenContext, GenerationStage}
+import ldbc.snb.datagen.generator.GenerationStage
 import ldbc.snb.datagen.model.Mode
 import ldbc.snb.datagen.transformation.TransformationStage
 import ldbc.snb.datagen.util.{SparkApp, lower}

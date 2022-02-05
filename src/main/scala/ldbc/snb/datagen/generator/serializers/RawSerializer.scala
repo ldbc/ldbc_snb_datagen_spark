@@ -10,18 +10,20 @@ import ldbc.snb.datagen.io.raw.{RawSink, WriteContext, createNewWriteContext, re
 import ldbc.snb.datagen.model.raw._
 import ldbc.snb.datagen.model.{EntityTraits, raw}
 import ldbc.snb.datagen.syntax._
+import ldbc.snb.datagen.util.Logging
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.util.SerializableConfiguration
 
+import scala.collection.mutable
 import java.net.URI
 import java.util
 import java.util.Collections
 import java.util.function.Consumer
 
-class RawSerializer(ranker: SparkRanker)(implicit spark: SparkSession) extends Writer[RawSink] {
+class RawSerializer(ranker: SparkRanker)(implicit spark: SparkSession) extends Writer[RawSink] with Logging {
   override type Data = RDD[Person]
   import RawSerializer._
 
@@ -87,13 +89,11 @@ class RawSerializer(ranker: SparkRanker)(implicit spark: SparkSession) extends W
 
       activityStream use { activityStream =>
         for { (blockId, persons) <- groups } {
-          val clonedPersons = new util.ArrayList[Person]
-          for (p <- persons) {
-            clonedPersons.add(new Person(p))
-          }
-          Collections.sort(clonedPersons)
+          val personList = new util.ArrayList[Person](persons.size)
+          for (p <- persons) { personList.add(p) }
+          Collections.sort(personList)
 
-          val activities = generator.generateActivityForBlock(blockId.toInt, clonedPersons)
+          val activities = generator.generateActivityForBlock(blockId.toInt, personList)
 
           activities.forEach(new Consumer[GenActivity] {
             override def accept(t: GenActivity): Unit = activityStream.write(t)
