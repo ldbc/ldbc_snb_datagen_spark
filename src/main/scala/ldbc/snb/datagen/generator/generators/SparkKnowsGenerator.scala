@@ -9,7 +9,7 @@ import org.apache.spark.sql.SparkSession
 
 import java.util
 import scala.collection.JavaConverters._
-import scala.collection.SortedMap
+import scala.collection.mutable
 
 object SparkKnowsGenerator {
   def apply(
@@ -31,9 +31,9 @@ object SparkKnowsGenerator {
       // groupByKey wouldn't guarantee keeping the order inside groups
       // TODO check if it actually has better performance than sorting inside mapPartitions (probably not)
       .combineByKeyWithClassTag(
-        personByRank => SortedMap(personByRank),
-        (map: SortedMap[Long, Person], personByRank) => map + personByRank,
-        (a: SortedMap[Long, Person], b: SortedMap[Long, Person]) => a ++ b
+        personByRank => mutable.SortedMap(personByRank),
+        (map: mutable.SortedMap[Long, Person], personByRank) => map += personByRank,
+        (a: mutable.SortedMap[Long, Person], b: mutable.SortedMap[Long, Person]) => a ++= b
       )
       .mapPartitions(groups => {
         DatagenContext.initialize(conf)
@@ -43,14 +43,11 @@ object SparkKnowsGenerator {
         val personSimilarity = DatagenParams.getPersonSimularity
 
         val personGroups = for { (block, persons) <- groups } yield {
-          val clonedPersons = new util.ArrayList[Person]
-          for (p <- persons.values) {
-            clonedPersons.add(new Person(p))
-          }
-          knowsGenerator.generateKnows(clonedPersons, block.toInt, percentagesJava, stepIndex, personSimilarity)
-          clonedPersons
+          val personList = new util.ArrayList[Person](persons.size)
+          for (p <- persons.values) { personList.add(p) }
+          knowsGenerator.generateKnows(personList, block.toInt, percentagesJava, stepIndex, personSimilarity)
+          personList
         }
-
         for {
           persons <- personGroups
           person  <- persons.iterator().asScala

@@ -9,7 +9,7 @@ import org.apache.hadoop.fs.{FileSystem, Path}
 
 import java.net.URI
 object GenerationStage extends DatagenStage with Logging {
-  val optimalPersonsPerFile = 500000
+  val optimalPersonsPerFile = 500000 // 50 blocks
 
   case class Args(
       scaleFactor: String = "1",
@@ -27,12 +27,18 @@ object GenerationStage extends DatagenStage with Logging {
     val config = buildConfig(args)
     DatagenContext.initialize(config)
 
-    val numPartitions   = config.getInt("hadoop.numThreads", spark.sparkContext.defaultParallelism)
+    // Doesn't make sense to have more partitions than blocks
+    val numPartitions = Math
+      .min(
+        Math.ceil(DatagenParams.numPersons.toDouble / DatagenParams.blockSize).toLong,
+        config.getInt("hadoop.numThreads", spark.sparkContext.defaultParallelism)
+      )
+      .toInt
+
     val idealPartitions = DatagenParams.numPersons.toDouble / optimalPersonsPerFile
+    val oversizeFactor  = args.oversizeFactor.getOrElse(Math.max(numPartitions / idealPartitions, 1.0))
 
-    val oversizeFactor = args.oversizeFactor.getOrElse(Math.max(numPartitions / idealPartitions, 1.0))
-
-    val persons = SparkPersonGenerator(config)
+    val persons = SparkPersonGenerator(config, Some(numPartitions))
 
     val percentages             = Seq(0.45f, 0.45f, 0.1f)
     val knowsGeneratorClassName = DatagenParams.getKnowsGenerator

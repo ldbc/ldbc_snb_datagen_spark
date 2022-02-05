@@ -10,55 +10,31 @@ import ldbc.snb.datagen.io.raw.{RawSink, WriteContext, createNewWriteContext, re
 import ldbc.snb.datagen.model.raw._
 import ldbc.snb.datagen.model.{EntityTraits, raw}
 import ldbc.snb.datagen.syntax._
+import ldbc.snb.datagen.util.Logging
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
+import org.apache.spark.storage.StorageLevel
 import org.apache.spark.util.SerializableConfiguration
 
+import scala.collection.mutable
 import java.net.URI
 import java.util
 import java.util.Collections
 import java.util.function.Consumer
 
-class RawSerializer(ranker: SparkRanker)(implicit spark: SparkSession) extends Writer[RawSink] {
+class RawSerializer(ranker: SparkRanker)(implicit spark: SparkSession) extends Writer[RawSink] with Logging {
   override type Data = RDD[Person]
   import RawSerializer._
 
-  private def writePersonSubgraph(self: RDD[Person], sink: RawSink): Unit = {
-    val serializableHadoopConf = new SerializableConfiguration(self.sparkContext.hadoopConfiguration)
-
-    self
-      .pipeFoldLeft(sink.partitions)((rdd: RDD[Person], p: Int) => rdd.coalesce(p))
-      .foreachPartition(persons => {
-        val ctx = initializeContext(serializableHadoopConf.value, sink)
-
-        def stream[T <: Product: EntityTraits: CsvRowEncoder: ParquetRowEncoder] =
-          recordOutputStream(sink, ctx)
-
-        import ldbc.snb.datagen.io.raw.instances._
-        import ldbc.snb.datagen.model.raw.instances._
-        import ldbc.snb.datagen.util.sql._
-
-        val pos = new PersonOutputStream(
-          stream[raw.Person],
-          stream[raw.PersonKnowsPerson],
-          stream[raw.PersonHasInterestTag],
-          stream[raw.PersonStudyAtUniversity],
-          stream[raw.PersonWorkAtCompany]
-        )
-
-        pos use { pos => persons.foreach(pos.write) }
-      })
-  }
-
-  private def writeActivitySubgraph(persons: RDD[Person], sink: RawSink): Unit = {
+  private def writeDynamicSubgraph(persons: RDD[Person], sink: RawSink): Unit = {
 
     val blockSize = DatagenParams.blockSize
     val blocks = ranker(persons)
       .map { case (k, v) => (k / blockSize, v) }
       .groupByKey()
-      .pipeFoldLeft(sink.partitions)((rdd: RDD[(Long, Iterable[Person])], p: Int) => rdd.coalesce(p))
+      .persist(StorageLevel.MEMORY_AND_DISK)
 
     val serializableHadoopConf = new SerializableConfiguration(persons.sparkContext.hadoopConfiguration)
 
@@ -72,7 +48,14 @@ class RawSerializer(ranker: SparkRanker)(implicit spark: SparkSession) extends W
       import ldbc.snb.datagen.model.raw.instances._
       import ldbc.snb.datagen.util.sql._
 
-      val generator = new PersonActivityGenerator
+      val pos = new PersonOutputStream(
+        stream[raw.Person],
+        stream[raw.PersonKnowsPerson],
+        stream[raw.PersonHasInterestTag],
+        stream[raw.PersonStudyAtUniversity],
+        stream[raw.PersonWorkAtCompany]
+      )
+
       val activityStream = new ActivityOutputStream(
         stream[Forum],
         stream[ForumHasTag],
@@ -85,15 +68,19 @@ class RawSerializer(ranker: SparkRanker)(implicit spark: SparkSession) extends W
         stream[PersonLikesComment]
       )
 
-      activityStream use { activityStream =>
-        for { (blockId, persons) <- groups } {
-          val clonedPersons = new util.ArrayList[Person]
-          for (p <- persons) {
-            clonedPersons.add(new Person(p))
-          }
-          Collections.sort(clonedPersons)
+      val generator = new PersonActivityGenerator
 
-          val activities = generator.generateActivityForBlock(blockId.toInt, clonedPersons)
+      (activityStream, pos) use { case (activityStream, pos) =>
+        for { (blockId, persons) <- groups } {
+          val personList = new util.ArrayList[Person](persons.size)
+          for (p <- persons) { personList.add(p) }
+          Collections.sort(personList)
+
+          personList.forEach(new Consumer[Person] {
+            override def accept(t: Person): Unit = pos.write(t)
+          })
+
+          val activities = generator.generateActivityForBlock(blockId.toInt, personList)
 
           activities.forEach(new Consumer[GenActivity] {
             override def accept(t: GenActivity): Unit = activityStream.write(t)
@@ -105,7 +92,6 @@ class RawSerializer(ranker: SparkRanker)(implicit spark: SparkSession) extends W
 
   private def writeStaticSubgraph(persons: RDD[Person], sink: RawSink): Unit = {
     val serializableHadoopConf = new SerializableConfiguration(persons.sparkContext.hadoopConfiguration)
-    val sqlConf                = spark.sessionState.conf
 
     // we need to do this in an executor to get a TaskContext
     persons.sparkContext
@@ -132,8 +118,7 @@ class RawSerializer(ranker: SparkRanker)(implicit spark: SparkSession) extends W
   }
 
   override def write(self: RDD[Person], sink: RawSink): Unit = {
-    writePersonSubgraph(self, sink)
-    writeActivitySubgraph(self, sink)
+    writeDynamicSubgraph(self, sink)
     writeStaticSubgraph(self, sink)
   }
 }
