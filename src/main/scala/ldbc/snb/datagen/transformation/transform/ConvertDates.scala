@@ -1,6 +1,7 @@
 package ldbc.snb.datagen.transformation.transform
 
 import ldbc.snb.datagen.model.{EntityType, Mode}
+import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.util.sql.qcol
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.lit
@@ -8,7 +9,6 @@ import org.apache.spark.sql.types.{DateType, TimestampType}
 import shapeless._
 
 object ConvertDates extends Transform[Mode.Raw.type, Mode.Raw.type] {
-
   def convertDates(tpe: EntityType, df: DataFrame): DataFrame = {
     tpe match {
       case tpe if !tpe.isStatic =>
@@ -20,10 +20,14 @@ object ConvertDates extends Transform[Mode.Raw.type, Mode.Raw.type] {
       case _ => df
     }
   }
-
   override def transform(input: In): Out = {
-    lens[In].entities.modify(input)(
-      _.map { case (tpe, v) => tpe -> convertDates(tpe, v) }
+    val convertedEntities = input.entities.map { case (tpe, v) => tpe -> convertDates(tpe, v) }
+    val l                 = lens[In]
+    (l.definition.entities ~ l.entities).set(input)(
+      (
+        convertedEntities.map { case (k, v) => (k, v.schema.some) },
+        convertedEntities
+      )
     )
   }
 }

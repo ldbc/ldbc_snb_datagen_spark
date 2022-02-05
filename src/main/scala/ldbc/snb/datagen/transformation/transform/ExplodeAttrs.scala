@@ -10,7 +10,6 @@ import shapeless.lens
 
 object ExplodeAttrs extends Transform[Mode.Raw.type, Mode.Raw.type] {
   override def transform(input: In): Out = {
-
     def explodedAttr(attr: Attr, node: DataFrame, column: Column) =
       attr -> node.select(withRawColumns(attr, $"id".as(s"${attr.parent}Id"), explode(split(column, ";")).as(s"${attr.attribute}Id")))
 

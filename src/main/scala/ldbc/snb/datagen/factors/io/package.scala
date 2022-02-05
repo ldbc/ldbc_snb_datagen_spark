@@ -19,7 +19,7 @@ package object io {
     override type Data = FactorTable[M]
 
     override def write(self: FactorTable[M], sink: FactorTableSink): Unit = {
-      val p = (sink.path / "factors" / sink.format / PathComponent[GraphDef[M]].path(self.definition.sourceDef) / self.definition.name).toString
+      val p = (sink.path / self.definition.kind.path / sink.format / PathComponent[GraphDef[M]].path(self.definition.sourceDef) / self.definition.name).toString
       val dfSink = if (sink.overwrite) {
         DataFrameSink(p, sink.format, mode = SaveMode.Overwrite)
       } else DataFrameSink(p, sink.format)
@@ -38,7 +38,7 @@ package object io {
     override type Ret = FactorTable[M]
 
     override def read(self: FactorTableSource[M]): Ret = {
-      val p = (self.path / "factors" / self.format / PathComponent[GraphDef[M]].path(self.definition.sourceDef) / self.definition.name).toString
+      val p = (self.path / self.definition.kind.path / self.format / PathComponent[GraphDef[M]].path(self.definition.sourceDef) / self.definition.name).toString
 
       log.info(s"Reading factor table ${self.definition.name}")
       val df = DataFrameSource(p, self.format, Map.empty, schema = None).read

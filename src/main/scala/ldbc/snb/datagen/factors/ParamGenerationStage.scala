@@ -1,24 +1,40 @@
-package ldbc.snb.datagen.paramgen
+package ldbc.snb.datagen.factors
 
-import ldbc.snb.datagen.factors.FactorGenerationStage.rawFactors
-import ldbc.snb.datagen.factors.{FactorTable, FactorTableDef}
 import ldbc.snb.datagen.factors.io.{FactorTableSink, FactorTableSource}
-import ldbc.snb.datagen.io.graphs.GraphSource
-import ldbc.snb.datagen.model
 import ldbc.snb.datagen.model.graphs
 import ldbc.snb.datagen.syntax.stringToColumnOps
-import ldbc.snb.datagen.transformation.transform.ConvertDates
 import ldbc.snb.datagen.util.{DatagenStage, Logging}
 import org.apache.spark.sql.DataFrame
 import shapeless.lens
 
 import scala.util.matching.Regex
 
-case class ParamQuery(requiredFactors: String*)(f: Seq[DataFrame] => DataFrame) extends (Seq[DataFrame] => DataFrame) {
+trait ParamQueryTrait extends (Seq[DataFrame] => DataFrame) {
+  override def apply(v1: Seq[DataFrame]): DataFrame
+}
+
+case class ParamQuery(requiredFactors: String*)(f: Seq[DataFrame] => DataFrame) extends ParamQueryTrait {
   override def apply(v1: Seq[DataFrame]): DataFrame = f(v1)
 }
 
-object ParamGenStage extends DatagenStage with Logging {
+/*
+case class ParamQuerySql(requiredFactors: String*)(f: Seq[String] => String)(implicit spark: SparkSession) extends ParamQueryTrait {
+  override def apply(dfs: Seq[DataFrame]): DataFrame = {
+    val registeredTableNames = for {
+      (name, df) <- requiredFactors.zip(dfs)
+      uniqueName = s"${name}_${UUID.randomUUID()}"
+      _          = df.createOrReplaceTempView(uniqueName)
+    } yield uniqueName
+    try {
+      spark.sql(f(registeredTableNames))
+    } finally {
+      for { t <- registeredTableNames } spark.sql(s"DROP TEMPORARY VIEW ${t}")
+    }
+  }
+}
+ */
+
+object ParamGenerationStage extends DatagenStage with Logging {
 
   case class Args(
       outputDir: String = "out",
@@ -60,14 +76,17 @@ object ParamGenStage extends DatagenStage with Logging {
   def run(args: Args): Unit = {
     import ldbc.snb.datagen.factors.io.instances._
     import ldbc.snb.datagen.io.Reader.ops._
+    import ldbc.snb.datagen.io.Writer.ops._
 
     val sourceDef = graphs.Raw.graphDef
 
-    val requiredFactorTables = parameterQueries.collect { case (name, query) =>
-      val tables = query.requiredFactors.map(factorTableName => FactorTableSource(FactorTableDef(factorTableName, sourceDef), args.outputDir).read.data)
-      query(tables)
-      ???
-    }
+    parameterQueries
+      .collect { case (name, query) =>
+        val tables =
+          query.requiredFactors.map(factorTableName => FactorTableSource(FactorTableDef(factorTableName, Factor, sourceDef), args.outputDir).read.data)
+        FactorTable(FactorTableDef(name, Params, sourceDef), query(tables))
+      }
+      .foreach { _.write(FactorTableSink(args.outputDir, overwrite = args.force)) }
   }
 
   private val parameterQueries = Map(
@@ -75,5 +94,4 @@ object ParamGenStage extends DatagenStage with Logging {
       tnm.select($"TagClass.name").limit(10).crossJoin(cnp.select($"Country.name").limit(10))
     }
   )
-
 }
