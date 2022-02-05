@@ -126,8 +126,7 @@ object LdbcDatagen extends SparkApp {
   }
 
   def run(args: Args): Unit = {
-    val env      = System.getenv().asScala
-    val irFormat = env.getOrElse("LDBC_DATAGEN_IR_FORMAT", "parquet")
+    val irFormat = env.IrFormat
 
     val generatorArgs = GenerationStage.Args(
       scaleFactor = args.scaleFactor,
@@ -135,7 +134,7 @@ object LdbcDatagen extends SparkApp {
       paramFile = args.paramFile,
       outputDir = args.outputDir,
       numThreads = args.numThreads,
-      format = irFormat,
+      format = env.IrFormat,
       oversizeFactor = args.oversizeFactor
     )
 
