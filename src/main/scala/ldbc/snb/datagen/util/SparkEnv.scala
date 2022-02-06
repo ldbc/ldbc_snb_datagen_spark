@@ -9,8 +9,8 @@ class SparkEnv(implicit spark: SparkSession) {
   private val invalidChars = raw"[.-]"
   def env(key: String): Option[String] = {
     sysenv
-      .get(s"LDBC_DATAGEN_${camelToUpper(key.replaceAll(invalidChars, "_"))}")
-      .orElse(spark.conf.getOption(s"spark.ldbc.datagen.$key"))
+      .get(s"LDBC_SNB_DATAGEN_${camelToUpper(key.replaceAll(invalidChars, "_"))}")
+      .orElse(spark.conf.getOption(s"spark.ldbc.snb.datagen.$key"))
   }
 
   val IrFormat = env("irFormat").getOrElse("parquet")
