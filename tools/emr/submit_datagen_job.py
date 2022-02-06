@@ -115,7 +115,10 @@ def submit_datagen_job(name,
     run_url = f'{results_url}/runs/{ts_formatted}'
 
     spark_config = {
-        'maximizeResourceAllocation': 'true',
+        'maximizeResourceAllocation': 'true'
+    }
+
+    spark_defaults_config = {
         'spark.serializer': 'org.apache.spark.serializer.KryoSerializer',
         **(dict(conf) if conf else {})
     }
@@ -137,6 +140,10 @@ def submit_datagen_job(name,
             {
                 'Classification': 'spark',
                 'Properties': spark_config
+            },
+            {
+                'Classification': 'spark-defaults',
+                'Properties': spark_defaults_config
             }
         ],
         'Instances': {
