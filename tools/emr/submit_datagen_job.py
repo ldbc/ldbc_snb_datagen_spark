@@ -260,7 +260,7 @@ if __name__ == "__main__":
     parser.add_argument("--conf",
                             metavar="KEY=VALUE",
                             nargs='+',
-                            type=KeyValue,
+                            action=KeyValue,
                             help="SparkConf as key=value pairs")
 
     parser.add_argument('--', nargs='*', help='Arguments passed to LDBC SNB Datagen', dest="arg")
