@@ -21,6 +21,8 @@ trait SparkApp {
   def defaultSparkConf: Map[String, String] = Map(
     "spark.sql.session.timeZone" -> "GMT"
   )
+
+  protected lazy val env: SparkEnv = new SparkEnv
 }
 
 trait DatagenStage extends SparkApp {

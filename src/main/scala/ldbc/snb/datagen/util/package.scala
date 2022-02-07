@@ -25,9 +25,9 @@ package object util {
 
   def simpleNameOf[T: ClassTag] = implicitly[ClassTag[T]].runtimeClass.getSimpleName
 
-  def snake(str: String) = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, str)
+  def pascalToCamel(str: String) = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, str)
 
-  def camel(str: String) = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, str)
+  def camelToUpper(str: String) = CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, str)
 
   def lower(str: String) = str.toLowerCase
 }
