@@ -59,13 +59,23 @@ The `tools/run.py` is intended for **local runs**. To use it, download and extra
 
 Spark 3.1.x is the recommended runtime to use. The rest of the instructions are provided assuming Spark 3.1.x.
 
+To place Spark under `/opt/`:
+
 ```bash
 curl https://downloads.apache.org/spark/spark-3.1.2/spark-3.1.2-bin-hadoop3.2.tgz | sudo tar -xz -C /opt/
 export SPARK_HOME="/opt/spark-3.1.2-bin-hadoop3.2"
 export PATH="$SPARK_HOME/bin":"$PATH"
 ```
 
-Both Java 8 and Java 11 work.
+To place under `~/`:
+
+```bash
+curl https://downloads.apache.org/spark/spark-3.1.2/spark-3.1.2-bin-hadoop3.2.tgz | tar -xz -C ~/
+export SPARK_HOME="~/spark-3.1.2-bin-hadoop3.2"
+export PATH="$SPARK_HOME/bin":"$PATH"
+```
+
+Both Java 8 and Java 11 are supported.
 
 To build, run
 
