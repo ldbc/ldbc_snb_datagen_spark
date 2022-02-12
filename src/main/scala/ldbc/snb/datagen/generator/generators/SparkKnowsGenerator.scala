@@ -27,14 +27,17 @@ object SparkKnowsGenerator {
 
     val percentagesJava = percentages.map(Float.box).asJava
 
+    val create: ((Long, Person)) => mutable.SortedMap[Long, Person] =
+      value => mutable.SortedMap(value)
+    val merge: (mutable.SortedMap[Long, Person], (Long, Person)) => mutable.SortedMap[Long, Person] =
+      (map, value) => map += value
+    val combine: (mutable.SortedMap[Long, Person], mutable.SortedMap[Long, Person]) => mutable.SortedMap[Long, Person] =
+      (a, b) => a ++= b
+
     indexed
       // groupByKey wouldn't guarantee keeping the order inside groups
       // TODO check if it actually has better performance than sorting inside mapPartitions (probably not)
-      .combineByKeyWithClassTag(
-        personByRank => mutable.SortedMap(personByRank),
-        (map: mutable.SortedMap[Long, Person], personByRank) => map += personByRank,
-        (a: mutable.SortedMap[Long, Person], b: mutable.SortedMap[Long, Person]) => a ++= b
-      )
+      .combineByKeyWithClassTag[mutable.SortedMap[Long, Person]](create, merge, combine)
       .mapPartitions(groups => {
         DatagenContext.initialize(conf)
         val knowsGeneratorClass = Class.forName(knowsGeneratorClassName)
