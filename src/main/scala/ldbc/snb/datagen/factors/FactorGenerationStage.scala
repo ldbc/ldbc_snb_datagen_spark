@@ -311,6 +311,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
             $"Company.name".alias("companyName"),
             $"Company.id".alias("companyId")
           )
+          .distinct()
     },
     "companyNumEmployees" -> Factor(OrganisationType, PersonWorkAtCompanyType) { case Seq(organisation, workAt) =>
       val company = organisation.where($"Type" === "Company").cache()
