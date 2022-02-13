@@ -162,6 +162,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
     "cityPairsNumFriends" -> Factor(PersonKnowsPersonType, PersonType, PlaceType) { case Seq(personKnowsPerson, persons, places) =>
       val cities = places.where($"type" === "City").cache()
       val knows  = undirectedKnows(personKnowsPerson)
+      val countries = places.where($"type" === "Country").cache()
 
       frequency(
         knows
@@ -169,14 +170,20 @@ object FactorGenerationStage extends DatagenStage with Logging {
           .join(cities.as("City1"), $"City1.id" === $"Person1.LocationCityId")
           .join(persons.as("Person2"), $"Person2.id" === $"Knows.Person2Id")
           .join(cities.as("City2"), $"City2.id" === $"Person2.LocationCityId")
-          .where($"City1.id" < $"City2.id"),
+          .where($"City1.id" < $"City2.id")
+          .join(countries.as("Country1"), $"Country1.id" === $"City1.PartOfPlaceId")
+          .join(countries.as("Country2"), $"Country2.id" === $"City2.PartOfPlaceId"),
         value = $"*",
-        by = Seq($"City1.id", $"City2.id", $"City1.name", $"City2.name")
+        by = Seq($"City1.id", $"City2.id", $"City1.name", $"City2.name", $"Country1.id", $"Country2.id", $"Country1.name", $"Country2.name")
       ).select(
         $"City1.id".alias("city1Id"),
         $"City2.id".alias("city2Id"),
         $"City1.name".alias("city1Name"),
         $"City2.name".alias("city2Name"),
+        $"Country1.id".alias("country1Id"),
+        $"Country2.id".alias("country2Id"),
+        $"Country1.name".alias("country1Name"),
+        $"Country2.name".alias("country2Name"),
         $"frequency"
       )
     },
@@ -191,7 +198,6 @@ object FactorGenerationStage extends DatagenStage with Logging {
           .join(cities.as("City1"), $"City1.id" === $"Person1.LocationCityId")
           .join(persons.as("Person2"), $"Person2.id" === $"Knows.Person2Id")
           .join(cities.as("City2"), $"City2.id" === $"Person2.LocationCityId")
-          .cache()
           .join(countries.as("Country1"), $"Country1.id" === $"City1.PartOfPlaceId")
           .join(countries.as("Country2"), $"Country2.id" === $"City2.PartOfPlaceId")
           .where($"Country1.id" < $"Country2.id"),
