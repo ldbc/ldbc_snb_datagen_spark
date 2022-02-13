@@ -361,6 +361,41 @@ object FactorGenerationStage extends DatagenStage with Logging {
         joinKeys = ("Person2Id", "Person1Id"),
         sample = Some(chinesePeopleSample)
       )
+    },
+    "people2Hops" -> Factor(PersonType, PlaceType, PersonKnowsPersonType) { case Seq(person, place, knows) =>
+      val cities     = place.where($"type" === "City").cache()
+      val allKnows   = undirectedKnows(knows).cache()
+      val minSampleSize = 100.0
+
+      val chinesePeopleSample = (relations: DataFrame) => {
+        val peopleInChina = person
+          .as("Person")
+          .join(cities.as("City"), $"City.id" === $"Person.LocationCityId")
+          .where($"City.PartOfPlaceId" === 1) // Country with ID 1 is China
+
+        val count = peopleInChina.count()
+
+        val curveFactor = 1e-3
+
+        // sigmoid to select more samples for smaller scale factors
+        val sampleSize = Math.min(count, Math.max(minSampleSize, count / (1 + Math.exp(count * curveFactor)) * 2))
+
+        val sampleFraction = sampleSize / count
+
+        log.info(s"Factor people4Hops: using ${sampleSize} samples (${sampleFraction * 100}%)")
+
+        peopleInChina
+          .sample(sampleFraction, 42)
+          .join(relations.alias("knows"), $"Person.id" === $"knows.Person1Id")
+          .select($"knows.Person1Id".alias("Person1Id"), $"knows.Person2Id".alias("Person2Id"))
+      }
+
+      nHops(
+        allKnows,
+        n = 2,
+        joinKeys = ("Person2Id", "Person1Id"),
+        sample = Some(chinesePeopleSample)
+      )
     }
   )
 }
