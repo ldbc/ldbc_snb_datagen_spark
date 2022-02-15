@@ -316,7 +316,9 @@ object FactorGenerationStage extends DatagenStage with Logging {
           .select(
             $"Person2.id".alias("person2id"),
             $"Company.name".alias("companyName"),
-            $"Company.id".alias("companyId")
+            $"Company.id".alias("companyId"),
+            $"Person2.creationDate".alias("person2creationDate"),
+            $"Person2.deletionDate".alias("person2deletionDate"),
           )
           .distinct()
     },
@@ -361,7 +363,16 @@ object FactorGenerationStage extends DatagenStage with Logging {
         n = 4,
         joinKeys = ("Person2Id", "Person1Id"),
         sample = Some(chinesePeopleSample)
-      )
+      ).join(person.as("Person1"), $"Person1.id" === $"Person1Id")
+        .join(person.as("Person2"), $"Person2.id" === $"Person1Id")
+        .select(
+          $"Person1Id",
+          $"Person2Id",
+          $"Person1.creationDate".as("Person1CreationDate"),
+          $"Person1.deletionDate".as("Person1DeletionDate"),
+          $"Person2.creationDate".as("Person2CreationDate"),
+          $"Person2.deletionDate".as("Person2DeletionDate")
+        )
     },
     "people2Hops" -> Factor(PersonType, PlaceType, PersonKnowsPersonType) { case Seq(person, place, knows) =>
       val cities     = place.where($"type" === "City").cache()
@@ -396,7 +407,16 @@ object FactorGenerationStage extends DatagenStage with Logging {
         n = 2,
         joinKeys = ("Person2Id", "Person1Id"),
         sample = Some(chinesePeopleSample)
-      )
+      ).join(person.as("Person1"), $"Person1.id" === $"Person1Id")
+        .join(person.as("Person2"), $"Person2.id" === $"Person1Id")
+        .select(
+          $"Person1Id",
+          $"Person2Id",
+          $"Person1.creationDate".as("Person1CreationDate"),
+          $"Person1.deletionDate".as("Person1DeletionDate"),
+          $"Person2.creationDate".as("Person2CreationDate"),
+          $"Person2.deletionDate".as("Person2DeletionDate")
+        )
     }
   )
 }
