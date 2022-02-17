@@ -107,11 +107,22 @@ draw = rep(0,10000)
 for (i in 1:length(draw)) {
   draw[i] = powerLawActivityDelete()
 }
+
+draw = draw[draw < 100]
+new = data.frame(draw)
+
+p = ggplot(new, aes(x=draw)) +
+  geom_histogram(color="black", fill="white",bins=50) +
+  theme_bw()
+p
+
 mean(draw)/60
 sqrt(var(draw))/60
 plot(minutes,p,type="l") 
 
-ggplot(data = data.frame(x = minutes,y = p),
+
+dat = data.frame(x = minutes,y = p)
+ggplot(dat,
        aes(x = x, y = y)) +
   geom_line() +
   scale_x_continuous(name="x (minutes)",
