@@ -279,9 +279,9 @@ object FactorGenerationStage extends DatagenStage with Logging {
       )
     },
     "personNumFriends" -> Factor(PersonKnowsPersonType, PersonType) { case Seq(personKnowsPerson, person1) =>
-      val knows = undirectedKnows(personKnowsPerson)
-        .join(person1.as("Person1"), $"Person1.id" === $"Person1Id")
-      frequency(knows, value = $"Person2Id", by = Seq($"Person1Id", $"Person1.creationDate", $"Person1.deletionDate"))
+      val knows = person1.as("Person1")
+        .join(undirectedKnows(personKnowsPerson).as("knows"), $"Person1.id" === $"knows.Person1Id", "leftouter")
+      frequency(knows, value = $"knows.Person2Id", by = Seq($"knows.Person1Id", $"Person1.creationDate", $"Person1.deletionDate"))
     },
     "languageNumPosts" -> Factor(PostType) { case Seq(post) =>
       frequency(post.where($"language".isNotNull), value = $"id", by = Seq($"language"))
