@@ -373,6 +373,8 @@ object FactorGenerationStage extends DatagenStage with Logging {
           $"Person2.creationDate".as("Person2CreationDate"),
           $"Person2.deletionDate".as("Person2DeletionDate")
         )
+        .sort($"Person1Id", $"Person2Id")
+        .limit(10000)
     },
     "people2Hops" -> Factor(PersonType, PlaceType, PersonKnowsPersonType) { case Seq(person, place, knows) =>
       val cities     = place.where($"type" === "City").cache()
@@ -417,6 +419,8 @@ object FactorGenerationStage extends DatagenStage with Logging {
           $"Person2.creationDate".as("Person2CreationDate"),
           $"Person2.deletionDate".as("Person2DeletionDate")
         )
+        .sort($"Person1Id", $"Person2Id")
+        .limit(10000)
     }
   )
 }
