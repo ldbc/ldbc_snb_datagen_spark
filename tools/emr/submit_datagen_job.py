@@ -21,10 +21,9 @@ max_num_workers = 1000
 defaults = {
     'bucket': 'ldbc-snb-datagen-store',
     'use_spot': True,
-    'master_instance_type': 'm5d.2xlarge',
-    'instance_type': 'i3.4xlarge',
-    'sf_ratio': 100.0, # ratio of SFs and machines. a ratio of 50.0 for SF100 yields 2 machines
-    #'sf_ratio': 240.0, # for limited vCPU counts, this ratio is still sufficient to generate the data
+    'master_instance_type': 'm5a.xlarge',
+    'instance_type': 'm5d.4xlarge',
+    'sf_ratio': 100.0, # ratio of SFs and machines. a ratio of 250.0 for SF1000 yields 4 machines
     'platform_version': lib.platform_version,
     'version': lib.version,
     'az': 'us-west-2c',
@@ -46,8 +45,7 @@ with open(path.join(dir, ec2info_file), mode='r') as infile:
 
 def calculate_cluster_config(scale_factor, sf_ratio, vcpu):
     num_workers = max(min_num_workers, min(max_num_workers, ceil(scale_factor / sf_ratio)))
-    parallelism_factor = max(2.0, sf_ratio / vcpu / 3)
-    num_threads = ceil(num_workers * vcpu * parallelism_factor)
+    num_threads = ceil(num_workers * vcpu * 2)
     return {
         'num_workers': num_workers,
         'num_threads': num_threads

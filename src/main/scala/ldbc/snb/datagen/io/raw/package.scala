@@ -58,6 +58,7 @@ package object raw {
         currentBatch.close()
         currentBatchNumber = currentBatchNumber + 1
         currentBatch = makePart(currentBatchNumber)
+        written = 0
       }
 
       currentBatch.write(t)
@@ -104,11 +105,11 @@ package object raw {
   // supported by Spark.
   val DefaultParquetCompression = "snappy"
 
-  val DefaultBatchSize: Long = 1000000
+  val DefaultBatchSize: Long = 10000000
 
   def recordOutputStream[T <: Product: EntityTraits: CsvRowEncoder: ParquetRowEncoder](sink: RawSink, writeContext: WriteContext): RecordOutputStream[T] = {
     val et                           = EntityTraits[T]
-    val size                         = (DefaultBatchSize * et.sizeFactor * sink.oversizeFactor.getOrElse(1.0)).toLong
+    val size                         = (DefaultBatchSize * sink.oversizeFactor.getOrElse(1.0)).toLong
     implicit val encoder: Encoder[T] = ParquetRowEncoder[T].encoder
     val entityPath                   = et.`type`.entityPath
     val pathPrefix                   = s"${sink.conf.getOutputDir}/graphs/${sink.format.toString}/raw/composite-merged-fk/${entityPath}"
