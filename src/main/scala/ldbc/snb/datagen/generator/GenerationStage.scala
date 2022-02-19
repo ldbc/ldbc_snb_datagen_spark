@@ -9,7 +9,6 @@ import org.apache.hadoop.fs.{FileSystem, Path}
 
 import java.net.URI
 object GenerationStage extends DatagenStage with Logging {
-  val optimalPersonsPerFile = 500000 // 50 blocks
 
   case class Args(
       scaleFactor: String = "1",
@@ -34,9 +33,6 @@ object GenerationStage extends DatagenStage with Logging {
         config.getInt("hadoop.numThreads", spark.sparkContext.defaultParallelism)
       )
       .toInt
-
-    val idealPartitions = DatagenParams.numPersons.toDouble / optimalPersonsPerFile
-    val oversizeFactor  = args.oversizeFactor.getOrElse(Math.max(numPartitions / idealPartitions, 1.0))
 
     val persons = SparkPersonGenerator(config, Some(numPartitions))
 
@@ -63,7 +59,7 @@ object GenerationStage extends DatagenStage with Logging {
 
     SparkUI.job(simpleNameOf[RawSerializer], "serialize persons") {
       val rawSerializer = new RawSerializer(randomRanker)
-      rawSerializer.write(merged, RawSink(format, Some(numPartitions), config, oversizeFactor))
+      rawSerializer.write(merged, RawSink(format, Some(numPartitions), config))
     }
   }
 
