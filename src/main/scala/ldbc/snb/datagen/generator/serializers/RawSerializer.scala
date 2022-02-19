@@ -34,7 +34,6 @@ class RawSerializer(ranker: SparkRanker)(implicit spark: SparkSession) extends W
     val blocks = ranker(persons)
       .map { case (k, v) => (k / blockSize, v) }
       .groupByKey()
-      .persist(StorageLevel.MEMORY_ONLY)
 
     val serializableHadoopConf = new SerializableConfiguration(persons.sparkContext.hadoopConfiguration)
 

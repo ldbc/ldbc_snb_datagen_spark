@@ -5,9 +5,9 @@ import ldbc.snb.datagen.io.raw.parquet.{ParquetRecordOutputStream, ParquetRowEnc
 import ldbc.snb.datagen.model.EntityTraits
 import ldbc.snb.datagen.util.GeneratorConfiguration
 import org.apache.hadoop.conf.Configuration
-import org.apache.hadoop.fs.{FSDataOutputStream, FileSystem, Path}
-import org.apache.hadoop.mapreduce.task.TaskAttemptContextImpl
+import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.hadoop.mapreduce._
+import org.apache.hadoop.mapreduce.task.TaskAttemptContextImpl
 import org.apache.parquet.hadoop.ParquetOutputFormat
 import org.apache.parquet.hadoop.metadata.CompressionCodecName
 import org.apache.spark.TaskContext
@@ -19,6 +19,55 @@ import java.util.{Date, Locale}
 package object raw {
   trait RecordOutputStream[T] extends AutoCloseable {
     def write(t: T)
+  }
+
+  trait MakePart[T] {
+    def apply(part: Int): RecordOutputStream[T]
+  }
+
+  class MakeParquetPart[T <: Product: ParquetRowEncoder](pathPrefix: String, writeContext: WriteContext) extends MakePart[T] {
+    def apply(part: Int) = {
+      val compression = CompressionCodecName.fromConf(DefaultParquetCompression)
+      val options     = Map { ParquetOutputFormat.COMPRESSION -> compression.toString }
+      val partitionId = writeContext.taskContext.partitionId()
+      val extension   = s"${compression.getExtension}.parquet"
+      val path        = new Path(s"${pathPrefix}/part_${partitionId}_${part}${extension}")
+      new ParquetRecordOutputStream[T](path, writeContext.taskAttemptContext, options)
+    }
+  }
+
+  class MakeCsvPart[T <: Product: CsvRowEncoder](pathPrefix: String, writeContext: WriteContext) extends MakePart[T] {
+    def apply(part: Int) = {
+      val partitionId = writeContext.taskContext.partitionId()
+      val extension   = ".csv"
+      val path        = new Path(s"${pathPrefix}/part_${partitionId}_${part}${extension}")
+      new CsvRecordOutputStream[T](writeContext.fileSystem.create(path, true, 131072))
+    }
+  }
+
+  class FixedSizeBatchOutputStream[T](size: Long, makePart: MakePart[T]) extends RecordOutputStream[T] {
+    private var written: Long           = 0
+    private var currentBatchNumber: Int = 0
+    private var currentBatch            = makePart(currentBatchNumber)
+
+    override def write(t: T): Unit = {
+      if (currentBatch == null)
+        throw new AssertionError("Stream already closed")
+
+      if (written >= size) {
+        currentBatch.close()
+        currentBatchNumber = currentBatchNumber + 1
+        currentBatch = makePart(currentBatchNumber)
+      }
+
+      currentBatch.write(t)
+      written = written + 1
+    }
+
+    override def close(): Unit = {
+      currentBatch.close()
+      currentBatch = null
+    }
   }
 
   class RoundRobinOutputStream[T](outputStreams: Seq[RecordOutputStream[T]]) extends RecordOutputStream[T] {
@@ -41,7 +90,7 @@ package object raw {
       format: RawFormat,
       partitions: Option[Int] = None,
       conf: GeneratorConfiguration,
-      oversizeFactor: Double = 1.0
+      oversizeFactor: Option[Double] = None
   )
 
   class WriteContext(
@@ -55,39 +104,21 @@ package object raw {
   // supported by Spark.
   val DefaultParquetCompression = "snappy"
 
-  private def fileOutputStream(fs: FileSystem, path: Path): FSDataOutputStream = fs.create(path, true, 131072)
-
-  def csvRecordOutputStream[T <: Product: CsvRowEncoder](path: Path, writeContext: WriteContext) = {
-    new CsvRecordOutputStream[T](fileOutputStream(writeContext.fileSystem, path))
-  }
-
-  def parquetRecordOutputStream[T <: Product: ParquetRowEncoder](path: Path, writeContext: WriteContext, options: Map[String, String]) = {
-    new ParquetRecordOutputStream[T](path, writeContext.taskAttemptContext, options)
-  }
+  val DefaultBatchSize: Long = 1000000
 
   def recordOutputStream[T <: Product: EntityTraits: CsvRowEncoder: ParquetRowEncoder](sink: RawSink, writeContext: WriteContext): RecordOutputStream[T] = {
     val et                           = EntityTraits[T]
-    val numFiles                     = Math.ceil(et.sizeFactor / sink.oversizeFactor).toLong
-    val partitionId                  = writeContext.taskContext.partitionId()
+    val size                         = (DefaultBatchSize * et.sizeFactor * sink.oversizeFactor.getOrElse(1.0)).toLong
     implicit val encoder: Encoder[T] = ParquetRowEncoder[T].encoder
     val entityPath                   = et.`type`.entityPath
-    val (formatOutputStream, extension) = sink.format match {
-      case Parquet => {
-        val compression = CompressionCodecName.fromConf(DefaultParquetCompression)
-        val options     = Map { ParquetOutputFormat.COMPRESSION -> compression.toString }
-        (
-          parquetRecordOutputStream(_: Path, writeContext, options),
-          s"${compression.getExtension}.${sink.format}"
-        )
-      }
-      case Csv => (csvRecordOutputStream(_: Path, writeContext), s".${sink.format.toString}")
-      case x   => throw new UnsupportedOperationException(s"Raw serializer not implemented for format ${x}")
+    val pathPrefix                   = s"${sink.conf.getOutputDir}/graphs/${sink.format.toString}/raw/composite-merged-fk/${entityPath}"
+
+    val makePart = sink.format match {
+      case Parquet => new MakeParquetPart[T](pathPrefix, writeContext)
+      case Csv     => new MakeCsvPart[T](pathPrefix, writeContext)
+      case x       => throw new UnsupportedOperationException(s"Raw serializer not implemented for format ${x}")
     }
-    val files =
-      for { i <- 0L until numFiles } yield new Path(
-        s"${sink.conf.getOutputDir}/graphs/${sink.format.toString}/raw/composite-merged-fk/${entityPath}/part_${partitionId}_${i}${extension}"
-      )
-    new RoundRobinOutputStream(files.map(formatOutputStream))
+    new FixedSizeBatchOutputStream[T](size, makePart)
   }
 
   def createNewWriteContext(hadoopConf: Configuration, fs: FileSystem) = {
