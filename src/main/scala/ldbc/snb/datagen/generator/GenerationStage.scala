@@ -59,7 +59,7 @@ object GenerationStage extends DatagenStage with Logging {
 
     SparkUI.job(simpleNameOf[RawSerializer], "serialize persons") {
       val rawSerializer = new RawSerializer(randomRanker)
-      rawSerializer.write(merged, RawSink(format, Some(numPartitions), config))
+      rawSerializer.write(merged, RawSink(format, Some(numPartitions), config, args.oversizeFactor))
     }
   }
 

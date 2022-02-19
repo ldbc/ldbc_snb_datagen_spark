@@ -90,7 +90,7 @@ package object raw {
       format: RawFormat,
       partitions: Option[Int] = None,
       conf: GeneratorConfiguration,
-      batchSize: Option[Long] = None
+      oversizeFactor: Option[Double] = None
   )
 
   class WriteContext(
@@ -108,7 +108,7 @@ package object raw {
 
   def recordOutputStream[T <: Product: EntityTraits: CsvRowEncoder: ParquetRowEncoder](sink: RawSink, writeContext: WriteContext): RecordOutputStream[T] = {
     val et                           = EntityTraits[T]
-    val size                         = (sink.batchSize.getOrElse(DefaultBatchSize) * et.sizeFactor).toLong
+    val size                         = (DefaultBatchSize * et.sizeFactor * sink.oversizeFactor.getOrElse(1.0)).toLong
     implicit val encoder: Encoder[T] = ParquetRowEncoder[T].encoder
     val entityPath                   = et.`type`.entityPath
     val pathPrefix                   = s"${sink.conf.getOutputDir}/graphs/${sink.format.toString}/raw/composite-merged-fk/${entityPath}"
