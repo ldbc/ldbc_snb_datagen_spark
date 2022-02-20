@@ -122,33 +122,5 @@ package object raw {
     new FixedSizeBatchOutputStream[T](size, makePart)
   }
 
-  def createNewWriteContext(hadoopConf: Configuration, fs: FileSystem) = {
-    val jobIdInstant = new Date().getTime
-    new WriteContext(TaskContext.get, getTaskAttemptContext(hadoopConf, TaskContext.get, jobIdInstant), hadoopConf, fs)
-  }
-
-  private[this] def getTaskAttemptContext(conf: Configuration, tc: TaskContext, jobIdInstant: Long): TaskAttemptContext = {
-
-    val jobId         = createJobID(new Date(jobIdInstant), tc.stageId())
-    val taskId        = new TaskID(jobId, TaskType.MAP, tc.partitionId())
-    val taskAttemptId = new TaskAttemptID(taskId, tc.taskAttemptId().toInt & Integer.MAX_VALUE)
-
-    // Set up the attempt context required to use in the output committer.
-    {
-      // Set up the configuration object
-      conf.set("mapreduce.job.id", jobId.toString)
-      conf.set("mapreduce.task.id", taskAttemptId.getTaskID.toString)
-      conf.set("mapreduce.task.attempt.id", taskAttemptId.toString)
-      conf.setBoolean("mapreduce.task.ismap", true)
-      conf.setInt("mapreduce.task.partition", 0)
-      new TaskAttemptContextImpl(conf, taskAttemptId)
-    }
-  }
-
-  private[this] def createJobID(time: Date, id: Int): JobID = {
-    val jobtrackerID = new SimpleDateFormat("yyyyMMddHHmmss", Locale.US).format(time)
-    new JobID(jobtrackerID, id)
-  }
-
   object instances extends csv.CsvRowEncoderInstances with parquet.ParquetRowEncoderInstances
 }
