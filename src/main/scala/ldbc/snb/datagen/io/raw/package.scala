@@ -7,14 +7,10 @@ import ldbc.snb.datagen.util.GeneratorConfiguration
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.hadoop.mapreduce._
-import org.apache.hadoop.mapreduce.task.TaskAttemptContextImpl
 import org.apache.parquet.hadoop.ParquetOutputFormat
 import org.apache.parquet.hadoop.metadata.CompressionCodecName
 import org.apache.spark.TaskContext
 import org.apache.spark.sql.Encoder
-
-import java.text.SimpleDateFormat
-import java.util.{Date, Locale}
 
 package object raw {
   trait RecordOutputStream[T] extends AutoCloseable {
@@ -23,25 +19,49 @@ package object raw {
 
   trait MakePart[T] {
     def apply(part: Int): RecordOutputStream[T]
+    def exists(): Boolean
+    def delete(): Unit
   }
 
   class MakeParquetPart[T <: Product: ParquetRowEncoder](pathPrefix: String, writeContext: WriteContext) extends MakePart[T] {
+    private val compression = CompressionCodecName.fromConf(DefaultParquetCompression)
+    private val options     = Map { ParquetOutputFormat.COMPRESSION -> compression.toString }
+    private val partitionId = writeContext.taskContext.partitionId()
+    private val extension   = s"${compression.getExtension}.parquet"
+
     def apply(part: Int) = {
-      val compression = CompressionCodecName.fromConf(DefaultParquetCompression)
-      val options     = Map { ParquetOutputFormat.COMPRESSION -> compression.toString }
-      val partitionId = writeContext.taskContext.partitionId()
-      val extension   = s"${compression.getExtension}.parquet"
-      val path        = new Path(s"${pathPrefix}/part_${partitionId}_${part}${extension}")
+      val path = new Path(s"${pathPrefix}/part_${partitionId}_${part}${extension}")
       new ParquetRecordOutputStream[T](path, writeContext.taskAttemptContext, options)
+    }
+
+    override def exists(): Boolean = {
+      !writeContext.fileSystem.globStatus(new Path(s"${pathPrefix}/part_${partitionId}_*${extension}")).isEmpty
+    }
+
+    override def delete(): Unit = {
+      val files = writeContext.fileSystem.globStatus(new Path(s"${pathPrefix}/part_${partitionId}_*${extension}"))
+      for { f <- files } writeContext.fileSystem.delete(f.getPath, false)
     }
   }
 
   class MakeCsvPart[T <: Product: CsvRowEncoder](pathPrefix: String, writeContext: WriteContext) extends MakePart[T] {
+    private val partitionId = writeContext.taskContext.partitionId()
+    private val extension   = ".csv"
+
     def apply(part: Int) = {
       val partitionId = writeContext.taskContext.partitionId()
       val extension   = ".csv"
       val path        = new Path(s"${pathPrefix}/part_${partitionId}_${part}${extension}")
       new CsvRecordOutputStream[T](writeContext.fileSystem.create(path, true, 131072))
+    }
+
+    override def exists(): Boolean = {
+      !writeContext.fileSystem.globStatus(new Path(s"${pathPrefix}/part_${partitionId}_*${extension}")).isEmpty
+    }
+
+    override def delete(): Unit = {
+      val files = writeContext.fileSystem.globStatus(new Path(s"${pathPrefix}/part_${partitionId}_*${extension}"))
+      for { f <- files } writeContext.fileSystem.delete(f.getPath, false)
     }
   }
 
@@ -66,8 +86,10 @@ package object raw {
     }
 
     override def close(): Unit = {
-      currentBatch.close()
-      currentBatch = null
+      if (currentBatch != null) {
+        currentBatch.close()
+        currentBatch = null
+      }
     }
   }
 
@@ -91,7 +113,8 @@ package object raw {
       format: RawFormat,
       partitions: Option[Int] = None,
       conf: GeneratorConfiguration,
-      oversizeFactor: Option[Double] = None
+      oversizeFactor: Option[Double] = None,
+      overwrite: Boolean = false
   )
 
   class WriteContext(
@@ -119,6 +142,7 @@ package object raw {
       case Csv     => new MakeCsvPart[T](pathPrefix, writeContext)
       case x       => throw new UnsupportedOperationException(s"Raw serializer not implemented for format ${x}")
     }
+    makePart.delete()
     new FixedSizeBatchOutputStream[T](size, makePart)
   }
 

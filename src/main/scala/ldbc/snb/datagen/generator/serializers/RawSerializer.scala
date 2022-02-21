@@ -40,9 +40,9 @@ class RawSerializer(ranker: SparkRanker)(implicit spark: SparkSession) extends W
       .map { case (k, v) => (k / blockSize, v) }
       .groupByKey()
 
-    val (job, d) = RawSerializationJobContext(persons.sparkContext.hadoopConfiguration, sink)
+    val job = RawSerializationJobContext(persons.sparkContext.hadoopConfiguration, sink)
 
-    job.run(blocks, d)((groups, wc) => {
+    job.run(blocks)((groups, wc) => {
       DatagenContext.initialize(sink.conf)
 
       def stream[T <: Product: EntityTraits: CsvRowEncoder: ParquetRowEncoder] =
@@ -97,9 +97,9 @@ class RawSerializer(ranker: SparkRanker)(implicit spark: SparkSession) extends W
   }
 
   private def writeStaticSubgraph(persons: RDD[Person], sink: RawSink): Unit = {
-    val (job, d) = RawSerializationJobContext(persons.sparkContext.hadoopConfiguration, sink)
+    val job = RawSerializationJobContext(persons.sparkContext.hadoopConfiguration, sink)
     // we need to do this in an executor to get a TaskContext
-    job.run(persons.sparkContext.parallelize(Seq(0), 1), d)((_, wc) => {
+    job.run(persons.sparkContext.parallelize(Seq(0), 1))((_, wc) => {
       DatagenContext.initialize(sink.conf)
 
       def stream[T <: Product: EntityTraits: CsvRowEncoder: ParquetRowEncoder] =
@@ -233,26 +233,32 @@ class RawSerializationTaskContext(
   }
 }
 
-case class Desc(
+class RawSerializationJobContext(
+    @transient job: Job, // not serializable
     committer: FileCommitProtocol,
     configuration: SerializableConfiguration,
     sink: RawSink,
     outputPath: String
-)
+) extends Serializable {
 
-class RawSerializationJobContext(
-    job: Job,
-    committer: FileCommitProtocol
-) {
+  def run[T](rdd: RDD[T])(exec: (Iterator[T], WriteContext) => Unit)(implicit spark: SparkSession) = {
+    val fs     = FileSystem.get(URI.create(outputPath), configuration.value)
+    val path   = new Path(outputPath)
+    val exists = fs.exists(path)
 
-  def run[T](rdd: RDD[T], desc: Desc)(exec: (Iterator[T], WriteContext) => Unit)(implicit spark: SparkSession) = {
+    if (exists && !sink.overwrite) {
+      throw new AssertionError("Raw output already exists.")
+    } else if (exists) {
+      fs.delete(path, true)
+    }
+
     committer.setupJob(job)
     try {
       val ret = new Array[TaskCommitMessage](rdd.partitions.length)
       spark.sparkContext.runJob[T, TaskCommitMessage](
         rdd,
         (taskContext: TaskContext, iter: Iterator[T]) => {
-          val ctx = new RawSerializationTaskContext(taskContext, desc.committer, desc.configuration, desc.sink, desc.outputPath)
+          val ctx = new RawSerializationTaskContext(taskContext, committer, configuration, sink, outputPath)
           ctx.runTask { wc => exec(iter, wc) }
         },
         rdd.partitions.indices,
@@ -287,9 +293,6 @@ object RawSerializationJobContext {
     )
     job.getConfiguration.set("spark.sql.sources.writeJobUUID", jobId)
     FileOutputFormat.setOutputPath(job, new Path(outputPath))
-    (
-      new RawSerializationJobContext(job, committer),
-      Desc(committer, new SerializableConfiguration(conf), sink, outputPath)
-    )
+    new RawSerializationJobContext(job, committer, new SerializableConfiguration(conf), sink, outputPath)
   }
 }
