@@ -213,12 +213,12 @@ package object raw {
   }
 
   object RawSerializationJobContext {
-    def apply(conf: Configuration, sink: RawSink)(implicit spark: SparkSession) = {
+    def apply(conf: Configuration, sink: RawSink, jobPart: String)(implicit spark: SparkSession) = {
       val job = Job.getInstance(conf)
       job.setOutputKeyClass(classOf[Void])
       job.setOutputValueClass(classOf[InternalRow])
 
-      val outputPath = s"${sink.conf.getOutputDir}/graphs/${sink.format.toString}/raw/composite-merged-fk"
+      val outputPath = s"${sink.conf.getOutputDir}/graphs/${sink.format.toString}/raw/composite-merged-fk/${jobPart}"
 
       val jobId = UUID.randomUUID().toString
 

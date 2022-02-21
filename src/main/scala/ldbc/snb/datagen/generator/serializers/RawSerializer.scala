@@ -28,7 +28,7 @@ class RawSerializer(ranker: SparkRanker)(implicit spark: SparkSession) extends W
       .map { case (k, v) => (k / blockSize, v) }
       .groupByKey()
 
-    val job = RawSerializationJobContext(persons.sparkContext.hadoopConfiguration, sink)
+    val job = RawSerializationJobContext(persons.sparkContext.hadoopConfiguration, sink, "dynamic")
 
     job.run(blocks)((groups, wc) => {
       DatagenContext.initialize(sink.conf)
@@ -85,7 +85,7 @@ class RawSerializer(ranker: SparkRanker)(implicit spark: SparkSession) extends W
   }
 
   private def writeStaticSubgraph(persons: RDD[Person], sink: RawSink): Unit = {
-    val job = RawSerializationJobContext(persons.sparkContext.hadoopConfiguration, sink)
+    val job = RawSerializationJobContext(persons.sparkContext.hadoopConfiguration, sink, "static")
     // we need to do this in an executor to get a TaskContext
     job.run(persons.sparkContext.parallelize(Seq(0), 1))((_, wc) => {
       DatagenContext.initialize(sink.conf)
