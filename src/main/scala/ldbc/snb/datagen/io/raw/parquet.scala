@@ -45,7 +45,9 @@ object parquet {
 
       implicit val encoder: Encoder[T] = implicitly[ParquetRowEncoder[T]].encoder
       val parquetWriteSupport          = parquetWriteSupportForEncodable[T](compressionCodecClassName)
-      val pof                          = new ParquetOutputFormat[T](parquetWriteSupport)
+      val pof = new ParquetOutputFormat[T](parquetWriteSupport) {
+        override def getDefaultWorkFile(context: TaskAttemptContext, extension: String): Path = path
+      }
       pof.getRecordWriter(taskAttemptContext, path)
     }
     var hasWritten = false
