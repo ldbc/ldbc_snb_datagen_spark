@@ -175,7 +175,7 @@
     <scale_factor name="1000" >
         <property>
             <name>generator.numPersons</name>
-            <value>3231000</value>
+            <value>3505000</value>
         </property>
         <property>
             <name>generator.startYear</name>
@@ -194,7 +194,7 @@
     <scale_factor name="3000" >
         <property>
             <name>generator.numPersons</name>
-            <value>6000000</value>
+            <value>9300000</value>
         </property>
         <property>
             <name>generator.startYear</name>
