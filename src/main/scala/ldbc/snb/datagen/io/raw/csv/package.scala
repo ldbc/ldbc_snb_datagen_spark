@@ -1,5 +1,8 @@
 package ldbc.snb.datagen.io.raw
 
+import ldbc.snb.datagen.io.raw.combinators.MakeBatchPart
+import org.apache.hadoop.fs.Path
+
 import java.io.OutputStream
 import java.nio.charset.{Charset, StandardCharsets}
 
@@ -12,7 +15,7 @@ package object csv {
     def apply[T: CsvRowEncoder]: CsvRowEncoder[T] = implicitly[CsvRowEncoder[T]]
   }
 
-  class CsvRecordOutputStream[T: CsvRowEncoder](
+  final class CsvRecordOutputStream[T: CsvRowEncoder](
       outputStream: OutputStream,
       separator: String = "|",
       charset: Charset = StandardCharsets.UTF_8,
@@ -34,5 +37,26 @@ package object csv {
     override def write(t: T): Unit = writeEntry(encoder.row(t))
 
     override def close(): Unit = outputStream.close()
+  }
+
+  final class MakeCsvBatchPart[T <: Product: CsvRowEncoder](pathPrefix: String, writeContext: WriteContext) extends MakeBatchPart[T] {
+    private val partitionId = writeContext.taskContext.partitionId()
+    private val extension   = ".csv"
+
+    def apply(part: Int) = {
+      val partitionId = writeContext.taskContext.partitionId()
+      val extension   = ".csv"
+      val path        = new Path(s"${pathPrefix}/part_${partitionId}_${part}${extension}")
+      new CsvRecordOutputStream[T](writeContext.fileSystem.create(path, true, 131072))
+    }
+
+    override def exists(): Boolean = {
+      !writeContext.fileSystem.globStatus(new Path(s"${pathPrefix}/part_${partitionId}_*${extension}")).isEmpty
+    }
+
+    override def delete(): Unit = {
+      val files = writeContext.fileSystem.globStatus(new Path(s"${pathPrefix}/part_${partitionId}_*${extension}"))
+      for { f <- files } writeContext.fileSystem.delete(f.getPath, false)
+    }
   }
 }
