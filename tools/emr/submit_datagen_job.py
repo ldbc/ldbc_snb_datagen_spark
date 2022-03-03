@@ -23,7 +23,7 @@ defaults = {
     'use_spot': True,
     'master_instance_type': 'r6gd.2xlarge',
     'instance_type': 'r6gd.4xlarge',
-    'sf_ratio': 118.0, # ratio of SFs and machines. a ratio of 250.0 for SF1000 yields 4 machines
+    'sf_ratio': 125.0,  # ratio of SFs and machines. a ratio of 250.0 for SF1000 yields 4 machines
     'platform_version': lib.platform_version,
     'version': lib.version,
     'az': 'us-west-2c',
