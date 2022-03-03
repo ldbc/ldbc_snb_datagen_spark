@@ -121,7 +121,7 @@ object graphs {
           log.info(s"$tpe: Writing snapshot completed")
         }(snapshot.sparkSession)
 
-        val insertSizeFactor = 0.247
+        val insertSizeFactor = 0.33
         val deleteSizeFactor = 0.015
 
         val operations = Map(
