@@ -61,7 +61,7 @@ To place Spark under `/opt/`:
 
 ```bash
 curl https://downloads.apache.org/spark/spark-3.1.2/spark-3.1.2-bin-hadoop3.2.tgz | sudo tar -xz -C /opt/
-export SPARK_HOME="/opt/spark-3.1.2-bin-hadoop3.2"
+export SPARK_HOME=/opt/spark-3.1.2-bin-hadoop3.2
 export PATH="$SPARK_HOME/bin":"$PATH"
 ```
 
@@ -69,7 +69,7 @@ To place under `~/`:
 
 ```bash
 curl https://downloads.apache.org/spark/spark-3.1.2/spark-3.1.2-bin-hadoop3.2.tgz | tar -xz -C ~/
-export SPARK_HOME="~/spark-3.1.2-bin-hadoop3.2"
+export SPARK_HOME=~/spark-3.1.2-bin-hadoop3.2
 export PATH="$SPARK_HOME/bin":"$PATH"
 ```
 
