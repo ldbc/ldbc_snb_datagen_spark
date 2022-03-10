@@ -42,15 +42,20 @@ jobs:
             sudo apt install -y openjdk-8-jdk zip
             sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/java-8-openjdk-amd64/bin/java 1
             sudo update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/bin/java
-            java -version
-      - run: docker build . -t ldbc/spark
+      - run:
+          name: Build Docker container
+          command: |
+            docker build . -t ldbc/spark
       - restore_cache:
           keys:
             - m2-dep-branch:{{ .Branch }}-pom:{{ checksum "pom.xml" }}-
             - m2-dep-branch:dev-pom:{{ checksum "pom.xml" }}-
             - m2-dep-branch:{{ .Branch }}-
             - m2-dep-branch:dev-
-      - run: mvn -ntp clean test-compile assembly:assembly
+      - run:
+          name: Build JAR file
+          command: |
+            mvn -ntp clean test-compile assembly:assembly
       - save_cache:
           key: m2-dep-branch:{{ .Branch }}-pom:{{ checksum "pom.xml" }}-{{ epoch }}
           paths:

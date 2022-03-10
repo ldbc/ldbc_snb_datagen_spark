@@ -25,7 +25,7 @@ You can build the JAR with both Maven and SBT.
 * To assemble the JAR file with Maven, run:
 
     ```bash
-    tools/build.sh
+    ./tools/build.sh
     ```
 
 * For faster builds during development, consider using SBT. To assemble the JAR file with SBT, run:
@@ -51,7 +51,7 @@ pip install ./tools
 ```
 ### Running locally
 
-The `tools/run.py` is intended for **local runs**. To use it, download and extract Spark as follows.
+The `./tools/run.py` script is intended for **local runs**. To use it, download and extract Spark as follows.
 
 #### Spark 3.1.x
 
@@ -75,18 +75,12 @@ export PATH="$SPARK_HOME/bin":"$PATH"
 
 Both Java 8 and Java 11 are supported.
 
-To build, run
-
-```bash
-tools/build.sh
-```
-
-Run the script with:
+Once you have Spark in place and built the JAR file, run the generator as follows:
 
 ```bash
 export PLATFORM_VERSION=2.12_spark3.1
 export DATAGEN_VERSION=0.5.0-SNAPSHOT
-tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar <runtime configuration arguments> -- <generator configuration arguments>
+./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar <runtime configuration arguments> -- <generator configuration arguments>
 ```
 
 #### Runtime configuration arguments
@@ -94,7 +88,7 @@ tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.ja
 The runtime configuration arguments determine the amount of memory, number of threads, degree of parallelism. For a list of arguments, see:
 
 ```bash
-tools/run.py --help
+./tools/run.py --help
 ```
 
 To generate a single `part-*.csv` file, reduce the parallelism (number of Spark partitions) to 1.
@@ -158,18 +152,18 @@ It is also possible to pass a parameter file:
 The Docker image can be built with the provided Dockerfile. To build, execute the following command from the repository directory:
 
 ```bash
-tools/docker-build.sh
+./tools/docker-build.sh
 ```
 
-See [Build the JAR](#build-the-jar) to build the library. Then, run the following:
+See [Build the JAR](#build-the-jar) to build the library (e.g. by invoking `./tools/build.sh`). Then, run the following:
 
 ```bash
-tools/docker-run.sh
+./tools/docker-run.sh
 ```
 
 ### Elastic MapReduce
 
-We provide scripts to run Datagen on AWS EMR. See the README in the [`tools/emr`](tools/emr) directory for details.
+We provide scripts to run Datagen on AWS EMR. See the README in the [`./tools/emr`](tools/emr) directory for details.
 
 ## Larger scale factors
 
