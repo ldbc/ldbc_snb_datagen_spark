@@ -79,6 +79,7 @@ jobs:
       - run:
           name: Generate SF0.003 / BI / composite-merged CSVs
           command: |
+            # we generate factors here but they are moved to a separate archive (social-network-sf0.003-bi-factors.zip)
             tools/docker-run.sh --mode bi --scale-factor 0.003 --generate-factors
             mv out/ social-network-sf0.003-bi-composite-merged-fk/
       - run:
@@ -123,7 +124,8 @@ jobs:
             # include the CircleCI configuration in the deployed package to provide the 'filters' instructions (and prevent failed builds on the gh-pages branch)
             mv .circleci dist/
             # move factors to a separate directory
-            mv social-network-sf0.003-bi-composite-merged-fk/factors social-network-sf0.003-bi-factors
+            mkdir social-network-sf0.003-bi-factors
+            mv social-network-sf0.003-bi-composite-merged-fk/factors social-network-sf0.003-bi-factors/factors
             # compress each directory
             for d in social-network-sf0.003*; do
               echo "Generated with <https://github.com/ldbc/ldbc_snb_datagen_spark/commit/${CIRCLE_SHA1}>" > $d/README.md
