@@ -42,8 +42,7 @@ aws s3 cp target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}-jar-wit
 JOB_NAME=MyTest
 SCALE_FACTOR=10
 ./tools/emr/submit_datagen_job.py \
-    --bucket \
-    ${BUCKET_NAME} \
+    --bucket ${BUCKET_NAME} \
     ${JOB_NAME} \
     ${SCALE_FACTOR} \
     csv \
@@ -59,8 +58,7 @@ To use spot instances, add the `--use-spot` argument:
 ```bash
 ./tools/emr/submit_datagen_job.py \
     --use-spot \
-    --bucket \
-    ${BUCKET_NAME} \
+    --bucket ${BUCKET_NAME} \
     ${JOB_NAME} \
     ${SCALE_FACTOR} \
     csv \
@@ -79,8 +77,9 @@ Generate the BI data set with the following configuration:
 ```bash
 ./tools/emr/submit_datagen_job.py \
     --use-spot \
-    --bucket \
-    ${BUCKET_NAME} \
+    --bucket ${BUCKET_NAME} \
+    --az us-east-2c \
+    --copy-all \
     ${JOB_NAME} \
     ${SCALE_FACTOR} \
     csv \
