@@ -1,6 +1,6 @@
 # LDBC SNB Datagen (Spark variant) – Latest artefacts
 
-This README is deployed to <http://ldbcouncil.org/ldbc_snb_datagen_spark>.
+This README is deployed to <https://ldbcouncil.org/ldbc_snb_datagen_spark>.
 
 ## Generated data sets
 
