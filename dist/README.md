@@ -4,9 +4,9 @@ This README is deployed to <https://ldbcouncil.org/ldbc_snb_datagen_spark>.
 
 ## Generated data sets
 
-The following data sets are generated for the `dev` variant, to be used for the BI workload.
+The following data sets are generated for the **LDBC Social Network Benchmark's BI (Business Intelligence) workload**.
 
-If you are looking for data sets to implement the Interactive workload, please use the [Hadoop-based legacy  Datagen](https://github.com/ldbc/ldbc_snb_datagen_hadoop) or reach out to us.
+If you are looking for data sets of the **SNB Interactive workload**, please use the [legacy Hadoop-based Datagen](https://github.com/ldbc/ldbc_snb_datagen_hadoop) or download them from the [SURF/CWI data repository](https://hdl.handle.net/11112/e6e00558-a2c3-9214-473e-04a16de09bf8).
 
 {% for file in site.static_files %}
   {% if file.extname == ".zip" -%}
