@@ -43,8 +43,8 @@ and install the dependencies.
 
 E.g. with [pyenv](https://github.com/pyenv/pyenv) and [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv):
 ```bash
-pyenv install 3.7.7
-pyenv virtualenv 3.7.7 ldbc_datagen_tools
+pyenv install 3.7.13
+pyenv virtualenv 3.7.13 ldbc_datagen_tools
 pyenv local ldbc_datagen_tools
 pip install -U pip 
 pip install ./tools
