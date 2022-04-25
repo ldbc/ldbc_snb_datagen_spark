@@ -421,6 +421,18 @@ object FactorGenerationStage extends DatagenStage with Logging {
         )
         .sort($"Person1Id", $"Person2Id")
         .limit(10000)
+    },
+    "sameUniversityKnows" -> Factor(PersonKnowsPersonType, PersonStudyAtUniversityType) {
+      case Seq(personKnowsPerson, studyAt) =>
+        undirectedKnows(personKnowsPerson)
+          .join(studyAt.as("studyAt1"), $"studyAt1.personId" === $"knows.person1Id")
+          .join(studyAt.as("studyAt2"), $"studyAt2.personId" === $"knows.person2Id")
+          .where($"studyAt1.universityId" === $"studyAt2.universityId")
+          .select(
+            $"knows.person1Id".as("person1Id"),
+            $"knows.person2Id".as("person2Id")
+          )
+          .distinct()
     }
   )
 }
