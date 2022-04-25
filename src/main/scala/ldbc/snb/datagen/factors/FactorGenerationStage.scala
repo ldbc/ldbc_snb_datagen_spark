@@ -432,7 +432,6 @@ object FactorGenerationStage extends DatagenStage with Logging {
             $"knows.person1Id".as("person1Id"),
             $"knows.person2Id".as("person2Id")
           )
-          .distinct()
     }
   )
 }
