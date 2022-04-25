@@ -1,0 +1,1 @@
+For our contributor's guide, see: https://github.com/ldbc/community/blob/main/contributing.md
