@@ -165,10 +165,6 @@ See [Build the JAR](#build-the-jar) to build the library (e.g. by invoking `./to
 
 We provide scripts to run Datagen on AWS EMR. See the README in the [`./tools/emr`](tools/emr) directory for details.
 
-## Larger scale factors
-
-The scale factors SF3k+ are currently being fine-tuned, both regarding optimizing the generator and also for tuning the distributions.
-
 ## Graph schema
 
 The graph schema is as follows:
