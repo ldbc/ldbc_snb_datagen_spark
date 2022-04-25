@@ -118,6 +118,12 @@ To get a complete list of the arguments, pass `--help` to the JAR file:
   ./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar -- --format csv --scale-factor 0.003 --mode bi --format-options compression=gzip
   ```
 
+* Generating `CsvCompositeMergeForeign` files in **BI mode** and generating factors:
+
+  ```bash
+  ./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar -- --format csv --scale-factor 0.003 --mode bi --generate-factors
+  ```
+
 * Generating CSVs in **raw mode**:
 
   ```bash
