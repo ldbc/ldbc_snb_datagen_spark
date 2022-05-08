@@ -13,7 +13,15 @@ import shapeless._
 
 import scala.util.matching.Regex
 
-case class Factor(requiredEntities: EntityType*)(f: Seq[DataFrame] => DataFrame) extends (Seq[DataFrame] => DataFrame) {
+trait FactorTrait extends (Seq[DataFrame] => DataFrame) {
+  def requiredEntities: Seq[EntityType]
+}
+
+case class Factor(override val requiredEntities: EntityType*)(f: Seq[DataFrame] => DataFrame) extends FactorTrait {
+  override def apply(v1: Seq[DataFrame]): DataFrame = f(v1).coalesce(1)
+}
+
+case class LargeFactor(override val requiredEntities: EntityType*)(f: Seq[DataFrame] => DataFrame) extends FactorTrait {
   override def apply(v1: Seq[DataFrame]): DataFrame = f(v1)
 }
 
@@ -160,8 +168,8 @@ object FactorGenerationStage extends DatagenStage with Logging {
       )
     },
     "cityPairsNumFriends" -> Factor(PersonKnowsPersonType, PersonType, PlaceType) { case Seq(personKnowsPerson, persons, places) =>
-      val cities = places.where($"type" === "City").cache()
-      val knows  = undirectedKnows(personKnowsPerson)
+      val cities    = places.where($"type" === "City").cache()
+      val knows     = undirectedKnows(personKnowsPerson)
       val countries = places.where($"type" === "Country").cache()
 
       frequency(
@@ -279,7 +287,8 @@ object FactorGenerationStage extends DatagenStage with Logging {
       )
     },
     "personNumFriends" -> Factor(PersonKnowsPersonType, PersonType) { case Seq(personKnowsPerson, person1) =>
-      val knows = person1.as("Person1")
+      val knows = person1
+        .as("Person1")
         .join(undirectedKnows(personKnowsPerson).as("knows"), $"Person1.id" === $"knows.Person1Id", "leftouter")
       frequency(knows, value = $"knows.Person2Id", by = Seq($"Person1.id", $"Person1.creationDate", $"Person1.deletionDate"))
     },
@@ -318,7 +327,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
             $"Company.name".alias("companyName"),
             $"Company.id".alias("companyId"),
             $"Person2.creationDate".alias("person2creationDate"),
-            $"Person2.deletionDate".alias("person2deletionDate"),
+            $"Person2.deletionDate".alias("person2deletionDate")
           )
           .distinct()
     },
@@ -331,8 +340,8 @@ object FactorGenerationStage extends DatagenStage with Logging {
       )
     },
     "people4Hops" -> Factor(PersonType, PlaceType, PersonKnowsPersonType) { case Seq(person, place, knows) =>
-      val cities     = place.where($"type" === "City").cache()
-      val allKnows   = undirectedKnows(knows).cache()
+      val cities        = place.where($"type" === "City").cache()
+      val allKnows      = undirectedKnows(knows).cache()
       val minSampleSize = 100.0
 
       val chinesePeopleSample = (relations: DataFrame) => {
@@ -377,8 +386,8 @@ object FactorGenerationStage extends DatagenStage with Logging {
         .limit(10000)
     },
     "people2Hops" -> Factor(PersonType, PlaceType, PersonKnowsPersonType) { case Seq(person, place, knows) =>
-      val cities     = place.where($"type" === "City").cache()
-      val allKnows   = undirectedKnows(knows).cache()
+      val cities        = place.where($"type" === "City").cache()
+      val allKnows      = undirectedKnows(knows).cache()
       val minSampleSize = 100.0
 
       val chinesePeopleSample = (relations: DataFrame) => {
@@ -422,16 +431,17 @@ object FactorGenerationStage extends DatagenStage with Logging {
         .sort($"Person1Id", $"Person2Id")
         .limit(10000)
     },
-    "sameUniversityKnows" -> Factor(PersonKnowsPersonType, PersonStudyAtUniversityType) {
-      case Seq(personKnowsPerson, studyAt) =>
-        undirectedKnows(personKnowsPerson)
-          .join(studyAt.as("studyAt1"), $"studyAt1.personId" === $"knows.person1Id")
-          .join(studyAt.as("studyAt2"), $"studyAt2.personId" === $"knows.person2Id")
-          .where($"studyAt1.universityId" === $"studyAt2.universityId")
-          .select(
-            $"knows.person1Id".as("person1Id"),
-            $"knows.person2Id".as("person2Id")
-          )
+    "sameUniversityKnows" -> LargeFactor(PersonKnowsPersonType, PersonStudyAtUniversityType) { case Seq(personKnowsPerson, studyAt) =>
+      val size = Math.max(Math.ceil(personKnowsPerson.rdd.getNumPartitions / 10).toInt, 1)
+      undirectedKnows(personKnowsPerson)
+        .join(studyAt.as("studyAt1"), $"studyAt1.personId" === $"knows.person1Id")
+        .join(studyAt.as("studyAt2"), $"studyAt2.personId" === $"knows.person2Id")
+        .where($"studyAt1.universityId" === $"studyAt2.universityId")
+        .select(
+          $"knows.person1Id".as("person1Id"),
+          $"knows.person2Id".as("person2Id")
+        )
+        .coalesce(size)
     }
   )
 }

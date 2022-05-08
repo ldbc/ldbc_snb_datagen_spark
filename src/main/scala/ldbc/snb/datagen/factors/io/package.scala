@@ -21,7 +21,7 @@ package object io {
       val dfSink = if (sink.overwrite) {
         DataFrameSink(p, sink.format, mode = SaveMode.Overwrite)
       } else DataFrameSink(p, sink.format)
-      self.data.coalesce(1).write(dfSink)
+      self.data.write(dfSink)
       log.info(s"Factor table ${self.name} written")
     }
   }
