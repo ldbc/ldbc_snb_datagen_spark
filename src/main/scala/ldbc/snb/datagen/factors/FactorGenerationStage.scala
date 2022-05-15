@@ -101,6 +101,15 @@ object FactorGenerationStage extends DatagenStage with Logging {
       .alias("Knows")
       .cache()
 
+  private def undirectedKnowsTemporal(personKnowsPerson: DataFrame) =
+    personKnowsPerson
+      .select(
+        expr("stack(2, Person1Id, Person2Id, creationDate, deletionDate, Person2Id, Person1Id, creationDate, deletionDate)")
+        .as(Seq("Person1Id", "Person2Id", "creationDate", "deletionDate"))
+      )
+      .alias("Knows")
+      .cache()
+
   private def nHops(relationships: DataFrame, n: Int, joinKeys: (String, String), sample: Option[DataFrame => DataFrame] = None): DataFrame = {
     val (leftKey, rightKey) = joinKeys
     relationships
@@ -433,14 +442,17 @@ object FactorGenerationStage extends DatagenStage with Logging {
     },
     "sameUniversityKnows" -> LargeFactor(PersonKnowsPersonType, PersonStudyAtUniversityType) { case Seq(personKnowsPerson, studyAt) =>
       val size = Math.max(Math.ceil(personKnowsPerson.rdd.getNumPartitions / 10).toInt, 1)
-      undirectedKnows(personKnowsPerson)
+      undirectedKnowsTemporal(personKnowsPerson)
         .join(studyAt.as("studyAt1"), $"studyAt1.personId" === $"knows.person1Id")
         .join(studyAt.as("studyAt2"), $"studyAt2.personId" === $"knows.person2Id")
         .where($"studyAt1.universityId" === $"studyAt2.universityId")
         .select(
           $"knows.person1Id".as("person1Id"),
-          $"knows.person2Id".as("person2Id")
+          $"knows.person2Id".as("person2Id"),
+          functions.greatest($"knows.creationDate", $"studyAt1.creationDate", $"studyAt2.creationDate").alias("creationDate"),
+          functions.least($"knows.deletionDate", $"studyAt1.deletionDate", $"studyAt2.deletionDate").alias("deletionDate")
         )
+        .where($"creationDate" < $"deletionDate")
         .coalesce(size)
     }
   )
