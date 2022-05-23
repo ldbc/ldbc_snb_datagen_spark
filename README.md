@@ -130,6 +130,12 @@ To get a complete list of the arguments, pass `--help` to the JAR file:
   ./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar -- --format csv --scale-factor 0.003 --mode raw --output-dir sf0.003-raw
   ```
 
+* Generating Parquet files:
+
+  ```bash
+  ./tools/run.py ./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar -- --format parquet --scale-factor 0.003 --mode bi
+  ```
+
 * For the `interactive` and `bi` formats, the `--format-options` argument allows passing formatting options such as timestamp/date formats, the presence/abscence of headers (see the [Spark formatting options](https://spark.apache.org/docs/2.4.8/api/scala/index.html#org.apache.spark.sql.DataFrameWriter) for details), and whether quoting the fields in the CSV required:
 
   ```bash
