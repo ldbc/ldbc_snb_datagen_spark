@@ -1,0 +1,149 @@
+version: 2.1
+orbs:
+  slack: circleci/slack@3.4.2
+  gh-pages: sugarshin/gh-pages@0.0.6
+workflows:
+  version: 2
+  build:
+    jobs:
+      - test:
+          filters:
+            branches:
+              ignore:
+                - sigmod2014contest
+                - gh-pages
+      - deploy:
+          requires:
+            - test
+          filters:
+            branches:
+              only: main
+
+executors:
+  my-executor:
+    machine:
+      image: ubuntu-2004:202008-01
+    working_directory: ~/ldbc/ldbc_snb_datagen
+
+jobs:
+  test:
+    executor: my-executor
+    environment:
+      PLATFORM_VERSION: 2.12_spark3.1
+      DATAGEN_VERSION: 0.5.0-SNAPSHOT
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            mkdir out/
+            DEBIAN_FRONTEND=noninteractive
+            sudo apt update
+            sudo apt install -y openjdk-8-jdk zip
+            sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/java-8-openjdk-amd64/bin/java 1
+            sudo update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/bin/java
+      - run:
+          name: Build Docker container
+          command: |
+            docker build . -t ldbc/spark
+      - restore_cache:
+          keys:
+            - m2-dep-branch:{{ .Branch }}-pom:{{ checksum "pom.xml" }}-
+            - m2-dep-branch:dev-pom:{{ checksum "pom.xml" }}-
+            - m2-dep-branch:{{ .Branch }}-
+            - m2-dep-branch:dev-
+      - run:
+          name: Build JAR file
+          command: |
+            mvn -ntp clean test-compile assembly:assembly
+      - save_cache:
+          key: m2-dep-branch:{{ .Branch }}-pom:{{ checksum "pom.xml" }}-{{ epoch }}
+          paths:
+            - ~/.m2/repository   # maven deps
+      # BI
+      - run: 
+          name: Generate SF0.003 / BI / singular-projected CSVs
+          command: |
+            tools/docker-run.sh --mode bi --scale-factor 0.003 --explode-edges --explode-attrs
+            mv out/ social-network-sf0.003-bi-singular-projected-fk/
+      - run:
+          name: Generate SF0.003 / BI / singular-merged CSVs
+          command: |
+            tools/docker-run.sh --mode bi --scale-factor 0.003 --explode-attrs
+            mv out/ social-network-sf0.003-bi-singular-merged-fk/
+      - run:
+          name: Generate SF0.003 / BI / composite-projected CSVs
+          command: |
+            tools/docker-run.sh --mode bi --scale-factor 0.003 --explode-edges
+            mv out/ social-network-sf0.003-bi-composite-projected-fk/
+      - run:
+          name: Generate SF0.003 / BI / composite-merged CSVs
+          command: |
+            # we generate factors here but they are moved to a separate archive (social-network-sf0.003-bi-factors.zip)
+            tools/docker-run.sh --mode bi --scale-factor 0.003 --generate-factors
+            mv out/ social-network-sf0.003-bi-composite-merged-fk/
+      - run:
+          name: Generate SF0.003 / BI / compressed composite-merged CSVs for Postgres
+          command: |
+            tools/docker-run.sh --mode bi --scale-factor 0.003 --format-options compression=gzip
+            mv out/ social-network-sf0.003-bi-composite-merged-fk-postgres-compressed/
+      - run:
+          name: Generate SF0.003 / BI / composite-projected CSVs for Neo4j
+          command: |
+            tools/docker-run.sh --mode bi --scale-factor 0.003 --explode-edges --format-options header=false,quoteAll=true
+            mv out/ social-network-sf0.003-bi-composite-projected-fk-neo4j/
+      - run:
+          name: Generate SF0.003 / BI / compressed composite-projected CSVs for Neo4j
+          command: |
+            tools/docker-run.sh --mode bi --scale-factor 0.003 --explode-edges --format-options header=false,quoteAll=true,compression=gzip
+            mv out/ social-network-sf0.003-bi-composite-projected-fk-neo4j-compressed/
+      # Interactive
+      - run:
+          name: Generate SF0.003 / Interactive / singular-projected CSVs
+          command: |
+            tools/docker-run.sh --mode interactive --scale-factor 0.003 --explode-edges --explode-attrs
+            mv out/ social-network-sf0.003-interactive-singular-projected-fk/
+      - run:
+          name: Generate SF0.003 / Interactive / singular-merged CSVs
+          command: |
+            tools/docker-run.sh --mode interactive --scale-factor 0.003 --explode-attrs
+            mv out/ social-network-sf0.003-interactive-singular-merged-fk/
+      - run:
+          name: Generate SF0.003 / Interactive / composite-projected CSVs
+          command: |
+            tools/docker-run.sh --mode interactive --scale-factor 0.003 --explode-edges                
+            mv out/ social-network-sf0.003-interactive-composite-projected-fk/
+      - run:
+          name: Generate SF0.003 / Interactive / composite-merged CSVs
+          command: |
+            tools/docker-run.sh --mode interactive --scale-factor 0.003                                
+            mv out/ social-network-sf0.003-interactive-composite-merged-fk/
+      - run:
+          name: Compress directories and prepare for deployment
+          command: |
+            # include the CircleCI configuration in the deployed package to provide the 'filters' instructions (and prevent failed builds on the gh-pages branch)
+            mv .circleci dist/
+            # move factors to a separate directory
+            mkdir social-network-sf0.003-bi-factors
+            mv social-network-sf0.003-bi-composite-merged-fk/factors social-network-sf0.003-bi-factors/factors
+            # compress each directory
+            for d in social-network-sf0.003*; do
+              echo "Generated with <https://github.com/ldbc/ldbc_snb_datagen_spark/commit/${CIRCLE_SHA1}>" > $d/README.md
+              zip -r dist/$d.zip $d/
+            done
+      - persist_to_workspace:
+          # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is
+          # taken to be the root directory of the workspace.
+          root: .
+          # Must be relative path from root
+          paths:
+            - dist/
+            - .git/
+      - slack/status
+  deploy:
+    executor: my-executor
+    steps:
+      - attach_workspace:
+          at: ~/ldbc/ldbc_snb_datagen
+      - gh-pages/deploy:
+          ssh-fingerprints: '60:8f:35:48:99:c0:ae:9f:71:6b:a9:66:19:21:95:7d'
