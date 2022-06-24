@@ -1,7 +1,7 @@
 # Converter
 
 Script to convert from BI to Interactive update streams.
-The conversion includes merging daily batches into a single file, sorting by creationDate and joining attributes (e.g. `tagIds`).
+The conversion includes merging daily batches into a single file, sorting by `creationDate` and pre-joining attributes (e.g. `tagIds`).
 
 ## Prerequisites
 
