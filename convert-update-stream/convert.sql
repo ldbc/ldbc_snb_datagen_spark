@@ -10,7 +10,7 @@ INSERT INTO Comment_Update
         Comment.LocationCountryId,
         Comment.ParentPostId,
         Comment.ParentCommentId,
-        string_agg(Comment_hasTag_Tag.TagId, ';') AS tagIds
+        string_agg(DISTINCT Comment_hasTag_Tag.TagId, ';') AS tagIds
     FROM Comment
     JOIN Comment_hasTag_Tag
       ON Comment_hasTag_Tag.CommentId = Comment.id
@@ -31,7 +31,7 @@ INSERT INTO Post_Update
         Post.CreatorPersonId,
         Post.ContainerForumId,
         Post.LocationCountryId,
-        string_agg(Post_hasTag_Tag.TagId, ';') AS tagIds
+        string_agg(DISTINCT Post_hasTag_Tag.TagId, ';') AS tagIds
     FROM Post
     JOIN Post_hasTag_Tag
       ON Post_hasTag_Tag.PostId = Post.id
@@ -52,9 +52,9 @@ INSERT INTO Person_Update
         Person.LocationCityId,
         Person.speaks,
         Person.email,
-        string_agg(Person_hasInterest_Tag.TagId, ';') AS tagIds,
-        string_agg(Person_studyAt_University.UniversityId || ',' || Person_studyAt_University.classYear, ';') AS studyAt,
-        string_agg(Person_workAt_Company.CompanyId        || ',' || Person_workAt_Company.workFrom,      ';') AS workAt
+        string_agg(DISTINCT Person_hasInterest_Tag.TagId, ';') AS tagIds,
+        string_agg(DISTINCT Person_studyAt_University.UniversityId || ',' || Person_studyAt_University.classYear, ';') AS studyAt,
+        string_agg(DISTINCT Person_workAt_Company.CompanyId        || ',' || Person_workAt_Company.workFrom,      ';') AS workAt
     FROM Person
     JOIN Person_studyAt_University
       ON Person_studyAt_University.PersonId = Person.id
