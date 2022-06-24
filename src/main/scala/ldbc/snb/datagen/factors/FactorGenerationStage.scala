@@ -461,6 +461,13 @@ object FactorGenerationStage extends DatagenStage with Logging {
         )
         .where($"creationDate" < $"deletionDate")
         .coalesce(size)
+    },
+    "personFirstNames" -> Factor(PersonType) { case Seq(person) =>
+      frequency(
+        person,
+        value = $"id",
+        by = Seq($"firstName")
+      )
     }
   )
 }
