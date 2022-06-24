@@ -1,2 +1,3 @@
 *.duckdb*
 out-*/
+*.zip
