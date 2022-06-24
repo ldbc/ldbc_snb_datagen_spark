@@ -52,6 +52,7 @@ INSERT INTO Person_Update
         Person.LocationCityId,
         Person.speaks,
         Person.email,
+        string_agg(Person_hasInterest_Tag.TagId, ';') AS tagIds,
         string_agg(Person_studyAt_University.UniversityId || ',' || Person_studyAt_University.classYear, ';') AS studyAt,
         string_agg(Person_workAt_Company.CompanyId        || ',' || Person_workAt_Company.workFrom,      ';') AS workAt
     FROM Person
@@ -59,6 +60,8 @@ INSERT INTO Person_Update
       ON Person_studyAt_University.PersonId = Person.id
     JOIN Person_workAt_Company
       ON Person_workAt_Company.PersonId = Person.id
+    JOIN Person_hasInterest_Tag
+      ON Person_hasInterest_Tag.PersonId = Person.id
     GROUP BY ALL
     ORDER BY Person.creationDate
 ;

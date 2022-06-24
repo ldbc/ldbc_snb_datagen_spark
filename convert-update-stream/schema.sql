@@ -189,6 +189,7 @@ CREATE TABLE Person_Update (
     LocationCityId bigint NOT NULL,
     speaks varchar(640) NOT NULL,
     email varchar(8192) NOT NULL,
+    tagIds string,
     studyAt string,
     workAt string
 );
