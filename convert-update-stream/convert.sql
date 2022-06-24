@@ -54,7 +54,7 @@ INSERT INTO Person_Update
         Person.email,
         string_agg(DISTINCT Person_hasInterest_Tag.TagId, ';') AS tagIds,
         string_agg(DISTINCT Person_studyAt_University.UniversityId || ',' || Person_studyAt_University.classYear, ';') AS studyAt,
-        string_agg(DISTINCT Person_workAt_Company.CompanyId        || ',' || Person_workAt_Company.workFrom,      ';') AS workAt
+        string_agg(DISTINCT Person_workAt_Company.CompanyId || ',' || Person_workAt_Company.workFrom, ';') AS workAt
     FROM Person
     JOIN Person_studyAt_University
       ON Person_studyAt_University.PersonId = Person.id
