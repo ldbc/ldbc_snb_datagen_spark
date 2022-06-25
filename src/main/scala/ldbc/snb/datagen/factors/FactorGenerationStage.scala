@@ -301,13 +301,6 @@ object FactorGenerationStage extends DatagenStage with Logging {
         .join(undirectedKnows(personKnowsPerson).as("knows"), $"Person1.id" === $"knows.Person1Id", "leftouter")
       frequency(knows, value = $"knows.Person2Id", by = Seq($"Person1.id", $"Person1.creationDate", $"Person1.deletionDate"))
     },
-    "personNumFriendsOfFriends" -> Factor(PersonKnowsPersonType, PersonType) { case Seq(personKnowsPerson, person1) =>
-      val foaf = person1
-        .as("Person1")
-        .join(undirectedKnows(personKnowsPerson).as("knows1"), $"Person1.id" === $"knows1.Person1Id", "leftouter")
-        .join(undirectedKnows(personKnowsPerson).as("knows2"), $"knows1.Person2Id" === $"knows2.Person1Id", "leftouter")
-      frequency(foaf, value = $"knows2.Person2Id", by = Seq($"Person1.id", $"Person1.creationDate", $"Person1.deletionDate"))
-    },
     "languageNumPosts" -> Factor(PostType) { case Seq(post) =>
       frequency(post.where($"language".isNotNull), value = $"id", by = Seq($"language"))
     },
@@ -462,12 +455,134 @@ object FactorGenerationStage extends DatagenStage with Logging {
         .where($"creationDate" < $"deletionDate")
         .coalesce(size)
     },
+    // -- interactive --
+    // first names
     "personFirstNames" -> Factor(PersonType) { case Seq(person) =>
       frequency(
         person,
         value = $"id",
         by = Seq($"firstName")
       )
-    }
+    },
+    // friends
+    "personNumFriendsOfFriends" -> Factor(PersonKnowsPersonType, PersonType) { case Seq(personKnowsPerson, person1) =>
+      val foaf = person1
+        .as("Person1")
+        .join(undirectedKnows(personKnowsPerson).as("knows1"), $"Person1.id" === $"knows1.Person1Id", "leftouter")
+        .join(undirectedKnows(personKnowsPerson).as("knows2"), $"knows1.Person2Id" === $"knows2.Person1Id", "leftouter")
+      frequency(foaf, value = $"knows2.Person2Id", by = Seq($"Person1.id", $"Person1.creationDate", $"Person1.deletionDate"))
+    },
+    // posts
+    "personNumPosts" -> Factor(PersonType, PostType) { case Seq(person, post) =>
+      val posts = person
+        .as("Person")
+        .join(post.as("post"), $"post.CreatorPersonId" === $"Person.id", "leftouter")
+      frequency(posts, value = $"post.id", by = Seq($"Person.id"))
+    },
+    "personNumFriendPosts" -> Factor(PersonType, PersonKnowsPersonType, PostType) { case Seq(person, personKnowsPerson, post) =>
+      val posts = person
+        .as("Person")
+        .join(undirectedKnows(personKnowsPerson).as("knows1"), $"Person.id" === $"knows1.Person1Id", "leftouter")
+        .join(post.as("post"), $"post.CreatorPersonId" === $"knows1.Person2Id", "leftouter")
+      frequency(posts, value = $"post.id", by = Seq($"Person.id"))
+    },
+    "personNumFriendOfFriendPosts" -> Factor(PersonType, PersonKnowsPersonType, PostType) { case Seq(person, personKnowsPerson, post) =>
+      val posts = person
+        .as("Person")
+        .join(undirectedKnows(personKnowsPerson).as("knows1"), $"Person.id" === $"knows1.Person1Id", "leftouter")
+        .join(undirectedKnows(personKnowsPerson).as("knows2"), $"knows1.Person2Id" === $"knows2.Person1Id", "leftouter")
+        .join(post.as("post"), $"post.CreatorPersonId" === $"knows1.Person2Id", "leftouter")
+      frequency(posts, value = $"post.id", by = Seq($"Person.id"))
+    },
+    // comments
+    "personNumComments" -> Factor(PersonType, PostType) { case Seq(person, comment) =>
+      val comments = person
+        .as("Person")
+        .join(comment.as("comment"), $"comment.CreatorPersonId" === $"Person.id", "leftouter")
+      frequency(comments, value = $"comment.id", by = Seq($"Person.id"))
+    },
+    "personNumFriendComments" -> Factor(PersonType, PersonKnowsPersonType, CommentType) { case Seq(person, personKnowsPerson, comment) =>
+      val comments = person
+        .as("Person")
+        .join(undirectedKnows(personKnowsPerson).as("knows1"), $"Person.id" === $"knows1.Person1Id", "leftouter")
+        .join(comment.as("comment"), $"comment.CreatorPersonId" === $"knows1.Person2Id", "leftouter")
+      frequency(comments, value = $"comment.id", by = Seq($"Person.id"))
+    },
+    // likes
+    "personLikesNumMessages" -> Factor(PersonType, PersonLikesCommentType, PersonLikesPostType) { case Seq(person, personLikesComment, personLikesPost) =>
+      val personLikesMessage =
+        personLikesComment.select($"PersonId", $"CommentId".as("MessageId")) |+|
+          personLikesPost.select($"PersonId", $"PostId".as("MessageId"))
+      val messages = person
+        .as("Person")
+        .join(personLikesMessage.as("personLikesMessage"), $"personLikesMessage.PersonId" === $"Person.id", "leftouter")
+      frequency(messages, value = $"personLikesMessage.MessageId", by = Seq($"Person.id"))
+    },
+    // tags
+    "personNumTags" -> Factor(PersonHasInterestTagType) { case Seq(interest) =>
+      frequency(
+        interest,
+        value = $"interestId",
+        by = Seq($"personId")
+      )
+    },
+    "personNumFriendTags" -> Factor(PersonHasInterestTagType, PersonKnowsPersonType) { case Seq(interest, personKnowsPerson) =>
+      frequency(
+        undirectedKnows(personKnowsPerson).as("knows")
+          .join(interest, $"personId" === $"knows.Person2Id", "leftouter"),
+        value = $"interestId",
+        by = Seq($"knows.Person1Id")
+      )
+    },
+    // forums
+    "personNumForums" -> Factor(ForumHasMemberType) { case Seq(hasMember) =>
+      frequency(
+        hasMember,
+        value = $"ForumId",
+        by = Seq($"PersonId")
+      )
+    },
+    "personNumFriendForums" -> Factor(ForumHasMemberType, PersonKnowsPersonType) { case Seq(hasMember, personKnowsPerson) =>
+      frequency(
+        undirectedKnows(personKnowsPerson).as("knows")
+          .join(hasMember, $"PersonId" === $"knows.Person2Id", "leftouter"),
+        value = $"ForumId",
+        by = Seq($"knows.Person1Id")
+      )
+    },
+    "personNumFriendOfFriendForums" -> Factor(ForumHasMemberType, PersonKnowsPersonType) { case Seq(hasMember, personKnowsPerson) =>
+      frequency(
+        undirectedKnows(personKnowsPerson).as("knows1")
+          .join(undirectedKnows(personKnowsPerson).as("knows2"), $"knows1.Person2Id" === $"knows2.Person1Id", "leftouter")
+          .join(hasMember, $"PersonId" === $"knows2.Person2Id", "leftouter"),
+        value = $"ForumId",
+        by = Seq($"knows1.Person1Id")
+      )
+    },
+    // companies
+    "personNumCompanies" -> Factor(PersonWorkAtCompanyType) { case Seq(workAt) =>
+      frequency(
+        workAt,
+        value = $"CompanyId",
+        by = Seq($"PersonId")
+      )
+    },
+    "personNumFriendCompanies" -> Factor(PersonWorkAtCompanyType, PersonKnowsPersonType) { case Seq(workAt, personKnowsPerson) =>
+      frequency(
+        undirectedKnows(personKnowsPerson).as("knows")
+          .join(workAt, $"PersonId" === $"knows.Person2Id", "leftouter"),
+        value = $"CompanyId",
+        by = Seq($"knows.Person1Id")
+      )
+    },
+    "personNumFriendOfFriendCompanies" -> Factor(PersonWorkAtCompanyType, PersonKnowsPersonType) { case Seq(workAt, personKnowsPerson) =>
+      frequency(
+        undirectedKnows(personKnowsPerson).as("knows1")
+          .join(undirectedKnows(personKnowsPerson).as("knows2"), $"knows1.Person2Id" === $"knows2.Person1Id", "leftouter")
+          .join(workAt, $"PersonId" === $"knows2.Person2Id", "leftouter"),
+        value = $"CompanyId",
+        by = Seq($"knows1.Person1Id")
+      )
+    },
   )
 }
