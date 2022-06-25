@@ -6,6 +6,7 @@ import ldbc.snb.datagen.model.Mode.Raw
 import ldbc.snb.datagen.model._
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.util.{Logging, SparkUI}
+import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
 import shapeless.{Generic, Poly1}
@@ -120,12 +121,24 @@ object graphs {
           log.info(s"$tpe: Writing snapshot completed")
         }(snapshot.sparkSession)
 
-        for { (operation, batches) <- Map("inserts" -> insertBatches, "deletes" -> deleteBatches) } {
-          batches.foreach { case Batched(entity, partitionKeys) =>
+        val insertSizeFactor = 0.33
+        val deleteSizeFactor = 0.015
+
+        val operations = Map(
+          "inserts" -> (insertBatches, insertSizeFactor),
+          "deletes" -> (deleteBatches, deleteSizeFactor)
+        )
+
+        for { (operation, (batches, sizeFactor)) <- operations } {
+          batches.foreach { case Batched(entity, partitionKeys, orderingKeys) =>
             SparkUI.job(getClass.getSimpleName, s"write $tpe $operation") {
-              val p = (sink.path / "graphs" / sink.format / PathComponent[GraphLike[M]].path(self) / operation / tpe.entityPath).toString
+              val p             = (sink.path / "graphs" / sink.format / PathComponent[GraphLike[M]].path(self) / operation / tpe.entityPath).toString
+              val numPartitions = Math.max(1.0, entity.rdd.getNumPartitions * sizeFactor).toInt
               log.info(f"$tpe: Writing $operation")
-              entity.write(DataFrameSink(p, sink.format, opts, SaveMode.Ignore, partitionBy = partitionKeys))
+              entity
+                .repartitionByRange(numPartitions, orderingKeys: _*)
+                .sortWithinPartitions(orderingKeys: _*)
+                .write(DataFrameSink(p, sink.format, opts, SaveMode.Ignore, partitionBy = partitionKeys))
               log.info(f"$tpe: Writing $operation completed")
             }(entity.sparkSession)
           }

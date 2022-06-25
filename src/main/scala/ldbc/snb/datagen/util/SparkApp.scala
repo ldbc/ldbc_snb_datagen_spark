@@ -4,7 +4,10 @@ import ldbc.snb.datagen.syntax._
 import org.apache.spark.sql.SparkSession
 
 trait SparkApp {
+  type ArgsType
   def appName: String
+
+  def run(args: ArgsType): Unit
 
   implicit def spark: SparkSession = SparkSession
     .builder()
@@ -18,6 +21,8 @@ trait SparkApp {
   def defaultSparkConf: Map[String, String] = Map(
     "spark.sql.session.timeZone" -> "GMT"
   )
+
+  protected lazy val env: SparkEnv = new SparkEnv
 }
 
 trait DatagenStage extends SparkApp {

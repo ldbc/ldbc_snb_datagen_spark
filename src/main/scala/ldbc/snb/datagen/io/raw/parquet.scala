@@ -1,10 +1,12 @@
 package ldbc.snb.datagen.io.raw
 
+import ldbc.snb.datagen.io.raw.combinators.MakeBatchPart
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
 import org.apache.hadoop.mapreduce.{RecordWriter, TaskAttemptContext}
 import org.apache.parquet.hadoop.ParquetOutputFormat
 import org.apache.parquet.hadoop.api.WriteSupport
+import org.apache.parquet.hadoop.metadata.CompressionCodecName
 import org.apache.parquet.io.api.RecordConsumer
 import org.apache.spark.sql.Encoder
 import org.apache.spark.sql.catalyst.encoders.encoderFor
@@ -35,7 +37,7 @@ object parquet {
     override def write(record: T): Unit                                        = inner.write(serializer.apply(record))
   }
 
-  class ParquetRecordOutputStream[T <: Product: ParquetRowEncoder](
+  final class ParquetRecordOutputStream[T <: Product: ParquetRowEncoder](
       path: Path,
       taskAttemptContext: TaskAttemptContext,
       options: Map[String, String]
@@ -45,7 +47,9 @@ object parquet {
 
       implicit val encoder: Encoder[T] = implicitly[ParquetRowEncoder[T]].encoder
       val parquetWriteSupport          = parquetWriteSupportForEncodable[T](compressionCodecClassName)
-      val pof                          = new ParquetOutputFormat[T](parquetWriteSupport)
+      val pof = new ParquetOutputFormat[T](parquetWriteSupport) {
+        override def getDefaultWorkFile(context: TaskAttemptContext, extension: String): Path = path
+      }
       pof.getRecordWriter(taskAttemptContext, path)
     }
     var hasWritten = false
@@ -53,5 +57,26 @@ object parquet {
     override def write(t: T): Unit = { hasWritten = true; writer.write(null, t) }
 
     override def close(): Unit = if (hasWritten) { writer.close(taskAttemptContext) }
+  }
+
+  final class MakeParquetBatchPart[T <: Product: ParquetRowEncoder](pathPrefix: String, writeContext: WriteContext) extends MakeBatchPart[T] {
+    private val compression = CompressionCodecName.fromConf(DefaultParquetCompression)
+    private val options     = Map { ParquetOutputFormat.COMPRESSION -> compression.toString }
+    private val partitionId = writeContext.taskContext.partitionId()
+    private val extension   = s"${compression.getExtension}.parquet"
+
+    def apply(part: Int) = {
+      val path = new Path(s"${pathPrefix}/part_${partitionId}_${part}${extension}")
+      new ParquetRecordOutputStream[T](path, writeContext.taskAttemptContext, options)
+    }
+
+    override def exists(): Boolean = {
+      !writeContext.fileSystem.globStatus(new Path(s"${pathPrefix}/part_${partitionId}_*${extension}")).isEmpty
+    }
+
+    override def delete(): Unit = {
+      val files = writeContext.fileSystem.globStatus(new Path(s"${pathPrefix}/part_${partitionId}_*${extension}"))
+      for { f <- files } writeContext.fileSystem.delete(f.getPath, false)
+    }
   }
 }

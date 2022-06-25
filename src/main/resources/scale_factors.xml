@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <scale_factors>
 
-    <scale_factor name="0.003" >
+    <scale_factor name="0.003">
         <property>
             <name>generator.numPersons</name>
             <value>50</value>
@@ -20,7 +20,7 @@
         </property>
     </scale_factor>
 
-    <scale_factor name="0.1" >
+    <scale_factor name="0.1">
         <property>
             <name>generator.numPersons</name>
             <value>1700</value>
@@ -39,7 +39,7 @@
         </property>
     </scale_factor>
 
-    <scale_factor name="0.3" >
+    <scale_factor name="0.3">
         <property>
             <name>generator.numPersons</name>
             <value>3900</value>
@@ -58,10 +58,10 @@
         </property>
     </scale_factor>
 
-    <scale_factor name="1" >
+    <scale_factor name="1">
         <property>
             <name>generator.numPersons</name>
-            <value>7900</value>
+            <value>10620</value>
         </property>
         <property>
             <name>generator.startYear</name>
@@ -77,10 +77,10 @@
         </property>
     </scale_factor>
 
-    <scale_factor name="3" >
+    <scale_factor name="3">
         <property>
             <name>generator.numPersons</name>
-            <value>19000</value>
+            <value>25870</value>
         </property>
         <property>
             <name>generator.startYear</name>
@@ -96,10 +96,10 @@
         </property>
     </scale_factor>
 
-    <scale_factor name="10" >
+    <scale_factor name="10">
         <property>
             <name>generator.numPersons</name>
-            <value>52000</value>
+            <value>70800</value>
         </property>
         <property>
             <name>generator.startYear</name>
@@ -115,10 +115,10 @@
         </property>
     </scale_factor>
 
-    <scale_factor name="30" >
+    <scale_factor name="30">
         <property>
             <name>generator.numPersons</name>
-            <value>128000</value>
+            <value>175950</value>
         </property>
         <property>
             <name>generator.startYear</name>
@@ -134,10 +134,10 @@
         </property>
     </scale_factor>
 
-    <scale_factor name="100" >
+    <scale_factor name="100">
         <property>
             <name>generator.numPersons</name>
-            <value>355000</value>
+            <value>487700</value>
         </property>
         <property>
             <name>generator.startYear</name>
@@ -153,10 +153,10 @@
         </property>
     </scale_factor>
 
-    <scale_factor name="300" >
+    <scale_factor name="300">
         <property>
             <name>generator.numPersons</name>
-            <value>891000</value>
+            <value>1230500</value>
         </property>
         <property>
             <name>generator.startYear</name>
@@ -172,10 +172,10 @@
         </property>
     </scale_factor>
 
-    <scale_factor name="1000" >
+    <scale_factor name="1000">
         <property>
             <name>generator.numPersons</name>
-            <value>2550000</value>
+            <value>3505000</value>
         </property>
         <property>
             <name>generator.startYear</name>
@@ -191,10 +191,10 @@
         </property>
     </scale_factor>
 
-    <scale_factor name="3000" >
+    <scale_factor name="3000">
         <property>
             <name>generator.numPersons</name>
-            <value>6000000</value>
+            <value>9232000</value>
         </property>
         <property>
             <name>generator.startYear</name>
@@ -210,10 +210,10 @@
         </property>
     </scale_factor>
 
-    <scale_factor name="10000" >
+    <scale_factor name="10000">
         <property>
             <name>generator.numPersons</name>
-            <value>20900000</value>
+            <value>27200000</value>
         </property>
         <property>
             <name>generator.startYear</name>
@@ -229,7 +229,7 @@
         </property>
     </scale_factor>
 
-    <scale_factor name="30000" >
+    <scale_factor name="30000">
         <property>
             <name>generator.numPersons</name>
             <value>77000000</value>

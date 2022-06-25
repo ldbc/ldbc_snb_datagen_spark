@@ -33,16 +33,14 @@ plot(pmf) # TODO: ggplot
 ggplot(data = data.frame(x = 1:1002,y = pmf),
        aes(x = x, y = y)) +
   geom_line() +
-
-  scale_y_continuous(name="probability",
+  scale_y_continuous(name="explicit deletion probability",
                      limits = c(0.0,0.31)) +
-   scale_x_log10(name="x (knows)") +
+   scale_x_log10(name="knows degree") +
   theme_bw() +
-  ggtitle("knows-probability person deleted mapping\n") +
   theme(plot.title = element_text(hjust = 0.5),
         text = element_text(size = 12))
 ldbc = "/Users/jackwaudby/Documents/ldbc/ldbc_snb_datagen/tuning/figs/"
-ggsave(paste0(ldbc,"person.pdf"))
+ggsave(paste0(ldbc,"person.pdf"), width = 5, height = 5,device = "pdf")
 
 write.table(pmf, file = paste0(ldbc,"personDelete.txt"), row.names = FALSE, col.names = FALSE)
 

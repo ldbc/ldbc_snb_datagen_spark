@@ -21,10 +21,9 @@ max_num_workers = 1000
 defaults = {
     'bucket': 'ldbc-snb-datagen-store',
     'use_spot': True,
-    'master_instance_type': 'm5d.2xlarge',
-    'instance_type': 'i3.4xlarge',
-    'sf_ratio': 100.0, # ratio of SFs and machines. a ratio of 50.0 for SF100 yields 2 machines
-    #'sf_ratio': 240.0, # for limited vCPU counts, this ratio is still sufficient to generate the data
+    'master_instance_type': 'r6gd.2xlarge',
+    'instance_type': 'r6gd.4xlarge',
+    'sf_ratio': 100.0,  # ratio of SFs and machines. a ratio of 250.0 for SF1000 yields 4 machines
     'platform_version': lib.platform_version,
     'version': lib.version,
     'az': 'us-west-2c',
@@ -46,8 +45,7 @@ with open(path.join(dir, ec2info_file), mode='r') as infile:
 
 def calculate_cluster_config(scale_factor, sf_ratio, vcpu):
     num_workers = max(min_num_workers, min(max_num_workers, ceil(scale_factor / sf_ratio)))
-    parallelism_factor = max(2.0, sf_ratio / vcpu / 3)
-    num_threads = ceil(num_workers * vcpu * parallelism_factor)
+    num_threads = ceil(num_workers * vcpu * 2)
     return {
         'num_workers': num_workers,
         'num_threads': num_threads
@@ -115,7 +113,10 @@ def submit_datagen_job(name,
     run_url = f'{results_url}/runs/{ts_formatted}'
 
     spark_config = {
-        'maximizeResourceAllocation': 'true',
+        'maximizeResourceAllocation': 'true'
+    }
+
+    spark_defaults_config = {
         'spark.serializer': 'org.apache.spark.serializer.KryoSerializer',
         **(dict(conf) if conf else {})
     }
@@ -137,6 +138,10 @@ def submit_datagen_job(name,
             {
                 'Classification': 'spark',
                 'Properties': spark_config
+            },
+            {
+                'Classification': 'spark-defaults',
+                'Properties': spark_defaults_config
             }
         ],
         'Instances': {
@@ -260,7 +265,7 @@ if __name__ == "__main__":
     parser.add_argument("--conf",
                             metavar="KEY=VALUE",
                             nargs='+',
-                            type=KeyValue,
+                            action=KeyValue,
                             help="SparkConf as key=value pairs")
 
     parser.add_argument('--', nargs='*', help='Arguments passed to LDBC SNB Datagen', dest="arg")

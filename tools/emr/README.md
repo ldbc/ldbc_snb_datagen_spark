@@ -32,8 +32,8 @@ Install the required libraries as described in the [main README](../../README.md
 
 ```bash
 PLATFORM_VERSION=2.12_spark3.1
-VERSION=0.5.0-SNAPSHOT
-aws s3 cp target/ldbc_snb_datagen_${PLATFORM_VERSION}-${VERSION}-jar-with-dependencies.jar s3://${BUCKET_NAME}/jars/ldbc_snb_datagen_${PLATFORM_VERSION}-${VERSION}-jar-with-dependencies.jar
+DATAGEN_VERSION=0.5.0-SNAPSHOT
+aws s3 cp target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}-jar-with-dependencies.jar s3://${BUCKET_NAME}/jars/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}-jar-with-dependencies.jar
 ```
 
 1. Submit the job. Run with `--help` for customization options.
@@ -41,7 +41,12 @@ aws s3 cp target/ldbc_snb_datagen_${PLATFORM_VERSION}-${VERSION}-jar-with-depend
 ```bash
 JOB_NAME=MyTest
 SCALE_FACTOR=10
-./tools/emr/submit_datagen_job.py --bucket ${BUCKET_NAME} ${JOB_NAME} ${SCALE_FACTOR} csv raw
+./tools/emr/submit_datagen_job.py \
+    --bucket ${BUCKET_NAME} \
+    ${JOB_NAME} \
+    ${SCALE_FACTOR} \
+    csv \
+    raw
 ```
 
 Note: scale factors below 1 are not supported.
@@ -51,7 +56,38 @@ Note: scale factors below 1 are not supported.
 To use spot instances, add the `--use-spot` argument:
 
 ```bash
-./tools/emr/submit_datagen_job.py --use-spot --bucket ${BUCKET_NAME} ${JOB_NAME} ${SCALE_FACTOR} csv raw
+./tools/emr/submit_datagen_job.py \
+    --use-spot \
+    --bucket ${BUCKET_NAME} \
+    ${JOB_NAME} \
+    ${SCALE_FACTOR} \
+    csv \
+    raw
+```
+
+### Sample command
+
+Generate the BI data set with the following configuration:
+
+* use spot instances
+* in the `csv-composite-projected-fk` format (`--explode-edges`)
+* compress CSVs with `gzip`, and
+* generate factors.
+
+```bash
+./tools/emr/submit_datagen_job.py \
+    --use-spot \
+    --bucket ${BUCKET_NAME} \
+    --az us-east-2c \
+    --copy-all \
+    ${JOB_NAME} \
+    ${SCALE_FACTOR} \
+    csv \
+    bi \
+    -- \
+    --explode-edges \
+    --format-options compression=gzip \
+    --generate-factors
 ```
 
 ### Using a different Spark / EMR version
@@ -61,7 +97,14 @@ Make sure that you have uploaded the right JAR first.
 
 ```bash
 PLATFORM_VERSION=2.12_spark3.1
-./tools/emr/submit_datagen_job.py --bucket ${BUCKET_NAME} --platform-version ${PLATFORM_VERSION} --emr-release emr-6.2.0 ${JOB_NAME} ${SCALE_FACTOR} csv raw
+./tools/emr/submit_datagen_job.py \
+    --bucket ${BUCKET_NAME} \
+    --platform-version ${PLATFORM_VERSION} \
+    --emr-release emr-6.2.0 \
+    ${JOB_NAME} \
+    ${SCALE_FACTOR} \
+    csv \
+    raw
 ```
 
 ### Using a parameter file

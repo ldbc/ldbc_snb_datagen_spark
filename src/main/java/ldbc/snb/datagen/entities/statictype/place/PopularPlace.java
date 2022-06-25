@@ -47,14 +47,20 @@ public class PopularPlace {
         this.longitude = longitude;
     }
 
-    public String getName() { return name; }
+    public String getName() {
+        return name;
+    }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public double getLatitude() { return latitude; }
+    public double getLatitude() {
+        return latitude;
+    }
 
-    public double getLongitude() { return longitude; }
+    public double getLongitude() {
+        return longitude;
+    }
 
 }

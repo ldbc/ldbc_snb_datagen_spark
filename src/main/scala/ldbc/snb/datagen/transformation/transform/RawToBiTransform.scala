@@ -47,8 +47,6 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
         .select(
           Seq($"insert_batch_id".as("batch_id")) ++ RawToInteractiveTransform.columns(tpe, df.columns).map(qcol): _*
         )
-        .repartitionByRange($"batch_id")
-        .sortWithinPartitions($"creationDate")
     }
 
     val deleteBatchPart = (tpe: EntityType, df: DataFrame, batchStart: Long, batchEnd: Long) => {
@@ -58,8 +56,6 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
         .filter(if (df.columns.contains("explicitlyDeleted")) col("explicitlyDeleted") else lit(true))
         .pipe(batched)
         .select(Seq($"delete_batch_id".as("batch_id"), $"deletionDate") ++ idColumns: _*)
-        .repartitionByRange($"batch_id")
-        .sortWithinPartitions($"deletionDate")
     }
 
     val entities = input.entities
@@ -68,9 +64,9 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
         case (tpe, v) =>
           tpe -> BatchedEntity(
             RawToInteractiveTransform.snapshotPart(tpe, v, bulkLoadThreshold, filterDeletion = false),
-            Some(Batched(insertBatchPart(tpe, v, bulkLoadThreshold, simulationEnd), Seq("batch_id"))),
+            Some(Batched(insertBatchPart(tpe, v, bulkLoadThreshold, simulationEnd), Seq("batch_id"), Seq($"creationDate"))),
             if (keepImplicitDeletes || v.columns.contains("explicitlyDeleted"))
-              Some(Batched(deleteBatchPart(tpe, v, bulkLoadThreshold, simulationEnd), Seq("batch_id")))
+              Some(Batched(deleteBatchPart(tpe, v, bulkLoadThreshold, simulationEnd), Seq("batch_id"), Seq($"deletionDate")))
             else
               None
           )

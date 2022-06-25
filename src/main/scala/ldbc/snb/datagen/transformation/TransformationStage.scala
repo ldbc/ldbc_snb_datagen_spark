@@ -23,11 +23,13 @@ object TransformationStage extends DatagenStage with Logging {
       formatOptions: Map[String, String] = Map.empty
   )
 
+  override type ArgsType = Args
+
   import ldbc.snb.datagen.io.Reader.ops._
   import ldbc.snb.datagen.io.Writer.ops._
   import ldbc.snb.datagen.io.instances._
 
-  def run(args: Args)(implicit spark: SparkSession) = {
+  def run(args: ArgsType) = {
     object write extends Poly1 {
       implicit def caseSimple[M <: Mode](implicit ev: M#Layout =:= DataFrame) =
         at[Graph[M]](g => g.write(GraphSink(args.outputDir, args.format, args.formatOptions)))
@@ -36,20 +38,18 @@ object TransformationStage extends DatagenStage with Logging {
         at[Graph[M]](g => g.write(GraphSink(args.outputDir, args.format, args.formatOptions)))
     }
 
-    type OutputTypes = Graph[Mode.Raw.type] :+:
-      Graph[Mode.Interactive] :+:
-      Graph[Mode.BI] :+:
-      CNil
+    type Out = Graph[Mode.Raw.type] :+: Graph[Mode.Interactive] :+: Graph[Mode.BI] :+: CNil
 
     GraphSource(model.graphs.Raw.graphDef, args.outputDir, args.irFormat).read
       .pipeFoldLeft(args.explodeAttrs.fork)((graph, _: Unit) => ExplodeAttrs.transform(graph))
       .pipeFoldLeft(args.explodeEdges.fork)((graph, _: Unit) => ExplodeEdges.transform(graph))
       .pipe(ConvertDates.transform)
-      .pipe[OutputTypes] { g =>
+      .pipe[Out] { g =>
         args.mode match {
-          case bi @ Mode.BI(_, _) => Inr(Inr(Inl(RawToBiTransform(bi, args.simulationStart, args.simulationEnd, args.keepImplicitDeletes).transform(g))))
-          case interactive @ Mode.Interactive(_) => Inr(Inl(RawToInteractiveTransform(interactive, args.simulationStart, args.simulationEnd).transform(g)))
-          case Mode.Raw                          => Inl(g)
+          case bi @ Mode.BI(_, _) => Coproduct[Out](RawToBiTransform(bi, args.simulationStart, args.simulationEnd, args.keepImplicitDeletes).transform(g))
+          case interactive @ Mode.Interactive(_) =>
+            Coproduct[Out](RawToInteractiveTransform(interactive, args.simulationStart, args.simulationEnd).transform(g))
+          case Mode.Raw => Coproduct[Out](g)
         }
       }
       .map(write)

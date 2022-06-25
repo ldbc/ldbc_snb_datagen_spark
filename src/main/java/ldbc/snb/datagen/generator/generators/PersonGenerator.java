@@ -151,11 +151,14 @@ public class PersonGenerator {
         base = base.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
         base = base.replaceAll(" ", ".");
         base = base.replaceAll("[.]+", ".");
-        for (int i = 0; i < numEmails; i++) {
+        while (person.getEmails().size() < numEmails) {
             String email = base + "" + person.getAccountId() + "@" +
                     Dictionaries.emails.getRandomEmail(randomFarm.get(RandomGeneratorFarm.Aspect.TOP_EMAIL),
                             randomFarm.get(RandomGeneratorFarm.Aspect.EMAIL));
-            person.getEmails().add(email);
+            // avoid duplicates
+            if (!person.getEmails().contains(email)) {
+                person.getEmails().add(email);
+            }
         }
 
         // Set class year

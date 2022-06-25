@@ -6,11 +6,9 @@ import ldbc.snb.datagen.io.raw.{Csv, Parquet, RawSink}
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.util._
 import org.apache.hadoop.fs.{FileSystem, Path}
-import org.apache.spark.sql.SparkSession
 
 import java.net.URI
 object GenerationStage extends DatagenStage with Logging {
-  val optimalPersonsPerFile = 500000
 
   case class Args(
       scaleFactor: String = "1",
@@ -22,13 +20,21 @@ object GenerationStage extends DatagenStage with Logging {
       oversizeFactor: Option[Double] = None
   )
 
-  def run(args: Args, config: GeneratorConfiguration)(implicit spark: SparkSession) = {
-    val numPartitions   = config.getInt("hadoop.numThreads", spark.sparkContext.defaultParallelism)
-    val idealPartitions = DatagenParams.numPersons.toDouble / optimalPersonsPerFile
+  override type ArgsType = Args
 
-    val oversizeFactor = args.oversizeFactor.getOrElse(Math.max(numPartitions / idealPartitions, 1.0))
+  def run(args: Args) = {
+    val config = buildConfig(args)
+    DatagenContext.initialize(config)
 
-    val persons = SparkPersonGenerator(config)
+    // Doesn't make sense to have more partitions than blocks
+    val numPartitions = Math
+      .min(
+        Math.ceil(DatagenParams.numPersons.toDouble / DatagenParams.blockSize).toLong,
+        config.getInt("hadoop.numThreads", spark.sparkContext.defaultParallelism)
+      )
+      .toInt
+
+    val persons = SparkPersonGenerator(config, Some(numPartitions))
 
     val percentages             = Seq(0.45f, 0.45f, 0.1f)
     val knowsGeneratorClassName = DatagenParams.getKnowsGenerator
@@ -53,7 +59,7 @@ object GenerationStage extends DatagenStage with Logging {
 
     SparkUI.job(simpleNameOf[RawSerializer], "serialize persons") {
       val rawSerializer = new RawSerializer(randomRanker)
-      rawSerializer.write(merged, RawSink(format, Some(numPartitions), config, oversizeFactor))
+      rawSerializer.write(merged, RawSink(format, Some(numPartitions), config, args.oversizeFactor))
     }
   }
 
@@ -64,7 +70,6 @@ object GenerationStage extends DatagenStage with Logging {
 
   def buildConfig(args: Args) = {
     val conf = new java.util.HashMap[String, String]
-
     conf.putAll(getClass.getResourceAsStream("/params_default.ini") use { ConfigParser.readConfig })
 
     for { paramsFile <- args.paramFile } conf.putAll(openPropFileStream(URI.create(paramsFile)) use { ConfigParser.readConfig })
@@ -74,9 +79,7 @@ object GenerationStage extends DatagenStage with Logging {
     for { numThreads <- args.numThreads } conf.put("hadoop.numThreads", numThreads.toString)
 
     conf.putAll(ConfigParser.scaleFactorConf(args.scaleFactor))
-
     conf.put("generator.outputDir", args.outputDir)
-
     new GeneratorConfiguration(conf)
   }
 }

@@ -44,7 +44,10 @@ local.properties
 
 /*.crc
 /*.csv
-out/
+/out/
+/out-*/
+/out.tar.zst
+/out-*.tar.zst
 datagen_output/
 
 /sf*/

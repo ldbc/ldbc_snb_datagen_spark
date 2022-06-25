@@ -13,11 +13,9 @@ trait SparkRanker {
 
 object SparkRanker {
 
-  def create[K: Ordering: ClassTag](by: Person => K, numPartitions: Option[Int] = None)(implicit spark: SparkSession): SparkRanker = new SparkRanker {
+  def create[K: Ordering: ClassTag](by: Person => K)(implicit spark: SparkSession): SparkRanker = new SparkRanker {
     override def apply(persons: RDD[Person]): RDD[(Long, Person)] = {
-      val partitions = numPartitions.getOrElse(spark.sparkContext.defaultParallelism)
-
-      val sortedPersons = persons.sortBy(by, numPartitions = partitions).cache()
+      val sortedPersons = persons.sortBy(by).cache()
 
       // single count / partition. Assumed small enough to collect and broadcast
       val counts = sortedPersons

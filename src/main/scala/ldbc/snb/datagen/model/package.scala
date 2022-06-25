@@ -1,7 +1,7 @@
 package ldbc.snb.datagen
 
 import ldbc.snb.datagen.syntax._
-import ldbc.snb.datagen.util.camel
+import ldbc.snb.datagen.util.pascalToCamel
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{Column, DataFrame, Encoder}
 import shapeless._
@@ -60,7 +60,7 @@ package object model {
         cardinality: Cardinality,
         isStatic: Boolean = false
     ) extends EntityType {
-      override val entityPath: String = s"${s(isStatic)}/${source}_${camel(`type`)}_${destination}"
+      override val entityPath: String = s"${s(isStatic)}/${source}_${pascalToCamel(`type`)}_${destination}"
 
       override val primaryKey: Seq[String] = ((source, destination) match {
         case (s, d) if s == d => Seq(s"${s}1", s"${d}2")
@@ -71,7 +71,7 @@ package object model {
     }
 
     final case class Attr(`type`: String, parent: String, attribute: String, isStatic: Boolean = false) extends EntityType {
-      override val entityPath: String = s"${s(isStatic)}/${parent}_${camel(`type`)}_${attribute}"
+      override val entityPath: String = s"${s(isStatic)}/${parent}_${pascalToCamel(`type`)}_${attribute}"
 
       override val primaryKey: Seq[String] = ((parent, attribute) match {
         case (s, d) if s == d => Seq(s"${s}1", s"${d}2")
@@ -105,7 +105,7 @@ package object model {
     }
   }
 
-  case class Batched(entity: DataFrame, batchId: Seq[String])
+  case class Batched(entity: DataFrame, batchId: Seq[String], ordering: Seq[Column])
 
   case class BatchedEntity(
       snapshot: DataFrame,

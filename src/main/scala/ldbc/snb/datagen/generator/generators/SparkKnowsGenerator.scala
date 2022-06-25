@@ -28,8 +28,6 @@ object SparkKnowsGenerator {
     val percentagesJava = percentages.map(Float.box).asJava
 
     indexed
-      // groupByKey wouldn't guarantee keeping the order inside groups
-      // TODO check if it actually has better performance than sorting inside mapPartitions (probably not)
       .combineByKeyWithClassTag(
         personByRank => SortedMap(personByRank),
         (map: SortedMap[Long, Person], personByRank) => map + personByRank,
@@ -43,14 +41,11 @@ object SparkKnowsGenerator {
         val personSimilarity = DatagenParams.getPersonSimularity
 
         val personGroups = for { (block, persons) <- groups } yield {
-          val clonedPersons = new util.ArrayList[Person]
-          for (p <- persons.values) {
-            clonedPersons.add(new Person(p))
-          }
-          knowsGenerator.generateKnows(clonedPersons, block.toInt, percentagesJava, stepIndex, personSimilarity)
-          clonedPersons
+          val personList = new util.ArrayList[Person](persons.size)
+          for (p <- persons.values) { personList.add(p) }
+          knowsGenerator.generateKnows(personList, block.toInt, percentagesJava, stepIndex, personSimilarity)
+          personList
         }
-
         for {
           persons <- personGroups
           person  <- persons.iterator().asScala

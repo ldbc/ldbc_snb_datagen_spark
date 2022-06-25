@@ -2,7 +2,7 @@ package ldbc.snb.datagen
 
 import ldbc.snb.datagen.factors.FactorGenerationStage
 import ldbc.snb.datagen.generator.dictionary.Dictionaries
-import ldbc.snb.datagen.generator.{DatagenContext, GenerationStage}
+import ldbc.snb.datagen.generator.GenerationStage
 import ldbc.snb.datagen.model.Mode
 import ldbc.snb.datagen.transformation.TransformationStage
 import ldbc.snb.datagen.util.{SparkApp, lower}
@@ -30,6 +30,8 @@ object LdbcDatagen extends SparkApp {
       formatOptions: Map[String, String] = Map.empty,
       oversizeFactor: Option[Double] = None
   )
+
+  override type ArgsType = Args
 
   def main(args: Array[String]): Unit = {
     val parser = new scopt.OptionParser[Args](getClass.getName.dropRight(1)) {
@@ -124,9 +126,7 @@ object LdbcDatagen extends SparkApp {
   }
 
   def run(args: Args): Unit = {
-
-    val env      = System.getenv().asScala
-    val irFormat = env.getOrElse("LDBC_DATAGEN_IR_FORMAT", "parquet")
+    val irFormat = env.IrFormat
 
     val generatorArgs = GenerationStage.Args(
       scaleFactor = args.scaleFactor,
@@ -134,15 +134,11 @@ object LdbcDatagen extends SparkApp {
       paramFile = args.paramFile,
       outputDir = args.outputDir,
       numThreads = args.numThreads,
-      format = irFormat,
+      format = env.IrFormat,
       oversizeFactor = args.oversizeFactor
     )
 
-    val generatorConfig = GenerationStage.buildConfig(generatorArgs)
-
-    DatagenContext.initialize(generatorConfig)
-
-    GenerationStage.run(generatorArgs, generatorConfig)
+    GenerationStage.run(generatorArgs)
 
     if (args.generateFactors) {
       val factorArgs = FactorGenerationStage.Args(outputDir = args.outputDir, irFormat = irFormat)

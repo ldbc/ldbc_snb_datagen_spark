@@ -1,11 +1,12 @@
-# Datagen Tuning #
+# Datagen Tuning
 
-## 1. Run Datagen ##
+## 1. Run Datagen
+
 Navigate to `LDBC_SNB_DATAGEN_HOME` and follow Datagen instructions to generate data. 
 
 + TODO: currently produces no update streams/refresh batches.
 
-## 2. Run Analyis ## 
+## 2. Run Analysis
 
 `analysis.R` takes the generated update operation `csv` files as input. 
 Analysis:
@@ -20,9 +21,7 @@ cd tuning/
 ./run-analysis.sh
 ```
 
-## 3. Tuning Report ##
+## 3. Tuning Report
 
 + TODO: list configurable parameters
 + TODO: maybe add rmarkdown to easily visualise changes in plots
-
-
