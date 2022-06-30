@@ -45,8 +45,8 @@ object RawToInteractiveTransform {
     val filterBulkLoad = (ds: DataFrame) =>
       ds
         .filter(
-          $"creationDate" < to_timestamp(lit(bulkLoadThreshold / 1000)) &&
-            (!lit(filterDeletion) || $"deletionDate" >= to_timestamp(lit(bulkLoadThreshold / 1000)))
+          $"creationDate" < lit(bulkLoadThreshold) &&
+            (!lit(filterDeletion) || $"deletionDate" >= lit(bulkLoadThreshold))
         )
 
     tpe match {
