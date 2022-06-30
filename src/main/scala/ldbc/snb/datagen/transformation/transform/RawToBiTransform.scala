@@ -25,11 +25,10 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
   }
 
   override def transform(input: In): Out = {
-    val batch_id = (col: Column) => date_format(date_trunc(mode.batchPeriod, col), batchPeriodFormat(mode.batchPeriod))
+    val batch_id = (col: Column) => date_format(date_trunc(mode.batchPeriod, to_timestamp(col / lit(1000L))), batchPeriodFormat(mode.batchPeriod))
 
     def inBatch(col: Column, batchStart: Long, batchEnd: Long) =
-      col >= to_timestamp(lit(batchStart / 1000)) &&
-        col < to_timestamp(lit(batchEnd / 1000))
+      col >= lit(batchStart) && col < lit(batchEnd)
 
     val batched = (df: DataFrame) =>
       df

@@ -4,6 +4,7 @@ import ldbc.snb.datagen.factors.io.FactorTableSink
 import ldbc.snb.datagen.io.graphs.GraphSource
 import ldbc.snb.datagen.model
 import ldbc.snb.datagen.model.EntityType
+import ldbc.snb.datagen.model.Mode.Raw
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.transformation.transform.ConvertDates
 import ldbc.snb.datagen.util.{DatagenStage, Logging}
@@ -74,9 +75,10 @@ object FactorGenerationStage extends DatagenStage with Logging {
     import ldbc.snb.datagen.io.Reader.ops._
     import ldbc.snb.datagen.io.Writer.ops._
     import ldbc.snb.datagen.io.instances._
+    import ldbc.snb.datagen.transformation.transform.ConvertDates.instances._
 
     GraphSource(model.graphs.Raw.graphDef, args.outputDir, args.irFormat).read
-      .pipe(ConvertDates.transform)
+      .pipe(ConvertDates[Raw.type].transform)
       .pipe(g =>
         rawFactors
           .collect {
