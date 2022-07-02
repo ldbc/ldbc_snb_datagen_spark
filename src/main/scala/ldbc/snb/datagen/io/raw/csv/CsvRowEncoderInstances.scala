@@ -46,8 +46,8 @@ trait CsvRowEncoderInstances {
     override def row(t: PersonHasInterestTag): Seq[String] = Array(
       t.creationDate.toString,
       t.deletionDate.toString,
-      t.personId.toString,
-      t.interestId.toString
+      t.`PersonId`.toString,
+      t.`TagId`.toString
     )
   }
 
