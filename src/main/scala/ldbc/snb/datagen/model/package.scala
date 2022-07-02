@@ -41,13 +41,14 @@ package object model {
   sealed trait EntityType {
     val isStatic: Boolean
     val entityPath: String
+    val name: String
     val primaryKey: Seq[String]
   }
 
   object EntityType {
     private def s(isStatic: Boolean) = if (isStatic) "static" else "dynamic"
 
-    final case class Node(name: String, isStatic: Boolean = false) extends EntityType {
+    final case class Node(override val name: String, isStatic: Boolean = false) extends EntityType {
       override val entityPath: String      = s"${s(isStatic)}/${name}"
       override val primaryKey: Seq[String] = Seq("id")
       override def toString: String        = s"$name"
@@ -60,8 +61,8 @@ package object model {
         cardinality: Cardinality,
         isStatic: Boolean = false
     ) extends EntityType {
-      override val entityPath: String = s"${s(isStatic)}/${source}_${pascalToCamel(`type`)}_${destination}"
-
+      override val name: String = s"${source}_${pascalToCamel(`type`)}_${destination}"
+      override val entityPath: String = s"${s(isStatic)}/${name}"
       override val primaryKey: Seq[String] = ((source, destination) match {
         case (s, d) if s == d => Seq(s"${s}1", s"${d}2")
         case (s, d)           => Seq(s, d)
@@ -71,7 +72,8 @@ package object model {
     }
 
     final case class Attr(`type`: String, parent: String, attribute: String, isStatic: Boolean = false) extends EntityType {
-      override val entityPath: String = s"${s(isStatic)}/${parent}_${pascalToCamel(`type`)}_${attribute}"
+      override val name: String = s"${parent}_${pascalToCamel(`type`)}_${attribute}"
+      override val entityPath: String = s"${s(isStatic)}/${name}"
 
       override val primaryKey: Seq[String] = ((parent, attribute) match {
         case (s, d) if s == d => Seq(s"${s}1", s"${d}2")

@@ -4,6 +4,7 @@ import ldbc.snb.datagen.io.raw.combinators.FixedSizeBatchOutputStream
 import ldbc.snb.datagen.io.raw.csv.{CsvRowEncoder, MakeCsvBatchPart}
 import ldbc.snb.datagen.io.raw.parquet.{MakeParquetBatchPart, ParquetRowEncoder}
 import ldbc.snb.datagen.model.EntityTraits
+import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.util.{GeneratorConfiguration, Logging}
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
@@ -36,7 +37,8 @@ package object raw {
       partitions: Option[Int] = None,
       conf: GeneratorConfiguration,
       oversizeFactor: Option[Double] = None,
-      overwrite: Boolean = false
+      overwrite: Boolean = false,
+      perEntityOversizeFactor: Map[String, Double] = Map.empty
   )
 
   class WriteContext(
@@ -50,11 +52,14 @@ package object raw {
   // supported by Spark.
   val DefaultParquetCompression = "snappy"
 
-  val DefaultBatchSize: Long = 10000000
+  val DefaultBatchSize: Long = 10000000L
 
   def recordOutputStream[T <: Product: EntityTraits: CsvRowEncoder: ParquetRowEncoder](sink: RawSink, writeContext: WriteContext): RecordOutputStream[T] = {
     val et                           = EntityTraits[T]
-    val size                         = (DefaultBatchSize * sink.oversizeFactor.getOrElse(1.0)).toLong
+    val size                         = (DefaultBatchSize
+      * sink.oversizeFactor.getOrElse(1.0)
+      * sink.perEntityOversizeFactor.getOrElse(et.`type`.name, 1.0)
+      ).toLong
     implicit val encoder: Encoder[T] = ParquetRowEncoder[T].encoder
     val entityPath                   = et.`type`.entityPath
     val pathPrefix                   = s"${sink.conf.getOutputDir}/graphs/${sink.format.toString}/raw/composite-merged-fk/${entityPath}"
@@ -188,16 +193,18 @@ package object raw {
         fs.delete(path, true)
       }
 
+      val finalRdd = rdd.pipeFoldLeft(sink.partitions)(_ repartition _)
+
       committer.setupJob(job)
       try {
-        val ret = new Array[TaskCommitMessage](rdd.partitions.length)
+        val ret = new Array[TaskCommitMessage](finalRdd.partitions.length)
         spark.sparkContext.runJob[T, TaskCommitMessage](
           rdd,
           (taskContext: TaskContext, iter: Iterator[T]) => {
             val ctx = new RawSerializationTaskContext(taskContext, committer, configuration, sink, outputPath)
             ctx.runTask { wc => exec(iter, wc) }
           },
-          rdd.partitions.indices,
+          finalRdd.partitions.indices,
           (index: Int, res: TaskCommitMessage) => {
             committer.onTaskCommit(res)
             ret(index) = res

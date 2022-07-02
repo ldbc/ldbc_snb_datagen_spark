@@ -22,6 +22,23 @@ object GenerationStage extends DatagenStage with Logging {
 
   override type ArgsType = Args
 
+  private val serializedEntitySizeRelativeToSerializedPersonSize = Map(
+    "Post" -> 0.7517956288386042,
+    "Forum_hasMember_Person"-> 0.27633174241458947,
+    "Post_hasTag_Tag"-> 0.2301602419350709,
+    "Comment_hasTag_Tag"-> 0.2318217197388683,
+    "Person"-> 1.0,
+    "Comment"-> 0.6908809054683169,
+    "Person_hasInterest_Tag"-> 0.23243404370933324,
+    "Person_workAt_Company"-> 0.253561011731804,
+    "Forum"-> 0.4243395784673797,
+    "Person_likes_Post"-> 0.2761393092186092,
+    "Person_knows_Person"-> 0.307707613654668,
+    "Forum_hasTag_Tag"-> 0.2288021830281894,
+    "Person_studyAt_University"-> 0.25761355711785233,
+    "Person_likes_Comment"-> 0.27757218453957555
+  ).map { case (k, v) => k -> 1 / v }
+
   def run(args: Args) = {
     val config = buildConfig(args)
     DatagenContext.initialize(config)
@@ -59,7 +76,11 @@ object GenerationStage extends DatagenStage with Logging {
 
     SparkUI.job(simpleNameOf[RawSerializer], "serialize persons") {
       val rawSerializer = new RawSerializer(randomRanker)
-      rawSerializer.write(merged, RawSink(format, Some(numPartitions), config, args.oversizeFactor))
+      rawSerializer.write(
+        merged,
+        RawSink(format, Some(numPartitions), config, args.oversizeFactor,
+          perEntityOversizeFactor = serializedEntitySizeRelativeToSerializedPersonSize)
+      )
     }
   }
 

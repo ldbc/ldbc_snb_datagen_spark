@@ -7,19 +7,7 @@ import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.types.{DateType, TimestampType}
 import shapeless._
 
-trait ConvertDates[M <: Mode] extends Transform[M, M] {
-  def convertDates(tpe: EntityType, df: DataFrame): DataFrame = {
-    tpe match {
-      case tpe if !tpe.isStatic =>
-        df.select(df.columns.map {
-          case col@("creationDate" | "deletionDate") => (qcol(col) / lit(1000L)).cast(TimestampType).as(col)
-          case col@"birthday" => (qcol(col) / lit(1000L)).cast(TimestampType).cast(DateType).as(col)
-          case col => qcol(col)
-        }: _*)
-      case _ => df
-    }
-  }
-}
+trait ConvertDates[M <: Mode] extends Transform[M, M]
 
 object ConvertDates {
   def apply[T <: Mode : ConvertDates] = implicitly[ConvertDates[T]]
@@ -47,6 +35,18 @@ object ConvertDates {
           _.map { case (tpe, v) => tpe -> ev(convertDates(tpe, v.asInstanceOf[DataFrame])) }
         )
       }
+    }
+  }
+
+  private def convertDates(tpe: EntityType, df: DataFrame): DataFrame = {
+    tpe match {
+      case tpe if !tpe.isStatic =>
+        df.select(df.columns.map {
+          case col@("creationDate" | "deletionDate") => (qcol(col) / lit(1000L)).cast(TimestampType).as(col)
+          case col@"birthday" => (qcol(col) / lit(1000L)).cast(TimestampType).cast(DateType).as(col)
+          case col => qcol(col)
+        }: _*)
+      case _ => df
     }
   }
 }
