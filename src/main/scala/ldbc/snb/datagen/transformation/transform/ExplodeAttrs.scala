@@ -17,8 +17,8 @@ object ExplodeAttrs extends Transform[Mode.Raw.type, Mode.Raw.type] {
     val updatedEntities = input.entities
       .collect { case (k @ Node("Person", false), v) =>
         Map(
-          explodedAttr(Attr("Email", "Person", "EmailAddress"), v, $"email"),
-          explodedAttr(Attr("Speaks", "Person", "Language"), v, $"language"),
+          explodedAttr(Attr("Email", k, "EmailAddress"), v, $"email"),
+          explodedAttr(Attr("Speaks", k, "Language"), v, $"language"),
           k -> v.drop("email", "language")
         )
       }

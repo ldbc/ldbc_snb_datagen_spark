@@ -2,6 +2,7 @@ package ldbc.snb.datagen.transformation.transform
 
 import ldbc.snb.datagen.model.Cardinality.NN
 import ldbc.snb.datagen.model.EntityType.Edge
+import ldbc.snb.datagen.model.raw.PersonType
 import ldbc.snb.datagen.model.{EntityType, Graph, Mode}
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.util.Logging
@@ -29,7 +30,7 @@ object RawToInteractiveTransform {
 
   def columns(tpe: EntityType, cols: Seq[String]) = tpe match {
     case tpe if tpe.isStatic => cols
-    case Edge("Knows", "Person", "Person", NN, false) =>
+    case Edge("Knows", PersonType, PersonType, NN, false, _, _) =>
       val rawCols = Set("deletionDate", "explicitlyDeleted", "weight")
       cols.filter(!rawCols.contains(_))
     case _ =>

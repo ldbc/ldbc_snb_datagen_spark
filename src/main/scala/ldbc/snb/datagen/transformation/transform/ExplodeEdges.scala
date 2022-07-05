@@ -4,6 +4,7 @@ import ldbc.snb.datagen.model.Cardinality.{NN, NOne, OneN}
 import ldbc.snb.datagen.model.EntityType.{Edge, Node}
 import ldbc.snb.datagen.model.Mode
 import ldbc.snb.datagen.model.Mode.Raw.withRawColumns
+import ldbc.snb.datagen.model.raw._
 import ldbc.snb.datagen.syntax._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{Column, DataFrame}
@@ -25,51 +26,51 @@ object ExplodeEdges extends Transform[Mode.Raw.type, Mode.Raw.type] {
 
     val updatedEntities = entities
       .collect {
-        case (k @ Node("Organisation", true), v) =>
+        case (k @ OrganisationType, v) =>
           Map(
-            explodedEdge(Edge("IsLocatedIn", "Organisation", "Place", OneN, isStatic = true), v, $"LocationPlaceId"),
+            explodedEdge(Edge("IsLocatedIn", k, PlaceType, OneN, isStatic = true), v, $"LocationPlaceId"),
             k -> v.drop("LocationPlaceId")
           )
-        case (k @ Node("Place", true), v) =>
+        case (k @ PlaceType, v) =>
           Map(
-            explodedEdge(Edge("IsPartOf", "Place", "Place", OneN, isStatic = true), v, $"PartOfPlaceId"),
+            explodedEdge(Edge("IsPartOf", k, k, OneN, isStatic = true), v, $"PartOfPlaceId"),
             k -> v.drop("PartOfPlaceId")
           )
-        case (k @ Node("Tag", true), v) =>
+        case (k @ TagType, v) =>
           Map(
-            explodedEdge(Edge("HasType", "Tag", "TagClass", OneN, isStatic = true), v, $"TypeTagClassId"),
+            explodedEdge(Edge("HasType", k, TagClassType, OneN, isStatic = true), v, $"TypeTagClassId"),
             k -> v.drop("TypeTagClassId")
           )
-        case (k @ Node("TagClass", true), v) =>
+        case (k @ TagClassType, v) =>
           Map(
-            explodedEdge(Edge("IsSubclassOf", "TagClass", "TagClass", OneN, isStatic = true), v, $"SubclassOfTagClassId"),
+            explodedEdge(Edge("IsSubclassOf", k, k, OneN, isStatic = true), v, $"SubclassOfTagClassId"),
             k -> v.drop("SubclassOfTagClassId")
           )
-        case (k @ Node("Comment", false), v) =>
+        case (k @ CommentType, v) =>
           Map(
-            explodedEdge(Edge("HasCreator", "Comment", "Person", OneN), v, $"CreatorPersonId"),
-            explodedEdge(Edge("IsLocatedIn", "Comment", "Country", OneN), v, $"LocationCountryId"),
-            explodedEdge(Edge("ReplyOf", "Comment", "Post", OneN), v, $"ParentPostId"),
-            explodedEdge(Edge("ReplyOf", "Comment", "Comment", OneN), v, $"ParentCommentId"),
+            explodedEdge(Edge("HasCreator", k, PersonType, OneN), v, $"CreatorPersonId"),
+            explodedEdge(Edge("IsLocatedIn", k, PlaceType, OneN, destinationNameOverride = Some("Country")), v, $"LocationCountryId"),
+            explodedEdge(Edge("ReplyOf", k, PostType, OneN), v, $"ParentPostId"),
+            explodedEdge(Edge("ReplyOf", k, k, OneN), v, $"ParentCommentId"),
             k -> v.drop("CreatorPersonId", "LocationCountryId", "ParentPostId", "ParentCommentId")
           )
-        case (k @ Node("Forum", false), v) =>
+        case (k @ ForumType, v) =>
           Map(
-            explodedEdge(Edge("HasModerator", "Forum", "Person", OneN), v, $"ModeratorPersonId"),
+            explodedEdge(Edge("HasModerator", k, PersonType, OneN), v, $"ModeratorPersonId"),
             k -> v.drop("ModeratorPersonId")
           )
 
-        case (k @ Node("Person", false), v) =>
+        case (k @ PersonType, v) =>
           Map(
-            explodedEdge(Edge("IsLocatedIn", "Person", "City", OneN), v, $"LocationCityId"),
+            explodedEdge(Edge("IsLocatedIn", k, PlaceType, OneN, destinationNameOverride = Some("City")), v, $"LocationCityId"),
             k -> v.drop("LocationCityId")
           )
 
-        case (k @ Node("Post", false), v) =>
+        case (k @ PostType, v) =>
           Map(
-            explodedEdge(Edge("HasCreator", "Post", "Person", OneN), v, $"CreatorPersonId"),
-            explodedEdge(Edge("ContainerOf", "Forum", "Post", NOne), v, $"ContainerForumId"),
-            explodedEdge(Edge("IsLocatedIn", "Post", "Country", OneN), v, $"LocationCountryId"),
+            explodedEdge(Edge("HasCreator", k, PersonType, OneN), v, $"CreatorPersonId"),
+            explodedEdge(Edge("ContainerOf", ForumType, k, NOne), v, $"ContainerForumId"),
+            explodedEdge(Edge("IsLocatedIn", k, PlaceType, OneN, destinationNameOverride = Some("Country")), v, $"LocationCountryId"),
             k -> v.drop("CreatorPersonId", "LocationCountryId", "ContainerForumId")
           )
       }

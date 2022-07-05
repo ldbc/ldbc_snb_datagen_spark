@@ -1,7 +1,11 @@
 package ldbc.snb.datagen.transformation.transform
 
+import ldbc.snb.datagen.model.Cardinality.{NOne, OneN}
+import ldbc.snb.datagen.model.EntityType.Edge
 import ldbc.snb.datagen.model.Mode.BI
 import ldbc.snb.datagen.model._
+import ldbc.snb.datagen.model.graphs.Raw
+import ldbc.snb.datagen.model.raw._
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.util.Logging
 import ldbc.snb.datagen.util.sql._
@@ -23,6 +27,14 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
     case "minute" => "yyyy-MM-dd'T'hh:mm"
     case _        => throw new IllegalStateException("Unrecognized partition key")
   }
+
+  private def notOneToManyEdge(entityType: EntityType): Boolean = entityType match {
+    case Edge(_, _, _, OneN, _, _, _) => false
+    case Edge(_, _, _, NOne, _, _, _) => false
+    case _ => true
+  }
+
+  // private def isRawEntity(entityType: EntityType): Boolean = Raw.graphDef.entities.contains(entityType)
 
   override def transform(input: In): Out = {
     val batch_id = (col: Column) => date_format(date_trunc(mode.batchPeriod, to_timestamp(col / lit(1000L))), batchPeriodFormat(mode.batchPeriod))
@@ -64,7 +76,7 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
           tpe -> BatchedEntity(
             RawToInteractiveTransform.snapshotPart(tpe, v, bulkLoadThreshold, filterDeletion = false),
             Some(Batched(insertBatchPart(tpe, v, bulkLoadThreshold, simulationEnd), Seq("batch_id"), Seq($"creationDate"))),
-            if (keepImplicitDeletes || v.columns.contains("explicitlyDeleted"))
+            if (notOneToManyEdge(tpe) && (keepImplicitDeletes || v.columns.contains("explicitlyDeleted")))
               Some(Batched(deleteBatchPart(tpe, v, bulkLoadThreshold, simulationEnd), Seq("batch_id"), Seq($"deletionDate")))
             else
               None

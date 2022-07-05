@@ -4,6 +4,7 @@ import ldbc.snb.datagen.io.dataframes.{DataFrameSink, DataFrameSource}
 import ldbc.snb.datagen.model.EntityType.{Attr, Edge, Node}
 import ldbc.snb.datagen.model.Mode.Raw
 import ldbc.snb.datagen.model._
+import ldbc.snb.datagen.model.raw.{ForumType, PersonType}
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.util.{Logging, SparkUI}
 import org.apache.spark.sql.functions.col
@@ -36,10 +37,9 @@ object graphs {
         implicit val atNode = at[Node](n => Seq(n.name.hashCode, 0, n.hashCode()))
         implicit val atEdge = at[Edge](e => {
           val primary = e match {
-            case Edge("Likes", "Person", "Comment", _, _)   => "Comment"
-            case Edge("Likes", "Person", "Post", _, _)      => "Post"
-            case Edge("ContainerOf", "Forum", "Post", _, _) => "Post"
-            case Edge(_, source, _, _, _)                   => source
+            case Edge("Likes", PersonType, dest, _, _, _, _)   => dest.name
+            case Edge("ContainerOf", ForumType, dest, _, _, _, _) => dest.name
+            case Edge(_, source, _, _, _, _, _)                   => source.name
           }
           Seq(primary.hashCode, 2, e.hashCode)
         })
