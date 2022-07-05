@@ -60,16 +60,10 @@ package object model {
         cardinality: Cardinality,
         isStatic: Boolean = false,
         sourceNameOverride: Option[String] = None,
-        destinationNameOverride: Option[String] = None,
+        destinationNameOverride: Option[String] = None
     ) extends EntityType {
-      val sourceName: String = sourceNameOverride match {
-        case Some(name) => name
-        case _ => source.name
-      }
-      val destinationName: String = destinationNameOverride match {
-        case Some(name) => name
-        case _ => destination.name
-      }
+      val sourceName: String = sourceNameOverride.getOrElse(source.name)
+      val destinationName: String = destinationNameOverride.getOrElse(destination.name)
 
       override val entityPath: String = s"${s(isStatic)}/${sourceName}_${pascalToCamel(`type`)}_${destinationName}"
 

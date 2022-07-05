@@ -1,7 +1,7 @@
 package ldbc.snb.datagen.transformation.transform
 
-import ldbc.snb.datagen.model.Cardinality.{NN, NOne, OneN}
-import ldbc.snb.datagen.model.EntityType.{Edge, Node}
+import ldbc.snb.datagen.model.Cardinality._
+import ldbc.snb.datagen.model.EntityType._
 import ldbc.snb.datagen.model.Mode
 import ldbc.snb.datagen.model.Mode.Raw.withRawColumns
 import ldbc.snb.datagen.model.raw._
