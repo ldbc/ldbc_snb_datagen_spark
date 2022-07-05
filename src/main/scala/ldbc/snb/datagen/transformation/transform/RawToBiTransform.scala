@@ -1,5 +1,7 @@
 package ldbc.snb.datagen.transformation.transform
 
+import ldbc.snb.datagen.model.Cardinality._
+import ldbc.snb.datagen.model.EntityType._
 import ldbc.snb.datagen.model.Mode.BI
 import ldbc.snb.datagen.model._
 import ldbc.snb.datagen.syntax._
@@ -22,6 +24,13 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
     case "hour"   => "yyyy-MM-dd'T'hh"
     case "minute" => "yyyy-MM-dd'T'hh:mm"
     case _        => throw new IllegalStateException("Unrecognized partition key")
+  }
+
+  private def notDerived(entityType: EntityType): Boolean = entityType match {
+    case Edge(_, _, _, OneN, _, _, _) => false
+    case Edge(_, _, _, NOne, _, _, _) => false
+    case Attr(_, _, _, _) => false
+    case _ => true
   }
 
   override def transform(input: In): Out = {
@@ -64,7 +73,7 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
           tpe -> BatchedEntity(
             RawToInteractiveTransform.snapshotPart(tpe, v, bulkLoadThreshold, filterDeletion = false),
             Some(Batched(insertBatchPart(tpe, v, bulkLoadThreshold, simulationEnd), Seq("batch_id"), Seq($"creationDate"))),
-            if (keepImplicitDeletes || v.columns.contains("explicitlyDeleted"))
+            if (notDerived(tpe) && (keepImplicitDeletes || v.columns.contains("explicitlyDeleted")))
               Some(Batched(deleteBatchPart(tpe, v, bulkLoadThreshold, simulationEnd), Seq("batch_id"), Seq($"deletionDate")))
             else
               None
