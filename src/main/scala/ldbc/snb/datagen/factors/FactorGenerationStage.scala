@@ -317,7 +317,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
       frequency(
         interest.join(tag.as("Tag"), $"Tag.id" === $"TagId"),
         value = $"PersonId",
-        by = Seq($"interestId", $"Tag.name")
+        by = Seq($"Tag.id", $"Tag.name")
       )
     },
     "tagClassNumTags" -> Factor(TagClassType, TagType) { case Seq(tagClass, tag) =>
