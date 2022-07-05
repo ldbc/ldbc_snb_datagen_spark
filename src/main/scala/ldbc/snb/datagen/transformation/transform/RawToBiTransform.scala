@@ -26,9 +26,10 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
     case _        => throw new IllegalStateException("Unrecognized partition key")
   }
 
-  private def notOneToManyEdge(entityType: EntityType): Boolean = entityType match {
+  private def notDerived(entityType: EntityType): Boolean = entityType match {
     case Edge(_, _, _, OneN, _, _, _) => false
     case Edge(_, _, _, NOne, _, _, _) => false
+    case Attr(_, _, _, _) => false
     case _ => true
   }
 
@@ -72,7 +73,7 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
           tpe -> BatchedEntity(
             RawToInteractiveTransform.snapshotPart(tpe, v, bulkLoadThreshold, filterDeletion = false),
             Some(Batched(insertBatchPart(tpe, v, bulkLoadThreshold, simulationEnd), Seq("batch_id"), Seq($"creationDate"))),
-            if (notOneToManyEdge(tpe) && (keepImplicitDeletes || v.columns.contains("explicitlyDeleted")))
+            if (notDerived(tpe) && (keepImplicitDeletes || v.columns.contains("explicitlyDeleted")))
               Some(Batched(deleteBatchPart(tpe, v, bulkLoadThreshold, simulationEnd), Seq("batch_id"), Seq($"deletionDate")))
             else
               None
