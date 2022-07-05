@@ -32,8 +32,6 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
     case _ => true
   }
 
-  // private def isRawEntity(entityType: EntityType): Boolean = Raw.graphDef.entities.contains(entityType)
-
   override def transform(input: In): Out = {
     val batch_id = (col: Column) => date_format(date_trunc(mode.batchPeriod, to_timestamp(col / lit(1000L))), batchPeriodFormat(mode.batchPeriod))
 
