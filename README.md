@@ -165,9 +165,7 @@ It is also possible to pass a parameter file:
 ```
 
 ### Docker images
-
-<!-- SNB Datagen images are available via [Docker Hub](https://hub.docker.com/r/ldbc/datagen/) (currently outdated). -->
-
+SNB Datagen images are available via [Docker Hub](https://hub.docker.com/orgs/ldbc/repositories).
 The image tags follow the pattern `${DATAGEN_VERSION}-${PLATFORM_VERSION}`, e.g `ldbc/datagen-standalone:0.5.0-2.12_spark3.1`.
 
 #### Standalone Docker image
