@@ -141,7 +141,7 @@ package object model {
       def datePattern     = "yyyy-MM-dd"
 
     }
-    final case class Interactive(bulkLoadPortion: Double) extends Mode {
+    final case class Interactive(bulkloadPortion: Double) extends Mode {
       type Layout = DataFrame
       override val modePath: String = "interactive"
     }

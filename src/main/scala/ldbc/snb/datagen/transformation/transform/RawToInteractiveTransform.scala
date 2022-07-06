@@ -13,11 +13,11 @@ import org.apache.spark.sql.functions.{col, lit}
 case class RawToInteractiveTransform(mode: Mode.Interactive, simulationStart: Long, simulationEnd: Long)
     extends Transform[Mode.Raw.type, Mode.Interactive]
     with Logging {
-  log.debug(s"Interactive Transformation parameters: $mode")
 
-  val bulkLoadThreshold = RawToInteractiveTransform.calculateBulkLoadThreshold(mode.bulkLoadPortion, simulationStart, simulationEnd)
+  val bulkLoadThreshold = RawToInteractiveTransform.calculateBulkLoadThreshold(mode.bulkloadPortion, simulationStart, simulationEnd)
 
   override def transform(input: In): Out = {
+    log.info(s"Running $this")
     val entities = input.entities
       .map { case (tpe, v) =>
         tpe -> RawToInteractiveTransform.snapshotPart(tpe, v, bulkLoadThreshold, filterDeletion = true)

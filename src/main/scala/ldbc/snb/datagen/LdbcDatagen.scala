@@ -159,7 +159,7 @@ object LdbcDatagen extends SparkApp {
       simulationEnd = Dictionaries.dates.getSimulationEnd,
       mode = args.mode match {
         case "bi"          => Mode.BI(bulkloadPortion = args.bulkloadPortion, batchPeriod = args.batchPeriod)
-        case "interactive" => Mode.Interactive(bulkLoadPortion = args.bulkloadPortion)
+        case "interactive" => Mode.Interactive(bulkloadPortion = args.bulkloadPortion)
         case "raw"         => Mode.Raw
       },
       irFormat,

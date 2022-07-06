@@ -1,6 +1,7 @@
 package ldbc.snb.datagen.transformation.transform
 
 import ldbc.snb.datagen.model.{Batched, BatchedEntity, EntityType, Mode}
+import ldbc.snb.datagen.util.Logging
 import ldbc.snb.datagen.util.sql.qcol
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.lit
@@ -13,10 +14,11 @@ object ConvertDates {
   def apply[T <: Mode : ConvertDates] = implicitly[ConvertDates[T]]
 
   object instances {
-    implicit def batchedConvertDates[M <: Mode](implicit ev: BatchedEntity =:= M#Layout) = new ConvertDates[M] {
+    implicit def batchedConvertDates[M <: Mode](implicit ev: BatchedEntity =:= M#Layout) = new ConvertDates[M] with Logging {
       override def transform(input: In): Out = {
         lens[In].entities.modify(input)(
           _.map { case (tpe, layout) => tpe -> {
+
             val be = layout.asInstanceOf[BatchedEntity]
             ev(BatchedEntity(
               convertDates(tpe, be.snapshot),

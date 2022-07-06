@@ -34,6 +34,7 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
   }
 
   override def transform(input: In): Out = {
+    log.info(s"Running $this")
     val batch_id = (col: Column) => date_format(date_trunc(mode.batchPeriod, to_timestamp(col / lit(1000L))), batchPeriodFormat(mode.batchPeriod))
 
     def inBatch(col: Column, batchStart: Long, batchEnd: Long) =

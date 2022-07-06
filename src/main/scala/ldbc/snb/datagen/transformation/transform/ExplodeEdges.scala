@@ -10,8 +10,9 @@ import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{Column, DataFrame}
 import shapeless.lens
 
-object ExplodeEdges extends Transform[Mode.Raw.type, Mode.Raw.type] {
+object ExplodeEdges extends Transform[Mode.Raw.type, Mode.Raw.type] with Logging {
   override def transform(input: In): Out = {
+    log.info(s"Running $this")
     val entities = input.entities
 
     def explodedEdge(edge: Edge, node: DataFrame, column: Column) = {
