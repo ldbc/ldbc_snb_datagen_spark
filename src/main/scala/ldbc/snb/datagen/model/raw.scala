@@ -26,8 +26,8 @@ object raw {
   case class PersonHasInterestTag(
       creationDate: Long,
       deletionDate: Long,
-      personId: Long,
-      interestId: Int
+      `PersonId`: Long,
+      `TagId`: Int
   ) extends RawEntity
 
   case class PersonKnowsPerson(
@@ -174,19 +174,21 @@ object raw {
   val TagType                     = Node("Tag", isStatic = true)
   val TagClassType                = Node("TagClass", isStatic = true)
   val CommentType                 = Node("Comment")
-  val CommentHasTagType           = Edge("HasTag", "Comment", "Tag", NN)
-  val ForumType                   = Node("Forum")
-  val ForumHasMemberType          = Edge("HasMember", "Forum", "Person", NN)
-  val ForumHasTagType             = Edge("HasTag", "Forum", "Tag", NN)
   val PersonType                  = Node("Person")
-  val PersonHasInterestTagType    = Edge("HasInterest", "Person", "Tag", NN)
-  val PersonKnowsPersonType       = Edge("Knows", "Person", "Person", NN)
-  val PersonLikesCommentType      = Edge("Likes", "Person", "Comment", NN)
-  val PersonLikesPostType         = Edge("Likes", "Person", "Post", NN)
-  val PersonStudyAtUniversityType = Edge("StudyAt", "Person", "University", OneN)
-  val PersonWorkAtCompanyType     = Edge("WorkAt", "Person", "Company", NN)
+  val ForumType                   = Node("Forum")
   val PostType                    = Node("Post")
-  val PostHasTagType              = Edge("HasTag", "Post", "Tag", NN)
+
+  val CommentHasTagType           = Edge("HasTag", CommentType, TagType, NN)
+  val ForumHasMemberType          = Edge("HasMember", ForumType, PersonType, NN)
+  val ForumHasTagType             = Edge("HasTag", ForumType, TagType, NN)
+  val PersonHasInterestTagType    = Edge("HasInterest", PersonType, TagType, NN)
+  val PersonKnowsPersonType       = Edge("Knows", PersonType, PersonType, NN)
+  val PersonLikesCommentType      = Edge("Likes", PersonType, CommentType, NN)
+  val PersonLikesPostType         = Edge("Likes", PersonType, PostType, NN)
+  val PersonStudyAtUniversityType = Edge("StudyAt", PersonType, OrganisationType, OneN, destinationNameOverride = Some("University"))
+  val PersonWorkAtCompanyType     = Edge("WorkAt", PersonType, OrganisationType, NN, destinationNameOverride = Some("Company"))
+
+  val PostHasTagType              = Edge("HasTag", PostType, TagType, NN)
 
   trait EntityTraitsInstances {
     import EntityTraits._
