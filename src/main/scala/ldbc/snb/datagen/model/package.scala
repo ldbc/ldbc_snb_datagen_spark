@@ -66,7 +66,9 @@ package object model {
       val sourceName: String = sourceNameOverride.getOrElse(source.name)
       val destinationName: String = destinationNameOverride.getOrElse(destination.name)
 
-      override val entityPath: String = s"${s(isStatic)}/${sourceName}_${pascalToCamel(`type`)}_${destinationName}"
+      override val name = s"${sourceName}_${pascalToCamel(`type`)}_${destinationName}"
+
+      override val entityPath: String = s"${s(isStatic)}/$name"
 
       override val primaryKey: Seq[String] = ((sourceName, destinationName) match {
         case (s, d) if s == d => Seq(s"${s}1", s"${d}2")

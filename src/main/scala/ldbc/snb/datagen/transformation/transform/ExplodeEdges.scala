@@ -6,6 +6,7 @@ import ldbc.snb.datagen.model.Mode
 import ldbc.snb.datagen.model.Mode.Raw.withRawColumns
 import ldbc.snb.datagen.model.raw._
 import ldbc.snb.datagen.syntax._
+import ldbc.snb.datagen.util.Logging
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{Column, DataFrame}
 import shapeless.lens

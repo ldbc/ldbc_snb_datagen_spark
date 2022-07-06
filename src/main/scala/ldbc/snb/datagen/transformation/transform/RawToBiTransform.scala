@@ -13,8 +13,6 @@ import org.apache.spark.sql.{Column, DataFrame}
 case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long, keepImplicitDeletes: Boolean)
     extends Transform[Mode.Raw.type, Mode.BI]
     with Logging {
-  log.debug(s"BI Transformation parameters: $mode")
-
   val bulkLoadThreshold = RawToInteractiveTransform.calculateBulkLoadThreshold(mode.bulkloadPortion, simulationStart, simulationEnd)
 
   def batchPeriodFormat(batchPeriod: String) = batchPeriod match {
