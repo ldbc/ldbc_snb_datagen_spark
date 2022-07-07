@@ -102,6 +102,11 @@ jobs:
             tools/docker-run.sh -- --mode interactive --scale-factor 0.003
             mv out/ social-network-sf0.003-interactive-composite-merged-fk/
       - run:
+          name: Generate SF1 / Interactive / composite-merged CSVs
+          command: |
+            tools/docker-run.sh --parallelism 4 -- --mode interactive --scale-factor 1
+            mv out/ social-network-sf1-interactive-composite-merged-fk/
+      - run:
           name: Compress directories and prepare for deployment
           command: |
             # include the CircleCI configuration in the deployed package to provide the 'filters' instructions (and prevent failed builds on the gh-pages branch)
