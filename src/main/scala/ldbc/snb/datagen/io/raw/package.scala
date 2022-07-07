@@ -199,7 +199,7 @@ package object raw {
       try {
         val ret = new Array[TaskCommitMessage](finalRdd.partitions.length)
         spark.sparkContext.runJob[T, TaskCommitMessage](
-          rdd,
+          finalRdd,
           (taskContext: TaskContext, iter: Iterator[T]) => {
             val ctx = new RawSerializationTaskContext(taskContext, committer, configuration, sink, outputPath)
             ctx.runTask { wc => exec(iter, wc) }
