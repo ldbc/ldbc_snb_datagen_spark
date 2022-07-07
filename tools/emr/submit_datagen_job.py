@@ -29,7 +29,7 @@ defaults = {
     'az': 'us-west-2c',
     'yes': False,
     'ec2_key': None,
-    'emr_release': 'emr-6.5.0'
+    'emr_release': 'emr-6.6.0'
 }
 
 pp = pprint.PrettyPrinter(indent=2)
@@ -249,7 +249,7 @@ if __name__ == "__main__":
                         help='LDBC SNB Datagen library version')
     parser.add_argument('--emr-release',
                         default=defaults['emr_release'],
-                        help='The EMR release to use. E.g. emr-6.5.0')
+                        help='The EMR release to use. E.g. emr-6.6.0')
     parser.add_argument('-y', '--yes',
                         default=defaults['yes'],
                         action='store_true',
