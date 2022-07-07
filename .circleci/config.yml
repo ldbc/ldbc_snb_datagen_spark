@@ -30,7 +30,7 @@ jobs:
   test:
     executor: my-executor
     environment:
-      PLATFORM_VERSION: 2.12_spark3.1
+      PLATFORM_VERSION: 2.12_spark3.2
       DATAGEN_VERSION: 0.5.0-SNAPSHOT
     steps:
       - checkout
