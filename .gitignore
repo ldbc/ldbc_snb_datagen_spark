@@ -60,7 +60,6 @@ datagen_output/
 
 # configuration file
 params.ini
-pom.xml.new-version
 dependency-reduced-pom.xml
 .Rproj.user
 /build/
