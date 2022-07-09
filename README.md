@@ -168,6 +168,8 @@ It is also possible to pass a parameter file:
 SNB Datagen images are available via [Docker Hub](https://hub.docker.com/orgs/ldbc/repositories).
 The image tags follow the pattern `${DATAGEN_VERSION}-${PLATFORM_VERSION}`, e.g `ldbc/datagen-standalone:0.5.0-2.12_spark3.1`.
 
+When building images ensure that you [use BuildKit](https://docs.docker.com/develop/develop-images/build_enhancements/#to-enable-buildkit-builds).
+
 #### Standalone Docker image
 
 The standalone image bundles Spark with the JAR and Python helpers, so you can run a workload in a container similarly to a local run, as you can
@@ -184,7 +186,7 @@ docker run \
 The standalone Docker image can be built with the provided Dockerfile. To build, execute the following command from the repository directory:
 
 ```bash
-docker buildx build . --target=standalone -t ldbc/datagen-standalone:latest
+docker build . --target=standalone -t ldbc/datagen-standalone:latest
 ```
 
 #### JAR-only image
@@ -198,7 +200,7 @@ COPY --from=ldbc/datagen-jar:latest /jar /lib/ldbc-datagen.jar
 The JAR-only Docker image can be built with the provided Dockerfile. To build, execute the following command from the repository directory:
 
 ```bash
-docker buildx build . --target=jar -t ldbc/datagen-jar:latest
+docker build . --target=jar -t ldbc/datagen-jar:latest
 ```
 ### Elastic MapReduce
 
