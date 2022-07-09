@@ -28,7 +28,7 @@ Install the required libraries as described in the [main README](../../README.md
 
 ## Submitting a job
 
-1. Upload the JAR to S3. (We don't version the JARs yet, so you can only make sure that you run the intended code this way :( )
+1. Upload the JAR to S3.
 
 ```bash
 export PLATFORM_VERSION=$(sbt -batch -error 'print platformVersion')

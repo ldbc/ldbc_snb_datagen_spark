@@ -156,7 +156,7 @@ It is also possible to pass a parameter file:
 
 ### Docker images
 SNB Datagen images are available via [Docker Hub](https://hub.docker.com/orgs/ldbc/repositories).
-The image tags follow the pattern `${DATAGEN_VERSION}-${PLATFORM_VERSION}`, e.g `ldbc/datagen-standalone:0.5.0-2.12_spark3.1`.
+The image tags follow the pattern `${DATAGEN_VERSION/+/-}-${PLATFORM_VERSION}`, e.g `ldbc/datagen-standalone:0.5.0-2.12_spark3.2`.
 
 When building images ensure that you [use BuildKit](https://docs.docker.com/develop/develop-images/build_enhancements/#to-enable-buildkit-builds).
 
@@ -170,13 +170,13 @@ docker run \
     --mount type=bind,source="$(pwd)"/out_sf0.003_interactive,target=/out \
     --mount type=bind,source="$(pwd)"/conf,target=/conf,readonly \
     -e SPARK_CONF_DIR=/conf \
-    ldbc/datagen-standalone:latest --parallelism 1 -- --format csv --scale-factor 0.003 --mode interactive
+    ldbc/datagen-standalone:${DATAGEN_VERSION/+/-}-${PLATFORM_VERSION} --parallelism 1 -- --format csv --scale-factor 0.003 --mode interactive
 ```
 
 The standalone Docker image can be built with the provided Dockerfile. To build, execute the following command from the repository directory:
 
 ```bash
-docker build . --target=standalone -t ldbc/datagen-standalone:latest
+docker build . --target=standalone -t ldbc/datagen-standalone:${DATAGEN_VERSION/+/-}-${PLATFORM_VERSION}
 ```
 
 #### JAR-only image
@@ -184,13 +184,14 @@ The `ldbc/datagen-jar` image contains the assembly JAR, so it can bundled in you
 
 ```docker
 FROM my-spark-image
-COPY --from=ldbc/datagen-jar:latest /jar /lib/ldbc-datagen.jar
+ARG VERSION
+COPY --from=ldbc/datagen-jar:$VERSION /jar /lib/ldbc-datagen.jar
 ```
 
 The JAR-only Docker image can be built with the provided Dockerfile. To build, execute the following command from the repository directory:
 
 ```bash
-docker build . --target=jar -t ldbc/datagen-jar:latest
+docker build . --target=jar -t ldbc/datagen-jar:${DATAGEN_VERSION/+/-}-${PLATFORM_VERSION}
 ```
 ### Elastic MapReduce
 
