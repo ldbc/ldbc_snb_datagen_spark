@@ -14,9 +14,11 @@ ThisBuild / Test / fork := true
 
 val sparkVersion = settingKey[String]("The version of Spark used for building.")
 val sparkCompatVersion = taskKey[String]("The compatibility version of Spark")
+val platformVersion = taskKey[String]("The version of the target platform")
 
 sparkVersion := "3.2.1"
 sparkCompatVersion := { sparkVersion.value.split("\\.", 3).take(2).mkString(".") }
+platformVersion := { scalaBinaryVersion.value + "_spark" + sparkCompatVersion.value }
 
 resolvers += "TUDelft Repository" at "https://simulation.tudelft.nl/maven/"
 
@@ -27,7 +29,7 @@ libraryDependencies ++= Seq(
   "com.github.scopt" %%  "scopt" % "3.7.1",
   "org.javatuples" %  "javatuples" % "1.2",
   "ca.umontreal.iro" %  "ssj" % "2.5",
-  "xerces" %  "xercesImpl" % "2.12.0" % Runtime,
+  "xml-apis" %  "xml-apis" % "1.4.01",
   "org.specs2" %%  "specs2-core" % "4.2.0" % Test,
   "org.specs2" %%  "specs2-junit" % "4.2.0" % Test,
   "org.mockito" %  "mockito-core" % "3.3.3" % Test,
@@ -99,7 +101,10 @@ assembly / assemblyMergeStrategy := {
   case _ => MergeStrategy.first
 }
 
+// Override JAR name
 assembly / assemblyJarName := {
-  moduleName.value + "-spark" + sparkCompatVersion.value + "_" +
-    scalaBinaryVersion.value + "-" + version.value + ".assembly.jar"
+  moduleName.value + "_" + platformVersion.value + "-" + version.value + "-jar-with-dependencies.jar"
 }
+
+// Put under target instead of target/<scala-binary-version>
+assembly / target := { target.value }

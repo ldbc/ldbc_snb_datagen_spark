@@ -28,12 +28,14 @@ Install the required libraries as described in the [main README](../../README.md
 
 ## Submitting a job
 
-1. Upload the JAR to S3. (We don't version the JARs yet, so you can only make sure that you run the intended code this way :( ) 
+1. Upload the JAR to S3. (We don't version the JARs yet, so you can only make sure that you run the intended code this way :( )
 
 ```bash
-PLATFORM_VERSION=2.12_spark3.1
-DATAGEN_VERSION=0.5.0-SNAPSHOT
-aws s3 cp target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}-jar-with-dependencies.jar s3://${BUCKET_NAME}/jars/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}-jar-with-dependencies.jar
+export PLATFORM_VERSION=$(sbt -batch -error 'print platformVersion')
+export DATAGEN_VERSION=$(sbt -batch -error 'print version')
+export LDBC_SNB_DATAGEN_JAR=$(sbt -batch -error 'print assembly / assemblyOutputPath')
+export JAR_NAME=$(basename ${LDBC_SNB_DATAGEN_JAR})
+aws s3 cp ${LDBC_SNB_DATAGEN_JAR} s3://${BUCKET_NAME}/jars/$JAR_NAME
 ```
 
 1. Submit the job. Run with `--help` for customization options.
@@ -43,6 +45,7 @@ JOB_NAME=MyTest
 SCALE_FACTOR=10
 ./tools/emr/submit_datagen_job.py \
     --bucket ${BUCKET_NAME} \
+    --jar ${JAR_NAME} \
     ${JOB_NAME} \
     ${SCALE_FACTOR} \
     csv \
@@ -59,6 +62,7 @@ To use spot instances, add the `--use-spot` argument:
 ./tools/emr/submit_datagen_job.py \
     --use-spot \
     --bucket ${BUCKET_NAME} \
+    --jar ${JAR_NAME} \
     ${JOB_NAME} \
     ${SCALE_FACTOR} \
     csv \
@@ -78,6 +82,7 @@ Generate the BI data set with the following configuration:
 ./tools/emr/submit_datagen_job.py \
     --use-spot \
     --bucket ${BUCKET_NAME} \
+    --jar ${JAR_NAME} \
     --az us-east-2c \
     --copy-all \
     ${JOB_NAME} \
@@ -99,7 +104,7 @@ Make sure that you have uploaded the right JAR first.
 PLATFORM_VERSION=2.12_spark3.1
 ./tools/emr/submit_datagen_job.py \
     --bucket ${BUCKET_NAME} \
-    --platform-version ${PLATFORM_VERSION} \
+    --jar ${JAR_NAME} \
     --emr-release emr-6.2.0 \
     ${JOB_NAME} \
     ${SCALE_FACTOR} \

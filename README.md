@@ -68,7 +68,7 @@ Both Java 8 and Java 11 are supported.
 Once you have Spark in place and built the JAR file, run the generator as follows:
 
 ```bash
-export PLATFORM_VERSION=spark3.2_2.12
+export PLATFORM_VERSION=$(sbt -batch -error 'print platformVersion')
 export DATAGEN_VERSION=$(sbt -batch -error 'print version')
 export LDBC_SNB_DATAGEN_JAR=$(sbt -batch -error 'print assembly / assemblyOutputPath')
 ./tools/run.py <runtime configuration arguments> -- <generator configuration arguments>
