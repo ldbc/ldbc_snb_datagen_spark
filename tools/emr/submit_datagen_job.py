@@ -9,7 +9,9 @@ import re
 import __main__
 
 from math import ceil
+from botocore.credentials import subprocess
 from datagen import lib, util
+import subprocess
 
 import argparse
 
@@ -24,8 +26,6 @@ defaults = {
     'master_instance_type': 'r6gd.2xlarge',
     'instance_type': 'r6gd.4xlarge',
     'sf_ratio': 100.0,  # ratio of SFs and machines. a ratio of 250.0 for SF1000 yields 4 machines
-    'platform_version': lib.platform_version,
-    'version': lib.version,
     'az': 'us-west-2c',
     'yes': False,
     'ec2_key': None,
@@ -73,14 +73,13 @@ def submit_datagen_job(name,
                        format,
                        mode,
                        bucket,
+                       jar,
                        use_spot,
                        instance_type,
                        sf_ratio,
                        master_instance_type,
                        az,
                        emr_release,
-                       platform_version,
-                       version,
                        yes,
                        ec2_key,
                        conf,
@@ -88,7 +87,7 @@ def submit_datagen_job(name,
                        copy_all,
                        passthrough_args, **kwargs
                        ):
-    
+
     is_interactive = (not yes) and hasattr(__main__, '__file__')
 
     build_dir = '/ldbc_snb_datagen/build'
@@ -107,7 +106,7 @@ def submit_datagen_job(name,
     ts = datetime.utcnow()
     ts_formatted = ts.strftime('%Y%m%d_%H%M%S')
 
-    jar_url = f's3://{bucket}/jars/ldbc_snb_datagen_{platform_version}-{version}-jar-with-dependencies.jar'
+    jar_url = f's3://{bucket}/jars/{jar}'
 
     results_url = f's3://{bucket}/results/{name}'
     run_url = f'{results_url}/runs/{ts_formatted}'
@@ -241,12 +240,9 @@ if __name__ == "__main__":
     parser.add_argument('--ec2-key',
                         default=defaults['ec2_key'],
                         help='EC2 key name for SSH connection')
-    parser.add_argument('--platform-version',
-                        default=defaults['platform_version'],
-                        help='The spark platform the JAR is compiled for formatted like {scala.compat.version}_spark{spark.compat.version}, e.g. 2.12_spark3.2')
-    parser.add_argument('--version',
-                        default=defaults['version'],
-                        help='LDBC SNB Datagen library version')
+    parser.add_argument('--jar',
+                        required=True,
+                        help='LDBC SNB Datagen library JAR name')
     parser.add_argument('--emr-release',
                         default=defaults['emr_release'],
                         help='The EMR release to use. E.g. emr-6.6.0')
