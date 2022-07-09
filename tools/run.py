@@ -65,12 +65,12 @@ def run_local(
 
     run(cmd, env=default_env)
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run a Datagen job locally')
-    parser.add_argument('jar',
+    parser.add_argument('--jar',
                         type=str,
-                        help='LDBC Datagen JAR file')
+                        default=os.environ.get('LDBC_SNB_DATAGEN_JAR'),
+                        help='LDBC Datagen JAR file [LDBC_SNB_DATAGEN_JAR]')
     parser.add_argument('--main-class',
                         type=str,
                         help='Overrides default main class.')
@@ -97,6 +97,9 @@ if __name__ == "__main__":
     self_args, child_args = split_passthrough_args()
 
     args = parser.parse_args(self_args)
+
+    if not args.jar:
+      raise ValueError('No JAR given. Specify with --jar or LDBC_SNB_DATAGEN_JAR env var')
 
     run_local(
         args.jar,

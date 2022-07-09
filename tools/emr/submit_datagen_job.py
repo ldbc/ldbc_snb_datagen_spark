@@ -24,8 +24,8 @@ defaults = {
     'use_spot': True,
     'master_instance_type': 'r6gd.2xlarge',
     'instance_type': 'r6gd.4xlarge',
-    'machines_per_sf': 0.01,
-    'parallelism_per_sf': 0.1,
+    'executors_per_sf': 1e-3,
+    'partitions_per_sf': 1e-1,
     'platform_version': lib.platform_version,
     'version': lib.version,
     'az': 'us-east-2c',
@@ -43,15 +43,6 @@ ec2info_file = 'Amazon EC2 Instance Comparison.csv'
 with open(path.join(dir, ec2info_file), mode='r') as infile:
     reader = csv.DictReader(infile)
     ec2_instances = [dict(row) for row in reader]
-
-
-def calculate_cluster_config(scale_factor, machines_per_sf, parallelism_per_sf):
-    num_workers = max(min_num_workers, min(max_num_workers, ceil(scale_factor * machines_per_sf)))
-    num_threads = max(min_num_threads, ceil(scale_factor * parallelism_per_sf))
-    return {
-        'num_workers': num_workers,
-        'num_threads': num_threads
-    }
 
 
 def get_instance_info(instance_type):
@@ -77,8 +68,10 @@ def submit_datagen_job(name,
                        bucket,
                        use_spot,
                        instance_type,
-                       machines_per_sf,
-                       parallelism_per_sf,
+                       executors,
+                       executors_per_sf,
+                       partitions,
+                       partitions_per_sf,
                        master_instance_type,
                        az,
                        emr_release,
@@ -91,7 +84,7 @@ def submit_datagen_job(name,
                        copy_all,
                        passthrough_args, **kwargs
                        ):
-    
+
     is_interactive = (not yes) and hasattr(__main__, '__file__')
 
     build_dir = '/ldbc_snb_datagen/build'
@@ -100,8 +93,6 @@ def submit_datagen_job(name,
         copy_filter = f'.*{build_dir}/graphs/{format}/{mode}/.*'
     else:
         copy_filter = f'.*{build_dir}/{copy_filter}'
-
-    cluster_config = calculate_cluster_config(sf, machines_per_sf, parallelism_per_sf)
 
     emr = boto3.client('emr')
 
@@ -117,9 +108,15 @@ def submit_datagen_job(name,
         'maximizeResourceAllocation': 'true'
     }
 
+    if executors is None:
+        executors = max(min_num_workers, min(max_num_workers, ceil(sf * executors_per_sf)))
+
+    if partitions is None:
+        partitions = max(min_num_threads, ceil(sf * partitions_per_sf))
+
     spark_defaults_config = {
         'spark.serializer': 'org.apache.spark.serializer.KryoSerializer',
-        'spark.default.parallelism': str(cluster_config['num_threads']),
+        'spark.default.parallelism': str(partitions),
         **(dict(conf) if conf else {})
     }
 
@@ -160,7 +157,7 @@ def submit_datagen_job(name,
                     'Market': market,
                     'InstanceRole': 'CORE',
                     'InstanceType': instance_type,
-                    'InstanceCount': cluster_config['num_workers'],
+                    'InstanceCount': executors,
                 }
             ],
             **ec2_key_dict,
@@ -181,7 +178,7 @@ def submit_datagen_job(name,
                     'Args': ['spark-submit', '--class', lib.main_class, jar_url,
                              '--output-dir', build_dir,
                              '--scale-factor', str(sf),
-                             '--num-threads', str(cluster_config['num_threads']),
+                             '--num-threads', str(partitions),
                              '--mode', mode,
                              '--format', format,
                              *passthrough_args
@@ -258,7 +255,7 @@ if __name__ == "__main__":
                         help='Assume \'yes\' for prompts')
     copy_args = parser.add_mutually_exclusive_group()
     copy_args.add_argument('--copy-filter',
-                           type=str,
+                           type=int,
                            help='A regular expression specifying filtering paths to copy from the build dir to S3. '
                                 'By default it is \'graphs/{format}/{mode}/.*\'')
     copy_args.add_argument('--copy-all',
@@ -269,16 +266,26 @@ if __name__ == "__main__":
                             nargs='+',
                             action=KeyValue,
                             help="SparkConf as key=value pairs")
-    parser.add_argument("--machines-per-sf",
-                        type=float,
-                        default=defaults['machines_per_sf'],
-                        help=f"Number of machines to run for each scale factor. Default: {defaults['machines_per_sf']}"
-                        )
-    parser.add_argument("--parallelism-per-sf",
-                        type=float,
-                        default=defaults['parallelism_per_sf'],
-                        help=f"Number of threads to run for each scale factor. Default: {defaults['parallelism_per_sf']}"
-                        )
+    executor_args=parser.add_mutually_exclusive_group()
+    executor_args.add_argument("--executors",
+                               type=int,
+                               help=f"Total number of Spark executors."
+                               )
+    executor_args.add_argument("--executors-per-sf",
+                               type=float,
+                               default=defaults['executors_per_sf'],
+                               help=f"Number of Spark executors per scale factor. Default: {defaults['executors_per_sf']}"
+                               )
+    partitioning_args = parser.add_mutually_exclusive_group()
+    partitioning_args.add_argument("--partitions",
+                                   type=int,
+                                   help=f"Total number of Spark partitions to use when generating the dataset."
+                                   )
+    partitioning_args.add_argument("--partitions-per-sf",
+                                   type=float,
+                                   default=defaults['partitions_per_sf'],
+                                   help=f"Number of Spark partitions per scale factor to use when generating the dataset. Default: {defaults['partitions_per_sf']}"
+                                   )
 
     parser.add_argument('--', nargs='*', help='Arguments passed to LDBC SNB Datagen', dest="arg")
 
