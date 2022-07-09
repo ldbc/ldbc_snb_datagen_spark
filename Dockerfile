@@ -1,12 +1,13 @@
 FROM eclipse-temurin:8 as build-jar
-ARG MAVEN_VERSION=3.8.6
-COPY pom.xml /build/pom.xml
+ARG SBT_VERSION=1.5.2
+RUN cd /opt && curl -fSsL https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${SBT_VERSION}.tgz | tar xvz
+ENV PATH=/opt/sbt/bin:$PATH
 WORKDIR build
-RUN cd /opt && curl https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz | tar xvz
-ENV PATH=/opt/apache-maven-${MAVEN_VERSION}/bin:$PATH
-RUN mvn install
-COPY src /build/src
-RUN mvn assembly:assembly -DskipTests
+COPY build.sbt build.sbt
+COPY project project
+RUN sbt update
+COPY src src
+RUN sbt assembly
 
 FROM scratch as jar
 COPY --from=build-jar /build/target/ldbc_snb_datagen_*-jar-with-dependencies.jar /jar

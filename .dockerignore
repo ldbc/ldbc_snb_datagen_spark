@@ -4,11 +4,10 @@
 *.swp
 *.crc
 *.log
-
 **/*.iml
 .idea/*
 **/.gitignore
 .git/*
 .circleci
-
+**/.bloop
 Dockerfile
