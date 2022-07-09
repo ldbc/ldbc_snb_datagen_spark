@@ -20,21 +20,11 @@ The LDBC SNB Data Generator (Datagen) produces the datasets for the [LDBC Social
 
 ### Build the JAR
 
-You can build the JAR with both Maven and SBT.
+To assemble the JAR file with SBT, run:
 
-* To assemble the JAR file with Maven, run:
-
-    ```bash
-    ./tools/build.sh
-    ```
-
-* For faster builds during development, consider using SBT. To assemble the JAR file with SBT, run:
-
-    ```bash
-    sbt assembly
-    ```
-
-    :warning: When using SBT, change the path of the JAR file in the instructions provided in the README (`target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar` -> `./target/scala-2.12/ldbc_snb_datagen-assembly-${DATAGEN_VERSION}.jar`).
+```bash
+sbt assembly
+```
 
 ### Install Python tools
 
@@ -78,9 +68,9 @@ Both Java 8 and Java 11 are supported.
 Once you have Spark in place and built the JAR file, run the generator as follows:
 
 ```bash
-export PLATFORM_VERSION=2.12_spark3.2
-export DATAGEN_VERSION=0.5.0-SNAPSHOT
-export LDBC_SNB_DATAGEN_JAR=./target/ldbc_snb_datagen_${PLATFORM_VERSION}-${DATAGEN_VERSION}.jar
+export PLATFORM_VERSION=spark3.2_2.12
+export DATAGEN_VERSION=$(sbt -batch -error 'print version')
+export LDBC_SNB_DATAGEN_JAR=$(sbt -batch -error 'print assembly / assemblyOutputPath')
 ./tools/run.py <runtime configuration arguments> -- <generator configuration arguments>
 ```
 

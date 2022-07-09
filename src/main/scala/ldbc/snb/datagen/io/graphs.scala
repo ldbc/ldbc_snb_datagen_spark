@@ -125,8 +125,8 @@ object graphs {
         val deleteSizeFactor = 0.015
 
         val operations = Map(
-          "inserts" -> (insertBatches, insertSizeFactor),
-          "deletes" -> (deleteBatches, deleteSizeFactor)
+          ("inserts", (insertBatches, insertSizeFactor)),
+          ("deletes", (deleteBatches, deleteSizeFactor)),
         )
 
         for { (operation, (batches, sizeFactor)) <- operations } {
