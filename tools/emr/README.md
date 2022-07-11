@@ -97,7 +97,7 @@ Generate the BI data set with the following configuration:
 
 ### Using a different Spark / EMR version
 
-We use EMR 6.3.0 by default, which packages Spark 3.1. You can use a different version by specifying it with the `--emr-version` option.
+We use EMR 6.6.0 by default, which packages Spark 3.2. You can use a different version by specifying it with the `--emr-version` option.
 Make sure that you have uploaded the right JAR first.
 
 ```bash
