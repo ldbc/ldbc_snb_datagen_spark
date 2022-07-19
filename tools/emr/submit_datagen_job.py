@@ -23,7 +23,7 @@ defaults = {
     'bucket': 'ldbc-snb-datagen-store',
     'use_spot': True,
     'master_instance_type': 'r6gd.2xlarge',
-    'instance_type': 'r6gd.4xlarge',
+    'instance_type': 'i3.4xlarge',
     'sf_per_executor': 3e3,
     'sf_per_partition': 10,
     'az': 'us-west-2c',
