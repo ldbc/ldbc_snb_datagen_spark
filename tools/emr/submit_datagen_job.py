@@ -25,7 +25,7 @@ defaults = {
     'master_instance_type': 'r6gd.2xlarge',
     'instance_type': 'r6gd.4xlarge',
     'sf_per_executor': 3e3,
-    'sf_per_partition': 1e2,
+    'sf_per_partition': 10,
     'az': 'us-west-2c',
     'yes': False,
     'ec2_key': None,
