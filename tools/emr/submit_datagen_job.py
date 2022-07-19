@@ -24,8 +24,8 @@ defaults = {
     'use_spot': True,
     'master_instance_type': 'r6gd.2xlarge',
     'instance_type': 'r6gd.4xlarge',
-    'sf_per_executors': 3e3,
-    'sf_per_partitions': 1e2,
+    'sf_per_executor': 3e3,
+    'sf_per_partition': 1e2,
     'az': 'us-west-2c',
     'yes': False,
     'ec2_key': None,
@@ -68,9 +68,9 @@ def submit_datagen_job(name,
                        use_spot,
                        instance_type,
                        executors,
-                       sf_per_executors,
+                       sf_per_executor,
                        partitions,
-                       sf_per_partitions,
+                       sf_per_partition,
                        master_instance_type,
                        az,
                        emr_release,
@@ -106,10 +106,10 @@ def submit_datagen_job(name,
     }
 
     if executors is None:
-        executors = max(min_num_workers, min(max_num_workers, ceil(sf / sf_per_executors)))
+        executors = max(min_num_workers, min(max_num_workers, ceil(sf / sf_per_executor)))
 
     if partitions is None:
-        partitions = max(min_num_threads, ceil(sf / sf_per_partitions))
+        partitions = max(min_num_threads, ceil(sf / sf_per_partition))
 
     spark_defaults_config = {
         'spark.serializer': 'org.apache.spark.serializer.KryoSerializer',
@@ -265,20 +265,20 @@ if __name__ == "__main__":
                                type=int,
                                help=f"Total number of Spark executors."
                                )
-    executor_args.add_argument("--sf-per-executors",
+    executor_args.add_argument("--sf-per-executor",
                                type=float,
-                               default=defaults['sf_per_executors'],
-                               help=f"Number of Spark executors per scale factor. Default: {defaults['sf_per_executors']}"
+                               default=defaults['sf_per_executor'],
+                               help=f"Number of scale factors per Spark executor. Default: {defaults['sf_per_executor']}"
                                )
     partitioning_args = parser.add_mutually_exclusive_group()
     partitioning_args.add_argument("--partitions",
                                    type=int,
                                    help=f"Total number of Spark partitions to use when generating the dataset."
                                    )
-    partitioning_args.add_argument("--sf-per-partitions",
+    partitioning_args.add_argument("--sf-per-partition",
                                    type=float,
-                                   default=defaults['sf_per_partitions'],
-                                   help=f"Number of Spark partitions per scale factor to use when generating the dataset. Default: {defaults['sf_per_partitions']}"
+                                   default=defaults['sf_per_partition'],
+                                   help=f"Number of scale factors per Spark partitions. Default: {defaults['sf_per_partition']}"
                                    )
 
     parser.add_argument('--', nargs='*', help='Arguments passed to LDBC SNB Datagen', dest="arg")
