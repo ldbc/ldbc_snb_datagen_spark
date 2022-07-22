@@ -385,12 +385,13 @@ object FactorGenerationStage extends DatagenStage with Logging {
           .select($"knows.Person1Id".alias("Person1Id"), $"knows.Person2Id".alias("Person2Id"))
       }
 
-      nHops(
-        allKnows,
-        n = 4,
-        joinKeys = ("Person2Id", "Person1Id"),
-        sample = Some(chinesePeopleSample)
-      ).join(person.as("Person1"), $"Person1.id" === $"Person1Id")
+      val personPairs = nHops(
+          allKnows,
+          n = 4,
+          joinKeys = ("Person2Id", "Person1Id"),
+          sample = Some(chinesePeopleSample)
+        )
+        .join(person.as("Person1"), $"Person1.id" === $"Person1Id")
         .join(person.as("Person2"), $"Person2.id" === $"Person1Id")
         .select(
           $"Person1Id",
@@ -400,8 +401,9 @@ object FactorGenerationStage extends DatagenStage with Logging {
           $"Person2.creationDate".as("Person2CreationDate"),
           $"Person2.deletionDate".as("Person2DeletionDate")
         )
-        .sort($"Person1Id", $"Person2Id")
-        .limit(10000)
+
+      val sampleFractionPersonPairs = 10000.0 / personPairs.count()
+      personPairs.sample(sampleFractionPersonPairs, 42)
     },
     "people2Hops" -> Factor(PersonType, PlaceType, PersonKnowsPersonType) { case Seq(person, place, knows) =>
       val cities        = place.where($"type" === "City").cache()
@@ -431,12 +433,13 @@ object FactorGenerationStage extends DatagenStage with Logging {
           .select($"knows.Person1Id".alias("Person1Id"), $"knows.Person2Id".alias("Person2Id"))
       }
 
-      nHops(
-        allKnows,
-        n = 2,
-        joinKeys = ("Person2Id", "Person1Id"),
-        sample = Some(chinesePeopleSample)
-      ).join(person.as("Person1"), $"Person1.id" === $"Person1Id")
+      val personPairs = nHops(
+          allKnows,
+          n = 2,
+          joinKeys = ("Person2Id", "Person1Id"),
+          sample = Some(chinesePeopleSample)
+        )
+        .join(person.as("Person1"), $"Person1.id" === $"Person1Id")
         .join(person.as("Person2"), $"Person2.id" === $"Person1Id")
         .select(
           $"Person1Id",
@@ -446,8 +449,9 @@ object FactorGenerationStage extends DatagenStage with Logging {
           $"Person2.creationDate".as("Person2CreationDate"),
           $"Person2.deletionDate".as("Person2DeletionDate")
         )
-        .sort($"Person1Id", $"Person2Id")
-        .limit(10000)
+
+      val sampleFractionPersonPairs = 10000.0 / personPairs.count()
+      personPairs.sample(sampleFractionPersonPairs, 42)
     },
     "sameUniversityKnows" -> LargeFactor(PersonKnowsPersonType, PersonStudyAtUniversityType) { case Seq(personKnowsPerson, studyAt) =>
       val size = Math.max(Math.ceil(personKnowsPerson.rdd.getNumPartitions / 10).toInt, 1)
