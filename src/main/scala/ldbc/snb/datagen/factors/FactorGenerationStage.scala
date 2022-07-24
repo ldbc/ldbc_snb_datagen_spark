@@ -375,7 +375,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
         // sigmoid to select more samples for smaller scale factors
         val sampleSize = Math.min(count, Math.max(minSampleSize, count / (1 + Math.exp(count * curveFactor)) * 2))
 
-        val sampleFraction = sampleSize / count
+        val sampleFraction = Math.min(sampleSize / count, 1.0)
 
         log.info(s"Factor people4Hops: using ${sampleSize} samples (${sampleFraction * 100}%)")
 
@@ -402,7 +402,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
           $"Person2.deletionDate".as("Person2DeletionDate")
         )
 
-      val sampleFractionPersonPairs = 10000.0 / personPairs.count()
+      val sampleFractionPersonPairs = Math.min(10000.0 / personPairs.count(), 1.0)
       personPairs.sample(sampleFractionPersonPairs, 42)
     },
     "people2Hops" -> Factor(PersonType, PlaceType, PersonKnowsPersonType) { case Seq(person, place, knows) =>
@@ -423,7 +423,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
         // sigmoid to select more samples for smaller scale factors
         val sampleSize = Math.min(count, Math.max(minSampleSize, count / (1 + Math.exp(count * curveFactor)) * 2))
 
-        val sampleFraction = sampleSize / count
+        val sampleFraction = Math.min(sampleSize / count, 1.0)
 
         log.info(s"Factor people4Hops: using ${sampleSize} samples (${sampleFraction * 100}%)")
 
@@ -450,7 +450,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
           $"Person2.deletionDate".as("Person2DeletionDate")
         )
 
-      val sampleFractionPersonPairs = 10000.0 / personPairs.count()
+      val sampleFractionPersonPairs = Math.min(10000.0 / personPairs.count(), 1.0)
       personPairs.sample(sampleFractionPersonPairs, 42)
     },
     "sameUniversityKnows" -> LargeFactor(PersonKnowsPersonType, PersonStudyAtUniversityType) { case Seq(personKnowsPerson, studyAt) =>
