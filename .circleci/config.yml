@@ -37,7 +37,7 @@ jobs:
       - run:
           name: Build Docker container
           command: |
-            docker build . --target=standalone -t ldbc/datagen-standalone:latest
+            docker build . --target=standalone --tag ldbc/datagen-standalone:latest
       # BI
       - run:
           name: Generate SF0.003 / BI / singular-projected CSVs
@@ -55,7 +55,7 @@ jobs:
             tools/docker-run.sh -- --mode bi --scale-factor 0.003 --explode-edges
             mv out/ social-network-sf0.003-bi-composite-projected-fk/
       - run:
-          name: Generate SF0.003 / BI / composite-merged CSVs
+          name: Generate SF0.003 / BI / composite-merged CSVs, generate factors
           command: |
             # we generate factors here but they are moved to a separate archive (social-network-sf0.003-bi-factors.zip)
             tools/docker-run.sh -- --mode bi --scale-factor 0.003 --generate-factors
