@@ -50,16 +50,16 @@ Spark 3.2.x is the recommended runtime to use. The rest of the instructions are 
 To place Spark under `/opt/`:
 
 ```bash
-curl https://downloads.apache.org/spark/spark-3.2.1/spark-3.2.1-bin-hadoop3.2.tgz | sudo tar -xz -C /opt/
-export SPARK_HOME="/opt/spark-3.2.1-bin-hadoop3.2"
+curl https://downloads.apache.org/spark/spark-3.2.2/spark-3.2.2-bin-hadoop3.2.tgz | sudo tar -xz -C /opt/
+export SPARK_HOME="/opt/spark-3.2.2-bin-hadoop3.2"
 export PATH="$SPARK_HOME/bin":"$PATH"
 ```
 
 To place under `~/`:
 
 ```bash
-curl https://downloads.apache.org/spark/spark-3.2.1/spark-3.2.1-bin-hadoop3.2.tgz | tar -xz -C ~/
-export SPARK_HOME=~/spark-3.2.1-bin-hadoop3.2
+curl https://downloads.apache.org/spark/spark-3.2.2/spark-3.2.2-bin-hadoop3.2.tgz | tar -xz -C ~/
+export SPARK_HOME=~/spark-3.2.2-bin-hadoop3.2
 export PATH="$SPARK_HOME/bin":"$PATH"
 ```
 
