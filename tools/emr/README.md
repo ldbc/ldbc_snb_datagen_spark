@@ -54,9 +54,9 @@ SCALE_FACTOR=10
 
 Note: scale factors below 1 are not supported.
 
-### Using spot instances
+### Using spot instances vs. on-demand instances
 
-To use spot instances, add the `--use-spot` argument:
+The script uses spot instances by default. To turn them off, use the `--no-use-spot` argument, e.g.
 
 ```bash
 ./tools/emr/submit_datagen_job.py \
