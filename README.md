@@ -52,7 +52,7 @@ To place Spark under `/opt/`:
 ```bash
 curl https://archive.apache.org/dist/spark/spark-3.2.2/spark-3.2.2-bin-hadoop3.2.tgz | sudo tar -xz -C /opt/
 export SPARK_HOME="/opt/spark-3.2.2-bin-hadoop3.2"
-export PATH="$SPARK_HOME/bin":"$PATH"
+export PATH="${SPARK_HOME}/bin":"${PATH}"
 ```
 
 To place under `~/`:
@@ -60,7 +60,7 @@ To place under `~/`:
 ```bash
 curl https://archive.apache.org/dist/spark/spark-3.2.2/spark-3.2.2-bin-hadoop3.2.tgz | tar -xz -C ~/
 export SPARK_HOME=~/spark-3.2.2-bin-hadoop3.2
-export PATH="$SPARK_HOME/bin":"$PATH"
+export PATH="${SPARK_HOME}/bin":"${PATH}"
 ```
 
 Both Java 8 and Java 11 are supported.
@@ -185,7 +185,7 @@ The `ldbc/datagen-jar` image contains the assembly JAR, so it can bundled in you
 ```docker
 FROM my-spark-image
 ARG VERSION
-COPY --from=ldbc/datagen-jar:$VERSION /jar /lib/ldbc-datagen.jar
+COPY --from=ldbc/datagen-jar:${VERSION} /jar /lib/ldbc-datagen.jar
 ```
 
 The JAR-only Docker image can be built with the provided Dockerfile. To build, execute the following command from the repository directory:

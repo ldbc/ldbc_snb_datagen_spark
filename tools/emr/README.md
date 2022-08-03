@@ -35,7 +35,7 @@ export PLATFORM_VERSION=$(sbt -batch -error 'print platformVersion')
 export DATAGEN_VERSION=$(sbt -batch -error 'print version')
 export LDBC_SNB_DATAGEN_JAR=$(sbt -batch -error 'print assembly / assemblyOutputPath')
 export JAR_NAME=$(basename ${LDBC_SNB_DATAGEN_JAR})
-aws s3 cp ${LDBC_SNB_DATAGEN_JAR} s3://${BUCKET_NAME}/jars/$JAR_NAME
+aws s3 cp ${LDBC_SNB_DATAGEN_JAR} s3://${BUCKET_NAME}/jars/${JAR_NAME}
 ```
 
 1. Submit the job. Run with `--help` for customization options.
