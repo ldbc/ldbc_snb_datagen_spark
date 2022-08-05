@@ -81,6 +81,11 @@ jobs:
             tools/docker-run.sh -- --mode bi --scale-factor 0.003 --explode-edges --epoch-millis --format-options header=false,quoteAll=true,compression=gzip
             mv out/ social-network-sf0.003-bi-composite-projected-fk-neo4j-compressed-epoch-millis/
       - run:
+          name: Generate SF0.003 / BI / compressed composite-projected CSVs for Neo4j with epoch milli timestamps
+          command: |
+            tools/docker-run.sh -- --mode bi --scale-factor 0.003 --format parquet
+            mv out/ social-network-sf0.003-bi-parquet
+      - run:
           name: Compress directories and prepare for deployment
           command: |
             # include the CircleCI configuration in the deployed package to provide the 'filters' instructions (and prevent failed builds on the gh-pages branch)
