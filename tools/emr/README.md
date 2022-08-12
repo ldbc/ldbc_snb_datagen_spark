@@ -6,7 +6,7 @@ We provide support scripts for running LDBC Datagen on EMR and storing the resul
 
 ### S3 Bucket
 
-Create an S3 bucket and the `BUCKET_NAME` environment variable accordingly.
+Create an S3 bucket and set the `${BUCKET_NAME}` environment variable accordingly.
 
 The bucket will have the following layout (created by the scripts/jobs):
 
