@@ -528,7 +528,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
     "personNumTags" -> Factor(PersonHasInterestTagType) { case Seq(interest) =>
       frequency(
         interest,
-        value = $"interestId",
+        value = $"TagId",
         by = Seq($"personId")
       )
     },
@@ -536,7 +536,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
       frequency(
         undirectedKnows(personKnowsPerson).as("knows")
           .join(interest, $"personId" === $"knows.Person2Id", "leftouter"),
-        value = $"interestId",
+        value = $"TagId",
         by = Seq($"knows.Person1Id")
       )
     },
