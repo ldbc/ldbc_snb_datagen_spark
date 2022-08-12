@@ -330,7 +330,6 @@ public class DatagenParams {
         return Math.log10(mean * numPersons / 2 + numPersons);
     }
 
-    //TODO: add remaining degree distributions
     public static DegreeDistribution getDegreeDistribution() {
 
         DegreeDistribution output;

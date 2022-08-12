@@ -18,7 +18,6 @@ target/
 test_data/
 substitution_parameters/
 *.pyc
-scripts/
 *.iml
 /hadoop/
 /social_network/
@@ -208,3 +207,4 @@ dmypy.json
 .prof
 
 # End of https://www.toptal.com/developers/gitignore/api/python
+.bsp/

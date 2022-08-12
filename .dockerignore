@@ -1,15 +1,13 @@
-tools/*
-
-target/*
+**/*.egg-info
+**/target/*
 
 *.swp
 *.crc
 *.log
-
-*.iml
-.travis.yml
+**/*.iml
 .idea/*
-.gitignore
+**/.gitignore
 .git/*
-
+.circleci
+**/.bloop
 Dockerfile

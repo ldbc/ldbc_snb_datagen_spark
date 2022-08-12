@@ -4,6 +4,7 @@ import ldbc.snb.datagen.factors.io.FactorTableSink
 import ldbc.snb.datagen.io.graphs.GraphSource
 import ldbc.snb.datagen.model
 import ldbc.snb.datagen.model.EntityType
+import ldbc.snb.datagen.model.Mode.Raw
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.transformation.transform.ConvertDates
 import ldbc.snb.datagen.util.{DatagenStage, Logging}
@@ -74,9 +75,10 @@ object FactorGenerationStage extends DatagenStage with Logging {
     import ldbc.snb.datagen.io.Reader.ops._
     import ldbc.snb.datagen.io.Writer.ops._
     import ldbc.snb.datagen.io.instances._
+    import ldbc.snb.datagen.transformation.transform.ConvertDates.instances._
 
     GraphSource(model.graphs.Raw.graphDef, args.outputDir, args.irFormat).read
-      .pipe(ConvertDates.transform)
+      .pipe(ConvertDates[Raw.type].transform)
       .pipe(g =>
         rawFactors
           .collect {
@@ -306,9 +308,9 @@ object FactorGenerationStage extends DatagenStage with Logging {
     },
     "tagNumPersons" -> Factor(PersonHasInterestTagType, TagType) { case Seq(interest, tag) =>
       frequency(
-        interest.join(tag.as("Tag"), $"Tag.id" === $"interestId"),
-        value = $"personId",
-        by = Seq($"interestId", $"Tag.name")
+        interest.join(tag.as("Tag"), $"Tag.id" === $"TagId"),
+        value = $"PersonId",
+        by = Seq($"Tag.id", $"Tag.name")
       )
     },
     "tagClassNumTags" -> Factor(TagClassType, TagType) { case Seq(tagClass, tag) =>
@@ -366,7 +368,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
         // sigmoid to select more samples for smaller scale factors
         val sampleSize = Math.min(count, Math.max(minSampleSize, count / (1 + Math.exp(count * curveFactor)) * 2))
 
-        val sampleFraction = sampleSize / count
+        val sampleFraction = Math.min(sampleSize / count, 1.0)
 
         log.info(s"Factor people4Hops: using ${sampleSize} samples (${sampleFraction * 100}%)")
 
@@ -376,12 +378,13 @@ object FactorGenerationStage extends DatagenStage with Logging {
           .select($"knows.Person1Id".alias("Person1Id"), $"knows.Person2Id".alias("Person2Id"))
       }
 
-      nHops(
-        allKnows,
-        n = 4,
-        joinKeys = ("Person2Id", "Person1Id"),
-        sample = Some(chinesePeopleSample)
-      ).join(person.as("Person1"), $"Person1.id" === $"Person1Id")
+      val personPairs = nHops(
+          allKnows,
+          n = 4,
+          joinKeys = ("Person2Id", "Person1Id"),
+          sample = Some(chinesePeopleSample)
+        )
+        .join(person.as("Person1"), $"Person1.id" === $"Person1Id")
         .join(person.as("Person2"), $"Person2.id" === $"Person1Id")
         .select(
           $"Person1Id",
@@ -391,8 +394,9 @@ object FactorGenerationStage extends DatagenStage with Logging {
           $"Person2.creationDate".as("Person2CreationDate"),
           $"Person2.deletionDate".as("Person2DeletionDate")
         )
-        .sort($"Person1Id", $"Person2Id")
-        .limit(10000)
+
+      val sampleFractionPersonPairs = Math.min(10000.0 / personPairs.count(), 1.0)
+      personPairs.sample(sampleFractionPersonPairs, 42)
     },
     "people2Hops" -> Factor(PersonType, PlaceType, PersonKnowsPersonType) { case Seq(person, place, knows) =>
       val cities        = place.where($"type" === "City").cache()
@@ -412,7 +416,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
         // sigmoid to select more samples for smaller scale factors
         val sampleSize = Math.min(count, Math.max(minSampleSize, count / (1 + Math.exp(count * curveFactor)) * 2))
 
-        val sampleFraction = sampleSize / count
+        val sampleFraction = Math.min(sampleSize / count, 1.0)
 
         log.info(s"Factor people4Hops: using ${sampleSize} samples (${sampleFraction * 100}%)")
 
@@ -422,12 +426,13 @@ object FactorGenerationStage extends DatagenStage with Logging {
           .select($"knows.Person1Id".alias("Person1Id"), $"knows.Person2Id".alias("Person2Id"))
       }
 
-      nHops(
-        allKnows,
-        n = 2,
-        joinKeys = ("Person2Id", "Person1Id"),
-        sample = Some(chinesePeopleSample)
-      ).join(person.as("Person1"), $"Person1.id" === $"Person1Id")
+      val personPairs = nHops(
+          allKnows,
+          n = 2,
+          joinKeys = ("Person2Id", "Person1Id"),
+          sample = Some(chinesePeopleSample)
+        )
+        .join(person.as("Person1"), $"Person1.id" === $"Person1Id")
         .join(person.as("Person2"), $"Person2.id" === $"Person1Id")
         .select(
           $"Person1Id",
@@ -437,8 +442,9 @@ object FactorGenerationStage extends DatagenStage with Logging {
           $"Person2.creationDate".as("Person2CreationDate"),
           $"Person2.deletionDate".as("Person2DeletionDate")
         )
-        .sort($"Person1Id", $"Person2Id")
-        .limit(10000)
+
+      val sampleFractionPersonPairs = Math.min(10000.0 / personPairs.count(), 1.0)
+      personPairs.sample(sampleFractionPersonPairs, 42)
     },
     "sameUniversityKnows" -> LargeFactor(PersonKnowsPersonType, PersonStudyAtUniversityType) { case Seq(personKnowsPerson, studyAt) =>
       val size = Math.max(Math.ceil(personKnowsPerson.rdd.getNumPartitions / 10).toInt, 1)

@@ -17,19 +17,19 @@ from datagen.util import KeyValue, split_passthrough_args
 
 min_num_workers = 1
 max_num_workers = 1000
+min_num_threads = 1
 
 defaults = {
     'bucket': 'ldbc-snb-datagen-store',
     'use_spot': True,
     'master_instance_type': 'r6gd.2xlarge',
-    'instance_type': 'r6gd.4xlarge',
-    'sf_ratio': 100.0,  # ratio of SFs and machines. a ratio of 250.0 for SF1000 yields 4 machines
-    'platform_version': lib.platform_version,
-    'version': lib.version,
+    'instance_type': 'i3.4xlarge',
+    'sf_per_executor': 3e3,
+    'sf_per_partition': 10,
     'az': 'us-west-2c',
     'yes': False,
     'ec2_key': None,
-    'emr_release': 'emr-6.3.0'
+    'emr_release': 'emr-6.6.0'
 }
 
 pp = pprint.PrettyPrinter(indent=2)
@@ -41,15 +41,6 @@ ec2info_file = 'Amazon EC2 Instance Comparison.csv'
 with open(path.join(dir, ec2info_file), mode='r') as infile:
     reader = csv.DictReader(infile)
     ec2_instances = [dict(row) for row in reader]
-
-
-def calculate_cluster_config(scale_factor, sf_ratio, vcpu):
-    num_workers = max(min_num_workers, min(max_num_workers, ceil(scale_factor / sf_ratio)))
-    num_threads = ceil(num_workers * vcpu * 2)
-    return {
-        'num_workers': num_workers,
-        'num_threads': num_threads
-    }
 
 
 def get_instance_info(instance_type):
@@ -73,14 +64,16 @@ def submit_datagen_job(name,
                        format,
                        mode,
                        bucket,
+                       jar,
                        use_spot,
                        instance_type,
-                       sf_ratio,
+                       executors,
+                       sf_per_executor,
+                       partitions,
+                       sf_per_partition,
                        master_instance_type,
                        az,
                        emr_release,
-                       platform_version,
-                       version,
                        yes,
                        ec2_key,
                        conf,
@@ -88,7 +81,7 @@ def submit_datagen_job(name,
                        copy_all,
                        passthrough_args, **kwargs
                        ):
-    
+
     is_interactive = (not yes) and hasattr(__main__, '__file__')
 
     build_dir = '/ldbc_snb_datagen/build'
@@ -98,16 +91,12 @@ def submit_datagen_job(name,
     else:
         copy_filter = f'.*{build_dir}/{copy_filter}'
 
-    exec_info = get_instance_info(instance_type)
-
-    cluster_config = calculate_cluster_config(sf, sf_ratio, exec_info['vcpu'])
-
     emr = boto3.client('emr')
 
     ts = datetime.utcnow()
     ts_formatted = ts.strftime('%Y%m%d_%H%M%S')
 
-    jar_url = f's3://{bucket}/jars/ldbc_snb_datagen_{platform_version}-{version}-jar-with-dependencies.jar'
+    jar_url = f's3://{bucket}/jars/{jar}'
 
     results_url = f's3://{bucket}/results/{name}'
     run_url = f'{results_url}/runs/{ts_formatted}'
@@ -116,8 +105,15 @@ def submit_datagen_job(name,
         'maximizeResourceAllocation': 'true'
     }
 
+    if executors is None:
+        executors = max(min_num_workers, min(max_num_workers, ceil(sf / sf_per_executor)))
+
+    if partitions is None:
+        partitions = max(min_num_threads, ceil(sf / sf_per_partition))
+
     spark_defaults_config = {
         'spark.serializer': 'org.apache.spark.serializer.KryoSerializer',
+        'spark.default.parallelism': str(partitions),
         **(dict(conf) if conf else {})
     }
 
@@ -158,7 +154,7 @@ def submit_datagen_job(name,
                     'Market': market,
                     'InstanceRole': 'CORE',
                     'InstanceType': instance_type,
-                    'InstanceCount': cluster_config['num_workers'],
+                    'InstanceCount': executors,
                 }
             ],
             **ec2_key_dict,
@@ -179,7 +175,7 @@ def submit_datagen_job(name,
                     'Args': ['spark-submit', '--class', lib.main_class, jar_url,
                              '--output-dir', build_dir,
                              '--scale-factor', str(sf),
-                             '--num-threads', str(cluster_config['num_threads']),
+                             '--num-threads', str(partitions),
                              '--mode', mode,
                              '--format', format,
                              *passthrough_args
@@ -241,15 +237,12 @@ if __name__ == "__main__":
     parser.add_argument('--ec2-key',
                         default=defaults['ec2_key'],
                         help='EC2 key name for SSH connection')
-    parser.add_argument('--platform-version',
-                        default=defaults['platform_version'],
-                        help='The spark platform the JAR is compiled for formatted like {scala.compat.version}_spark{spark.compat.version}, e.g. 2.12_spark3.1')
-    parser.add_argument('--version',
-                        default=defaults['version'],
-                        help='LDBC SNB Datagen library version')
+    parser.add_argument('--jar',
+                        required=True,
+                        help='LDBC SNB Datagen library JAR name')
     parser.add_argument('--emr-release',
                         default=defaults['emr_release'],
-                        help='The EMR release to use. E.g. emr-6.3.0')
+                        help='The EMR release to use. E.g. emr-6.6.0')
     parser.add_argument('-y', '--yes',
                         default=defaults['yes'],
                         action='store_true',
@@ -267,6 +260,26 @@ if __name__ == "__main__":
                             nargs='+',
                             action=KeyValue,
                             help="SparkConf as key=value pairs")
+    executor_args=parser.add_mutually_exclusive_group()
+    executor_args.add_argument("--executors",
+                               type=int,
+                               help=f"Total number of Spark executors."
+                               )
+    executor_args.add_argument("--sf-per-executor",
+                               type=float,
+                               default=defaults['sf_per_executor'],
+                               help=f"Number of scale factors per Spark executor. Default: {defaults['sf_per_executor']}"
+                               )
+    partitioning_args = parser.add_mutually_exclusive_group()
+    partitioning_args.add_argument("--partitions",
+                                   type=int,
+                                   help=f"Total number of Spark partitions to use when generating the dataset."
+                                   )
+    partitioning_args.add_argument("--sf-per-partition",
+                                   type=float,
+                                   default=defaults['sf_per_partition'],
+                                   help=f"Number of scale factors per Spark partitions. Default: {defaults['sf_per_partition']}"
+                                   )
 
     parser.add_argument('--', nargs='*', help='Arguments passed to LDBC SNB Datagen', dest="arg")
 
@@ -275,6 +288,5 @@ if __name__ == "__main__":
     args = parser.parse_args(self_args)
 
     submit_datagen_job(passthrough_args=passthrough_args,
-                       sf_ratio=defaults['sf_ratio'],
                        master_instance_type=defaults['master_instance_type'],
                        **args.__dict__)

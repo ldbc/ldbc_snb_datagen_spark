@@ -28,7 +28,8 @@ object LdbcDatagen extends SparkApp {
       format: String = "csv",
       generateFactors: Boolean = false,
       formatOptions: Map[String, String] = Map.empty,
-      oversizeFactor: Option[Double] = None
+      oversizeFactor: Option[Double] = None,
+      epochMillis: Boolean = false
   )
 
   override type ArgsType = Args
@@ -118,6 +119,10 @@ object LdbcDatagen extends SparkApp {
         .text("Generate factor tables")
 
       help('h', "help").text("prints this usage text")
+
+      opt[Unit]("epoch-millis")
+        .action((x, c) => args.epochMillis.set(c)(true))
+        .text("Use longs with millis since Unix epoch instead of native dates")
     }
 
     val parsedArgs = parser.parse(args, Args()).getOrElse(throw new RuntimeException("Invalid arguments"))
@@ -159,7 +164,8 @@ object LdbcDatagen extends SparkApp {
       },
       irFormat,
       args.format,
-      args.formatOptions
+      args.formatOptions,
+      args.epochMillis
     )
 
     TransformationStage.run(transformArgs)

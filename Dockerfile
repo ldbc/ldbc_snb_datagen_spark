@@ -1,27 +1,39 @@
-FROM bde2020/spark-master:3.1.1-hadoop3.2
+FROM eclipse-temurin:8 as build-jar
 
-ENV GOSU_VERSION 1.12
+RUN apt-get update
+RUN apt-get install -y curl
 
-RUN apk add --no-cache su-exec
-RUN apk add shadow
-RUN [ -d /var/mail ] || mkdir /var/mail
+ARG SBT_VERSION=1.5.2
+RUN cd /opt && curl -fSsL https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${SBT_VERSION}.tgz | tar xvz
+ENV PATH=/opt/sbt/bin:$PATH
+WORKDIR build
+COPY build.sbt build.sbt
+COPY project project
+RUN sbt update
+COPY src src
+RUN sbt assembly
 
-VOLUME /mnt/datagen.jar /mnt/params.ini /mnt/data
+FROM scratch as jar
+COPY --from=build-jar /build/target/ldbc_snb_datagen_*-jar-with-dependencies.jar /jar
 
-WORKDIR /mnt/data
+FROM python:3.7-slim as build-tools
+RUN pip install --no-cache virtualenv && virtualenv -p python3.7 /tools
+COPY tools build
+WORKDIR build
+RUN . /tools/bin/activate && pip install .
 
-# adjust these environment variables
+FROM python:3.7-slim as tools
+COPY --from=build-tools /tools /tools
+
+FROM bde2020/spark-master:3.2.1-hadoop3.2 as standalone
+COPY --from=jar /jar /jar
+COPY --from=tools /tools /tools
+RUN ln -sf /usr/bin/python3 /tools/bin/python
+
 ENV TEMP_DIR /tmp
-ENV EXECUTOR_MEMORY "1G"
-ENV DRIVER_MEMORY "5G"
-
-# the SPARK_* variables are used by submit.sh to configure the Spark job
 ENV SPARK_LOCAL_DIRS ${TEMP_DIR}
-ENV SPARK_SUBMIT_ARGS --executor-memory ${EXECUTOR_MEMORY} --driver-memory ${DRIVER_MEMORY}
-ENV SPARK_APPLICATION_MAIN_CLASS ldbc.snb.datagen.LdbcDatagen
-ENV SPARK_MASTER_URL local[*]
-ENV SPARK_APPLICATION_JAR_LOCATION /mnt/datagen.jar
+ENV PATH=/tools/bin:/spark/bin:$PATH
+ENV LDBC_SNB_DATAGEN_JAR=/jar
 
-COPY submit.sh /
-
-ENTRYPOINT ["/bin/bash", "/submit.sh"]
+WORKDIR /
+ENTRYPOINT ["run.py"]
