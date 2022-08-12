@@ -1,4 +1,8 @@
 FROM eclipse-temurin:8 as build-jar
+
+RUN apt update
+RUN apt install -y curl
+
 ARG SBT_VERSION=1.5.2
 RUN cd /opt && curl -fSsL https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${SBT_VERSION}.tgz | tar xvz
 ENV PATH=/opt/sbt/bin:$PATH
