@@ -484,7 +484,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
         .join(undirectedKnows(personKnowsPerson).as("knows"), $"Person1.id" === $"knows.Person1Id", "leftouter")
         .join(personNumFriends.as("personNumFriends"), $"personNumFriends.Person1Id" === $"knows.Person2Id", "leftouter")
 
-      frequency(knows2, value = $"frequency", by = Seq($"Person1.id"), agg = sum)
+      frequency(knows2, value = $"frequency", by = Seq($"knows.Person1Id"), agg = sum)
     },
     // posts
     "personNumPosts" -> Factor(PersonType, PostType) { case Seq(person, post) =>
@@ -534,27 +534,20 @@ object FactorGenerationStage extends DatagenStage with Logging {
     },
     // tags
     "personNumTags" -> Factor(PersonHasInterestTagType) { case Seq(interest) =>
-      frequency(
-        interest,
-        value = $"TagId",
-        by = Seq($"personId")
-      )
+      frequency(interest, value = $"TagId", by = Seq($"personId"))
     },
     "personNumFriendTags" -> Factor(PersonHasInterestTagType, PersonKnowsPersonType) { case Seq(interest, personKnowsPerson) =>
-      frequency(
-        undirectedKnows(personKnowsPerson).as("knows")
-          .join(interest, $"personId" === $"knows.Person2Id", "leftouter"),
-        value = $"TagId",
-        by = Seq($"knows.Person1Id")
-      )
+      val personNumTags = frequency(interest, value = $"TagId", by = Seq($"personId"), agg = count)
+        .select($"personId".as("Person1Id"), $"frequency")
+
+      val friendTags = personNumTags.as("personNumTags")
+        .join(undirectedKnows(personKnowsPerson).as("knows"), $"personNumTags.Person1Id" === $"knows.Person2Id", "leftouter")
+
+      frequency(friendTags, value = $"frequency", by = Seq($"knows.Person1Id"), agg = sum)
     },
     // forums
     "personNumForums" -> Factor(ForumHasMemberType) { case Seq(hasMember) =>
-      frequency(
-        hasMember,
-        value = $"ForumId",
-        by = Seq($"PersonId")
-      )
+      frequency(hasMember, value = $"ForumId", by = Seq($"PersonId"))
     },
     "personNumFriendForums" -> Factor(ForumHasMemberType, PersonKnowsPersonType) { case Seq(hasMember, personKnowsPerson) =>
       frequency(
@@ -575,11 +568,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
     },
     // companies
     "personNumCompanies" -> Factor(PersonWorkAtCompanyType) { case Seq(workAt) =>
-      frequency(
-        workAt,
-        value = $"CompanyId",
-        by = Seq($"PersonId")
-      )
+      frequency(workAt, value = $"CompanyId", by = Seq($"PersonId"))
     },
     "personNumFriendCompanies" -> Factor(PersonWorkAtCompanyType, PersonKnowsPersonType) { case Seq(workAt, personKnowsPerson) =>
       frequency(
