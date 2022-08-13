@@ -472,11 +472,19 @@ object FactorGenerationStage extends DatagenStage with Logging {
     },
     // friends
     "personNumFriendsOfFriends" -> Factor(PersonKnowsPersonType, PersonType) { case Seq(personKnowsPerson, person1) =>
-      val foaf = person1
+      val knows1 = person1
         .as("Person1")
-        .join(undirectedKnows(personKnowsPerson).as("knows1"), $"Person1.id" === $"knows1.Person1Id", "leftouter")
-        .join(undirectedKnows(personKnowsPerson).as("knows2"), $"knows1.Person2Id" === $"knows2.Person1Id", "leftouter")
-      frequency(foaf, value = $"knows2.Person2Id", by = Seq($"Person1.id", $"Person1.creationDate", $"Person1.deletionDate"))
+        .join(undirectedKnows(personKnowsPerson).as("knows"), $"Person1.id" === $"knows.Person1Id", "leftouter")
+
+      val personNumFriends = frequency(knows1, value = $"knows.Person2Id", by = Seq($"Person1.id"), agg = count)
+        .select($"Person1.id".as("Person1Id"), $"frequency")
+
+      val knows2 = person1
+        .as("Person1")
+        .join(undirectedKnows(personKnowsPerson).as("knows"), $"Person1.id" === $"knows.Person1Id", "leftouter")
+        .join(personNumFriends.as("personNumFriends"), $"personNumFriends.Person1Id" === $"knows.Person2Id", "leftouter")
+
+      frequency(knows2, value = $"frequency", by = Seq($"Person1.id"), agg = sum)
     },
     // posts
     "personNumPosts" -> Factor(PersonType, PostType) { case Seq(person, post) =>
