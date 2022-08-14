@@ -468,6 +468,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
     },
     // friends
     "personNumFriendsOfFriends" -> Factor(PersonKnowsPersonType, PersonType) { case Seq(personKnowsPerson, person1) =>
+      // direct friends
       val knows1 = person1
         .as("Person1")
         .join(undirectedKnows(personKnowsPerson).as("knows"), $"Person1.id" === $"knows.Person1Id", "leftouter")
@@ -475,6 +476,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
       val personNumFriends = frequency(knows1, value = $"knows.Person2Id", by = Seq($"Person1.id"), agg = count)
         .select($"Person1.id".as("Person1Id"), $"frequency".as("numFriends"))
 
+      // friends of friends
       val personFriendsOfFriends = personNumFriends.as("personNumFriends1")
         .join(undirectedKnows(personKnowsPerson).as("knows"), $"personNumFriends1.Person1Id" === $"knows.Person1Id", "leftouter")
         .join(personNumFriends.as("personNumFriends2"),       $"personNumFriends2.Person1Id" === $"knows.Person2Id", "leftouter")
@@ -482,7 +484,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
       val personNumFriendsOfFriends = frequency(
         personFriendsOfFriends,
         value = $"personNumFriends2.numFriends",
-        by = Seq($"knows.Person1Id", $"personNumFriends1.numFriends"),
+        by = Seq($"personNumFriends1.Person1Id", $"personNumFriends1.numFriends"),
         agg = sum
       ).select($"Person1Id", $"numFriends", $"frequency".as("numFriendsOfFriends"))
 
@@ -506,9 +508,9 @@ object FactorGenerationStage extends DatagenStage with Logging {
       val numFriendPosts = frequency(
         friendPosts,
         value = $"numPersonPosts2.numDirectPosts",
-        by = Seq($"knows.Person1Id", $"numPersonPosts1.numDirectPosts"),
+        by = Seq($"numPersonPosts1.Person1Id", $"numPersonPosts1.numDirectPosts"),
         agg = sum
-      ).select($"knows.Person1Id".as("Person1Id"), $"numDirectPosts", $"frequency".as("numFriendPosts"))
+      ).select($"numPersonPosts1.Person1Id".as("Person1Id"), $"numDirectPosts", $"frequency".as("numFriendPosts"))
 
       // posts of friends of friends
       val friendOfFriendPosts = numFriendPosts.as("numFriendPosts1")
