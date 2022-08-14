@@ -31,6 +31,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
   case class Args(
       outputDir: String = "out",
       irFormat: String = "parquet",
+      format: String = "parquet",
       only: Option[Regex] = None,
       force: Boolean = false
   )
@@ -53,6 +54,10 @@ object FactorGenerationStage extends DatagenStage with Logging {
       opt[String]("ir-format")
         .action((x, c) => args.irFormat.set(c)(x))
         .text("Format of the raw input")
+
+      opt[String]("format")
+        .action((x, c) => args.format.set(c)(x))
+        .text("Output format")
 
       opt[String]("only")
         .action((x, c) => args.only.set(c)(Some(x.r.anchored)))
@@ -87,7 +92,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
               FactorTable(name, calc(resolvedEntities), g)
           }
       )
-      .foreach(_.write(FactorTableSink(args.outputDir, overwrite = args.force)))
+      .foreach(_.write(FactorTableSink(args.outputDir, format = args.format, overwrite = args.force)))
   }
 
   private def frequency(df: DataFrame, value: Column, by: Seq[Column], agg: Column => Column = count) =

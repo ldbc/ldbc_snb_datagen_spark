@@ -26,10 +26,11 @@ object LdbcDatagen extends SparkApp {
       batchPeriod: String = "day",
       numThreads: Option[Int] = None,
       format: String = "csv",
-      generateFactors: Boolean = false,
       formatOptions: Map[String, String] = Map.empty,
       oversizeFactor: Option[Double] = None,
-      epochMillis: Boolean = false
+      epochMillis: Boolean = false,
+      generateFactors: Boolean = false,
+      factorFormat: String = "parquet"
   )
 
   override type ArgsType = Args
@@ -118,6 +119,10 @@ object LdbcDatagen extends SparkApp {
         .action((x, c) => args.generateFactors.set(c)(true))
         .text("Generate factor tables")
 
+      opt[String]("factor-format")
+        .action((x, c) => args.factorFormat.set(c)(x))
+        .text("Output format of factor tables")
+
       help('h', "help").text("prints this usage text")
 
       opt[Unit]("epoch-millis")
@@ -146,7 +151,11 @@ object LdbcDatagen extends SparkApp {
     GenerationStage.run(generatorArgs)
 
     if (args.generateFactors) {
-      val factorArgs = FactorGenerationStage.Args(outputDir = args.outputDir, irFormat = irFormat)
+      val factorArgs = FactorGenerationStage.Args(
+        outputDir = args.outputDir,
+        irFormat = irFormat,
+        format = args.factorFormat
+      )
       FactorGenerationStage.run(factorArgs)
     }
 

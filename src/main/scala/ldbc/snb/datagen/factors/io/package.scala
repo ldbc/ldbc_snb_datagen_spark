@@ -8,7 +8,7 @@ import ldbc.snb.datagen.util.Logging
 import org.apache.spark.sql.SaveMode
 
 package object io {
-  case class FactorTableSink(path: String, format: String = "csv", overwrite: Boolean = false)
+  case class FactorTableSink(path: String, format: String = "parquet", overwrite: Boolean = false)
 
   import ldbc.snb.datagen.io.Writer.ops._
   import ldbc.snb.datagen.io.dataframes.instances._
