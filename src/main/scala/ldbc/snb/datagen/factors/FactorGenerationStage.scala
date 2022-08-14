@@ -526,26 +526,26 @@ object FactorGenerationStage extends DatagenStage with Logging {
       numFriendOfFriendPosts
     },
     // comments
-    "personNumComments" -> Factor(PersonType, PostType) { case Seq(person, comment) =>
-      val comments = person
-        .as("Person")
-        .join(comment.as("comment"), $"comment.CreatorPersonId" === $"Person.id", "leftouter")
-
-      val numComments = frequency(comments, value = $"comment.id", by = Seq($"Person.id"))
-      numComments
-    },
     "personNumFriendComments" -> Factor(PersonType, PersonKnowsPersonType, CommentType) { case Seq(person, personKnowsPerson, comment) =>
+      // direct comments
       val personComments = person
         .as("Person")
         .join(comment.as("Comment"), $"Comment.CreatorPersonId" === $"Person.id", "leftouter")
 
       val numPersonComments = frequency(personComments, value = $"Comment.id", by = Seq($"Person.id"), agg = count)
-        .select($"Person.id".as("Person1Id"), $"frequency")
+        .select($"Person.id".as("Person1Id"), $"frequency".as("numDirectComments"))
 
-      val friendComments = numPersonComments.as("numPersonComments")
-        .join(undirectedKnows(personKnowsPerson).as("knows"), $"numPersonComments.Person1Id" === $"knows.Person2Id", "leftouter")
+      // friend comments
+      val friendComments = numPersonComments.as("numPersonComments1")
+        .join(undirectedKnows(personKnowsPerson).as("knows"), $"numPersonComments1.Person1Id" === $"knows.Person1Id", "leftouter")
+        .join(numPersonComments.as("numPersonComments2"),     $"numPersonComments2.Person1Id" === $"knows.Person2Id", "leftouter")
 
-      val numFriendComments = frequency(friendComments, value = $"frequency", by = Seq($"knows.Person1Id"), agg = sum)
+      val numFriendComments = frequency(
+        friendComments,
+        value = $"numPersonComments2.numDirectComments",
+        by = Seq($"numPersonComments1.Person1Id", $"numPersonComments1.numDirectComments"),
+        agg = sum
+      )
       numFriendComments
     },
     // likes
