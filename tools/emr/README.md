@@ -22,7 +22,13 @@ In AWS IAM, add the following roles with **Create Role** | **AWS service** | **E
 * **EMR** a.k.a. `AmazonElasticMapReduceRole`, name it `EMR_DefaultRole`
 * **EMR Role for EC2** a.k.a. `AmazonElasticMapReduceforEC2Role`, name it `EMR_EC2_DefaultRole`
 
-## Install the required libraries
+## Setting up locally
+
+### Authentication
+
+Using the [AWS CLI tool](https://aws.amazon.com/cli/), log in to your AWS account and set the AWS profile used (if any).
+
+### Install the required libraries
 
 Install the required libraries as described in the [main README](../../README.md#install-python-tools).
 
