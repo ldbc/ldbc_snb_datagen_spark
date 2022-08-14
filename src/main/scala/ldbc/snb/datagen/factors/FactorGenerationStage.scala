@@ -576,32 +576,37 @@ object FactorGenerationStage extends DatagenStage with Logging {
       numFriendTags
     },
     // forums
-    "personNumForums" -> Factor(ForumHasMemberType) { case Seq(hasMember) =>
-      frequency(hasMember, value = $"ForumId", by = Seq($"PersonId"))
-    },
-    "personNumFriendForums" -> Factor(ForumHasMemberType, PersonKnowsPersonType) { case Seq(hasMember, personKnowsPerson) =>
-      val personNumForums = frequency(hasMember, value = $"ForumId", by = Seq($"PersonId"), agg = count)
-        .select($"PersonId".as("Person1Id"), $"frequency")
+    "personNumFriendOfFriendForums" -> Factor(PersonType, ForumHasMemberType, PersonKnowsPersonType) { case Seq(person, hasMember, personKnowsPerson) =>
+      // direct forums
+      val directForums = person.as("Person")
+        .join(hasMember.as("hasMember"), $"hasMember.PersonId" === $"Person.id", "leftouter")
 
-      val friendForums = personNumForums.as("personNumForums")
-        .join(undirectedKnows(personKnowsPerson).as("knows"), $"personNumForums.Person1Id" === $"knows.Person2Id", "leftouter")
+      val numForums = frequency(directForums, value = $"ForumId", by = Seq($"Person.id"), agg = count)
+        .select($"Person.id".as("Person1Id"), $"frequency".as("numDirectForums"))
 
-      val numFriendForums = frequency(friendForums, value = $"frequency", by = Seq($"knows.Person1Id"), agg = sum)
-      numFriendForums
-    },
-    "personNumFriendOfFriendForums" -> Factor(ForumHasMemberType, PersonKnowsPersonType) { case Seq(hasMember, personKnowsPerson) =>
-      val personNumForums = frequency(hasMember, value = $"ForumId", by = Seq($"PersonId"), agg = count)
-        .select($"PersonId".as("Person1Id"), $"frequency")
+      val friendForums = numForums.as("numForums1")
+        .join(undirectedKnows(personKnowsPerson).as("knows"), $"numForums1.Person1Id" === $"knows.Person1Id", "leftouter")
+        .join(numForums.as("numForums2"),                     $"numForums2.Person1Id" === $"knows.Person2Id", "leftouter")
 
-      val friendForums = personNumForums.as("personNumForums")
-        .join(undirectedKnows(personKnowsPerson).as("knows"), $"personNumForums.Person1Id" === $"knows.Person2Id", "leftouter")
+      // forums of friends
+      val numFriendForums = frequency(
+        friendForums,
+        value = $"numForums2.numDirectForums",
+        by = Seq($"numForums1.Person1Id", $"numForums1.numDirectForums"),
+        agg = sum
+      ).select($"numForums1.Person1Id".as("Person1Id"), $"numForums1.numDirectForums", $"frequency".as("numFriendForums"))
 
-      val numFriendForums = frequency(friendForums, value = $"frequency", by = Seq($"knows.Person1Id"), agg = sum)
+      // forums of friends of friends
+      val friendOfFriendForums = numFriendForums.as("numFriendForums1")
+        .join(undirectedKnows(personKnowsPerson).as("knows"), $"numFriendForums1.Person1Id" === $"knows.Person1Id", "leftouter")
+        .join(numFriendForums.as("numFriendForums2"),         $"numFriendForums2.Person1Id" === $"knows.Person2Id", "leftouter")
 
-      val friendOfFriendForums = numFriendForums.as("numFriendForums")
-        .join(undirectedKnows(personKnowsPerson).as("knows"), $"numFriendForums.Person1Id" === $"knows.Person2Id", "leftouter")
-
-      val numFriendOfFriendForums = frequency(friendOfFriendForums, value = $"frequency", by = Seq($"knows.Person1Id"), agg = sum)
+      val numFriendOfFriendForums = frequency(
+        friendOfFriendForums,
+        value = $"numFriendForums2.numFriendForums",
+        by = Seq($"numFriendForums1.Person1Id", $"numFriendForums1.numDirectForums", $"numFriendForums1.numFriendForums"),
+        agg = sum
+      )
       numFriendOfFriendForums
     },
     // companies
