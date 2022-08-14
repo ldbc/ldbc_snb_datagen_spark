@@ -562,17 +562,26 @@ object FactorGenerationStage extends DatagenStage with Logging {
       personLikesNumMessages
     },
     // tags
-    "personNumTags" -> Factor(PersonHasInterestTagType) { case Seq(interest) =>
-      frequency(interest, value = $"TagId", by = Seq($"PersonId"))
-    },
-    "personNumFriendTags" -> Factor(PersonHasInterestTagType, PersonKnowsPersonType) { case Seq(interest, personKnowsPerson) =>
-      val personNumTags = frequency(interest, value = $"TagId", by = Seq($"PersonId"), agg = count)
-        .select($"personId".as("Person1Id"), $"frequency")
+    "personNumFriendTags" -> Factor(PersonType, PersonHasInterestTagType, PersonKnowsPersonType) { case Seq(person, interest, personKnowsPerson) =>
+      // direct tags
+      val personComments = person
+        .as("Person")
+        .join(interest.as("interest"), $"interest.PersonId" === $"Person.id", "leftouter")
 
-      val friendTags = personNumTags.as("personNumTags")
-        .join(undirectedKnows(personKnowsPerson).as("knows"), $"personNumTags.Person1Id" === $"knows.Person2Id", "leftouter")
+      val numPersonTags = frequency(personComments, value = $"TagId", by = Seq($"PersonId"), agg = count)
+        .select($"PersonId".as("Person1Id"), $"frequency".as("numDirectTags"))
 
-      val numFriendTags = frequency(friendTags, value = $"frequency", by = Seq($"knows.Person1Id"), agg = sum)
+      // tags of friends
+      val friendTags = numPersonTags.as("numPersonTags1")
+        .join(undirectedKnows(personKnowsPerson).as("knows"), $"numPersonTags1.Person1Id" === $"knows.Person1Id", "leftouter")
+        .join(numPersonTags.as("numPersonTags2"),             $"numPersonTags2.Person1Id" === $"knows.Person2Id", "leftouter")
+
+      val numFriendTags = frequency(
+        friendTags,
+        value = $"numPersonTags2.numDirectTags",
+        by = Seq($"numPersonTags1.Person1Id", $"numPersonTags1.numDirectTags"),
+        agg = sum
+      )
       numFriendTags
     },
     // forums
