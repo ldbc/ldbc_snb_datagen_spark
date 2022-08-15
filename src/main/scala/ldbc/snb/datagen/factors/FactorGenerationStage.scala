@@ -595,8 +595,12 @@ object FactorGenerationStage extends DatagenStage with Logging {
       val directForums = person.as("Person")
         .join(hasMember.as("hasMember"), $"hasMember.PersonId" === $"Person.id", "leftouter")
 
-      val numForums = frequency(directForums, value = $"ForumId", by = Seq($"Person.id"), agg = count)
-        .select($"Person.id".as("Person1Id"), $"frequency".as("numDirectForums"))
+      val numForums = frequency(
+        directForums,
+        value = $"ForumId",
+        by = Seq($"Person.id", $"Person.creationDate", $"Person.deletionDate"),
+        agg = count
+      ).select($"Person.id".as("Person1Id"), $"Person.creationDate", $"Person.deletionDate", $"frequency".as("numDirectForums"))
 
       val friendForums = numForums.as("numForums1")
         .join(undirectedKnows(personKnowsPerson).as("knows"), $"numForums1.Person1Id" === $"knows.Person1Id", "leftouter")
@@ -606,9 +610,9 @@ object FactorGenerationStage extends DatagenStage with Logging {
       val numFriendForums = frequency(
         friendForums,
         value = $"numForums2.numDirectForums",
-        by = Seq($"numForums1.Person1Id", $"numForums1.numDirectForums"),
+        by = Seq($"numForums1.Person1Id", $"numForums1.creationDate", $"numForums1.deletionDate", $"numForums1.numDirectForums"),
         agg = sum
-      ).select($"numForums1.Person1Id".as("Person1Id"), $"numForums1.numDirectForums", $"frequency".as("numFriendForums"))
+      ).select($"numForums1.Person1Id".as("Person1Id"), $"creationDate", $"deletionDate", $"numForums1.numDirectForums", $"frequency".as("numFriendForums"))
 
       // forums of friends of friends
       val friendOfFriendForums = numFriendForums.as("numFriendForums1")
@@ -618,9 +622,9 @@ object FactorGenerationStage extends DatagenStage with Logging {
       val numFriendOfFriendForums = frequency(
         friendOfFriendForums,
         value = $"numFriendForums2.numFriendForums",
-        by = Seq($"numFriendForums1.Person1Id", $"numFriendForums1.numDirectForums", $"numFriendForums1.numFriendForums"),
+        by = Seq($"numFriendForums1.Person1Id", $"numFriendForums1.creationDate", $"numFriendForums1.deletionDate", $"numFriendForums1.numDirectForums", $"numFriendForums1.numFriendForums"),
         agg = sum
-      )
+      ).select($"Person1Id", $"creationDate", $"deletionDate", $"numDirectForums", $"numFriendForums", $"frequency".as("numFriendOfFriendForums"))
       numFriendOfFriendForums
     },
     // companies
