@@ -527,7 +527,8 @@ object FactorGenerationStage extends DatagenStage with Logging {
         value = $"numFriendPosts2.numFriendPosts",
         by = Seq($"numFriendPosts1.Person1Id", $"numFriendPosts1.numDirectPosts", $"numFriendPosts1.numFriendPosts"),
         agg = sum
-      )
+      ).select($"Person1Id", $"numDirectPosts", $"numFriendPosts", $"frequency".as("numFriendOfFriendPosts"))
+
       numFriendOfFriendPosts
     },
     // comments
@@ -550,7 +551,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
         value = $"numPersonComments2.numDirectComments",
         by = Seq($"numPersonComments1.Person1Id", $"numPersonComments1.numDirectComments"),
         agg = sum
-      )
+      ).select($"Person1Id", $"numDirectComments", $"frequency".as("numFriendComments"))
       numFriendComments
     },
     // likes
@@ -563,7 +564,12 @@ object FactorGenerationStage extends DatagenStage with Logging {
         .as("Person")
         .join(personLikesMessage.as("personLikesMessage"), $"personLikesMessage.PersonId" === $"Person.id", "leftouter")
 
-      val personLikesNumMessages = frequency(messages, value = $"personLikesMessage.MessageId", by = Seq($"Person.id"))
+      val personLikesNumMessages = frequency(
+        messages,
+        value = $"personLikesMessage.MessageId",
+        by = Seq($"Person.id"),
+        agg = count
+      )
       personLikesNumMessages
     },
     // tags
@@ -586,7 +592,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
         value = $"numPersonTags2.numDirectTags",
         by = Seq($"numPersonTags1.Person1Id", $"numPersonTags1.numDirectTags"),
         agg = sum
-      )
+      ).select($"Person1Id", $"numDirectTags", $"frequency".as("numFriendTags"))
       numFriendTags
     },
     // forums
@@ -612,7 +618,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
         value = $"numForums2.numDirectForums",
         by = Seq($"numForums1.Person1Id", $"numForums1.creationDate", $"numForums1.deletionDate", $"numForums1.numDirectForums"),
         agg = sum
-      ).select($"numForums1.Person1Id".as("Person1Id"), $"creationDate", $"deletionDate", $"numForums1.numDirectForums", $"frequency".as("numFriendForums"))
+      ).select($"Person1Id", $"creationDate", $"deletionDate", $"numDirectForums", $"frequency".as("numFriendForums"))
 
       // forums of friends of friends
       val friendOfFriendForums = numFriendForums.as("numFriendForums1")
@@ -646,7 +652,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
         value = $"numCompanies2.numDirectCompanies",
         by = Seq($"numCompanies1.Person1Id", $"numCompanies1.numDirectCompanies"),
         agg = sum
-      ).select($"numCompanies1.Person1Id".as("Person1Id"), $"numCompanies1.numDirectCompanies", $"frequency".as("numFriendCompanies"))
+      ).select($"Person1Id", $"numDirectCompanies", $"frequency".as("numFriendCompanies"))
 
       // companies of friends of friends
       val friendOfFriendCompanies = numFriendCompanies.as("numFriendCompanies1")
@@ -658,7 +664,8 @@ object FactorGenerationStage extends DatagenStage with Logging {
         value = $"numFriendCompanies2.numFriendCompanies",
         by = Seq($"numFriendCompanies1.Person1Id", $"numFriendCompanies1.numDirectCompanies", $"numFriendCompanies1.numFriendCompanies"),
         agg = sum
-      )
+      ).select($"Person1Id", $"numDirectCompanies", $"numFriendCompanies", $"frequency".as("numFriendOfFriendCompanies"))
+
       numFriendOfFriendCompanies
     },
   )
