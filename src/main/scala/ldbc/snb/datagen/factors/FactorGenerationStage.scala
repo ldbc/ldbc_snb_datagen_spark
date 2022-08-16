@@ -668,6 +668,23 @@ object FactorGenerationStage extends DatagenStage with Logging {
 
       cc.join(counts, Seq("Component")).select("PersonId", "Component", "count")
 
+    },
+    "personKnowsPersonConnected" -> LargeFactor(PersonType, PersonKnowsPersonType) { case Seq(person, personKnowsPerson) =>
+      val s = spark
+      import s.implicits._
+      val vertices = person.select("id").rdd.map(row => (row.getAs[Long]("id"), ()))
+
+      val edges = personKnowsPerson.rdd.map(row =>
+        graphx.Edge(row.getAs[Long]("Person1Id"), row.getAs[Long]("Person2Id"), ())
+      )
+      val graph = graphx.Graph(vertices, edges, ())
+      val cc = graph.connectedComponents().vertices
+        .toDF("PersonId", "Component")
+
+      val counts = cc.groupBy("Component").agg(count("*").as("count"))
+
+      cc.join(counts, Seq("Component")).select("PersonId", "Component", "count")
+
     }
   )
 }
