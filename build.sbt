@@ -25,6 +25,7 @@ resolvers += "TUDelft Repository" at "https://simulation.tudelft.nl/maven/"
 libraryDependencies ++= Seq(
   "org.apache.spark" %%  "spark-sql" % sparkVersion.value % "provided",
   "org.apache.spark" %%  "spark-core" % sparkVersion.value % "provided",
+  "org.apache.spark" %%  "spark-graphx" % sparkVersion.value % "provided",
   "com.chuusai" %%  "shapeless" % "2.3.3",
   "com.github.scopt" %%  "scopt" % "3.7.1",
   "org.javatuples" %  "javatuples" % "1.2",

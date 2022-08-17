@@ -8,8 +8,9 @@ import ldbc.snb.datagen.model.Mode.Raw
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.transformation.transform.ConvertDates
 import ldbc.snb.datagen.util.{DatagenStage, Logging}
+import org.apache.spark.graphx
 import org.apache.spark.sql.functions.{broadcast, col, count, date_trunc, expr, floor, lit, sum}
-import org.apache.spark.sql.{Column, DataFrame, functions}
+import org.apache.spark.sql.{Column, DataFrame, Row, functions}
 import shapeless._
 
 import scala.util.matching.Regex
@@ -144,6 +145,20 @@ object FactorGenerationStage extends DatagenStage with Logging {
       value = $"MessageHasTag.TagId",
       by = Seq($"Tag.id", $"Tag.name")
     ).select($"Tag.id".as("tagId"), $"Tag.name".as("tagName"), $"frequency")
+  }
+
+  private def sameUniversityKnows(personKnowsPerson: DataFrame, studyAt: DataFrame) = {
+    undirectedKnowsTemporal(personKnowsPerson)
+      .join(studyAt.as("studyAt1"), $"studyAt1.personId" === $"knows.person1Id")
+      .join(studyAt.as("studyAt2"), $"studyAt2.personId" === $"knows.person2Id")
+      .where($"studyAt1.universityId" === $"studyAt2.universityId")
+      .select(
+        $"knows.person1Id".as("person1Id"),
+        $"knows.person2Id".as("person2Id"),
+        functions.greatest($"knows.creationDate", $"studyAt1.creationDate", $"studyAt2.creationDate").alias("creationDate"),
+        functions.least($"knows.deletionDate", $"studyAt1.deletionDate", $"studyAt2.deletionDate").alias("deletionDate")
+      )
+      .where($"creationDate" < $"deletionDate")
   }
 
   import model.raw._
@@ -451,21 +466,6 @@ object FactorGenerationStage extends DatagenStage with Logging {
       val sampleFractionPersonPairs = Math.min(10000.0 / personPairs.count(), 1.0)
       personPairs.sample(sampleFractionPersonPairs, 42)
     },
-    "sameUniversityKnows" -> LargeFactor(PersonKnowsPersonType, PersonStudyAtUniversityType) { case Seq(personKnowsPerson, studyAt) =>
-      val size = Math.max(Math.ceil(personKnowsPerson.rdd.getNumPartitions / 10).toInt, 1)
-      undirectedKnowsTemporal(personKnowsPerson)
-        .join(studyAt.as("studyAt1"), $"studyAt1.personId" === $"knows.person1Id")
-        .join(studyAt.as("studyAt2"), $"studyAt2.personId" === $"knows.person2Id")
-        .where($"studyAt1.universityId" === $"studyAt2.universityId")
-        .select(
-          $"knows.person1Id".as("person1Id"),
-          $"knows.person2Id".as("person2Id"),
-          functions.greatest($"knows.creationDate", $"studyAt1.creationDate", $"studyAt2.creationDate").alias("creationDate"),
-          functions.least($"knows.deletionDate", $"studyAt1.deletionDate", $"studyAt2.deletionDate").alias("deletionDate")
-        )
-        .where($"creationDate" < $"deletionDate")
-        .coalesce(size)
-    },
     // -- interactive --
     // first names
     "personFirstNames" -> Factor(PersonType) { case Seq(person) =>
@@ -691,5 +691,39 @@ object FactorGenerationStage extends DatagenStage with Logging {
 
       numFriendOfFriendCompanies
     },
+    "sameUniversityConnected" -> LargeFactor(PersonType, PersonKnowsPersonType, PersonStudyAtUniversityType) { case Seq(person, personKnowsPerson, studyAt) =>
+      val s = spark
+      import s.implicits._
+      val vertices = person.select("id").rdd.map(row => (row.getAs[Long]("id"), ()))
+
+      val edges = sameUniversityKnows(personKnowsPerson, studyAt).rdd.map(row =>
+        graphx.Edge(row.getAs[Long]("person1Id"), row.getAs[Long]("person2Id"), ())
+      )
+      val graph = graphx.Graph(vertices, edges, ())
+      val cc = graph.connectedComponents().vertices
+        .toDF("PersonId", "Component")
+
+      val counts = cc.groupBy("Component").agg(count("*").as("count"))
+
+      cc.join(counts, Seq("Component")).select("PersonId", "Component", "count")
+
+    },
+    "personKnowsPersonConnected" -> LargeFactor(PersonType, PersonKnowsPersonType) { case Seq(person, personKnowsPerson) =>
+      val s = spark
+      import s.implicits._
+      val vertices = person.select("id").rdd.map(row => (row.getAs[Long]("id"), ()))
+
+      val edges = personKnowsPerson.rdd.map(row =>
+        graphx.Edge(row.getAs[Long]("Person1Id"), row.getAs[Long]("Person2Id"), ())
+      )
+      val graph = graphx.Graph(vertices, edges, ())
+      val cc = graph.connectedComponents().vertices
+        .toDF("PersonId", "Component")
+
+      val counts = cc.groupBy("Component").agg(count("*").as("count"))
+
+      cc.join(counts, Seq("Component")).select("PersonId", "Component", "count")
+
+    }
   )
 }
