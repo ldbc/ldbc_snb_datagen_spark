@@ -41,7 +41,7 @@ pip install -U pip
 pip install ./tools
 ```
 
-If the enviroment already exists, activate it with:
+If the environment already exists, activate it with:
 
 ```bash
 pyenv activate
