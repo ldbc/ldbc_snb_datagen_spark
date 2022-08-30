@@ -32,6 +32,7 @@ Some of the build utilities are written in Python. To use them, you have to crea
 and install the dependencies.
 
 E.g. with [pyenv](https://github.com/pyenv/pyenv) and [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv):
+
 ```bash
 pyenv install 3.7.13
 pyenv virtualenv 3.7.13 ldbc_datagen_tools
@@ -39,6 +40,13 @@ pyenv local ldbc_datagen_tools
 pip install -U pip
 pip install ./tools
 ```
+
+If the enviroment already exists, activate it with:
+
+```bash
+pyenv activate
+```
+
 ### Running locally
 
 The `./tools/run.py` script is intended for **local runs**. To use it, download and extract Spark as follows.
