@@ -10,11 +10,14 @@ import shapeless.lens
 
 object ExplodeAttrs extends Transform[Mode.Raw.type, Mode.Raw.type] {
   override def transform(input: In): Out = {
+    if (input.definition.isAttrExploded) {
+      throw new IllegalArgumentException("Attributes already exploded in the input graph")
+    }
 
     def explodedAttr(attr: Attr, node: DataFrame, column: Column) =
       attr -> node.select(withRawColumns(attr, $"id".as(s"${attr.parent}Id"), explode(split(column, ";")).as(s"${attr.attribute}Id")))
 
-    val updatedEntities = input.entities
+    val modifiedEntities = input.entities
       .collect { case (k @ Node("Person", false), v) =>
         Map(
           explodedAttr(Attr("Email", k, "EmailAddress"), v, $"email"),
@@ -22,10 +25,17 @@ object ExplodeAttrs extends Transform[Mode.Raw.type, Mode.Raw.type] {
           k -> v.drop("email", "language")
         )
       }
+
+    val updatedEntities = modifiedEntities
       .foldLeft(input.entities)(_ ++ _)
+
+    val updatedEntityDefinitions = modifiedEntities
+      .foldLeft(input.definition.entities) { (e, v) =>
+        e ++ v.map{ case (k, v) => k -> Some(v.schema.toDDL) }
+      }
 
     val l = lens[In]
 
-    (l.isAttrExploded ~ l.entities).set(input)((true, updatedEntities))
+    (l.definition.isAttrExploded ~ l.definition.entities ~ l.entities).set(input)((true, updatedEntityDefinitions, updatedEntities))
   }
 }

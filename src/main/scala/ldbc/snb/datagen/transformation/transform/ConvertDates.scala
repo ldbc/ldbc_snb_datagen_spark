@@ -27,25 +27,40 @@ object ConvertDates {
   object instances {
     implicit def batchedConvertDates[M <: Mode](implicit ev: BatchedEntity =:= M#Layout) = new ConvertDates[M] {
       override def transform(input: In): Out = {
-        lens[In].entities.modify(input)(
-          _.map { case (tpe, layout) => tpe -> {
-            val be = layout.asInstanceOf[BatchedEntity]
-            ev(BatchedEntity(
-              convertDates(tpe, be.snapshot),
-              be.insertBatches.map(b => Batched(convertDates(tpe, b.entity), b.batchId, b.ordering)),
-              be.deleteBatches.map(b => Batched(convertDates(tpe, b.entity), b.batchId, b.ordering))
-            ))
-          }
-          }
-        )
+        if (input.definition.useTimestamp) {
+          throw new IllegalArgumentException("Already using timestamp for dates")
+        }
+        val modifiedEntities = input.entities.map { case (tpe, layout) => tpe -> {
+          val be = layout.asInstanceOf[BatchedEntity]
+          ev(BatchedEntity(
+            convertDates(tpe, be.snapshot),
+            be.insertBatches.map(b => Batched(convertDates(tpe, b.entity), b.batchId, b.ordering)),
+            be.deleteBatches.map(b => Batched(convertDates(tpe, b.entity), b.batchId, b.ordering))
+          ))
+        }}
+
+        val modifiedEntityDefinitions = modifiedEntities
+          .map { case (tpe, v) => tpe -> Some(v.asInstanceOf[BatchedEntity].snapshot.schema.toDDL) }
+
+        val l = lens[In]
+        (l.definition.useTimestamp ~ l.definition.entities ~ l.entities).set(input)((true, modifiedEntityDefinitions, modifiedEntities))
       }
     }
 
     implicit def simpleConvertDates[M <: Mode](implicit ev: DataFrame =:= M#Layout) = new ConvertDates[M] {
       override def transform(input: In): Out = {
-        lens[In].entities.modify(input)(
-          _.map { case (tpe, v) => tpe -> ev(convertDates(tpe, v.asInstanceOf[DataFrame])) }
-        )
+        if (input.definition.useTimestamp) {
+          throw new IllegalArgumentException("Already using timestamp for dates")
+        }
+
+        val modifiedEntities = input.entities
+          .map { case (tpe, v) => tpe -> ev(convertDates(tpe, v.asInstanceOf[DataFrame])) }
+
+        val modifiedEntityDefinitions = modifiedEntities
+          .map { case (tpe, v) => tpe -> Some(v.asInstanceOf[DataFrame].schema.toDDL) }
+
+        val l = lens[In]
+        (l.definition.useTimestamp ~ l.definition.entities ~ l.entities).set(input)((true, modifiedEntityDefinitions, modifiedEntities))
       }
     }
   }

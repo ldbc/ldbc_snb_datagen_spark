@@ -12,6 +12,7 @@ object graphs {
     val graphDef = GraphDef(
       isAttrExploded = false,
       isEdgesExploded = false,
+      useTimestamp = false,
       Mode.Raw,
       UntypedEntities[RawEntity].value.map { case (k, v) => (k, Some(v.toDDL)) }
     )

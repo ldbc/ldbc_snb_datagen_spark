@@ -79,6 +79,16 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
               None
           )
       }
-    Graph[Mode.BI](isAttrExploded = input.isAttrExploded, isEdgesExploded = input.isEdgesExploded, mode, entities)
+
+    Graph[Mode.BI](
+      GraphDef[Mode.BI](
+        isAttrExploded = input.definition.isAttrExploded,
+        isEdgesExploded = input.definition.isEdgesExploded,
+        useTimestamp = input.definition.useTimestamp,
+        mode = mode,
+        entities = input.definition.entities
+      ),
+      entities
+    )
   }
 }

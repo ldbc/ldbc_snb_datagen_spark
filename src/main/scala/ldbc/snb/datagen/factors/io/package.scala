@@ -2,7 +2,7 @@ package ldbc.snb.datagen.factors
 
 import ldbc.snb.datagen.io.dataframes.DataFrameSink
 import ldbc.snb.datagen.io.{PathComponent, Writer}
-import ldbc.snb.datagen.model.{GraphLike, Mode}
+import ldbc.snb.datagen.model.{GraphDef, Mode}
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.util.Logging
 import org.apache.spark.sql.SaveMode
@@ -17,7 +17,7 @@ package object io {
     override type Data = FactorTable[M]
 
     override def write(self: FactorTable[M], sink: FactorTableSink): Unit = {
-      val p = (sink.path / "factors" / sink.format / PathComponent[GraphLike[M]].path(self.source) / self.name).toString
+      val p = (sink.path / "factors" / sink.format / PathComponent[GraphDef[M]].path(self.source.definition) / self.name).toString
       val dfSink = if (sink.overwrite) {
         DataFrameSink(p, sink.format, mode = SaveMode.Overwrite)
       } else DataFrameSink(p, sink.format)
