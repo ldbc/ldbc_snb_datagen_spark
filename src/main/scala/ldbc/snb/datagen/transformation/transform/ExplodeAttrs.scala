@@ -11,7 +11,7 @@ import shapeless.lens
 object ExplodeAttrs extends Transform[Mode.Raw.type, Mode.Raw.type] {
   override def transform(input: In): Out = {
     if (input.definition.isAttrExploded) {
-      throw new IllegalArgumentException("Attributes already exploded in the input graph")
+      throw new AssertionError("Attributes already exploded in the input graph")
     }
 
     def explodedAttr(attr: Attr, node: DataFrame, column: Column) =

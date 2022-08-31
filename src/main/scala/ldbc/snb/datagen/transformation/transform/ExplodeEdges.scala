@@ -13,7 +13,7 @@ import shapeless.lens
 object ExplodeEdges extends Transform[Mode.Raw.type, Mode.Raw.type] {
   override def transform(input: In): Out = {
     if (input.definition.isEdgesExploded) {
-          throw new IllegalArgumentException("Edges already exploded in the input graph")
+          throw new AssertionError("Edges already exploded in the input graph")
         }
     val entities = input.entities
 

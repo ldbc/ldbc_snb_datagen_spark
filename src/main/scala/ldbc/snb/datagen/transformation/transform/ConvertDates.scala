@@ -28,7 +28,7 @@ object ConvertDates {
     implicit def batchedConvertDates[M <: Mode](implicit ev: BatchedEntity =:= M#Layout) = new ConvertDates[M] {
       override def transform(input: In): Out = {
         if (input.definition.useTimestamp) {
-          throw new IllegalArgumentException("Already using timestamp for dates")
+          throw new AssertionError("Already using timestamp for dates")
         }
         val modifiedEntities = input.entities.map { case (tpe, layout) => tpe -> {
           val be = layout.asInstanceOf[BatchedEntity]
@@ -50,7 +50,7 @@ object ConvertDates {
     implicit def simpleConvertDates[M <: Mode](implicit ev: DataFrame =:= M#Layout) = new ConvertDates[M] {
       override def transform(input: In): Out = {
         if (input.definition.useTimestamp) {
-          throw new IllegalArgumentException("Already using timestamp for dates")
+          throw new AssertionError("Already using timestamp for dates")
         }
 
         val modifiedEntities = input.entities
