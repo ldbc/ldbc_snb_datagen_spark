@@ -23,10 +23,20 @@ else
 fi
 
 echo "Installing Pyenv"
-git clone https://github.com/pyenv/pyenv.git ~/.pyenv
-echo 'export PYENV_ROOT="${HOME}/.pyenv"' >> ~/.bashrc
-echo 'export PATH="${PYENV_ROOT}/bin:${PATH}"' >> ~/.bashrc
-git clone https://github.com/pyenv/pyenv-virtualenv.git ${HOME}/.pyenv/plugins/pyenv-virtualenv
+if [ ! -d "${HOME}/.pyenv" ] && [ -n "${PYENV_ROOT-}" ]; then
+    git clone https://github.com/pyenv/pyenv.git ${HOME}/.pyenv
+    echo 'export PYENV_ROOT="${HOME}/.pyenv"' >> ${HOME}/.bashrc
+    echo 'export PATH="${PYENV_ROOT}/bin:${PATH}"' >> ${HOME}/.bashrc
+else
+    echo "Pyenv is already installed"
+fi
+
+echo "Installing Pyenv virtualenv plugin"
+if [ ! -d "${HOME}/.pyenv/plugins/pyenv-virtualenv" ]; then
+    git clone https://github.com/pyenv/pyenv-virtualenv.git ${HOME}/.pyenv/plugins/pyenv-virtualenv
+else
+    echo "Pyenv virtualenv plugin is already installed"
+fi
 
 echo "Installing Pyenv's dependencies"
 if [[ ! -z $(which yum) ]]; then
