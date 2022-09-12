@@ -164,6 +164,20 @@ object FactorGenerationStage extends DatagenStage with Logging {
   import model.raw._
 
   private val rawFactors = Map(
+    "messageIds" -> Factor(CommentType, PostType) { case Seq(comments, posts) =>
+      val messages =
+        (comments.select($"creationDate", $"deletionDate", $"id".as("MessageId"))
+        |+| posts.select($"creationDate", $"deletionDate", $"id".as("MessageId"))
+        )
+        .select(
+          date_trunc("day", $"creationDate").as("creationDay"),
+          date_trunc("day", $"deletionDate").as("deletionDay"),
+          $"MessageId")
+      val sampleSize = 20000
+        val count = messages.count()
+        val sampleFraction = Math.min(sampleSize / count, 1.0)
+        messages.sample(sampleFraction, 42)
+    },
     "countryNumPersons" -> Factor(PlaceType, PersonType) { case Seq(places, persons) =>
       val cities    = places.where($"type" === "City").cache()
       val countries = places.where($"type" === "Country").cache()
