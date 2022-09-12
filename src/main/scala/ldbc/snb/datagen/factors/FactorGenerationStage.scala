@@ -375,7 +375,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
       val allKnows      = undirectedKnows(knows).cache()
       val minSampleSize = 100.0
 
-      val chinesePeopleSample = (relations: DataFrame) => {
+      val peopleInChinaSample = (relations: DataFrame) => {
         val peopleInChina = person
           .as("Person")
           .join(cities.as("City"), $"City.id" === $"Person.LocationCityId")
@@ -402,7 +402,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
           allKnows,
           n = 4,
           joinKeys = ("Person2Id", "Person1Id"),
-          sample = Some(chinesePeopleSample)
+          sample = Some(peopleInChinaSample)
         )
         .join(person.as("Person1"), $"Person1.id" === $"Person1Id")
         .join(person.as("Person2"), $"Person2.id" === $"Person1Id")
@@ -423,7 +423,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
       val allKnows      = undirectedKnows(knows).cache()
       val minSampleSize = 100.0
 
-      val chinesePeopleSample = (relations: DataFrame) => {
+      val peopleInChinaSample = (relations: DataFrame) => {
         val peopleInChina = person
           .as("Person")
           .join(cities.as("City"), $"City.id" === $"Person.LocationCityId")
@@ -450,7 +450,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
           allKnows,
           n = 2,
           joinKeys = ("Person2Id", "Person1Id"),
-          sample = Some(chinesePeopleSample)
+          sample = Some(peopleInChinaSample)
         )
         .join(person.as("Person1"), $"Person1.id" === $"Person1Id")
         .join(person.as("Person2"), $"Person2.id" === $"Person1Id")
