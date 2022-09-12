@@ -3,7 +3,7 @@
 set -eu
 cd "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-
+echo "Installing sbt"
 if [[ ! -z $(which yum) ]]; then
     sudo rm -f /etc/yum.repos.d/bintray-rpm.repo
     curl -L https://www.scala-sbt.org/sbt-rpm.repo > sbt-rpm.repo
@@ -21,3 +21,10 @@ elif [[ ! -z $(which apt-get) ]]; then
 else
     echo "Operating system not supported, please install the dependencies manually"
 fi
+
+echo "Installing Pyenv"
+git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bash_profile
+echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bash_profile
+. ~/.bash_profile
+git clone https://github.com/pyenv/pyenv-virtualenv.git $(pyenv root)/plugins/pyenv-virtualenv
