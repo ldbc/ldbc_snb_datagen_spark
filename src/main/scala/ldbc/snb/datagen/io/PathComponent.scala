@@ -1,6 +1,6 @@
 package ldbc.snb.datagen.io
 
-import ldbc.snb.datagen.model.{GraphLike, Mode}
+import ldbc.snb.datagen.model.{GraphDef, Mode}
 
 trait PathComponent[A] {
   def path(a: A): String
@@ -11,7 +11,7 @@ object PathComponent {
 
   private def pure[A](f: A => String) = new PathComponent[A] { override def path(a: A): String = f(a) }
 
-  implicit def pathComponentForGraphDef[M <: Mode] = pure((g: GraphLike[M]) => {
+  implicit def pathComponentForGraphDef[M <: Mode] = pure((g: GraphDef[M]) => {
     val explodedPart = g match {
       case g if g.isAttrExploded && g.isEdgesExploded => "singular-projected-fk"
       case g if g.isAttrExploded                      => "singular-merged-fk"

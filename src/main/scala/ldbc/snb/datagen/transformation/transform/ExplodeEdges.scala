@@ -12,6 +12,9 @@ import shapeless.lens
 
 object ExplodeEdges extends Transform[Mode.Raw.type, Mode.Raw.type] {
   override def transform(input: In): Out = {
+    if (input.definition.isEdgesExploded) {
+          throw new AssertionError("Edges already exploded in the input graph")
+        }
     val entities = input.entities
 
     def explodedEdge(edge: Edge, node: DataFrame, column: Column) = {
@@ -24,7 +27,7 @@ object ExplodeEdges extends Transform[Mode.Raw.type, Mode.Raw.type] {
       }
     }
 
-    val updatedEntities = entities
+    val modifiedEntities = entities
       .collect {
         case (k @ OrganisationType, v) =>
           Map(
@@ -74,9 +77,16 @@ object ExplodeEdges extends Transform[Mode.Raw.type, Mode.Raw.type] {
             k -> v.drop("CreatorPersonId", "LocationCountryId", "ContainerForumId")
           )
       }
+
+    val updatedEntities = modifiedEntities
       .foldLeft(entities)(_ ++ _)
 
+    val updatedEntityDefinitions = modifiedEntities
+      .foldLeft(input.definition.entities) { (e, v) =>
+        e ++ v.map{ case (k, v) => k -> Some(v.schema.toDDL) }
+      }
+
     val l = lens[In]
-    (l.isEdgesExploded ~ l.entities).set(input)((true, updatedEntities))
+    (l.definition.isEdgesExploded ~ l.definition.entities ~ l.entities).set(input)((true, updatedEntityDefinitions, updatedEntities))
   }
 }

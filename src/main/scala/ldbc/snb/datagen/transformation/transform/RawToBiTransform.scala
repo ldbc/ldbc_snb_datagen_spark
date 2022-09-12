@@ -23,7 +23,7 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
     case "day"    => "yyyy-MM-dd"
     case "hour"   => "yyyy-MM-dd'T'hh"
     case "minute" => "yyyy-MM-dd'T'hh:mm"
-    case _        => throw new IllegalStateException("Unrecognized partition key")
+    case _        => throw new IllegalArgumentException("Unrecognized partition key")
   }
 
   private def notDerived(entityType: EntityType): Boolean = entityType match {
@@ -79,6 +79,16 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
               None
           )
       }
-    Graph[Mode.BI](isAttrExploded = input.isAttrExploded, isEdgesExploded = input.isEdgesExploded, mode, entities)
+
+    Graph[Mode.BI](
+      GraphDef[Mode.BI](
+        isAttrExploded = input.definition.isAttrExploded,
+        isEdgesExploded = input.definition.isEdgesExploded,
+        useTimestamp = input.definition.useTimestamp,
+        mode = mode,
+        entities = input.definition.entities
+      ),
+      entities
+    )
   }
 }
