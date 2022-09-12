@@ -486,7 +486,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
       frequency(person, value = $"id", by = Seq($"firstName"))
     },
     // friends
-    "personNumFriendsOfFriends" -> Factor(PersonKnowsPersonType, PersonType) { case Seq(personKnowsPerson, person1) =>
+    "personNumFriendsOfFriendsOfFriends" -> Factor(PersonKnowsPersonType, PersonType) { case Seq(personKnowsPerson, person1) =>
       // direct friends
       val knows1 = person1
         .as("Person1")
@@ -511,7 +511,21 @@ object FactorGenerationStage extends DatagenStage with Logging {
         agg = sum
       ).select($"Person1Id", $"creationDate", $"deletionDate", $"numFriends", $"frequency".as("numFriendsOfFriends"))
 
-      personNumFriendsOfFriends
+      // friends of friends of friends
+      val personFriendsOfFriendsOfFriends = personNumFriendsOfFriends.as("personNumFriendsOfFriends1")
+        .join(undirectedKnows(personKnowsPerson).as("knows"),            $"personNumFriendsOfFriends1.Person1Id" === $"knows.Person1Id", "leftouter")
+        .join(personNumFriendsOfFriends.as("personNumFriendsOfFriends2"),$"personNumFriendsOfFriends2.Person1Id" === $"knows.Person2Id", "leftouter")
+
+      val personNumFriendsOfFriendsOfFriends = frequency(
+        personFriendsOfFriendsOfFriends,
+        value = $"personNumFriendsOfFriends2.numFriendsOfFriends",
+        by = Seq($"personNumFriendsOfFriends1.Person1Id",
+                 $"personNumFriendsOfFriends1.creationDate", $"personNumFriendsOfFriends1.deletionDate",
+                 $"personNumFriendsOfFriends1.numFriends", $"personNumFriendsOfFriends1.numFriendsOfFriends"),
+        agg = sum
+      ).select($"Person1Id", $"creationDate", $"deletionDate", $"numFriends", $"numFriendsOfFriends", $"frequency".as("numFriendsOfFriendsOfFriends"))
+
+      personNumFriendsOfFriendsOfFriends
     },
     // posts
     "personNumFriendOfFriendPosts" -> Factor(PersonType, PersonKnowsPersonType, PostType) { case Seq(person, personKnowsPerson, post) =>
