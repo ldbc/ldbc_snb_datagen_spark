@@ -27,3 +27,12 @@ git clone https://github.com/pyenv/pyenv.git ~/.pyenv
 echo 'export PYENV_ROOT="${HOME}/.pyenv"' >> ~/.bashrc
 echo 'export PATH="${PYENV_ROOT}/bin:${PATH}"' >> ~/.bashrc
 git clone https://github.com/pyenv/pyenv-virtualenv.git ${HOME}/.pyenv/plugins/pyenv-virtualenv
+
+echo "Installing Pyenv's dependencies"
+if [[ ! -z $(which yum) ]]; then
+    sudo yum install -y patch
+elif [[ ! -z $(which apt-get) ]]; then
+    sudo apt-get install -y patch
+else
+    echo "Operating system not supported, please install the dependencies manually"
+fi
