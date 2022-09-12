@@ -58,20 +58,26 @@ Spark 3.2.x is the recommended runtime to use. The rest of the instructions are 
 To place Spark under `/opt/`:
 
 ```bash
-curl https://archive.apache.org/dist/spark/spark-3.2.2/spark-3.2.2-bin-hadoop3.2.tgz | sudo tar -xz -C /opt/
-export SPARK_HOME="/opt/spark-3.2.2-bin-hadoop3.2"
-export PATH="${SPARK_HOME}/bin":"${PATH}"
+scripts/get-spark-to-opt.sh
 ```
 
-To place under `~/`:
+To place it under `${HOME}/`:
 
 ```bash
-curl https://archive.apache.org/dist/spark/spark-3.2.2/spark-3.2.2-bin-hadoop3.2.tgz | tar -xz -C ~/
-export SPARK_HOME=~/spark-3.2.2-bin-hadoop3.2
-export PATH="${SPARK_HOME}/bin":"${PATH}"
+scripts/get-spark-to-home.sh
 ```
 
 Both Java 8 and Java 11 are supported.
+
+#### Building the project
+
+Run:
+
+```bash
+scripts/build.sh
+```
+
+#### Running the generator
 
 Once you have Spark in place and built the JAR file, run the generator as follows:
 
@@ -90,7 +96,7 @@ The runtime configuration arguments determine the amount of memory, number of th
 ./tools/run.py --help
 ```
 
-To generate a single `part-*.csv` file, reduce the parallelism (number of Spark partitions) to 1.
+To generate a single `part-*` file, reduce the parallelism (number of Spark partitions) to 1.
 
 ```bash
 ./tools/run.py --parallelism 1 -- --format csv --scale-factor 0.003 --mode interactive
