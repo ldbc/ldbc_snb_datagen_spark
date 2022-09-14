@@ -169,6 +169,7 @@ It is also possible to pass a parameter file:
 ```
 
 ### Docker images
+
 SNB Datagen images are available via [Docker Hub](https://hub.docker.com/orgs/ldbc/repositories).
 The image tags follow the pattern `${DATAGEN_VERSION/+/-}-${PLATFORM_VERSION}`, e.g `ldbc/datagen-standalone:0.5.0-2.12_spark3.2`.
 
@@ -178,18 +179,29 @@ When building images ensure that you [use BuildKit](https://docs.docker.com/deve
 
 The standalone image bundles Spark with the JAR and Python helpers, so you can run a workload in a container similarly to a local run, as you can
 see in this example:
+
 ```bash
-mkdir -p out_sf0.003_interactive   # create output directory
+export SF=0.003
+mkdir -p out_sf${SF}_bi   # create output directory
 docker run \
-    --mount type=bind,source="$(pwd)"/out_sf0.003_interactive,target=/out \
+    --mount type=bind,source="$(pwd)"/out_sf${SF}_bi,target=/out \
     --mount type=bind,source="$(pwd)"/conf,target=/conf,readonly \
     -e SPARK_CONF_DIR=/conf \
-    ldbc/datagen-standalone:${DATAGEN_VERSION/+/-}-${PLATFORM_VERSION} --parallelism 1 -- --format csv --scale-factor 0.003 --mode interactive
+    ldbc/datagen-standalone:${DATAGEN_VERSION/+/-}-${PLATFORM_VERSION} \
+    --parallelism 1 \
+    -- \
+    --format csv \
+    --scale-factor ${SF} \
+    --mode bi \
+    --generate-factors
 ```
 
 The standalone Docker image can be built with the provided Dockerfile. To build, execute the following command from the repository directory:
 
 ```bash
+export PLATFORM_VERSION=$(sbt -batch -error 'print platformVersion')
+export DATAGEN_VERSION=$(sbt -batch -error 'print version')
+export DOCKER_BUILDKIT=1
 docker build . --target=standalone -t ldbc/datagen-standalone:${DATAGEN_VERSION/+/-}-${PLATFORM_VERSION}
 ```
 
