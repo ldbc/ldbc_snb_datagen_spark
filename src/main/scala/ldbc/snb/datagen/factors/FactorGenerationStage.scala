@@ -173,10 +173,10 @@ object FactorGenerationStage extends DatagenStage with Logging {
           date_trunc("day", $"creationDate").as("creationDay"),
           date_trunc("day", $"deletionDate").as("deletionDay"),
           $"MessageId")
-      val sampleSize = 20000
-        val count = messages.count()
-        val sampleFraction = Math.min(sampleSize / count, 1.0)
-        messages.sample(sampleFraction, 42)
+      val sampleSize = 20000.0
+      val count = messages.count()
+      val sampleFraction = Math.min(sampleSize / count, 1.0)
+      messages.sample(sampleFraction, 42)
     },
     "countryNumPersons" -> Factor(PlaceType, PersonType) { case Seq(places, persons) =>
       val cities    = places.where($"type" === "City").cache()
