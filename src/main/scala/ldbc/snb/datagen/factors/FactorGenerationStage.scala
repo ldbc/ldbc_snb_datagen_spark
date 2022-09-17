@@ -751,7 +751,30 @@ object FactorGenerationStage extends DatagenStage with Logging {
       val counts = cc.groupBy("Component").agg(count("*").as("count"))
 
       cc.join(counts, Seq("Component")).select("PersonId", "Component", "count")
-
-    }
+    },
+    "personKnowsPersonDays" -> LargeFactor(PersonKnowsPersonType) { case Seq(personKnowsPerson) =>
+      personKnowsPerson.select($"Person1Id", $"Person2Id",
+        date_trunc("day", $"creationDate").as("creationDay"),
+        date_trunc("day", $"deletionDate").as("deletionDay")
+      )
+    },
+    "personStudyAtUniversityDays" -> LargeFactor(PersonStudyAtUniversityType) { case Seq(personStudyAtUniversity) =>
+      personStudyAtUniversity.select($"PersonId", $"UniversityId",
+        date_trunc("day", $"creationDate").as("creationDay"),
+        date_trunc("day", $"deletionDate").as("deletionDay")
+      )
+    },
+    "personWorkAtCompanyDays" -> LargeFactor(PersonWorkAtCompanyType) { case Seq(personWorkAtCompany) =>
+      personWorkAtCompany.select($"PersonId", $"CompanyId",
+        date_trunc("day", $"creationDate").as("creationDay"),
+        date_trunc("day", $"deletionDate").as("deletionDay")
+      )
+    },
+    "personDays" -> LargeFactor(PersonType) { case Seq(person) =>
+      person.select($"id",
+        date_trunc("day", $"creationDate").as("creationDay"),
+        date_trunc("day", $"deletionDate").as("deletionDay")
+      )
+    },
   )
 }
