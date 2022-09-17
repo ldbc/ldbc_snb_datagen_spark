@@ -14,28 +14,28 @@ object raw {
       id: Long,
       firstName: String,
       lastName: String,
-      `gender`: String,
-      `birthday`: Long,
-      `locationIP`: String,
-      `browserUsed`: String,
-      `LocationCityId`: Int,
-      `language`: String,
-      `email`: String
+      gender: String,
+      birthday: Long,
+      locationIP: String,
+      browserUsed: String,
+      LocationCityId: Int,
+      language: String,
+      email: String
   ) extends RawEntity
 
   case class PersonHasInterestTag(
       creationDate: Long,
       deletionDate: Long,
-      `PersonId`: Long,
-      `TagId`: Int
+      PersonId: Long,
+      TagId: Int
   ) extends RawEntity
 
   case class PersonKnowsPerson(
       creationDate: Long,
       deletionDate: Long,
       explicitlyDeleted: Boolean,
-      `Person1Id`: Long,
-      `Person2Id`: Long
+      Person1Id: Long,
+      Person2Id: Long
   ) extends RawEntity
 
   case class PersonStudyAtUniversity(
@@ -60,22 +60,22 @@ object raw {
       explicitlyDeleted: Boolean,
       id: Long,
       title: String,
-      `ModeratorPersonId`: Long
+      ModeratorPersonId: Long
   ) extends RawEntity
 
   case class ForumHasMember(
       creationDate: Long,
       deletionDate: Long,
       explicitlyDeleted: Boolean,
-      `ForumId`: Long,
-      `PersonId`: Long
+      ForumId: Long,
+      PersonId: Long
   ) extends RawEntity
 
   case class ForumHasTag(
       creationDate: Long,
       deletionDate: Long,
-      `ForumId`: Long,
-      `TagId`: Int
+      ForumId: Long,
+      TagId: Int
   ) extends RawEntity
 
   case class Comment(
@@ -83,21 +83,21 @@ object raw {
       deletionDate: Long,
       explicitlyDeleted: Boolean,
       id: Long,
-      `locationIP`: String,
-      `browserUsed`: String,
-      `content`: String,
-      `length`: Int,
-      `CreatorPersonId`: Long,
-      `LocationCountryId`: Int,
-      `ParentPostId`: Option[Long],
-      `ParentCommentId`: Option[Long]
+      locationIP: String,
+      browserUsed: String,
+      content: String,
+      length: Int,
+      CreatorPersonId: Long,
+      LocationCountryId: Int,
+      ParentPostId: Option[Long],
+      ParentCommentId: Option[Long]
   ) extends RawEntity
 
   case class CommentHasTag(
       creationDate: Long,
       deletionDate: Long,
-      `CommentId`: Long,
-      `TagId`: Int
+      CommentId: Long,
+      TagId: Int
   ) extends RawEntity
 
   case class Post(
@@ -111,32 +111,32 @@ object raw {
       language: Option[String],
       content: Option[String],
       length: Int,
-      `CreatorPersonId`: Long,
-      `ContainerForumId`: Long,
-      `LocationCountryId`: Long
+      CreatorPersonId: Long,
+      ContainerForumId: Long,
+      LocationCountryId: Long
   ) extends RawEntity
 
   case class PostHasTag(
       creationDate: Long,
       deletionDate: Long,
-      `PostId`: Long,
-      `TagId`: Int
+      PostId: Long,
+      TagId: Int
   ) extends RawEntity
 
   case class PersonLikesPost(
       creationDate: Long,
       deletionDate: Long,
       explicitlyDeleted: Boolean,
-      `PersonId`: Long,
-      `PostId`: Long
+      PersonId: Long,
+      PostId: Long
   ) extends RawEntity
 
   case class PersonLikesComment(
       creationDate: Long,
       deletionDate: Long,
       explicitlyDeleted: Boolean,
-      `PersonId`: Long,
-      `CommentId`: Long
+      PersonId: Long,
+      CommentId: Long
   ) extends RawEntity
 
   case class Organisation(
@@ -144,7 +144,7 @@ object raw {
       `type`: String,
       name: String,
       url: String,
-      `LocationPlaceId`: Int
+      LocationPlaceId: Int
   ) extends RawEntity
 
   case class Place(
@@ -152,21 +152,21 @@ object raw {
       name: String,
       url: String,
       `type`: String,
-      `PartOfPlaceId`: Option[Int]
+      PartOfPlaceId: Option[Int]
   ) extends RawEntity
 
   case class Tag(
       id: Int,
       name: String,
       url: String,
-      `TypeTagClassId`: Int
+      TypeTagClassId: Int
   ) extends RawEntity
 
   case class TagClass(
       id: Int,
       name: String,
       url: String,
-      `SubclassOfTagClassId`: Option[Int]
+      SubclassOfTagClassId: Option[Int]
   ) extends RawEntity
 
   val OrganisationType            = Node("Organisation", isStatic = true)
