@@ -226,6 +226,8 @@ docker build . --target=jar -t ldbc/datagen-jar:${DATAGEN_VERSION/+/-}-${PLATFOR
 To release a new snapshot version on Docker Hub, run:
 
 ```bash
+docker tag ldbc/datagen-jar:${DATAGEN_VERSION/+/-}-${PLATFORM_VERSION} ldbc/datagen-jar:latest
+docker push ldbc/datagen-jar:latest
 docker tag ldbc/datagen-standalone:${DATAGEN_VERSION/+/-}-${PLATFORM_VERSION} ldbc/datagen-standalone:latest
 docker push ldbc/datagen-standalone:latest
 ```
