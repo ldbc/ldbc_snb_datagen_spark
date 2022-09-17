@@ -206,6 +206,7 @@ docker build . --target=standalone -t ldbc/datagen-standalone:${DATAGEN_VERSION/
 ```
 
 #### JAR-only image
+
 The `ldbc/datagen-jar` image contains the assembly JAR, so it can bundled in your custom container:
 
 ```docker
@@ -219,6 +220,18 @@ The JAR-only Docker image can be built with the provided Dockerfile. To build, e
 ```bash
 docker build . --target=jar -t ldbc/datagen-jar:${DATAGEN_VERSION/+/-}-${PLATFORM_VERSION}
 ```
+
+#### Pushing to Docker Hub
+
+To release a new snapshot version on Docker Hub, run:
+
+```bash
+docker tag ldbc/datagen-standalone:${DATAGEN_VERSION/+/-}-${PLATFORM_VERSION} ldbc/datagen-standalone:latest
+docker push ldbc/datagen-standalone:latest
+```
+
+To release a new stable version, create a new Git tag (e.g. by creating a new release on GitHub), then build the Docker image and push it.
+
 ### Elastic MapReduce
 
 We provide scripts to run Datagen on AWS EMR. See the README in the [`./tools/emr`](tools/emr) directory for details.
