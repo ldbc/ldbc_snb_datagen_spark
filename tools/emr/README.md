@@ -37,8 +37,6 @@ Install the required libraries as described in the [main README](../../README.md
 1. Upload the JAR to S3.
 
 ```bash
-export PLATFORM_VERSION=$(sbt -batch -error 'print platformVersion')
-export DATAGEN_VERSION=$(sbt -batch -error 'print version')
 export LDBC_SNB_DATAGEN_JAR=$(sbt -batch -error 'print assembly / assemblyOutputPath')
 export JAR_NAME=$(basename ${LDBC_SNB_DATAGEN_JAR})
 aws s3 cp ${LDBC_SNB_DATAGEN_JAR} s3://${BUCKET_NAME}/jars/${JAR_NAME}
@@ -107,7 +105,6 @@ We use EMR 6.6.0 by default, which packages Spark 3.2. You can use a different v
 Make sure that you have uploaded the right JAR first.
 
 ```bash
-PLATFORM_VERSION=2.12_spark3.1
 ./tools/emr/submit_datagen_job.py \
     --bucket ${BUCKET_NAME} \
     --jar ${JAR_NAME} \
