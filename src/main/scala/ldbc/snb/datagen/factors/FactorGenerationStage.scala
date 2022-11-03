@@ -173,6 +173,8 @@ object FactorGenerationStage extends DatagenStage with Logging {
           date_trunc("day", $"creationDate").as("creationDay"),
           date_trunc("day", $"deletionDate").as("deletionDay"),
           $"MessageId")
+        .orderBy($"MessageId")
+
       val sampleSize = 20000.0
       val count = messages.count()
       val sampleFraction = Math.min(sampleSize / count, 1.0)
@@ -407,6 +409,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
         log.info(s"Factor people4Hops: using ${sampleSize} samples (${sampleFraction * 100}%)")
 
         peopleInChina
+          .orderBy($"Person.id")
           .sample(sampleFraction, 42)
           .join(relations.alias("knows"), $"Person.id" === $"knows.Person1Id")
           .select($"knows.Person1Id".alias("Person1Id"), $"knows.Person2Id".alias("Person2Id"))
@@ -428,6 +431,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
           $"Person2.creationDate".as("Person2CreationDate"),
           $"Person2.deletionDate".as("Person2DeletionDate")
         )
+        .orderBy($"Person1Id", $"Person2Id")
 
       val sampleFractionPersonPairs = Math.min(10000.0 / personPairs.count(), 1.0)
       personPairs.sample(sampleFractionPersonPairs, 42)
@@ -455,6 +459,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
         log.info(s"Factor people4Hops: using ${sampleSize} samples (${sampleFraction * 100}%)")
 
         peopleInChina
+          .orderBy($"Person.id")
           .sample(sampleFraction, 42)
           .join(relations.alias("knows"), $"Person.id" === $"knows.Person1Id")
           .select($"knows.Person1Id".alias("Person1Id"), $"knows.Person2Id".alias("Person2Id"))
@@ -476,6 +481,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
           $"Person2.creationDate".as("Person2CreationDate"),
           $"Person2.deletionDate".as("Person2DeletionDate")
         )
+        .orderBy($"Person1Id", $"Person2Id")
 
       val sampleFractionPersonPairs = Math.min(10000.0 / personPairs.count(), 1.0)
       personPairs.sample(sampleFractionPersonPairs, 42)
