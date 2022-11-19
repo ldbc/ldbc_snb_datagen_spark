@@ -122,3 +122,11 @@ The generator allows the use of an optional parameter file. To use a parameter f
 ```bash
 aws s3 cp params-csv-basic-sf10000.ini s3://${BUCKET_NAME}/params/params-csv-basic-sf10000.ini
 ```
+
+### Determine the size of a data set
+
+Use the [s4cmd](https://github.com/bloomreach/s4cmd) CLI tool with the `du -r` (`--recursive`) option:
+
+```bash
+s4cmd du -r s3://${BUCKET_NAME}/path_to_data_set
+```
