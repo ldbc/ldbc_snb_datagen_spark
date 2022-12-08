@@ -574,31 +574,44 @@ object FactorGenerationStage extends DatagenStage with Logging {
       numFriendOfFriendPosts
     },
     // comments
-    "personNumFriendComments" -> Factor(PersonType, PersonKnowsPersonType, CommentType) { case Seq(person, personKnowsPerson, comment) =>
-      // direct comments
+    "personNumFriendOfFriendComments" -> Factor(PersonType, PersonKnowsPersonType, CommentType) { case Seq(person, personKnowsPerson, comment) =>
       val personComments = person
         .as("Person")
         .join(comment.as("Comment"), $"Comment.CreatorPersonId" === $"Person.id", "leftouter")
 
+      // direct comments
       val numPersonComments = frequency(
         personComments,
         value = $"Comment.id",
         by = Seq($"Person.id", $"Person.creationDate", $"Person.deletionDate"),
         agg = count
-      ).select($"Person.id".as("Person1Id"), $"Person.creationDate", $"Person.deletionDate", $"frequency".as("numDirectComments"))
+      ).select($"Person.id".as("Person1Id"), $"creationDate", $"deletionDate", $"frequency".as("numDirectComments"))
 
-      // friend comments
+      // comments of friends
       val friendComments = numPersonComments.as("numPersonComments1")
         .join(undirectedKnows(personKnowsPerson).as("knows"), $"numPersonComments1.Person1Id" === $"knows.Person1Id", "leftouter")
-        .join(numPersonComments.as("numPersonComments2"),     $"numPersonComments2.Person1Id" === $"knows.Person2Id", "leftouter")
+        .join(numPersonComments.as("numPersonComments2"),           $"numPersonComments2.Person1Id" === $"knows.Person2Id", "leftouter")
 
       val numFriendComments = frequency(
         friendComments,
         value = $"numPersonComments2.numDirectComments",
         by = Seq($"numPersonComments1.Person1Id", $"numPersonComments1.creationDate", $"numPersonComments1.deletionDate", $"numPersonComments1.numDirectComments"),
         agg = sum
-      ).select($"Person1Id", $"creationDate", $"deletionDate", $"numDirectComments", $"frequency".as("numFriendComments"))
-      numFriendComments
+      ).select($"numPersonComments1.Person1Id".as("Person1Id"), $"creationDate", $"deletionDate", $"numDirectComments", $"frequency".as("numFriendComments"))
+
+      // comments of friends of friends
+      val friendOfFriendComments = numFriendComments.as("numFriendComments1")
+        .join(undirectedKnows(personKnowsPerson).as("knows"), $"numFriendComments1.Person1Id" === $"knows.Person1Id", "leftouter")
+        .join(numFriendComments.as("numFriendComments2"),           $"numFriendComments2.Person1Id" === $"knows.Person2Id", "leftouter")
+
+      val numFriendOfFriendComments = frequency(
+        friendOfFriendComments,
+        value = $"numFriendComments2.numFriendComments",
+        by = Seq($"numFriendComments1.Person1Id", $"numFriendComments1.creationDate", $"numFriendComments1.deletionDate", $"numFriendComments1.numDirectComments", $"numFriendComments1.numFriendComments"),
+        agg = sum
+      ).select($"Person1Id", $"creationDate", $"deletionDate", $"numDirectComments", $"numFriendComments", $"frequency".as("numFriendOfFriendComments"))
+
+      numFriendOfFriendComments
     },
     // likes
     "personLikesNumMessages" -> Factor(PersonType, PersonLikesCommentType, PersonLikesPostType) { case Seq(person, personLikesComment, personLikesPost) =>
