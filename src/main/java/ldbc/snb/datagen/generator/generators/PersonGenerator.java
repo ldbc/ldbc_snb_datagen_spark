@@ -188,7 +188,7 @@ public class PersonGenerator {
         List<Integer> personLanguages = Dictionaries.languages.getLanguages(randomFarm
                         .get(RandomGeneratorFarm.Aspect.LANGUAGE),
                 person.getCountryId());
-        int internationalLang = Dictionaries.languages.getInternationlLanguage(randomFarm
+        int internationalLang = Dictionaries.languages.getInternationalLanguage(randomFarm
                 .get(RandomGeneratorFarm.Aspect.LANGUAGE));
         if (internationalLang != -1 && personLanguages.indexOf(internationalLang) == -1) {
             personLanguages.add(internationalLang);

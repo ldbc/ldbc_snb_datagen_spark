@@ -166,7 +166,7 @@ public class LanguageDictionary {
      * @return The language.
      * @brief Gets a random language.
      */
-    public int getInternationlLanguage(Random random) {
+    public int getInternationalLanguage(Random random) {
         Integer languageId = -1;
         if (random.nextDouble() < probEnglish) {
             languageId = languages.indexOf(ISO_ENGLISH_CODE);
