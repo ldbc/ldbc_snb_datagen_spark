@@ -59,12 +59,16 @@ To place Spark under `/opt/`:
 
 ```bash
 scripts/get-spark-to-opt.sh
+export SPARK_HOME="/opt/spark-3.2.2-bin-hadoop3.2"
+export PATH="${SPARK_HOME}/bin":"${PATH}"
 ```
 
 To place it under `${HOME}/`:
 
 ```bash
 scripts/get-spark-to-home.sh
+export SPARK_HOME="${HOME}/spark-3.2.2-bin-hadoop3.2"
+export PATH="${SPARK_HOME}/bin":"${PATH}"
 ```
 
 Both Java 8 and Java 11 are supported.
