@@ -4,6 +4,7 @@ import ldbc.snb.datagen.model.Cardinality._
 import ldbc.snb.datagen.model.EntityType._
 import ldbc.snb.datagen.model.Mode.BI
 import ldbc.snb.datagen.model._
+import ldbc.snb.datagen.model.raw.PersonType
 import ldbc.snb.datagen.syntax._
 import ldbc.snb.datagen.util.Logging
 import ldbc.snb.datagen.util.sql._
@@ -15,7 +16,11 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
     with Logging {
   log.debug(s"BI Transformation parameters: $mode")
 
-  val bulkLoadThreshold = RawToInteractiveTransform.calculateBulkLoadThreshold(mode.bulkloadPortion, simulationStart, simulationEnd)
+  val bulkLoadThreshold = calculateBulkLoadThreshold(mode.bulkloadPortion, simulationStart, simulationEnd)
+
+  def calculateBulkLoadThreshold(bulkLoadPortion: Double, simulationStart: Long, simulationEnd: Long) = {
+    (simulationEnd - ((simulationEnd - simulationStart) * (1 - bulkLoadPortion)).toLong)
+  }
 
   def batchPeriodFormat(batchPeriod: String) = batchPeriod match {
     case "year"   => "yyyy"
@@ -31,6 +36,30 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
     case Edge(_, _, _, NOne, _, _, _) => false
     case Attr(_, _, _, _) => false
     case _ => true
+  }
+
+  def columns(tpe: EntityType, cols: Seq[String]) = tpe match {
+    case tpe if tpe.isStatic => cols
+    case Edge("Knows", PersonType, PersonType, NN, false, _, _) =>
+      val rawCols = Set("deletionDate", "explicitlyDeleted", "weight")
+      cols.filter(!rawCols.contains(_))
+    case _ =>
+      val rawCols = Set("deletionDate", "explicitlyDeleted")
+      cols.filter(!rawCols.contains(_))
+  }
+
+  def snapshotPart(tpe: EntityType, df: DataFrame, bulkLoadThreshold: Long, filterDeletion: Boolean) = {
+    val filterBulkLoad = (ds: DataFrame) =>
+      ds
+        .filter(
+          $"creationDate" < lit(bulkLoadThreshold) &&
+            (!lit(filterDeletion) || $"deletionDate" >= lit(bulkLoadThreshold))
+        )
+
+    tpe match {
+      case tpe if tpe.isStatic => df
+      case tpe                 => filterBulkLoad(df).select(columns(tpe, df.columns).map(name => col(qualified(name))): _*)
+    }
   }
 
   override def transform(input: In): Out = {
@@ -53,7 +82,7 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
         .filter(inBatch($"creationDate", batchStart, batchEnd))
         .pipe(batched)
         .select(
-          Seq($"insert_batch_id".as("batch_id")) ++ RawToInteractiveTransform.columns(tpe, df.columns).map(qcol): _*
+          Seq($"insert_batch_id".as("batch_id")) ++ columns(tpe, df.columns).map(qcol): _*
         )
     }
 
@@ -71,7 +100,7 @@ case class RawToBiTransform(mode: BI, simulationStart: Long, simulationEnd: Long
         case (tpe, v) if tpe.isStatic => tpe -> BatchedEntity(v, None, None)
         case (tpe, v) =>
           tpe -> BatchedEntity(
-            RawToInteractiveTransform.snapshotPart(tpe, v, bulkLoadThreshold, filterDeletion = false),
+            snapshotPart(tpe, v, bulkLoadThreshold, filterDeletion = false),
             Some(Batched(insertBatchPart(tpe, v, bulkLoadThreshold, simulationEnd), Seq("batch_id"), Seq($"creationDate"))),
             if (notDerived(tpe) && (keepImplicitDeletes || v.columns.contains("explicitlyDeleted")))
               Some(Batched(deleteBatchPart(tpe, v, bulkLoadThreshold, simulationEnd), Seq("batch_id"), Seq($"deletionDate")))

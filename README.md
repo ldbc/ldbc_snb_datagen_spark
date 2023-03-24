@@ -103,7 +103,7 @@ The runtime configuration arguments determine the amount of memory, number of th
 To generate a single `part-*` file, reduce the parallelism (number of Spark partitions) to 1.
 
 ```bash
-./tools/run.py --parallelism 1 -- --format csv --scale-factor 0.003 --mode interactive
+./tools/run.py --parallelism 1 -- --format csv --scale-factor 0.003 --mode bi
 ```
 #### Generator configuration arguments
 
@@ -114,12 +114,6 @@ To get a complete list of the arguments, pass `--help` to the JAR file:
 ```bash
 ./tools/run.py -- --help
 ```
-
-* Generating `CsvBasic` files in **Interactive mode**:
-
-  ```bash
-  ./tools/run.py -- --format csv --scale-factor 0.003 --explode-edges --explode-attrs --mode interactive
-  ```
 
 * Generating `CsvCompositeMergeForeign` files in **BI mode** resulting in compressed `.csv.gz` files:
 
@@ -139,22 +133,22 @@ To get a complete list of the arguments, pass `--help` to the JAR file:
   ./tools/run.py -- --format csv --scale-factor 0.003 --mode raw --output-dir sf0.003-raw
   ```
 
-* Generating Parquet files:
+* Generating Parquet files in **BI mode**:
 
   ```bash
   ./tools/run.py -- --format parquet --scale-factor 0.003 --mode bi
   ```
 
-* Use epoch milliseconds encoded as longs (née `LongDateFormatter`) for serializing date and datetime values:
+* Use epoch milliseconds encoded as longs (née `LongDateFormatter`) for serializing date and datetime values in **BI mode**:
 
   ```bash
   ./tools/run.py -- --format csv --scale-factor 0.003 --mode bi --epoch-millis
   ```
 
-* For the `interactive` and `bi` formats, the `--format-options` argument allows passing formatting options such as timestamp/date formats, the presence/abscence of headers (see the [Spark formatting options](https://spark.apache.org/docs/2.4.8/api/scala/index.html#org.apache.spark.sql.DataFrameWriter) for details), and whether quoting the fields in the CSV required:
+* For the **BI mode**, the `--format-options` argument allows passing formatting options such as timestamp/date formats, the presence/abscence of headers (see the [Spark formatting options](https://spark.apache.org/docs/2.4.8/api/scala/index.html#org.apache.spark.sql.DataFrameWriter) for details), and whether quoting the fields in the CSV required:
 
   ```bash
-  ./tools/run.py -- --format csv --scale-factor 0.003 --mode interactive --format-options timestampFormat=MM/dd/y\ HH:mm:ss,dateFormat=MM/dd/y,header=false,quoteAll=true
+  ./tools/run.py -- --format csv --scale-factor 0.003 --mode bi --format-options timestampFormat=MM/dd/y\ HH:mm:ss,dateFormat=MM/dd/y,header=false,quoteAll=true
   ```
 
 To change the Spark configuration directory, adjust the `SPARK_CONF_DIR` environment variable.
@@ -163,7 +157,7 @@ A complex example:
 
 ```bash
 export SPARK_CONF_DIR=./conf
-./tools/run.py --parallelism 4 --memory 8G -- --format csv --format-options timestampFormat=MM/dd/y\ HH:mm:ss,dateFormat=MM/dd/y --explode-edges --explode-attrs --mode interactive --scale-factor 0.003
+./tools/run.py --parallelism 4 --memory 8G -- --format csv --format-options timestampFormat=MM/dd/y\ HH:mm:ss,dateFormat=MM/dd/y --explode-edges --explode-attrs --mode bi --scale-factor 0.003
 ```
 
 It is also possible to pass a parameter file:

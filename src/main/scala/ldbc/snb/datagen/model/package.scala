@@ -139,10 +139,6 @@ package object model {
       def datePattern     = "yyyy-MM-dd"
 
     }
-    final case class Interactive(bulkLoadPortion: Double) extends Mode {
-      type Layout = DataFrame
-      override val modePath: String = "interactive"
-    }
     final case class BI(bulkloadPortion: Double, batchPeriod: String) extends Mode {
       type Layout = BatchedEntity
       override val modePath: String = "bi"

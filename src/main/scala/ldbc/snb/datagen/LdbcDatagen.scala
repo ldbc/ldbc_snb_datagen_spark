@@ -67,12 +67,12 @@ object LdbcDatagen extends SparkApp {
       opt[String]('m', "mode")
         .validate(s =>
           lower(s) match {
-            case "raw" | "bi" | "interactive" => Right(())
-            case _                            => Left("Invalid value. Must be one of raw, bi, interactive")
+            case "raw" | "bi" => Right(())
+            case _            => Left("Invalid value. Must be one of raw and bi")
           }
         )
         .action((x, c) => args.mode.set(c)(x))
-        .text("Generation mode. Options: raw, bi, interactive. Default: raw")
+        .text("Generation mode. Options: raw, bi. Default: raw")
 
       opt[Double]("oversize-factor")
         .action((x, c) => args.oversizeFactor.set(c)(Some(x)))
@@ -84,7 +84,7 @@ object LdbcDatagen extends SparkApp {
 
       opt[Double]("bulkload-portion")
         .action((x, c) => args.bulkloadPortion.set(c)(x))
-        .text("Bulkload portion. Only applicable to BI and interactive modes")
+        .text("Bulkload portion. Only applicable to the BI mode")
 
       opt[Unit]('e', "explode-edges")
         .action((x, c) => args.explodeEdges.set(c)(true))
@@ -168,7 +168,6 @@ object LdbcDatagen extends SparkApp {
       simulationEnd = Dictionaries.dates.getSimulationEnd,
       mode = args.mode match {
         case "bi"          => Mode.BI(bulkloadPortion = args.bulkloadPortion, batchPeriod = args.batchPeriod)
-        case "interactive" => Mode.Interactive(bulkLoadPortion = args.bulkloadPortion)
         case "raw"         => Mode.Raw
       },
       irFormat,
