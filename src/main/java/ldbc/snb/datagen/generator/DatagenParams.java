@@ -232,7 +232,6 @@ public class DatagenParams {
     public static int startYear = 2010;
     public static int numYears = 3;
     public static boolean exportText = true;
-    public static int numUpdateStreams = 1;
 
     private static Integer intConf(GeneratorConfiguration conf, ParameterNames param) {
         return Integer.parseInt(conf.get(param.toString()));
@@ -311,7 +310,6 @@ public class DatagenParams {
             startYear = Integer.parseInt(conf.get("generator.startYear"));
             numYears = Integer.parseInt(conf.get("generator.numYears"));
             delta = Integer.parseInt(conf.get("generator.delta"));
-            numUpdateStreams = Integer.parseInt(conf.get("generator.mode.interactive.numUpdateStreams"));
             knowsGeneratorName = conf.get("generator.knowsGenerator");
             personSimularity = conf.get("generator.person.similarity");
             degreeDistributionName = conf.get("generator.degreeDistribution");
