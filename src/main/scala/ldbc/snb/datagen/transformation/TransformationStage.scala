@@ -48,7 +48,7 @@ object TransformationStage extends DatagenStage with Logging {
         at[Graph[M]](g => ConvertDates[M].transform(g))
     }
 
-    type Out = Graph[Mode.Raw.type] :+: Graph[Mode.Interactive] :+: Graph[Mode.BI] :+: CNil
+    type Out = Graph[Mode.Raw.type] :+: Graph[Mode.BI] :+: CNil
 
     GraphSource(model.graphs.Raw.graphDef, args.outputDir, args.irFormat).read
       .pipeFoldLeft(args.explodeAttrs.fork)((graph, _: Unit) => ExplodeAttrs.transform(graph))
@@ -56,8 +56,6 @@ object TransformationStage extends DatagenStage with Logging {
       .pipe[Out] { g =>
         args.mode match {
           case bi @ Mode.BI(_, _) => Coproduct[Out](RawToBiTransform(bi, args.simulationStart, args.simulationEnd, args.keepImplicitDeletes).transform(g))
-          case interactive @ Mode.Interactive(_) =>
-            Coproduct[Out](RawToInteractiveTransform(interactive, args.simulationStart, args.simulationEnd).transform(g))
           case Mode.Raw => Coproduct[Out](g)
         }
       }
