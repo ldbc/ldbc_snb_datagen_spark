@@ -36,25 +36,25 @@ Install the required libraries as described in the [main README](../../README.md
 
 1. Upload the JAR to S3.
 
-```bash
-export LDBC_SNB_DATAGEN_JAR=$(sbt -batch -error 'print assembly / assemblyOutputPath')
-export JAR_NAME=$(basename ${LDBC_SNB_DATAGEN_JAR})
-aws s3 cp ${LDBC_SNB_DATAGEN_JAR} s3://${BUCKET_NAME}/jars/${JAR_NAME}
-```
+    ```bash
+    export LDBC_SNB_DATAGEN_JAR=$(sbt -batch -error 'print assembly / assemblyOutputPath')
+    export JAR_NAME=$(basename ${LDBC_SNB_DATAGEN_JAR})
+    aws s3 cp ${LDBC_SNB_DATAGEN_JAR} s3://${BUCKET_NAME}/jars/${JAR_NAME}
+    ```
 
 1. Submit the job. Run with `--help` for customization options.
 
-```bash
-JOB_NAME=MyTest
-SCALE_FACTOR=10
-./tools/emr/submit_datagen_job.py \
-    --bucket ${BUCKET_NAME} \
-    --jar ${JAR_NAME} \
-    ${JOB_NAME} \
-    ${SCALE_FACTOR} \
-    csv \
-    raw
-```
+    ```bash
+    JOB_NAME=MyTest
+    SCALE_FACTOR=10
+    ./tools/emr/submit_datagen_job.py \
+        --bucket ${BUCKET_NAME} \
+        --jar ${JAR_NAME} \
+        ${JOB_NAME} \
+        ${SCALE_FACTOR} \
+        csv \
+        raw
+    ```
 
 Note: scale factors below 1 are not supported.
 
