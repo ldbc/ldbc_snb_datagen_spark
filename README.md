@@ -71,7 +71,7 @@ export SPARK_HOME="${HOME}/spark-3.2.2-bin-hadoop3.2"
 export PATH="${SPARK_HOME}/bin":"${PATH}"
 ```
 
-Both Java 8 and Java 11 are supported.
+Both Java 8 and Java 11 are supported, but Java 17 is not (Spark 3.2.2 will fail, since it uses internal Java APIs and does not set the permissions appropriately).
 
 #### Building the project
 
