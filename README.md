@@ -115,13 +115,13 @@ To get a complete list of the arguments, pass `--help` to the JAR file:
 ./tools/run.py -- --help
 ```
 
-* Generating `CsvCompositeMergeForeign` files in **BI mode** resulting in compressed `.csv.gz` files:
+* Generating `csv-composite-merged-fk` files in **BI mode** resulting in compressed `.csv.gz` files:
 
   ```bash
   ./tools/run.py -- --format csv --scale-factor 0.003 --mode bi --format-options compression=gzip
   ```
 
-* Generating `CsvCompositeMergeForeign` files in **BI mode** and generating factors:
+* Generating `csv-composite-merged-fk` files in **BI mode** and generating factors:
 
   ```bash
   ./tools/run.py -- --format csv --scale-factor 0.003 --mode bi --generate-factors
@@ -139,7 +139,7 @@ To get a complete list of the arguments, pass `--help` to the JAR file:
   ./tools/run.py -- --format parquet --scale-factor 0.003 --mode bi
   ```
 
-* Use epoch milliseconds encoded as longs (née `LongDateFormatter`) for serializing date and datetime values in **BI mode**:
+* Use epoch milliseconds encoded as longs for serializing date and datetime values in **BI mode** (this is equivalent to using the [`LongDateFormatter` in the Hadoop Datagen](https://github.com/ldbc/ldbc_snb_datagen_hadoop/blob/v0.3.8/src/main/java/ldbc/snb/datagen/util/formatter/LongDateFormatter.java)):
 
   ```bash
   ./tools/run.py -- --format csv --scale-factor 0.003 --mode bi --epoch-millis
@@ -149,6 +149,24 @@ To get a complete list of the arguments, pass `--help` to the JAR file:
 
   ```bash
   ./tools/run.py -- --format csv --scale-factor 0.003 --mode bi --format-options timestampFormat=MM/dd/y\ HH:mm:ss,dateFormat=MM/dd/y,header=false,quoteAll=true
+  ```
+
+* The `--explode-attrs` argument implies one of the `csv-singular-{projected-fk,merged-fk}` formats, which has separate files to store multi-valued attributes (`email`, `speaks`).
+
+  ```bash
+  ./tools/run.py -- --format csv --scale-factor 0.003 --mode bi --explode-attrs
+  ```
+
+* The `--explode-edges` argument implies one of the `csv-{composite,singular}-projected-fk` formats, which has separate files to store many-to-one edges (e.g. `Person_isLocatedIn_City`, `Tag_hasType_TagClass`, etc.).
+
+  ```bash
+  ./tools/run.py -- --format csv --scale-factor 0.003 --mode bi --explode-edges
+  ```
+
+* The `--explode-attrs`  and `--explode-edges` arguments together imply the `csv-singular-projected-fk` format:
+
+  ```bash
+  ./tools/run.py -- --format csv --scale-factor 0.003 --mode bi --explode-attrs --explode-edges
   ```
 
 To change the Spark configuration directory, adjust the `SPARK_CONF_DIR` environment variable.
