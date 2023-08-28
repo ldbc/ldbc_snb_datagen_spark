@@ -175,7 +175,7 @@ object FactorGenerationStage extends DatagenStage with Logging {
           $"MessageId")
         .orderBy($"MessageId")
 
-      val sampleSize = 20000.0
+      val sampleSize = 200.0
       val count = messages.count()
       val sampleFraction = Math.min(sampleSize / count, 1.0)
       messages.sample(sampleFraction, 42)
