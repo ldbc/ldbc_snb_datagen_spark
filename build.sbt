@@ -16,7 +16,7 @@ val sparkVersion = settingKey[String]("The version of Spark used for building.")
 val sparkCompatVersion = taskKey[String]("The compatibility version of Spark")
 val platformVersion = taskKey[String]("The version of the target platform")
 
-sparkVersion := "3.2.1"
+sparkVersion := "3.3.3"
 sparkCompatVersion := { sparkVersion.value.split("\\.", 3).take(2).mkString(".") }
 platformVersion := { scalaBinaryVersion.value + "_spark" + sparkCompatVersion.value }
 

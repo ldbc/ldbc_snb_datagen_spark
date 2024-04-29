@@ -51,15 +51,15 @@ pyenv activate
 
 The `./tools/run.py` script is intended for **local runs**. To use it, download and extract Spark as follows.
 
-#### Spark 3.2.x
+#### Spark 3.3.x
 
-Spark 3.2.x is the recommended runtime to use. The rest of the instructions are provided assuming Spark 3.2.x.
+Spark 3.3.x is the recommended runtime to use. The rest of the instructions are provided assuming Spark 3.3.x.
 
 To place Spark under `/opt/`:
 
 ```bash
 scripts/get-spark-to-opt.sh
-export SPARK_HOME="/opt/spark-3.2.2-bin-hadoop3.2"
+export SPARK_HOME="/opt/spark-3.3.3-bin-hadoop3"
 export PATH="${SPARK_HOME}/bin":"${PATH}"
 ```
 
@@ -67,11 +67,11 @@ To place it under `${HOME}/`:
 
 ```bash
 scripts/get-spark-to-home.sh
-export SPARK_HOME="${HOME}/spark-3.2.2-bin-hadoop3.2"
+export SPARK_HOME="${HOME}/spark-3.3.3-bin-hadoop3"
 export PATH="${SPARK_HOME}/bin":"${PATH}"
 ```
 
-Both Java 8 and Java 11 are supported, but Java 17 is not (Spark 3.2.2 will fail, since it uses internal Java APIs and does not set the permissions appropriately).
+Java 8, 11, and 17 are supported.
 
 #### Building the project
 

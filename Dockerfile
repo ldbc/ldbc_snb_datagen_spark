@@ -25,7 +25,7 @@ RUN . /tools/bin/activate && pip install .
 FROM python:3.7-slim as tools
 COPY --from=build-tools /tools /tools
 
-FROM bde2020/spark-master:3.2.1-hadoop3.2 as standalone
+FROM bde2020/spark-master:3.3.0-hadoop3.3 as standalone
 COPY --from=jar /jar /jar
 COPY --from=tools /tools /tools
 RUN ln -sf /usr/bin/python3 /tools/bin/python
