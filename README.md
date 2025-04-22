@@ -12,7 +12,6 @@ The LDBC SNB Data Generator (Datagen) produces the datasets for the [LDBC Social
 
 * The [Hadoop-based Datagen](https://github.com/ldbc/ldbc_snb_datagen_hadoop/) generates the Interactive workload's SF1-1000 data sets.
 * For the BI workload, use the Spark-based Datagen (in this repository).
-* For the Interactive workloads's larger data sets, see the [conversion script in the driver repository](https://github.com/ldbc/ldbc_snb_interactive_driver/blob/main/scripts/README.md).
 
 For each commit on the `main` branch, the CI deploys [freshly generated small data sets](https://ldbcouncil.org/ldbc_snb_datagen_spark/).
 
