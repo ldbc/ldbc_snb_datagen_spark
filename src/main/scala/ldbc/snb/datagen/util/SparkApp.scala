@@ -19,7 +19,8 @@ trait SparkApp {
     sparkConf.foldLeft(builder) { case (b, (k, v)) => b.config(k, v) }
 
   def defaultSparkConf: Map[String, String] = Map(
-    "spark.sql.session.timeZone" -> "GMT"
+    "spark.sql.session.timeZone" -> "GMT",
+    "spark.sql.parquet.outputTimestampType" -> "TIMESTAMP_MICROS"
   )
 
   protected lazy val env: SparkEnv = new SparkEnv

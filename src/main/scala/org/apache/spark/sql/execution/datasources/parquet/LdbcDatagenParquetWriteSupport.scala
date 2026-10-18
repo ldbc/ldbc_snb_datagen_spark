@@ -32,7 +32,7 @@ class LdbcDatagenParquetWriteSupport(dataSchema: StructType, compressionCodecCla
     conf.set(
       SQLConf.PARQUET_OUTPUT_TIMESTAMP_TYPE.key,
       // sparkSession.sessionState.conf.parquetOutputTimestampType.toString
-      "INT96"
+      "TIMESTAMP_MICROS"
     )
 
     inner.init(conf)
